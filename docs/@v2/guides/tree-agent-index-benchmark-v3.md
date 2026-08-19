@@ -1,14 +1,14 @@
 # Where the index pays and where the description already is one
 
-{% admonition type="info" name="Pilot" %}
-Measured on a build of PR #3005 at `0203f1081`: Opus 5 twice a cell, Sonnet 5 and Haiku 4.5 five times a cell.
-The full grid moves to a published snapshot once one carries this build.
+{% admonition type="info" name="Build" %}
+Measured on a build of PR #3005 at `0203f1081`, five runs a cell for every model.
+The grid moves to a published snapshot once one carries this build.
 {% /admonition %}
 
 The [second benchmark](./tree-agent-index-benchmark-v2.md) asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
-This one adds two descriptions chosen to be hard in new ways — Stripe, whose schemas are enormous, and DigitalOcean, which ships as 2,909 files with one operation each — and asks where an index still earns its place.
+This one adds three descriptions chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; and DigitalOcean, which ships as 2,909 files with one operation each — and asks where an index still earns its place.
 
-Five descriptions, three models, two conditions — 120 runs:
+Six descriptions, three models, two conditions, five runs a cell — 180 runs:
 
 - **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
 - **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select.
@@ -66,7 +66,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 | Model           |     no tree |         tree | Difference |
 | --------------- | ----------: | -----------: | ---------: |
 | Sonnet 5 (n=5)  | 12,492 / 12 |   11,336 / 9 |        −9% |
-| Opus 5 (n=2)    | 18,798 / 16 |  15,630 / 10 |       −17% |
+| Opus 5 (n=5)    | 16,870 / 11 |  14,681 / 11 |       −13% |
 | Haiku 4.5 (n=5) | 13,058 / 11 | 6,880 / 7 ❌ |          — |
 
 What those runs were billed:
@@ -74,7 +74,7 @@ What those runs were billed:
 | Model           | no tree |     tree | Difference |
 | --------------- | ------: | -------: | ---------: |
 | Sonnet 5 (n=5)  |   $0.39 |    $0.33 |       −15% |
-| Opus 5 (n=2)    |   $0.69 |    $0.62 |       −10% |
+| Opus 5 (n=5)    |   $0.63 |    $0.60 |        −5% |
 | Haiku 4.5 (n=5) |   $0.12 | $0.07 ❌ |          — |
 
 Whether each run produced a flow that would run:
@@ -88,6 +88,9 @@ Whether each run produced a flow that would run:
 | Sonnet 5 · run 5  | works                         | works        |
 | Opus 5 · run 1    | works                         | works        |
 | Opus 5 · run 2    | works                         | works        |
+| Opus 5 · run 3    | works                         | works        |
+| Opus 5 · run 4    | works                         | works        |
+| Opus 5 · run 5    | works                         | works        |
 | Haiku 4.5 · run 1 | no app token, no asset delete | no app token |
 | Haiku 4.5 · run 2 | no app token                  | no app token |
 | Haiku 4.5 · run 3 | no app token                  | no app token |
@@ -344,6 +347,119 @@ redocly tree github-api.yaml --format=ai --operation=apps/revoke-installation-ac
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+wc -l github-api.yaml; grep -n "^  /" github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -nE "^ *\"?/[a-z{]" github-api.yaml | grep -iE "release|asset|access_token"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; head -40 github-api.yaml; grep -n "releases" github-api.yaml | head -40
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "operationId: \(repos/create-release\|repos/upload-release-asset\|repos/delete-release-asset\|repos/get-release\|repos/update-release\|apps/create-installation-access-token\|repos/list-release-assets\|repos/get-release-asset\)$" github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '3400,3470p;53300,53440p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '53500,53560p;53880,53990p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "operationId: apps/get-repo-installation" github-api.yaml; sed -n '53660,53740p' github-api.yaml; grep -n "immutable" github-api.yaml | awk -F: '$1>53000 && $1<54200'
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=45818 && NR<=45870' github-api.yaml; grep -n "^    release-asset:" -A 40 github-api.yaml | grep -nE "state|^ *id:|name:|label:|browser_download_url" | head
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "X-GitHub-Api-Version" github-api.yaml | head -3; grep -n "^    installation:" github-api.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree github-api.yaml --format=ai --find "release" | head -60
+redocly tree github-api.yaml --format=ai --find "installation access token" | head -40
+redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token | head -60; echo ====; redocly tree github-api.yaml --format=ai --operation=repos/create-release | head -60
+redocly tree github-api.yaml --format=ai --find "upload release asset" | head -20; echo ====; redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/create-release | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset | head -40
+redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset | head -20
+redocly tree github-api.yaml --format=ai --find "repo installation app" | head -20
+redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation | head -20
+redocly tree github-api.yaml --format=ai --component=schemas --name=installation-token | head -30
+redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"contents":{[^}]*}' | head -5
+redocly tree github-api.yaml --format=ai --component=schemas --name=release | head -8
+redocly tree github-api.yaml --format=ai --operation=repos/check-immutable-releases | head -12
+redocly tree github-api.yaml --format=ai --operation=repos/update-release | head -12
+redocly tree github-api.yaml --format=ai --component=schemas --name=release-asset | head -3
+redocly tree github-api.yaml --format=ai --operation=apps/revoke-installation-access-token | head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+wc -l github-api.yaml; grep -n "^  /" github-api.yaml | head -100
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^paths:\|^components:\|^  \/" github-api.yaml | head -20; echo ---; grep -nE "^ *'?/[a-z{]" github-api.yaml | head -20
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -nE "^ *'?/repos/\{owner\}/\{repo\}/releases" github-api.yaml; echo ---; grep -n "createInstallationAccessToken\|apps/create-installation-access-token" github-api.yaml | head
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '3419,3500p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -nE "^ *'?/repos/\{owner\}/\{repo\}/installation'?:" github-api.yaml; echo === CREATE; sed -n '53272,53300p' github-api.yaml; echo === POSTPART; awk 'NR>=53272 && NR<=53431' github-api.yaml | grep -n "post:\|operationId\|requestBody\|required:\|properties:\|^          [a-z_]*:\|responses:\|'201'\|Location" | head -60
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '53272,53431p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '53843,53959p' github-api.yaml; echo "=====ASSET_ID====="; sed -n '53431,53542p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '45809,45850p' github-api.yaml; echo "=====PATCH REL====="; sed -n '53685,53843p' github-api.yaml | grep -n "get:\|patch:\|delete:\|operationId\|^ *[a-z_]*:$\|required" | head -40
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk '/^    app-permissions:/,/^    installation:/' github-api.yaml | grep -n "^        workflows:\|^        contents:\|^        metadata:" ; echo "=====REL SCHEMA====="; awk '/^    release:$/,0' github-api.yaml | sed -n '1,60p' | grep -n "upload_url\|html_url\|^          id:\|assets_url\|tag_name\|draft\|node_id"; echo "=====ASSET SCHEMA====="; awk '/^    release-asset:$/,0' github-api.yaml | sed -n '1,70p' | grep -n "url:\|^          id:\|name:\|state:\|size:\|browser_download"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk '/^    app-permissions:/,/^    installation:$/' github-api.yaml | sed -n '50,62p;190,205p'; echo "=====REL ID FIELD====="; awk '/^    release:$/,0' github-api.yaml | sed -n '1,35p'
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree github-api.yaml --format=ai --find release | head -80
+redocly tree github-api.yaml --format=ai --operation=repos/create-release | head -60; echo ===; redocly tree github-api.yaml --format=ai --find "upload release asset" | head -30
+redocly tree github-api.yaml --format=ai --find "upload asset" | head -20
+redocly tree github-api.yaml --format=ai --operation=repos/upload-release-asset | head -40
+redocly tree github-api.yaml --format=ai --find "installation access token" | head -20
+redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token | head -40
+redocly tree github-api.yaml --format=ai --component=schemas --name=installation-token | head -20
+redocly tree github-api.yaml --format=ai --find "repo installation" | head -15
+redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation | head -20
+redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset | head -20
+redocly tree github-api.yaml --format=ai --component=schemas --name=release | head -8
+redocly tree github-api.yaml --format=ai --component=schemas --name=release-asset | head -4; redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"contents":[^}]*}' | head -3
+redocly tree github-api.yaml --format=ai --operation=repos/check-immutable-releases | head -6; redocly tree github-api.yaml --format=ai --component=parameters --name=api-version | head -5
+redocly tree github-api.yaml --format=ai --operation=apps/revoke-installation-access-token | head -6; redocly tree github-api.yaml --format=json | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+wc -l github-api.yaml
+grep "^  /.*:$" github-api.yaml
+grep "releases" github-api.yaml | head -80
+grep "access_tokens" github-api.yaml | head -30
+sed -n '3400,3520p;53312,53345p' github-api.yaml
+grep "upload-release-asset|releases/\\{release_id\\}/assets|get-repo-installation" github-api.yaml
+sed -n '53345,53440p' github-api.yaml
+sed -n '53843,53990p' github-api.yaml
+sed -n '53518,53545p' github-api.yaml; echo ---; sed -n '45805,45860p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "installation-token:" -A 30 github-api.yaml | head -60; echo === ; grep -n "  release-id:" -A 8 github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "operationId: repos/update-release$" -B 15 github-api.yaml | head -40; echo ====; sed -n '45238,45320p' github-api.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^    release:" -A 60 github-api.yaml | head -80; echo ====; grep -n "        workflows:" -A 6 github-api.yaml | head -20
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '45238,45272p' github-api.yaml; echo ==; grep -n "check-immutable-releases:" -A 25 github-api.yaml | head -40
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "    app-permissions:" -A 400 github-api.yaml | grep -nE "^[0-9]+-        [a-z_]+:|description: The level of permission to grant the access token (for|to) (repository contents|update GitHub Actions workflow)" | head -60
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^    release-asset:" -A 45 github-api.yaml | grep -E "^[0-9]+-        [a-z_]+:|state|enum|uploaded|starter" | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls && redocly tree --help | head -80
+redocly tree github-api.yaml --format=ai | head -60; echo "EXIT:$?"; redocly --version
+which -a redocly; ls node_modules/.bin 2>/dev/null | head; npx -y @redocly/cli@latest tree --help | tail -30
+/Users/tora/bench-builds/local/bin/redocly tree --help | head -60
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --find "release" | head -60
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --find "upload release asset" | head -30; echo ====; $R tree github-api.yaml --format=ai --find "installation access token" | head -30
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --find "installation access token" | head -30
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -120
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -40
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --operation=repos/upload-release-asset --with-deps | head -25
+R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -20; echo "=== root ==="; $R tree github-api.yaml --format=ai | head -25
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -506,7 +622,7 @@ redocly tree github-api.yaml --component schemas --name release-asset --format=a
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5 and Opus 5 pass every run on both sides, with 9% to 17% less context and fewer calls through the index.
+Sonnet 5 and Opus 5 pass every run on both sides, with 9% to 13% less context and fewer calls through the index.
 Haiku 4.5 fails the same way each time — it declares an installation token it never mints — and its one pass came without the index.
 
 {% /tab %}
@@ -557,7 +673,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 | Model           |        no tree |        tree | Difference |
 | --------------- | -------------: | ----------: | ---------: |
 | Sonnet 5 (n=5)  | 12,532 / 16 ❌ | 23,098 / 20 |          — |
-| Opus 5 (n=2)    |    45,744 / 51 | 40,281 / 26 |       −12% |
+| Opus 5 (n=5)    |    44,355 / 39 | 35,346 / 20 |       −20% |
 | Haiku 4.5 (n=5) | 25,809 / 18 ❌ | 19,777 / 18 |          — |
 
 What those runs were billed:
@@ -565,7 +681,7 @@ What those runs were billed:
 | Model           |  no tree |  tree | Difference |
 | --------------- | -------: | ----: | ---------: |
 | Sonnet 5 (n=5)  | $0.76 ❌ | $0.65 |          — |
-| Opus 5 (n=2)    |    $2.38 | $1.14 |       −52% |
+| Opus 5 (n=5)    |    $1.97 | $1.12 |       −43% |
 | Haiku 4.5 (n=5) | $0.18 ❌ | $0.16 |          — |
 
 Whether each run produced a flow that would run:
@@ -579,6 +695,9 @@ Whether each run produced a flow that would run:
 | Sonnet 5 · run 5  | no auth scheme                                | works           |
 | Opus 5 · run 1    | works                                         | works           |
 | Opus 5 · run 2    | works                                         | works           |
+| Opus 5 · run 3    | works                                         | works           |
+| Opus 5 · run 4    | works                                         | works           |
+| Opus 5 · run 5    | works                                         | works           |
 | Haiku 4.5 · run 1 | no product call, no plan call, no auth scheme | works           |
 | Haiku 4.5 · run 2 | no product call, no plan call, no auth scheme | no product call |
 | Haiku 4.5 · run 3 | no product call, no auth scheme               | no product call |
@@ -1036,6 +1155,229 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrume
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+ls -la rebilly.yaml && wc -l rebilly.yaml
+grep -n "^  /" rebilly.yaml | head -200
+sed -n '31374,31530p' rebilly.yaml
+grep -n "^    Product:\|^    Plan:\|^    Subscription:\|^    PaymentInstrument:\|^    PaymentToken:\|^  requestBodies:\|^  schemas:\|^    Order:" rebilly.yaml
+sed -n '12201,12320p' rebilly.yaml && echo "=====PRODUCT REQBODY" && sed -n '20455,20490p' rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:\|^    SubscriptionOrOneTimeSale:\|^    PlanPricing\|^    RecurringInterval\|^    PlanRecurring" rebilly.yaml
+sed -n '11888,12087p' rebilly.yaml
+grep -n "^    PlanPriceFormula:\|^    ServicePeriodAnchorInstruction:" rebilly.yaml
+sed -n '11615,11650p' rebilly.yaml && echo "=== fixed/flat?" && grep -n "^    FixedPriceFormula:\|^    FlatRatePriceFormula\|PriceFormula:" rebilly.yaml | head -30
+grep -n "PlanFormulaFlatRate:\|PlanFormulaFixedFee:" rebilly.yaml
+sed -n '11168,11260p' rebilly.yaml
+sed -n '15233,15420p' rebilly.yaml
+sed -n '15420,15700p' rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+sed -n '15503,15525p;15537,15580p' rebilly.yaml && echo "=== SubscriptionItems" && grep -n "^    SubscriptionItems\?:\|^    OrderItem" rebilly.yaml
+grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml
+grep -n "^    OriginalPlan:\|^    FlexiblePlan:\|^    WebsiteId:\|^    CustomerId:" rebilly.yaml
+sed -n '12321,12345p' rebilly.yaml && echo "=== WebsiteId" && sed -n '2897,2915p' rebilly.yaml && echo "=== websites path?" && grep -n "^  /websites" rebilly.yaml
+sed -n '37286,37300p' rebilly.yaml && echo "=== tokens post" && sed -n '34892,34960p' rebilly.yaml
+grep -n "^    CompositeToken:\|^    PaymentCardToken:\|^    PaymentInstrumentToken:\|^    PaymentCardCreateToken\|^    PaymentCardPlain" rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml && echo "=== PaymentCardToken" && sed -n '17081,17200p' rebilly.yaml
+sed -n '30460,30560p' rebilly.yaml
+sed -n '30560,30620p' rebilly.yaml && echo "=== reqbody PaymentInstrument" && grep -n "^    PaymentInstrument:" rebilly.yaml && sed -n '20150,20200p' rebilly.yaml | grep -n "PaymentInstrument"
+grep -n "PostPaymentInstrument:" rebilly.yaml
+sed -n '20441,20456p' rebilly.yaml && echo "===" && grep -n "^    PaymentInstrumentToken:\|^    PaymentCardPlain:\|^    PaymentInstrumentCreateToken" rebilly.yaml
+sed -n '10876,10940p' rebilly.yaml
+sed -n '32660,32782p' rebilly.yaml && echo "=== websites tag" && grep -n "GetWebsiteCollection\|operationId: GetWebsite\|tags:$" rebilly.yaml | grep -i website
+sed -n '32620,32662p' rebilly.yaml && echo "=== servers" && grep -n "url: https://api" rebilly.yaml | head -5 && echo "=== security schemes" && grep -n "SecretApiKey:\|PublishableApiKey:" rebilly.yaml | head
+sed -n '160,245p' rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml
+sed -n '3261,3290p' rebilly.yaml && echo "=== defaultPaymentInstrument in Customer" && grep -n "defaultPaymentInstrument" rebilly.yaml | head
+sed -n '3540,3600p' rebilly.yaml
+sed -n '28565,28630p' rebilly.yaml
+sed -n '31085,31130p' rebilly.yaml && echo "=== collectionFilter" && grep -n "    collectionFilter:" rebilly.yaml
+grep -n "    subscriptionExpand:" rebilly.yaml
+sed -n '447,475p;281,300p' rebilly.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree rebilly.yaml --format=ai --find "subscription" | head -60
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription | head -60
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSale | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -100
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -20; echo "=== WEBSITE ==="; redocly tree rebilly.yaml --format=ai --find "website" | head -20; echo "=== PLAN ==="; redocly tree rebilly.yaml --format=ai --find "plan" | head -20; echo "=== PRODUCT ==="; redocly tree rebilly.yaml --format=ai --find "product" | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId|head -8; echo "=== PRODUCT ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -10; echo "=== SUBPLAN ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -12
+redocly tree rebilly.yaml --format=ai --operation=PostPlan|head -8; echo "=== OrigPlan ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan|head -8; echo "=== FlexPlan ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=FlexiblePlan|head -8; echo "=== FixedFee ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee|head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan|head -8; echo "=== PostProduct ==="; redocly tree rebilly.yaml --format=ai --operation=PostProduct|head -6; echo "=== INSTR ==="; redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -30
+redocly tree rebilly.yaml --format=ai --operation=PostToken|head -8; echo "=== PostPI ==="; redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument|head -8; echo "=== PICreateToken ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken|head -8
+redocly tree rebilly.yaml --format=ai --find "activation"|head -20; echo "=== PI ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrument|head -6; echo "=== CompositeToken ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=CompositeToken|head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken|head -8; echo "=== INVOICES ==="; redocly tree rebilly.yaml --format=ai --find "invoice"|head -30
+redocly tree rebilly.yaml --format=ai --find "payment"|grep -E "^(get|post|put) /payments|^post /payments"|head; echo "=== status desc ==="; sed -n '15288,15300p' rebilly.yaml
+redocly tree rebilly.yaml --format=ai --path=/payments|head -20; echo "=== grep status ==="; awk 'NR>=15300 && NR<=15340' rebilly.yaml
+redocly tree rebilly.yaml --operations|grep -iE "website|organization"|head; echo "=== CUSTOMER GET ==="; redocly tree rebilly.yaml --format=ai --operation=GetCustomer|head -5; echo "=== ContactObject ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject|head -5
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula|head -6; echo "=== reqbody ==="; redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription|head -6; echo "=== PlanSetup ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanSetup|head -5
+redocly tree rebilly.yaml --format=ai|head -25
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+ls -la rebilly.yaml && wc -l rebilly.yaml
+grep -n "^  /" rebilly.yaml | head -200
+sed -n '31374,31420p;31004,31060p' rebilly.yaml
+grep -n "^    Product:\|^    Plan:\|^    Subscription:\|^    PaymentInstrument:\|^    Token:\|^    PlanRequest\|^    ProductRequest\|^    SubscriptionRequest\|^    PaymentCardToken" rebilly.yaml
+sed -n '12201,12240p' rebilly.yaml && echo "=== Subscription ===" && sed -n '15233,15280p' rebilly.yaml && echo "=== PaymentInstrument ===" && sed -n '10722,10770p' rebilly.yaml
+grep -n "websites\|Website:" rebilly.yaml | head -30
+sed -n '37280,37300p' rebilly.yaml && echo "---gwaccounts---" && grep -n "^  /gateway-accounts" rebilly.yaml
+sed -n '12215,12330p' rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    PlanBase\|^    RecurringInterval\|^    PricingPlan\|^    PlanPricing" rebilly.yaml
+sed -n '11888,12201p' rebilly.yaml
+grep -n "^    PlanPriceFormula:\|^    FlatRatePricing\|^    PlanSetup:\|^    PlanTrial:" rebilly.yaml
+sed -n '11615,11650p' rebilly.yaml && echo "=== FixedFee etc ===" && grep -n "^    FixedFeePlanPrice\|^    FlatRatePlanPrice\|PlanPriceFormula" rebilly.yaml | head
+grep -n "PlanFormulaFixedFee:" rebilly.yaml && awk 'NR>=1 && /^    PlanFormulaFixedFee:/{f=1} f{print NR": "$0} f&&/^    PlanFormulaFlatRate:/{exit}' rebilly.yaml | head -40
+sed -n '15280,15600p' rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml && echo "=== OriginalPlan ===" && sed -n '12326,12400p' rebilly.yaml
+sed -n '30460,30560p' rebilly.yaml
+sed -n '30560,30700p' rebilly.yaml
+grep -n "    PostPaymentInstrument:" rebilly.yaml && grep -n "^    PaymentCardPaymentInstrument\|^    PaymentCardRequest\|CreatePaymentCard" rebilly.yaml | head
+sed -n '20441,20480p' rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+sed -n '10876,10960p' rebilly.yaml
+sed -n '32640,32700p' rebilly.yaml
+sed -n '1,60p' rebilly.yaml && echo "=== sec ===" && grep -n "SecretApiKey:" rebilly.yaml | head -3
+sed -n '165,250p' rebilly.yaml
+sed -n '28565,28627p' rebilly.yaml
+sed -n '35330,35420p' rebilly.yaml
+sed -n '35258,35332p' rebilly.yaml
+grep -n "    TransactionRequest:" rebilly.yaml && grep -n "^    CreateTransaction\|^    TransactionCreate" rebilly.yaml | head
+sed -n '20508,20525p' rebilly.yaml
+sed -n '20525,20620p' rebilly.yaml
+grep -n "^    PaymentInstruction:" rebilly.yaml
+sed -n '18061,18140p' rebilly.yaml
+grep -n "^    PaymentInstructionInstrument:" rebilly.yaml && sed -n "$(grep -n '^    PaymentInstructionInstrument:' rebilly.yaml | cut -d: -f1),+30p" rebilly.yaml
+sed -n '34892,34960p' rebilly.yaml
+sed -n '17081,17130p' rebilly.yaml && echo "=== anchor ===" && sed -n "$(grep -n '^    ServicePeriodAnchorInstruction:' rebilly.yaml | cut -d: -f1),+45p" rebilly.yaml
+sed -n '17130,17230p' rebilly.yaml
+sed -n "$(grep -n '^    ContactObject:' rebilly.yaml | cut -d: -f1),+40p" rebilly.yaml
+awk '/^    Invoice:/{f=1} f&&/^      properties:/{p=1} p&&/^        [a-zA-Z]+:/{print NR": "$0} f&&/^    InvoiceItem:/{exit}' rebilly.yaml | head -50
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree rebilly.yaml --format=ai --find "subscription" | head -60
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSale | head -60; echo ====; redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -80
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription --with-deps | head -200
+cd /Users/tora/bench-run/rebilly-tree-help-local-opus-r4
+for f in website product plan "payment-instrument" "payment token"; do echo "=== $f"; redocly tree rebilly.yaml --format=ai --find "$f" | head -25; done
+redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId|head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product|head -20
+redocly tree rebilly.yaml --format=ai --find "customer"|head -12
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan|head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem|head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan|head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee|head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula|head -8
+redocly tree rebilly.yaml --format=ai --operation=PostPlan|head -12
+redocly tree rebilly.yaml --format=ai --operation=PostToken|head -12
+redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument|head -12
+redocly tree rebilly.yaml --format=ai --pointer='#/components/requestBodies/PostPaymentInstrument'|head -12
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken|head -10
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken|head -10
+redocly tree rebilly.yaml --format=ai --find "activate"|head -15
+redocly tree rebilly.yaml --format=ai --find "invoice"|head -30
+sed -n '15290,15330p' rebilly.yaml
+redocly tree rebilly.yaml --format=ai --operations | grep -iE "website|organization|gateway|/tokens|customers$|^get /customers " | head -20
+redocly tree rebilly.yaml --format=ai --operations | tail -3
+redocly tree rebilly.yaml --format=ai --operation=GetCustomerCollection|head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrument|head -6
+redocly tree rebilly.yaml --format=ai --pointer='#/components/parameters/collectionFilter'|head -6
+grep -n -A8 "^servers:" rebilly.yaml | head -20; grep -n -A5 "SecretApiKey:" rebilly.yaml | head -20
+sed -n '166,200p' rebilly.yaml; sed -n '226,250p' rebilly.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+ls -la rebilly.yaml && wc -l rebilly.yaml
+grep -n "^  /" rebilly.yaml | head -200
+sed -n '31374,31530p' rebilly.yaml
+grep -n "^    Product:\|^    Plan:\|^    Subscription:\|^    PaymentInstrument:\|^    Customer:\|^    Token:\|^    PaymentCardToken\|^    SubscriptionOrder" rebilly.yaml
+sed -n '12201,12240p' rebilly.yaml && echo "=== 15233 ===" && sed -n '15233,15290p' rebilly.yaml && echo "=== 20460 ===" && sed -n '20455,20500p' rebilly.yaml
+grep -n "^  /" rebilly.yaml | sed -n '200,300p'
+sed -n '37277,37295p' rebilly.yaml && echo "--- websites schema ---" && grep -n "websites:" rebilly.yaml | head -20
+grep -n "websites" rebilly.yaml | head -30
+grep -n "^    SubscriptionPlan:\|^    PlanRecurringFields\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:\|^    PlanBase\|^    SubscriptionOrOneTimeSale:\|^    OrderItem\|^    SubscriptionItem" rebilly.yaml
+sed -n '11888,12090p' rebilly.yaml
+grep -n "^    PlanPriceFormula:\|^    ServicePeriodAnchorInstruction:\|^    PlanSetup:" rebilly.yaml
+sed -n '11615,11650p' rebilly.yaml && echo "=== anchor ===" && sed -n '11743,11800p' rebilly.yaml && echo "=== FixedPriceFormula ===" && grep -n "FixedPriceFormula\|FlatRatePricing\|^    .*PriceFormula" rebilly.yaml | head
+grep -n "PlanFormulaFixedFee:\|PlanFormulaFlatRate:" rebilly.yaml
+sed -n '11168,11230p' rebilly.yaml
+sed -n '15290,16060p' rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+sed -n '15380,15420p;15494,15530p;15563,15580p' rebilly.yaml && echo "=== items+autopay ===" && sed -n '15564,15572p' rebilly.yaml
+grep -n "    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '15099,15160p' rebilly.yaml && echo "=== 16038 SubscriptionOrOneTimeSale ===" && sed -n '16038,16060p' rebilly.yaml
+grep -n "^    OriginalPlan:\|^    FlexiblePlan:" rebilly.yaml
+sed -n '12321,12345p' rebilly.yaml
+sed -n '34892,34990p' rebilly.yaml
+grep -n "^    CompositeToken:" rebilly.yaml && sed -n '17081,17140p' rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml && echo "=== PI post ===" && sed -n '30460,30560p' rebilly.yaml
+sed -n '30560,30600p' rebilly.yaml && echo "=== reqbody PaymentInstrument ===" && grep -n "^    PaymentInstrument:" rebilly.yaml && sed -n '20420,20462p' rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+sed -n '10876,10940p' rebilly.yaml
+sed -n '17140,17250p' rebilly.yaml | grep -n "^        [a-zA-Z]*:" && echo "---" && awk 'NR>=17140 && NR<=17280 && /^        (token|id|expirationTime|isUsed|leadSource|billingAddress|customerId):/' rebilly.yaml
+sed -n '17157,17165p' rebilly.yaml
+sed -n '32660,32700p' rebilly.yaml && echo "=== status ===" && sed -n '15306,15330p' rebilly.yaml
+grep -n "^servers:" rebilly.yaml && sed -n "$(grep -n '^servers:' rebilly.yaml | head -1 | cut -d: -f1),+25p" rebilly.yaml && echo "=== sec ===" && grep -n "^  securitySchemes:" rebilly.yaml && sed -n "$(grep -n '^  securitySchemes:' rebilly.yaml | cut -d: -f1),+30p" rebilly.yaml
+sed -n '222,245p' rebilly.yaml && echo "=== customers GET id ===" && sed -n '25986,26010p' rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml && sed -n "$(grep -n '^    ContactObject:' rebilly.yaml | cut -d: -f1),+30p" rebilly.yaml && echo "=== initialInvoiceId ===" && sed -n '15546,15562p' rebilly.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree rebilly.yaml --format=ai --find "subscription"
+redocly tree rebilly.yaml --format=ai --operation=PostSubscription --with-deps | head -300
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --find "plan product website" | head -60
+redocly tree rebilly.yaml --format=ai --find "plan" | head -40; echo ===; redocly tree rebilly.yaml --format=ai --find "product" | head -20; echo ===; redocly tree rebilly.yaml --format=ai --find "website" | head -20
+redocly tree rebilly.yaml --format=ai --find "products" | head -20; echo ---; redocly tree rebilly.yaml --format=ai --find "websites" | head -20; echo ---; redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -20; echo ---; redocly tree rebilly.yaml --format=ai --operation=PostProduct --with-deps | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps | head -60
+redocly tree rebilly.yaml --format=ai --operation=PostToken --with-deps | head -50
+redocly tree rebilly.yaml --format=ai --operation=PostPaymentInstrument --with-deps | head -50
+redocly tree rebilly.yaml --format=ai --operations | grep -iE "website|organization" | head -20
+redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription --with-deps | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | python3 -c "
+import sys,json,re
+t=sys.stdin.read()
+s=t.split('--- json',1)[1].split('--- deps')[0]
+d=json.loads(s)
+p=d['properties']
+for k in ['autopay','paymentInstrumentId','startTime','currency','websiteId','customerId','items','orderType','trial','delinquencyPeriod','billingStatus','status','poNumber','notes','billingAddress']:
+if k in p: print(k, json.dumps(p[k])[:400]); print()
+"
+import sys,json
+s=t.split('--- json',1)[1].strip().split('\n')[0]
+print('required:',d.get('required'))
+for k in ['autopay','paymentInstrumentId','startTime','currency','websiteId','customerId','items','orderType','trial','delinquencyPeriod','billingStatus','status','recurringInterval','inTrial']:
+if k in p: print(k,'::', json.dumps(p[k])[:500]); print()
+redocly tree rebilly.yaml --format=ai --find "activate instrument" | head -20; echo ---; redocly tree rebilly.yaml --format=ai --path=/customers/{id} | head; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=Customer | head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=VaultedInstrument|head -6; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan|head -6; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee|head -6; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken|head -6
+redocly tree rebilly.yaml --format=ai --operation=GetCustomerCollection|head -8; echo ---; redocly tree rebilly.yaml --format=ai --operation=PostPlan|head -8; echo ---; redocly tree rebilly.yaml --format=ai --component=parameters --name=subscriptionExpand|head -6
+redocly tree rebilly.yaml --format=ai|head -20; echo ---; redocly tree rebilly.yaml --format=ai --component=parameters --name=collectionFilter|sed -n '3,4p'|head -c 1500
+redocly tree rebilly.yaml --format=ai --operation=PutCustomer|sed -n '3p'|head -c 900; echo; echo ---; redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Customer|head -5
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -1273,7 +1615,7 @@ redocly tree rebilly.yaml --format=ai --find="website" | head -80
 {% /tab %}
 {% /tabs %}
 
-Opus 5 passes everything; the index halves its price. Sonnet 5 never passes without the index and passes four of five runs with it, and Haiku 4.5 goes from none to two — on this description the failures were always the same missing key header, and the card's `auth:` line is where that answer now comes from.
+Opus 5 passes everything; the index nearly halves its price. Sonnet 5 never passes without the index and passes four of five runs with it, and Haiku 4.5 goes from none to two — on this description the failures were always the same missing key header, and the card's `auth:` line is where that answer now comes from.
 The sign flips on context for Sonnet 5 (+84%) because its five cheap control runs all produced broken flows: the working answer costs more than the broken one it replaces.
 
 {% /tab %}
@@ -1324,7 +1666,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 | Model           |        no tree |          tree | Difference |
 | --------------- | -------------: | ------------: | ---------: |
 | Sonnet 5 (n=5)  | 18,215 / 16 ❌ | 18,908 / 7 ❌ |        +4% |
-| Opus 5 (n=2)    |    24,339 / 36 |   35,908 / 18 |       +48% |
+| Opus 5 (n=5)    |    24,339 / 25 |   33,751 / 17 |       +39% |
 | Haiku 4.5 (n=5) | 35,056 / 14 ❌ | 19,929 / 9 ❌ |       −43% |
 
 What those runs were billed:
@@ -1332,7 +1674,7 @@ What those runs were billed:
 | Model           |  no tree |     tree | Difference |
 | --------------- | -------: | -------: | ---------: |
 | Sonnet 5 (n=5)  | $0.59 ❌ | $0.35 ❌ |       −41% |
-| Opus 5 (n=2)    |    $1.54 |    $1.22 |       −21% |
+| Opus 5 (n=5)    |    $1.40 |    $1.16 |       −17% |
 | Haiku 4.5 (n=5) | $0.17 ❌ | $0.12 ❌ |       −29% |
 
 Whether each run produced a flow that would run:
@@ -1346,6 +1688,9 @@ Whether each run produced a flow that would run:
 | Sonnet 5 · run 5  | no auth scheme                                                       | no auth scheme                                                       |
 | Opus 5 · run 1    | works                                                                | works                                                                |
 | Opus 5 · run 2    | works                                                                | works                                                                |
+| Opus 5 · run 3    | works                                                                | works                                                                |
+| Opus 5 · run 4    | works                                                                | works                                                                |
+| Opus 5 · run 5    | no auth scheme                                                       | works                                                                |
 | Haiku 4.5 · run 1 | no product call, no price call, no auth scheme                       | no product call, no price call, no subscription call                 |
 | Haiku 4.5 · run 2 | no product call, no price call, no subscription call, no auth scheme | no product call, no price call, no subscription call, no auth scheme |
 | Haiku 4.5 · run 3 | no product call, no price call, no auth scheme                       | no product call, no price call, no subscription call, no auth scheme |
@@ -1803,6 +2148,246 @@ redocly tree stripe.yaml --format=ai --path="/v1/invoices/{invoice}/pay" --opera
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+wc -l stripe.yaml; ls -la
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^  /v1/\(setup_intents\|subscriptions\|customers\|payment_methods\|prices\|products\|payment_intents\)" stripe.yaml | head -60
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '138252,138600p' stripe.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=147301 && NR<=148721' stripe.yaml | grep -n "^                [a-z_]*:" | head -80
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=147301 && NR<=148721' stripe.yaml | sed -n '955,1420p' | grep -n "^                [a-z_]*:"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=147301 && NR<=148721' stripe.yaml | sed -n '654,730p;820,960p'
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=147301 && NR<=148721' stripe.yaml | sed -n '960,1000p;1300,1420p'
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=147301 && NR<=148721' stripe.yaml | grep -n "save_default_payment_method" -A12 | head -30; echo ====; grep -n "^  /v1/customers/{customer}:" stripe.yaml; grep -n "^  /v1/payment_methods/{payment_method}" stripe.yaml; grep -n "^  /v1/setup_intents/{intent}" stripe.yaml; grep -n "^  /v1/subscriptions/{subscription_exposed_id}" stripe.yaml; grep -n "^  /v1/invoices/{invoice}" stripe.yaml | head
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^  /v1/customers/{customer}:\|^  /v1/payment_methods/{payment_method}\|^  /v1/setup_intents/{intent}\|^  /v1/subscriptions/{subscription_exposed_id}\|^  /v1/invoices" stripe.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^  /v1/" stripe.yaml | wc -l; grep -n "^  /v1/" stripe.yaml | grep -i "customer\|payment_method\|setup_intent\|subscription\|price\|product\|invoice\|payment_intent"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=138252 && NR<=144897' stripe.yaml > /private/tmp/si.yaml; grep -n "^      [a-z]*:$\|^    [a-z]*:$" /private/tmp/si.yaml | head; echo "--- POST param names ---"; awk 'NR>420' /private/tmp/si.yaml | grep -n "^                [a-z_]*:$" | head -40
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^  /v1/" stripe.yaml | sed -n '1,140p'
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; sed -n '141660,141680p;141740,141760p' stripe.yaml; echo "=== all paths keys ==="; grep -nc "^  /" stripe.yaml; grep -n "^  /" stripe.yaml | grep -v "^\([0-9]*\):  /v1/" | head
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^  '\?/v1/" stripe.yaml | grep -i "customer\|payment_method\|setup_intent\|subscription\|price\|product\|invoice"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; echo "=== customers/{customer}/payment_methods GET params ==="; sed -n '87677,87760p' stripe.yaml | grep -n "name:\|enum:" -A3 | head -50
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=138426 && NR<=140077' stripe.yaml | grep -n "^                \(confirm\|customer\|usage\|off_session\|return_url\|payment_method\|payment_method_types\|expand\|metadata\|automatic_payment_methods\|description\|use_stripe_sdk\|mandate_data\|single_use\|flow_directions\|confirmation_token\|attach_to_self\|payment_method_data\|payment_method_configuration\|on_behalf_of\|excluded_payment_method_types\|allowed_payment_method_types\|payment_method_options\):"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=138426 && NR<=140077' stripe.yaml | sed -n '188,235p;1591,1640p'
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^    subscription:" stripe.yaml
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=53366 && NR<=54200' stripe.yaml | grep -n "^        [a-z_]*:$"; echo "=== current_period ==="; awk 'NR>=53366 && NR<=54200' stripe.yaml | grep -n "current_period"
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=131359 && NR<=131911' stripe.yaml | grep -n "^                [a-z_]*:$\|^              required:" -A6 | grep -n "^\s*[0-9]*[:-]\s*\(required:\|- \|[a-z_]*:$\)" | head -40
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=131359 && NR<=131900' stripe.yaml | grep -n "^                [a-z_]*:" ; echo "=== recurring block ==="; awk 'NR>=131359 && NR<=131900' stripe.yaml | sed -n '/^                recurring:/,/^                tax_behavior/p' | head -60
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=85051 && NR<=85622' stripe.yaml | grep -n "invoice_settings:" -A20 | head -30; echo "=== webhook events ==="; awk 'NR>=168832 && NR<=169895' stripe.yaml | grep -n "customer.subscription.trial_will_end\|invoice.payment_failed\|invoice.paid\|customer.subscription.deleted\|invoice.payment_action_required" | head
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=85051 && NR<=85622' stripe.yaml | sed -n '401,470p'; echo "=== webhook create required ==="; awk 'NR>=168832 && NR<=169895' stripe.yaml | grep -n "^              required:" -A5 | head -20
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; grep -n "^    setup_intent:" stripe.yaml; grep -n "^    setup_intent:" stripe.yaml | cut -d: -f1 | while read l; do awk -v s=$l 'NR>=s && NR<=s+400' stripe.yaml | grep -n "requires_action\|succeeded\|client_secret:\|next_action:" | head; done; echo "=== sub status ==="; awk 'NR>=53366 && NR<=54200' stripe.yaml | sed -n '384,400p'
+cd /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs; awk 'NR>=101514 && NR<=101622' stripe.yaml | grep -n "^                [a-z_]*:"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls && redocly tree --help | head -100
+redocly tree stripe.yaml --format=ai --find "subscription" | head -60
+redocly tree stripe.yaml --format=ai --operation=PostSubscriptions | head -150
+redocly tree stripe.yaml --format=ai --find "payment_methods" | head -40; echo "=== SETUP ==="; redocly tree stripe.yaml --format=ai --find "setup_intent" | head -30; echo "=== PRICE ==="; redocly tree stripe.yaml --format=ai --find "price" | head -20
+cd /Users/tora/bench-run/stripe-tree-help-local-opus-r3
+t=sys.stdin.read()
+print(t[:400])
+m=re.search(r'--- json\n(.*)',t,re.S)
+d=json.loads(m.group(1).split('\nrefs:')[0])
+print(json.dumps(d.get('parameters'),indent=1)[:2500])
+print('RESP',json.dumps(d.get('responses'))[:600])"
+cat > /private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r3/0f8dfb37-ae5d-4582-9479-c633414baba3/scratchpad/x.py <<'EOF'
+import sys,json,re,subprocess
+op=sys.argv[1]
+keys=sys.argv[2:]
+t=subprocess.run(["redocly","tree","stripe.yaml","--format=ai","--operation="+op],capture_output=True,text=True).stdout
+rb=d.get('requestBody',{}).get('content',{})
+for ct,v in rb.items():
+props=v['schema'].get('properties',{})
+print("CT",ct,"REQUIRED",v['schema'].get('required'))
+print("PROPS:",", ".join(sorted(props)))
+for k in keys:
+if k in props: print("---",k,json.dumps(props[k])[:1200])
+EOF
+python3 /private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r3/0f8dfb37-ae5d-4582-9479-c633414baba3/scratchpad/x.py PostSetupIntents customer usage payment_method payment_method_types automatic_payment_methods confirm
+S=/private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r3/0f8dfb37-ae5d-4582-9479-c633414baba3/scratchpad/x.py
+import sys,json,re
+t=sys.stdin.read(); m=re.search(r'--- json\n(.*)',t,re.S)
+print(', '.join(sorted(d.get('properties',{}))))
+for k in ['status','trial_end','latest_invoice','pending_setup_intent','default_payment_method','items','billing_cycle_anchor','trial_settings']:
+if k in d['properties']: print('--',k,json.dumps(d['properties'][k])[:500])
+"
+redocly tree stripe.yaml --format=ai --webhooks | grep -Ei "subscription|invoice|setup_intent" | head -40
+redocly tree stripe.yaml --format=ai --webhooks | head -20
+python3 $S PostWebhookEndpoints enabled_events url | tr ',' '\n' | grep -Ei "trial_will_end|invoice.paid|invoice.payment_failed|subscription.deleted|subscription.updated|invoice.payment_action_required|setup_intent.succeeded|\"url\"|REQUIRED" | head -20
+python3 $S PostWebhookEndpoints enabled_events url | python3 -c "
+import sys,re
+print(re.search(r'REQUIRED.*',t).group(0)[:200])
+for w in ['customer.subscription.trial_will_end','invoice.paid','invoice.payment_failed','customer.subscription.updated','customer.subscription.deleted','invoice.payment_action_required','invoice.upcoming','setup_intent.succeeded']:
+print(w, w in t)
+sed -n '168938,169440p' stripe.yaml | grep -nE "trial_will_end|invoice\.paid|invoice\.payment_failed|customer\.subscription\.(updated|deleted)|payment_action_required|invoice\.upcoming|setup_intent\.succeeded" | head
+t=sys.stdin.read(); d=json.loads(re.search(r'--- json\n(.*)',t,re.S).group(1).split('\nrefs:')[0])
+print(', '.join(sorted(d['properties'])))
+for k in ['client_secret','status','payment_method','next_action','usage']: print('--',k,json.dumps(d['properties'][k])[:300])
+print(', '.join(sorted(d['properties'])))"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+wc -l stripe.yaml
+grep -n "^  /v1/\(customers\|subscriptions\|setup_intents\|payment_methods\|prices\|products\)" stripe.yaml
+grep -n "^  /v1/[a-z_]*customers" stripe.yaml; echo ---; grep -n "^  /v1/[a-z_{}/]*subscription" stripe.yaml; echo ---; grep -n "^  /v1/[a-z_{}/]*setup_intent" stripe.yaml; echo ---; grep -n "^  /v1/[a-z_{}/]*payment_method" stripe.yaml
+grep -n "^  /v1/.*{" stripe.yaml | head -100
+grep -n "^paths:" stripe.yaml; grep -c "^  /" stripe.yaml; grep -n "^  /v1/pay" stripe.yaml
+sed -n '147301,147420p' stripe.yaml
+awk 'NR>=147301 && NR<=148721 && /^    (get|post|delete):/ {print NR": "$0}' stripe.yaml
+sed -n '147565,147640p' stripe.yaml; echo "=== keys ==="; awk 'NR>=147565 && NR<=148721' stripe.yaml | grep -n "^                    [a-z_]*:" | head -120
+awk 'NR>=147565 && NR<=148721' stripe.yaml | grep -n "^                [a-z_]*:" | head -80
+sed -n '147957,148010p;148677,148721p' stripe.yaml
+sed -n '148120,148135p' stripe.yaml; echo "=== item props ==="; awk 'NR>=148120 && NR<=148218' stripe.yaml | grep -n "^                    [a-z_]*:"
+awk 'NR>=148125 && NR<=148216' stripe.yaml | grep -n "^                      [a-z_]*:"
+awk 'NR>=84329 && NR<=84934 && /^    (get|post):/{print NR": "$0} NR>=84329 && NR<=84934 && /^          name: /{print NR": "$0}' stripe.yaml | head -60
+awk 'NR>=127440 && NR<=129110 && /^    (get|post):/{print NR": "$0} NR>=127440 && NR<=129110 && /^          name: /{print NR": "$0}' stripe.yaml; echo "=== search ==="; awk 'NR>=84934 && NR<=85200 && /^          name: /{print NR": "$0}' stripe.yaml
+sed -n '128720,128730p;128770,128790p;128975,128985p;129055,129075p' stripe.yaml
+grep -n "^  '\?/v1/\(customers\|subscriptions\|setup_intents\|prices\|products\|invoices\)" stripe.yaml
+sed -n '85452,85500p' stripe.yaml
+sed -n '131775,131802p' stripe.yaml; echo "== setup usage =="; sed -n '140046,140060p' stripe.yaml
+sed -n '148593,148612p' stripe.yaml; echo "== sub schema fields =="; grep -n "^      pending_setup_intent:\|^      latest_invoice:\|^      trial_end:\|^      trial_start:" stripe.yaml | head; echo "== events =="; grep -n "customer.subscription.trial_will_end\|invoice.payment_action_required\|invoice.payment_failed$" stripe.yaml | head
+grep -n "^    subscription:" stripe.yaml;
+awk 'NR>=53366 && NR<=54400' stripe.yaml | grep -n "^        [a-z_]*:" | grep -v "description\|type:\|nullable\|maxLength" | head -60
+sed -n '87752,87765p' stripe.yaml; echo "== status enum =="; awk 'NR>=53749 && NR<=53810' stripe.yaml | grep -n "\- [a-z_]*$" | head -20
+grep -n "securitySchemes" -A 25 stripe.yaml | head -30; grep -n "^servers:" -A 3 stripe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree stripe.yaml --format=ai --find subscription | head -80
+redocly tree stripe.yaml --format=ai --path=/v1/subscriptions --operation=post | head -120
+redocly tree stripe.yaml --format=ai --find "payment method" | head -40; echo ===; redocly tree stripe.yaml --format=ai --find "price product" | head -30
+redocly tree stripe.yaml --format=ai --path=/v1/customers/{customer}/payment_methods --operation=get | head -30
+redocly tree stripe.yaml --format=ai --operation=PostCustomersCustomer | head -20
+redocly tree stripe.yaml --format=ai --operation=PostProducts | head -12
+redocly tree stripe.yaml --format=ai --operation=PostPrices | head -12
+redocly tree stripe.yaml --format=ai --webhooks | grep -iE "subscription|invoice|payment_intent" | head -40
+redocly tree stripe.yaml --format=ai --webhooks | head -20
+redocly tree stripe.yaml --format=ai --component=schemas --name=subscription --with-deps | head -6 | cut -c1-6000
+redocly tree stripe.yaml --format=ai --component=schemas --name=subscription_item | head -3 | cut -c1-1500; echo "---INV---"; redocly tree stripe.yaml --format=ai --component=schemas --name=invoice | head -2 | cut -c1-3000
+redocly tree stripe.yaml --format=ai --find setup_intent | head -20; echo "---EVENTS---"; redocly tree stripe.yaml --format=ai --find events | head -15; echo "---IDEM---"; grep -c "Idempotency-Key" stripe.yaml
+redocly tree stripe.yaml --format=ai --operation=PostWebhookEndpoints | tr ',' '\n' | grep -oE '"(customer\.subscription|invoice)\.[a-z_.]+"' | sort -u | head -40
+redocly tree stripe.yaml --format=ai --operation=PostWebhookEndpoints | tr ',' '\n' | grep -E '"required"|api_version|"url"|description.*URL' | head; echo ---; redocly tree stripe.yaml --format=ai --component=schemas --name=webhook_endpoint | head -2 | cut -c1-800
+redocly tree stripe.yaml --format=ai --operation=PostPaymentMethodsPaymentMethodAttach | tr ',' '\n' | grep -E '"customer"|"required"|"name":"payment_method"' | head; echo "---SI---"; redocly tree stripe.yaml --format=ai --operation=PostSetupIntents | tr ',' '\n' | grep -E '"usage"|"confirm"|"payment_method"|"customer"|"off_session"|automatic_payment_methods' | head -20
+redocly tree stripe.yaml --format=ai --path=/v1/subscriptions/{subscription_exposed_id} | head -8; echo ---; redocly tree stripe.yaml --format=ai --path=/v1/customers/{customer} | head -8; echo ---; redocly tree stripe.yaml --format=ai --path=/v1/invoices/{invoice} | head -8
+redocly tree stripe.yaml --format=ai | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+wc -l stripe.yaml && grep -c "" stripe.yaml
+grep -n "^  /v1/\(subscriptions\|customers\|payment_methods\|setup_intents\|prices\|products\|payment_intents\|subscription_items\)" stripe.yaml | head -60
+sed -n '147301,147460p' stripe.yaml
+awk 'NR>=147301 && NR<=148721 && /^    (post|get):/ {print NR": "$0}' stripe.yaml
+awk 'NR>=147565 && NR<=148721' stripe.yaml | grep -n "^                    [a-z_]*:" | head -80
+awk 'NR>=147565 && NR<=148721 {print NR": "$0}' stripe.yaml | grep -E "^[0-9]+:                (properties|[a-z_]+):" | head -80
+sed -n '147565,147680p' stripe.yaml
+sed -n '147565,148721p' stripe.yaml | grep -nE "^                [a-z_]+:"
+sed -n '147975,148000p;148245,148265p;148645,148720p' stripe.yaml
+sed -n '148120,148220p' stripe.yaml
+sed -n '148592,148615p' stripe.yaml && echo ---PRICES--- && sed -n '131359,131370p' stripe.yaml && awk 'NR>=131359 && NR<=131911 && /^    post:/{print NR}' stripe.yaml
+sed -n '131565,131911p' stripe.yaml | grep -nE "^                [a-z_]+:|^              required:"
+sed -n '131775,131810p;131893,131900p' stripe.yaml
+grep -n "payment_methods" stripe.yaml | grep -E "^\s*[0-9]+:  /v1"
+grep -nE "^  /v1/customers/" stripe.yaml && echo --- && grep -nE "^  /v1/payment_methods/" stripe.yaml
+grep -nE "^  /v1/[a-z_{}/]+:$" stripe.yaml | grep -iE "customer|payment_method|setup_intent|subscription|product|price|invoice"
+grep -cE "^  /v1/.*\{" stripe.yaml; grep -nE "^  /v1/.*\{" stripe.yaml | head -20
+awk 'NR>=127440 && NR<=131359 && /^    (get|post):/{print NR": "$0}' stripe.yaml && echo "---GET PM query params---" && sed -n '127440,127560p' stripe.yaml | grep -nE "^          - description|name: [a-z_]+"
+sed -n '127459,127475p;127525,127535p' stripe.yaml
+sed -n '132412,132685p' stripe.yaml | grep -nE "^                [a-z_]+:|^              required:|^                - [a-z_]+" | tail -30
+awk 'NR>=138252 && NR<=139000 && /^    post:/{print NR}' stripe.yaml
+sed -n '138425,141200p' stripe.yaml | grep -nE "^                [a-z_]+:|^              required:" | grep -v "explode\|deepObject"
+grep -n "^    subscription:" stripe.yaml
+sed -n '53366,54400p' stripe.yaml | grep -nE "^        [a-z_]+:|^      required:" | head -70
+sed -n '53705,53725p;53749,53770p' stripe.yaml
+grep -nE "^  /v1/webhook" stripe.yaml; echo "=== prices GET ===" && sed -n '131360,131565p' stripe.yaml | grep -nE "name: [a-z_]+"; echo "=== products GET ===" && sed -n '132241,132412p' stripe.yaml | grep -nE "name: [a-z_]+"
+awk 'NR>=168832 && NR<=169400 && /^    post:/{print NR}' stripe.yaml
+sed -n '168937,169400p' stripe.yaml | grep -nE "^                [a-z_]+:|^              required:|^                - [a-z_]+" | grep -v "explode\|deepObject" ; echo "=== events sample ===" && sed -n '168937,169400p' stripe.yaml | grep -nE "customer.subscription.(trial_will_end|updated|created)|invoice.payment_failed|invoice.paid" | head
+sed -n '169400,169460p' stripe.yaml | grep -nE "required:|- [a-z_]+|url:" | head -20
+sed -n '169425,169500p' stripe.yaml
+grep -nE "^  '?/v1/[^ ]*'?:$" stripe.yaml | grep -iE "customers|payment_methods|setup_intents|subscriptions|prices|products|invoices"
+sed -n '85135,85622p' stripe.yaml | grep -nE "^                [a-z_]+:" | grep -v "explode\|deepObject"; echo "=== invoice_settings detail ==="; sed -n '85135,85622p' stripe.yaml | awk 'NR>=1 && /invoice_settings:/{f=NR} f && NR>=f && NR<=f+30{print NR": "$0}' | head -35
+sed -n '85451,85500p' stripe.yaml
+sed -n '138612,138622p;140044,140060p' stripe.yaml; echo "=== attach required ==="; sed -n '138978,139070p' /dev/null; sed -n '128978,129063p' stripe.yaml | grep -nE "name: |required:|- customer|customer:"
+sed -n '148234,148245p' stripe.yaml; echo "=== setup_intent status enum ==="; grep -n "^    setup_intent:" stripe.yaml
+sed -n '50487,51100p' stripe.yaml | grep -nE "^        (status|next_action|client_secret|payment_method|customer|id):" ; echo "---"; sed -n '50487,51100p' stripe.yaml | awk '/^        status:/{f=1} f&&NR<f+0{} f{print; c++} c>25{exit}'
+sed -n '85051,85135p' stripe.yaml | grep -nE "name: |operationId"
+sed -n '168937,169425p' stripe.yaml | grep -nE "customer\.subscription\.deleted|invoice\.payment_action_required|setup_intent\.succeeded|setup_intent\.setup_failed|invoice\.upcoming"
+awk 'NR>=148838 && NR<=150235 && /^    post:/{print NR}' stripe.yaml | head -1
+sed -n '148989,150235p' stripe.yaml | grep -nE "^                (default_payment_method|trial_end|items|cancel_at_period_end):"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree stripe.yaml --format=ai --find "subscription" | head -100
+redocly tree stripe.yaml --format=ai --operation=PostSubscriptions | head -200
+redocly tree stripe.yaml --format=ai --find "payment method customer" | head -40; echo ===; redocly tree stripe.yaml --format=ai --find "price product" | head -30; echo ===; redocly tree stripe.yaml --format=ai --webhooks | grep -iE "invoice|subscription|setup" | head -40
+redocly tree stripe.yaml --format=ai --find "price" | head -20; echo "---"; redocly tree stripe.yaml --format=ai --find "product" | head -12
+for op in PostProducts PostPrices GetCustomersCustomerPaymentMethods PostSetupIntents; do echo "######## $op"; redocly tree stripe.yaml --format=ai --operation=$op | head -20 | cut -c1-4000; done
+redocly tree stripe.yaml --format=ai --operation=PostPrices | grep -o '"recurring":{"description[^}]*}[^}]*}[^}]*}' | cut -c1-2000; echo "---CUST---"; redocly tree stripe.yaml --format=ai --operation=PostCustomersCustomer | grep -o '"invoice_settings":{[^€]\{0,1500\}' | cut -c1-1600
+redocly tree stripe.yaml --format=ai --operation=PostCustomersCustomer > /private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad/cust.txt; python3 -c "
+import re
+s=open('/private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad/cust.txt').read()
+i=s.find('\"invoice_settings\"')
+print(s[i:i+1500])
+print('====HEAD====')
+print(s[:300])
+"
+python3 -c "
+s=open('cust.txt').read()
+i=s.find('\"invoice_settings\":{\"description')
+print(s[i:i+1200])
+redocly tree stripe.yaml --format=ai --component=schemas --name=subscription > /private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad/sub.txt; python3 - <<'EOF'
+import json,re
+s=open('/private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad/sub.txt').read()
+print(s[:200])
+i=s.find('{"description')
+try:
+d=json.loads(s[i:s.rindex('}')+1])
+except Exception as e:
+d=None; print('parse fail',e)
+if d:
+props=d.get('properties',{})
+for k in props: print(k, '|', str(props[k].get('description',''))[:120])
+EOF
+redocly tree stripe.yaml --format=ai --component=schemas --name=subscription_item | head -6; echo "---WEBHOOKS---"; redocly tree stripe.yaml --format=ai --webhooks | grep -iE "invoice\.|subscription|setup_intent" | head -40
+redocly tree stripe.yaml --format=ai --webhooks | head -20; echo "---EVENTTYPES---"; redocly tree stripe.yaml --format=ai --find "event" | head -20
+redocly tree stripe.yaml --format=ai --operation=PostWebhookEndpoints > /private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad/wh.txt; python3 - <<'EOF'
+s=open('/private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad/wh.txt').read()
+ev=set(re.findall(r'"((?:invoice|customer\.subscription|setup_intent|payment_intent|invoiceitem)[a-z_.]*)"',s))
+for e in sorted(ev): print(e)
+cd /private/tmp/claude-501/-Users-tora-bench-run-stripe-tree-help-local-opus-r5/81736b1e-7050-4eda-b2ad-8fcd15bd9f34/scratchpad; python3 - <<'EOF'
+s=open('wh.txt').read()
+i=s.find('"url"')
+print('WH url/params:', s[s.find('"enabled_events"'):s.find('"enabled_events"')+200])
+redocly tree /Users/tora/bench-run/stripe-tree-help-local-opus-r5/stripe.yaml --format=ai --operation=PostSetupIntents | python3 -c "
+import sys,re
+s=sys.stdin.read()
+for k in ['\"usage\"','\"payment_method\":','\"payment_method_types\"','\"single_use\"']:
+i=s.find(k); print(k, s[i:i+320].replace(chr(10),' ') if i>0 else 'NOT FOUND'); print()
+redocly tree /Users/tora/bench-run/stripe-tree-help-local-opus-r5/stripe.yaml --format=ai --operation=PostPaymentMethodsPaymentMethodAttach | cut -c1-1500 | tail -c 1200
+echo; echo "---IDEMPOTENCY---"
+grep -c "Idempotency-Key" /Users/tora/bench-run/stripe-tree-help-local-opus-r5/stripe.yaml
+cd /Users/tora/bench-run/stripe-tree-help-local-opus-r5; head -20 stripe.yaml; echo "---INV---"; redocly tree stripe.yaml --format=ai --component=schemas --name=invoice | head -2
+cd /Users/tora/bench-run/stripe-tree-help-local-opus-r5; grep -n "^servers:" -A4 stripe.yaml; grep -n "^  version:" -A2 stripe.yaml | head; redocly tree stripe.yaml --format=ai --component=schemas --name=invoices_resource_confirmation_secret | head -3
+cd /Users/tora/bench-run/stripe-tree-help-local-opus-r5; redocly tree stripe.yaml --format=ai --path=/v1/subscriptions/{subscription_exposed_id} | head -8; redocly tree stripe.yaml --format=ai --path=/v1/setup_intents/{intent} | head -8; redocly tree stripe.yaml --format=ai --path=/v1/invoices/{invoice}/pay | head -6
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -1990,8 +2575,1179 @@ redocly tree stripe.yaml --component=schemas --name="subscriptions_resource_tria
 {% /tab %}
 {% /tabs %}
 
-Only Opus 5 passes, on both sides. Sonnet 5 and Haiku 4.5 fail every run the same way regardless of condition: they assume a price that already exists — "items[0][price]: your price id" — although the task launches the tier from nothing, and most never say how a call authenticates.
-The index does not fix a plan that starts from the wrong premise; it just makes it 41% cheaper for Sonnet 5.
+Only Opus 5 passes — every run with the index, four of five without, where one run left every call unauthenticated. Sonnet 5 and Haiku 4.5 fail every run the same way regardless of condition: they assume a price that already exists — "items[0][price]: your price id" — although the task launches the tier from nothing, and most never say how a call authenticates.
+The index does not fix a plan that starts from the wrong premise; it just makes it cheaper.
+
+{% /tab %}
+
+{% tab label="PayPal Orders · 0.9 MB" %}
+
+**Task:** take the buyer's payment for a cart, capture it once they approve, and file the shipment's tracking number against that payment.
+Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
+Traps: capture happens only after an approval step that is not an API call; the tracker binds to the `capture_id` from the capture response, not to the order; the OAuth2 token endpoint is not a path in this description.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+We sell physical goods online: take the buyer's payment for a cart, capture the money once
+they approve, and file the shipment's tracking number against that payment so the buyer
+sees it. Work out what our backend has to call, end to end.
+
+API description: paypal.json
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+We sell physical goods online: take the buyer's payment for a cart, capture the money once
+they approve, and file the shipment's tracking number against that payment so the buyer
+sees it. Work out what our backend has to call, end to end.
+
+API description: paypal.json
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree paypal.json --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+Context the run added, and the tool calls it took (medians over the working runs):
+
+| Model           |     no tree |        tree | Difference |
+| --------------- | ----------: | ----------: | ---------: |
+| Sonnet 5 (n=5)  |  9,857 / 12 | 17,435 / 10 |       +77% |
+| Opus 5 (n=5)    | 18,038 / 11 | 21,656 / 20 |       +20% |
+| Haiku 4.5 (n=5) |  17,624 / 9 | 19,569 / 14 |       +11% |
+
+What those runs were billed:
+
+| Model           | no tree |  tree | Difference |
+| --------------- | ------: | ----: | ---------: |
+| Sonnet 5 (n=5)  |   $0.40 | $0.38 |        −5% |
+| Opus 5 (n=5)    |   $0.71 | $0.93 |       +31% |
+| Haiku 4.5 (n=5) |   $0.11 | $0.12 |        +9% |
+
+Whether each run produced a flow that would run:
+
+| Run               | no tree                          | tree                              |
+| ----------------- | -------------------------------- | --------------------------------- |
+| Sonnet 5 · run 1  | works                            | works                             |
+| Sonnet 5 · run 2  | works                            | works                             |
+| Sonnet 5 · run 3  | works                            | works                             |
+| Sonnet 5 · run 4  | works                            | works                             |
+| Sonnet 5 · run 5  | works                            | works                             |
+| Opus 5 · run 1    | works                            | works                             |
+| Opus 5 · run 2    | works                            | works                             |
+| Opus 5 · run 3    | works                            | works                             |
+| Opus 5 · run 4    | works                            | works                             |
+| Opus 5 · run 5    | works                            | works                             |
+| Haiku 4.5 · run 1 | no tracker call                  | no intent field, no carrier field |
+| Haiku 4.5 · run 2 | no auth scheme                   | no intent field, no auth scheme   |
+| Haiku 4.5 · run 3 | no intent field, no capture call | works                             |
+| Haiku 4.5 · run 4 | works                            | works                             |
+| Haiku 4.5 · run 5 | no tracker call, no auth scheme  | works                             |
+
+A run works when its flow contains the order create naming `intent` and `purchase_units`, the capture, and the tracker call naming `capture_id`, `tracking_number` and `carrier`, with the OAuth2 access token named in any spelling.
+
+What each run ran:
+
+{% tabs %}
+{% tab label="Sonnet 5" %}
+
+{% tabs %}
+{% tab label="Sonnet 5 · run 1 · no tree" %}
+
+```bash
+python3 -c "
+import json
+with open('paypal.json') as f:
+spec = json.load(f)
+print(list(spec.keys()))
+print(spec.get('info'))
+"
+for p,v in spec['paths'].items():
+print(p, list(v.keys()))
+def show(path, method):
+op = spec['paths'][path][method]
+print('====', method.upper(), path, '====')
+print('operationId:', op.get('operationId'))
+print('summary:', op.get('summary'))
+rb = op.get('requestBody')
+if rb:
+ref = rb.get('content',{}).get('application/json',{}).get('schema',{})
+print('requestBody schema ref:', ref)
+print('responses:', list(op.get('responses',{}).keys()))
+for code in ['200','201']:
+r = op.get('responses',{}).get(code)
+if r:
+c = r.get('content',{}).get('application/json',{}).get('schema',{})
+print(code, 'response schema:', c)
+print()
+show('/v2/checkout/orders','post')
+show('/v2/checkout/orders/{id}','get')
+show('/v2/checkout/orders/{id}/capture','post')
+show('/v2/checkout/orders/{id}/track','post')
+schemas = spec['components']['schemas']
+for name in ['order_request','order_capture_request','order_tracker_request','link_description','order']:
+print('====', name, '====')
+print(json.dumps(schemas.get(name,{}), indent=1)[:2000])
+print('=== payments ===')
+print(json.dumps(schemas.get('payments',{}), indent=1)[:1500])
+print('=== capture (partial) ===')
+c = schemas.get('capture',{})
+print(list(c.get('properties',{}).keys()) if 'properties' in c else c.get('allOf'))
+print('=== shipment_tracker ===')
+print(json.dumps(schemas.get('shipment_tracker',{}), indent=1)[:1500])
+mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-paypal-control-v3-sonnet-r1/d3a744e3-22cb-4c60-8abd-219273cecb79/scratchpad
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find="order create" | head -100
+redocly tree paypal.json --format=ai --tag | head -100
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -300
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -200
+redocly tree paypal.json --format=ai --find="approve" | head -30
+redocly tree paypal.json --format=ai --component=schemas --name=order_capture_request | head -60
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · no tree" %}
+
+```bash
+wc -l paypal.json
+python3 -c "
+import json
+spec = json.load(open('paypal.json'))
+paths = spec.get('paths', {})
+for p in paths:
+if 'order' in p.lower() or 'track' in p.lower() or 'capture' in p.lower():
+print(p, list(paths[p].keys()))
+"
+import sys
+for p in ['/v2/checkout/orders']:
+op = paths[p]['post']
+print('OPERATION ID:', op.get('operationId'))
+print('SUMMARY:', op.get('summary'))
+print('REQUEST BODY REF:', json.dumps(op.get('requestBody',{}), indent=2)[:2000])
+op = paths['/v2/checkout/orders']['post']
+print(json.dumps(op.get('responses',{}).get('201',{}), indent=2)[:3000])
+op = paths['/v2/checkout/orders/{id}/capture']['post']
+print('PARAMS:', json.dumps(op.get('parameters',[]), indent=2)[:1000])
+print('REQBODY:', json.dumps(op.get('requestBody',{}).get('content',{}).get('application/json',{}).get('schema',{}), indent=2)[:500])
+print('RESP 201 desc:', op.get('responses',{}).get('201',{}).get('description'))
+op = paths['/v2/checkout/orders/{id}/track']['post']
+print('PARAMS:', json.dumps(op.get('parameters',[]), indent=2)[:800])
+schema_ref = op.get('requestBody',{}).get('content',{}).get('application/json',{}).get('schema',{})
+print('SCHEMA REF:', schema_ref)
+ex = op.get('requestBody',{}).get('content',{}).get('application/json',{}).get('examples',{})
+print('EXAMPLES:', json.dumps(ex, indent=2)[:2000])
+schemas = spec['components']['schemas']
+s = schemas['order_tracker_request']
+print(json.dumps(s, indent=2)[:2000])
+s = schemas['shipment_tracker']
+print(json.dumps(s, indent=2)[:2500])
+o = schemas['order']
+print(list(o.get('properties',{}).keys()) if 'properties' in o else o.get('allOf'))
+if 'token' in p.lower() or 'oauth' in p.lower():
+print(json.dumps(spec.get('components',{}).get('securitySchemes',{}), indent=2)[:1000])
+oc = schemas['order_capture_request']
+print(json.dumps(oc, indent=2)[:800])
+Artifact
+rm -f /private/tmp/claude-501/-Users-tora-bench-run-paypal-control-v3-sonnet-r2/4386981e-3416-4cfd-9afd-9945a0a2dfd4/scratchpad/placeholder.md
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find="order" | head -100
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders" --operation=post --with-deps | head -300
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation=post | head -150
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation=post | sed -n '150,260p'
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/track" --operation=post | head -180
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -100
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · no tree" %}
+
+```bash
+python3 -c "
+import json
+data = json.load(open('paypal.json'))
+paths = data.get('paths', {})
+for p in paths:
+if 'checkout' in p.lower() or 'track' in p.lower() or 'order' in p.lower():
+print(p, list(paths[p].keys()))
+"
+def show(p, m):
+op = paths[p][m]
+print('====', m.upper(), p, '====')
+print('summary:', op.get('summary'))
+rb = op.get('requestBody')
+if rb:
+content = rb.get('content', {})
+for ct, c in content.items():
+schema = c.get('schema', {})
+print('requestBody schema ref/keys:', schema)
+for resp_code, resp in op.get('responses', {}).items():
+print('response', resp_code, ':', json.dumps(resp)[:300])
+print()
+show('/v2/checkout/orders', 'post')
+schemas = data['components']['schemas']
+def brief_props(name, depth=0, seen=None):
+if seen is None: seen=set()
+s = schemas.get(name, {})
+req = s.get('required', [])
+props = s.get('properties', {})
+print('  '*depth + f'{name} required={req}')
+for k,v in props.items():
+ref = v.get('\$ref') or (v.get('items',{}).get('\$ref') if v.get('type')=='array' else None)
+print('  '*(depth+1) + f'{k}: ' + (ref if ref else v.get('type','?')))
+brief_props('order_request')
+def brief(name):
+if not s:
+print(name, 'NOT FOUND'); return
+print(f'{name} required={req}')
+print('  ' + f'{k}: ' + (ref if ref else v.get('type','?')))
+for n in ['purchase_unit_request','amount_with_breakdown','item','order','purchase_unit','link_description','order_status']:
+brief(n)
+print(json.dumps(schemas['order']['properties'], indent=1)[:2000])
+print(json.dumps(schemas['order'], indent=1)[:1500])
+paths = data['paths']
+op = paths['/v2/checkout/orders/{id}/capture']['post']
+print('summary', op.get('summary'))
+print('params', [p.get('name') for p in op.get('parameters',[])])
+print('reqBody', op.get('requestBody'))
+for code, r in op.get('responses',{}).items():
+print(code, str(r)[:200])
+if not s: print(name,'NOT FOUND'); return
+def walk(node, depth=1):
+if 'allOf' in node:
+for sub in node['allOf']: walk(sub, depth)
+return
+req = node.get('required', [])
+props = node.get('properties', {})
+if req: print('  '*depth+'required='+str(req))
+ref = v.get('\$ref')
+if not ref and v.get('type')=='array':
+ref = v.get('items',{}).get('\$ref')
+print('  '*depth + f'{k}: ' + (ref if ref else v.get('type','?')))
+print(f'== {name} ==')
+walk(s)
+for n in ['capture','purchase_unit','payment_collection','order_capture_request']:
+op = paths['/v2/checkout/orders/{id}/track']['post']
+print('description', op.get('description'))
+print('params', [(p.get('name'), p.get('in'), p.get('required')) for p in op.get('parameters',[])])
+rb = op['requestBody']
+print('schema ref', rb['content']['application/json']['schema'])
+enum = v.get('enum')
+extra = f' enum={enum}' if enum else ''
+print('  '*depth + f'{k}: ' + (ref if ref else v.get('type','?')) + extra)
+for n in ['order_tracker_request','tracker_item']:
+print(json.dumps(schemas['order_tracker_request'], indent=1))
+print(json.dumps(schemas['shipment_tracker'], indent=1))
+print(list(data.get('components',{}).get('securitySchemes',{}).keys()))
+print(data.get('security'))
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find=order | head -100
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | grep -n "responses\|\"20\|\"id\"\|status\|links" | head -60
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -120
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '120,260p'
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -160
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -100
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -80
+redocly tree paypal.json --format=ai --find=token | head -30
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | grep -n "checkout_payment_intent\|\"intent\"" | head -10
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · no tree" %}
+
+```bash
+wc -l paypal.json
+grep -n "\"\\/v2\\/(checkout\\/orders|payments\\/captures|orders)[^\"]*\"" paypal.json
+grep -i -n "tracker" paypal.json
+sed -n '32,152p' paypal.json
+sed -n '2145,2265p' paypal.json
+sed -n '2822,2962p' paypal.json
+sed -n '14722,14792p' paypal.json
+grep -n "\"/v1/oauth2/token\"|generate-client-token|\"grant_type\"" paypal.json | head -10
+sed -n '15828,15873p' paypal.json
+grep -n "\"00_orders_capture\"" paypal.json
+sed -n '2417,2507p' paypal.json
+# write /private/tmp/claude-501/-Users-tora-bench-run-paypal-control-v3-sonnet-r4/e92f2020-83e4-476e-afec-c23dd6f0dc17/scratchpad/paypal_flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree paypal.json --format=ai --tag | head -100
+redocly tree paypal.json --format=ai --tag=orders
+redocly tree paypal.json --format=ai --tag=trackers
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | sed -n '400,700p'
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | sed -n '1,50p'
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | grep -n "\"schema\"\|\$ref\|200\":\|201\":\|responses" | head -40
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | sed -n '1,150p'
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | sed -n '1,120p'
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker --with-deps | sed -n '1,60p'
+redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit --with-deps | grep -n "payments\|captures" | head -20
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · no tree" %}
+
+```bash
+cat paypal.json
+grep -n "\"/v2/checkout/orders|/v1/shipping/trackers|\"paths\"" paypal.json
+sed -n '32,232p' paypal.json
+sed -n '2145,2395p' paypal.json
+sed -n '2822,3042p' paypal.json
+sed -n '420,540p' paypal.json
+mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-paypal-control-v3-sonnet-r5/09d738a7-6fae-4a8e-afc7-6bc8716ed710/scratchpad
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find="order" | head -100
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | tail -150
+redocly tree paypal.json --format=ai --pointer="#/paths/~1v2~1checkout~1orders/post/responses/201/content/application~1json/examples/orders_create_simple" | head -80
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -150
+redocly tree paypal.json --format=ai --pointer="#/paths/~1v2~1checkout~1orders~1{id}~1capture/post/responses/201/content/application~1json/examples/00_orders_capture" | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | sed -n '1,140p'
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -80
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60
+redocly tree paypal.json --format=ai --find="oauth token" | head -40
+redocly tree paypal.json --format=ai --find="token" | head -30
+redocly tree paypal.json --format=ai --component=securitySchemes | head -60
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -30
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Opus 5" %}
+
+{% tabs %}
+{% tab label="Opus 5 · run 1 · no tree" %}
+
+```bash
+ls -la paypal.json && wc -c paypal.json
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(d.get('openapi'), d.get('swagger'))
+print(json.dumps(d.get('info'),indent=1)[:800])
+print('servers',d.get('servers'))
+for p,ops in d['paths'].items():
+print(p, [m for m in ops if m in ('get','post','patch','put','delete')])
+"
+print(json.dumps(d.get('components',{}).get('securitySchemes'),indent=1))
+print('GLOBAL SEC',d.get('security'))
+p=d['paths']['/v2/checkout/orders']['post']
+print(json.dumps({k:v for k,v in p.items() if k!='responses'},indent=1)[:4000])
+S=d['components']['schemas']
+print('REQBODY REF', json.dumps(p['requestBody'])[:300])
+r=S['order_request']
+print('required',r.get('required'))
+for k,v in r['properties'].items():
+print(' -',k, v.get('\$ref') or v.get('type'), str(v.get('description'))[:100])
+print('INTENT',S['checkout_payment_intent'])
+pu=S['purchase_unit_request']
+print('PU required',pu.get('required'))
+for k,v in pu['properties'].items(): print('  pu.',k,v.get('\$ref') or v.get('type'))
+am=S['amount_with_breakdown']
+print('AMT req',am.get('required'), list(am['properties']))
+ship=S.get('shipping_detail') or S.get('shipping_with_tracking_details')
+print([k for k in S if 'shipping' in k][:20])
+" | head -60
+pu=S['purchase_unit_request']['properties']
+print('AMOUNT', json.dumps(pu['amount'])[:400])
+print('SHIPPING', json.dumps(pu['shipping'])[:300])
+print('ITEMS', json.dumps(pu['items'])[:300])
+print()
+for n in ['amount_with_breakdown','money','item','shipping_detail']:
+if n in S:
+print(n,'req',S[n].get('required'),'props',list(S[n].get('properties',{})))
+print(json.dumps(S['amount_with_breakdown'],indent=1)[:1500])
+print('ITEM_REQ req',S['item_request'].get('required'),list(S['item_request'].get('properties',{})))
+print('payment_source props',list(S['payment_source'].get('properties',{})))
+pp=S['payment_source']['properties']['paypal']
+print(json.dumps(pp)[:300])
+n=[k for k in S if 'paypal_wallet' in k]
+print(n)
+w=S['paypal_wallet']
+print('paypal_wallet req',w.get('required'),list(w.get('properties',{})))
+ec=S['paypal_wallet_experience_context']
+print('EC req',ec.get('required'))
+for k,v in ec.get('properties',{}).items(): print('  ',k, v.get('type') or v.get('\$ref'), str(v.get('description'))[:80])
+ec=S['paypal_wallet_experience_context']['properties']
+for k in ['shipping_preference','user_action','return_url','cancel_url']:
+print(k, json.dumps(ec[k])[:400])
+print('order resp', list(S['order'].get('properties',{})) if 'order' in S else 'none')
+print('link', S['link_description'].get('required'), list(S['link_description']['properties']))
+print('order.status', json.dumps(S['order']['properties'].get('status'))[:600])
+print(json.dumps(S['order'])[:800])
+# capture op
+cap=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+print('CAP params',[ (p.get('name') or p.get('\$ref')) for p in cap.get('parameters',[])])
+print('CAP body',json.dumps(cap.get('requestBody'))[:200])
+print('CAP resp',list(cap['responses'].keys()))
+print('CAP 201 schema',json.dumps(cap['responses'].get('201',{}).get('content',{}).get('application/json',{}).get('schema'))[:200])
+t=d['paths']['/v2/checkout/orders/{id}/track']['post']
+print('TRACK params',[(p.get('name') or p.get('\$ref')) for p in t.get('parameters',[])])
+print('TRACK body',json.dumps(t['requestBody'])[:200])
+print('TRACK resp',list(t['responses']))
+for c in ['200','201','202']:
+if c in t['responses']: print(c, json.dumps(t['responses'][c].get('content',{}).get('application/json',{}).get('schema'))[:150])
+n=[k for k in S if 'track' in k.lower()]
+otr=S['order_tracker_request']
+print(json.dumps(otr,indent=1)[:3000])
+st=S['shipment_tracker']
+print(json.dumps(st,indent=1)[:2500])
+ex=p['requestBody']['content']['application/json']['examples']
+print(list(ex)[:20])
+print(json.dumps(ex['00_orders_create']['value'],indent=1)[:2000])
+r=p['responses']
+print('resp codes',list(r))
+rex=r['200']['content']['application/json'].get('examples',{}) if '200' in r else {}
+print('200 ex',list(rex)[:10])
+print(json.dumps(p['responses']['200']['content']['application/json']['examples']['00_orders_create']['value'],indent=1)[:1500])
+print('---200 ex 201:')
+print(list(p['responses']['201']['content']['application/json'].get('examples',{})))
+for code in ['200','201']:
+exs=cap['responses'][code]['content']['application/json'].get('examples',{})
+print(code,list(exs))
+if exs:
+k=list(exs)[0]
+print(json.dumps(exs[k]['value'],indent=1)[:2500])
+break
+exs=t['requestBody']['content']['application/json']['examples']
+print(list(exs))
+for k in exs: print(k, json.dumps(exs[k]['value'],indent=1)[:800])
+e=t['responses'][code]['content']['application/json'].get('examples',{})
+print(code, list(e))
+if e:
+kk=list(e)[0]; print(json.dumps(e[kk]['value'],indent=1)[:1500])
+c=S['shipment_carrier']
+e=c.get('enum',[])
+print('carrier enum count',len(e))
+print([x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER','FEDEX_UK','UPS_MI','DHL_GLOBAL_MAIL')])
+print(json.dumps(d['components']['parameters'].get('authorization'),indent=1)[:600])
+g=d['paths']['/v2/checkout/orders/{id}']['get']
+print('GET params',[(p.get('name') or p.get('\$ref')) for p in g.get('parameters',[])])
+print('order status enum', json.dumps([x for x in json.dumps(S['order']) .split() if False]))
+o=S['order']['allOf'][1]['properties']
+print(list(o))
+print(json.dumps(o['status'])[:900])
+print('order_capture_request', json.dumps(S['order_capture_request'])[:600])
+print(json.dumps(S['order_status']))
+tp=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print('PATCH params',[(p.get('name') or p.get('\$ref')) for p in tp.get('parameters',[])])
+print('body',json.dumps(tp['requestBody'])[:300])
+print('resp',list(tp['responses']))
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 1 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree paypal.json --format=ai | head -100
+redocly tree paypal.json --format=ai --operation=orders.create | head -80; echo ==========; redocly tree paypal.json --format=ai --operation=orders.capture | head -60
+redocly tree paypal.json --format=ai --operation=orders.capture > /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/capture.txt; wc -l /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/capture.txt
+cd /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad; grep -n '"name"\|required\|\$ref\|"in"\|responses\|"20\|"4' capture.txt | head -60
+redocly tree paypal.json --format=ai --operation=orders.track.create > /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/track.txt; sed -n '1,140p' /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/track.txt
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -120
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60; echo "=====ORDERREQ"; redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -80
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; for n in purchase_unit_request checkout_payment_intent; do redocly tree paypal.json --format=ai --component=schemas --name=$n | head -90; echo "==========="; done
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --find="experience_context" | head -40; echo ====; redocly tree paypal.json --format=ai --component=schemas --name=amount_with_breakdown | head -30
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=paypal_wallet_experience_context | head -50; redocly tree paypal.json --format=ai --component=schemas --name=experience_context_base | head -70
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=securitySchemes | head -40; redocly tree paypal.json --format=ai --component=parameters|head -40
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2|head -30; redocly tree paypal.json --format=ai --component=parameters --name=authorization|head -25
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=order|head -80
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=order_status|head -30; redocly tree paypal.json --format=ai --component=schemas --name=capture_status|head -30
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --operation=orders.create > /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/create.txt; grep -n '"rel"\|"href"\|"status"' /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/create.txt | head -40
+cd /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad; sed -n '380,470p' capture.txt
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --operation=orders.trackers.patch > /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/tpatch.txt; sed -n '1,120p' /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad/tpatch.txt
+cd /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad; grep -n 'trackers\|"id"\|tracking_number\|"status"\|carrier' track.txt | head -40
+cd /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-local-opus-r1/0f6cc94d-6d72-4752-a01e-21612cb51a5a/scratchpad; grep -n '^                    "[0-9]' track.txt; cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | sed -n '1,20p'; redocly tree paypal.json --format=ai --component=schemas --name=order_capture_request|head -25
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | grep -oE '"(FEDEX|UPS|USPS|DHL|OTHER|FEDEX_UK|UPS_MI)"' | sort -u; echo ---; redocly tree paypal.json --format=ai --component=schemas --name=tracker_item|head -30
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=item_request|grep -A8 '"required"'|head -20; echo ---; redocly tree paypal.json --format=ai --component=schemas --name=amount_with_breakdown|head -25
+cd /Users/tora/bench-run/paypal-tree-help-local-opus-r1; redocly tree paypal.json --format=ai --component=schemas --name=money|head -14; redocly tree paypal.json --format=ai --operation=orders.get | grep -n '"name"\|"in"\|required' | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · no tree" %}
+
+```bash
+ls -la paypal.json && wc -c paypal.json
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(d.get('info',{}).get('title'), d.get('info',{}).get('version'))
+print(list(d.keys()))
+for p,v in d['paths'].items():
+print(p, [m for m in v if m in ('get','post','put','patch','delete')])
+"
+print(json.dumps(d['servers'],indent=1))
+print(json.dumps(d.get('components',{}).get('securitySchemes'),indent=1)[:2000])
+p=d['paths']['/v2/checkout/orders']['post']
+print('--- create order params')
+for pr in p.get('parameters',[]): print(pr.get('name'),pr.get('in'),pr.get('required'),pr.get('schema',{}).get('type'), str(pr.get('description'))[:150])
+print('--- body ref', json.dumps(p['requestBody'],indent=1)[:800])
+print('--- responses', list(p['responses'].keys()))
+for c,r in p['responses'].items():
+print(c, json.dumps(r.get('content',{}).get('application/json',{}).get('schema',{}))[:200])
+s=d['components']['schemas']
+def show(n,depth=0,maxlen=1500):
+sc=s[n]
+print('==',n,'required:',sc.get('required'))
+print(json.dumps({k:(v if not isinstance(v,dict) else {kk:(vv if not isinstance(vv,dict) else list(vv.items())[:0] or vv.get('\$ref') or vv.get('type')) for kk,vv in v.items()}) for k,v in sc.get('properties',{}).items()},indent=1)[:maxlen])
+for n in ['order_request','purchase_unit_request','amount_with_breakdown','order']:
+show(n)
+print(json.dumps(s['amount_with_breakdown'])[:900]); print()
+print(json.dumps(s['order'])[:2500]); print()
+print('amount_ref:',json.dumps(s.get('amount'))[:600])
+for path in ['/v2/checkout/orders/{id}/capture','/v2/checkout/orders/{id}/track','/v2/checkout/orders/{id}/trackers/{tracker_id}','/v2/checkout/orders/{id}']:
+for m,op in d['paths'][path].items():
+if m not in ('get','post','patch'): continue
+print('#####',m.upper(),path)
+for pr in op.get('parameters',[]):
+print('  param:',pr.get('name'),pr.get('in'),'req=',pr.get('required'))
+rb=op.get('requestBody')
+if rb: print('  body req=',rb.get('required'),'schema=',json.dumps(rb['content']['application/json']['schema'])[:300])
+print('  responses:',{c:json.dumps(r.get('content',{}).get('application/json',{}).get('schema',{}))[:120] for c,r in op['responses'].items()})
+for n in ['order_tracker_request','order_capture_request','link_description','order_status','capture','purchase_unit','payment_collection','tracker','shipping_with_tracking_details']:
+if n in s: print('==',n, json.dumps(s[n])[:1600],'\n')
+else: print('== MISSING',n)
+print('== shipment_tracker', json.dumps(s['shipment_tracker'])[:2500])
+print()
+print('== money', json.dumps(s['money'])[:900])
+print('== intent', json.dumps(s['checkout_payment_intent'])[:400])
+print('== tracker_status', json.dumps(s.get('tracker_status'))[:300])
+print('== carrier sample', json.dumps(s.get('shipment_carrier',{}))[:300])
+op=d['paths']['/v2/checkout/orders/{id}/track']['post']
+print(json.dumps(op.get('requestBody',{}).get('content',{}).get('application/json',{}).get('examples',{}))[:1500])
+print('--- resp examples')
+print(json.dumps(op['responses']['200'].get('content',{}).get('application/json',{}).get('examples',{}))[:2500])
+print(json.dumps(op['responses']['201'].get('content',{}).get('application/json',{}).get('examples',{}))[:2500])
+print('--- prefer desc')
+cap=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+for pr in cap.get('parameters',[]):
+if pr.get('name')=='Prefer': print(pr['description'][:600])
+import json,re
+op=d['paths']['/v2/checkout/orders']['post']
+for code in ['200','201']:
+ex=op['responses'][code].get('content',{}).get('application/json',{}).get('examples',{})
+for k,v in ex.items():
+val=v.get('value',{})
+print(code,k,'status=',val.get('status'),'links=',[(l.get('rel'),l.get('method')) for l in val.get('links',[])])
+op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print(op.get('description','')[:800])
+print(json.dumps(op['requestBody']['content']['application/json'].get('examples',{}))[:800])
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · tree" %}
+
+```bash
+ls -la && redocly tree --help
+redocly tree paypal.json --format=ai --tag | head -60
+redocly tree paypal.json --format=ai --operations | head -40
+redocly tree paypal.json --format=ai --operation orders.create | head -80
+redocly tree paypal.json --format=ai --operation orders.create | sed -n '80,200p'
+redocly tree paypal.json --format=ai --component schemas --name order_request | head -60; echo "=== TRACK ==="; redocly tree paypal.json --format=ai --operation orders.track.create | head -120
+redocly tree paypal.json --format=ai --component schemas --name order_tracker_request | head -70; echo "=== AUTHZ PARAM ==="; redocly tree paypal.json --format=ai --component parameters --name authorization | head -30; echo "=== SECURITY SCHEME ==="; redocly tree paypal.json --format=ai --component securitySchemes | head -40
+redocly tree paypal.json --format=ai --component securitySchemes --name Oauth2 --with-deps | head -40; echo "=== shipment_tracker ==="; redocly tree paypal.json --format=ai --component schemas --name shipment_tracker | head -40
+redocly tree paypal.json --format=ai --operation orders.capture | grep -n '"responses"\|"20[01]"\|\$ref\|"description"\|"Prefer"\|"name":' | head -50
+redocly tree paypal.json --format=ai --operation orders.capture | sed -n '120,130p'; echo "=== capture req schema ==="; redocly tree paypal.json --format=ai --component schemas --name order_capture_request | head -30; echo "=== 201 example ==="; redocly tree paypal.json --format=ai --operation orders.capture | sed -n '276,370p'
+redocly tree paypal.json --format=ai --component schemas --name checkout_payment_intent | head -20; echo "=== servers ==="; python3 -c "
+import json;d=json.load(open('paypal.json'));print(json.dumps(d.get('servers'),indent=1));print(d['info']['version'], d['info']['title'])"
+redocly tree paypal.json --format=ai --operation orders.create | grep -n '"rel"\|"status"\|"responses"\|"20[0-9]"' | head -30; echo "=== track resp ==="; redocly tree paypal.json --format=ai --operation orders.track.create | sed -n '120,220p'
+redocly tree paypal.json --format=ai --component schemas --name purchase_unit_request | grep -n '"required"' -A6 | head -20; echo "=== carrier ==="; python3 -c "
+import json;d=json.load(open('paypal.json'));s=d['components']['schemas']['shipment_carrier'];print(s.get('type'),s.get('description','')[:200]);e=s.get('enum',[]);print(len(e), e[:12])"; echo "=== create 200 ex ==="; redocly tree paypal.json --format=ai --operation orders.create | sed -n '261,295p'
+redocly tree paypal.json --format=ai --operation orders.trackers.patch | grep -n '"value"\|"op"\|"path"\|"tracker_id"\|"description"' | head -25
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+ls -la paypal.json && wc -c paypal.json
+python3 -c "
+import json
+s=json.load(open('paypal.json'))
+print(s.get('openapi'), s.get('info',{}).get('title'), s.get('info',{}).get('version'))
+print('servers', s.get('servers'))
+for p,ops in s['paths'].items():
+print(p, [m for m in ops if m in ('get','post','put','patch','delete')])
+"
+print(json.dumps(s.get('components',{}).get('securitySchemes'),indent=1))
+print('top security', s.get('security'))
+for p in ['/v2/checkout/orders','/v2/checkout/orders/{id}/capture','/v2/checkout/orders/{id}/track']:
+for m,op in s['paths'][p].items():
+if m not in ('get','post','patch'): continue
+print('===',m.upper(),p, op.get('operationId'))
+print(' security', op.get('security'))
+print(' params', [(pr.get('name'),pr.get('in'),pr.get('required'),pr.get('schema',{}).get('type'), (pr.get('description') or '')[:120]) for pr in op.get('parameters',[])])
+rb=op.get('requestBody')
+if rb: print(' body req', rb.get('required'), list(rb.get('content',{}).keys()), rb['content'].get('application/json',{}).get('schema'))
+print(' responses', list(op.get('responses',{}).keys()))
+C=s['components']['schemas']
+def show(n,d=0,seen=None):
+sc=C[n]
+print(json.dumps({k:v for k,v in sc.items() if k!='properties'},indent=1)[:800])
+for k,v in (sc.get('properties') or {}).items():
+print('  -',k, v.get('type') or v.get('\$ref'), '|', (v.get('description') or '')[:100].replace(chr(10),' '))
+for n in ['order_request','purchase_unit_request','amount_with_breakdown','order_application_context','payment_source','order_tracker_request']:
+print('=====',n); show(n)
+print('== shipment_tracker'); print(json.dumps(C['shipment_tracker'],indent=1)[:2500])
+print('== checkout_payment_intent'); print(json.dumps(C['checkout_payment_intent'],indent=1)[:600])
+print('== order_tracker_response keys'); print(json.dumps(C.get('order_tracker_response'),indent=1)[:1200])
+P=s['paths']
+for p,m in [('/v2/checkout/orders','post'),('/v2/checkout/orders/{id}/capture','post'),('/v2/checkout/orders/{id}/track','post')]:
+op=P[p][m]
+for code,r in op['responses'].items():
+if code[0] in '23':
+sc=(r.get('content') or {}).get('application/json',{}).get('schema')
+print(p,code,r.get('description','')[:80],'->',sc)
+def props(n):
+sc=C[n]; print('==',n, sc.get('required'))
+for part in ([sc]+sc.get('allOf',[])):
+for k,v in (part.get('properties') or {}).items():
+print('  -',k,v.get('type') or v.get('\$ref'),'|',(v.get('description') or '')[:90].replace(chr(10),' '))
+for n in ['order','purchase_unit','payment_collection','capture','link_description','order_status']:
+try: props(n)
+except KeyError as e: print('missing',n)
+print(json.dumps(C.get('order_status'),indent=1)[:800])
+print(json.dumps(C['capture'],indent=1)[:1500])
+print('--- shipping_with_tracking_details / trackers')
+for n in C:
+if 'track' in n.lower(): print('SCHEMA:',n)
+print(json.dumps(C['shipping_with_tracking_details'],indent=1)[:1200])
+print('== tracker'); print(json.dumps(C['tracker'],indent=1)[:1500])
+print('== capture_status'); print(json.dumps(C['capture_status'],indent=1)[:900])
+print('== carrier sample'); e=C['shipment_carrier'].get('enum',[]); print(len(e), e[:15], [x for x in e if 'FEDEX' in x or 'UPS' in x][:10])
+print(json.dumps(C['payment_source']['properties']['paypal'],indent=1)[:600])
+if 'experience_context' in n: print('SCHEMA',n)
+for n in ['paypal_wallet_experience_context','experience_context_base']:
+print('==',n, json.dumps({k:v for k,v in C[n].items() if k!='properties'})[:300])
+for part in [C[n]]+C[n].get('allOf',[]):
+for k,v in (part.get('properties') or {}).items(): print('  -',k, v.get('type') or v.get('\$ref'), (v.get('enum') or ''), (v.get('description') or '')[:70].replace(chr(10),' '))
+print('== shipping_detail')
+sd=C['shipping_detail']
+for part in [sd]+sd.get('allOf',[]):
+for k,v in (part.get('properties') or {}).items(): print('  -',k, v.get('type') or v.get('\$ref'))
+op=s['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print(op.get('operationId'),[ (p.get('name'),p.get('in'),p.get('required')) for p in op.get('parameters',[])])
+print(json.dumps(op['requestBody'],indent=1)[:400], list(op['responses']))
+print(json.dumps(s['components']['schemas']['patch'],indent=1)[:700])
+g=s['paths']['/v2/checkout/orders/{id}']['get']; print('GET',g.get('operationId'),[(p.get('name'),p.get('in'),p.get('required')) for p in g.get('parameters',[])])
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls -la && redocly tree --help
+redocly tree paypal.json --format=ai | head -60
+redocly tree paypal.json --format=ai --operation=orders.create | head -80
+redocly tree paypal.json --format=ai --operation=orders.create | sed -n '80,220p'
+redocly tree paypal.json --format=ai --component=schemas --name=order_request --with-deps | head -100; echo "=====PARAMS"; redocly tree paypal.json --format=ai --component=parameters | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -20
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | grep -v '"summary"\|"description"\|"value"' | head -70
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '70,200p' | grep -v '"description"\|"image_url"\|"url"' | head -90
+redocly tree paypal.json --format=ai --operation=orders.track.create | grep -v '"image_url"' | sed -n '1,120p'
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -80
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker --with-deps | head -70
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | grep -oE '"(UPS|FEDEX|USPS|DHL|UPS_[A-Z]*)"' | sort -u | head; echo "=== ORDER"; redocly tree paypal.json --format=ai --component=schemas --name=order | head -60
+redocly tree paypal.json --format=ai --component=schemas --name=order | sed -n '60,130p'; echo "=== STATUS"; redocly tree paypal.json --format=ai --component=schemas --name=order_status|head -40
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit | grep -n 'payments\|captures\|payment_collection' | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=payment_collection | head -50
+redocly tree paypal.json --format=ai --component=schemas --name=capture | grep -n '"id"\|status\|capture_status' | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=capture_status | sed -n '1,30p'
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -30
+redocly tree paypal.json --format=ai --operation=orders.create | grep -n '"responses"'
+redocly tree paypal.json --format=ai --operation=orders.create | awk '/"responses"/,0' | grep -E '"(200|201|400|401|403|404|422|500)"|\$ref|"rel"|"href"|"status"|schema' | head -40
+redocly tree paypal.json --format=ai --operation=orders.track.create | awk '/"responses"/,0' | grep -E '"(200|201|400|403|422)"|\$ref|"rel"|"href"|"id"|tracker' | head -30
+redocly tree paypal.json --format=ai --operation=orders.trackers.patch | grep -E '"name"|"in"|required|\$ref|"op"|"path"|"value"|"(200|204|400)"' | head -40
+redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -25
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | grep -E 'required|"(amount|items|shipping|reference_id|invoice_id|custom_id)"' -A2 | head -40
+for n in item amount_with_breakdown tracker_item money; do echo "=== $n"; redocly tree paypal.json --format=ai --component=schemas --name=$n | grep -E '"required"' -A6 | head -14; done
+redocly tree paypal.json --format=ai --component=schemas --name=amount_with_breakdown | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request --with-deps | grep -A3 '"shipping"' | head -20
+redocly tree paypal.json --format=ai --path='/v2/checkout/orders/{id}/capture' --operation=post | awk '/"responses"/,0' | grep -E '"(status|id)":|payments|captures|purchase_units|"201"|"200"' | head -25
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+ls -la paypal.json && python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(d.get('openapi'), d.get('info',{}).get('title'), d.get('info',{}).get('version'))
+print([s.get('url') for s in d.get('servers',[])])
+for p,ops in d['paths'].items():
+print(p, [m.upper() for m in ops if m in ('get','post','put','patch','delete')])
+"
+python3 - <<'EOF'
+print("SECURITY:", json.dumps(d.get('security'), indent=1))
+print("SCHEMES:", json.dumps(d.get('components',{}).get('securitySchemes'), indent=1)[:2000])
+for p in ['/v2/checkout/orders','/v2/checkout/orders/{id}/capture','/v2/checkout/orders/{id}/track']:
+for m,op in d['paths'][p].items():
+if m not in ('get','post','patch'): continue
+print("="*70)
+print(m.upper(), p, "| opId:", op.get('operationId'))
+print("params:", [(pa.get('name'),pa.get('in'),pa.get('required'),pa.get('schema',{}).get('$ref') or pa.get('schema',{}).get('type')) for pa in op.get('parameters',[])])
+rb=op.get('requestBody',{})
+print("body required:", rb.get('required'), "content:", list(rb.get('content',{}).keys()))
+for ct,c in rb.get('content',{}).items():
+print("  schema:", json.dumps(c.get('schema'))[:300])
+print("responses:", {k:(v.get('content',{}).get('application/json',{}).get('schema',{}).get('$ref') or list(v.get('content',{}).keys()) if v.get('content') else v.get('description')[:40]) for k,v in op.get('responses',{}).items()})
+EOF
+S=d['components']['schemas']
+def resolve(r): return S[r.split('/')[-1]]
+for p in ['/v2/checkout/orders','/v2/checkout/orders/{id}','/v2/checkout/orders/{id}/capture','/v2/checkout/orders/{id}/track','/v2/checkout/orders/{id}/trackers/{tracker_id}']:
+print("="*70); print(m.upper(), p, "| opId:", op.get('operationId'))
+for pa in op.get('parameters',[]):
+if '$ref' in pa:
+pa=d['components']['parameters'][pa['$ref'].split('/')[-1]] if 'parameters' in d['components'] else pa
+print("  param:", pa.get('name'), pa.get('in'), 'required' if pa.get('required') else 'optional', json.dumps(pa.get('schema'))[:120])
+if rb: print("  body required:", rb.get('required'), json.dumps(list(rb.get('content',{}).values())[0].get('schema'))[:200])
+for k,v in op.get('responses',{}).items():
+v = d['components']['responses'][v['$ref'].split('/')[-1]] if '$ref' in v else v
+ct=v.get('content') or {}
+print("  resp",k, (v.get('description') or '')[:50], json.dumps({c:s.get('schema') for c,s in ct.items()})[:200])
+print("  security:", op.get('security'))
+def show(n, depth=0, maxd=1, seen=None):
+s=S.get(n)
+if s is None: print("MISSING",n); return
+print("### ",n, "req:", s.get('required'), "type:",s.get('type'))
+for k,v in (s.get('properties') or {}).items():
+t=v.get('$ref','') or v.get('type','')
+extra=''
+if v.get('type')=='array': extra=' items='+str(v.get('items',{}).get('$ref') or v.get('items',{}).get('type'))
+if v.get('enum'): extra=' enum='+str(v['enum'])[:200]
+print("   -",k, t.split('/')[-1], extra, ('readOnly' if v.get('readOnly') else ''), (v.get('description') or '')[:90].replace('\n',' '))
+for n in ['order_request','purchase_unit_request','amount_with_breakdown','order_tracker_request','order_capture_request','order','purchase_unit','payment_collection','capture','link_description','checkout_payment_intent','payment_source','shipment_carrier','order_tracker_status','item']:
+show(n); print()
+for n in ['order_tracker_request','order','checkout_payment_intent','order_capture_request','amount_with_breakdown','purchase_unit_request']:
+print("="*30,n); print(json.dumps(S[n])[:2600]); print()
+for n in ['shipment_tracker','money','order_status','capture','capture_status','tracker_item','order_application_context','shipping_preference']:
+print("="*30,n, "(missing)" if s is None else "")
+if s: print(json.dumps(s)[:2200]); print()
+print([k for k in S if 'experience' in k or 'application_context' in k])
+print([k for k in S if 'carrier' in k])
+print("shipment_carrier:", json.dumps(S['shipment_carrier'])[:600])
+print()
+print("paypal_wallet_experience_context:", json.dumps(S['paypal_wallet_experience_context'])[:1800])
+ps=S['payment_source']['properties']['paypal']
+print("payment_source.paypal:", json.dumps(ps)[:400])
+print("paypal_wallet keys:", list(S.get('paypal_wallet',{}).get('properties',{}).keys()) if 'paypal_wallet' in S else [k for k in S if 'paypal_wallet' in k])
+print("trackers patch desc:", json.dumps(d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch'].get('description'))[:1200])
+print("track desc:", json.dumps(d['paths']['/v2/checkout/orders/{id}/track']['post'].get('description'))[:800])
+tp=[p for p in d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']['parameters'] if p.get('name')=='tracker_id']
+print("tracker_id param:", json.dumps(tp))
+sw=S['purchase_unit']['properties']['shipping']
+print("pu.shipping:", json.dumps(sw)[:300])
+for n in S:
+if 'shipping_with_tracking' in n or n=='shipping_detail':
+print(n, list(S[n].get('properties',{}).keys()), json.dumps(S[n])[:200])
+print("tracker schema:", json.dumps(S.get('tracker'))[:1200])
+print([k for k in S if 'track' in k.lower()])
+import json,re
+raw=open('paypal.json').read()
+for r in set(re.findall(r'"rel"\s*:\s*"([a-z-]+)"', raw)): print("rel:",r)
+print(json.dumps(S['shipping_with_tracking_details'])[:900])
+# find examples for create order request/response
+op=d['paths']['/v2/checkout/orders']['post']
+ex=op['requestBody']['content']['application/json'].get('examples')
+print("req examples:", list(ex.keys()) if ex else None)
+resp=op['responses']['201']['content']['application/json']
+print("resp examples:", list((resp.get('examples') or {}).keys()))
+if resp.get('examples'):
+k=list(resp['examples'])[0]
+print(json.dumps(resp['examples'][k])[:1500])
+python3 -c "
+import json;S=json.load(open('paypal.json'))['components']['schemas']
+p=S['paypal_wallet_experience_context']['properties']
+print(list(p.keys()));print(json.dumps(p.get('user_action'))[:400])
+print(json.dumps(S['tracker_status'])[:300])
+print([e for e in S['shipment_carrier']['enum'] if e in ('UPS','FEDEX','USPS','DHL','OTHER')])
+print(json.dumps(S['patch_request'])[:500])
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls -la && redocly tree --help
+redocly tree paypal.json --format=ai --tag | head -60
+redocly tree paypal.json --format=ai --tag orders | head -40; echo "=== TRACKERS ==="; redocly tree paypal.json --format=ai --tag trackers | head -20
+redocly tree paypal.json --format=ai --operation orders.create | head -80
+redocly tree paypal.json --format=ai --operation orders.create | sed -n '80,220p'
+redocly tree paypal.json --format=ai --component schemas --name order_request | head -80
+redocly tree paypal.json --format=ai --component schemas --name checkout_payment_intent | head -30; echo "=== CAPTURE ==="; redocly tree paypal.json --format=ai --operation orders.capture | head -60
+redocly tree paypal.json --format=ai --operation orders.track.create | head -120
+redocly tree paypal.json --format=ai --component schemas --name order_tracker_request | head -70
+redocly tree paypal.json --format=ai --component schemas --name shipment_tracker | head -50
+redocly tree paypal.json --format=ai --component securitySchemes | head -40; echo "=== SERVERS ==="; python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(json.dumps(d.get('servers'),indent=1))
+print(d['info']['title'], d['info']['version'])
+"
+redocly tree paypal.json --format=ai --component securitySchemes --name Oauth2 | head -40
+redocly tree paypal.json --format=ai --operation orders.capture | grep -n '"responses"' ; redocly tree paypal.json --format=ai --operation orders.capture | sed -n '/"responses"/,/"400"/p' | head -40
+redocly tree paypal.json --format=ai --operation orders.capture | sed -n '/"captures": \[/,/\]/p' | head -40
+redocly tree paypal.json --format=ai --operation orders.capture | sed -n '/"201"/,/"400"/p' | head -60
+redocly tree paypal.json --format=ai --operation orders.create | grep -n '"rel"' | head; echo "---"; redocly tree paypal.json --format=ai --operation orders.create | grep -n -B3 -A6 '"payer-action"' | head -40
+redocly tree paypal.json --format=ai --operation orders.create | sed -n '265,295p;440,470p'
+redocly tree paypal.json --format=ai --operation orders.track.create | sed -n '/"responses"/,$p' | grep -n -A12 '"trackers"' | head -40
+python3 -c "
+e=d['components']['schemas']['shipment_carrier']['enum']
+print(len(e)); print([x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER')])
+"; echo "=== authorization param ==="; redocly tree paypal.json --format=ai --component parameters --name authorization | head -25
+redocly tree paypal.json --format=ai --operation orders.trackers.patch | sed -n '1,60p' | grep -v '^ *"description"' | head -50
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+ls -la paypal.json && python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(d.get('info'))
+print(list(d.keys()))
+for p,v in d['paths'].items():
+print(p, list(v.keys()))
+"
+python3 -c "
+def op(p,m):
+o=d['paths'][p][m]
+print('===',m.upper(),p)
+print('summary:',o.get('summary'))
+print('opid:',o.get('operationId'))
+print('params:',json.dumps(o.get('parameters',[]),indent=1)[:3000])
+rb=o.get('requestBody')
+if rb: print('body:',json.dumps(rb,indent=1)[:1500])
+print('responses:',list(o.get('responses',{}).keys()))
+for p,m in [('/v2/checkout/orders','post'),('/v2/checkout/orders/{id}/capture','post'),('/v2/checkout/orders/{id}/track','post')]:
+op(p,m)
+c=d['components']['schemas']
+print('servers',d['servers'])
+print('sec',json.dumps(d.get('security'),indent=1))
+print('secschemes',json.dumps(d['components'].get('securitySchemes'),indent=1)[:800])
+for n in ['order_request','order_tracker_request','purchase_unit_request','order','order_capture_request']:
+s=c[n]
+print('---',n,'required:',s.get('required'),'props:',list(s.get('properties',{}).keys()))
+print(json.dumps(c['order_tracker_request'])[:2500])
+print('=== order')
+print(json.dumps(c['order'])[:1200])
+print('=== tracker keys?', [k for k in c if 'track' in k])
+print(json.dumps(c['shipment_tracker'],indent=1)[:2500])
+print('=== tracker resp')
+print(json.dumps(c['tracker'],indent=1)[:1500])
+carr=c['shipment_carrier']
+print('carrier type', carr.get('type'), 'enum sample', (carr.get('enum') or [])[:1], len(carr.get('enum') or []))
+for v in ['FEDEX','UPS','USPS','DHL']: print(v, v in (carr.get('enum') or []))
+print('--- track patch params')
+print(json.dumps(d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch'].get('parameters'),indent=1)[:2000])
+r=d['paths']['/v2/checkout/orders']['post']['responses']['200']
+print(json.dumps(r,indent=1)[:2500])
+for code in ['200','201']:
+r=d['paths']['/v2/checkout/orders/{id}/capture']['post']['responses'][code]
+ex=r['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]:
+print('==',code,k, v.get('summary'))
+print(json.dumps(v['value'],indent=1)[:2000])
+p=d['components']['parameters']
+print(json.dumps({k:p[k] for k in ['authorization'] if k in p},indent=1)[:900])
+print(json.dumps(d['components']['schemas']['tracker_item'].get('required')))
+print(json.dumps(d['paths']['/v2/checkout/orders/{id}/track']['post']['responses']['201'],indent=1)[:900])
+v=d['paths']['/v2/checkout/orders/{id}/track']['post']['responses']['201']['content']['application/json']['examples']['orders_track_create_complete_request']['value']
+print(json.dumps(v['purchase_units'][0].get('shipping'),indent=1)[:1200])
+print('status', v.get('status'))
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls -la && redocly tree --help
+redocly tree paypal.json --format=ai | head -60
+redocly tree paypal.json --format=ai --operation=orders.create | head -80
+redocly tree paypal.json --format=ai --operation=orders.capture | head -60; echo ===; redocly tree paypal.json --format=ai --operation=orders.track.create | head -60
+redocly tree paypal.json --format=ai --operation=orders.track.create | head -100
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -60
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60; echo "=== SEC ==="; redocly tree paypal.json --format=ai --component=securitySchemes | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -80
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -40; echo "=== PU ==="; redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | head -70
+redocly tree paypal.json --format=ai --component=schemas --name=order | head -70
+redocly tree paypal.json --format=ai --component=schemas --name=payment_collection | head -40; echo "=== capture schema ==="; redocly tree paypal.json --format=ai --component=schemas --name=capture | head -40; echo "=== intent ==="; redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -20
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+op=d['paths']['/v2/checkout/orders']['post']
+print(json.dumps({k:v for k,v in op['responses'].items()},)[:400])
+ex=op['responses']['200']['content']['application/json'].get('examples',{})
+print(list(ex)[:10])
+for k in list(ex)[:2]:
+print(k, json.dumps(ex[k]['value'])[:900])
+"
+print('CREATE responses:', list(op['responses']))
+r=op['responses'].get('201',{}).get('content',{}).get('application/json',{})
+print('schema', r.get('schema'))
+ex=r.get('examples',{})
+for k in list(ex)[:3]:
+print('--',k, json.dumps(ex[k]['value'])[:700])
+print()
+cap=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+print('CAPTURE responses:', list(cap['responses']))
+print('CAPTURE body required:', cap['requestBody'].get('required'), cap['requestBody']['content']['application/json']['schema'])
+c=cap['responses']['201']['content']['application/json']
+print('cap schema', c.get('schema'))
+ce=c.get('examples',{})
+print(list(ce)[:6])
+for k in list(ce)[:1]:
+print(json.dumps(ce[k]['value'])[:1500])
+t=d['paths']['/v2/checkout/orders/{id}/track']['post']
+print('TRACK responses:', list(t['responses']))
+for code in ['200','201']:
+if code in t['responses']:
+c=t['responses'][code].get('content',{}).get('application/json',{})
+print(code, c.get('schema'))
+ex=c.get('examples',{})
+for k in list(ex)[:1]:
+print(json.dumps(ex[k]['value'])[:1200])
+print('PARAMS auth:', json.dumps(d['components']['parameters'])[:800])
+print('CARRIER:', json.dumps(d['components']['schemas']['shipment_carrier'])[:300])
+c=d['components']['schemas']['shipment_carrier']['enum']
+print(len(c), [x for x in c if x in ('UPS','FEDEX','USPS','DHL','OTHER','UPS_MI','FEDEX_GROUND')])
+g=d['paths']['/v2/checkout/orders/{id}']['get']
+print([ (p.get('name') or p.get('\$ref')) for p in g['parameters']])
+print('order status enum:', json.dumps(d['components']['schemas']['order']['allOf'][1]['properties'].get('status'))[:400])
+print('capture req:', json.dumps(d['components']['schemas']['order_capture_request'])[:400])
+import json;d=json.load(open('paypal.json'));print(d['components']['schemas']['order_status']['enum']);print(d['components']['schemas']['capture_status']['properties']['status']['enum'] if 'properties' in d['components']['schemas']['capture_status'] else d['components']['schemas']['capture_status'])" | head -20
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Haiku 4.5" %}
+
+{% tabs %}
+{% tab label="Haiku 4.5 · run 1 · no tree" %}
+
+```bash
+cat paypal.json
+grep "^.*\"(path|method|operationId)\".*$" paypal.json | head -100
+sed -n '1,401p' paypal.json
+sed -n '2147,2447p' paypal.json
+sed -n '2824,3074p' paypal.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find=order
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/confirm-payment-source --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track --with-deps
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r1/81ed3915-20b8-4168-bb8a-ea17dfd281bf/tool-results/b6l3ruodk.txt
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r1/81ed3915-20b8-4168-bb8a-ea17dfd281bf/tool-results/bwhcyvwdp.txt
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r1/81ed3915-20b8-4168-bb8a-ea17dfd281bf/tool-results/b0m59pda9.txt
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · no tree" %}
+
+```bash
+cat paypal.json
+grep "(create.*order|approve|capture|track|payment)" paypal.json | head -100
+grep "\"/v2/checkout/orders.*capture|/v2/trackers\"" paypal.json | head -50
+sed -n '2145,2445p' paypal.json
+grep "\"/v2/trackers\" \\{" paypal.json
+grep -n "trackers" paypal.json | head -20
+sed -n '2700,3100p' paypal.json
+sed -n '400,800p' paypal.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find order
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r2/7cb17fa1-c89b-4d8e-a9fb-a9317232b0f5/tool-results/b0jtzsnjc.txt
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track 2>/dev/null | head -200
+redocly tree paypal.json --format=ai --find capture 2>/dev/null | head -100
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · no tree" %}
+
+```bash
+cat paypal.json
+grep "\"(path|operationId|summary)\"" paypal.json
+grep "operationId" paypal.json | head -50
+sed -n '1,101p' paypal.json
+grep "orders.create" paypal.json
+sed -n '289,439p' paypal.json
+sed -n '2147,2347p' paypal.json
+sed -n '2824,3024p' paypal.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · tree" %}
+
+```bash
+ls -la paypal.json
+redocly tree --help
+redocly tree paypal.json --format=ai --find="order" | head -100
+redocly tree paypal.json --format=ai --operation=orders.create
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r3/3afa143a-5f27-443b-9bf6-33eae4517af1/tool-results/bd48jcdc5.txt
+redocly tree paypal.json --format=ai --operation=orders.authorize --with-deps | grep -A 30 "requestBody\|responses" | head -60
+redocly tree paypal.json --format=ai --operation=orders.capture --with-deps | grep -A 20 "requestBody\|responses" | head -50
+redocly tree paypal.json --format=ai --operation=orders.track.create --with-deps | grep -A 30 "requestBody\|responses" | head -70
+redocly tree paypal.json --format=ai --component=schemas --name="order_request" | head -80
+redocly tree paypal.json --format=ai --component=schemas --name="order_capture_request"
+redocly tree paypal.json --format=ai --component=schemas --name="order" | grep -A 100 "properties:" | head -120
+redocly tree paypal.json --format=ai --find="capture" | grep -E "schemas|components" | head -20
+redocly tree paypal.json --format=ai --component=schemas --name="capture"
+redocly tree paypal.json --format=ai --component=schemas --name="purchase_unit" | head -150
+redocly tree paypal.json --format=ai --component=schemas --name="payment_collection"
+redocly tree paypal.json --format=ai --component=schemas --name="order_tracker_request"
+redocly tree paypal.json --format=ai --component=schemas --name="shipment_tracker"
+redocly tree paypal.json --format=ai --component=schemas --name="order_authorize_response"
+redocly tree paypal.json --format=ai --component=schemas --name="checkout_payment_intent"
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · no tree" %}
+
+```bash
+cat paypal.json
+grep "POST|GET|PATCH|orderId|captureId|tracking|authorize|capture" paypal.json
+grep -n '"/{order_id}' paypal.json | head -20
+grep -E '"/v2[^"]*":\s*{' paypal.json | head -20
+grep -n "authorize\|capture\|track" paypal.json | grep '"operationId"' | head -20
+sed -n '1500,1700p' paypal.json
+sed -n '2140,2340p' paypal.json
+sed -n '2810,3060p' paypal.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+ls -la paypal.json
+redocly tree paypal.json --find payment --format=ai
+redocly tree paypal.json --find order --format=ai
+redocly tree paypal.json --operation=orders.create --with-deps --format=ai
+redocly tree paypal.json --operation=orders.capture --with-deps --format=ai
+redocly tree paypal.json --operation=orders.track.create --with-deps --format=ai
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r4/8cc9d755-fe30-476d-bdb6-fed1e73d34c5/tool-results/bj5zjqsg0.txt
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r4/8cc9d755-fe30-476d-bdb6-fed1e73d34c5/tool-results/bs0pcrvmo.txt
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r4/8cc9d755-fe30-476d-bdb6-fed1e73d34c5/tool-results/bcx7xz7dr.txt
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · no tree" %}
+
+```bash
+cat paypal.json
+grep "POST|GET|PATCH|PUT" paypal.json | head -100
+grep "\"path\":|\"summary\":|\"operationId\":" paypal.json | head -80
+grep "tracker|tracking|shipment" paypal.json | head -80
+grep "\"intent\"" paypal.json | head -40
+sed -n '8890,8940p' paypal.json
+grep "checkout_payment_intent" paypal.json | head -30
+sed -n '4175,4205p' paypal.json
+grep "\"order_tracker_request\"" paypal.json | head -20
+sed -n '14750,14830p' paypal.json
+grep "\"shipment_tracker\":" paypal.json | head -10
+sed -n '14722,14782p' paypal.json
+grep "\"shipment_carrier\":" paypal.json | head -10
+sed -n '13302,13342p' paypal.json
+grep "USPS|FEDEX|UPS|DHL" paypal.json | head -20
+grep "\"purchase_unit\":|\"captures\"" paypal.json | head -60
+sed -n '2339,2379p' paypal.json
+sed -n '1515,1565p' paypal.json
+sed -n '2147,2197p' paypal.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree paypal.json --format=ai --find "order" 2>/dev/null
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps 2>/dev/null
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture 2>/dev/null
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track 2>/dev/null
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r5/6ec3bd3e-9f26-4330-8eb7-3bc742ef8460/tool-results/b67m1or60.txt
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r5/6ec3bd3e-9f26-4330-8eb7-3bc742ef8460/tool-results/bjqjyfo8p.txt
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-local-haiku-r5/6ec3bd3e-9f26-4330-8eb7-3bc742ef8460/tool-results/b1uo0lbqy.txt
+redocly tree paypal.json --format=ai --component=schemas --name=order_capture_request 2>/dev/null | head -50
+redocly tree paypal.json --format=ai --component=schemas --name=order 2>/dev/null | head -80
+redocly tree paypal.json --format=ai --find "capture" 2>/dev/null | grep -A 5 "capture_id"
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit 2>/dev/null | head -120
+redocly tree paypal.json --format=ai --component=schemas --name=payment_collection 2>/dev/null | head -80
+redocly tree paypal.json --format=ai --component=schemas --name=capture 2>/dev/null | head -80
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% /tabs %}
+
+Sonnet 5 and Opus 5 pass every run on both sides, and both pay more context through the index — +77% for Sonnet 5 — because nine operations barely need finding, while the cards arrive heavy with PayPal's deep schemas.
+Haiku 4.5 goes from one working run to three: what it gains from the cards is the tracker call's `capture_id` chain, which its control runs kept missing.
 
 {% /tab %}
 
@@ -2041,7 +3797,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 | Model           |        no tree |           tree | Difference |
 | --------------- | -------------: | -------------: | ---------: |
 | Sonnet 5 (n=5)  | 18,667 / 16 ❌ | 23,276 / 20 ❌ |       +25% |
-| Opus 5 (n=2)    |    19,626 / 14 |    28,664 / 26 |       +46% |
+| Opus 5 (n=5)    |    21,514 / 14 |    28,664 / 22 |       +33% |
 | Haiku 4.5 (n=5) |    40,107 / 17 |    15,483 / 12 |       −61% |
 
 What those runs were billed:
@@ -2049,7 +3805,7 @@ What those runs were billed:
 | Model           |  no tree |     tree | Difference |
 | --------------- | -------: | -------: | ---------: |
 | Sonnet 5 (n=5)  | $0.49 ❌ | $0.54 ❌ |       +10% |
-| Opus 5 (n=2)    |    $0.65 |    $0.96 |       +48% |
+| Opus 5 (n=5)    |    $0.68 |    $0.96 |       +41% |
 | Haiku 4.5 (n=5) |    $0.18 |    $0.13 |       −28% |
 
 Whether each run produced a flow that would run:
@@ -2063,6 +3819,9 @@ Whether each run produced a flow that would run:
 | Sonnet 5 · run 5  | no attach call                 | no attach call, no auth scheme                                                                 |
 | Opus 5 · run 1    | works                          | works                                                                                          |
 | Opus 5 · run 2    | works                          | works                                                                                          |
+| Opus 5 · run 3    | works                          | works                                                                                          |
+| Opus 5 · run 4    | works                          | works                                                                                          |
+| Opus 5 · run 5    | works                          | works                                                                                          |
 | Haiku 4.5 · run 1 | no auth scheme                 | no auth scheme                                                                                 |
 | Haiku 4.5 · run 2 | works                          | no attach call, no auth scheme                                                                 |
 | Haiku 4.5 · run 3 | no attach call, no auth scheme | works                                                                                          |
@@ -2458,6 +4217,153 @@ head -25 volumes/responses/volume.yml
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
+grep -n "^  /v2/(vpcs|droplets|volumes|firewalls|sizes|images|regions|actions)[^:]*:" digitalocean/DigitalOcean-public.v2.yaml
+cd digitalocean; sed -n '1301,1320p;1410,1445p;2453,2530p' DigitalOcean-public.v2.yaml
+cd digitalocean; ls resources/vpcs resources/volumes resources/firewalls resources/droplets 2>/dev/null
+cd digitalocean/resources; cat vpcs/vpcs_create.yml; ls vpcs/models vpcs/attributes; echo ===; cat vpcs/models/*.yml 2>/dev/null | head -100
+cd digitalocean/resources; cat volumes/volumes_create.yml; echo ===MODELS; ls volumes/models; echo; cat volumes/models/volumes_ext4.yml volumes/models/volume.yml 2>/dev/null | head -80
+cd digitalocean/resources; cat vpcs/models/vpc.yml; echo "-----VOL"; cat volumes/models/volumes_ext4.yml
+cd digitalocean/resources; cat volumes/volumeActions_post.yml; echo "-----BYID"; cat volumes/volumeActions_post_byId.yml
+cd digitalocean/resources; ls droplets/models; echo ---; cat droplets/models/droplet_single_create.yml 2>/dev/null; echo ---CREATEOP; sed -n '1,60p' droplets/droplets_create.yml
+cd digitalocean/resources; cat firewalls/firewalls_create.yml; echo ---; ls firewalls/models; cat firewalls/models/firewall.yml 2>/dev/null
+cd digitalocean/resources; cat droplets/models/droplet_create.yml; echo "----FWRULE"; cat firewalls/models/firewall_rule.yml
+cd digitalocean/resources; cat volumes/models/volume_base.yml; echo ---ACTIONATTACH; cat volumes/models/volume_action_post_attach.yml; echo ---DROPACTIONS_GET; sed -n '1,40p' droplets/dropletActions_get.yml
+cd digitalocean/resources; cat volumes/models/volume_action_post_base.yml; echo ---VOLACTGETPARAMS; cat volumes/parameters.yml | head -40; echo ---DROPRESP; cat droplets/responses/droplet_create.yml; echo ---ACTIONMODEL; cat ../resources/actions/models/action.yml 2>/dev/null | head -60
+grep -n "/v2/account/keys" digitalocean/DigitalOcean-public.v2.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help | head -80; ls
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -40
+redocly tree DigitalOcean-public.v2.yaml --format=ai --find "volume attach" | head -30
+redocly tree DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -20; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "droplet create" | head -20
+redocly tree DigitalOcean-public.v2.yaml --format=ai --find "firewalls" | head -20
+redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
+redocly tree DigitalOcean-public.v2.yaml --format=ai --pointer="resources/vpcs/models/vpc.yml" | head -60
+redocly tree DigitalOcean-public.v2.yaml --format=ai --file=resources/vpcs/models/vpc.yml | head -60; echo "-----"; redocly tree DigitalOcean-public.v2.yaml --format=ai --file=resources/vpcs/responses/existing_vpc.yml|head -30
+sed -n 1,80p resources/vpcs/models/vpc.yml; echo ---EXISTING---; cat resources/vpcs/responses/existing_vpc.yml
+redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -60
+cat resources/droplets/models/droplet_single_create.yml; echo "=====CREATE====="; cat resources/droplets/models/droplet_create.yml
+redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -40
+cat resources/volumes/models/volumes_ext4.yml; echo "=====BASE====="; cat resources/volumes/models/volume_base.yml
+redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -40
+cat resources/firewalls/models/firewall.yml; echo "=====RULE====="; cat resources/firewalls/models/firewall_rule.yml
+redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -40
+cat resources/volumes/models/volume_action_post_attach.yml; echo "=====BASE====="; cat resources/volumes/models/volume_action_post_base.yml; echo "=====PARAMS====="; cat resources/volumes/parameters.yml | head -30
+redocly tree DigitalOcean-public.v2.yaml --format=ai --find "actions get" | head -25; echo "----- droplet get -----"; redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=droplets_get | head -12
+cat resources/droplets/responses/droplet_create.yml; echo "=====ACTIONLINK====="; cat ../shared/models/action_link.yml 2>/dev/null || cat shared/models/action_link.yml; echo "=====ACTION====="; sed -n 1,40p resources/actions/models/action.yml
+redocly tree DigitalOcean-public.v2.yaml --format=ai --find "ssh keys"|head -8; echo "-----"; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "regions sizes list"|head -8; echo "=====VOLACTRESP====="; cat resources/volumes/responses/volumeAction.yml
+redocly tree DigitalOcean-public.v2.yaml --format=ai --find "region"|head -6; echo ---; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "sizes"|head -6; echo "=====VOLRESP====="; cat resources/volumes/responses/volume.yml
+for op in actions_get volumeActions_get firewalls_get regions_list sshKeys_list droplets_get; do redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=$op | sed -n 2p; done
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
+ls resources/ && grep -n "^  /v2/\(vpcs\|droplets\|volumes\|firewalls\|sizes\|images\|account/keys\|actions\)" DigitalOcean-public.v2.yaml
+sed -n '2493,2520p;2453,2495p;1410,1445p;1301,1320p' DigitalOcean-public.v2.yaml
+for f in resources/vpcs/vpcs_create.yml resources/volumes/volumes_create.yml resources/volumes/volumeActions_post_byId.yml resources/firewalls/firewalls_create.yml resources/droplets/droplets_create.yml; do echo "===== $f"; cat "$f"; done
+cat resources/vpcs/models/vpc.yml && echo "=====DROPLET SINGLE" && cat resources/droplets/models/droplet_single_create.yml && echo "=====VOLUME EXT4" && cat resources/volumes/models/volumes_ext4.yml
+cat resources/droplets/models/droplet_create.yml && echo "=====VOL BASE" && cat resources/volumes/models/volume_base.yml && echo "=====ATTACH" && cat resources/volumes/models/volume_action_post_attach.yml
+cat resources/firewalls/models/firewall.yml && echo "=====RULES" && ls resources/firewalls/models/ && cat resources/firewalls/models/firewall_rules.yml 2>/dev/null; echo "=====ACTIONBASE" && cat resources/volumes/models/volume_action_post_base.yml
+cat resources/firewalls/models/firewall_rule.yml
+cat resources/droplets/responses/droplet_create.yml && echo "== DROPLET ACTION GET" && cat resources/droplets/dropletActions_get.yml | head -30 && echo "== VOLACTION RESP" && cat resources/volumes/responses/volumeAction.yml && echo "== FW RESP" && cat resources/firewalls/responses/create_firewall_response.yml && echo "== VPC RESP" && cat resources/vpcs/responses/existing_vpc.yml && echo "== VOL RESP" && cat resources/volumes/responses/volume.yml
+grep -n "status\|region\|^  id\|vpc_uuid\|volume_ids" resources/droplets/models/droplet.yml | head -40 && echo "== ACTION MODEL" && cat resources/actions/models/action.yml | grep -n "id\|status\|type\|resource" | head -30 && echo "== VOLACTION MODEL" && cat resources/volumes/models/volumeAction.yml && echo "== SSHKEYS" && cat resources/ssh_keys/sshKeys_create.yml | head -40
+cat shared/models/action_link.yml && grep -n -A6 "^servers:" DigitalOcean-public.v2.yaml && cat resources/ssh_keys/responses/sshKeys_new.yml | grep -n "ssh_key\|id:\|fingerprint" | head && cat resources/ssh_keys/models/sshKeys.yml | grep -n "name:\|public_key:\|required\|id:\|fingerprint:"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag VPCs | head -30; echo ---; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Block Storage" | head -30; echo ---; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Firewalls | head -30; echo ---; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Droplets | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation vpcs_create --with-deps | head -120
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml | head -40; echo === ; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer 'digitalocean/resources/vpcs/models/vpc.yml#/vpc_create' | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer 'digitalocean/resources/vpcs/models/vpc.yml#/vpc_create' | head -60
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources/vpcs/models/vpc.yml
+for op in droplets_create volumes_create firewalls_create; do echo "===== $op"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation $op --with-deps | head -40; done
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources/droplets/models/droplet_single_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources/droplets/models/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Block Storage Actions" | head; echo =====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation volumeActions_post_byId --with-deps | head -30
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation volumeActions_post_byId --with-deps | head -30
+cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources; for f in volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml volumes/models/volumes_ext4.yml volumes/models/volume_base.yml firewalls/models/firewall.yml firewalls/models/firewall_rule.yml; do echo "===== $f"; cat $f; done
+cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; cat resources/droplets/responses/droplet_create.yml; echo "===== vol resp"; cat resources/volumes/responses/volume.yml; echo "===== fw resp"; cat resources/firewalls/responses/create_firewall_response.yml; echo "===== vpc resp"; cat resources/vpcs/responses/existing_vpc.yml; echo "===== volAction resp"; cat resources/volumes/responses/volumeAction.yml; echo ===== action model; cat resources/actions/models/action.yml
+cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; cat resources/actions/models/action.yml; echo "--- action_link"; cat shared/models/action_link.yml; echo "--- droplet.yml head"; sed -n 1,60p resources/droplets/models/droplet.yml
+cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Actions|head; echo "--- ssh"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "SSH Keys"|head; echo "--- regions/sizes"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Regions|head -3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Sizes|head -3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Images|head -4
+cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation sshKeys_create --with-deps|head -8; echo "--- get droplet"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation droplets_get --with-deps|head -8; echo "--- actions_get"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation actions_get --with-deps|head -8; echo "--- fw get"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation firewalls_get --with-deps|head -8
+cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; grep -n -A6 "^servers:" DigitalOcean-public.v2.yaml | head -20; echo "--- sec"; grep -n -A12 "securitySchemes" DigitalOcean-public.v2.yaml | head -25; echo "--- sshkey model"; cat resources/ssh_keys/models/sshKeys.yml; echo "--- fs type"; grep -n -A14 "volume_write_file_system_type" resources/volumes/models/attributes.yml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
+grep -nE "^  /(vpcs|droplets|volumes|firewalls|sizes|images|regions|ssh_keys|actions)" DigitalOcean-public.v2.yaml | head -60
+grep -nE "^  /" digitalocean/DigitalOcean-public.v2.yaml | grep -iE "vpc|droplet|volume|firewall|size|image|region|ssh|action"
+cd digitalocean/; sed -n '1301,1320p;1410,1450p;2453,2500p;2493,2520p' DigitalOcean-public.v2.yaml
+cd digitalocean/resources; cat vpcs/vpcs_create.yml; echo "=====VOLCREATE"; cat volumes/volumes_create.yml; echo "=====FWCREATE"; cat firewalls/firewalls_create.yml
+cd digitalocean/resources; cat vpcs/models/vpc.yml; echo "=====VOLEXT4"; cat volumes/models/volumes_ext4.yml
+cd digitalocean/resources; cat droplets/droplets_create.yml; echo "=====SINGLE"; ls droplets/models/;
+cd digitalocean/resources; cat droplets/models/droplet_single_create.yml; echo "=====CREATEBASE"; cat droplets/models/droplet_create.yml
+cd digitalocean/resources; cat volumes/volumeActions_post_byId.yml; echo "=====ATTACHMODEL"; ls volumes/models/; echo; cat volumes/models/attach.yml 2>/dev/null
+cd digitalocean/resources; cat volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml; echo "=====FWMODEL"; cat firewalls/models/firewall.yml
+cd digitalocean/resources; cat firewalls/models/firewall_rule.yml
+cd digitalocean/resources; cat droplets/responses/droplet_create.yml; echo "==ACTIONLINK"; find . -name "*action_link*" -o -name "*.yml" -path "*shared*" | head; echo "==VOLRESP"; cat volumes/responses/volume.yml; echo "==FWRESP"; cat firewalls/responses/create_firewall_response.yml
+cd digitalocean; cat shared/models/action_link.yml 2>/dev/null || find . -name "action_link*"; echo "==DROPACTIONGET"; cat resources/droplets/droplets_get_action.yml 2>/dev/null | head -40; echo "==VPCRESP"; cat resources/vpcs/responses/existing_vpc.yml | head -40
+cd digitalocean; sed -n '760,770p;1338,1352p;2087,2095p;2364,2372p' DigitalOcean-public.v2.yaml; echo "==ACTIONSTATUS"; grep -n -A12 "status:" shared/models/action.yml | head -30
+cd digitalocean; ls resources/actions/ resources/actions/models 2>/dev/null; grep -rn "in-progress" resources/actions/ | head -5; echo "==DROPLETSTATUS"; grep -n -B2 -A12 "^  status:" resources/droplets/models/droplet.yml
+cd digitalocean; grep -n "/v2/account/keys" DigitalOcean-public.v2.yaml; grep -n "operationId" resources/sshKeys/sshKeys_list.yml resources/regions/regions_list.yml resources/sizes/sizes_list.yml resources/images/images_list.yml resources/firewalls/firewalls_get.yml resources/droplets/dropletActions_get.yml 2>/dev/null; echo "==VOLFULL"; grep -n "droplet_ids" -A6 resources/volumes/models/volume_base_read.yml resources/volumes/models/volume_full.yml 2>/dev/null | head -20
+cd digitalocean; sed -n '743,752p' DigitalOcean-public.v2.yaml; grep -n "operationId" resources/ssh_keys/*.yml 2>/dev/null | head; grep -n "networks" -A20 resources/droplets/models/droplet.yml | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help | head -60
+ls && ls digitalocean | head
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet" | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -200
+for p in "digitalocean/resources/vpcs/models/vpc.yml" "digitalocean/resources/droplets/models/droplet_single_create.yml" "digitalocean/resources/volumes/models/volumes_ext4.yml" "digitalocean/resources/firewalls/models/firewall.yml"; do echo "=== $p ==="; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="$p" | head -50; done
+for p in "digitalocean/resources/vpcs/models/vpc.yml" "digitalocean/resources/droplets/models/droplet_single_create.yml" "digitalocean/resources/volumes/models/volumes_ext4.yml" "digitalocean/resources/firewalls/models/firewall.yml" "digitalocean/resources/firewalls/models/firewall_rule.yml" "digitalocean/resources/volumes/models/volume_action_post_attach.yml"; do echo "=== $p ==="; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file="$p" | head -40; done
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/vpcs/models/vpc.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/droplets/models/droplet_single_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volumes_ext4.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/firewalls/models/firewall.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/droplets/models/droplet_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/firewalls/models/firewall_rule.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volume_action_post_attach.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volume_base.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volume_action_post_base.yml
+for f in digitalocean/resources/droplets/responses/droplet_create.yml digitalocean/resources/volumes/responses/volume.yml digitalocean/resources/vpcs/responses/existing_vpc.yml digitalocean/resources/firewalls/responses/create_firewall_response.yml digitalocean/resources/volumes/responses/volumeAction.yml digitalocean/shared/models/action_link.yml digitalocean/resources/volumes/models/attributes.yml; do echo "=== $f"; cat "$f"; done | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=dropletActions_get | head -20; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_assign_droplets --with-deps | head -20; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_get | head -20
+sed -n 1,60p shared/models/action_link.yml && echo "=== action model" && sed -n 1,60p resources/actions/models/action.yml && echo "=== volumeAction resp" && sed -n 1,30p resources/volumes/responses/volumeAction.yml && echo "=== vol attrs" && grep -n -A6 "volume_action_droplet_id\|volume_write_file_system_type" resources/volumes/models/attributes.yml | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get | head -8; cat digitalocean/resources/firewalls/parameters.yml digitalocean/resources/volumes/parameters.yml digitalocean/resources/droplets/parameters.yml | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get | head -6 && head -20 digitalocean/resources/volumes/parameters.yml digitalocean/resources/firewalls/parameters.yml
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -2649,7 +4555,7 @@ cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/res
 {% /tab %}
 {% /tabs %}
 
-Opus 5 passes on both sides and pays 46% more context through the index — 2,909 single-operation files named by what they do already are an index, and `cat vpcs/vpcs_create.yml` beats any card.
+Opus 5 passes on both sides and pays 33% more context through the index — 2,909 single-operation files named by what they do already are an index, and `cat vpcs/vpcs_create.yml` beats any card.
 Sonnet 5 never passes: it skips the volume-attach action or leaves every call unauthenticated. Haiku 4.5 lands two of five without the index and one with it.
 
 {% /tab %}
@@ -2698,7 +4604,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 | Model           |    no tree |        tree | Difference |
 | --------------- | ---------: | ----------: | ---------: |
 | Sonnet 5 (n=5)  | 16,935 / 1 | 10,849 / 10 |       −36% |
-| Opus 5 (n=2)    | 16,769 / 1 | 15,375 / 11 |        −8% |
+| Opus 5 (n=5)    | 16,769 / 1 | 15,375 / 11 |        −8% |
 | Haiku 4.5 (n=5) | 15,764 / 1 |  8,773 / 13 |       −44% |
 
 What those runs were billed:
@@ -2706,7 +4612,7 @@ What those runs were billed:
 | Model           | no tree |  tree | Difference |
 | --------------- | ------: | ----: | ---------: |
 | Sonnet 5 (n=5)  |   $0.43 | $0.38 |       −12% |
-| Opus 5 (n=2)    |   $0.43 | $0.65 |       +51% |
+| Opus 5 (n=5)    |   $0.65 | $0.65 |        −0% |
 | Haiku 4.5 (n=5) |   $0.07 | $0.10 |       +43% |
 
 Whether each run produced a flow that would run:
@@ -2720,6 +4626,9 @@ Whether each run produced a flow that would run:
 | Sonnet 5 · run 5  | works   | works         |
 | Opus 5 · run 1    | works   | works         |
 | Opus 5 · run 2    | works   | works         |
+| Opus 5 · run 3    | works   | works         |
+| Opus 5 · run 4    | works   | works         |
+| Opus 5 · run 5    | works   | works         |
 | Haiku 4.5 · run 1 | works   | works         |
 | Haiku 4.5 · run 2 | works   | works         |
 | Haiku 4.5 · run 3 | works   | no token call |
@@ -2920,6 +4829,75 @@ redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} | head 
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+cat cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls -la && redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps; echo "=====SEC====="; redocly tree cafe.yaml --format=ai --component=securitySchemes
+redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps; echo "===GLOBAL==="; sed -n '1,32p' cafe.yaml
+redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps; echo "=========="; redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
+redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps; echo "===WEBHOOKS==="; redocly tree cafe.yaml --format=ai --webhooks
+redocly tree cafe.yaml --format=ai --webhook=order-notification --operation=post --with-deps; echo "===ORDER==="; redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps; echo "===PHOTO==="; redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto --with-deps; echo "===PATCH==="; redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps
+redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId}; echo "===PARAMS==="; for p in PhotoSize Limit After OrderId Filter Search Sort; do redocly tree cafe.yaml --format=ai --component=parameters --name=$p; done
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem; echo "===RCO==="; redocly tree cafe.yaml --format=ai --component=schemas --name=RegisterClientObject; echo "===OA2C==="; redocly tree cafe.yaml --format=ai --component=schemas --name=OAuth2Client
+sed -n '32,112p' /Users/tora/bench-run/cafe-tree-help-local-opus-r3/cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+cat cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree cafe.yaml --format=ai | head -100
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps | head -120; echo "=====SEC"; redocly tree cafe.yaml --format=ai --component=securitySchemes --with-deps | head -60
+redocly tree cafe.yaml --format=ai --component=securitySchemes | head -30; echo "===="; sed -n '1,32p' cafe.yaml; echo "=== SECSCHEMES RAW"; grep -n "securitySchemes" -A 40 cafe.yaml | head -60
+for op in listMenuItems getMenuItemPhoto createOrder getOrderById; do echo "########## $op"; redocly tree cafe.yaml --format=ai --operation=$op --with-deps; done
+for op in updateOrder listOrderItems orderNotificationWebhook; do echo "########## $op"; redocly tree cafe.yaml --format=ai --operation=$op --with-deps; done; echo "###### photo raw"; sed -n '198,228p' cafe.yaml
+for c in Order OrderItem Beverage Dessert MenuBaseItem Page RegisterClientObject; do echo "##### $c"; redocly tree cafe.yaml --format=ai --component=schemas --name=$c --with-deps | head -60; done
+sed -n '604,640p' cafe.yaml; echo "=== params"; sed -n '778,822p' cafe.yaml; echo "=== menu filter/search desc"; sed -n '32,80p' cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+cat cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree cafe.yaml --format=ai --operations
+redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps; echo "=====MENU====="; redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
+redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps; echo "=====GET====="; redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
+redocly tree cafe.yaml --format=ai --webhooks; echo "=====SEC====="; redocly tree cafe.yaml --format=ai --component=securitySchemes --with-deps; echo "=====ROOT====="; redocly tree cafe.yaml --format=ai
+redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps; echo "=====ORDER====="; redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
+redocly tree cafe.yaml --format=ai --component=schemas --name=MenuItem --with-deps; echo "=====PHOTO====="; redocly tree cafe.yaml --format=ai --operation=getMenuItemPhoto --with-deps
+redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize --with-deps; redocly tree cafe.yaml --format=ai --component=parameters --name=OrderId --with-deps; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps | head -40
+redocly tree cafe.yaml --format=ai --webhook=order-notification --operation=post --with-deps; echo "=====PATCH====="; redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps | head -30
+redocly tree cafe.yaml --format=ai --component=securitySchemes; echo "===="; redocly tree cafe.yaml --format=ai --component=schemas --name=RegisterClientObject --with-deps|head -12; echo "====LIMIT===="; redocly tree cafe.yaml --format=ai --component=parameters --name=Limit --with-deps|head -10
+redocly tree cafe.yaml --format=ai --operation=listOrders | head -12
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -3063,25 +5041,28 @@ Haiku 4.5 passes all five control runs and drops two tree runs by losing the tok
 
 ## The grid in one view
 
-| Description  | Model     |        no tree |           tree | Δ ctx | no tree $ |   tree $ | works | works |
-| ------------ | --------- | -------------: | -------------: | ----: | --------: | -------: | ----: | ----: |
-| GitHub REST  | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |   −9% |     $0.39 |    $0.33 |   5/5 |   5/5 |
-| GitHub REST  | Opus 5    |    18,798 / 16 |    15,630 / 10 |  −17% |     $0.69 |    $0.62 |   2/2 |   2/2 |
-| GitHub REST  | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |     — |     $0.12 | $0.07 ❌ |   1/5 |   0/5 |
-| Billing API  | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |     — |  $0.76 ❌ |    $0.65 |   0/5 |   4/5 |
-| Billing API  | Opus 5    |    45,744 / 51 |    40,281 / 26 |  −12% |     $2.38 |    $1.14 |   2/2 |   2/2 |
-| Billing API  | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |     — |  $0.18 ❌ |    $0.16 |   0/5 |   2/5 |
-| Stripe       | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |   +4% |  $0.59 ❌ | $0.35 ❌ |   0/5 |   0/5 |
-| Stripe       | Opus 5    |    24,339 / 36 |    35,908 / 18 |  +48% |     $1.54 |    $1.22 |   2/2 |   2/2 |
-| Stripe       | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |  −43% |  $0.17 ❌ | $0.12 ❌ |   0/5 |   0/5 |
-| DigitalOcean | Sonnet 5  | 18,667 / 16 ❌ | 23,276 / 20 ❌ |  +25% |  $0.49 ❌ | $0.54 ❌ |   0/5 |   0/5 |
-| DigitalOcean | Opus 5    |    19,626 / 14 |    28,664 / 26 |  +46% |     $0.65 |    $0.96 |   2/2 |   2/2 |
-| DigitalOcean | Haiku 4.5 |    40,107 / 17 |    15,483 / 12 |  −61% |     $0.18 |    $0.13 |   2/5 |   1/5 |
-| Cafe API     | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |  −36% |     $0.43 |    $0.38 |   5/5 |   5/5 |
-| Cafe API     | Opus 5    |     16,769 / 1 |    15,375 / 11 |   −8% |     $0.43 |    $0.65 |   2/2 |   2/2 |
-| Cafe API     | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |  −44% |     $0.07 |    $0.10 |   5/5 |   3/5 |
+| Description   | Model     |        no tree |           tree | Δ ctx | no tree $ |   tree $ | works | works |
+| ------------- | --------- | -------------: | -------------: | ----: | --------: | -------: | ----: | ----: |
+| GitHub REST   | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |   −9% |     $0.39 |    $0.33 |   5/5 |   5/5 |
+| GitHub REST   | Opus 5    |    16,870 / 11 |    14,681 / 11 |  −13% |     $0.63 |    $0.60 |   5/5 |   5/5 |
+| GitHub REST   | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |     — |     $0.12 | $0.07 ❌ |   1/5 |   0/5 |
+| Billing API   | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |     — |  $0.76 ❌ |    $0.65 |   0/5 |   4/5 |
+| Billing API   | Opus 5    |    44,355 / 39 |    35,346 / 20 |  −20% |     $1.97 |    $1.12 |   5/5 |   5/5 |
+| Billing API   | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |     — |  $0.18 ❌ |    $0.16 |   0/5 |   2/5 |
+| Stripe        | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |   +4% |  $0.59 ❌ | $0.35 ❌ |   0/5 |   0/5 |
+| Stripe        | Opus 5    |    24,339 / 25 |    33,751 / 17 |  +39% |     $1.40 |    $1.16 |   4/5 |   5/5 |
+| Stripe        | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |  −43% |  $0.17 ❌ | $0.12 ❌ |   0/5 |   0/5 |
+| PayPal Orders | Sonnet 5  |     9,857 / 12 |    17,435 / 10 |  +77% |     $0.40 |    $0.38 |   5/5 |   5/5 |
+| PayPal Orders | Opus 5    |    18,038 / 11 |    21,656 / 20 |  +20% |     $0.71 |    $0.93 |   5/5 |   5/5 |
+| PayPal Orders | Haiku 4.5 |     17,624 / 9 |    19,569 / 14 |  +11% |     $0.11 |    $0.12 |   1/5 |   3/5 |
+| DigitalOcean  | Sonnet 5  | 18,667 / 16 ❌ | 23,276 / 20 ❌ |  +25% |  $0.49 ❌ | $0.54 ❌ |   0/5 |   0/5 |
+| DigitalOcean  | Opus 5    |    21,514 / 14 |    28,664 / 22 |  +33% |     $0.68 |    $0.96 |   5/5 |   5/5 |
+| DigitalOcean  | Haiku 4.5 |    40,107 / 17 |    15,483 / 12 |  −61% |     $0.18 |    $0.13 |   2/5 |   1/5 |
+| Cafe API      | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |  −36% |     $0.43 |    $0.38 |   5/5 |   5/5 |
+| Cafe API      | Opus 5    |     16,769 / 1 |    15,375 / 11 |   −8% |     $0.65 |    $0.65 |   5/5 |   5/5 |
+| Cafe API      | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |  −44% |     $0.07 |    $0.10 |   5/5 |   3/5 |
 
-Fifty-eight of 120 runs produced a flow that passes the check: 26 of 60 without the index, 32 of 60 with it.
+One hundred eleven of 180 runs produced a flow that passes the check: 53 of 90 without the index, 58 of 90 with it.
 The strongest single move is Sonnet 5 on the billing API — zero of five without the index, four of five with it, on a description whose only consistent failure was the missing `REB-APIKEY` header that the card's `auth:` line now states.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
@@ -3090,21 +5071,25 @@ Stripe splits the difference — the index cannot rescue a plan that starts from
 
 | Reason                                                                                      | Runs |
 | ------------------------------------------------------------------------------------------- | ---: |
-| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   44 |
+| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   48 |
 | the product (or price's product) is never created, though nothing exists yet                |   25 |
 | `POST /v1/prices` is missing — the flow starts from "your price id"                         |   14 |
 | the volume is created but never attached to the droplet                                     |    9 |
 | no call to mint the GitHub App installation token, though the flow says it uses one         |    9 |
 | the subscription itself is never created                                                    |    7 |
 | the plan/price step is missing                                                              |    5 |
+| no intent field                                                                             |    3 |
 | `POST /v2/vpcs` is missing                                                                  |    2 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                        |    2 |
+| no tracker call                                                                             |    2 |
 | the billing key is sent as `Authorization`, which this API rejects                          |    1 |
 | `POST /v2/droplets` is missing                                                              |    1 |
 | `POST /v2/volumes` is missing                                                               |    1 |
 | `POST /v2/firewalls` is missing                                                             |    1 |
 | the asset delete is missing                                                                 |    1 |
 | the droplet is created outside the VPC — `vpc_uuid` is never set                            |    1 |
+| no carrier field                                                                            |    1 |
+| no capture call                                                                             |    1 |
 
 The two big classes are the same ones every earlier round found: authentication that never reaches the request, and a resource the flow depends on but never creates.
 Stripe adds a sharper version of the second: the model does not miss the call, it assumes the object — "your price id" — because that is how most Stripe tutorials read.
@@ -3113,7 +5098,7 @@ Stripe adds a sharper version of the second: the model does not miss the call, i
 
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
 Sessions start in a directory holding nothing but the description, outside any repository; the tree runs call a local build of PR #3005 at `0203f1081`.
-Opus 5 cells hold two runs, Sonnet 5 and Haiku 4.5 cells five; the tables give the median over the runs whose flow works.
+Each cell holds five runs; the tables give the median over the runs whose flow works.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.
 

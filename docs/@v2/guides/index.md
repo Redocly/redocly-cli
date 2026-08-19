@@ -106,7 +106,7 @@ The same comparison judged on the answer: does the flow an agent produces actual
 {% card title="Where the index pays"
     to="./tree-agent-index-benchmark-v3"
   %}
-Five descriptions from 41 KB to 2,909 files: where the index saves context, and where the description's own layout already is one.
+Six descriptions from 41 KB to 2,909 files: where the index saves context, and where the description's own layout already is one.
 {% /card %}
 
 {% card title="Set up tab completion"
