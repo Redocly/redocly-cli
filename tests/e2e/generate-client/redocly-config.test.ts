@@ -302,8 +302,8 @@ describe('generate-client redocly.yaml config', () => {
     const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
     // The convention fits the cursor-style list operations -> descriptor pagination…
     expect(out).toContain('pagination: {');
-    // …and the flat sugar preserves the method-attached iterators.
-    expect(out).toContain('=> client.listOrders.items({ params }, init)');
+    // …and the exported binding IS the method, so `.items()` rides along with it.
+    expect(out).toContain('listOrders, ');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

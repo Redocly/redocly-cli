@@ -33,6 +33,7 @@ export const cliGenerator: Generator = ({ model, outputPath, emit, selected }) =
     zodSelected: selected?.includes('zod') ?? false,
     binName: emit.binName ?? commandName(stem),
     pagination: emit.pagination,
+    argsStyle: emit.argsStyle ?? 'grouped',
   });
   return [{ path: join(dir, `${stem}.cli.ts`), content }];
 };

@@ -294,7 +294,7 @@ for order, err := range api.ListOrdersItems(ctx, nil) {
 
 Every language gives credentials to a client instance, and the constructor is that one way.
 `createClient(OPERATIONS, { auth })` in TypeScript is the same thing as the constructors below.
-TypeScript adds `configure({ auth })` for one reason: it also exports a module-level client, which the [free functions](#authentication) call, and `configure` is how you set up that instance.
+TypeScript adds `configure({ auth })` for one reason: it also exports a module-level client, whose methods the module exports by name, and `configure` is how you set up that instance.
 The Python, PHP, and Go SDKs export no module-level client, so they need no equivalent.
 
 Auth accepts a static credential, or a provider function that the client resolves for each request:
@@ -434,7 +434,7 @@ redocly generate-client openapi.yaml -o src/api/client.ts --import-ext ts
 // src/main.ts
 import { listMenuItems } from './api/client.ts';
 
-const menu = await listMenuItems({ limit: 3 });
+const menu = await listMenuItems({ query: { limit: 3 } });
 ```
 
 ```bash
@@ -511,26 +511,36 @@ const publicApi = createClient<Ops>(OPERATIONS, { serverUrl: 'https://api.exampl
 
 ## Argument style
 
-By default (`--args-style flat`), each operation takes positional arguments.
-The order is: path parameters in URL order, then `params` (query), `body`, `headers`, and `cookies`.
-The per-call `init` comes last.
-The client serializes cookie parameters into the `Cookie` request header, and browsers refuse to set this header.
-Because of this, cookie parameters, like cookie apiKey auth, work only in server-side clients.
-With `--args-style grouped`, one `vars` object holds every input.
-Its type is the operation's `<Op>Variables`:
+Every operation takes one input object and an optional per-call `init`.
+By default (`--args-style grouped`), the input groups its values by transport layer: `path`, `query`, `headers`, `cookies`, and `body`.
+Each key is a sibling of the others, and the type of the whole object is the operation's `<Op>Variables`:
 
 ```ts
-// flat (default)
-await updateOrder('ord_01khr…', { ...orderBody });
-
-// grouped — order-independent, a good fit for React Query / SWR mutationFns
-await updateOrder({ orderId: 'ord_01khr…', body: { ...orderBody } });
+await updateOrder({
+  path: { orderId: 'ord_01khr…' },
+  query: { dryRun: true },
+  headers: { 'X-Request-Id': requestId },
+  body: { ...orderBody },
+});
 ```
 
-An unknown top-level key in the grouped object fails the call with a `TypeError` that names the key.
-An example is a leftover flat-style `{ limit: 10 }` instead of `{ params: { limit: 10 } }`.
-TypeScript catches this at compile time.
-The runtime check covers transpilers that skip type checks.
+The layer names come from the description itself, so a call reads like the operation it calls, adding a parameter never changes how existing calls are written, and no name can collide with another.
+
+With `--args-style flat`, the same values are merged into one level, which is shorter for an operation with a single kind of input:
+
+```ts
+await updateOrder({ orderId: 'ord_01khr…', dryRun: true, ...orderBody });
+```
+
+Flat merges the properties of a required object body.
+A body that is optional, or that is not an object (an array, a scalar, or a binary payload), keeps its own `body` key.
+When one name would arrive from two layers, that operation keeps the grouped shape, because a merged call could not say which value is which.
+
+The client serializes cookie parameters into the `Cookie` request header, and browsers refuse to set this header.
+Because of this, cookie parameters, like cookie apiKey auth, work only in server-side clients.
+
+An unknown top-level key fails the call with a `TypeError` that names the key and lists the layers.
+TypeScript catches this at compile time; the runtime check covers transpilers that skip type checks.
 Because of this, a call with the wrong shape never drops data silently.
 
 ## Read-only properties
@@ -565,13 +575,13 @@ The `error` type comes from the 4xx/5xx bodies in the description:
 ```ts
 // throw (default)
 try {
-  const order = await getOrderById('ord_123');
+  const order = await getOrderById({ path: { orderId: 'ord_123' } });
 } catch (err) {
   if (err instanceof ApiError) console.error(err.status, err.body);
 }
 
 // result
-const { data, error, response } = await getOrderById('ord_123');
+const { data, error, response } = await getOrderById({ path: { orderId: 'ord_123' } });
 if (error) console.error(response.status, error.title);
 else console.log(data.id);
 ```
@@ -672,7 +682,7 @@ Configure it through `ClientConfig`, with an optional per-call override:
 ```ts
 configure({ retry: { retries: 3 } }); // the module's client instance
 const other = createClient<Ops>(OPERATIONS, { retry: { retries: 3 } }); // another instance
-await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
+await getOrderById({ path: { orderId: 'ord_123' } }, { retry: { retries: 5 } }); // per call
 ```
 
 By default, the client retries only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`).
@@ -724,15 +734,18 @@ It **fully replaces** the default.
 To examine a response body, read `ctx.response.clone()`, because the body is a single-use stream:
 
 ```ts
-await createOrder(body, {
-  retry: {
-    retries: 3,
-    retryOn: async (ctx) => {
-      if (ctx.error) return true; // transport error
-      return (ctx.response?.status ?? 0) >= 500; // server error
+await createOrder(
+  { body },
+  {
+    retry: {
+      retries: 3,
+      retryOn: async (ctx) => {
+        if (ctx.error) return true; // transport error
+        return (ctx.response?.status ?? 0) >= 500; // server error
+      },
     },
-  },
-});
+  }
+);
 ```
 
 ## Query serialization
@@ -794,15 +807,18 @@ Sometimes you need response headers, for example pagination totals, rate limits,
 To get them without a switch to `--error-mode result`, pass `{ envelope: true }` on that call:
 
 ```ts
-// Flat args (default): query/body slots, then per-call init.
-const { data, headers, response } = await listCustomers({ limit: 1 }, { envelope: true });
+// The inputs come first, the per-call options second.
+const { data, headers, response } = await listCustomers(
+  { query: { limit: 1 } },
+  { envelope: true }
+);
 
 headers.paginationTotal; // number — required Pagination-Total in the description
 headers.xFlag; // boolean | undefined — optional X-Flag
 response.headers.get('X-Undocumented'); // anything not declared in OpenAPI
 
-// Grouped args / instance client: trailing init is always separate.
-const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope: true });
+// The instance client is the same function under another name.
+const envelope = await client.listCustomers({ query: { limit: 1 } }, { envelope: true });
 ```
 
 - `headers` is a safe camelCase object of the headers declared on the operation's success response.
@@ -900,7 +916,7 @@ A union without a usable discriminator gets no guard.
 ## Server-Sent Events
 
 An operation whose `2xx` response declares `text/event-stream` generates as a typed **async-generator function**.
-The output is a client method plus the matching free function.
+The client method is exported under its own name, like every other operation.
 No flag is required.
 The `data` of each event is typed from the OpenAPI 3.2 `itemSchema`.
 If `itemSchema` is absent, the type falls back to the media `schema`, then to `string`.
@@ -917,7 +933,7 @@ for await (const ev of streamMessages()) {
 The stream **reconnects automatically** after a dropped connection.
 It resumes from the last event id with `Last-Event-ID`.
 The backoff uses the server's `retry:`, then `reconnectDelay`, then 1 second, with a cap of 30 seconds.
-Tune per call with `{ reconnect: false }` or `{ reconnectDelay: 500 }`.
+Tune per call with the second argument: `streamMessages({}, { reconnect: false })` or `{ reconnectDelay: 500 }`.
 A `break` from the loop, or an aborted `AbortSignal`, ends the stream cleanly with no throw.
 SSE always throws `ApiError` on a non-2xx initial response, regardless of `--error-mode`.
 
@@ -959,7 +975,7 @@ The iterator never sets it, so pass your page size in `params` yourself.
 ```ts
 import { client } from './client.ts';
 
-for await (const order of client.listOrders.items({ params: { limit: 20 } })) {
+for await (const order of client.listOrders.items({ query: { limit: 20 } })) {
   console.log(order.id); // `order` is `Order` — resolved from the response schema at generate time
 }
 
@@ -968,9 +984,7 @@ for await (const page of client.listOrders.pages()) {
 }
 ```
 
-The flat free functions keep both iterators, and the iterators take the same arguments as the function they hang on.
-With `--args-style flat`, `listOrders({ limit: 20 })` and `listOrders.pages({ limit: 20 })` have the same shape.
-With `--args-style grouped`, both take the grouped object.
+`listOrders` and `listOrders.pages` are the same function and its own member, so they take the same input in either argument style.
 
 To resume, pass the advance parameter in the initial args.
 Iteration then starts from that point, not from the beginning.
@@ -980,7 +994,7 @@ The client forwards it to every page request:
 ```ts
 const controller = new AbortController();
 for await (const page of client.listOrders.pages(
-  { params: { cursor: 'c2' } }, // start from a saved cursor (or offset/page number)
+  { query: { cursor: 'c2' } }, // start from a saved cursor (or offset/page number)
   { signal: controller.signal }
 )) {
   // …

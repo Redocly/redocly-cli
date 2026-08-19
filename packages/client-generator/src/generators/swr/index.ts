@@ -20,7 +20,6 @@ import type { Generator } from '../types.js';
 export const swrGenerator: Generator = ({ model, outputPath, emit }) => {
   const { dir, stem } = anchor(outputPath);
   const content = renderSwrModule(model, {
-    argsStyle: emit.argsStyle ?? 'flat',
     sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
   });
   if (content === '') return [];

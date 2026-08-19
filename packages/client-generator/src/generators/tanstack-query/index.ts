@@ -24,6 +24,7 @@ export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | '
   return ({ model, outputPath, emit }) => {
     const { dir, stem } = anchor(outputPath);
     const content = renderTanstackModule(model, {
+      argsStyle: emit.argsStyle ?? 'grouped',
       sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
       framework,
       pagination: emit.pagination,

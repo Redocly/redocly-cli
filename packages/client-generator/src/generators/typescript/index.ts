@@ -61,24 +61,17 @@ export function typescriptSample(op: OperationModel, ctx: SampleContext): CodeSa
   const stem = ctx.outputPath.replace(/^.*[\\/]/, '').replace(/\.[^.]+$/, '');
   const specifier = `./${stem}.${ctx.emit.importExt ?? 'js'}`;
   const requiredQuery = op.queryParams.filter((param) => param.required);
-  const slots: string[] = [];
-  if (requiredQuery.length > 0) {
-    slots.push(
-      `params: { ${requiredQuery.map((param) => `'${param.name}': /* … */`).join(', ')} }`
-    );
-  }
-  if (op.requestBody) slots.push('body: { /* … */ }');
-  const args =
-    ctx.emit.argsStyle === 'grouped'
-      ? op.pathParams.length + slots.length > 0
-        ? [
-            `{ ${[...op.pathParams.map((param) => `'${param.name}': '<${param.name}>'`), ...slots].join(', ')} }`,
-          ]
-        : []
-      : [
-          ...op.pathParams.map((param) => `'<${param.name}>'`),
-          ...(slots.length > 0 ? [`{ ${slots.join(', ')} }`] : []),
-        ];
+  const merged = ctx.emit.argsStyle === 'flat';
+  const path = op.pathParams.map((param) => `${param.name}: '<${param.name}>'`);
+  const query = requiredQuery.map((param) => `${param.name}: /* … */`);
+  const parts = merged
+    ? [...path, ...query, ...(op.requestBody ? ['/* body properties */'] : [])]
+    : [
+        ...(path.length > 0 ? [`path: { ${path.join(', ')} }`] : []),
+        ...(query.length > 0 ? [`query: { ${query.join(', ')} }`] : []),
+        ...(op.requestBody ? ['body: { /* … */ }'] : []),
+      ];
+  const args = parts.length > 0 ? [`{ ${parts.join(', ')} }`] : [];
   return {
     lang: 'typescript',
     label: 'TypeScript SDK',

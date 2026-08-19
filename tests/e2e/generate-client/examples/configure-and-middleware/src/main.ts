@@ -89,9 +89,11 @@ use({
 async function main() {
   // A header for this one call only goes in the trailing RequestOptions argument.
   const payments = await listPayments({}, { headers: { 'X-Request-Id': '42' } }); // 503 first, then retried to 200
-  const payment = await createPayment({ amount: 4200, currency: 'EUR', reference: 'INV-17' });
+  const payment = await createPayment({
+    body: { amount: 4200, currency: 'EUR', reference: 'INV-17' },
+  });
   try {
-    await getPayment('pay_missing');
+    await getPayment({ path: { paymentId: 'pay_missing' } });
   } catch (error) {
     if (error instanceof ApiError) {
       // `error.body` is the decoded response body; per the spec's 4xx contract

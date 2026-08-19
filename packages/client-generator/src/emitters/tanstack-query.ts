@@ -6,8 +6,8 @@
 // TanStack's abort `signal`. A paginated query op additionally gets
 // `<op>InfiniteOptions(vars, init?)` with `initialPageParam`/`getNextPageParam` compiled
 // from the pagination rule's JSON pointers. Per mutation: `<op>Mutation(init?)`. Calls go
-// through the client instance's grouped methods, so the module is independent of the
-// sdk's `--args-style`.
+// through the client instance's methods, which take one input object in either
+// `--args-style`; only the infinite query's cursor override differs between them.
 //
 // The factory bodies are authored as source text — the emitted module verbatim
 // and normalizes everything to the printer's canonical style. Every interpolated piece
@@ -35,6 +35,8 @@ export type TanstackOptions = {
   /** Leading element for every query/mutation key — namespaces the cache when several
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
+  /** The sdk's call shape — the infinite query overrides the cursor inside it. */
+  argsStyle?: 'grouped' | 'flat';
 };
 
 /** Render the full TanStack Query module source. `''` when there are no wrappable operations. */
@@ -45,7 +47,7 @@ export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): st
   const source = [
     importHeader(ops, opts, pagination),
     ...ops.filter(isQuery).map((op) => queryKeySource(op, opts.queryKeyPrefix)),
-    factoriesSource(model, ops, pagination, opts.queryKeyPrefix),
+    factoriesSource(model, ops, pagination, opts.queryKeyPrefix, opts.argsStyle),
     ...defaultBindings(ops, pagination),
   ].join('\n');
   return source;
@@ -114,13 +116,14 @@ function factoriesSource(
   model: ApiModel,
   ops: OperationModel[],
   pagination: ModelPagination,
-  prefix: string | undefined
+  prefix: string | undefined,
+  argsStyle: TanstackOptions['argsStyle']
 ): string {
   const members = ops.flatMap((op) => {
     if (!isQuery(op)) return [mutationMember(op, prefix)];
     const paginated = pagination.get(op.name);
     return paginated !== undefined && paginated.spec.style !== 'link'
-      ? [optionsMember(op), infiniteMember(model, op, paginated.spec)]
+      ? [optionsMember(op), infiniteMember(model, op, paginated.spec, argsStyle)]
       : [optionsMember(op)];
   });
   return (
@@ -169,15 +172,22 @@ function mutationMember(op: OperationModel, prefix: string | undefined): string 
 function infiniteMember(
   model: ApiModel,
   op: OperationModel,
-  spec: Exclude<PaginationSpec, { style: 'link' }>
+  spec: Exclude<PaginationSpec, { style: 'link' }>,
+  argsStyle: TanstackOptions['argsStyle']
 ): string {
   const { params, keyArg } = varsPieces(op);
-  const override = `{ ...vars, params: { ...vars.params, ${safeIdent(spec.param)}: pageParam } }`;
+  // The cursor is a query parameter, so it lands in the sdk's own spelling for one:
+  // inside the `query` layer, or at the top level of a merged call.
+  const cursor = safeIdent(spec.param);
+  const override =
+    argsStyle === 'flat'
+      ? `{ ...vars, ${cursor}: pageParam }`
+      : `{ ...vars, query: { ...vars.query, ${cursor}: pageParam } }`;
   return (
     `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
     `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +
     `        queryFn: ({ pageParam, signal }) => instance.${op.name}(${override}, { ...init, signal, envelope: undefined }),\n` +
-    nextPageSource(model, op, spec) +
+    nextPageSource(model, op, spec, argsStyle) +
     `    })`
   );
 }
@@ -186,9 +196,12 @@ function infiniteMember(
 function nextPageSource(
   model: ApiModel,
   op: OperationModel,
-  spec: Exclude<PaginationSpec, { style: 'link' }>
+  spec: Exclude<PaginationSpec, { style: 'link' }>,
+  argsStyle: TanstackOptions['argsStyle']
 ): string {
   const advance = paramsAccess(spec.param);
+  // Where the caller's own starting value lives, in the sdk's spelling for a query param.
+  const given = argsStyle === 'flat' ? `vars.${advance}` : `vars.query?.${advance}`;
   if (spec.style === 'cursor') {
     const stopEarly =
       spec.hasMore === undefined
@@ -205,7 +218,7 @@ function nextPageSource(
         : `            const next = lastPage${pointerChain(spec.nextCursor)};\n` +
           `            return ${checks.join(' || ')} ? undefined : next;\n`;
     return (
-      `        initialPageParam: vars.params?.${advance},\n` +
+      `        initialPageParam: ${given},\n` +
       `        getNextPageParam: (lastPage) => {\n` +
       stopEarly +
       body +
@@ -215,7 +228,7 @@ function nextPageSource(
   const step = spec.style === 'offset' ? 'lastPageParam + count' : 'lastPageParam + 1';
   const start = spec.style === 'offset' ? '0' : '1';
   return (
-    `        initialPageParam: vars.params?.${advance} ?? ${start},\n` +
+    `        initialPageParam: ${given} ?? ${start},\n` +
     `        getNextPageParam: (lastPage, _allPages, lastPageParam) => {\n` +
     `            const count = ${itemsLength(spec.items)};\n` +
     `            return count === 0 ? undefined : ${step};\n` +

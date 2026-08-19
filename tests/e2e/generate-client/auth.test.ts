@@ -111,7 +111,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
           client.auth.bearer(async () => 'tok');
           await getBearer();
           client.auth.apiKey('QueryKey', 'secret-key');
-          await getQuery({ limit: 5 });
+          await getQuery({ query: { limit: 5 } });
           await new Promise<void>((r) => server.close(() => r()));
           process.stdout.write(JSON.stringify(captured));
         }

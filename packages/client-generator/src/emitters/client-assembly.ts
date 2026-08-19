@@ -22,12 +22,7 @@ import { assembleInlineRuntime } from './inline-runtime.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
 import { resolveModelPagination } from './pagination.js';
-import {
-  collectEntrySchemaRefs,
-  renderAliases,
-  renderFlatSugar,
-  renderOpsType,
-} from './render-client.js';
+import { collectEntrySchemaRefs, renderAliases, renderOpsType } from './render-client.js';
 import { isSseOp } from './sse.js';
 import { renderTypeAliases } from './ts-type.js';
 import { renderTypeGuards } from './type-guards.js';
@@ -66,14 +61,13 @@ function emitClient(
   // before any statement is built — one aggregated error for the whole model.
   const pagination = resolveModelPagination(model, options.pagination);
   const ctx: EmitContext = {
-    argsStyle: options.argsStyle ?? 'flat',
+    argsStyle: options.argsStyle ?? 'grouped',
     errorMode: options.errorMode ?? 'throw',
     dateType: options.dateType ?? 'string',
     schemaNames: new Set(model.schemas.map((s) => s.name)),
     schemas: model.schemas,
     pagination,
   };
-  const flat = ctx.argsStyle === 'flat';
   const hasSse = ops.some(isSseOp);
   const hasRegular = ops.some((op) => !isSseOp(op));
 
@@ -99,21 +93,17 @@ function emitClient(
         setup: !!options.setup,
         paginate: pagination.size > 0,
       })
-    : importLine(options, ctx, {
-        hasFlatSse: hasSse && flat,
-        hasFlatRegular: hasRegular && flat,
-        hasRegular,
-      });
+    : importLine(options, ctx, { hasRegular });
   const schemaSection = [
     renderTypeAliases(model.schemas, ctx.dateType),
     renderTypeGuards(model.schemas),
   ]
     .filter((section) => section.length > 0)
     .join('\n\n');
-  const bodySection = [...ops.map((op) => renderAliases(op, ctx, 'wire')), ...wiring]
+  const bodySection = [...ops.map((op) => renderAliases(op, ctx)), ...wiring]
     .filter((section) => section.length > 0)
     .join('\n\n');
-  const sugar = sugarSection(ops, idents, ctx);
+  const sugar = sugarSection(ops, idents);
   // Embed mode exports its whole public surface in place; only the package arm re-exports.
   const reexports = embed ? '' : reexportLines(ctx, hasSse);
 
@@ -169,23 +159,14 @@ function schemaLinks(model: ApiModel, ctx: EmitContext, specifier: string): stri
 }
 
 /** The single import from the runtime package — only names the file actually references. */
-function importLine(
-  options: EmitOptions,
-  ctx: EmitContext,
-  refs: { hasFlatSse: boolean; hasFlatRegular: boolean; hasRegular: boolean }
-): string {
+function importLine(options: EmitOptions, ctx: EmitContext, refs: { hasRegular: boolean }): string {
   const values = ['createClient', ...(options.setup ? ['mergeSetup'] : [])];
   const types = [
     ...(options.setup ? ['ClientConfig', 'Middleware'] : []),
     'OperationDescriptor',
-    // Flat sugar signatures reference the per-call option types.
-    ...(refs.hasFlatRegular ? ['RequestOptions'] : []),
-    // Flat throw-mode sugar return types vary with the inferred request-option type.
-    ...(refs.hasFlatRegular && ctx.errorMode !== 'result' ? ['EnvelopeResult'] : []),
     // `Ops` wraps results in `Result` in result mode — but only NON-SSE members
     // (an SSE-only spec would otherwise import it unused and fail noUnusedLocals).
     ...(ctx.errorMode === 'result' && refs.hasRegular ? ['Result'] : []),
-    ...(refs.hasFlatSse ? ['SseOptions'] : []),
   ].sort();
   const names = [...values, ...types.map((t) => `type ${t}`)].join(', ');
   return `import { ${names} } from '${PACKAGE_SPECIFIER}';`;
@@ -199,6 +180,9 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
     // relative URL, which Node's fetch rejects.
     ...(serverUrl !== undefined ? [`serverUrl: ${codeString(serverUrl)}`] : []),
     ...(ctx.errorMode === 'result' ? ['errorMode: "result"'] : []),
+    // The runtime converts a merged call to the namespaced shape, so it has to know
+    // which style this module's types promise.
+    ...(ctx.argsStyle === 'flat' ? ['argsStyle: "flat"'] : []),
     // Client identification for API-owner telemetry; the runtime sends it only
     // outside browsers, and `configure({ clientHeader: false })` disables it.
     'clientHeader: "redocly-client-generator"',
@@ -230,23 +214,17 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
 }
 
 /** Core destructure + per-scheme auth setters + per-operation call sugar. */
-function sugarSection(
-  ops: OperationModel[],
-  idents: Map<string, string>,
-  ctx: EmitContext
-): string {
+function sugarSection(ops: OperationModel[], idents: Map<string, string>): string {
   // Credentials go through `configure({ auth })` or `client.auth.*` — one way per act.
   // Per-scheme setters used to be exported here too, which gave the same act three
   // spellings and a name per scheme that operation names then had to avoid.
   const lines = ['export const { configure, use } = client;'];
   if (ops.length === 0) return lines.join('\n');
-  if (ctx.argsStyle === 'grouped') {
-    // Grouped style: the client methods already take the grouped args shape.
-    const names = ops.map((op) => idents.get(op.name)!).join(', ');
-    lines.push(`export const { ${names} } = client;`);
-    return lines.join('\n');
-  }
-  for (const op of ops) lines.push(renderFlatSugar(op, idents.get(op.name)!, ctx));
+  // Bindings, never wrappers: `updateOrder` IS `client.updateOrder`, so importing the name
+  // and reaching through the instance cannot disagree about the arguments. `argsStyle`
+  // shapes the method itself, which is why one binding serves both styles.
+  const names = ops.map((op) => idents.get(op.name)!).join(', ');
+  lines.push(`export const { ${names} } = client;`);
   return lines.join('\n');
 }
 

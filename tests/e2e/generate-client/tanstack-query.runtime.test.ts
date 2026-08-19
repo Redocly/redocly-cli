@@ -78,7 +78,7 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
       },
     });
 
-    const { result } = renderHook(() => useQuery(mod.getPetByIdOptions({ id: 1 })), {
+    const { result } = renderHook(() => useQuery(mod.getPetByIdOptions({ path: { id: 1 } })), {
       wrapper: wrapper(newClient()),
     });
 

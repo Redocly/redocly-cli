@@ -10,8 +10,8 @@ the copy that ships to users — that asset is generated, so never edit it by ha
 ## What it emits
 
 The typed TypeScript client itself: model types with JSDoc, type guards, the `Ops`
-type map, the `OPERATIONS` descriptor table, a `client` instance, flat call sugar,
-and either the embedded runtime (`runtime: inline`) or imports from
+type map, the `OPERATIONS` descriptor table, a `client` instance, one binding per
+operation, and either the embedded runtime (`runtime: inline`) or imports from
 `@redocly/client-generator` (`runtime: package`).
 
 ## Design decisions that must hold
@@ -30,14 +30,21 @@ and either the embedded runtime (`runtime: inline`) or imports from
   description — the only real fix), a name that isn't a valid identifier, or a clash with
   a name the generated module already declares. A vague "collides or is invalid" message
   leaves the publisher unable to act.
+- **One operation, one function, one input shape.** The module-level names are bindings
+  of the client's own methods (`export const { getOrder } = client;`), never wrappers, so
+  `getOrder` and `client.getOrder` cannot disagree about their arguments. `argsStyle`
+  shapes the method itself: `grouped` (the default) namespaces the inputs by transport
+  layer — `path`, `query`, `headers`, `cookies`, `body` — and `flat` merges them into one
+  object, which the runtime converts back using the descriptor's own parameter list. An
+  operation whose merged names would collide keeps the grouped shape.
 - **Throw mode returns the body**; `{ envelope: true }` opts into
   `{ data, headers, response }` with typed declared headers. Result mode returns
   `{ data, error, response }` and ignores `envelope`.
 
 ## Emitters that implement it
 
-`emitters/client-assembly.ts` (orchestration), `render-client.ts` (Ops, aliases, flat
-sugar), `descriptor.ts`, `ts-type.ts`/`ts-literal.ts` (type + data text), `sse.ts`,
+`emitters/client-assembly.ts` (orchestration), `render-client.ts` (Ops, aliases, input
+shapes), `descriptor.ts`, `ts-type.ts`/`ts-literal.ts` (type + data text), `sse.ts`,
 `pagination.ts`, `response-headers.ts`, `inline-runtime.ts`, `setup-bake.ts`.
 
 ## Ejecting it

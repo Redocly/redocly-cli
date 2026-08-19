@@ -1,11 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
 import type { ApiModel, OperationModel, SchemaModel } from '../model.js';
-import {
-  assertPathParamsAvoidArgSlots,
-  assertSafeIdentifiers,
-  sanitizeIdentifiers,
-} from '../sanitize-identifiers.js';
+import { assertSafeIdentifiers, sanitizeIdentifiers } from '../sanitize-identifiers.js';
 
 function model(schemas: ApiModel['schemas'], operations: OperationModel[] = []): ApiModel {
   return {
@@ -304,31 +300,6 @@ describe('sanitizeIdentifiers', () => {
     expect(o.successResponses[0].schema).toEqual(ref('A_B'));
     expect(o.successResponses[0].itemSchema).toEqual(ref('A_B'));
     expect(o.errorResponses[0].schema).toEqual(ref('A_B'));
-  });
-});
-
-describe('assertPathParamsAvoidArgSlots', () => {
-  function opWithPathParam(name: string): OperationModel {
-    return op({
-      path: `/x/{${name}}`,
-      pathParams: [
-        { name, in: 'path', required: true, schema: { kind: 'scalar', scalar: 'string' } },
-      ],
-    });
-  }
-
-  it('throws for a path parameter named after a request-args slot', () => {
-    // The runtime routes path values as `args[param.name]` at the top level, next to the
-    // `params`/`body`/`headers`/`cookies` slots — a same-named path param is ambiguous.
-    const m = model([], [opWithPathParam('body')]);
-    expect(() => assertPathParamsAvoidArgSlots(m)).toThrow(
-      /path parameter "body".*rename the parameter/s
-    );
-  });
-
-  it('allows a path parameter named init (only a flat-sugar binding, remapped there)', () => {
-    const m = model([], [opWithPathParam('init')]);
-    expect(() => assertPathParamsAvoidArgSlots(m)).not.toThrow();
   });
 });
 

@@ -64,7 +64,7 @@ const order = await getOrder(orderId);
 
 // After
 import { getOrderById } from '../api/generated/client.js';
-const order = await getOrderById(orderId);
+const order = await getOrderById({ path: { orderId } });
 ```
 
 Three differences account for most of the compiler errors:

@@ -72,24 +72,12 @@ export function variablesName(op: OperationModel): string {
  * `flat` spreads `<source>.<pathIdent>` (URL-template order), then the slots the op
  * has. `withInit` appends `{ ...init, envelope: undefined }` — a runtime strip, since
  * the wrappers cache the fetched body and their `Omit`-typed init is type-only. */
-export function sdkCallText(
-  op: OperationModel,
-  argsStyle: 'flat' | 'grouped',
-  source: string,
-  withInit: boolean
-): string {
-  const sig = operationSignature(op);
+export function sdkCallText(op: OperationModel, source: string, withInit: boolean): string {
   const args: string[] = [];
-  if (argsStyle === 'grouped') {
-    if (sig.hasInputs) args.push(source);
-    else if (withInit) args.push('{}');
-  } else {
-    for (const { ident } of sig.pathParams) args.push(`${source}.${ident}`);
-    if (sig.hasQuery) args.push(`${source}.params`);
-    if (sig.hasBody) args.push(`${source}.body`);
-    if (sig.hasHeaders) args.push(`${source}.headers`);
-    if (sig.hasCookies) args.push(`${source}.cookies`);
-  }
+  // Every style takes ONE input object, so a wrapper forwards its `<Op>Variables` verbatim
+  // and never has to know which style the sdk was generated with.
+  if (operationSignature(op).hasInputs) args.push(source);
+  else if (withInit) args.push('{}');
   if (withInit) args.push('{ ...init, envelope: undefined }');
   return `${op.name}(${args.join(', ')})`;
 }

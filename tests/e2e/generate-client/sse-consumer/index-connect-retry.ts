@@ -22,7 +22,7 @@ configure({
 async function main(): Promise<void> {
   const events: string[] = [];
   // Tiny reconnect backoff so the test doesn't wait on the 1s default.
-  for await (const ev of streamMessages({ reconnectDelay: 1 })) {
+  for await (const ev of streamMessages({}, { reconnectDelay: 1 })) {
     events.push(ev.data.text);
   }
   process.stdout.write(JSON.stringify({ calls, events, finished: true }) + '\n');

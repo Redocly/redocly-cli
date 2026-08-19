@@ -1,7 +1,6 @@
-// The flat sugar signatures (`renderArgList`) and the `<Op>*` operation aliases as
-// they appear in the descriptor-wired single-file client. The wiring itself (Ops,
-// OPERATIONS, client, auth sugar) is covered in client-assembly.test.ts; here the
-// focus is one operation's developer-facing surface.
+// One operation's developer-facing surface in the descriptor-wired single-file client:
+// the input shape in both styles, and the `<Op>*` aliases. The wiring itself (Ops,
+// OPERATIONS, client, sugar) is covered in client-assembly.test.ts.
 import type { OperationModel, RequestBodyModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 import { SCALAR, apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';
@@ -17,26 +16,14 @@ function emitResult(op: Partial<OperationModel>, schemas: string[] = []): string
   );
 }
 
-/** Throw-mode flat sugar is generic over `init` so `{ envelope: true }` narrows the return. */
-function envelopeFlatSugar(
-  name: string,
-  argsBeforeInit: string,
-  callArgs: string,
-  resultType: string,
-  headersType = 'Record<string, never>'
-): string {
-  const params = argsBeforeInit ? `${argsBeforeInit}, init?: I` : 'init?: I';
-  const promise = `Promise<EnvelopeResult<${resultType}, ${headersType}, I>>`;
-  return `export const ${name} = <I extends RequestOptions | undefined = undefined>(${params}): ${promise} => client.${name}(${callArgs}, init) as ${promise};`;
-}
-
-describe('flat sugar — argument-list permutations (renderArgList)', () => {
-  it('renders an operation with no inputs: only the trailing init, forwarding empty args', () => {
+describe('call inputs — the namespaced shape', () => {
+  it('an operation with no inputs has no Variables type and is exported as a binding', () => {
     const out = emitWithOp({});
-    expect(out).toContain(envelopeFlatSugar('op', '', '{}', 'OpResult'));
+    expect(out).not.toContain('OpVariables');
+    expect(out).toContain('export const { op } = client;');
   });
 
-  it('orders path params by their position in the URL template, not in pathParams[]', () => {
+  it('groups path params under `path`, in URL-template order', () => {
     const out = emitWithOp({
       name: 'getNested',
       path: '/x/{first}/y/{second}',
@@ -46,61 +33,37 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
       ],
     });
     expect(out).toContain(
-      envelopeFlatSugar(
-        'getNested',
-        'first: string, second: number',
-        '{ first, second }',
-        'GetNestedResult'
-      )
+      'export type GetNestedPath = {\n    first: string;\n    second: number;\n};'
     );
+    expect(out).toContain('path: GetNestedPath;');
   });
 
-  it('skips path params that are declared but missing from the URL template', () => {
+  it('drops a path param that the URL template never mentions', () => {
+    // The descriptor still lists the declared parameter; the input type must not ask for
+    // a value that has nowhere to go in the URL.
     const out = emitWithOp({ path: '/x', pathParams: [param('ghost', 'path', true)] });
+    expect(out).not.toContain('OpPath');
     expect(out).not.toContain('ghost: string');
   });
 
-  it('sanitizes a non-identifier path param name into a safe argument, keyed by wire name', () => {
+  it('keys a non-identifier param by its wire name, quoted', () => {
     const out = emitWithOp({
       name: 'getPet',
       path: '/pets/{pet-id}',
       pathParams: [param('pet-id', 'path', true)],
     });
-    expect(out).toContain(
-      envelopeFlatSugar('getPet', 'pet_id: string', '{ "pet-id": pet_id }', 'GetPetResult')
-    );
+    expect(out).toContain('export type GetPetPath = {\n    "pet-id": string;\n};');
   });
 
-  it('prefixes digit-leading and reserved-word path param names with `_`', () => {
-    expect(emitWithOp({ path: '/x/{2fa}', pathParams: [param('2fa', 'path', true)] })).toContain(
-      '_2fa: string'
-    );
-    expect(emitWithOp({ path: '/x/{new}', pathParams: [param('new', 'path', true)] })).toContain(
-      '_new: string'
-    );
-  });
-
-  it('disambiguates path param names that sanitize to the same identifier', () => {
-    const out = emitWithOp({
-      path: '/x/{a-b}/{a.b}',
-      pathParams: [param('a-b', 'path', true), param('a.b', 'path', true)],
-    });
-    expect(out).toContain('a_b: string');
-    expect(out).toContain('a_b_2: string');
-  });
-
-  it('emits `params = {}` default when all query params are optional', () => {
-    const out = emitWithOp({
+  it('`query` is optional when every query param is, required when one is not', () => {
+    const optional = emitWithOp({
       queryParams: [param('q', 'query', false), param('r', 'query', false)],
     });
-    expect(out).toMatch(/params: \{\n {4}q\?: string;\n {4}r\?: string;\n\} = \{\}/);
-  });
-
-  it('makes `params` required when at least one query param is required', () => {
-    const out = emitWithOp({
+    expect(optional).toContain('query?: OpQuery;');
+    const required = emitWithOp({
       queryParams: [param('q', 'query', true), param('r', 'query', false)],
     });
-    expect(out).toMatch(/params: \{\n {4}q: string;\n {4}r\?: string;\n\}, init/);
+    expect(required).toContain('query: OpQuery;');
   });
 
   it('produces `body: T` for required JSON bodies and `body?: T` for optional ones', () => {
@@ -109,60 +72,46 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
       schema: { kind: 'ref', name: 'Pet' },
       required: true,
     };
-    expect(emitWithOp({ requestBody: required })).toContain('body: Pet');
+    const out = emitWithOp({ requestBody: required });
+    expect(out).toContain('export type OpBody = Pet;');
+    expect(out).toContain('body: OpBody;');
     const optional: RequestBodyModel = {
       contentType: 'application/json',
       schema: SCALAR,
       required: false,
     };
-    expect(emitWithOp({ requestBody: optional })).toContain('body?: string');
+    expect(emitWithOp({ requestBody: optional })).toContain('body?: OpBody;');
   });
 
-  it('uses raw `FormData` for a non-object multipart body', () => {
-    const body: RequestBodyModel = {
-      contentType: 'multipart/form-data',
-      schema: { kind: 'unknown' },
-      required: true,
-    };
-    expect(emitWithOp({ requestBody: body })).toContain('body: FormData');
+  it('types a non-JSON body by its content type', () => {
+    const bodyOf = (contentType: string, schema: RequestBodyModel['schema']): string =>
+      emitWithOp({ requestBody: { contentType, schema, required: true } });
+    expect(bodyOf('multipart/form-data', { kind: 'unknown' })).toContain(
+      'export type OpBody = FormData;'
+    );
+    expect(
+      bodyOf('application/x-www-form-urlencoded', { kind: 'object', properties: [] })
+    ).toContain('export type OpBody = URLSearchParams;');
+    expect(bodyOf('application/octet-stream', SCALAR)).toContain(
+      'export type OpBody = Blob | ArrayBuffer;'
+    );
   });
 
-  it('uses `URLSearchParams` for urlencoded bodies', () => {
-    const body: RequestBodyModel = {
-      contentType: 'application/x-www-form-urlencoded',
-      schema: { kind: 'object', properties: [] },
-      required: true,
-    };
-    expect(emitWithOp({ requestBody: body })).toContain('body: URLSearchParams');
-  });
-
-  it('uses `Blob | ArrayBuffer` for octet-stream bodies', () => {
-    const body: RequestBodyModel = {
-      contentType: 'application/octet-stream',
-      schema: SCALAR,
-      required: true,
-    };
-    expect(emitWithOp({ requestBody: body })).toContain('body: Blob | ArrayBuffer');
-  });
-
-  it('emits header params as a typed `headers` slot, forwarded to the client method', () => {
-    const out = emitWithOp({
+  it('groups header params under `headers`, optional when all of them are', () => {
+    const required = emitWithOp({
       name: 'getThing',
       headerParams: [param('X-Api-Version', 'header', true)],
     });
-    expect(out).toMatch(/headers: \{\n {4}"X-Api-Version": string;\n\}, init/);
-    expect(out).toContain('=> client.getThing({ headers }, init) as Promise<');
-  });
-
-  it('defaults the `headers` slot to `= {}` when all header params are optional', () => {
-    const out = emitWithOp({
+    expect(required).toContain('export type GetThingHeaders = {\n    "X-Api-Version": string;\n};');
+    expect(required).toContain('headers: GetThingHeaders;');
+    const optional = emitWithOp({
       name: 'getThing',
       headerParams: [param('X-Trace', 'header', false)],
     });
-    expect(out).toMatch(/headers: \{\n {4}"X-Trace"\?: string;\n\} = \{\}/);
+    expect(optional).toContain('headers?: GetThingHeaders;');
   });
 
-  it('renders per-param JSDoc (description + schema metadata) above sugar params', () => {
+  it('renders per-param JSDoc (description + schema metadata)', () => {
     const out = emitWithOp({
       name: 'listPets',
       queryParams: [
@@ -178,7 +127,7 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
     expect(out).toMatch(/Page size\.[\s\S]*@minimum 1[\s\S]*@maximum 100[\s\S]*limit\?: number;/);
   });
 
-  it('the SSE sugar takes `SseOptions`; regular ops take `RequestOptions`', () => {
+  it('exports one binding per operation — SSE included, with no wrapper in sight', () => {
     const out = emitClientSingleFile(
       apiModel({
         services: [
@@ -198,10 +147,74 @@ describe('flat sugar — argument-list permutations (renderArgList)', () => {
         ],
       })
     );
-    expect(out).toContain(
-      'export const streamMessages = (init: SseOptions = {}) => client.streamMessages({}, init);'
+    expect(out).toContain('export const { streamMessages, listThings } = client;');
+    expect(out).not.toContain('=> client.streamMessages(');
+  });
+});
+
+describe('call inputs — the merged shape (argsStyle: flat)', () => {
+  /** Emit a flat-style client whose only operation is `operation(op)`. */
+  function emitFlat(op: Partial<OperationModel>): string {
+    return emitClientSingleFile(
+      apiModel({ services: [{ name: 'Default', operations: [operation(op)] }] }),
+      { argsStyle: 'flat' }
     );
-    expect(out).toContain(envelopeFlatSugar('listThings', '', '{}', 'ListThingsResult'));
+  }
+
+  it('puts every parameter at one level and intersects a required object body', () => {
+    const out = emitFlat({
+      name: 'updateThing',
+      path: '/things/{id}',
+      pathParams: [param('id', 'path', true)],
+      queryParams: [param('dryRun', 'query', false, { kind: 'scalar', scalar: 'boolean' })],
+      requestBody: {
+        contentType: 'application/json',
+        schema: {
+          kind: 'object',
+          properties: [{ name: 'status', schema: SCALAR, required: true }],
+        },
+        required: true,
+      },
+    });
+    expect(out).toContain(
+      'export type UpdateThingVariables = {\n    id: string;\n    dryRun?: boolean;\n} & UpdateThingBody;'
+    );
+    // The client is told which shape its types promise, so the runtime converts before use.
+    expect(out).toContain('argsStyle: "flat"');
+  });
+
+  it('keeps the `body` key for a body a merged call cannot spread', () => {
+    const out = emitFlat({
+      name: 'upload',
+      requestBody: { contentType: 'application/octet-stream', schema: SCALAR, required: true },
+    });
+    expect(out).toContain('export type UploadVariables = {\n    body: UploadBody;\n};');
+  });
+
+  it('an optional body stays a `body` key: omitting it must differ from omitting its fields', () => {
+    const out = emitFlat({
+      name: 'patchThing',
+      requestBody: {
+        contentType: 'application/json',
+        schema: {
+          kind: 'object',
+          properties: [{ name: 'status', schema: SCALAR, required: true }],
+        },
+        required: false,
+      },
+    });
+    expect(out).toContain('body?: PatchThingBody;');
+  });
+
+  it('falls back to the namespaced shape when one name lands in two layers', () => {
+    const out = emitFlat({
+      name: 'getThing',
+      path: '/things/{id}',
+      pathParams: [param('id', 'path', true)],
+      queryParams: [param('id', 'query', false)],
+    });
+    expect(out).toContain('path: GetThingPath;');
+    expect(out).toContain('query?: GetThingQuery;');
   });
 });
 
@@ -220,7 +233,7 @@ describe('operation type aliases (*Result / *Params / *Body / *Headers / *Variab
     expect(out).toContain('export type GetPetResult = Pet;');
   });
 
-  it('emits *Params/*Body/*Headers/*Variables per input kind, in a stable order', () => {
+  it('emits *Path/*Query/*Body/*Headers/*Variables per input kind, in a stable order', () => {
     const out = emitWithOp({
       name: 'updateOrder',
       path: '/orders/{orderId}',
@@ -238,7 +251,8 @@ describe('operation type aliases (*Result / *Params / *Body / *Headers / *Variab
     });
     const names = [
       'UpdateOrderResult',
-      'UpdateOrderParams',
+      'UpdateOrderPath',
+      'UpdateOrderQuery',
       'UpdateOrderBody',
       'UpdateOrderHeaders',
       'UpdateOrderVariables',
@@ -250,7 +264,7 @@ describe('operation type aliases (*Result / *Params / *Body / *Headers / *Variab
       last = idx;
     }
     expect(out).toMatch(
-      /export type UpdateOrderVariables = \{[\s\S]*orderId: string;[\s\S]*params\?: UpdateOrderParams;[\s\S]*body: UpdateOrderBody;[\s\S]*headers\?: UpdateOrderHeaders;[\s\S]*\};/
+      /export type UpdateOrderVariables = \{[\s\S]*path: UpdateOrderPath;[\s\S]*query\?: UpdateOrderQuery;[\s\S]*body: UpdateOrderBody;[\s\S]*headers\?: UpdateOrderHeaders;[\s\S]*\};/
     );
   });
 

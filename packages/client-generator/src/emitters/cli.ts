@@ -15,6 +15,7 @@ import { groupSlug, type CliAuthScheme, type CliCommand, type CliFlag } from '..
 import { HEADER } from './emit-options.js';
 import { embedCliRuntime } from './inline-runtime.js';
 import { resolveOperationPagination, type PaginationConfig } from './pagination.js';
+import { flatInputShape } from './render-client.js';
 import { isSseOp } from './sse.js';
 
 function kebab(name: string): string {
@@ -59,10 +60,24 @@ function jsonSuccessSchema(op: OperationModel): SchemaModel | undefined {
     ?.schema;
 }
 
+/**
+ * Whether a flat-style call spells this operation's body as its own properties — the same
+ * decision the client's types make, so the dispatcher never has to guess from a value.
+ */
+function mergedBodyFlag(
+  op: OperationModel,
+  model: ApiModel,
+  argsStyle: 'grouped' | 'flat' | undefined
+): { merged?: true } {
+  if (argsStyle !== 'flat') return {};
+  const shape = flatInputShape(op, model.schemas);
+  return 'mergeBody' in shape && shape.mergeBody ? { merged: true } : {};
+}
+
 /** Every operation as pure command data — the table `runCli` interprets. */
 export function commandData(
   model: ApiModel,
-  emit: { pagination?: PaginationConfig }
+  emit: { pagination?: PaginationConfig; argsStyle?: 'grouped' | 'flat' }
 ): CliCommand[] {
   const commands: CliCommand[] = [];
   for (const service of model.services) {
@@ -83,7 +98,9 @@ export function commandData(
           ...(param.description !== undefined ? { description: param.description } : {}),
         })),
         flags: op.queryParams.map(flagFor),
-        ...(jsonBody ? { body: { required: jsonBody.required } } : {}),
+        ...(jsonBody
+          ? { body: { required: jsonBody.required, ...mergedBodyFlag(op, model, emit.argsStyle) } }
+          : {}),
         ...(jsonBody === undefined && op.requestBody !== undefined
           ? { unsupportedBody: op.requestBody.contentType }
           : {}),
@@ -137,6 +154,8 @@ export type CliModuleOptions = {
   zodSelected: boolean;
   binName: string;
   pagination?: PaginationConfig;
+  /** The sibling client's call shape, which the dispatcher builds its inputs for. */
+  argsStyle?: 'grouped' | 'flat';
 };
 
 /**
@@ -178,7 +197,10 @@ function warnShadowedCommands(commands: CliCommand[]): void {
 
 /** The whole `<stem>.cli.ts` file. */
 export function renderCliModule(model: ApiModel, options: CliModuleOptions): string {
-  const commands = commandData(model, { pagination: options.pagination });
+  const commands = commandData(model, {
+    pagination: options.pagination,
+    argsStyle: options.argsStyle,
+  });
   warnShadowedCommands(commands);
   const schemes = cliAuthSchemes(model);
   const clientModule = `./${options.stem}.${options.importExt}`;
@@ -212,7 +234,7 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
     `export const wiring: CliWiring = {
   binName: ${codeJson(options.binName)},
   client,
-  configure,
+${options.argsStyle === 'flat' ? '  argsStyle: "flat",\n' : ''}  configure,
   schemes: ${codeJson(schemes)},
   env: process.env,
   stdin: () => readFileSync(0, "utf-8"),

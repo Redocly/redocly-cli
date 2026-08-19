@@ -229,9 +229,9 @@ describe('renderTanstackModule', () => {
       );
       expect(out).toContain('queryKey: [...listOrdersQueryKey(vars), "infinite"] as const');
       expect(out).toContain(
-        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, params: { ...vars.params, after: pageParam } }, { ...init, signal, envelope: undefined })'
+        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, query: { ...vars.query, after: pageParam } }, { ...init, signal, envelope: undefined })'
       );
-      expect(out).toContain('initialPageParam: vars.params?.after');
+      expect(out).toContain('initialPageParam: vars.query?.after');
       expect(out).toContain('if (lastPage.page?.hasNextPage === false)');
       expect(out).toContain('const next = lastPage.page?.endCursor;');
       // The cursor is a nullable string reached through an optional chain: all three stops.
@@ -291,7 +291,7 @@ describe('renderTanstackModule', () => {
       const out = render([offsetOp], {
         pagination: { style: 'offset', offsetParam: 'offset', items: '/items' },
       });
-      expect(out).toContain('initialPageParam: vars.params?.offset ?? 0');
+      expect(out).toContain('initialPageParam: vars.query?.offset ?? 0');
       expect(out).toContain('getNextPageParam: (lastPage, _allPages, lastPageParam) => {');
       expect(out).toContain('const count = lastPage.items?.length ?? 0;');
       expect(out).toContain('return count === 0 ? undefined : lastPageParam + count;');
@@ -301,7 +301,7 @@ describe('renderTanstackModule', () => {
       const out = render([offsetOp], {
         pagination: { style: 'page', offsetParam: 'offset', items: '/items' },
       });
-      expect(out).toContain('initialPageParam: vars.params?.offset ?? 1');
+      expect(out).toContain('initialPageParam: vars.query?.offset ?? 1');
       expect(out).toContain('return count === 0 ? undefined : lastPageParam + 1;');
     });
 

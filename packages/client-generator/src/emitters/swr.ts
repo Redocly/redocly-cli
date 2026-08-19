@@ -23,7 +23,6 @@ export type SwrOptions = {
   /** Import specifier for the sdk entry the operation functions/types live in. */
   sdkModule: string;
   /** How the sdk function takes its inputs — must match the generated client. */
-  argsStyle: 'flat' | 'grouped';
 };
 
 /** Render the full SWR module source. `''` when there are no wrappable operations. */
@@ -36,7 +35,7 @@ export function renderSwrModule(model: ApiModel, opts: SwrOptions): string {
     ...(hasQuery ? ['import useSWR from "swr";'] : []),
     ...(hasMutation ? ['import useSWRMutation from "swr/mutation";'] : []),
     sdkNamedImportText(ops, opts.sdkModule, hasQuery),
-    ...ops.flatMap((op) => (isQuery(op) ? queryBlocks(op, opts) : [mutationBlock(op, opts)])),
+    ...ops.flatMap((op) => (isQuery(op) ? queryBlocks(op) : [mutationBlock(op)])),
   ];
   return blocks.join('\n\n');
 }
@@ -47,7 +46,7 @@ function hookBlock(op: OperationModel, params: string, expr: string): string {
 }
 
 /** A query op's `<op>Key` factory + `use<Op>` hook calling `useSWR`. */
-function queryBlocks(op: OperationModel, opts: SwrOptions): string[] {
+function queryBlocks(op: OperationModel): string[] {
   const inputs = hasInputs(op);
   const keyParams = inputs ? `vars: ${variablesName(op)}` : '';
   const keyElements = inputs
@@ -55,7 +54,7 @@ function queryBlocks(op: OperationModel, opts: SwrOptions): string[] {
     : `[${JSON.stringify(op.name)}]`;
   const key = `export const ${op.name}Key = (${keyParams}) => ${keyElements} as const;`;
   const keyCall = `${op.name}Key(${inputs ? 'vars' : ''})`;
-  const useSwr = `useSWR(${keyCall}, () => ${sdkCallText(op, opts.argsStyle, 'vars', true)})`;
+  const useSwr = `useSWR(${keyCall}, () => ${sdkCallText(op, 'vars', true)})`;
   // The throw-only `envelope` option is excluded — cached data must stay the plain body.
   const params = inputs
     ? `vars: ${variablesName(op)}, init?: Omit<RequestOptions, "envelope">`
@@ -64,12 +63,12 @@ function queryBlocks(op: OperationModel, opts: SwrOptions): string[] {
 }
 
 /** A mutation op's `use<Op>` hook calling `useSWRMutation`. */
-function mutationBlock(op: OperationModel, opts: SwrOptions): string {
+function mutationBlock(op: OperationModel): string {
   // `(_key: string, { arg }: { arg: <Op>Variables }) => <op>(…arg)` when the op has
   // inputs; a no-arg `() => <op>()` when it has none (`arg` would be unused).
   const trigger = hasInputs(op)
-    ? `(_key: string, { arg }: {\n        arg: ${variablesName(op)};\n    }) => ${sdkCallText(op, opts.argsStyle, 'arg', false)}`
-    : `() => ${sdkCallText(op, opts.argsStyle, 'arg', false)}`;
+    ? `(_key: string, { arg }: {\n        arg: ${variablesName(op)};\n    }) => ${sdkCallText(op, 'arg', false)}`
+    : `() => ${sdkCallText(op, 'arg', false)}`;
   const useSwrMutation = `useSWRMutation(${JSON.stringify(op.name)}, ${trigger})`;
   return hookBlock(op, '', useSwrMutation);
 }

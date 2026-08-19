@@ -266,7 +266,9 @@ describe('multi-source runCli (one binary, several APIs)', () => {
     const context = sources();
     const code = await runCli(context.list, ['syncer', 'orders', 'getOrder', 'ord_9']);
     expect(code).toBe(0);
-    expect(context.syncer.calls).toEqual([{ name: 'getOrder', variables: { orderId: 'ord_9' } }]);
+    expect(context.syncer.calls).toEqual([
+      { name: 'getOrder', variables: { path: { orderId: 'ord_9' } } },
+    ]);
     expect(context.main.calls).toEqual([]);
   });
 
@@ -462,19 +464,19 @@ describe('credential flags follow the declared schemes', () => {
 });
 
 describe('runCli', () => {
-  it('dispatches grouped args and pretty-prints the JSON result', async () => {
+  it('dispatches inputs grouped by layer and pretty-prints the JSON result', async () => {
     const { wiring, calls, out } = fakeWiring({ results: { getOrder: { id: 'ord_1' } } });
     const code = await runCli(COMMANDS, wiring, ['orders', 'getOrder', 'ord_1']);
     expect(code).toBe(0);
-    expect(calls).toEqual([{ name: 'getOrder', variables: { orderId: 'ord_1' } }]);
+    expect(calls).toEqual([{ name: 'getOrder', variables: { path: { orderId: 'ord_1' } } }]);
     expect(JSON.parse(out.join('\n'))).toEqual({ id: 'ord_1' });
   });
 
-  it('passes query params under `params` and prints nothing for void results', async () => {
+  it('passes query params under `query` and prints nothing for void results', async () => {
     const { wiring, calls, out } = fakeWiring();
     const code = await runCli(COMMANDS, wiring, ['orders', 'listOrders', '--status', 'open']);
     expect(code).toBe(0);
-    expect(calls[0]).toEqual({ name: 'listOrders', variables: { params: { status: 'open' } } });
+    expect(calls[0]).toEqual({ name: 'listOrders', variables: { query: { status: 'open' } } });
     expect(out).toEqual([]);
   });
 

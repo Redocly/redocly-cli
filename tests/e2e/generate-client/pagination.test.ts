@@ -104,18 +104,10 @@ describe('generate-client pagination consumer', () => {
     expect(api).toContain(
       'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
     );
-    // …and the flat sugar attaches `.pages`/`.items` that take the SAME flat arguments
-    // as the call, so one exported function never has two argument shapes.
-    expect(api).toContain(
-      'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
-    );
-    expect(api).toContain(
-      'init: RequestOptions = {}) => client.listOrders.pages({ params }, init)'
-    );
-    expect(api).toContain(
-      'init: RequestOptions = {}) => client.listOrders.items({ params }, init)'
-    );
-    expect(api).not.toContain('client.listMenuItems.pages');
+    // …and the exported name is the client method itself, so `.pages`/`.items` ride along
+    // with the same input shape as the call. No wrapper, no second argument shape.
+    expect(api).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
+    expect(api).not.toContain('export const listOrders = Object.assign');
     // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).
     expect(api).toContain('// ─── Embedded runtime');
     expect(api).toContain('Pagination did not advance');
@@ -126,9 +118,7 @@ describe('generate-client pagination consumer', () => {
       'listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "offset", param: "offset", limitParam: "limit", items: "/items" } }'
     );
     expect(offset).toContain('item: MenuItem;');
-    expect(offset).toContain(
-      'init: RequestOptions = {}) => client.listMenuItems.pages({ params }, init)'
-    );
+    expect(offset).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
     // …precedence keeps the extension's cursor rule on listOrders (not the convention)…
     expect(offset).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
@@ -145,9 +135,7 @@ describe('generate-client pagination consumer', () => {
     expect(pkg).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
     );
-    expect(pkg).toContain(
-      'init: RequestOptions = {}) => client.listOrders.pages({ params }, init)'
-    );
+    expect(pkg).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
   }, 60_000);
 
   test('typecheck gate: all three generated clients + consumer scripts, strict', () => {

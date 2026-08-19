@@ -423,7 +423,7 @@ describe('renderDescriptors', () => {
 describe('renderOpsType', () => {
   function emitOps(model: ApiModel, extra: Partial<EmitContext> = {}): string {
     const ctx: EmitContext = {
-      argsStyle: 'flat',
+      argsStyle: 'grouped',
       errorMode: 'throw',
       dateType: 'string',
       schemaNames: new Set(),
@@ -476,14 +476,14 @@ describe('renderOpsType', () => {
     );
     expect(out).toContain('export type Ops = {');
     expect(out).toMatch(
-      /getOrder: \{\n {8}args: \{\n {12}orderId: string;\n {12}params\?: GetOrderParams;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
+      /getOrder: \{\n {8}args: \{\n {12}path: GetOrderPath;\n {12}query\?: GetOrderQuery;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
     );
     expect(out).not.toContain('kind: "sse"');
   });
 
   it('keys args path params by wire name, quoted when not identifier-safe', () => {
-    // The runtime routes path values by wire name (`splitArgs` reads `args[param.name]`),
-    // so the args type must key them the same way — never by the sanitized ident.
+    // The runtime substitutes path values by wire name, so the args type must key them the
+    // same way — never by a sanitized ident.
     const out = emitOps(
       modelWith([
         operation({
@@ -491,13 +491,16 @@ describe('renderOpsType', () => {
           path: '/pets/{pet-id}',
           pathParams: [param('pet-id', 'path', true)],
         }),
-      ])
+      ]),
+      { schemaNames: new Set(['GetPetPath']) }
     );
     expect(out).toContain('"pet-id": string;');
     expect(out).not.toContain('pet_id');
   });
 
   it('keeps path params that sanitize to the same ident distinct via their wire names', () => {
+    // `schemaNames` holds the alias name, so the layer's type is inlined here and the keys
+    // are visible in `Ops` itself.
     const out = emitOps(
       modelWith([
         operation({
@@ -505,7 +508,8 @@ describe('renderOpsType', () => {
           path: '/x/{a-b}/{a.b}',
           pathParams: [param('a-b', 'path', true), param('a.b', 'path', true)],
         }),
-      ])
+      ]),
+      { schemaNames: new Set(['ComparePath']) }
     );
     expect(out).toContain('"a-b": string;');
     expect(out).toContain('"a.b": string;');
@@ -610,11 +614,11 @@ describe('renderOpsType', () => {
     ]);
     const out = emitOps(modelWith([listOrders, getOrder]), { pagination });
     expect(out).toMatch(
-      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: ListOrdersResult;\n {8}item: Order;\n {4}\};/
+      /listOrders: \{\n {8}args: \{\n {12}query\?: ListOrdersQuery;\n {8}\};\n {8}result: ListOrdersResult;\n {8}item: Order;\n {4}\};/
     );
     // The non-paginated sibling stays untouched.
     expect(out).toMatch(
-      /getOrder: \{\n {8}args: \{\n {12}orderId: string;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
+      /getOrder: \{\n {8}args: \{\n {12}path: GetOrderPath;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
     );
   });
 
@@ -643,7 +647,7 @@ describe('renderOpsType', () => {
     // Result mode: `result` is the envelope, so `page` carries the raw page for `.pages()`.
     const out = emitOps(modelWith([listOrders]), { pagination, errorMode: 'result' });
     expect(out).toMatch(
-      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}mode: "result";\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
+      /listOrders: \{\n {8}args: \{\n {12}query\?: ListOrdersQuery;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}mode: "result";\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
     );
     // Throw mode emits no page member — `result` already IS the raw page.
     expect(emitOps(modelWith([listOrders]), { pagination })).not.toContain('page:');

@@ -69,7 +69,7 @@ describe('extension contract — flat surface (configure)', () => {
         });
 
         try {
-          await getPetById(1);
+          await getPetById({ path: { id: 1 } });
           console.log(JSON.stringify({ threw: false }));
         } catch (e) {
           console.log(JSON.stringify({ threw: true, name: (e as Error).constructor.name, message: (e as Error).message }));

@@ -9,7 +9,10 @@ async function main(): Promise<void> {
   let error: string | null = null;
 
   try {
-    for await (const order of listOrders.items({ limit: 2 }, { signal: controller.signal })) {
+    for await (const order of listOrders.items(
+      { query: { limit: 2 } },
+      { signal: controller.signal }
+    )) {
       void order;
       received++;
       if (received === 1) {

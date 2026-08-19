@@ -32,8 +32,12 @@ export type CliCommand = {
     description?: string;
   }>;
   flags: CliFlag[];
-  /** Present when the operation takes a JSON request body. */
-  body?: { required: boolean };
+  /**
+   * Present when the operation takes a JSON request body. `merged` marks a body whose own
+   * properties a flat-style call spells at the top level (the generator decides this from
+   * the schema, so the CLI and the client can never disagree).
+   */
+  body?: { required: boolean; merged?: boolean };
   /**
    * The content type of a request body that is NOT JSON (multipart, url-encoded, binary).
    * `--json` cannot build one, so the command is reported as library-only rather than
@@ -54,8 +58,10 @@ export type CliWiring = {
   /** Credential variable prefix. Defaults to `binName`, constant-cased — set it when the
    * displayed name and the credential family must differ (a composed multi-API binary). */
   envPrefix?: string;
-  /** The generated instance client (grouped-args methods). */
+  /** The generated instance client. */
   client: Record<string, unknown>;
+  /** How that client takes its inputs. Defaults to `'grouped'`, the generated default. */
+  argsStyle?: 'grouped' | 'flat';
   configure: (config: Record<string, unknown>) => void;
   /** Security schemes of the API — drives env-var credential resolution. */
   schemes?: CliAuthScheme[];
@@ -176,6 +182,32 @@ export function groupSlug(group: string): string {
 /** A description on ONE line: newlines in an OpenAPI description wreck help alignment. */
 function oneLine(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * The parsed argv as one call input, in the style the wired client takes: grouped by layer
+ * (the default) or merged into one object.
+ */
+function callInputs(
+  command: CliCommand,
+  positionals: Record<string, string>,
+  params: Record<string, unknown>,
+  body: unknown,
+  argsStyle: CliWiring['argsStyle']
+): Record<string, unknown> | undefined {
+  const inputs: Record<string, unknown> = {};
+  if (argsStyle === 'flat') {
+    Object.assign(inputs, positionals, params);
+    if (body !== undefined) {
+      if (command.body?.merged === true) Object.assign(inputs, body as Record<string, unknown>);
+      else inputs.body = body;
+    }
+  } else {
+    if (Object.keys(positionals).length > 0) inputs.path = positionals;
+    if (Object.keys(params).length > 0) inputs.query = params;
+    if (body !== undefined) inputs.body = body;
+  }
+  return Object.keys(inputs).length > 0 ? inputs : undefined;
 }
 
 /** Resolve argv against the command table. Pure — no I/O, no env. */
@@ -699,10 +731,7 @@ async function runSingle(
     });
   }
 
-  const variables: Record<string, unknown> = { ...positionals };
-  if (Object.keys(params).length > 0) variables.params = params;
-  if (body !== undefined) variables.body = body;
-  const argument = Object.keys(variables).length > 0 ? variables : undefined;
+  const argument = callInputs(command, positionals, params, body, wiring.argsStyle);
 
   // The client's methods are typed per-operation; the dispatcher only needs "callable
   // by name", so one localized widening here keeps the emitted wiring cast-free.

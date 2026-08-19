@@ -35,11 +35,7 @@ import type {
   SecuritySchemeModel,
   ServiceModel,
 } from './model.js';
-import {
-  assertPathParamsAvoidArgSlots,
-  assertSafeIdentifiers,
-  sanitizeIdentifiers,
-} from './sanitize-identifiers.js';
+import { assertSafeIdentifiers, sanitizeIdentifiers } from './sanitize-identifiers.js';
 
 type Oas3SecurityScheme = {
   type?: string;
@@ -253,7 +249,6 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
   // Hard gate: no unsafe name may reach the printer (see sanitize-identifiers.ts).
   assertSafeIdentifiers(model);
   // A path parameter named like a request-args slot cannot be routed — fail loudly.
-  assertPathParamsAvoidArgSlots(model);
 
   return model;
 }

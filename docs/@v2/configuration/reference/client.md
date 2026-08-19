@@ -28,7 +28,7 @@ As an alternative, pass `pagination` to the programmatic `generateClient(...)`.
 | `outputMode`      | string                                  | The file layout: `single` or `split`. This option applies to TypeScript output only. The `python`, `go`, and `php` SDKs always emit one self-contained file.                                                                                                                                                                                                                                                                                                  |
 | `runtime`         | string                                  | The runtime distribution: `inline` or `package`. This option applies to TypeScript output only. The `python`, `go`, and `php` SDKs always embed their runtime.                                                                                                                                                                                                                                                                                                |
 | `importExt`       | string                                  | The extension in generated relative imports: `js` (default, for tsc and bundlers) or `ts` (for Node's built-in type stripping). This option applies to TypeScript output only.                                                                                                                                                                                                                                                                                |
-| `argsStyle`       | string                                  | How the client receives operation inputs: `flat` or `grouped`. This option applies to TypeScript output only. Each language SDK follows its own idiom (keyword arguments, named arguments, a params struct).                                                                                                                                                                                                                                                  |
+| `argsStyle`       | string                                  | How the client receives operation inputs: `grouped` (default) groups them by transport layer (`path`, `query`, `headers`, `cookies`, `body`), and `flat` merges them into one object. This option applies to TypeScript output only. Each language SDK follows its own idiom (keyword arguments, named arguments, a params struct).                                                                                                                           |
 | `errorMode`       | string                                  | How operations report HTTP errors: `throw` or `result`. The `python` SDK implements both. The `go` and `php` SDKs support only `throw`, because that is the language idiom, and they reject `result`.                                                                                                                                                                                                                                                         |
 | `dateType`        | string                                  | The type of `date`/`date-time` fields: `string` or `Date`. Every language applies it: `Date` in TypeScript, `datetime`/`date` in Python, `time.Time`/`Date` in Go, `DateTimeImmutable` in PHP.                                                                                                                                                                                                                                                                |
 | `mockData`        | string                                  | The data mode for the `mock` generator: `static` or `faker`.                                                                                                                                                                                                                                                                                                                                                                                                  |
@@ -86,7 +86,7 @@ CLI flags override the resolved configuration.
 client:
   generators:
     - typescript
-  argsStyle: flat
+  argsStyle: grouped
 apis:
   cafe:
     root: ./openapi.yaml
@@ -95,7 +95,7 @@ apis:
       generators:
         - typescript
         - zod
-      argsStyle: grouped
+      argsStyle: flat
   orders:
     root: ./orders.yaml # no client block — uses the top-level one
     clientOutput: ./src/api/orders.client.ts

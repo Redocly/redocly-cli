@@ -3,7 +3,6 @@ import { logger } from '@redocly/openapi-core';
 import { isSafeIdentifier, sanitizeIdentifier } from '../emitters/identifier.js';
 import { reservedModuleNames } from '../emitters/reserved-names.js';
 import { pascalCase } from '../emitters/support.js';
-import { NotSupportedError } from '../errors.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
 
 /**
@@ -114,31 +113,6 @@ function uniquePascalIdent(name: string, used: Set<string>, usedPascals: Set<str
 }
 
 /** The request-args slot keys a path parameter's wire name may not reuse. */
-const ARG_SLOT_NAMES = ['params', 'body', 'headers', 'cookies'];
-
-/**
- * Reject path parameters named after a request-args slot. The runtime routes path
- * values as `args[param.name]` at the TOP level of the args object, next to the
- * `params`/`body`/`headers`/`cookies` slots — a path parameter of the same name is
- * irreducibly ambiguous there (the wire name is the routing key, so no rename can
- * help), which silently misroutes the value. Failing generation with a spec-side fix
- * beats emitting a client that drops it. `init` is fine: it is only a flat-sugar
- * binding, and the signature emitter moves that binding aside.
- */
-export function assertPathParamsAvoidArgSlots(model: ApiModel): void {
-  for (const service of model.services) {
-    for (const op of service.operations) {
-      for (const param of op.pathParams) {
-        if (ARG_SLOT_NAMES.includes(param.name)) {
-          throw new NotSupportedError(
-            `Operation "${op.specName ?? op.name}": path parameter "${param.name}" collides with the "${param.name}" request-argument slot; rename the parameter in the API description.`
-          );
-        }
-      }
-    }
-  }
-}
-
 /**
  * Throw if any declaration name is still not a safe identifier — a generator bug, not
  * bad input.

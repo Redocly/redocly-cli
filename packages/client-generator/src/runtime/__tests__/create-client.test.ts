@@ -77,17 +77,21 @@ const OPS = {
 
 interface Ops {
   getOrder: {
-    args: { orderId: string; params?: { expand?: string }; headers?: Record<string, unknown> };
+    args: {
+      path: { orderId: string };
+      query?: { expand?: string };
+      headers?: Record<string, unknown>;
+    };
     result: { id: string };
   };
   createPet: { args: { body: { name: string } }; result: { id: string } };
-  listRaw: { args: { params?: { filter?: string[] } }; result: string };
-  search: { args: { params?: { ids?: string[]; path?: string } }; result: string };
+  listRaw: { args: { query?: { filter?: string[] } }; result: string };
+  search: { args: { query?: { ids?: string[]; path?: string } }; result: string };
   secured: { args: Record<string, never>; result: string };
   stream: { args: { body?: { topic: string } }; result: { n: number }; kind: 'sse' };
   streamPlain: { args: Record<string, never>; result: string; kind: 'sse' };
   listOrders: {
-    args: { params?: { cursor?: string; limit?: number } };
+    args: { query?: { cursor?: string; limit?: number } };
     result: { orders: Array<{ id: string }>; nextCursor?: string };
     item: { id: string };
   };
@@ -146,7 +150,7 @@ describe('createClientCore', () => {
     ]);
     const client = createClientCore<{
       listRepos: {
-        args: { params?: { per_page?: number } };
+        args: { query?: { per_page?: number } };
         result: string[];
         item: string;
       };
@@ -157,7 +161,7 @@ describe('createClientCore', () => {
       { paginate: { pages: paginatePages, items: paginateItems, pagesByLink, itemsByLink } }
     );
     const seen: string[] = [];
-    for await (const repo of client.listRepos.items({ params: { per_page: 1 } })) seen.push(repo);
+    for await (const repo of client.listRepos.items({ query: { per_page: 1 } })) seen.push(repo);
     expect(seen).toEqual(['a', 'b']);
     expect(calls[0].url).toBe('https://x/repos?per_page=1');
     // Page 2 rides the Link target's query params through the same declared endpoint.
@@ -173,7 +177,7 @@ describe('createClientCore', () => {
       jsonOk(['x']),
     ]);
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
-    await client.getOrder({ orderId: 'o1' });
+    await client.getOrder({ path: { orderId: 'o1' } });
     expect((calls[0].init.headers as Record<string, string>).Accept).toBe('application/json');
     await client.listRaw({});
     expect((calls[1].init.headers as Record<string, string>).Accept).toBe('text/*');
@@ -184,8 +188,8 @@ describe('createClientCore', () => {
 
   it('rejects an unknown top-level argument key (flat-style shape passed to a grouped call)', async () => {
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x' });
-    await expect(client.getOrder({ orderId: 'o1', limit: 10 } as never)).rejects.toThrow(
-      /Unknown argument "limit" for operation "getOrder".*params/
+    await expect(client.getOrder({ path: { orderId: 'o1' }, limit: 10 } as never)).rejects.toThrow(
+      /Unknown argument "limit" for operation "getOrder".*grouped by layer/
     );
   });
 
@@ -196,8 +200,8 @@ describe('createClientCore', () => {
 
     expect(
       await getOrder({
-        orderId: 'a/b',
-        params: { expand: 'items' },
+        path: { orderId: 'a/b' },
+        query: { expand: 'items' },
         headers: { 'X-Trace': 7, 'X-Skip': null },
       })
     ).toEqual({ id: 'o1' });
@@ -243,7 +247,7 @@ describe('createClientCore', () => {
     ]);
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
 
-    expect(await client.listRaw({ params: { filter: ['a', 'b'] } })).toBe('plain');
+    expect(await client.listRaw({ query: { filter: ['a', 'b'] } })).toBe('plain');
     expect(calls[0].url).toBe('https://x/raw?filter=a|b');
 
     // parseAs overrides the descriptor's kind at runtime.
@@ -253,7 +257,7 @@ describe('createClientCore', () => {
   it('resolves OpenAPI style defaults: explode:false alone comma-joins, allowReserved alone skips encoding', async () => {
     const { calls, fetchImpl } = spy([jsonOk('s')]);
     const client = createClientCore<Ops>(OPS, { serverUrl: 'https://x', fetch: fetchImpl });
-    await client.search({ params: { ids: ['a', 'b'], path: 'a/b' } });
+    await client.search({ query: { ids: ['a', 'b'], path: 'a/b' } });
     expect(calls[0].url).toBe('https://x/search?ids=a,b&path=a/b');
   });
 
@@ -269,7 +273,7 @@ describe('createClientCore', () => {
       { onRequest: () => {} }, // no onError — skipped by the error chain
       { onError: (e) => new Error(`wrapped:${(e as { status: number }).status}`) }
     );
-    await expect(client.getOrder({ orderId: '1' })).rejects.toThrow('wrapped:500');
+    await expect(client.getOrder({ path: { orderId: '1' } })).rejects.toThrow('wrapped:500');
   });
 
   it('result mode: non-ok returns { error }, ok returns { data } — without throwing', async () => {
@@ -285,13 +289,15 @@ describe('createClientCore', () => {
       serverUrl: 'https://x',
       errorMode: 'result',
     });
-    const bad = (await client.getOrder({ orderId: '1' })) as unknown as {
+    const bad = (await client.getOrder({ path: { orderId: '1' } })) as unknown as {
       error: { title: string };
       response: Response;
     };
     expect(bad.error).toEqual({ title: 'x' });
     expect(bad.response.status).toBe(500);
-    const good = (await client.getOrder({ orderId: '1' })) as unknown as { data: { id: string } };
+    const good = (await client.getOrder({ path: { orderId: '1' } })) as unknown as {
+      data: { id: string };
+    };
     expect(good.data).toEqual({ id: 'ok' });
   });
 
@@ -319,7 +325,7 @@ describe('createClientCore', () => {
     expect(calls[1].url).toContain('sig=v');
 
     // Ops without security skip resolveAuth entirely.
-    await client.getOrder({ orderId: '1' });
+    await client.getOrder({ path: { orderId: '1' } });
     expect((calls[2].init.headers as Record<string, string>).Authorization).toBeUndefined();
   });
 
@@ -377,7 +383,7 @@ describe('createClientCore', () => {
 
     // Caller overrides the explicit header-param slot too.
     await client.getOrder(
-      { orderId: '1', headers: { 'X-Trace': 'from-args' } },
+      { path: { orderId: '1' }, headers: { 'X-Trace': 'from-args' } },
       { headers: { 'X-Trace': 'from-caller' } }
     );
     expect((calls[1].init.headers as Record<string, string>)['X-Trace']).toBe('from-caller');
@@ -392,7 +398,9 @@ describe('createClientCore', () => {
     ]);
     const client = createClientCore<Ops>(OPS, { fetch: fetchImpl, serverUrl: 'https://x' });
     client.configure({ errorMode: 'result' });
-    await expect(client.getOrder({ orderId: '1' })).rejects.toMatchObject({ status: 500 });
+    await expect(client.getOrder({ path: { orderId: '1' } })).rejects.toMatchObject({
+      status: 500,
+    });
   });
 
   it('sse ops dispatch to the sse capability (with prepared url + body); absent capability throws sync', async () => {
@@ -460,7 +468,7 @@ describe('createClientCore', () => {
     expect((client.getOrder as unknown as Record<string, unknown>).pages).toBeUndefined();
     expect((client.getOrder as unknown as Record<string, unknown>).items).toBeUndefined();
 
-    const args = { params: { limit: 2 } };
+    const args = { query: { limit: 2 } };
     const init = { headers: { 'X-Trace': '1' } };
     const yielded = [];
     for await (const page of client.listOrders.pages(args, init)) yielded.push(page);
@@ -469,7 +477,9 @@ describe('createClientCore', () => {
     expect(seen[0]).toEqual(['pages', OPS.listOrders.pagination, args, init]);
 
     for await (const item of client.listOrders.items()) expect(item).toEqual({ id: 'o9' });
-    expect(seen[1]).toEqual(['items', 'cursor', undefined, undefined]); // bare call: no args/init
+    // The iterators normalize their inputs before handing them over, so an argument-less
+    // call reaches the capability as an empty input rather than `undefined`.
+    expect(seen[1]).toEqual(['items', 'cursor', {}, undefined]); // bare call: no args/init
   });
 
   it('result mode: .pages/.items iterate RAW pages (the envelope is unwrapped before the pointers)', async () => {
@@ -586,7 +596,7 @@ describe('createClientCore', () => {
     // The merged serverUrl is actually used.
     const { calls, fetchImpl } = spy([jsonOk({ id: '1' })]);
     client.configure({ fetch: fetchImpl });
-    await client.getOrder({ orderId: '1' });
+    await client.getOrder({ path: { orderId: '1' } });
     expect(calls[0].url).toBe('https://later/orders/1');
   });
 
@@ -601,7 +611,7 @@ describe('createClientCore', () => {
     const { calls, fetchImpl } = spy([jsonOk({ id: '1' })]);
     const client = createClientCore<Ops>(OPS);
     client.configure({ fetch: fetchImpl });
-    await client.getOrder({ orderId: '1' });
+    await client.getOrder({ path: { orderId: '1' } });
     expect(calls[0].url).toBe('/orders/1');
   });
 

@@ -1,53 +1,47 @@
-// The shared calling-convention description for an operation. Both the sdk (which
-// emits each operation's parameter list) and the wrapper generators (which emit the
-// forwarding call) derive their argument *order*, slot presence, and `<Op>Variables`
-// naming from this one source — so a flat-mode signature and its call site can never drift.
+// The shared calling-convention description for an operation. The sdk (which emits each
+// operation's input type) and the wrapper generators (which forward it) read slot presence
+// and `<Op>Variables` naming from this one source, so a call and its type cannot drift.
 
 import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
-import { uniqueIdent } from './identifier.js';
 import { pascalCase } from './support.js';
 
-/** A path parameter paired with the unique JS identifier used for it in flat mode. */
-export type SignaturePathParam = { param: ParamModel; ident: string };
-
 export type OperationSignature = {
-  /** Path params in URL-template order, each with its unique JS identifier. */
-  pathParams: SignaturePathParam[];
-  /** Slot presence, in the order flat-mode arguments follow the path params. */
+  /** Slot presence — which input layers the operation has. */
   hasQuery: boolean;
   hasBody: boolean;
   hasHeaders: boolean;
   hasCookies: boolean;
   /** Any input at all — i.e. a `<Op>Variables` type exists for the operation. */
   hasInputs: boolean;
-  /** Grouped mode: whether `vars` is required (else it defaults to `= {}`). */
+  /** Whether the input argument is required (else it defaults to `= {}`). */
   varsRequired: boolean;
   /** The `<Op>Variables` type-alias name. */
   variablesTypeName: string;
 };
 
-/** Compute the calling-convention description for `op`. Pure; no AST. */
-export function operationSignature(op: OperationModel): OperationSignature {
-  const byName = new Map(op.pathParams.map((p) => [p.name, p] as const));
+/**
+ * Path parameters in URL-template order — the order a reader sees them in the path, and the
+ * order the old positional signature used. A parameter declared but absent from the template
+ * is dropped: it has nowhere to go in the URL, so asking for a value would mislead.
+ */
+export function templatePathParams(op: OperationModel): ParamModel[] {
+  const byName = new Map(op.pathParams.map((param) => [param.name, param] as const));
   const ordered: ParamModel[] = [];
   for (const match of op.path.matchAll(/\{([^{}]+)\}/g)) {
-    const p = byName.get(match[1]);
-    if (p) ordered.push(p);
+    const param = byName.get(match[1]);
+    if (param !== undefined) ordered.push(param);
   }
-  // Seed the slot/`init` argument names the flat signature appends after the path
-  // params: a same-named path param keeps its wire name but binds as `<name>_2`
-  // (the sugar remaps `{ <wire>: <binding> }`). The slot names themselves are
-  // rejected at build time (`assertPathParamsAvoidArgSlots`); `init` is only a
-  // binding here, so the remap fully handles it.
-  const used = new Set<string>(['params', 'body', 'headers', 'cookies', 'init']);
-  const pathParams = ordered.map((param) => ({ param, ident: uniqueIdent(param.name, used) }));
+  return ordered;
+}
 
+/** Compute the calling-convention description for `op`. Pure; no AST. */
+export function operationSignature(op: OperationModel): OperationSignature {
+  const pathParams = templatePathParams(op);
   const hasQuery = op.queryParams.length > 0;
   const hasBody = Boolean(op.requestBody);
   const hasHeaders = op.headerParams.length > 0;
   const hasCookies = op.cookieParams.length > 0;
   return {
-    pathParams,
     hasQuery,
     hasBody,
     hasHeaders,

@@ -51,7 +51,7 @@ describe('mock generator — generated client through MSW', () => {
         server.listen({ onUnhandledRequest: 'error' });
         configure({ serverUrl: 'https://api.example.com' });
         try {
-          const pet = await getPetById(1);
+          const pet = await getPetById({ path: { id: 1 } });
           process.stdout.write(JSON.stringify({ ok: pet !== undefined, id: pet.id, name: pet.name }));
         } finally {
           server.close();

@@ -199,6 +199,12 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
   errorMode?: 'throw' | 'result';
+  /**
+   * How each call spells its inputs: `'grouped'` (the default) namespaces them by layer —
+   * `{ path, query, headers, cookies, body }` — and `'flat'` takes one merged object.
+   * Fixed at generate time, like `errorMode`, because it shapes the static types.
+   */
+  argsStyle?: 'grouped' | 'flat';
   onRequest?: Middleware<Op>['onRequest'];
   onResponse?: Middleware<Op>['onResponse'];
   onError?: Middleware<Op>['onError'];
