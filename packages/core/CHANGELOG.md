@@ -21,8 +21,6 @@
 
 - Added the `spec-ref-siblings` rule that reports properties placed next to a `$ref` which the specification does not allow.
 
-## 2.45.1
-
 ### Patch Changes
 
 - Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.

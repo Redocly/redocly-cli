@@ -19,12 +19,6 @@
 
 - Updated @redocly/openapi-core to v2.46.0.
 
-## 2.45.1
-
-### Patch Changes
-
-- Updated @redocly/openapi-core to v2.45.1.
-
 ## 2.45.0
 
 ### Patch Changes
