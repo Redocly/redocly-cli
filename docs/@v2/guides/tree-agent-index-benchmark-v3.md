@@ -1679,25 +1679,25 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run               | no tree                                                              | tree                                                                 |
-| ----------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| Sonnet 5 · run 1  | no auth scheme                                                       | no product call, no price call, no auth scheme                       |
-| Sonnet 5 · run 2  | no product call, no price call, no auth scheme                       | no product call, no auth scheme                                      |
-| Sonnet 5 · run 3  | no product call, no price call, no auth scheme                       | no product call, no auth scheme                                      |
-| Sonnet 5 · run 4  | no product call, no price call, no auth scheme                       | no auth scheme                                                       |
-| Sonnet 5 · run 5  | no auth scheme                                                       | no auth scheme                                                       |
-| Opus 5 · run 1    | works                                                                | works                                                                |
-| Opus 5 · run 2    | works                                                                | works                                                                |
-| Opus 5 · run 3    | works                                                                | works                                                                |
-| Opus 5 · run 4    | works                                                                | works                                                                |
-| Opus 5 · run 5    | no auth scheme                                                       | works                                                                |
-| Haiku 4.5 · run 1 | no product call, no price call, no auth scheme                       | no product call, no price call, no subscription call                 |
-| Haiku 4.5 · run 2 | no product call, no price call, no subscription call, no auth scheme | no product call, no price call, no subscription call, no auth scheme |
-| Haiku 4.5 · run 3 | no product call, no price call, no auth scheme                       | no product call, no price call, no subscription call, no auth scheme |
-| Haiku 4.5 · run 4 | no product call, no price call, no subscription call, no auth scheme | no product call, no price call, no subscription call, no auth scheme |
-| Haiku 4.5 · run 5 | no product call, no price call, no auth scheme                       | no product call, no price call, no subscription call, no auth scheme |
+| Run               | no tree                                        | tree                                           |
+| ----------------- | ---------------------------------------------- | ---------------------------------------------- |
+| Sonnet 5 · run 1  | no auth scheme                                 | no product call, no price call, no auth scheme |
+| Sonnet 5 · run 2  | no product call, no price call, no auth scheme | no product call, no auth scheme                |
+| Sonnet 5 · run 3  | no product call, no price call, no auth scheme | no product call, no auth scheme                |
+| Sonnet 5 · run 4  | no product call, no price call, no auth scheme | no auth scheme                                 |
+| Sonnet 5 · run 5  | no auth scheme                                 | no auth scheme                                 |
+| Opus 5 · run 1    | works                                          | works                                          |
+| Opus 5 · run 2    | works                                          | works                                          |
+| Opus 5 · run 3    | works                                          | works                                          |
+| Opus 5 · run 4    | works                                          | works                                          |
+| Opus 5 · run 5    | no auth scheme                                 | works                                          |
+| Haiku 4.5 · run 1 | no product call, no price call, no auth scheme | no product call, no price call                 |
+| Haiku 4.5 · run 2 | no product call, no price call, no auth scheme | no product call, no price call, no auth scheme |
+| Haiku 4.5 · run 3 | no product call, no price call, no auth scheme | no product call, no price call, no auth scheme |
+| Haiku 4.5 · run 4 | no product call, no price call, no auth scheme | no product call, no price call, no auth scheme |
+| Haiku 4.5 · run 5 | no product call, no price call, no auth scheme | no product call, no price call, no auth scheme |
 
-A run works when its flow contains `POST /v1/products`, `POST /v1/prices` (the legacy `/v1/plans` also counts) and `POST /v1/subscriptions` naming `customer`, `items` and `trial_period_days`, authenticated with the secret key.
+A run works when its flow contains `POST /v1/products`, `POST /v1/prices` (the legacy `/v1/plans` also counts) and a subscription create — `POST /v1/subscriptions` or the customer-scoped `POST /v1/customers/{customer}/subscriptions` — naming `customer`, `items` and `trial_period_days`, authenticated with the secret key.
 A flow that starts from "your price id" assumes a catalog the task says does not exist yet, and fails.
 
 What each run ran:
@@ -3794,41 +3794,41 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model           |        no tree |           tree | Difference |
-| --------------- | -------------: | -------------: | ---------: |
-| Sonnet 5 (n=5)  | 18,667 / 16 ❌ | 23,276 / 20 ❌ |       +25% |
-| Opus 5 (n=5)    |    21,514 / 14 |    28,664 / 22 |       +33% |
-| Haiku 4.5 (n=5) |    40,107 / 17 |    15,483 / 12 |       −61% |
+| Model           |     no tree |           tree | Difference |
+| --------------- | ----------: | -------------: | ---------: |
+| Sonnet 5 (n=5)  | 11,924 / 11 | 23,276 / 20 ❌ |          — |
+| Opus 5 (n=5)    | 21,514 / 14 |    28,664 / 22 |       +33% |
+| Haiku 4.5 (n=5) | 40,107 / 17 |    21,495 / 19 |       −46% |
 
 What those runs were billed:
 
-| Model           |  no tree |     tree | Difference |
-| --------------- | -------: | -------: | ---------: |
-| Sonnet 5 (n=5)  | $0.49 ❌ | $0.54 ❌ |       +10% |
-| Opus 5 (n=5)    |    $0.68 |    $0.96 |       +41% |
-| Haiku 4.5 (n=5) |    $0.18 |    $0.13 |       −28% |
+| Model           | no tree |     tree | Difference |
+| --------------- | ------: | -------: | ---------: |
+| Sonnet 5 (n=5)  |   $0.33 | $0.54 ❌ |          — |
+| Opus 5 (n=5)    |   $0.68 |    $0.96 |       +41% |
+| Haiku 4.5 (n=5) |   $0.18 |    $0.18 |        −0% |
 
 Whether each run produced a flow that would run:
 
-| Run               | no tree                        | tree                                                                                           |
-| ----------------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
-| Sonnet 5 · run 1  | no auth scheme                 | no auth scheme                                                                                 |
-| Sonnet 5 · run 2  | no attach call, no auth scheme | no auth scheme                                                                                 |
-| Sonnet 5 · run 3  | no attach call, no auth scheme | no vpc call, no droplet call, no volume call, no attach call, no firewall call, no auth scheme |
-| Sonnet 5 · run 4  | no attach call, no auth scheme | no auth scheme                                                                                 |
-| Sonnet 5 · run 5  | no attach call                 | no attach call, no auth scheme                                                                 |
-| Opus 5 · run 1    | works                          | works                                                                                          |
-| Opus 5 · run 2    | works                          | works                                                                                          |
-| Opus 5 · run 3    | works                          | works                                                                                          |
-| Opus 5 · run 4    | works                          | works                                                                                          |
-| Opus 5 · run 5    | works                          | works                                                                                          |
-| Haiku 4.5 · run 1 | no auth scheme                 | no auth scheme                                                                                 |
-| Haiku 4.5 · run 2 | works                          | no attach call, no auth scheme                                                                 |
-| Haiku 4.5 · run 3 | no attach call, no auth scheme | works                                                                                          |
-| Haiku 4.5 · run 4 | no auth scheme                 | no vpc call, no vpc_uuid, no auth scheme                                                       |
-| Haiku 4.5 · run 5 | works                          | no attach call                                                                                 |
+| Run               | no tree                   | tree                                     |
+| ----------------- | ------------------------- | ---------------------------------------- |
+| Sonnet 5 · run 1  | no auth scheme            | no auth scheme                           |
+| Sonnet 5 · run 2  | no auth scheme            | no auth scheme                           |
+| Sonnet 5 · run 3  | no auth scheme            | no auth scheme                           |
+| Sonnet 5 · run 4  | no auth scheme            | no auth scheme                           |
+| Sonnet 5 · run 5  | works                     | no auth scheme                           |
+| Opus 5 · run 1    | works                     | works                                    |
+| Opus 5 · run 2    | works                     | works                                    |
+| Opus 5 · run 3    | works                     | works                                    |
+| Opus 5 · run 4    | works                     | works                                    |
+| Opus 5 · run 5    | works                     | works                                    |
+| Haiku 4.5 · run 1 | no auth scheme            | no auth scheme                           |
+| Haiku 4.5 · run 2 | works                     | no auth scheme                           |
+| Haiku 4.5 · run 3 | no attach, no auth scheme | works                                    |
+| Haiku 4.5 · run 4 | no auth scheme            | no vpc call, no vpc_uuid, no auth scheme |
+| Haiku 4.5 · run 5 | works                     | works                                    |
 
-A run works when its flow contains `POST /v2/vpcs`, `POST /v2/droplets` with `vpc_uuid`, `POST /v2/volumes`, the attach action with `droplet_id`, and `POST /v2/firewalls` with `inbound_rules` and `droplet_ids`, under `bearer_auth`.
+A run works when its flow contains `POST /v2/vpcs`, `POST /v2/droplets` with `vpc_uuid`, `POST /v2/volumes`, the attach — either the separate action with `droplet_id`, or a `volumes` array on the droplet create, which the description documents as attaching at creation — and `POST /v2/firewalls` with `inbound_rules` and `droplet_ids`, under `bearer_auth`.
 
 What each run ran:
 
@@ -4556,7 +4556,7 @@ cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/res
 {% /tabs %}
 
 Opus 5 passes on both sides and pays 33% more context through the index — 2,909 single-operation files named by what they do already are an index, and `cat vpcs/vpcs_create.yml` beats any card.
-Sonnet 5 never passes: it skips the volume-attach action or leaves every call unauthenticated. Haiku 4.5 lands two of five without the index and one with it.
+Sonnet 5 gets every call right in four of five index runs and still passes none of them, because its answers never say how a call authenticates — with the requirement standing on the overview's own `security:` line. Haiku 4.5 lands two of five either way.
 
 {% /tab %}
 
@@ -5041,28 +5041,76 @@ Haiku 4.5 passes all five control runs and drops two tree runs by losing the tok
 
 ## The grid in one view
 
-| Description   | Model     |        no tree |           tree | Δ ctx | no tree $ |   tree $ | works | works |
-| ------------- | --------- | -------------: | -------------: | ----: | --------: | -------: | ----: | ----: |
-| GitHub REST   | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |   −9% |     $0.39 |    $0.33 |   5/5 |   5/5 |
-| GitHub REST   | Opus 5    |    16,870 / 11 |    14,681 / 11 |  −13% |     $0.63 |    $0.60 |   5/5 |   5/5 |
-| GitHub REST   | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |     — |     $0.12 | $0.07 ❌ |   1/5 |   0/5 |
-| Billing API   | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |     — |  $0.76 ❌ |    $0.65 |   0/5 |   4/5 |
-| Billing API   | Opus 5    |    44,355 / 39 |    35,346 / 20 |  −20% |     $1.97 |    $1.12 |   5/5 |   5/5 |
-| Billing API   | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |     — |  $0.18 ❌ |    $0.16 |   0/5 |   2/5 |
-| Stripe        | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |   +4% |  $0.59 ❌ | $0.35 ❌ |   0/5 |   0/5 |
-| Stripe        | Opus 5    |    24,339 / 25 |    33,751 / 17 |  +39% |     $1.40 |    $1.16 |   4/5 |   5/5 |
-| Stripe        | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |  −43% |  $0.17 ❌ | $0.12 ❌ |   0/5 |   0/5 |
-| PayPal Orders | Sonnet 5  |     9,857 / 12 |    17,435 / 10 |  +77% |     $0.40 |    $0.38 |   5/5 |   5/5 |
-| PayPal Orders | Opus 5    |    18,038 / 11 |    21,656 / 20 |  +20% |     $0.71 |    $0.93 |   5/5 |   5/5 |
-| PayPal Orders | Haiku 4.5 |     17,624 / 9 |    19,569 / 14 |  +11% |     $0.11 |    $0.12 |   1/5 |   3/5 |
-| DigitalOcean  | Sonnet 5  | 18,667 / 16 ❌ | 23,276 / 20 ❌ |  +25% |  $0.49 ❌ | $0.54 ❌ |   0/5 |   0/5 |
-| DigitalOcean  | Opus 5    |    21,514 / 14 |    28,664 / 22 |  +33% |     $0.68 |    $0.96 |   5/5 |   5/5 |
-| DigitalOcean  | Haiku 4.5 |    40,107 / 17 |    15,483 / 12 |  −61% |     $0.18 |    $0.13 |   2/5 |   1/5 |
-| Cafe API      | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |  −36% |     $0.43 |    $0.38 |   5/5 |   5/5 |
-| Cafe API      | Opus 5    |     16,769 / 1 |    15,375 / 11 |   −8% |     $0.65 |    $0.65 |   5/5 |   5/5 |
-| Cafe API      | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |  −44% |     $0.07 |    $0.10 |   5/5 |   3/5 |
+How many of the five runs in each cell produced a flow that would run:
 
-One hundred eleven of 180 runs produced a flow that passes the check: 53 of 90 without the index, 58 of 90 with it.
+| Description   | Model     | no tree | tree |
+| ------------- | --------- | ------: | ---: |
+| GitHub REST   | Sonnet 5  |     5/5 |  5/5 |
+| GitHub REST   | Opus 5    |     5/5 |  5/5 |
+| GitHub REST   | Haiku 4.5 |     1/5 |  0/5 |
+| Billing API   | Sonnet 5  |     0/5 |  4/5 |
+| Billing API   | Opus 5    |     5/5 |  5/5 |
+| Billing API   | Haiku 4.5 |     0/5 |  2/5 |
+| Stripe        | Sonnet 5  |     0/5 |  0/5 |
+| Stripe        | Opus 5    |     4/5 |  5/5 |
+| Stripe        | Haiku 4.5 |     0/5 |  0/5 |
+| PayPal Orders | Sonnet 5  |     5/5 |  5/5 |
+| PayPal Orders | Opus 5    |     5/5 |  5/5 |
+| PayPal Orders | Haiku 4.5 |     1/5 |  3/5 |
+| DigitalOcean  | Sonnet 5  |     1/5 |  0/5 |
+| DigitalOcean  | Opus 5    |     5/5 |  5/5 |
+| DigitalOcean  | Haiku 4.5 |     2/5 |  2/5 |
+| Cafe API      | Sonnet 5  |     5/5 |  5/5 |
+| Cafe API      | Opus 5    |     5/5 |  5/5 |
+| Cafe API      | Haiku 4.5 |     5/5 |  3/5 |
+
+Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all five):
+
+| Description   | Model     |        no tree |           tree | Difference |
+| ------------- | --------- | -------------: | -------------: | ---------: |
+| GitHub REST   | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |        −9% |
+| GitHub REST   | Opus 5    |    16,870 / 11 |    14,681 / 11 |       −13% |
+| GitHub REST   | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |          — |
+| Billing API   | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |          — |
+| Billing API   | Opus 5    |    44,355 / 39 |    35,346 / 20 |       −20% |
+| Billing API   | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |          — |
+| Stripe        | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |        +4% |
+| Stripe        | Opus 5    |    24,339 / 25 |    33,751 / 17 |       +39% |
+| Stripe        | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |       −43% |
+| PayPal Orders | Sonnet 5  |     9,857 / 12 |    17,435 / 10 |       +77% |
+| PayPal Orders | Opus 5    |    18,038 / 11 |    21,656 / 20 |       +20% |
+| PayPal Orders | Haiku 4.5 |     17,624 / 9 |    19,569 / 14 |       +11% |
+| DigitalOcean  | Sonnet 5  |    11,924 / 11 | 23,276 / 20 ❌ |          — |
+| DigitalOcean  | Opus 5    |    21,514 / 14 |    28,664 / 22 |       +33% |
+| DigitalOcean  | Haiku 4.5 |    40,107 / 17 |    21,495 / 19 |       −46% |
+| Cafe API      | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |       −36% |
+| Cafe API      | Opus 5    |     16,769 / 1 |    15,375 / 11 |        −8% |
+| Cafe API      | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |       −44% |
+
+What those runs were billed:
+
+| Description   | Model     |  no tree |     tree | Difference |
+| ------------- | --------- | -------: | -------: | ---------: |
+| GitHub REST   | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
+| GitHub REST   | Opus 5    |    $0.63 |    $0.60 |        −5% |
+| GitHub REST   | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
+| Billing API   | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
+| Billing API   | Opus 5    |    $1.97 |    $1.12 |       −43% |
+| Billing API   | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
+| Stripe        | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
+| Stripe        | Opus 5    |    $1.40 |    $1.16 |       −17% |
+| Stripe        | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
+| PayPal Orders | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
+| PayPal Orders | Opus 5    |    $0.71 |    $0.93 |       +31% |
+| PayPal Orders | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
+| DigitalOcean  | Sonnet 5  |    $0.33 | $0.54 ❌ |          — |
+| DigitalOcean  | Opus 5    |    $0.68 |    $0.96 |       +41% |
+| DigitalOcean  | Haiku 4.5 |    $0.18 |    $0.18 |        −0% |
+| Cafe API      | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
+| Cafe API      | Opus 5    |    $0.65 |    $0.65 |        −0% |
+| Cafe API      | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
+
+One hundred thirteen of 180 runs produced a flow that passes the check: 54 of 90 without the index, 59 of 90 with it.
 The strongest single move is Sonnet 5 on the billing API — zero of five without the index, four of five with it, on a description whose only consistent failure was the missing `REB-APIKEY` header that the card's `auth:` line now states.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
@@ -5074,22 +5122,18 @@ Stripe splits the difference — the index cannot rescue a plan that starts from
 | how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   48 |
 | the product (or price's product) is never created, though nothing exists yet                |   25 |
 | `POST /v1/prices` is missing — the flow starts from "your price id"                         |   14 |
-| the volume is created but never attached to the droplet                                     |    9 |
 | no call to mint the GitHub App installation token, though the flow says it uses one         |    9 |
-| the subscription itself is never created                                                    |    7 |
 | the plan/price step is missing                                                              |    5 |
 | no intent field                                                                             |    3 |
-| `POST /v2/vpcs` is missing                                                                  |    2 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                        |    2 |
 | no tracker call                                                                             |    2 |
 | the billing key is sent as `Authorization`, which this API rejects                          |    1 |
-| `POST /v2/droplets` is missing                                                              |    1 |
-| `POST /v2/volumes` is missing                                                               |    1 |
-| `POST /v2/firewalls` is missing                                                             |    1 |
 | the asset delete is missing                                                                 |    1 |
-| the droplet is created outside the VPC — `vpc_uuid` is never set                            |    1 |
 | no carrier field                                                                            |    1 |
 | no capture call                                                                             |    1 |
+| no attach                                                                                   |    1 |
+| `POST /v2/vpcs` is missing                                                                  |    1 |
+| the droplet is created outside the VPC — `vpc_uuid` is never set                            |    1 |
 
 The two big classes are the same ones every earlier round found: authentication that never reaches the request, and a resource the flow depends on but never creates.
 Stripe adds a sharper version of the second: the model does not miss the call, it assumes the object — "your price id" — because that is how most Stripe tutorials read.
