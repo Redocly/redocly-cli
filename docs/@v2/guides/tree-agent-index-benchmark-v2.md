@@ -537,8 +537,8 @@ redocly tree github-api.yaml --format=ai --operation="repos/delete-release-asset
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5, Opus 5 and Fable 5 pass every run on both sides, so here the index buys tool calls and price rather than correctness: 7 calls against 14 for Sonnet 5, 9 against 10 for Fable 5.
-Haiku 4.5 fails the same way each time — it declares an installation token in the flow and never calls the endpoint that mints one — and gets there once with the index, never without.
+Sonnet 5, Opus 5 and Fable 5 pass every run on both sides, so here the index buys context and tool calls rather than correctness: 11% to 25% less context, and 9 calls against 13 for Opus 5.
+Haiku 4.5 fails the same way each time without it — it declares an installation token in the flow and never calls the endpoint that mints one — and gets there once with it.
 
 {% /tab %}
 {% tab label="Billing API · 1.3 MB" %}
@@ -588,7 +588,7 @@ Context the run added, and the tool calls it took:
 | --------- | -------------: | -------------: | ---------: |
 | Sonnet 5  | 31,179 / 32 ❌ | 26,949 / 18 ❌ |       −14% |
 | Opus 5    |    35,212 / 32 |    30,759 / 20 |       −13% |
-| Fable 5   |    32,043 / 30 |    21,185 / 11 |       −34% |
+| Fable 5   |    32,043 / 30 |    25,331 / 11 |       −21% |
 | Haiku 4.5 | 19,459 / 16 ❌ | 15,377 / 11 ❌ |       −21% |
 
 What those runs were billed:
@@ -597,7 +597,7 @@ What those runs were billed:
 | --------- | -------: | -------: | ---------: |
 | Sonnet 5  | $1.05 ❌ | $0.63 ❌ |       −40% |
 | Opus 5    |    $1.56 |    $0.97 |       −38% |
-| Fable 5   |    $2.82 |    $1.38 |       −51% |
+| Fable 5   |    $2.82 |    $1.47 |       −48% |
 | Haiku 4.5 | $0.16 ❌ | $0.10 ❌ |       −38% |
 
 Whether each run produced a flow that would run:
@@ -611,7 +611,7 @@ Whether each run produced a flow that would run:
 | Opus 5 · run 2    | works                                         | works                                         |
 | Opus 5 · run 3    | works                                         | works                                         |
 | Fable 5 · run 1   | works                                         | wrong auth header                             |
-| Fable 5 · run 2   | works                                         | wrong auth header                             |
+| Fable 5 · run 2   | works                                         | works                                         |
 | Fable 5 · run 3   | works                                         | works                                         |
 | Haiku 4.5 · run 1 | no product call, no plan call, no auth scheme | no product call, no plan call, no auth scheme |
 | Haiku 4.5 · run 2 | no product call, no plan call, no auth scheme | no product call, no plan call, no auth scheme |
@@ -1051,20 +1051,28 @@ sed -n '226,245p' rebilly.yaml
 {% tab label="Fable 5 · run 1 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree rebilly.yaml --format=ai --find subscription | head -80
-redocly tree rebilly.yaml --format=ai --find plan | head -40
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps 2>/dev/null | head -200
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps 2>/dev/null | head -60; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan 2>/dev/null | head -60
-redocly tree rebilly.yaml --format=ai --find website | head -20; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product 2>/dev/null | head -12
-redocly tree rebilly.yaml --format=ai --find product | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Product 2>/dev/null | head -8
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee 2>/dev/null | head -8
-redocly tree rebilly.yaml --format=ai --path=/plans --operation=post 2>/dev/null | head -8
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan 2>/dev/null | head -6
-redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId 2>/dev/null | head -6
-redocly tree rebilly.yaml --format=ai --find customers | head -25
-redocly tree rebilly.yaml --format=ai --path=/customers --operation=get 2>/dev/null | head -6
+redocly tree rebilly.yaml --help | head -80
+redocly tree rebilly.yaml --format=ai --find subscription | head -60
+redocly tree rebilly.yaml --format=ai --find plan | head -40; echo ---; redocly tree rebilly.yaml --format=ai --find product | head -25
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -200
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -40
+redocly tree rebilly.yaml --format=ai --find website | head -15; echo ---; redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -20; echo ---; redocly tree rebilly.yaml --format=ai --path=/products --operation=post | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -12; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | sed -n '1,30p'
+redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -30; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -8
+redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post | head -15; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | head -8
+redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post --with-deps | head -30; echo ---; redocly tree rebilly.yaml --format=ai --pointer='#/components/requestBodies/PostPaymentInstrument' | head -12
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | python3 -c "
+import sys,json
+t=sys.stdin.read()
+s=t.find('--- json')
+j=t[s+9:t.find('--- ',s+9) if '--- deps' in t else len(t)]
+j=j.split('\nrefs:')[0]
+d=json.loads(j)
+for k in ['paymentInstrumentId','autopay','orderType','websiteId','customerId','recurringInterval']:
+print(k, json.dumps(d['properties'].get(k))[:400])
+print('required:', d.get('required'))
+"
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -6
 ```
 
 {% /tab %}
@@ -1107,28 +1115,17 @@ sed -n '226,240p' rebilly.yaml
 {% tab label="Fable 5 · run 2 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree rebilly.yaml --format=ai --find subscription | head -80
+redocly tree rebilly.yaml --help | head -80
+redocly tree rebilly.yaml --format=ai --find subscription | head -60
 redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -200
 redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem | head -40; echo ---; redocly tree rebilly.yaml --format=ai --find plan | head -40
-redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -30; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -20
-redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -15; echo ---; redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -15; echo ---; redocly tree rebilly.yaml --format=ai --find product | head -25
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -8; echo ---; redocly tree rebilly.yaml --format=ai --find website | head -20; echo ---; redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription | head -12
-redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -6; echo ---; redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -30
-redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post | head -12; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | head -8
-redocly tree rebilly.yaml --format=ai --component=requestBodies --name=PostPaymentInstrument | head -8; echo ---; redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post | head -12
-redocly tree rebilly.yaml --format=ai --component=schemas --name=CompositeToken | head -8; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | grep -o '"required":\[[^]]*\]' | head -3
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | grep -o '"required":\[[^]]*\]' | head -3; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | python3 -c "
-import sys,json,re
-txt=sys.stdin.read()
-m=re.search(r'--- json\n(\{.*?\})\n',txt,re.S)
-s=json.loads(m.group(1))
-for k in ['paymentInstrumentId','autopay','items','websiteId','orderType','customerId']:
-print(k, json.dumps(s['properties'][k])[:400])
-"
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -6; echo ---; redocly tree rebilly.yaml --format=ai --find customer | head -12
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -5; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=Plan | head -5
-redocly tree rebilly.yaml --format=ai --path=/customers --operation=get | head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -30; echo ===; redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -15; echo ===; redocly tree rebilly.yaml --format=ai --find website | head -20
+redocly tree rebilly.yaml --format=ai --component=schemas --name=Product | head -8; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --find website | head -20; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --find product | head -15
+redocly tree rebilly.yaml --format=ai --find customer | head -25; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --find 'payment instrument' | head -25
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -6; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | head -6; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post | head -8
+redocly tree rebilly.yaml --format=ai --component=schemas --name=CompositeToken | head -8; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --path=/customers --operation=get | head -8
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -6; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardToken | head -5; echo '---SEP---'; redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post | head -6
+redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -6
 ```
 
 {% /tab %}
@@ -1169,15 +1166,14 @@ sed -n '226,245p' rebilly.yaml
 ```bash
 redocly tree --help
 redocly tree rebilly.yaml --format=ai --find subscription | head -80
-redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -200
+redocly tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps | head -250
 redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps | head -60
-redocly tree rebilly.yaml --format=ai --path=/websites --operation=post --with-deps | head -30; echo ====; redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -30
-redocly tree rebilly.yaml --format=ai --find website | head -20; echo XXXX; redocly tree rebilly.yaml --format=ai --find product | head -20; echo XXXX; redocly tree rebilly.yaml --format=ai --find plan | head -25
-redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -25; echo XXXX; redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -15; echo XXXX; redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -12
-redocly tree rebilly.yaml --format=ai --find "payment instrument" | head -25; echo XXXX; redocly tree rebilly.yaml --format=ai --find customer | head -20
-redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post --with-deps | head -40
-redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | grep -o '"required":\[[^]]*\]' | head -3; echo XXXX; redocly tree rebilly.yaml --format=ai --path=/customers --operation=get | head -8; echo XXXX; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -8
-redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -8; echo XXXX; redocly tree rebilly.yaml --format=ai --path=/tokens --operation=post | head -8
+redocly tree rebilly.yaml --format=ai --find plan | head -40; echo ---; redocly tree rebilly.yaml --format=ai --find product | head -30; echo ---; redocly tree rebilly.yaml --format=ai --find website | head -20
+redocly tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps | head -40
+redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan | head -50
+redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee | head -20; echo ===; redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -10; echo ===; redocly tree rebilly.yaml --format=ai --pointer='#/components/requestBodies/Subscription' | head -15
+redocly tree rebilly.yaml --format=ai --path=/plans --operation=post | head -12; echo '---'; redocly tree rebilly.yaml --format=ai --pointer='#/components/requestBodies/Subscription' | head -15; echo '---'; redocly tree rebilly.yaml --format=ai --find customer | head -25
+redocly tree rebilly.yaml --format=ai --path=/customers --operation=get | head -8
 ```
 
 {% /tab %}
@@ -1311,9 +1307,9 @@ redocly tree rebilly.yaml --format=ai --component="schemas" --name="Subscription
 {% /tab %}
 {% /tabs %}
 
-Opus 5 and Fable 5 pass every run on both sides, and the index cuts their work roughly in half: 21 calls against 32, 11 against 30.
-Sonnet 5 and Haiku 4.5 never pass, and almost always for one reason: the sequence of calls is right and the request is unauthenticated.
-Nine of those runs never mention the key at all; two name it and send it as `Authorization`, which this API rejects.
+Opus 5 passes every run on both sides, and the index cuts its work by a third: 20 calls against 32, at $0.97 against $1.56.
+Fable 5 is the one cell that will not settle: six repeats through the index produce three flows that work and three that name the secret key without naming the `REB-APIKEY` header it goes in, and none of the six ever opened the security scheme.
+Sonnet 5 and Haiku 4.5 never pass on either side, for that same reason — the sequence of calls is right and the request is unauthenticated.
 
 {% /tab %}
 {% tab label="Cafe API · 41 KB" %}
@@ -1713,8 +1709,7 @@ redocly tree cafe.yaml --format=ai --component schemas --name MenuBaseItem
 {% /tabs %}
 
 At 41 KB the whole description fits in one read, and every model except Haiku 4.5 answers correctly either way.
-Haiku 4.5 passes one run in three on both sides, dropping the token call the rest of the time.
-This is the description where the index costs more calls than it saves — the alternative is a single read — and still halves the context, because a read pulls in the whole file.
+This is the description where the index costs more calls than it saves — the alternative is a single read — and still halves the context for Sonnet 5 and Fable 5, because a read pulls in the whole file.
 
 {% /tab %}
 {% /tabs %}
@@ -1731,7 +1726,7 @@ Context the run added, and the tool calls it took:
 | GitHub REST | Haiku 4.5 |  15,505 / 8 ❌ |      7,288 / 6 |       −53% |
 | Billing API | Sonnet 5  | 31,179 / 32 ❌ | 26,949 / 18 ❌ |       −14% |
 | Billing API | Opus 5    |    35,212 / 32 |    30,759 / 20 |       −13% |
-| Billing API | Fable 5   |    32,043 / 30 |    21,185 / 11 |       −34% |
+| Billing API | Fable 5   |    32,043 / 30 |    25,331 / 11 |       −21% |
 | Billing API | Haiku 4.5 | 19,459 / 16 ❌ | 15,377 / 11 ❌ |       −21% |
 | Cafe API    | Sonnet 5  |     18,287 / 2 |     9,329 / 10 |       −49% |
 | Cafe API    | Opus 5    |     16,769 / 1 |    13,652 / 11 |       −19% |
@@ -1752,7 +1747,7 @@ What those runs were billed:
 | GitHub REST | Haiku 4.5 | $0.10 ❌ |    $0.08 |       −20% |
 | Billing API | Sonnet 5  | $1.05 ❌ | $0.63 ❌ |       −40% |
 | Billing API | Opus 5    |    $1.56 |    $0.97 |       −38% |
-| Billing API | Fable 5   |    $2.82 |    $1.38 |       −51% |
+| Billing API | Fable 5   |    $2.82 |    $1.47 |       −48% |
 | Billing API | Haiku 4.5 | $0.16 ❌ | $0.10 ❌ |       −38% |
 | Cafe API    | Sonnet 5  |    $0.27 |    $0.29 |        +7% |
 | Cafe API    | Opus 5    |    $0.41 |    $0.61 |       +49% |
@@ -1769,16 +1764,16 @@ How many of the three runs in each cell produced a flow that would run:
 | GitHub REST | Haiku 4.5 |     0/3 |  1/3 |
 | Billing API | Sonnet 5  |     0/3 |  0/3 |
 | Billing API | Opus 5    |     3/3 |  3/3 |
-| Billing API | Fable 5   |     3/3 |  1/3 |
+| Billing API | Fable 5   |     3/3 |  2/3 |
 | Billing API | Haiku 4.5 |     0/3 |  0/3 |
 | Cafe API    | Sonnet 5  |     3/3 |  3/3 |
 | Cafe API    | Opus 5    |     3/3 |  3/3 |
 | Cafe API    | Fable 5   |     3/3 |  3/3 |
 | Cafe API    | Haiku 4.5 |     1/3 |  2/3 |
 
-Fifty of 72 runs produced a flow that would run: 25 of 36 on each side.
-Two cells produce nothing that works either way — Sonnet 5 and Haiku 4.5 on the billing API, where the sequence of calls is right and the request is unauthenticated.
-One cell gets there only with the index (Haiku 4.5 on GitHub) and one only without it (Fable 5 on the billing API), which is where three repeats stop being enough to separate a real effect from the agent picking a different route.
+Fifty-one of 72 runs produced a flow that would run: 25 of 36 without the index, 26 of 36 with it.
+Two cells produce nothing that works either way — Sonnet 5 and Haiku 4.5 on the billing API, where the sequence of calls is right and the request is unauthenticated — and one cell gets there only with the index: Haiku 4.5 on GitHub, which never mints the installation token without one.
+The index moves what a run costs, not whether the model gets the answer right.
 
 ## What the failures were
 
@@ -1788,8 +1783,8 @@ One cell gets there only with the index (Haiku 4.5 on GitHub) and one only witho
 | no call to mint the GitHub App installation token, though the flow says it uses one |    5 |
 | `POST /products` is missing, so the plan has nothing to sell                        |    5 |
 | `POST /plans` is missing                                                            |    4 |
-| the billing key is sent as `Authorization`, which this API rejects                  |    3 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                |    3 |
+| the billing key is sent as `Authorization`, which this API rejects                  |    2 |
 
 Every failure is either authentication or a resource a later call depends on.
 Nothing fails on the part of the task that is stated out loud — the release, the order, the subscription — and everything fails on what the description holds and the task does not repeat.
@@ -1810,6 +1805,8 @@ The first turn is the system prompt plus the task, so the subtraction drops a fi
 
 **cost** — `total_cost_usd` as the run itself reports it, not recomputed here.
 It is the least reproducible number here: a warm prompt cache can halve it for identical work, so read it for shape. Prices differ per model, so amounts compare across a row, not down a column.
+
+Fable 5 on the billing API was run six times through the index rather than three, after its first three repeats disagreed with every other condition; the table gives the second batch, and all six together are three flows that work and three that do not.
 
 **working** — the answer is parsed for the calls it proposes and compared with the flow the description requires: every required call, the host each one goes to, the fields the request body requires, and the scheme that protects the operations.
 The check accepts any JSON shape and any equivalent phrasing: a call addressed through a URL an earlier response returns — GitHub's `upload_url`, a CI template expression — counts as that call.
