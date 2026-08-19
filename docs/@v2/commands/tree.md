@@ -1351,6 +1351,11 @@ next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 
 An `auth:` line opens the card whenever the operation is protected, resolved from the operation's own `security` or, when it declares none, from the root requirement it inherits — the case the operation's source does not show at all.
 Each scheme is printed with what it asks for, because the name alone does not say which header carries the key.
+On a description that states its requirement once at the root, every operation card carries that inherited line, and the overview states it too:
+
+```
+security: SecretApiKey · apiKey in header REB-APIKEY | JWT · http bearer
+```
 
 The card's own `content` (the `--- json` block) is never converted to a signature — that's where the operation's real contract lives, including the request/response examples above.
 It's the parsed body, serialized as one line of minified JSON instead of the indented source, with two parts shortened because they are read rather than called: prose longer than 600 characters on the operation itself, or 120 on a field inside it, keeps whole sentences up to that length and ends in `…`, and error responses fold to an `errors` list of the codes they answer with — the response components themselves stay in `--- deps`, so nothing becomes unreachable.

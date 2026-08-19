@@ -349,8 +349,11 @@ Amounts compare across a row only: the same billing-API task costs $0.72 on Opus
 ## How this was measured
 
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
-Sessions start in an empty directory with the description outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call a published `@redocly/cli` snapshot through `npx`.
+Sessions start in an empty directory with the description outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call `@redocly/cli@0.0.0-snapshot.1786868116` through `npx`.
 Each cell is one run, and all 18 answers were checked and correct on both sides.
+
+The numbers on this page belong to that build. `--format=ai` has since been made to carry less — long prose is clipped, error responses fold to their codes, and every card states the security requirement that applies to it — so a run repeated today pulls in less than the tables here show.
+[Whether the flow an agent produces would actually run](./tree-agent-index-benchmark-v2.md) measures the current output, over four models and three repeats a cell, and checks that the answer would work rather than only that it names the right calls.
 
 **context** — from the run's transcript, `~/.claude/projects/<directory>/<session_id>.jsonl`, over the `assistant` records that carry a `message.usage`.
 A turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, which is the whole prompt the model was handed on that turn; the table gives the last turn's minus the first turn's.
