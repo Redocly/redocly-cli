@@ -872,6 +872,29 @@ describe('renderView (ai)', () => {
     expect(rendered).toContain(' · f:paths/orders.yaml');
   });
 
+  it('renders a bare --tag listing in both formats', () => {
+    const view: TreeView = {
+      kind: 'tags',
+      items: [
+        { name: 'Tickets', summary: 'Buy tickets.', operations: 2 },
+        { name: 'Refunds', operations: 1 },
+      ],
+    };
+    expect(renderView(view, 'ai')).toMatchInlineSnapshot(`
+      "tags · 2 tags
+      Tickets · 2 operations — Buy tickets.
+      Refunds · 1 operation
+      next: --tag=<name>"
+    `);
+    expect(renderView(view, 'stylish')).toMatchInlineSnapshot(`
+      "Tags (2)
+      ├── Tickets (2) — Buy tickets.
+      └── Refunds (1)
+
+      Use --tag=<name> for a tag’s operations."
+    `);
+  });
+
   it('renders an ai components listing', () => {
     const componentsView: TreeView = {
       kind: 'components',

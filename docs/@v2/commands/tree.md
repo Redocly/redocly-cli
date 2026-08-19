@@ -46,7 +46,7 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | Option        | Type     | Description                                                                                                                                                                                                                                                                                                                                      |
 | ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | apis          | [string] | In the default view, one API description file or alias. In `--files` mode, one or more files or aliases. Defaults to the APIs from the Redocly configuration file.                                                                                                                                                                               |
-| --tag         | string   | Show the operations of one tag.                                                                                                                                                                                                                                                                                                                  |
+| --tag         | string   | Show the operations of one tag, or list every tag when no name is given.                                                                                                                                                                                                                                                                         |
 | --path        | string   | Show the operations of one path. Combine with `--operation` to select a single operation on that path.                                                                                                                                                                                                                                           |
 | --webhook     | string   | Show the operations of one webhook. Combine with `--operation` to select a single webhook operation.                                                                                                                                                                                                                                             |
 | --operation   | string   | Show one operation: an HTTP method (with `--path` or `--webhook`) or an operationId on its own. A value that looks like an HTTP method without `--path`/`--webhook` is rejected with a hint to add one.                                                                                                                                          |
@@ -162,6 +162,39 @@ redocly tree cafe.yaml --format=json
     { "section": "securitySchemes", "count": 2 }
   ]
 }
+```
+
+### List the tags
+
+A bare `--tag` lists every tag with its operation count, for when the tag names are not known yet:
+
+```bash
+redocly tree cafe.yaml --tag
+```
+
+```
+Tags (4)
+├── Authorization (1) — Create a client to demo the API.
+├── Products (4) — Operations related to products.
+├── Orders (6) — Order management operations.
+└── Statistics (1) — Statistics operations.
+
+Use --tag=<name> for a tag’s operations.
+```
+
+With `--format=ai` the same listing is one line per tag, closed by the `next:` line that continues into one of them:
+
+```bash
+redocly tree cafe.yaml --tag --format=ai
+```
+
+```
+tags · 4 tags
+Authorization · 1 operation — Create a client to demo the API.
+Products · 4 operations — Operations related to products.
+Orders · 6 operations — Order management operations.
+Statistics · 1 operation — Statistics operations.
+next: --tag=<name>
 ```
 
 ### List the operations of a tag

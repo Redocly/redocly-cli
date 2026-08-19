@@ -54,6 +54,11 @@ describe('resolveTreeView', () => {
 
     expect(route({}).kind).toBe('overview');
     expect(route({ tag: 'Tickets' })).toMatchObject({ kind: 'operations', scope: 'Tickets' });
+    // A bare --tag lists the tags themselves.
+    expect(route({ tag: '' })).toMatchObject({
+      kind: 'tags',
+      items: [{ name: 'Tickets', operations: 2 }],
+    });
     expect(route({ operations: true }).kind).toBe('operations');
     expect(route({ path: '/tickets' }).kind).toBe('operations');
     expect(route({ path: '/tickets', operation: 'post' }).kind).toBe('operation-card');

@@ -109,9 +109,8 @@ yargs(hideBin(process.argv))
             default: 'stylish' as TreeFormat,
           },
           tag: {
-            description: 'Show the operations of one tag.',
+            description: 'Show the operations of one tag, or list every tag when no name is given.',
             type: 'string' as const,
-            requiresArg: true,
           },
           path: {
             description: 'Show the operations of one path.',

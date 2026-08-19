@@ -94,6 +94,7 @@ export type TreeView =
       webhookOperations?: OperationListCard[];
     }
   | { kind: 'operations'; items: OperationListCard[]; scope?: string }
+  | { kind: 'tags'; items: ApiOverview['tags'] }
   | { kind: 'components'; section: string; items: ComponentListCard[] }
   | { kind: 'operation-card'; card: OperationCard }
   | { kind: 'component-card'; card: ComponentCard }
@@ -362,9 +363,20 @@ function resolveOperationIdView(
   return finishOperation(operation);
 }
 
-/** The `--tag` branch. */
-function resolveTagView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): TreeView {
+/** The `--tag` branch: one tag's operations, or, with no name given, the list of tags. */
+function resolveTagView(
+  argv: TreeArgv,
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string
+): TreeView {
   const meta = analysis.meta;
+  if (argv['used-by'] === true || argv['with-deps'] === true) {
+    throw new TreeSelectorError('--used-by and --with-deps need a single operation or component.');
+  }
+  if (argv.tag === '') {
+    return { kind: 'tags', items: buildOverview(analysis, { specVersion, cwd }).tags };
+  }
   const items = buildOperationListing(analysis, { cwd, tag: argv.tag });
   if (items.length === 0) {
     selectorHint(
@@ -373,9 +385,6 @@ function resolveTagView(argv: TreeArgv, analysis: ApiAnalysis, cwd: string): Tre
       [...new Set(meta.operations.flatMap((operation) => operation.tags))],
       'redocly tree <api>'
     );
-  }
-  if (argv['used-by'] === true || argv['with-deps'] === true) {
-    throw new TreeSelectorError('--used-by and --with-deps need a single operation or component.');
   }
   return { kind: 'operations', scope: argv.tag, items };
 }
@@ -598,7 +607,7 @@ export function resolveTreeView(
   }
 
   if (argv.tag !== undefined) {
-    return resolveTagView(argv, analysis, cwd);
+    return resolveTagView(argv, analysis, specVersion, cwd);
   }
 
   if (withDeps)

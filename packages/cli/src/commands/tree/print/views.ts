@@ -29,6 +29,8 @@ function viewPayload(view: TreeView): unknown {
       return view.overview;
     case 'operations':
       return view.items;
+    case 'tags':
+      return view.items;
     case 'components':
       return { section: view.section, items: view.items };
     case 'operation-card':
@@ -51,6 +53,8 @@ export function renderViewStylish(view: TreeView): string {
       return renderOverview(view.overview, view.operations ?? [], view.webhookOperations ?? []);
     case 'operations':
       return renderOperationsListing(view.items, spansMultipleFiles(view.items));
+    case 'tags':
+      return renderTagsListing(view.items);
     case 'components':
       return renderComponentsListing(view.section, view.items);
     case 'operation-card':
@@ -66,6 +70,19 @@ export function renderViewStylish(view: TreeView): string {
     case 'find':
       return renderFindReport(view.report);
   }
+}
+
+function renderTagsListing(
+  items: { name: string; summary?: string; operations: number }[]
+): string {
+  const lines = [`Tags (${items.length})`];
+  items.forEach((tag, index) => {
+    const glyph = index === items.length - 1 ? '└── ' : '├── ';
+    const summary = tag.summary ? ` — ${tag.summary}` : '';
+    lines.push(`${glyph}${tag.name} (${tag.operations})${summary}`);
+  });
+  lines.push('', 'Use --tag=<name> for a tag\u2019s operations.');
+  return lines.join('\n');
 }
 
 /** A label with optional children, rendered with the same branch glyphs as the file graph tree. */

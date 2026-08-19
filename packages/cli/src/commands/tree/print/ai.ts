@@ -40,6 +40,15 @@ export function renderAiView(view: TreeView): string {
       return renderAiOverview(view.overview, view.operations, view.webhookOperations);
     case 'operations':
       return renderAiOperations(view.scope, view.items);
+    case 'tags':
+      return [
+        `tags · ${count(view.items.length, 'tag')}`,
+        ...view.items.map((tag) => {
+          const summary = tag.summary ? ` — ${tag.summary}` : '';
+          return `${tag.name} · ${count(tag.operations, 'operation')}${summary}`;
+        }),
+        'next: --tag=<name>',
+      ].join('\n');
     case 'components':
       return renderAiComponents(view.section, view.items);
     case 'find':
