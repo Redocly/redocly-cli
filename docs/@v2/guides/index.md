@@ -103,6 +103,12 @@ Pre-configure publisher defaults and write custom client generators.
 The same comparison judged on the answer: does the flow an agent produces actually run, and what does it leave out when it does not.
 {% /card %}
 
+{% card title="Where the index pays"
+    to="./tree-agent-index-benchmark-v3"
+  %}
+Five descriptions from 41 KB to 2,909 files: where the index saves context, and where the description's own layout already is one.
+{% /card %}
+
 {% card title="Set up tab completion"
     to="./autocomplete"
   %}

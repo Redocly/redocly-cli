@@ -70,6 +70,8 @@
           page: guides/customize-client-generation.md
         - label: Whether an agent's flow works
           page: guides/tree-agent-index-benchmark-v2.md
+        - label: Where the index pays
+          page: guides/tree-agent-index-benchmark-v3.md
         - label: Hide internal APIs
           page: guides/hide-apis.md
         - label: Replace the servers URL
