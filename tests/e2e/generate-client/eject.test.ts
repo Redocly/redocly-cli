@@ -118,10 +118,36 @@ describe('eject-generator (end-to-end)', () => {
     try {
       const eject = run(manual, ['eject-generator', 'go']);
       expect(eject.status, eject.stderr).toBe(0);
-      expect(eject.stderr + eject.stdout).toContain('generators:');
-      expect(eject.stderr + eject.stdout).toContain('./generators/go.mjs');
+      const output = eject.stderr + eject.stdout;
+      expect(output).toContain('generators:');
+      expect(output).toContain('./generators/go.mjs');
+      // Unwired, the run instruction has to name the copy — nothing else points at it.
+      expect(output).toContain(
+        'Run it: redocly generate-client <api> --output <path> --generator ./generators/go.mjs'
+      );
+      expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
     } finally {
       rmSync(manual, { recursive: true, force: true });
+    }
+  }, 60_000);
+
+  it('tells the reader how to run what it just ejected', () => {
+    const project = makeProject();
+    try {
+      writeFileSync(join(project, 'redocly.yaml'), 'apis:\n  main:\n    root: openapi.yaml\n');
+      const eject = run(project, ['eject-generator', 'python']);
+      expect(eject.status, eject.stderr).toBe(0);
+      const output = eject.stderr + eject.stdout;
+      // Wired into the config, the generator needs no flag — only an api and an output.
+      expect(output).toContain('Run it: redocly generate-client <api> --output <path>\n');
+      expect(output).toContain('Edit generators/python.mjs and run that again');
+      expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
+      // And that command works as printed.
+      const generated = run(project, ['generate-client', 'openapi.yaml', '--output', 'client.ts']);
+      expect(generated.status, generated.stderr).toBe(0);
+      expect(existsSync(join(project, 'client.py'))).toBe(true);
+    } finally {
+      rmSync(project, { recursive: true, force: true });
     }
   }, 60_000);
 

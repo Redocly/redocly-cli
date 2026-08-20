@@ -54,6 +54,7 @@ export const FRAMEWORK_VARIANTS = new Map([
 
 /** The packages an ejected generator imports; recorded as devDependencies. */
 const TOOLKIT_PACKAGE = '@redocly/client-generator';
+const DOCS_URL = 'https://redocly.com/docs/cli/commands/eject-generator';
 const CORE_PACKAGE = '@redocly/openapi-core';
 
 const AGENTS_BEGIN =
@@ -584,7 +585,13 @@ export const handleEjectGenerator = async ({
         ? `Added it to client.generators in ${relative(process.cwd(), config.configPath!)} — the path to your copy replaces the built-in name.\n`
         : `Point your config at the file — the path to your copy replaces the built-in name:\n\n` +
           `  client:\n    generators:\n      - ${configEntry}\n\n`) +
-      `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n`
+      `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n` +
+      // The next command, spelled out: a wired config still needs an output, and an unwired
+      // copy is reached with `--generator`. Either way the reader can run it without
+      // leaving the terminal to look it up.
+      `\nRun it: redocly generate-client <api> --output <path>${wired ? '' : ` --generator ${configEntry}`}\n` +
+      `Edit ${printedTarget} and run that again to see your change.\n` +
+      `Reference: ${DOCS_URL}\n`
   );
   // Last, so wiring the dependency or the config entry failing is not reported as success.
   ejectGeneratorTelemetry.eject_generator_outcome = 'success';

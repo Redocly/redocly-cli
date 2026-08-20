@@ -77,6 +77,24 @@ client:
 If you leave the ejected generator unmodified, its output is byte-identical to the output of the built-in generator.
 To roll back, delete the file and the config line.
 
+## Run the ejected generator
+
+Generation is the same command as before the eject, because the config now points at your copy:
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts
+```
+
+If you did not wire the config, name the file with `--generator`:
+
+```sh
+redocly generate-client openapi.yaml --output src/client.ts --generator ./generators/python.mjs
+```
+
+The command reports a generator that takes over a built-in name, so you can see that your copy is the one that runs.
+Edit the file and run the command again to see the change.
+The eject command prints these instructions as well.
+
 ## Update an ejected generator
 
 The `redocly eject-generator <name> --update` command merges a newer version into your copy.
