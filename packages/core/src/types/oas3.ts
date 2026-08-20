@@ -213,6 +213,7 @@ const License: NodeType = {
 };
 
 const Paths: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {},
   additionalProperties: (_value: unknown, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -515,6 +516,7 @@ const Header: NodeType = {
 };
 
 const Responses: NodeType = {
+  extensionsPrefix: 'x-',
   properties: { default: 'Response' },
   additionalProperties: (_v: unknown, key: string) =>
     responseCodeRegexp.test(key) ? 'Response' : undefined,
@@ -889,6 +891,7 @@ export const Oas3Types = {
   }),
   Operation,
   Callback: mapOf('PathItem', {
+    extensionsPrefix: 'x-',
     description:
       'https://redocly.com/learn/openapi/openapi-visual-reference/callbacks#callback-object',
   }),

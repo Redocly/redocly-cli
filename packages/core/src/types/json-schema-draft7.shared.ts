@@ -2,6 +2,7 @@ import { isMappingRef } from '../ref-utils.js';
 import { listOf, type NodeType } from './index.js';
 
 export const Schema: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     $id: { type: 'string' },
     $schema: { type: 'string' },

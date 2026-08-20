@@ -21,6 +21,7 @@ import {
 } from './json-schema-draft7.shared.js';
 
 const Root: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     asyncapi: {
       type: 'string',
@@ -47,6 +48,7 @@ const Root: NodeType = {
 };
 
 const Channel: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     address: {
       type: 'string',
@@ -76,6 +78,7 @@ const Channel: NodeType = {
 };
 
 const Server: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     host: {
       type: 'string',
@@ -113,6 +116,7 @@ const Server: NodeType = {
 };
 
 const Info: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     title: {
       type: 'string',
@@ -144,6 +148,7 @@ const Info: NodeType = {
 };
 
 const Parameter: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     description: {
       type: 'string',
@@ -175,6 +180,7 @@ const Parameter: NodeType = {
 };
 
 const Message: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     headers: 'Schema',
     payload: (value: Record<string, unknown>) => {
@@ -223,6 +229,7 @@ const Message: NodeType = {
 };
 
 const OperationTrait: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     tags: 'TagList',
     title: {
@@ -249,6 +256,7 @@ const OperationTrait: NodeType = {
 };
 
 const MessageTrait: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     headers: (value: unknown) => {
       if (typeof value === 'function' || isPlainObject(value)) {
@@ -295,6 +303,7 @@ const MessageTrait: NodeType = {
 };
 
 const Operation: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     action: {
       type: 'string',
@@ -329,6 +338,7 @@ const Operation: NodeType = {
 };
 
 const OperationReply: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     channel: 'Channel',
     messages: 'MessageList',
@@ -339,6 +349,7 @@ const OperationReply: NodeType = {
 };
 
 const OperationReplyAddress: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     location: {
       type: 'string',
@@ -356,6 +367,7 @@ const OperationReplyAddress: NodeType = {
 };
 
 const Components: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     messages: 'NamedMessages',
     parameters: 'NamedParameters',
@@ -382,6 +394,7 @@ const Components: NodeType = {
 };
 
 const ImplicitFlow: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
@@ -392,6 +405,7 @@ const ImplicitFlow: NodeType = {
 };
 
 const PasswordFlow: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
@@ -402,6 +416,7 @@ const PasswordFlow: NodeType = {
 };
 
 const ClientCredentials: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
@@ -412,6 +427,7 @@ const ClientCredentials: NodeType = {
 };
 
 const AuthorizationCode: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
