@@ -241,7 +241,9 @@ function aiCardHeader(card: OperationCard): string {
 }
 
 function aiDepLine(dep: AiDepEntry, cardFile: string): string {
-  const file = dep.file === cardFile ? '' : ` · f:${dep.file}`;
+  // A dependency that is a whole file carries that path as its id; naming the file again after it
+  // says the same thing twice.
+  const file = dep.file === cardFile || dep.file === dep.id ? '' : ` · f:${dep.file}`;
   const signature = dep.signature ? `: ${dep.signature}` : '';
   return `${dep.id} L${dep.start_line}-${dep.end_line}${file}${signature}`;
 }

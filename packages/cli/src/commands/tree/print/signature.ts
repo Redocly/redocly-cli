@@ -92,11 +92,19 @@ function computeNearDepthIds(
   return near;
 }
 
-function componentId(ref: { component?: string; name?: string }): string | undefined {
-  if (ref.component === undefined || ref.component === 'unknown' || ref.name === undefined) {
-    return undefined;
+function componentId(ref: {
+  component?: string;
+  name?: string;
+  file?: string;
+}): string | undefined {
+  if (ref.component !== undefined && ref.component !== 'unknown' && ref.name !== undefined) {
+    return `${ref.component}/${ref.name}`;
   }
-  return `${ref.component}/${ref.name}`;
+  // A multi-file description is free to lay its files out however it likes — DigitalOcean keeps
+  // them under `resources/<area>/models/`, not `components/<section>/`. There the whole file is
+  // the node, and the id it carries in the closure is that path, so fall back to it: without
+  // this every cross-file dependency is unclassifiable and the closure comes back empty.
+  return ref.file;
 }
 
 function depRefTargetIds(dep: ApiNodeEnvelope): string[] {
@@ -109,9 +117,18 @@ function depRefTargetIds(dep: ApiNodeEnvelope): string[] {
 export function buildNodeSignature(section: string, content: string, refs: ApiNodeRef[]): string {
   const parsed = parseNodeContent(content);
   const refIndex = new Map(refs.map((ref) => [ref.ref, ref]));
-  return section === SCHEMA_SECTION
+  return section === SCHEMA_SECTION || (section !== undefined && looksLikeSchema(parsed))
     ? buildSchemaSignature(parsed, refIndex)
     : buildSummarySignature(parsed, refIndex);
+}
+
+/**
+ * A dependency that is a whole file has a path for an id, not `<section>/<name>`, so its section
+ * cannot say whether it is a schema. Its shape can: these keys only appear on one.
+ */
+function looksLikeSchema(parsed: Record<string, unknown> | undefined): boolean {
+  if (parsed === undefined) return false;
+  return ['properties', 'allOf', 'oneOf', 'anyOf', 'enum', 'items'].some((key) => key in parsed);
 }
 
 /**

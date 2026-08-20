@@ -1044,6 +1044,45 @@ describe('renderView (ai)', () => {
     expect(overview).toContain('security: SecretApiKey · apiKey in header REB-APIKEY');
   });
 
+  it('keeps whole-file dependencies in the closure and names them once', () => {
+    // A description that lays its files out its own way — not `components/<section>/<name>` —
+    // still has to reach the caller: before, every such ref was unclassifiable and the closure
+    // came back empty, so an agent fell back to reading the files itself.
+    const card: OperationCard = {
+      ...operationCardWithDepsFixture,
+      refs: [
+        {
+          ref: './models/droplet_create.yml',
+          resolved: true,
+          component: 'unknown',
+          file: 'resources/droplets/models/droplet_create.yml',
+          pointer: '#/',
+          start_line: 1,
+          end_line: 20,
+        },
+      ],
+      deps: [
+        {
+          id: 'resources/droplets/models/droplet_create.yml',
+          pointer: '#/',
+          file: 'resources/droplets/models/droplet_create.yml',
+          start_line: 1,
+          end_line: 20,
+          content: 'type: object\nproperties:\n  name:\n    type: string\n',
+          refs: [],
+        },
+      ],
+    };
+
+    const rendered = renderView({ kind: 'operation-card', card }, 'ai');
+
+    expect(rendered).toContain('--- deps (1, signatures depth ≤2)');
+    expect(rendered).toContain('resources/droplets/models/droplet_create.yml L1-20: name:string');
+    // The section prefix of a file id says nothing, so the shape decides it is a schema.
+    expect(rendered).not.toContain('· f:resources/droplets/models/droplet_create.yml');
+    expect(rendered).not.toContain('deeper:');
+  });
+
   it('clips prose in an ai card body and folds error responses to their codes', () => {
     const ownDescription = [
       'This endpoint makes use of a hypermedia relation to determine which URL to access.',
