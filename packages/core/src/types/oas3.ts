@@ -565,6 +565,12 @@ const Link: NodeType = {
     'The Link object represents a possible design-time link for a response. The presence of a link does not guarantee the caller’s ability to successfully invoke it, rather it provides a known relationship and traversal mechanism between responses and other operations.',
 };
 
+const compositionDescription =
+  'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.';
+const AllOf = listOf('Schema', { name: 'AllOf', description: compositionDescription });
+const AnyOf = listOf('Schema', { name: 'AnyOf', description: compositionDescription });
+const OneOf = listOf('Schema', { name: 'OneOf', description: compositionDescription });
+
 // draft-00
 const Schema: NodeType = {
   properties: {
@@ -597,18 +603,9 @@ const Schema: NodeType = {
       enum: ['object', 'array', 'string', 'number', 'integer', 'boolean'],
       description: 'Value MUST be a string. Multiple types via an array are not supported.',
     },
-    allOf: listOf('Schema', {
-      description:
-        'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.',
-    }),
-    anyOf: listOf('Schema', {
-      description:
-        'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.',
-    }),
-    oneOf: listOf('Schema', {
-      description:
-        'Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.',
-    }),
+    allOf: AllOf,
+    anyOf: AnyOf,
+    oneOf: OneOf,
     not: 'Schema',
     properties: 'SchemaProperties',
     items: (value: unknown) => {
@@ -911,6 +908,10 @@ export const Oas3Types = {
   Link,
   Logo,
   Schema,
+  // Registered so rules and configurable rules can target these node names.
+  AllOf,
+  AnyOf,
+  OneOf,
   Xml,
   SchemaProperties,
   DiscriminatorMapping,

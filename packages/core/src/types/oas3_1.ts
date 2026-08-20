@@ -140,9 +140,9 @@ const Schema: NodeType = {
         };
       }
     },
-    allOf: listOf('Schema'),
-    anyOf: listOf('Schema'),
-    oneOf: listOf('Schema'),
+    allOf: listOf('Schema', { name: 'AllOf' }),
+    anyOf: listOf('Schema', { name: 'AnyOf' }),
+    oneOf: listOf('Schema', { name: 'OneOf' }),
     not: 'Schema',
     if: 'Schema',
     then: 'Schema',

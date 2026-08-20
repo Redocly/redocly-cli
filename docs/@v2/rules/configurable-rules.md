@@ -627,6 +627,19 @@ OpenAPI 3.0, 3.1, and 3.2 mostly share a type tree.
 
 Learn more about the [OpenAPI node types](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
 
+The `OneOf`, `AnyOf`, and `AllOf` node types each match the list of schemas under the keyword of the same name.
+Use them to assert on one composition keyword without matching the other two.
+
+```yaml
+rules:
+  rule/oneof-needs-two-schemas:
+    subject:
+      type: OneOf
+    message: Use at least two schemas in oneOf
+    assertions:
+      minLength: 2
+```
+
 ### `any` example
 
 The following example asserts that the maximum length of each description is 20 characters.
