@@ -8,7 +8,7 @@ Ensures that `oneOf`, `anyOf`, and `allOf` combine schemas that a value can actu
 
 The rule reports:
 
-- A `oneOf` or `anyOf` with fewer than two schemas.
+- A `oneOf` or `anyOf` with fewer than two schemas, unless the schema declares a `discriminator`.
 - An `allOf` with fewer than two schemas that neither declares another keyword of its own nor extends a discriminated schema.
 - A schema repeated inside the same keyword.
 - An empty schema (`{}`) used as a member.
@@ -45,7 +45,8 @@ When a value matches two of the listed schemas, no tool can tell which one was i
 The most common version of this is nullability: if a referenced schema already accepts `null` and the `oneOf` also lists `type: 'null'`, a null value matches both branches.
 
 Deciding whether two arbitrary schemas overlap is not solvable in general, so the comparison stays deliberately narrow.
-It reads `type`, `enum`, `const`, `properties`, `required`, and `additionalProperties: false`.
+It reads `type`, `nullable`, `enum`, `const`, `properties`, `required`, and `additionalProperties: false`.
+A `const` counts as a single-value `enum`, so one member can use `enum` and the other `const`.
 When a member uses any other constraint, such as `not`, `pattern`, `minimum`, or a nested `allOf`, that constraint may be what separates the schemas, so the rule reports nothing for the pair.
 
 A `discriminator` names the property that tells the members apart, so the rule trusts it and checks only what the specification requires.
