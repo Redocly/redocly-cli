@@ -6,9 +6,9 @@ The grid moves to a published snapshot once one carries this build.
 {% /admonition %}
 
 The [second benchmark](./tree-agent-index-benchmark-v2.md) asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
-This one adds four descriptions chosen to be hard in new ways — Stripe, whose schemas are enormous; the same Stripe file asked about a corner no tutorial covers; PayPal Orders, small but dense with approval steps and id chains; and DigitalOcean, which ships as 2,909 files with one operation each — and asks where an index still earns its place.
+This one adds five task-description pairs chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; DigitalOcean, which ships as 2,909 files with one operation each — and, for two of them, a second task asking about a corner of the same file that no tutorial covers, so that what a model remembers can be told apart from what it reads.
 
-Seven description-task pairs, three models, two conditions, five runs a cell — 210 runs:
+Eight description-task pairs, three models, two conditions, five runs a cell — 240 runs:
 
 - **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
 - **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select.
@@ -4353,39 +4353,39 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model           |     no tree |           tree | Difference |
-| --------------- | ----------: | -------------: | ---------: |
-| Sonnet 5 (n=5)  | 11,924 / 11 | 23,276 / 20 ❌ |          — |
-| Opus 5 (n=5)    | 21,514 / 14 |    28,664 / 22 |       +33% |
-| Haiku 4.5 (n=5) | 40,107 / 17 |    21,495 / 19 |       −46% |
+| Model           |        no tree |        tree | Difference |
+| --------------- | -------------: | ----------: | ---------: |
+| Sonnet 5 (n=5)  | 17,177 / 13 ❌ | 20,377 / 16 |          — |
+| Opus 5 (n=5)    |    23,324 / 14 | 26,045 / 19 |       +12% |
+| Haiku 4.5 (n=5) |    24,968 / 19 | 19,839 / 21 |       −21% |
 
 What those runs were billed:
 
-| Model           | no tree |     tree | Difference |
-| --------------- | ------: | -------: | ---------: |
-| Sonnet 5 (n=5)  |   $0.33 | $0.54 ❌ |          — |
-| Opus 5 (n=5)    |   $0.68 |    $0.96 |       +41% |
-| Haiku 4.5 (n=5) |   $0.18 |    $0.18 |        −0% |
+| Model           |  no tree |  tree | Difference |
+| --------------- | -------: | ----: | ---------: |
+| Sonnet 5 (n=5)  | $0.41 ❌ | $0.47 |          — |
+| Opus 5 (n=5)    |    $0.78 | $0.78 |        −0% |
+| Haiku 4.5 (n=5) |    $0.19 | $0.18 |        −5% |
 
 Whether each run produced a flow that would run:
 
-| Run               | no tree                   | tree                                     |
-| ----------------- | ------------------------- | ---------------------------------------- |
-| Sonnet 5 · run 1  | no auth scheme            | no auth scheme                           |
-| Sonnet 5 · run 2  | no auth scheme            | no auth scheme                           |
-| Sonnet 5 · run 3  | no auth scheme            | no auth scheme                           |
-| Sonnet 5 · run 4  | no auth scheme            | no auth scheme                           |
-| Sonnet 5 · run 5  | works                     | no auth scheme                           |
-| Opus 5 · run 1    | works                     | works                                    |
-| Opus 5 · run 2    | works                     | works                                    |
-| Opus 5 · run 3    | works                     | works                                    |
-| Opus 5 · run 4    | works                     | works                                    |
-| Opus 5 · run 5    | works                     | works                                    |
-| Haiku 4.5 · run 1 | no auth scheme            | no auth scheme                           |
-| Haiku 4.5 · run 2 | works                     | no auth scheme                           |
-| Haiku 4.5 · run 3 | no attach, no auth scheme | works                                    |
-| Haiku 4.5 · run 4 | no auth scheme            | no vpc call, no vpc_uuid, no auth scheme |
-| Haiku 4.5 · run 5 | works                     | works                                    |
+| Run               | no tree        | tree                                                                                      |
+| ----------------- | -------------- | ----------------------------------------------------------------------------------------- |
+| Sonnet 5 · run 1  | no auth scheme | works                                                                                     |
+| Sonnet 5 · run 2  | no auth scheme | works                                                                                     |
+| Sonnet 5 · run 3  | no auth scheme | no auth scheme                                                                            |
+| Sonnet 5 · run 4  | no auth scheme | works                                                                                     |
+| Sonnet 5 · run 5  | no auth scheme | works                                                                                     |
+| Opus 5 · run 1    | works          | works                                                                                     |
+| Opus 5 · run 2    | works          | works                                                                                     |
+| Opus 5 · run 3    | works          | works                                                                                     |
+| Opus 5 · run 4    | works          | works                                                                                     |
+| Opus 5 · run 5    | works          | works                                                                                     |
+| Haiku 4.5 · run 1 | no auth scheme | no vpc call, no droplet call, no volume call, no attach, no firewall call, no auth scheme |
+| Haiku 4.5 · run 2 | works          | works                                                                                     |
+| Haiku 4.5 · run 3 | no attach      | no auth scheme                                                                            |
+| Haiku 4.5 · run 4 | no auth scheme | no auth scheme                                                                            |
+| Haiku 4.5 · run 5 | no auth scheme | no auth scheme                                                                            |
 
 A run works when its flow contains `POST /v2/vpcs`, `POST /v2/droplets` with `vpc_uuid`, `POST /v2/volumes`, the attach — either the separate action with `droplet_id`, or a `volumes` array on the droplet create, which the description documents as attaching at creation — and `POST /v2/firewalls` with `inbound_rules` and `droplet_ids`, under `bearer_auth`.
 
@@ -4398,93 +4398,62 @@ What each run ran:
 {% tab label="Sonnet 5 · run 1 · no tree" %}
 
 ```bash
-wc -l digitalocean/DigitalOcean-public.v2.yaml
-grep -n "^\\s*(/v2/vpcs|/v2/droplets|/v2/volumes|/v2/firewalls)[^/]*:" digitalocean/DigitalOcean-public.v2.yaml
-grep -n "^  /v2/(vpcs|droplets|volumes|firewalls)[a-zA-Z0-9_/{}]*:" digitalocean/DigitalOcean-public.v2.yaml
-awk 'NR==2493,NR==2500' digitalocean/DigitalOcean-public.v2.yaml | head -c 1
+grep "^  /v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
 sed -n '2493,2523p' digitalocean/DigitalOcean-public.v2.yaml
-SPEC_DIR=digitalocean
-find "$SPEC_DIR" -path "*resources/vpcs/vpcs_create.yml" -o -path "*resources/droplets/droplets_create.yml" -o -path "*resources/volumes/volume_create.yml" -o -path "*resources/firewalls/firewalls_create.yml" 2>/dev/null
-find "$SPEC_DIR" -maxdepth 3 -type d | head -50
-find digitalocean/resources/volumes -maxdepth 1 -type f | sort
-find digitalocean/resources/volumes -maxdepth 2 | sort
+SPEC_DIR=digitalocean; ls $SPEC_DIR/resources/vpcs/ $SPEC_DIR/resources/droplets/ $SPEC_DIR/resources/volumes/ $SPEC_DIR/resources/firewalls/ | head -100
 cat digitalocean/resources/vpcs/vpcs_create.yml
-SPEC=digitalocean
-cat "$SPEC/resources/vpcs/models/vpc.yml" 2>/dev/null | head -100
-cat "$SPEC/resources/vpcs/responses/existing_vpc.yml" 2>/dev/null
 cat digitalocean/resources/droplets/droplets_create.yml
-cat "$SPEC/resources/droplets/models/droplet_single_create.yml"
-cat "$SPEC/resources/droplets/models/droplet_create.yml"
-cat "$SPEC/resources/droplets/responses/droplet_create.yml"
 cat digitalocean/resources/volumes/volumes_create.yml
-cat "$SPEC/resources/volumes/models/volume_base.yml"
-cat "$SPEC/resources/volumes/responses/volume.yml"
-cat "$SPEC/resources/volumes/models/volume_action_post_attach.yml"
-cat "$SPEC/resources/volumes/volumeActions_post.yml"
-cat "$SPEC/resources/volumes/volumeActions_post_byId.yml" | head -60
-cat "$SPEC/resources/volumes/models/attributes.yml"
-cat "$SPEC/resources/volumes/models/volume_action_post_base.yml"
+cat digitalocean/resources/volumes/volumeActions_post.yml
 cat digitalocean/resources/firewalls/firewalls_create.yml
-find "$SPEC/resources/firewalls" -maxdepth 2 -type f | sort
-cat "$SPEC/resources/firewalls/responses/create_firewall_response.yml" | head -30
+SPEC_DIR=digitalocean
+cat $SPEC_DIR/resources/vpcs/models/vpc.yml | head -80
+cat $SPEC_DIR/resources/droplets/models/droplet_single_create.yml
+cat $SPEC_DIR/resources/droplets/models/droplet_create.yml
+cat $SPEC_DIR/resources/volumes/models/volumes_ext4.yml
+sed -n '1,80p' $SPEC_DIR/resources/firewalls/models/firewall.yml
+cat $SPEC_DIR/resources/volumes/models/volume_base.yml | head -20
+grep -n "^  id:" -A3 $SPEC_DIR/resources/droplets/models/*.yml 2>/dev/null | head -20
+# write /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-control-nfsv3-sonnet-r1/470a6260-baf2-4cfe-8b62-1cdcb54fb197/scratchpad/deploy_flow.json
 ```
 
 {% /tab %}
 {% tab label="Sonnet 5 · run 1 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="VPCs"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Droplets"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Block Storage"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Firewalls"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/vpcs" --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/responses/existing_vpc.yml"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file="digitalocean/resources/vpcs/models/vpc.yml"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file="digitalocean/resources/vpcs/responses/existing_vpc.yml"
-find digitalocean -path "*vpcs/models/vpc.yml" -o -path "*vpcs/responses/existing_vpc.yml" 2>/dev/null
-cat digitalocean/resources/vpcs/models/vpc.yml
-cat digitalocean/resources/vpcs/responses/existing_vpc.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/droplets" --operation=post --with-deps
-cat digitalocean/resources/droplets/models/droplet_single_create.yml
-cat digitalocean/resources/droplets/models/droplet_create.yml
-cat digitalocean/resources/droplets/responses/droplet_create.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/volumes" --operation=post --with-deps
-cat digitalocean/resources/volumes/models/volume_base.yml
-cat digitalocean/resources/volumes/responses/volume.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Block Storage Actions"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/volumes/{volume_id}/actions" --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/firewalls" --operation=post --with-deps
-cat digitalocean/resources/firewalls/models/firewall_rule.yml
-cat digitalocean/resources/firewalls/models/firewall.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet.yml" | head -20
-mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-tree-help-local-sonnet-r1/8b0264c9-049e-49fc-a05d-497f5570d078/scratchpad
+redocly tree --help | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="vpc" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="droplet create" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="volume" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name="droplet_create" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet_create.yml" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/volumes/models/volume_base.yml" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes/{volume_id}/actions --operation=post --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps | head -150
+find . -path "*digitalocean/resources/droplets/models/droplet_create.yml" 2>/dev/null
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r1/digitalocean/resources/droplets/models/droplet_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r1/digitalocean/resources/firewalls/models/firewall_rule.yml
 ```
 
 {% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
-grep -n "operationId:\|paths:\|  /v2/" "digitalocean/DigitalOcean-public.v2.yaml" | grep -iE "vpcs|droplets|volumes|firewalls" | head -100
-awk 'NR==2493,NR==2513' "digitalocean/DigitalOcean-public.v2.yaml"
-SPECDIR="digitalocean"; ls "$SPECDIR" | head; find "$SPECDIR" -iname "*vpcs_create*" -o -iname "*droplets_create*" -o -iname "*volumes_create*" -o -iname "*firewalls_create*" -o -iname "*volume_actions*"
+wc -l digitalocean/DigitalOcean-public.v2.yaml
+grep "^  /v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
+sed -n '2493,2500p' DigitalOcean-public.v2.yaml
+ls resources/vpcs/ resources/droplets/ 2>/dev/null; find . -iname "*vpcs_create*" -o -iname "*droplets_create*" -o -iname "*volumes_create*" -o -iname "*firewalls_create*" -o -iname "*volume_actions*"
 cat digitalocean/resources/vpcs/vpcs_create.yml
 cat digitalocean/resources/droplets/droplets_create.yml
 cat digitalocean/resources/volumes/volumes_create.yml
-SPECDIR="digitalocean"; find "$SPECDIR" -iname "*firewalls_create*" ! -path "*examples*"; find "$SPECDIR" -path "*volumes*action*" ! -path "*examples*"
 cat digitalocean/resources/firewalls/firewalls_create.yml
-cat digitalocean/resources/volumes/models/volume_action_post_attach.yml
-SPECDIR="digitalocean"; cat "$SPECDIR/resources/droplets/models/droplet_single_create.yml" 2>/dev/null; echo ---; find "$SPECDIR/resources/droplets" -iname "*droplet_single_create*"
-SPECDIR="digitalocean"
-cat "$SPECDIR/resources/droplets/models/droplet_create.yml"
-cat "$SPECDIR/resources/volumes/models/volume_action_post_base.yml"
-grep -n "volumes/{volume_id}/actions" -A3 "$SPECDIR/DigitalOcean-public.v2.yaml"
-cat "$SPECDIR/resources/vpcs/responses/existing_vpc.yml" 2>/dev/null
-cat "$SPECDIR/resources/droplets/responses/droplet_create.yml" 2>/dev/null
-cat "$SPECDIR/resources/volumes/responses/volume.yml" 2>/dev/null
-cat "$SPECDIR/resources/firewalls/responses/create_firewall_response.yml" 2>/dev/null
+cat resources/droplets/models/droplet_single_create.yml 2>/dev/null | head -80; echo ---; find resources/volumes -iname "*action*"
+cat resources/firewalls/models/firewall.yml | head -60
+mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-control-nfsv3-sonnet-r2/2643aa8a-ab2e-426d-acd2-0f76cbef042c/scratchpad
 ```
 
 {% /tab %}
@@ -4492,98 +4461,68 @@ cat "$SPECDIR/resources/firewalls/responses/create_firewall_response.yml" 2>/dev
 
 ```bash
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=vpc
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=volume
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=firewall
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=droplet
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="vpc" | head -100
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=vpc | head -60
+cat digitalocean/resources/vpcs/models/vpc.yml 2>/dev/null | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="droplet create" | head -40
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps
+cat digitalocean/resources/droplets/models/droplet_create.yml 2>/dev/null
+cat digitalocean/resources/droplets/responses/droplet_create.yml 2>/dev/null
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall create" | head -20
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=droplet_single_create
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes/{volume_id}/actions --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet_single_create.yml#/"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet_create.yml#/"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/responses/existing_vpc.yml#/"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/volumes/responses/volume.yml#/"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/firewalls/responses/create_firewall_response.yml#/"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/droplets/models/droplet_single_create.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/volumes/responses/volume.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/firewalls/responses/create_firewall_response.yml
-find / -name "DigitalOcean-public.v2.yaml" 2>/dev/null
-ls **/DigitalOcean-public.v2.yaml
-pwd && ls digitalocean/resources/droplets/models/ | head -30
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r2/digitalocean/resources/droplets/models/droplet_single_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r2/digitalocean/resources/droplets/models/droplet_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r2/digitalocean/resources/vpcs/models/vpc.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r2/digitalocean/resources/volumes/responses/volume.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r2/digitalocean/resources/firewalls/responses/create_firewall_response.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r2/digitalocean/resources/droplets/responses/droplet_create.yml
-Artifact
+cat digitalocean/resources/firewalls/models/firewall_rule.yml 2>/dev/null
 ```
 
 {% /tab %}
 {% tab label="Sonnet 5 · run 3 · no tree" %}
 
 ```bash
-wc -l "digitalocean/DigitalOcean-public.v2.yaml"
-grep "^  /v2/(vpcs|droplets|volumes|firewalls)[a-zA-Z_/{}\\-]*:" digitalocean/DigitalOcean-public.v2.yaml
-grep "^  /v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
-sed -n '2493,2523p' digitalocean/DigitalOcean-public.v2.yaml
-SPEC_DIR="digitalocean"
-ls "$SPEC_DIR/resources/vpcs/" 2>/dev/null
-find "$SPEC_DIR" -iname "*vpcs_create*"
-find "$SPEC_DIR" -iname "*droplets_create*"
-find "$SPEC_DIR" -iname "*volumes_create*"
-find "$SPEC_DIR" -iname "*volumes_actions*" -o -iname "*volume_actions*"
-find "$SPEC_DIR" -iname "*firewalls_create*"
+grep -n "^  /v2/vpcs" -A 3 digitalocean/DigitalOcean-public.v2.yaml | head -50
+grep -n "operationId:" digitalocean/DigitalOcean-public.v2.yaml | grep -iE "vpc|droplet|volume|firewall"
+SPECDIR=digitalocean
+find $SPECDIR/resources/vpcs -iname "*create*"
+find $SPECDIR/resources/droplets -iname "*create*"
+find $SPECDIR/resources/volumes -maxdepth 1
+find $SPECDIR/resources/firewalls -maxdepth 1
 cat digitalocean/resources/vpcs/vpcs_create.yml
-cat digitalocean/resources/vpcs/models/vpc.yml
 cat digitalocean/resources/droplets/droplets_create.yml
-cat digitalocean/resources/droplets/models/droplet_single_create.yml
-cat digitalocean/resources/droplets/models/droplet_create.yml
 cat digitalocean/resources/volumes/volumes_create.yml
+cat digitalocean/resources/volumes/volumeActions_post.yml
 cat digitalocean/resources/firewalls/firewalls_create.yml
+cat digitalocean/resources/droplets/models/droplet_single_create.yml
+find digitalocean/resources/droplets/models -iname "*droplet_create*"
+cat digitalocean/resources/droplets/models/droplet_create.yml
+cat digitalocean/resources/volumes/responses/volume.yml 2>/dev/null | head -30
+sed -n '1,80p' digitalocean/resources/firewalls/models/firewall.yml
 cat digitalocean/resources/vpcs/responses/existing_vpc.yml
-cat digitalocean/resources/droplets/responses/droplet_create.yml
-cat "$SPEC_DIR/resources/volumes/models/volumes_ext4.yml" 2>/dev/null
-find "$SPEC_DIR/resources/volumes/models" -iname "*.yml" | xargs -I{} echo {}
-cat digitalocean/resources/volumes/responses/volume.yml
-cat digitalocean/resources/firewalls/responses/create_firewall_response.yml
-# write /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-control-v3-sonnet-r3/dd20ee58-0e25-4aed-b110-a20ef254e734/scratchpad/deploy_flow.json
 ```
 
 {% /tab %}
 {% tab label="Sonnet 5 · run 3 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet create" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/responses/existing_vpc.yml"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/responses/existing_vpc.yml
-find / -path "*/digitalocean/resources/vpcs/models/vpc.yml" 2>/dev/null
-ls digitalocean | head; echo "---"; ls digitalocean/resources/vpcs
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r3/digitalocean/resources/vpcs/models/vpc.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r3/digitalocean/resources/droplets/models/droplet_create.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps | head -20
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r3/digitalocean/resources/volumes/models/volume_base.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r3/digitalocean/resources/volumes/models/volumes_ext4.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps | head -20
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r3/digitalocean/resources/firewalls/models/firewall_rule.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/droplets/responses/droplet_create.yml
-cat digitalocean/resources/droplets/responses/droplet_create.yml
-cat digitalocean/resources/volumes/responses/volume.yml | head -20
-cat digitalocean/resources/vpcs/responses/existing_vpc.yml | head -20
-true
+redocly tree --help | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=vpc | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer='digitalocean/resources/vpcs/models/vpc.yml' | head -150
+cat digitalocean/resources/vpcs/models/vpc.yml | head -100
+cat digitalocean/resources/vpcs/responses/existing_vpc.yml | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=droplet | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps | head -60
+cat digitalocean/resources/droplets/models/droplet_create.yml
+cat digitalocean/resources/droplets/models/droplet_single_create.yml
+cat digitalocean/resources/droplets/responses/droplet_create.yml | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=volume | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps | head -60
+cat digitalocean/resources/volumes/models/volume_base.yml
+cat digitalocean/resources/volumes/models/volume_full.yml | head -30
+cat digitalocean/resources/volumes/volumeActions_post_byId.yml 2>/dev/null | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=firewall | head -30
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps | head -60
+cat digitalocean/resources/firewalls/models/firewall_rule.yml
+# write /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-tree-help-nfsfix-sonnet-r3/4034511f-a927-4c93-85ce-35a170df92ae/scratchpad/deploy_flow.json
 ```
 
 {% /tab %}
@@ -4592,20 +4531,27 @@ true
 ```bash
 wc -l digitalocean/DigitalOcean-public.v2.yaml
 grep "^  /v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
-sed -n '1301,1371p' digitalocean/DigitalOcean-public.v2.yaml
-find digitalocean -iname "*vpcs_create*" -o -iname "*volumes_create*" -o -iname "*droplets_create*" -o -iname "*firewalls_create*" -o -iname "*volumeAction*"
-cat digitalocean/resources/vpcs/vpcs_create.yml
-cat digitalocean/resources/volumes/volumes_create.yml
-cat digitalocean/resources/droplets/droplets_create.yml
-cat digitalocean/resources/firewalls/firewalls_create.yml
-cat digitalocean/resources/volumes/volumeActions_post.yml
-find digitalocean/resources/droplets/models -iname "*single_create*"; echo ---; cat digitalocean/resources/droplets/models/droplet_single_create.yml 2>/dev/null
-cat digitalocean/resources/droplets/models/droplet_create.yml
-cat digitalocean/resources/vpcs/responses/existing_vpc.yml 2>/dev/null; echo ---MODEL---; find digitalocean/resources/vpcs/models -iname "vpc.yml" -exec cat {} \;
-cat digitalocean/resources/volumes/responses/volume.yml 2>/dev/null; echo ---; find digitalocean/resources/volumes/models -iname "volume.yml" -exec cat {} \; | head -40
-cat digitalocean/resources/droplets/responses/droplet_create.yml 2>/dev/null | head -60
-grep -n "^  id:" -A2 digitalocean/resources/droplets/models/droplet.yml | head -5
-# write /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-control-v3-sonnet-r4/2738237b-4581-40e6-a474-eb850287a173/scratchpad/deploy_flow.json
+grep "^  /v2/" digitalocean/DigitalOcean-public.v2.yaml
+grep "^  /v2/(vpcs|volumes)" digitalocean/DigitalOcean-public.v2.yaml
+sed -n '2453,2528p' digitalocean/DigitalOcean-public.v2.yaml
+SPECDIR=digitalocean
+cat "$SPECDIR/resources/vpcs/vpcs_create.yml" 2>/dev/null | head -100
+cat "$SPECDIR/resources/vpcs/models/vpc.yml" 2>/dev/null
+cat "$SPECDIR/resources/vpcs/responses/existing_vpc.yml" 2>/dev/null
+cat "$SPECDIR/resources/firewalls/firewalls_create.yml" 2>/dev/null
+cat "$SPECDIR/resources/firewalls/models/firewall.yml" 2>/dev/null
+cat "$SPECDIR/resources/droplets/droplets_create.yml" 2>/dev/null
+cat "$SPECDIR/resources/droplets/models/droplet_single_create.yml" 2>/dev/null
+echo
+cat "$SPECDIR/resources/droplets/responses/droplet_create.yml" 2>/dev/null
+cat "$SPECDIR/resources/droplets/models/droplet_create.yml" 2>/dev/null
+cat "$SPECDIR/resources/volumes/volumes_create.yml" 2>/dev/null
+cat "$SPECDIR/resources/volumes/models/volumes_ext4.yml" 2>/dev/null
+ls "$SPECDIR/resources/volumes/models/"
+cat "$SPECDIR/resources/volumes/responses/volume.yml" 2>/dev/null
+cat "$SPECDIR/resources/firewalls/responses/create_firewall_response.yml" 2>/dev/null
+cat "$SPECDIR/resources/firewalls/models/firewall_rule.yml" 2>/dev/null | head -80
+# write /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-control-nfsv3-sonnet-r4/94b93667-304a-47e6-aeb3-a337fa9aace5/scratchpad/deploy_flow.json
 ```
 
 {% /tab %}
@@ -4613,28 +4559,28 @@ grep -n "^  id:" -A2 digitalocean/resources/droplets/models/droplet.yml | head -
 
 ```bash
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=vpc | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -150
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=droplet_single_create | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer=digitalocean/resources/droplets/models/droplet_single_create.yml | head -150
-cat digitalocean/resources/droplets/models/droplet_single_create.yml
-cat digitalocean/resources/droplets/models/droplet_create.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="volume" | head -40
-cat digitalocean/resources/volumes/volumes_create.yml | head -60
-find digitalocean/resources/volumes -iname "*create*"
-cat digitalocean/resources/volumes/models/volumes_ext4.yml
-find digitalocean/resources/volumes/models -iname "*.yml" | xargs -I{} echo {}
-cat digitalocean/resources/volumes/models/volume_action_post_attach.yml
-cat digitalocean/resources/volumes/volumeActions_post_byId.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall create" | head -30
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps | head -100
-cat digitalocean/resources/vpcs/vpcs_create.yml | head -40
-cat digitalocean/resources/droplets/responses/droplet_create.yml
-cat digitalocean/resources/volumes/responses/volume.yml
-cat digitalocean/resources/firewalls/responses/create_firewall_response.yml
-cat digitalocean/resources/vpcs/responses/existing_vpc.yml
-cat digitalocean/resources/vpcs/models/vpc.yml | head -30
-grep -n "vpc_create" -A10 digitalocean/resources/vpcs/models/vpc.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag | grep -iE "vpc|droplet|volume|firewall"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "VPCs"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/vpcs --operation post --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer "digitalocean/resources/vpcs/models/vpc.yml#/vpc_create"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer "digitalocean/resources/vpcs/responses/existing_vpc.yml"
+find . -path "*resources/vpcs/models/vpc.yml" 2>/dev/null
+find . -path "*resources/vpcs/responses/existing_vpc.yml" 2>/dev/null
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r4/digitalocean/resources/vpcs/models/vpc.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Droplets"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/droplets --operation post --with-deps
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r4/digitalocean/resources/droplets/models/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Block Storage"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Block Storage Actions"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/volumes --operation post --with-deps
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r4/digitalocean/resources/volumes/models/volume_base.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Firewalls"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/firewalls --operation post --with-deps
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r4/digitalocean/resources/firewalls/models/firewall_rule.yml
+find . -path "*resources/droplets/responses/droplet_create.yml"
+cat ./digitalocean/resources/droplets/responses/droplet_create.yml 2>/dev/null | head -60
+grep -n "^id:" -A2 ./digitalocean/resources/volumes/responses/volume.yml | head -20
 ```
 
 {% /tab %}
@@ -4642,17 +4588,19 @@ grep -n "vpc_create" -A10 digitalocean/resources/vpcs/models/vpc.yml
 
 ```bash
 wc -l digitalocean/DigitalOcean-public.v2.yaml
-grep "^  /v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
-sed -n '2493,2523p' digitalocean/DigitalOcean-public.v2.yaml
-cd digitalocean
-for f in resources/vpcs/vpcs_create.yml resources/droplets/droplets_create.yml resources/volumes/volumes_create.yml resources/firewalls/firewalls_create.yml; do
-find . -iname "$(basename $f)" 2>/dev/null
-done
+grep "^  /v2/(vpcs|droplets|volumes|firewalls)[^/]*:" digitalocean/DigitalOcean-public.v2.yaml
+sed -n '1301,1501p' digitalocean/DigitalOcean-public.v2.yaml
+cd digitalocean; ls resources/vpcs/ resources/volumes/ 2>/dev/null; echo ---; find . -iname "*volume*action*"
 cat digitalocean/resources/vpcs/vpcs_create.yml
+cd digitalocean; cat resources/vpcs/models/vpc.yml 2>/dev/null | head -60; echo "---RESPONSE---"; cat resources/vpcs/responses/existing_vpc.yml 2>/dev/null
 cat digitalocean/resources/droplets/droplets_create.yml
+cat digitalocean/resources/droplets/models/droplet_single_create.yml
+cat digitalocean/resources/droplets/models/droplet_create.yml
 cat digitalocean/resources/volumes/volumes_create.yml
 cat digitalocean/resources/firewalls/firewalls_create.yml
-cat resources/droplets/models/droplet_create.yml
+cd digitalocean; cat resources/droplets/responses/droplet_create.yml; echo "---volume resp---"; cat resources/volumes/responses/volume.yml
+cd digitalocean; cat resources/firewalls/responses/create_firewall_response.yml 2>/dev/null | head -30
+# write /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-control-nfsv3-sonnet-r5/a3861758-0add-4238-9f5b-a1fa7d21e978/scratchpad/deploy_flow.json
 ```
 
 {% /tab %}
@@ -4660,25 +4608,23 @@ cat resources/droplets/models/droplet_create.yml
 
 ```bash
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="VPCs"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Droplets"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Block Storage"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Firewalls"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag="Block Storage Actions"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=vpc | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/responses/existing_vpc.yml"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/responses/existing_vpc.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r5/digitalocean/resources/vpcs/models/vpc.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r5/digitalocean/resources/droplets/models/droplet_create.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r5/digitalocean/resources/firewalls/models/firewall_rule.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r5/digitalocean/resources/droplets/responses/droplet_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r5/digitalocean/resources/volumes/responses/volume.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --path /v2/vpcs --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/vpcs --operation=post --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/vpcs/models/vpc.yml | head -100
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/vpcs/models/vpc.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/vpcs/responses/existing_vpc.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet create" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/droplets --operation=post --with-deps | head -100
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/droplets/models/droplet_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/droplets/models/droplet_single_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/droplets/responses/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/volumes --operation=post --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/firewalls --operation=post --with-deps | head -60
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/firewalls/models/firewall_rule.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/resources/firewalls/responses/create_firewall_response.yml
 ```
 
 {% /tab %}
@@ -4691,88 +4637,97 @@ cat /Users/tora/bench-run/digitalocean-tree-help-local-sonnet-r5/digitalocean/re
 {% tab label="Opus 5 · run 1 · no tree" %}
 
 ```bash
-ls digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
-grep -n "^  /v2/(vpcs|droplets|volumes|firewalls|actions|sizes|images|regions)[^:]*:" digitalocean/DigitalOcean-public.v2.yaml
-sed -n '2453,2530p' DigitalOcean-public.v2.yaml && ls resources | head -50
-cat vpcs/vpcs_create.yml && echo ==== && cat volumes/volumes_create.yml && echo ==== && cat volumes/volumeActions_post_byId.yml && echo ==== && cat firewalls/firewalls_create.yml
-for f in vpcs/models/vpc.yml volumes/volumes_create.yml volumes/volumeActions_post_byId.yml firewalls/firewalls_create.yml; do echo "=== $f"; cat $f; done
-for f in volumes/models/volumes_ext4.yml volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml droplets/models/droplet_create.yml; do echo "=== $f"; cat $f 2>/dev/null; done; ls volumes/models droplets/models firewalls/models
-for f in droplets/models/droplet_single_create.yml firewalls/models/firewall.yml firewalls/models/firewall_rule.yml droplets/droplets_create.yml firewalls/responses/create_firewall_response.yml volumes/responses/volumeAction.yml; do echo "=== $f"; cat $f; done
-sed -n '1,80p' droplets/responses/droplet_create.yml; echo "=== example"; sed -n '/droplet_create_response/,/^[a-z_]*:$/p' droplets/examples.yml | head -80
-cat shared/models/action_link.yml; echo "=== droplet actions get"; cat resources/droplets/dropletActions_get.yml 2>/dev/null | head -30; ls resources/droplets | grep -i action
+ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
+grep "^  /v2/(vpcs|droplets|volumes|firewalls|actions)[^:]*:" digitalocean/DigitalOcean-public.v2.yaml
+ls vpcs droplets volumes firewalls 2>/dev/null
+sed -n '2453,2540p;1301,1320p;1410,1445p;2493,2530p' DigitalOcean-public.v2.yaml
+cat vpcs/vpcs_create.yml && echo "=====MODELS" && ls vpcs/models vpcs/attributes && echo "=====" && cat vpcs/models/*.yml | head -100
+cat volumes/volumes_create.yml && echo "=====" && ls volumes/models && echo "===ATTACH" && cat volumes/volumeActions_post.yml volumes/volumeActions_post_byId.yml
+ls droplets/models && echo "===CREATE" && sed -n '1,80p' droplets/droplets_create.yml && echo "===SINGLE" && cat droplets/models/droplet_single_create.yml 2>/dev/null | head -60
+cat volumes/models/volumes_ext4.yml volumes/models/volume_base.yml && echo "===FWCREATE" && cat firewalls/firewalls_create.yml && ls firewalls/models
+cat droplets/models/droplet_create.yml
+cat firewalls/models/firewall.yml firewalls/models/firewall_rule.yml
+grep -n "account/keys\|/v2/regions\|/v2/sizes\|/v2/images" DigitalOcean-public.v2.yaml | head -20 && echo "===ACTIONS" && cat resources/actions/actions_get.yml && echo "===DROPLETRESP" && cat resources/droplets/responses/droplet_create.yml
+cat resources/volumes/responses/volumeAction.yml resources/volumes/models/volume_action_post_attach.yml resources/volumes/models/volumeAction.yml resources/volumes/models/volume_action_post_base.yml 2>/dev/null
+cat resources/actions/models/action.yml && sed -n '743,760p' DigitalOcean-public.v2.yaml && grep -rn "status" resources/droplets/models/droplet.yml | head
+cat resources/ssh_keys/sshKeys_list.yml 2>/dev/null | head -30; ls resources/ssh_keys 2>/dev/null; cat resources/volumes/parameters.yml resources/actions/parameters.yml
 ```
 
 {% /tab %}
 {% tab label="Opus 5 · run 1 · tree" %}
 
 ```bash
-redocly tree --help | head -60; ls
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -50
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml | head -60
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create"|head -40; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_updatable"|head -40; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/responses/existing_vpc.yml"|head -40
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; for p in 'digitalocean/resources/vpcs/models/vpc.yml#/vpc_create' 'digitalocean/resources/vpcs/models/vpc.yml#/vpc_updatable' 'digitalocean/resources/vpcs/responses/existing_vpc.yml'; do echo "### $p"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="$p" --with-deps|head -30; done
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1/digitalocean/resources; sed -n 1,120p vpcs/models/vpc.yml; echo "=== existing_vpc"; cat vpcs/responses/existing_vpc.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; for f in "volume" "firewall" "ssh key"; do echo "### $f"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="$f"|head -30; done
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; for op in droplets_create volumes_create volumeActions_post_byId firewalls_create; do echo "###### $op"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=$op --with-deps|head -40; done
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1/digitalocean/resources; echo "=== droplet_single_create"; cat droplets/models/droplet_single_create.yml; echo "=== droplet_create.yml(model)"; sed -n 1,200p droplets/models/droplet_create.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1/digitalocean/resources; echo "=== volumes_ext4"; cat volumes/models/volumes_ext4.yml; echo "=== volume_base"; cat volumes/models/volume_base.yml; echo "=== attributes"; sed -n 1,80p volumes/models/attributes.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1/digitalocean/resources; echo "=== attach"; cat volumes/models/volume_action_post_attach.yml; echo "=== base"; cat volumes/models/volume_action_post_base.yml; echo "=== volumeAction resp"; cat volumes/responses/volumeAction.yml; echo "=== firewall model"; sed -n 1,200p firewalls/models/firewall.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1/digitalocean/resources; sed -n 1,140p firewalls/models/firewall_rule.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; cat digitalocean/resources/droplets/responses/droplet_create.yml; echo "=== firewall resp"; cat digitalocean/resources/firewalls/responses/create_firewall_response.yml; echo "=== action_link"; cat digitalocean/shared/models/action_link.yml; echo; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="action status"|head -20
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; for op in actions_get droplets_get volumeActions_get sshKeys_create; do echo "##### $op"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=$op|sed -n 1,6p; done; echo "=== ssh model"; cat digitalocean/resources/ssh_keys/models/sshKeys.yml 2>/dev/null | head -50
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r1; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai|head -20; echo "=== action model"; sed -n 1,60p digitalocean/resources/actions/models/action.yml
+redocly tree --help | head -100
+ls && ls digitalocean | head
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find vpc | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find firewall | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find volume | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml | head -60; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/volumes/models/volume_base.yml | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -80
+for p in "digitalocean/resources/droplets/models/droplet_create.yml" "digitalocean/resources/firewalls/models/firewall_rule.yml" "digitalocean/resources/volumes/models/volume_base.yml" "digitalocean/resources/volumes/models/volume_action_post_base.yml"; do echo "=== $p"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="$p" | head -50; done
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create"|head -30; echo "=== updatable"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_updatable"|head -30; echo "=== actions find"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="action"|head -40
+cd /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r1/digitalocean/resources; for f in vpcs/models/vpc.yml volumes/models/volume_base.yml volumes/models/volume_action_post_base.yml volumes/models/volume_action_post_attach.yml; do echo "##### $f"; cat "$f"; done
+cd /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r1/digitalocean/resources; echo "##### droplet_create"; cat droplets/models/droplet_create.yml; echo "##### firewall_rule"; cat firewalls/models/firewall_rule.yml
+cd /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r1/digitalocean; sed -n 1,60p resources/droplets/responses/droplet_create.yml; echo "##### action model"; sed -n 1,60p resources/actions/models/action.yml; echo "##### volumeAction resp"; cat resources/volumes/responses/volumeAction.yml
+cd /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r1/digitalocean; echo "### action_link"; cat shared/models/action_link.yml; echo "### firewalls_assign_droplets"; cat resources/firewalls/firewalls_assign_droplets.yml | head -60
+cd /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r1/digitalocean; grep -n -A8 "^  status:" resources/droplets/models/droplet.yml | head -20; echo "### vpc resp"; grep -n "vpc" resources/vpcs/responses/existing_vpc.yml; echo "### vol resp"; grep -n "volume" resources/volumes/responses/volume.yml | head; echo "### fw resp"; grep -n "firewall" resources/firewalls/responses/create_firewall_response.yml | head
 ```
 
 {% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
-ls digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
-grep -n "^  /v2/(vpcs|droplets|volumes|firewalls|actions|account/keys)[^:]*:" digitalocean/DigitalOcean-public.v2.yaml
-cd digitalocean; sed -n '2453,2500p;1301,1315p;1410,1420p;2493,2500p;764,770p' DigitalOcean-public.v2.yaml
-cd digitalocean/resources; ls; ls vpcs volumes firewalls droplets 2>/dev/null
-cd digitalocean/resources; cat vpcs/vpcs_create.yml; echo ===; ls vpcs/models; cat vpcs/models/*.yml 2>/dev/null | head -80
-cd digitalocean/resources; cat volumes/volumes_create.yml; echo ===MODELS; ls volumes/models; echo ===ATTACH; cat volumes/volumeActions_post_byId.yml
-cd digitalocean/resources; cat vpcs/models/vpc.yml; echo "--- attributes:"; ls vpcs/attributes; cat vpcs/responses/existing_vpc.yml
-cd digitalocean/resources; cat volumes/models/volumes_ext4.yml; echo "--- ATTACH BYID"; cat volumes/volumeActions_post_byId.yml; echo "--- MODELS"; ls volumes/models
-cd digitalocean/resources; cat droplets/droplets_create.yml | head -60; echo "--- MODELS"; ls droplets/models; echo "--- single create model"; sed -n '1,200p' droplets/models/droplet_single_create.yml 2>/dev/null
-cd digitalocean/resources; cat firewalls/firewalls_create.yml; echo "--- MODELS"; ls firewalls/models; cat firewalls/models/*.yml | head -160
-cd digitalocean/resources; cat droplets/models/droplet_create.yml
-cd digitalocean/resources; cat droplets/responses/droplet_create.yml; echo "--- ACTIONS GET"; cat actions/actions_get.yml; echo "--- ACTION MODEL"; cat actions/models/*.yml 2>/dev/null | head -70
-cd digitalocean/resources; sed -n '740,760p' ../DigitalOcean-public.v2.yaml; echo "--- SSHKEYS"; ls ssh_zzz 2>/dev/null; cat ssh_keys/sshKeys_list.yml | head -25; echo "--- KEY MODEL"; cat ssh_keys/models/*.yml | head -40
-cd digitalocean/resources; grep -n -A12 "status:" droplets/models/droplet.yml | head -40; echo "--- VOLUME BASE READ"; cat volumes/models/volume_base_read.yml | head -40; echo "--- VOLACTION RESP"; cat volumes/responses/volumeAction.yml
+ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
+grep -nE "^  /(vpcs|droplets|volumes|firewalls|regions|images|account/keys|sizes)" DigitalOcean-public.v2.yaml | head -60 && ls resources
+grep -nE "^  /v2/(vpcs|droplets|volumes|firewalls|regions|images|account/keys|sizes|actions)" DigitalOcean-public.v2.yaml | head -80
+sed -n '2493,2520p;2453,2492p;1410,1445p' DigitalOcean-public.v2.yaml && ls resources/vpcs resources/volumes resources/firewalls resources/droplets
+cat vpcs/vpcs_create.yml && echo "=== VPC MODELS ===" && ls vpcs/models vpcs/attributes && cat vpcs/models/*.yml
+sed -n '1,60p' droplets/droplets_create.yml && echo "=== SINGLE CREATE MODEL ===" && ls droplets/models && sed -n '1,140p' droplets/models/droplet_single_create.yml 2>/dev/null
+cat droplets/models/droplet_create.yml
+cat volumes/volumes_create.yml && echo "=== MODELS ===" && ls volumes/models && cat volumes/models/volumes_ext4.yml volumes/models/volume.yml 2>/dev/null | head -120
+cat volumes/models/volume_base.yml volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml && echo "=== ACTION POST ===" && cat volumes/volumeActions_post_byId.yml
+cat firewalls/firewalls_create.yml | head -50 && echo "=== MODELS ===" && ls firewalls/models && cat firewalls/models/firewall.yml firewalls/models/firewall_rule.yml 2>/dev/null
+cat resources/droplets/responses/droplet_create.yml && echo "=== ACTION MODEL ===" && cat shared/models/action.yml 2>/dev/null | head -60 && echo "=== VOL RESP ===" && cat resources/volumes/responses/volume.yml resources/volumes/responses/volumeAction.yml
+cat resources/actions/actions_get.yml 2>/dev/null | head -30; ls shared/models/ && sed -n '1,50p' shared/models/action.yml 2>/dev/null; sed -n '1,30p' shared/models/action_link.yml
+grep -n "status" resources/actions/models/action.yml | head; sed -n '1,40p' resources/actions/models/action.yml; echo "=== SSHKEYS ==="; ls resources/ssh_keys; grep -n "fingerprint\|  id:" resources/ssh_keys/models/*.yml | head -20
+sed -n '50,100p' resources/firewalls/firewalls_create.yml && cat resources/firewalls/responses/*.yml | grep -n "description:\|firewall:" | head -20 && ls resources/firewalls/responses
 ```
 
 {% /tab %}
 {% tab label="Opus 5 · run 2 · tree" %}
 
 ```bash
-redocly tree --help | head -80
-ls && ls digitalocean | head
+redocly tree --help | head -60
+ls /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/ | head
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -60
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation vpcs_create --with-deps | head -120
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag=Droplets | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -160
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/droplets/models/droplet_single_create.yml --with-deps | head -60; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml --with-deps | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/volumes/models/volumes_ext4.yml --with-deps | head -60; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -40
-for f in digitalocean/resources/droplets/models/droplet_single_create.yml digitalocean/resources/vpcs/models/vpc.yml; do echo "=== $f"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=$f | head -40; done
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet_single_create.yml" | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create" | head -40
-cat droplets/models/droplet_single_create.yml && echo "=== droplet_create" && cat droplets/models/droplet_create.yml
-cat vpcs/models/vpc.yml && echo "=== volumes_ext4" && cat volumes/models/volumes_ext4.yml && echo "=== volume_base" && cat volumes/models/volume_base.yml
-cat firewalls/models/firewall.yml && echo "=== rule" && cat firewalls/models/firewall_rule.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "actions" | head -20; echo "=== droplet_create response"; cat droplets/responses/droplet_create.yml; echo "=== action_link"; cat ../shared/models/action_link.yml
-cat volumes/models/volume_action_post_attach.yml; echo "=== base"; cat volumes/models/volume_action_post_base.yml; echo "=== resp"; cat volumes/responses/volumeAction.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag=Actions | head -20
-cat actions/models/action.yml | head -50; echo "=== fw resp"; cat firewalls/responses/create_firewall_response.yml; echo "=== vpc resp"; cat vpcs/responses/existing_vpc.yml
-head -40 actions/models/action.yml; echo "=== fw resp"; head -30 firewalls/responses/create_firewall_response.yml; echo "=== vpc resp"; head -30 vpcs/responses/existing_vpc.yml
-head -25 volumes/responses/volume.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer "digitalocean/resources/vpcs/models/vpc.yml#/vpc_create" --with-deps | head -60; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer "digitalocean/resources/vpcs/models/vpc.yml#/vpc_updatable" --with-deps | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation volumes_create --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml --with-deps | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/volumes/models/volume_base.yml --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/volumes/models/volumes_ext4.yml | head -60
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/vpcs/models/vpc.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/volumes/models/volumes_ext4.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation droplets_create --with-deps | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation firewalls_create --with-deps | head -80
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/droplets/models/droplet_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/firewalls/models/firewall_rule.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation volumeActions_post_byId --with-deps | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "actions" | head -40
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/volumes/models/volume_action_post_base.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/droplets/responses/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "ssh key" | head -12; echo "=== sizes"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "sizes" | head -8
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r2/digitalocean/resources/firewalls/models/firewall.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation dropletActions_get | head -20; echo "=== action model"; sed -n 1,60p digitalocean/resources/actions/models/action.yml
+sed -n 1,40p digitalocean/shared/models/action_link.yml; echo "=== droplet single create"; cat digitalocean/resources/droplets/models/droplet_single_create.yml; echo "=== volume base"; cat digitalocean/resources/volumes/models/volume_base.yml
+cat digitalocean/shared/attributes/region_slug.yml
 ```
 
 {% /tab %}
@@ -4780,47 +4735,44 @@ head -25 volumes/responses/volume.yml
 
 ```bash
 ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
-grep -n "^  /v2/(vpcs|droplets|volumes|firewalls|sizes|images|regions|actions)[^:]*:" digitalocean/DigitalOcean-public.v2.yaml
-cd digitalocean; sed -n '1301,1320p;1410,1445p;2453,2530p' DigitalOcean-public.v2.yaml
-cd digitalocean; ls resources/vpcs resources/volumes resources/firewalls resources/droplets 2>/dev/null
-cd digitalocean/resources; cat vpcs/vpcs_create.yml; ls vpcs/models vpcs/attributes; echo ===; cat vpcs/models/*.yml 2>/dev/null | head -100
-cd digitalocean/resources; cat volumes/volumes_create.yml; echo ===MODELS; ls volumes/models; echo; cat volumes/models/volumes_ext4.yml volumes/models/volume.yml 2>/dev/null | head -80
-cd digitalocean/resources; cat vpcs/models/vpc.yml; echo "-----VOL"; cat volumes/models/volumes_ext4.yml
-cd digitalocean/resources; cat volumes/volumeActions_post.yml; echo "-----BYID"; cat volumes/volumeActions_post_byId.yml
-cd digitalocean/resources; ls droplets/models; echo ---; cat droplets/models/droplet_single_create.yml 2>/dev/null; echo ---CREATEOP; sed -n '1,60p' droplets/droplets_create.yml
-cd digitalocean/resources; cat firewalls/firewalls_create.yml; echo ---; ls firewalls/models; cat firewalls/models/firewall.yml 2>/dev/null
-cd digitalocean/resources; cat droplets/models/droplet_create.yml; echo "----FWRULE"; cat firewalls/models/firewall_rule.yml
-cd digitalocean/resources; cat volumes/models/volume_base.yml; echo ---ACTIONATTACH; cat volumes/models/volume_action_post_attach.yml; echo ---DROPACTIONS_GET; sed -n '1,40p' droplets/dropletActions_get.yml
-cd digitalocean/resources; cat volumes/models/volume_action_post_base.yml; echo ---VOLACTGETPARAMS; cat volumes/parameters.yml | head -40; echo ---DROPRESP; cat droplets/responses/droplet_create.yml; echo ---ACTIONMODEL; cat ../resources/actions/models/action.yml 2>/dev/null | head -60
-grep -n "/v2/account/keys" digitalocean/DigitalOcean-public.v2.yaml
+ls resources && ls shared
+ls resources/vpcs resources/droplets resources/volumes resources/firewalls resources/actions
+cat vpcs/vpcs_create.yml && echo "=====VPC MODELS" && ls vpcs/models && cat vpcs/models/*.yml | head -120
+cat droplets/droplets_create.yml && echo "=====MODELS" && ls droplets/models && echo "=====RESP" && ls droplets/responses && cat droplets/responses/droplet_create.yml 2>/dev/null | head -60
+cat droplets/models/droplet_single_create.yml && echo "=====CREATE" && cat droplets/models/droplet_create.yml
+cat volumes/volumes_create.yml && echo "=====MODELS"; ls volumes/models; echo "---"; cat volumes/models/volume*.yml | head -200
+cat volumes/models/volumes_ext4.yml && echo "==== ACTIONS POST" && cat volumes/volumeActions_post_byId.yml && echo "==== PARAMS" && cat volumes/parameters.yml
+cat firewalls/firewalls_create.yml && echo "==== MODELS"; ls firewalls/models; echo "----"; cat firewalls/models/firewall.yml firewalls/models/firewall_rule.yml 2>/dev/null
+cat resources/actions/models/action.yml && echo "==== ACTIONS GET" && cat resources/actions/actions_get.yml | head -40 && echo "=== SSH" && ls resources/ssh_keys && echo "=== PATHS" && grep -n "v2/vpcs\|v2/droplets\|v2/volumes\|v2/firewalls\|v2/actions\|v2/account/keys\|v2/sizes\|v2/images" shared/pages.yml | head -60
+grep -n "vpcs\|/droplets\|/volumes\|/firewalls\|/actions\|account/keys" DigitalOcean-public.v2.yaml | grep -n "^\s*[0-9]*:\s*'\?/" | head -60
+sed -n '2490,2530p' DigitalOcean-public.v2.yaml && echo "=== VPCS" && grep -n "/v2/vpcs" DigitalOcean-public.v2.yaml && sed -n '743,770p' DigitalOcean-public.v2.yaml && echo "=== servers/base" && sed -n '1,40p' DigitalOcean-public.v2.yaml
+cat volumes/responses/volume.yml volumes/responses/volumeAction.yml firewalls/responses/create_firewall_response.yml vpcs/responses/existing_vpc.yml 2>/dev/null | head -80 && echo "=== SSHLIST" && cat ssh_keys/sshKeys_list.yml | head -30 && ls ssh_keys/responses && cat ssh_keys/responses/*.yml | head -40
+grep -n -A12 "  status:" droplets/models/droplet.yml | head -25 && echo "=== action_link" && cat ../shared/models/action_link.yml && echo "=== fw param" && cat firewalls/parameters.yml | head -20
 ```
 
 {% /tab %}
 {% tab label="Opus 5 · run 3 · tree" %}
 
 ```bash
-redocly tree --help | head -80; ls
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -40
-redocly tree DigitalOcean-public.v2.yaml --format=ai --find "volume attach" | head -30
-redocly tree DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -20; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "droplet create" | head -20
-redocly tree DigitalOcean-public.v2.yaml --format=ai --find "firewalls" | head -20
-redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
-redocly tree DigitalOcean-public.v2.yaml --format=ai --pointer="resources/vpcs/models/vpc.yml" | head -60
-redocly tree DigitalOcean-public.v2.yaml --format=ai --file=resources/vpcs/models/vpc.yml | head -60; echo "-----"; redocly tree DigitalOcean-public.v2.yaml --format=ai --file=resources/vpcs/responses/existing_vpc.yml|head -30
-sed -n 1,80p resources/vpcs/models/vpc.yml; echo ---EXISTING---; cat resources/vpcs/responses/existing_vpc.yml
-redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -60
-cat resources/droplets/models/droplet_single_create.yml; echo "=====CREATE====="; cat resources/droplets/models/droplet_create.yml
-redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -40
-cat resources/volumes/models/volumes_ext4.yml; echo "=====BASE====="; cat resources/volumes/models/volume_base.yml
-redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -40
-cat resources/firewalls/models/firewall.yml; echo "=====RULE====="; cat resources/firewalls/models/firewall_rule.yml
-redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -40
-cat resources/volumes/models/volume_action_post_attach.yml; echo "=====BASE====="; cat resources/volumes/models/volume_action_post_base.yml; echo "=====PARAMS====="; cat resources/volumes/parameters.yml | head -30
-redocly tree DigitalOcean-public.v2.yaml --format=ai --find "actions get" | head -25; echo "----- droplet get -----"; redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=droplets_get | head -12
-cat resources/droplets/responses/droplet_create.yml; echo "=====ACTIONLINK====="; cat ../shared/models/action_link.yml 2>/dev/null || cat shared/models/action_link.yml; echo "=====ACTION====="; sed -n 1,40p resources/actions/models/action.yml
-redocly tree DigitalOcean-public.v2.yaml --format=ai --find "ssh keys"|head -8; echo "-----"; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "regions sizes list"|head -8; echo "=====VOLACTRESP====="; cat resources/volumes/responses/volumeAction.yml
-redocly tree DigitalOcean-public.v2.yaml --format=ai --find "region"|head -6; echo ---; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "sizes"|head -6; echo "=====VOLRESP====="; cat resources/volumes/responses/volume.yml
-for op in actions_get volumeActions_get firewalls_get regions_list sshKeys_list droplets_get; do redocly tree DigitalOcean-public.v2.yaml --format=ai --operation=$op | sed -n 2p; done
+redocly tree --help | head -60; echo "---"; ls
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -30
+sed -n '1,80p' digitalocean/resources/vpcs/models/vpc.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -60
+cat digitalocean/resources/volumes/models/volume_base.yml; echo ===; cat digitalocean/resources/volumes/models/volumes_ext4.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -50
+grep -n "^  [a-z_]*:\|required\|vpc_uuid\|readOnly" digitalocean/resources/droplets/models/droplet_create.yml | head -40; echo "=== single"; cat digitalocean/resources/droplets/models/droplet_single_create.yml
+cat digitalocean/resources/firewalls/models/firewall_rule.yml
+sed -n '99,145p' digitalocean/resources/droplets/models/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "ssh key" | head -15; echo "==="; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet actions" | head -15
+grep -n "servers:" -A5 digitalocean/DigitalOcean-public.v2.yaml | head -20; echo "=== dropcreate resp"; sed -n '1,55p' digitalocean/resources/droplets/responses/droplet_create.yml; echo "=== action_link"; cat digitalocean/shared/models/action_link.yml
+cat digitalocean/resources/volumes/models/volumeAction.yml 2>/dev/null | head -40; echo "=== action model"; grep -n "status\|id:\|type:" digitalocean/resources/actions/models/action.yml | head -25
+cat digitalocean/resources/volumes/models/volumes_ext4.yml; echo "--- resp volume"; sed -n '1,30p' digitalocean/resources/volumes/responses/volume.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_get | head -12; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get | head -12
 ```
 
 {% /tab %}
@@ -4828,16 +4780,19 @@ for op in actions_get volumeActions_get firewalls_get regions_list sshKeys_list 
 
 ```bash
 ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
-ls resources/ && grep -n "^  /v2/\(vpcs\|droplets\|volumes\|firewalls\|sizes\|images\|account/keys\|actions\)" DigitalOcean-public.v2.yaml
-sed -n '2493,2520p;2453,2495p;1410,1445p;1301,1320p' DigitalOcean-public.v2.yaml
-for f in resources/vpcs/vpcs_create.yml resources/volumes/volumes_create.yml resources/volumes/volumeActions_post_byId.yml resources/firewalls/firewalls_create.yml resources/droplets/droplets_create.yml; do echo "===== $f"; cat "$f"; done
-cat resources/vpcs/models/vpc.yml && echo "=====DROPLET SINGLE" && cat resources/droplets/models/droplet_single_create.yml && echo "=====VOLUME EXT4" && cat resources/volumes/models/volumes_ext4.yml
-cat resources/droplets/models/droplet_create.yml && echo "=====VOL BASE" && cat resources/volumes/models/volume_base.yml && echo "=====ATTACH" && cat resources/volumes/models/volume_action_post_attach.yml
-cat resources/firewalls/models/firewall.yml && echo "=====RULES" && ls resources/firewalls/models/ && cat resources/firewalls/models/firewall_rules.yml 2>/dev/null; echo "=====ACTIONBASE" && cat resources/volumes/models/volume_action_post_base.yml
-cat resources/firewalls/models/firewall_rule.yml
-cat resources/droplets/responses/droplet_create.yml && echo "== DROPLET ACTION GET" && cat resources/droplets/dropletActions_get.yml | head -30 && echo "== VOLACTION RESP" && cat resources/volumes/responses/volumeAction.yml && echo "== FW RESP" && cat resources/firewalls/responses/create_firewall_response.yml && echo "== VPC RESP" && cat resources/vpcs/responses/existing_vpc.yml && echo "== VOL RESP" && cat resources/volumes/responses/volume.yml
-grep -n "status\|region\|^  id\|vpc_uuid\|volume_ids" resources/droplets/models/droplet.yml | head -40 && echo "== ACTION MODEL" && cat resources/actions/models/action.yml | grep -n "id\|status\|type\|resource" | head -30 && echo "== VOLACTION MODEL" && cat resources/volumes/models/volumeAction.yml && echo "== SSHKEYS" && cat resources/ssh_keys/sshKeys_create.yml | head -40
-cat shared/models/action_link.yml && grep -n -A6 "^servers:" DigitalOcean-public.v2.yaml && cat resources/ssh_keys/responses/sshKeys_new.yml | grep -n "ssh_key\|id:\|fingerprint" | head && cat resources/ssh_keys/models/sshKeys.yml | grep -n "name:\|public_key:\|required\|id:\|fingerprint:"
+grep "^  /v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
+cd digitalocean; sed -n '1295,1320p;1405,1445p;2450,2500p' DigitalOcean-public.v2.yaml
+cd digitalocean; ls resources/ resources/vpcs resources/volumes resources/droplets resources/firewalls 2>/dev/null | head -100
+cd digitalocean/resources; cat vpcs/vpcs_create.yml; echo "=====MODELS"; ls vpcs/models; echo ===; cat vpcs/models/*.yml | head -120
+cd digitalocean/resources; cat volumes/volumes_create.yml; echo "=====ATTACH"; cat volumes/volumeActions_post_byId.yml; echo "=====LS"; ls volumes/models volumes/responses
+cd digitalocean/resources; echo "### vpc.yml"; cat vpcs/models/vpc.yml; echo "### resp existing_vpc"; cat vpcs/responses/existing_vpc.yml; echo "### volumes_ext4"; cat volumes/models/volumes_ext4.yml; echo "### volume_base"; cat volumes/models/volume_base.yml; echo "### attach"; cat volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml; echo "### resp volume"; cat volumes/responses/volume.yml
+cd digitalocean/resources; echo "### droplets_create"; cat droplets/droplets_create.yml; echo "### firewalls_create"; cat firewalls/firewalls_create.yml; ls droplets/models firewalls/models
+cd digitalocean/resources; echo "### single_create"; cat droplets/models/droplet_single_create.yml; echo "### droplet_create"; cat droplets/models/droplet_create.yml; echo "### resp droplet_create"; cat droplets/responses/droplet_create.yml | head -60
+cd digitalocean/resources; echo "### firewall.yml"; cat firewalls/models/firewall.yml; echo "### firewall_rule"; cat firewalls/models/firewall_rule.yml
+cd digitalocean; grep -n "/v2/actions" -A4 DigitalOcean-public.v2.yaml | head -20; echo "### action_link"; cat shared/models/action_link.yml; echo "### droplet action get"; cat resources/droplets/dropletActions_get.yml | head -40; echo "### volumeActions_get"; cat resources/volumes/volumeActions_get.yml | head -40
+cd digitalocean; cat shared/models/action.yml 2>/dev/null | head -60; echo "### resp volumeAction"; cat resources/volumes/responses/volumeAction.yml | head -30; echo "### droplet.yml networks"; grep -n "vpc_uuid\|status" resources/droplets/models/droplet.yml | head -20
+cd digitalocean; sed -n '40,60p' resources/droplets/models/droplet.yml; echo "### action status"; grep -n "status" -A10 resources/actions/models/action.yml | head -30; echo "### fw resp"; cat resources/firewalls/responses/create_firewall_response.yml | head -25; echo "### ssh_keys list"; grep -n "/v2/ssh_keys" -A4 DigitalOcean-public.v2.yaml | head
+cd digitalocean; grep -n "ssh_keys\|account/keys" DigitalOcean-public.v2.yaml | head; grep -n "^  /v2/regions" -A3 DigitalOcean-public.v2.yaml
 ```
 
 {% /tab %}
@@ -4845,24 +4800,22 @@ cat shared/models/action_link.yml && grep -n -A6 "^servers:" DigitalOcean-public
 
 ```bash
 ls && redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag | head -80
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag VPCs | head -30; echo ---; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Block Storage" | head -30; echo ---; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Firewalls | head -30; echo ---; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Droplets | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation vpcs_create --with-deps | head -120
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/vpcs/models/vpc.yml | head -40; echo === ; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer 'digitalocean/resources/vpcs/models/vpc.yml#/vpc_create' | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer 'digitalocean/resources/vpcs/models/vpc.yml#/vpc_create' | head -60
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources/vpcs/models/vpc.yml
-for op in droplets_create volumes_create firewalls_create; do echo "===== $op"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation $op --with-deps | head -40; done
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources/droplets/models/droplet_single_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources/droplets/models/droplet_create.yml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "Block Storage Actions" | head; echo =====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation volumeActions_post_byId --with-deps | head -30
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation volumeActions_post_byId --with-deps | head -30
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean/resources; for f in volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml volumes/models/volumes_ext4.yml volumes/models/volume_base.yml firewalls/models/firewall.yml firewalls/models/firewall_rule.yml; do echo "===== $f"; cat $f; done
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; cat resources/droplets/responses/droplet_create.yml; echo "===== vol resp"; cat resources/volumes/responses/volume.yml; echo "===== fw resp"; cat resources/firewalls/responses/create_firewall_response.yml; echo "===== vpc resp"; cat resources/vpcs/responses/existing_vpc.yml; echo "===== volAction resp"; cat resources/volumes/responses/volumeAction.yml; echo ===== action model; cat resources/actions/models/action.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; cat resources/actions/models/action.yml; echo "--- action_link"; cat shared/models/action_link.yml; echo "--- droplet.yml head"; sed -n 1,60p resources/droplets/models/droplet.yml
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Actions|head; echo "--- ssh"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "SSH Keys"|head; echo "--- regions/sizes"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Regions|head -3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Sizes|head -3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag Images|head -4
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation sshKeys_create --with-deps|head -8; echo "--- get droplet"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation droplets_get --with-deps|head -8; echo "--- actions_get"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation actions_get --with-deps|head -8; echo "--- fw get"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation firewalls_get --with-deps|head -8
-cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; grep -n -A6 "^servers:" DigitalOcean-public.v2.yaml | head -20; echo "--- sec"; grep -n -A12 "securitySchemes" DigitalOcean-public.v2.yaml | head -25; echo "--- sshkey model"; cat resources/ssh_keys/models/sshKeys.yml; echo "--- fs type"; grep -n -A14 "volume_write_file_system_type" resources/volumes/models/attributes.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml" | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet_create.yml" --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create" --with-deps | head -40; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_updatable" --with-deps | head -40
+cat digitalocean/resources/vpcs/models/vpc.yml && echo "=====DROPLET" && cat digitalocean/resources/droplets/models/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -40; echo "=====ATTACH"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -40
+cat digitalocean/resources/firewalls/models/firewall_rule.yml; echo "=====VABASE"; cat digitalocean/resources/volumes/models/volume_action_post_base.yml; echo "=====VOLBASE"; cat digitalocean/resources/volumes/models/volume_base.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "ssh key" | head -15; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_get | head -20; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get|head -20
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplets_get" | head -8; echo "@@@"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get | head -12; echo "@@@"; cat digitalocean/resources/droplets/responses/droplet_create.yml | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/actions/{action_id} | head -10
 ```
 
 {% /tab %}
@@ -4870,56 +4823,44 @@ cd /Users/tora/bench-run/digitalocean-tree-help-local-opus-r4/digitalocean; grep
 
 ```bash
 ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
-grep -nE "^  /(vpcs|droplets|volumes|firewalls|sizes|images|regions|ssh_keys|actions)" DigitalOcean-public.v2.yaml | head -60
-grep -nE "^  /" digitalocean/DigitalOcean-public.v2.yaml | grep -iE "vpc|droplet|volume|firewall|size|image|region|ssh|action"
-cd digitalocean/; sed -n '1301,1320p;1410,1450p;2453,2500p;2493,2520p' DigitalOcean-public.v2.yaml
-cd digitalocean/resources; cat vpcs/vpcs_create.yml; echo "=====VOLCREATE"; cat volumes/volumes_create.yml; echo "=====FWCREATE"; cat firewalls/firewalls_create.yml
-cd digitalocean/resources; cat vpcs/models/vpc.yml; echo "=====VOLEXT4"; cat volumes/models/volumes_ext4.yml
-cd digitalocean/resources; cat droplets/droplets_create.yml; echo "=====SINGLE"; ls droplets/models/;
-cd digitalocean/resources; cat droplets/models/droplet_single_create.yml; echo "=====CREATEBASE"; cat droplets/models/droplet_create.yml
-cd digitalocean/resources; cat volumes/volumeActions_post_byId.yml; echo "=====ATTACHMODEL"; ls volumes/models/; echo; cat volumes/models/attach.yml 2>/dev/null
-cd digitalocean/resources; cat volumes/models/volume_action_post_attach.yml volumes/models/volume_action_post_base.yml; echo "=====FWMODEL"; cat firewalls/models/firewall.yml
-cd digitalocean/resources; cat firewalls/models/firewall_rule.yml
-cd digitalocean/resources; cat droplets/responses/droplet_create.yml; echo "==ACTIONLINK"; find . -name "*action_link*" -o -name "*.yml" -path "*shared*" | head; echo "==VOLRESP"; cat volumes/responses/volume.yml; echo "==FWRESP"; cat firewalls/responses/create_firewall_response.yml
-cd digitalocean; cat shared/models/action_link.yml 2>/dev/null || find . -name "action_link*"; echo "==DROPACTIONGET"; cat resources/droplets/droplets_get_action.yml 2>/dev/null | head -40; echo "==VPCRESP"; cat resources/vpcs/responses/existing_vpc.yml | head -40
-cd digitalocean; sed -n '760,770p;1338,1352p;2087,2095p;2364,2372p' DigitalOcean-public.v2.yaml; echo "==ACTIONSTATUS"; grep -n -A12 "status:" shared/models/action.yml | head -30
-cd digitalocean; ls resources/actions/ resources/actions/models 2>/dev/null; grep -rn "in-progress" resources/actions/ | head -5; echo "==DROPLETSTATUS"; grep -n -B2 -A12 "^  status:" resources/droplets/models/droplet.yml
-cd digitalocean; grep -n "/v2/account/keys" DigitalOcean-public.v2.yaml; grep -n "operationId" resources/sshKeys/sshKeys_list.yml resources/regions/regions_list.yml resources/sizes/sizes_list.yml resources/images/images_list.yml resources/firewalls/firewalls_get.yml resources/droplets/dropletActions_get.yml 2>/dev/null; echo "==VOLFULL"; grep -n "droplet_ids" -A6 resources/volumes/models/volume_base_read.yml resources/volumes/models/volume_full.yml 2>/dev/null | head -20
-cd digitalocean; sed -n '743,752p' DigitalOcean-public.v2.yaml; grep -n "operationId" resources/ssh_keys/*.yml 2>/dev/null | head; grep -n "networks" -A20 resources/droplets/models/droplet.yml | head -30
+grep "^  /v2/(vpcs|droplets|volumes|firewalls|ssh_keys|actions|sizes|images|regions)[^:]*:" digitalocean/DigitalOcean-public.v2.yaml
+ls && echo ---- && sed -n '1301,1320p;1410,1445p;2453,2530p' ../DigitalOcean-public.v2.yaml
+cd digitalocean; cat resources/vpcs/vpcs_create.yml; echo "=====DROPLET CREATE"; cat resources/droplets/droplets_create.yml; echo "=====VOL CREATE"; cat resources/volumes/volumes_create.yml; echo "=====VOL ACTION"; cat resources/volumes/volumeActions_post_byId.yml; echo "=====FW CREATE"; cat resources/firewalls/firewalls_create.yml
+cd digitalocean; echo "=====VPC MODEL"; cat resources/vpcs/models/vpc.yml; echo "=====DROPLET SINGLE"; cat resources/droplets/models/droplet_single_create.yml; echo "=====VOL EXT4"; cat resources/volumes/models/volumes_ext4.yml; echo "=====ATTACH"; cat resources/volumes/models/volume_action_post_attach.yml
+cd digitalocean; echo "=====DROPLET CREATE MODEL"; cat resources/droplets/models/droplet_create.yml; echo "=====VOL BASE"; cat resources/volumes/models/volume_base.yml; echo "===ACTION BASE"; cat resources/volumes/models/volume_action_post_base.yml
+cd digitalocean; echo "=====FW MODEL"; cat resources/firewalls/models/firewall.yml; echo "=====FW RULE"; ls resources/firewalls/models/; cat resources/firewalls/models/firewall_rule.yml 2>/dev/null
+cd digitalocean; cat resources/droplets/responses/droplet_create.yml; echo "=== ACTION LINK MODEL"; ls resources/droplets/models | head -40; sed -n '1,80p' resources/droplets/models/droplet_create_response.yml 2>/dev/null; echo "=== ACTIONS GET"; cat resources/actions/actions_get.yml; echo "=== ACTION MODEL"; find . -name "action.yml" | head; cat shared/models/action.yml 2>/dev/null | head -60
+cd digitalocean; sed -n '1,60p' resources/actions/models/action.yml; echo "=== ACTION LINK"; cat shared/models/action_link.yml; echo "=== VOL ACTION RESP"; cat resources/volumes/responses/volumeAction.yml; echo "=== SSH KEYS"; ls resources/ssh_keys; sed -n '2200,2240p' DigitalOcean-public.v2.yaml
+cd digitalocean; grep -n "ssh_keys" DigitalOcean-public.v2.yaml | head; echo "=== SSHCREATE"; sed -n '1,50p' resources/ssh_keys/sshKeys_create.yml; cat resources/ssh_keys/models/sshKeys.yml 2>/dev/null || ls resources/ssh_keys/models; echo "=== SERVERS"; sed -n '1,60p' DigitalOcean-public.v2.yaml | grep -n "url\|servers\|title\|version"
+cd digitalocean; grep -n -A12 "  status:" resources/droplets/models/droplet.yml | head -30; grep -n -A6 "vpc_uuid\|networks:" resources/droplets/models/droplet.yml | head -40; echo "=== EXISTING VPC RESP"; cat resources/vpcs/responses/existing_vpc.yml; echo "=== FW RESP"; cat resources/firewalls/responses/create_firewall_response.yml
 ```
 
 {% /tab %}
 {% tab label="Opus 5 · run 5 · tree" %}
 
 ```bash
-redocly tree --help | head -60
-ls && ls digitalocean | head
+redocly tree --help | head -80
+ls -la /Users/tora/bench-run/digitalocean-tree-help-nfsfix-opus-r5/digitalocean/ | head
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -60
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -60
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -60
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet" | head -80
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -120
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps | head -200
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -200
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -200
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -200
-for p in "digitalocean/resources/vpcs/models/vpc.yml" "digitalocean/resources/droplets/models/droplet_single_create.yml" "digitalocean/resources/volumes/models/volumes_ext4.yml" "digitalocean/resources/firewalls/models/firewall.yml"; do echo "=== $p ==="; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="$p" | head -50; done
-for p in "digitalocean/resources/vpcs/models/vpc.yml" "digitalocean/resources/droplets/models/droplet_single_create.yml" "digitalocean/resources/volumes/models/volumes_ext4.yml" "digitalocean/resources/firewalls/models/firewall.yml" "digitalocean/resources/firewalls/models/firewall_rule.yml" "digitalocean/resources/volumes/models/volume_action_post_attach.yml"; do echo "=== $p ==="; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file="$p" | head -40; done
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/vpcs/models/vpc.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/droplets/models/droplet_single_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volumes_ext4.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/firewalls/models/firewall.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/droplets/models/droplet_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/firewalls/models/firewall_rule.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volume_action_post_attach.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volume_base.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-opus-r5/digitalocean/resources/volumes/models/volume_action_post_base.yml
-for f in digitalocean/resources/droplets/responses/droplet_create.yml digitalocean/resources/volumes/responses/volume.yml digitalocean/resources/vpcs/responses/existing_vpc.yml digitalocean/resources/firewalls/responses/create_firewall_response.yml digitalocean/resources/volumes/responses/volumeAction.yml digitalocean/shared/models/action_link.yml digitalocean/resources/volumes/models/attributes.yml; do echo "=== $f"; cat "$f"; done | head -150
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=dropletActions_get | head -20; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_assign_droplets --with-deps | head -20; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_get | head -20
-sed -n 1,60p shared/models/action_link.yml && echo "=== action model" && sed -n 1,60p resources/actions/models/action.yml && echo "=== volumeAction resp" && sed -n 1,30p resources/volumes/responses/volumeAction.yml && echo "=== vol attrs" && grep -n -A6 "volume_action_droplet_id\|volume_write_file_system_type" resources/volumes/models/attributes.yml | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get | head -8; cat digitalocean/resources/firewalls/parameters.yml digitalocean/resources/volumes/parameters.yml digitalocean/resources/droplets/parameters.yml | head -40
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_get | head -6 && head -20 digitalocean/resources/volumes/parameters.yml digitalocean/resources/firewalls/parameters.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/vpcs/models/vpc.yml | head -60; echo "=====VOLBASE"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/volumes/models/volume_base.yml | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/droplets/models/droplet_create.yml" --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_create" --with-deps | head -40; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer="digitalocean/resources/vpcs/models/vpc.yml#/vpc_updatable" --with-deps | head -40
+sed -n '1,80p' digitalocean/resources/vpcs/models/vpc.yml
+cat digitalocean/resources/droplets/models/droplet_create.yml
+cat digitalocean/resources/firewalls/models/firewall_rule.yml; echo "=====FW"; sed -n '1,90p' digitalocean/resources/firewalls/models/firewall.yml
+cat digitalocean/resources/volumes/models/volume_base.yml; echo "=====EXT4"; cat digitalocean/resources/volumes/models/volumes_ext4.yml; echo "=====ACTIONBASE"; cat digitalocean/resources/volumes/models/volume_action_post_base.yml
+sed -n '1,60p' digitalocean/resources/droplets/responses/droplet_create.yml; echo "=====ACTIONLINK"; cat digitalocean/shared/models/action_link.yml; echo "=====VOLACTRESP"; cat digitalocean/resources/volumes/responses/volumeAction.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "ssh key" | head -12; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "actions" | head -14
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/actions/{action_id}" | head -20; echo "==="; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=dropletActions_get | head -20; echo "===VOLACTMODEL"; cat digitalocean/resources/volumes/models/volumeAction.yml
+grep -n -A6 "status:" digitalocean/resources/actions/models/action.yml | head -20
 ```
 
 {% /tab %}
@@ -4934,16 +4875,11 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vo
 ```bash
 Skill
 cat digitalocean/DigitalOcean-public.v2.yaml
-grep "/v2/vpcs|/v2/volumes|/v2/droplets|/v2/firewalls" digitalocean/DigitalOcean-public.v2.yaml | head -50
-sed -n '2493,2793p' digitalocean/DigitalOcean-public.v2.yaml
-find digitalocean/resources -name "*vpc*.yml" -o -name "*droplet*.yml" -o -name "*volume*.yml" -o -name "*firewall*.yml" | head -20
-cat digitalocean/resources/vpcs/vpcs_create.yml
-cat digitalocean/resources/droplets/droplets_create.yml
-find digitalocean/resources -path "*/volumes/*" -name "*.yml" | grep -E "(create|attach)" | head -10
-sed -n '2453,2493p' digitalocean/DigitalOcean-public.v2.yaml
-cat digitalocean/resources/volumes/volumes_create.yml
-cat digitalocean/resources/volumes/volumeActions_post_byId.yml
-cat digitalocean/resources/firewalls/firewalls_create.yml
+grep "/v2/(vpcs|droplets|volumes|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
+grep -n "^  /v2/vpcs\|^  /v2/droplets\|^  /v2/volumes\|^  /v2/firewalls" digitalocean/DigitalOcean-public.v2.yaml | head -20
+grep -n "^  /v2/vpcs\|^  /v2/volumes\|^  /v2/firewalls" digitalocean/DigitalOcean-public.v2.yaml
+sed -n '2493,2593p' digitalocean/DigitalOcean-public.v2.yaml
+sed -n '1301,1321p' digitalocean/DigitalOcean-public.v2.yaml
 ```
 
 {% /tab %}
@@ -4951,18 +4887,123 @@ cat digitalocean/resources/firewalls/firewalls_create.yml
 
 ```bash
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="network" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="droplet" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="volume" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="vpc" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps | head -80
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_add_rules --with-deps | head -60
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_assign_droplets --with-deps | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet create" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc network private" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume attach" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=droplet_single_create | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --with-deps --path=/v2/droplets --operation=post | grep -A 20 "droplet_single_create"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes/{volume_id}/actions --operation=post | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls/{firewall_id}/droplets --operation=post
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --with-deps --path=/v2/droplets --operation=post | grep -i "vpc\|network" | head -20
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r1/digitalocean/resources/droplets/examples.yml
+cat > /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-tree-help-nfsfix-haiku-r1/a3197c47-8f28-4d8d-b4bf-7dcd2978cbff/scratchpad/deploy_flow.json << 'EOF'
+{
+"deployment_flow": "DigitalOcean private web service with storage and firewall",
+"steps": [
+"order": 1,
+"name": "Create VPC",
+"endpoint": "POST /v2/vpcs",
+"operation_id": "vpcs_create",
+"description": "Create a private network for the server",
+"requires": {
+"auth": "bearer_auth (vpc:create)"
+},
+"request_body": {
+"name": "web-service-vpc",
+"region": "nyc3",
+"description": "Private network for web service"
+"response_code": 201,
+"response_extracts": {
+"vpc_uuid": "vpc.id"
+"pass_to_next": ["vpc_uuid"]
+"order": 2,
+"name": "Create Droplet (Server)",
+"endpoint": "POST /v2/droplets",
+"operation_id": "droplets_create",
+"description": "Launch the server in the VPC",
+"auth": "bearer_auth (droplet:create)",
+"from_previous": ["vpc_uuid"]
+"name": "web-service",
+"size": "s-1vcpu-1gb",
+"image": "ubuntu-22-04-x64",
+"vpc_uuid": "${vpc_uuid}",
+"ssh_keys": [],
+"monitoring": true
+"response_code": 202,
+"droplet_id": "droplet.id"
+"pass_to_next": ["droplet_id"]
+"order": 3,
+"name": "Create Block Storage Volume",
+"endpoint": "POST /v2/volumes",
+"operation_id": "volumes_create",
+"description": "Create the extra storage volume",
+"auth": "bearer_auth (block_storage:create)"
+"name": "web-service-storage",
+"size_gigabytes": 100,
+"filesystem_type": "ext4",
+"description": "Storage volume for web service"
+"volume_id": "volume.id"
+"pass_to_next": ["volume_id"]
+"order": 4,
+"name": "Attach Volume to Droplet",
+"endpoint": "POST /v2/volumes/{volume_id}/actions",
+"operation_id": "volumeActions_post_byId",
+"description": "Attach the storage volume to the server",
+"auth": "bearer_auth (block_storage_action:create)",
+"from_previous": ["volume_id", "droplet_id"]
+"path_params": {
+"volume_id": "${volume_id}"
+"type": "attach",
+"droplet_id": "${droplet_id}",
+"region": "nyc3"
+"response_code": 202
+"order": 5,
+"name": "Create Firewall",
+"endpoint": "POST /v2/firewalls",
+"operation_id": "firewalls_create",
+"description": "Create firewall allowing only SSH and HTTPS",
+"auth": "bearer_auth (firewall:create)"
+"name": "web-service-firewall",
+"inbound_rules": [
+"protocol": "tcp",
+"ports": "22",
+"sources": {
+"addresses": ["0.0.0.0/0", "::/0"]
+}
+"ports": "443",
+],
+"outbound_rules": [
+"ports": "1:65535",
+"destinations": {
+"protocol": "udp",
+]
+"firewall_id": "firewall.id"
+"pass_to_next": ["firewall_id"]
+"order": 6,
+"name": "Assign Droplet to Firewall",
+"endpoint": "POST /v2/firewalls/{firewall_id}/droplets",
+"operation_id": "firewalls_assign_droplets",
+"description": "Apply the firewall rules to the server",
+"auth": "bearer_auth (firewall:update)",
+"from_previous": ["firewall_id", "droplet_id"]
+"firewall_id": "${firewall_id}"
+"droplet_ids": ["${droplet_id}"]
+"response_code": 204
+"notes": {
+"region": "Use the same region (nyc3) for all resources to ensure connectivity",
+"vpc": "The droplet will be placed in the specified VPC. All internal traffic stays private",
+"volume_attachment": "The volume will be formatted ext4 and auto-mounted on modern Ubuntu/Debian droplets",
+"firewall": "Inbound rules restrict to SSH (22) and HTTPS (443). Outbound allows all TCP/UDP for flexibility",
+"status_polling": "POST endpoints return 202 (Accepted) - use the action_links in responses to poll completion",
+"template_variables": "Replace ${vpc_uuid}, ${droplet_id}, ${volume_id}, ${firewall_id} with actual values from previous responses"
+EOF
+cat /private/tmp/claude-501/-Users-tora-bench-run-digitalocean-tree-help-nfsfix-haiku-r1/a3197c47-8f28-4d8d-b4bf-7dcd2978cbff/scratchpad/deploy_flow.json
 ```
 
 {% /tab %}
@@ -4971,20 +5012,22 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=fi
 ```bash
 Skill
 cat digitalocean/DigitalOcean-public.v2.yaml
-grep "(VPC|Virtual Private Cloud|Droplets|Volumes|Firewalls|Block Storage)" digitalocean/DigitalOcean-public.v2.yaml | head -100
-grep -n "^paths:" digitalocean/DigitalOcean-public.v2.yaml
-sed -n '730,1030p' digitalocean/DigitalOcean-public.v2.yaml
-grep -n "^  /v2/\(vpcs\|droplets\|volumes\|firewalls\)" digitalocean/DigitalOcean-public.v2.yaml | head -40
-sed -n '2493,2593p' digitalocean/DigitalOcean-public.v2.yaml
+grep "^  - name: (Droplets|VPC|Firewall|Block Storage)" digitalocean/DigitalOcean-public.v2.yaml
+grep -n "name: Droplet\|name: VPC\|name: Firewall\|name: Block Storage\|/v2/droplets\|/v2/vpc\|/v2/firewalls" digitalocean/DigitalOcean-public.v2.yaml | head -40
+sed -n '2493,2793p' digitalocean/DigitalOcean-public.v2.yaml
+sed -n '1301,1501p' digitalocean/DigitalOcean-public.v2.yaml
+grep -n "/v2/volumes" digitalocean/DigitalOcean-public.v2.yaml | head -20
+sed -n '2453,2503p' digitalocean/DigitalOcean-public.v2.yaml
 find digitalocean/resources -name "*vpc*create*" -o -name "*droplet*create*" -o -name "*volume*create*" -o -name "*firewall*create*" | head -10
 cat digitalocean/resources/vpcs/vpcs_create.yml
+cat digitalocean/resources/vpcs/models/vpc.yml
+cat digitalocean/resources/vpcs/responses/existing_vpc.yml
 cat digitalocean/resources/droplets/droplets_create.yml
+cat digitalocean/resources/droplets/models/droplet_single_create.yml
+cat digitalocean/resources/droplets/models/droplet_create.yml
 cat digitalocean/resources/volumes/volumes_create.yml
+cat digitalocean/resources/volumes/models/volumes_ext4.yml
 cat digitalocean/resources/firewalls/firewalls_create.yml
-cat digitalocean/resources/volumes
-find digitalocean/resources/volumes -name "*attach*"
-grep -n "volumeActions_attach" digitalocean/DigitalOcean-public.v2.yaml | head -5
-sed -n '2461,2491p' digitalocean/DigitalOcean-public.v2.yaml
 cat digitalocean/resources/volumes/volumeActions_post_byId.yml
 ```
 
@@ -4993,23 +5036,26 @@ cat digitalocean/resources/volumes/volumeActions_post_byId.yml
 
 ```bash
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "network" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes/{volume_id}/actions --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=droplet_single_create
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls/{firewall_id}/droplets --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | grep -i droplet
-find digitalocean -name "*droplet*create*" -type f | head -5
-find digitalocean -name "*vpc*" -type f | head -5
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r2/digitalocean/resources/droplets/models/droplet_single_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r2/digitalocean/resources/vpcs/models/vpc.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r2/digitalocean/resources/droplets/models/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet create"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "network VPC"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=droplet_create
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | head -40
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/droplets/models/droplet_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume attach"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/firewalls/models/firewall_rule.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_assign_droplets --with-deps
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/vpcs/responses/existing_vpc.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/vpcs/models/vpc.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/droplets/responses/droplet_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/droplets/models/droplet.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/volumes/responses/volume.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r2/digitalocean/resources/firewalls/responses/create_firewall_response.yml
 ```
 
 {% /tab %}
@@ -5018,34 +5064,48 @@ cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r2/digitalocean/res
 ```bash
 Skill
 cat digitalocean/DigitalOcean-public.v2.yaml
-grep "/v2/volumes" digitalocean/DigitalOcean-public.v2.yaml
-grep "/v2/vpcs" digitalocean/DigitalOcean-public.v2.yaml
-sed -n '2450,2550p' digitalocean/DigitalOcean-public.v2.yaml
+grep "paths:" digitalocean/DigitalOcean-public.v2.yaml | head -5
+sed -n '730,1230p' digitalocean/DigitalOcean-public.v2.yaml
+grep "(?:/v2/droplets|/v2/volumes|/v2/firewalls|/v2/vpcs|/v2/networks)" digitalocean/DigitalOcean-public.v2.yaml | head -100
+sed -n '1301,1451p' digitalocean/DigitalOcean-public.v2.yaml
+sed -n '2453,2553p' digitalocean/DigitalOcean-public.v2.yaml
 ```
 
 {% /tab %}
 {% tab label="Haiku 4.5 · run 3 · tree" %}
 
 ```bash
-Skill
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet" 2>/dev/null | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc\|volume\|firewall" 2>/dev/null | head -80
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" 2>/dev/null
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" 2>/dev/null
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" 2>/dev/null
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps 2>/dev/null | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=droplets_create --with-deps 2>/dev/null | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumes_create --with-deps 2>/dev/null | head -80
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_create --with-deps 2>/dev/null | head -100
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId 2>/dev/null | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="vpc network" 2>/dev/null | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="droplet create" 2>/dev/null | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="volume storage" 2>/dev/null | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall" 2>/dev/null | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps 2>/dev/null
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps 2>/dev/null
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps 2>/dev/null
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps 2>/dev/null
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes/{volume_id}/actions --operation=post --with-deps 2>/dev/null | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls/{firewall_id}/droplets --operation=post --with-deps 2>/dev/null | head -80
 ```
 
 {% /tab %}
 {% tab label="Haiku 4.5 · run 4 · no tree" %}
 
 ```bash
+Skill
 cat digitalocean/DigitalOcean-public.v2.yaml
+grep "/v2/vpcs|/v2/droplets|/v2/volumes|/v2/firewalls" digitalocean
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-digitalocean-control-nfsv3-haiku-r4/d0ac3879-d57b-4f0b-97e3-2623e22fdea7/tool-results/toolu_01CjCJgkhUpkXEqpVjGqphAQ.txt
+sed -n '2493,2543p' digitalocean/DigitalOcean-public.v2.yaml
+cat digitalocean/resources/vpcs/vpcs_create.yml
+cat digitalocean/resources/droplets/droplets_create.yml
+cat digitalocean/resources/droplets/models/droplet_single_create.yml
+cat digitalocean/resources/droplets/models/droplet_create.yml
+sed -n '100,150p' digitalocean/resources/droplets/models/droplet_create.yml
+cat digitalocean/resources/volumes/volumes_create.yml
+cat digitalocean/resources/volumes/models/volumes_ext4.yml
+cat digitalocean/resources/volumes/volumeActions_post_byId.yml
+cat digitalocean/resources/firewalls/firewalls_create.yml
 ```
 
 {% /tab %}
@@ -5053,34 +5113,30 @@ cat digitalocean/DigitalOcean-public.v2.yaml
 
 ```bash
 redocly tree --help
-ls -la digitalocean/DigitalOcean-public.v2.yaml
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="droplet" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="volume" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall" | head -50
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/droplets --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="attach" | grep -i volume
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/volumes --operation=post
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=volumeActions_post_byId --with-deps
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/firewalls --operation=post --with-deps | grep -A 50 "assign"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=firewalls_assign_droplets --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find droplet | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find volume | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find firewall | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find network | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find vpc
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/vpcs --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/droplets --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/volumes --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "attach" --head=30
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "attach" | head -30
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/firewalls --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/volumes/actions --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/firewalls/{firewall_id}/droplets --with-deps
 ```
 
 {% /tab %}
 {% tab label="Haiku 4.5 · run 5 · no tree" %}
 
 ```bash
-Skill
 cat digitalocean/DigitalOcean-public.v2.yaml
-grep "/v2/vpcs|/v2/droplets|/v2/volumes|/v2/firewalls" digitalocean | head -100
-cat digitalocean/resources/vpcs/examples/curl/vpcs_create.yml
-cat digitalocean/resources/droplets/examples/curl/droplets_create.yml
-cat digitalocean/resources/volumes/examples/curl/volumes_create.yml
-cat digitalocean/resources/volumes/examples/curl/volumeActions_attach.yml
-cat digitalocean/resources/firewalls/examples/curl/firewalls_create.yml
-cat digitalocean/resources/vpcs/vpcs_create.yml
-cat digitalocean/resources/droplets/droplets_create.yml
+grep "/v2/(vpcs|volumes|droplets|firewalls)"
+grep "/v2/(vpcs|volumes|droplets|firewalls)" digitalocean/DigitalOcean-public.v2.yaml
+sed -n '2450,2550p' digitalocean/DigitalOcean-public.v2.yaml
+sed -n '1301,1451p' digitalocean/DigitalOcean-public.v2.yaml
 ```
 
 {% /tab %}
@@ -5089,23 +5145,23 @@ cat digitalocean/resources/droplets/droplets_create.yml
 ```bash
 Skill
 redocly tree --help
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="vpc network private"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="network"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="droplet"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="volume"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="firewall"
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --operation=vpcs_create --with-deps
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/vpcs/vpcs_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/vpcs/responses/existing_vpc.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/droplets/droplets_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/droplets/models/droplet_single_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/droplets/models/droplet_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/volumes/volumes_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/volumes/models/volumes_ext4.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/firewalls/firewalls_create.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/firewalls/models/firewall.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/firewalls/models/firewall_rule.yml
-cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/resources/firewalls/firewalls_assign_droplets.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "droplet" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "network" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "firewall" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "attach" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --path=/v2/volumes --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --path=/v2/volumes/{volume_id}/actions --format=ai
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/vpcs/vpcs_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/vpcs/responses/existing_vpc.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/droplets/droplets_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/droplets/models/droplet_single_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/droplets/models/droplet_create.yml
+sed -n '100,150p' /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/droplets/models/droplet_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/volumes/volumes_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/volumes/volumeActions_post_byId.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/firewalls/firewalls_create.yml
+cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-haiku-r5/digitalocean/resources/firewalls/firewalls_assign_droplets.yml
 ```
 
 {% /tab %}
@@ -5116,6 +5172,759 @@ cat /Users/tora/bench-run/digitalocean-tree-help-local-haiku-r5/digitalocean/res
 
 Opus 5 passes on both sides and pays 33% more context through the index — 2,909 single-operation files named by what they do already are an index, and `cat vpcs/vpcs_create.yml` beats any card.
 Sonnet 5 gets every call right in four of five index runs and still passes none of them, because its answers never say how a call authenticates — with the requirement standing on the overview's own `security:` line. Haiku 4.5 lands two of five either way.
+
+{% /tab %}
+
+{% tab label="DigitalOcean NFS" %}
+
+**Description:** 2.62 MB across 2,909 files — the same description as the previous tab.
+
+**Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
+Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+The point of this task: it is the same description as the previous tab, but a corner DigitalOcean's tutorials do not cover — the mainstream droplet-and-firewall recipe is written up everywhere, network file shares are not. Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and `/` as an export path is reserved for the implicit default.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean/DigitalOcean-public.v2.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean/DigitalOcean-public.v2.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+Context the run added, and the tool calls it took (medians over the working runs):
+
+| Model           |        no tree |        tree | Difference |
+| --------------- | -------------: | ----------: | ---------: |
+| Sonnet 5 (n=5)  |    17,421 / 16 | 13,015 / 17 |       −25% |
+| Opus 5 (n=5)    |     16,427 / 8 | 23,653 / 15 |       +44% |
+| Haiku 4.5 (n=5) | 40,843 / 15 ❌ | 12,941 / 18 |          — |
+
+What those runs were billed:
+
+| Model           |  no tree |  tree | Difference |
+| --------------- | -------: | ----: | ---------: |
+| Sonnet 5 (n=5)  |    $0.53 | $0.43 |       −19% |
+| Opus 5 (n=5)    |    $0.72 | $0.77 |        +7% |
+| Haiku 4.5 (n=5) | $0.23 ❌ | $0.14 |          — |
+
+Whether each run produced a flow that would run:
+
+| Run               | no tree                                             | tree           |
+| ----------------- | --------------------------------------------------- | -------------- |
+| Sonnet 5 · run 1  | no share call, no access point call, no auth scheme | works          |
+| Sonnet 5 · run 2  | no auth scheme                                      | works          |
+| Sonnet 5 · run 3  | no auth scheme                                      | no auth scheme |
+| Sonnet 5 · run 4  | no auth scheme                                      | works          |
+| Sonnet 5 · run 5  | works                                               | no auth scheme |
+| Opus 5 · run 1    | works                                               | works          |
+| Opus 5 · run 2    | works                                               | works          |
+| Opus 5 · run 3    | works                                               | works          |
+| Opus 5 · run 4    | works                                               | works          |
+| Opus 5 · run 5    | works                                               | works          |
+| Haiku 4.5 · run 1 | no auth scheme                                      | works          |
+| Haiku 4.5 · run 2 | no access point call, no auth scheme                | works          |
+| Haiku 4.5 · run 3 | no auth scheme                                      | works          |
+| Haiku 4.5 · run 4 | no auth scheme                                      | no auth scheme |
+| Haiku 4.5 · run 5 | no access point call                                | works          |
+
+A run works when its flow contains `POST /v2/nfs` naming `name`, `size_gib`, `region` and `vpc_ids`, and the access-point create naming `path` and `vpc_id`, under `bearer_auth`.
+Creating the private networks first is optional: the task calls them "our" and "a different" private network, which reads as well on ids that already exist.
+
+What each run ran:
+
+{% tabs %}
+{% tab label="Sonnet 5" %}
+
+{% tabs %}
+{% tab label="Sonnet 5 · run 1 · no tree" %}
+
+```bash
+grep "-i \"nfs|file share|network file\"" digitalocean/DigitalOcean-public.v2.yaml
+grep "^  /v2/volumes|^  /v2/vpcs" digitalocean/DigitalOcean-public.v2.yaml
+sed -n '2453,2528p' digitalocean/DigitalOcean-public.v2.yaml
+find digitalocean/resources/volumes digitalocean/resources/vpcs -name "*.yml" | xargs -I{} echo {}
+cat digitalocean/resources/volumes/volumes_create.yml
+cat digitalocean/resources/volumes/models/volume_action_post_attach.yml
+cat digitalocean/resources/volumes/models/volume_action_post_base.yml
+cat digitalocean/resources/vpcs/vpcs_create.yml
+cat digitalocean/resources/vpcs/vpcs_create_peerings.yml
+grep "vpc_uuid|volumes:|user_data" digitalocean/resources/droplets/models/droplet_create.yml
+cat digitalocean/resources/droplets/models/droplet_create.yml
+grep "^  /v2/droplets:" digitalocean/DigitalOcean-public.v2.yaml
+grep -n "networks" -A 15 digitalocean/resources/droplets/models/droplet_full.yml 2>/dev/null | head -40
+grep "networks" digitalocean/resources/droplets
+grep "networks|v4|private\" | type\" |ip_address" digitalocean/resources/droplets/models/droplet.yml
+sed -n '1,40p' digitalocean/resources/droplets/models/network_v4.yml 2>/dev/null
+mkdir -p "/private/tmp/claude-501/-Users-tora-bench-run-donfs-control-nfsv3-sonnet-r1/5487e77c-b947-4a0c-912f-a10b3db22a40/scratchpad"
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "share" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path /v2/nfs --operation post --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component schemas --name nfs_request
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/nfs/models/nfs_request.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/nfs/models/nfs_create_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/nfs/models/nfs_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/nfs/models/nfs_request.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/nfs/models/nfs_create_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/nfs/models/nfs_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/nfs/models/access_point_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/nfs/models/access_policy.yml
+find . -path "*digitalocean/resources/nfs*" -name "*.yml" | sort
+cat ./digitalocean/resources/nfs/models/nfs_request.yml
+cat ./digitalocean/resources/nfs/models/access_point_request.yml
+cat ./digitalocean/resources/nfs/models/access_policy.yml
+cat ./digitalocean/resources/nfs/models/nfs_create_response.yml
+cat ./digitalocean/resources/nfs/models/nfs_response.yml
+cat ./digitalocean/resources/nfs/models/access_point_response.yml
+cat ./digitalocean/resources/nfs/nfs_access_point_create.yml
+cat ./digitalocean/resources/nfs/responses/access_point_create.yml
+cat ./digitalocean/resources/nfs/parameters.yml
+true
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · no tree" %}
+
+```bash
+grep -n -i "nfs\|file.*share\|fileshare" digitalocean/DigitalOcean-public.v2.yaml | head -100
+ls -la && echo "---create---" && cat nfs_create.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="share nfs" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs --operation=post --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_create_response
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_response
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=access_policy
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_create_response.yml --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_response.yml --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/access_policy.yml --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_create_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/access_policy.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/access_point_response.yml
+find digitalocean/resources/nfs -type f | sort
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+cat digitalocean/resources/nfs/models/nfs_create_response.yml
+cat digitalocean/resources/nfs/responses/access_point_create.yml
+cat digitalocean/resources/nfs/models/access_point_action_response.yml
+grep -n "share_id_path" -A5 digitalocean/resources/nfs/parameters.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · no tree" %}
+
+```bash
+grep "-i" digitalocean/DigitalOcean-public.v2.yaml
+grep "nfs|NFS|file.?share|export.?path|Filesystem" digitalocean/DigitalOcean-public.v2.yaml | head -100
+ls digitalocean/resources/nfs/
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models
+ls digitalocean/resources/nfs/models/ digitalocean/resources/nfs/responses/
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+cat digitalocean/resources/nfs/responses/nfs_create.yml
+cat digitalocean/resources/nfs/responses/access_point_create.yml
+cat digitalocean/resources/nfs/nfs_get.yml
+grep "/v2/vpcs" digitalocean/DigitalOcean-public.v2.yaml
+grep -n "" -A5 -B1 "^  /v2/vpcs:" digitalocean/DigitalOcean-public.v2.yaml | head -20; echo ---; find digitalocean/resources -iname "*vpc_create*"
+sed -n '2493,2518p' digitalocean/DigitalOcean-public.v2.yaml
+cat digitalocean/resources/vpcs/vpcs_create.yml
+cat digitalocean/resources/nfs/responses/access_point_bad_request.yml
+cat digitalocean/resources/vpcs/models/vpc.yml
+cat digitalocean/resources/nfs/models/nfs_create_response.yml
+cat digitalocean/resources/nfs/parameters.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find=nfs | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_create_response | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_response | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_response.yml | head -100
+cat digitalocean/resources/nfs/models/nfs_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -200
+cat digitalocean/resources/nfs/models/access_point_response.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs/access_points/{access_point_id} --operation=get --with-deps | head -60
+sed -n '1,90p' digitalocean/resources/nfs/parameters.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · no tree" %}
+
+```bash
+grep "nfs|shared_filesystem|shared-filesystem|SharedFilesystem|file.?share|network file\", \"case_insensitive" digitalocean/DigitalOcean-public.v2.yaml
+grep "-i" digitalocean/DigitalOcean-public.v2.yaml
+grep "nfs" digitalocean/DigitalOcean-public.v2.yaml | head -100
+ls digitalocean/resources/nfs/
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml 2>/dev/null; echo "---RESPONSE---"; cat digitalocean/resources/nfs/responses/nfs_create.yml 2>/dev/null
+cd digitalocean/resources/nfs; echo "--- nfs_create_response ---"; cat models/nfs_create_response.yml 2>/dev/null; echo "--- nfs share model (search) ---"; ls models;
+cd digitalocean/resources/nfs/models; echo "--- nfs_response ---"; cat nfs_response.yml; echo "--- access_point_request ---"; cat access_point_request.yml; echo "--- access_point_response ---"; cat access_point_response.yml; echo "--- access_policy ---"; cat access_policy.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cd digitalocean/resources/nfs; cat responses/access_point_create.yml; echo "---model---"; cat models/access_point_action_response.yml 2>/dev/null
+cat digitalocean/resources/nfs/parameters.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly --version; redocly tree digitalocean/DigitalOcean-public.v2.yaml --help | head -50
+which redocly; npm ls -g --depth=0 2>/dev/null | grep -i redocly; npx --yes @redocly/cli@latest --version | tail -5
+npx --yes @redocly/cli@latest tree --help | head -80
+npm view @redocly/cli version; npm view @redocly/cli versions --json | tail -20
+ls; find . -iname "*digitalocean*" 2>/dev/null | head -20
+npx --yes @redocly/cli@latest tree digitalocean/DigitalOcean-public.v2.yaml --format=ai | head -50
+npm view @redocly/cli@next version
+npm view @redocly/cli dist-tags --json
+npx --yes @redocly/cli@snapshot tree --help | head -60
+ls -la /opt/homebrew/bin/redocly; readlink -f /opt/homebrew/bin/redocly 2>/dev/null; cat /opt/homebrew/bin/redocly 2>/dev/null | head -5; find / -maxdepth 6 -iname "*redocly*" -type d 2>/dev/null | grep -v node_modules/.cache
+ls /Users/tora/Desktop/Projects/redocly-cli-tree; cat /Users/tora/Desktop/Projects/redocly-cli-tree/package.json 2>/dev/null | head -20
+ls packages/cli/bin 2>/dev/null; find . -maxdepth 3 -iname "cli.js" 2>/dev/null
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree --help | head -80
+alias rtree='node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree'
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs" | head -100
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path "/v2/nfs" --operation post --with-deps | head -250
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component schemas --name nfs_response | head -100
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4
+CLI="node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js"
+$CLI tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/nfs/models/nfs_create_response.yml
+$CLI tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/nfs/models/nfs_response.yml
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer digitalocean/resources/nfs/models/nfs_create_response.yml
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/models/nfs_response.yml
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path "/v2/nfs/shares/{share_id}/access_points" --operation post --with-deps
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/models/access_point_response.yml
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "list vpc" | head -30
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/models/nfs_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/models/access_point_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/models/access_policy.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/responses/nfs_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/responses/access_point_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/nfs_get.yml 2>/dev/null | head -40
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/nfs/parameters.yml
+node /Users/tora/Desktop/Projects/redocly-cli-tree/packages/cli/bin/cli.js tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path "/v2/vpcs" --operation get
+grep -n "id:\|name:\|region:\|urn:" /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/vpcs/models/*.yml 2>/dev/null | head -20
+find /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r4/digitalocean/resources/vpcs -iname "*vpc*.yml" | grep -i model
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · no tree" %}
+
+```bash
+grep -n -i "nfs\|file share\|export" digitalocean/DigitalOcean-public.v2.yaml | head -80
+D=digitalocean; find $D -path "*resources/nfs*"
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/models/nfs_create_response.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+cat digitalocean/resources/nfs/nfs_get.yml
+cat digitalocean/resources/nfs/parameters.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+cat digitalocean/resources/nfs/models/access_point_get_response.yml
+D=digitalocean/resources/nfs; cat $D/responses/access_point_create.yml; echo ---; cat $D/models/access_point_action_response.yml 2>/dev/null; echo ---; cat $D/models/nfs_action.yml
+cat digitalocean/resources/nfs/nfs_access_point_get.yml
+# write /private/tmp/claude-501/-Users-tora-bench-run-donfs-control-nfsv3-sonnet-r5/f6a72e9b-83d5-49c7-8e79-27f3be177f4c/scratchpad/nfs_flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="nfs" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_response | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_create_response | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_response.yml --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_response.yml | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --file=digitalocean/resources/nfs/models/nfs_create_response.yml | head -150
+find . -path "*nfs*" -name "*.yml" | grep -v examples | sort
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/models/nfs_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/models/nfs_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/models/access_point_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/models/access_point_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/models/access_policy.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/nfs_access_point_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/responses/access_point_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/responses/nfs_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resources/nfs/parameters.yml
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Opus 5" %}
+
+{% tabs %}
+{% tab label="Opus 5 · run 1 · no tree" %}
+
+```bash
+grep -n -i "nfs\|share" digitalocean/DigitalOcean-public.v2.yaml | head -100
+ls resources/nfs/ && cat resources/nfs/nfs_create.yml resources/nfs/nfs_access_point_create.yml
+ls models responses && cat models/nfs_request.yml models/access_point_request.yml
+cat models/access_policy.yml models/nfs_response.yml models/access_point_response.yml models/access_point_action_response.yml models/nfs_create_response.yml
+cat models/nfs_actions.yml models/nfs_action.yml nfs_actions_create.yml && cat parameters.yml && grep -rn -i "nfsv3\|NFS3\|version 3" . ../../ 2>/dev/null | head -20
+cat responses/access_point_bad_request.yml responses/access_point_conflict.yml responses/access_point_create.yml nfs_access_point_get.yml nfs_get.yml | head -120
+ls && cat models/vpc_create.yml 2>/dev/null || cat models/*.yml | head -80
+cat vpcs_create.yml && sed -n 1,60p responses/*create*.yml && cd ../nfs && sed -n 1,80p responses/nfs_create.yml
+sed -n 1,40p vpcs/responses/existing_vpc.yml; sed -n 1,60p nfs/responses/nfs_create.yml
+grep -rn "identity_enforcement\|NFS4" --include=*.yml . | grep -v "^./resources/nfs/models/access_policy" | head -30; sed -n 1,80p resources/nfs/responses/nfs_get.yml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 1 · tree" %}
+
+```bash
+redocly tree --help | head -80
+ls && ls digitalocean | head
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "file share" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create_access_point --with-deps | head -150
+for f in models/nfs_request.yml models/nfs_create_response.yml models/nfs_response.yml models/access_point_request.yml models/access_policy.yml models/access_point_response.yml models/access_point_action_response.yml models/nfs_action.yml parameters.yml; do echo "===== $f"; cat "$f"; done | head -300
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag NFS | head -40
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r1/digitalocean/resources/nfs/parameters.yml; echo ==== ; cat /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r1/digitalocean/resources/nfs/responses/access_point_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation vpcs_create --with-deps | head -40; echo "@@@@"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_get --with-deps | head -25; echo "@@@@"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_list --with-deps | head -25
+cat responses/access_point_create.yml responses/nfs_create.yml; echo "@@@ getAP"; cat nfs_access_point_get.yml
+cat digitalocean/resources/vpcs/models/vpc.yml; echo "@@@"; grep -rn "host" digitalocean/resources/nfs/ | head -20
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "regions list" | head -15; cat digitalocean/resources/nfs/responses/access_point_get.yml | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create_action --with-deps | head -20; echo "@@@"; ls digitalocean/resources/nfs/models/; echo "@@@"; cat digitalocean/resources/nfs/models/nfs_action_request.yml 2>/dev/null
+sed -n '1,60p' digitalocean/resources/nfs/models/nfs_actions.yml; echo "@@@ desc"; sed -n '1,40p' digitalocean/resources/nfs/nfs_actions_create.yml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · no tree" %}
+
+```bash
+grep -n -i "nfs\|file_storage\|shared_file\|share" digitalocean/DigitalOcean-public.v2.yaml | head -80
+ls -R && echo "=====" && for f in nfs_create.yml nfs_get.yml nfs_actions_create.yml nfs_access_point_create.yml nfs_access_point_get.yml; do echo "--- $f"; cat $f; done
+for f in models/nfs_request.yml models/nfs_response.yml models/access_point_request.yml models/access_point_response.yml models/access_policy.yml models/access_point_action_response.yml parameters.yml responses/nfs_create.yml responses/access_point_create.yml models/nfs_create_response.yml models/nfs_actions.yml; do echo "=== $f"; cat $f; done
+cat resources/nfs/responses/nfs_get.yml && echo "=== APGET" && cat resources/nfs/responses/access_point_get.yml && echo "=== VPC" && ls resources/vpcs && echo "---" && cat resources/vpcs/vpcs_create.yml 2>/dev/null | head -60
+cat models/vpc.yml && echo "=== resp" && cat responses/existing_vpc.yml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · tree" %}
+
+```bash
+redocly tree --help | head -60
+ls /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r2/digitalocean/
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="nfs" | head -80
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="file share" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create_access_point --with-deps | head -150
+for f in models/nfs_request.yml models/access_point_request.yml models/access_policy.yml models/nfs_create_response.yml models/nfs_response.yml models/access_point_response.yml models/access_point_action_response.yml parameters.yml; do echo "=== $f"; cat "$f"; done
+redocly tree /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r2/digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="vpc" | head -40
+for f in responses/nfs_create.yml responses/access_point_create.yml models/nfs_action.yml nfs_actions_create.yml nfs_get.yml nfs_access_point_get.yml; do echo "=== $f"; cat "$f"; done
+cat vpcs/vpcs_create.yml; echo "=== models"; ls vpcs/models; cat vpcs/models/vpc_base.yml 2>/dev/null; cat vpcs/models/vpc_create.yml 2>/dev/null
+cat vpcs/models/vpc.yml; echo "=== resp"; cat vpcs/responses/existing_vpc.yml
+cat models/nfs_actions.yml; echo "=== resp"; cat responses/nfs_actions.yml; echo "=== apbad"; cat responses/access_point_bad_request.yml
+grep -A4 "^servers:" digitalocean/DigitalOcean-public.v2.yaml | head; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="regions" | head -10
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+grep -n -i "nfs\|shared_storage\|share" digitalocean/DigitalOcean-public.v2.yaml | head -80
+ls && echo "=====" && cat nfs_create.yml
+ls models responses && echo "=== nfs_request" && cat models/nfs_request.yml && echo "=== nfs model" && cat models/nfs.yml 2>/dev/null
+for f in models/nfs_response.yml models/nfs_create_response.yml responses/nfs_create.yml models/access_point_request.yml models/access_point_response.yml models/access_policy.yml models/access_point_create_response.yml; do echo "=== $f"; cat $f 2>/dev/null; done
+for f in nfs_access_point_create.yml responses/access_point_create.yml models/access_point_get_response.yml nfs_actions_create.yml models/nfs_actions.yml models/nfs_action.yml models/nfs_actions_response.yml parameters.yml nfs_get.yml; do echo "=== $f"; cat $f; done
+ls && echo "=== create" && cat vpcs_create.yml && echo "=== model" && cat models/vpc.yml 2>/dev/null | head -60
+sed -n '/^vpc_create:/,/^$/p' models/vpc.yml && echo "=== resp" && cat responses/existing_vpc.yml && echo "=== ap_get" && cat ../nfs/nfs_access_point_get.yml && echo "=== ap_list" && cat ../nfs/nfs_access_point_list.yml
+cat responses/access_point_bad_request.yml responses/access_point_conflict.yml && echo "=== curl ex" && cat examples/curl/nfs_access_point_create.yml examples/curl/nfs_create.yml && sed -n '405,425p' ../../DigitalOcean-public.v2.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "file share" | head -60; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs" | head -60
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; for q in nfs share storage volume filesystem; do echo "--- $q"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "$q" | head -40; done
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create --with-deps | head -200
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; for f in models/nfs_request.yml models/nfs_create_response.yml models/nfs_response.yml models/access_point_response.yml models/access_policy.yml; do echo "=== $f"; cat digitalocean/resources/nfs/$f; done
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create_access_point --with-deps | head -60; echo "=== files"; ls digitalocean/resources/nfs digitalocean/resources/nfs/models digitalocean/resources/nfs/responses
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3/digitalocean/resources/nfs; cat models/access_point_request.yml models/access_point_action_response.yml models/nfs_action.yml models/nfs_actions.yml parameters.yml; echo "=== nfs_get"; cat nfs_get.yml models/nfs_get_response.yml; echo "=== ap get"; cat nfs_access_point_get.yml models/access_point_get_response.yml
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; cat digitalocean/resources/nfs/responses/nfs_create.yml digitalocean/resources/nfs/responses/access_point_create.yml; echo === ; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -30
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find vpc | head -30
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation vpcs_create --with-deps | head -30; echo; cat digitalocean/resources/vpcs/models/vpc*.yml 2>/dev/null | head -80
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3/digitalocean/resources/nfs; cat nfs_list.yml | head -30; echo "=== curl examples"; cat examples/curl/nfs_create.yml examples/curl/nfs_access_point_create.yml examples/curl/nfs_get.yml
+cd /Users/tora/bench-run/donfs-tree-help-nfsfix-opus-r3/digitalocean/resources/nfs; cat responses/access_point_get.yml responses/nfs_get.yml responses/access_point_list.yml | head -120
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
+grep "(?i)nfs|shared_file|file_share|share" digitalocean/DigitalOcean-public.v2.yaml | head -60
+ls digitalocean/resources/nfs/
+cat digitalocean/resources/nfs/nfs_create.yml
+ls models responses && echo "=== nfs_request ===" && cat models/nfs_request.yml && echo "=== nfs model ===" && ls models
+for f in nfs_response.yml nfs_create_response.yml access_point_request.yml access_point_response.yml access_policy.yml access_point_create_response.yml nfs_action.yml nfs_actions.yml; do echo "=== $f ==="; cat $f 2>/dev/null; done
+grep -n "vpcs" DigitalOcean-public.v2.yaml | head -30
+ls && echo "=== create ===" && cat vpcs_create.yml && echo "=== models ===" && ls models && cat models/vpc.yml 2>/dev/null
+cat models/access_point_action_response.yml && echo "=== list op ===" && cat nfs_access_point_list.yml && echo "=== ap_get ===" && cat nfs_access_point_get.yml && echo "=== resp nfs_create ===" && cat responses/nfs_create.yml
+cat responses/existing_vpc.yml && echo "=== curl example ===" && cat examples/curl/vpcs_create.yml
+cat examples/curl/nfs_create.yml examples/curl/nfs_access_point_create.yml examples/curl/nfs_get.yml 2>/dev/null; echo "=== resp nfs_get ==="; cat responses/nfs_get.yml
+grep -n "host" -r . | head; echo "---"; cat responses/access_point_get.yml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+redocly tree --help | head -80
+ls && ls digitalocean | head
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "file share" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create --with-deps | head -150
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create_access_point --with-deps | head -150
+for f in models/nfs_request.yml models/nfs_response.yml models/nfs_create_response.yml models/access_point_request.yml models/access_policy.yml models/access_point_response.yml responses/nfs_create.yml responses/access_point_create.yml models/nfs_action.yml; do echo "=== $f"; cat digitalocean/resources/nfs/$f; done | head -300
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation vpcs_create --with-deps | head -40; echo "###"; cat digitalocean/resources/vpcs/models/vpc_create.yml 2>/dev/null || ls digitalocean/resources/vpcs/models
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create_action --with-deps | head -40; echo "### GET AP"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_get --with-deps | head -25
+cat digitalocean/resources/nfs/parameters.yml; echo "=== vpc.yml"; cat digitalocean/resources/vpcs/models/vpc.yml
+cat digitalocean/resources/nfs/models/nfs_actions.yml; echo "=== AP get"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_get_access_point | head -12
+cat responses/access_point_get.yml models/access_point_action_response.yml models/nfs_action.yml responses/access_point_bad_request.yml | head -140
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs region availability"|head -10; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_list | head -8
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_list | head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+grep -n "shared_file_system\|filesystem\|Filesystem\|nfs\|NFS" digitalocean/DigitalOcean-public.v2.yaml | head -80
+ls && echo "=== CREATE ===" && cat nfs_create.yml
+ls models responses && echo "=== nfs_request ===" && cat models/nfs_request.yml && echo "=== nfs model ===" && cat models/nfs.yml 2>/dev/null
+for f in models/nfs_response.yml models/nfs_create_response.yml responses/nfs_create.yml models/access_point_request.yml models/access_point_response.yml models/access_policy.yml models/access_point_create.yml; do echo "=== $f ==="; cat $f 2>/dev/null; done
+for f in nfs_access_point_create.yml nfs_get.yml nfs_actions_create.yml parameters.yml models/nfs_actions.yml models/nfs_action.yml responses/access_point_create.yml responses/access_point_conflict.yml responses/access_point_bad_request.yml; do echo "=== $f ==="; cat $f; done
+grep -n "/v2/vpcs" DigitalOcean-public.v2.yaml | head -20; echo "---"; cat resources/vpcs/vpcs_create.yml; echo "=== model ==="; ls resources/vpcs/models; cat resources/vpcs/models/vpc.yml 2>/dev/null
+cat models/access_point_get_response.yml models/nfs_get_response.yml nfs_access_point_get.yml models/nfs_actions_response.yml; echo "=== curl create ==="; cat examples/curl/nfs_create.yml examples/curl/nfs_access_point_create.yml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help | head -100
+ls && ls digitalocean | head
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "file system" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs" | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create --with-deps | head -200
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create_access_point --with-deps | head -200
+for f in models/nfs_request.yml models/nfs_create_response.yml models/nfs_response.yml models/access_point_request.yml models/access_policy.yml models/access_point_response.yml models/access_point_action_response.yml models/nfs_action.yml responses/nfs_create.yml responses/access_point_create.yml parameters.yml; do echo "===== $f"; cat digitalocean/resources/nfs/$f; done | head -400
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "vpc" | head -40
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_create --with-deps | head -60; echo "#### vpc model"; cat digitalocean/resources/vpcs/models/vpc.yml 2>/dev/null | head -80; ls digitalocean/resources/vpcs/models
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_get_access_point --with-deps | head -40; echo ====; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_get --with-deps | head -40; echo ==== params; sed -n '40,90p' digitalocean/resources/nfs/parameters.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_get --with-deps | head -30; echo "PARAMS"; sed -n '40,90p' digitalocean/resources/nfs/parameters.yml; echo "GETRESP"; cat digitalocean/resources/nfs/responses/nfs_get.yml digitalocean/resources/nfs/models/nfs_get_response.yml 2>/dev/null | head -60
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create_action --with-deps | head -40; echo "ACTIONREQ"; ls digitalocean/resources/nfs/models;
+sed -n '1,80p' digitalocean/resources/nfs/nfs_actions_create.yml; echo "=== actions model"; cat digitalocean/resources/nfs/models/nfs_actions.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_list|head -20; echo ===; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_list_access_points|head -20
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "regions"|head -10; echo; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=vpcs_list|head -8
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Haiku 4.5" %}
+
+{% tabs %}
+{% tab label="Haiku 4.5 · run 1 · no tree" %}
+
+```bash
+Skill
+cat digitalocean/DigitalOcean-public.v2.yaml
+sed -n '1964,2464p' digitalocean/DigitalOcean-public.v2.yaml
+ls **/nfs_create.yml
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+cat digitalocean/resources/nfs/responses/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_create_response.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+cat digitalocean/resources/nfs/nfs_actions_create.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "space" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "file" | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "mount"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag | grep -i "storage\|nfs\|file" | head -30
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "NFS"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_create_access_point --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component schemas --name "NfsCreateResponse\|AccessPointResponse"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --pointer "digitalocean/resources/nfs/models/nfs_response.yml"
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1
+ls -la /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/responses/nfs_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/models/nfs_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/models/access_point_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/models/access_point_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/models/access_policy.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r1/digitalocean/resources/nfs/responses/access_point_create.yml
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --tag "NFS Actions"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "action" --path="/v2/nfs" | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/nfs"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/nfs/{nfs_id}"
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · no tree" %}
+
+```bash
+Skill
+cat digitalocean/DigitalOcean-public.v2.yaml
+find /Users/tora/Desktop/Projects/tree-bench-kit-v2 -name "*nfs*" -type f 2>/dev/null | head -20
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+find /Users/tora/Desktop/Projects/tree-bench-kit-v2 -name "access_point_request.yml" -type f 2>/dev/null
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/responses/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_create_response.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+find /Users/tora/Desktop/Projects/tree-bench-kit-v2 -name "access_point_response.yml" -type f 2>/dev/null
+cat digitalocean/resources/nfs/models/access_point_response.yml
+cat digitalocean/resources/nfs/nfs_get.yml
+find /Users/tora/Desktop/Projects/tree-bench-kit-v2 -name "access_policy.yml" -type f 2>/dev/null
+cat digitalocean/resources/nfs/models/access_policy.yml
+grep -r "nfs_access_point_get" digitalocean/resources/nfs/ 2>/dev/null
+cat digitalocean/resources/nfs/nfs_access_point_get.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="file"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="nfs"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_create_access_point --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_create_response
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | head -50
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r2/digitalocean/resources/nfs/models/nfs_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r2/digitalocean/resources/nfs/models/access_point_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r2/digitalocean/resources/nfs/models/access_policy.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r2/digitalocean/resources/nfs/models/access_point_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r2/digitalocean/resources/nfs/models/nfs_request.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · no tree" %}
+
+```bash
+Skill
+cat digitalocean/DigitalOcean-public.v2.yaml
+grep "paths:.*NFS|/v2/nfs|NFS|export|mount" digitalocean/DigitalOcean-public.v2.yaml | head -200
+sed -n '1964,2464p' digitalocean/DigitalOcean-public.v2.yaml
+find digitalocean -name "*nfs*" -type f | head -20
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "file"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "volume"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "space"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "export"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "nfs"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/nfs --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/nfs/shares --with-deps | head -100
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_create_response
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=access_point_response | head -50
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | grep -i "nfs\|access"
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r3/digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r3/digitalocean/resources/nfs/models/access_point_action_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r3/digitalocean/resources/nfs/models/nfs_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r3/digitalocean/resources/nfs/models/access_point_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r3/digitalocean/resources/nfs/models/access_policy.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · no tree" %}
+
+```bash
+Skill
+cat digitalocean/DigitalOcean-public.v2.yaml
+grep "(volumes|storage|file|nfs|mount|export)" digitalocean/DigitalOcean-public.v2.yaml | head -100
+ls /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs/digitalocean/resources/nfs/*.yml
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+cat digitalocean/resources/nfs/responses/access_point_create.yml
+cat digitalocean/resources/nfs/nfs_get.yml
+cat digitalocean/resources/nfs/responses/nfs_get.yml
+cat digitalocean/resources/nfs/nfs_access_point_get.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --find="volume" --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --find="network" --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --find="nfs" --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --find="file" --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --operation=post --path=/v2/nfs --with-deps --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --component=schemas --name=nfs_create_response --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --component=schemas --name=access_point_response --format=ai
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --component=schemas --format=ai | grep -i "nfs\|access" | head -20
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/models/nfs_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/responses/nfs_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/models/access_point_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/models/access_point_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/models/access_policy.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r4/digitalocean/resources/nfs/models/nfs_response.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · no tree" %}
+
+```bash
+cat digitalocean/DigitalOcean-public.v2.yaml
+cat digitalocean
+ls /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs/digitalocean/resources/nfs/*.yml
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/access_point_request.yml
+cat digitalocean/resources/nfs/models/nfs_response.yml
+cat digitalocean/resources/nfs/models/access_point_response.yml
+grep "vpc.*get|vpc.*list" digitalocean/DigitalOcean-public.v2.yaml
+cat digitalocean/resources/vpcs/models/vpc_response.yml
+ls /Users/tora/Desktop/Projects/tree-bench-kit-v2/specs/digitalocean/resources/vpcs/*.yml
+cat digitalocean/resources/vpcs/vpcs_list.yml
+cat digitalocean/resources/vpcs/responses/all_vpcs.yml
+cat digitalocean/resources/nfs/responses/nfs_create.yml
+cat digitalocean/resources/nfs/models/nfs_create_response.yml
+cat digitalocean/resources/nfs/responses/access_point_create.yml
+cat digitalocean/resources/nfs/models/access_policy.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · tree" %}
+
+```bash
+Skill
+redocly tree --help
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="nfs"
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/nfs --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_response
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | grep -i nfs | head -20
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="access_point" --with-deps | head -60
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/nfs_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/responses/nfs_create.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/models/nfs_create_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/models/nfs_response.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/models/access_point_request.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/models/access_policy.yml
+cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources/nfs/responses/access_point_create.yml
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% /tabs %}
+
+Haiku 4.5 moves from none of five to four of five — the largest single move in the grid, and the same mechanism as the Stripe Climate tab: without the index its answers name the right calls and never say how they authenticate, and with it they quote the `security:` line back.
+Sonnet 5 goes from one to three. Opus 5 passes either way and pays 44% more context through the index, because eleven NFS operations are cheap to grep and the cards arrive with the schemas attached.
+Read against the previous tab, this is the second prior-contamination control in the grid: the mainstream droplet task and this one sit on the same 2,909 files, and only the corner of the API changed.
 
 {% /tab %}
 
@@ -5604,84 +6413,93 @@ Haiku 4.5 passes all five control runs and drops two tree runs by losing the tok
 
 How many of the five runs in each cell produced a flow that would run:
 
-| Description    | Model     | no tree | tree |
-| -------------- | --------- | ------: | ---: |
-| GitHub REST    | Sonnet 5  |     5/5 |  5/5 |
-| GitHub REST    | Opus 5    |     5/5 |  5/5 |
-| GitHub REST    | Haiku 4.5 |     1/5 |  0/5 |
-| Billing API    | Sonnet 5  |     0/5 |  4/5 |
-| Billing API    | Opus 5    |     5/5 |  5/5 |
-| Billing API    | Haiku 4.5 |     0/5 |  2/5 |
-| Stripe         | Sonnet 5  |     0/5 |  0/5 |
-| Stripe         | Opus 5    |     4/5 |  5/5 |
-| Stripe         | Haiku 4.5 |     0/5 |  0/5 |
-| Stripe Climate | Sonnet 5  |     4/5 |  5/5 |
-| Stripe Climate | Opus 5    |     5/5 |  5/5 |
-| Stripe Climate | Haiku 4.5 |     0/5 |  5/5 |
-| PayPal Orders  | Sonnet 5  |     5/5 |  5/5 |
-| PayPal Orders  | Opus 5    |     5/5 |  5/5 |
-| PayPal Orders  | Haiku 4.5 |     1/5 |  3/5 |
-| DigitalOcean   | Sonnet 5  |     1/5 |  0/5 |
-| DigitalOcean   | Opus 5    |     5/5 |  5/5 |
-| DigitalOcean   | Haiku 4.5 |     2/5 |  2/5 |
-| Cafe API       | Sonnet 5  |     5/5 |  5/5 |
-| Cafe API       | Opus 5    |     5/5 |  5/5 |
-| Cafe API       | Haiku 4.5 |     5/5 |  3/5 |
+| Description      | Model     | no tree | tree |
+| ---------------- | --------- | ------: | ---: |
+| GitHub REST      | Sonnet 5  |     5/5 |  5/5 |
+| GitHub REST      | Opus 5    |     5/5 |  5/5 |
+| GitHub REST      | Haiku 4.5 |     1/5 |  0/5 |
+| Billing API      | Sonnet 5  |     0/5 |  4/5 |
+| Billing API      | Opus 5    |     5/5 |  5/5 |
+| Billing API      | Haiku 4.5 |     0/5 |  2/5 |
+| Stripe           | Sonnet 5  |     0/5 |  0/5 |
+| Stripe           | Opus 5    |     4/5 |  5/5 |
+| Stripe           | Haiku 4.5 |     0/5 |  0/5 |
+| Stripe Climate   | Sonnet 5  |     4/5 |  5/5 |
+| Stripe Climate   | Opus 5    |     5/5 |  5/5 |
+| Stripe Climate   | Haiku 4.5 |     0/5 |  5/5 |
+| PayPal Orders    | Sonnet 5  |     5/5 |  5/5 |
+| PayPal Orders    | Opus 5    |     5/5 |  5/5 |
+| PayPal Orders    | Haiku 4.5 |     1/5 |  3/5 |
+| DigitalOcean     | Sonnet 5  |     0/5 |  4/5 |
+| DigitalOcean     | Opus 5    |     5/5 |  5/5 |
+| DigitalOcean     | Haiku 4.5 |     1/5 |  1/5 |
+| DigitalOcean NFS | Sonnet 5  |     1/5 |  3/5 |
+| DigitalOcean NFS | Opus 5    |     5/5 |  5/5 |
+| DigitalOcean NFS | Haiku 4.5 |     0/5 |  4/5 |
+| Cafe API         | Sonnet 5  |     5/5 |  5/5 |
+| Cafe API         | Opus 5    |     5/5 |  5/5 |
+| Cafe API         | Haiku 4.5 |     5/5 |  3/5 |
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all five):
 
-| Description    | Model     |        no tree |           tree | Difference |
-| -------------- | --------- | -------------: | -------------: | ---------: |
-| GitHub REST    | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |        −9% |
-| GitHub REST    | Opus 5    |    16,870 / 11 |    14,681 / 11 |       −13% |
-| GitHub REST    | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |          — |
-| Billing API    | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |          — |
-| Billing API    | Opus 5    |    44,355 / 39 |    35,346 / 20 |       −20% |
-| Billing API    | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |          — |
-| Stripe         | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |        +4% |
-| Stripe         | Opus 5    |    24,339 / 25 |    33,751 / 17 |       +39% |
-| Stripe         | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |       −43% |
-| Stripe Climate | Sonnet 5  |     14,297 / 8 |      8,417 / 7 |       −41% |
-| Stripe Climate | Opus 5    |     14,761 / 8 |      9,888 / 8 |       −33% |
-| Stripe Climate | Haiku 4.5 |  14,305 / 8 ❌ |     9,823 / 12 |          — |
-| PayPal Orders  | Sonnet 5  |     9,857 / 12 |    17,435 / 10 |       +77% |
-| PayPal Orders  | Opus 5    |    18,038 / 11 |    21,656 / 20 |       +20% |
-| PayPal Orders  | Haiku 4.5 |     17,624 / 9 |    19,569 / 14 |       +11% |
-| DigitalOcean   | Sonnet 5  |    11,924 / 11 | 23,276 / 20 ❌ |          — |
-| DigitalOcean   | Opus 5    |    21,514 / 14 |    28,664 / 22 |       +33% |
-| DigitalOcean   | Haiku 4.5 |    40,107 / 17 |    21,495 / 19 |       −46% |
-| Cafe API       | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |       −36% |
-| Cafe API       | Opus 5    |     16,769 / 1 |    15,375 / 11 |        −8% |
-| Cafe API       | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |       −44% |
+| Description      | Model     |        no tree |          tree | Difference |
+| ---------------- | --------- | -------------: | ------------: | ---------: |
+| GitHub REST      | Sonnet 5  |    12,492 / 12 |    11,336 / 9 |        −9% |
+| GitHub REST      | Opus 5    |    16,870 / 11 |   14,681 / 11 |       −13% |
+| GitHub REST      | Haiku 4.5 |    13,058 / 11 |  6,880 / 7 ❌ |          — |
+| Billing API      | Sonnet 5  | 12,532 / 16 ❌ |   23,098 / 20 |          — |
+| Billing API      | Opus 5    |    44,355 / 39 |   35,346 / 20 |       −20% |
+| Billing API      | Haiku 4.5 | 25,809 / 18 ❌ |   19,777 / 18 |          — |
+| Stripe           | Sonnet 5  | 18,215 / 16 ❌ | 18,908 / 7 ❌ |        +4% |
+| Stripe           | Opus 5    |    24,339 / 25 |   33,751 / 17 |       +39% |
+| Stripe           | Haiku 4.5 | 35,056 / 14 ❌ | 19,929 / 9 ❌ |       −43% |
+| Stripe Climate   | Sonnet 5  |     14,297 / 8 |     8,417 / 7 |       −41% |
+| Stripe Climate   | Opus 5    |     14,761 / 8 |     9,888 / 8 |       −33% |
+| Stripe Climate   | Haiku 4.5 |  14,305 / 8 ❌ |    9,823 / 12 |          — |
+| PayPal Orders    | Sonnet 5  |     9,857 / 12 |   17,435 / 10 |       +77% |
+| PayPal Orders    | Opus 5    |    18,038 / 11 |   21,656 / 20 |       +20% |
+| PayPal Orders    | Haiku 4.5 |     17,624 / 9 |   19,569 / 14 |       +11% |
+| DigitalOcean     | Sonnet 5  | 17,177 / 13 ❌ |   20,377 / 16 |          — |
+| DigitalOcean     | Opus 5    |    23,324 / 14 |   26,045 / 19 |       +12% |
+| DigitalOcean     | Haiku 4.5 |    24,968 / 19 |   19,839 / 21 |       −21% |
+| DigitalOcean NFS | Sonnet 5  |    17,421 / 16 |   13,015 / 17 |       −25% |
+| DigitalOcean NFS | Opus 5    |     16,427 / 8 |   23,653 / 15 |       +44% |
+| DigitalOcean NFS | Haiku 4.5 | 40,843 / 15 ❌ |   12,941 / 18 |          — |
+| Cafe API         | Sonnet 5  |     16,935 / 1 |   10,849 / 10 |       −36% |
+| Cafe API         | Opus 5    |     16,769 / 1 |   15,375 / 11 |        −8% |
+| Cafe API         | Haiku 4.5 |     15,764 / 1 |    8,773 / 13 |       −44% |
 
 What those runs were billed:
 
-| Description    | Model     |  no tree |     tree | Difference |
-| -------------- | --------- | -------: | -------: | ---------: |
-| GitHub REST    | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
-| GitHub REST    | Opus 5    |    $0.63 |    $0.60 |        −5% |
-| GitHub REST    | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
-| Billing API    | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
-| Billing API    | Opus 5    |    $1.97 |    $1.12 |       −43% |
-| Billing API    | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
-| Stripe         | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
-| Stripe         | Opus 5    |    $1.40 |    $1.16 |       −17% |
-| Stripe         | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
-| Stripe Climate | Sonnet 5  |    $0.33 |    $0.26 |       −21% |
-| Stripe Climate | Opus 5    |    $0.57 |    $0.47 |       −18% |
-| Stripe Climate | Haiku 4.5 | $0.10 ❌ |    $0.10 |          — |
-| PayPal Orders  | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
-| PayPal Orders  | Opus 5    |    $0.71 |    $0.93 |       +31% |
-| PayPal Orders  | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
-| DigitalOcean   | Sonnet 5  |    $0.33 | $0.54 ❌ |          — |
-| DigitalOcean   | Opus 5    |    $0.68 |    $0.96 |       +41% |
-| DigitalOcean   | Haiku 4.5 |    $0.18 |    $0.18 |        −0% |
-| Cafe API       | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
-| Cafe API       | Opus 5    |    $0.65 |    $0.65 |        −0% |
-| Cafe API       | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
+| Description      | Model     |  no tree |     tree | Difference |
+| ---------------- | --------- | -------: | -------: | ---------: |
+| GitHub REST      | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
+| GitHub REST      | Opus 5    |    $0.63 |    $0.60 |        −5% |
+| GitHub REST      | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
+| Billing API      | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
+| Billing API      | Opus 5    |    $1.97 |    $1.12 |       −43% |
+| Billing API      | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
+| Stripe           | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
+| Stripe           | Opus 5    |    $1.40 |    $1.16 |       −17% |
+| Stripe           | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
+| Stripe Climate   | Sonnet 5  |    $0.33 |    $0.26 |       −21% |
+| Stripe Climate   | Opus 5    |    $0.57 |    $0.47 |       −18% |
+| Stripe Climate   | Haiku 4.5 | $0.10 ❌ |    $0.10 |          — |
+| PayPal Orders    | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
+| PayPal Orders    | Opus 5    |    $0.71 |    $0.93 |       +31% |
+| PayPal Orders    | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
+| DigitalOcean     | Sonnet 5  | $0.41 ❌ |    $0.47 |          — |
+| DigitalOcean     | Opus 5    |    $0.78 |    $0.78 |        −0% |
+| DigitalOcean     | Haiku 4.5 |    $0.19 |    $0.18 |        −5% |
+| DigitalOcean NFS | Sonnet 5  |    $0.53 |    $0.43 |       −19% |
+| DigitalOcean NFS | Opus 5    |    $0.72 |    $0.77 |        +7% |
+| DigitalOcean NFS | Haiku 4.5 | $0.23 ❌ |    $0.14 |          — |
+| Cafe API         | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
+| Cafe API         | Opus 5    |    $0.65 |    $0.65 |        −0% |
+| Cafe API         | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
 
-One hundred thirty-seven of 210 runs produced a flow that passes the check: 63 of 105 without the index, 74 of 105 with it.
-The strongest single move is Sonnet 5 on the billing API — zero of five without the index, four of five with it, on a description whose only consistent failure was the missing `REB-APIKEY` header that the card's `auth:` line now states.
+One hundred fifty-six of 240 runs produced a flow that passes the check: 67 of 120 without the index, 89 of 120 with it.
+Four cells move from at most one working run to three or more once the index is there: Sonnet 5 on the billing API and on DigitalOcean, Haiku 4.5 on Stripe Climate and on DigitalOcean NFS. In every one of them the control runs name the right calls and never say how they authenticate.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
 
@@ -5689,21 +6507,26 @@ Stripe splits the difference — the index cannot rescue a plan that starts from
 
 | Reason                                                                                      | Runs |
 | ------------------------------------------------------------------------------------------- | ---: |
-| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   54 |
+| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   78 |
 | the product (or price's product) is never created, though nothing exists yet                |   25 |
 | `POST /v1/prices` is missing — the flow starts from "your price id"                         |   14 |
 | no call to mint the GitHub App installation token, though the flow says it uses one         |    9 |
 | the plan/price step is missing                                                              |    5 |
 | no intent field                                                                             |    3 |
+| no attach                                                                                   |    3 |
+| no access point call                                                                        |    3 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                        |    2 |
 | no tracker call                                                                             |    2 |
+| `POST /v2/vpcs` is missing                                                                  |    2 |
 | the billing key is sent as `Authorization`, which this API rejects                          |    1 |
 | the asset delete is missing                                                                 |    1 |
 | no carrier field                                                                            |    1 |
 | no capture call                                                                             |    1 |
-| no attach                                                                                   |    1 |
-| `POST /v2/vpcs` is missing                                                                  |    1 |
 | the droplet is created outside the VPC — `vpc_uuid` is never set                            |    1 |
+| no share call                                                                               |    1 |
+| `POST /v2/droplets` is missing                                                              |    1 |
+| `POST /v2/volumes` is missing                                                               |    1 |
+| `POST /v2/firewalls` is missing                                                             |    1 |
 
 The two big classes are the same ones every earlier round found: authentication that never reaches the request, and a resource the flow depends on but never creates.
 Stripe adds a sharper version of the second: the model does not miss the call, it assumes the object — "your price id" — because that is how most Stripe tutorials read.
