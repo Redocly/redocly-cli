@@ -20,7 +20,9 @@ A difference is printed only where both sides carry the same mark.
 
 {% tabs %}
 
-{% tab label="GitHub REST · 10.0 MB" %}
+{% tab label="GitHub REST" %}
+
+**Description:** 9.52 MB in one file.
 
 **Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
 Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
@@ -627,7 +629,9 @@ Haiku 4.5 fails the same way each time — it declares an installation token it 
 
 {% /tab %}
 
-{% tab label="Billing API · 1.3 MB" %}
+{% tab label="Billing API" %}
+
+**Description:** 1.25 MB in one file.
 
 **Task:** put an existing customer onto a recurring plan, with nothing else set up yet.
 Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
@@ -1620,7 +1624,9 @@ The sign flips on context for Sonnet 5 (+84%) because its five cheap control run
 
 {% /tab %}
 
-{% tab label="Stripe · 6.1 MB" %}
+{% tab label="Stripe" %}
+
+**Description:** 6.07 MB in one file.
 
 **Task:** a paid tier with a 14-day free trial, billed monthly on the customer's saved card.
 Expected: `POST /v1/products` → `POST /v1/prices` → `POST /v1/subscriptions`.
@@ -2580,11 +2586,13 @@ The index does not fix a plan that starts from the wrong premise; it just makes 
 
 {% /tab %}
 
-{% tab label="Stripe Climate · same 6.1 MB" %}
+{% tab label="Stripe Climate" %}
+
+**Description:** 6.07 MB in one file — the same file as the previous tab.
 
 **Task:** buy carbon removal — pick a product from what's on offer, order a set number of metric tons, and be able to cancel before delivery.
 Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
-The point of this description: it is the same 6.1 MB Stripe file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
+The point of this description: it is the same file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
 
 {% tabs %}
 {% tab label="Prompt: no tree" %}
@@ -3127,7 +3135,9 @@ Set against the previous tab, this is the prior-contamination experiment: same f
 
 {% /tab %}
 
-{% tab label="PayPal Orders · 0.9 MB" %}
+{% tab label="PayPal Orders" %}
+
+**Description:** 0.93 MB in one file, JSON rather than YAML.
 
 **Task:** take the buyer's payment for a cart, capture it once they approve, and file the shipment's tracking number against that payment.
 Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
@@ -4298,7 +4308,9 @@ Haiku 4.5 goes from one working run to three: what it gains from the cards is th
 
 {% /tab %}
 
-{% tab label="DigitalOcean · 2,909 files" %}
+{% tab label="DigitalOcean" %}
+
+**Description:** 2.62 MB across 2,909 files.
 
 **Task:** one server in its own private network, an extra storage volume attached, and a firewall that lets in only SSH and HTTPS.
 Expected: `POST /v2/vpcs` → `POST /v2/droplets` → `POST /v2/volumes` → the volume attach action → `POST /v2/firewalls`.
@@ -5107,7 +5119,9 @@ Sonnet 5 gets every call right in four of five index runs and still passes none 
 
 {% /tab %}
 
-{% tab label="Cafe API · 41 KB" %}
+{% tab label="Cafe API" %}
+
+**Description:** 0.04 MB in one file.
 
 **Task:** a customer app that browses the menu, orders a coffee, and follows the order until it is ready.
 Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
@@ -5579,7 +5593,7 @@ redocly tree cafe.yaml --format=ai --component=securitySchemes
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5 and Opus 5 pass everything; Sonnet 5 answers with 36% less context through the index even here, where the alternative is one read of a 41 KB file.
+Sonnet 5 and Opus 5 pass everything; Sonnet 5 answers with 36% less context through the index even here, where the alternative is one read of the whole file.
 Haiku 4.5 passes all five control runs and drops two tree runs by losing the token call among the cards.
 
 {% /tab %}
