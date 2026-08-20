@@ -1,6 +1,7 @@
 import {
   isPlainObject,
   type ApiOverview,
+  type DependencyGraph,
   type SecurityView,
   type ComponentCard,
   type ComponentListCard,
@@ -108,6 +109,61 @@ function aiSecurityLine(label: string, security: SecurityView): string {
       .join(' + ');
   });
   return `${label}: ${alternatives.join(' | ')}`;
+}
+
+/** Above this many files the graph collapses to per-directory counts, as the overview does for tags. */
+const FILE_GRAPH_EXPAND_LIMIT = 40;
+const FILE_GRAPH_DIRECTORY_LIMIT = 20;
+
+/**
+ * The file graph for an agent: a description split into thousands of files has a graph whose full
+ * node-and-link dump is larger than most of the description, so past a threshold it collapses to
+ * directory counts — the same trade the overview makes when it stops listing every operation.
+ * `--format=json` still returns the whole graph for tooling.
+ */
+export function renderAiFileGraph(graph: DependencyGraph): string {
+  const unresolved = graph.nodes.filter((node) => !node.resolved).length;
+  const external = graph.nodes.filter((node) => node.external).length;
+  const lines = [
+    `files · ${count(graph.nodes.length, 'file')} · ${count(graph.edges.length, 'link')}` +
+      (external > 0 ? ` · ${count(external, 'external file')}` : '') +
+      (unresolved > 0 ? ` · ${count(unresolved, 'unresolved ref')}` : ''),
+  ];
+  if (graph.roots.length > 0) lines.push(`root: ${graph.roots.join(' · ')}`);
+
+  if (graph.nodes.length <= FILE_GRAPH_EXPAND_LIMIT) {
+    const outgoing = new Map<string, number>();
+    for (const edge of graph.edges) outgoing.set(edge.from, (outgoing.get(edge.from) ?? 0) + 1);
+    for (const node of graph.nodes) {
+      const links = outgoing.get(node.id) ?? 0;
+      const marks =
+        (node.external === true ? ' · external' : '') + (node.resolved ? '' : ' · unresolved');
+      lines.push(`${node.id}${links > 0 ? ` · ${count(links, 'ref')}` : ''}${marks}`);
+    }
+  } else {
+    const byDirectory = new Map<string, number>();
+    for (const node of graph.nodes) {
+      const slash = node.id.lastIndexOf('/');
+      const directory = slash === -1 ? '.' : node.id.slice(0, slash);
+      byDirectory.set(directory, (byDirectory.get(directory) ?? 0) + 1);
+    }
+    const ordered = [...byDirectory].sort(
+      (left, right) => right[1] - left[1] || left[0].localeCompare(right[0])
+    );
+    lines.push(
+      'directories: ' +
+        ordered
+          .slice(0, FILE_GRAPH_DIRECTORY_LIMIT)
+          .map(([directory, total]) => `${directory} ${total}`)
+          .join(' · ')
+    );
+    if (ordered.length > FILE_GRAPH_DIRECTORY_LIMIT) {
+      const rest = ordered.length - FILE_GRAPH_DIRECTORY_LIMIT;
+      lines.push(`… ${rest} more director${rest === 1 ? 'y' : 'ies'}`);
+    }
+  }
+  lines.push('next: --file=<path> [--used-by] · --files --format=json for the whole graph');
+  return lines.join('\n');
 }
 
 function renderAiOverview(

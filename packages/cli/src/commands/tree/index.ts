@@ -56,6 +56,7 @@ import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildGraph } from './build-graph.js';
 import { commonDir, toNodeId } from './node-id.js';
+import { renderAiFileGraph } from './print/ai.js';
 import { renderJson } from './print/json.js';
 import { renderStylish, type StylishOptions } from './print/stylish.js';
 import { renderView } from './print/views.js';
@@ -871,7 +872,7 @@ function renderGraph(
   format: TreeFormat,
   stylishOptions: StylishOptions
 ): string {
-  return format === 'stylish'
-    ? renderStylish(graph, stylishOptions)
-    : renderJson(graph, { compact: format === 'ai' });
+  if (format === 'stylish') return renderStylish(graph, stylishOptions);
+  if (format === 'ai') return renderAiFileGraph(graph);
+  return renderJson(graph);
 }

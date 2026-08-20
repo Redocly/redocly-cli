@@ -1755,6 +1755,60 @@ openapi.yaml
 `--files` shows how a description is split across files instead of its paths, operations, and components; a single bundled file has no file-level `$ref`s, so its `--files` graph is just the root.
 It doesn't accept the typed selectors, `--operations`/`--webhooks`, `--used-by`, or `--with-deps` — `--file` is the one exception, and filters the graph instead of selecting from it (see below).
 
+`--format=ai` reports the same graph as a flat list — every file with how many refs leave it, and any that is external or unresolved marked as such:
+
+```bash
+redocly tree cafe-split/cafe.yaml --files --format=ai
+```
+
+```
+files · 40 files · 89 links
+root: cafe.yaml
+cafe.yaml · 9 refs
+components/parameters/After.yaml
+components/parameters/Before.yaml
+components/parameters/Filter.yaml
+components/parameters/Limit.yaml
+components/parameters/MenuItemId.yaml
+components/parameters/OrderId.yaml
+components/parameters/PhotoSize.yaml
+components/parameters/Search.yaml
+components/parameters/Sort.yaml
+components/responses/BadRequest.yaml · 1 ref
+components/responses/Conflict.yaml · 1 ref
+components/responses/Forbidden.yaml · 1 ref
+components/responses/InternalServerError.yaml · 1 ref
+components/responses/NotFound.yaml · 1 ref
+components/responses/Unauthorized.yaml · 1 ref
+components/schemas/Beverage.yaml · 1 ref
+components/schemas/Dessert.yaml · 1 ref
+components/schemas/Error.yaml
+components/schemas/MenuBaseItem.yaml
+components/schemas/MenuItem.yaml · 2 refs
+components/schemas/MenuItemList.yaml · 2 refs
+components/schemas/OAuth2Client.yaml
+components/schemas/Order.yaml · 1 ref
+components/schemas/OrderItem.yaml · 1 ref
+components/schemas/OrderList.yaml · 2 refs
+components/schemas/OrderNotification.yaml · 1 ref
+components/schemas/OrderStatus.yaml
+components/schemas/Page.yaml
+components/schemas/RegisterClientObject.yaml
+components/schemas/RevenueStatistics.yaml
+paths/menu-item-images_{menuItemId}.yaml · 4 refs
+paths/menu.yaml · 13 refs
+paths/menu_{menuItemId}.yaml · 6 refs
+paths/oauth2_register.yaml · 5 refs
+paths/order-items.yaml · 7 refs
+paths/orders.yaml · 12 refs
+paths/orders_{orderId}.yaml · 8 refs
+paths/revenue.yaml · 5 refs
+webhooks/order-notification.yaml · 3 refs
+next: --file=<path> [--used-by] · --files --format=json for the whole graph
+```
+
+Past 40 files the list gives way to per-directory counts, the same trade the overview makes when it stops listing every operation: a description split into thousands of files has a graph larger than most of the description itself, and `--format=json` is there when the whole thing is what's wanted.
+
 The example below runs against a multi-file version of the same API (a directory produced by [split](./split.md)).
 
 ```bash

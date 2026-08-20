@@ -11,6 +11,7 @@ import type {
 } from '@redocly/openapi-core';
 
 import type { PointerCard, TreeView } from '../index.js';
+import { renderAiFileGraph } from '../print/ai.js';
 import { renderView, renderViewStylish } from '../print/views.js';
 
 describe('renderViewStylish', () => {
@@ -893,6 +894,41 @@ describe('renderView (ai)', () => {
 
       Use --tag=<name> for a tag’s operations."
     `);
+  });
+
+  it('renders the ai file graph, collapsing to directories past the expand limit', () => {
+    const small = {
+      nodes: [
+        { id: 'openapi.yaml', resolved: true, root: true },
+        { id: 'paths/tickets.yaml', resolved: true },
+        { id: 'missing.yaml', resolved: false },
+      ],
+      edges: [{ from: 'openapi.yaml', to: 'paths/tickets.yaml' }],
+      roots: ['openapi.yaml'],
+    };
+    expect(renderAiFileGraph(small as never)).toMatchInlineSnapshot(`
+      "files · 3 files · 1 link · 1 unresolved ref
+      root: openapi.yaml
+      openapi.yaml · 1 ref
+      paths/tickets.yaml
+      missing.yaml · unresolved
+      next: --file=<path> [--used-by] · --files --format=json for the whole graph"
+    `);
+
+    // A description split into thousands of files has a graph bigger than most of the
+    // description; past the limit it reports shape instead of dumping every node.
+    const large = {
+      nodes: Array.from({ length: 60 }, (_, index) => ({
+        id: `resources/${index % 3 === 0 ? 'droplets' : 'volumes'}/file${index}.yml`,
+        resolved: true,
+      })),
+      edges: [],
+      roots: ['openapi.yaml'],
+    };
+    const rendered = renderAiFileGraph(large as never);
+    expect(rendered).toContain('files · 60 files · 0 links');
+    expect(rendered).toContain('directories: resources/volumes 40 · resources/droplets 20');
+    expect(rendered).not.toContain('file7.yml');
   });
 
   it('renders an ai components listing', () => {
