@@ -1,4 +1,10 @@
-import type { OASStatsAccumulator, AsyncAPIStatsAccumulator } from '../../typings/common.js';
+import { isRef } from '../../ref-utils.js';
+import type {
+  AsyncAPIStatsAccumulator,
+  OASStatsAccumulator,
+  StatsAccumulator,
+  StatsRow,
+} from '../../typings/common.js';
 import type {
   Oas3Link,
   Oas3Operation,
@@ -8,9 +14,79 @@ import type {
   OasRef,
 } from '../../typings/openapi.js';
 import type { Oas2Parameter } from '../../typings/swagger.js';
+import type { UserContext } from '../../walk.js';
+
+function countExtension(row: StatsRow, ctx: UserContext) {
+  if (isRef(ctx.parent)) return;
+  const extensionName = ctx.key.toString();
+  const counts = (row.counts ??= {});
+  counts[extensionName] = (counts[extensionName] ?? 0) + 1;
+}
+
+function finalizeStats(statsAccumulator: StatsAccumulator) {
+  for (const row of Object.values(statsAccumulator)) {
+    if (row.items) {
+      row.total = row.items.size;
+    }
+  }
+  const { xExtensions } = statsAccumulator;
+  const counts = xExtensions.counts ?? {};
+  const extensionNames = Object.keys(counts).sort();
+  xExtensions.total = extensionNames.length;
+  xExtensions.counts = Object.fromEntries(extensionNames.map((name) => [name, counts[name]]));
+}
 
 export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
   return {
+    SpecExtension: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    XCodeSampleList: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    ExamplesMap: {
+      enter(_node: unknown, ctx: UserContext) {
+        if (ctx.key.toString() === 'x-examples') {
+          countExtension(statsAccumulator.xExtensions, ctx);
+        }
+      },
+    },
+    EnumDescriptions: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    TagGroups: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    Logo: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    XServerList: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    XUsePkce: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
+    Operation: {
+      enter(_node: unknown, ctx: UserContext) {
+        if (ctx.key.toString() === 'x-query') {
+          countExtension(statsAccumulator.xExtensions, ctx);
+        }
+      },
+    },
     ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
@@ -32,6 +108,11 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
       },
     },
     WebhooksMap: {
+      enter(_node: unknown, ctx: UserContext) {
+        if (ctx.key.toString() === 'x-webhooks') {
+          countExtension(statsAccumulator.xExtensions, ctx);
+        }
+      },
       Operation: {
         leave(operation: Oas3Operation) {
           statsAccumulator.webhooks.total++;
@@ -74,10 +155,7 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
     },
     Root: {
       leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.links.total = statsAccumulator.links.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        finalizeStats(statsAccumulator);
       },
     },
   };
@@ -85,6 +163,11 @@ export const StatsOAS = (statsAccumulator: OASStatsAccumulator) => {
 
 export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
   return {
+    SpecExtension: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
     ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
@@ -116,10 +199,8 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
           },
         },
         Parameter: {
-          leave(parameter: any) {
-            if (parameter.name) {
-              statsAccumulator.parameters.items!.add(parameter.name);
-            }
+          leave(_: unknown, { key }: UserContext) {
+            statsAccumulator.parameters.items!.add(key.toString());
           },
         },
       },
@@ -133,9 +214,7 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
     },
     Root: {
       leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        finalizeStats(statsAccumulator);
       },
     },
   };
@@ -143,6 +222,11 @@ export const StatsAsync2 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
 
 export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
   return {
+    SpecExtension: {
+      enter(_node: unknown, ctx: UserContext) {
+        countExtension(statsAccumulator.xExtensions, ctx);
+      },
+    },
     ExternalDocs: {
       leave() {
         statsAccumulator.externalDocs.total++;
@@ -164,10 +248,8 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
           statsAccumulator.channels.total++;
         },
         Parameter: {
-          leave(parameter: any) {
-            if (parameter.name) {
-              statsAccumulator.parameters.items!.add(parameter.name);
-            }
+          leave(_: unknown, { key }: UserContext) {
+            statsAccumulator.parameters.items!.add(key.toString());
           },
         },
       },
@@ -193,9 +275,7 @@ export const StatsAsync3 = (statsAccumulator: AsyncAPIStatsAccumulator) => {
     },
     Root: {
       leave() {
-        statsAccumulator.parameters.total = statsAccumulator.parameters.items!.size;
-        statsAccumulator.refs.total = statsAccumulator.refs.items!.size;
-        statsAccumulator.tags.total = statsAccumulator.tags.items!.size;
+        finalizeStats(statsAccumulator);
       },
     },
   };
