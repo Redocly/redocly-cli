@@ -308,7 +308,7 @@ function findPropertyOverlap(
     return null;
   }
 
-  if (requiredSetsDistinguish(comparison)) return null;
+  if (schemasRequireDifferentProperties(comparison)) return null;
   if (comparison.sharedNames.length === 0) return null;
 
   const shared = classifySharedProperties(comparison, resolve);
@@ -352,28 +352,19 @@ function collectPropertyComparison(
   };
 }
 
-function requiredSetsDistinguish({
+function schemasRequireDifferentProperties({
   leftProperties,
   rightProperties,
   leftRequired,
   rightRequired,
-  sharedNames,
 }: PropertyComparison): boolean {
-  if (leftRequired.size === 0 || rightRequired.size === 0) return false;
-
-  const sharedNameIsRequired = sharedNames.some(
-    (name) => leftRequired.has(name) || rightRequired.has(name)
-  );
-  if (!hasIntersection(leftRequired, rightRequired) && !sharedNameIsRequired) return true;
-
-  // A property required by both sides distinguishes nothing, no matter where it is declared.
-  const leftRequiresUndeclared = [...leftRequired].some(
+  const leftRequiresPropertyUnknownToRight = [...leftRequired].some(
     (name) => !getOwn(rightProperties, name) && !rightRequired.has(name)
   );
-  const rightRequiresUndeclared = [...rightRequired].some(
+  const rightRequiresPropertyUnknownToLeft = [...rightRequired].some(
     (name) => !getOwn(leftProperties, name) && !leftRequired.has(name)
   );
-  return leftRequiresUndeclared && rightRequiresUndeclared;
+  return leftRequiresPropertyUnknownToRight && rightRequiresPropertyUnknownToLeft;
 }
 
 function classifySharedProperties(
