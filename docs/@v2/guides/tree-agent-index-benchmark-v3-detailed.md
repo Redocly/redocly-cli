@@ -23,7 +23,7 @@ A difference is printed only where both sides carry the same mark.
 
 {% tabs %}
 
-{% tab label="GitHub REST" %}
+{% tab label="GitHub REST · publish a release" %}
 
 **Description:** 9.52 MB in one file.
 
@@ -107,7 +107,7 @@ A run works when its flow contains the installation token call, `POST /releases`
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · publish a release" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -279,7 +279,7 @@ redocly tree github-api.yaml --format=ai --operation=apps/create-installation-ac
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · publish a release" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -468,7 +468,7 @@ R=/Users/tora/bench-builds/local/bin/redocly; $R tree github-api.yaml --format=a
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · publish a release" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -632,7 +632,7 @@ Haiku 4.5 fails the same way each time — it declares an installation token it 
 
 {% /tab %}
 
-{% tab label="Billing API" %}
+{% tab label="Billing API · start a subscription" %}
 
 **Description:** 1.25 MB in one file.
 
@@ -716,7 +716,7 @@ A run works when its flow contains `POST /products`, `POST /plans` and `POST /su
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · start a subscription" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -999,7 +999,7 @@ redocly tree rebilly.yaml --format=ai --pointer="#/components/schemas/CurrencyCo
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · start a subscription" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -1388,7 +1388,7 @@ redocly tree rebilly.yaml --format=ai --operation=PutCustomer|sed -n '3p'|head -
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · start a subscription" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -1627,7 +1627,7 @@ The sign flips on context for Sonnet 5 (+84%) because its five cheap control run
 
 {% /tab %}
 
-{% tab label="Stripe" %}
+{% tab label="Stripe · subscription with a trial" %}
 
 **Description:** 6.07 MB in one file.
 
@@ -1712,7 +1712,7 @@ A flow that starts from "your price id" assumes a catalog the task says does not
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · subscription with a trial" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -1887,7 +1887,7 @@ redocly tree stripe.yaml --format=ai --path=/v1/customers/{customer}/payment_met
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · subscription with a trial" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -2400,7 +2400,7 @@ cd /Users/tora/bench-run/stripe-tree-help-local-opus-r5; redocly tree stripe.yam
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · subscription with a trial" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -2589,7 +2589,7 @@ The index does not fix a plan that starts from the wrong premise; it just makes 
 
 {% /tab %}
 
-{% tab label="Stripe Climate" %}
+{% tab label="Stripe · buy carbon removal" %}
 
 **Description:** 6.07 MB in one file — the same file as the previous tab.
 
@@ -2673,7 +2673,7 @@ A run works when its flow contains the product listing, the order create naming 
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · buy carbon removal" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -2823,7 +2823,7 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=ge
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · buy carbon removal" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -2964,7 +2964,7 @@ redocly tree climate.yaml --format=ai | head -30; echo "=== UPDATE ==="; redocly
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · buy carbon removal" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -3138,7 +3138,7 @@ Set against the previous tab, this is the prior-contamination experiment: same f
 
 {% /tab %}
 
-{% tab label="PayPal Orders" %}
+{% tab label="PayPal Orders · capture and track" %}
 
 **Description:** 0.93 MB in one file, JSON rather than YAML.
 
@@ -3222,7 +3222,7 @@ A run works when its flow contains the order create naming `intent` and `purchas
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · capture and track" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -3519,7 +3519,7 @@ redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 -
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · capture and track" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -4131,7 +4131,7 @@ import json;d=json.load(open('paypal.json'));print(d['components']['schemas']['o
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · capture and track" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -4311,7 +4311,7 @@ Haiku 4.5 goes from one working run to three: what it gains from the cards is th
 
 {% /tab %}
 
-{% tab label="DigitalOcean" %}
+{% tab label="DigitalOcean · server, disk, firewall" %}
 
 **Description:** 2.62 MB across 2,909 files.
 
@@ -4395,7 +4395,7 @@ A run works when its flow contains `POST /v2/vpcs`, `POST /v2/droplets` with `vp
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · server, disk, firewall" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -4634,7 +4634,7 @@ cat /Users/tora/bench-run/digitalocean-tree-help-nfsfix-sonnet-r5/digitalocean/r
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · server, disk, firewall" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -4870,7 +4870,7 @@ grep -n -A6 "status:" digitalocean/resources/actions/models/action.yml | head -2
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · server, disk, firewall" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -5178,7 +5178,7 @@ Sonnet 5 gets every call right in four of five index runs and still passes none 
 
 {% /tab %}
 
-{% tab label="DigitalOcean NFS" %}
+{% tab label="DigitalOcean · shared file storage" %}
 
 **Description:** 2.62 MB across 2,909 files — the same description as the previous tab.
 
@@ -5263,7 +5263,7 @@ Creating the private networks first is optional: the task calls them "our" and "
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · shared file storage" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -5515,7 +5515,7 @@ cat /Users/tora/bench-run/donfs-tree-help-nfsfix-sonnet-r5/digitalocean/resource
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · shared file storage" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -5694,7 +5694,7 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "region
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · shared file storage" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -5925,13 +5925,13 @@ cat /Users/tora/bench-run/donfs-tree-help-nfsfix-haiku-r5/digitalocean/resources
 {% /tab %}
 {% /tabs %}
 
-Haiku 4.5 moves from none of five to four of five — the largest single move in the grid, and the same mechanism as the Stripe Climate tab: without the index its answers name the right calls and never say how they authenticate, and with it they quote the `security:` line back.
+Haiku 4.5 moves from none of five to four of five — the largest single move in the grid, and the same mechanism as the carbon-removal tab: without the index its answers name the right calls and never say how they authenticate, and with it they quote the `security:` line back.
 Sonnet 5 goes from one to three. Opus 5 passes either way and pays 44% more context through the index, because eleven NFS operations are cheap to grep and the cards arrive with the schemas attached.
 Read against the previous tab, this is the second prior-contamination control in the grid: the mainstream droplet task and this one sit on the same 2,909 files, and only the corner of the API changed.
 
 {% /tab %}
 
-{% tab label="Cafe API" %}
+{% tab label="Cafe API · order a coffee" %}
 
 **Description:** 0.04 MB in one file.
 
@@ -6013,7 +6013,7 @@ A run works when its flow contains `POST /oauth2/token`, `GET /menu`, `POST /ord
 What each run ran:
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Sonnet 5 · order a coffee" %}
 
 {% tabs %}
 {% tab label="Sonnet 5 · run 1 · no tree" %}
@@ -6152,7 +6152,7 @@ redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --opera
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Opus 5 · order a coffee" %}
 
 {% tabs %}
 {% tab label="Opus 5 · run 1 · no tree" %}
@@ -6274,7 +6274,7 @@ redocly tree cafe.yaml --format=ai --operation=listOrders | head -12
 {% /tabs %}
 
 {% /tab %}
-{% tab label="Haiku 4.5" %}
+{% tab label="Haiku 4.5 · order a coffee" %}
 
 {% tabs %}
 {% tab label="Haiku 4.5 · run 1 · no tree" %}
@@ -6416,93 +6416,93 @@ Haiku 4.5 passes all five control runs and drops two tree runs by losing the tok
 
 How many of the five runs in each cell produced a flow that would run:
 
-| Description      | Model     | no tree | tree |
-| ---------------- | --------- | ------: | ---: |
-| GitHub REST      | Sonnet 5  |     5/5 |  5/5 |
-| GitHub REST      | Opus 5    |     5/5 |  5/5 |
-| GitHub REST      | Haiku 4.5 |     1/5 |  0/5 |
-| Billing API      | Sonnet 5  |     0/5 |  4/5 |
-| Billing API      | Opus 5    |     5/5 |  5/5 |
-| Billing API      | Haiku 4.5 |     0/5 |  2/5 |
-| Stripe           | Sonnet 5  |     0/5 |  0/5 |
-| Stripe           | Opus 5    |     4/5 |  5/5 |
-| Stripe           | Haiku 4.5 |     0/5 |  0/5 |
-| Stripe Climate   | Sonnet 5  |     4/5 |  5/5 |
-| Stripe Climate   | Opus 5    |     5/5 |  5/5 |
-| Stripe Climate   | Haiku 4.5 |     0/5 |  5/5 |
-| PayPal Orders    | Sonnet 5  |     5/5 |  5/5 |
-| PayPal Orders    | Opus 5    |     5/5 |  5/5 |
-| PayPal Orders    | Haiku 4.5 |     1/5 |  3/5 |
-| DigitalOcean     | Sonnet 5  |     0/5 |  4/5 |
-| DigitalOcean     | Opus 5    |     5/5 |  5/5 |
-| DigitalOcean     | Haiku 4.5 |     1/5 |  1/5 |
-| DigitalOcean NFS | Sonnet 5  |     1/5 |  3/5 |
-| DigitalOcean NFS | Opus 5    |     5/5 |  5/5 |
-| DigitalOcean NFS | Haiku 4.5 |     0/5 |  4/5 |
-| Cafe API         | Sonnet 5  |     5/5 |  5/5 |
-| Cafe API         | Opus 5    |     5/5 |  5/5 |
-| Cafe API         | Haiku 4.5 |     5/5 |  3/5 |
+| Description   | Task                      | Model     | no tree | tree |
+| ------------- | ------------------------- | --------- | ------: | ---: |
+| GitHub REST   | publish a release         | Sonnet 5  |     5/5 |  5/5 |
+| GitHub REST   | publish a release         | Opus 5    |     5/5 |  5/5 |
+| GitHub REST   | publish a release         | Haiku 4.5 |     1/5 |  0/5 |
+| Billing API   | start a subscription      | Sonnet 5  |     0/5 |  4/5 |
+| Billing API   | start a subscription      | Opus 5    |     5/5 |  5/5 |
+| Billing API   | start a subscription      | Haiku 4.5 |     0/5 |  2/5 |
+| Stripe        | subscription with a trial | Sonnet 5  |     0/5 |  0/5 |
+| Stripe        | subscription with a trial | Opus 5    |     4/5 |  5/5 |
+| Stripe        | subscription with a trial | Haiku 4.5 |     0/5 |  0/5 |
+| Stripe        | buy carbon removal        | Sonnet 5  |     4/5 |  5/5 |
+| Stripe        | buy carbon removal        | Opus 5    |     5/5 |  5/5 |
+| Stripe        | buy carbon removal        | Haiku 4.5 |     0/5 |  5/5 |
+| PayPal Orders | capture and track         | Sonnet 5  |     5/5 |  5/5 |
+| PayPal Orders | capture and track         | Opus 5    |     5/5 |  5/5 |
+| PayPal Orders | capture and track         | Haiku 4.5 |     1/5 |  3/5 |
+| DigitalOcean  | server, disk, firewall    | Sonnet 5  |     0/5 |  4/5 |
+| DigitalOcean  | server, disk, firewall    | Opus 5    |     5/5 |  5/5 |
+| DigitalOcean  | server, disk, firewall    | Haiku 4.5 |     1/5 |  1/5 |
+| DigitalOcean  | shared file storage       | Sonnet 5  |     1/5 |  3/5 |
+| DigitalOcean  | shared file storage       | Opus 5    |     5/5 |  5/5 |
+| DigitalOcean  | shared file storage       | Haiku 4.5 |     0/5 |  4/5 |
+| Cafe API      | order a coffee            | Sonnet 5  |     5/5 |  5/5 |
+| Cafe API      | order a coffee            | Opus 5    |     5/5 |  5/5 |
+| Cafe API      | order a coffee            | Haiku 4.5 |     5/5 |  3/5 |
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all five):
 
-| Description      | Model     |        no tree |          tree | Difference |
-| ---------------- | --------- | -------------: | ------------: | ---------: |
-| GitHub REST      | Sonnet 5  |    12,492 / 12 |    11,336 / 9 |        −9% |
-| GitHub REST      | Opus 5    |    16,870 / 11 |   14,681 / 11 |       −13% |
-| GitHub REST      | Haiku 4.5 |    13,058 / 11 |  6,880 / 7 ❌ |          — |
-| Billing API      | Sonnet 5  | 12,532 / 16 ❌ |   23,098 / 20 |          — |
-| Billing API      | Opus 5    |    44,355 / 39 |   35,346 / 20 |       −20% |
-| Billing API      | Haiku 4.5 | 25,809 / 18 ❌ |   19,777 / 18 |          — |
-| Stripe           | Sonnet 5  | 18,215 / 16 ❌ | 18,908 / 7 ❌ |        +4% |
-| Stripe           | Opus 5    |    24,339 / 25 |   33,751 / 17 |       +39% |
-| Stripe           | Haiku 4.5 | 35,056 / 14 ❌ | 19,929 / 9 ❌ |       −43% |
-| Stripe Climate   | Sonnet 5  |     14,297 / 8 |     8,417 / 7 |       −41% |
-| Stripe Climate   | Opus 5    |     14,761 / 8 |     9,888 / 8 |       −33% |
-| Stripe Climate   | Haiku 4.5 |  14,305 / 8 ❌ |    9,823 / 12 |          — |
-| PayPal Orders    | Sonnet 5  |     9,857 / 12 |   17,435 / 10 |       +77% |
-| PayPal Orders    | Opus 5    |    18,038 / 11 |   21,656 / 20 |       +20% |
-| PayPal Orders    | Haiku 4.5 |     17,624 / 9 |   19,569 / 14 |       +11% |
-| DigitalOcean     | Sonnet 5  | 17,177 / 13 ❌ |   20,377 / 16 |          — |
-| DigitalOcean     | Opus 5    |    23,324 / 14 |   26,045 / 19 |       +12% |
-| DigitalOcean     | Haiku 4.5 |    24,968 / 19 |   19,839 / 21 |       −21% |
-| DigitalOcean NFS | Sonnet 5  |    17,421 / 16 |   13,015 / 17 |       −25% |
-| DigitalOcean NFS | Opus 5    |     16,427 / 8 |   23,653 / 15 |       +44% |
-| DigitalOcean NFS | Haiku 4.5 | 40,843 / 15 ❌ |   12,941 / 18 |          — |
-| Cafe API         | Sonnet 5  |     16,935 / 1 |   10,849 / 10 |       −36% |
-| Cafe API         | Opus 5    |     16,769 / 1 |   15,375 / 11 |        −8% |
-| Cafe API         | Haiku 4.5 |     15,764 / 1 |    8,773 / 13 |       −44% |
+| Description   | Task                      | Model     |        no tree |          tree | Difference |
+| ------------- | ------------------------- | --------- | -------------: | ------------: | ---------: |
+| GitHub REST   | publish a release         | Sonnet 5  |    12,492 / 12 |    11,336 / 9 |        −9% |
+| GitHub REST   | publish a release         | Opus 5    |    16,870 / 11 |   14,681 / 11 |       −13% |
+| GitHub REST   | publish a release         | Haiku 4.5 |    13,058 / 11 |  6,880 / 7 ❌ |          — |
+| Billing API   | start a subscription      | Sonnet 5  | 12,532 / 16 ❌ |   23,098 / 20 |          — |
+| Billing API   | start a subscription      | Opus 5    |    44,355 / 39 |   35,346 / 20 |       −20% |
+| Billing API   | start a subscription      | Haiku 4.5 | 25,809 / 18 ❌ |   19,777 / 18 |          — |
+| Stripe        | subscription with a trial | Sonnet 5  | 18,215 / 16 ❌ | 18,908 / 7 ❌ |        +4% |
+| Stripe        | subscription with a trial | Opus 5    |    24,339 / 25 |   33,751 / 17 |       +39% |
+| Stripe        | subscription with a trial | Haiku 4.5 | 35,056 / 14 ❌ | 19,929 / 9 ❌ |       −43% |
+| Stripe        | buy carbon removal        | Sonnet 5  |     14,297 / 8 |     8,417 / 7 |       −41% |
+| Stripe        | buy carbon removal        | Opus 5    |     14,761 / 8 |     9,888 / 8 |       −33% |
+| Stripe        | buy carbon removal        | Haiku 4.5 |  14,305 / 8 ❌ |    9,823 / 12 |          — |
+| PayPal Orders | capture and track         | Sonnet 5  |     9,857 / 12 |   17,435 / 10 |       +77% |
+| PayPal Orders | capture and track         | Opus 5    |    18,038 / 11 |   21,656 / 20 |       +20% |
+| PayPal Orders | capture and track         | Haiku 4.5 |     17,624 / 9 |   19,569 / 14 |       +11% |
+| DigitalOcean  | server, disk, firewall    | Sonnet 5  | 17,177 / 13 ❌ |   20,377 / 16 |          — |
+| DigitalOcean  | server, disk, firewall    | Opus 5    |    23,324 / 14 |   26,045 / 19 |       +12% |
+| DigitalOcean  | server, disk, firewall    | Haiku 4.5 |    24,968 / 19 |   19,839 / 21 |       −21% |
+| DigitalOcean  | shared file storage       | Sonnet 5  |    17,421 / 16 |   13,015 / 17 |       −25% |
+| DigitalOcean  | shared file storage       | Opus 5    |     16,427 / 8 |   23,653 / 15 |       +44% |
+| DigitalOcean  | shared file storage       | Haiku 4.5 | 40,843 / 15 ❌ |   12,941 / 18 |          — |
+| Cafe API      | order a coffee            | Sonnet 5  |     16,935 / 1 |   10,849 / 10 |       −36% |
+| Cafe API      | order a coffee            | Opus 5    |     16,769 / 1 |   15,375 / 11 |        −8% |
+| Cafe API      | order a coffee            | Haiku 4.5 |     15,764 / 1 |    8,773 / 13 |       −44% |
 
 What those runs were billed:
 
-| Description      | Model     |  no tree |     tree | Difference |
-| ---------------- | --------- | -------: | -------: | ---------: |
-| GitHub REST      | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
-| GitHub REST      | Opus 5    |    $0.63 |    $0.60 |        −5% |
-| GitHub REST      | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
-| Billing API      | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
-| Billing API      | Opus 5    |    $1.97 |    $1.12 |       −43% |
-| Billing API      | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
-| Stripe           | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
-| Stripe           | Opus 5    |    $1.40 |    $1.16 |       −17% |
-| Stripe           | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
-| Stripe Climate   | Sonnet 5  |    $0.33 |    $0.26 |       −21% |
-| Stripe Climate   | Opus 5    |    $0.57 |    $0.47 |       −18% |
-| Stripe Climate   | Haiku 4.5 | $0.10 ❌ |    $0.10 |          — |
-| PayPal Orders    | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
-| PayPal Orders    | Opus 5    |    $0.71 |    $0.93 |       +31% |
-| PayPal Orders    | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
-| DigitalOcean     | Sonnet 5  | $0.41 ❌ |    $0.47 |          — |
-| DigitalOcean     | Opus 5    |    $0.78 |    $0.78 |        −0% |
-| DigitalOcean     | Haiku 4.5 |    $0.19 |    $0.18 |        −5% |
-| DigitalOcean NFS | Sonnet 5  |    $0.53 |    $0.43 |       −19% |
-| DigitalOcean NFS | Opus 5    |    $0.72 |    $0.77 |        +7% |
-| DigitalOcean NFS | Haiku 4.5 | $0.23 ❌ |    $0.14 |          — |
-| Cafe API         | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
-| Cafe API         | Opus 5    |    $0.65 |    $0.65 |        −0% |
-| Cafe API         | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
+| Description   | Task                      | Model     |  no tree |     tree | Difference |
+| ------------- | ------------------------- | --------- | -------: | -------: | ---------: |
+| GitHub REST   | publish a release         | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
+| GitHub REST   | publish a release         | Opus 5    |    $0.63 |    $0.60 |        −5% |
+| GitHub REST   | publish a release         | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
+| Billing API   | start a subscription      | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
+| Billing API   | start a subscription      | Opus 5    |    $1.97 |    $1.12 |       −43% |
+| Billing API   | start a subscription      | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
+| Stripe        | subscription with a trial | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
+| Stripe        | subscription with a trial | Opus 5    |    $1.40 |    $1.16 |       −17% |
+| Stripe        | subscription with a trial | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
+| Stripe        | buy carbon removal        | Sonnet 5  |    $0.33 |    $0.26 |       −21% |
+| Stripe        | buy carbon removal        | Opus 5    |    $0.57 |    $0.47 |       −18% |
+| Stripe        | buy carbon removal        | Haiku 4.5 | $0.10 ❌ |    $0.10 |          — |
+| PayPal Orders | capture and track         | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
+| PayPal Orders | capture and track         | Opus 5    |    $0.71 |    $0.93 |       +31% |
+| PayPal Orders | capture and track         | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
+| DigitalOcean  | server, disk, firewall    | Sonnet 5  | $0.41 ❌ |    $0.47 |          — |
+| DigitalOcean  | server, disk, firewall    | Opus 5    |    $0.78 |    $0.78 |        −0% |
+| DigitalOcean  | server, disk, firewall    | Haiku 4.5 |    $0.19 |    $0.18 |        −5% |
+| DigitalOcean  | shared file storage       | Sonnet 5  |    $0.53 |    $0.43 |       −19% |
+| DigitalOcean  | shared file storage       | Opus 5    |    $0.72 |    $0.77 |        +7% |
+| DigitalOcean  | shared file storage       | Haiku 4.5 | $0.23 ❌ |    $0.14 |          — |
+| Cafe API      | order a coffee            | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
+| Cafe API      | order a coffee            | Opus 5    |    $0.65 |    $0.65 |        −0% |
+| Cafe API      | order a coffee            | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
 
 One hundred fifty-six of 240 runs produced a flow that passes the check: 67 of 120 without the index, 89 of 120 with it.
-Four cells move from at most one working run to three or more once the index is there: Sonnet 5 on the billing API and on DigitalOcean, Haiku 4.5 on Stripe Climate and on DigitalOcean NFS. In every one of them the control runs name the right calls and never say how they authenticate.
+Four cells move from at most one working run to three or more once the index is there: Sonnet 5 on the billing API and on DigitalOcean, Haiku 4.5 on Stripe carbon removal and on DigitalOcean file storage. In every one of them the control runs name the right calls and never say how they authenticate.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
 

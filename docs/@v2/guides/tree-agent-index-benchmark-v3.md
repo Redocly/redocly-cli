@@ -8,32 +8,32 @@ The index rarely changes what a strong model can do. What it changes is whether 
 
 ## What it changes
 
-| Description      | Model     |     works |  no tree |     tree | Δ cost |
-| ---------------- | --------- | --------: | -------: | -------: | -----: |
-| GitHub REST      | Sonnet 5  | 5/5 → 5/5 |    $0.39 |    $0.33 |   −15% |
-| GitHub REST      | Opus 5    | 5/5 → 5/5 |    $0.63 |    $0.60 |    −5% |
-| GitHub REST      | Haiku 4.5 | 1/5 → 0/5 |    $0.12 | $0.07 ❌ |      — |
-| Billing API      | Sonnet 5  | 0/5 → 4/5 | $0.76 ❌ |    $0.65 |      — |
-| Billing API      | Opus 5    | 5/5 → 5/5 |    $1.97 |    $1.12 |   −43% |
-| Billing API      | Haiku 4.5 | 0/5 → 2/5 | $0.18 ❌ |    $0.16 |      — |
-| Stripe           | Sonnet 5  | 0/5 → 0/5 | $0.59 ❌ | $0.35 ❌ |   −41% |
-| Stripe           | Opus 5    | 4/5 → 5/5 |    $1.40 |    $1.16 |   −17% |
-| Stripe           | Haiku 4.5 | 0/5 → 0/5 | $0.17 ❌ | $0.12 ❌ |   −29% |
-| Stripe Climate   | Sonnet 5  | 4/5 → 5/5 |    $0.33 |    $0.26 |   −21% |
-| Stripe Climate   | Opus 5    | 5/5 → 5/5 |    $0.57 |    $0.47 |   −18% |
-| Stripe Climate   | Haiku 4.5 | 0/5 → 5/5 | $0.10 ❌ |    $0.10 |      — |
-| PayPal Orders    | Sonnet 5  | 5/5 → 5/5 |    $0.40 |    $0.38 |    −5% |
-| PayPal Orders    | Opus 5    | 5/5 → 5/5 |    $0.71 |    $0.93 |   +31% |
-| PayPal Orders    | Haiku 4.5 | 1/5 → 3/5 |    $0.11 |    $0.12 |    +9% |
-| DigitalOcean     | Sonnet 5  | 0/5 → 4/5 | $0.41 ❌ |    $0.47 |      — |
-| DigitalOcean     | Opus 5    | 5/5 → 5/5 |    $0.78 |    $0.78 |    −0% |
-| DigitalOcean     | Haiku 4.5 | 1/5 → 1/5 |    $0.19 |    $0.18 |    −5% |
-| DigitalOcean NFS | Sonnet 5  | 1/5 → 3/5 |    $0.53 |    $0.43 |   −19% |
-| DigitalOcean NFS | Opus 5    | 5/5 → 5/5 |    $0.72 |    $0.77 |    +7% |
-| DigitalOcean NFS | Haiku 4.5 | 0/5 → 4/5 | $0.23 ❌ |    $0.14 |      — |
-| Cafe API         | Sonnet 5  | 5/5 → 5/5 |    $0.43 |    $0.38 |   −12% |
-| Cafe API         | Opus 5    | 5/5 → 5/5 |    $0.65 |    $0.65 |    −0% |
-| Cafe API         | Haiku 4.5 | 5/5 → 3/5 |    $0.07 |    $0.10 |   +43% |
+| Description   | Task                      | Model     |     works |  no tree |     tree | Δ cost |
+| ------------- | ------------------------- | --------- | --------: | -------: | -------: | -----: |
+| GitHub REST   | publish a release         | Sonnet 5  | 5/5 → 5/5 |    $0.39 |    $0.33 |   −15% |
+| GitHub REST   | publish a release         | Opus 5    | 5/5 → 5/5 |    $0.63 |    $0.60 |    −5% |
+| GitHub REST   | publish a release         | Haiku 4.5 | 1/5 → 0/5 |    $0.12 | $0.07 ❌ |      — |
+| Billing API   | start a subscription      | Sonnet 5  | 0/5 → 4/5 | $0.76 ❌ |    $0.65 |      — |
+| Billing API   | start a subscription      | Opus 5    | 5/5 → 5/5 |    $1.97 |    $1.12 |   −43% |
+| Billing API   | start a subscription      | Haiku 4.5 | 0/5 → 2/5 | $0.18 ❌ |    $0.16 |      — |
+| Stripe        | subscription with a trial | Sonnet 5  | 0/5 → 0/5 | $0.59 ❌ | $0.35 ❌ |   −41% |
+| Stripe        | subscription with a trial | Opus 5    | 4/5 → 5/5 |    $1.40 |    $1.16 |   −17% |
+| Stripe        | subscription with a trial | Haiku 4.5 | 0/5 → 0/5 | $0.17 ❌ | $0.12 ❌ |   −29% |
+| Stripe        | buy carbon removal        | Sonnet 5  | 4/5 → 5/5 |    $0.33 |    $0.26 |   −21% |
+| Stripe        | buy carbon removal        | Opus 5    | 5/5 → 5/5 |    $0.57 |    $0.47 |   −18% |
+| Stripe        | buy carbon removal        | Haiku 4.5 | 0/5 → 5/5 | $0.10 ❌ |    $0.10 |      — |
+| PayPal Orders | capture and track         | Sonnet 5  | 5/5 → 5/5 |    $0.40 |    $0.38 |    −5% |
+| PayPal Orders | capture and track         | Opus 5    | 5/5 → 5/5 |    $0.71 |    $0.93 |   +31% |
+| PayPal Orders | capture and track         | Haiku 4.5 | 1/5 → 3/5 |    $0.11 |    $0.12 |    +9% |
+| DigitalOcean  | server, disk, firewall    | Sonnet 5  | 0/5 → 4/5 | $0.41 ❌ |    $0.47 |      — |
+| DigitalOcean  | server, disk, firewall    | Opus 5    | 5/5 → 5/5 |    $0.78 |    $0.78 |    −0% |
+| DigitalOcean  | server, disk, firewall    | Haiku 4.5 | 1/5 → 1/5 |    $0.19 |    $0.18 |    −5% |
+| DigitalOcean  | shared file storage       | Sonnet 5  | 1/5 → 3/5 |    $0.53 |    $0.43 |   −19% |
+| DigitalOcean  | shared file storage       | Opus 5    | 5/5 → 5/5 |    $0.72 |    $0.77 |    +7% |
+| DigitalOcean  | shared file storage       | Haiku 4.5 | 0/5 → 4/5 | $0.23 ❌ |    $0.14 |      — |
+| Cafe API      | order a coffee            | Sonnet 5  | 5/5 → 5/5 |    $0.43 |    $0.38 |   −12% |
+| Cafe API      | order a coffee            | Opus 5    | 5/5 → 5/5 |    $0.65 |    $0.65 |    −0% |
+| Cafe API      | order a coffee            | Haiku 4.5 | 5/5 → 3/5 |    $0.07 |    $0.10 |   +43% |
 
 Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
 Context moves the same way and more steadily; it is in each tab below, and per-run in [the detailed version](./tree-agent-index-benchmark-v3-detailed.md).
@@ -42,7 +42,7 @@ Context moves the same way and more steadily; it is in each tab below, and per-r
 
 {% tabs %}
 
-{% tab label="GitHub REST" %}
+{% tab label="GitHub REST · publish a release" %}
 
 **Description:** 9.52 MB in one file.
 
@@ -102,7 +102,7 @@ Sonnet 5 and Opus 5 answer correctly either way; the index buys 9% to 13% less c
 
 {% /tab %}
 
-{% tab label="Billing API" %}
+{% tab label="Billing API · start a subscription" %}
 
 **Description:** 1.25 MB in one file.
 
@@ -166,7 +166,7 @@ The index turns Sonnet 5 from nothing that runs into four flows in five, and hal
 
 {% /tab %}
 
-{% tab label="Stripe" %}
+{% tab label="Stripe · subscription with a trial" %}
 
 **Description:** 6.07 MB in one file.
 
@@ -232,7 +232,7 @@ Only Opus 5 passes. Sonnet 5 and Haiku 4.5 start from "your price id" — a cata
 
 {% /tab %}
 
-{% tab label="Stripe Climate" %}
+{% tab label="Stripe · buy carbon removal" %}
 
 **Description:** 6.07 MB in one file — the same file as the previous tab.
 
@@ -292,7 +292,7 @@ The same file, a corner no tutorial covers, and the picture inverts: every model
 
 {% /tab %}
 
-{% tab label="PayPal Orders" %}
+{% tab label="PayPal Orders · capture and track" %}
 
 **Description:** 0.93 MB in one file, JSON rather than YAML.
 
@@ -355,7 +355,7 @@ Everything passes for Sonnet 5 and Opus 5, and both pay more context — nine op
 
 {% /tab %}
 
-{% tab label="DigitalOcean" %}
+{% tab label="DigitalOcean · server, disk, firewall" %}
 
 **Description:** 2.62 MB across 2,909 files.
 
@@ -418,7 +418,7 @@ Opus 5 passes either way and pays 33% more context: 2,909 single-operation files
 
 {% /tab %}
 
-{% tab label="DigitalOcean NFS" %}
+{% tab label="DigitalOcean · shared file storage" %}
 
 **Description:** 2.62 MB across 2,909 files — the same description as the previous tab.
 
@@ -482,7 +482,7 @@ The same 2,909 files, a corner the tutorials skip: Haiku 4.5 moves from none of 
 
 {% /tab %}
 
-{% tab label="Cafe API" %}
+{% tab label="Cafe API · order a coffee" %}
 
 **Description:** 0.04 MB in one file.
 
@@ -540,13 +540,16 @@ At 41 KB the whole description fits in one read, and the index still cuts contex
 
 {% /tabs %}
 
-## What this says
+## What the numbers show
 
-Four cells move from at most one working flow to three or more once the index is there: Sonnet 5 on the billing API and on DigitalOcean, Haiku 4.5 on Stripe Climate and on DigitalOcean NFS.
-In every one of them the control runs name the right calls and never say how the request authenticates — the single largest failure class in the grid, and the one an index removes by stating the requirement on the card.
+**An index decides whether a smaller model gets there at all.**
+Four cells go from at most one working flow to three or more once it is available: Sonnet 5 on the billing API and on the DigitalOcean server task, Haiku 4.5 on carbon removal and on shared file storage.
+Opus 5, meanwhile, passes 79 of its 80 runs either way — it does not need one.
 
-It does not pay everywhere. On DigitalOcean, a description already split into 2,909 single-operation files named by what they do, reading a file beats fetching a card, and the index costs a third more context.
-On Stripe it cannot rescue a plan that starts from a price the task never created — the same file asked about carbon removal, where no tutorial supplies an answer, passes everywhere.
+**Almost every one of those failures is the same failure.** The control runs name the right calls in the right order and never say how the request authenticates: no key, no header, no token. That is the largest single failure class in the grid, and it is what an index removes, because every card states the requirement that protects the operation.
+
+**It does not pay everywhere, and the grid shows where.** On DigitalOcean — 2,909 files, one operation each, named for what they do — the description is already an index, so reading a file beats fetching a card and the index costs about a third more context.
+On Stripe it cannot rescue a plan that starts from a price the task never created: Sonnet 5 and Haiku 4.5 answer that one from memory rather than from the file. Asked instead about carbon removal, a corner of the very same file that no tutorial covers, both read the description and pass.
 
 ## How this was measured
 
