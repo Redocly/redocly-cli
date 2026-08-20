@@ -10,6 +10,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,11 +61,23 @@ const AGENTS_BEGIN =
 const AGENTS_END = '<!-- redocly-generators:end -->';
 
 /**
- * The assets directory beside the bundled module — the CLI build copies it into `lib/`.
- * Absent when running straight from `src`; build the CLI first.
+ * Where the shipped generator sources and skills live. The published CLI bundles everything
+ * and has no `node_modules`, so its build copies the assets beside the bundle; running from
+ * `src` there is no such copy, and the assets are read from the package that owns them.
  */
 export function ejectAssetsDir(): string {
-  return fileURLToPath(new URL('./eject-assets/', import.meta.url));
+  const bundled = fileURLToPath(new URL('./eject-assets/', import.meta.url));
+  if (existsSync(join(bundled, 'generators'))) return bundled;
+  // `resolve` lands on the toolkit's entry module; the assets sit at its package root.
+  const entry = createRequire(import.meta.url).resolve(TOOLKIT_PACKAGE);
+  const owned = join(dirname(entry), '..', 'eject-assets');
+  if (existsSync(join(owned, 'generators'))) return owned;
+  // Only reachable in a checkout whose generator bundles have never been built. Saying so
+  // beats an ENOENT stack trace naming a path the reader has no reason to expect.
+  throw new HandledError(
+    `\n❌  The ejectable generator sources are missing from ${TOOLKIT_PACKAGE}.\n` +
+      `   In a checkout of the CLI, build them first: npm run prepare -w ${TOOLKIT_PACKAGE}\n`
+  );
 }
 
 /** Copy a shipped skill into the repo's `.claude/skills/<skill>/SKILL.md`, overwriting ours. */

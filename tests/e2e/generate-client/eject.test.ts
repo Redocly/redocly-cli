@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, repoRoot } from './helpers.js';
+import { cliEntry, repoRoot, tsxBin } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -218,4 +218,26 @@ describe('eject-generator (end-to-end)', () => {
     expect(output).toContain('.pristine');
     expect(readFileSync(ejected, 'utf-8')).toContain('<<<<<<<');
   }, 60_000);
+});
+
+describe('eject-generator from source (no bundle)', () => {
+  // The command reads its assets beside the bundle, which only the CLI build produces.
+  // Running `packages/cli/src` — what `npm run cli` does — used to fail with an ENOENT
+  // naming a path inside `src`, so contributors could not eject during development.
+  it('ejects every generator when the CLI runs from src', () => {
+    const project = makeProject();
+    try {
+      for (const generator of ['python', 'go', 'php', 'typescript', 'cli']) {
+        const result = spawnSync(
+          tsxBin,
+          [join(repoRoot, 'packages/cli/src/index.ts'), 'eject-generator', generator],
+          { cwd: project, encoding: 'utf-8' }
+        );
+        expect(result.status, `${generator}: ${result.stdout}\n${result.stderr}`).toBe(0);
+        expect(existsSync(join(project, `generators/${generator}.mjs`))).toBe(true);
+      }
+    } finally {
+      rmSync(project, { recursive: true, force: true });
+    }
+  }, 120_000);
 });
