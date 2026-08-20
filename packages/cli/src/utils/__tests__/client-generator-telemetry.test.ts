@@ -2,16 +2,16 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { BUILTIN_META } from '../../../client-generator/src/generators/meta.js';
-import { EJECTABLE, FRAMEWORK_VARIANTS } from '../commands/eject-generator.js';
-import { collectGeneratorUsage } from '../commands/generate-client.js';
+import { BUILTIN_META } from '../../../../client-generator/src/generators/meta.js';
+import { EJECTABLE, FRAMEWORK_VARIANTS } from '../../commands/eject-generator.js';
+import { collectGeneratorUsage } from '../../commands/generate-client.js';
 import {
   BUILTIN_GENERATOR_NAMES,
   categorizeGenerateClientError,
   collectToolkitImports,
   generateClientTelemetry,
   parseEjectedProvenance,
-} from '../utils/client-generator-telemetry.js';
+} from '../client-generator-telemetry.js';
 
 describe('collectToolkitImports', () => {
   it('returns only OUR helper names from client-generator imports — never user identifiers', () => {

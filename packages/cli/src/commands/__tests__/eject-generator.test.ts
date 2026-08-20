@@ -1,11 +1,17 @@
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { handleEjectGenerator, threeWayMerge, wireConfig } from '../../commands/eject-generator.js';
 import { ejectGeneratorTelemetry } from '../../utils/client-generator-telemetry.js';
 import type { CommandArgs } from '../../wrapper.js';
+import {
+  handleEjectGenerator,
+  packedAssets,
+  threeWayMerge,
+  wireConfig,
+} from '../eject-generator.js';
 
 const baseArgs = { version: '0.0.0', config: undefined } as unknown as Omit<
   CommandArgs<Record<string, unknown>>,
@@ -226,19 +232,26 @@ describe('eject telemetry (coarse categories only)', () => {
   });
 
   it('a failure we did not account for still records an outcome', async () => {
-    // The shipped assets sit next to the BUILT module, so reading one from source fails
-    // the same way a broken install would — an error no branch sets an outcome for.
-    await expect(
-      handleEjectGenerator({
-        ...baseArgs,
-        argv: { generator: 'php', update: true },
-      } as CommandArgs<never>)
-    ).rejects.toThrow();
-    expect(ejectGeneratorTelemetry).toEqual({
-      eject_generator_action: 'update',
-      eject_generator_name: 'php',
-      eject_generator_outcome: 'unexpected-error',
-    });
+    // A destination that is a FILE: writing into it throws ENOTDIR, which no branch
+    // categorizes. (Reading the assets from source used to be the trigger here; it is a
+    // supported path now that they resolve from the package that owns them.)
+    const blocked = mkdtempSync(join(tmpdir(), 'eject-blocked-'));
+    writeFileSync(join(blocked, 'generators'), 'not a directory', 'utf-8');
+    try {
+      await expect(
+        handleEjectGenerator({
+          ...baseArgs,
+          argv: { generator: 'php', dir: join(blocked, 'generators') },
+        } as CommandArgs<never>)
+      ).rejects.toThrow();
+      expect(ejectGeneratorTelemetry).toEqual({
+        eject_generator_action: 'eject',
+        eject_generator_name: 'php',
+        eject_generator_outcome: 'unexpected-error',
+      });
+    } finally {
+      rmSync(blocked, { recursive: true, force: true });
+    }
   });
 
   it('an unknown generator records the outcome but never the user-supplied name', async () => {
@@ -250,5 +263,40 @@ describe('eject telemetry (coarse categories only)', () => {
     ).rejects.toThrow(/Unknown generator/);
     expect(ejectGeneratorTelemetry.eject_generator_outcome).toBe('unknown-generator');
     expect(ejectGeneratorTelemetry.eject_generator_name).toBeUndefined();
+  });
+});
+
+const clientGeneratorDir = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../../../client-generator'
+);
+
+describe('packedAssets', () => {
+  it('reads the generator and its skills out of a packed @redocly/client-generator', () => {
+    // A directory stands in for the version spec `--update` passes: same pack, same
+    // extraction, no registry needed to prove the mechanism.
+    const members = [
+      'package/eject-assets/generators/php.mjs',
+      'package/eject-assets/skills/php-generator/SKILL.md',
+      'package/eject-assets/skills/not-a-member/SKILL.md',
+    ];
+    const assets = packedAssets(clientGeneratorDir, members);
+    expect(assets.get(members[0])).toBe(
+      readFileSync(join(clientGeneratorDir, 'eject-assets/generators/php.mjs'), 'utf-8')
+    );
+    expect(assets.get(members[1])).toBe(
+      readFileSync(join(clientGeneratorDir, 'eject-assets/skills/php-generator/SKILL.md'), 'utf-8')
+    );
+    // A member the packed version does not ship is absent, so the caller falls back per file.
+    expect(assets.has(members[2])).toBe(false);
+    // `npm pack` on a directory runs that package's prepare script, so give it room.
+  }, 180_000);
+
+  it('returns nothing when the spec cannot be packed, so the caller can fall back', () => {
+    expect(
+      packedAssets('@redocly/client-generator@0.0.0-does-not-exist', [
+        'package/eject-assets/generators/php.mjs',
+      ]).size
+    ).toBe(0);
   });
 });

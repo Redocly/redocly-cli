@@ -2,6 +2,12 @@
 
 1. Write meaningful tests that exercise real behavior — not tests that exist only to raise coverage.
    One focused, clear test is enough.
+1. A unit test lives in a `__tests__` folder beside the file it tests, and mirrors its name:
+   `src/commands/eject-generator.ts` is tested by `src/commands/__tests__/eject-generator.test.ts`.
+   Do not rebuild the source tree inside a `__tests__` folder (`src/__tests__/commands/…`) — the
+   older tests that do are historical, and a reviewer should not have to guess which layout a
+   new test follows. One module gets one test file: split a long one by `describe`, not by adding
+   a second file for the same source.
 1. Rule tests are unit tests by convention: parse a YAML document, run `lintDocument`, and assert
    with `toMatchInlineSnapshot` — a behavior test in itself (given this input, these problems).
    Generate new snapshots and update stale ones as part of the change.
