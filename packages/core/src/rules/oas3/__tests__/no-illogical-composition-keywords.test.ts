@@ -264,6 +264,46 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
+    it('should compare `const` against `enum` as a single allowed value', async () => {
+      expect(
+        await lint(`
+          openapi: 3.1.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Exclusive:
+                oneOf:
+                  - type: string
+                    enum: [card]
+                  - type: string
+                    const: bank
+              Overlapping:
+                oneOf:
+                  - enum: [card]
+                  - const: card
+        `)
+      ).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Overlapping/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Both schemas allow the values ["card"].",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
     it('should report an empty schema inside oneOf', async () => {
       expect(
         await lint(`

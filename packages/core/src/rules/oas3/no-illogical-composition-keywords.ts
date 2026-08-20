@@ -251,16 +251,11 @@ function findOverlapReason(
     return 'Both schemas accept `null`.';
   }
 
-  const leftEnum = leftSchema.enum;
-  const rightEnum = rightSchema.enum;
-  if (leftEnum && rightEnum) {
-    const shared = leftEnum.filter((value) => rightEnum.some((other) => dequal(value, other)));
+  const leftValues = readAllowedValues(leftSchema);
+  const rightValues = readAllowedValues(rightSchema);
+  if (leftValues && rightValues) {
+    const shared = leftValues.filter((value) => rightValues.some((other) => dequal(value, other)));
     return `Both schemas allow the values ${JSON.stringify(shared)}.`;
-  }
-
-  const sharedConst = readConst(leftSchema);
-  if (isDefined(sharedConst) && isDefined(readConst(rightSchema))) {
-    return `Both schemas require the same \`const\` value ${JSON.stringify(sharedConst)}.`;
   }
 
   if (discriminator) {
@@ -431,15 +426,11 @@ function forbidsPropertyRequiredBy(
 }
 
 function areExclusive(left: CompositionSchema, right: CompositionSchema): boolean {
-  const leftEnum = left.enum;
-  const rightEnum = right.enum;
-  if (leftEnum && rightEnum) {
-    return !leftEnum.some((value) => rightEnum.some((other) => dequal(value, other)));
+  const leftValues = readAllowedValues(left);
+  const rightValues = readAllowedValues(right);
+  if (leftValues && rightValues) {
+    return !leftValues.some((value) => rightValues.some((other) => dequal(value, other)));
   }
-
-  const leftConst = readConst(left);
-  const rightConst = readConst(right);
-  if (isDefined(leftConst) && isDefined(rightConst)) return !dequal(leftConst, rightConst);
 
   const leftTypes = getTypeSet(left);
   const rightTypes = getTypeSet(right);
@@ -492,8 +483,10 @@ function schemaAllowsNull(schema: CompositionSchema): boolean {
   return Array.isArray(declaredType) ? declaredType.includes('null') : declaredType === 'null';
 }
 
-function readConst(schema: CompositionSchema): unknown {
-  return 'const' in schema ? schema.const : undefined;
+function readAllowedValues(schema: CompositionSchema): unknown[] | undefined {
+  if (schema.enum) return schema.enum;
+  const constValue = 'const' in schema ? schema.const : undefined;
+  return isDefined(constValue) ? [constValue] : undefined;
 }
 
 function hasIntersection(left: Set<string>, right: Set<string>): boolean {
