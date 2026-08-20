@@ -6,9 +6,9 @@ The grid moves to a published snapshot once one carries this build.
 {% /admonition %}
 
 The [second benchmark](./tree-agent-index-benchmark-v2.md) asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
-This one adds three descriptions chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; and DigitalOcean, which ships as 2,909 files with one operation each — and asks where an index still earns its place.
+This one adds four descriptions chosen to be hard in new ways — Stripe, whose schemas are enormous; the same Stripe file asked about a corner no tutorial covers; PayPal Orders, small but dense with approval steps and id chains; and DigitalOcean, which ships as 2,909 files with one operation each — and asks where an index still earns its place.
 
-Six descriptions, three models, two conditions, five runs a cell — 180 runs:
+Seven description-task pairs, three models, two conditions, five runs a cell — 210 runs:
 
 - **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
 - **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select.
@@ -2580,6 +2580,553 @@ The index does not fix a plan that starts from the wrong premise; it just makes 
 
 {% /tab %}
 
+{% tab label="Stripe Climate · same 6.1 MB" %}
+
+**Task:** buy carbon removal — pick a product from what's on offer, order a set number of metric tons, and be able to cancel before delivery.
+Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
+The point of this description: it is the same 6.1 MB Stripe file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+Our company committed to buying carbon removal. Pick a removal product from what's on
+offer, place an order for a set number of metric tons, and be able to cancel that order
+before delivery if finance rejects the spend. Work out what our backend has to call.
+
+API description: climate.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+Our company committed to buying carbon removal. Pick a removal product from what's on
+offer, place an order for a set number of metric tons, and be able to cancel that order
+before delivery if finance rejects the spend. Work out what our backend has to call.
+
+API description: climate.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree climate.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+Context the run added, and the tool calls it took (medians over the working runs):
+
+| Model           |       no tree |       tree | Difference |
+| --------------- | ------------: | ---------: | ---------: |
+| Sonnet 5 (n=5)  |    14,297 / 8 |  8,417 / 7 |       −41% |
+| Opus 5 (n=5)    |    14,761 / 8 |  9,888 / 8 |       −33% |
+| Haiku 4.5 (n=5) | 14,305 / 8 ❌ | 9,823 / 12 |          — |
+
+What those runs were billed:
+
+| Model           |  no tree |  tree | Difference |
+| --------------- | -------: | ----: | ---------: |
+| Sonnet 5 (n=5)  |    $0.33 | $0.26 |       −21% |
+| Opus 5 (n=5)    |    $0.57 | $0.47 |       −18% |
+| Haiku 4.5 (n=5) | $0.10 ❌ | $0.10 |          — |
+
+Whether each run produced a flow that would run:
+
+| Run               | no tree        | tree  |
+| ----------------- | -------------- | ----- |
+| Sonnet 5 · run 1  | works          | works |
+| Sonnet 5 · run 2  | works          | works |
+| Sonnet 5 · run 3  | works          | works |
+| Sonnet 5 · run 4  | no auth scheme | works |
+| Sonnet 5 · run 5  | works          | works |
+| Opus 5 · run 1    | works          | works |
+| Opus 5 · run 2    | works          | works |
+| Opus 5 · run 3    | works          | works |
+| Opus 5 · run 4    | works          | works |
+| Opus 5 · run 5    | works          | works |
+| Haiku 4.5 · run 1 | no auth scheme | works |
+| Haiku 4.5 · run 2 | no auth scheme | works |
+| Haiku 4.5 · run 3 | no auth scheme | works |
+| Haiku 4.5 · run 4 | no auth scheme | works |
+| Haiku 4.5 · run 5 | no auth scheme | works |
+
+A run works when its flow contains the product listing, the order create naming `product` and `metric_tons`, and the cancel call, authenticated with the secret key.
+
+What each run ran:
+
+{% tabs %}
+{% tab label="Sonnet 5" %}
+
+{% tabs %}
+{% tab label="Sonnet 5 · run 1 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^  /[a-zA-Z/{}._-]+:" climate.yaml
+wc -l climate.yaml; head -c 500 climate.yaml
+grep -n "climate/(orders|products|suppliers)" climate.yaml
+sed -n '81864,81970p' climate.yaml
+sed -n '81969,82019p' climate.yaml
+sed -n '81470,81660p' climate.yaml
+sed -n '81660,81810p' climate.yaml
+sed -n '81808,81864p' climate.yaml
+grep -n "^    climate\\.(order|product):" climate.yaml
+sed -n '9345,9510p' climate.yaml
+sed -n '9506,9576p' climate.yaml
+Artifact
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree climate.yaml --format=ai --tag
+redocly tree climate.yaml --format=ai --find=order
+redocly tree climate.yaml --format=ai --find=product
+redocly tree climate.yaml --format=ai --find=cancel
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order} --operation=get --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^  /[a-zA-Z].*:$" climate.yaml
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82024p' climate.yaml
+grep -n "^    climate\\.(product|order):$" climate.yaml
+grep -n "climate\\.(product|order):" climate.yaml
+grep -n "climate\\.product:|climate\\.order:" climate.yaml
+sed -n '9345,9605p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · tree" %}
+
+```bash
+ls -la *.yaml 2>/dev/null; redocly tree --help
+redocly tree climate.yaml --format=ai --tag | head -100
+redocly tree climate.yaml --format=ai --find "removal" | head -100
+redocly tree climate.yaml --format=ai --find "climate" --operations | head -50
+redocly tree climate.yaml --format=ai --path "/v1/climate/orders"
+redocly tree climate.yaml --format=ai --path "/v1/climate/products"
+redocly tree climate.yaml --format=ai --find "climate/orders"
+redocly tree climate.yaml --format=ai --path "/v1/climate/products" --operation get --with-deps
+redocly tree climate.yaml --format=ai --path "/v1/climate/orders" --operation post --with-deps
+redocly tree climate.yaml --format=ai --path "/v1/climate/orders/{order}/cancel" --operation post --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^  /" climate.yaml
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82014p' climate.yaml
+grep -n "^    climate\\.(product|order):" climate.yaml
+sed -n '9345,9605p' climate.yaml
+true
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --format=ai --tag
+redocly tree climate.yaml --format=ai --find=order
+redocly tree climate.yaml --format=ai --find=removal
+redocly tree climate.yaml --format=ai --find=product
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^  /" climate.yaml
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82024p' climate.yaml
+grep -n "^    climate\\.(order|product):" climate.yaml
+sed -n '9345,9595p' climate.yaml
+Artifact
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --format=ai --tag
+redocly tree climate.yaml --format=ai --find order | head -100
+redocly tree climate.yaml --format=ai --find "climate product" | head -50
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps | head -150
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps | head -200
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps | head -100
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^  /" climate.yaml
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82014p' climate.yaml
+grep -n "^    climate\\.(product|order):" climate.yaml
+grep -n "climate\\.product:|climate\\.order:" climate.yaml
+grep -n "    climate\\.order:|    climate\\.product:" climate.yaml
+sed -n '9345,9605p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --find=climate
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get | head -5
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Opus 5" %}
+
+{% tabs %}
+{% tab label="Opus 5 · run 1 · no tree" %}
+
+```bash
+wc -l climate.yaml
+grep -n "^  /[a-zA-Z0-9{}/_.-]*:" climate.yaml | head -300
+grep -n "climate" climate.yaml | head -120
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82014p' climate.yaml
+sed -n '9345,9745p' climate.yaml
+grep -n -A6 "^servers:" climate.yaml; grep -n -A12 "securitySchemes:" climate.yaml | head -30
+grep -c "Idempotency-Key" climate.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 1 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree climate.yaml --format=ai | head -100
+redocly tree climate.yaml --format=ai --find=climate
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps | head -120; echo "=====PRODUCT SCHEMA"; redocly tree climate.yaml --format=ai --component=schemas --name=climate.product --with-deps
+for p in "/v1/climate/orders:post" "/v1/climate/orders/{order}:get" "/v1/climate/orders/{order}/cancel:post"; do path=${p%:*}; m=${p#*:}; echo "===== $m $path"; redocly tree climate.yaml --format=ai --path="$path" --operation=$m; done
+redocly tree climate.yaml --format=ai --path="/v1/climate/orders" --operation=post
+redocly tree climate.yaml --format=ai --path="/v1/climate/orders/{order}" --operation=get; echo ===; redocly tree climate.yaml --format=ai --path="/v1/climate/orders/{order}/cancel" --operation=post; echo ===ORDERSCHEMA; redocly tree climate.yaml --format=ai --component=schemas --name=climate.order
+redocly tree climate.yaml --format=ai --path="/v1/climate/orders/{order}/cancel" --operation=post
+redocly tree climate.yaml --format=ai --component=schemas --name=climate.order
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · no tree" %}
+
+```bash
+wc -l climate.yaml
+head -40 climate.yaml && echo "=== PATHS ===" && grep -n "^  /" climate.yaml | head -100
+grep -n "^  /v1/climate" climate.yaml && sed -n '81470,82212p' climate.yaml
+grep -n "^    climate\.\(order\|product\|supplier\):" climate.yaml
+sed -n '9345,9600p' climate.yaml
+grep -n "climate_removals_products_price:" climate.yaml && sed -n "$(grep -n 'climate_removals_products_price:' climate.yaml | head -1 | cut -d: -f1),+35p" climate.yaml && echo "=== SERVERS/SEC ===" && grep -n "^servers:\|^security:\|^  - url:\|BasicAuth\|BearerAuth" climate.yaml | head -20
+sed -n '169885,169895p' climate.yaml && grep -n "securitySchemes:" -A 12 climate.yaml | head -20
+grep -c -i "idempotency" climate.yaml
+grep -n -i "idempotency" climate.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree climate.yaml --format=ai | head -100
+redocly tree climate.yaml --format=ai --find=climate | head -60
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps | head -120; echo ===; redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps | head -160
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps | head -80
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post | head -40
+redocly tree climate.yaml --format=ai --component=schemas --name=climate.product --with-deps | head -60
+redocly tree climate.yaml --format=ai --path='/v1/climate/orders/{order}' --operation=get | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+wc -l climate.yaml
+grep -n "^paths:\|^components:\|^info:\|^servers:\|^tags:" climate.yaml; echo "---PATHS---"; grep -n "^  /" climate.yaml
+grep -n "climate" climate.yaml | head -80
+sed -n '81470,82030p' climate.yaml
+sed -n '9345,9765p' climate.yaml
+sed -n '169894,169900p' climate.yaml; echo "---SEC---"; grep -n "securitySchemes" -A 25 climate.yaml | head -40; echo "---INFO---"; sed -n '63422,63436p' climate.yaml
+grep -in "idempotency" climate.yaml | head -5
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --find "climate"
+redocly tree climate.yaml --format=ai --operation=GetClimateProducts --with-deps | head -150
+redocly tree climate.yaml --format=ai --operation=PostClimateOrders --with-deps | head -80
+redocly tree climate.yaml --format=ai --operation=PostClimateOrdersOrderCancel | head -40; echo "=== RETRIEVE ORDER ==="; redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder | head -20
+redocly tree climate.yaml --format=ai --component=schemas --name="climate.product" --with-deps | head -40
+redocly tree climate.yaml --format=ai --component=schemas --name="climate.order" | head -20; echo "=== SERVERS/AUTH ==="; redocly tree climate.yaml --format=ai | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+wc -l climate.yaml
+grep -n "^  /" climate.yaml | head -200
+sed -n '81470,82212p' climate.yaml
+grep -n "^    climate\." climate.yaml
+sed -n '9345,9660p' climate.yaml
+grep -n -A14 "    climate_removals_products_price:" climate.yaml && echo "=== SERVERS/SECURITY ===" && grep -n -A12 "^servers:" climate.yaml && grep -n -A20 "  securitySchemes:" climate.yaml | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --find climate
+redocly tree climate.yaml --format=ai --operation GetClimateProducts --with-deps | head -120
+redocly tree climate.yaml --format=ai --operation PostClimateOrders --with-deps | head -60; echo "=====CANCEL"; redocly tree climate.yaml --format=ai --operation PostClimateOrdersOrderCancel --with-deps | head -40
+redocly tree climate.yaml --format=ai --component schemas --name climate.product --with-deps | head -40; echo "=====SERVERS"; redocly tree climate.yaml --format=ai | head -20
+redocly tree climate.yaml --format=ai --operation GetClimateOrdersOrder | head -6
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+wc -l climate.yaml
+grep -n "^  /" climate.yaml | head -100
+head -60 climate.yaml
+sed -n '81470,82215p' climate.yaml
+grep -n "^    climate\.\(order\|product\|supplier\):" climate.yaml; grep -n "^servers:\|^  securitySchemes:\|^security:\|^  - basicAuth\|^openapi:\|^info:" climate.yaml
+sed -n '9345,9640p' climate.yaml
+sed -n '63408,63436p;169889,169895p' climate.yaml
+grep -n "climate_removals_products_price:" -A 20 climate.yaml; grep -cn "Idempotency-Key" climate.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls -la && redocly tree --help
+redocly tree climate.yaml --format=ai --tag | head -100
+redocly tree climate.yaml --format=ai --find "removal" | head -80; echo "=== ORDER ==="; redocly tree climate.yaml --format=ai --find "order" | head -80
+redocly tree climate.yaml --format=ai --find "climate" | head -40
+redocly tree climate.yaml --format=ai | head -30; echo "=== UPDATE ==="; redocly tree climate.yaml --format=ai --operation PostClimateOrdersOrder | sed -n '4p' | head -c 1500
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Haiku 4.5" %}
+
+{% tabs %}
+{% tab label="Haiku 4.5 · run 1 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^(paths|\\/|\\s+get:|post:|delete:)" climate.yaml | head -200
+grep "product|order|removal|cancel" climate.yaml | head -150
+grep "/v1/climate" climate.yaml | head -300
+sed -n '81470,81570p' climate.yaml
+sed -n '81569,81719p' climate.yaml
+sed -n '81808,81908p' climate.yaml
+sed -n '9345,9545p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --operations --format=ai
+redocly tree climate.yaml --find="removal|product|order|carbon" --format=ai
+redocly tree climate.yaml --tag --format=ai
+redocly tree climate.yaml --find="product" --format=ai
+redocly tree climate.yaml --find="climate" --format=ai
+redocly tree climate.yaml --path="/v1/climate/orders" --operation="post" --with-deps --format=ai
+redocly tree climate.yaml --path="/v1/climate/orders/{order}/cancel" --operation="post" --with-deps --format=ai
+redocly tree climate.yaml --path="/v1/climate/products" --operation="get" --with-deps --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · no tree" %}
+
+```bash
+Skill
+cat climate.yaml
+grep "(?i)(product|order|cancel|removal|removal.*product|list.*product)" climate.yaml | head -100
+grep "^  /(.*climate.*?):" climate.yaml | head -50
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82064p' climate.yaml
+sed -n '9506,9606p' climate.yaml
+sed -n '9345,9505p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --find="carbon\|removal\|order\|product" | head -100
+redocly tree climate.yaml --format=ai --tag
+head -50 climate.yaml
+ls -la *.yaml *.yml 2>/dev/null | head -20
+find . -maxdepth 3 -name "*.yaml" -o -name "*.yml" 2>/dev/null
+grep -i "climate\|carbon\|removal\|sustainability\|emission\|offset\|renewable" climate.yaml | head -20
+redocly tree climate.yaml --format=ai --find="climate"
+redocly tree climate.yaml --format=ai --operation="get" --path="/v1/climate/products"
+redocly tree climate.yaml --format=ai --component=schemas --name=climate.product
+redocly tree climate.yaml --format=ai --operation="post" --path="/v1/climate/orders"
+redocly tree climate.yaml --format=ai --operation="post" --path="/v1/climate/orders/{order}/cancel"
+redocly tree climate.yaml --format=ai --component=schemas --name=climate.order
+redocly tree climate.yaml --format=ai --operation="get" --path="/v1/climate/orders/{order}"
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "product|order|removal|cancel" climate.yaml | head -100
+grep "paths:.*climate|/climate" climate.yaml
+sed -n '81864,82064p' climate.yaml
+sed -n '9506,9606p' climate.yaml
+sed -n '81470,81670p' climate.yaml
+sed -n '9345,9545p' climate.yaml
+sed -n '81808,81908p' climate.yaml
+sed -n '81675,81825p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+ls -la climate.yaml
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --find "product"
+redocly tree climate.yaml --format=ai --find "removal"
+redocly tree climate.yaml --format=ai --find "order"
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=get --with-deps
+redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrderCancel --with-deps
+redocly tree climate.yaml --format=ai --find "cancel" | head -30
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
+redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order} --operation=get --with-deps
+Artifact
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "^  /(.*?):|paths:|components:|Product|Order|Cancel|Delivery|carbon|removal" climate.yaml | head -100
+grep "^paths:|/climate/orders|/climate/products|post:|get:|delete:" climate.yaml | head -150
+sed -n '81470,81820p' climate.yaml
+sed -n '81809,81959p' climate.yaml
+grep "climate\\.order:|climate\\.product:|^    title: ClimateRemovalsOrders|^    title: ClimateRemovalsProducts" climate.yaml | head -20
+sed -n '9345,9545p' climate.yaml
+sed -n '9541,9641p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --format=ai --find "product\|order\|remove\|cancel"
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --tag
+redocly tree climate.yaml --format=ai --find "removal"
+redocly tree climate.yaml --format=ai --find "climate"
+redocly tree climate.yaml --format=ai --operation GetClimateProducts --with-deps
+redocly tree climate.yaml --format=ai --operation PostClimateOrders --with-deps
+redocly tree climate.yaml --format=ai --operation PostClimateOrdersOrderCancel --with-deps
+redocly tree climate.yaml --format=ai --operation GetClimateOrdersOrder --with-deps
+redocly tree climate.yaml --format=ai --operation GetClimateProductsProduct --with-deps
+redocly tree climate.yaml --format=ai --component schemas --name climate_removals_products_price
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · no tree" %}
+
+```bash
+cat climate.yaml
+grep "carbon|removal|product|order|cancel" climate.yaml | head -100
+grep "paths:|/v1/climate|POST|GET" climate.yaml | head -150
+sed -n '81470,81870p' climate.yaml
+sed -n '81864,82064p' climate.yaml
+sed -n '9506,9656p' climate.yaml
+sed -n '9345,9545p' climate.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree climate.yaml --format=ai --operations
+redocly tree climate.yaml --format=ai --find=product
+redocly tree climate.yaml --format=ai --find=order
+redocly tree climate.yaml --format=ai --path=/v1/climate/products
+redocly tree climate.yaml --format=ai --operation=get --path=/v1/climate/products --with-deps
+redocly tree climate.yaml --format=ai --operation=post --path=/v1/climate/orders --with-deps
+redocly tree climate.yaml --format=ai --operation=post --path=/v1/climate/orders/{order}/cancel --with-deps
+redocly tree climate.yaml --format=ai --operation=get --path=/v1/climate/orders/{order} --with-deps
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% /tabs %}
+
+The same file that defeats Sonnet 5 and Haiku 4.5 on the mainstream task is no obstacle here: every model finds the three calls, and the index cuts context by roughly a third for all of them.
+Haiku 4.5 is the cleanest result in the whole grid — its five control runs all propose the right calls and all fail for the same missing authentication, and its five index runs all pass, quoting the `Authorization: Bearer` header the overview's `security:` line hands it.
+Set against the previous tab, this is the prior-contamination experiment: same file, same models, and only the corner of the API changed. The mainstream failures were never about finding things — they were about not looking.
+
+{% /tab %}
+
 {% tab label="PayPal Orders · 0.9 MB" %}
 
 **Task:** take the buyer's payment for a cart, capture it once they approve, and file the shipment's tracking number against that payment.
@@ -5043,74 +5590,83 @@ Haiku 4.5 passes all five control runs and drops two tree runs by losing the tok
 
 How many of the five runs in each cell produced a flow that would run:
 
-| Description   | Model     | no tree | tree |
-| ------------- | --------- | ------: | ---: |
-| GitHub REST   | Sonnet 5  |     5/5 |  5/5 |
-| GitHub REST   | Opus 5    |     5/5 |  5/5 |
-| GitHub REST   | Haiku 4.5 |     1/5 |  0/5 |
-| Billing API   | Sonnet 5  |     0/5 |  4/5 |
-| Billing API   | Opus 5    |     5/5 |  5/5 |
-| Billing API   | Haiku 4.5 |     0/5 |  2/5 |
-| Stripe        | Sonnet 5  |     0/5 |  0/5 |
-| Stripe        | Opus 5    |     4/5 |  5/5 |
-| Stripe        | Haiku 4.5 |     0/5 |  0/5 |
-| PayPal Orders | Sonnet 5  |     5/5 |  5/5 |
-| PayPal Orders | Opus 5    |     5/5 |  5/5 |
-| PayPal Orders | Haiku 4.5 |     1/5 |  3/5 |
-| DigitalOcean  | Sonnet 5  |     1/5 |  0/5 |
-| DigitalOcean  | Opus 5    |     5/5 |  5/5 |
-| DigitalOcean  | Haiku 4.5 |     2/5 |  2/5 |
-| Cafe API      | Sonnet 5  |     5/5 |  5/5 |
-| Cafe API      | Opus 5    |     5/5 |  5/5 |
-| Cafe API      | Haiku 4.5 |     5/5 |  3/5 |
+| Description    | Model     | no tree | tree |
+| -------------- | --------- | ------: | ---: |
+| GitHub REST    | Sonnet 5  |     5/5 |  5/5 |
+| GitHub REST    | Opus 5    |     5/5 |  5/5 |
+| GitHub REST    | Haiku 4.5 |     1/5 |  0/5 |
+| Billing API    | Sonnet 5  |     0/5 |  4/5 |
+| Billing API    | Opus 5    |     5/5 |  5/5 |
+| Billing API    | Haiku 4.5 |     0/5 |  2/5 |
+| Stripe         | Sonnet 5  |     0/5 |  0/5 |
+| Stripe         | Opus 5    |     4/5 |  5/5 |
+| Stripe         | Haiku 4.5 |     0/5 |  0/5 |
+| Stripe Climate | Sonnet 5  |     4/5 |  5/5 |
+| Stripe Climate | Opus 5    |     5/5 |  5/5 |
+| Stripe Climate | Haiku 4.5 |     0/5 |  5/5 |
+| PayPal Orders  | Sonnet 5  |     5/5 |  5/5 |
+| PayPal Orders  | Opus 5    |     5/5 |  5/5 |
+| PayPal Orders  | Haiku 4.5 |     1/5 |  3/5 |
+| DigitalOcean   | Sonnet 5  |     1/5 |  0/5 |
+| DigitalOcean   | Opus 5    |     5/5 |  5/5 |
+| DigitalOcean   | Haiku 4.5 |     2/5 |  2/5 |
+| Cafe API       | Sonnet 5  |     5/5 |  5/5 |
+| Cafe API       | Opus 5    |     5/5 |  5/5 |
+| Cafe API       | Haiku 4.5 |     5/5 |  3/5 |
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all five):
 
-| Description   | Model     |        no tree |           tree | Difference |
-| ------------- | --------- | -------------: | -------------: | ---------: |
-| GitHub REST   | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |        −9% |
-| GitHub REST   | Opus 5    |    16,870 / 11 |    14,681 / 11 |       −13% |
-| GitHub REST   | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |          — |
-| Billing API   | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |          — |
-| Billing API   | Opus 5    |    44,355 / 39 |    35,346 / 20 |       −20% |
-| Billing API   | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |          — |
-| Stripe        | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |        +4% |
-| Stripe        | Opus 5    |    24,339 / 25 |    33,751 / 17 |       +39% |
-| Stripe        | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |       −43% |
-| PayPal Orders | Sonnet 5  |     9,857 / 12 |    17,435 / 10 |       +77% |
-| PayPal Orders | Opus 5    |    18,038 / 11 |    21,656 / 20 |       +20% |
-| PayPal Orders | Haiku 4.5 |     17,624 / 9 |    19,569 / 14 |       +11% |
-| DigitalOcean  | Sonnet 5  |    11,924 / 11 | 23,276 / 20 ❌ |          — |
-| DigitalOcean  | Opus 5    |    21,514 / 14 |    28,664 / 22 |       +33% |
-| DigitalOcean  | Haiku 4.5 |    40,107 / 17 |    21,495 / 19 |       −46% |
-| Cafe API      | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |       −36% |
-| Cafe API      | Opus 5    |     16,769 / 1 |    15,375 / 11 |        −8% |
-| Cafe API      | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |       −44% |
+| Description    | Model     |        no tree |           tree | Difference |
+| -------------- | --------- | -------------: | -------------: | ---------: |
+| GitHub REST    | Sonnet 5  |    12,492 / 12 |     11,336 / 9 |        −9% |
+| GitHub REST    | Opus 5    |    16,870 / 11 |    14,681 / 11 |       −13% |
+| GitHub REST    | Haiku 4.5 |    13,058 / 11 |   6,880 / 7 ❌ |          — |
+| Billing API    | Sonnet 5  | 12,532 / 16 ❌ |    23,098 / 20 |          — |
+| Billing API    | Opus 5    |    44,355 / 39 |    35,346 / 20 |       −20% |
+| Billing API    | Haiku 4.5 | 25,809 / 18 ❌ |    19,777 / 18 |          — |
+| Stripe         | Sonnet 5  | 18,215 / 16 ❌ |  18,908 / 7 ❌ |        +4% |
+| Stripe         | Opus 5    |    24,339 / 25 |    33,751 / 17 |       +39% |
+| Stripe         | Haiku 4.5 | 35,056 / 14 ❌ |  19,929 / 9 ❌ |       −43% |
+| Stripe Climate | Sonnet 5  |     14,297 / 8 |      8,417 / 7 |       −41% |
+| Stripe Climate | Opus 5    |     14,761 / 8 |      9,888 / 8 |       −33% |
+| Stripe Climate | Haiku 4.5 |  14,305 / 8 ❌ |     9,823 / 12 |          — |
+| PayPal Orders  | Sonnet 5  |     9,857 / 12 |    17,435 / 10 |       +77% |
+| PayPal Orders  | Opus 5    |    18,038 / 11 |    21,656 / 20 |       +20% |
+| PayPal Orders  | Haiku 4.5 |     17,624 / 9 |    19,569 / 14 |       +11% |
+| DigitalOcean   | Sonnet 5  |    11,924 / 11 | 23,276 / 20 ❌ |          — |
+| DigitalOcean   | Opus 5    |    21,514 / 14 |    28,664 / 22 |       +33% |
+| DigitalOcean   | Haiku 4.5 |    40,107 / 17 |    21,495 / 19 |       −46% |
+| Cafe API       | Sonnet 5  |     16,935 / 1 |    10,849 / 10 |       −36% |
+| Cafe API       | Opus 5    |     16,769 / 1 |    15,375 / 11 |        −8% |
+| Cafe API       | Haiku 4.5 |     15,764 / 1 |     8,773 / 13 |       −44% |
 
 What those runs were billed:
 
-| Description   | Model     |  no tree |     tree | Difference |
-| ------------- | --------- | -------: | -------: | ---------: |
-| GitHub REST   | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
-| GitHub REST   | Opus 5    |    $0.63 |    $0.60 |        −5% |
-| GitHub REST   | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
-| Billing API   | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
-| Billing API   | Opus 5    |    $1.97 |    $1.12 |       −43% |
-| Billing API   | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
-| Stripe        | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
-| Stripe        | Opus 5    |    $1.40 |    $1.16 |       −17% |
-| Stripe        | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
-| PayPal Orders | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
-| PayPal Orders | Opus 5    |    $0.71 |    $0.93 |       +31% |
-| PayPal Orders | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
-| DigitalOcean  | Sonnet 5  |    $0.33 | $0.54 ❌ |          — |
-| DigitalOcean  | Opus 5    |    $0.68 |    $0.96 |       +41% |
-| DigitalOcean  | Haiku 4.5 |    $0.18 |    $0.18 |        −0% |
-| Cafe API      | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
-| Cafe API      | Opus 5    |    $0.65 |    $0.65 |        −0% |
-| Cafe API      | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
+| Description    | Model     |  no tree |     tree | Difference |
+| -------------- | --------- | -------: | -------: | ---------: |
+| GitHub REST    | Sonnet 5  |    $0.39 |    $0.33 |       −15% |
+| GitHub REST    | Opus 5    |    $0.63 |    $0.60 |        −5% |
+| GitHub REST    | Haiku 4.5 |    $0.12 | $0.07 ❌ |          — |
+| Billing API    | Sonnet 5  | $0.76 ❌ |    $0.65 |          — |
+| Billing API    | Opus 5    |    $1.97 |    $1.12 |       −43% |
+| Billing API    | Haiku 4.5 | $0.18 ❌ |    $0.16 |          — |
+| Stripe         | Sonnet 5  | $0.59 ❌ | $0.35 ❌ |       −41% |
+| Stripe         | Opus 5    |    $1.40 |    $1.16 |       −17% |
+| Stripe         | Haiku 4.5 | $0.17 ❌ | $0.12 ❌ |       −29% |
+| Stripe Climate | Sonnet 5  |    $0.33 |    $0.26 |       −21% |
+| Stripe Climate | Opus 5    |    $0.57 |    $0.47 |       −18% |
+| Stripe Climate | Haiku 4.5 | $0.10 ❌ |    $0.10 |          — |
+| PayPal Orders  | Sonnet 5  |    $0.40 |    $0.38 |        −5% |
+| PayPal Orders  | Opus 5    |    $0.71 |    $0.93 |       +31% |
+| PayPal Orders  | Haiku 4.5 |    $0.11 |    $0.12 |        +9% |
+| DigitalOcean   | Sonnet 5  |    $0.33 | $0.54 ❌ |          — |
+| DigitalOcean   | Opus 5    |    $0.68 |    $0.96 |       +41% |
+| DigitalOcean   | Haiku 4.5 |    $0.18 |    $0.18 |        −0% |
+| Cafe API       | Sonnet 5  |    $0.43 |    $0.38 |       −12% |
+| Cafe API       | Opus 5    |    $0.65 |    $0.65 |        −0% |
+| Cafe API       | Haiku 4.5 |    $0.07 |    $0.10 |       +43% |
 
-One hundred thirteen of 180 runs produced a flow that passes the check: 54 of 90 without the index, 59 of 90 with it.
+One hundred thirty-seven of 210 runs produced a flow that passes the check: 63 of 105 without the index, 74 of 105 with it.
 The strongest single move is Sonnet 5 on the billing API — zero of five without the index, four of five with it, on a description whose only consistent failure was the missing `REB-APIKEY` header that the card's `auth:` line now states.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
@@ -5119,7 +5675,7 @@ Stripe splits the difference — the index cannot rescue a plan that starts from
 
 | Reason                                                                                      | Runs |
 | ------------------------------------------------------------------------------------------- | ---: |
-| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   48 |
+| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   54 |
 | the product (or price's product) is never created, though nothing exists yet                |   25 |
 | `POST /v1/prices` is missing — the flow starts from "your price id"                         |   14 |
 | no call to mint the GitHub App installation token, though the flow says it uses one         |    9 |
