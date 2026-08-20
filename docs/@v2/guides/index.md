@@ -109,6 +109,12 @@ The same comparison judged on the answer: does the flow an agent produces actual
 Eight tasks over six descriptions, 41 KB to 2,909 files: where the index saves context, where the layout already is one, and where a model answers from memory instead of reading.
 {% /card %}
 
+{% card title="Where the index pays — every run"
+    to="./tree-agent-index-benchmark-v3-detailed"
+  %}
+The long form of the same measurement: all 240 runs with the commands each issued, per-run verdicts, and the full failure tally.
+{% /card %}
+
 {% card title="Set up tab completion"
     to="./autocomplete"
   %}
