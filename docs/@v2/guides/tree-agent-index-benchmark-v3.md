@@ -1,39 +1,33 @@
 # Where the index pays
 
 An agent handed an API description has two ways to work: read and search the file, or ask `tree` for an index of it.
-This measures both on the same tasks — eight of them, over six descriptions from 41 KB to 2,909 files — and judges the answer, not the effort: does the flow the agent produces actually run?
+This measures both on the same tasks — six of them, over six descriptions from 41 KB to 2,909 files — and judges the answer, not the effort: does the flow the agent produces actually run?
 
-**156 of 240 runs produced a working flow: 67 of 120 without the index, 89 of 120 with it.**
+**131 of 180 runs produced a working flow: 57 of 90 without the index, 74 of 90 with it.**
 The index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach.
 
 ## What it changes
 
-| Description   | Task                      | Model     |     works |  no tree |     tree | Δ cost |
-| ------------- | ------------------------- | --------- | --------: | -------: | -------: | -----: |
-| GitHub REST   | publish a release         | Sonnet 5  | 5/5 → 5/5 |    $0.39 |    $0.33 |   −15% |
-| GitHub REST   | publish a release         | Opus 5    | 5/5 → 5/5 |    $0.63 |    $0.60 |    −5% |
-| GitHub REST   | publish a release         | Haiku 4.5 | 1/5 → 0/5 |    $0.12 | $0.07 ❌ |      — |
-| Billing API   | start a subscription      | Sonnet 5  | 0/5 → 4/5 | $0.76 ❌ |    $0.65 |      — |
-| Billing API   | start a subscription      | Opus 5    | 5/5 → 5/5 |    $1.97 |    $1.12 |   −43% |
-| Billing API   | start a subscription      | Haiku 4.5 | 0/5 → 2/5 | $0.18 ❌ |    $0.16 |      — |
-| Stripe        | subscription with a trial | Sonnet 5  | 0/5 → 0/5 | $0.59 ❌ | $0.35 ❌ |   −41% |
-| Stripe        | subscription with a trial | Opus 5    | 4/5 → 5/5 |    $1.40 |    $1.16 |   −17% |
-| Stripe        | subscription with a trial | Haiku 4.5 | 0/5 → 0/5 | $0.17 ❌ | $0.12 ❌ |   −29% |
-| Stripe        | buy carbon removal        | Sonnet 5  | 4/5 → 5/5 |    $0.33 |    $0.26 |   −21% |
-| Stripe        | buy carbon removal        | Opus 5    | 5/5 → 5/5 |    $0.57 |    $0.47 |   −18% |
-| Stripe        | buy carbon removal        | Haiku 4.5 | 0/5 → 5/5 | $0.10 ❌ |    $0.10 |      — |
-| PayPal Orders | capture and track         | Sonnet 5  | 5/5 → 5/5 |    $0.40 |    $0.38 |    −5% |
-| PayPal Orders | capture and track         | Opus 5    | 5/5 → 5/5 |    $0.71 |    $0.93 |   +31% |
-| PayPal Orders | capture and track         | Haiku 4.5 | 1/5 → 3/5 |    $0.11 |    $0.12 |    +9% |
-| DigitalOcean  | server, disk, firewall    | Sonnet 5  | 0/5 → 4/5 | $0.41 ❌ |    $0.47 |      — |
-| DigitalOcean  | server, disk, firewall    | Opus 5    | 5/5 → 5/5 |    $0.78 |    $0.78 |    −0% |
-| DigitalOcean  | server, disk, firewall    | Haiku 4.5 | 1/5 → 1/5 |    $0.19 |    $0.18 |    −5% |
-| DigitalOcean  | shared file storage       | Sonnet 5  | 1/5 → 3/5 |    $0.53 |    $0.43 |   −19% |
-| DigitalOcean  | shared file storage       | Opus 5    | 5/5 → 5/5 |    $0.72 |    $0.77 |    +7% |
-| DigitalOcean  | shared file storage       | Haiku 4.5 | 0/5 → 4/5 | $0.23 ❌ |    $0.14 |      — |
-| Cafe API      | order a coffee            | Sonnet 5  | 5/5 → 5/5 |    $0.43 |    $0.38 |   −12% |
-| Cafe API      | order a coffee            | Opus 5    | 5/5 → 5/5 |    $0.65 |    $0.65 |    −0% |
-| Cafe API      | order a coffee            | Haiku 4.5 | 5/5 → 3/5 |    $0.07 |    $0.10 |   +43% |
+| Description   | Task                 | Model     |     works |  no tree |     tree | Δ cost |
+| ------------- | -------------------- | --------- | --------: | -------: | -------: | -----: |
+| GitHub REST   | publish a release    | Sonnet 5  | 5/5 → 5/5 |    $0.39 |    $0.33 |   −15% |
+| GitHub REST   | publish a release    | Opus 5    | 5/5 → 5/5 |    $0.63 |    $0.60 |    −5% |
+| GitHub REST   | publish a release    | Haiku 4.5 | 1/5 → 0/5 |    $0.12 | $0.07 ❌ |      — |
+| Billing API   | start a subscription | Sonnet 5  | 0/5 → 4/5 | $0.76 ❌ |    $0.65 |      — |
+| Billing API   | start a subscription | Opus 5    | 5/5 → 5/5 |    $1.97 |    $1.12 |   −43% |
+| Billing API   | start a subscription | Haiku 4.5 | 0/5 → 2/5 | $0.18 ❌ |    $0.16 |      — |
+| Stripe        | buy carbon removal   | Sonnet 5  | 4/5 → 5/5 |    $0.33 |    $0.26 |   −21% |
+| Stripe        | buy carbon removal   | Opus 5    | 5/5 → 5/5 |    $0.57 |    $0.47 |   −18% |
+| Stripe        | buy carbon removal   | Haiku 4.5 | 0/5 → 5/5 | $0.10 ❌ |    $0.10 |      — |
+| PayPal Orders | capture and track    | Sonnet 5  | 5/5 → 5/5 |    $0.40 |    $0.38 |    −5% |
+| PayPal Orders | capture and track    | Opus 5    | 5/5 → 5/5 |    $0.71 |    $0.93 |   +31% |
+| PayPal Orders | capture and track    | Haiku 4.5 | 1/5 → 3/5 |    $0.11 |    $0.12 |    +9% |
+| DigitalOcean  | shared file storage  | Sonnet 5  | 1/5 → 3/5 |    $0.53 |    $0.43 |   −19% |
+| DigitalOcean  | shared file storage  | Opus 5    | 5/5 → 5/5 |    $0.72 |    $0.77 |    +7% |
+| DigitalOcean  | shared file storage  | Haiku 4.5 | 0/5 → 4/5 | $0.23 ❌ |    $0.14 |      — |
+| Cafe API      | order a coffee       | Sonnet 5  | 5/5 → 5/5 |    $0.43 |    $0.38 |   −12% |
+| Cafe API      | order a coffee       | Opus 5    | 5/5 → 5/5 |    $0.65 |    $0.65 |    −0% |
+| Cafe API      | order a coffee       | Haiku 4.5 | 5/5 → 3/5 |    $0.07 |    $0.10 |   +43% |
 
 Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
 Context moves the same way and more steadily; it is in each tab below, and per-run in [the detailed version](./tree-agent-index-benchmark-v3-detailed.md).
@@ -166,72 +160,6 @@ The index turns Sonnet 5 from nothing that runs into four flows in five, and hal
 
 {% /tab %}
 
-{% tab label="Stripe · subscription with a trial" %}
-
-**Description:** 6.07 MB in one file.
-
-**Task:** a paid tier with a 14-day free trial, billed monthly on the customer's saved card.
-Expected: `POST /v1/products` → `POST /v1/prices` → `POST /v1/subscriptions`.
-
-**The trap:** the legacy `/v1/plans` sits next to `/v1/prices`, and the trial rides on `trial_period_days`.
-
-{% tabs %}
-{% tab label="Prompt: no tree" %}
-
-```text
-We're launching a paid tier for our product: an existing customer should get a 14-day
-free trial and then be billed monthly on their saved card, automatically. Work out what
-our backend has to call to set that up, end to end.
-
-API description: stripe.yaml
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-We're launching a paid tier for our product: an existing customer should get a 14-day
-free trial and then be billed monthly on their saved card, automatically. Work out what
-our backend has to call to set that up, end to end.
-
-API description: stripe.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree stripe.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
-
-| Model     |     works |        no tree |          tree | Δ context |
-| --------- | --------: | -------------: | ------------: | --------: |
-| Sonnet 5  | 0/5 → 0/5 | 18,215 / 16 ❌ | 18,908 / 7 ❌ |       +4% |
-| Opus 5    | 4/5 → 5/5 |    24,339 / 25 |   33,751 / 17 |      +39% |
-| Haiku 4.5 | 0/5 → 0/5 | 35,056 / 14 ❌ | 19,929 / 9 ❌ |      −43% |
-
-What the failing runs left out:
-
-- **Sonnet 5 · no tree** — 2 runs: no auth scheme
-- **Sonnet 5 · no tree** — 3 runs: no product call, no price call, no auth scheme
-- **Sonnet 5 · tree** — 1 run: no product call, no price call, no auth scheme
-- **Sonnet 5 · tree** — 2 runs: no product call, no auth scheme
-- **Sonnet 5 · tree** — 2 runs: no auth scheme
-- **Opus 5 · no tree** — 1 run: no auth scheme
-- **Haiku 4.5 · no tree** — 5 runs: no product call, no price call, no auth scheme
-- **Haiku 4.5 · tree** — 1 run: no product call, no price call
-- **Haiku 4.5 · tree** — 4 runs: no product call, no price call, no auth scheme
-
-Only Opus 5 passes. Sonnet 5 and Haiku 4.5 start from "your price id" — a catalog the task says does not exist yet — and an index cannot fix a plan that begins from the wrong premise. The next tab is the same file without that pull.
-
-{% /tab %}
-
 {% tab label="Stripe · buy carbon removal" %}
 
 **Description:** 6.07 MB in one file — the same file as the previous tab.
@@ -352,69 +280,6 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 1 run: no intent field, no auth scheme
 
 Everything passes for Sonnet 5 and Opus 5, and both pay more context — nine operations barely need finding. Haiku 4.5 gains the `capture_id` chain it kept missing.
-
-{% /tab %}
-
-{% tab label="DigitalOcean · server, disk, firewall" %}
-
-**Description:** 2.62 MB across 2,909 files.
-
-**Task:** one server in its own private network, an extra storage volume attached, and a firewall that lets in only SSH and HTTPS.
-Expected: `POST /v2/vpcs` → `POST /v2/droplets` → `POST /v2/volumes` → the volume attach action → `POST /v2/firewalls`.
-
-**The trap:** the droplet joins the network by `vpc_uuid`, and the volume attach is a separate call.
-
-{% tabs %}
-{% tab label="Prompt: no tree" %}
-
-```text
-We're standing up a small web service: one server in its own private network, an extra
-storage volume attached to it, and a firewall that lets in only SSH and HTTPS. Nothing
-is set up yet. Work out what our deploy script has to call, in order.
-
-API description: digitalocean/DigitalOcean-public.v2.yaml
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-We're standing up a small web service: one server in its own private network, an extra
-storage volume attached to it, and a firewall that lets in only SSH and HTTPS. Nothing
-is set up yet. Work out what our deploy script has to call, in order.
-
-API description: digitalocean/DigitalOcean-public.v2.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
-
-| Model     |     works |        no tree |        tree | Δ context |
-| --------- | --------: | -------------: | ----------: | --------: |
-| Sonnet 5  | 0/5 → 4/5 | 17,177 / 13 ❌ | 20,377 / 16 |         — |
-| Opus 5    | 5/5 → 5/5 |    23,324 / 14 | 26,045 / 19 |      +12% |
-| Haiku 4.5 | 1/5 → 1/5 |    24,968 / 19 | 19,839 / 21 |      −21% |
-
-What the failing runs left out:
-
-- **Sonnet 5 · no tree** — 5 runs: no auth scheme
-- **Sonnet 5 · tree** — 1 run: no auth scheme
-- **Haiku 4.5 · no tree** — 3 runs: no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no attach
-- **Haiku 4.5 · tree** — 1 run: no vpc call, no droplet call, no volume call, no attach, no firewall call, no auth scheme
-- **Haiku 4.5 · tree** — 3 runs: no auth scheme
-
-Opus 5 passes either way and pays 33% more context: 2,909 single-operation files named by what they do already are an index, and reading one beats fetching a card. Sonnet 5 still moves from none to four, because the cards state the authentication its own answers kept omitting.
 
 {% /tab %}
 
@@ -543,13 +408,16 @@ At 41 KB the whole description fits in one read, and the index still cuts contex
 ## What the numbers show
 
 **An index decides whether a smaller model gets there at all.**
-Four cells go from at most one working flow to three or more once it is available: Sonnet 5 on the billing API and on the DigitalOcean server task, Haiku 4.5 on carbon removal and on shared file storage.
-Opus 5, meanwhile, passes 79 of its 80 runs either way — it does not need one.
+Five cells go from at most one working flow to three or more once it is available: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal, on PayPal and on shared file storage.
+Opus 5, meanwhile, passes all 60 of its runs either way — it does not need one.
 
 **Almost every one of those failures is the same failure.** The control runs name the right calls in the right order and never say how the request authenticates: no key, no header, no token. That is the largest single failure class in the grid, and it is what an index removes, because every card states the requirement that protects the operation.
 
-**It does not pay everywhere, and the grid shows where.** On DigitalOcean — 2,909 files, one operation each, named for what they do — the description is already an index, so reading a file beats fetching a card and the index costs about a third more context.
-On Stripe it cannot rescue a plan that starts from a price the task never created: Sonnet 5 and Haiku 4.5 answer that one from memory rather than from the file. Asked instead about carbon removal, a corner of the very same file that no tutorial covers, both read the description and pass.
+**It does not pay everywhere.** On DigitalOcean — 2,909 files, one operation each, named for what they do — the description is already an index, so reading a file often beats fetching a card and Opus 5 pays 44% more context for the same answer.
+
+Two further tasks sit in [the detailed version](./tree-agent-index-benchmark-v3-detailed.md), on the same Stripe and DigitalOcean files but on ground every model has read tutorials about: a subscription with a trial, and a server behind a firewall.
+They are the harder half. On the Stripe one, Sonnet 5 and Haiku 4.5 fail all ten runs either way — they answer from memory, starting from a price the task never created, and an index cannot rescue a plan that begins from the wrong premise.
+That is the boundary of what this measures: an index puts the description in reach, and does nothing about a model that does not look.
 
 ## How this was measured
 
