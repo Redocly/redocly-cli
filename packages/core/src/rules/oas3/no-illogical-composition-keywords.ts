@@ -23,8 +23,8 @@ type SourcedSchema = {
 type SchemaProperties = NonNullable<CompositionSchema['properties']>;
 
 type PropertyComparison = {
-  left: SourcedSchema;
-  right: SourcedSchema;
+  leftSource: string | undefined;
+  rightSource: string | undefined;
   leftProperties: SchemaProperties;
   rightProperties: SchemaProperties;
   leftRequired: Set<string>;
@@ -259,11 +259,7 @@ function findOverlapReason(
   }
 
   if (discriminator) {
-    const { propertyName } = discriminator;
-    // `struct` is not guaranteed to have rejected a non-string `propertyName` first.
-    return typeof propertyName === 'string'
-      ? describeDiscriminatorGap(leftSchema, rightSchema, propertyName)
-      : null;
+    return describeDiscriminatorGap(leftSchema, rightSchema, discriminator);
   }
 
   const propertyOverlap = findPropertyOverlap(left, right, resolve);
@@ -282,8 +278,12 @@ function findOverlapReason(
 function describeDiscriminatorGap(
   left: CompositionSchema,
   right: CompositionSchema,
-  propertyName: string
+  discriminator: Oas3Discriminator
 ): string | null {
+  const { propertyName } = discriminator;
+  // `struct` is not guaranteed to have rejected a non-string `propertyName` first.
+  if (typeof propertyName !== 'string') return null;
+
   const requiredInBoth =
     !!left.required?.includes(propertyName) && !!right.required?.includes(propertyName);
   if (requiredInBoth) return null;
@@ -342,8 +342,8 @@ function collectPropertyComparison(
   if (!leftProperties || !rightProperties) return null;
 
   return {
-    left,
-    right,
+    leftSource: left.source,
+    rightSource: right.source,
     leftProperties,
     rightProperties,
     leftRequired: new Set(left.schema.required ?? []),
@@ -369,8 +369,8 @@ function schemasRequireDifferentProperties({
 
 function classifySharedProperties(
   {
-    left,
-    right,
+    leftSource,
+    rightSource,
     leftProperties,
     rightProperties,
     leftRequired,
@@ -385,8 +385,8 @@ function classifySharedProperties(
   for (const name of sharedNames) {
     const requiredInBoth = leftRequired.has(name) && rightRequired.has(name);
 
-    const leftProperty = resolveSchema(getOwn(leftProperties, name), resolve, left.source);
-    const rightProperty = resolveSchema(getOwn(rightProperties, name), resolve, right.source);
+    const leftProperty = resolveSchema(getOwn(leftProperties, name), resolve, leftSource);
+    const rightProperty = resolveSchema(getOwn(rightProperties, name), resolve, rightSource);
     if (!leftProperty || !rightProperty) continue;
     if (
       hasUnsupportedConstraint(leftProperty.schema) ||
@@ -458,8 +458,6 @@ function getTypeSet(schema: CompositionSchema): Set<string> | undefined {
 }
 
 function getSharedTypes(left: CompositionSchema, right: CompositionSchema): string[] | undefined {
-  if (hasUnsupportedConstraint(left) || hasUnsupportedConstraint(right)) return undefined;
-
   const leftTypes = getTypeSet(left);
   const rightTypes = getTypeSet(right);
   if (!leftTypes || !rightTypes) return undefined;
