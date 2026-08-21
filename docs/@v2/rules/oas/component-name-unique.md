@@ -38,6 +38,7 @@ This clearly is not optimal. Having unique component names prevents these proble
 | parameters    | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
 | responses     | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
 | requestBodies | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
+| strategy      | string | Possible values: `basename`, `title`. Default: `basename`.                               |
 
 An example configuration:
 
@@ -48,7 +49,24 @@ rules:
     parameters: off
     responses: warn
     requestBodies: warn
+    strategy: basename
 ```
+
+### Component names strategy
+
+The rule predicts the component names that `bundle` produces, so `strategy` must match the
+[`--component-names-strategy`](../../commands/bundle.md#configure-the-component-names-strategy) option you bundle with.
+
+With the default `basename`, a schema pulled in from another file is named after the `$ref` fragment or the file name.
+Two files both called `Order.yaml` therefore collide, and the rule reports them.
+
+With `title`, the same schemas are named after their `title` field instead.
+Two files called `Order.yaml` with the titles `Order model` and `Order request` become `OrderModel` and `OrderRequest`, so the rule no longer reports them.
+Two schemas in differently named files that share a title do collide, and the rule reports those instead.
+
+The `title` strategy applies only to schemas that are referenced from another file, because those are the only ones `bundle` renames.
+Schemas defined directly under the root description's `components/schemas` keep their own key.
+A referenced schema without a `title` falls back to the file name — `bundle` reports the missing title itself.
 
 ## Examples
 
