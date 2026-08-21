@@ -11,7 +11,7 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 
 | #                                                      | Decision                                                          | Status                  |
 | ------------------------------------------------------ | ----------------------------------------------------------------- | ----------------------- |
-| [0001](./0001-ast-codegen.md)                          | Generate TypeScript via the TS AST (`ts.factory`), not strings    | Accepted                |
+| [0001](./0001-ast-codegen.md)                          | Generate TypeScript via the TS AST (`ts.factory`), not strings    | Superseded by 0021      |
 | [0002](./0002-typescript-peer-dep.md)                  | `typescript` as a peer dep; zero-runtime-dependency output        | Accepted                |
 | [0003](./0003-spec-agnostic-ir.md)                     | A spec-agnostic IR as the builder↔emitter contract                | Accepted                |
 | [0004](./0004-registry-seams.md)                       | First-party `getGenerator` / `getWriter` registry seams           | Accepted                |
@@ -27,9 +27,12 @@ ARCHITECTURE.md says _what is_; these ADRs say _why_.
 | [0014](./0014-request-response-customization.md)       | Request/response customization as a runtime contract              | Accepted                |
 | [0015](./0015-publisher-setup-bake-in.md)              | Publisher setup bake-in via `--setup`                             | Accepted                |
 | [0016](./0016-msw-generator-vs-mock-server.md)         | In-process MSW mocks coexist with the out-of-process mock server  | Accepted                |
-| [0017](./0017-runtime-module-and-descriptor-client.md) | Hand-written runtime module + descriptor-driven generated clients | Accepted                |
+| [0017](./0017-runtime-module-and-descriptor-client.md) | Hand-written runtime module + descriptor-driven generated clients | Amended by 0022         |
 | [0018](./0018-auto-pagination.md)                      | Auto-pagination as declared, statically verified configuration    | Accepted                |
 | [0019](./0019-first-class-client-config.md)            | `generate-client` config via a first-class `client` block         | Accepted                |
+| [0020](./0020-self-contained-generator-folders.md)     | Self-contained generator folders, ejected as source               | Accepted                |
+| [0021](./0021-text-printers.md)                        | Text printers — one common printer plus one per language          | Accepted                |
+| [0022](./0022-runtime-inline-or-module.md)             | Runtime is inline or a sibling module; package mode removed       | Accepted                |
 
 ## Template
 
