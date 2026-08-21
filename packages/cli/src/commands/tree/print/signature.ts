@@ -152,12 +152,64 @@ export function parseNodeContent(content: string): Record<string, unknown> | und
     end--;
   }
 
+  const trimmed = lines.slice(0, end);
   try {
-    const parsed = parseYaml(lines.slice(0, end).join('\n'));
+    const parsed = parseYaml(trimmed.join('\n'));
     return isPlainObject(parsed) ? parsed : undefined;
   } catch {
-    return undefined;
+    return closeJsonFragment(trimmed);
   }
+}
+
+/** How many trailing lines to drop before giving up on repairing a JSON fragment. */
+const JSON_REPAIR_ATTEMPTS = 400;
+
+/**
+ * A slice of a JSON description opens braces the line range never closes, which is not valid YAML
+ * either — so parsing gives up and the card falls back to its raw source, several times the size
+ * of the compacted body it should carry. Rebuild the fragment instead: drop trailing lines until
+ * what remains ends on a complete value, then close the brackets it left open.
+ */
+function closeJsonFragment(lines: string[]): Record<string, unknown> | undefined {
+  for (let dropped = 0; dropped < Math.min(JSON_REPAIR_ATTEMPTS, lines.length); dropped++) {
+    const body = lines
+      .slice(0, lines.length - dropped)
+      .join('\n')
+      .trimEnd()
+      .replace(/,$/, '');
+    if (body === '') return undefined;
+
+    const openCurly = countOutsideStrings(body, '{') - countOutsideStrings(body, '}');
+    const openSquare = countOutsideStrings(body, '[') - countOutsideStrings(body, ']');
+    if (openCurly < 0 || openSquare < 0) continue;
+
+    try {
+      const parsed: unknown = JSON.parse(
+        `{${body}${']'.repeat(openSquare)}${'}'.repeat(openCurly)}}`
+      );
+      if (isPlainObject(parsed)) return parsed;
+    } catch {
+      // This cut landed mid-value; try one line earlier.
+    }
+  }
+  return undefined;
+}
+
+/** Counts a bracket only where it structures the JSON, not where it sits inside a string. */
+function countOutsideStrings(text: string, bracket: string): number {
+  let total = 0;
+  let inString = false;
+  for (let index = 0; index < text.length; index++) {
+    const character = text[index];
+    if (inString) {
+      if (character === '\\') index++;
+      else if (character === '"') inString = false;
+      continue;
+    }
+    if (character === '"') inString = true;
+    else if (character === bracket) total++;
+  }
+  return total;
 }
 
 /** Non-schema dependencies (responses, parameters, examples, headers, ...) carry no property list. */

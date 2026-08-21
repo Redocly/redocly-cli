@@ -25,6 +25,37 @@ function schemaRef(name: string, lines: [number, number] = [1, 5]): ApiNodeRef {
   };
 }
 
+describe('parseNodeContent: a slice of a JSON description', () => {
+  it('parses a fragment whose braces the line range left open', () => {
+    // A card's content is the source sliced by line range. In a JSON description that slice
+    // opens braces it never closes and is not valid YAML, so without repair the card falls back
+    // to dumping the raw indented source — no minifying, no clipping, no folded error responses.
+    const sliced = [
+      '            "post": {',
+      '                "operationId": "orders.create",',
+      '                "summary": "Create order",',
+      '                "responses": {',
+      '                    "200": {',
+      '                        "description": "A successful response."',
+    ].join('\n');
+
+    expect(parseNodeContent(sliced)).toEqual({
+      post: {
+        operationId: 'orders.create',
+        summary: 'Create order',
+        responses: { '200': { description: 'A successful response.' } },
+      },
+    });
+  });
+
+  it('still parses YAML, and still gives up on content that is neither', () => {
+    expect(parseNodeContent('post:\n  operationId: buyTickets\n')).toEqual({
+      post: { operationId: 'buyTickets' },
+    });
+    expect(parseNodeContent('   ')).toBeUndefined();
+  });
+});
+
 describe('buildAiDepsClosure: schema signatures', () => {
   it('renders a flat schema: required markers, plain types, and a type array', () => {
     const dep: ApiNodeEnvelope = {
