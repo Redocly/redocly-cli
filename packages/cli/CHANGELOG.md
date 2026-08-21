@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 2.47.0
+
+### Minor Changes
+
+- Added a Vendor Extensions metric to the `stats` command that reports how many distinct `x-` extensions a description file uses and how often each one occurs.
+
+### Patch Changes
+
+- Fixed the `stats` command reporting wrong parameter count for AsyncAPI descriptions.
+- Updated @redocly/openapi-core to v2.47.0.
+
 ## 2.46.2
 
 ### Patch Changes
