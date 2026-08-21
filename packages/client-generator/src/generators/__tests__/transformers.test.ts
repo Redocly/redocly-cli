@@ -1,6 +1,6 @@
 import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { transformersGenerator } from '../transformers.js';
+import { transformersGenerator } from '../transformers/index.js';
 
 const EVENT = namedSchema('Event', {
   kind: 'object',

@@ -5,7 +5,7 @@ import type { PaginationSpec, QueryValue, RequestOptions } from './types.js';
  * Auto-pagination (capability module — wired into `createClient`, dispatched by the
  * method's `.pages()`/`.items()`): walk an operation's pages by advancing the descriptor's
  * `param` query parameter, per its `style`. The caller's args are never mutated — each
- * request gets a fresh `params` clone — and `init` is forwarded to every call.
+ * request gets a fresh `query` clone — and `init` is forwarded to every call.
  *
  * Iteration is error-mode-agnostic: `call` always resolves to the RAW page (on a
  * result-mode client the attachment unwraps the envelope first), so a failed page
@@ -39,7 +39,7 @@ export function resolvePointer(value: unknown, pointer: string): unknown {
 /**
  * Iterate an operation's full page results. Every page is yielded before the stop
  * condition is evaluated, so the last page always arrives. Cursor style resumes from a
- * caller-provided `params[spec.param]`, stops when the optional `hasMore` pointer
+ * caller-provided `query[spec.param]`, stops when the optional `hasMore` pointer
  * resolves to `false` or when `nextCursor` resolves to `undefined`/`null`/`''`, and
  * throws if the next cursor is not a string or number, or
  * if the same cursor comes back twice in a row (infinite-loop guards). Offset/page
@@ -53,11 +53,11 @@ export async function* pages<TPage>(
   init?: RequestOptions
 ): AsyncGenerator<TPage> {
   if (spec.style === 'cursor') {
-    let cursor: unknown = args.params?.[spec.param];
+    let cursor: unknown = args.query?.[spec.param];
     while (true) {
-      const params = { ...args.params };
-      if (cursor !== undefined) params[spec.param] = cursor as QueryValue;
-      const page = await call({ ...args, params }, init);
+      const query = { ...args.query };
+      if (cursor !== undefined) query[spec.param] = cursor as QueryValue;
+      const page = await call({ ...args, query }, init);
       yield page;
       // Connection-style APIs keep a non-null cursor on the last page and signal the
       // end via a boolean flag — honor it before the cursor check to skip the
@@ -80,20 +80,17 @@ export async function* pages<TPage>(
     // cannot carry — the client wires those operations to `pagesByLink` instead.
     throw new Error('link-style pagination iterates via pagesByLink');
   } else {
-    // Coerce the starting position to a number: a caller may pass `params[spec.param]` as a
+    // Coerce the starting position to a number: a caller may pass `query[spec.param]` as a
     // string (common from URL/form input), and `+=` on a string would concatenate. `null`
     // and `''` count as absent — `Number` would turn them into 0, but a one-shot call
     // omits the param for those values, so the iterator must not start at position 0.
-    const start = args.params?.[spec.param];
+    const start = args.query?.[spec.param];
     const fallback = spec.style === 'page' ? 1 : 0;
     const absent = start === undefined || start === null || start === '';
     let position = absent || Number.isNaN(Number(start)) ? fallback : Number(start);
     let previousItems: string | undefined;
     while (true) {
-      const page = await call(
-        { ...args, params: { ...args.params, [spec.param]: position } },
-        init
-      );
+      const page = await call({ ...args, query: { ...args.query, [spec.param]: position } }, init);
       const pageItems = resolvePointer(page, spec.items);
       // Some APIs clamp a past-the-end offset/page to the last non-empty page instead
       // of returning an empty one — the repeated page would otherwise loop forever
@@ -164,10 +161,10 @@ export async function* pagesByLink<TPage>(
   args: OperationArgs = {},
   init?: RequestOptions
 ): AsyncGenerator<TPage> {
-  let params = args.params;
+  let query = args.query;
   let previous: string | undefined;
   while (true) {
-    const { page, linkHeader, url } = await call({ ...args, params }, init);
+    const { page, linkHeader, url } = await call({ ...args, query }, init);
     yield page as TPage;
     const target = linkNext(linkHeader);
     if (target === undefined) return;
@@ -190,7 +187,7 @@ export async function* pagesByLink<TPage>(
       else if (Array.isArray(seen)) seen.push(value);
       else linkParams[key] = [seen, value];
     }
-    params = { ...args.params, ...linkParams };
+    query = { ...args.query, ...linkParams };
   }
 }
 

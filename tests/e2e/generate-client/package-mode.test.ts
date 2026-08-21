@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { cliEntry, generate, killServer, repoRoot, startServer } from './helpers.js';
+import { cliEntry, generate, killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 // The `runtime: package` output: instead of inlining the runtime, the generated
 // client imports `createClient` from `@redocly/client-generator` (resolved through
@@ -115,12 +115,10 @@ describe('generate-client package-runtime consumer', () => {
       'streamEvents',
     ]);
 
-    const logResponse = await fetch(`${SERVER_BASE}/__test__/log`);
-    const log = (await logResponse.json()) as Array<{
-      method: string;
-      url: string;
-      auth: string | null;
-    }>;
+    const log = await serverLog<Array<{ method: string; url: string; auth: string | null }>>(
+      SERVER_BASE
+    );
+
     // Wire-name path substitution + query serialization + injected bearer.
     expect(log).toContainEqual({
       method: 'GET',
@@ -159,7 +157,7 @@ describe('generate-client package-runtime consumer', () => {
         api: fixture,
         output: tanstackEntry,
         runtime: 'package',
-        generators: ['sdk', 'tanstack-query'],
+        generators: ['typescript', 'tanstack-query'],
       });
       expect(existsSync(tanstackEntry)).toBe(true);
       expect(readFileSync(tanstackEntry, 'utf-8')).toContain("from '@redocly/client-generator'");
@@ -187,7 +185,7 @@ describe('generate-client package-runtime consumer', () => {
         output,
         runtime: 'package',
         argsStyle: 'grouped',
-        generators: ['sdk', 'tanstack-query'],
+        generators: ['typescript', 'tanstack-query'],
       });
       writeFileSync(
         join(dir, 'tsconfig.json'),

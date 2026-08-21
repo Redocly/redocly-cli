@@ -1,26 +1,24 @@
-import { operationSignature } from '../operation-signature.js';
+import { operationSignature, templatePathParams } from '../operation-signature.js';
 import { operation, param } from './fixtures.js';
 
 describe('operationSignature', () => {
-  it('orders path params by URL-template position and assigns unique identifiers', () => {
-    // Declared out of order; the path dictates order. `a-b` sanitizes to `a_b`.
-    const sig = operationSignature(
+  it('orders path params by URL-template position, keeping their wire names', () => {
+    // Declared out of order; the path dictates order. The wire name is the key in the
+    // `path` layer, so no binding identifier is derived from it any more.
+    const params = templatePathParams(
       operation({
         path: '/x/{second}/y/{a-b}',
         pathParams: [param('a-b', 'path', true), param('second', 'path', true)],
       })
     );
-    expect(sig.pathParams.map((p) => p.param.name)).toEqual(['second', 'a-b']);
-    expect(sig.pathParams.map((p) => p.ident)).toEqual(['second', 'a_b']);
+    expect(params.map((param) => param.name)).toEqual(['second', 'a-b']);
   });
 
-  it('renames a path param binding that would collide with the trailing init argument', () => {
-    // The wire name stays `init` (the flat sugar remaps `{ init: init_2 }`); only the
-    // local binding moves aside for the trailing `init: RequestOptions` parameter.
-    const sig = operationSignature(
-      operation({ path: '/x/{init}', pathParams: [param('init', 'path', true)] })
+  it('drops a declared path param the template never mentions', () => {
+    const params = templatePathParams(
+      operation({ path: '/x', pathParams: [param('ghost', 'path', true)] })
     );
-    expect(sig.pathParams.map((p) => p.ident)).toEqual(['init_2']);
+    expect(params).toEqual([]);
   });
 
   it('reports slot presence and hasInputs', () => {

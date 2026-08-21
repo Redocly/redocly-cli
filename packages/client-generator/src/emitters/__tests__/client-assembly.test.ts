@@ -1,7 +1,8 @@
+import ts from 'typescript';
+
 import type { ApiModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 import type { EmitOptions } from '../emit-options.js';
-import { ts } from '../ts.js';
 import { modelWith, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 
 /** The package arm of the shared emitter. */
@@ -90,8 +91,10 @@ describe('emitClientSingleFile (package arm)', () => {
   const output = emit(CAFE, { serverUrl: 'https://x' });
 
   it('imports from the package instead of inlining the runtime template', () => {
+    // Only the names the file references. The per-call option types went with the flat
+    // wrappers, and an unused type import fails a consumer's `noUnusedLocals` build.
     expect(output).toContain(
-      "import { createClient, type EnvelopeResult, type OperationDescriptor, type RequestOptions, type SseOptions, type TokenProvider } from '@redocly/client-generator';"
+      "import { createClient, type OperationDescriptor } from '@redocly/client-generator';"
     );
     expect(output).not.toContain('__send');
     expect(output).not.toContain('__buildUrl');
@@ -107,7 +110,6 @@ describe('emitClientSingleFile (package arm)', () => {
       { serverUrl: 'https://x/\u2029path' }
     );
     expect(out).toContain('serverUrl: "https://x/\\u2029path"');
-    expect(out).toContain('client.auth.apiKey("k\\u2028evil", value)');
     expect(out).not.toContain('\u2028');
     expect(out).not.toContain('\u2029');
   });
@@ -149,39 +151,33 @@ describe('emitClientSingleFile (package arm)', () => {
     expect(emit(model)).toContain('export function isCat(');
   });
 
-  it('emits core destructure and auth sugar bound to the instance', () => {
+  it('exports the core destructure, and no per-scheme credential setters', () => {
     expect(output).toContain('export const { configure, use } = client;');
-    expect(output).toContain('export const setBearer = client.auth.bearer;');
-    // Sole apiKey scheme → unsuffixed setter, scheme key baked into the closure.
-    expect(output).toContain(
-      'export const setApiKey = (value: TokenProvider) => client.auth.apiKey("cookieAuth", value);'
-    );
-    expect(output).not.toContain('setBasicAuth');
+    // Credentials are set through `configure({ auth })` or `client.auth.*`. A setter per
+    // scheme gave the same act a third spelling and a name operations had to avoid.
+    expect(output).not.toContain('export const setBearer');
+    expect(output).not.toContain('export const setApiKey');
+    expect(output).not.toContain('export const setBasicAuth');
+    // What tells the runtime which credentials an operation needs is the descriptor.
+    expect(output).toContain('security: [[{ scheme: "bearerAuth"');
   });
 
-  it('emits flat sugar one-liners forwarding to the grouped client methods', () => {
-    // Throw-mode flat sugar is generic over `init` so `{ envelope: true }` narrows.
+  it('exports the client methods as bindings — one function per operation, no wrappers', () => {
+    // The module-level name IS the method, so importing it and reaching through the
+    // instance can never disagree about the arguments.
     expect(output).toContain(
-      'export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {'
+      'export const { getOrder, createPet, upload, streamEvents, configure_2 } = client;'
     );
-    expect(output).toContain('=> client.getOrder({ orderId, params }, init) as Promise<');
-    expect(output).toContain(
-      'export const createPet = <I extends RequestOptions | undefined = undefined>(body: Pet, init?: I): Promise<EnvelopeResult<'
-    );
-    expect(output).toContain('EnvelopeResult<CreatePetResult, Record<string, never>, I>');
-    // SSE sugar takes SseOptions and returns the generator directly (no envelope).
-    expect(output).toContain(
-      'export const streamEvents = (init: SseOptions = {}) => client.streamEvents({}, init);'
-    );
+    expect(output).not.toContain('=> client.getOrder(');
+    expect(output).not.toContain('=> client.streamEvents(');
   });
 
   it('renames the colliding operation everywhere while the core members keep their names', () => {
     expect(output).toContain('configure_2: {');
     expect(output).toContain('id: "configure"'); // descriptor id stays the spec operationId
-    expect(output).toContain(
-      'export const configure_2 = <I extends RequestOptions | undefined = undefined>(init?: I): Promise<EnvelopeResult<'
-    );
-    expect(output).toContain('=> client.configure_2({}, init) as Promise<');
+    // `configure` itself stays the client's own member; the operation rides the binding.
+    expect(output).toContain('export const { configure, use } = client;');
+    expect(output).toContain('configure_2 } = client;');
   });
 
   it('re-exports the public surface', () => {
@@ -193,7 +189,7 @@ describe('emitClientSingleFile (package arm)', () => {
     );
   });
 
-  it('keys flat-sugar path values by WIRE name when it differs from the ident', () => {
+  it('keys a path value by its WIRE name, which is what the runtime substitutes', () => {
     const model = modelWith([
       operation({
         name: 'getPet',
@@ -204,11 +200,9 @@ describe('emitClientSingleFile (package arm)', () => {
     ]);
     // No options at all — the emitter's own defaults apply.
     const out = emit(model);
-    expect(out).toContain(
-      'export const getPet = <I extends RequestOptions | undefined = undefined>(pet_id: string, init?: I): Promise<EnvelopeResult<'
-    );
-    expect(out).toContain('=> client.getPet({ "pet-id": pet_id }, init) as Promise<');
-    expect(out).toContain('"pet-id": string;'); // Ops args + Variables alias, wire-keyed
+    expect(out).toContain('export type GetPetPath = {\n    "pet-id": string;\n};');
+    expect(out).toContain('path: GetPetPath;');
+    expect(out).not.toContain('pet_id');
   });
 
   it('keeps sanitizer-collapsed path params distinct: identifier-safe wire name, renamed ident', () => {
@@ -220,9 +214,11 @@ describe('emitClientSingleFile (package arm)', () => {
         successResponses: [response()],
       }),
     ]);
-    // `a-b` sanitizes to `a_b`, so the literal `a_b` param is deduped to `a_b_2` —
-    // but both forward under their wire names.
-    expect(emit(model)).toContain('client.compare({ "a-b": a_b, a_b: a_b_2 }, init) as Promise<');
+    // Two wire names that sanitize alike stay distinct, because the layer keys them by
+    // wire name and never derives a binding identifier.
+    expect(emit(model)).toContain(
+      'export type ComparePath = {\n    "a-b": string;\n    a_b: string;\n};'
+    );
   });
 
   it('layers a baked setup OVER the spec defaults and imports the contract types', () => {
@@ -231,7 +227,7 @@ describe('emitClientSingleFile (package arm)', () => {
       setup: '{ config: { retry: { retries: 2 } } }',
     });
     expect(out).toContain(
-      "import { createClient, mergeSetup, type ClientConfig, type EnvelopeResult, type Middleware, type OperationDescriptor, type RequestOptions } from '@redocly/client-generator';"
+      "import { createClient, mergeSetup, type ClientConfig, type Middleware, type OperationDescriptor } from '@redocly/client-generator';"
     );
     expect(out).toContain(
       'const __redoclySetup: { config?: ClientConfig; middleware?: Middleware[] } = { config: { retry: { retries: 2 } } };'
@@ -264,16 +260,15 @@ describe('emitClientSingleFile (package arm)', () => {
     expect(out).toContain('type Result');
   });
 
-  it('grouped argsStyle destructures the client methods instead of flat one-liners', () => {
-    const out = emit(CAFE, { serverUrl: 'https://x', argsStyle: 'grouped' });
+  it('argsStyle: flat merges the inputs and tells the runtime, keeping one binding', () => {
+    const out = emit(CAFE, { serverUrl: 'https://x', argsStyle: 'flat' });
     expect(out).toContain(
       'export const { getOrder, createPet, upload, streamEvents, configure_2 } = client;'
     );
-    expect(out).not.toContain('=> client.getOrder(');
-    // No flat sugar → the per-call option types are not imported (only re-exported).
-    expect(out).toContain(
-      "import { createClient, type OperationDescriptor, type TokenProvider } from '@redocly/client-generator';"
-    );
+    expect(out).toContain('argsStyle: "flat"');
+    // Merged: the path param sits beside the query params, with no layer keys.
+    expect(out).toContain('export type GetOrderVariables = {');
+    expect(out).not.toContain('path: GetOrderPath;');
   });
 
   it('threads one schemaNames set: a suppressed alias is inlined in Ops, never referenced', () => {
@@ -290,26 +285,6 @@ describe('emitClientSingleFile (package arm)', () => {
     const out = emit(model);
     expect(out).not.toContain('export type SearchResult = SearchResult;');
     expect(out).toContain('result: SearchResult;'); // the schema type, inlined
-  });
-
-  it('suffixes apiKey setters when several apiKey schemes exist; emits setBasicAuth for basic', () => {
-    const out = emit(
-      modelWith([getOrder], {
-        schemas: SCHEMAS,
-        securitySchemes: [
-          { kind: 'basic', key: 'basicAuth' },
-          { kind: 'apiKeyHeader', key: 'keyA', headerName: 'X-A' },
-          { kind: 'apiKeyQuery', key: 'keyB', paramName: 'b' },
-        ],
-      })
-    );
-    expect(out).toContain('export const setBasicAuth = client.auth.basic;');
-    expect(out).toContain(
-      'export const setApiKeyKeyA = (value: TokenProvider) => client.auth.apiKey("keyA", value);'
-    );
-    expect(out).toContain(
-      'export const setApiKeyKeyB = (value: TokenProvider) => client.auth.apiKey("keyB", value);'
-    );
   });
 
   it('handles a spec with no operations: uniform wiring over empty maps', () => {
@@ -343,7 +318,8 @@ describe('emitClientSingleFile (package arm)', () => {
         }),
       ])
     );
-    expect(out).toContain('=> client.ping({ headers }, init) as Promise<');
+    expect(out).toContain('export type PingHeaders = {\n    "X-Trace"?: string;\n};');
+    expect(out).toContain('headers?: PingHeaders;');
   });
 
   it('matches the golden output for a small model', () => {
@@ -473,11 +449,11 @@ describe('emitClientSingleFile — pagination', () => {
       'pagination: { style: "cursor", param: "cursor", nextCursor: "/nextCursor", items: "/orders" }'
     );
     expect(out).toMatch(
-      /listOrders: \{\n\s+args: \{\n\s+params\?: ListOrdersParams;\n\s+\};\n\s+result: ListOrdersResult;\n\s+item: Order;\n\s+\};/
+      /listOrders: \{\n\s+args: \{\n\s+query\?: ListOrdersQuery;\n\s+\};\n\s+result: ListOrdersResult;\n\s+item: Order;\n\s+\};/
     );
   });
 
-  it('resolves the x-redocly-pagination extension without any config', () => {
+  it('resolves the x-redoclyPagination extension without any config', () => {
     const model = modelWith([{ ...listOrders, paginationExtension: CURSOR_RULE }, getOrder], {
       schemas: [...SCHEMAS, ORDER_PAGE],
     });
@@ -486,18 +462,13 @@ describe('emitClientSingleFile — pagination', () => {
     expect(out).toContain('pagination: { style: "cursor", param: "cursor",');
   });
 
-  it('wraps the flat sugar in Object.assign, preserving .pages/.items', () => {
+  it('the iterators ride the binding, so `.pages`/`.items` need no wrapper', () => {
     const out = emit(PAGINATED, { pagination: config });
-    expect(out).toContain(
-      'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
-    );
-    expect(out).toContain('=> client.listOrders({ params }, init) as Promise<');
-    expect(out).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
-    // Non-paginated siblings keep the plain arrow.
-    expect(out).toContain(
-      'export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {'
-    );
-    expect(out).not.toContain('Object.assign((orderId');
+    // `listOrders` is the client method itself, which carries `.pages`/`.items` — there is
+    // nothing to re-wrap, and therefore no second argument shape to get wrong.
+    expect(out).toContain('export const { listOrders, getOrder } = client;');
+    expect(out).not.toContain('Object.assign(');
+    expect(out).toContain('item: Order;');
   });
 
   it('grouped argsStyle needs no wrapper — properties ride along on the destructure', () => {
@@ -534,9 +505,9 @@ describe('emitClientSingleFile — pagination', () => {
     );
     expect(() => emitClientSingleFile(model)).toThrow(
       'Invalid pagination configuration:\n' +
-        '  - Pagination for operation "listOrders" (x-redocly-pagination): ' +
-        'query parameter "after" is not declared on the operation\n' +
-        '  - Pagination for operation "listRefunds" (x-redocly-pagination): ' +
+        '  - Pagination for operation "listOrders" (x-redoclyPagination): ' +
+        'query parameter "after" is not declared on the operation (declared: cursor, limit)\n' +
+        '  - Pagination for operation "listRefunds" (x-redoclyPagination): ' +
         'the "items" pointer "/refunds" does not resolve in the success response schema'
     );
   });

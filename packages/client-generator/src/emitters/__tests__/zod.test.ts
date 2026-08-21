@@ -1,5 +1,4 @@
 import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { printStatements } from '../ts.js';
 import { renderZodModule, schemaToZodExpression } from '../zod.js';
 import { apiModel, operation, response } from './fixtures.js';
 
@@ -438,8 +437,64 @@ describe('renderZodModule — operation validation surface', () => {
 });
 
 describe('schemaToZodExpression — direct export', () => {
-  it('is callable directly and returns an expression node', () => {
-    const node = schemaToZodExpression({ kind: 'scalar', scalar: 'string' });
-    expect(printStatements([node])).toBe('z.string()');
+  it('is callable directly and returns the expression source text', () => {
+    expect(schemaToZodExpression({ kind: 'scalar', scalar: 'string' })).toBe('z.string()');
+  });
+});
+
+describe('erasable TypeScript', () => {
+  // The generated CLI imports this module and runs under `node
+  // --experimental-strip-types`, which rejects anything needing a transform.
+  const out = renderZodModule(
+    apiModel({
+      schemas: [
+        {
+          name: 'Order',
+          schema: {
+            kind: 'object',
+            properties: [
+              { name: 'id', schema: { kind: 'scalar', scalar: 'string' }, required: true },
+            ],
+          },
+        },
+      ],
+      services: [
+        {
+          name: 'Orders',
+          operations: [
+            operation({
+              name: 'createOrder',
+              method: 'post',
+              requestBody: {
+                contentType: 'application/json',
+                required: true,
+                schema: { kind: 'ref', name: 'Order' },
+              },
+              successResponses: [response({ schema: { kind: 'ref', name: 'Order' } })],
+            }),
+          ],
+        },
+      ],
+    })
+  );
+
+  it('declares error fields instead of using constructor parameter properties', () => {
+    expect(out).toContain('class ZodValidationError');
+    // `constructor(readonly x: string)` fails strip-only mode.
+    expect(out).not.toMatch(/constructor\([^)]*\breadonly\b/s);
+    expect(out).toContain('readonly operationId: string;');
+    expect(out).toContain('this.operationId = operationId;');
+  });
+
+  it('emits no construct that type stripping cannot erase', () => {
+    for (const construct of [
+      /\benum /,
+      /\bnamespace /,
+      /\bdeclare /,
+      /\bprivate /,
+      /\bprotected /,
+    ]) {
+      expect(out).not.toMatch(construct);
+    }
   });
 });

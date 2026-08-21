@@ -23,7 +23,7 @@ describe('generate-client tanstack-query generator', () => {
 
     generate(join(__dirname, 'fixtures', 'base.yaml'), out, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);
@@ -52,13 +52,13 @@ describe('generate-client tanstack-query generator', () => {
         "import { createPetMutation, getPetByIdOptions, listPetsOptions } from './client.tanstack.js';",
         "import type { Pet } from './client.js';",
         'export function useGetPet(id: number) {',
-        '  const query = useQuery(getPetByIdOptions({ id }));',
+        '  const query = useQuery(getPetByIdOptions({ path: { id } }));',
         '  // Wrapper inits exclude `envelope`: cached data is the plain body, never an envelope.',
         '  const pet: Pet | undefined = query.data;',
         '  return pet;',
         '}',
         'export function useListPets() {',
-        "  return useQuery(listPetsOptions({ params: { filter: { name: 'rex' } } }));",
+        "  return useQuery(listPetsOptions({ query: { filter: { name: 'rex' } } }));",
         '}',
         'export function useCreatePet() {',
         '  return useMutation(createPetMutation());',
@@ -104,7 +104,7 @@ describe('generate-client tanstack-query generator', () => {
       '--runtime',
       'package',
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);
@@ -127,10 +127,10 @@ describe('generate-client tanstack-query generator', () => {
         "import { useMutation, useQuery } from '@tanstack/react-query';",
         "import { createPetMutation, getPetByIdOptions, listPetsOptions } from './client.tanstack.js';",
         'export function useGetPet(id: number) {',
-        '  return useQuery(getPetByIdOptions({ id }));',
+        '  return useQuery(getPetByIdOptions({ path: { id } }));',
         '}',
         'export function useListPets() {',
-        "  return useQuery(listPetsOptions({ params: { filter: { name: 'rex' } } }));",
+        "  return useQuery(listPetsOptions({ query: { filter: { name: 'rex' } } }));",
         '}',
         'export function useCreatePet() {',
         '  return useMutation(createPetMutation());',
@@ -177,7 +177,7 @@ describe('generate-client tanstack-query generator', () => {
 
     generate(join(__dirname, 'fixtures', 'base.yaml'), out, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query-vue',
     ]);

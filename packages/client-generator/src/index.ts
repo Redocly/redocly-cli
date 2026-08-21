@@ -3,6 +3,9 @@
 // builtins; guarded by entry-weight.test.ts). The generation stack lives behind the dynamic
 // import inside `generateClient` and the `@redocly/client-generator/generate` entry.
 
+// The language-neutral generator-authoring toolkit — pure functions over the IR,
+// safe on this runtime-only entry (no typescript, no openapi-core, no builtins).
+export * from './authoring/index.js';
 export { NotSupportedError } from './errors.js';
 export { defineClientSetup } from './runtime-contract.js';
 export type {
@@ -47,7 +50,18 @@ export type {
   SseOptions,
   TokenProvider,
 } from './runtime/index.js';
-// The user-facing pagination rule shapes (`Config.pagination` / `x-redocly-pagination`).
+// The generated-CLI engine (package-mode cli files import it from the package root).
+export { invokedName, runCli } from './runtime/cli.js';
+export type {
+  CliAuthScheme,
+  CliCommand,
+  CliGlobals,
+  CliWiring,
+  CommandContext,
+  CommandSource,
+  CustomCommand,
+} from './runtime/cli.js';
+// The user-facing pagination rule shapes (`Config.pagination` / `x-redoclyPagination`).
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './emitters/pagination.js';
 export type {
   GenerateClientConfig,
@@ -65,6 +79,6 @@ import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 export async function generateClient(
   options: GenerateClientOptions
 ): Promise<GenerateClientResult> {
-  const generate = await import('./generate.js');
-  return generate.generateClient(options);
+  const pipeline = await import('./pipeline.js');
+  return pipeline.generateClient(options);
 }

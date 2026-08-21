@@ -46,8 +46,11 @@ npm run unit -- -t 'test name pattern'
 # Update snapshots
 npm run unit -- -u
 
-# Run e2e tests
+# Run e2e tests (everything under tests/e2e except generate-client)
 npm run e2e
+
+# Run every generator test (client-generator unit + generate-client e2e)
+npm run client-generators
 
 # Run the full test suite (compile + typecheck + unit + e2e)
 npm test
@@ -64,47 +67,13 @@ npm run cli -- lint openapi.yaml
 
 ## Architecture
 
-This is a TypeScript monorepo with npm workspaces containing four packages:
-
-### `packages/core` (@redocly/openapi-core)
-
-The heart of the project.
-Handles all OpenAPI/AsyncAPI linting, validation, bundling, and decoration logic.
-This package is also used in external apps such as `language-server` and `vs-code-extension`.
-
-Key directories:
-
-- `src/rules/` — Built-in linting rules, organized by spec type (`oas2/`, `oas3/`, `oas3_1/`, `async2/`, `async3/`, `arazzo/`, `common/`). Each rule is its own file.
-- `src/config/` — Configuration loading and resolution (reads `redocly.yaml`).
-- `src/decorators/` — Built-in decorators for transforming API descriptions.
-- `src/bundle/` — Bundling logic that resolves `$ref` across multiple files.
-- `src/resolve.ts` — Document resolution for multi-file specs (local and remote).
-- `src/types/` — TypeScript type definitions for OAS2, OAS3, AsyncAPI, Arazzo.
-
-### `packages/cli` (@redocly/cli)
-
-User-facing CLI layer built on top of core.
-Uses yargs for argument parsing.
-
-- `src/index.ts` — Main command dispatcher.
-- `src/commands/` — One file per command.
-- Commands use `commandWrapper()` for consistent output, config loading, config linting, and exit codes (0 = success, 1 = execution error, 2 = config error).
-
-### `packages/respect-core` (@redocly/respect-core)
-
-API contract testing framework.
-Validates real API responses against OpenAPI/Arazzo specs.
-
-- `src/run.ts` — Test execution logic.
-- `src/modules/` — Core testing modules, including runtime expression evaluation.
-
-### `packages/client-generator` (@redocly/client-generator)
-
-Experimental package for generating TypeScript clients from OpenAPI specs.
+Where each package sits, and the key directories inside it, are in
+[`.claude/rules/architecture.md`](./.claude/rules/architecture.md) — read it before a change lands
+in the wrong package.
 
 ## Build System
 
-`packages/core`, `packages/respect-core`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
+`packages/core` and `packages/respect-core` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
 `packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
 The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
 
@@ -114,7 +83,7 @@ The published CLI package ships from a staged `.publish/` directory (created by 
 
 Linting in `packages/core` rests on three concepts: the **Walker** traverses the parsed API description and resolves `$ref`s, **Visitors** are objects keyed by **Node** type, and the Walker calls each visitor's `enter` / `leave` / `skip` hooks as it reaches a node.
 New rules and decorators follow this pattern instead of parsing documents by hand.
-The full guide, with examples, is in [`.claude/rules/rules-system.md`](./.claude/rules/rules-system.md).
+The full guide, with examples, is in [the `rules-system` skill](./.claude/skills/rules-system/SKILL.md).
 
 ## Add or change a built-in rule
 
@@ -144,39 +113,10 @@ Naming and reuse:
 - A `redocly.yaml` in the repository root affects unit tests in the CLI package.
   Remove it before running them.
 - Run the full suite (`npm test`) when you touch core linting logic.
+- Run `npm run client-generators` when you touch client generation — it is the whole generator suite in one command.
 
-The full testing and QA rules are in
+The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).
-
-The rule test pattern looks like this:
-
-```ts
-import { outdent } from 'outdent';
-import { parseYamlToDocument, replaceSourceWithRef } from '../../../../__tests__/utils.js';
-import { createConfig } from '../../../config/index.js';
-import { lintDocument } from '../../../lint.js';
-import { BaseResolver } from '../../../resolve.js';
-
-describe('Oas3 no-my-rule', () => {
-  it('should report a violation', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-        openapi: 3.0.0
-        ...
-      `,
-      'foobar.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({ rules: { 'no-my-rule': 'error' } }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`...`);
-  });
-});
-```
 
 ## Code quality — no AI slop
 
@@ -207,7 +147,7 @@ The full release and commit workflow is in [`.claude/rules/workflow.md`](./.clau
 
 - Every feature or fix needs a changeset: run `npx changeset` and describe the change in sentence case.
   If the change lives in `packages/core` or `packages/respect-core` but affects CLI behavior, include `@redocly/cli` as well.
-  `@redocly/cli`, `@redocly/openapi-core`, and `@redocly/respect-core` share one version and release together; `@redocly/client-generator` is versioned separately.
+  All three packages share one version and release together.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 - Don't add AI co-author or "Generated by" lines to commits.
 - Don't modify the pull request template.

@@ -1,5 +1,18 @@
+import ts from 'typescript';
+
 import { NotSupportedError } from '../errors.js';
-import { ts } from './ts.js';
+
+// TypeScript 7 (the native compiler) ships only the tsc binary — none of the compiler API
+// this module is built on — yet its package resolves fine, so the first `ts.*` call would
+// die with a bare TypeError. Fail with instructions instead. Baking a `--setup` module is
+// the ONLY place we parse TypeScript, which is why the dependency is an optional peer.
+if (typeof ts?.createSourceFile !== 'function') {
+  throw new Error(
+    `Baking a --setup module needs the TypeScript compiler API, but the installed \`typescript\` package` +
+      `${ts?.version ? ` (${ts.version})` : ''} does not include it — TypeScript 7 ships only the native tsc. ` +
+      `Install TypeScript 6 for generation (npm i -D typescript@6); your app can still compile the generated client with TypeScript 7.`
+  );
+}
 
 const SETUP_IMPORT = '@redocly/client-generator';
 

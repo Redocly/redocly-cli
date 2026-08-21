@@ -14,15 +14,15 @@ export default {
     try {
       if (url.pathname === '/menu') {
         const menu = await client.listMenuItems({
-          params: { search: url.searchParams.get('search') ?? undefined },
+          query: { search: url.searchParams.get('search') ?? undefined },
         });
         return Response.json(menu.items);
       }
       const photo = url.pathname.match(/^\/photo\/(?<menuItemId>[^/]+)$/);
       if (photo?.groups) {
         const image = await client.getMenuItemPhoto({
-          menuItemId: photo.groups.menuItemId,
-          params: { photoSize: 'thumbnail' },
+          path: { menuItemId: photo.groups.menuItemId },
+          query: { photoSize: 'thumbnail' },
         });
         return image instanceof Blob
           ? new Response(image, { headers: { 'content-type': image.type } })

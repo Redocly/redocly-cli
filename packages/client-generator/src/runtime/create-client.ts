@@ -74,13 +74,65 @@ export type Capabilities = SendCapabilities & {
   };
 };
 
-/** The grouped args wire shape: path params by name plus the `params`/`body`/`headers`/`cookies` slots. */
+/**
+ * One call's inputs, namespaced by transport layer. `argsStyle: 'flat'` clients accept the
+ * merged form instead (every parameter and body property at one level) — `namespaceArgs`
+ * converts it to this shape before anything downstream reads it.
+ */
 export type OperationArgs = {
-  params?: Record<string, QueryValue>;
+  path?: Record<string, unknown>;
+  query?: Record<string, QueryValue>;
   body?: unknown;
   headers?: Record<string, unknown>;
   cookies?: Record<string, unknown>;
 } & Record<string, unknown>;
+
+/** The five layer keys, and the only top-level keys a namespaced call may carry. */
+const LAYERS: readonly string[] = ['path', 'query', 'body', 'headers', 'cookies'];
+
+/** Where a declared parameter's `in` value puts it. */
+const LAYER_OF: Record<string, 'path' | 'query' | 'headers' | 'cookies'> = {
+  path: 'path',
+  query: 'query',
+  header: 'headers',
+  cookie: 'cookies',
+};
+
+/**
+ * Merged (`argsStyle: 'flat'`) args → the namespaced shape. A key that names a declared
+ * parameter goes to that parameter's layer; anything else is a property of the request
+ * body, which is how a flat call spells an object body. `body` stays reserved for the
+ * operations a flat call cannot merge (an array, a scalar, or a binary body).
+ */
+function namespaceArgs(op: OperationDescriptor, args: OperationArgs): OperationArgs {
+  const layers: Record<string, Record<string, unknown>> = {};
+  let body: unknown;
+  let properties: Record<string, unknown> | undefined;
+  const layerOfParam = new Map((op.params ?? []).map((param) => [param.name, param.in]));
+  for (const [key, value] of Object.entries(args)) {
+    const layer = LAYER_OF[layerOfParam.get(key) ?? ''];
+    if (layer !== undefined) {
+      (layers[layer] ??= {})[key] = value;
+    } else if (key === 'body' && op.body !== undefined) {
+      body = value;
+    } else if (op.body !== undefined) {
+      (properties ??= {})[key] = value;
+    } else {
+      throw new TypeError(
+        `Unknown argument "${key}" for operation "${op.id}": it names no declared parameter, and the operation takes no request body.`
+      );
+    }
+  }
+  const namespaced: OperationArgs = {};
+  if (layers.path) namespaced.path = layers.path;
+  // The flat surface types every query value, so the collected bag is one by construction.
+  if (layers.query) namespaced.query = layers.query as Record<string, QueryValue>;
+  if (layers.headers) namespaced.headers = layers.headers;
+  if (layers.cookies) namespaced.cookies = layers.cookies;
+  if (properties !== undefined) namespaced.body = properties;
+  else if (body !== undefined) namespaced.body = body;
+  return namespaced;
+}
 
 /** The response reader implied by the descriptor (before any per-call `parseAs` override). */
 /**
@@ -104,31 +156,35 @@ function kindFor(op: OperationDescriptor): ParseAs | 'void' {
   return 'auto';
 }
 
-/** Route the grouped args by the descriptor: path values, query object, body, extra headers, cookies. */
+/**
+ * The call's inputs in namespaced form, converting first on a flat-style client. An
+ * operation the generator marked `argsStyle: 'grouped'` is already namespaced — its names
+ * could not be merged, so its input type never offered the flat shape.
+ */
+function inputOf(
+  op: OperationDescriptor,
+  args: OperationArgs,
+  config: ClientConfig
+): OperationArgs {
+  const merged = config.argsStyle === 'flat' && op.argsStyle !== 'grouped';
+  return merged ? namespaceArgs(op, args) : args;
+}
+
+/** Route the namespaced args to the request pieces. */
 function splitArgs(op: OperationDescriptor, args: OperationArgs) {
-  const path: Record<string, unknown> = {};
-  const pathNames = new Set<string>();
-  for (const param of op.params ?? []) {
-    if (param.in === 'path') {
-      pathNames.add(param.name);
-      path[param.name] = args[param.name];
+  // An unknown layer key can only be a bug (usually flat-style args on a namespaced
+  // client). TypeScript catches it, but a transpiler that skips type-checking would
+  // otherwise ship a request that silently drops the value — fail the call loudly.
+  for (const key of Object.keys(args)) {
+    if (!LAYERS.includes(key)) {
+      throw new TypeError(
+        `Unknown argument "${key}" for operation "${op.id}". Inputs are grouped by layer: ${LAYERS.join(', ')}.`
+      );
     }
   }
-  // An unknown top-level key can only be a bug (usually a flat-style call shape passed
-  // to a grouped client: `{ limit: 10 }` instead of `{ params: { limit: 10 } }`).
-  // TypeScript catches it, but transpilers that skip type-checking would otherwise
-  // ship a request that silently drops the value — fail the call loudly instead.
-  for (const key of Object.keys(args)) {
-    if (key === 'params' || key === 'body' || key === 'headers' || key === 'cookies') continue;
-    if (pathNames.has(key)) continue;
-    throw new TypeError(
-      `Unknown argument "${key}" for operation "${op.id}". Query parameters go under params: { … } and the request body under body; valid keys are params, body, headers, cookies` +
-        (pathNames.size > 0 ? `, and the path parameters (${[...pathNames].join(', ')}).` : '.')
-    );
-  }
   return {
-    path,
-    query: args.params,
+    path: args.path ?? {},
+    query: args.query,
     body: args.body,
     headers: args.headers,
     cookies: args.cookies,
@@ -405,7 +461,8 @@ export function createClientCore<
 
   for (const [name, op] of Object.entries(operations)) {
     if (op.responseKind === 'sse') {
-      const method = (args: OperationArgs = {}, init: SseOptions = {}) => {
+      const method = (given: OperationArgs = {}, init: SseOptions = {}) => {
+        const args = inputOf(op, given, config);
         if (!caps.sse) {
           throw new Error(`SSE capability not wired: cannot stream operation "${op.id}"`);
         }
@@ -429,8 +486,13 @@ export function createClientCore<
       Object.defineProperty(method, 'operationId', { value: op.id });
       client[name] = method;
     } else {
-      const method = (args: OperationArgs = {}, init: RequestOptions = {}) =>
+      // `raw` takes namespaced args; `method` is the public entry that accepts whichever
+      // style the client was generated with. The iterators namespace once and then drive
+      // `raw`, so a flat call is never converted twice.
+      const raw = (args: OperationArgs = {}, init: RequestOptions = {}) =>
         execute(config, op, args, init, caps);
+      const method = (args: OperationArgs = {}, init: RequestOptions = {}) =>
+        raw(inputOf(op, args, config), init);
       Object.defineProperty(method, 'name', { value: name });
       Object.defineProperty(method, 'operationId', { value: op.id });
       const spec = op.pagination;
@@ -449,31 +511,42 @@ export function createClientCore<
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(
                     linkPageCall(config, op, caps),
-                    args,
+                    inputOf(op, args ?? {}, config),
                     init
                   ),
                 items: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).itemsByLink(
                     linkPageCall(config, op, caps),
                     spec,
-                    args,
+                    inputOf(op, args ?? {}, config),
                     init
                   ),
               })
             : Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
-                  paginateCapability(caps, op).pages(pageCall(method, config), spec, args, init),
+                  paginateCapability(caps, op).pages(
+                    pageCall(raw, config),
+                    spec,
+                    inputOf(op, args ?? {}, config),
+                    init
+                  ),
                 items: (args?: OperationArgs, init?: RequestOptions) =>
-                  paginateCapability(caps, op).items(pageCall(method, config), spec, args, init),
+                  paginateCapability(caps, op).items(
+                    pageCall(raw, config),
+                    spec,
+                    inputOf(op, args ?? {}, config),
+                    init
+                  ),
               });
     }
   }
 
   // Core members are assigned AFTER the operation loop — they win over colliding op names.
   client.configure = (next: ClientConfig): void => {
-    // `errorMode` is fixed at generate time (it shapes the static types); flipping it at
-    // runtime would silently desync return shapes from `Client<Ops>`, so it is ignored.
-    const { errorMode: _fixed, auth, ...rest } = next;
+    // `errorMode` and `argsStyle` are fixed at generate time (they shape the static types);
+    // flipping either at runtime would silently desync the calls from `Client<Ops>`, so both
+    // are ignored here.
+    const { errorMode: _fixedMode, argsStyle: _fixedStyle, auth, ...rest } = next;
     Object.assign(config, rest);
     // `auth` merges into existing credentials (like the `auth.*` setters) rather than
     // replacing wholesale — so `configure({ auth: { bearer } })` keeps a previously set

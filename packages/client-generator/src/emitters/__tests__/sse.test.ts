@@ -1,6 +1,5 @@
 import type { ResponseBodyModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { isSseOp, sseDataKind, sseEventType } from '../sse.js';
-import { printNodes } from '../ts.js';
+import { eventSchema, isSseOp, sseDataKind } from '../sse.js';
 import { operation } from './fixtures.js';
 
 /** An operation whose success response streams `text/event-stream`. */
@@ -40,37 +39,32 @@ describe('isSseOp', () => {
   });
 });
 
-describe('sseEventType', () => {
-  it('uses the per-item schema when present (a ref → a Message reference)', () => {
-    const out = printNodes([
-      sseEventType(sseOp({ itemSchema: { kind: 'ref', name: 'Message' } }), 'string'),
-    ]);
-    expect(out).toContain('Message');
+describe('eventSchema (drives the streamed payload type)', () => {
+  it('uses the per-item schema when present', () => {
+    expect(eventSchema(sseOp({ itemSchema: { kind: 'ref', name: 'Message' } }))).toEqual({
+      kind: 'ref',
+      name: 'Message',
+    });
   });
 
   it('falls back to the response schema when it is meaningful', () => {
-    const out = printNodes([
-      sseEventType(sseOp({ schema: { kind: 'ref', name: 'Token' } }), 'string'),
-    ]);
-    expect(out).toContain('Token');
+    expect(eventSchema(sseOp({ schema: { kind: 'ref', name: 'Token' } }))).toEqual({
+      kind: 'ref',
+      name: 'Token',
+    });
   });
 
   it('ignores a typeless `itemSchema` and falls back to the response schema', () => {
-    const out = printNodes([
-      sseEventType(
-        sseOp({ itemSchema: { kind: 'unknown' }, schema: { kind: 'ref', name: 'Token' } }),
-        'string'
-      ),
-    ]);
-    expect(out).toContain('Token');
+    expect(
+      eventSchema(
+        sseOp({ itemSchema: { kind: 'unknown' }, schema: { kind: 'ref', name: 'Token' } })
+      )
+    ).toEqual({ kind: 'ref', name: 'Token' });
   });
 
-  it('falls back to the `string` keyword when no schema is declared', () => {
-    expect(printNodes([sseEventType(sseOp({}), 'string')])).toBe('string');
-  });
-
-  it('falls back to `string` when the op is not an SSE op at all', () => {
-    expect(printNodes([sseEventType(operation({}), 'string')])).toBe('string');
+  it('is undefined when no schema is declared (payload types as `string`)', () => {
+    expect(eventSchema(sseOp({}))).toBeUndefined();
+    expect(eventSchema(operation({}))).toBeUndefined();
   });
 });
 

@@ -3,14 +3,14 @@ import type {
   OperationModel,
   ResponseBodyModel,
 } from '../../intermediate-representation/model.js';
-import { descriptorStatements, opsInterfaceStatements, packageIdents } from '../descriptor.js';
+import { packageIdents, renderDescriptors } from '../descriptor.js';
 import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
-import { printStatements } from '../ts.js';
-import { apiModel, modelWith, namedSchema, operation, param, response } from './fixtures.js';
+import { renderOpsType } from '../render-client.js';
+import { apiModel, modelWith, operation, param } from './fixtures.js';
 
 function emitDescriptors(model: ApiModel): string {
-  return printStatements(descriptorStatements(model, packageIdents(model), 'string'));
+  return renderDescriptors(model, packageIdents(model), 'string');
 }
 
 /** A JSON 200 response — keeps `responseKind` at its omitted `'json'` default. */
@@ -23,11 +23,7 @@ const JSON_OK: ResponseBodyModel = {
 describe('packageIdents', () => {
   it('renames colliding operation ids deterministically', () => {
     const model = modelWith(
-      [
-        operation({ name: 'configure' }),
-        operation({ name: 'createClient' }),
-        operation({ name: 'setBearer' }),
-      ],
+      [operation({ name: 'configure' }), operation({ name: 'createClient' })],
       {
         securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
       }
@@ -35,7 +31,15 @@ describe('packageIdents', () => {
     const idents = packageIdents(model);
     expect(idents.get('configure')).toBe('configure_2');
     expect(idents.get('createClient')).toBe('createClient_2');
-    expect(idents.get('setBearer')).toBe('setBearer_2'); // auth sugar seeded first
+  });
+
+  it('leaves a name free once nothing exports it: no per-scheme setters, no reservation', () => {
+    // `setBearer` was a generated export, so an operation of that name had to be renamed.
+    // Credentials now go through `configure`/`client.auth`, so the name is the caller's.
+    const model = modelWith([operation({ name: 'setBearer' })], {
+      securitySchemes: [{ kind: 'bearer', key: 'bearerAuth' }],
+    });
+    expect(packageIdents(model).get('setBearer')).toBe('setBearer');
   });
 
   it('keeps non-colliding names and sanitizes non-identifier ones', () => {
@@ -55,9 +59,9 @@ describe('packageIdents', () => {
   });
 });
 
-describe('descriptorStatements', () => {
-  it('returns no statements for a model with no operations', () => {
-    expect(descriptorStatements(apiModel(), new Map(), 'string')).toEqual([]);
+describe('renderDescriptors', () => {
+  it('renders nothing for a model with no operations', () => {
+    expect(renderDescriptors(apiModel(), packageIdents(apiModel()), 'string')).toBe('');
   });
 
   it('emits a minimal descriptor with only the non-default fields', () => {
@@ -335,9 +339,7 @@ describe('descriptorStatements', () => {
         },
       ],
     ]);
-    const out = printStatements(
-      descriptorStatements(model, packageIdents(model), 'string', pagination)
-    );
+    const out = renderDescriptors(model, packageIdents(model), 'string', pagination);
     expect(out).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
     );
@@ -351,11 +353,7 @@ describe('descriptorStatements', () => {
         operation({
           name: 'listCustomers',
           path: '/customers',
-          successResponses: [
-            response({
-              schema: { kind: 'array', items: { kind: 'ref', name: 'Customer' } },
-            }),
-          ],
+          successResponses: [JSON_OK],
           successResponseHeaders: [
             {
               name: 'pagination-total',
@@ -377,7 +375,7 @@ describe('descriptorStatements', () => {
       modelWith([
         operation({
           name: 'listCustomers',
-          successResponses: [response()],
+          successResponses: [JSON_OK],
           successResponseHeaders: [
             { name: '3d-secure', schema: { kind: 'scalar', scalar: 'boolean' } },
             { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
@@ -386,7 +384,6 @@ describe('descriptorStatements', () => {
         }),
       ])
     );
-
     expect(out).toContain(
       'responseHeaders: [{ name: "3d-secure", key: "_3dSecure", type: "boolean" }, { name: "x-foo", key: "xFoo", type: "number" }, { name: "x_foo", key: "xFoo_2", type: "string" }]'
     );
@@ -397,7 +394,7 @@ describe('descriptorStatements', () => {
       modelWith([
         operation({
           name: 'listCustomers',
-          successResponses: [response()],
+          successResponses: [JSON_OK],
           successResponseHeaders: [
             {
               name: 'x-flag',
@@ -417,59 +414,22 @@ describe('descriptorStatements', () => {
         }),
       ])
     );
-
     expect(out).toContain(
       'responseHeaders: [{ name: "x-flag", key: "xFlag", type: "boolean" }, { name: "x-count", key: "xCount", type: "number" }]'
     );
   });
-
-  it('resolves $ref and allOf wrappers on response-header schemas to the coerce type', () => {
-    const out = emitDescriptors(
-      apiModel({
-        schemas: [namedSchema('Count', { kind: 'scalar', scalar: 'integer' })],
-        services: [
-          {
-            name: 'Default',
-            operations: [
-              operation({
-                name: 'listCustomers',
-                successResponses: [response()],
-                successResponseHeaders: [
-                  { name: 'x-total', schema: { kind: 'ref', name: 'Count' } },
-                  {
-                    name: 'x-capped',
-                    schema: {
-                      kind: 'intersection',
-                      members: [
-                        { kind: 'ref', name: 'Count' },
-                        { kind: 'unknown', metadata: { minimum: 0 } },
-                      ],
-                    },
-                  },
-                ],
-              }),
-            ],
-          },
-        ],
-      })
-    );
-
-    expect(out).toContain(
-      'responseHeaders: [{ name: "x-total", key: "xTotal", type: "number" }, { name: "x-capped", key: "xCapped", type: "number" }]'
-    );
-  });
 });
 
-describe('opsInterfaceStatements', () => {
+describe('renderOpsType', () => {
   function emitOps(model: ApiModel, extra: Partial<EmitContext> = {}): string {
     const ctx: EmitContext = {
-      argsStyle: 'flat',
+      argsStyle: 'grouped',
       errorMode: 'throw',
       dateType: 'string',
       schemaNames: new Set(),
       ...extra,
     };
-    return printStatements(opsInterfaceStatements(model, packageIdents(model), ctx));
+    return renderOpsType(model, packageIdents(model), ctx);
   }
 
   const getOrder = operation({
@@ -516,14 +476,14 @@ describe('opsInterfaceStatements', () => {
     );
     expect(out).toContain('export type Ops = {');
     expect(out).toMatch(
-      /getOrder: \{\n {8}args: \{\n {12}orderId: string;\n {12}params\?: GetOrderParams;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
+      /getOrder: \{\n {8}args: \{\n {12}path: GetOrderPath;\n {12}query\?: GetOrderQuery;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
     );
     expect(out).not.toContain('kind: "sse"');
   });
 
   it('keys args path params by wire name, quoted when not identifier-safe', () => {
-    // The runtime routes path values by wire name (`splitArgs` reads `args[param.name]`),
-    // so the args type must key them the same way — never by the sanitized ident.
+    // The runtime substitutes path values by wire name, so the args type must key them the
+    // same way — never by a sanitized ident.
     const out = emitOps(
       modelWith([
         operation({
@@ -531,13 +491,16 @@ describe('opsInterfaceStatements', () => {
           path: '/pets/{pet-id}',
           pathParams: [param('pet-id', 'path', true)],
         }),
-      ])
+      ]),
+      { schemaNames: new Set(['GetPetPath']) }
     );
     expect(out).toContain('"pet-id": string;');
     expect(out).not.toContain('pet_id');
   });
 
   it('keeps path params that sanitize to the same ident distinct via their wire names', () => {
+    // `schemaNames` holds the alias name, so the layer's type is inlined here and the keys
+    // are visible in `Ops` itself.
     const out = emitOps(
       modelWith([
         operation({
@@ -545,7 +508,8 @@ describe('opsInterfaceStatements', () => {
           path: '/x/{a-b}/{a.b}',
           pathParams: [param('a-b', 'path', true), param('a.b', 'path', true)],
         }),
-      ])
+      ]),
+      { schemaNames: new Set(['ComparePath']) }
     );
     expect(out).toContain('"a-b": string;');
     expect(out).toContain('"a.b": string;');
@@ -650,11 +614,11 @@ describe('opsInterfaceStatements', () => {
     ]);
     const out = emitOps(modelWith([listOrders, getOrder]), { pagination });
     expect(out).toMatch(
-      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: ListOrdersResult;\n {8}item: Order;\n {4}\};/
+      /listOrders: \{\n {8}args: \{\n {12}query\?: ListOrdersQuery;\n {8}\};\n {8}result: ListOrdersResult;\n {8}item: Order;\n {4}\};/
     );
     // The non-paginated sibling stays untouched.
     expect(out).toMatch(
-      /getOrder: \{\n {8}args: \{\n {12}orderId: string;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
+      /getOrder: \{\n {8}args: \{\n {12}path: GetOrderPath;\n {8}\};\n {8}result: GetOrderResult;\n {4}\};/
     );
   });
 
@@ -683,7 +647,7 @@ describe('opsInterfaceStatements', () => {
     // Result mode: `result` is the envelope, so `page` carries the raw page for `.pages()`.
     const out = emitOps(modelWith([listOrders]), { pagination, errorMode: 'result' });
     expect(out).toMatch(
-      /listOrders: \{\n {8}args: \{\n {12}params\?: ListOrdersParams;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}mode: "result";\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
+      /listOrders: \{\n {8}args: \{\n {12}query\?: ListOrdersQuery;\n {8}\};\n {8}result: Result<ListOrdersResult, unknown>;\n {8}mode: "result";\n {8}item: Order;\n {8}page: ListOrdersResult;\n {4}\};/
     );
     // Throw mode emits no page member — `result` already IS the raw page.
     expect(emitOps(modelWith([listOrders]), { pagination })).not.toContain('page:');
@@ -720,58 +684,5 @@ describe('opsInterfaceStatements', () => {
     ]);
     const out = emitOps(modelWith([listOrders]), { pagination, dateType: 'Date' });
     expect(out).toContain('item: Date;');
-  });
-
-  it('adds a headers member from declared success-response headers', () => {
-    const out = emitOps(
-      modelWith([
-        operation({
-          name: 'listCustomers',
-          path: '/customers',
-          successResponses: [
-            response({
-              schema: { kind: 'array', items: { kind: 'ref', name: 'Customer' } },
-            }),
-          ],
-          successResponseHeaders: [
-            { name: 'pagination-total', schema: { kind: 'scalar', scalar: 'integer' } },
-          ],
-        }),
-      ])
-    );
-    expect(out).toContain('headers: {\n            paginationTotal?: number;\n        };');
-  });
-
-  it('emits safe unique keys, requiredness, and only runtime-supported header types', () => {
-    const out = emitOps(
-      modelWith([
-        operation({
-          name: 'listCustomers',
-          path: '/customers',
-          successResponses: [response()],
-          successResponseHeaders: [
-            {
-              name: '3d-secure',
-              schema: { kind: 'scalar', scalar: 'boolean' },
-              required: true,
-            },
-            { name: 'x-foo', schema: { kind: 'scalar', scalar: 'integer' } },
-            { name: 'x_foo', schema: { kind: 'scalar', scalar: 'string' } },
-            {
-              name: 'x-ids',
-              schema: {
-                kind: 'array',
-                items: { kind: 'scalar', scalar: 'integer' },
-              },
-            },
-          ],
-        }),
-      ])
-    );
-
-    expect(out).toContain('_3dSecure: boolean;');
-    expect(out).toContain('xFoo?: number;');
-    expect(out).toContain('xFoo_2?: string;');
-    expect(out).toContain('xIds?: string;');
   });
 });

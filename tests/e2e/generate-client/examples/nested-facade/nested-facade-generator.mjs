@@ -1,10 +1,10 @@
-// A custom generator (the experimental plugin API): groups the sdk's generated
+// A custom generator (the experimental plugin API): groups the client's generated
 // free functions by their first tag and emits a nested facade —
 // `api.orders.listOrders(…)` — derived from the spec, regenerated with it.
 //
 // Authored in TypeScript you would write:
 //   import { defineGenerator } from '@redocly/client-generator';
-//   export default defineGenerator({ name: 'nested-facade', requires: ['sdk'], run({ model, outputPath }) { … } });
+//   export default defineGenerator({ name: 'nested-facade', requires: ['typescript'], run({ model, outputPath }) { … } });
 const groupIdent = (tag) => {
   const ident = tag.replace(/[^A-Za-z0-9_$]/g, '_');
   return /^[A-Za-z_$]/.test(ident) ? ident[0].toLowerCase() + ident.slice(1) : `_${ident}`;
@@ -12,7 +12,7 @@ const groupIdent = (tag) => {
 
 export default {
   name: 'nested-facade',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
     const groups = new Map();
     for (const op of model.services.flatMap((service) => service.operations)) {

@@ -26,11 +26,14 @@ use({
 async function main() {
   try {
     // A typed call through a generated free function…
-    const menu = await listMenuItems({ limit: 3 });
+    const menu = await listMenuItems({ query: { limit: 3 } });
     // …and one through the generated `client` instance (the same runtime underneath).
     const [first] = menu.items;
     const photo = first
-      ? await client.getMenuItemPhoto({ menuItemId: first.id, params: { photoSize: 'thumbnail' } })
+      ? await client.getMenuItemPhoto({
+          path: { menuItemId: first.id },
+          query: { photoSize: 'thumbnail' },
+        })
       : undefined;
     const photoLine =
       photo instanceof Blob

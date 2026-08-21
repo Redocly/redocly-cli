@@ -1,4 +1,4 @@
-import { client, configure_2, createOrder, getOrder, setBearer, streamEvents, use } from './api.js';
+import { client, configure_2, createOrder, getOrder, streamEvents, use } from './api.js';
 
 async function main(): Promise<void> {
   const middlewareIds: string[] = [];
@@ -7,13 +7,13 @@ async function main(): Promise<void> {
       middlewareIds.push(ctx.operation.id);
     },
   });
-  setBearer('test-token');
+  client.auth.bearer('test-token');
 
   // Flat sugar: positional path value forwarded under the wire name `order-id`.
-  const order = await getOrder('o-1', { expand: 'items' });
+  const order = await getOrder({ path: { 'order-id': 'o-1' }, query: { expand: 'items' } });
   // Grouped instance call: the caller uses the wire-name key directly.
-  const grouped = await client.getOrder({ 'order-id': 'o-2' });
-  const created = await createOrder({ status: 'open' });
+  const grouped = await client.getOrder({ path: { 'order-id': 'o-2' } });
+  const created = await createOrder({ body: { status: 'open' } });
   // The op whose id collides with the reserved `configure` member — renamed sugar,
   // while middleware still sees the SPEC operationId.
   const collided = await configure_2();

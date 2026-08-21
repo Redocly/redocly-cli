@@ -72,6 +72,12 @@ export type OperationDescriptor = {
   security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
   /**
+   * `'grouped'` marks an operation that takes its inputs namespaced by layer even on a
+   * `argsStyle: 'flat'` client — the generator sets it where a merged call could not carry
+   * one name for two layers, and the operation's own input type says the same.
+   */
+  argsStyle?: 'grouped';
+  /**
    * Declared success-response headers for throw-mode `{ envelope: true }`.
    * `name` is the lowercased wire name; `key` is the camelCase envelope property.
    */
@@ -199,6 +205,12 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
   errorMode?: 'throw' | 'result';
+  /**
+   * How each call spells its inputs: `'grouped'` (the default) namespaces them by layer —
+   * `{ path, query, headers, cookies, body }` — and `'flat'` takes one merged object.
+   * Fixed at generate time, like `errorMode`, because it shapes the static types.
+   */
+  argsStyle?: 'grouped' | 'flat';
   onRequest?: Middleware<Op>['onRequest'];
   onResponse?: Middleware<Op>['onResponse'];
   onError?: Middleware<Op>['onError'];

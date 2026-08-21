@@ -6,161 +6,69 @@
 // or flat `<op>(vars.petId, …, init)`) via the shared `operationSignature`, so the
 // call type-checks against the generated sdk.
 // `swr`/`swr/mutation` are the consumer's peer; the sdk stays dependency-free.
-// AST-native via `ts.factory`.
+// Source-text templates throughout.
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import { pascalCase } from './support.js';
 import {
-  arrow,
-  constArray,
-  exportConstStatement as exportConst,
-  printStatements,
-  ts,
-} from './ts.js';
-import {
   hasInputs,
-  initParam,
   isQuery,
-  sdkCall,
-  sdkNamedImport,
+  sdkCallText,
+  sdkNamedImportText,
   variablesName,
-  varsParam,
   wrappableOperations,
 } from './wrapper-support.js';
-
-const { factory } = ts;
 
 export type SwrOptions = {
   /** Import specifier for the sdk entry the operation functions/types live in. */
   sdkModule: string;
   /** How the sdk function takes its inputs — must match the generated client. */
-  argsStyle: 'flat' | 'grouped';
 };
 
 /** Render the full SWR module source. `''` when there are no wrappable operations. */
 export function renderSwrModule(model: ApiModel, opts: SwrOptions): string {
   const ops = wrappableOperations(model, 'swr');
   if (ops.length === 0) return '';
-  return printStatements(swrStatements(ops, opts));
-}
-
-/** The SWR module statements: the import header followed by per-op hooks. */
-function swrStatements(ops: OperationModel[], opts: SwrOptions): ts.Statement[] {
   const hasQuery = ops.some(isQuery);
   const hasMutation = ops.some((op) => !isQuery(op));
-  const statements: ts.Statement[] = [];
-  for (const op of ops) {
-    statements.push(...(isQuery(op) ? queryStatements(op, opts) : [mutationStatement(op, opts)]));
-  }
-  return [...importHeader(ops, opts, hasQuery, hasMutation), ...statements];
+  const blocks = [
+    ...(hasQuery ? ['import useSWR from "swr";'] : []),
+    ...(hasMutation ? ['import useSWRMutation from "swr/mutation";'] : []),
+    sdkNamedImportText(ops, opts.sdkModule, hasQuery),
+    ...ops.flatMap((op) => (isQuery(op) ? queryBlocks(op) : [mutationBlock(op)])),
+  ];
+  return blocks.join('\n\n');
 }
 
-/** An exported `function use<Op>(<params>) { <body> }` declaration. */
-function exportHook(
-  op: OperationModel,
-  params: ts.ParameterDeclaration[],
-  ret: ts.Expression
-): ts.Statement {
-  const name = `use${pascalCase(op.name)}`;
-  return factory.createFunctionDeclaration(
-    [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-    undefined,
-    name,
-    undefined,
-    params,
-    undefined,
-    factory.createBlock([factory.createReturnStatement(ret)], true)
-  );
+/** An exported `function use<Op>(<params>) { return <expr>; }` declaration. */
+function hookBlock(op: OperationModel, params: string, expr: string): string {
+  return `export function use${pascalCase(op.name)}(${params}) {\n    return ${expr};\n}`;
 }
 
 /** A query op's `<op>Key` factory + `use<Op>` hook calling `useSWR`. */
-function queryStatements(op: OperationModel, opts: SwrOptions): ts.Statement[] {
+function queryBlocks(op: OperationModel): string[] {
   const inputs = hasInputs(op);
-  const keyId = factory.createStringLiteral(op.name);
-  const keyParams = inputs ? [varsParam(op)] : [];
-  const keyElements = inputs ? [keyId, factory.createIdentifier('vars')] : [keyId];
-  const key = exportConst(`${op.name}Key`, arrow(keyParams, constArray(keyElements)));
-
-  const keyCall = factory.createCallExpression(
-    factory.createIdentifier(`${op.name}Key`),
-    undefined,
-    inputs ? [factory.createIdentifier('vars')] : []
-  );
-  const useSwr = factory.createCallExpression(factory.createIdentifier('useSWR'), undefined, [
-    keyCall,
-    arrow([], sdkCall(op, opts.argsStyle, 'vars', true)),
-  ]);
-
-  const params = inputs ? [varsParam(op), initParam()] : [initParam()];
-  return [key, exportHook(op, params, useSwr)];
+  const keyParams = inputs ? `vars: ${variablesName(op)}` : '';
+  const keyElements = inputs
+    ? `[${JSON.stringify(op.name)}, vars]`
+    : `[${JSON.stringify(op.name)}]`;
+  const key = `export const ${op.name}Key = (${keyParams}) => ${keyElements} as const;`;
+  const keyCall = `${op.name}Key(${inputs ? 'vars' : ''})`;
+  const useSwr = `useSWR(${keyCall}, () => ${sdkCallText(op, 'vars', true)})`;
+  // The throw-only `envelope` option is excluded — cached data must stay the plain body.
+  const params = inputs
+    ? `vars: ${variablesName(op)}, init?: Omit<RequestOptions, "envelope">`
+    : 'init?: Omit<RequestOptions, "envelope">';
+  return [key, hookBlock(op, params, useSwr)];
 }
 
 /** A mutation op's `use<Op>` hook calling `useSWRMutation`. */
-function mutationStatement(op: OperationModel, opts: SwrOptions): ts.Statement {
-  const inputs = hasInputs(op);
-  const key = factory.createStringLiteral(op.name);
-
-  // `(_key: string, { arg }: { arg: <Op>Variables }) => <op>(…arg)` when the op has inputs;
-  // a no-arg `() => <op>()` when it has none (`arg` would be unused).
-  const trigger = inputs
-    ? triggerWithArg(op, opts)
-    : arrow([], sdkCall(op, opts.argsStyle, 'arg', false));
-  const useSwrMutation = factory.createCallExpression(
-    factory.createIdentifier('useSWRMutation'),
-    undefined,
-    [key, trigger]
-  );
-  return exportHook(op, [], useSwrMutation);
-}
-
-/** `(_key: string, { arg }: { arg: <Op>Variables }) => <op>(…arg)`. */
-function triggerWithArg(op: OperationModel, opts: SwrOptions): ts.ArrowFunction {
-  const keyParam = factory.createParameterDeclaration(
-    undefined,
-    undefined,
-    '_key',
-    undefined,
-    factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
-  );
-  const argParam = factory.createParameterDeclaration(
-    undefined,
-    undefined,
-    factory.createObjectBindingPattern([factory.createBindingElement(undefined, undefined, 'arg')]),
-    undefined,
-    factory.createTypeLiteralNode([
-      factory.createPropertySignature(
-        undefined,
-        'arg',
-        undefined,
-        factory.createTypeReferenceNode(variablesName(op))
-      ),
-    ])
-  );
-  return arrow([keyParam, argParam], sdkCall(op, opts.argsStyle, 'arg', false));
-}
-
-/**
- * The import header: `useSWR` from `swr` (when any query op), `useSWRMutation` from
- * `swr/mutation` (when any mutation op), then the shared sdk named import.
- */
-function importHeader(
-  ops: OperationModel[],
-  opts: SwrOptions,
-  hasQuery: boolean,
-  hasMutation: boolean
-): ts.Statement[] {
-  const imports: ts.Statement[] = [];
-  if (hasQuery) imports.push(defaultImport('useSWR', 'swr'));
-  if (hasMutation) imports.push(defaultImport('useSWRMutation', 'swr/mutation'));
-  imports.push(sdkNamedImport(ops, opts.sdkModule, hasQuery));
-  return imports;
-}
-
-/** `import <name> from "<module>";` (default import). */
-function defaultImport(name: string, module: string): ts.Statement {
-  return factory.createImportDeclaration(
-    undefined,
-    factory.createImportClause(false, factory.createIdentifier(name), undefined),
-    factory.createStringLiteral(module)
-  );
+function mutationBlock(op: OperationModel): string {
+  // `(_key: string, { arg }: { arg: <Op>Variables }) => <op>(…arg)` when the op has
+  // inputs; a no-arg `() => <op>()` when it has none (`arg` would be unused).
+  const trigger = hasInputs(op)
+    ? `(_key: string, { arg }: {\n        arg: ${variablesName(op)};\n    }) => ${sdkCallText(op, 'arg', false)}`
+    : `() => ${sdkCallText(op, 'arg', false)}`;
+  const useSwrMutation = `useSWRMutation(${JSON.stringify(op.name)}, ${trigger})`;
+  return hookBlock(op, '', useSwrMutation);
 }

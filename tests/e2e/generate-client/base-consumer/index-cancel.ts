@@ -2,7 +2,7 @@ import { getSlowPet } from './api.js';
 
 async function main(): Promise<void> {
   const controller = new AbortController();
-  const promise = getSlowPet(1, { signal: controller.signal });
+  const promise = getSlowPet({ path: { id: 1 } }, { signal: controller.signal });
   setTimeout(() => controller.abort(), 100);
   try {
     await promise;

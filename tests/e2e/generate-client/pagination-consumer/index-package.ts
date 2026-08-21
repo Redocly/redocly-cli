@@ -5,7 +5,7 @@ import { listOrders } from './api-package.js';
 // package — one full `.items()` walk proves the capability is wired there too.
 async function main(): Promise<void> {
   const ids: string[] = [];
-  for await (const order of listOrders.items({ params: { limit: 2 } })) {
+  for await (const order of listOrders.items({ query: { limit: 2 } })) {
     ids.push(order.id);
   }
 

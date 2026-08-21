@@ -3,16 +3,16 @@ import { apiModel, namedSchema, operation, param, SCALAR } from './fixtures.js';
 
 const SDK = './client.js';
 
-function render(ops: Parameters<typeof operation>[0][], argsStyle: 'flat' | 'grouped' = 'grouped') {
+function render(ops: Parameters<typeof operation>[0][]) {
   return renderSwrModule(
     apiModel({ services: [{ name: 'Default', operations: ops.map(operation) }] }),
-    { sdkModule: SDK, argsStyle }
+    { sdkModule: SDK }
   );
 }
 
 describe('renderSwrModule', () => {
   it('returns empty string when the model has no operations', () => {
-    expect(renderSwrModule(apiModel(), { sdkModule: SDK, argsStyle: 'flat' })).toBe('');
+    expect(renderSwrModule(apiModel(), { sdkModule: SDK })).toBe('');
   });
 
   it('skips SSE operations (not exported by the sdk) and wraps only the regular ones', () => {
@@ -53,7 +53,7 @@ describe('renderSwrModule', () => {
           },
         ],
       }),
-      { sdkModule: SDK, argsStyle: 'grouped' }
+      { sdkModule: SDK }
     );
     expect(out).not.toContain('useGetUser');
     expect(out).toContain('useListUsers');
@@ -106,13 +106,6 @@ describe('renderSwrModule', () => {
         'return useSWR(listPetsKey(), () => listPets({}, { ...init, envelope: undefined }));'
       );
     });
-
-    it('flat style: the no-input sugar takes the init directly', () => {
-      const out = render([{ name: 'listPets', method: 'get', path: '/pets' }], 'flat');
-      expect(out).toContain(
-        'return useSWR(listPetsKey(), () => listPets({ ...init, envelope: undefined }));'
-      );
-    });
   });
 
   describe('mutation operation (POST) with a body', () => {
@@ -140,41 +133,33 @@ describe('renderSwrModule', () => {
     });
   });
 
-  describe('flat forwarding', () => {
-    it('query: spreads vars.<path>, vars.params, then init (URL-template order)', () => {
-      const out = render(
-        [
-          {
-            name: 'getPet',
-            method: 'get',
-            path: '/pets/{petId}',
-            pathParams: [param('petId', 'path', true)],
-            queryParams: [param('expand', 'query', false)],
-          },
-        ],
-        'flat'
-      );
-      expect(out).toContain(
-        '() => getPet(vars.petId, vars.params, { ...init, envelope: undefined })'
-      );
+  describe('input forwarding', () => {
+    it('forwards the whole input object, whatever shape the sdk takes', () => {
+      const out = render([
+        {
+          name: 'getPet',
+          method: 'get',
+          path: '/pets/{petId}',
+          pathParams: [param('petId', 'path', true)],
+          queryParams: [param('expand', 'query', false)],
+        },
+      ]);
+      expect(out).toContain('() => getPet(vars, { ...init, envelope: undefined })');
     });
 
-    it('mutation: spreads arg.<path> (URL-template order), then params, body, headers', () => {
-      const out = render(
-        [
-          {
-            name: 'replace',
-            method: 'put',
-            path: '/a/{a}/b/{b}',
-            pathParams: [param('b', 'path', true), param('a', 'path', true)],
-            queryParams: [param('q', 'query', false)],
-            requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
-            headerParams: [param('X-Trace', 'header', false)],
-          },
-        ],
-        'flat'
-      );
-      expect(out).toContain('=> replace(arg.a, arg.b, arg.params, arg.body, arg.headers)');
+    it('a mutation trigger forwards its `arg` the same way', () => {
+      const out = render([
+        {
+          name: 'replace',
+          method: 'put',
+          path: '/a/{a}/b/{b}',
+          pathParams: [param('b', 'path', true), param('a', 'path', true)],
+          queryParams: [param('q', 'query', false)],
+          requestBody: { contentType: 'application/json', schema: SCALAR, required: true },
+          headerParams: [param('X-Trace', 'header', false)],
+        },
+      ]);
+      expect(out).toContain('}) => replace(arg));');
     });
   });
 

@@ -1,6 +1,6 @@
 import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { tanstackQueryGenerator } from '../tanstack-query.js';
+import { tanstackQueryGenerator } from '../tanstack-query/index.js';
 
 const SERVICES = [
   {
@@ -77,7 +77,7 @@ describe('tanstackQueryGenerator', () => {
       'tanstack-query-solid',
     ]) {
       const descriptor = registry.get(name);
-      expect(descriptor?.requires, name).toEqual(['sdk']);
+      expect(descriptor?.requires, name).toEqual(['typescript']);
       expect(descriptor?.errorModes, name).toEqual(['throw']);
     }
   });

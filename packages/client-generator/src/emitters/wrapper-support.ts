@@ -10,9 +10,6 @@ import { logger } from '@redocly/openapi-core';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import { operationSignature } from './operation-signature.js';
 import { isSseOp } from './sse.js';
-import { ts } from './ts.js';
-
-const { factory } = ts;
 
 /**
  * The operations a wrapper generator can wrap, with skips reported to the user under
@@ -68,102 +65,33 @@ export function variablesName(op: OperationModel): string {
   return operationSignature(op).variablesTypeName;
 }
 
-/** A `vars: <Op>Variables` parameter. */
-export function varsParam(op: OperationModel): ts.ParameterDeclaration {
-  return factory.createParameterDeclaration(
-    undefined,
-    undefined,
-    'vars',
-    undefined,
-    factory.createTypeReferenceNode(variablesName(op))
-  );
-}
-
-/**
- * An `init?: Omit<RequestOptions, "envelope">` parameter. The wrappers cache the
- * fetched body, so the throw-only `envelope` option is excluded from the type and
- * stripped at runtime by `sdkCall`.
- */
-export function initParam(): ts.ParameterDeclaration {
-  return factory.createParameterDeclaration(
-    undefined,
-    undefined,
-    'init',
-    factory.createToken(ts.SyntaxKind.QuestionToken),
-    factory.createTypeReferenceNode('Omit', [
-      factory.createTypeReferenceNode('RequestOptions'),
-      factory.createLiteralTypeNode(factory.createStringLiteral('envelope')),
-    ])
-  );
-}
-
-/**
- * The forwarding call to the sdk operation function; argument order comes from the
- * shared `operationSignature`. `grouped` passes the source object — `{}` for a
+/** The forwarding-call ARGUMENT LIST to the sdk operation function, as text. Argument
+ * order comes from the shared `operationSignature`, so it lines up with the sdk's
+ * parameter list by construction. `grouped` passes the source object — `{}` for a
  * no-input op with an init, which must not land in the `(args?, init?)` args slot;
- * `flat` spreads `<source>.<pathIdent>`, then `.params` / `.body` / `.headers`.
- * `withInit` appends `{ ...init, envelope: undefined }` — a runtime strip, since
- * `initParam`'s `Omit` is type-only.
- */
-export function sdkCall(
-  op: OperationModel,
-  argsStyle: 'flat' | 'grouped',
-  source: string,
-  withInit: boolean
-): ts.Expression {
-  const sig = operationSignature(op);
-  const sourceIdent = factory.createIdentifier(source);
-  const args: ts.Expression[] = [];
-
-  if (argsStyle === 'grouped') {
-    if (sig.hasInputs) args.push(sourceIdent);
-    else if (withInit) args.push(factory.createObjectLiteralExpression([]));
-  } else {
-    for (const { ident } of sig.pathParams) {
-      args.push(factory.createPropertyAccessExpression(sourceIdent, ident));
-    }
-    if (sig.hasQuery) args.push(factory.createPropertyAccessExpression(sourceIdent, 'params'));
-    if (sig.hasBody) args.push(factory.createPropertyAccessExpression(sourceIdent, 'body'));
-    if (sig.hasHeaders) args.push(factory.createPropertyAccessExpression(sourceIdent, 'headers'));
-    if (sig.hasCookies) args.push(factory.createPropertyAccessExpression(sourceIdent, 'cookies'));
-  }
-  if (withInit) {
-    args.push(
-      factory.createObjectLiteralExpression([
-        factory.createSpreadAssignment(factory.createIdentifier('init')),
-        factory.createPropertyAssignment('envelope', factory.createIdentifier('undefined')),
-      ])
-    );
-  }
-
-  return factory.createCallExpression(factory.createIdentifier(op.name), undefined, args);
+ * `flat` spreads `<source>.<pathIdent>` (URL-template order), then the slots the op
+ * has. `withInit` appends `{ ...init, envelope: undefined }` — a runtime strip, since
+ * the wrappers cache the fetched body and their `Omit`-typed init is type-only. */
+export function sdkCallText(op: OperationModel, source: string, withInit: boolean): string {
+  const args: string[] = [];
+  // Every style takes ONE input object, so a wrapper forwards its `<Op>Variables` verbatim
+  // and never has to know which style the sdk was generated with.
+  if (operationSignature(op).hasInputs) args.push(source);
+  else if (withInit) args.push('{}');
+  if (withInit) args.push('{ ...init, envelope: undefined }');
+  return `${op.name}(${args.join(', ')})`;
 }
 
-/**
- * The named import from the sdk module: the wrapped opFns as value specifiers, then
- * the referenced `<Op>Variables` types + `RequestOptions` (when any query op) as
- * `type` specifiers, each group sorted.
- */
-export function sdkNamedImport(
+/** The named import from the sdk module: wrapped opFns, then the referenced
+ * `<Op>Variables` types + `RequestOptions` (when any query op) as `type` specifiers. */
+export function sdkNamedImportText(
   ops: OperationModel[],
   sdkModule: string,
   hasQuery: boolean
-): ts.Statement {
+): string {
   const values = ops.map((op) => op.name).sort();
   const types = ops.filter(hasInputs).map(variablesName).sort();
   if (hasQuery) types.push('RequestOptions');
-
-  const specifiers = [
-    ...values.map((name) =>
-      factory.createImportSpecifier(false, undefined, factory.createIdentifier(name))
-    ),
-    ...types.map((name) =>
-      factory.createImportSpecifier(true, undefined, factory.createIdentifier(name))
-    ),
-  ];
-  return factory.createImportDeclaration(
-    undefined,
-    factory.createImportClause(false, undefined, factory.createNamedImports(specifiers)),
-    factory.createStringLiteral(sdkModule)
-  );
+  const specifiers = [...values, ...types.map((name) => `type ${name}`)].join(', ');
+  return `import { ${specifiers} } from ${JSON.stringify(sdkModule)};`;
 }

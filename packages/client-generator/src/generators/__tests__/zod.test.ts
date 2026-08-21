@@ -1,5 +1,5 @@
 import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
-import { zodGenerator } from '../zod.js';
+import { zodGenerator } from '../zod/index.js';
 
 const PET = namedSchema('Pet', {
   kind: 'object',

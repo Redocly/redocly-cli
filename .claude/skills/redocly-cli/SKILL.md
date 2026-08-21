@@ -126,7 +126,7 @@ Configure it durably under a `client` block in `redocly.yaml` instead of flags:
 
 ```yaml
 client:
-  generators: [sdk, zod] # add-ons: tanstack-query, swr, mock, transformers, or a plugin path
+  generators: [typescript, zod] # add-ons: tanstack-query, swr, mock, transformers, or a plugin path
   outputMode: split
   pagination: # config-only, no CLI flag
     style: cursor

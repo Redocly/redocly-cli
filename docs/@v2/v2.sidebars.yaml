@@ -18,6 +18,8 @@
           page: commands/drift.md
         - label: eject
           page: commands/eject.md
+        - label: eject-generator
+          page: commands/eject-generator.md
         - label: generate-arazzo
           page: commands/generate-arazzo.md
         - label: generate-client
@@ -64,6 +66,8 @@
           label: Lint and bundle
         - label: Use the generated client
           page: guides/use-generated-client.md
+        - label: Move an app to a generated client
+          page: guides/migrate-to-generated-client.md
         - label: Customize client generation
           page: guides/customize-client-generation.md
         - label: Hide internal APIs

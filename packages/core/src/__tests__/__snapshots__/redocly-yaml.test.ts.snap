@@ -219,11 +219,23 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "grouped",
         ],
       },
+      "cliOutput": {
+        "type": "string",
+      },
+      "codeSamples": {
+        "type": "boolean",
+      },
       "dateType": {
         "enum": [
           "string",
           "Date",
         ],
+      },
+      "docs": {
+        "type": "boolean",
+      },
+      "docsFrontmatter": {
+        "type": "boolean",
       },
       "errorMode": {
         "enum": [
@@ -236,6 +248,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "type": "string",
         },
         "type": "array",
+      },
+      "goPackage": {
+        "type": "string",
       },
       "importExt": {
         "enum": [
@@ -251,6 +266,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "mockSeed": {
         "type": "number",
+      },
+      "options": {
+        "additionalProperties": [Function],
+        "name": "ClientGeneratorOptionsMap",
+        "properties": {},
       },
       "outputMode": {
         "enum": [
@@ -275,6 +295,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
     },
+  },
+  "ClientGeneratorOptions": {
+    "additionalProperties": {},
+    "properties": {},
   },
   "ClientPagination": {
     "properties": {

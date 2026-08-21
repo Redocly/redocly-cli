@@ -1,5 +1,5 @@
 import { apiModel, namedSchema, operation, response } from '../../emitters/__tests__/fixtures.js';
-import { mockGenerator } from '../mock.js';
+import { mockGenerator } from '../mock/index.js';
 
 describe('mockGenerator', () => {
   it('returns [] for a model with no operations', () => {

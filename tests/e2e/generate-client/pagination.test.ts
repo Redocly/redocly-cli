@@ -3,9 +3,9 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { killServer, repoRoot, startServer } from './helpers.js';
+import { killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
-// Auto-pagination end to end, over a live server: the `x-redocly-pagination` extension arm
+// Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
 // (cursor style — three pages, resume, abort) generated with NO config, the
 // config-convention arm (offset style, applied only where it structurally fits), and a
 // package-mode arm proving `.pages()`/`.items()` ship from the installed runtime.
@@ -39,9 +39,8 @@ async function resetLog(): Promise<void> {
   expect(response.ok).toBe(true);
 }
 
-async function fetchLog(): Promise<Array<{ method: string; url: string }>> {
-  const response = await fetch(`${SERVER_BASE}/__test__/log`);
-  return (await response.json()) as Array<{ method: string; url: string }>;
+function fetchLog(): Promise<Array<{ method: string; url: string }>> {
+  return serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
 }
 
 function runConsumer(script: string): { stdout: string } {
@@ -79,7 +78,7 @@ describe('generate-client pagination consumer', () => {
 
   test('generate all three arms and assert the emitted pagination surface', async () => {
     const generateClient = await loadGenerateClient();
-    // Extension arm: NO pagination config — `x-redocly-pagination` alone drives `listOrders`.
+    // Extension arm: NO pagination config — `x-redoclyPagination` alone drives `listOrders`.
     await generateClient({ api: fixture, output: apiFile });
     // Convention arm: an offset rule applied to every operation it structurally fits.
     await generateClient({
@@ -105,12 +104,10 @@ describe('generate-client pagination consumer', () => {
     expect(api).toContain(
       'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
     );
-    // …and the flat sugar preserves `.pages`/`.items` via Object.assign.
-    expect(api).toContain(
-      'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
-    );
-    expect(api).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
-    expect(api).not.toContain('client.listMenuItems.pages');
+    // …and the exported name is the client method itself, so `.pages`/`.items` ride along
+    // with the same input shape as the call. No wrapper, no second argument shape.
+    expect(api).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
+    expect(api).not.toContain('export const listOrders = Object.assign');
     // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).
     expect(api).toContain('// ─── Embedded runtime');
     expect(api).toContain('Pagination did not advance');
@@ -121,9 +118,7 @@ describe('generate-client pagination consumer', () => {
       'listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "offset", param: "offset", limitParam: "limit", items: "/items" } }'
     );
     expect(offset).toContain('item: MenuItem;');
-    expect(offset).toContain(
-      '{ pages: client.listMenuItems.pages, items: client.listMenuItems.items });'
-    );
+    expect(offset).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
     // …precedence keeps the extension's cursor rule on listOrders (not the convention)…
     expect(offset).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
@@ -140,7 +135,7 @@ describe('generate-client pagination consumer', () => {
     expect(pkg).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
     );
-    expect(pkg).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
+    expect(pkg).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
   }, 60_000);
 
   test('typecheck gate: all three generated clients + consumer scripts, strict', () => {

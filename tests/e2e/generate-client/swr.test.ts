@@ -20,7 +20,7 @@ describe('generate-client swr generator', () => {
 
     generate(join(__dirname, 'fixtures', 'base.yaml'), out, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'swr',
     ]);

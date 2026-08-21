@@ -1,4 +1,4 @@
-// Auto-pagination resolution: turns config rules and `x-redocly-pagination` extensions into the
+// Auto-pagination resolution: turns config rules and `x-redoclyPagination` extensions into the
 // normalized descriptor `PaginationSpec`, statically VERIFYING each rule fits its
 // operation (the advance param is a declared query param whose schema fits the style —
 // string-ish for `cursor`, a numeric scalar for `offset`/`page`; the JSON pointers
@@ -8,6 +8,7 @@
 
 import { isPlainObject, logger } from '@redocly/openapi-core';
 
+import { schemaAtPointer as resolveSchemaPointer } from '../authoring/schema.js';
 import {
   allOperations,
   type ApiModel,
@@ -21,7 +22,7 @@ import { isSseOp } from './sse.js';
 export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
 
 /**
- * One user-facing pagination rule — the shared shape of the `x-redocly-pagination` operation
+ * One user-facing pagination rule — the shared shape of the `x-redoclyPagination` operation
  * extension and every `pagination` config rule. `nextCursor` and `items` are RFC 6901
  * JSON pointers (starting with `/`) into the operation's success response.
  */
@@ -51,12 +52,12 @@ export type PaginationRule = {
  * The `pagination` config block: an optional convention rule (the top-level rule
  * fields, applied to every operation it structurally fits when `style` is set), plus
  * per-operation overrides and exclusions. Precedence per operation:
- * `operations[id]` > the spec's `x-redocly-pagination` extension > the convention rule.
+ * `operations[id]` > the spec's `x-redoclyPagination` extension > the convention rule.
  */
 export type PaginationConfig = Partial<PaginationRule> & {
   /** operationIds no source may paginate. */
   exclude?: string[];
-  /** Per-operation rules, keyed by operationId (beat `x-redocly-pagination` and the convention). */
+  /** Per-operation rules, keyed by operationId (beat `x-redoclyPagination` and the convention). */
   operations?: Record<string, PaginationRule>;
 };
 
@@ -72,7 +73,7 @@ export type ModelPagination = Map<string, { spec: PaginationSpec; itemSchema: Sc
 
 /**
  * Resolve one operation's pagination across the three sources (per-op config >
- * `x-redocly-pagination` > convention); `config.exclude` kills all of them. Returns the
+ * `x-redoclyPagination` > convention); `config.exclude` kills all of them. Returns the
  * normalized spec + the item element schema, `{}` when the operation doesn't paginate
  * (no source, or a convention that doesn't fit), or an `error` for a malformed rule
  * (any source) and for an explicit rule that doesn't fit the operation.
@@ -89,7 +90,7 @@ export function resolveOperationPagination(
     return applyRule(op, model, perOp, `pagination.operations["${configName}"]`, true);
   }
   if (op.paginationExtension !== undefined) {
-    return applyRule(op, model, op.paginationExtension, 'x-redocly-pagination', true);
+    return applyRule(op, model, op.paginationExtension, 'x-redoclyPagination', true);
   }
   if (config?.style !== undefined) {
     const { exclude: _exclude, operations: _operations, ...convention } = config;
@@ -145,7 +146,13 @@ function applyRule(
     const param = valid.style === 'cursor' ? valid.cursorParam! : valid.offsetParam!;
     const advance = op.queryParams.find((p) => p.name === param);
     if (!advance) {
-      return misfit(`query parameter "${param}" is not declared on the operation`);
+      // Name what IS declared: the fix is almost always a different spelling
+      // (`after` vs `cursor`), and the message should make that obvious.
+      const declared = op.queryParams.map((p) => p.name).join(', ');
+      return misfit(
+        `query parameter "${param}" is not declared on the operation` +
+          (declared === '' ? '' : ` (declared: ${declared})`)
+      );
     }
     // The advance param must accept what the runtime sends: the response's cursor
     // (string-ish, same predicate as nextCursor) or the incremented number.
@@ -271,52 +278,8 @@ function ruleShapeProblem(rule: unknown): string | undefined {
   return undefined;
 }
 
-/**
- * Resolve an RFC 6901 JSON pointer (`~1` → `/`, `~0` → `~`) over a schema, walking the
- * VALUE shape it describes: object property steps by name, record values for any token,
- * array items for numeric tokens, with `ref` steps resolved through the model's named
- * schemas (cycle-guarded). Intersections (`allOf` — the common collection-base pattern)
- * resolve across their members; unions bail (genuinely ambiguous — v1 is strict).
- * Returns `undefined` on any miss — the caller decides whether that is an error.
- */
-export function resolveSchemaPointer(
-  schema: SchemaModel,
-  pointer: string,
-  model: ApiModel
-): SchemaModel | undefined {
-  let current = deref(schema, model);
-  if (current === undefined || (pointer !== '' && !pointer.startsWith('/'))) return undefined;
-  if (pointer === '') return current;
-  for (const token of pointer.slice(1).split('/')) {
-    const key = token.replaceAll('~1', '/').replaceAll('~0', '~');
-    const next = stepIntoSchema(current, key, model);
-    if (next === undefined) return undefined;
-    current = deref(next, model);
-    if (current === undefined) return undefined;
-  }
-  return current;
-}
-
-/** One pointer step over a (dereferenced) schema; an intersection takes the LAST member that resolves, since later `allOf` members refine earlier ones. */
-function stepIntoSchema(
-  schema: SchemaModel,
-  key: string,
-  model: ApiModel
-): SchemaModel | undefined {
-  if (schema.kind === 'object') return schema.properties.find((p) => p.name === key)?.schema;
-  if (schema.kind === 'record') return schema.value;
-  if (schema.kind === 'array' && /^(0|[1-9]\d*)$/.test(key)) return schema.items;
-  if (schema.kind === 'intersection') {
-    let match: SchemaModel | undefined;
-    for (const member of schema.members) {
-      const target = deref(member, model);
-      if (target === undefined) continue;
-      match = stepIntoSchema(target, key, model) ?? match;
-    }
-    return match;
-  }
-  return undefined;
-}
+/** The neutral RFC 6901 schema walker, re-exported under its original name here. */
+export { schemaAtPointer as resolveSchemaPointer } from '../authoring/schema.js';
 
 /** A (dereferenced) schema named for a fit-error message; scalars/enums by their scalar. */
 function describeSchema(schema: SchemaModel | undefined): string {

@@ -1,0 +1,14 @@
+{
+  "name": "@redocly-examples/valibot-generator",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "generate": "redocly generate-client"
+  },
+  "devDependencies": {
+    "@redocly/cli": "latest",
+    "typescript": "^5.5.0",
+    "valibot": "^1.4.0"
+  }
+}

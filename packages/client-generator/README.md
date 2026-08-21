@@ -27,7 +27,7 @@ import { generateClient } from '@redocly/client-generator';
 const result = await generateClient({
   api: './openapi.yaml', // file path or URL; OpenAPI 3.0/3.1/3.2 or Swagger 2.0
   output: './src/api/client.ts',
-  generators: ['sdk', 'zod'],
+  generators: ['typescript', 'zod'],
 });
 
 console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes.`);
@@ -55,43 +55,32 @@ With `runtime: 'package'` the generated client also imports its whole engine fro
 ### Write a custom generator
 
 A custom generator reads the same API model the built-ins consume, runs in the same pass, and returns files.
-Build real TypeScript with the emit toolkit from `@redocly/client-generator/generate` — the same `ts.factory` + printer the built-in generators use, so the schema→type mapping matches the sdk's exactly:
+Emitters print text: `Printer` handles indentation, and `tsType` is the same schema→type renderer the built-in sdk uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
 
 ```ts
 // response-map-generator.ts
-import { defineGenerator } from '@redocly/client-generator';
-import { printStatements, schemaToTypeNode, ts } from '@redocly/client-generator/generate';
-
-const { factory } = ts;
+import { defineGenerator, Printer } from '@redocly/client-generator';
+import { tsType } from '@redocly/client-generator/generate';
 
 export default defineGenerator({
   name: 'response-map',
-  requires: ['sdk'],
+  requires: ['typescript'],
   run({ model, outputPath }) {
+    const printer = new Printer();
     // One `ResponseShapes` entry per operation with a JSON success body.
-    const members = model.services
-      .flatMap((service) => service.operations)
-      .flatMap((op) => {
-        const success = op.successResponses.find((r) => r.contentType.includes('json'));
-        if (!success) return [];
-        return [
-          factory.createPropertySignature(
-            undefined,
-            op.name,
-            undefined,
-            schemaToTypeNode(success.schema)
-          ),
-        ];
-      });
-    const alias = factory.createTypeAliasDeclaration(
-      [factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-      'ResponseShapes',
-      undefined,
-      factory.createTypeLiteralNode(members)
+    printer.block(
+      'export type ResponseShapes = {',
+      () => {
+        for (const service of model.services) {
+          for (const op of service.operations) {
+            const success = op.successResponses.find((r) => r.contentType.includes('json'));
+            if (success) printer.line(`${op.name}: ${tsType(success.schema)};`);
+          }
+        }
+      },
+      '};'
     );
-    return [
-      { path: outputPath.replace(/\.ts$/, '.responses.ts'), content: printStatements([alias]) },
-    ];
+    return [{ path: outputPath.replace(/\.ts$/, '.responses.ts'), content: printer.toString() }];
   },
 });
 ```
@@ -150,7 +139,10 @@ Authors a custom generator (`{ name, run }` plus optional `requires`/`errorModes
 function defineGenerator(generator: CustomGenerator): CustomGenerator;
 ```
 
-The `@redocly/client-generator/generate` entry also exports the emit toolkit the built-ins use (`ts`, `printStatements`, `parseStatements`, `operationSignature`, `schemaToTypeNode`, `pascalCase`, …), and the package root exports the IR types, so a custom generator emits TypeScript exactly as the first-party ones do — see the [`ast-toolkit-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/ast-toolkit-generator).
+The `@redocly/client-generator/generate` entry also exports the TypeScript renderers the built-ins use (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, `safeIdent`).
+The package root exports the IR types plus the language-neutral toolkit.
+A custom generator emits TypeScript exactly as the first-party ones do.
+See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator).
 
 ### `defineClientSetup`
 

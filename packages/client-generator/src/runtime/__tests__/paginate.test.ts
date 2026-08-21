@@ -18,7 +18,7 @@ function stub(data: unknown[]) {
     return data[calls.length - 1];
   };
   const sentParams = (name: string) =>
-    calls.map((c) => (c.args?.params as Record<string, unknown> | undefined)?.[name]);
+    calls.map((c) => (c.args?.query as Record<string, unknown> | undefined)?.[name]);
   return { calls, call, sentParams };
 }
 
@@ -105,11 +105,11 @@ describe('pages — cursor style', () => {
     expect(calls).toHaveLength(2);
   });
 
-  it('resumes from a caller-provided cursor, preserving other params', async () => {
+  it('resumes from a caller-provided cursor, preserving the other query values', async () => {
     const data = [{ orders: [{ id: 'o3' }] }];
     const { call, calls } = stub(data);
-    await collect(pages(call, CURSOR, { params: { cursor: 'c2', limit: 5 } }));
-    expect(calls[0].args?.params).toEqual({ cursor: 'c2', limit: 5 });
+    await collect(pages(call, CURSOR, { query: { cursor: 'c2', limit: 5 } }));
+    expect(calls[0].args?.query).toEqual({ cursor: 'c2', limit: 5 });
   });
 
   it('advances through numeric cursors end-to-end', async () => {
@@ -144,15 +144,15 @@ describe('pages — cursor style', () => {
     );
   });
 
-  it('never mutates the caller args; each request gets a fresh params clone', async () => {
+  it('never mutates the caller args; each request gets a fresh query bag', async () => {
     const data = [{ orders: [{ id: 'o1' }], nextCursor: 'c2' }, { orders: [] }];
-    const args = { params: { limit: 2 }, headers: { 'X-Trace': '1' } };
+    const args = { query: { limit: 2 }, headers: { 'X-Trace': '1' } };
     const snapshot = structuredClone(args);
     const { call, calls } = stub(data);
     await collect(pages(call, CURSOR, args));
     expect(args).toEqual(snapshot);
-    expect(calls[0].args?.params).not.toBe(args.params);
-    expect(calls[1].args?.params).not.toBe(calls[0].args?.params);
+    expect(calls[0].args?.query).not.toBe(args.query);
+    expect(calls[1].args?.query).not.toBe(calls[0].args?.query);
   });
 
   it('forwards the same init (incl. AbortSignal) to every call', async () => {
@@ -189,7 +189,7 @@ describe('pages — offset style', () => {
   it('starts at the caller offset when provided', async () => {
     const data = [{ orders: ['k'] }, { orders: [] }];
     const { call, sentParams } = stub(data);
-    await collect(pages(call, OFFSET, { params: { offset: 10 } }));
+    await collect(pages(call, OFFSET, { query: { offset: 10 } }));
     expect(sentParams('offset')).toEqual([10, 11]);
   });
 
@@ -198,7 +198,7 @@ describe('pages — offset style', () => {
     // omits the param for those values, so the iterator must not start at page 0.
     const data = [{ orders: ['k'] }, { orders: [] }];
     const { call, sentParams } = stub(data);
-    await collect(pages(call, PAGE, { params: { page: null } }));
+    await collect(pages(call, PAGE, { query: { page: null } }));
     expect(sentParams('page')).toEqual([1, 2]);
   });
 
@@ -206,14 +206,14 @@ describe('pages — offset style', () => {
     const data = [{ orders: ['k', 'm'] }, { orders: [] }];
     const { call, sentParams } = stub(data);
     // A string offset (common from URL/form input): `'10' + 2` would be `'102'` without coercion.
-    await collect(pages(call, OFFSET, { params: { offset: '10' } }));
+    await collect(pages(call, OFFSET, { query: { offset: '10' } }));
     expect(sentParams('offset')).toEqual([10, 12]);
   });
 
   it('falls back to the default start when the offset param is not a number', async () => {
     const data = [{ orders: ['k'] }, { orders: [] }];
     const { call, sentParams } = stub(data);
-    await collect(pages(call, OFFSET, { params: { offset: 'not-a-number' } }));
+    await collect(pages(call, OFFSET, { query: { offset: 'not-a-number' } }));
     expect(sentParams('offset')).toEqual([0, 1]);
   });
 
@@ -236,7 +236,7 @@ describe('pages — page style', () => {
   it('starts at the caller page number when provided', async () => {
     const data = [{ orders: ['x'] }, { orders: [] }];
     const { call, sentParams } = stub(data);
-    await collect(pages(call, PAGE, { params: { page: 5 } }));
+    await collect(pages(call, PAGE, { query: { page: 5 } }));
     expect(sentParams('page')).toEqual([5, 6]);
   });
 });
@@ -273,7 +273,7 @@ describe('items', () => {
     const data = [{ orders: ['a'] }, { orders: [] }];
     const init: RequestOptions = { headers: { 'X-Trace': '1' } };
     const { call, calls, sentParams } = stub(data);
-    await collect(items(call, PAGE, { params: { limit: 1 } }, init));
+    await collect(items(call, PAGE, { query: { limit: 1 } }, init));
     expect(sentParams('limit')).toEqual([1, 1]);
     for (const c of calls) expect(c.init).toBe(init);
   });
@@ -311,15 +311,15 @@ describe('pagesByLink / itemsByLink (link style)', () => {
     return { call, calls };
   }
 
-  it('follows rel="next" by merging its query params into the next call, then stops', async () => {
+  it('follows rel="next" by merging its query query into the next call, then stops', async () => {
     const { call, calls } = linkStub([
       { page: ['a'], linkHeader: '<https://x/orders?page=2&per_page=5>; rel="next"' },
       { page: ['b'], linkHeader: null },
     ]);
-    const seen = await collect(pagesByLink(call, { params: { per_page: 5 } }));
+    const seen = await collect(pagesByLink(call, { query: { per_page: 5 } }));
     expect(seen).toEqual([['a'], ['b']]);
-    expect(calls[0].args?.params).toEqual({ per_page: 5 });
-    expect(calls[1].args?.params).toEqual({ per_page: '5', page: '2' });
+    expect(calls[0].args?.query).toEqual({ per_page: 5 });
+    expect(calls[1].args?.query).toEqual({ per_page: '5', page: '2' });
   });
 
   it('keeps every value of a repeated query param in the next target', async () => {
@@ -328,7 +328,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: ['b'], linkHeader: null },
     ]);
     await collect(pagesByLink(call, {}));
-    expect(calls[1].args?.params).toEqual({ tag: ['dogs', 'cats'], page: '2' });
+    expect(calls[1].args?.query).toEqual({ tag: ['dogs', 'cats'], page: '2' });
   });
 
   it('resolves a relative next target against the page URL', async () => {
@@ -337,7 +337,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: [2], linkHeader: null },
     ]);
     await collect(pagesByLink(call));
-    expect(calls[1].args?.params).toEqual({ cursor: 'abc' });
+    expect(calls[1].args?.query).toEqual({ cursor: 'abc' });
   });
 
   it('follows links when the page URL itself is relative (relative serverUrl, mocked fetch)', async () => {
@@ -354,7 +354,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
     };
     const seen = await collect(pagesByLink(call));
     expect(seen).toEqual([['a'], ['b']]);
-    expect(calls[1].args?.params).toEqual({ page: '2' });
+    expect(calls[1].args?.query).toEqual({ page: '2' });
   });
 
   it('throws when the next target repeats (infinite-loop guard)', async () => {
