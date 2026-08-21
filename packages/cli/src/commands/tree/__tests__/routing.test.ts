@@ -54,6 +54,12 @@ describe('resolveTreeView', () => {
 
     expect(route({}).kind).toBe('overview');
     expect(route({ tag: 'Tickets' })).toMatchObject({ kind: 'operations', scope: 'Tickets' });
+    // A tag with --with-deps returns every operation it holds, cards and all, in one view.
+    expect(route({ tag: 'Tickets', 'with-deps': true })).toMatchObject({
+      kind: 'operation-cards',
+      scope: 'Tickets',
+      omitted: 0,
+    });
     // A bare --tag lists the tags themselves.
     expect(route({ tag: '' })).toMatchObject({
       kind: 'tags',

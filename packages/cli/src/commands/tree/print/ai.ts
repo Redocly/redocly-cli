@@ -41,6 +41,8 @@ export function renderAiView(view: TreeView): string {
       return renderAiOverview(view.overview, view.operations, view.webhookOperations);
     case 'operations':
       return renderAiOperations(view.scope, view.items);
+    case 'operation-cards':
+      return renderAiOperationCards(view.cards, view.scope, view.omitted);
     case 'tags':
       return [
         `tags · ${count(view.items.length, 'tag')}`,
@@ -284,6 +286,54 @@ function renderAiFind(report: FindReport): string {
   } else {
     lines.push(`${OPERATION_NEXT_HINT} · --component=<section> --name=<Name>`);
   }
+  return lines.join('\n');
+}
+
+/**
+ * Several operations in one view: each card's own header and body, then a single closure covering
+ * all of them. Fetched one at a time these cards repeat every shared schema; merged, each one
+ * arrives once.
+ */
+function renderAiOperationCards(
+  cards: OperationCard[],
+  scope: string | undefined,
+  omitted: number
+): string {
+  const lines = [`${scope ?? 'operations'} · ${count(cards.length, 'operation')} with deps`];
+  for (const card of cards) {
+    lines.push('', aiCardHeader(card));
+    if (card.security !== undefined) lines.push(aiSecurityLine('auth', card.security));
+    if (card.content !== undefined) {
+      const json = renderCardBodyJson(card.content, card.start_line);
+      lines.push(
+        ...(json !== undefined ? ['--- json', json] : ['--- yaml', card.content.trimEnd()])
+      );
+    }
+  }
+
+  const merged = new Map<string, AiDepEntry>();
+  const deeper = new Set<string>();
+  let truncated = false;
+  for (const card of cards) {
+    if (card.deps === undefined) continue;
+    if (card.truncated === true) truncated = true;
+    const closure = buildAiDepsClosure(card.deps, card.refs);
+    for (const dep of closure.deps) merged.set(dep.id, dep);
+    for (const id of closure.deeper) deeper.add(id);
+  }
+  if (merged.size > 0) {
+    lines.push(
+      '',
+      `--- deps (${merged.size} shared, signatures depth ≤2${truncated ? ', truncated at 64 KB' : ''})`
+    );
+    for (const dep of merged.values()) lines.push(aiDepLine(dep, ''));
+  }
+  const stillDeeper = [...deeper].filter((id) => !merged.has(id));
+  if (stillDeeper.length > 0) lines.push(`deeper: ${stillDeeper.join(' · ')}`);
+  if (omitted > 0) lines.push(`… ${count(omitted, 'more operation')} — narrow the selection.`);
+  lines.push(
+    'next: --path=<p> --operation=<method> · --component=<section> --name=<Name> · --pointer=<$ref>'
+  );
   return lines.join('\n');
 }
 

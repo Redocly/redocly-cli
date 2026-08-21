@@ -58,7 +58,7 @@ The default view shows one API's overview at a time; pass a single API, or use `
 | --operations  | boolean  | List every operation. Webhooks aren't included; select them with `--webhook` or list them all with `--webhooks`.                                                                                                                                                                                                                                 |
 | --webhooks    | boolean  | List every webhook operation, the same way `--operations` lists every non-webhook operation.                                                                                                                                                                                                                                                     |
 | --used-by     | boolean  | With an operation, a component (`--component` + `--name`), or a file (`--file`) selection, show every operation and component that transitively depends on it.                                                                                                                                                                                   |
-| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker.                                                                                                                                                                    |
+| --with-deps   | boolean  | With an operation or a component (`--component` + `--name`) selection, add its raw source lines and the transitive `$ref` closure, capped at 64 KB with a `truncated` marker. With `--tag`, every operation of that tag with one closure covering them all.                                                                                      |
 | --files       | boolean  | Show the file-level `$ref` graph instead of the API structure. Doesn't accept the typed selectors, `--operations`, `--webhooks`, `--used-by`, or `--with-deps` — `--file` is the exception, and filters the graph to that file's neighborhood.                                                                                                   |
 | --format      | string   | Output format: `stylish` (default, human-readable), `json` (machine-readable, pretty-printed), or `ai` — a plain-text format for agents: one line per listing entry with `L<start>` coordinates, an operation or component card's body as one line of minified JSON, and a `--with-deps` closure emitting schema signatures instead of raw YAML. |
 | --output, -o  | string   | Write the output to a file instead of `stdout`.                                                                                                                                                                                                                                                                                                  |
@@ -1400,6 +1400,75 @@ Each `--- deps` line is `id L<start>-<end>: signature`, with a `· f:<path>` suf
 `Order`'s `status` property is itself a `$ref` to `OrderStatus`, an enum-only schema one hop further away than `Order`, so it's still within the two-hop window and gets its own signature (`string=placed|preparing|completed|canceled`) instead of being cut off; a `deeper:` line with a ready-to-run `hint:` would list anything past that window, and both are absent here because nothing in this closure sits further out.
 On cafe.yaml, this same card is 10,919 bytes as `--format=json` (which includes the full raw content shown above, not the elided placeholder used elsewhere in this guide) and 1,920 bytes as `--format=ai` — an 82% reduction: the five dependencies above shrink to one-line signatures, and the card's own body serializes as minified JSON instead of indented YAML.
 The effect grows with the schema graph: a closure that pulls in `anyOf`/`oneOf` branches the caller doesn't end up using, or dependencies with many more properties than `Order`'s eight, saves more per entry than this example does.
+
+### Every operation of a tag at once: `--tag --with-deps`
+
+`--with-deps` on a tag returns each of its operations as a card — header, `auth:` line, and body — followed by one dependency closure covering all of them, so a schema several operations share arrives once instead of once per card.
+It answers "what does this whole area of the API need" in a single call, where fetching the cards one at a time costs a round trip each and repeats the shared parts every time.
+On cafe.yaml the six `Orders` operations are 11,792 bytes as six separate calls and 8,549 as one.
+
+Past ten operations the rest are left as a count rather than expanded — narrow with `--path` or pick one operation when a tag is larger than that.
+
+```bash
+redocly tree cafe.yaml --tag=Orders --with-deps --format=ai
+```
+
+```
+Orders · 6 operations with deps
+
+get /orders · listOrders · cafe.yaml L229-314 · tags: Orders — List all orders
+auth: OAuth2 · oauth2 (orders:read)
+--- json
+{"tags":["Orders"],"summary":"List all orders","description":"Retrieve a collection of orders with optional filtering and pagination.","operationId":"listOrders","security":[{"OAut …
+
+post /orders · createOrder · cafe.yaml L316-372 · tags: Orders — Create order
+auth: OAuth2 · oauth2 (orders:write)
+--- json
+{"tags":["Orders"],"summary":"Create order","description":"Create a new order.\nOrder items cannot be changed - if they need to be updated, cancel the order and place a new one.\n" …
+
+get /orders/{orderId} · getOrderById · cafe.yaml L375-416 · tags: Orders — Retrieve an order
+auth: OAuth2 · oauth2 (orders:read)
+--- json
+{"tags":["Orders"],"summary":"Retrieve an order","description":"Retrieve a single order by its ID.","operationId":"getOrderById","security":[{"OAuth2":["orders:read"]}],"parameters …
+
+delete /orders/{orderId} · deleteOrder · cafe.yaml L478-502 · tags: Orders — Delete an order
+auth: OAuth2 · oauth2 (orders:write)
+--- json
+{"tags":["Orders"],"summary":"Delete an order","description":"Delete the order.\nTo keep the order history, cancel the order instead of deleting it.\n","operationId":"deleteOrder", …
+
+patch /orders/{orderId} · updateOrder · cafe.yaml L418-476 · tags: Orders — Partially update an order
+auth: OAuth2 · oauth2 (orders:write)
+--- json
+{"tags":["Orders"],"summary":"Partially update an order","description":"Update an existing order status.\nOrder items cannot be changed - if they need to be updated, cancel the ord …
+
+get /order-items · listOrderItems · cafe.yaml L505-546 · tags: Orders — List all order items with menu item details
+auth: OAuth2 · oauth2 (orders:read)
+--- json
+{"tags":["Orders"],"summary":"List all order items with menu item details","description":"Returns an array of order items for a specific order.\nUse the `filter` parameter to filte …
+
+--- deps (19 shared, signatures depth ≤2)
+parameters/After L714-721 · f:cafe.yaml: Use the `endCursor` as a value for the `after` parameter to get the next page.
+parameters/Before L723-730 · f:cafe.yaml: Use the `startCursor` as a value for the `before` parameter to get the previous page.
+parameters/Filter L741-762 · f:cafe.yaml: Filters the collection items using space-separated `field:value` pairs. See each list endpoint for the specific fields it supports. **Format:** `field1:value1…
+parameters/Limit L778-791 · f:cafe.yaml: Specify the number of results per page. If there is more data, use in combination with `after` to page through all results.
+parameters/Search L764-776 · f:cafe.yaml: Performs a case-insensitive text search across the endpoint's searchable fields, returning items where any of those fields contain the search term as a…
+parameters/Sort L732-739 · f:cafe.yaml: To sort by id in descending order use `-id`. To sort by id in ascending order use `id`.
+responses/BadRequest L1327-1331 · f:cafe.yaml: Bad request - invalid input parameters.
+responses/Forbidden L1345-1349 · f:cafe.yaml: Forbidden - insufficient permissions.
+responses/InternalServerError L1333-1337 · f:cafe.yaml: Internal server error.
+responses/Unauthorized L1339-1343 · f:cafe.yaml: Unauthorized - authorization required.
+schemas/OrderList L1108-1123 · f:cafe.yaml: object*:string, page*→Page, items*:array
+schemas/Error L988-1023 · f:cafe.yaml: type*:string, title*:string, status*:integer, instance:string, details:object
+schemas/Order L1033-1106 · f:cafe.yaml: id:string, object:string, customerName*:string, status, totalPrice:integer, createdAt:string, updatedAt:string, orderItems*:array
+schemas/Page L823-866 · f:cafe.yaml: endCursor*:string|null, startCursor*:string|null, hasNextPage*:boolean, hasPrevPage*:boolean, limit*:integer, total*:integer
+schemas/OrderStatus L1025-1031 · f:cafe.yaml: string=placed|preparing|completed|canceled
+parameters/OrderId L813-820 · f:cafe.yaml: ID of the order to retrieve.
+responses/NotFound L1357-1361 · f:cafe.yaml: Resource not found.
+schemas/OrderItem L1125-1151 · f:cafe.yaml: menuItemId*:string, menuItem, quantity*:integer, discount:integer, comment:string
+schemas/MenuItem L960-969 · f:cafe.yaml: [oneOf: Beverage, Dessert, discriminator: category]
+deeper: schemas/Beverage · schemas/Dessert · schemas/MenuBaseItem
+next: --path=<p> --operation=<method> · --component=<section> --name=<Name> · --pointer=<$ref>
+```
 
 ### Find what depends on a selection: `--used-by`
 

@@ -95,6 +95,7 @@ export type TreeView =
       webhookOperations?: OperationListCard[];
     }
   | { kind: 'operations'; items: OperationListCard[]; scope?: string }
+  | { kind: 'operation-cards'; cards: OperationCard[]; scope?: string; omitted: number }
   | { kind: 'tags'; items: ApiOverview['tags'] }
   | { kind: 'components'; section: string; items: ComponentListCard[] }
   | { kind: 'operation-card'; card: OperationCard }
@@ -364,6 +365,37 @@ function resolveOperationIdView(
   return finishOperation(operation);
 }
 
+/** How many operations a listing expands with `--with-deps` before the rest are left as a count. */
+const BATCH_CARD_LIMIT = 10;
+
+/**
+ * Every operation a listing selected, each with its own body, and one closure covering all of
+ * them. An agent assembling a flow needs several operations at once; fetched one card per call
+ * it pays for a round trip each time and receives the shared schemas over and over.
+ */
+function buildOperationCards(
+  operations: CollectedOperation[],
+  analysis: ApiAnalysis,
+  specVersion: SpecVersion,
+  cwd: string,
+  scope?: string
+): TreeView {
+  const selected = operations.slice(0, BATCH_CARD_LIMIT);
+  return {
+    kind: 'operation-cards',
+    cards: selected.map((operation) =>
+      buildOperationCard(analysis, operation, {
+        specVersion,
+        cwd,
+        withDeps: true,
+        withContent: true,
+      })
+    ),
+    ...(scope !== undefined ? { scope } : {}),
+    omitted: operations.length - selected.length,
+  };
+}
+
 /** The `--tag` branch: one tag's operations, or, with no name given, the list of tags. */
 function resolveTagView(
   argv: TreeArgv,
@@ -372,8 +404,8 @@ function resolveTagView(
   cwd: string
 ): TreeView {
   const meta = analysis.meta;
-  if (argv['used-by'] === true || argv['with-deps'] === true) {
-    throw new TreeSelectorError('--used-by and --with-deps need a single operation or component.');
+  if (argv['used-by'] === true) {
+    throw new TreeSelectorError('--used-by needs a single operation or component.');
   }
   if (argv.tag === '') {
     return { kind: 'tags', items: buildOverview(analysis, { specVersion, cwd }).tags };
@@ -385,6 +417,15 @@ function resolveTagView(
       argv.tag!,
       [...new Set(meta.operations.flatMap((operation) => operation.tags))],
       'redocly tree <api>'
+    );
+  }
+  if (argv['with-deps'] === true) {
+    return buildOperationCards(
+      listOperations(meta, { tag: argv.tag }),
+      analysis,
+      specVersion,
+      cwd,
+      argv.tag
     );
   }
   return { kind: 'operations', scope: argv.tag, items };
