@@ -1,7 +1,7 @@
 # Where the index pays and where the description already is one — every run
 
 {% admonition type="info" name="Build" %}
-Measured on a build of PR #3005 at `c06d24541`, ten runs a cell for every model.
+Measured on a build of PR #3005 at `a823f0ee9`, ten runs a cell for every model.
 The grid moves to a published snapshot once one carries this build.
 {% /admonition %}
 
@@ -3998,17 +3998,17 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 | Model            |     no tree |        tree | Difference |
 | ---------------- | ----------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  | 17,351 / 10 | 17,121 / 12 |        −1% |
-| Opus 5 (n=10)    | 19,024 / 13 | 23,896 / 19 |       +26% |
-| Haiku 4.5 (n=10) | 21,759 / 10 | 22,285 / 11 |        +2% |
+| Sonnet 5 (n=10)  | 17,351 / 10 |  23,572 / 8 |       +36% |
+| Opus 5 (n=10)    | 19,024 / 13 | 27,908 / 16 |       +47% |
+| Haiku 4.5 (n=10) | 21,759 / 10 |  23,054 / 8 |        +6% |
 
 What those runs were billed:
 
 | Model            | no tree |  tree | Difference |
 | ---------------- | ------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |   $0.40 | $0.42 |        +5% |
-| Opus 5 (n=10)    |   $0.77 | $0.95 |       +23% |
-| Haiku 4.5 (n=10) |   $0.13 | $0.12 |        −8% |
+| Sonnet 5 (n=10)  |   $0.40 | $0.41 |        +2% |
+| Opus 5 (n=10)    |   $0.77 | $0.97 |       +26% |
+| Haiku 4.5 (n=10) |   $0.13 | $0.11 |       −15% |
 
 Whether each run produced a flow that would run:
 
@@ -4035,15 +4035,15 @@ Whether each run produced a flow that would run:
 | Opus 5 · run 9     | works                            | works                             |
 | Opus 5 · run 10    | works                            | works                             |
 | Haiku 4.5 · run 1  | works                            | works                             |
-| Haiku 4.5 · run 2  | no intent field, no auth scheme  | no carrier field, no auth scheme  |
+| Haiku 4.5 · run 2  | no intent field, no auth scheme  | no carrier field                  |
 | Haiku 4.5 · run 3  | no intent field, no tracker call | no intent field                   |
-| Haiku 4.5 · run 4  | no tracker call, no auth scheme  | no carrier field, no auth scheme  |
+| Haiku 4.5 · run 4  | no tracker call, no auth scheme  | works                             |
 | Haiku 4.5 · run 5  | works                            | no intent field, no carrier field |
 | Haiku 4.5 · run 6  | works                            | no intent field                   |
 | Haiku 4.5 · run 7  | no carrier field                 | works                             |
-| Haiku 4.5 · run 8  | works                            | no carrier field                  |
-| Haiku 4.5 · run 9  | no carrier field, no auth scheme | no intent field                   |
-| Haiku 4.5 · run 10 | no auth scheme                   | works                             |
+| Haiku 4.5 · run 8  | works                            | works                             |
+| Haiku 4.5 · run 9  | no carrier field, no auth scheme | no intent field, no carrier field |
+| Haiku 4.5 · run 10 | no auth scheme                   | no intent field                   |
 
 A run works when its flow contains the order create naming `intent` and `purchase_units`, the capture, and the tracker call naming `capture_id`, `tracking_number` and `carrier`, with the OAuth2 access token named in any spelling.
 
@@ -4074,18 +4074,16 @@ grep "\"intent\": \\{" paypal.json | head -12
 {% tab label="Sonnet 5 · run 1 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree paypal.json --format=ai --find "order" | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | head -150
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | grep -n '"responses"'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | sed -n '260,340p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -80
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | grep -n '"responses"\|"capture_id"\|"200"\|"201"'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '158,266p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -160
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -100
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -80
-redocly tree paypal.json --format=ai --find "token" | head -30
+ls && redocly tree --help
+redocly tree paypal.json --format=ai --tag | head -100
+redocly tree paypal.json --format=ai --tag=orders
+redocly tree paypal.json --format=ai --tag=trackers
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -300
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker
+redocly tree paypal.json --format=ai --find=token | head -30
 ```
 
 {% /tab %}
@@ -4130,18 +4128,16 @@ sch = spec['components']['schemas']['shipment_tracker']
 {% tab label="Sonnet 5 · run 2 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree paypal.json --format=ai --find="order" | head -100
+ls && redocly tree --help
+redocly tree paypal.json --format=ai --tag | head -100
+redocly tree paypal.json --format=ai --tag=orders
+redocly tree paypal.json --format=ai --tag=trackers
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | sed -n '200,260p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | sed -n '260,340p'
-redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation=post --with-deps | head -140
-redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation=post --with-deps | sed -n '140,240p'
-redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/track" --operation=post --with-deps | head -160
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | sed -n '1,120p'
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | sed -n '1,60p'
-redocly tree paypal.json --format=ai --find="token" | head -30
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -30
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -100
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --find=oauth2 | head -30
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker
 ```
 
 {% /tab %}
@@ -4188,19 +4184,15 @@ print([k for k in schemas if 'link' in k.lower()])
 {% tab label="Sonnet 5 · run 3 · tree" %}
 
 ```bash
-find / -maxdepth 4 -iname "paypal.json" 2>/dev/null; echo "---"; ls
 redocly tree --help
-redocly tree paypal.json --format=ai --tag
-redocly tree paypal.json --format=ai --tag=orders; echo "===TRACKERS==="; redocly tree paypal.json --format=ai --tag=trackers
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | sed -n '200,260p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | sed -n '260,340p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -150
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | sed -n '100,400p' | grep -n -A5 -i '"captures"\|purchase_units\|"payments"' | head -150
+redocly tree paypal.json --format=ai --find="order" | head -100
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders" --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/track" --operation=post --with-deps | head -120
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -60
 redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60
-redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -40
+redocly tree paypal.json --format=ai --find="oauth2" | head -30
+redocly tree paypal.json --format=ai --pointer="#/components/securitySchemes/Oauth2" | head -30
 ```
 
 {% /tab %}
@@ -4246,22 +4238,14 @@ mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-paypal-control-v3f-sonnet
 {% tab label="Sonnet 5 · run 4 · tree" %}
 
 ```bash
-ls && redocly tree --help | head -60
-redocly tree paypal.json --format=ai --tag | head -100
-redocly tree paypal.json --format=ai --tag=orders
-redocly tree paypal.json --format=ai --tag=trackers
+redocly tree --help | head -80
+redocly tree paypal.json --format=ai --find="order" | head -100
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | grep -n '"responses"\|"201"\|"id"\|"status"\|CREATED\|COMPLETED\|APPROVED' | head -40
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | sed -n '260,340p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | sed -n '1,80p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | grep -n '"captures"\|"id":\|"status":\|COMPLETED' | head -30
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | sed -n '1,160p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -80
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60
-redocly tree paypal.json --format=ai --find=oauth | head -40
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -40
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | sed -n '80,120p'
-Artifact
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -100
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -100
+redocly tree paypal.json --format=ai --find="token oauth" | head -40
+redocly tree paypal.json --format=ai --component=securitySchemes | head -60
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -30
 ```
 
 {% /tab %}
@@ -4290,20 +4274,21 @@ grep "\"rel\": \"approve\"|\"rel\": \"payer-action\"" paypal.json | head -6
 {% tab label="Sonnet 5 · run 5 · tree" %}
 
 ```bash
-find / -iname "paypal.json" -not -path "*/node_modules/*" 2>/dev/null | head -5
-ls -la /Users/tora/bench-run/paypal-tree-help-v3f-sonnet-r5
-redocly tree --help
+ls && redocly tree --help
 redocly tree paypal.json --format=ai --find="order" | head -100
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | grep -n -A 60 '"responses"' | head -120
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -80
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | grep -n -B2 -A 80 '"201"' | head -150
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -120
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -100
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60
-redocly tree paypal.json --format=ai --find="token" | head -20
-redocly tree paypal.json --format=ai --find="oauth2/token" | head -20; echo "---"; redocly tree paypal.json --format=ai --path=/v1/oauth2/token | head -20
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '80,140p'
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | head -60
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -60
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -30
+redocly tree paypal.json --format=ai --find="token" | head -30
+redocly tree paypal.json --format=ai --file="paypal.json" | grep -i -A5 "securityScheme\|oauth" | head -40
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(json.dumps(d.get('components',{}).get('securitySchemes',{}), indent=2))
+"
+Artifact
 ```
 
 {% /tab %}
@@ -4324,15 +4309,14 @@ grep "\"/v1/oauth2/token\"" paypal.json
 {% tab label="Sonnet 5 · run 6 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree paypal.json --format=ai --find="order" | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -300
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | sed -n '1,250p'
-redocly tree paypal.json --format=ai --find="token" | head -30
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | sed -n '1,150p'
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | sed -n '1,80p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_capture_request | sed -n '1,40p'
+redocly tree --help | head -100
+redocly tree paypal.json --format=ai --tag | head -100
+redocly tree paypal.json --format=ai --tag=orders; echo ---; redocly tree paypal.json --format=ai --tag=trackers
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -100
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker
 ```
 
 {% /tab %}
@@ -4354,18 +4338,17 @@ grep "\"shipment_tracker\"[:\\s]*\\{" paypal.json
 
 ```bash
 redocly tree --help
-redocly tree paypal.json --format=ai --find="order" | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | tail -80
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | sed -n '1,50p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | grep -n '"20[01]"\|schemas/order\b\|purchase_units\|payments\|captures' | head -30
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '159,270p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | sed -n '1,140p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -80
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -40
-redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -40
-redocly tree paypal.json --format=ai --find="token" | head -20
-# write /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-v3f-sonnet-r7/45301dd1-dc01-4f3d-a53f-d1426fd8d95c/scratchpad/paypal_flow.json
+redocly tree paypal.json --format=ai --tag | head -100
+redocly tree paypal.json --format=ai --tag=orders; echo "----"; redocly tree paypal.json --format=ai --tag=trackers
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -60
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -30
+redocly tree paypal.json --format=ai --component=securitySchemes | head -40
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2
+redocly tree paypal.json --format=ai --pointer='#/components/schemas/shipment_carrier' | head -20
+# write /private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-final-sonnet-r7/4cae4c3c-87c0-4eb0-951b-675bfc85f6a1/scratchpad/paypal_flow.json
 ```
 
 {% /tab %}
@@ -4390,19 +4373,17 @@ grep -n '"/v1/oauth2/token"\|generate-token\|client_credentials' paypal.json | h
 {% tab label="Sonnet 5 · run 8 · tree" %}
 
 ```bash
-redocly tree --help
+ls && redocly tree --help
 redocly tree paypal.json --format=ai --find=order | head -100
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | grep -n "responses" -A 5 | head -30
-redocly tree paypal.json --format=ai --component=schemas --name=order | head -80
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '1,120p'
-redocly tree paypal.json --format=ai --find="capture" | head -40
-redocly tree paypal.json --format=ai --component=schemas --name=capture | sed -n '1,60p'
-redocly tree paypal.json --format=ai --component=schemas --name=payment_collection | sed -n '1,40p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | sed -n '1,160p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | sed -n '1,50p'
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | sed -n '1,60p'
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post | sed -n '260,290p'
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -100
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -150
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -50
+redocly tree paypal.json --format=ai --find=token | head -30
+redocly tree paypal.json --format=ai --component=securitySchemes | head -30
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -10
 ```
 
 {% /tab %}
@@ -4482,15 +4463,14 @@ EOF
 
 ```bash
 redocly tree --help | head -100
-redocly tree paypal.json --format=ai --tag | head -100
-redocly tree paypal.json --format=ai --tag=orders
-redocly tree paypal.json --format=ai --tag=trackers
+redocly tree paypal.json --format=ai --find="order" | head -150
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -300
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post | sed -n '1,250p'
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -60
-redocly tree paypal.json --format=ai | head -30
-Artifact
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --find="token" | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -60
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -40
+redocly tree paypal.json --format=ai --component=securitySchemes | head -30
 ```
 
 {% /tab %}
@@ -4528,17 +4508,13 @@ print(json.dumps(pu, indent=1)[:1500])
 {% tab label="Sonnet 5 · run 10 · tree" %}
 
 ```bash
-find / -maxdepth 4 -iname "paypal.json" 2>/dev/null
 redocly tree --help
-find ~ -maxdepth 6 -iname "paypal.json" 2>/dev/null; find / -maxdepth 6 -iname "paypal.json" 2>/dev/null | head -20; ls
-redocly tree paypal.json --format=ai --find="order" | head -100
-redocly tree paypal.json --format=ai --tag | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -300
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -200
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --find=order | head -100
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps | head -200
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -150
+redocly tree paypal.json --format=ai --find=oauth2/token | head -30
 redocly tree paypal.json --format=ai --find="token" | head -40
-redocly tree paypal.json --format=ai --component=schemas --name=order_capture_request | head -60
-mkdir -p "/private/tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-v3f-sonnet-r10/1974e187-3caf-405b-a043-d3ddc6f25c49/scratchpad"
 ```
 
 {% /tab %}
@@ -4619,59 +4595,156 @@ print('patch', json.dumps(c['patch'])[:800])
 {% tab label="Opus 5 · run 1 · tree" %}
 
 ```bash
-ls -la && redocly tree --help
-redocly tree paypal.json --format=ai --tag | head -80
-redocly tree paypal.json --format=ai --tag orders; echo "=== TRACKERS ==="; redocly tree paypal.json --format=ai --tag trackers; echo "=== ALL OPS ==="; redocly tree paypal.json --format=ai --operations
-redocly tree paypal.json --format=ai --operation orders.create | head -100
-redocly tree paypal.json --format=ai --component schemas --name order_request --with-deps | head -60; echo "=== TRACK ==="; redocly tree paypal.json --format=ai --operation orders.track.create | head -60
-redocly tree paypal.json --format=ai --component schemas --name order_tracker_request --with-deps | head -80
-redocly tree paypal.json --format=ai --component schemas --name shipment_tracker | head -50
-redocly tree paypal.json --format=ai --operation orders.capture | grep -v '^\s*"\(summary\|description\|value\)"' | head -70
-redocly tree paypal.json --format=ai --operation orders.capture | grep -n 'requestBody\|responses\|"2[0-9][0-9]"\|\$ref.*schemas' | head -30
-redocly tree paypal.json --format=ai --component schemas --name order | head -60
-python3 -c "
+ls && redocly tree --help
+redocly tree paypal.json --format=ai | head -40; echo "---EXIT $?"; redocly --version
+wc -c paypal.json && python3 -c "
 import json
 d=json.load(open('paypal.json'))
-p=d['paths']
-cap=p['/v2/checkout/orders/{id}/capture']['post']
-ex=cap['responses']['201']['content']['application/json']['examples']
-k='00_orders_capture'
-v=ex[k]['value']
-print(json.dumps(v,indent=1)[:2500])
+print(d.get('openapi'), d.get('swagger'))
+print(json.dumps(d.get('info'),indent=1)[:800])
+print('SERVERS',json.dumps(d.get('servers'))[:400])
+for p,ops in d['paths'].items():
+print(p, ' '.join(k.upper() for k in ops if k in ('get','post','put','patch','delete')))
 "
-c=d['paths']['/v2/checkout/orders']['post']
-print('REQ EXAMPLES:', list(c['requestBody']['content']['application/json']['examples'].keys())[:20])
-print('RESP:', list(c['responses'].keys()))
-ex=c['responses']['200']['content']['application/json']['examples']
-print('200 ex:', list(ex.keys())[:10])
-print(json.dumps(ex['00_orders_create']['value'],indent=1)[:1200])
-ex=c['requestBody']['content']['application/json']['examples']
-print(json.dumps(ex['00_orders_create']['value'],indent=1))
-print('--- SIMPLE ---')
-print(json.dumps(ex['orders_create_simple']['value'],indent=1))
-print(json.dumps(d['components']['schemas']['checkout_payment_intent'],indent=1))
-t=d['paths']['/v2/checkout/orders/{id}/track']['post']
-ex=t['requestBody']['content']['application/json']['examples']
-print('TRACK REQ ex:',list(ex.keys()))
-print(json.dumps(ex['orders_track_create_complete_request']['value'],indent=1))
-print('TRACK RESP:',list(t['responses'].keys()))
-for code in ['200','201','422']:
-ex=t['responses'][code]['content']['application/json']['examples']
-for k,v in list(ex.items())[:1]:
-print('===',code,k); print(json.dumps(v['value'],indent=1)[:1800])
-print('SERVERS:',json.dumps(d.get('servers'),indent=1))
-print('SEC SCHEMES:',json.dumps(d['components'].get('securitySchemes'),indent=1)[:1500])
-print('AUTH PARAM:',json.dumps(d['components']['parameters']['authorization'],indent=1))
-s=d['components']['schemas']
-for n in s:
-if 'status' in n and 'order' in n: print(n, json.dumps(s[n])[:600])
-" ; echo "=== CONFIRM ==="; redocly tree paypal.json --format=ai --operation orders.confirm | sed -n '1,12p'
-cap=d['paths']['/v2/checkout/orders/{id}/capture']['post']
-print('required:',cap['requestBody'].get('required'))
-print(json.dumps(d['components']['schemas']['order_capture_request'],indent=1)[:800])
-print('CARRIER sample:',json.dumps(d['components']['schemas']['shipment_carrier']['enum'][:8]))
-e=d['components']['schemas']['shipment_carrier']['enum']
-print(len(e), [x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER')])
+python3 -c "
+print('SEC SCHEMES', list(d.get('components',{}).get('securitySchemes',{}).keys()))
+print(json.dumps(d['components']['securitySchemes'],indent=1)[:1500])
+print('GLOBAL SEC', d.get('security'))
+for p in ['/v2/checkout/orders','/v2/checkout/orders/{id}/capture','/v2/checkout/orders/{id}/track']:
+for m,op in d['paths'][p].items():
+if m not in ('get','post','patch'): continue
+print('=====',m.upper(),p, op.get('operationId'))
+print('security:',op.get('security'))
+for pr in op.get('parameters',[]):
+pr=pr if '\$ref' not in pr else pr
+print('  param:',pr.get('name') or pr.get('\$ref'), pr.get('in'), 'req' if pr.get('required') else 'opt', str(pr.get('schema'))[:80])
+rb=op.get('requestBody')
+if rb: print('  body required:',rb.get('required'),'ct:',list(rb.get('content',{}).keys()), str(rb.get('content',{}).get('application/json',{}).get('schema'))[:200])
+print('  responses:',list(op.get('responses',{}).keys()))
+S=d['components']['schemas']
+def dump(n,depth=0,maxd=1):
+s=S[n]
+print('###',n,'required:',s.get('required'))
+for k,v in (s.get('properties') or {}).items():
+print('  ',k, v.get('type') or v.get('\$ref'), '|', (v.get('description') or '')[:110].replace(chr(10),' '))
+for n in ['order_request','order_tracker_request']: dump(n); print()
+print(json.dumps(S['order_tracker_request'],indent=1)[:2000])
+print('---checkout_payment_intent'); print(json.dumps(S['checkout_payment_intent'],indent=1)[:800])
+def raw(n,lim=2500): print('=== '+n); print(json.dumps(S[n],indent=1)[:lim])
+raw('shipment_tracker')
+p=d['paths']
+for path,m in [('/v2/checkout/orders','post'),('/v2/checkout/orders/{id}/capture','post'),('/v2/checkout/orders/{id}/track','post'),('/v2/checkout/orders/{id}','get')]:
+op=p[path][m]
+for code,r in op['responses'].items():
+c=r.get('content',{})
+for ct,v in c.items():
+print(path,m,code,ct,json.dumps(v.get('schema'))[:160])
+print()
+o=S['order']
+print(json.dumps({k:v for k,v in o.items() if k!='properties'},indent=1)[:600])
+for k,v in o['properties'].items(): print(' ',k, v.get('type') or v.get('\$ref'), '|',(v.get('description') or '')[:130].replace(chr(10),' '))
+print('--- purchase_unit props')
+pu=S['purchase_unit']; print('req',pu.get('required'))
+for k,v in (pu.get('properties') or {}).items(): print(' ',k,v.get('type') or v.get('\$ref'))
+print('--- purchase_unit_request');pur=S.get('purchase_unit_request')
+print(json.dumps(pur,indent=1)[:400] if pur else 'none')
+def props(n):
+s=S[n]; out={}
+parts=s.get('allOf',[s])
+def walk(x):
+if '\$ref' in x: walk(S[x['\$ref'].split('/')[-1]]); return
+for sub in x.get('allOf',[]): walk(sub)
+out.update(x.get('properties') or {})
+if x.get('required'): out.setdefault('__req__',[]).extend(x['required']) if isinstance(out.get('__req__'),list) else out.update({'__req__':list(x['required'])})
+walk(s); return out
+for n in ['order','purchase_unit','payment_collection','capture','link_description']:
+pp=props(n); print('===',n,'required:',pp.pop('__req__',None))
+for k,v in pp.items(): print('  ',k, v.get('type') or v.get('\$ref') or ('allOf->'+str([a.get('\$ref') for a in v.get('allOf',[])])), '|',(v.get('description') or '')[:100].replace(chr(10),' '))
+print(json.dumps(S['order_request']['properties']['purchase_units'],indent=1)[:600])
+print('=== order_status'); print(json.dumps(S['order_status'])[:600])
+print('=== order_capture_request'); print(json.dumps(S['order_capture_request'],indent=1)[:900])
+print('=== Prefer');
+op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+for pr in op['parameters']:
+if pr.get('name')=='Prefer': print(json.dumps(pr,indent=1)[:900])
+print(json.dumps(S['order']['allOf'][1]['properties']['links'],indent=1)[:1200])
+print('=== purchase_unit_request'); pur=S['purchase_unit_request']
+print('req',pur.get('required'))
+for k,v in pur['properties'].items(): print('  ',k,v.get('type') or v.get('\$ref') or 'allOf')
+print('=== amount_with_breakdown keys'); print(json.dumps(S['amount_with_breakdown'],indent=1)[:700])
+print('=== money'); print(json.dumps(S['money'],indent=1)[:500])
+ac=S['order_request']['properties']['application_context']
+print('=== application_context'); print(json.dumps(ac,indent=1)[:400])
+n=ac.get('\$ref') or (ac.get('allOf') or [{}])[0].get('\$ref')
+print('ref',n)
+sc=S['shipment_carrier']
+e=sc.get('enum') or []
+print('=== shipment_carrier enum count',len(e), [x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER','FEDEX_UK','UPS_MI')][:10])
+o=S['order_application_context']
+print('deprecated?', o.get('deprecated'), (o.get('description') or '')[:300])
+for k,v in (o.get('properties') or {}).items(): print('  ',k,v.get('type') or v.get('\$ref') or 'allOf','dep:',v.get('deprecated'),'|',(v.get('description') or '')[:90].replace(chr(10),' '))
+print('=== tracker_item'); ti=S['tracker_item']; print('req',ti.get('required'))
+for k,v in (ti.get('properties') or {}).items(): print('  ',k,v.get('type') or v.get('\$ref') or 'allOf')
+ps=S['payment_source']
+print('payment_source props:',list((ps.get('properties') or {}).keys())[:40])
+pp=ps['properties']['paypal']
+print(json.dumps(pp,indent=1)[:300])
+n=(pp.get('allOf') or [{}])[0].get('\$ref','').split('/')[-1] or pp.get('\$ref','').split('/')[-1]
+w=S[n]
+print('props',list((w.get('properties') or {}).keys()))
+print(json.dumps(w,indent=1)[:600])
+ec=S['paypal_wallet']['properties']['experience_context']
+n=(ec.get('allOf') or [{}])[0].get('\$ref','').split('/')[-1]
+w=S[n]; print('req',w.get('required'))
+for k,v in (w.get('properties') or {}).items(): print('  ',k,v.get('type') or 'allOf','|',(v.get('description') or '')[:100].replace(chr(10),' '))
+print(json.dumps(S['paypal_wallet']['properties']['experience_context'],indent=1)[:1500])
+w=S['paypal_wallet_experience_context']
+def show(x,pre=''):
+for part in x.get('allOf',[x]):
+if '\$ref' in part: show(S[part['\$ref'].split('/')[-1]]); continue
+print(pre,'req',part.get('required'))
+for k,v in (part.get('properties') or {}).items(): print(pre,' ',k,v.get('type') or 'allOf','|',(v.get('description') or '')[:110].replace(chr(10),' '))
+show(w)
+op=d['paths']['/v2/checkout/orders/{id}']['get']
+print('param',pr.get('name') or pr.get('\$ref'), pr.get('in'),'req' if pr.get('required') else 'opt','|',(pr.get('description') or '')[:200].replace(chr(10),' '))
+p=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print('PATCH tracker', p.get('operationId'),'sec',p.get('security'))
+for pr in p['parameters']: print('  ',pr.get('name') or pr.get('\$ref'), pr.get('in'),'|',(pr.get('description') or '')[:180].replace(chr(10),' '))
+print('  body',json.dumps(p.get('requestBody',{}).get('content',{}).get('application/json',{}).get('schema'))[:200])
+print('  responses',list(p['responses'].keys()))
+st=S['shipping_with_tracking_details']
+print(json.dumps(st,indent=1)[:900])
+print(json.dumps(S['tracker'],indent=1)[:1400])
+print('=== authorization param'); print(json.dumps(d['components']['parameters']['authorization'],indent=1)[:600])
+"; grep -o 'payer-action' paypal.json | head -3; grep -c 'payer-action' paypal.json
+python3 - <<'EOF'
+import json,re
+raw=open('paypal.json').read()
+for m in list(re.finditer(r'payer-action',raw))[:6]:
+print('...',raw[max(0,m.start()-300):m.end()+120].replace('\\n',' ')[-420:])
+print('-----')
+EOF
+op=d['paths']['/v2/checkout/orders']['post']
+ex=op['requestBody']['content']['application/json'].get('examples',{})
+print('req examples:',list(ex.keys()))
+for k in list(ex)[:2]:
+print('###',k, ex[k].get('summary')); print(json.dumps(ex[k]['value'])[:900]); print()
+r=op['responses']['200']['content']['application/json'].get('examples',{})
+print('200 resp examples:',list(r.keys()))
+for k in list(r)[:1]: print(json.dumps(r[k]['value'],indent=1)[:900])
+for code in ['200','201']:
+r=op['responses'][code]['content']['application/json'].get('examples',{})
+print('== capture',code,list(r.keys()))
+for k in list(r)[:1]:
+print(json.dumps(r[k]['value'],indent=1)[:1800])
+op=d['paths']['/v2/checkout/orders/{id}/track']['post']
+for k,v in ex.items(): print('###',k,v.get('summary')); print(json.dumps(v['value'],indent=1)[:700])
+print('== track resp',code,list(r.keys()))
+for k in list(r)[:1]: print(json.dumps(r[k]['value'],indent=1)[:1200])
+print(json.dumps(S['patch_request'],indent=1)[:300])
+print(json.dumps(S['patch'],indent=1)[:900])
+ex=p['requestBody']['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]: print('###',k,json.dumps(v['value'])[:400])
 ```
 
 {% /tab %}
@@ -4765,40 +4838,28 @@ for k in list(ex)[:1]: print(json.dumps(ex[k]['value'])[:1500])
 {% tab label="Opus 5 · run 2 · tree" %}
 
 ```bash
-ls -la && redocly tree --help
-redocly tree paypal.json --format=ai --tag | head -60
-redocly tree paypal.json --format=ai --operations | head -60
-redocly tree paypal.json --format=ai --operation=orders.create | head -80
-redocly tree paypal.json --format=ai --operation=orders.create | sed -n '80,220p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -60
-redocly tree paypal.json --format=ai --operation=orders.capture | head -90
-redocly tree paypal.json --format=ai --operation=orders.track.create | head -120
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -50; echo "=====SECSCHEME"; redocly tree paypal.json --format=ai --component=securitySchemes | head -20
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -30; echo "=====SHIPMENT_TRACKER"; redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -60
-redocly tree paypal.json --format=ai --operation=orders.create | grep -n '"responses"\|"20[0-9]"\|\$ref.*responses\|"headers"' | head -20; echo "=====CAPRESP"; redocly tree paypal.json --format=ai --operation=orders.capture | grep -n '"responses"\|"20[0-9]"\|\$ref.*responses' | head -20
-redocly tree paypal.json --format=ai --operation=orders.create | sed -n '260,330p'; echo "===== CAPTURE 200/201"; redocly tree paypal.json --format=ai --operation=orders.capture | sed -n '158,175p;267,290p'
-redocly tree paypal.json --format=ai --operation=orders.capture | sed -n '290,400p'
-redocly tree paypal.json --format=ai --operation=orders.track.create | sed -n '118,230p'
-redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -20; echo "=====INTENT"; redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -20; echo "=====CARRIER"; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -20; echo "=====SERVERS"; python3 -c "
-import json;d=json.load(open('paypal.json'));print(d.get('servers'));print(d['info']['title'],d['info']['version'])"
-python3 -c "
-import json;d=json.load(open('paypal.json'))
-s=d['components']['schemas']
-print('order status enum:', s['order']['properties']['status'].get('enum'))
-print('order props:', list(s['order']['properties']))
-print('pu_request required:', s['purchase_unit_request'].get('required'))
-print('carrier has FEDEX/UPS:', [c for c in s['shipment_carrier']['enum'] if c in ('FEDEX','UPS','USPS','DHL')])
-print('tracker_item required:', s['tracker_item'].get('required'), list(s['tracker_item']['properties']))
-print('amount_with_breakdown req:', s['amount_with_breakdown'].get('required') if 'amount_with_breakdown' in s else None)
-"
-print('order keys:', list(s['order']))
-print(json.dumps(s['order'],indent=1)[:1500])
-o=s['order']['allOf'][1]['properties']
-print('status:', json.dumps(o.get('status'))[:600])
-print('carrier match:', [c for c in s['shipment_carrier']['enum'] if c in ('FEDEX','UPS','USPS','DHL','OTHER')])
-print('tracker_item:', s['tracker_item'].get('required'), list(s['tracker_item'].get('properties',{})))
-print('order_status:', s['order_status'].get('enum'))
-" ; echo "=====GET"; redocly tree paypal.json --format=ai --operation=orders.get | grep -n 'name\"\|required\|fields' | head -20
+redocly tree --help && ls -la
+redocly --version; which -a redocly; npx -y @redocly/cli@latest tree --help | head -60
+/Users/tora/bench-builds/final/bin/redocly tree --help | head -80
+R=/Users/tora/bench-builds/final/bin/redocly; $R tree paypal.json --format=ai | head -60; echo "=== TAGS ==="; $R tree paypal.json --format=ai --tag | head -60
+R=/Users/tora/bench-builds/final/bin/redocly; $R tree paypal.json --format=ai --operation=orders.create | head -80; echo "===CAPTURE==="; $R tree paypal.json --format=ai --operation=orders.capture | head -80
+R=/Users/tora/bench-builds/final/bin/redocly; $R tree paypal.json --format=ai --operation=orders.track.create -o /tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-final-opus-r2/1b66c36c-0c53-4782-acf1-0046b97a2f39/scratchpad/track.txt; wc -c /tmp/claude-501/*/*/scratchpad/track.txt 2>/dev/null; head -c 3000 /tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-final-opus-r2/1b66c36c-0c53-4782-acf1-0046b97a2f39/scratchpad/track.txt
+cd /tmp/claude-501/-Users-tora-bench-run-paypal-tree-help-final-opus-r2/1b66c36c-0c53-4782-acf1-0046b97a2f39/scratchpad; R=/Users/tora/bench-builds/final/bin/redocly; $R tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -c 4000
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=schemas --name=shipment_tracker | head -c 2500
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | tr ',' '\n' | grep -iE '"20[01]"|responses|order_capture|schema.*\$ref|Prefer|required' | head -40
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=schemas --name=order | head -c 2000; echo; echo "===PURCHASE_UNIT payments==="; $R tree $P --format=ai --component=schemas --name=payment_collection | head -c 1200
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=schemas --name=order_request | head -c 2200; echo; echo "===INTENT==="; $R tree $P --format=ai --component=schemas --name=checkout_payment_intent | head -c 900
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=schemas --name=purchase_unit_request | head -c 2000; echo; echo "===AUTHZ PARAM==="; $R tree $P --format=ai --component=parameters --name=authorization | head -c 700
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=securitySchemes | head -c 1200; echo; echo "===APP CONTEXT==="; $R tree $P --format=ai --component=schemas --name=order_application_context | head -c 1800
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=securitySchemes --name=Oauth2 | head -c 800; echo; echo "===ORDER STATUS==="; $R tree $P --format=ai --component=schemas --name=order_status|head -c 600; echo; echo "===LINK==="; $R tree $P --format=ai --component=schemas --name=link_description-2|head -c 900
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --component=schemas --name=paypal_wallet | head -c 1500; echo; echo "===EXP CTX==="; $R tree $P --format=ai --component=schemas --name=paypal_wallet_experience_context | head -c 1800
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --pointer='#/paths/~1v2~1checkout~1orders/post/responses/201/content/application~1json/examples/00_orders_create' | head -c 2500
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --pointer='#/paths/~1v2~1checkout~1orders/post/responses/201/content/application~1json/examples' | head -c 3000
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --pointer='#/paths/~1v2~1checkout~1orders/post/responses/201/content/application~1json/examples' | tr ',' '\n' | grep -oE '"rel":"[a-z-]+"' | sort | uniq -c
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; grep -o '"rel": *"payer-action"' $P | head -3; echo "---count---"; grep -c 'payer-action' $P; echo "=== capture example rels ==="; $R tree $P --format=ai --pointer='#/paths/~1v2~1checkout~1orders~1{id}~1capture/post/responses/201/content/application~1json/examples' | head -c 2200
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --operation=orders.track.create | tr ',' '\n' | grep -nE '"20[01]"|"responses"|order_tracker|\$ref.*schemas/order' | head -20; echo "=== carrier sample ==="; $R tree $P --format=ai --component=schemas --name=shipment_carrier | tr ',' '\n' | grep -oE '"(FEDEX|UPS|USPS|DHL|OTHER)"' | sort -u
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --pointer='#/paths/~1v2~1checkout~1orders~1{id}~1track/post/responses/201/content/application~1json/examples' | head -c 2200
+R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --operation=orders.trackers.patch | tr ',' '\n' | grep -E 'patch_request|requestBody|"20[04]"|"204"|patch|op"|path"|value"' | head -25
 ```
 
 {% /tab %}
@@ -4892,68 +4953,88 @@ print(json.dumps(d['components']['schemas']['capture_status'])[:900])
 
 ```bash
 ls && redocly tree --help
-redocly tree paypal.json --format=ai | head -100
-redocly tree paypal.json --format=ai --operation=orders.create | head -120
-redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -80; echo "=====CAPTURE"; redocly tree paypal.json --format=ai --operation=orders.capture | head -60
-redocly tree paypal.json --format=ai --operation=orders.track.create | head -160
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -70; echo "==== SEC"; redocly tree paypal.json --format=ai --component=securitySchemes | head -40
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker --with-deps | head -60; echo "=== OAUTH"; redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -40
-redocly tree paypal.json --format=ai --component=parameters|head -20; echo "=== carrier"; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -20; echo "=== enum sample"; python3 -c "
-import json;d=json.load(open('paypal.json'));s=d['components']['schemas']['shipment_carrier'];print({k:v for k,v in s.items() if k!='enum'});e=s.get('enum',[]);print(len(e));print([x for x in e if x in ('OTHER','FEDEX','UPS','USPS','DHL','FEDEX_UK')])
+redocly tree paypal.json --format=ai | head -50; echo "---"; which redocly; redocly --version
+ls /opt/homebrew/lib/node_modules 2>/dev/null; npm ls -g --depth=0 2>/dev/null; ls node_modules/.bin 2>/dev/null | head
+ls /opt/homebrew/lib/node_modules/@redocly/; cat /opt/homebrew/lib/node_modules/@redocly/cli/package.json 2>/dev/null | head -20
+timeout 180 npx -y @redocly/cli@latest tree --help | tail -40
+timeout 180 npx -y @redocly/cli@latest --help | head -30
+wc -c paypal.json && python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print(d.get('info',{}).get('title'), d.get('info',{}).get('version'))
+print('servers',d.get('servers'))
+for p,ops in d['paths'].items():
+print(p, [m.upper() for m in ops if m in ('get','post','put','patch','delete')])
 "
 python3 -c "
-import json;d=json.load(open('paypal.json'))
-p=d['paths']
-c=p['/v2/checkout/orders']['post']['responses']
-print('CREATE responses:',list(c.keys()))
-ex=c['201']['content']['application/json']['examples']['00_orders_create']['value']
-print(json.dumps(ex,indent=1)[:1500])
-for code in ['200','201','202']:
-r=p['/v2/checkout/orders']['post']['responses'][code]
-print('---',code, r.get('description','')[:200])
-exs=r.get('content',{}).get('application/json',{}).get('examples',{})
-print(list(exs)[:8])
-r=p['/v2/checkout/orders']['post']['responses']
-print(json.dumps(r['200']['content']['application/json']['examples']['00_orders_create']['value'],indent=1))
-print('=== 201 simple')
-print(json.dumps(r['201']['content']['application/json']['examples']['orders_create_simple']['value'],indent=1)[:1200])
-r=d['paths']['/v2/checkout/orders/{id}/capture']['post']['responses']
-print(list(r.keys()))
-exs=r['201']['content']['application/json']['examples']
-print(list(exs))
-print(json.dumps(exs['00_orders_capture']['value'],indent=1)[:2000])
-import json;d=json.load(open('paypal.json'));s=d['components']['schemas']
-print('intent',s['checkout_payment_intent'].get('enum'))
-pu=s['purchase_unit_request'];print('pu required',pu.get('required'),list(pu['properties'])[:20])
-print('amount req', s['amount_with_breakdown'].get('required') if 'amount_with_breakdown' in s else '')
-print('item req', s['item'].get('required') if 'item' in s else '')
-print('tracker_item req', s['tracker_item'].get('required'), list(s['tracker_item']['properties']))
-cap=d['paths']['/v2/checkout/orders/{id}/capture']['post']
-print('capture body required:', cap['requestBody'].get('required'), list(cap['requestBody']['content']['application/json'].keys()))
-print('capture params:', [p.get('name') or p.get('\$ref') for p in cap['parameters']])
-print(json.dumps(s['purchase_unit_request']['properties']['amount'],indent=1)[:400])
-print('money req', s['money'].get('required'), list(s['money']['properties']))
-print('AUTHZ', json.dumps(d['components']['parameters']['authorization'],indent=1)[:600])
-t=d['paths']['/v2/checkout/orders/{id}/track']['post']['responses']; print('track responses',list(t.keys()))
-print(json.dumps(t['201']['content']['application/json']['examples'][list(t['201']['content']['application/json']['examples'])[0]]['value'],indent=1)[:900] if '201' in t else '')
-op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
-print([ (p.get('name'),p.get('required'),(p.get('schema') or {}).get('pattern')) if 'name' in p else p for p in op['parameters']])
-print(json.dumps(op['requestBody']['content']['application/json'],indent=1)[:900])
-print('responses',list(op['responses']))
-print('=== order status', d['components']['schemas']['order']['properties']['status'])
-g=d['paths']['/v2/checkout/orders/{id}']['get']; print('get params',[p.get('name') or p.get('\$ref') for p in g['parameters']])
-import json;d=json.load(open('paypal.json'));s=d['components']['schemas']['order']
-print(list(s.keys()))
-import re
-def find(o,k):
-if isinstance(o,dict):
-for a,b in o.items():
-if a=='status' and isinstance(b,dict) and ('enum' in b or 'allOf' in b): print(json.dumps(b)[:400])
-find(b,k)
-elif isinstance(o,list):
-for i in o: find(i,k)
-find(s,'status')
-print('ORDER_STATUS' , json.dumps(d['components']['schemas'].get('order_status'))[:400])
+print('SECURITY SCHEMES:', json.dumps(d.get('components',{}).get('securitySchemes',{}))[:1500])
+print()
+print('GLOBAL SEC:', d.get('security'))
+for m,op in ops.items():
+if m not in ('get','post','put','patch','delete'): continue
+print('==',m.upper(),p, '| opId:', op.get('operationId'))
+print('   sec:', op.get('security'))
+print('   params:', [(pr.get('name'),pr.get('in'),pr.get('required'),(pr.get('schema') or {}).get('type')) for pr in op.get('parameters',[])])
+rb=op.get('requestBody')
+if rb:
+ct=list(rb.get('content',{}).keys())
+print('   body required:',rb.get('required'),'content:',ct, 'schema:', json.dumps(rb['content'][ct[0]].get('schema'))[:200])
+print('   responses:', {k:(json.dumps((v.get('content') or {}).get('application/json',{}).get('schema'))[:120]) for k,v in op.get('responses',{}).items()})
+S=d['components']['schemas']
+def show(n,depth=0):
+s=S[n]
+print('###',n,'required:',s.get('required'))
+for k,v in (s.get('properties') or {}).items():
+t=v.get('type') or v.get('\$ref') or ''
+print('  ',k, t, '|', (v.get('description') or '')[:120].replace(chr(10),' '))
+for n in ['order_request','order_tracker_request']:
+show(n); print()
+print(json.dumps(S['order_tracker_request'],indent=1)[:3000])
+print(json.dumps(S['shipment_tracker'],indent=1)[:4000])
+print('=== CARRIER enum sample')
+c=S.get('shipment_carrier') or {}
+print(str(c)[:600])
+print('intent:',S['checkout_payment_intent'])
+pu=d['components']['schemas']['order_request']['properties']['purchase_units']['items']
+print('PU items:',json.dumps(pu)[:300])
+print(json.dumps(S['purchase_unit_request'],indent=1)[:2500] if 'purchase_unit_request' in S else [k for k in S if 'purchase' in k])
+print('AMOUNT:',json.dumps(S['amount_with_breakdown'],indent=1)[:800])
+print('ITEM:',json.dumps(S.get('item'),indent=1)[:1200])
+o=S['order']
+print('ORDER props:',list((o.get('properties') or {}).keys()) or json.dumps(o)[:500])
+print('status:',json.dumps(S.get('order_status'))[:600])
+print('link_description:',json.dumps(S.get('link_description'))[:800])
+p=S['order']['allOf'][1]['properties']
+for k,v in p.items(): print(k, json.dumps(v)[:160])
+print('PU RESP:', list(S['purchase_unit']['properties'].keys()) if 'purchase_unit' in S else [x for x in S if x.startswith('purchase')])
+print('payments:',json.dumps(S['purchase_unit']['properties']['payments'])[:400])
+pc=S.get('payment_collection')
+print('payment_collection:',json.dumps(pc)[:800])
+print('capture:',json.dumps(S.get('capture'))[:900])
+print('order_application_context:',json.dumps(d['components']['schemas']['order_request']['properties']['application_context'])[:300])
+oac=S.get('order_application_context')
+print(json.dumps(oac,indent=1)[:1500])
+ps=S['payment_source']
+print('payment_source props:', list((ps.get('properties') or {}).keys()))
+pw=S.get('paypal_wallet')
+print('paypal_wallet:', json.dumps(pw)[:600])
+ec=S.get('paypal_wallet_experience_context') or S.get('experience_context_base')
+print([k for k in S if 'experience' in k])
+print(json.dumps(S['paypal_wallet_experience_context'],indent=1)[:2500])
+ec=S['paypal_wallet_experience_context']['properties']
+print(list(ec.keys()))
+print('user_action:',json.dumps(ec.get('user_action'))[:400])
+# Prefer header
+op=d['paths']['/v2/checkout/orders']['post']
+for p in op['parameters']:
+print(json.dumps(p)[:500])
+print(json.dumps(S['order']['allOf'][1]['properties']['links'])[:900])
+print('capture_request:',json.dumps(S['order_capture_request'])[:600])
+sh=S['purchase_unit']['properties']['shipping']
+print(json.dumps(sh)[:300])
+sd=S.get('shipping_with_tracking_details') or {}
+print(json.dumps(sd)[:1200])
+print(json.dumps(S['tracker'],indent=1)[:1200])
 ```
 
 {% /tab %}
@@ -5068,75 +5149,43 @@ print('201',k,'|status=',val.get('status'),'| rels=',[l.get('rel') for l in (val
 {% tab label="Opus 5 · run 4 · tree" %}
 
 ```bash
-ls -la && redocly tree --help
-redocly tree paypal.json --format=ai --tag | head -60
-redocly tree paypal.json --format=ai --tag=orders | head -60; echo ====; redocly tree paypal.json --format=ai --tag=trackers | head -40
-redocly tree paypal.json --format=ai --tag=trackers | head -40
+ls && redocly tree --help
+redocly tree paypal.json --format=ai | head -60
 redocly tree paypal.json --format=ai --operation=orders.create | head -80
-redocly tree paypal.json --format=ai --operation=orders.create | sed -n '80,220p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_request --with-deps | head -80
-redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -30
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -70
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | grep -n 'requestBody\|"required"\|"schema"\|\$ref\|responses\|"20[0-9]"\|"4[0-9][0-9]"' | head -40
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | sed -n '74,120p'
-redocly tree paypal.json --format=ai --operation=orders.track.create | sed -n '1,140p'
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -70
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -40
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -20; echo "=== SEC ==="; redocly tree paypal.json --format=ai --component=securitySchemes | head -30
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -40; echo "=== servers/info ==="; python3 -c "
-import json
-d=json.load(open('paypal.json'))
-print(json.dumps(d.get('servers'),indent=1))
-print(d['info'].get('version'), d.get('openapi'))
-print([c for c in json.load(open('paypal.json'))['components']['schemas']['shipment_carrier']['enum'] if 'UPS' in c or 'FEDEX' in c or c=='OTHER'][:15])
+redocly tree paypal.json --format=ai --operation=orders.track.create | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -30; echo ===; redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -20; echo "-----"; redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -20
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post | head -12
+redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -8
+redocly tree paypal.json --format=ai --component=securitySchemes | head -10; echo "--CARRIER--"; python3 -c "
+import json;d=json.load(open('paypal.json'))
+c=d['components']['schemas']['shipment_carrier']
+print(list(c.keys()));e=c.get('enum',[]);print(len(e));print([x for x in e if any(k in x for k in ('FEDEX','UPS','USPS','DHL','OTHER'))][:15])
+print('--INTENT--',d['components']['schemas']['checkout_payment_intent'])
+print('--PU_REQ_REQUIRED--',d['components']['schemas']['purchase_unit_request'].get('required'))
+print('--ORDER_STATUS--',json.dumps(d['components']['schemas']['order']['properties'].get('status'))[:600])
 "
-python3 - <<'EOF'
-p=d['paths']
-cap=p['/v2/checkout/orders/{id}/capture']['post']
-ex=cap['responses']['201']['content']['application/json']['examples']
-for k,v in list(ex.items())[:1]:
-print(k); print(json.dumps(v['value'],indent=1)[:3000])
-EOF
-cr=d['paths']['/v2/checkout/orders']['post']
-print(list(cr['responses'].keys()))
-ex=cr['responses']['200']['content']['application/json']['examples']
-for k,v in list(ex.items())[:2]:
-print('---',k, json.dumps(v['value'])[:200])
-print(json.dumps(v['value'].get('links'),indent=1))
-print('status',v['value'].get('status'))
-# order.get params & status enum
-s=d['components']['schemas']
-print('order status enum:', s['order'].get('properties',{}).get('status'))
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -8; python3 -c "
+e=d['components']['schemas']['shipment_carrier']['enum']
+print([x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER')])
+o=d['components']['schemas']['order']
+print('order keys req:',o.get('required'))
+print('status:',json.dumps(o['allOf'] if 'allOf' in o else o['properties'].get('status'))[:400] if True else '')
+" | head -20
+python3 -c "
+o=d['components']['schemas']['order']['allOf'][1]['properties']
+print('status:',json.dumps(o['status'])[:800])
 print()
-tr=d['components']['schemas']['tracker_item']
-print(json.dumps(tr,indent=1)[:1200])
-pu=s['purchase_unit_request']
-print('pu required:', pu.get('required'), list(pu.get('properties',{}).keys()))
-print('item required:', s['item'].get('required') if 'item' in s else None)
-print('amount_with_breakdown req:', s.get('amount_with_breakdown',{}).get('required'))
-g=d['paths']['/v2/checkout/orders/{id}']['get']
-print('GET params:', [(p.get('name') or p.get('$ref'), p.get('in'), p.get('required')) for p in g['parameters']])
-print('auth param:', json.dumps(d['components']['parameters']['authorization'])[:400])
-f=[p for p in g['parameters'] if p.get('name')=='fields'][0]
-print(json.dumps(f,indent=1)[:800])
-tp=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
-print('--- patch params:', [(p.get('name') or p.get('$ref'), p.get('in'), p.get('required'), p.get('description','')[:120]) for p in tp['parameters']])
-print('body:', json.dumps(tp['requestBody'])[:300])
-print('responses:', list(tp['responses'].keys()))
-import json,re
-t=d['paths']['/v2/checkout/orders/{id}/track']['post']
-print(list(t['responses'].keys()))
-for code in ['200','201']:
-if code in t['responses']:
-c=t['responses'][code].get('content')
-if not c: continue
-for k,v in c['application/json']['examples'].items():
-s=json.dumps(v['value'])
-m=re.findall(r'"trackers":.{0,400}', s)
-print(code,k,m[:1])
-ex=tp['requestBody']['content']['application/json']['examples']
-for k,v in ex.items(): print(k, json.dumps(v['value']))
-print(json.dumps(d['components']['schemas']['patch'],indent=1)[:900])
+print('links:',json.dumps(o['links'])[:300])
+ts=d['components']['schemas'].get('order_tracker_request')
+# purchase_unit_request items/shipping keys
+pu=d['components']['schemas']['purchase_unit_request']['properties']
+print('pu props:',list(pu.keys()))
+print('shipping:',json.dumps(pu['shipping'])[:300])
+print(json.dumps(d['components']['schemas']['order_status']))
+print(json.dumps(d['components']['schemas']['tracker_item'])[:900])
+"; echo "--GET--"; redocly tree paypal.json --format=ai --operation=orders.get | head -4 | cut -c1-1500
+redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -4 | cut -c1-2500
 ```
 
 {% /tab %}
@@ -5200,61 +5249,34 @@ print('=== patch'); print(json.dumps(S['patch'],indent=1)[:1200])
 {% tab label="Opus 5 · run 5 · tree" %}
 
 ```bash
-ls -la && redocly tree --help
-redocly tree paypal.json --format=ai --tag | head -60
-redocly tree paypal.json --format=ai --operations | head -60
-redocly tree paypal.json --format=ai --operation=orders.create | head -120
-redocly tree paypal.json --format=ai --component=schemas --name=order_request --with-deps | head -100
-redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | head -130; echo "=== checkout_payment_intent"; redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -30
-redocly tree paypal.json --format=ai --operation=orders.track.create | head -160
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -80
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -50
-redocly tree paypal.json --format=ai --operation=orders.capture | sed -n '1,90p'
-redocly tree paypal.json --format=ai --operation=orders.capture | sed -n '90,400p'
-redocly tree paypal.json --format=ai --component=securitySchemes | head -40; echo "=== servers"; python3 -c "
-import json;d=json.load(open('paypal.json'));print(json.dumps(d.get('servers'),indent=1));print(list(d.get('components',{}).keys()))"
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -40; echo "=== auth param"; redocly tree paypal.json --format=ai --component=parameters --name=authorization|head -30
-redocly tree paypal.json --format=ai --operation=orders.create | grep -n '"rel"\|"status"\|PAYER_ACTION\|payer-action\|"approve"\|"responses"\|"20[01]"' | head -40
-redocly tree paypal.json --format=ai --operation=orders.create | sed -n '260,300p;470,500p'
-python3 - <<'EOF'
+ls && redocly tree --help
+redocly tree paypal.json --format=ai | head -60
+redocly tree paypal.json --format=ai --operation=orders.create | head -80
+redocly tree paypal.json --format=ai --operation=orders.capture | head -60; echo ====; redocly tree paypal.json --format=ai --operation=orders.track.create | head -60
+redocly tree paypal.json --format=ai --operation=orders.track.create | head -40
+redocly tree paypal.json --format=ai --component=securitySchemes | head -20; echo ---- ; redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -20
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -20; echo ====; redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -30
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head; redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -20
+redocly tree paypal.json --format=ai --find="order status" | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=order_status | head; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -c 1500
+redocly tree paypal.json --format=ai --operation=orders.capture | grep -o '"201":{"description[^|]\{0,1200\}' | head -c 2000
+python3 -c "
 import json
 d=json.load(open('paypal.json'))
-s=d['components']['schemas']
-print('order status:', json.dumps(s['order'].get('properties',{}).get('status'),indent=1)[:800])
-print('order props:', list(s['order'].get('properties',{}).keys()))
-c=s['shipment_carrier']
-print('carrier type/enum count:', c.get('type'), len(c.get('enum',[])))
-en=c.get('enum',[])
-print([x for x in en if x in ('UPS','FEDEX','DHL','USPS','OTHER','FEDEX_UK','UPS_MI')])
-print('tracker_item:', json.dumps(s['tracker_item'],indent=1)[:1200])
-EOF
-o=s['order']
-print(json.dumps(o,indent=1)[:3000])
-print(json.dumps(s['order_status'],indent=1))
-print(json.dumps(s['shipping_detail'],indent=1)[:2500])
-for n in ('item_request','amount_with_breakdown','money','address_portable','experience_context','paypal_wallet_experience_context'):
-if n in s:
-x=s[n]
-print('##',n,'required=',x.get('required'),'props=',list(x.get('properties',{}).keys()))
-for sub in x.get('allOf',[]):
-print('   allOf req=',sub.get('required'),'props=',list(sub.get('properties',{}).keys())[:20],sub.get('$ref',''))
-p=d['paths']['/v2/checkout/orders/{id}']['get']
-print('GET params:',[(q.get('name') or q.get('$ref')) for q in p['parameters']])
-print('category:',json.dumps(s['item_request']['properties']['category'],indent=1)[:600])
-print('fields param:',json.dumps(d['paths']['/v2/checkout/orders/{id}']['get']['parameters'][-1],indent=1)[:900])
-pt=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
-print('patch params:',[(q.get('name') or q.get('$ref')) for q in pt['parameters']])
-print('patch body:',json.dumps(pt['requestBody']['content']['application/json'].get('schema'),indent=1)[:400])
-ex=pt['requestBody']['content']['application/json'].get('examples')
-print(json.dumps(ex,indent=1)[:900])
-w=s['paypal_wallet_experience_context']['properties']
-for k in ('shipping_preference','user_action','payment_method_preference','return_url','cancel_url'):
-print(k, json.dumps(w[k])[:500]); print()
-tr=d['paths']['/v2/checkout/orders/{id}/track']['post']['responses']
-print('track responses:',list(tr.keys()))
-print(json.dumps(s['purchase_unit']['properties'].keys() if 'properties' in s['purchase_unit'] else 'allOf')[:200])
-r=d['paths']['/v2/checkout/orders/{id}/track']['post']['responses']['422']
-print(json.dumps(r,indent=1)[:2500])
+op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+ex=op['responses']['201']['content']['application/json']['examples']
+k=list(ex)[0]; print(k); print(json.dumps(ex[k]['value'])[:1200])
+print('---STATUS PROPS---')
+print(json.dumps(d['components']['schemas']['order']['properties'].keys().__iter__().__length_hint__()))
+print(list(d['components']['schemas']['order']['properties']))
+"
+op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print(json.dumps(op['requestBody'],indent=1)[:1500])
+print([p.get('name') or p for p in op['parameters']])
+print(list(op['responses']))
 ```
 
 {% /tab %}
@@ -5324,75 +5346,23 @@ if x.get('name')=='Prefer': print(x['description'][:400])
 {% tab label="Opus 5 · run 6 · tree" %}
 
 ```bash
-ls && redocly tree --help
-redocly tree paypal.json --format=ai | head -80
+redocly tree --help
+ls -la /Users/tora/bench-run/paypal-tree-help-final-opus-r6
+redocly tree paypal.json --format=ai | head -100
 redocly tree paypal.json --format=ai --operation=orders.create | head -120
-redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -60; echo "=== CAPTURE ==="; redocly tree paypal.json --format=ai --operation=orders.capture | head -60
-redocly tree paypal.json --format=ai --operation=orders.track.create | head -150
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -80; echo "=== auth param ==="; redocly tree paypal.json --format=ai --component=parameters | head -20; echo "=== sec ==="; redocly tree paypal.json --format=ai --component=securitySchemes | head -40
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -40; echo "=== shipment_tracker ==="; redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -40
-python3 -c "
-import json
-d=json.load(open('paypal.json'))
-op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
-print(list(op['responses'].keys()))
-r=op['responses']['201']['content']['application/json']
-print(list(r.get('examples',{}).keys()))
-ex=r['examples'].get('00_orders_capture') or list(r['examples'].values())[0]
-print(json.dumps(ex['value'],indent=1)[:3000])
-"
-op=d['paths']['/v2/checkout/orders']['post']
-r=op['responses']['200']['content']['application/json']['examples']
-print(list(r.keys())[:10])
-print(json.dumps(r['00_orders_create']['value'],indent=1)[:1500])
-s=d['components']['schemas']
-pu=s['purchase_unit_request']
-print('PU required:',pu.get('required'), list(pu['properties'].keys()))
-print()
-print('shipping_detail:',json.dumps(s.get('shipping_detail',{}).get('properties',{}).keys().__str__()))
-print('shipping req:',s.get('shipping_detail',{}).get('required'))
-print('carrier enum count:',len(s['shipment_carrier'].get('enum',[])))
-print([c for c in s['shipment_carrier'].get('enum',[]) if 'UPS' in c or 'FEDEX' in c or c=='OTHER'][:15])
-print('intent enum:',s['checkout_payment_intent'])
-print('order.status:',s['order']['properties']['status'])
-" | head -60
-o=s['order']
-print('order props:',list(o.get('properties',{}).keys()), o.get('allOf') and 'HASALLOF')
-st=o['properties']['status']
-print('status:',json.dumps(st)[:600])
-print('item req:',s['item'].get('required'), list(s['item']['properties'].keys()))
-print('tracker_item req:',s['tracker_item'].get('required'), list(s['tracker_item']['properties'].keys()))
-print('order_tracker_status?', [k for k in s if 'tracker' in k])
-for part in s['order']['allOf']:
-print(json.dumps(part)[:1200]); print('---')
-p=s['order']['allOf'][1]['properties']
-print('keys:',list(p.keys()))
-print('status:',json.dumps(p.get('status'))[:700])
-print('order_status:',json.dumps(s['order_status'])[:900])
-print('capture status:',json.dumps(s.get('capture_status'))[:500])
-# amount breakdown required
-print('amount_with_breakdown req:',s['amount_with_breakdown'].get('required'), s['amount_with_breakdown'].get('allOf') and [json.dumps(x)[:200] for x in s['amount_with_breakdown']['allOf']])
-print('money req:',s['money'].get('required'))
-g=d['paths']['/v2/checkout/orders/{id}']['get']
-print('get params:',[(p.get('name') or p.get('\$ref'),p.get('required')) for p in g['parameters']])
-print('auth param:',json.dumps(d['components']['parameters']['authorization'])[:400])
-t=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
-print('trackers.patch params:',[(p.get('name') or p.get('\$ref'),p.get('required')) for p in t['parameters']])
-print('patch body:',json.dumps(t['requestBody'])[:400])
-print(json.dumps(t['parameters'][1])[:800])
-op=d['paths']['/v2/checkout/orders/{id}/track']['post']
-ex=op['responses']['201']['content']['application/json']['examples']
-print(list(ex.keys()))
-v=list(ex.values())[0]['value']
-print(json.dumps(v)[:1800])
-import re
-# find shipping_preference
-for k,v in s.items():
-if 'experience_context' in k:
-print(k, list(v.get('properties',{}).keys()) if 'properties' in v else [json.dumps(x)[:100] for x in v.get('allOf',[])])
-print(json.dumps(s.get('paypal_wallet_experience_context',{}))[:1500])
-print(json.dumps(s['item']['properties']['category'])[:400])
-print(json.dumps(s['shipping_detail']['properties']['type'])[:300])
+redocly tree paypal.json --format=ai --operation=orders.capture | head -80; echo "=== TRACK ==="; redocly tree paypal.json --format=ai --operation=orders.track.create | head -80
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -60
+redocly tree paypal.json --format=ai --component=securitySchemes | head -40; echo "=== AUTH PARAM ==="; redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -30
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -30; echo "=== OAUTH ==="; redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -30
+redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -20; echo "=== CARRIER (sample) ==="; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -c 1200
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | head -c 3000
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | tr ',' '\n' | grep -E '"(FEDEX|OTHER|UPS|USPS|DHL)"'
+redocly tree paypal.json --format=ai --component=schemas --name=tracker_item | head -c 1500; echo; echo "=== ITEM_REQ ==="; redocly tree paypal.json --format=ai --component=schemas --name=item_request | head -c 1500
+redocly tree paypal.json --format=ai --component=schemas --name=order | head -c 2500
+redocly tree paypal.json --format=ai --operation=orders.get | head -c 2000
+redocly tree paypal.json --format=ai --component=schemas --name=order_status | head -10; echo "=== TRACKERS PATCH ==="; redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -c 1800
+redocly tree paypal.json --format=ai --component=schemas --name=paypal_wallet_experience_context | head -c 1800
 ```
 
 {% /tab %}
@@ -5483,75 +5453,42 @@ print('PATCH schema patch_request:', json.dumps(d['components']['schemas'].get('
 
 ```bash
 ls -la && redocly tree --help
-redocly tree paypal.json --format=ai --tag | head -60
-redocly tree paypal.json --format=ai --operations | head -60
-redocly tree paypal.json --format=ai --operation orders.create | head -120
-redocly tree paypal.json --format=ai --component schemas --name order_request --with-deps | head -80; echo "=== ORDER_REQUEST core ==="; redocly tree paypal.json --format=ai --component schemas --name order_request | head -60
-redocly tree paypal.json --format=ai --component schemas --name checkout_payment_intent | head -20; echo "==== TRACK OP ===="; redocly tree paypal.json --format=ai --operation orders.track.create | head -90
-redocly tree paypal.json --format=ai --component schemas --name order_tracker_request | head -70
-redocly tree paypal.json --format=ai --component schemas --name shipment_tracker | head -40; echo "=== CARRIER? ==="; redocly tree paypal.json --format=ai --find carrier | head -30
-redocly tree paypal.json --format=ai --operation orders.capture | head -60
+redocly tree paypal.json --format=ai | head -100
+redocly tree paypal.json --format=ai --operation=orders.create | head -120
+redocly tree paypal.json --format=ai --operation=orders.capture | head -60
+redocly tree paypal.json --format=ai --operation=orders.track.create | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -40; echo "=== SEC ==="; redocly tree paypal.json --format=ai --component=securitySchemes | head -20; echo "=== AUTHPARAM ==="; redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -20
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head; echo "=== shipment_tracker ==="; redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head
+redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent|head -6; echo ===; redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request|head -8; echo === ; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -6 | cut -c1-1500
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request|head -8
 python3 -c "
-import json;d=json.load(open('paypal.json'))
-op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
-print('CAPTURE responses:', list(op['responses'].keys()))
-for c,r in op['responses'].items():
-sch=r.get('content',{}).get('application/json',{}).get('schema')
-print(c, sch)
-op2=d['paths']['/v2/checkout/orders']['post']
-print('CREATE responses:')
-for c,r in op2['responses'].items():
-print(c, r.get('content',{}).get('application/json',{}).get('schema'))
-op3=d['paths']['/v2/checkout/orders/{id}/track']['post']
-print('TRACK responses:')
-for c,r in op3['responses'].items():
-print('params track:', [p for p in op3.get('parameters',[])])
-"
-redocly tree paypal.json --format=ai --component schemas --name order | head -60; echo "=== SERVERS/SECURITY ==="; python3 -c "
-print(json.dumps(d.get('servers'),indent=1))
-print(json.dumps(d['components']['securitySchemes'],indent=1)[:1500])
-print(json.dumps(d['components']['parameters'].get('authorization'),indent=1))
+import json
+d=json.load(open('paypal.json'))
 s=d['components']['schemas']
-o=s['order']['allOf'][1]['properties']
-print('order props:', list(o.keys()))
-print('status:', json.dumps(o['status'],indent=1)[:900])
-print('links:', json.dumps(o['links'],indent=1)[:600])
-pu=s['purchase_unit']  if 'purchase_unit' in s else None
-print('pu keys', list(s.keys())[:0])
-print(json.dumps(o['purchase_units'],indent=1)[:800])
-print('order_status:', json.dumps(s['order_status'],indent=1))
-print('purchase_unit props:', json.dumps(s['purchase_unit'],indent=1)[:200])
-def props(n):
-x=s[n]
-if 'allOf' in x:
-r={}
-for a in x['allOf']:
-if 'properties' in a: r.update(a['properties'])
-if '\$ref' in a: pass
-return list(r.keys()), x['allOf']
-return list(x.get('properties',{}).keys()), None
-print(props('purchase_unit')[0])
-print('payment_collection:', json.dumps(s['payment_collection'],indent=1)[:900])
-print('capture props:', list(s['capture']['allOf'][-1].get('properties',{}).keys()) if 'allOf' in s['capture'] else list(s['capture']['properties'].keys()))
-print(json.dumps(s['capture'],indent=1)[:1500])
-print('--- purchase_unit_request:')
-print(json.dumps(s['purchase_unit_request'],indent=1)[:2500])
-op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
-for p in op.get('parameters',[]):
-if p.get('name')=='tracker_id': print(json.dumps(p,indent=1)[:1200])
-print('--- tracker_item:'); print(json.dumps(d['components']['schemas']['tracker_item'],indent=1)[:1200])
-print('--- carrier enum sample:'); e=d['components']['schemas']['shipment_carrier']; print(e.get('type'), len(e.get('enum',[])), e.get('enum',[])[:15])
-print('rb required:', op['requestBody'].get('required'), op['requestBody']['content']['application/json']['schema'])
-print('params:', [p.get('name') or p.get('\$ref') for p in op['parameters']])
-idp=[p for p in op['parameters'] if p.get('name')=='id'][0]; print(json.dumps(idp['schema']))
-print('--- capture_status:'); print(json.dumps(d['components']['schemas']['capture_status'],indent=1)[:800])
-print('--- link_description:'); print(json.dumps(d['components']['schemas'].get('link_description'),indent=1)[:800])
-import json,re;d=json.load(open('paypal.json'))
-op=d['paths']['/v2/checkout/orders']['post']
-ex=op['responses']['200'].get('content',{}).get('application/json',{}).get('examples',{})
-for k,v in list(ex.items())[:3]:
-print(k, json.dumps(v.get('value'))[:600]); print()
-" ; echo "=== rels in file ==="; grep -o '"rel": "[a-z-]*"' paypal.json | sort | uniq -c | sort -rn | head
+c=s['shipment_carrier']['enum']
+print('carrier enum count',len(c))
+print([x for x in c if x in ('FEDEX','UPS','USPS','DHL','OTHER','FEDEX_UK','UPS_MI')])
+o=s['order']
+print('order props:',list(o['properties'].keys()))
+print('status:',json.dumps(o['properties'].get('status'))[:400])
+print('item_request req:', s['item_request'].get('required'))
+print('tracker_item:', json.dumps(s['tracker_item'])[:600])
+"
+print(json.dumps(o)[:300])
+for part in o.get('allOf',[]):
+p=part.get('properties',{})
+if p: print('KEYS',list(p.keys()))
+if 'status' in p: print('STATUS',json.dumps(p['status'])[:500])
+print('tracker_item:', json.dumps(s['tracker_item'])[:800])
+print('order_status:',json.dumps(s['order_status'])[:600])
+print()
+print('capture_status:', json.dumps(s.get('capture_status'))[:500])
+print('order_capture_request:', json.dumps(s['order_capture_request'])[:500])
+"; echo "=== GET ==="; redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id} --operation=get | head -6 | cut -c1-1200
+redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -5 | cut -c1-2500; echo "=== patch_req ==="; python3 -c "
+import json;d=json.load(open('paypal.json'));s=d['components']['schemas']
+print(json.dumps(s.get('patch_request'))[:400]); print(json.dumps(s.get('patch'))[:600])"
 ```
 
 {% /tab %}
@@ -5632,67 +5569,21 @@ print('tracker_status', s.get('tracker_status',{}).get('enum'))
 {% tab label="Opus 5 · run 8 · tree" %}
 
 ```bash
-ls && redocly tree --help
-redocly tree paypal.json --format=ai | head -100
-redocly tree paypal.json --format=ai --operation=orders.create | head -80; echo ====; redocly tree paypal.json --format=ai --component=securitySchemes | head -20
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -40
-redocly tree paypal.json --format=ai --operation=orders.capture | tail -80
+ls -la && redocly tree --help
+redocly tree paypal.json --format=ai --tag | head -50
+redocly tree paypal.json --format=ai --tag=orders; echo "=== TRACKERS ==="; redocly tree paypal.json --format=ai --tag=trackers
+redocly tree paypal.json --format=ai --operation=orders.create | head -100
 redocly tree paypal.json --format=ai --operation=orders.track.create | head -60
-cd /Users/tora/bench-run/paypal-tree-help-v3f-opus-r8; for c in order_tracker_request order_capture_request order_request; do echo "=== $c"; redocly tree paypal.json --format=ai --component=schemas --name=$c --with-deps | head -70; done
-cd /Users/tora/bench-run/paypal-tree-help-v3f-opus-r8; for c in purchase_unit_request shipment_tracker checkout_payment_intent; do echo "=== $c"; redocly tree paypal.json --format=ai --component=schemas --name=$c | head -90; done
-cd /Users/tora/bench-run/paypal-tree-help-v3f-opus-r8; redocly tree paypal.json --format=ai --component=schemas --name=order | head -60; echo "=== capture schema"; redocly tree paypal.json --format=ai --component=schemas --name=capture | head -40
-cd /Users/tora/bench-run/paypal-tree-help-v3f-opus-r8; python3 -c "
-import json
-d=json.load(open('paypal.json'))
-op=d['paths']['/v2/checkout/orders']['post']
-print(list(op['responses'].keys()))
-ex=op['responses']['200']['content']['application/json']['examples']
-print(list(ex.keys())[:20])
-print(json.dumps(ex.get('00_orders_create',{}),indent=1)[:2000])
-"
-op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
-for code in ['200','201']:
-ex=op['responses'][code]['content']['application/json']['examples']
-print(code, list(ex.keys()))
-e=op['responses']['201']['content']['application/json']['examples']['00_orders_capture']
-print(json.dumps(e['value'],indent=1)[:2500])
-print('--- reqbody required?', op['requestBody'].get('required'))
-op=d['paths']['/v2/checkout/orders/{id}/track']['post']
-ex=op['requestBody']['content']['application/json']['examples']
-print(list(ex.keys()))
-print(json.dumps(ex['orders_track_create_complete_request']['value'],indent=1)[:1500])
-print('RESP', list(op['responses'].keys()))
-re=op['responses']['201']['content']['application/json']['examples']
-print(list(re.keys()))
-print(json.dumps(list(re.values())[0]['value'],indent=1)[:1800])
-print(list(ex.keys())[:10])
-print(json.dumps(ex['00_orders_create']['value'],indent=1)[:2500])
-s=d['components']['schemas']
-print('item_request required:', s['item_request']['required'], list(s['item_request']['properties'].keys()))
-print('tracker_item required:', s['tracker_item'].get('required'), list(s['tracker_item']['properties'].keys()))
-print('order_app_ctx:', list(s['order_application_context']['properties'].keys()))
-print('shipping_detail:', list(s['shipping_detail']['properties'].keys()))
-print('params:', {k:(v.get('name'),v.get('in'),v.get('required')) for k,v in d['components']['parameters'].items()})
-for k in s:
-if 'status' in k and 'order' in k: print(k, s[k].get('enum'))
-print([k for k in s if k.startswith('shipment_carrier')][:3])
-print('carrier sample', s['shipment_carrier']['enum'][:15], len(s['shipment_carrier']['enum']))
-for p in ['/v2/checkout/orders/{id}/capture','/v2/checkout/orders/{id}/track','/v2/checkout/orders/{id}']:
-m='get' if p.endswith('{id}') else 'post'
-ps=d['paths'][p][m]['parameters']
-print(p,m,[(x.get('name') or x['\$ref'], x.get('required')) for x in ps])
-print('order props', [k for k in s['order']['allOf'][1]['properties']])
-e=s['shipment_carrier']['enum']
-print([c for c in ['FEDEX','UPS','USPS','DHL_GLOBAL_MAIL','OTHER'] if c in e])
-print(json.dumps(op['responses']['200']['content']['application/json']['examples'],indent=1)[:1200])
-g=d['paths']['/v2/checkout/orders/{id}']['get']
-print('GET fields param:', json.dumps([p for p in g['parameters'] if p.get('name')=='fields'],indent=1)[:600])
-op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
-print([ (p.get('name') or p['\$ref']) for p in op['parameters']])
-print(json.dumps(op['requestBody']['content']['application/json'],indent=1)[:900])
-print('resp',list(op['responses'].keys()))
-s=d['components']['schemas']['patch']
-print(json.dumps(s,indent=1)[:800])
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -20
+redocly tree paypal.json --format=ai --operation=orders.capture | head -c 9000
+redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -c 4000; echo; echo "=== AUTHZ PARAM ==="; redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -c 2000
+redocly tree paypal.json --format=ai | head -40; echo "=== SEC ==="; redocly tree paypal.json --format=ai --component=securitySchemes | head -c 3000
+redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 | head -c 2500; echo; echo "=== INTENT ==="; redocly tree paypal.json --format=ai --component=schemas --name=checkout_payment_intent | head -c 1500
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -c 1200; echo; echo "=== ORDER ==="; redocly tree paypal.json --format=ai --component=schemas --name=order | head -c 3000
+redocly tree paypal.json --format=ai --component=schemas --name=order_status | head -c 900; echo; echo "=== GET ==="; redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id} --operation=get | head -c 2500
+redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | head -c 3000; echo; echo "=== TRACKER_ITEM ==="; redocly tree paypal.json --format=ai --component=schemas --name=tracker_item | head -c 1500
+redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -c 3000
 ```
 
 {% /tab %}
@@ -5766,39 +5657,70 @@ print(json.dumps(d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['p
 ```bash
 ls -la && redocly tree --help
 redocly tree paypal.json --format=ai --tag | head -60
-redocly tree paypal.json --format=ai --tag orders | head -60; echo ====; redocly tree paypal.json --format=ai --tag trackers | head -40
-redocly tree paypal.json --format=ai --tag trackers | head -40
-redocly tree paypal.json --format=ai --operation orders.create | head -80
-redocly tree paypal.json --format=ai --operation orders.create | sed -n '80,220p'
-redocly tree paypal.json --format=ai --component schemas --name order_request --with-deps | head -120
-redocly tree paypal.json --format=ai --component schemas --name checkout_payment_intent | head -30; echo "=== purchase_unit_request"; redocly tree paypal.json --format=ai --component schemas --name purchase_unit_request | head -120
-redocly tree paypal.json --format=ai --path /v2/checkout/orders/{id}/track --operation post | head -150
-redocly tree paypal.json --format=ai --component schemas --name order_tracker_request | head -80
-redocly tree paypal.json --format=ai --component schemas --name shipment_tracker | head -40; echo "=== carrier check"; redocly tree paypal.json --format=ai --find carrier | head -30
-redocly tree paypal.json --format=ai --component schemas --name shipment_carrier | grep -oE '"(FEDEX|UPS|USPS|DHL|OTHER)"' | sort -u
-redocly tree paypal.json --format=ai --operation orders.capture | sed -n '1,60p'
-redocly tree paypal.json --format=ai --operation orders.capture | sed -n '/"responses"/,/^                            "40/p' | head -200
-python3 -c "
+redocly tree paypal.json --format=ai --tag orders; echo "=== TRACKERS ==="; redocly tree paypal.json --format=ai --tag trackers
+redocly tree paypal.json --format=ai --operation=orders.create | head -80
+redocly tree paypal.json --format=ai --operation=orders.track.create | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request --with-deps | head -40
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -20
+redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -c 2500; echo; echo "=== grep enum vals ==="; python3 -c "
 import json
 d=json.load(open('paypal.json'))
-print(json.dumps(d.get('servers'),indent=1))
-print(json.dumps(d['components']['securitySchemes'],indent=1)[:1500])
-print(json.dumps(d['components']['parameters'].get('authorization'),indent=1))
+e=d['components']['schemas']['shipment_carrier']
+print(e.get('type'), len(e.get('enum',[])))
+print([v for v in e.get('enum',[]) if v in ('UPS','USPS','FEDEX','DHL','OTHER','FEDEX_GROUND','UPS_MI')])
 "
-redocly tree paypal.json --format=ai --operation orders.create | grep -n '"rel"' -B3 -A1 | head -60
-s=d['components']['schemas']
-print(json.dumps(s['order']['properties']['status'],indent=1)[:900])
-print('TRACKER_ITEM:',json.dumps(s['tracker_item'].get('required')), list(s['tracker_item']['properties'].keys()))
-print(json.dumps(s['order'],indent=1)[:1200])
-print('TRACKER_ITEM req:',json.dumps(s['tracker_item'].get('required')), list(s['tracker_item']['properties'].keys()))
-s=d['components']['schemas']['order']['allOf'][1]['properties']
-print(json.dumps(s['status'],indent=1))
-" ; echo "=== patch tracker"; redocly tree paypal.json --format=ai --operation orders.trackers.patch | sed -n '1,70p'
-print(json.dumps(d['components']['schemas']['order_status'],indent=1))
-"; redocly tree paypal.json --format=ai --operation orders.track.create | grep -n 'trackers' -A14 | head -50
-redocly tree paypal.json --format=ai --operation orders.track.create | sed -n '155,200p'
-for n in ['item_request','amount_with_breakdown','shipping_detail','money']:
-print(n, 'required:', s[n].get('required'), '| props:', list(s[n].get('properties',{}).keys()))
+redocly tree paypal.json --format=ai --operation=orders.capture | head -c 6000
+python3 -c "
+print('servers:', json.dumps(d.get('servers')))
+p=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+for code,r in p['responses'].items():
+if code in ('200','201'):
+ex=r.get('content',{}).get('application/json',{}).get('examples',{})
+for k,v in ex.items():
+print('---',code,k)
+print(json.dumps(v['value'])[:900])
+s=d['components']['schemas']['order_request']
+print('required:',s.get('required'))
+for k,v in s['properties'].items():
+print(k, '|', v.get('type') or v.get('\$ref'), '|', (v.get('enum') or ''), '|', str(v.get('description',''))[:90].replace(chr(10),' '))
+S=d['components']['schemas']
+print('intent enum:', S['checkout_payment_intent'].get('enum'))
+pu=S['purchase_unit_request']
+print('pu required:', pu.get('required'))
+print('pu props:', list(pu['properties'].keys()))
+it=S['item']
+print('item required:', it.get('required'))
+print('item props:', list(it['properties'].keys()))
+print('item category enum:', S.get('item_category',{}).get('enum'))
+print('order status:', S['order']['properties']['status'].get('enum'))
+print('shipping_detail props:', list(S.get('shipping_detail',{}).get('properties',{}).keys()))
+print('shipping_type:', S.get('shipping_type',{}).get('enum'))
+print('tracker_item required:', S['tracker_item'].get('required'), list(S['tracker_item']['properties'].keys()))
+print('order keys:', list(S['order'].keys()))
+o=S['order']
+allof=o.get('allOf',[])
+for part in allof:
+if 'properties' in part: print('status enum:', part['properties'].get('status',{}).get('enum'))
+print('item.category:', json.dumps(S['item']['properties']['category'])[:300])
+sd=S['shipping_detail']
+print('shipping_detail:', json.dumps(sd)[:600])
+ti=S['tracker_item']
+print('tracker_item req:', ti.get('required'), list(ti.get('properties',{}).keys()))
+for i,part in enumerate(o['allOf']):
+print(i, list(part.keys()), part.get('\$ref',''))
+if 'properties' in part:
+for k,v in part['properties'].items():
+print('   ',k, v.get('\$ref') or v.get('type'))
+print()
+print('order_status:', json.dumps(S.get('order_status',{}))[:600])
+print(json.dumps(d['components']['securitySchemes'])[:900])
+print('AUTH PARAM:', json.dumps(d['components']['parameters']['authorization'])[:700])
+c=d['paths']['/v2/checkout/orders/{id}/confirm-payment-source']['post']
+print('CONFIRM desc:', c['description'][:900])
+p=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print([ (x.get('name'), x.get('\$ref'), (x.get('description') or '')[:120]) for x in p['parameters']])
+print(json.dumps(p['requestBody'])[:1200])
+print('responses:', list(p['responses'].keys()))
 ```
 
 {% /tab %}
@@ -5891,25 +5813,37 @@ print('track op desc:', (d['paths']['/v2/checkout/orders/{id}/track']['post'].ge
 
 ```bash
 ls -la && redocly tree --help
-redocly tree paypal.json --format=ai --tag | head -60
-redocly tree paypal.json --format=ai --tag=orders; echo "=== TRACKERS ==="; redocly tree paypal.json --format=ai --tag=trackers
-redocly tree paypal.json --format=ai --operation=orders.create | head -80
-redocly tree paypal.json --format=ai --operation=orders.create | sed -n '80,220p'
-redocly tree paypal.json --format=ai --operations | head -30; echo "=== SEC ==="; redocly tree paypal.json --format=ai --component=securitySchemes | head -20
-redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 --with-deps | head -40; echo "=== SERVERS/INFO ==="; redocly tree paypal.json --format=ai | head -30
-redocly tree paypal.json --format=ai --component=schemas --name=order_request | head -60
-for n in checkout_payment_intent; do redocly tree paypal.json --format=ai --component=schemas --name=$n | head -25; done; echo "=== CAPTURE OP ==="; redocly tree paypal.json --format=ai --operation=orders.capture | grep -n '"\(responses\|20[01]\|schema\|\$ref\|required\|requestBody\|description\)"' | head -40
-redocly tree paypal.json --format=ai --operation=orders.track.create | head -120
-redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request | head -70
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker | head -40
-redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -15; echo ...; redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | grep -o '"UPS"\|"FEDEX"\|"USPS"\|"DHL"\|"OTHER"' | sort -u
-redocly tree paypal.json --format=ai --operation=orders.capture | sed -n '158,340p'
-redocly tree paypal.json --format=ai --operation=orders.create | grep -n '"rel"\|"status"\|"href"\|"id":\|"200"\|"201"\|"422"\|"4[0-9][0-9]"' | head -40
-redocly tree paypal.json --format=ai --operation=orders.create | sed -n '261,300p'; echo "=== PARAMS ==="; redocly tree paypal.json --format=ai --component=parameters
-redocly tree paypal.json --format=ai --component=parameters --name=authorization | head -25; echo "=== ORDER STATUS ==="; redocly tree paypal.json --format=ai --component=schemas --name=order | head -60
-redocly tree paypal.json --format=ai --component=schemas --name=order_status | head -25; echo "=== TRACK RESP ==="; redocly tree paypal.json --format=ai --operation=orders.track.create | sed -n '118,200p'
-redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | grep -A8 '"required"' | head -20; echo "=== PATCH TRACKER ==="; redocly tree paypal.json --format=ai --operation=orders.trackers.patch | grep -n '"\$ref"\|"value"\|"op"\|"path"\|"20[0-9]"\|"204"\|requestBody' | head -30
-redocly tree paypal.json --format=ai --operation=orders.trackers.patch | sed -n '36,58p'
+redocly tree paypal.json --format=ai --tag | head -80
+redocly tree paypal.json --format=ai --tag orders; echo "=== TRACKERS ==="; redocly tree paypal.json --format=ai --tag trackers
+redocly tree paypal.json --format=ai --operation orders.create | head -100
+redocly tree paypal.json --format=ai --operation orders.track.create | head -60
+redocly tree paypal.json --format=ai --component schemas --name order_tracker_request --with-deps | head -40
+redocly tree paypal.json --format=ai --component schemas --name shipment_tracker | head -20
+redocly tree paypal.json --format=ai --operation orders.capture | head -25
+redocly tree paypal.json --format=ai --component schemas --name order_request | head -20; echo "=== SEC ==="; redocly tree paypal.json --format=ai --component securitySchemes | head -20
+redocly tree paypal.json --format=ai --component securitySchemes --name Oauth2 | head; echo "=== INTENT ==="; redocly tree paypal.json --format=ai --component schemas --name checkout_payment_intent|head -6; echo "=== PU ==="; redocly tree paypal.json --format=ai --component schemas --name purchase_unit_request|head -6
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+print('SERVERS',json.dumps(d.get('servers')))
+o=d['components']['schemas']['order']
+print('ORDER STATUS', json.dumps(o['properties'].get('status')))
+c=d['components']['schemas']['shipment_carrier']
+print('CARRIER type',c.get('type'),'enum count',len(c.get('enum',[])))
+print('sample',[x for x in c.get('enum',[]) if x in ('UPS','FEDEX','USPS','DHL','OTHER','FEDEX_UK','UPS_MI')])
+"
+print(list(o.keys()))
+for part in o.get('allOf',[]):
+p=part.get('properties',{})
+if 'status' in p: print('STATUS',json.dumps(p['status']))
+print('keys:',list(p.keys()))
+print('CARRIER keys',list(c.keys()),'enum len',len(c.get('enum',[])))
+e=c.get('enum',[])
+print([x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER')])
+redocly tree paypal.json --format=ai --component schemas --name order_status|head -6; echo ===; redocly tree paypal.json --format=ai --component schemas --name capture_status|head -6; echo === GET ===; redocly tree paypal.json --format=ai --operation orders.get|head -6
+redocly tree paypal.json --format=ai --operation orders.get|head -6
+redocly tree paypal.json --format=ai --pointer '#/components/parameters/authorization'|head -6; redocly tree paypal.json --format=ai --component schemas --name tracker_item|head -5; redocly tree paypal.json --format=ai --component schemas --name item_request|head -5
+redocly tree paypal.json --format=ai --operation orders.trackers.patch|head -4
 ```
 
 {% /tab %}
@@ -5938,14 +5872,12 @@ sed -n '2822,3072p' paypal.json
 
 ```bash
 redocly tree --help
-redocly tree paypal.json --help | head -50
-ls -la paypal.json
-cat /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r1/paypal.json
-grep "\"/v2/.*\":|\"operationId\":|\"capture\"|\"track\"" /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r1/paypal.json
-sed -n '2145,2445p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r1/paypal.json
-sed -n '2822,3222p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r1/paypal.json
-sed -n '32,232p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r1/paypal.json
-sed -n '240,390p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r1/paypal.json
+redocly tree paypal.json --format=ai --find="payment" 2>/dev/null | head -50
+redocly tree paypal.json --format=ai --find="order" 2>/dev/null | head -50
+redocly tree paypal.json --format=ai --find="capture" 2>/dev/null | head -50
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps 2>/dev/null | head -100
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/\{id\}/capture --with-deps 2>/dev/null | head -100
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/\{id\}/track --with-deps 2>/dev/null | head -100
 ```
 
 {% /tab %}
@@ -5975,18 +5907,11 @@ sed -n '2820,3120p' paypal.json
 
 ```bash
 redocly tree --help
-redocly tree --help || echo "Command not found"
-cat /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-grep "operationId.*authorize|operationId.*capture|operationId.*tracker" /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-sed -n '1510,1710p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-sed -n '2140,2340p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-sed -n '3315,3615p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-grep "\"/v2/checkout/orders/{id}/trackers\".*post|\"post\".*tracker" /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-grep -n '"/v2/checkout/orders/{id}/trackers"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-grep -n '"paths"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json | head -20
-grep -o '"/v2[^"]*' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json | sort -u
-grep -n '"/v2/checkout/orders/{id}/track"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
-sed -n '2822,3072p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r2/paypal.json
+redocly tree paypal.json --format=ai --find order
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/authorize --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track --with-deps
 ```
 
 {% /tab %}
@@ -6006,25 +5931,14 @@ sed -n '2824,3024p' paypal.json
 {% tab label="Haiku 4.5 · run 3 · tree" %}
 
 ```bash
-ls -la paypal.json
 redocly tree --help
-jq '.paths | keys | sort' paypal.json
-jq '.paths["/v2/checkout/orders"].post | {summary, description, requestBody: (.requestBody.content["application/json"].schema | keys), responses: (.responses | keys)}' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/capture"].post | {summary, description, requestBody: (.requestBody.content["application/json"].schema | keys), responses: (.responses | keys)}' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/track"].post | {summary, description, requestBody: (.requestBody.content["application/json"].schema | keys), responses: (.responses | keys)}' paypal.json
-jq '.paths["/v2/checkout/orders/{id}"].get | {summary, description, parameters: [.parameters[].name], responses: (.responses | keys)}' paypal.json
-jq '.paths["/v2/checkout/orders"].post.requestBody.content["application/json"].schema | {type, required, properties: (.properties | keys)}' paypal.json | head -20
-jq '.paths["/v2/checkout/orders"].post.responses["201"].content["application/json"].schema | {type, properties: (.properties | keys)}' paypal.json | head -20
-jq '.paths["/v2/checkout/orders/{id}/capture"].post.requestBody.content["application/json"].schema | {type, properties: (.properties | keys)}' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/track"].post.requestBody.content["application/json"].schema | {type, properties: (.properties | keys)}' paypal.json
-jq '.paths["/v2/checkout/orders"].post | {requestBody: .requestBody, responses: .responses | keys}' paypal.json | head -50
-jq '.paths["/v2/checkout/orders"].post.responses["201"].content["application/json"].examples | keys' paypal.json
-jq '.paths["/v2/checkout/orders"].post.responses["201"].content["application/json"].examples["00_orders_create"].value | {id, status, links: [.links[] | {rel, href}]}' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/capture"].post.requestBody.content["application/json"].examples | keys' paypal.json
-jq '.paths["/v2/checkout/orders"].post.responses["201"].content["application/json"].examples["orders_create_simple"].value' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/capture"].post.responses["201"].content["application/json"].examples["00_orders_capture"].value | {id, status, purchase_units}' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/track"].post.requestBody.content["application/json"].examples["0_orders_add_tracking_info"].value' paypal.json 2>/dev/null || jq '.paths["/v2/checkout/orders/{id}/track"].post.requestBody.content["application/json"].examples' paypal.json
-jq '.paths["/v2/checkout/orders/{id}/track"].post.requestBody.content["application/json"]' paypal.json | head -100
+sed -n '1,101p' paypal.json
+redocly tree paypal.json --find "create\|authorize\|capture\|track" --format=ai
+redocly tree paypal.json --operations --format=ai
+redocly tree paypal.json --operation orders.create --format=ai
+redocly tree paypal.json --operation orders.authorize --format=ai
+redocly tree paypal.json --operation orders.capture --format=ai
+redocly tree paypal.json --operation "orders.track.create" --format=ai
 ```
 
 {% /tab %}
@@ -6054,17 +5968,12 @@ sed -n '4175,4195p' paypal.json
 {% tab label="Haiku 4.5 · run 4 · tree" %}
 
 ```bash
-redocly tree --help
-redocly tree paypal.json --format=ai --find="order" | head -100
-redocly tree paypal.json --format=ai --find="capture" | head -100
-redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post
-redocly tree paypal.json --format=ai --operation=orders.authorize --with-deps
-redocly tree paypal.json --format=ai --operation=orders.capture --with-deps
-redocly tree paypal.json --format=ai --operation=orders.track.create --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r4/1061a8b2-b0c4-4081-81cd-1dc2fcc69bdf/tool-results/bdt9cyn53.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r4/1061a8b2-b0c4-4081-81cd-1dc2fcc69bdf/tool-results/baemrsln6.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r4/1061a8b2-b0c4-4081-81cd-1dc2fcc69bdf/tool-results/bze7luyva.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r4/1061a8b2-b0c4-4081-81cd-1dc2fcc69bdf/tool-results/bz3cx508w.txt
+Skill
+redocly tree paypal.json --help
+redocly tree paypal.json --format=ai --operations
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture --with-deps
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track --with-deps
 ```
 
 {% /tab %}
@@ -6088,12 +5997,12 @@ sed -n '298,398p' paypal.json
 
 ```bash
 redocly tree --help
-redocly tree paypal.json --operations --format=ai
-redocly tree paypal.json --operation=post --path=/v2/checkout/orders --format=ai --with-deps
-redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/authorize --format=ai
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r5/98b78940-7c6c-4a25-9717-99919ee84a7d/tool-results/bqhgscdr4.txt
-redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/capture --format=ai | head -200
-redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/track --format=ai | head -300
+redocly tree paypal.json --format=ai --find order
+redocly tree paypal.json --format=ai --find capture
+redocly tree paypal.json --format=ai --find tracking
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps
 ```
 
 {% /tab %}
@@ -6123,14 +6032,11 @@ sed -n '2286,2386p' paypal.json
 
 ```bash
 redocly tree --help
-redocly tree paypal.json --format=ai --find="payment"
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r6/deb78af2-f205-40f4-8f57-b085ec19a51a/tool-results/b1yawrm9q.txt
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/\{id\}/capture --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r6/deb78af2-f205-40f4-8f57-b085ec19a51a/tool-results/bqmxfx7sc.txt
-redocly tree paypal.json --format=ai --find="tracking"
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/\{id\}/track --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r6/deb78af2-f205-40f4-8f57-b085ec19a51a/tool-results/bes71md3z.txt
+redocly tree paypal.json --operations --format=ai | head -100
+redocly tree paypal.json --operation=post --path=/v2/checkout/orders --format=ai --with-deps
+redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/authorize --format=ai | head -150
+redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/capture --format=ai | head -150
+redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/track --format=ai | head -150
 ```
 
 {% /tab %}
@@ -6153,32 +6059,19 @@ sed -n '2315,2515p' paypal.json
 
 ```bash
 redocly tree --help
-redocly tree paypal.json --help | head -50
-cat /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep "/\"(orders|payments|capture|shipping|tracking)\"" /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep -o '"\/[^"]*"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | sort -u | head -50
-grep -A 100 '"/v2/checkout/orders":' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -120
-grep -A 50 '"/v2/checkout/orders/{id}/capture":' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -60
-grep -A 60 '"/v2/checkout/orders/{id}/track":' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -70
-grep -B 5 -A 15 '"00_orders_create"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -40
-grep -A 60 '"00_orders_create": {' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | grep -A 60 '"value"' | head -70
-grep -A 120 '"00_orders_create": {' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | grep -A 80 'payment_source' | head -100
-grep -B 2 -A 2 '"intent"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -20
-grep -B 5 -A 30 '"intent": "CAPTURE"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -60
-grep -A 100 '"orders_capture": {' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | grep -A 80 '200.*response' | head -100
-grep -A 150 '"/v2/checkout/orders/{id}/capture":' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | grep -A 100 '"responses"'
-grep -n '"/v2/checkout/orders/{id}/capture":' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-sed -n '2145,2295p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep -n '"order_tracker_request"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -5
-sed -n '14750,14900p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep -n '"shipment_tracker"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -5
-sed -n '14722,14772p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep -n '"/v2/checkout/orders":' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep -n '"order_response"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -5
-sed -n '32,532p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-sed -n '2295,2495p' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json
-grep -A 80 '"orders_track_create_complete_request"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -100
-grep -B 5 -A 15 '"shipment_carrier"' /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r7/paypal.json | head -30
+redocly tree paypal.json --operations
+redocly tree paypal.json --operation "Create order" --format=ai
+redocly tree paypal.json --operation "Authorize payment for order" --format=ai
+redocly tree paypal.json --operation "Capture payment for order" --format=ai
+redocly tree paypal.json --operation "Add tracking information for an Order." --format=ai
+redocly tree paypal.json --find "capture" --format=ai
+redocly tree paypal.json --find "authorize" --format=ai
+redocly tree paypal.json --find "track" --format=ai
+redocly tree paypal.json --find "order" --path="/v2/checkout/orders" --format=ai | head -50
+redocly tree paypal.json --path="/v2/checkout/orders" --operation="POST" --format=ai
+redocly tree paypal.json --path="/v2/checkout/orders/{id}/authorize" --operation="POST" --format=ai | head -100
+redocly tree paypal.json --path="/v2/checkout/orders/{id}/capture" --operation="POST" --format=ai | head -100
+redocly tree paypal.json --path="/v2/checkout/orders/{id}/track" --operation="POST" --format=ai | head -100
 ```
 
 {% /tab %}
@@ -6201,17 +6094,14 @@ sed -n '2822,2972p' paypal.json
 {% tab label="Haiku 4.5 · run 8 · tree" %}
 
 ```bash
-ls -la /Users/tora/bench-run/paypal-tree-help-v3f-haiku-r8/ | head -20
 redocly tree --help
-redocly tree paypal.json --operations --format=ai
-redocly tree paypal.json --operation=post --path="/v2/checkout/orders" --format=ai --with-deps
-redocly tree paypal.json --operation=post --path="/v2/checkout/orders/{id}/authorize" --format=ai --with-deps
-redocly tree paypal.json --operation=post --path="/v2/checkout/orders/{id}/capture" --format=ai --with-deps
-redocly tree paypal.json --operation=post --path="/v2/checkout/orders/{id}/track" --format=ai --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r8/9fb04836-6cb6-4058-ab80-8b57b1716c00/tool-results/bb3113fvd.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r8/9fb04836-6cb6-4058-ab80-8b57b1716c00/tool-results/b2qsqcqn5.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r8/9fb04836-6cb6-4058-ab80-8b57b1716c00/tool-results/bs8tp4trg.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r8/9fb04836-6cb6-4058-ab80-8b57b1716c00/tool-results/bgf5xbh4j.txt
+redocly tree paypal.json --format=ai --find "order" | head -50
+redocly tree paypal.json --format=ai --find "payment" | head -50
+redocly tree paypal.json --format=ai --find "capture" | head -50
+redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps
+redocly tree paypal.json --format=ai --operation=orders.authorize --with-deps
+redocly tree paypal.json --format=ai --operation=orders.capture --with-deps
+redocly tree paypal.json --format=ai --operation=orders.track.create --with-deps
 ```
 
 {% /tab %}
@@ -6231,14 +6121,12 @@ sed -n '2824,3124p' paypal.json
 {% tab label="Haiku 4.5 · run 9 · tree" %}
 
 ```bash
-Skill
 redocly tree --help
-redocly tree paypal.json --format=ai --find="payment" | head -100
-redocly tree paypal.json --format=ai --find="tracking" | head -100
-redocly tree paypal.json --format=ai --operation="orders.create" --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r9/5fd1dc79-9744-4fed-9ac8-ef230d401f42/tool-results/bcp3mmxxa.txt
-redocly tree paypal.json --format=ai --operation="orders.capture" --with-deps | head -200
-redocly tree paypal.json --format=ai --operation="orders.track.create" --with-deps | head -250
+sed -n '1,101p' paypal.json
+redocly tree paypal.json --format=ai --operations
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture
+redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track
 ```
 
 {% /tab %}
@@ -6258,16 +6146,12 @@ sed -n '32,182p' paypal.json
 
 ```bash
 redocly tree --help
-redocly tree paypal.json --format=ai --find="order"
 redocly tree paypal.json --format=ai --find="capture"
-redocly tree paypal.json --format=ai --find="tracking"
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/authorize --with-deps
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/capture --with-deps
-redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/{id}/track --with-deps
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r10/4fbad70c-7aa9-415f-b684-8d207c5b48bd/tool-results/brp1f7d3a.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r10/4fbad70c-7aa9-415f-b684-8d207c5b48bd/tool-results/berip8274.txt
-cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haiku-r10/4fbad70c-7aa9-415f-b684-8d207c5b48bd/tool-results/b6euaagjm.txt
+redocly tree paypal.json --format=ai --find="order" --find="create"
+redocly tree paypal.json --format=ai --find="order create"
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders" --operation="post" --with-deps
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation="post" --with-deps
+redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/track" --operation="post" --with-deps
 ```
 
 {% /tab %}
@@ -6276,8 +6160,8 @@ cat /Users/tora/.claude/projects/-Users-tora-bench-run-paypal-tree-help-v3f-haik
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5 and Opus 5 pass every run on both sides, and both pay more context through the index — +77% for Sonnet 5 — because nine operations barely need finding, while the cards arrive heavy with PayPal's deep schemas.
-Haiku 4.5 goes from one working run to three: what it gains from the cards is the tracker call's `capture_id` chain, which its control runs kept missing.
+Opus 5 passes every run on both sides and Sonnet 5 misses one without the index; both pay more context through it — +47% and +36% — because nine operations barely need finding, while the cards arrive heavy with PayPal's deep schemas.
+Haiku 4.5 lands on four working runs either way: the cards hand it the tracker call's `capture_id` chain, and it still leaves `intent` out of the order body in five of its six failures.
 
 {% /tab %}
 
@@ -8497,7 +8381,7 @@ How many of the five runs in each cell produced a flow that would run:
 | Stripe        | buy carbon removal   | Haiku 4.5 |    0/10 |  8/10 |
 | PayPal Orders | capture and track    | Sonnet 5  |    9/10 | 10/10 |
 | PayPal Orders | capture and track    | Opus 5    |   10/10 | 10/10 |
-| PayPal Orders | capture and track    | Haiku 4.5 |    4/10 |  3/10 |
+| PayPal Orders | capture and track    | Haiku 4.5 |    4/10 |  4/10 |
 | DigitalOcean  | shared file storage  | Sonnet 5  |    3/10 |  9/10 |
 | DigitalOcean  | shared file storage  | Opus 5    |   10/10 | 10/10 |
 | DigitalOcean  | shared file storage  | Haiku 4.5 |    4/10 |  4/10 |
@@ -8518,9 +8402,9 @@ Context the run added, and the tool calls it took (medians over the working runs
 | Stripe        | buy carbon removal   | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |       −45% |
 | Stripe        | buy carbon removal   | Opus 5    |     14,913 / 7 |   9,622 / 7 |       −35% |
 | Stripe        | buy carbon removal   | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |          — |
-| PayPal Orders | capture and track    | Sonnet 5  |    17,351 / 10 | 17,121 / 12 |        −1% |
-| PayPal Orders | capture and track    | Opus 5    |    19,024 / 13 | 23,896 / 19 |       +26% |
-| PayPal Orders | capture and track    | Haiku 4.5 |    21,759 / 10 | 22,285 / 11 |        +2% |
+| PayPal Orders | capture and track    | Sonnet 5  |    17,351 / 10 |  23,572 / 8 |       +36% |
+| PayPal Orders | capture and track    | Opus 5    |    19,024 / 13 | 27,908 / 16 |       +47% |
+| PayPal Orders | capture and track    | Haiku 4.5 |    21,759 / 10 |  23,054 / 8 |        +6% |
 | DigitalOcean  | shared file storage  | Sonnet 5  |    11,729 / 19 | 12,282 / 13 |        +5% |
 | DigitalOcean  | shared file storage  | Opus 5    |     17,143 / 9 | 25,474 / 14 |       +49% |
 | DigitalOcean  | shared file storage  | Haiku 4.5 |    37,888 / 14 | 13,508 / 13 |       −64% |
@@ -8541,9 +8425,9 @@ What those runs were billed:
 | Stripe        | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 |       −22% |
 | Stripe        | buy carbon removal   | Opus 5    |    $0.54 | $0.45 |       −17% |
 | Stripe        | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 |          — |
-| PayPal Orders | capture and track    | Sonnet 5  |    $0.40 | $0.42 |        +5% |
-| PayPal Orders | capture and track    | Opus 5    |    $0.77 | $0.95 |       +23% |
-| PayPal Orders | capture and track    | Haiku 4.5 |    $0.13 | $0.12 |        −8% |
+| PayPal Orders | capture and track    | Sonnet 5  |    $0.40 | $0.41 |        +2% |
+| PayPal Orders | capture and track    | Opus 5    |    $0.77 | $0.97 |       +26% |
+| PayPal Orders | capture and track    | Haiku 4.5 |    $0.13 | $0.11 |       −15% |
 | DigitalOcean  | shared file storage  | Sonnet 5  |    $0.34 | $0.36 |        +6% |
 | DigitalOcean  | shared file storage  | Opus 5    |    $0.56 | $0.78 |       +39% |
 | DigitalOcean  | shared file storage  | Haiku 4.5 |    $0.20 | $0.14 |       −30% |
@@ -8551,7 +8435,7 @@ What those runs were billed:
 | Cafe API      | order a coffee       | Opus 5    |    $0.44 | $0.67 |       +52% |
 | Cafe API      | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 |       +43% |
 
-Two hundred fifty-nine of 360 runs produced a flow that passes the check: 120 of 180 without the index, 139 of 180 with it.
+Two hundred sixty of 360 runs produced a flow that passes the check: 120 of 180 without the index, 140 of 180 with it.
 Three cells move from at most three working runs in ten to six or more once the index is there: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal. In every one of them the control runs name the right calls and never say how they authenticate.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
@@ -8560,14 +8444,14 @@ Stripe splits the difference — the index cannot rescue a plan that starts from
 
 | Reason                                                                                      | Runs |
 | ------------------------------------------------------------------------------------------- | ---: |
-| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   65 |
+| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   63 |
 | the product (or price's product) is never created, though nothing exists yet                |   20 |
 | no call to mint the GitHub App installation token, though the flow says it uses one         |   13 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                        |    9 |
-| no intent field                                                                             |    6 |
-| no carrier field                                                                            |    6 |
+| no intent field                                                                             |    7 |
 | no access point call                                                                        |    6 |
 | the plan/price step is missing                                                              |    5 |
+| no carrier field                                                                            |    5 |
 | no asset upload                                                                             |    4 |
 | no tracker call                                                                             |    2 |
 | no share call                                                                               |    2 |
@@ -8581,7 +8465,8 @@ Stripe adds a sharper version of the second: the model does not miss the call, i
 ## How this was measured
 
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
-Sessions start in a directory holding nothing but the description, outside any repository; the tree runs call a local build of PR #3005 at `c06d24541`.
+Sessions start in a directory holding nothing but the description, outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
+The PayPal tree runs were measured on that build; the other five descriptions ran on the earlier `c06d24541`, whose `tree` output for them is byte-identical — 598 command comparisons, no difference.
 Each cell holds ten runs; the tables give the median over the runs whose flow works.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.

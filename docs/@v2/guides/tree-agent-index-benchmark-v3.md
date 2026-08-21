@@ -3,7 +3,7 @@
 An agent handed an API description has two ways to work: read and search the file, or ask `tree` for an index of it.
 This measures both on the same tasks — six of them, over six descriptions from 41 KB to 2,909 files — and judges the answer, not the effort: does the flow the agent produces actually run?
 
-**259 of 360 runs produced a working flow: 120 of 180 without the index, 139 of 180 with it.**
+**260 of 360 runs produced a working flow: 120 of 180 without the index, 140 of 180 with it.**
 The index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach.
 
 ## What it changes
@@ -19,9 +19,9 @@ The index rarely changes what a strong model can do. What it changes is whether 
 | Stripe        | buy carbon removal   | Sonnet 5  |  9/10 → 10/10 |    $0.32 | $0.25 |   −22% |
 | Stripe        | buy carbon removal   | Opus 5    | 10/10 → 10/10 |    $0.54 | $0.45 |   −17% |
 | Stripe        | buy carbon removal   | Haiku 4.5 |   0/10 → 8/10 | $0.09 ❌ | $0.10 |      — |
-| PayPal Orders | capture and track    | Sonnet 5  |  9/10 → 10/10 |    $0.40 | $0.42 |    +5% |
-| PayPal Orders | capture and track    | Opus 5    | 10/10 → 10/10 |    $0.77 | $0.95 |   +23% |
-| PayPal Orders | capture and track    | Haiku 4.5 |   4/10 → 3/10 |    $0.13 | $0.12 |    −8% |
+| PayPal Orders | capture and track    | Sonnet 5  |  9/10 → 10/10 |    $0.40 | $0.41 |    +2% |
+| PayPal Orders | capture and track    | Opus 5    | 10/10 → 10/10 |    $0.77 | $0.97 |   +26% |
+| PayPal Orders | capture and track    | Haiku 4.5 |   4/10 → 4/10 |    $0.13 | $0.11 |   −15% |
 | DigitalOcean  | shared file storage  | Sonnet 5  |   3/10 → 9/10 |    $0.34 | $0.36 |    +6% |
 | DigitalOcean  | shared file storage  | Opus 5    | 10/10 → 10/10 |    $0.56 | $0.78 |   +39% |
 | DigitalOcean  | shared file storage  | Haiku 4.5 |   4/10 → 4/10 |    $0.20 | $0.14 |   −30% |
@@ -272,9 +272,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     |         works |     no tree |        tree | Δ context |
 | --------- | ------------: | ----------: | ----------: | --------: |
-| Sonnet 5  |  9/10 → 10/10 | 17,351 / 10 | 17,121 / 12 |       −1% |
-| Opus 5    | 10/10 → 10/10 | 19,024 / 13 | 23,896 / 19 |      +26% |
-| Haiku 4.5 |   4/10 → 3/10 | 21,759 / 10 | 22,285 / 11 |       +2% |
+| Sonnet 5  |  9/10 → 10/10 | 17,351 / 10 |  23,572 / 8 |      +36% |
+| Opus 5    | 10/10 → 10/10 | 19,024 / 13 | 27,908 / 16 |      +47% |
+| Haiku 4.5 |   4/10 → 4/10 | 21,759 / 10 |  23,054 / 8 |       +6% |
 
 What the failing runs left out:
 
@@ -285,10 +285,9 @@ What the failing runs left out:
 - **Haiku 4.5 · no tree** — 1 run: no carrier field
 - **Haiku 4.5 · no tree** — 1 run: no carrier field, no auth scheme
 - **Haiku 4.5 · no tree** — 1 run: no auth scheme
-- **Haiku 4.5 · tree** — 2 runs: no carrier field, no auth scheme
-- **Haiku 4.5 · tree** — 3 runs: no intent field
-- **Haiku 4.5 · tree** — 1 run: no intent field, no carrier field
 - **Haiku 4.5 · tree** — 1 run: no carrier field
+- **Haiku 4.5 · tree** — 3 runs: no intent field
+- **Haiku 4.5 · tree** — 2 runs: no intent field, no carrier field
 
 Everything passes for Sonnet 5 and Opus 5, and both pay more context — nine operations barely need finding. Haiku 4.5 gains the `capture_id` chain it kept missing.
 
@@ -427,7 +426,7 @@ Opus 5, meanwhile, passes all 120 of its runs either way — it does not need on
 
 **Almost every one of those failures is the same failure.** The control runs name the right calls in the right order and never say how the request authenticates: no key, no header, no token. It is the largest failure class in the grid by a wide margin, and it is what an index removes, because every card states the requirement that protects the operation.
 
-**It does not pay everywhere, and the grid shows where.** Where a description is small, or already laid out as one file per operation, fetching cards costs more than reading it: Opus 5 pays 49% more context on DigitalOcean and 26% more on PayPal for answers it would have reached anyway.
+**It does not pay everywhere, and the grid shows where.** Where a description is small, or already laid out as one file per operation, fetching cards costs more than reading it: Opus 5 pays 49% more context on DigitalOcean and 47% more on PayPal for answers it would have reached anyway.
 The pattern across all six: the index earns its place on descriptions large enough that search is the only way in, and on models that would otherwise leave something out.
 
 ## How this was measured
