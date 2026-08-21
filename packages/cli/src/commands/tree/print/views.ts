@@ -29,8 +29,6 @@ function viewPayload(view: TreeView): unknown {
       return view.overview;
     case 'operations':
       return view.items;
-    case 'operation-cards':
-      return view.cards;
     case 'tags':
       return view.items;
     case 'components':
@@ -55,8 +53,6 @@ export function renderViewStylish(view: TreeView): string {
       return renderOverview(view.overview, view.operations ?? [], view.webhookOperations ?? []);
     case 'operations':
       return renderOperationsListing(view.items, spansMultipleFiles(view.items));
-    case 'operation-cards':
-      return view.cards.map((card) => renderOperationCard(card)).join('\n\n');
     case 'tags':
       return renderTagsListing(view.items);
     case 'components':

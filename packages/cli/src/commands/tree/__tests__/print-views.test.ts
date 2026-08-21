@@ -931,62 +931,6 @@ describe('renderView (ai)', () => {
     expect(rendered).not.toContain('file7.yml');
   });
 
-  it('renders batched operation cards with one shared dependency closure', () => {
-    // Fetched one at a time, these two cards would repeat the schema they share; batched, it
-    // arrives once, and the caller pays for one round trip instead of two.
-    const shared = {
-      id: 'schemas/Ticket',
-      pointer: '#/components/schemas/Ticket',
-      file: 'openapi.yaml',
-      start_line: 1,
-      end_line: 5,
-      content: 'type: object\nproperties:\n  id:\n    type: string\n',
-      refs: [],
-    };
-    const ticketRef = {
-      ref: '#/components/schemas/Ticket',
-      resolved: true,
-      component: 'schemas',
-      name: 'Ticket',
-      file: 'openapi.yaml',
-      pointer: '#/components/schemas/Ticket',
-      start_line: 1,
-      end_line: 5,
-    };
-    const view: TreeView = {
-      kind: 'operation-cards',
-      scope: 'Tickets',
-      omitted: 2,
-      cards: [
-        {
-          ...operationCardWithDepsFixture,
-          method: 'get',
-          operationId: 'listTickets',
-          refs: [ticketRef],
-          deps: [shared],
-          content: 'get:\n  operationId: listTickets\n',
-        },
-        {
-          ...operationCardWithDepsFixture,
-          method: 'post',
-          operationId: 'buyTickets',
-          refs: [ticketRef],
-          deps: [shared],
-          content: 'post:\n  operationId: buyTickets\n',
-        },
-      ],
-    };
-
-    const rendered = renderView(view, 'ai');
-
-    expect(rendered).toContain('Tickets · 2 operations with deps');
-    expect(rendered).toContain('listTickets');
-    expect(rendered).toContain('buyTickets');
-    expect(rendered).toContain('--- deps (1 shared, signatures depth ≤2)');
-    expect(rendered.match(/schemas\/Ticket L1-5/g)).toHaveLength(1);
-    expect(rendered).toContain('… 2 more operations — narrow the selection.');
-  });
-
   it('renders an ai components listing', () => {
     const componentsView: TreeView = {
       kind: 'components',
