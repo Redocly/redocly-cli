@@ -173,6 +173,23 @@ adjacent lines, which is not known when the first line is emitted.
 ### 3. Generator-owned — `src/generators/<name>/`
 
 Everything that decides output *shape*.
+
+This runs in both directions.
+The TypeScript-family generators **gain** the modules that are theirs alone, as `emitters/` dissolves.
+The single-file generators are **split** into the same stages rather than left whole — `python`
+(953 lines), `go` (1169), and `php` (1092) are self-contained already, but the uniform skeleton is
+what makes them comparable, and their existing functions re-group into it without rewriting:
+
+| Stage | python | go | php |
+| --- | --- | --- | --- |
+| `naming` | `className`, `fieldName`, `operationIdents` | `exported`, `goOperationIdents` | `className`, `propertyName`, `methodName` |
+| `types` | `pythonType` | `goType` | `phpType`, `phpNullable`, `phpUnionType` |
+| `models` | `writeDataclass`, `renderPythonModels`, `pydanticDiscriminators` | `writeStruct`, `renderGoModels` | `writeClass`, `renderPhpModels`, `hydration`, `serialization` |
+| `descriptor` | `securitySpecs`, `paginationSpec`, `envelopeHeaderSpecs` | `goSecurityLiteral`, `goPaginationLiteral` | `phpSecurityLiteral`, `phpPaginationLiteral` |
+| `operations` | `writeMethod` | `writeGoMethod` | `writePhpMethod`, `methodArgs`, `writeRequestSetup` |
+| `pagination` | `writePaginationWrappers` | `writeGoPaginationWrappers` | `writePhpPaginationWrappers` |
+| `client` | `writePythonServers`, `writeClientClass` | `writeGoServers` | `writeServers` |
+
 `emitters/` dissolves entirely:
 
 | Generator | Absorbs |
