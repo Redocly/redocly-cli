@@ -6,22 +6,10 @@ import { lintDocument } from '../../../lint.js';
 import { BaseResolver } from '../../../resolve.js';
 
 describe('Oas3 no-illogical-composition-keywords', () => {
-  async function lint(yaml: string) {
-    const document = parseYamlToDocument(outdent`${yaml}`, 'foobar.yaml');
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({
-        rules: { 'no-illogical-composition-keywords': 'error' },
-      }),
-    });
-    return replaceSourceWithRef(results);
-  }
-
   describe('oneOf', () => {
     it('should report when oneOf has only one schema', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -32,8 +20,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Test:
                 oneOf:
                   - type: string
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -53,8 +52,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should not report when oneOf has only one schema but the parent declares a discriminator', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -72,13 +71,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 properties:
                   petType:
                     type: string
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report duplicated schemas that are not next to each other', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -93,8 +103,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - $ref: '#/components/schemas/Cat'
               Cat:
                 type: object
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -114,8 +135,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report distinct refs that resolve to equal schemas as overlapping', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -137,8 +158,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 properties:
                   id:
                     type: string
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -157,9 +189,9 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should stay quiet when the discriminator `propertyName` is not a string', async () => {
-      expect(
-        await lint(`
+    it('should not report a discriminator gap when `propertyName` is not a string', async () => {
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -167,60 +199,46 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           paths: {}
           components:
             schemas:
+              Cat:
+                type: object
+                properties:
+                  name:
+                    type: string
+                required: [name]
+              Dog:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  bark:
+                    type: string
+                required: [name]
               Test:
                 discriminator:
                   propertyName:
                     name:
                       type: string
                 oneOf:
-                  - type: object
-                    properties:
-                      name:
-                        type: string
-                    required: [name]
-                  - type: object
-                    properties:
-                      name:
-                        type: string
-                      description:
-                        type: string
-                    required: [name]
-        `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf/0",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema in \`oneOf\` is inline, so the \`discriminator\` cannot select it. Use a \`$ref\` to a named schema.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf/1",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema in \`oneOf\` is inline, so the \`discriminator\` cannot select it. Use a \`$ref\` to a named schema.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+                  - $ref: '#/components/schemas/Cat'
+                  - $ref: '#/components/schemas/Dog'
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report inline members that a discriminator cannot select', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -244,8 +262,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                       petType:
                         type: string
                     required: [petType]
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -265,8 +294,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should compare `const` against `enum` as a single allowed value', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -284,8 +313,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 oneOf:
                   - enum: [card]
                   - const: card
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -305,8 +345,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report an empty schema inside oneOf', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -318,8 +358,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 oneOf:
                   - type: string
                   - {}
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -339,8 +390,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report when a referenced schema and a null schema both accept null', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -350,14 +401,25 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             schemas:
               Test:
                 oneOf:
-                  - $ref: '#/components/schemas/InvoiceTimeShift'
+                  - $ref: '#/components/schemas/ContainsNull'
                   - type: 'null'
-              InvoiceTimeShift:
+              ContainsNull:
                 type:
                   - object
                   - 'null'
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -367,7 +429,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/InvoiceTimeShift\` and schema at position 2. Both schemas accept \`null\`.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/ContainsNull\` and schema at position 2. Both schemas accept \`null\`.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -377,8 +439,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report when type sets overlap', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -392,8 +454,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type:
                       - string
                       - integer
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -412,9 +485,9 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should not report when a shared property uses not to exclude the other value', async () => {
-      expect(
-        await lint(`
+    it('should not report when a shared property uses an unmodelled keyword such as `not`', async () => {
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -440,13 +513,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   petType:
                     not:
                       enum: ['Lizard']
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should not crash on boolean schemas used as members or property schemas', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -469,39 +553,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                     properties:
                       kind:
                         type: string
-        `)
-      ).toMatchInlineSnapshot(`[]`);
-    });
+        `,
+        'foobar.yaml'
+      );
 
-    it('should not report when members carry constraints these checks do not model', async () => {
-      expect(
-        await lint(`
-          openapi: 3.1.0
-          info:
-            title: Test
-            version: '1.0'
-          paths: {}
-          components:
-            schemas:
-              Patterns:
-                oneOf:
-                  - type: string
-                    pattern: '^a'
-                  - type: string
-                    pattern: '^b'
-              Ranges:
-                oneOf:
-                  - type: integer
-                    maximum: 10
-                  - type: integer
-                    minimum: 11
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report when both members declare an empty required list', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -522,8 +591,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                     properties:
                       name:
                         type: string
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -543,8 +623,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should not report when one member forbids a property the other requires', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -567,13 +647,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                         type: string
                       b:
                         type: string
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report when an exclusive shared property is not required, without a discriminator', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -593,8 +684,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                       kind:
                         type: string
                         enum: [dog]
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -614,8 +716,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report each overlapping pair of a oneOf separately', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -630,8 +732,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                     title: Second
                   - type: string
                     title: Third
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -676,88 +789,9 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should report when both members require the same undeclared property', async () => {
-      expect(
-        await lint(`
-          openapi: 3.1.0
-          info:
-            title: Test
-            version: '1.0'
-          paths: {}
-          components:
-            schemas:
-              Test:
-                oneOf:
-                  - type: object
-                    required: [documentType, fileId]
-                    properties:
-                      fileId:
-                        type: string
-                  - type: object
-                    title: Second
-                    required: [documentType, fileId]
-                    properties:
-                      fileId:
-                        type: string
-        `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": true,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and \`Second\`. Both schemas define \`fileId\` without constraints that exclude each other. Add a discriminator, or constrain the shared properties to different values.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
-    });
-
-    it('should not report when members are separated by a nested allOf', async () => {
-      expect(
-        await lint(`
-          openapi: 3.1.0
-          info:
-            title: Test
-            version: '1.0'
-          paths: {}
-          components:
-            schemas:
-              Test:
-                oneOf:
-                  - type: object
-                    properties:
-                      id:
-                        type: string
-                    allOf:
-                      - type: object
-                        required: [kind]
-                        properties:
-                          kind:
-                            enum: [dog]
-                  - type: object
-                    properties:
-                      id:
-                        type: string
-                    allOf:
-                      - type: object
-                        required: [kind]
-                        properties:
-                          kind:
-                            enum: [cat]
-        `)
-      ).toMatchInlineSnapshot(`[]`);
-    });
-
     it('should report the discriminator property as required when members do not declare it', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -774,15 +808,26 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Cat:
                 type: object
                 properties:
-                  name:
+                  petType:
                     type: string
               Dog:
                 type: object
                 properties:
-                  name:
+                  petType:
                     type: string
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -802,8 +847,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should not report when the discriminator property is required in every member', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -829,13 +874,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 properties:
                   name:
                     type: string
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
-    it('should not report members that differ only by format', async () => {
-      expect(
-        await lint(`
+    it('should report members that differ only by `format`', async () => {
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -857,8 +913,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                       id:
                         type: string
                         format: uri
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -877,9 +944,9 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
-    it('should not report when the parent is nullable and a single member accepts null', async () => {
-      expect(
-        await lint(`
+    it('should report when the schema and a `oneOf` member both accept null', async () => {
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -887,19 +954,51 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           paths: {}
           components:
             schemas:
-              Test:
+              NullableParent:
                 nullable: true
                 oneOf:
                   - type: string
                     nullable: true
                   - type: integer
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+              PlainParent:
+                oneOf:
+                  - type: string
+                    nullable: true
+                  - type: integer
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/NullableParent/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "The schema and a schema in \`oneOf\` both accept \`null\`, so nothing decides which one applies to a null value.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
     });
 
     it('should not report when a required property with exclusive values tells the members apart', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -925,13 +1024,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                         type: string
                         enum: [dog]
                     required: [kind]
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report when members share a property with no constraint that tells them apart', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -952,8 +1062,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                       name:
                         type: string
                     required: [name]
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -973,8 +1094,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report when the discriminator property is not required in every member', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -996,8 +1117,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                       petType:
                         type: string
                         enum: [dog]
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -1043,8 +1175,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should not report when members have different types', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -1056,64 +1188,26 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 oneOf:
                   - type: string
                   - type: integer
-        `)
-      ).toMatchInlineSnapshot(`[]`);
-    });
+        `,
+        'foobar.yaml'
+      );
 
-    it('should report both a structural problem and an overlap in the same oneOf', async () => {
-      expect(
-        await lint(`
-          openapi: 3.0.0
-          info:
-            title: Test
-            version: '1.0'
-          paths: {}
-          components:
-            schemas:
-              Test:
-                oneOf:
-                  - type: string
-                  - type: string
-                    title: Text
-                  - {}
-        `)
-      ).toMatchInlineSnapshot(`
-        [
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf/2",
-                "reportOnKey": false,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schema in \`oneOf\` is empty, so it matches any value.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-          {
-            "location": [
-              {
-                "pointer": "#/components/schemas/Test/oneOf",
-                "reportOnKey": true,
-                "source": "foobar.yaml",
-              },
-            ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and \`Text\`. Both schemas accept \`string\`.",
-            "ruleId": "no-illogical-composition-keywords",
-            "severity": "error",
-            "suggest": [],
-          },
-        ]
-      `);
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
   });
 
   describe('anyOf', () => {
     it('should report when anyOf has only one schema', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -1124,8 +1218,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Test:
                 anyOf:
                   - type: string
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -1145,8 +1250,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report duplicated and empty schemas inside anyOf', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -1159,8 +1264,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - type: string
                   - type: string
                   - {}
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -1193,8 +1309,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should not report anyOf used with a discriminator by default', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -1212,15 +1328,26 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 type: object
               Dog:
                 type: string
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
   });
 
   describe('allOf', () => {
     it('should report an allOf wrapper that adds nothing', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -1233,8 +1360,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - $ref: '#/components/schemas/Cat'
               Cat:
                 type: object
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -1254,8 +1392,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should not report a single-schema allOf used to attach sibling keywords', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -1272,13 +1410,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                       - $ref: '#/components/schemas/CustomerId'
               CustomerId:
                 type: string
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should not report a single-schema allOf declaring a subtype of a discriminated schema', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.3
           info:
             title: Test
@@ -1297,13 +1446,24 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Cat:
                 allOf:
                   - $ref: '#/components/schemas/Pet'
-        `)
-      ).toMatchInlineSnapshot(`[]`);
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report an empty allOf', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.1.0
           info:
             title: Test
@@ -1313,8 +1473,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
             schemas:
               Test:
                 allOf: []
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -1334,8 +1505,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
     });
 
     it('should report duplicated and empty schemas inside allOf', async () => {
-      expect(
-        await lint(`
+      const document = parseYamlToDocument(
+        outdent`
           openapi: 3.0.0
           info:
             title: Test
@@ -1350,8 +1521,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   - {}
               Cat:
                 type: object
-        `)
-      ).toMatchInlineSnapshot(`
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
         [
           {
             "location": [
@@ -1385,8 +1567,8 @@ describe('Oas3 no-illogical-composition-keywords', () => {
   });
 
   it('should check every composition keyword used on the same schema', async () => {
-    expect(
-      await lint(`
+    const document = parseYamlToDocument(
+      outdent`
         openapi: 3.1.0
         info:
           title: Test
@@ -1402,8 +1584,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 - $ref: '#/components/schemas/Cat'
             Cat:
               type: object
-      `)
-    ).toMatchInlineSnapshot(`
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'no-illogical-composition-keywords': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
       [
         {
           "location": [

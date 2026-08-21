@@ -13,6 +13,7 @@ The rule reports:
 - A schema repeated inside the same keyword.
 - An empty schema (`{}`) used as a member.
 - Two `oneOf` schemas that a single value can match at the same time.
+- A nullable schema whose `oneOf` also accepts `null`.
 - A `discriminator` whose property is missing from `required` in every member schema.
 - An inline `oneOf` or `anyOf` member that a `discriminator` cannot select.
 
@@ -43,6 +44,7 @@ style AllOf fill:#codaf9,stroke:#0044d4,stroke-width:5px
 When a value matches two of the listed schemas, no tool can tell which one was intended, and validators, code generators, and documentation all disagree about the result.
 
 The most common version of this is nullability: if a referenced schema already accepts `null` and the `oneOf` also lists `type: 'null'`, a null value matches both branches.
+The same ambiguity appears one level up, when the schema holding the `oneOf` is itself nullable and a member accepts `null` too.
 
 Deciding whether two arbitrary schemas overlap is not solvable in general, so the comparison stays deliberately narrow.
 It reads `type`, `nullable`, `enum`, `const`, `properties`, `required`, and `additionalProperties: false`.

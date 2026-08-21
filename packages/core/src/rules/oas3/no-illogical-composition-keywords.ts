@@ -32,8 +32,9 @@ type PropertyComparison = {
   sharedNames: string[];
 };
 
-// Keywords these checks model, plus annotations that don't constrain which values match.
-// A schema using anything else is left alone, because the unmodelled keyword may separate it.
+// Every keyword a schema may carry without stopping the comparison. A keyword outside this set
+// could be the one that separates two schemas, so `hasUnsupportedConstraint` gives up on the pair.
+// Membership therefore has two reasons: the checks read it, or it constrains no value at all.
 const UNDERSTOOD_KEYWORDS: ReadonlySet<string> = new Set<keyof Oas3Schema | keyof Oas3_1Schema>([
   'type',
   'format',
@@ -67,8 +68,6 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
       const parentSchema = getParentSchema(ctx);
       if (!Array.isArray(members) || !parentSchema) return;
 
-      // A lone member is redundant only when the wrapper carries nothing else of its own
-      // and is not declaring a subtype of a discriminated schema.
       if (
         members.length === 0 ||
         (members.length === 1 &&
@@ -118,6 +117,10 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
         reportInlineMembers(members, 'oneOf', ctx);
       }
 
+      if (schemaAllowsNull(parentSchema)) {
+        reportNullableParent(members, ctx);
+      }
+
       reportAmbiguousMembers(members, hasDiscriminator ? discriminator : undefined, ctx);
     },
   };
@@ -140,8 +143,6 @@ function reportSingleSchema(
   });
 }
 
-// A schema whose `allOf` references a schema with a `discriminator` declares a subtype: the
-// discriminator resolves the subtype by name, so the wrapper carries meaning of its own.
 function isSubtypeOfDiscriminatedSchema(
   member: Referenced<CompositionSchema>,
   resolve: ResolveFn
@@ -193,6 +194,20 @@ function reportDuplicateMembers(
       });
     }
   }
+}
+
+function reportNullableParent(members: CompositionSchema[], ctx: UserContext) {
+  const nullableMember = members.some((member) => {
+    const resolved = resolveSchema(member, ctx.resolve);
+    return resolved ? schemaAllowsNull(resolved.schema) : false;
+  });
+  if (!nullableMember) return;
+
+  ctx.report({
+    message:
+      'The schema and a schema in `oneOf` both accept `null`, so nothing decides which one applies to a null value.',
+    location: ctx.location.key(),
+  });
 }
 
 function reportAmbiguousMembers(
@@ -267,7 +282,7 @@ function findOverlapReason(
 
   if (!leftSchema.properties && !rightSchema.properties) {
     const sharedTypes = getSharedTypes(leftSchema, rightSchema);
-    if (sharedTypes) {
+    if (sharedTypes?.length) {
       return `Both schemas accept ${sharedTypes.map((type) => `\`${type}\``).join(', ')}.`;
     }
   }
@@ -284,9 +299,9 @@ function describeDiscriminatorGap(
   // `struct` is not guaranteed to have rejected a non-string `propertyName` first.
   if (typeof propertyName !== 'string') return null;
 
-  const requiredInBoth =
+  const isRequiredInBoth =
     !!left.required?.includes(propertyName) && !!right.required?.includes(propertyName);
-  if (requiredInBoth) return null;
+  if (isRequiredInBoth) return null;
 
   return `Add \`${propertyName}\` to \`required\` in every schema; the \`discriminator\` cannot read a property a value may omit.`;
 }
@@ -383,7 +398,7 @@ function classifySharedProperties(
   const ambiguousNames: string[] = [];
 
   for (const name of sharedNames) {
-    const requiredInBoth = leftRequired.has(name) && rightRequired.has(name);
+    const isRequiredInBoth = leftRequired.has(name) && rightRequired.has(name);
 
     const leftProperty = resolveSchema(getOwn(leftProperties, name), resolve, leftSource);
     const rightProperty = resolveSchema(getOwn(rightProperties, name), resolve, rightSource);
@@ -396,7 +411,7 @@ function classifySharedProperties(
     }
 
     if (areExclusive(leftProperty.schema, rightProperty.schema)) {
-      if (requiredInBoth) return null;
+      if (isRequiredInBoth) return null;
       optionalDistinguishingNames.push(name);
       continue;
     }
@@ -423,10 +438,8 @@ function areExclusive(left: CompositionSchema, right: CompositionSchema): boolea
     return !leftValues.some((value) => rightValues.some((other) => dequal(value, other)));
   }
 
-  const leftTypes = getTypeSet(left);
-  const rightTypes = getTypeSet(right);
   // `format` is an annotation, not an assertion, so differing formats prove nothing.
-  return !!leftTypes && !!rightTypes && !hasIntersection(leftTypes, rightTypes);
+  return getSharedTypes(left, right)?.length === 0;
 }
 
 function resolveSchema(
@@ -448,12 +461,16 @@ function hasUnsupportedConstraint(schema: CompositionSchema): boolean {
   );
 }
 
+function isNullable(schema: CompositionSchema): boolean {
+  return 'nullable' in schema && schema.nullable === true;
+}
+
 function getTypeSet(schema: CompositionSchema): Set<string> | undefined {
   const declaredType = schema.type;
   if (declaredType === undefined) return undefined;
 
   const types = new Set(Array.isArray(declaredType) ? declaredType : [declaredType]);
-  if ('nullable' in schema && schema.nullable === true) types.add('null');
+  if (isNullable(schema)) types.add('null');
   return types;
 }
 
@@ -462,27 +479,17 @@ function getSharedTypes(left: CompositionSchema, right: CompositionSchema): stri
   const rightTypes = getTypeSet(right);
   if (!leftTypes || !rightTypes) return undefined;
 
-  const shared = [...leftTypes].filter((type) => rightTypes.has(type));
-  return shared.length > 0 ? shared : undefined;
+  return [...leftTypes].filter((type) => rightTypes.has(type));
 }
 
 function schemaAllowsNull(schema: CompositionSchema): boolean {
-  if ('nullable' in schema && schema.nullable === true) return true;
-  const declaredType = schema.type;
-  return Array.isArray(declaredType) ? declaredType.includes('null') : declaredType === 'null';
+  return isNullable(schema) || getTypeSet(schema)?.has('null') === true;
 }
 
 function readAllowedValues(schema: CompositionSchema): unknown[] | undefined {
   if (schema.enum) return schema.enum;
   const constValue = 'const' in schema ? schema.const : undefined;
   return isDefined(constValue) ? [constValue] : undefined;
-}
-
-function hasIntersection(left: Set<string>, right: Set<string>): boolean {
-  for (const value of left) {
-    if (right.has(value)) return true;
-  }
-  return false;
 }
 
 function quoteAll(names: string[]): string {
