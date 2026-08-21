@@ -1,0 +1,6 @@
+POST /tickets — Buy museum tickets (buyMuseumTickets)
+├── source: openapi.yaml#/paths/~1tickets/post  [22..31]
+├── refs (1)
+│   └── schemas/Ticket → openapi.yaml#/components/schemas/Ticket  [50..54]
+└── usedBy (none)
+

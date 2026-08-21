@@ -97,6 +97,24 @@ Authenticate, handle errors, and compose middleware with a client from `generate
 Pre-configure publisher defaults and write custom client generators.
 {% /card %}
 
+{% card title="Whether an agent's flow works"
+    to="./tree-agent-index-benchmark-v2"
+  %}
+The same comparison judged on the answer: does the flow an agent produces actually run, and what does it leave out when it does not.
+{% /card %}
+
+{% card title="Where the index pays"
+    to="./tree-agent-index-benchmark-v3"
+  %}
+Six tasks over six descriptions, 41 KB to 2,909 files: where an index decides whether a model gets there at all, and where the description is already one.
+{% /card %}
+
+{% card title="Where the index pays — every run"
+    to="./tree-agent-index-benchmark-v3-detailed"
+  %}
+The long form of the same measurement: all 240 runs with the commands each issued, per-run verdicts, and the full failure tally.
+{% /card %}
+
 {% card title="Set up tab completion"
     to="./autocomplete"
   %}

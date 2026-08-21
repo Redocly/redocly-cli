@@ -2,6 +2,7 @@ import * as yamlAst from 'yaml-ast-parser';
 
 import { colorize, colorOptions } from '../logger.js';
 import { parsePointer } from '../ref-utils.js';
+import type { Source } from '../resolve.js';
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
@@ -141,38 +142,98 @@ export function getLineColLocation(location: LocationObject): LineColLocationObj
   return {
     ...location,
     pointer: undefined,
-    ...positionsToLoc(source.body, astNode?.startPosition ?? 1, astNode?.endPosition ?? 1),
+    ...positionsToLoc(source, astNode?.startPosition ?? 1, astNode?.endPosition ?? 1),
   };
 }
 
+/**
+ * Same as `getLineColLocation`, but `end` stops at the node's own last content character.
+ * Use it when the range is meant to slice source text rather than point at a problem.
+ */
+export function getContentLineColLocation(location: LocationObject): LineColLocationObject {
+  if (location.pointer === undefined) return location;
+
+  const { source, pointer, reportOnKey } = location;
+  const ast = source.getAst(yamlAst.safeLoad) as YAMLNode;
+  const astNode = getAstNodeByPointer(ast, pointer, !!reportOnKey);
+  return {
+    ...location,
+    pointer: undefined,
+    ...positionsToLoc(
+      source,
+      astNode?.startPosition ?? 1,
+      astNode ? contentEndPosition(astNode as YAMLNode, source.body) : 1
+    ),
+  };
+}
+
+/**
+ * The parser stamps a block sequence's `endPosition` only after its end-of-sequence lookahead,
+ * which has already skipped the line break and the next line's indentation — so the position
+ * lands on the next sibling's first character, and any container whose last nested value is a
+ * block sequence inherits that overshoot. Descending to the deepest last child yields the end
+ * of the node's own content. Flow collections stamp an exact end (right after their closing
+ * bracket), so they and scalars are trusted as is.
+ */
+function contentEndPosition(node: YAMLNode, body: string): number {
+  switch (node.kind) {
+    case yamlAst.Kind.MAP:
+    case yamlAst.Kind.SEQ: {
+      const lastChar = body[node.endPosition - 1];
+      if (lastChar === '}' || lastChar === ']') return node.endPosition;
+      const lastChild =
+        node.kind === yamlAst.Kind.MAP
+          ? node.mappings[node.mappings.length - 1]
+          : node.items[node.items.length - 1];
+      return lastChild ? contentEndPosition(lastChild as YAMLNode, body) : node.endPosition;
+    }
+    case yamlAst.Kind.MAPPING:
+      return node.value ? contentEndPosition(node.value as YAMLNode, body) : node.endPosition;
+    default:
+      return node.endPosition;
+  }
+}
+
+/**
+ * Converts a `[startPos, endPos)` character-offset span into 1-based `{ start, end }` line/col
+ * locations, via binary search over the source's cached line-offset table instead of rescanning
+ * `body` from the start on every call.
+ *
+ * `end` is intentionally derived from `endPos - 1` rather than `endPos` directly: it mirrors the
+ * historical behavior of always landing one column past wherever `endPos - 1` falls, even when
+ * that position is itself a newline (it does not roll `end` over onto the next line in that case).
+ */
 function positionsToLoc(
-  source: string,
+  source: Source,
   startPos: number,
   endPos: number
 ): { start: Loc; end: Loc } {
-  let currentLine = 1;
-  let currentCol = 1;
-  let start: Loc = { line: 1, col: 1 };
-
-  for (let i = 0; i < endPos - 1; i++) {
-    if (i === startPos - 1) {
-      start = { line: currentLine, col: currentCol + 1 };
-    }
-    if (source[i] === '\n') {
-      currentLine++;
-      currentCol = 1;
-      if (i === startPos - 1) {
-        start = { line: currentLine, col: currentCol };
-      }
-
-      if (source[i + 1] === '\r') i++; // TODO: test it
-      continue;
-    }
-    currentCol++;
+  // A zero-length span always resolves to the first line: preserves the original scanning
+  // loop's behavior, which never actually reaches the index it would need to capture `start`
+  // in this case and so falls through to its `{ line: 1, col: 1 }` default.
+  if (startPos === endPos) {
+    return { start: { line: 1, col: 1 }, end: { line: 1, col: 1 } };
   }
 
-  const end = startPos === endPos ? { ...start } : { line: currentLine, col: currentCol + 1 };
-  return { start, end };
+  const lineOffsets = source.getLineOffsets();
+  const start = offsetToLoc(lineOffsets, startPos);
+  const endStart = offsetToLoc(lineOffsets, endPos - 1);
+  return { start, end: { line: endStart.line, col: endStart.col + 1 } };
+}
+
+/** Binary-searches `lineOffsets` for the line containing `offset` and its 1-based column. */
+function offsetToLoc(lineOffsets: number[], offset: number): Loc {
+  let low = 0;
+  let high = lineOffsets.length - 1;
+  while (low < high) {
+    const mid = (low + high + 1) >> 1;
+    if (lineOffsets[mid] <= offset) {
+      low = mid;
+    } else {
+      high = mid - 1;
+    }
+  }
+  return { line: low + 1, col: offset - lineOffsets[low] + 1 };
 }
 
 export function getAstNodeByPointer(root: YAMLNode, pointer: string, reportOnKey: boolean) {

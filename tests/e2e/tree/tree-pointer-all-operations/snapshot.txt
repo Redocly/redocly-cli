@@ -1,0 +1,58 @@
+[
+  {
+    "method": "get",
+    "path": "/museum-hours",
+    "operationId": "getMuseumHours",
+    "summary": "Get museum hours",
+    "tags": [],
+    "pointer": "#/paths/~1museum-hours/get",
+    "file": "openapi.yaml",
+    "start_line": 14,
+    "end_line": 19,
+    "description": "Get upcoming museum operating hours.",
+    "refs": [],
+    "usedBy": []
+  },
+  {
+    "method": "post",
+    "path": "/tickets",
+    "operationId": "buyMuseumTickets",
+    "summary": "Buy museum tickets",
+    "tags": [
+      "Tickets"
+    ],
+    "pointer": "#/paths/~1tickets/post",
+    "file": "openapi.yaml",
+    "start_line": 22,
+    "end_line": 31,
+    "refs": [
+      {
+        "ref": "#/components/schemas/Ticket",
+        "resolved": true,
+        "file": "openapi.yaml",
+        "pointer": "#/components/schemas/Ticket",
+        "start_line": 50,
+        "end_line": 54,
+        "component": "schemas",
+        "name": "Ticket"
+      }
+    ],
+    "usedBy": []
+  },
+  {
+    "method": "post",
+    "path": "/legacy-tickets",
+    "deprecated": true,
+    "summary": "Buy tickets the old way",
+    "tags": [
+      "Tickets"
+    ],
+    "pointer": "#/paths/~1legacy-tickets/post",
+    "file": "openapi.yaml",
+    "start_line": 34,
+    "end_line": 39,
+    "refs": [],
+    "usedBy": []
+  }
+]
+

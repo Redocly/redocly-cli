@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: Webhook Used-By API
+  version: 1.0.0
+paths:
+  /tickets:
+    get:
+      summary: List tickets
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/webhooks/newTicket'
+webhooks:
+  newTicket:
+    post:
+      summary: New ticket alert
+      responses:
+        '200':
+          description: ok

@@ -52,6 +52,8 @@
           page: commands/stats.md
         - label: translate
           page: commands/translate.md
+        - label: tree
+          page: commands/tree.md
     - group: Guides
       page: guides/index.md
       items:
@@ -66,6 +68,12 @@
           page: guides/use-generated-client.md
         - label: Customize client generation
           page: guides/customize-client-generation.md
+        - label: Whether an agent's flow works
+          page: guides/tree-agent-index-benchmark-v2.md
+        - label: Where the index pays
+          page: guides/tree-agent-index-benchmark-v3.md
+        - label: Where the index pays — every run
+          page: guides/tree-agent-index-benchmark-v3-detailed.md
         - label: Hide internal APIs
           page: guides/hide-apis.md
         - label: Replace the servers URL

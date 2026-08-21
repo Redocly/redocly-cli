@@ -1,0 +1,23 @@
+openapi: 3.1.0
+info:
+  title: Multi Webhooks API
+  version: 1.0.0
+paths: {}
+webhooks:
+  zLast:
+    post:
+      summary: Z webhook
+      responses:
+        '200':
+          description: ok
+  aFirst:
+    post:
+      summary: A webhook created
+      responses:
+        '200':
+          description: ok
+    get:
+      summary: A webhook fetched
+      responses:
+        '200':
+          description: ok

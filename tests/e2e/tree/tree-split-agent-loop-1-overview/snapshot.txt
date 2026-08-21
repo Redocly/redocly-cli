@@ -1,0 +1,40 @@
+{
+  "docName": "openapi.yaml",
+  "spec": "oas3_2",
+  "docDescription": "Sample Cafe API",
+  "overview": {
+    "pointer": "#/info",
+    "file": "openapi.yaml",
+    "start_line": 3,
+    "end_line": 4
+  },
+  "servers": {
+    "pointer": "#/servers",
+    "file": "openapi.yaml",
+    "start_line": 6,
+    "end_line": 6,
+    "urls": [
+      "https://api.cafe-example.com/v1"
+    ]
+  },
+  "tags": [
+    {
+      "name": "Orders",
+      "summary": "Manage cafe orders.",
+      "operations": 2
+    },
+    {
+      "name": "untagged",
+      "operations": 2
+    }
+  ],
+  "operations": 4,
+  "webhooks": [],
+  "components": [
+    {
+      "section": "schemas",
+      "count": 5
+    }
+  ]
+}
+

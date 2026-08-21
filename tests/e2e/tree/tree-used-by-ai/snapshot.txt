@@ -1,0 +1,4 @@
+used-by schemas/Ticket · openapi.yaml L50-54
+operations (1):
+post /tickets · L22 via schemas/Ticket → POST /tickets
+

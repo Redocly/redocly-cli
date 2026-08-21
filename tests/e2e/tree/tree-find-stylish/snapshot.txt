@@ -1,0 +1,8 @@
+find "event" · 1 operations · 1 components
+
+publicationOfNewEvent (1)
+└── POST "New event added" 43..46 []
+
+components (1)
+└── schemas/Ticket "A ticket for museum entry or special event." 50..54
+

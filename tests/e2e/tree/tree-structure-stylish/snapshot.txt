@@ -1,0 +1,10 @@
+openapi.yaml — Sample Cafe API  (oas3_2)
+├── Operations (4)
+│   └── untagged (4)
+│       ├── GET /orders — List orders (listOrders)  [2..10]
+│       ├── POST /orders — Create an order (createOrder)  [12..26]
+│       ├── GET /orders/{orderId} — Get an order by id (getOrder)  [2..16]
+│       └── DELETE /orders/{orderId} — Cancel an order by id (cancelOrder)  [18..32]
+└── Components (5)
+    └── schemas (5)
+
