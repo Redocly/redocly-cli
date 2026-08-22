@@ -27,6 +27,7 @@ import {
   sseResponse,
   deref,
   serverUrlParts,
+  securityRequirements,
 } from '../../authoring/index.js';
 import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
 import type {
@@ -475,32 +476,15 @@ const MUTATING = new Set(['post', 'put', 'patch']);
 
 /** Security literal for the operations table, denormalized from the model's schemes. */
 function phpSecurityLiteral(op: OperationModel, model: ApiModel): string | undefined {
-  if (op.security.length === 0) return undefined;
-  const alternatives = op.security.map((andSet) => {
-    const specs = andSet.flatMap((key): string[] => {
-      const scheme = model.securitySchemes.find((candidate) => candidate.key === key);
-      if (scheme === undefined) return [];
-      if (scheme.kind === 'bearer' || scheme.kind === 'basic') {
-        return [`['kind' => ${phpString(scheme.kind)}, 'scheme' => ${phpString(scheme.key)}]`];
-      }
-      const where =
-        scheme.kind === 'apiKeyQuery'
-          ? 'query'
-          : scheme.kind === 'apiKeyCookie'
-            ? 'cookie'
-            : 'header';
-      const name =
-        scheme.kind === 'apiKeyQuery'
-          ? scheme.paramName
-          : scheme.kind === 'apiKeyCookie'
-            ? scheme.cookieName
-            : scheme.headerName;
-      return [
-        `['kind' => 'apiKey', 'scheme' => ${phpString(scheme.key)}, 'name' => ${phpString(name)}, 'in' => ${phpString(where)}]`,
-      ];
-    });
+  const alternatives = securityRequirements(op, model).map((alternative) => {
+    const specs = alternative.map((spec) =>
+      spec.kind === 'apiKey'
+        ? `['kind' => 'apiKey', 'scheme' => ${phpString(spec.scheme)}, 'name' => ${phpString(spec.name)}, 'in' => ${phpString(spec.in)}]`
+        : `['kind' => ${phpString(spec.kind)}, 'scheme' => ${phpString(spec.scheme)}]`
+    );
     return `[${specs.join(', ')}]`;
   });
+  if (alternatives.length === 0) return undefined;
   return `[${alternatives.join(', ')}]`;
 }
 

@@ -27,6 +27,7 @@ import {
   jsonSuccessSchema,
   sseResponse,
   serverUrlParts,
+  securityRequirements,
 } from '../../authoring/index.js';
 import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 import type {
@@ -298,32 +299,13 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
 
 /** Go composite literal for one operation's security OR-alternatives. */
 function goSecurityLiteral(op: OperationModel, model: ApiModel): string | undefined {
-  const alternatives = op.security
-    .map((alternative) =>
-      alternative.flatMap((key): string[] => {
-        const scheme = model.securitySchemes.find((s) => s.key === key);
-        if (scheme === undefined) return [];
-        if (scheme.kind === 'bearer' || scheme.kind === 'basic') {
-          return [`{Scheme: ${JSON.stringify(key)}, Kind: ${JSON.stringify(scheme.kind)}}`];
-        }
-        const name =
-          scheme.kind === 'apiKeyHeader'
-            ? scheme.headerName
-            : scheme.kind === 'apiKeyQuery'
-              ? scheme.paramName
-              : scheme.cookieName;
-        const location =
-          scheme.kind === 'apiKeyHeader'
-            ? 'header'
-            : scheme.kind === 'apiKeyQuery'
-              ? 'query'
-              : 'cookie';
-        return [
-          `{Scheme: ${JSON.stringify(key)}, Kind: "apiKey", Name: ${JSON.stringify(name)}, In: ${JSON.stringify(location)}}`,
-        ];
-      })
+  const alternatives = securityRequirements(op, model).map((alternative) =>
+    alternative.map((spec) =>
+      spec.kind === 'apiKey'
+        ? `{Scheme: ${JSON.stringify(spec.scheme)}, Kind: "apiKey", Name: ${JSON.stringify(spec.name)}, In: ${JSON.stringify(spec.in)}}`
+        : `{Scheme: ${JSON.stringify(spec.scheme)}, Kind: ${JSON.stringify(spec.kind)}}`
     )
-    .filter((alternative) => alternative.length > 0);
+  );
   if (alternatives.length === 0) return undefined;
   return `[][]SecuritySpec{${alternatives.map((specs) => `{${specs.join(', ')}}`).join(', ')}}`;
 }

@@ -3,6 +3,7 @@
 // descriptor map (`satisfies Record<string, OperationDescriptor>` — the semver skew
 // guard against the runtime contract in src/runtime/types.ts). Text templates.
 
+import { securityRequirements } from '../authoring/operation.js';
 import {
   allOperations,
   type ApiModel,
@@ -10,7 +11,6 @@ import {
   type OperationModel,
   type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
-import type { SecuritySpec } from '../runtime/types.js';
 import { uniqueIdent } from './identifier.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { ArgsStyle } from './operations.js';
@@ -54,21 +54,7 @@ function descriptorValue(
       ...(p.allowReserved !== undefined ? { allowReserved: p.allowReserved } : {}),
     })
   );
-  const toSpecs = (key: string): SecuritySpec[] => {
-    const s = schemes.find((scheme) => scheme.key === key);
-    if (!s) return [];
-    if (s.kind === 'bearer' || s.kind === 'basic') return [{ scheme: key, kind: s.kind }];
-    if (s.kind === 'apiKeyHeader') {
-      return [{ scheme: key, kind: 'apiKey', name: s.headerName, in: 'header' }];
-    }
-    if (s.kind === 'apiKeyQuery') {
-      return [{ scheme: key, kind: 'apiKey', name: s.paramName, in: 'query' }];
-    }
-    return [{ scheme: key, kind: 'apiKey', name: s.cookieName, in: 'cookie' }];
-  };
-  const security = op.security
-    .map((alternative) => alternative.flatMap(toSpecs))
-    .filter((alternative) => alternative.length > 0);
+  const security = securityRequirements(op, { securitySchemes: schemes });
   const sse = isSseOp(op);
   const responseKind = sse ? 'sse' : responseText(op.successResponses, dateType).kind;
   const responseHeaders = responseHeaderSpecs(op.successResponseHeaders, schemas);

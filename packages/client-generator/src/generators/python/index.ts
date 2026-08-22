@@ -23,6 +23,7 @@ import {
   jsonSuccessSchema,
   sseResponse,
   serverUrlParts,
+  securityRequirements,
 } from '../../authoring/index.js';
 import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
 import type {
@@ -378,28 +379,6 @@ function discriminatorRegistrations(model: ApiModel, annotated: Set<string>): st
     );
   }
   return lines;
-}
-
-/** Security specs for the descriptor dict — the wire shape resolve_auth consumes. */
-function securitySpecs(op: OperationModel, model: ApiModel): unknown[][] {
-  return op.security
-    .map((alternative) =>
-      alternative.flatMap((key): Array<Record<string, string>> => {
-        const scheme = model.securitySchemes.find((s) => s.key === key);
-        if (scheme === undefined) return [];
-        if (scheme.kind === 'bearer' || scheme.kind === 'basic') {
-          return [{ scheme: key, kind: scheme.kind }];
-        }
-        if (scheme.kind === 'apiKeyHeader') {
-          return [{ scheme: key, kind: 'apiKey', name: scheme.headerName, in: 'header' }];
-        }
-        if (scheme.kind === 'apiKeyQuery') {
-          return [{ scheme: key, kind: 'apiKey', name: scheme.paramName, in: 'query' }];
-        }
-        return [{ scheme: key, kind: 'apiKey', name: scheme.cookieName, in: 'cookie' }];
-      })
-    )
-    .filter((alternative) => alternative.length > 0);
 }
 
 /** JSON → Python literal (dicts/lists/strings/numbers/bools/None). */
@@ -854,7 +833,9 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit, options })
         id: op.specName ?? op.name,
         method: op.method.toUpperCase(),
         path: op.path,
-        ...(securitySpecs(op, model).length > 0 ? { security: securitySpecs(op, model) } : {}),
+        ...(securityRequirements(op, model).length > 0
+          ? { security: securityRequirements(op, model) }
+          : {}),
         ...(paginationSpecs.get(ident) !== undefined
           ? { pagination: paginationSpecs.get(ident) }
           : {}),

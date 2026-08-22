@@ -4,6 +4,7 @@
 // disagree about the same operation.
 
 import type {
+  ApiModel,
   OperationModel,
   ResponseBodyModel,
   SchemaModel,
@@ -57,4 +58,39 @@ export function serverUrlParts(server: ServerModel): ServerUrlPart[] {
   literal += rest;
   if (literal !== '' || parts.length === 0) parts.push({ kind: 'literal', value: literal });
   return parts;
+}
+
+/** One resolved security requirement: the scheme's key, kind, and (for apiKey) placement. */
+export type SecurityRequirement =
+  | { scheme: string; kind: 'bearer' | 'basic' }
+  | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
+
+/**
+ * The operation's security as OR-alternatives of AND-sets, denormalized against the
+ * declared schemes — the shape every generated runtime's auth resolver consumes. A key that
+ * names no declared scheme is dropped, and an alternative that ends up empty with it.
+ * Generators print this in their own literal syntax; the mapping itself has one answer.
+ */
+export function securityRequirements(
+  op: OperationModel,
+  model: Pick<ApiModel, 'securitySchemes'>
+): SecurityRequirement[][] {
+  return op.security
+    .map((alternative) =>
+      alternative.flatMap((key): SecurityRequirement[] => {
+        const scheme = model.securitySchemes.find((candidate) => candidate.key === key);
+        if (scheme === undefined) return [];
+        if (scheme.kind === 'bearer' || scheme.kind === 'basic') {
+          return [{ scheme: key, kind: scheme.kind }];
+        }
+        if (scheme.kind === 'apiKeyHeader') {
+          return [{ scheme: key, kind: 'apiKey', name: scheme.headerName, in: 'header' }];
+        }
+        if (scheme.kind === 'apiKeyQuery') {
+          return [{ scheme: key, kind: 'apiKey', name: scheme.paramName, in: 'query' }];
+        }
+        return [{ scheme: key, kind: 'apiKey', name: scheme.cookieName, in: 'cookie' }];
+      })
+    )
+    .filter((alternative) => alternative.length > 0);
 }

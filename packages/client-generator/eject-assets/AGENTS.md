@@ -98,6 +98,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `jsonSuccessSchema(op)` / `sseResponse(op)`            | The primary JSON success schema; the `text/event-stream` response when the operation streams.                                    |
 | `isMultipartBody(op)`                                  | Whether the request body is multipart.                                                                                           |
 | `serverUrlParts(server)`                               | A server-URL template as literal/variable parts, ready for any concatenation syntax.                                             |
+| `securityRequirements(op, model)`                      | The operation's security as OR-alternatives of AND-sets, denormalized against the declared schemes.                              |
 | `discriminatorCases(schema, model)`                    | `{ property, cases }` dispatch table for discriminated unions.                                                                   |
 | `isNullable(schema)` / `unwrapNullable(schema)`        | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
 | `enumValues(schema)`                                   | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |

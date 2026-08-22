@@ -20,8 +20,10 @@ export {
 export {
   isMultipartBody,
   jsonSuccessSchema,
+  securityRequirements,
   serverUrlParts,
   sseResponse,
+  type SecurityRequirement,
   type ServerUrlPart,
 } from './operation.js';
 export {
@@ -50,6 +52,7 @@ export const AUTHORING_HELPER_NAMES = [
   'sseResponse',
   'isMultipartBody',
   'serverUrlParts',
+  'securityRequirements',
   'isNullable',
   'unwrapNullable',
   'enumValues',
