@@ -1,0 +1,11 @@
+channels
+  ✖ breaking      changed  channels/userSignedUp · address
+      The channel address changed from 'user/signedup' to 'user/signed-up'. (channel-address-changed)
+      at revision.yaml:7:14
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

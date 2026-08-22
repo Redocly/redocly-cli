@@ -1,0 +1,13 @@
+/pets/{petId}
+  ✔ non-breaking  changed  paths · /pets/{id} · path
+      at revision.yaml:7:5
+
+GET /pets/{petId}
+  ✔ non-breaking  changed  parameters/{path:id} · name
+      at revision.yaml:9:17
+
+0 breaking, 2 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+

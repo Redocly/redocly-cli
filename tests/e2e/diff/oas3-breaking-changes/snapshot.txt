@@ -1,0 +1,25 @@
+components
+  ✖ breaking      removed  components/schemas/Pet/properties/tag
+      Schema property was removed. (property-removed-from-response)
+      at base.yaml:33:11
+
+DELETE /pets
+  ✖ breaking      removed  paths · /pets · delete
+      Operation was removed. (operation-removed)
+      at base.yaml:21:7
+
+GET /pets
+  ✖ breaking      changed  parameters/{query:limit} · required
+      Parameter became required. (parameter-became-required)
+      at revision.yaml:11:21
+
+info
+  ✔ non-breaking  changed  info · version
+      at revision.yaml:4:12
+
+3 breaking, 1 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 3 breaking changes.
