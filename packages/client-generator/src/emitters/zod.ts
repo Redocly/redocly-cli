@@ -18,7 +18,6 @@ import {
   type SchemaModel,
 } from '../intermediate-representation/model.js';
 import { safeIdent } from './identifier.js';
-import { isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
 import { codeLiteral } from './ts-literal.js';
 
@@ -221,7 +220,7 @@ type OperationSchemaEntry = { name: string; request?: string; response?: string 
 function operationSchemaEntries(model: ApiModel, byName: SchemaByName): OperationSchemaEntry[] {
   const entries: OperationSchemaEntry[] = [];
   for (const op of allOperations(model.services)) {
-    if (isSseOp(op)) continue;
+    if (op.sse !== undefined) continue;
     const requestBody = op.requestBody;
     const request =
       requestBody && requestBody.contentType.toLowerCase().includes('json')

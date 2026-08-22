@@ -1,3 +1,4 @@
+import { sseFromResponses } from '../../intermediate-representation/build.js';
 import type {
   ApiModel,
   NamedSchemaModel,
@@ -34,7 +35,7 @@ export function namedSchema(
 
 /** A minimal `GET /p` operation; spread `overrides` to add params, a body, responses, etc. */
 export function operation(overrides: Partial<OperationModel> = {}): OperationModel {
-  return {
+  const built: OperationModel = {
     name: 'op',
     method: 'get',
     path: '/p',
@@ -48,6 +49,10 @@ export function operation(overrides: Partial<OperationModel> = {}): OperationMod
     tags: [],
     ...overrides,
   };
+  // The IR builder stamps `sse` on every real operation; mirror it here so fixtures
+  // carry the same facts the emitters read in production.
+  const sse = overrides.sse ?? sseFromResponses(built.successResponses);
+  return { ...built, ...(sse === undefined ? {} : { sse }) };
 }
 
 export function param(

@@ -18,7 +18,6 @@ import type { ModelPagination } from './pagination.js';
 import { flatInputShape, responseText } from './render-client.js';
 import { WIRING_NAMES } from './reserved-names.js';
 import { responseHeaderSpecs } from './response-headers.js';
-import { isSseOp, sseDataKind } from './sse.js';
 import { codeLiteral } from './ts-literal.js';
 import { tsJsdoc } from './ts-type.js';
 import type { DateType } from './types.js';
@@ -55,7 +54,7 @@ function descriptorValue(
     })
   );
   const security = securityRequirements(op, { securitySchemes: schemes });
-  const sse = isSseOp(op);
+  const sse = op.sse !== undefined;
   const responseKind = sse ? 'sse' : responseText(op.successResponses, dateType).kind;
   const responseHeaders = responseHeaderSpecs(op.successResponseHeaders, schemas);
   return {
@@ -77,7 +76,7 @@ function descriptorValue(
         }
       : {}),
     ...(responseKind !== 'json' ? { responseKind } : {}),
-    ...(sse ? { sseDataKind: sseDataKind(op) } : {}),
+    ...(op.sse === undefined ? {} : { sseDataKind: op.sse.dataKind }),
     ...(security.length > 0 ? { security } : {}),
     ...(responseHeaders === undefined ? {} : { responseHeaders }),
     // The resolved spec is already normalized with stable key order (see pagination.ts).

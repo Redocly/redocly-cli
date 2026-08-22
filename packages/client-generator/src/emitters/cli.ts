@@ -22,7 +22,6 @@ import { HEADER } from './emit-options.js';
 import { embedCliRuntime } from './inline-runtime.js';
 import type { ModelPagination } from './pagination.js';
 import { flatInputShape } from './render-client.js';
-import { isSseOp } from './sse.js';
 
 function kebab(name: string): string {
   return casing.snake(name).replace(/_/g, '-');
@@ -126,7 +125,7 @@ export function commandData(
           : {}),
         ...(emit.pagination?.has(op.name) === true ? { paginated: true } : {}),
         ...groupedInputFlag(op, model, emit.argsStyle),
-        ...(isSseOp(op) ? { sse: true } : {}),
+        ...(op.sse !== undefined ? { sse: true } : {}),
         ...(isBlobOp(op) ? { blob: true } : {}),
         ...(jsonBody !== undefined || responseSchema !== undefined
           ? {

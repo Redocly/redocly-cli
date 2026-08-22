@@ -120,6 +120,7 @@ const MODEL: ApiModel = {
               schema: { kind: 'object', properties: [] },
             },
           ],
+          sse: { eventSchema: { kind: 'object', properties: [] }, dataKind: 'json' },
           errorResponses: [],
         },
         {

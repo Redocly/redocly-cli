@@ -22,7 +22,6 @@ import { assembleInlineRuntime } from './inline-runtime.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
 import { collectEntrySchemaRefs, renderAliases, renderOpsType } from './render-client.js';
-import { isSseOp } from './sse.js';
 import { renderTypeAliases } from './ts-type.js';
 import { renderTypeGuards } from './type-guards.js';
 
@@ -67,8 +66,8 @@ function emitClient(
     schemas: model.schemas,
     pagination,
   };
-  const hasSse = ops.some(isSseOp);
-  const hasRegular = ops.some((op) => !isSseOp(op));
+  const hasSse = ops.some((op) => op.sse !== undefined);
+  const hasRegular = ops.some((op) => op.sse === undefined);
 
   const wiring =
     ops.length > 0

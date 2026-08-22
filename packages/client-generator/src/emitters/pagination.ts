@@ -16,7 +16,6 @@ import {
   type SchemaModel,
 } from '../intermediate-representation/model.js';
 import type { PaginationSpec } from '../runtime/types.js';
-import { isSseOp } from './sse.js';
 
 /** The pagination styles the generated runtime can drive. */
 export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
@@ -140,7 +139,7 @@ function applyRule(
   const misfit = (problem: string): ResolvedPagination =>
     explicit ? { error: `${label}: ${problem}` } : {};
 
-  if (isSseOp(op)) return misfit('the operation is a Server-Sent Events stream');
+  if (op.sse !== undefined) return misfit('the operation is a Server-Sent Events stream');
   if (valid.style !== 'link') {
     const paramField = valid.style === 'cursor' ? 'cursorParam' : 'offsetParam';
     const param = valid.style === 'cursor' ? valid.cursorParam! : valid.offsetParam!;

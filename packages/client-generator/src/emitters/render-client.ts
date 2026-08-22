@@ -17,7 +17,6 @@ import { operationSignature, templatePathParams } from './operation-signature.js
 import { isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
 import { responseHeadersTypeText } from './response-headers.js';
-import { eventSchema, isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
 import { tsJsdoc, tsType } from './ts-type.js';
 import type { DateType } from './types.js';
@@ -102,7 +101,7 @@ export function errorTypeTexts(
 
 /** The TS type of a streamed event payload (`string` when no schema is declared). */
 function sseEventText(op: OperationModel, dateType: DateType, indent = ''): string {
-  const schema = eventSchema(op);
+  const schema = op.sse?.eventSchema;
   return schema ? tsType(schema, dateType, indent) : 'string';
 }
 
@@ -351,7 +350,7 @@ export function renderOpsType(
     const name = pascalCase(op.name);
     const inner = INDENT + INDENT;
     const args = variablesTypeText(op, name, ctx, inner);
-    const sse = isSseOp(op);
+    const sse = op.sse !== undefined;
     const result = sse
       ? sseEventText(op, ctx.dateType, inner)
       : ctx.errorMode === 'result'
@@ -394,7 +393,7 @@ export function renderOpsType(
 export function renderAliases(op: OperationModel, ctx: EmitContext): string {
   const { dateType, schemaNames } = ctx;
   const name = pascalCase(op.name);
-  const sse = isSseOp(op);
+  const sse = op.sse !== undefined;
   const { hasInputs } = operationSignature(op);
   const blocks: string[] = [];
 

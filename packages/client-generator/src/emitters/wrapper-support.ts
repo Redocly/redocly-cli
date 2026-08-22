@@ -9,7 +9,6 @@ import { logger } from '@redocly/openapi-core';
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import { operationSignature } from './operation-signature.js';
-import { isSseOp } from './sse.js';
 
 /**
  * The operations a wrapper generator can wrap, with skips reported to the user under
@@ -24,7 +23,7 @@ import { isSseOp } from './sse.js';
  */
 export function wrappableOperations(model: ApiModel, label: string): OperationModel[] {
   const all = model.services.flatMap((s) => s.operations);
-  const sse = all.filter(isSseOp);
+  const sse = all.filter((op) => op.sse !== undefined);
   if (sse.length > 0) {
     logger.warn(
       `generate-client: ${label} skipped ${sse.length} server-sent-events operation(s) — iterate the sdk's exported async generators directly: ${sse
@@ -33,7 +32,7 @@ export function wrappableOperations(model: ApiModel, label: string): OperationMo
     );
   }
   const schemaNames = new Set(model.schemas.map((s) => s.name));
-  const clashing = all.filter((op) => !isSseOp(op) && collides(op, schemaNames));
+  const clashing = all.filter((op) => op.sse === undefined && collides(op, schemaNames));
   if (clashing.length > 0) {
     logger.warn(
       `generate-client: ${label} skipped ${clashing.length} operation(s) whose variables type name collides with a schema — rename the schema or the operation: ${clashing
@@ -41,7 +40,7 @@ export function wrappableOperations(model: ApiModel, label: string): OperationMo
         .join(', ')}.\n`
     );
   }
-  return all.filter((op) => !isSseOp(op) && !collides(op, schemaNames));
+  return all.filter((op) => op.sse === undefined && !collides(op, schemaNames));
 }
 
 /** Whether the operation's `<Op>Variables` type name collides with a named schema. */
