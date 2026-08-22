@@ -10,7 +10,6 @@ import { logger, stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, parse, resolve, sep } from 'node:path';
 
-import type { EmitOptions } from './emitters/emit-options.js';
 import { resolveModelPagination, type ModelPagination } from './emitters/pagination.js';
 import { NotSupportedError } from './errors.js';
 import { validateSelection } from './generators/meta.js';
@@ -18,6 +17,7 @@ import { resolveGeneratorOptions } from './generators/options.js';
 import { resolveGenerators } from './generators/resolve.js';
 import type {
   CodeSample,
+  EmitOptions,
   GeneratedFile,
   GeneratorDescriptor,
   OutputMode,

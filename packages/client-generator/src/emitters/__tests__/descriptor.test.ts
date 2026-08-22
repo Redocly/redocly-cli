@@ -4,9 +4,8 @@ import type {
   ResponseBodyModel,
 } from '../../intermediate-representation/model.js';
 import { packageIdents, renderDescriptors } from '../descriptor.js';
-import type { EmitContext } from '../operations.js';
 import type { ModelPagination } from '../pagination.js';
-import { renderOpsType } from '../render-client.js';
+import { type EmitContext, renderOpsType } from '../render-client.js';
 import { apiModel, modelWith, operation, param } from './fixtures.js';
 
 function emitDescriptors(model: ApiModel): string {

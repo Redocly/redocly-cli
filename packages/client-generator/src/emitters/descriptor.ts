@@ -4,6 +4,8 @@
 // guard against the runtime contract in src/runtime/types.ts). Text templates.
 
 import { securityRequirements } from '../authoring/operation.js';
+import type { DateType } from '../authoring/options.js';
+import type { ArgsStyle } from '../generators/types.js';
 import {
   allOperations,
   type ApiModel,
@@ -13,14 +15,12 @@ import {
 } from '../intermediate-representation/model.js';
 import { uniqueIdent } from './identifier.js';
 import { isTypedMultipart } from './operation-types.js';
-import type { ArgsStyle } from './operations.js';
 import type { ModelPagination } from './pagination.js';
 import { flatInputShape, responseText } from './render-client.js';
 import { WIRING_NAMES } from './reserved-names.js';
 import { responseHeaderSpecs } from './response-headers.js';
 import { codeLiteral } from './ts-literal.js';
 import { tsJsdoc } from './ts-type.js';
-import type { DateType } from './types.js';
 
 /**
  * Operation-name → emitted-identifier plan. The full reserved set (wiring + imported

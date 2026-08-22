@@ -1,8 +1,8 @@
 import ts from 'typescript';
 
+import type { EmitOptions } from '../../generators/types.js';
 import type { ApiModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
-import type { EmitOptions } from '../emit-options.js';
 import { resolveModelPagination } from '../pagination.js';
 import { modelWith, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 

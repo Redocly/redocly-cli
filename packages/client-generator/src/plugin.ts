@@ -49,8 +49,7 @@ export type {
   GeneratorName,
   OutputMode,
 } from './generators/types.js';
-export type { ArgsStyle, ErrorMode } from './emitters/operations.js';
-export type { DateType } from './emitters/types.js';
+export type { ArgsStyle, DateType, ErrorMode } from './generators/types.js';
 
 // --- The intermediate representation (the `model` a generator walks) ---------------------------
 export type {

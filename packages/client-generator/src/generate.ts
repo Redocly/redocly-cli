@@ -5,9 +5,13 @@
 // root: package-mode clients import the root at app runtime, and the root reaches
 // the pipeline only through a dynamic import.
 
-import type { EmitOptions } from './emitters/emit-options.js';
 import { builtinGenerators, validateGenerators } from './generators/index.js';
-import type { GeneratedFile, GeneratorDescriptor, OutputMode } from './generators/types.js';
+import type {
+  EmitOptions,
+  GeneratedFile,
+  GeneratorDescriptor,
+  OutputMode,
+} from './generators/types.js';
 import type { ApiModel } from './intermediate-representation/model.js';
 import { runGenerators } from './pipeline.js';
 

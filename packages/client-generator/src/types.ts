@@ -1,8 +1,7 @@
 import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
 
-import type { ArgsStyle } from './emitters/emit-options.js';
 import type { PaginationConfig } from './emitters/pagination.js';
-import type { CustomGenerator, OutputMode } from './generators/types.js';
+import type { ArgsStyle, CustomGenerator, OutputMode } from './generators/types.js';
 
 export type GenerateClientOptions = {
   /** Path or URL to the OpenAPI description (or an `apis:` alias from `redocly.yaml`). */

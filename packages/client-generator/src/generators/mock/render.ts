@@ -7,10 +7,10 @@
 
 import { isPlainObject } from '@redocly/openapi-core';
 
+import type { DateType } from '../../authoring/options.js';
 import { isIdentifier } from '../../emitters/identifier.js';
 import { pascalCase } from '../../emitters/support.js';
 import { codeLiteral } from '../../emitters/ts-literal.js';
-import type { DateType } from '../../emitters/types.js';
 import {
   allOperations,
   type ApiModel,

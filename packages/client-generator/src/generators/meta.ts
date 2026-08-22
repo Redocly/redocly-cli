@@ -5,9 +5,8 @@
 
 import { logger } from '@redocly/openapi-core';
 
-import type { EmitOptions } from '../emitters/emit-options.js';
 import { NotSupportedError } from '../errors.js';
-import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
+import type { EmitOptions, GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 
 export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample' | 'docs'> & {
   load: () => Promise<Pick<GeneratorDescriptor, 'run' | 'sample' | 'docs'>>;

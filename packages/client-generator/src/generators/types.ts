@@ -1,9 +1,87 @@
-import type { EmitOptions } from '../emitters/emit-options.js';
-import type { ErrorMode } from '../emitters/operations.js';
-// packages/client-generator/src/generators/types.ts
+import type { DateType } from '../authoring/options.js';
 import type { ModelPagination } from '../emitters/pagination.js';
-import type { DateType } from '../emitters/types.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
+
+export type { DateType } from '../authoring/options.js';
+
+/** Error-handling shape of the generated client: throw on non-2xx, or return a result union. */
+export type ErrorMode = 'throw' | 'result';
+
+/**
+ * How an operation's inputs are passed to the generated call.
+ * - `'flat'` (default): path params spread as positional args, then the
+ *   `params`/`body`/`headers` slots — one exported sugar arrow per operation.
+ * - `'grouped'`: the client methods' own shape — a single `args` object bundling
+ *   every input; the sugar is a plain destructure of the client. The per-call
+ *   `init: RequestOptions` stays a separate trailing argument in both styles.
+ */
+export type ArgsStyle = 'flat' | 'grouped';
+
+export type EmitOptions = {
+  /**
+   * Override the server URL baked into the generated client config. When omitted,
+   * the value is derived from `servers[0].url` in the source OpenAPI description.
+   */
+  serverUrl?: string;
+  /**
+   * How operation inputs are passed to each call. Defaults to `'flat'`;
+   * `'grouped'` bundles inputs into a single `args` object.
+   */
+  argsStyle?: ArgsStyle;
+  /** Error-handling shape of the generated client. Defaults to `'throw'`. */
+  errorMode?: 'throw' | 'result';
+  /**
+   * How `format: date-time`/`date` string fields are typed. `'string'` (default)
+   * keeps the ISO wire shape; `'Date'` emits a `Date` reference. Opt-in — pair with
+   * the `transformers` generator so the runtime value matches the type.
+   */
+  dateType?: DateType;
+  /**
+   * How the `mock` generator produces data. `'static'` (default) inlines deterministic
+   * literals (zero-dep, contract-faithful); `'faker'` emits `@faker-js/faker` calls for
+   * realistic data — reproducible when `mockSeed` is set. Only the mock module is affected.
+   */
+  mockData?: 'static' | 'faker';
+  /** Seed for faker-mode mocks: emits a top-level `faker.seed(<n>)` so runs reproduce. */
+  mockSeed?: number;
+  /** Leading element for every tanstack-query key — namespaces the cache when several
+   * generated APIs share one QueryClient (operationIds may collide across APIs). */
+  queryKeyPrefix?: string;
+  /**
+   * A pre-baked publisher setup block (from `bakeSetup`) merged into the client's config
+   * via `mergeSetup`. Absent when no `--setup` is given.
+   */
+  setup?: string;
+  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
+  runtime?: 'inline' | 'package';
+  /**
+   * Extension used in generated relative import specifiers (the split entry's schemas
+   * re-export and each satellite's sdk import). `'js'` (default) is the tsc/bundler
+   * convention; `'ts'` targets runtimes that resolve specifiers literally, like Node's
+   * built-in type stripping (`node client.ts`).
+   */
+  importExt?: 'js' | 'ts';
+  /**
+   * Package clause of the `go` generator's output. Defaults to `client` — a generated
+   * file usually lands in a package the consumer already owns, so the name is theirs
+   * to choose. An invalid Go package name fails generation.
+   */
+  goPackage?: string;
+  /**
+   * Auto-pagination RESOLVED by the pipeline (fit-verified, one answer per run),
+   * resolved together with each operation's `x-redoclyPagination` extension. Verified
+   * statically: an explicit rule that doesn't fit its operation fails generation.
+   */
+  pagination?: ModelPagination;
+  /**
+   * Also write the reference documentation for what each selected generator emits: one
+   * Markdown page per generator that implements the `docs` hook. One switch for the whole
+   * run, so a new documented language never needs a new flag.
+   */
+  docs?: boolean;
+  /** Emit YAML front matter carrying the title above each documentation page. */
+  docsFrontmatter?: boolean;
+};
 
 /**
  * How the generated client is partitioned across files.

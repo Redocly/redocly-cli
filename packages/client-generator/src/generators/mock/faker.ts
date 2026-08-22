@@ -9,8 +9,8 @@
 // `mockData` without touching call sites; `@faker-js/faker` becomes their
 // dev-dep while the real client stays dependency-free.
 
+import type { DateType } from '../../authoring/options.js';
 import { codeLiteral } from '../../emitters/ts-literal.js';
-import type { DateType } from '../../emitters/types.js';
 import type {
   NamedSchemaModel,
   ScalarKind,

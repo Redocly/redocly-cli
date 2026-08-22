@@ -1,6 +1,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import type { DateType } from '../../emitters/types.js';
+import type { DateType } from '../../authoring/options.js';
 import type {
   NamedSchemaModel,
   ScalarKind,

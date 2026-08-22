@@ -1,7 +1,8 @@
+import type { DateType } from '../authoring/options.js';
+import type { ArgsStyle, ErrorMode } from '../generators/types.js';
 // The operation-level renderers behind the client assembly: the `Ops` type map,
 // the `<Op>*` alias cluster, the flat call sugar, and the split layout's schema
 // import list — all derived from the IR and the shared `EmitContext`.
-
 import {
   allOperations,
   type ApiModel,
@@ -15,11 +16,29 @@ import {
 import { safeIdent } from './identifier.js';
 import { operationSignature, templatePathParams } from './operation-signature.js';
 import { isTypedMultipart } from './operation-types.js';
-import type { EmitContext } from './operations.js';
+import type { ModelPagination } from './pagination.js';
 import { responseHeadersTypeText } from './response-headers.js';
 import { pascalCase } from './support.js';
 import { tsJsdoc, tsType } from './ts-type.js';
-import type { DateType } from './types.js';
+
+/**
+ * The emit configuration every operation shares. Bundling it into one value keeps
+ * it out of the positional parameter lists of the operation emitters (which would
+ * otherwise thread the same arguments through every layer, inviting transposition
+ * bugs). Per-call structural data (response type, ordered path params, …) stays an
+ * explicit argument; only this cross-cutting config travels as `ctx`.
+ */
+export type EmitContext = {
+  argsStyle: ArgsStyle;
+  errorMode: ErrorMode;
+  dateType: DateType;
+  /** Names of every exported schema, used for `<Op>*` alias collision suppression. */
+  schemaNames: Set<string>;
+  /** Named schemas — used to resolve `$ref` / `allOf` wrappers on response-header types. */
+  schemas?: readonly NamedSchemaModel[];
+  /** Resolved auto-pagination per operation name (absent ⇒ nothing paginates). */
+  pagination?: ModelPagination;
+};
 
 const INDENT = '    ';
 
