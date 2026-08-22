@@ -34,14 +34,20 @@ export function sanitizeIdentifier(name: string): string {
 }
 
 /**
- * A double-quoted TS string literal for generated code. `JSON.stringify` alone leaves
- * U+2028/U+2029 raw (legal JSON, line terminators in code contexts) — escape them so a
- * hostile spec value can never alter the shape of the emitted statement.
+ * A double-quoted TS string literal for generated code. One policy for the whole
+ * package — the stricter of the two that used to exist: U+2028/U+2029 (line terminators
+ * in JS source) AND `<`/`>` (a `</script>` breakout when output lands in an inline
+ * script). Which protection applied used to depend on which escaper the caller imported.
  */
+const CODE_UNSAFE: Record<string, string> = {
+  '<': '\\u003C',
+  '>': '\\u003E',
+  '\u2028': '\\u2028',
+  '\u2029': '\\u2029',
+};
+
 export function codeString(value: string): string {
-  return JSON.stringify(value)
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
+  return JSON.stringify(value).replace(/[<>\u2028\u2029]/g, (char) => CODE_UNSAFE[char]);
 }
 
 /**
