@@ -1,10 +1,10 @@
 import { apiModel, modelWith, operation, param } from '../../../emitters/__tests__/fixtures.js';
-import type { ModelPagination } from '../../../emitters/pagination.js';
 import type {
   ApiModel,
   OperationModel,
   ResponseBodyModel,
 } from '../../../intermediate-representation/model.js';
+import type { ModelPagination } from '../../../pagination.js';
 import { packageIdents, renderDescriptors } from '../descriptor.js';
 import { type EmitContext, renderOpsType } from '../render-client.js';
 

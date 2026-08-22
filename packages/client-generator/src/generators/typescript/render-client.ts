@@ -1,5 +1,4 @@
 import type { DateType } from '../../authoring/options.js';
-import type { ModelPagination } from '../../emitters/pagination.js';
 // The operation-level renderers behind the client assembly: the `Ops` type map,
 // the `<Op>*` alias cluster, the flat call sugar, and the split layout's schema
 // import list — all derived from the IR and the shared `EmitContext`.
@@ -13,6 +12,7 @@ import {
   type ResponseBodyModel,
   type SchemaModel,
 } from '../../intermediate-representation/model.js';
+import type { ModelPagination } from '../../pagination.js';
 import { pascalCase, safeIdent } from '../../printers/typescript.js';
 import type { ArgsStyle, ErrorMode } from '../types.js';
 import { operationSignature, templatePathParams } from './operation-signature.js';

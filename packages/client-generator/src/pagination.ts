@@ -8,14 +8,14 @@
 
 import { isPlainObject, logger } from '@redocly/openapi-core';
 
-import { schemaAtPointer as resolveSchemaPointer } from '../authoring/schema.js';
+import { schemaAtPointer as resolveSchemaPointer } from './authoring/schema.js';
 import {
   allOperations,
   type ApiModel,
   type OperationModel,
   type SchemaModel,
-} from '../intermediate-representation/model.js';
-import type { PaginationSpec } from '../runtime/types.js';
+} from './intermediate-representation/model.js';
+import type { PaginationSpec } from './runtime/types.js';
 
 /** The pagination styles the generated runtime can drive. */
 export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
@@ -278,7 +278,7 @@ function ruleShapeProblem(rule: unknown): string | undefined {
 }
 
 /** The neutral RFC 6901 schema walker, re-exported under its original name here. */
-export { schemaAtPointer as resolveSchemaPointer } from '../authoring/schema.js';
+export { schemaAtPointer as resolveSchemaPointer } from './authoring/schema.js';
 
 /** A (dereferenced) schema named for a fit-error message; scalars/enums by their scalar. */
 function describeSchema(schema: SchemaModel | undefined): string {

@@ -1,7 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
-import { resolveModelPagination } from '../../../emitters/pagination.js';
 import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
+import { resolveModelPagination } from '../../../pagination.js';
 import { commandData, renderCliModule, renderComposedCliEntry } from '../render.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };

@@ -7,13 +7,13 @@ import { logger } from '@redocly/openapi-core';
 import { casing } from '../../authoring/naming.js';
 import { flatInputShape } from '../../contracts/typescript.js';
 import { embedCliRuntime } from '../../emitters/inline-runtime.js';
-import type { ModelPagination } from '../../emitters/pagination.js';
 import type {
   ApiModel,
   OperationModel,
   ParamModel,
   SchemaModel,
 } from '../../intermediate-representation/model.js';
+import type { ModelPagination } from '../../pagination.js';
 import {
   constantCase,
   groupSlug,

@@ -20,8 +20,8 @@ import {
   variablesName,
   wrappableOperations,
 } from '../../contracts/typescript.js';
-import { type ModelPagination, resolveSchemaPointer } from '../../emitters/pagination.js';
 import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+import { type ModelPagination, resolveSchemaPointer } from '../../pagination.js';
 import { codeString, isSafeIdentifier, safeIdent } from '../../printers/typescript.js';
 import type { PaginationSpec } from '../../runtime/types.js';
 

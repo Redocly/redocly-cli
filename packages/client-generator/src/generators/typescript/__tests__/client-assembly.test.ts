@@ -8,8 +8,8 @@ import {
   response,
   SCALAR,
 } from '../../../emitters/__tests__/fixtures.js';
-import { resolveModelPagination } from '../../../emitters/pagination.js';
 import type { ApiModel } from '../../../intermediate-representation/model.js';
+import { resolveModelPagination } from '../../../pagination.js';
 import type { EmitOptions } from '../../types.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 

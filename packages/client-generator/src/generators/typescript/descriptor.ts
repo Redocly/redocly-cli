@@ -5,7 +5,6 @@
 
 import { securityRequirements } from '../../authoring/operation.js';
 import type { DateType } from '../../authoring/options.js';
-import type { ModelPagination } from '../../emitters/pagination.js';
 import { WIRING_NAMES } from '../../emitters/reserved-names.js';
 import {
   allOperations,
@@ -14,6 +13,7 @@ import {
   type OperationModel,
   type SecuritySchemeModel,
 } from '../../intermediate-representation/model.js';
+import type { ModelPagination } from '../../pagination.js';
 import { codeLiteral, uniqueIdent } from '../../printers/typescript.js';
 import type { ArgsStyle } from '../types.js';
 import { isTypedMultipart } from './operation-types.js';

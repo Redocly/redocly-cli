@@ -1,6 +1,6 @@
 import type { DateType } from '../authoring/options.js';
-import type { ModelPagination } from '../emitters/pagination.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
+import type { ModelPagination } from '../pagination.js';
 
 export type { DateType } from '../authoring/options.js';
 

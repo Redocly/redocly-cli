@@ -1,6 +1,6 @@
 import { parse } from 'node:path';
 
-import { resolveModelPagination } from '../../../emitters/pagination.js';
+import { resolveModelPagination } from '../../../pagination.js';
 import type { GeneratorInput } from '../../types.js';
 
 /** The banner lines the pipeline derives from `HEADER` for every run. */

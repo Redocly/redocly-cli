@@ -1,15 +1,22 @@
+import {
+  apiModel,
+  namedSchema,
+  operation,
+  param,
+  response,
+  SCALAR,
+} from '../emitters/__tests__/fixtures.js';
 import type {
   ApiModel,
   OperationModel,
   SchemaModel,
-} from '../../intermediate-representation/model.js';
+} from '../intermediate-representation/model.js';
 import {
   type PaginationRule,
   resolveModelPagination,
   resolveOperationPagination,
   resolveSchemaPointer,
 } from '../pagination.js';
-import { apiModel, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 
 const ORDER: SchemaModel = {
   kind: 'object',

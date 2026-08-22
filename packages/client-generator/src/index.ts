@@ -62,7 +62,7 @@ export type {
   CustomCommand,
 } from './runtime/cli.js';
 // The user-facing pagination rule shapes (`Config.pagination` / `x-redoclyPagination`).
-export type { PaginationConfig, PaginationRule, PaginationStyle } from './emitters/pagination.js';
+export type { PaginationConfig, PaginationRule, PaginationStyle } from './pagination.js';
 export type {
   GenerateClientConfig,
   GenerateClientOptions,

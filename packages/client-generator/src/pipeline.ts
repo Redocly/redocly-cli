@@ -10,7 +10,6 @@ import { logger, stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, parse, resolve, sep } from 'node:path';
 
-import { resolveModelPagination, type ModelPagination } from './emitters/pagination.js';
 import { NotSupportedError } from './errors.js';
 import { validateSelection } from './generators/meta.js';
 import { resolveGeneratorOptions } from './generators/options.js';
@@ -26,6 +25,7 @@ import { buildApiModel } from './intermediate-representation/build.js';
 import { allOperations, type ApiModel } from './intermediate-representation/model.js';
 import { normalizeSwagger2 } from './intermediate-representation/normalize-swagger2.js';
 import { loadSpec } from './loader.js';
+import { resolveModelPagination, type ModelPagination } from './pagination.js';
 import type { GenerateClientOptions, GenerateClientResult } from './types.js';
 
 /**
