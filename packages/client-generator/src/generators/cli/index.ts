@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 
+import { cliRuntimeSource } from '../../emitters/inline-runtime.js';
 import type { OperationModel } from '../../intermediate-representation/model.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 import { renderCliDocs } from './docs.js';
@@ -12,15 +13,25 @@ import { groupSlug } from './runtime/cli.js';
  * bodies, env auth, `--page-all`, SSE/blob output, a documented exit-code
  * contract). Requires `typescript` (throw mode); wires zod validation when co-selected.
  */
-export const cliGenerator: Generator = ({ model, output, emit, selected, pagination }) => {
+export const cliGenerator: Generator = ({ model, output, banner, emit, selected, pagination }) => {
   const content = renderCliModule(model, {
     stem: output.stem,
     importExt: emit.importExt ?? 'js',
     zodSelected: selected?.includes('zod') ?? false,
     pagination,
     argsStyle: emit.argsStyle ?? 'grouped',
+    runtime: emit.runtime ?? 'inline',
   });
-  return [{ path: join(output.dir, `${output.stem}.cli.ts`), content }];
+  const entry = { path: join(output.dir, `${output.stem}.cli.ts`), content };
+  if (emit.runtime !== 'module') return [entry];
+  const header = banner.map((line) => `// ${line}`).join('\n');
+  return [
+    entry,
+    {
+      path: join(output.dir, 'runtime', 'cli.ts'),
+      content: `${header}\n\n${cliRuntimeSource().trim()}\n`,
+    },
+  ];
 };
 
 /**

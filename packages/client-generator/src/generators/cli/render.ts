@@ -176,6 +176,8 @@ export type CliModuleOptions = {
   pagination?: ModelPagination;
   /** The sibling client's call shape, which the dispatcher builds its inputs for. */
   argsStyle?: 'grouped' | 'flat';
+  /** `'module'` imports the engine from `./runtime/cli` instead of embedding it. */
+  runtime?: 'inline' | 'module';
 };
 
 /**
@@ -236,7 +238,9 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
         ? [`import { zodValidation } from "./${options.stem}.zod.${options.importExt}";`]
         : []),
     ].join('\n'),
-    '// ─── Embedded cli engine (@redocly/client-generator) ───\n' + embedCliRuntime(),
+    options.runtime === 'module'
+      ? `import { invokedName, runCli, type CliCommand, type CliWiring } from "./runtime/cli.${options.importExt}";`
+      : '// ─── Embedded cli engine (@redocly/client-generator) ───\n' + embedCliRuntime(),
     `export const COMMANDS: CliCommand[] = ${codeJson(commands, 2)};`,
     ...(options.zodSelected
       ? [

@@ -6,7 +6,11 @@
 // guards into a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
 // Text templates throughout — no `typescript` at generate time.
 
-import { assembleInlineRuntime } from '../../emitters/inline-runtime.js';
+import {
+  assembleInlineRuntime,
+  type InlineRuntimeNeeds,
+  runtimeModuleFiles,
+} from '../../emitters/inline-runtime.js';
 import {
   allOperations,
   type ApiModel,
@@ -28,6 +32,53 @@ import { renderTypeGuards } from './type-guards.js';
 
 export function emitClientSingleFile(model: ApiModel, options: EmitOptions = {}): string {
   return emitClient(model, options).entry;
+}
+
+/** Which optional runtime capabilities this API needs (drives both distribution modes). */
+export function runtimeNeeds(model: ApiModel, options: EmitOptions): InlineRuntimeNeeds {
+  const ops = allOperations(model.services);
+  return {
+    multipart: ops.some((op) => op.requestBody && isTypedMultipart(op.requestBody)),
+    // Auth sugar needs schemes; `resolveAuth` fires when a descriptor carries
+    // `security` — a valid spec implies the former, but embed on either.
+    auth: model.securitySchemes.length > 0 || ops.some((op) => op.security.length > 0),
+    sse: ops.some((op) => op.sse !== undefined),
+    setup: !!options.setup,
+    paginate: (options.pagination ?? new Map()).size > 0,
+  };
+}
+
+/**
+ * `runtime: 'module'`: the runtime files written into `runtime/` beside the client —
+ * the raw per-needs modules plus the generated factory, each under the standard banner.
+ */
+export function emitRuntimeFiles(
+  model: ApiModel,
+  options: EmitOptions
+): Array<{ name: string; content: string }> {
+  if (options.runtime !== 'module') return [];
+  return runtimeModuleFiles(runtimeNeeds(model, options), options.importExt ?? 'js').map(
+    ({ name, content }) => ({ name, content: `${HEADER}\n\n${content.trim()}\n` })
+  );
+}
+
+/**
+ * The module-mode replacement for the embedded block: the entry imports what its own
+ * code references and re-exports the factory's public surface (the same names the
+ * inline embed leaves in module scope).
+ */
+function runtimeImports(options: EmitOptions, ctx: EmitContext, hasOps: boolean): string {
+  const ext = options.importExt ?? 'js';
+  const typeNames = [
+    'OperationDescriptor',
+    ...(options.setup ? ['ClientConfig', 'Middleware'] : []),
+    ...(ctx.errorMode === 'result' && hasOps ? ['Result'] : []),
+  ].sort();
+  return [
+    `import { createClient${options.setup ? ', mergeSetup' : ''} } from './runtime/factory.${ext}';`,
+    `import type { ${typeNames.join(', ')} } from './runtime/types.${ext}';`,
+    `export * from './runtime/factory.${ext}';`,
+  ].join('\n');
 }
 
 /**
@@ -64,8 +115,6 @@ function emitClient(
     schemas: model.schemas,
     pagination,
   };
-  const hasSse = ops.some((op) => op.sse !== undefined);
-
   const wiring =
     ops.length > 0
       ? [
@@ -78,15 +127,10 @@ function emitClient(
           'export const OPERATIONS = {} as const satisfies Record<string, OperationDescriptor>;',
         ];
 
-  const runtimeSection = assembleInlineRuntime({
-    multipart: ops.some((op) => op.requestBody && isTypedMultipart(op.requestBody)),
-    // Auth sugar needs schemes; `resolveAuth` fires when a descriptor carries
-    // `security` — a valid spec implies the former, but embed on either.
-    auth: model.securitySchemes.length > 0 || ops.some((op) => op.security.length > 0),
-    sse: hasSse,
-    setup: !!options.setup,
-    paginate: pagination.size > 0,
-  });
+  const runtimeSection =
+    options.runtime === 'module'
+      ? runtimeImports(options, ctx, ops.length > 0)
+      : assembleInlineRuntime(runtimeNeeds(model, options));
   const schemaSection = [
     renderTypeAliases(model.schemas, ctx.dateType),
     renderTypeGuards(model.schemas),
@@ -103,13 +147,15 @@ function emitClient(
   // initializer — after it for readability, before `client` so every declaration the
   // module-init call chain touches (hoisted functions AND any future top-level const)
   // is already evaluated.
+  const moduleMode = options.runtime === 'module';
   if (splitStem === undefined) {
     return {
       entry: banner([
         HEADER,
         renderTitleComment(model),
+        ...(moduleMode ? [runtimeSection] : []),
         [schemaSection, bodySection].filter((section) => section.length > 0).join('\n\n'),
-        runtimeSection,
+        ...(moduleMode ? [] : [runtimeSection]),
         clientSection(options, ctx, model),
         sugar,
       ]),
@@ -121,11 +167,12 @@ function emitClient(
     entry: banner([
       HEADER,
       renderTitleComment(model),
+      ...(moduleMode ? [runtimeSection] : []),
       hasSchemas
         ? schemaLinks(model, ctx, `./${splitStem}.schemas.${options.importExt ?? 'js'}`)
         : '',
       bodySection,
-      runtimeSection,
+      ...(moduleMode ? [] : [runtimeSection]),
       clientSection(options, ctx, model),
       sugar,
     ]),

@@ -11,7 +11,7 @@ import {
 import type { ApiModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
 import type { EmitOptions } from '../../types.js';
-import { emitClientSingleFile } from '../client-assembly.js';
+import { emitClientSingleFile, emitRuntimeFiles } from '../client-assembly.js';
 
 /**
  * The emitted client with the embedded runtime block cut out, so assertions and the
@@ -412,6 +412,67 @@ describe('emitClientSingleFile (embedded runtime)', () => {
   // The full inline output is not snapshotted here: the runtime bytes are pinned by
   // runtime-sources.test.ts, the wiring by the trimmed snapshots above, and a real
   // full inline client by the e2e cafe.snapshot.ts.
+});
+
+describe('runtime: module', () => {
+  it('writes the per-needs modules + the factory, and the entry imports them relatively', () => {
+    const files = emitRuntimeFiles(CAFE, { runtime: 'module' });
+    // CAFE needs multipart, auth, and sse — no setup, no pagination.
+    expect(files.map((file) => file.name)).toEqual([
+      'types.ts',
+      'errors.ts',
+      'url.ts',
+      'parse.ts',
+      'retry.ts',
+      'multipart.ts',
+      'auth.ts',
+      'send.ts',
+      'sse.ts',
+      'create-client.ts',
+      'factory.ts',
+    ]);
+    const factory = files.find((file) => file.name === 'factory.ts')!.content;
+    expect(factory).toContain("import { createClientCore } from './create-client.js';");
+    expect(factory).toContain("import { toFormData } from './multipart.js';");
+    expect(factory).toContain("import { resolveAuth } from './auth.js';");
+    expect(factory).toContain("import { sse } from './sse.js';");
+    expect(factory).not.toContain("from './paginate.js'");
+    expect(factory).toContain("export { ApiError, TimeoutError } from './errors.js';");
+    expect(factory).toContain("export type * from './types.js';");
+    // The raw modules keep their imports — nothing is stripped in module mode.
+    const send = files.find((file) => file.name === 'send.ts')!.content;
+    expect(send).toContain("from './errors.js'");
+
+    const entry = emitClientSingleFile(CAFE, { runtime: 'module' });
+    expect(entry).toContain("import { createClient } from './runtime/factory.js';");
+    expect(entry).toContain("import type { OperationDescriptor } from './runtime/types.js';");
+    expect(entry).toContain("export * from './runtime/factory.js';");
+    expect(entry).not.toContain('// ─── Embedded runtime');
+  });
+
+  it('inline mode writes no runtime files', () => {
+    expect(emitRuntimeFiles(CAFE, {})).toEqual([]);
+  });
+
+  it('importExt ts rewrites the intra-runtime specifiers so Node can strip types directly', () => {
+    const files = emitRuntimeFiles(CAFE, { runtime: 'module', importExt: 'ts' });
+    const factory = files.find((file) => file.name === 'factory.ts')!.content;
+    expect(factory).toContain("import { createClientCore } from './create-client.ts';");
+    expect(factory).not.toContain(".js'");
+    const entry = emitClientSingleFile(CAFE, { runtime: 'module', importExt: 'ts' });
+    expect(entry).toContain("import { createClient } from './runtime/factory.ts';");
+  });
+
+  it('a baked setup imports mergeSetup and the config types from the runtime', () => {
+    const entry = emitClientSingleFile(CAFE, { runtime: 'module', setup: '{}' });
+    expect(entry).toContain("import { createClient, mergeSetup } from './runtime/factory.js';");
+    expect(entry).toContain('ClientConfig');
+    const files = emitRuntimeFiles(CAFE, { runtime: 'module', setup: '{}' });
+    expect(files.find((file) => file.name === 'setup.ts')).toBeDefined();
+    expect(files.find((file) => file.name === 'factory.ts')!.content).toContain(
+      "export { mergeSetup } from './setup.js';"
+    );
+  });
 });
 
 describe('emitClientSingleFile — pagination', () => {

@@ -52,8 +52,9 @@ export type EmitOptions = {
    * via `mergeSetup`. Absent when no `--setup` is given.
    */
   setup?: string;
-  /** Runtime distribution: 'inline' (default) embeds the runtime in the generated file. */
-  runtime?: 'inline';
+  /** Runtime distribution: `'inline'` (default) embeds the runtime in the generated
+   * file; `'module'` writes it as real files in a `runtime/` folder beside the client. */
+  runtime?: 'inline' | 'module';
   /**
    * Extension used in generated relative import specifiers (the split entry's schemas
    * re-export and each satellite's sdk import). `'js'` (default) is the tsc/bundler

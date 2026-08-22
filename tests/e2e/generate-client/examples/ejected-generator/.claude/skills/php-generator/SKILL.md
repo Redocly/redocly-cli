@@ -74,7 +74,7 @@ $idempotencyKey` on mutating methods.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   curl timeouts, middleware callables, pagination (`<op>Pages()` / `<op>Items()` as
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.
-- The runtime is hand-written in `runtime/php/runtime.php` (`php -l`-clean) and embedded
+- The runtime is hand-written in `runtime/runtime.php` in this folder (`php -l`-clean) and embedded
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 

@@ -32,7 +32,7 @@ export type GenerateClientCommandArgv = {
   config?: string;
   'server-url'?: string;
   'output-mode'?: 'single' | 'split';
-  runtime?: 'inline';
+  runtime?: 'inline' | 'module';
   'import-ext'?: 'js' | 'ts';
   'go-package'?: string;
   'args-style'?: 'flat' | 'grouped';

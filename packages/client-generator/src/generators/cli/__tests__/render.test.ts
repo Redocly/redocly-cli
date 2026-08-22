@@ -227,6 +227,15 @@ describe('renderCliModule', () => {
     zodSelected: false,
   };
 
+  it('runtime: module imports the engine from ./runtime/cli instead of embedding it', () => {
+    const out = renderCliModule(MODEL, { ...options, runtime: 'module' });
+    expect(out).toContain(
+      'import { invokedName, runCli, type CliCommand, type CliWiring } from "./runtime/cli.js";'
+    );
+    expect(out).not.toContain('function parseInvocation'); // no embedded engine
+    expect(out).toContain('export { runCli };'); // composition contract holds in both modes
+  });
+
   it('emits a shebang entry that wires node bindings and embeds the cli runtime inline', () => {
     const out = renderCliModule(MODEL, options);
     expect(out.startsWith('#!/usr/bin/env node')).toBe(true);

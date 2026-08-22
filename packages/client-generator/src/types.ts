@@ -81,8 +81,9 @@ export type GenerateClientOptions = {
    * across all output modes.
    */
   setup?: string;
-  /** Runtime distribution: 'inline' (default) embeds the runtime in the generated file. */
-  runtime?: 'inline';
+  /** Runtime distribution: `'inline'` (default) embeds the runtime in the generated
+   * file; `'module'` writes it as real files in a `runtime/` folder beside the client. */
+  runtime?: 'inline' | 'module';
   /** Extension in generated relative imports. `'js'` (default) suits tsc and bundlers;
    * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
    * type stripping (`node client.ts`). */

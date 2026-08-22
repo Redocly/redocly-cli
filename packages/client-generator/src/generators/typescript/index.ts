@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { renderReferencePage } from '../../authoring/reference-page.js';
 import type { OperationModel } from '../../intermediate-representation/model.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
-import { emitClientSingleFile, emitClientSplit } from './client-assembly.js';
+import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client-assembly.js';
 import { packageIdents } from './descriptor.js';
 
 /**
@@ -16,6 +16,11 @@ import { packageIdents } from './descriptor.js';
  * `<stem>.ts` (everything else, which `export *`s the schemas module).
  */
 export const typescriptGenerator: Generator = ({ model, output, outputMode, emit }) => {
+  // `runtime: 'module'` adds the per-needs runtime files beside the client.
+  const runtime = emitRuntimeFiles(model, emit).map(({ name, content }) => ({
+    path: join(output.dir, 'runtime', name),
+    content,
+  }));
   if (outputMode === 'split') {
     const { dir, stem } = output;
     const { entry, schemas } = emitClientSplit(model, emit, stem);
@@ -24,9 +29,10 @@ export const typescriptGenerator: Generator = ({ model, output, outputMode, emit
         ? []
         : [{ path: join(dir, `${stem}.schemas.ts`), content: schemas }]),
       { path: output.path, content: entry },
+      ...runtime,
     ];
   }
-  return [{ path: output.path, content: emitClientSingleFile(model, emit) }];
+  return [{ path: output.path, content: emitClientSingleFile(model, emit) }, ...runtime];
 };
 
 /**

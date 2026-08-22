@@ -483,11 +483,10 @@ client.auth.bearer(async () => await getFreshAccessToken());
 The client resolves the provider for each request, so a refreshed token takes effect without reconfiguration.
 
 For **multiple independent instances** with different credentials, build extra clients from the same generated descriptors.
-The generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtimes:
+The generated module exports `createClient`, the `OPERATIONS` descriptors, and the `Ops` type in both runtime modes:
 
 ```ts
-import { createClient } from '@redocly/client-generator';
-import { OPERATIONS, type Ops } from './client.ts';
+import { createClient, OPERATIONS, type Ops } from './client.ts';
 
 const internal = createClient<Ops>(OPERATIONS, {
   serverUrl: 'https://api.example.com',
