@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { phpGenerator, phpType, renderPhpModels } from '../php/index.js';
+import { phpGenerator, phpSample, phpType, renderPhpModels } from '../php/index.js';
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
 
@@ -481,6 +481,85 @@ function generatePhp(): string {
   return files[0].content;
 }
 
+describe('method names are unique across the client', () => {
+  const colliding: ApiModel = {
+    title: 'Collide',
+    version: '1.0.0',
+    serverUrl: 'https://api.example.com',
+    schemas: [],
+    securitySchemes: [],
+    services: [
+      {
+        name: 'Default',
+        operations: [
+          {
+            name: 'get_user',
+            specName: 'get-user',
+            method: 'get',
+            path: '/users/{id}',
+            tags: [],
+            pathParams: [
+              {
+                name: 'id',
+                in: 'path',
+                required: true,
+                schema: { kind: 'scalar', scalar: 'string' },
+              },
+            ],
+            queryParams: [],
+            headerParams: [],
+            cookieParams: [],
+            security: [],
+            successResponses: [],
+            errorResponses: [],
+          },
+          {
+            name: 'getUser',
+            specName: 'getUser',
+            method: 'get',
+            path: '/users/by-name/{name}',
+            tags: [],
+            pathParams: [
+              {
+                name: 'name',
+                in: 'path',
+                required: true,
+                schema: { kind: 'scalar', scalar: 'string' },
+              },
+            ],
+            queryParams: [],
+            headerParams: [],
+            cookieParams: [],
+            security: [],
+            successResponses: [],
+            errorResponses: [],
+          },
+        ],
+      },
+    ],
+  } as unknown as ApiModel;
+
+  it('two operations that camel-case alike get distinct methods — PHP fatals on a redeclare', () => {
+    const out = phpGenerator({
+      model: colliding,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(out).toContain('public function getUser(string $id');
+    expect(out).toContain('public function getUser2(string $name');
+  });
+
+  it('the code sample names the deduped method, not the raw one', () => {
+    const sample = phpSample(colliding.services[0].operations[1], {
+      model: colliding,
+      outputPath: '/out/client.ts',
+      emit: {},
+    });
+    expect(sample?.source).toContain('$client->getUser2(');
+  });
+});
+
 describe('phpGenerator (full client assembly)', () => {
   it('assembles one runnable file: namespace, models, embedded runtime, operations, Client', () => {
     const out = generatePhp();
@@ -601,6 +680,55 @@ describe('phpGenerator (full client assembly)', () => {
     expect(out).toContain('public static function fromArray(array $data): self\n    {');
     expect(out).not.toMatch(/\n\n\s*\{/);
     expectModelsRun(out);
+  });
+
+  it('a bare date-time success body hydrates to the DateTimeImmutable its signature declares', () => {
+    // The top-level hydration call dropped `dateType`, so the method returned the raw
+    // string while its own return type said `\\DateTimeImmutable`.
+    const dated: ApiModel = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      schemas: [],
+      securitySchemes: [],
+      services: [
+        {
+          name: 'Default',
+          operations: [
+            {
+              name: 'getDeadline',
+              specName: 'getDeadline',
+              method: 'get',
+              path: '/deadline',
+              tags: [],
+              pathParams: [],
+              queryParams: [],
+              headerParams: [],
+              cookieParams: [],
+              security: [],
+              successResponses: [
+                {
+                  status: '200',
+                  contentType: 'application/json',
+                  schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                },
+              ],
+              errorResponses: [],
+            },
+          ],
+        },
+      ],
+    } as unknown as ApiModel;
+    const out = phpGenerator({
+      model: dated,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { dateType: 'Date' },
+    })[0].content;
+    expect(out).toContain(
+      'public function getDeadline(?array $headers = null): \\DateTimeImmutable'
+    );
+    expect(out).toContain('new \\DateTimeImmutable(decodeJson($response))');
   });
 
   it('maps date/date-time to DateTimeImmutable under dateType: Date, hydrating both ways', () => {

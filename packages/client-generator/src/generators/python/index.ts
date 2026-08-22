@@ -647,7 +647,7 @@ function writePaginationWrappers(
   );
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
-      const annotation = pythonType(param.schema);
+      const annotation = pythonType(param.schema, dateType);
       const optional = annotation.startsWith('Optional[') ? annotation : `Optional[${annotation}]`;
       return `${python}: ${optional} = None`;
     }),
@@ -907,7 +907,11 @@ export function pythonSample(op: OperationModel, ctx: SampleContext): CodeSample
   const module = pythonModulePath(ctx.outputPath)
     .replace(/^.*[\\/]/, '')
     .replace(/\.py$/, '');
-  const ident = identifierFor(op.name, { style: 'snake', reserved: PY });
+  // The DEDUPED name: on a collision the method is `get_user_2`, and a snippet naming
+  // the raw `get_user` would show a call that goes to a different operation.
+  const ident =
+    operationIdents(ctx.model).find((entry) => entry.op.name === op.name)?.ident ??
+    identifierFor(op.name, { style: 'snake', reserved: PY });
   const args = [
     ...op.pathParams.map((param) => {
       const python = identifierFor(param.name, { style: 'snake', reserved: PY });

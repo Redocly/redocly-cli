@@ -102,6 +102,20 @@ describe('nullability and enums', () => {
     });
     expect(enumValues(STRING)).toBeUndefined();
   });
+
+  it('keeps every member name usable: negatives, decimals, folds, and the empty string', () => {
+    // `VALUE_-1 = -1` is a SyntaxError in Python — the names must survive any value.
+    const votes: SchemaModel = { kind: 'enum', values: [-1, 1, 1.5, 15], scalar: 'number' };
+    expect(enumValues(votes)?.memberNames).toEqual([
+      'VALUE_MINUS_1',
+      'VALUE_1',
+      'VALUE_1_5',
+      'VALUE_15',
+    ]);
+    // Two values folding to one name stay distinct, and an empty value still gets a member.
+    const folds: SchemaModel = { kind: 'enum', values: ['a-b', 'a b', ''], scalar: 'string' };
+    expect(enumValues(folds)?.memberNames).toEqual(['A_B', 'A_B_2', '_']);
+  });
 });
 
 describe('docText', () => {

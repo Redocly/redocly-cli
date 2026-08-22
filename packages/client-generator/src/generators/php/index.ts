@@ -179,7 +179,9 @@ function hydration(
   schema: SchemaModel,
   expr: string,
   model: ApiModel,
-  dateType: DateType = 'string'
+  // Required on purpose: a defaulted `'string'` let a call site forget it, and the method
+  // then returned a raw string where its own signature declared `\DateTimeImmutable`.
+  dateType: DateType
 ): string | undefined {
   const bare = unwrapNullable(schema);
   if (dateType === 'Date' && bare.kind === 'scalar' && bare.scalar === 'string') {
@@ -395,10 +397,14 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
       printer.block(
         '{',
         () => {
-          asEnum.values.forEach((value) => {
-            const member = identifierFor(String(value), { style: 'pascal', reserved: PHP });
+          // `1.5` and `15` fold to one pascal name; PHP rejects a duplicate case.
+          const members = uniqueIdentifiers(
+            asEnum.values.map((value) => String(value)),
+            { style: 'pascal', reserved: PHP }
+          );
+          asEnum.values.forEach((value, index) => {
             const literal = typeof value === 'string' ? phpString(value) : String(value);
-            printer.line(`case ${member} = ${literal};`);
+            printer.line(`case ${members[index]} = ${literal};`);
           });
         },
         '}'
@@ -475,6 +481,20 @@ function isMultipart(op: OperationModel): boolean {
 
 function methodName(op: OperationModel): string {
   return identifierFor(op.name, { style: 'camel', reserved: PHP });
+}
+
+/**
+ * The method name for every operation, unique across the client — PHP fatals on a
+ * redeclared method, and two operationIds may camel-case to one name (`get-user`,
+ * `getUser`). Keyed by the IR name, which the sanitizer already made unique.
+ */
+function methodIdents(model: ApiModel): Map<string, string> {
+  const operations = model.services.flatMap((service) => service.operations);
+  const names = uniqueIdentifiers(
+    operations.map((op) => op.name),
+    { style: 'camel', reserved: PHP }
+  );
+  return new Map(operations.map((op, index) => [op.name, names[index]]));
 }
 
 const MUTATING = new Set(['post', 'put', 'patch']);
@@ -629,6 +649,7 @@ function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
 function writePhpMethod(
   printer: Printer,
   op: OperationModel,
+  ident: string,
   model: ApiModel,
   dateType: DateType,
   envelope = false
@@ -650,13 +671,13 @@ function writePhpMethod(
         : rawBody
           ? 'string'
           : 'void';
-  const name = envelope ? `${methodName(op)}WithHeaders` : methodName(op);
+  const name = envelope ? `${ident}WithHeaders` : ident;
   const element = envelope ? undefined : phpElementType(success, model, dateType);
   writeDocComment(
     printer,
     name,
     envelope
-      ? `Like ${methodName(op)}(), returning an Envelope with the declared response headers.`
+      ? `Like ${ident}(), returning an Envelope with the declared response headers.`
       : (op.summary ?? `${op.method.toUpperCase()} ${op.path}`),
     element === undefined ? [] : [`@return ${element}[]`]
   );
@@ -721,7 +742,8 @@ function writePhpMethod(
         ? "$response['body']"
         : ((success === undefined
             ? undefined
-            : hydration(success, 'decodeJson($response)', model)) ?? 'decodeJson($response)');
+            : hydration(success, 'decodeJson($response)', model, dateType)) ??
+          'decodeJson($response)');
       if (envelope) {
         printer.line(`$data = ${decoded};`);
         printer.line(
@@ -748,6 +770,7 @@ function writePhpMethod(
 function writePhpPaginationWrappers(
   printer: Printer,
   op: OperationModel,
+  ident: string,
   model: ApiModel,
   dateType: DateType,
   pageHydration: string | undefined,
@@ -756,7 +779,7 @@ function writePhpPaginationWrappers(
   itemYield: string
 ): void {
   const args = methodArgs(op, model, false, dateType);
-  const name = methodName(op);
+  const name = ident;
 
   const writeCall = () => {
     printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
@@ -960,6 +983,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
   printer.blank();
 
   const operations = model.services.flatMap((service) => service.operations);
+  const idents = methodIdents(model);
   const paginationRules = new Map<string, NeutralPaginationRule>();
   for (const op of operations) {
     const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);
@@ -1012,9 +1036,10 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
       printer.blank();
 
       for (const op of operations) {
-        writePhpMethod(printer, op, model, dateType);
+        const ident = idents.get(op.name)!;
+        writePhpMethod(printer, op, ident, model, dateType);
         if (sseResponse(op) === undefined && (op.successResponseHeaders?.length ?? 0) > 0) {
-          writePhpMethod(printer, op, model, dateType, true);
+          writePhpMethod(printer, op, ident, model, dateType, true);
         }
         const rule = paginationRules.get(op.name);
         if (rule === undefined) continue;
@@ -1033,6 +1058,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
         writePhpPaginationWrappers(
           printer,
           op,
+          ident,
           model,
           dateType,
           pageHydration,
@@ -1063,7 +1089,7 @@ export function phpSample(op: OperationModel, ctx: SampleContext): CodeSample {
   return {
     lang: 'php',
     label: 'PHP SDK',
-    source: `require '${file}';\n\nuse ${namespace}\\{Client, Config};\n\n$client = new Client(new Config());\n$result = $client->${methodName(op)}(${args.join(', ')});\n`,
+    source: `require '${file}';\n\nuse ${namespace}\\{Client, Config};\n\n$client = new Client(new Config());\n$result = $client->${methodIdents(ctx.model).get(op.name) ?? methodName(op)}(${args.join(', ')});\n`,
   };
 }
 

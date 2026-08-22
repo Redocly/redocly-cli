@@ -204,8 +204,16 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
       printer.block(
         'const (',
         () => {
+          // Two values may fold to one pascal name (`1.5` and `15`) — a duplicate const
+          // would not compile, so the names are made unique per enum. A digit-leading
+          // value needs no `_` prefix here: the member starts with the type name.
+          const used = new Set<string>();
           asEnum.values.forEach((value) => {
-            const member = exported(name) + casing.pascal(String(value));
+            const base = casing.pascal(String(value)) || 'Value';
+            let suffix = '';
+            for (let n = 2; used.has(base + suffix); n++) suffix = String(n);
+            used.add(base + suffix);
+            const member = exported(name) + base + suffix;
             printer.line(`${member} ${exported(name)} = ${JSON.stringify(value)}`);
           });
         },
@@ -595,9 +603,25 @@ function writeGoMethod(
               printer.block(
                 `if params.${field} != nil {`,
                 () => {
-                  printer.line(
-                    `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
-                  );
+                  // An array repeats the key per element (OpenAPI `form` + `explode`, the
+                  // default — and what the TS runtime sends). `fmt.Sprint` of a slice
+                  // would put `[a b]` on the wire as one value.
+                  if (param.schema.kind === 'array') {
+                    const elementType = goType(param.schema.items, dateType);
+                    printer.block(
+                      `for _, item := range *params.${field} {`,
+                      () => {
+                        printer.line(
+                          `query.Add(${JSON.stringify(param.name)}, ${goQueryFormat('item', elementType)})`
+                        );
+                      },
+                      '}'
+                    );
+                  } else {
+                    printer.line(
+                      `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
+                    );
+                  }
                 },
                 '}'
               );
@@ -1128,7 +1152,11 @@ export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const dateType = ctx.emit.dateType ?? 'string';
   // `goPackage` renames the package clause, and the snippet qualifies with it.
   const pkg = ctx.emit.goPackage ?? 'client';
-  const ident = exported(op.name);
+  // The DEDUPED name: on a collision the method is `GetUser2`, and a snippet naming the
+  // raw `GetUser` would show a call that goes to a different operation.
+  const ident =
+    goOperationIdents(ctx.model).find((entry) => entry.op.name === op.name)?.ident ??
+    exported(op.name);
   const args = [
     'ctx',
     ...op.pathParams.map(
@@ -1137,10 +1165,19 @@ export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
     ...(op.requestBody ? [`${goType(op.requestBody.schema, dateType)}{ /* … */ }`] : []),
     ...(op.queryParams.length > 0 ? ['nil'] : []),
   ];
+  // The assignment matches the return shape: an SSE method returns one iterator, a void
+  // method returns `error` alone — `result, err :=` would not compile against either.
+  const call = `client.${ident}(${args.join(', ')})`;
+  const statement =
+    sseResponse(op) !== undefined
+      ? `stream := ${call}`
+      : successSchema(op) === undefined
+        ? `err := ${call}`
+        : `result, err := ${call}`;
   return {
     lang: 'go',
     label: 'Go SDK',
-    source: `client := ${pkg}.New(${pkg}.Config{})\nresult, err := client.${ident}(${args.join(', ')})\n`,
+    source: `client := ${pkg}.New(${pkg}.Config{})\n${statement}\n`,
   };
 }
 

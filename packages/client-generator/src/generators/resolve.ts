@@ -142,6 +142,11 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
   registry.set(custom.name, {
     run: custom.run,
     sample: custom.sample,
+    // `docs` and `notApplicable` are part of the contract the ejected files export —
+    // dropping either makes an ejected generator quietly do less than the built-in it
+    // replaced (`--docs` writes no page, ignored options stop warning).
+    docs: custom.docs,
+    notApplicable: custom.notApplicable,
     options: custom.options,
     requires: custom.requires,
     errorModes: custom.errorModes,

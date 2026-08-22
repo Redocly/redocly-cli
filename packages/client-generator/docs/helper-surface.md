@@ -27,36 +27,36 @@ every claim below is based on direct symbol use.
 In practice it is **the toolkit the three non-TypeScript generators use.**
 The TypeScript family has a complete shadow implementation in `emitters/`.
 
-| Concern | Neutral toolkit (`authoring/`) | TypeScript shadow (`emitters/`) |
-| --- | --- | --- |
-| Identifiers | `identifierFor`, `uniqueIdentifiers`, `RESERVED_WORDS` | `sanitizeIdentifier`, `uniqueIdent`, `safeIdent`, `isIdentifier`, `isSafeIdentifier`, `TS_RESERVED` |
-| Text building | `Printer` | `[…].join('\n')` arrays |
-| Description text | `docText` | `splitLines`, `jsdocText` |
-| Comment escaping | — | `escapeJsDoc` |
-| Schema shape | `isNullable`, `unwrapNullable`, `flattenAllOf`, `enumValues`, `discriminatorCases` | inline in `ts-type.ts` |
-| Pagination | `paginationRuleFor` | `resolveOperationPagination`, `resolveModelPagination` |
-| Casing | `casing.pascal` | `pascalCase` |
+| Concern          | Neutral toolkit (`authoring/`)                                                     | TypeScript shadow (`emitters/`)                                                                     |
+| ---------------- | ---------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Identifiers      | `identifierFor`, `uniqueIdentifiers`, `RESERVED_WORDS`                             | `sanitizeIdentifier`, `uniqueIdent`, `safeIdent`, `isIdentifier`, `isSafeIdentifier`, `TS_RESERVED` |
+| Text building    | `Printer`                                                                          | `[…].join('\n')` arrays                                                                             |
+| Description text | `docText`                                                                          | `splitLines`, `jsdocText`                                                                           |
+| Comment escaping | —                                                                                  | `escapeJsDoc`                                                                                       |
+| Schema shape     | `isNullable`, `unwrapNullable`, `flattenAllOf`, `enumValues`, `discriminatorCases` | inline in `ts-type.ts`                                                                              |
+| Pagination       | `paginationRuleFor`                                                                | `resolveOperationPagination`, `resolveModelPagination`                                              |
+| Casing           | `casing.pascal`                                                                    | `pascalCase`                                                                                        |
 
 Consumers of each neutral helper, counted outside `authoring/`:
 
-| Helper | Consumers |
-| --- | --- |
-| `NotSupportedError` | 9 — package-wide error type, genuinely shared |
-| `Printer` | go, php, python, `cli-docs` (Markdown) |
-| `renderReferencePage` | go, php, python, **typescript** |
-| `schemaAtPointer` | go, php, python, `pagination` |
-| `headerCoerceType` | go, php, python, `response-headers` |
-| `casing` | go, `cli`, `runtime/cli`, `runtime-sources` |
-| `identifierFor` | go, php, python |
-| `uniqueIdentifiers` | go, php, python |
-| `RESERVED_WORDS` | go, php, python |
-| `flattenAllOf` | go, php, python |
-| `discriminatorCases` | go, php, python |
-| `isNullable` | go, php, python |
-| `unwrapNullable` | go, php, python |
-| `enumValues` | go, php, python |
-| `docText` | go, php, python |
-| `paginationRuleFor` | go, php, python |
+| Helper                | Consumers                                     |
+| --------------------- | --------------------------------------------- |
+| `NotSupportedError`   | 9 — package-wide error type, genuinely shared |
+| `Printer`             | go, php, python, `cli-docs` (Markdown)        |
+| `renderReferencePage` | go, php, python, **typescript**               |
+| `schemaAtPointer`     | go, php, python, `pagination`                 |
+| `headerCoerceType`    | go, php, python, `response-headers`           |
+| `casing`              | go, `cli`, `runtime/cli`, `runtime-sources`   |
+| `identifierFor`       | go, php, python                               |
+| `uniqueIdentifiers`   | go, php, python                               |
+| `RESERVED_WORDS`      | go, php, python                               |
+| `flattenAllOf`        | go, php, python                               |
+| `discriminatorCases`  | go, php, python                               |
+| `isNullable`          | go, php, python                               |
+| `unwrapNullable`      | go, php, python                               |
+| `enumValues`          | go, php, python                               |
+| `docText`             | go, php, python                               |
+| `paginationRuleFor`   | go, php, python                               |
 
 **Ten of sixteen neutral helpers have exactly three consumers, and they are always the same three.**
 No TypeScript-family generator uses `Printer`, `docText`, `identifierFor`, or any of the schema-shape
@@ -71,12 +71,12 @@ Measured at symbol level across all seven TypeScript-family generators (`typescr
 
 **Genuinely TypeScript-specific and shared — four functions, 27 lines:**
 
-| Symbol | Module | Lines | Used by |
-| --- | --- | --- | --- |
-| `safeIdent` | `identifier.ts` | 6 | mock, tanstack-query, transformers, zod, typescript |
-| `pascalCase` | `support.ts` | 3 | mock, swr, transformers, zod, typescript |
-| `codeLiteral` | `ts-literal.ts` | 13 | typescript, mock, zod |
-| `codeString` | `identifier.ts` | 5 | typescript, tanstack-query |
+| Symbol        | Module          | Lines | Used by                                             |
+| ------------- | --------------- | ----- | --------------------------------------------------- |
+| `safeIdent`   | `identifier.ts` | 6     | mock, tanstack-query, transformers, zod, typescript |
+| `pascalCase`  | `support.ts`    | 3     | mock, swr, transformers, zod, typescript            |
+| `codeLiteral` | `ts-literal.ts` | 13    | typescript, mock, zod                               |
+| `codeString`  | `identifier.ts` | 5     | typescript, tanstack-query                          |
 
 **Shared but not TypeScript-specific** — the generator contract and output plumbing:
 `Generator` (7×), `anchor` (7×), `HEADER` (7×), `CodeSample`/`SampleContext` (2×), `DateType` (2×).
@@ -104,20 +104,20 @@ This is not incidental overlap: it is the **ABI of the generated TypeScript SDK*
 
 Twelve concrete defects, each verifiable in the current source.
 
-| # | Finding | Evidence |
-| --- | --- | --- |
-| 1 | **Two identifier systems.** `authoring/naming.ts` says so in its own header: *"TypeScript keeps its specialized sanitizer in emitters/identifier.ts; this is for the other output languages."* | `authoring/naming.ts:1-4` |
-| 2 | **`TS_RESERVED` is duplicated.** Two 44-word lists that must be hand-synced. | `emitters/identifier.ts` vs `RESERVED_WORDS.typescript` |
-| 3 | **Opposite reserved-word conventions.** `sanitizeIdentifier` prefixes (`_class`); `identifierFor` suffixes (`class_`). Same problem, two answers, split by language accidentally. | `identifier.ts:76`, `naming.ts:82` |
-| 4 | **Two TypeScript string escapers with different security policies.** `codeString` escapes U+2028/U+2029; `sanitizeCodeString` also escapes `<`/`>` to stop a `</script>` breakout. Which protection applies depends on which one the caller imported. | `identifier.ts:87`, `ts-literal.ts:21` |
-| 5 | **Python and Go have no string escaper.** They call `JSON.stringify` inline — **19 sites in python, 28 in go** — relying on JSON escaping being close enough to Python and Go literal syntax. No policy, no test. | `python/index.ts`, `go/index.ts` |
-| 6 | **Two pagination resolvers implementing the same three-source precedence.** `paginationRuleFor` (declaration-only) and `resolveOperationPagination` (verifies fit, reports errors). Python goes through one, TypeScript the other — **they can disagree about whether an operation paginates.** | `authoring/pagination.ts`, `emitters/pagination.ts` |
-| 7 | **Four hand-rolled doc-comment writers**, each re-deriving real per-language subtleties. | `writeDocstring` (py), `writeDocComment` (go), `writeDocComment` (php), `renderTitleComment` (ts) |
-| 8 | **TypeScript syntax inside a "neutral" const.** `HEADER` is a hardcoded `//` comment, which is why `pythonGenerator` hand-writes its own `#` header. | `emit-options.ts:13` |
-| 9 | **Indent units passed at call sites.** `new Printer('    ')`, `new Printer('\t')` — invisible in review. | `python/index.ts:234`, `go/index.ts:172` |
-| 10 | **`anchor` is a four-line `path.parse` wrapper** used by all seven TypeScript generators; python re-implements it as `pythonModulePath`. | `generators/anchor.ts`, `python/index.ts:806` |
-| 11 | **ADR-0001 and ARCHITECTURE.md describe deleted code.** Both document `ts.factory` AST codegen via `emitters/ts.ts` and `emitters/package-client.ts`. Neither module exists; every generator emits text. `jsdoc.ts` still refers the reader to `ts.ts`'s helper. | `docs/adr/0001`, `ARCHITECTURE.md`, `jsdoc.ts:12` |
-| 12 | **`flatInputShape` contains no TypeScript.** It takes `OperationModel` + `NamedSchemaModel[]`, counts names, returns a verdict. It is TypeScript-only because it lives in `render-client.ts`. Python, Go, and PHP each re-derive the same collision question via `uniqueIdentifiers(…, { taken: METHOD_ARG_SLOTS })`. | `render-client.ts:174`, `python/index.ts:509`, `go/index.ts:494`, `php/index.ts:550` |
+| #   | Finding                                                                                                                                                                                                                                                                                                               | Evidence                                                                                          |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 1   | **Two identifier systems.** `authoring/naming.ts` says so in its own header: _"TypeScript keeps its specialized sanitizer in emitters/identifier.ts; this is for the other output languages."_                                                                                                                        | `authoring/naming.ts:1-4`                                                                         |
+| 2   | **`TS_RESERVED` is duplicated.** Two 44-word lists that must be hand-synced.                                                                                                                                                                                                                                          | `emitters/identifier.ts` vs `RESERVED_WORDS.typescript`                                           |
+| 3   | **Opposite reserved-word conventions.** `sanitizeIdentifier` prefixes (`_class`); `identifierFor` suffixes (`class_`). Same problem, two answers, split by language accidentally.                                                                                                                                     | `identifier.ts:76`, `naming.ts:82`                                                                |
+| 4   | **Two TypeScript string escapers with different security policies.** `codeString` escapes U+2028/U+2029; `sanitizeCodeString` also escapes `<`/`>` to stop a `</script>` breakout. Which protection applies depends on which one the caller imported.                                                                 | `identifier.ts:87`, `ts-literal.ts:21`                                                            |
+| 5   | **Python and Go have no string escaper.** They call `JSON.stringify` inline — **19 sites in python, 28 in go** — relying on JSON escaping being close enough to Python and Go literal syntax. No policy, no test.                                                                                                     | `python/index.ts`, `go/index.ts`                                                                  |
+| 6   | **Two pagination resolvers implementing the same three-source precedence.** `paginationRuleFor` (declaration-only) and `resolveOperationPagination` (verifies fit, reports errors). Python goes through one, TypeScript the other — **they can disagree about whether an operation paginates.**                       | `authoring/pagination.ts`, `emitters/pagination.ts`                                               |
+| 7   | **Four hand-rolled doc-comment writers**, each re-deriving real per-language subtleties.                                                                                                                                                                                                                              | `writeDocstring` (py), `writeDocComment` (go), `writeDocComment` (php), `renderTitleComment` (ts) |
+| 8   | **TypeScript syntax inside a "neutral" const.** `HEADER` is a hardcoded `//` comment, which is why `pythonGenerator` hand-writes its own `#` header.                                                                                                                                                                  | `emit-options.ts:13`                                                                              |
+| 9   | **Indent units passed at call sites.** `new Printer('    ')`, `new Printer('\t')` — invisible in review.                                                                                                                                                                                                              | `python/index.ts:234`, `go/index.ts:172`                                                          |
+| 10  | **`anchor` is a four-line `path.parse` wrapper** used by all seven TypeScript generators; python re-implements it as `pythonModulePath`.                                                                                                                                                                              | `generators/anchor.ts`, `python/index.ts:806`                                                     |
+| 11  | **ADR-0001 and ARCHITECTURE.md describe deleted code.** Both document `ts.factory` AST codegen via `emitters/ts.ts` and `emitters/package-client.ts`. Neither module exists; every generator emits text. `jsdoc.ts` still refers the reader to `ts.ts`'s helper.                                                      | `docs/adr/0001`, `ARCHITECTURE.md`, `jsdoc.ts:12`                                                 |
+| 12  | **`flatInputShape` contains no TypeScript.** It takes `OperationModel` + `NamedSchemaModel[]`, counts names, returns a verdict. It is TypeScript-only because it lives in `render-client.ts`. Python, Go, and PHP each re-derive the same collision question via `uniqueIdentifiers(…, { taken: METHOD_ARG_SLOTS })`. | `render-client.ts:174`, `python/index.ts:509`, `go/index.ts:494`, `php/index.ts:550`              |
 
 Findings 4, 5, and 6 are correctness or security issues, not tidiness.
 
@@ -130,21 +130,21 @@ The rule: **facts belong on the data, syntax belongs on the printer, shape belon
 
 Language-agnostic analysis over the IR, plus the authoring contract.
 
-| Keep | Add (re-homed from `emitters/`) |
-| --- | --- |
-| `Printer` (structure only), `casing`, `identifierFor`, `uniqueIdentifiers`, `RESERVED_WORDS` | `inputNameCollisions` — the neutral half of `flatInputShape` |
-| `flattenAllOf`, `discriminatorCases`, `isNullable`, `unwrapNullable`, `enumValues`, `schemaAtPointer`, `headerCoerceType` | — |
-| `docText`, `renderReferencePage`, `NotSupportedError` | — |
-| `Generator`, `GeneratorInput`, `CodeSample`, `SampleContext`, `DateType` | — |
+| Keep                                                                                                                      | Add (re-homed from `emitters/`)                              |
+| ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `Printer` (structure only), `casing`, `identifierFor`, `uniqueIdentifiers`, `RESERVED_WORDS`                              | `inputNameCollisions` — the neutral half of `flatInputShape` |
+| `flattenAllOf`, `discriminatorCases`, `isNullable`, `unwrapNullable`, `enumValues`, `schemaAtPointer`, `headerCoerceType` | —                                                            |
+| `docText`, `renderReferencePage`, `NotSupportedError`                                                                     | —                                                            |
+| `Generator`, `GeneratorInput`, `CodeSample`, `SampleContext`, `DateType`                                                  | —                                                            |
 
 **Removed by becoming data rather than helpers:**
 
-| Helper | Becomes |
-| --- | --- |
-| `isSseOp`, `eventSchema`, `sseDataKind` | `op.sse?: { eventSchema?, dataKind }` — computed once by the IR builder |
-| `paginationRuleFor` + `resolveModelPagination` + `resolveOperationPagination` | **one** resolver, run once by the pipeline → `input.pagination` |
-| `anchor` | `input.output: { path, dir, stem, ext }` |
-| `HEADER`, `banner`, `renderTitleComment` | `input.banner: string[]` (content) + `printer.doc()` (syntax) |
+| Helper                                                                        | Becomes                                                                 |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `isSseOp`, `eventSchema`, `sseDataKind`                                       | `op.sse?: { eventSchema?, dataKind }` — computed once by the IR builder |
+| `paginationRuleFor` + `resolveModelPagination` + `resolveOperationPagination` | **one** resolver, run once by the pipeline → `input.pagination`         |
+| `anchor`                                                                      | `input.output: { path, dir, stem, ext }`                                |
+| `HEADER`, `banner`, `renderTitleComment`                                      | `input.banner: string[]` (content) + `printer.doc()` (syntax)           |
 
 ### 2. Language printers — `@redocly/client-generator/printers/<language>`
 
@@ -156,12 +156,12 @@ emitted code remains visible to whoever edits the generator next.
 Common core: `typeName`, `memberName`, `identifier`, `identifiers`, `string`, `literal`, `comment`,
 `doc`, plus a `layout(source)` pass and a baked-in `indentUnit`.
 
-| Printer | Absorbs | Language-specific extension |
-| --- | --- | --- |
-| `TypeScriptPrinter` | `pascalCase`, `safeIdent`, `uniqueIdent`, `sanitizeIdentifier`, `codeString` + `sanitizeCodeString` (merged on the stricter policy), `codeLiteral`, `escapeJsDoc`, `jsdocText`, `splitLines` | `key(name)` — bare-or-quoted object key. No other language has quotable keys. |
-| `PythonPrinter` | `className`, `fieldName`, `pythonLiteral`, `writeDocstring`, `Printer('    ')` | `constName` (SCREAMING_SNAKE); `memberName` reports whether it renamed, for `_field_map` |
-| `GoPrinter` | `exported` (incl. the `_`→`N` rule), `writeDocComment`, `Printer('\t')` | `layout` = `gofmtShape` + `alignGoColumns`; `packageName` validation |
-| `PhpPrinter` | `className`, `propertyName`, `phpString`, `writeDocComment` | `doc` takes `tags` — PHP's `array`/`\Generator` erase element types |
+| Printer             | Absorbs                                                                                                                                                                                      | Language-specific extension                                                              |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `TypeScriptPrinter` | `pascalCase`, `safeIdent`, `uniqueIdent`, `sanitizeIdentifier`, `codeString` + `sanitizeCodeString` (merged on the stricter policy), `codeLiteral`, `escapeJsDoc`, `jsdocText`, `splitLines` | `key(name)` — bare-or-quoted object key. No other language has quotable keys.            |
+| `PythonPrinter`     | `className`, `fieldName`, `pythonLiteral`, `writeDocstring`, `Printer('    ')`                                                                                                               | `constName` (SCREAMING_SNAKE); `memberName` reports whether it renamed, for `_field_map` |
+| `GoPrinter`         | `exported` (incl. the `_`→`N` rule), `writeDocComment`, `Printer('\t')`                                                                                                                      | `layout` = `gofmtShape` + `alignGoColumns`; `packageName` validation                     |
+| `PhpPrinter`        | `className`, `propertyName`, `phpString`, `writeDocComment`                                                                                                                                  | `doc` takes `tags` — PHP's `array`/`\Generator` erase element types                      |
 
 Two notes on the extensions.
 Go's `exported` carries knowledge that must not be re-derived: `identifierFor` prefixes `_` for a
@@ -172,7 +172,7 @@ adjacent lines, which is not known when the first line is emitted.
 
 ### 3. Generator-owned — `src/generators/<name>/`
 
-Everything that decides output *shape*.
+Everything that decides output _shape_.
 
 This runs in both directions.
 The TypeScript-family generators **gain** the modules that are theirs alone, as `emitters/` dissolves.
@@ -180,27 +180,27 @@ The single-file generators are **split** into the same stages rather than left w
 (953 lines), `go` (1169), and `php` (1092) are self-contained already, but the uniform skeleton is
 what makes them comparable, and their existing functions re-group into it without rewriting:
 
-| Stage | python | go | php |
-| --- | --- | --- | --- |
-| `naming` | `className`, `fieldName`, `operationIdents` | `exported`, `goOperationIdents` | `className`, `propertyName`, `methodName` |
-| `types` | `pythonType` | `goType` | `phpType`, `phpNullable`, `phpUnionType` |
-| `models` | `writeDataclass`, `renderPythonModels`, `pydanticDiscriminators` | `writeStruct`, `renderGoModels` | `writeClass`, `renderPhpModels`, `hydration`, `serialization` |
-| `descriptor` | `securitySpecs`, `paginationSpec`, `envelopeHeaderSpecs` | `goSecurityLiteral`, `goPaginationLiteral` | `phpSecurityLiteral`, `phpPaginationLiteral` |
-| `operations` | `writeMethod` | `writeGoMethod` | `writePhpMethod`, `methodArgs`, `writeRequestSetup` |
-| `pagination` | `writePaginationWrappers` | `writeGoPaginationWrappers` | `writePhpPaginationWrappers` |
-| `client` | `writePythonServers`, `writeClientClass` | `writeGoServers` | `writeServers` |
+| Stage        | python                                                           | go                                         | php                                                           |
+| ------------ | ---------------------------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| `naming`     | `className`, `fieldName`, `operationIdents`                      | `exported`, `goOperationIdents`            | `className`, `propertyName`, `methodName`                     |
+| `types`      | `pythonType`                                                     | `goType`                                   | `phpType`, `phpNullable`, `phpUnionType`                      |
+| `models`     | `writeDataclass`, `renderPythonModels`, `pydanticDiscriminators` | `writeStruct`, `renderGoModels`            | `writeClass`, `renderPhpModels`, `hydration`, `serialization` |
+| `descriptor` | `securitySpecs`, `paginationSpec`, `envelopeHeaderSpecs`         | `goSecurityLiteral`, `goPaginationLiteral` | `phpSecurityLiteral`, `phpPaginationLiteral`                  |
+| `operations` | `writeMethod`                                                    | `writeGoMethod`                            | `writePhpMethod`, `methodArgs`, `writeRequestSetup`           |
+| `pagination` | `writePaginationWrappers`                                        | `writeGoPaginationWrappers`                | `writePhpPaginationWrappers`                                  |
+| `client`     | `writePythonServers`, `writeClientClass`                         | `writeGoServers`                           | `writeServers`                                                |
 
 `emitters/` dissolves entirely:
 
-| Generator | Absorbs |
-| --- | --- |
-| `typescript` | `client-assembly`, `render-client`, `descriptor`, `type-guards`, `reserved-names`, `response-headers`, `operation-types`, `operations`, `inline-runtime`, `runtime-sources`, `ts-type`, `emit-options` |
-| `zod` | `zod.ts` |
-| `mock` | `mock.ts`, `mock-value.ts`, `faker.ts`, `sample.ts` |
-| `cli` | `cli.ts`, `cli-docs.ts` |
-| `swr` | `swr.ts` |
-| `tanstack-query` | `tanstack-query.ts` |
-| `transformers` | `transformers.ts` |
+| Generator        | Absorbs                                                                                                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `typescript`     | `client-assembly`, `render-client`, `descriptor`, `type-guards`, `reserved-names`, `response-headers`, `operation-types`, `operations`, `inline-runtime`, `runtime-sources`, `ts-type`, `emit-options` |
+| `zod`            | `zod.ts`                                                                                                                                                                                               |
+| `mock`           | `mock.ts`, `mock-value.ts`, `faker.ts`, `sample.ts`                                                                                                                                                    |
+| `cli`            | `cli.ts`, `cli-docs.ts`                                                                                                                                                                                |
+| `swr`            | `swr.ts`                                                                                                                                                                                               |
+| `tanstack-query` | `tanstack-query.ts`                                                                                                                                                                                    |
+| `transformers`   | `transformers.ts`                                                                                                                                                                                      |
 
 ### 4. Generator contracts — `@redocly/client-generator/contracts/<name>`
 

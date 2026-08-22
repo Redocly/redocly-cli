@@ -37,7 +37,7 @@ A sibling `runtime/` folder needs none of that: the real sources are written as 
 5. **The `runtimes` field leaves the generator contract**, along with the `--runtime package` CLI choice and its validation path.
 6. **The root entry stops exporting the client runtime.** `createClient`, `ApiError`, `TimeoutError`, `mergeSetup`, `defaultRetryOn`, `runCli`, `invokedName`, and the runtime's type surface are removed — package mode was their reason for being public, and nothing imports the package root at app runtime any more.
    The root keeps the authoring toolkit, the plugin API, the user-facing config types, and the setup contract.
-7. **The setup contract moves up a layer.** `runtime-contract.ts` today re-exports `Middleware`, `RequestContext`, and `RetryConfig` *from* `runtime/types.ts`, deliberately, so a publisher's `--setup` file cannot drift from the generated output ([ADR-0015](./0015-publisher-setup-bake-in.md)).
+7. **The setup contract moves up a layer.** `runtime-contract.ts` today re-exports `Middleware`, `RequestContext`, and `RetryConfig` _from_ `runtime/types.ts`, deliberately, so a publisher's `--setup` file cannot drift from the generated output ([ADR-0015](./0015-publisher-setup-bake-in.md)).
    With the runtime inside a generator folder, that direction would make the package root reach into `generators/typescript/`, so it inverts: the contract types are defined at package level and the TypeScript runtime imports them.
    One definition either way — ownership moves from the runtime to the contract, which is the layer users actually author against.
 

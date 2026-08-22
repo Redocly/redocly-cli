@@ -12,7 +12,7 @@ This ADR records the shape the code actually has, and settles what belongs in a 
 
 The text layer today is inconsistent in ways that are more than cosmetic — the full inventory is in [`../helper-surface.md`](../helper-surface.md), and the load-bearing findings are:
 
-- **Two identifier systems.** `authoring/naming.ts` states it in its own header: *"TypeScript keeps its specialized sanitizer in emitters/identifier.ts; this is for the other output languages."* The TypeScript reserved-word list exists twice, and the two systems disagree on convention — `sanitizeIdentifier` prefixes (`_class`), `identifierFor` suffixes (`class_`).
+- **Two identifier systems.** `authoring/naming.ts` states it in its own header: _"TypeScript keeps its specialized sanitizer in emitters/identifier.ts; this is for the other output languages."_ The TypeScript reserved-word list exists twice, and the two systems disagree on convention — `sanitizeIdentifier` prefixes (`_class`), `identifierFor` suffixes (`class_`).
 - **Two TypeScript string escapers with different security policies.** `codeString` escapes U+2028/U+2029; `sanitizeCodeString` also escapes `<`/`>` to prevent a `</script>` breakout. Which protection applies depends on which one the caller imported.
 - **Python and Go have no string escaper at all** — 19 and 28 raw `JSON.stringify` calls respectively, relying on JSON escaping being close enough to each language's literal syntax.
 - **Four hand-rolled doc-comment writers**, each re-deriving real per-language rules: Go collapses consecutive blank comment lines because gofmt rewrites `//\n//`; TypeScript must escape `*/` because `info.title` is attacker-controllable; Python has distinct one-line and multi-line docstring forms; PHP needs `@tag` lines because its type syntax erases element types.
@@ -21,7 +21,7 @@ The text layer today is inconsistent in ways that are more than cosmetic — the
 Two alternatives were considered and rejected.
 
 **Prettier's Doc IR** (the Wadler/Oppen algebra behind `group`/`line`/`indent`) would buy automatic line-width breaking, which is a genuine gap — generated output is hand-formatted with no post-pass.
-It was rejected because `group([indent([line, …])])` hides the emitted text, and Prettier's own architecture argues against it here: Prettier has no universal syntax model either, only a universal *layout* engine plus a hand-written printer per language.
+It was rejected because `group([indent([line, …])])` hides the emitted text, and Prettier's own architecture argues against it here: Prettier has no universal syntax model either, only a universal _layout_ engine plus a hand-written printer per language.
 Its printers run to thousands of lines because they must handle every possible program; ours emit roughly fifteen constructs per language.
 We do not have Prettier's problem.
 

@@ -594,6 +594,72 @@ describe('pythonGenerator parity features', () => {
     expectCompiles(out);
   });
 
+  it('iterator signatures annotate a date query param like the method does', () => {
+    // The `_pages`/`_items` wrappers dropped `dateType`, so `since` was `str` on the
+    // iterator while the method beside it said `datetime`.
+    const paged: ApiModel = {
+      title: 'Cafe',
+      version: '1.0.0',
+      serverUrl: 'https://api.cafe.example',
+      schemas: [],
+      securitySchemes: [],
+      services: [
+        {
+          name: 'Orders',
+          operations: [
+            {
+              name: 'listOrders',
+              specName: 'listOrders',
+              method: 'get',
+              path: '/orders',
+              tags: [],
+              pathParams: [],
+              queryParams: [
+                {
+                  name: 'after',
+                  in: 'query',
+                  required: false,
+                  schema: { kind: 'scalar', scalar: 'string' },
+                },
+                {
+                  name: 'since',
+                  in: 'query',
+                  required: false,
+                  schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
+                },
+              ],
+              headerParams: [],
+              cookieParams: [],
+              security: [],
+              paginationExtension: {
+                style: 'cursor',
+                cursorParam: 'after',
+                nextCursor: '/next',
+                items: '/items',
+              },
+              successResponses: [
+                {
+                  status: '200',
+                  contentType: 'application/json',
+                  schema: { kind: 'object', properties: [] },
+                },
+              ],
+              errorResponses: [],
+            },
+          ],
+        },
+      ],
+    } as unknown as ApiModel;
+    const out = pythonGenerator({
+      model: paged,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: { dateType: 'Date' },
+    })[0].content;
+    expect(out).toMatch(/def list_orders_pages\([^)]*since: Optional\[datetime\]/);
+    expect(out).not.toMatch(/def list_orders_pages\([^)]*since: Optional\[str\]/);
+  });
+
   it('maps date/date-time to datetime objects under dateType: Date, and round-trips them', () => {
     const dated: ApiModel = {
       title: 'Cafe',

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { goGenerator, renderGoModels } from '../go/index.js';
+import { goGenerator, goSample, renderGoModels } from '../go/index.js';
 
 const hasGo = spawnSync('go', ['version']).status === 0;
 
@@ -219,6 +219,12 @@ const CAFE: ApiModel = {
           queryParams: [
             { name: 'after', in: 'query', required: false, schema: STRING },
             { name: 'limit', in: 'query', required: false, schema: INT },
+            {
+              name: 'tags',
+              in: 'query',
+              required: false,
+              schema: { kind: 'array', items: STRING },
+            },
           ],
           headerParams: [],
           cookieParams: [],
@@ -388,6 +394,23 @@ describe('goGenerator (full client assembly)', () => {
     expect(out).toContain('func send(ctx context.Context'); // embedded runtime
     expect((out.match(/^package client$/gm) ?? []).length).toBe(1);
     expectGoCompiles(out);
+  });
+});
+
+describe('query and sample shapes', () => {
+  it('an array query param repeats the key per element — fmt.Sprint would send "[a b]"', () => {
+    const out = generateGo();
+    expect(out).toContain('for _, item := range *params.Tags {');
+    expect(out).toContain('query.Add("tags", item)');
+    expect(out).not.toContain('query.Set("tags"');
+  });
+
+  it('the sample assignment matches the return shape: void has no result, SSE is one value', () => {
+    const ctx = { model: CAFE, outputPath: '/out/client.ts', emit: {} };
+    const listOrders = CAFE.services[0].operations.find((op) => op.name === 'listOrders')!;
+    expect(goSample(listOrders, ctx)?.source).toContain('result, err := client.ListOrders(');
+    const streamEvents = CAFE.services[0].operations.find((op) => op.name === 'streamEvents')!;
+    expect(goSample(streamEvents, ctx)?.source).toContain('stream := client.StreamEvents(');
   });
 });
 
