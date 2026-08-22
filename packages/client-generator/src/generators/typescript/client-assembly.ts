@@ -10,13 +10,13 @@
 // a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
 // Text templates throughout — no `typescript` at generate time.
 
-import { codeString } from '../../emitters/identifier.js';
 import { assembleInlineRuntime } from '../../emitters/inline-runtime.js';
 import {
   allOperations,
   type ApiModel,
   type OperationModel,
 } from '../../intermediate-representation/model.js';
+import { codeString } from '../../printers/typescript.js';
 import type { EmitOptions } from '../types.js';
 import { banner, HEADER, renderTitleComment } from './banner.js';
 import { packageIdents, renderDescriptors } from './descriptor.js';

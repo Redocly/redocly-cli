@@ -21,14 +21,14 @@ import { runGenerators } from './pipeline.js';
 // output language). `tsType`/`tsJsdoc`/`codeLiteral` are the TypeScript-specific
 // text renderers the sdk itself uses.
 export { tsJsdoc, tsType } from './generators/typescript/ts-type.js';
-export { codeLiteral } from './emitters/ts-literal.js';
+export { codeLiteral } from './printers/typescript.js';
 // The language-neutral authoring helpers, re-exported here so both toolkit
 // entries offer the full authoring surface (the root offers them TS-free).
 export * from './authoring/index.js';
 export { operationSignature } from './contracts/typescript.js';
 export type { OperationSignature } from './contracts/typescript.js';
-export { pascalCase } from './emitters/support.js';
-export { safeIdent } from './emitters/identifier.js';
+export { pascalCase } from './printers/typescript.js';
+export { safeIdent } from './printers/typescript.js';
 
 /**
  * Validate the generator selection (see `validateGenerators`), then run each

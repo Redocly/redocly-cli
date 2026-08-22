@@ -8,9 +8,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
 import type { DateType } from '../../authoring/options.js';
-import { isIdentifier } from '../../emitters/identifier.js';
-import { pascalCase } from '../../emitters/support.js';
-import { codeLiteral } from '../../emitters/ts-literal.js';
 import {
   allOperations,
   type ApiModel,
@@ -19,6 +16,7 @@ import {
   type ResponseBodyModel,
   type SchemaModel,
 } from '../../intermediate-representation/model.js';
+import { codeLiteral, isIdentifier, pascalCase } from '../../printers/typescript.js';
 import { fakerExpression } from './faker.js';
 import { sampleValue, SampleExpression } from './sample.js';
 import {

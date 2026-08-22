@@ -9,9 +9,6 @@
 // between major versions and are deferred. Refs become `z.lazy(() => …Schema)`,
 // which sidesteps declaration ordering and recursion uniformly.
 
-import { safeIdent } from '../../emitters/identifier.js';
-import { pascalCase } from '../../emitters/support.js';
-import { codeLiteral } from '../../emitters/ts-literal.js';
 import {
   allOperations,
   type ApiModel,
@@ -20,6 +17,7 @@ import {
   type SchemaMetadata,
   type SchemaModel,
 } from '../../intermediate-representation/model.js';
+import { codeLiteral, pascalCase, safeIdent } from '../../printers/typescript.js';
 
 const INDENT = '    ';
 

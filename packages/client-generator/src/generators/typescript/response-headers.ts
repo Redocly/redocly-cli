@@ -2,13 +2,12 @@
 // for throw-mode `{ envelope: true }`.
 
 import { headerCoerceType } from '../../authoring/index.js';
-import { uniqueIdent } from '../../emitters/identifier.js';
-import { headerPropertyKey } from '../../emitters/support.js';
 import type {
   NamedSchemaModel,
   ResponseHeaderModel,
   SchemaModel,
 } from '../../intermediate-representation/model.js';
+import { headerPropertyKey, uniqueIdent } from '../../printers/typescript.js';
 import type { ResponseHeaderSpec } from '../../runtime/types.js';
 
 const INDENT = '    ';

@@ -10,13 +10,13 @@
 // dev-dep while the real client stays dependency-free.
 
 import type { DateType } from '../../authoring/options.js';
-import { codeLiteral } from '../../emitters/ts-literal.js';
 import type {
   NamedSchemaModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
 } from '../../intermediate-representation/model.js';
+import { codeLiteral } from '../../printers/typescript.js';
 import { splitIntersection } from './sample.js';
 import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.js';
 

@@ -3,8 +3,6 @@
 // literals, compound members parenthesized inside unions/intersections/arrays.
 
 import type { DateType } from '../../authoring/options.js';
-import { isIdentifier, safeIdent } from '../../emitters/identifier.js';
-import { escapeJsDoc, jsdocText } from '../../emitters/jsdoc.js';
 import type {
   NamedSchemaModel,
   PropertyModel,
@@ -12,6 +10,7 @@ import type {
   SchemaMetadata,
   SchemaModel,
 } from '../../intermediate-representation/model.js';
+import { escapeJsDoc, isIdentifier, jsdocText, safeIdent } from '../../printers/typescript.js';
 
 const INDENT = '    ';
 

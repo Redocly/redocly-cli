@@ -5,10 +5,8 @@
 
 import { securityRequirements } from '../../authoring/operation.js';
 import type { DateType } from '../../authoring/options.js';
-import { uniqueIdent } from '../../emitters/identifier.js';
 import type { ModelPagination } from '../../emitters/pagination.js';
 import { WIRING_NAMES } from '../../emitters/reserved-names.js';
-import { codeLiteral } from '../../emitters/ts-literal.js';
 import {
   allOperations,
   type ApiModel,
@@ -16,6 +14,7 @@ import {
   type OperationModel,
   type SecuritySchemeModel,
 } from '../../intermediate-representation/model.js';
+import { codeLiteral, uniqueIdent } from '../../printers/typescript.js';
 import type { ArgsStyle } from '../types.js';
 import { isTypedMultipart } from './operation-types.js';
 import { flatInputShape, responseText } from './render-client.js';

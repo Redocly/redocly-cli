@@ -16,8 +16,8 @@ import {
   variablesName,
   wrappableOperations,
 } from '../../contracts/typescript.js';
-import { pascalCase } from '../../emitters/support.js';
 import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+import { pascalCase } from '../../printers/typescript.js';
 
 export type SwrOptions = {
   /** Import specifier for the sdk entry the operation functions/types live in. */
