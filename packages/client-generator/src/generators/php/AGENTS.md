@@ -75,6 +75,8 @@ $idempotencyKey` on mutating methods.
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.
 - The runtime is hand-written in `runtime/runtime.php` in this folder (`php -l`-clean) and embedded
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
+  Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
+  with its namespace rewritten to the client's so one namespace spans both files.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 ## Migrating from a service-based SDK

@@ -46,7 +46,7 @@ function stripPhpHeader(source: string): string {
 }
 
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
-export const phpGenerator: Generator = ({ model, output, emit, pagination }) => {
+export const phpGenerator: Generator = ({ model, output, banner, emit, pagination }) => {
   const printer = new PhpPrinter();
   const dateType = emit.dateType ?? 'string';
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
@@ -65,9 +65,17 @@ export const phpGenerator: Generator = ({ model, output, emit, pagination }) => 
   printer.blank();
   printer.line(renderPhpModels(model, dateType));
   writeServers(printer, model);
-  printer.line('// ─── Embedded runtime (@redocly/client-generator php runtime) ───');
-  printer.line(stripPhpHeader(PHP_RUNTIME_SOURCE));
-  printer.blank();
+  if (emit.runtime === 'module') {
+    // The runtime file re-declares this same namespace, so the require binds the
+    // exact names the inline stitching would have defined at this position.
+    printer.line('// ─── Runtime (a real file beside this one, written by the same run) ───');
+    printer.line("require_once __DIR__ . '/runtime.php';");
+    printer.blank();
+  } else {
+    printer.line('// ─── Embedded runtime (@redocly/client-generator php runtime) ───');
+    printer.line(stripPhpHeader(PHP_RUNTIME_SOURCE));
+    printer.blank();
+  }
 
   const operations = model.services.flatMap((service) => service.operations);
   const idents = methodIdents(model);
@@ -153,7 +161,18 @@ export const phpGenerator: Generator = ({ model, output, emit, pagination }) => 
     '}'
   );
 
-  return [{ path: output.path.replace(/\.[^.\\/]+$/, '.php'), content: printer.toString() }];
+  const entry = { path: output.path.replace(/\.[^.\\/]+$/, '.php'), content: printer.toString() };
+  if (emit.runtime !== 'module') return [entry];
+  // The runtime, verbatim except its namespace: rewritten to the client's, so one
+  // namespace spans both files and every bare reference resolves unchanged.
+  const header = banner.map((line) => `// ${line}`).join('\n');
+  const runtimeSource = PHP_RUNTIME_SOURCE.replace(/^namespace .*$/m, `namespace ${namespace};`)
+    .replace(/^<\?php\n/, `<?php\n\n${header}\n`)
+    .trimEnd();
+  return [
+    entry,
+    { path: entry.path.replace(/[^\\/]+$/, 'runtime.php'), content: `${runtimeSource}\n` },
+  ];
 };
 
 /** One idiomatic PHP call per operation — feeds `x-codeSamples` for docs. */

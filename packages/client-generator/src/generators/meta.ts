@@ -150,17 +150,6 @@ export function validateSelection(
   }
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
-  // Module-runtime coverage grows generator by generator (ADR-0022); the languages
-  // whose emitters still embed only get a clear answer instead of inline output that
-  // silently ignored the choice.
-  if (emit.runtime === 'module') {
-    const inlineOnly = names.find((name) => ['python', 'go', 'php'].includes(name));
-    if (inlineOnly !== undefined) {
-      throw new NotSupportedError(
-        `The "${inlineOnly}" generator supports only the inline runtime for now — drop --runtime module or generate it separately.`
-      );
-    }
-  }
   for (const name of names) {
     const descriptor = registry.get(name);
     if (!descriptor) {

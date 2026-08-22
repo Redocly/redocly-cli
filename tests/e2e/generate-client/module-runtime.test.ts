@@ -1,10 +1,21 @@
-import { type ChildProcess } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { spawnSync, type ChildProcess } from 'node:child_process';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generateInto, killServer, runConsumer, startServer, strictTypecheck } from './helpers.js';
+import {
+  generate,
+  generateInto,
+  killServer,
+  runConsumer,
+  startServer,
+  strictTypecheck,
+} from './helpers.js';
+
+const hasPython = spawnSync('python3', ['--version']).status === 0;
+const hasGo = spawnSync('go', ['version']).status === 0;
+const hasPhp = spawnSync('php', ['--version']).status === 0;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
@@ -75,4 +86,66 @@ console.log(JSON.stringify({ ok: Array.isArray(items.items), viaApiError: typeof
     // The error class reaches the consumer through the factory re-export chain.
     expect(results.viaApiError).toBe('function');
   }, 120_000);
+});
+
+describe('generate-client --runtime module — language generators', () => {
+  let dir = '';
+
+  beforeAll(() => {
+    dir = mkdtempSync(join(tmpdir(), 'module-runtime-lang-'));
+    for (const generator of ['python', 'go', 'php']) {
+      generate(fixture, join(dir, generator, 'client.ts'), [
+        '--generator',
+        generator,
+        '--runtime',
+        'module',
+      ]);
+    }
+  }, 120_000);
+
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it.skipIf(!hasPython)('python: the client and every runtime module compile', () => {
+    const files = readdirSync(join(dir, 'python')).filter((name) => name.endsWith('.py'));
+    expect(files).toContain('_send.py');
+    for (const name of files) {
+      const result = spawnSync('python3', ['-m', 'py_compile', join(dir, 'python', name)], {
+        encoding: 'utf-8',
+      });
+      expect(result.status, `${name}: ${result.stderr}`).toBe(0);
+    }
+    expect(readFileSync(join(dir, 'python', 'client.py'), 'utf-8')).toContain(
+      'from _send import *'
+    );
+  });
+
+  it.skipIf(!hasGo)(
+    'go: the client and runtime.go build as one package',
+    () => {
+      writeFileSync(join(dir, 'go', 'go.mod'), 'module smoke.test\n\ngo 1.21\n', 'utf-8');
+      const result = spawnSync('go', ['build', './...'], {
+        cwd: join(dir, 'go'),
+        encoding: 'utf-8',
+      });
+      expect(result.status, result.stderr).toBe(0);
+    },
+    // A cold CI cache compiles the stdlib on the first build.
+    180_000
+  );
+
+  it.skipIf(!hasPhp)('php: both files parse and the client requires its runtime', () => {
+    for (const name of ['client.php', 'runtime.php']) {
+      const lint = spawnSync('php', ['-l', join(dir, 'php', name)], { encoding: 'utf-8' });
+      expect(lint.status, lint.stdout + lint.stderr).toBe(0);
+    }
+    const declare = spawnSync(
+      'php',
+      ['-r', `require '${join(dir, 'php', 'client.php')}'; echo 'DECLARED';`],
+      { encoding: 'utf-8' }
+    );
+    expect(declare.status, declare.stdout + declare.stderr).toBe(0);
+    expect(declare.stdout).toContain('DECLARED');
+  });
 });

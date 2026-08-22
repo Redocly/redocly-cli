@@ -58,7 +58,14 @@ function pythonModulePath(outputPath: string): string {
 }
 
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
-export const pythonGenerator: Generator = ({ model, output, emit, options, pagination }) => {
+export const pythonGenerator: Generator = ({
+  model,
+  output,
+  banner,
+  emit,
+  options,
+  pagination,
+}) => {
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
   const models = (options?.models as PythonModels | undefined) ?? 'dataclass';
@@ -81,20 +88,31 @@ export const pythonGenerator: Generator = ({ model, output, emit, options, pagin
   printer.blank();
   writePythonServers(printer, model);
 
-  // The embedded runtime, stitched into one module: `from __future__` may appear
-  // only at the top of a file, and the intra-runtime relative imports resolve to
-  // this same file — both are dropped; duplicate stdlib imports are legal Python.
-  printer.line('# ─── Embedded runtime (@redocly/client-generator python runtime) ───');
-  for (const source of Object.values(PYTHON_RUNTIME_SOURCES)) {
-    const stitched = source
-      .split('\n')
-      .filter((line) => !line.startsWith('from __future__') && !line.startsWith('from ._'))
-      .join('\n')
-      .trim();
-    printer.line(stitched);
+  if (emit.runtime === 'module') {
+    // The runtime lives in real sibling modules; star imports rebind the same
+    // public names the inline stitching would have defined at this position.
+    printer.line('# ─── Runtime (real modules beside this file, written by the same run) ───');
+    for (const name of Object.keys(PYTHON_RUNTIME_SOURCES)) {
+      printer.line(`from ${name.replace(/\.py$/, '')} import *`);
+    }
+    printer.blank();
+    printer.blank();
+  } else {
+    // The embedded runtime, stitched into one module: `from __future__` may appear
+    // only at the top of a file, and the intra-runtime relative imports resolve to
+    // this same file — both are dropped; duplicate stdlib imports are legal Python.
+    printer.line('# ─── Embedded runtime (@redocly/client-generator python runtime) ───');
+    for (const source of Object.values(PYTHON_RUNTIME_SOURCES)) {
+      const stitched = source
+        .split('\n')
+        .filter((line) => !line.startsWith('from __future__') && !line.startsWith('from ._'))
+        .join('\n')
+        .trim();
+      printer.line(stitched);
+      printer.blank();
+    }
     printer.blank();
   }
-  printer.blank();
   const registrations = discriminatorRegistrations(model, new Set(pydantic?.unions.keys()));
   if (registrations.length > 0) {
     printer.line('# Discriminated unions dispatch by their property inside decode().');
@@ -142,7 +160,21 @@ export const pythonGenerator: Generator = ({ model, output, emit, options, pagin
   writeClientClass(printer, model, errorMode, false, paginationSpecs, serverUrl, dateType);
   writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl, dateType);
 
-  return [{ path: pythonModulePath(output.path), content: printer.toString() }];
+  const entry = { path: pythonModulePath(output.path), content: printer.toString() };
+  if (emit.runtime !== 'module') return [entry];
+  // The runtime modules, verbatim except the package-relative imports: the flat
+  // sibling layout has no package, so `from ._x` becomes the sibling `from _x`.
+  const header = banner.map((line) => `# ${line}`).join('\n');
+  const dir = pythonModulePath(output.path).replace(/[^\\/]+$/, '');
+  const runtimeFiles = Object.entries(PYTHON_RUNTIME_SOURCES).map(([name, source]) => ({
+    path: `${dir}${name}`,
+    content: `${header}\n\n${source
+      .split('\n')
+      .map((line) => (line.startsWith('from ._') ? line.replace('from ._', 'from _') : line))
+      .join('\n')
+      .trim()}\n`,
+  }));
+  return [entry, ...runtimeFiles];
 };
 
 /** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */

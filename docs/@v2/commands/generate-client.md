@@ -150,8 +150,12 @@ The `--runtime` flag controls where the client engine lives:
   Several generated clients in one repository can share one `runtime/` folder, and you can read the engine as ordinary source files.
   The files are still machine-owned: the command regenerates them on every run.
 
-The `typescript` and `cli` generators support `module`.
-The `python`, `go`, and `php` generators support only `inline` for now.
+Every generator that embeds an engine supports both modes, each in its language's shape:
+
+- `typescript` and `cli` write `runtime/*.ts` modules.
+- `python` writes the `_*.py` runtime modules beside the client, which imports them.
+- `go` writes a `runtime.go` file in the same package as the client.
+- `php` writes a `runtime.php` file that the client loads with `require_once`.
 
 ```bash
 redocly generate-client openapi.yaml -o src/api/client.ts --runtime module

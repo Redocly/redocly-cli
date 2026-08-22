@@ -74,6 +74,8 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
     large-description scale.
 - The runtime is hand-written in `runtime/runtime.go` in this folder (gofmt-clean, `go vet`-clean)
   and embedded at prepare time.
+  Under `--runtime module` it is written as a same-package `runtime.go` beside the client,
+  whose import block then lists only the packages its own body uses.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 - **It documents itself.** With `client.docs` (or `--docs`), the `docs` hook writes

@@ -86,6 +86,8 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   `<op>_items()` + `aiter` mirrors), SSE (`iter_sse`/`aiter_sse`), multipart.
 - The runtime is hand-written in `runtime/*.py` in this folder and embedded as strings at prepare
   time — generator code never builds runtime logic from templates.
+  Under `--runtime module` the same sources are written as sibling `_*.py` files instead
+  (package-relative imports become sibling imports; the client star-imports each module).
 - Authored ONLY with the neutral toolkit (`Printer`, naming, schema, pagination helpers) —
   the dogfooding guard fails otherwise.
 
