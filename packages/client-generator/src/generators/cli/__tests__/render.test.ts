@@ -1,8 +1,8 @@
 import { logger } from '@redocly/openapi-core';
 
-import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { commandData, renderCliModule, renderComposedCliEntry } from '../cli.js';
-import { resolveModelPagination } from '../pagination.js';
+import { resolveModelPagination } from '../../../emitters/pagination.js';
+import type { ApiModel, SchemaModel } from '../../../intermediate-representation/model.js';
+import { commandData, renderCliModule, renderComposedCliEntry } from '../render.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
@@ -307,7 +307,7 @@ describe('the package-mode import line', () => {
       .split(',')
       .map((specifier) => specifier.trim())
       .filter((specifier) => specifier !== '' && !specifier.startsWith('type '));
-    const root = (await import('../../index.js')) as Record<string, unknown>;
+    const root = (await import('../../../index.js')) as Record<string, unknown>;
     for (const name of names) {
       expect(typeof root[name], `${name} is imported but not exported`).toBe('function');
     }

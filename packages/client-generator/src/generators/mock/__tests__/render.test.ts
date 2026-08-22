@@ -1,5 +1,5 @@
-import { renderMockModule } from '../mock.js';
-import { apiModel, namedSchema, operation, param } from './fixtures.js';
+import { apiModel, namedSchema, operation, param } from '../../../emitters/__tests__/fixtures.js';
+import { renderMockModule } from '../render.js';
 
 describe('renderMockModule', () => {
   it('emits the msw import, a factory per named schema, and a handlers array', () => {

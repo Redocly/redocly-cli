@@ -9,16 +9,16 @@
 // `mockData` without touching call sites; `@faker-js/faker` becomes their
 // dev-dep while the real client stays dependency-free.
 
+import { codeLiteral } from '../../emitters/ts-literal.js';
+import type { DateType } from '../../emitters/types.js';
 import type {
   NamedSchemaModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './mock-value.js';
+} from '../../intermediate-representation/model.js';
 import { splitIntersection } from './sample.js';
-import { codeLiteral } from './ts-literal.js';
-import type { DateType } from './types.js';
+import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.js';
 
 /** The faker-call value for an IR schema. Refs resolve against `schemas`;
  *  recursion is cut with a visited-set (`null` at the cycle). `dateType` mirrors

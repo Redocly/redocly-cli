@@ -1,5 +1,11 @@
-import { renderSwrModule } from '../swr.js';
-import { apiModel, namedSchema, operation, param, SCALAR } from './fixtures.js';
+import {
+  apiModel,
+  namedSchema,
+  operation,
+  param,
+  SCALAR,
+} from '../../../emitters/__tests__/fixtures.js';
+import { renderSwrModule } from '../render.js';
 
 const SDK = './client.js';
 

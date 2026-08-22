@@ -2,8 +2,8 @@ import type {
   ApiModel,
   NamedSchemaModel,
   PropertyModel,
-} from '../../intermediate-representation/model.js';
-import { renderTransformersModule } from '../transformers.js';
+} from '../../../intermediate-representation/model.js';
+import { renderTransformersModule } from '../render.js';
 
 const base: Omit<ApiModel, 'schemas'> = {
   title: 'T',

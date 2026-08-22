@@ -9,13 +9,13 @@
 // `transformPet` calls `transformOwner(data["owner"])` when `Pet.owner` is an
 // `Owner` that has dates. Source-text templates throughout.
 
+import { safeIdent } from '../../emitters/identifier.js';
+import { pascalCase } from '../../emitters/support.js';
 import type {
   ApiModel,
   NamedSchemaModel,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import { safeIdent } from './identifier.js';
-import { pascalCase } from './support.js';
+} from '../../intermediate-representation/model.js';
 
 const INDENT = '    ';
 

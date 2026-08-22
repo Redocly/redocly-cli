@@ -52,4 +52,4 @@ export function collectGeneratedFiles(
 export { generateClient } from './pipeline.js';
 // The composed-cli entry renderer: consumed by the redocly CLI across apis (it needs the
 // embedded runtime text, which must stay off the runtime-only root barrel).
-export { renderComposedCliEntry, type ComposedCliSource } from './emitters/cli.js';
+export { renderComposedCliEntry, type ComposedCliSource } from './generators/cli/render.js';

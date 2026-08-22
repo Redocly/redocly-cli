@@ -4,24 +4,24 @@
 
 import { logger } from '@redocly/openapi-core';
 
-import { casing } from '../authoring/naming.js';
+import { casing } from '../../authoring/naming.js';
+import { HEADER } from '../../emitters/emit-options.js';
+import { embedCliRuntime } from '../../emitters/inline-runtime.js';
+import type { ModelPagination } from '../../emitters/pagination.js';
+import { flatInputShape } from '../../emitters/render-client.js';
 import type {
   ApiModel,
   OperationModel,
   ParamModel,
   SchemaModel,
-} from '../intermediate-representation/model.js';
+} from '../../intermediate-representation/model.js';
 import {
   constantCase,
   groupSlug,
   type CliAuthScheme,
   type CliCommand,
   type CliFlag,
-} from '../runtime/cli.js';
-import { HEADER } from './emit-options.js';
-import { embedCliRuntime } from './inline-runtime.js';
-import type { ModelPagination } from './pagination.js';
-import { flatInputShape } from './render-client.js';
+} from '../../runtime/cli.js';
 
 function kebab(name: string): string {
   return casing.snake(name).replace(/_/g, '-');

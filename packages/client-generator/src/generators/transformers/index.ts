@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
-import { renderTransformersModule } from '../../emitters/transformers.js';
 import type { Generator } from '../types.js';
+import { renderTransformersModule } from './render.js';
 
 /**
  * The transformers generator: a standalone `<stem>.transformers.ts` module of

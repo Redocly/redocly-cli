@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
-import { renderMockModule } from '../../emitters/mock.js';
 import type { Generator } from '../types.js';
+import { renderMockModule } from './render.js';
 
 /**
  * The mock generator: a standalone `<stem>.mocks.ts` module of MSW handlers and

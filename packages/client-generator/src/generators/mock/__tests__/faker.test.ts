@@ -1,6 +1,6 @@
-import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
+import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { fakerExpression } from '../faker.js';
-import { renderMockValue } from '../mock-value.js';
+import { renderMockValue } from '../values.js';
 
 /** Emit `schema`'s faker expression and render it to source for substring assertions. */
 function emit(

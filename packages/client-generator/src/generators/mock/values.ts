@@ -2,8 +2,8 @@
 // (for intersection merging and `...overrides` spreading) until the final render,
 // where indentation is threaded. Deliberately tiny.
 
-import { safeIdent } from './identifier.js';
-import { sanitizeCodeString } from './ts-literal.js';
+import { safeIdent } from '../../emitters/identifier.js';
+import { sanitizeCodeString } from '../../emitters/ts-literal.js';
 
 export type MockEntry = { key: string; value: MockValue } | { spread: string };
 

@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
-import { renderZodModule } from '../../emitters/zod.js';
 import type { Generator } from '../types.js';
+import { renderZodModule } from './schemas.js';
 
 /**
  * The zod generator: a standalone `<stem>.zod.ts` module of Zod schemas (one

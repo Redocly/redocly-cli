@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
-import { renderTanstackModule } from '../../emitters/tanstack-query.js';
 import type { Generator } from '../types.js';
+import { renderTanstackModule } from './render.js';
 
 /**
  * The tanstack-query generator: a standalone `<stem>.tanstack.ts` module of

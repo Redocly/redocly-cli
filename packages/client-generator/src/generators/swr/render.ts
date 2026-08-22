@@ -8,8 +8,7 @@
 // `swr`/`swr/mutation` are the consumer's peer; the sdk stays dependency-free.
 // Source-text templates throughout.
 
-import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
-import { pascalCase } from './support.js';
+import { pascalCase } from '../../emitters/support.js';
 import {
   hasInputs,
   isQuery,
@@ -17,7 +16,8 @@ import {
   sdkNamedImportText,
   variablesName,
   wrappableOperations,
-} from './wrapper-support.js';
+} from '../../emitters/wrapper-support.js';
+import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 
 export type SwrOptions = {
   /** Import specifier for the sdk entry the operation functions/types live in. */

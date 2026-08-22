@@ -7,6 +7,10 @@
 
 import { isPlainObject } from '@redocly/openapi-core';
 
+import { isIdentifier } from '../../emitters/identifier.js';
+import { pascalCase } from '../../emitters/support.js';
+import { codeLiteral } from '../../emitters/ts-literal.js';
+import type { DateType } from '../../emitters/types.js';
 import {
   allOperations,
   type ApiModel,
@@ -14,9 +18,9 @@ import {
   type OperationModel,
   type ResponseBodyModel,
   type SchemaModel,
-} from '../intermediate-representation/model.js';
+} from '../../intermediate-representation/model.js';
 import { fakerExpression } from './faker.js';
-import { isIdentifier } from './identifier.js';
+import { sampleValue, SampleExpression } from './sample.js';
 import {
   expr,
   isObjectValue,
@@ -24,11 +28,7 @@ import {
   objectValue,
   renderMockValue,
   spreadInto,
-} from './mock-value.js';
-import { sampleValue, SampleExpression } from './sample.js';
-import { pascalCase } from './support.js';
-import { codeLiteral } from './ts-literal.js';
-import type { DateType } from './types.js';
+} from './values.js';
 
 const INDENT = '    ';
 

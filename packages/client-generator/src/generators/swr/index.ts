@@ -1,7 +1,7 @@
 import { join } from 'node:path';
 
-import { renderSwrModule } from '../../emitters/swr.js';
 import type { Generator } from '../types.js';
+import { renderSwrModule } from './render.js';
 
 /**
  * The swr generator: a standalone `<stem>.swr.ts` module of SWR hooks wrapping the

@@ -1,12 +1,12 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
+import type { DateType } from '../../emitters/types.js';
 import type {
   NamedSchemaModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import type { DateType } from './types.js';
+} from '../../intermediate-representation/model.js';
 
 /** A sampled value the emitter must print as a raw TS expression rather than a JSON
  *  literal — e.g. a `format: binary` field, whose generated type is `Blob`. The `code`

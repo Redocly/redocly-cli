@@ -1,6 +1,6 @@
-import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { renderZodModule, schemaToZodExpression } from '../zod.js';
-import { apiModel, operation, response } from './fixtures.js';
+import { apiModel, operation, response } from '../../../emitters/__tests__/fixtures.js';
+import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
+import { renderZodModule, schemaToZodExpression } from '../schemas.js';
 
 /** Print a single expression by wrapping it in a throwaway const. */
 function expr(schema: SchemaModel): string {
