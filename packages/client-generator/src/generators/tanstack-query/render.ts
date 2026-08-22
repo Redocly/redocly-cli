@@ -14,14 +14,14 @@
 // is generator-derived (sanitized operation names, JSON-pointer property chains built
 // here) — never raw spec text.
 
-import { codeString, isSafeIdentifier, safeIdent } from '../../emitters/identifier.js';
-import { type ModelPagination, resolveSchemaPointer } from '../../emitters/pagination.js';
 import {
   hasInputs,
   isQuery,
   variablesName,
   wrappableOperations,
-} from '../../emitters/wrapper-support.js';
+} from '../../contracts/typescript.js';
+import { codeString, isSafeIdentifier, safeIdent } from '../../emitters/identifier.js';
+import { type ModelPagination, resolveSchemaPointer } from '../../emitters/pagination.js';
 import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
 import type { PaginationSpec } from '../../runtime/types.js';
 

@@ -1,3 +1,4 @@
+import { emitClientSingleFile } from '../../generators/typescript/client-assembly.js';
 import { sseFromResponses } from '../../intermediate-representation/build.js';
 import type {
   ApiModel,
@@ -7,7 +8,6 @@ import type {
   ResponseBodyModel,
   SchemaModel,
 } from '../../intermediate-representation/model.js';
-import { emitClientSingleFile } from '../client-assembly.js';
 
 /** A plain `string` scalar — the default schema for params and the most-reused leaf. */
 export const SCALAR: SchemaModel = { kind: 'scalar', scalar: 'string' };

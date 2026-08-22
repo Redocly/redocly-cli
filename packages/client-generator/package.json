@@ -41,6 +41,11 @@
       "import": "./lib/printers/index.js",
       "default": "./lib/printers/index.js"
     },
+    "./contracts/typescript": {
+      "types": "./lib/contracts/typescript.d.ts",
+      "import": "./lib/contracts/typescript.js",
+      "default": "./lib/contracts/typescript.js"
+    },
     "./runtime-sources": {
       "types": "./lib/runtime-sources.d.ts",
       "import": "./lib/runtime-sources.js",

@@ -1,10 +1,17 @@
 import ts from 'typescript';
 
-import type { EmitOptions } from '../../generators/types.js';
-import type { ApiModel } from '../../intermediate-representation/model.js';
+import {
+  modelWith,
+  namedSchema,
+  operation,
+  param,
+  response,
+  SCALAR,
+} from '../../../emitters/__tests__/fixtures.js';
+import { resolveModelPagination } from '../../../emitters/pagination.js';
+import type { ApiModel } from '../../../intermediate-representation/model.js';
+import type { EmitOptions } from '../../types.js';
 import { emitClientSingleFile } from '../client-assembly.js';
-import { resolveModelPagination } from '../pagination.js';
-import { modelWith, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 
 /** The package arm of the shared emitter. */
 function emit(model: ApiModel, options: EmitOptions = {}): string {

@@ -1,6 +1,6 @@
-import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
+import { apiModel, namedSchema } from '../../../emitters/__tests__/fixtures.js';
+import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
-import { apiModel, namedSchema } from './fixtures.js';
 
 // The package arm keeps the emitted text free of the embedded runtime, so the
 // absence assertions below test the schema types/guards alone.

@@ -1,9 +1,19 @@
+import {
+  SCALAR,
+  apiModel,
+  emitWithOp,
+  namedSchema,
+  operation,
+  param,
+} from '../../../emitters/__tests__/fixtures.js';
 // One operation's developer-facing surface in the descriptor-wired single-file client:
 // the input shape in both styles, and the `<Op>*` aliases. The wiring itself (Ops,
 // OPERATIONS, client, sugar) is covered in client-assembly.test.ts.
-import type { OperationModel, RequestBodyModel } from '../../intermediate-representation/model.js';
+import type {
+  OperationModel,
+  RequestBodyModel,
+} from '../../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
-import { SCALAR, apiModel, emitWithOp, namedSchema, operation, param } from './fixtures.js';
 
 /** Emit a result-mode single-file client whose only operation is `operation(op)`. */
 function emitResult(op: Partial<OperationModel>, schemas: string[] = []): string {

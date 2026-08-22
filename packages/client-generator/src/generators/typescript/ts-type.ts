@@ -2,16 +2,16 @@
 // `typescript` import. Formatting contract: 4-space indent, double-quoted
 // literals, compound members parenthesized inside unions/intersections/arrays.
 
-import type { DateType } from '../authoring/options.js';
+import type { DateType } from '../../authoring/options.js';
+import { isIdentifier, safeIdent } from '../../emitters/identifier.js';
+import { escapeJsDoc, jsdocText } from '../../emitters/jsdoc.js';
 import type {
   NamedSchemaModel,
   PropertyModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import { isIdentifier, safeIdent } from './identifier.js';
-import { escapeJsDoc, jsdocText } from './jsdoc.js';
+} from '../../intermediate-representation/model.js';
 
 const INDENT = '    ';
 

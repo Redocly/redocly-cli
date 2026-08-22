@@ -3,23 +3,23 @@
 // descriptor map (`satisfies Record<string, OperationDescriptor>` — the semver skew
 // guard against the runtime contract in src/runtime/types.ts). Text templates.
 
-import { securityRequirements } from '../authoring/operation.js';
-import type { DateType } from '../authoring/options.js';
-import type { ArgsStyle } from '../generators/types.js';
+import { securityRequirements } from '../../authoring/operation.js';
+import type { DateType } from '../../authoring/options.js';
+import { uniqueIdent } from '../../emitters/identifier.js';
+import type { ModelPagination } from '../../emitters/pagination.js';
+import { WIRING_NAMES } from '../../emitters/reserved-names.js';
+import { codeLiteral } from '../../emitters/ts-literal.js';
 import {
   allOperations,
   type ApiModel,
   type NamedSchemaModel,
   type OperationModel,
   type SecuritySchemeModel,
-} from '../intermediate-representation/model.js';
-import { uniqueIdent } from './identifier.js';
+} from '../../intermediate-representation/model.js';
+import type { ArgsStyle } from '../types.js';
 import { isTypedMultipart } from './operation-types.js';
-import type { ModelPagination } from './pagination.js';
 import { flatInputShape, responseText } from './render-client.js';
-import { WIRING_NAMES } from './reserved-names.js';
 import { responseHeaderSpecs } from './response-headers.js';
-import { codeLiteral } from './ts-literal.js';
 import { tsJsdoc } from './ts-type.js';
 
 /**

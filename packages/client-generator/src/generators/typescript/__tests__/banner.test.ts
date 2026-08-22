@@ -1,5 +1,5 @@
-import { banner, HEADER, renderTitleComment } from '../emit-options.js';
-import { apiModel } from './fixtures.js';
+import { apiModel } from '../../../emitters/__tests__/fixtures.js';
+import { banner, HEADER, renderTitleComment } from '../banner.js';
 
 describe('banner', () => {
   it('joins non-empty sections with blank lines and appends a trailing newline', () => {

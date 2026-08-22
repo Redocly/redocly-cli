@@ -1,15 +1,15 @@
 // Success-response header helpers: descriptor parse hints + Ops / alias type text
 // for throw-mode `{ envelope: true }`.
 
-import { headerCoerceType } from '../authoring/index.js';
+import { headerCoerceType } from '../../authoring/index.js';
+import { uniqueIdent } from '../../emitters/identifier.js';
+import { headerPropertyKey } from '../../emitters/support.js';
 import type {
   NamedSchemaModel,
   ResponseHeaderModel,
   SchemaModel,
-} from '../intermediate-representation/model.js';
-import type { ResponseHeaderSpec } from '../runtime/types.js';
-import { uniqueIdent } from './identifier.js';
-import { headerPropertyKey } from './support.js';
+} from '../../intermediate-representation/model.js';
+import type { ResponseHeaderSpec } from '../../runtime/types.js';
 
 const INDENT = '    ';
 

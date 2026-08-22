@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 
 import { renderReferencePage } from '../../authoring/reference-page.js';
-import { emitClientSingleFile, emitClientSplit } from '../../emitters/client-assembly.js';
-import { packageIdents } from '../../emitters/descriptor.js';
 import type { OperationModel } from '../../intermediate-representation/model.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
+import { emitClientSingleFile, emitClientSplit } from './client-assembly.js';
+import { packageIdents } from './descriptor.js';
 
 /**
  * The default generator: the full typed client (model types + runtime + endpoints).

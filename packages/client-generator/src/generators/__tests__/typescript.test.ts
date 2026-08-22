@@ -1,5 +1,5 @@
-import { HEADER } from '../../emitters/emit-options.js';
 import type { ApiModel } from '../../intermediate-representation/model.js';
+import { HEADER } from '../typescript/banner.js';
 import { typescriptGenerator as typescriptGeneratorEntry } from '../typescript/index.js';
 import { generatorInput } from './fixtures/generator-input.js';
 

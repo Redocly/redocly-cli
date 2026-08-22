@@ -2,8 +2,8 @@
 // operation's input type) and the wrapper generators (which forward it) read slot presence
 // and `<Op>Variables` naming from this one source, so a call and its type cannot drift.
 
-import type { OperationModel, ParamModel } from '../intermediate-representation/model.js';
-import { pascalCase } from './support.js';
+import { pascalCase } from '../../emitters/support.js';
+import type { OperationModel, ParamModel } from '../../intermediate-representation/model.js';
 
 export type OperationSignature = {
   /** Slot presence — which input layers the operation has. */

@@ -1,4 +1,4 @@
-import type { NamedSchemaModel, SchemaModel } from '../../intermediate-representation/model.js';
+import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { renderTypeAliases, tsType } from '../ts-type.js';
 
 // Literal expectations for the TS type renderer — the formatting contract every

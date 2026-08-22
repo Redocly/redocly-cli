@@ -1,5 +1,5 @@
-import { operationSignature, templatePathParams } from '../operation-signature.js';
-import { operation, param } from './fixtures.js';
+import { operation, param } from '../../emitters/__tests__/fixtures.js';
+import { operationSignature, templatePathParams } from '../typescript.js';
 
 describe('operationSignature', () => {
   it('orders path params by URL-template position, keeping their wire names', () => {

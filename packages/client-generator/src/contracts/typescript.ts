@@ -1,14 +1,13 @@
-// Shared support for the data-fetching wrapper generators (`swr`, `tanstack-query`).
-// Both wrap the sdk's exported operation functions, so they agree on which operations
-// are wrappable and on the `vars`/`init` parameter shape. Keeping that agreement in one
-// place stops the two emitters from drifting (and makes a third adapter cheap). The
-// per-operation factory/hook bodies stay in each emitter — only the cross-cutting
-// calling-convention pieces live here.
+// The published output ABI of the `typescript` generator — what its emitted SDK
+// exports and how a call is spelled. Importable ONLY along a declared `requires`
+// edge (`swr`, `tanstack-query`, and `cli` require `typescript`): duplicating these
+// answers in each wrapper would put the SDK's calling convention in several places,
+// which is exactly the drift this module exists to prevent.
 
 import { logger } from '@redocly/openapi-core';
 
+import { operationSignature } from '../generators/typescript/operation-signature.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
-import { operationSignature } from './operation-signature.js';
 
 /**
  * The operations a wrapper generator can wrap, with skips reported to the user under
@@ -94,3 +93,13 @@ export function sdkNamedImportText(
   const specifiers = [...values, ...types.map((name) => `type ${name}`)].join(', ');
   return `import { ${specifiers} } from ${JSON.stringify(sdkModule)};`;
 }
+
+// The pieces the typescript generator decides itself, published for the generators
+// that must agree with it: the per-operation signature facts and whether an
+// operation's inputs merge into one flat object (`cli` renders the same call shape).
+export {
+  operationSignature,
+  templatePathParams,
+  type OperationSignature,
+} from '../generators/typescript/operation-signature.js';
+export { flatInputShape } from '../generators/typescript/render-client.js';

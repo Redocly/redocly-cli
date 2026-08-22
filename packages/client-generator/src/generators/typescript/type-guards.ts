@@ -2,7 +2,7 @@ import type {
   DiscriminatorModel,
   NamedSchemaModel,
   SchemaModel,
-} from '../intermediate-representation/model.js';
+} from '../../intermediate-representation/model.js';
 
 /**
  * A discriminated union we can emit guards for, found while walking the schema

@@ -10,16 +10,16 @@
 // a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
 // Text templates throughout — no `typescript` at generate time.
 
-import type { EmitOptions } from '../generators/types.js';
+import { codeString } from '../../emitters/identifier.js';
+import { assembleInlineRuntime } from '../../emitters/inline-runtime.js';
 import {
   allOperations,
   type ApiModel,
   type OperationModel,
-} from '../intermediate-representation/model.js';
+} from '../../intermediate-representation/model.js';
+import type { EmitOptions } from '../types.js';
+import { banner, HEADER, renderTitleComment } from './banner.js';
 import { packageIdents, renderDescriptors } from './descriptor.js';
-import { banner, HEADER, renderTitleComment } from './emit-options.js';
-import { codeString } from './identifier.js';
-import { assembleInlineRuntime } from './inline-runtime.js';
 import { isTypedMultipart } from './operation-types.js';
 import {
   collectEntrySchemaRefs,
