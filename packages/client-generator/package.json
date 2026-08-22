@@ -16,6 +16,31 @@
       "import": "./lib/generate.js",
       "default": "./lib/generate.js"
     },
+    "./printers/python": {
+      "types": "./lib/printers/python.d.ts",
+      "import": "./lib/printers/python.js",
+      "default": "./lib/printers/python.js"
+    },
+    "./printers/go": {
+      "types": "./lib/printers/go.d.ts",
+      "import": "./lib/printers/go.js",
+      "default": "./lib/printers/go.js"
+    },
+    "./printers/php": {
+      "types": "./lib/printers/php.d.ts",
+      "import": "./lib/printers/php.js",
+      "default": "./lib/printers/php.js"
+    },
+    "./printers/typescript": {
+      "types": "./lib/printers/typescript.d.ts",
+      "import": "./lib/printers/typescript.js",
+      "default": "./lib/printers/typescript.js"
+    },
+    "./printers": {
+      "types": "./lib/printers/index.d.ts",
+      "import": "./lib/printers/index.js",
+      "default": "./lib/printers/index.js"
+    },
     "./runtime-sources": {
       "types": "./lib/runtime-sources.d.ts",
       "import": "./lib/runtime-sources.js",

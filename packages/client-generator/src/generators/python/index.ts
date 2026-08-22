@@ -4,11 +4,9 @@
 // A guard test pins that this module never imports the TS emitter toolkit.
 
 import {
-  Printer,
   paginationRuleFor,
   renderReferencePage,
   discriminatorCases,
-  docText,
   enumValues,
   flattenAllOf,
   headerCoerceType,
@@ -33,19 +31,23 @@ import type {
   SchemaModel,
   ServerModel,
 } from '../../intermediate-representation/model.js';
+import { PythonPrinter } from '../../printers/python.js';
 import type { CodeSample, Generator, GeneratorOptionsSchema, SampleContext } from '../types.js';
 
 const PY = RESERVED_WORDS.python;
 
+// Naming delegates to the printer — one implementation, used here and by any ejected copy.
+const naming = new PythonPrinter();
+
 /** A named schema's Python class name. */
 function className(name: string): string {
-  return identifierFor(name, { style: 'pascal', reserved: PY });
+  return naming.typeName(name);
 }
 
 /** A field/parameter name, with the wire name preserved when sanitization renames it. */
 function fieldName(name: string): { python: string; renamed: boolean } {
-  const python = identifierFor(name, { style: 'snake', reserved: PY });
-  return { python, renamed: python !== name };
+  const { identifier, renamed } = naming.memberName(name);
+  return { python: identifier, renamed };
 }
 
 /** The Python type annotation for a schema (anonymous complex shapes collapse to Any-ish). */
@@ -86,18 +88,6 @@ export function pythonType(schema: SchemaModel, dateType: DateType = 'string'): 
     case 'unknown':
       return 'Any';
   }
-}
-
-function writeDocstring(printer: Printer, description?: string): void {
-  const lines = docText(description);
-  if (lines.length === 0) return;
-  if (lines.length === 1) {
-    printer.line(`"""${lines[0]}"""`);
-    return;
-  }
-  printer.line(`"""${lines[0]}`);
-  for (const line of lines.slice(1)) printer.line(line);
-  printer.line('"""');
 }
 
 /** The model style the generator emits: plain dataclasses, or pydantic `BaseModel`s. */
@@ -175,7 +165,7 @@ function pydanticDiscriminators(model: ApiModel): {
 const METHOD_ARG_SLOTS = ['self', 'body', 'headers', 'timeout', 'retry', 'idempotency_key'];
 
 function writeDataclass(
-  printer: Printer,
+  printer: PythonPrinter,
   name: string,
   properties: PropertyModel[],
   dateType: DateType,
@@ -188,7 +178,7 @@ function writeDataclass(
   if (!pydantic) printer.line('@dataclass');
   const header = pydantic ? `class ${className(name)}(BaseModel):` : `class ${className(name)}:`;
   printer.block(header, () => {
-    writeDocstring(printer, description);
+    printer.doc(description);
     // A wire name that is not a legal field name travels as an alias, so the model
     // accepts both spellings; without this, populating by field name would fail.
     if (pydantic) {
@@ -236,7 +226,7 @@ export function renderPythonModels(
   dateType: DateType = 'string',
   models: PythonModels = 'dataclass'
 ): string {
-  const printer = new Printer('    ');
+  const printer = new PythonPrinter();
   const { pins, unions } =
     models === 'pydantic'
       ? pydanticDiscriminators(model)
@@ -273,7 +263,7 @@ export function renderPythonModels(
     if (asEnum !== undefined) {
       const base = asEnum.scalar === 'string' ? 'str, Enum' : 'int, Enum';
       printer.block(`class ${className(name)}(${base}):`, () => {
-        writeDocstring(printer, schema.description);
+        printer.doc(schema.description);
         asEnum.values.forEach((value, index) => {
           printer.line(`${asEnum.memberNames[index]} = ${JSON.stringify(value)}`);
         });
@@ -329,7 +319,7 @@ function serverUrlExpression(server: ServerModel): string {
 }
 
 /** One static method per declared server; server variables become keyword arguments. */
-function writePythonServers(printer: Printer, model: ApiModel): void {
+function writePythonServers(printer: PythonPrinter, model: ApiModel): void {
   const servers = model.servers ?? [];
   if (servers.length === 0) return;
   const usedNames = new Set<string>();
@@ -439,7 +429,7 @@ function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
 }
 
 function writeMethod(
-  printer: Printer,
+  printer: PythonPrinter,
   op: OperationModel,
   ident: string,
   errorMode: 'throw' | 'result',
@@ -495,8 +485,7 @@ function writeMethod(
   const signature = ['self', ...positional, ...bodyArg, '*', ...kwargs].join(', ');
   const defName = envelope ? `${ident}_with_headers` : ident;
   printer.block(`${prefix} ${defName}(${signature}) -> ${returns}:`, () => {
-    writeDocstring(
-      printer,
+    printer.doc(
       envelope
         ? `Like ${ident}(), returning an Envelope with the declared response headers.`
         : op.summary
@@ -567,7 +556,7 @@ function writeMethod(
 
 /** `<ident>_pages` / `<ident>_items` iterator methods for a paginated operation. */
 function writePaginationWrappers(
-  printer: Printer,
+  printer: PythonPrinter,
   op: OperationModel,
   ident: string,
   isAsync: boolean,
@@ -677,7 +666,7 @@ function writePaginationWrappers(
 }
 
 function writeClientClass(
-  printer: Printer,
+  printer: PythonPrinter,
   model: ApiModel,
   errorMode: 'throw' | 'result',
   isAsync: boolean,
@@ -688,10 +677,7 @@ function writeClientClass(
   const name = isAsync ? 'AsyncClient' : 'Client';
   const httpType = isAsync ? 'httpx.AsyncClient' : 'httpx.Client';
   printer.block(`class ${name}:`, () => {
-    writeDocstring(
-      printer,
-      `${isAsync ? 'Async ' : ''}client for ${model.title} (${model.version}).`
-    );
+    printer.doc(`${isAsync ? 'Async ' : ''}client for ${model.title} (${model.version}).`);
     printer.block(
       `def __init__(self, server_url: str = ${JSON.stringify(serverUrl)}, *, ` +
         'auth: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None, ' +
@@ -761,7 +747,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit, options })
   const dateType = emit.dateType ?? 'string';
   const models = (options?.models as PythonModels | undefined) ?? 'dataclass';
   const pydantic = models === 'pydantic' ? pydanticDiscriminators(model) : undefined;
-  const printer = new Printer('    ');
+  const printer = new PythonPrinter();
   printer.line(
     `# Generated by @redocly/client-generator (python) from "${model.title}" ${model.version}.`
   );

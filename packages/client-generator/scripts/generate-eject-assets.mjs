@@ -219,6 +219,7 @@ for (const { name, imports, run, sample, options, docs } of TYPESCRIPT) {
 for (const { name, run, sample, docs } of LANGUAGE) {
   const source = readFileSync(join(pkgRoot, 'src', 'generators', name, 'index.ts'), 'utf-8')
     .replaceAll("'../../authoring/index.js'", "'@redocly/client-generator'")
+    .replaceAll(`'../../printers/${name}.js'`, `'@redocly/client-generator/printers/${name}'`)
     .replaceAll(
       `'../../emitters/${name}-runtime-sources.js'`,
       "'@redocly/client-generator/runtime-sources'"

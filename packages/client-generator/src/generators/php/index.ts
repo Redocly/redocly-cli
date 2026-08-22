@@ -6,8 +6,6 @@
 // embedded runtime. Exceptions are the error mode (`errorMode` does not apply).
 
 import {
-  Printer,
-  docText,
   discriminatorCases,
   enumValues,
   flattenAllOf,
@@ -37,21 +35,25 @@ import type {
   SchemaModel,
   ServerModel,
 } from '../../intermediate-representation/model.js';
+import { PhpPrinter } from '../../printers/php.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 const PHP = RESERVED_WORDS.php;
 
+// Naming and escaping delegate to the printer — one implementation, one policy.
+const naming = new PhpPrinter();
+
 function className(name: string): string {
-  return identifierFor(name, { style: 'pascal', reserved: PHP });
+  return naming.typeName(name);
 }
 
 function propertyName(name: string): string {
-  return identifierFor(name, { style: 'camel', reserved: PHP });
+  return naming.memberName(name);
 }
 
 /** `'…'` with backslashes and quotes escaped — safe for any spec-supplied text. */
 function phpString(value: string): string {
-  return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+  return naming.string(value);
 }
 
 /** What a named schema renders as: a class, a native enum, or nothing (alias). */
@@ -239,26 +241,6 @@ function serialization(
   return undefined;
 }
 
-function writeDocComment(
-  printer: Printer,
-  name: string,
-  description?: string,
-  tags: string[] = []
-): void {
-  const lines = docText(description);
-  if (lines.length === 0 && tags.length === 0) return;
-  const summary = lines.length === 0 ? name : `${name} — ${lines.join(' ')}`;
-  if (tags.length === 0) {
-    printer.line(`/** ${summary} */`);
-    return;
-  }
-  printer.line('/**');
-  printer.line(` * ${summary}`);
-  printer.line(' *');
-  for (const tag of tags) printer.line(` * ${tag}`);
-  printer.line(' */');
-}
-
 /**
  * The element type behind a PHP type that erases it. `array` and `\Generator` are as
  * specific as PHP's syntax gets, so the docblock carries what they hold — that is what
@@ -284,7 +266,7 @@ function phpElementType(
 }
 
 function writeClass(
-  printer: Printer,
+  printer: PhpPrinter,
   name: string,
   properties: PropertyModel[],
   model: ApiModel,
@@ -296,7 +278,7 @@ function writeClass(
     ...properties.filter((property) => property.required),
     ...properties.filter((property) => !property.required),
   ];
-  writeDocComment(printer, className(name), description);
+  printer.doc(className(name), description);
   printer.line(`final class ${className(name)}`);
   printer.block(
     '{',
@@ -378,12 +360,12 @@ function writeClass(
 
 /** Render every named schema: classes (allOf flattened), native enums, union dispatchers. */
 export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'): string {
-  const printer = new Printer('    ');
+  const printer = new PhpPrinter();
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined && (asEnum.scalar === 'string' || asEnum.scalar === 'integer')) {
       const backing = asEnum.scalar === 'string' ? 'string' : 'int';
-      writeDocComment(printer, className(name), schema.description);
+      printer.doc(className(name), schema.description);
       printer.line(`enum ${className(name)}: ${backing}`);
       printer.block(
         '{',
@@ -561,7 +543,7 @@ function methodArgs(
 }
 
 /** The shared prologue: resolve auth, build query/url, merge headers. */
-function writeRequestSetup(printer: Printer, op: OperationModel, args: MethodArgs): void {
+function writeRequestSetup(printer: PhpPrinter, op: OperationModel, args: MethodArgs): void {
   printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
   printer.line(
     "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
@@ -605,7 +587,7 @@ function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
 }
 
 function writePhpMethod(
-  printer: Printer,
+  printer: PhpPrinter,
   op: OperationModel,
   ident: string,
   model: ApiModel,
@@ -631,8 +613,7 @@ function writePhpMethod(
           : 'void';
   const name = envelope ? `${ident}WithHeaders` : ident;
   const element = envelope ? undefined : phpElementType(success, model, dateType);
-  writeDocComment(
-    printer,
+  printer.doc(
     name,
     envelope
       ? `Like ${ident}(), returning an Envelope with the declared response headers.`
@@ -726,7 +707,7 @@ function writePhpMethod(
 
 /** `<op>Pages()` / `<op>Items()` generators over the runtime's iterPages. */
 function writePhpPaginationWrappers(
-  printer: Printer,
+  printer: PhpPrinter,
   op: OperationModel,
   ident: string,
   model: ApiModel,
@@ -848,7 +829,7 @@ function serverUrlExpression(server: ServerModel): string {
 }
 
 /** One static method per declared server; server variables become named string arguments. */
-function writeServers(printer: Printer, model: ApiModel): void {
+function writeServers(printer: PhpPrinter, model: ApiModel): void {
   const servers = model.servers ?? [];
   if (servers.length === 0) return;
   const usedNames = new Set<string>();
@@ -902,7 +883,7 @@ function stripPhpHeader(source: string): string {
 
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
 export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
-  const printer = new Printer('    ');
+  const printer = new PhpPrinter();
   const dateType = emit.dateType ?? 'string';
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
   printer.line('<?php');
@@ -953,7 +934,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
   );
   printer.blank();
 
-  writeDocComment(printer, 'Client', `Client for ${model.title} (${model.version}).`);
+  printer.doc('Client', `Client for ${model.title} (${model.version}).`);
   // Not final: PHP test suites mock concrete classes (createMock(Client::class)).
   printer.line('class Client');
   printer.block(

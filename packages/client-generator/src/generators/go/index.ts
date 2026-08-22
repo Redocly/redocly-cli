@@ -6,9 +6,7 @@
 
 import {
   casing,
-  Printer,
   discriminatorCases,
-  docText,
   enumValues,
   flattenAllOf,
   headerCoerceType,
@@ -38,6 +36,7 @@ import type {
   SchemaModel,
   ServerModel,
 } from '../../intermediate-representation/model.js';
+import { exported, GoPrinter } from '../../printers/go.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 const GO = RESERVED_WORDS.go;
@@ -57,13 +56,6 @@ function goPackageName(configured: string | undefined): string {
 }
 
 /** An exported Go identifier (PascalCase; keywords can't collide since these start uppercase). */
-function exported(name: string): string {
-  const ident = identifierFor(name, { style: 'pascal', reserved: GO });
-  // A digit-leading name gets `_`-prefixed by identifierFor, which in Go means
-  // UNexported — encoding/json would silently skip the field. `N` (number) keeps it exported.
-  return ident.startsWith('_') ? `N${ident.slice(1)}` : ident;
-}
-
 /** The Go type for a schema; `required=false` optionals become pointers at the field site. */
 export function goType(schema: SchemaModel, dateType: DateType = 'string'): string {
   if (isNullable(schema)) {
@@ -111,32 +103,14 @@ export function goType(schema: SchemaModel, dateType: DateType = 'string'): stri
   }
 }
 
-function writeDocComment(printer: Printer, name: string, description?: string): void {
-  const lines = docText(description);
-  if (lines.length === 0) return;
-  printer.line(`// ${name} — ${lines[0]}`);
-  // A blank line inside a description is `//`, never `// ` — gofmt strips the space — and
-  // CONSECUTIVE blank lines collapse to one, because gofmt rewrites `//\n//` that way.
-  let previousWasBlank = false;
-  for (const line of lines.slice(1)) {
-    if (line === '') {
-      if (!previousWasBlank) printer.line('//');
-      previousWasBlank = true;
-      continue;
-    }
-    printer.line(`// ${line}`);
-    previousWasBlank = false;
-  }
-}
-
 function writeStruct(
-  printer: Printer,
+  printer: GoPrinter,
   name: string,
   properties: PropertyModel[],
   dateType: DateType,
   description?: string
 ): void {
-  writeDocComment(printer, exported(name), description);
+  printer.doc(exported(name), description);
   printer.block(
     `type ${exported(name)} struct {`,
     () => {
@@ -163,18 +137,9 @@ function writeStruct(
   printer.blank();
 }
 
-/**
- * The whitespace shape gofmt produces: never more than one blank line, and exactly one
- * trailing newline. Both entry points below run through it, so the models view is as
- * gofmt-clean as the full client.
- */
-function gofmtShape(source: string): string {
-  return `${source.replace(/\n{3,}/g, '\n\n').trimEnd()}\n`;
-}
-
 /** Render every named schema: typed-const enums, structs (allOf flattened), union dispatchers. */
 export function renderGoModels(model: ApiModel, dateType: DateType = 'string'): string {
-  const printer = new Printer('\t');
+  const printer = new GoPrinter();
   printer.line('package client');
   printer.blank();
   const needsJSON = model.schemas.some(
@@ -192,18 +157,18 @@ export function renderGoModels(model: ApiModel, dateType: DateType = 'string'): 
     printer.blank();
   }
   printer.line(body);
-  return gofmtShape(alignGoColumns(printer.toString()));
+  return printer.toString();
 }
 
 /** The struct/enum/union declarations themselves — the header is renderGoModels' job. */
 function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
-  const printer = new Printer('\t');
+  const printer = new GoPrinter();
 
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined) {
       const base = asEnum.scalar === 'string' ? 'string' : 'int64';
-      writeDocComment(printer, exported(name), schema.description);
+      printer.doc(exported(name), schema.description);
       printer.line(`type ${exported(name)} ${base}`);
       printer.blank();
       printer.block(
@@ -290,7 +255,7 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
       continue;
     }
     // Everything else (plain unions, scalar aliases, records) becomes a type alias.
-    writeDocComment(printer, exported(name), schema.description);
+    printer.doc(exported(name), schema.description);
     printer.line(`type ${exported(name)} = ${goType(schema, dateType)}`);
     printer.blank();
   }
@@ -338,84 +303,6 @@ function goQueryFormat(expr: string, type: string): string {
   if (type === 'float64') return `strconv.FormatFloat(${expr}, 'f', -1, 64)`;
   if (type === 'bool') return `strconv.FormatBool(${expr})`;
   return `fmt.Sprint(${expr})`;
-}
-
-/**
- * Align columns the way gofmt does, so the emitted file is already idiomatic and a
- * `gofmt` run is a no-op. gofmt pads with spaces inside a contiguous run of similar
- * lines: struct fields align their type and tag columns, `const`/`var` entries align
- * their type and `=`. A line that doesn't fit the shape (a comment, a blank line, a
- * type containing spaces) ends the run, exactly like gofmt's tabwriter.
- */
-function alignGoColumns(source: string): string {
-  const lines = source.split('\n');
-  const out = [...lines];
-  // `\tName Type` optionally followed by a `json:"…"` tag, `\tName Type = value`, or a
-  // quoted map key. A statement starting with a Go keyword (`case "x":`, `return y`) is
-  // NOT a declaration and must never be padded.
-  const FIELD = /^(\t+)([A-Za-z_]\w*) (\S+)( `[^`]*`)?$/;
-  const CONST = /^(\t+)([A-Za-z_]\w*) (\S+) = (.+)$/;
-  const ENTRY = /^(\t+)("(?:[^"\\]|\\.)*":) (.+)$/;
-
-  const flush = (run: Array<{ index: number; parts: string[]; indent: string }>): void => {
-    if (run.length < 2) return;
-    const widths: number[] = [];
-    for (const { parts } of run) {
-      parts.forEach((part, column) => {
-        // The last column never needs padding.
-        if (column < parts.length - 1) widths[column] = Math.max(widths[column] ?? 0, part.length);
-      });
-    }
-    for (const { index, parts, indent } of run) {
-      const padded = parts.map((part, column) =>
-        column < parts.length - 1 ? part.padEnd(widths[column] ?? 0) : part
-      );
-      out[index] = indent + padded.join(' ').trimEnd();
-    }
-  };
-
-  let run: Array<{ index: number; parts: string[]; indent: string }> = [];
-  let runKind: 'field' | 'const' | 'entry' | undefined;
-  lines.forEach((line, index) => {
-    const entryMatch = ENTRY.exec(line);
-    const constMatch = entryMatch === null ? CONST.exec(line) : null;
-    const fieldCandidate = entryMatch === null && constMatch === null ? FIELD.exec(line) : null;
-    // `case`, `return`, `var`, … start statements, not declarations.
-    const fieldMatch =
-      fieldCandidate !== null && !GO.has(fieldCandidate[2]) ? fieldCandidate : null;
-    const kind =
-      entryMatch !== null
-        ? 'entry'
-        : constMatch !== null
-          ? 'const'
-          : fieldMatch !== null
-            ? 'field'
-            : undefined;
-    if (kind === undefined || kind !== runKind) {
-      flush(run);
-      run = [];
-      runKind = kind;
-    }
-    if (entryMatch !== null) {
-      run.push({ index, indent: entryMatch[1], parts: [entryMatch[2], entryMatch[3]] });
-      return;
-    }
-    if (constMatch !== null) {
-      run.push({
-        index,
-        indent: constMatch[1],
-        parts: [constMatch[2], constMatch[3], '=', constMatch[4]],
-      });
-      return;
-    }
-    if (fieldMatch !== null) {
-      const parts = [fieldMatch[2], fieldMatch[3]];
-      if (fieldMatch[4] !== undefined) parts.push(fieldMatch[4].trimStart());
-      run.push({ index, indent: fieldMatch[1], parts });
-    }
-  });
-  flush(run);
-  return out.join('\n');
 }
 
 /** Strip the package clause and import lines/blocks so a section stitches into one file. */
@@ -502,7 +389,7 @@ function envelopeHeaderPlan(
 }
 
 function writeGoMethod(
-  printer: Printer,
+  printer: GoPrinter,
   op: OperationModel,
   ident: string,
   dateType: DateType,
@@ -552,8 +439,7 @@ function writeGoMethod(
         ? `return ${errExpr}`
         : `return out, ${errExpr}`;
   const funcName = envelope ? `${ident}WithHeaders` : ident;
-  writeDocComment(
-    printer,
+  printer.doc(
     funcName,
     envelope ? `Like ${ident}, also returning the declared response headers.` : op.summary
   );
@@ -715,7 +601,7 @@ function writeGoMethod(
 
 /** `<Op>Pages` / `<Op>Items` iterators over the runtime's `iterPages`, hydrated via `reencode`. */
 function writeGoPaginationWrappers(
-  printer: Printer,
+  printer: GoPrinter,
   op: OperationModel,
   ident: string,
   dateType: DateType,
@@ -906,7 +792,7 @@ function serverUrlExpression(server: ServerModel): string {
 }
 
 /** One `<Name>URL` function per declared server; server variables become parameters. */
-function writeGoServers(printer: Printer, model: ApiModel): void {
+function writeGoServers(printer: GoPrinter, model: ApiModel): void {
   const servers = model.servers ?? [];
   if (servers.length === 0) return;
   const usedNames = new Set<string>();
@@ -939,7 +825,7 @@ function writeGoServers(printer: Printer, model: ApiModel): void {
 
 /** The whole generated file: models + embedded runtime + operations table + Client. */
 export const goGenerator: Generator = ({ model, outputPath, emit }) => {
-  const printer = new Printer('\t');
+  const printer = new GoPrinter();
   const dateType = emit.dateType ?? 'string';
   const packageName = goPackageName(emit.goPackage);
   const paginationRules = new Map<string, NeutralPaginationRule>();
@@ -1040,7 +926,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
     printer.blank();
   }
 
-  writeDocComment(printer, 'Client', `Client for ${model.title} (${model.version}).`);
+  printer.doc('Client', `Client for ${model.title} (${model.version}).`);
   printer.block(
     'type Client struct {',
     () => {
@@ -1092,7 +978,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
       path: outputPath.replace(/\.[^.\\/]+$/, '.go'),
       // Sections are stitched with their own trailing blanks; gofmt allows at most one
       // between declarations and none at the end of the file.
-      content: gofmtShape(alignGoColumns(printer.toString())),
+      content: printer.toString(),
     },
   ];
 };
