@@ -21,13 +21,13 @@ import type { Generator } from '../types.js';
  * no operations.
  */
 export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | 'solid'): Generator {
-  return ({ model, outputPath, emit }) => {
+  return ({ model, outputPath, emit, pagination }) => {
     const { dir, stem } = anchor(outputPath);
     const content = renderTanstackModule(model, {
       argsStyle: emit.argsStyle ?? 'grouped',
       sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
       framework,
-      pagination: emit.pagination,
+      pagination,
       queryKeyPrefix: emit.queryKeyPrefix,
     });
     if (content === '') return [];

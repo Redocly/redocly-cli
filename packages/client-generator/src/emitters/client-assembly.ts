@@ -21,7 +21,6 @@ import { codeString } from './identifier.js';
 import { assembleInlineRuntime } from './inline-runtime.js';
 import { isTypedMultipart } from './operation-types.js';
 import type { EmitContext } from './operations.js';
-import { resolveModelPagination } from './pagination.js';
 import { collectEntrySchemaRefs, renderAliases, renderOpsType } from './render-client.js';
 import { isSseOp } from './sse.js';
 import { renderTypeAliases } from './ts-type.js';
@@ -59,7 +58,7 @@ function emitClient(
   const idents = packageIdents(model);
   // Resolved (and VERIFIED) up front: an explicit rule that doesn't fit throws here,
   // before any statement is built — one aggregated error for the whole model.
-  const pagination = resolveModelPagination(model, options.pagination);
+  const pagination = options.pagination ?? new Map();
   const ctx: EmitContext = {
     argsStyle: options.argsStyle ?? 'grouped',
     errorMode: options.errorMode ?? 'throw',

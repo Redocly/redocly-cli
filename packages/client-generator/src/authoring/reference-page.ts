@@ -35,6 +35,8 @@ export type ReferencePageOptions = {
   sample: (operation: OperationModel) => { lang: string; source: string } | undefined;
   /** The `pagination` config, passed through to `paginationRuleFor`. */
   pagination?: Record<string, unknown>;
+  /** Operation names the RUN resolved as paginated — preferred over re-resolving. */
+  paginated?: ReadonlySet<string>;
 };
 
 /** Table-cell-safe text: one line, with pipes and backslashes escaped. */
@@ -135,7 +137,11 @@ function writeOperation(printer: Printer, op: OperationModel, options: Reference
   // The same three declaration-level facts every SDK reads: `paginationRuleFor` is the
   // helper the language generators resolve pagination with, and the success content type
   // is what decides a streaming or a binary response.
-  if (paginationRuleFor(op, options.pagination)) {
+  const paginates =
+    options.paginated !== undefined
+      ? options.paginated.has(op.name)
+      : paginationRuleFor(op, options.pagination) !== undefined;
+  if (paginates) {
     printer.line('This operation is paginated, so the SDK gives it page and item iterators.');
   }
   if (op.successResponses.some((response) => response.contentType === 'text/event-stream')) {

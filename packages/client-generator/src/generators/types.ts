@@ -1,6 +1,7 @@
-// packages/client-generator/src/generators/types.ts
 import type { EmitOptions } from '../emitters/emit-options.js';
 import type { ErrorMode } from '../emitters/operations.js';
+// packages/client-generator/src/generators/types.ts
+import type { ModelPagination } from '../emitters/pagination.js';
 import type { DateType } from '../emitters/types.js';
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 
@@ -57,6 +58,13 @@ export type GeneratorInput = {
   model: ApiModel;
   /** The `--output` anchor path. */
   outputPath: string;
+  /**
+   * Pagination resolved ONCE by the pipeline — per-op config > `x-redoclyPagination` >
+   * convention, fit-verified, pointers resolved — keyed by operation name. Generators
+   * read this instead of re-resolving, so two of them cannot disagree about whether an
+   * operation paginates.
+   */
+  pagination?: ModelPagination;
   /** File partitioning the generator should honor. */
   outputMode: OutputMode;
   /** Emit options — serverUrl, runtime, and the generator knobs (dateType, mockData, …); see `EmitOptions`. */
@@ -87,7 +95,13 @@ export type CodeSample = { lang: string; label?: string; source: string };
  * derives that name from the anchor its own way (`openapi.client.ts` becomes
  * `openapi_client.py`), so a hardcoded module name is wrong for most stems.
  */
-export type SampleContext = { model: ApiModel; emit: EmitOptions; outputPath: string };
+export type SampleContext = {
+  model: ApiModel;
+  emit: EmitOptions;
+  outputPath: string;
+  /** The run's resolved pagination (see `GeneratorInput.pagination`). */
+  pagination?: ModelPagination;
+};
 
 /**
  * A generator plus its declared compatibility contract. `validateGenerators`

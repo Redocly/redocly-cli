@@ -4,7 +4,7 @@
 // A guard test pins that this module never imports the TS emitter toolkit.
 
 import {
-  paginationRuleFor,
+  type NeutralPaginationRule,
   renderReferencePage,
   discriminatorCases,
   enumValues,
@@ -385,13 +385,11 @@ function operationIdents(model: ApiModel): Array<{ op: OperationModel; ident: st
   return operations.map((op, index) => ({ op, ident: idents[index] }));
 }
 
-/** The neutral pagination rule mapped to the snake_case spec dict the embedded
+/** The resolved pagination rule mapped to the snake_case spec dict the embedded
  * Python runtime consumes. */
 function paginationSpec(
-  op: OperationModel,
-  emit: { pagination?: Record<string, unknown> }
+  rule: NeutralPaginationRule | undefined
 ): Record<string, unknown> | undefined {
-  const rule = paginationRuleFor(op, emit.pagination);
   if (rule === undefined) return undefined;
   return {
     style: rule.style,
@@ -732,7 +730,7 @@ function pythonModulePath(outputPath: string): string {
 }
 
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
-export const pythonGenerator: Generator = ({ model, outputPath, emit, options }) => {
+export const pythonGenerator: Generator = ({ model, outputPath, emit, options, pagination }) => {
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
   const models = (options?.models as PythonModels | undefined) ?? 'dataclass';
@@ -788,10 +786,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit, options })
   // The wire-shape descriptor table the runtime routes by.
   const paginationSpecs = new Map<string, Record<string, unknown> | undefined>();
   for (const { op, ident } of operationIdents(model)) {
-    paginationSpecs.set(
-      ident,
-      paginationSpec(op, emit as { pagination?: Record<string, unknown> })
-    );
+    paginationSpecs.set(ident, paginationSpec(pagination?.get(op.name)?.spec));
   }
   printer.line('_OPERATIONS = {');
   printer.indent(() => {
@@ -859,7 +854,7 @@ export function pythonSample(op: OperationModel, ctx: SampleContext): CodeSample
  * from `pythonSample` — this generator's own hook — so the page can only ever show the syntax
  * of the SDK beside it, and ejecting this generator takes the page with it.
  */
-export const pythonDocs: Generator = ({ model, outputPath, emit }) => [
+export const pythonDocs: Generator = ({ model, outputPath, emit, pagination }) => [
   {
     path: outputPath.replace(/\.[^.\\/]+$/, '.python.md'),
     content: renderReferencePage(model, {
@@ -872,7 +867,7 @@ export const pythonDocs: Generator = ({ model, outputPath, emit }) => [
         requires: 'The SDK needs `httpx`.',
       },
       sample: (op) => pythonSample(op, { model, emit, outputPath }),
-      pagination: emit.pagination,
+      paginated: new Set(pagination?.keys() ?? []),
     }),
   },
 ];

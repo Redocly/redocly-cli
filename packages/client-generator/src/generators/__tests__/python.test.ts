@@ -3,8 +3,14 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { resolveModelPagination } from '../../emitters/pagination.js';
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { pythonGenerator, renderPythonModels } from '../python/index.js';
+import { pythonGenerator as pythonGeneratorEntry, renderPythonModels } from '../python/index.js';
+
+// The pipeline resolves pagination once and hands generators the map; these direct
+// calls mirror that step.
+const pythonGenerator = (input: Omit<Parameters<typeof pythonGeneratorEntry>[0], 'pagination'>) =>
+  pythonGeneratorEntry({ ...input, pagination: resolveModelPagination(input.model, undefined) });
 
 const hasPython = spawnSync('python3', ['--version']).status === 0;
 const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
@@ -400,6 +406,7 @@ const CAFE: ApiModel = {
             schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
             required: true,
           },
+          { name: 'next', schema: STRING, required: false },
         ],
       },
     },
@@ -551,7 +558,17 @@ describe('pythonGenerator parity features', () => {
                   {
                     status: '200',
                     contentType: 'application/json',
-                    schema: { kind: 'object', properties: [] },
+                    schema: {
+                      kind: 'object',
+                      properties: [
+                        {
+                          name: 'items',
+                          schema: { kind: 'array', items: { kind: 'object', properties: [] } },
+                          required: true,
+                        },
+                        { name: 'next', schema: STRING, required: false },
+                      ],
+                    },
                   },
                 ],
                 errorResponses: [],
@@ -641,7 +658,17 @@ describe('pythonGenerator parity features', () => {
                 {
                   status: '200',
                   contentType: 'application/json',
-                  schema: { kind: 'object', properties: [] },
+                  schema: {
+                    kind: 'object',
+                    properties: [
+                      {
+                        name: 'items',
+                        schema: { kind: 'array', items: { kind: 'object', properties: [] } },
+                        required: true,
+                      },
+                      { name: 'next', schema: STRING, required: false },
+                    ],
+                  },
                 },
               ],
               errorResponses: [],

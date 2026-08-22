@@ -42,8 +42,10 @@ function staticGraph(entry: string): { files: Set<string>; externals: Set<string
 const PURE_EMITTER_HELPERS = new Set([
   'auth.js',
   'identifier.js',
+  'pagination.js',
   'reserved-names.js',
   'runtime-sources.js',
+  'sse.js',
   'support.js',
 ]);
 

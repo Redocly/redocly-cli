@@ -17,12 +17,7 @@
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
 import type { PaginationSpec } from '../runtime/types.js';
 import { codeString, isSafeIdentifier, safeIdent } from './identifier.js';
-import {
-  type ModelPagination,
-  type PaginationConfig,
-  resolveModelPagination,
-  resolveSchemaPointer,
-} from './pagination.js';
+import { type ModelPagination, resolveSchemaPointer } from './pagination.js';
 import { hasInputs, isQuery, variablesName, wrappableOperations } from './wrapper-support.js';
 
 export type TanstackOptions = {
@@ -30,8 +25,8 @@ export type TanstackOptions = {
   sdkModule: string;
   /** TanStack adapter to import the option helpers from (`@tanstack/${framework}-query`). */
   framework: 'react' | 'vue' | 'svelte' | 'solid';
-  /** Auto-pagination rules — paginated query ops gain `<op>InfiniteOptions`. */
-  pagination?: PaginationConfig;
+  /** The run's RESOLVED pagination — paginated query ops gain `<op>InfiniteOptions`. */
+  pagination?: ModelPagination;
   /** Leading element for every query/mutation key — namespaces the cache when several
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
@@ -43,7 +38,7 @@ export type TanstackOptions = {
 export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): string {
   const ops = wrappableOperations(model, 'tanstack-query');
   if (ops.length === 0) return '';
-  const pagination = resolveModelPagination(model, opts.pagination);
+  const pagination = opts.pagination ?? new Map();
   const source = [
     importHeader(ops, opts, pagination),
     ...ops.filter(isQuery).map((op) => queryKeySource(op, opts.queryKeyPrefix)),

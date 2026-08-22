@@ -35,7 +35,7 @@ export const typescriptGenerator: Generator = ({ model, outputPath, outputMode, 
  * `typescriptSample` below, so the page shows the calling convention this run generated —
  * `argsStyle` included.
  */
-export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
+export const typescriptDocs: Generator = ({ model, outputPath, emit, pagination }) => [
   {
     path: outputPath.replace(/\.[^.\\/]+$/, '.typescript.md'),
     content: renderReferencePage(model, {
@@ -48,7 +48,7 @@ export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
         requires: 'The client has no dependencies.',
       },
       sample: (op) => typescriptSample(op, { model, emit, outputPath }),
-      pagination: emit.pagination,
+      paginated: new Set(pagination?.keys() ?? []),
     }),
   },
 ];

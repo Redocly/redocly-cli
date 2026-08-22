@@ -11,6 +11,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve, sep } from 'node:path';
 
 import type { EmitOptions } from './emitters/emit-options.js';
+import { resolveModelPagination, type ModelPagination } from './emitters/pagination.js';
 import { NotSupportedError } from './errors.js';
 import { validateSelection } from './generators/meta.js';
 import { resolveGeneratorOptions } from './generators/options.js';
@@ -38,6 +39,8 @@ export function runGenerators(
     outputPath: string;
     outputMode: OutputMode;
     emit: EmitOptions;
+    /** Pagination resolved once for the whole run (see `GeneratorInput.pagination`). */
+    pagination?: ModelPagination;
     generators: string[];
     registry: Map<string, GeneratorDescriptor>;
     /** Per-generator options, already validated (see `resolveGeneratorOptions`). */
@@ -57,6 +60,7 @@ export function runGenerators(
       outputPath: options.outputPath,
       outputMode: options.outputMode,
       emit: options.emit,
+      pagination: options.pagination,
       selected: options.generators,
       options: options.generatorOptions?.get(name) ?? {},
     };
@@ -154,12 +158,13 @@ function codeSamplesOverlay(
   emit: EmitOptions,
   selected: string[],
   registry: Map<string, GeneratorDescriptor>,
-  outputPath: string
+  outputPath: string,
+  pagination?: ModelPagination
 ): string | undefined {
   const actions = [];
   for (const op of allOperations(model.services)) {
     const samples = selected
-      .map((name) => registry.get(name)?.sample?.(op, { model, emit, outputPath }))
+      .map((name) => registry.get(name)?.sample?.(op, { model, emit, outputPath, pagination }))
       .filter((sample): sample is CodeSample => sample !== undefined);
     if (samples.length > 0) {
       actions.push({
@@ -231,6 +236,9 @@ export async function generateClient(
     configDir: options.configDir,
   });
 
+  // ONE pagination resolution for the run: fit-verified, pointers resolved, errors
+  // reported before any generator writes a file.
+  const pagination = resolveModelPagination(model, options.pagination);
   const emit: EmitOptions = {
     serverUrl: options.serverUrl,
     argsStyle: options.argsStyle,
@@ -243,7 +251,7 @@ export async function generateClient(
     runtime: options.runtime,
     importExt: options.importExt,
     goPackage: options.goPackage,
-    pagination: options.pagination,
+    pagination,
     docs: options.docs,
     docsFrontmatter: options.docsFrontmatter,
   };
@@ -256,13 +264,14 @@ export async function generateClient(
     outputPath,
     outputMode: options.outputMode ?? 'single',
     emit,
+    pagination,
     generators: selected,
     generatorOptions,
     registry,
   });
 
   if (options.codeSamples === true) {
-    const overlay = codeSamplesOverlay(model, emit, selected, registry, outputPath);
+    const overlay = codeSamplesOverlay(model, emit, selected, registry, outputPath, pagination);
     if (overlay !== undefined) {
       files.push({ path: outputPath.replace(/\.[^.]+$/, '.code-samples.yaml'), content: overlay });
     }

@@ -2,6 +2,7 @@ import { logger } from '@redocly/openapi-core';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { commandData, renderCliModule, renderComposedCliEntry } from '../cli.js';
+import { resolveModelPagination } from '../pagination.js';
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
@@ -184,7 +185,7 @@ const MODEL: ApiModel = {
 
 describe('commandData', () => {
   it('derives groups from tags, flags from query params, and positionals in path order', () => {
-    const commands = commandData(MODEL, {});
+    const commands = commandData(MODEL, { pagination: resolveModelPagination(MODEL, undefined) });
     const list = commands.find((command) => command.name === 'listOrders');
     expect(list).toMatchObject({
       group: 'Orders',

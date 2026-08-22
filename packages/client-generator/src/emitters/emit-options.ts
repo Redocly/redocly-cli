@@ -1,7 +1,7 @@
 import type { ApiModel } from '../intermediate-representation/model.js';
 import { escapeJsDoc } from './jsdoc.js';
 import type { ArgsStyle } from './operations.js';
-import type { PaginationConfig } from './pagination.js';
+import type { ModelPagination } from './pagination.js';
 import { splitLines } from './support.js';
 import type { DateType } from './types.js';
 
@@ -64,11 +64,11 @@ export type EmitOptions = {
    */
   goPackage?: string;
   /**
-   * Auto-pagination rules (a convention rule + per-operation overrides + `exclude`),
+   * Auto-pagination RESOLVED by the pipeline (fit-verified, one answer per run),
    * resolved together with each operation's `x-redoclyPagination` extension. Verified
    * statically: an explicit rule that doesn't fit its operation fails generation.
    */
-  pagination?: PaginationConfig;
+  pagination?: ModelPagination;
   /**
    * Also write the reference documentation for what each selected generator emits: one
    * Markdown page per generator that implements the `docs` hook. One switch for the whole

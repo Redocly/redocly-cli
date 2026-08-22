@@ -3,6 +3,7 @@ import ts from 'typescript';
 import type { ApiModel } from '../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 import type { EmitOptions } from '../emit-options.js';
+import { resolveModelPagination } from '../pagination.js';
 import { modelWith, namedSchema, operation, param, response, SCALAR } from './fixtures.js';
 
 /** The package arm of the shared emitter. */
@@ -442,9 +443,10 @@ describe('emitClientSingleFile (embed arm)', () => {
 describe('emitClientSingleFile — pagination', () => {
   const PAGINATED = modelWith([listOrders, getOrder], { schemas: [...SCHEMAS, ORDER_PAGE] });
   const config = { operations: { listOrders: CURSOR_RULE } };
+  const pagination = resolveModelPagination(PAGINATED, config);
 
   it('threads a config rule into the descriptor and the Ops item member (package arm)', () => {
-    const out = emit(PAGINATED, { pagination: config });
+    const out = emit(PAGINATED, { pagination });
     expect(out).toContain(
       'pagination: { style: "cursor", param: "cursor", nextCursor: "/nextCursor", items: "/orders" }'
     );
@@ -457,13 +459,13 @@ describe('emitClientSingleFile — pagination', () => {
     const model = modelWith([{ ...listOrders, paginationExtension: CURSOR_RULE }, getOrder], {
       schemas: [...SCHEMAS, ORDER_PAGE],
     });
-    const out = emit(model);
+    const out = emit(model, { pagination: resolveModelPagination(model, undefined) });
     expect(out).toContain('item: Order;');
     expect(out).toContain('pagination: { style: "cursor", param: "cursor",');
   });
 
   it('the iterators ride the binding, so `.pages`/`.items` need no wrapper', () => {
-    const out = emit(PAGINATED, { pagination: config });
+    const out = emit(PAGINATED, { pagination });
     // `listOrders` is the client method itself, which carries `.pages`/`.items` — there is
     // nothing to re-wrap, and therefore no second argument shape to get wrong.
     expect(out).toContain('export const { listOrders, getOrder } = client;');
@@ -472,7 +474,7 @@ describe('emitClientSingleFile — pagination', () => {
   });
 
   it('grouped argsStyle needs no wrapper — properties ride along on the destructure', () => {
-    const out = emit(PAGINATED, { pagination: config, argsStyle: 'grouped' });
+    const out = emit(PAGINATED, { pagination, argsStyle: 'grouped' });
     expect(out).toContain('export const { listOrders, getOrder } = client;');
     expect(out).not.toContain('Object.assign');
   });
@@ -480,7 +482,9 @@ describe('emitClientSingleFile — pagination', () => {
   it('embeds the paginate capability in inline mode only when a descriptor paginates', () => {
     // A security-free model, so paginate is the ONLY capability in the factory wiring.
     const model = modelWith([listOrders], { schemas: [SCHEMAS[0], ORDER_PAGE] });
-    const paginated = emitClientSingleFile(model, { pagination: config });
+    const paginated = emitClientSingleFile(model, {
+      pagination: resolveModelPagination(model, config),
+    });
     expect(paginated).toContain('async function* pages');
     expect(paginated).toContain(
       'createClientCore<Ops, Id, Path, Tag>(operations, config, { paginate: { pages, items, pagesByLink, itemsByLink } })'
@@ -503,7 +507,7 @@ describe('emitClientSingleFile — pagination', () => {
       ],
       { schemas: [...SCHEMAS, ORDER_PAGE] }
     );
-    expect(() => emitClientSingleFile(model)).toThrow(
+    expect(() => resolveModelPagination(model, undefined)).toThrow(
       'Invalid pagination configuration:\n' +
         '  - Pagination for operation "listOrders" (x-redoclyPagination): ' +
         'query parameter "after" is not declared on the operation (declared: cursor, limit)\n' +
@@ -513,12 +517,12 @@ describe('emitClientSingleFile — pagination', () => {
   });
 
   it('matches the golden output for a paginated package client', () => {
-    expect(emit(PAGINATED, { pagination: config })).toMatchSnapshot();
+    expect(emit(PAGINATED, { pagination })).toMatchSnapshot();
   });
 
   it('matches the golden output for a result-mode paginated package client', () => {
     // Result mode: the Ops entry gains `page` (the raw page `.pages()` yields) next to
     // the envelope-wrapped `result`.
-    expect(emit(PAGINATED, { pagination: config, errorMode: 'result' })).toMatchSnapshot();
+    expect(emit(PAGINATED, { pagination, errorMode: 'result' })).toMatchSnapshot();
   });
 });

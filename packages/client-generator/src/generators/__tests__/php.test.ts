@@ -3,8 +3,19 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { resolveModelPagination } from '../../emitters/pagination.js';
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { phpGenerator, phpSample, phpType, renderPhpModels } from '../php/index.js';
+import {
+  phpGenerator as phpGeneratorEntry,
+  phpSample,
+  phpType,
+  renderPhpModels,
+} from '../php/index.js';
+
+// The pipeline resolves pagination once and hands generators the map; these direct
+// calls mirror that step.
+const phpGenerator = (input: Omit<Parameters<typeof phpGeneratorEntry>[0], 'pagination'>) =>
+  phpGeneratorEntry({ ...input, pagination: resolveModelPagination(input.model, undefined) });
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
 
@@ -620,7 +631,8 @@ describe('phpGenerator (full client assembly)', () => {
               headerParams: [],
               cookieParams: [],
               security: [],
-              paginationExtension: { style: 'cursor', cursorParam: 'cursor', items: '' },
+              paginationExtension: { style: 'link', items: '' },
+              successResponseHeaders: [{ name: 'link', schema: STRING }],
               successResponses: [
                 {
                   status: '200',

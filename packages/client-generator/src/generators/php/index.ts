@@ -13,7 +13,6 @@ import {
   identifierFor,
   uniqueIdentifiers,
   isNullable,
-  paginationRuleFor,
   renderReferencePage,
   RESERVED_WORDS,
   unwrapNullable,
@@ -882,7 +881,7 @@ function stripPhpHeader(source: string): string {
 }
 
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
-export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
+export const phpGenerator: Generator = ({ model, outputPath, emit, pagination }) => {
   const printer = new PhpPrinter();
   const dateType = emit.dateType ?? 'string';
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
@@ -907,10 +906,11 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
 
   const operations = model.services.flatMap((service) => service.operations);
   const idents = methodIdents(model);
+  // Pagination arrives RESOLVED from the pipeline — one fit-verified answer per run.
   const paginationRules = new Map<string, NeutralPaginationRule>();
   for (const op of operations) {
-    const rule = paginationRuleFor(op, emit.pagination as Record<string, unknown> | undefined);
-    if (rule !== undefined) paginationRules.set(op.name, rule);
+    const spec = pagination?.get(op.name)?.spec;
+    if (spec !== undefined) paginationRules.set(op.name, spec);
   }
 
   printer.block(
@@ -1015,7 +1015,7 @@ export function phpSample(op: OperationModel, ctx: SampleContext): CodeSample {
  * from `phpSample` — this generator's own hook — so the page can only ever show the syntax
  * of the SDK beside it, and ejecting this generator takes the page with it.
  */
-export const phpDocs: Generator = ({ model, outputPath, emit }) => [
+export const phpDocs: Generator = ({ model, outputPath, emit, pagination }) => [
   {
     path: outputPath.replace(/\.[^.\\/]+$/, '.php.md'),
     content: renderReferencePage(model, {
@@ -1028,7 +1028,7 @@ export const phpDocs: Generator = ({ model, outputPath, emit }) => [
         requires: 'The SDK needs the curl extension.',
       },
       sample: (op) => phpSample(op, { model, emit, outputPath }),
-      pagination: emit.pagination,
+      paginated: new Set(pagination?.keys() ?? []),
     }),
   },
 ];

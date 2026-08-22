@@ -20,7 +20,7 @@ import {
 } from '../runtime/cli.js';
 import { HEADER } from './emit-options.js';
 import { embedCliRuntime } from './inline-runtime.js';
-import { resolveOperationPagination, type PaginationConfig } from './pagination.js';
+import type { ModelPagination } from './pagination.js';
 import { flatInputShape } from './render-client.js';
 import { isSseOp } from './sse.js';
 
@@ -97,7 +97,7 @@ function groupedInputFlag(
 /** Every operation as pure command data — the table `runCli` interprets. */
 export function commandData(
   model: ApiModel,
-  emit: { pagination?: PaginationConfig; argsStyle?: 'grouped' | 'flat' }
+  emit: { pagination?: ModelPagination; argsStyle?: 'grouped' | 'flat' }
 ): CliCommand[] {
   const commands: CliCommand[] = [];
   for (const service of model.services) {
@@ -124,9 +124,7 @@ export function commandData(
         ...(jsonBody === undefined && op.requestBody !== undefined
           ? { unsupportedBody: op.requestBody.contentType }
           : {}),
-        ...(resolveOperationPagination(op, model, emit.pagination).spec !== undefined
-          ? { paginated: true }
-          : {}),
+        ...(emit.pagination?.has(op.name) === true ? { paginated: true } : {}),
         ...groupedInputFlag(op, model, emit.argsStyle),
         ...(isSseOp(op) ? { sse: true } : {}),
         ...(isBlobOp(op) ? { blob: true } : {}),
@@ -173,7 +171,7 @@ export type CliModuleOptions = {
   importExt: string;
   runtime: 'inline' | 'package';
   zodSelected: boolean;
-  pagination?: PaginationConfig;
+  pagination?: ModelPagination;
   /** The sibling client's call shape, which the dispatcher builds its inputs for. */
   argsStyle?: 'grouped' | 'flat';
 };

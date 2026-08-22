@@ -1,4 +1,4 @@
-import type { PaginationConfig } from '../pagination.js';
+import { resolveModelPagination, type PaginationConfig } from '../pagination.js';
 import { renderTanstackModule } from '../tanstack-query.js';
 import { apiModel, namedSchema, operation, param, SCALAR } from './fixtures.js';
 
@@ -12,13 +12,15 @@ function render(
     schemas?: NonNullable<Parameters<typeof apiModel>[0]>['schemas'];
   } = {}
 ) {
-  return renderTanstackModule(
-    apiModel({
-      schemas: extra.schemas ?? [],
-      services: [{ name: 'Default', operations: ops.map(operation) }],
-    }),
-    { sdkModule: SDK, framework: extra.framework ?? 'react', pagination: extra.pagination }
-  );
+  const model = apiModel({
+    schemas: extra.schemas ?? [],
+    services: [{ name: 'Default', operations: ops.map(operation) }],
+  });
+  return renderTanstackModule(model, {
+    sdkModule: SDK,
+    framework: extra.framework ?? 'react',
+    pagination: resolveModelPagination(model, extra.pagination),
+  });
 }
 
 describe('renderTanstackModule', () => {
@@ -442,16 +444,21 @@ describe('a pagination parameter whose name is not an identifier', () => {
   };
 
   it('reads it with bracket access in both argument styles', () => {
-    const grouped = renderTanstackModule(
-      apiModel({ services: [{ name: 'Default', operations: [operation(spec)] }] }),
-      { sdkModule: SDK, framework: 'react', pagination }
-    );
+    const model = apiModel({ services: [{ name: 'Default', operations: [operation(spec)] }] });
+    const resolved = resolveModelPagination(model, pagination);
+    const grouped = renderTanstackModule(model, {
+      sdkModule: SDK,
+      framework: 'react',
+      pagination: resolved,
+    });
     expect(grouped).toContain('initialPageParam: vars.query?.["after-cursor"]');
 
-    const flat = renderTanstackModule(
-      apiModel({ services: [{ name: 'Default', operations: [operation(spec)] }] }),
-      { sdkModule: SDK, framework: 'react', pagination, argsStyle: 'flat' }
-    );
+    const flat = renderTanstackModule(model, {
+      sdkModule: SDK,
+      framework: 'react',
+      pagination: resolved,
+      argsStyle: 'flat',
+    });
     // `vars.["after-cursor"]` would not even parse.
     expect(flat).toContain('initialPageParam: vars["after-cursor"]');
     expect(flat).not.toContain('vars.[');
