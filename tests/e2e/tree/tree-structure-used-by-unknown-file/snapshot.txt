@@ -1,0 +1,3 @@
+No nodes affected.
+
+paths/unknown.yaml does not match any path, operation, or component of openapi.yaml. For file-level analysis, use `--files`.

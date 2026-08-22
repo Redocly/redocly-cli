@@ -1,0 +1,5 @@
+type: string
+enum:
+  - placed
+  - served
+  - paid

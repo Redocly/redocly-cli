@@ -1,0 +1,6 @@
+a.yaml
+└── shared.yaml
+
+b.yaml
+└── shared.yaml
+

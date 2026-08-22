@@ -1,0 +1,28 @@
+flowchart LR
+  n0["/orders"]
+  n1["/orders/{orderId}"]
+  n2["DELETE /orders/{orderId}"]
+  n3["GET /orders"]
+  n4["GET /orders/{orderId}"]
+  n5["POST /orders"]
+  n6["openapi.yaml"]:::root
+  n7["schemas/Error"]
+  n8["schemas/MenuItem"]
+  n9["schemas/Order"]
+  n10["schemas/OrderList"]
+  n11["schemas/OrderStatus"]
+  n0 --> n3
+  n0 --> n5
+  n1 --> n2
+  n1 --> n4
+  n2 --> n7
+  n3 --> n10
+  n4 --> n9
+  n5 --> n9
+  n6 --> n0
+  n6 --> n1
+  n9 --> n8
+  n9 --> n11
+  n10 --> n9
+  classDef root font-weight:bold
+
