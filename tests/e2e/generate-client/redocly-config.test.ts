@@ -194,17 +194,16 @@ describe('generate-client redocly.yaml config', () => {
         '    root: ./openapi.yaml',
         '    clientOutput: ./out.ts',
         '    client:',
-        '      runtime: package',
+        '      argsStyle: flat',
       ].join('\n') + '\n'
     );
     const res = run(dir, ['cafe']);
     expect(res.status, res.stderr).toBe(0);
     const entry = readFileSync(join(dir, 'out.ts'), 'utf-8');
     // The per-api block applied…
-    expect(entry).toContain("from '@redocly/client-generator'");
+    expect(entry).toContain('argsStyle: "flat"');
     // …and the top-level fields did NOT leak in: default throw mode, no zod module.
-    // (`\b` keeps the throw-mode `EnvelopeResult<` from matching.)
-    expect(entry).not.toMatch(/\bResult</);
+    expect(entry).not.toContain('errorMode: "result"');
     expect(existsSync(join(dir, 'out.zod.ts'))).toBe(false);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
@@ -458,27 +457,7 @@ describe('generate-client redocly.yaml config', () => {
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('a `client.runtime: package` config block reaches the writer', () => {
-    const dir = project(
-      [
-        'apis:',
-        '  cafe:',
-        '    root: ./openapi.yaml',
-        '    clientOutput: ./out.ts',
-        '    client:',
-        '      generators: [typescript]',
-        '      runtime: package',
-      ].join('\n') + '\n'
-    );
-    const res = run(dir, ['cafe']);
-    expect(res.status, res.stderr).toBe(0);
-    const out = readFileSync(join(dir, 'out.ts'), 'utf-8');
-    expect(out).toContain("from '@redocly/client-generator'");
-    expect(out).not.toContain('__send');
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('a per-api block drives split output, extra generators, and the package runtime', () => {
+  it('a per-api block drives split output and extra generators', () => {
     const dir = project(
       [
         'apis:',
@@ -488,7 +467,6 @@ describe('generate-client redocly.yaml config', () => {
         '    client:',
         '      generators: [typescript, zod]',
         '      outputMode: split',
-        '      runtime: package',
       ].join('\n') + '\n'
     );
     const res = run(dir, ['realm']);
@@ -496,9 +474,6 @@ describe('generate-client redocly.yaml config', () => {
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     expect(existsSync(join(dir, 'out/client.schemas.ts'))).toBe(true); // split layout
     expect(existsSync(join(dir, 'out/client.zod.ts'))).toBe(true);
-    expect(readFileSync(join(dir, 'out/client.ts'), 'utf-8')).toContain(
-      "from '@redocly/client-generator'" // package runtime
-    );
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

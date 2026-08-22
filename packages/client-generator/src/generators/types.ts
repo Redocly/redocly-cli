@@ -52,8 +52,8 @@ export type EmitOptions = {
    * via `mergeSetup`. Absent when no `--setup` is given.
    */
   setup?: string;
-  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
-  runtime?: 'inline' | 'package';
+  /** Runtime distribution: 'inline' (default) embeds the runtime in the generated file. */
+  runtime?: 'inline';
   /**
    * Extension used in generated relative import specifiers (the split entry's schemas
    * re-export and each satellite's sdk import). `'js'` (default) is the tsc/bundler
@@ -200,7 +200,7 @@ export type SampleContext = {
  *
  * - `requires`: other generators that must also be selected (e.g. `tanstack-query`
  *   imports the client's operation functions, so it requires `typescript`).
- * - `errorModes` / `dateTypes` / `runtimes`: the subset this generator supports;
+ * - `errorModes` / `dateTypes`: the subset this generator supports;
  *   `undefined` means "all". (`tanstack-query` wraps throw-mode functions, so it
  *   supports only `throw` mode; `transformers` only type-checks when the client types
  *   date fields as `Date`, so it supports only `dateType: 'Date'`.)
@@ -225,8 +225,6 @@ export type GeneratorDescriptor = {
   requires?: string[];
   errorModes?: ErrorMode[];
   dateTypes?: DateType[];
-  /** Runtime modes this generator supports; absent = compatible with both. */
-  runtimes?: ('inline' | 'package')[];
   /**
    * Options this generator does not apply, mapped to the reason it doesn't. Setting
    * one explicitly warns instead of being silently dropped — a global option

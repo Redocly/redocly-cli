@@ -172,7 +172,6 @@ function codeJson(value: unknown, indent?: number): string {
 export type CliModuleOptions = {
   stem: string;
   importExt: string;
-  runtime: 'inline' | 'package';
   zodSelected: boolean;
   pagination?: ModelPagination;
   /** The sibling client's call shape, which the dispatcher builds its inputs for. */
@@ -232,19 +231,12 @@ export function renderCliModule(model: ApiModel, options: CliModuleOptions): str
     HEADER,
     'import { readFileSync, realpathSync, writeFileSync } from "node:fs";\nimport { fileURLToPath } from "node:url";',
     [
-      ...(options.runtime === 'package'
-        ? [
-            'import { invokedName, runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";',
-          ]
-        : []),
       `import { ${clientImports.join(', ')} } from "${clientModule}";`,
       ...(options.zodSelected
         ? [`import { zodValidation } from "./${options.stem}.zod.${options.importExt}";`]
         : []),
     ].join('\n'),
-    ...(options.runtime === 'inline'
-      ? ['// ─── Embedded cli engine (@redocly/client-generator) ───\n' + embedCliRuntime()]
-      : []),
+    '// ─── Embedded cli engine (@redocly/client-generator) ───\n' + embedCliRuntime(),
     `export const COMMANDS: CliCommand[] = ${codeJson(commands, 2)};`,
     ...(options.zodSelected
       ? [
@@ -340,6 +332,9 @@ ${entries.join('\n')}
 /** Run the composed CLI programmatically; defaults to the process argv. */
 export const run = (argv: string[] = process.argv.slice(2)): Promise<number> =>
   runCli(SOURCES, argv);
+
+// Re-exported so a wrapper (a custom \`login\` command) can run these sources itself.
+export { runCli };
 
 ${ENTRY_GUARD}`,
     ].join('\n\n') + '\n'

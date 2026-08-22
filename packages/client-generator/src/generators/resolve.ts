@@ -151,7 +151,6 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
     requires: custom.requires,
     errorModes: custom.errorModes,
     dateTypes: custom.dateTypes,
-    runtimes: custom.runtimes,
   });
 }
 

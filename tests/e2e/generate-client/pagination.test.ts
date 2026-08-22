@@ -18,7 +18,6 @@ const fixture = join(__dirname, 'fixtures/pagination.yaml');
 const consumerDir = join(__dirname, 'pagination-consumer');
 const apiFile = join(consumerDir, 'api.ts');
 const apiOffsetFile = join(consumerDir, 'api-offset.ts');
-const apiPackageFile = join(consumerDir, 'api-package.ts');
 const serverScript = join(consumerDir, 'server.ts');
 
 const SERVER_PORT = 3131;
@@ -57,7 +56,7 @@ describe('generate-client pagination consumer', () => {
   let serverProcess: ChildProcess | undefined;
 
   beforeAll(async () => {
-    for (const file of [apiFile, apiOffsetFile, apiPackageFile]) {
+    for (const file of [apiFile, apiOffsetFile]) {
       if (existsSync(file)) rmSync(file, { force: true });
     }
 
@@ -86,8 +85,6 @@ describe('generate-client pagination consumer', () => {
       output: apiOffsetFile,
       pagination: { style: 'offset', offsetParam: 'offset', limitParam: 'limit', items: '/items' },
     });
-    // Package arm: same extension-driven spec, runtime imported from the package.
-    await generateClient({ api: fixture, output: apiPackageFile, runtime: 'package' });
 
     const api = readFileSync(apiFile, 'utf-8');
     // The extension is normalized into the descriptor (param unified, stable key order).
@@ -127,15 +124,6 @@ describe('generate-client pagination consumer', () => {
     expect(offset).toContain(
       'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
     );
-
-    const pkg = readFileSync(apiPackageFile, 'utf-8');
-    // Package mode: no embedded runtime — pagination arrives via the import.
-    expect(pkg).toContain("from '@redocly/client-generator'");
-    expect(pkg).not.toContain('// ─── Embedded runtime');
-    expect(pkg).toContain(
-      'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
-    );
-    expect(pkg).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
   }, 60_000);
 
   test('typecheck gate: all three generated clients + consumer scripts, strict', () => {
@@ -225,19 +213,5 @@ describe('generate-client pagination consumer', () => {
     const pageRequests = log.filter((e) => e.url.startsWith('/orders'));
     expect(pageRequests.length).toBeGreaterThanOrEqual(1);
     expect(pageRequests.length).toBeLessThanOrEqual(2);
-  }, 60_000);
-
-  test('package-mode arm: .items() runs on the runtime imported from the package', async () => {
-    await resetLog();
-    const { stdout } = runConsumer('index-package.ts');
-    const parsed = JSON.parse(stdout.trim()) as { ids: string[] };
-    expect(parsed.ids).toEqual(['o-1', 'o-2', 'o-3', 'o-4', 'o-5']);
-
-    const log = await fetchLog();
-    expect(log.map((e) => e.url)).toEqual([
-      '/orders?limit=2',
-      '/orders?limit=2&cursor=c2',
-      '/orders?limit=2&cursor=c3',
-    ]);
   }, 60_000);
 });

@@ -16,7 +16,6 @@ export const cliGenerator: Generator = ({ model, output, emit, selected, paginat
   const content = renderCliModule(model, {
     stem: output.stem,
     importExt: emit.importExt ?? 'js',
-    runtime: emit.runtime ?? 'inline',
     zodSelected: selected?.includes('zod') ?? false,
     pagination,
     argsStyle: emit.argsStyle ?? 'grouped',

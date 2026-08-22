@@ -161,8 +161,8 @@ Use this to add behavior that is not in a description, for example a `login` or 
 The custom command lives in a file that you own:
 
 ```ts
-import { runCli, type CustomCommand } from '@redocly/client-generator';
-import { SOURCES } from './src/cafe.ts'; // the composed entry exports its sources
+import type { CustomCommand } from '@redocly/client-generator';
+import { runCli, SOURCES } from './src/cafe.ts'; // the composed entry exports its sources and the engine
 
 const login: CustomCommand = {
   name: 'login',
@@ -404,30 +404,6 @@ Because of this, a page cannot describe something other than what the run produc
 Set `client.docsFrontmatter: true` to put YAML front matter with the title above each page, for docs sites that expect it.
 For a different structure or wording, [eject the generator](../commands/eject-generator.md) that owns the page.
 The renderer is the template, so an ejected generator keeps writing its page and you own the layout.
-
-## Package runtime
-
-By default, the generator embeds the runtime in the generated file, so the client is self-contained.
-With [`--runtime package`](../commands/generate-client.md#choose-a-runtime), the generated file imports the runtime from `@redocly/client-generator` instead.
-Your application code is **identical in both modes**: the same exports and the same call shapes.
-Only the location of the engine changes.
-Select `package` to get engine fixes and improvements through `npm update @redocly/client-generator`, with no regeneration.
-
-Install the runtime as a regular dependency and set the mode in `redocly.yaml`:
-
-```sh
-npm install @redocly/client-generator
-```
-
-```yaml
-client:
-  runtime: package # default: inline (self-contained)
-```
-
-If the generated file and the runtime are incompatible, your `tsc` build fails on the descriptor `satisfies` check.
-The pair does not misbehave at runtime.
-Package mode works with both output modes and every generator.
-See the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
 
 ## Run with Node directly
 

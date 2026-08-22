@@ -81,8 +81,8 @@ export type GenerateClientOptions = {
    * across all output modes.
    */
   setup?: string;
-  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
-  runtime?: 'inline' | 'package';
+  /** Runtime distribution: 'inline' (default) embeds the runtime in the generated file. */
+  runtime?: 'inline';
   /** Extension in generated relative imports. `'js'` (default) suits tsc and bundlers;
    * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
    * type stripping (`node client.ts`). */

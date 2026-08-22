@@ -1,13 +1,9 @@
-// Client assembly, shared by both runtime distributions and both output modes. The
-// wiring (descriptor map + `Ops` interface) is identical; only the runtime block
-// differs — `runtime: 'package'` imports `createClient` from
-// `@redocly/client-generator`, everything else (inline, the default) embeds the
-// assembled runtime sources in its place (emitters/inline-runtime.ts). Single-file
-// layout: runtime (import line | embedded block) → schema types → type guards →
-// `<Op>*` aliases → Ops → OPERATIONS → (baked setup) → client instance → sugar →
-// (package mode only) type re-exports — the embedded types are already exported in
-// place, so the embed arm needs none. Split mode moves the schema types + guards into
-// a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
+// Client assembly, shared by both output modes. The generated file embeds the
+// assembled runtime sources (emitters/inline-runtime.ts). Single-file layout:
+// schema types → type guards → `<Op>*` aliases → Ops → OPERATIONS → embedded
+// runtime → (baked setup) → client instance → sugar — the embedded types are
+// already exported in place, so no re-exports. Split mode moves the schema types +
+// guards into a sibling `<stem>.schemas.ts` the entry re-exports (`emitClientSplit`).
 // Text templates throughout — no `typescript` at generate time.
 
 import { assembleInlineRuntime } from '../../emitters/inline-runtime.js';
@@ -29,8 +25,6 @@ import {
 } from './render-client.js';
 import { renderTypeAliases } from './ts-type.js';
 import { renderTypeGuards } from './type-guards.js';
-
-const PACKAGE_SPECIFIER = '@redocly/client-generator';
 
 export function emitClientSingleFile(model: ApiModel, options: EmitOptions = {}): string {
   return emitClient(model, options).entry;
@@ -57,7 +51,6 @@ function emitClient(
   options: EmitOptions,
   splitStem?: string
 ): { entry: string; schemas?: string } {
-  const embed = options.runtime !== 'package';
   const ops = allOperations(model.services);
   const idents = packageIdents(model);
   // Resolved (and VERIFIED) up front: an explicit rule that doesn't fit throws here,
@@ -72,7 +65,6 @@ function emitClient(
     pagination,
   };
   const hasSse = ops.some((op) => op.sse !== undefined);
-  const hasRegular = ops.some((op) => op.sse === undefined);
 
   const wiring =
     ops.length > 0
@@ -86,17 +78,15 @@ function emitClient(
           'export const OPERATIONS = {} as const satisfies Record<string, OperationDescriptor>;',
         ];
 
-  const runtimeSection = embed
-    ? assembleInlineRuntime({
-        multipart: ops.some((op) => op.requestBody && isTypedMultipart(op.requestBody)),
-        // Auth sugar needs schemes; `resolveAuth` fires when a descriptor carries
-        // `security` — a valid spec implies the former, but embed on either.
-        auth: model.securitySchemes.length > 0 || ops.some((op) => op.security.length > 0),
-        sse: hasSse,
-        setup: !!options.setup,
-        paginate: pagination.size > 0,
-      })
-    : importLine(options, ctx, { hasRegular });
+  const runtimeSection = assembleInlineRuntime({
+    multipart: ops.some((op) => op.requestBody && isTypedMultipart(op.requestBody)),
+    // Auth sugar needs schemes; `resolveAuth` fires when a descriptor carries
+    // `security` — a valid spec implies the former, but embed on either.
+    auth: model.securitySchemes.length > 0 || ops.some((op) => op.security.length > 0),
+    sse: hasSse,
+    setup: !!options.setup,
+    paginate: pagination.size > 0,
+  });
   const schemaSection = [
     renderTypeAliases(model.schemas, ctx.dateType),
     renderTypeGuards(model.schemas),
@@ -107,25 +97,21 @@ function emitClient(
     .filter((section) => section.length > 0)
     .join('\n\n');
   const sugar = sugarSection(ops, idents);
-  // Embed mode exports its whole public surface in place; only the package arm re-exports.
-  const reexports = embed ? '' : reexportLines(ctx, hasSse);
 
   // Layout puts the reader's OWN API first (types → aliases → Ops → OPERATIONS) and the
-  // machinery after it. In embed mode the runtime block sits between the descriptors and
-  // the `client` initializer — after it for readability, before `client` so every
-  // declaration the module-init call chain touches (hoisted functions AND any future
-  // top-level const) is already evaluated; in package mode the import line leads.
+  // machinery after it. The runtime block sits between the descriptors and the `client`
+  // initializer — after it for readability, before `client` so every declaration the
+  // module-init call chain touches (hoisted functions AND any future top-level const)
+  // is already evaluated.
   if (splitStem === undefined) {
     return {
       entry: banner([
         HEADER,
         renderTitleComment(model),
-        ...(embed ? [] : [runtimeSection]),
         [schemaSection, bodySection].filter((section) => section.length > 0).join('\n\n'),
-        ...(embed ? [runtimeSection] : []),
+        runtimeSection,
         clientSection(options, ctx, model),
         sugar,
-        reexports,
       ]),
     };
   }
@@ -138,12 +124,10 @@ function emitClient(
       hasSchemas
         ? schemaLinks(model, ctx, `./${splitStem}.schemas.${options.importExt ?? 'js'}`)
         : '',
-      ...(embed ? [] : [runtimeSection]),
       bodySection,
-      ...(embed ? [runtimeSection] : []),
+      runtimeSection,
       clientSection(options, ctx, model),
       sugar,
-      reexports,
     ]),
     schemas: hasSchemas ? banner([HEADER, renderTitleComment(model), schemaSection]) : undefined,
   };
@@ -159,20 +143,6 @@ function schemaLinks(model: ApiModel, ctx: EmitContext, specifier: string): stri
   const importLine =
     names.length > 0 ? `import type { ${names.join(', ')} } from '${specifier}';\n` : '';
   return `${importLine}export * from '${specifier}';`;
-}
-
-/** The single import from the runtime package — only names the file actually references. */
-function importLine(options: EmitOptions, ctx: EmitContext, refs: { hasRegular: boolean }): string {
-  const values = ['createClient', ...(options.setup ? ['mergeSetup'] : [])];
-  const types = [
-    ...(options.setup ? ['ClientConfig', 'Middleware'] : []),
-    'OperationDescriptor',
-    // `Ops` wraps results in `Result` in result mode — but only NON-SSE members
-    // (an SSE-only spec would otherwise import it unused and fail noUnusedLocals).
-    ...(ctx.errorMode === 'result' && refs.hasRegular ? ['Result'] : []),
-  ].sort();
-  const names = [...values, ...types.map((t) => `type ${t}`)].join(', ');
-  return `import { ${names} } from '${PACKAGE_SPECIFIER}';`;
 }
 
 /** The (optional) baked setup + the default `client` instance. */
@@ -229,22 +199,4 @@ function sugarSection(ops: OperationModel[], idents: Map<string, string>): strin
   const names = ops.map((op) => idents.get(op.name)!).join(', ');
   lines.push(`export const { ${names} } = client;`);
   return lines.join('\n');
-}
-
-/** Public type surface re-exported for single-import DX (plus the `ApiError` class). */
-function reexportLines(ctx: EmitContext, hasSse: boolean): string {
-  const types = [
-    'ClientConfig',
-    'Envelope',
-    'Middleware',
-    'RequestOptions',
-    ...(ctx.errorMode === 'result' ? ['Result'] : []),
-    ...(hasSse ? ['ServerSentEvent', 'SseOptions'] : []),
-  ].sort();
-  return (
-    // `createClient` is re-exported so package-mode consumers can build additional
-    // instances from the generated module alone — symmetric with inline output.
-    `export { ApiError, createClient, defaultRetryOn, TimeoutError } from '${PACKAGE_SPECIFIER}';\n` +
-    `export type { ${types.join(', ')} } from '${PACKAGE_SPECIFIER}';`
-  );
 }

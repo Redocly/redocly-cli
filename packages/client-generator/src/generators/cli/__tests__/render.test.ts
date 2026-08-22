@@ -224,7 +224,6 @@ describe('renderCliModule', () => {
   const options = {
     stem: 'client',
     importExt: 'js',
-    runtime: 'inline' as const,
     zodSelected: false,
   };
 
@@ -245,12 +244,8 @@ describe('renderCliModule', () => {
     expect(out).not.toContain('from "@redocly/client-generator"');
   });
 
-  it('package mode imports runCli from the package; zod co-selection wires validation', () => {
-    const out = renderCliModule(MODEL, { ...options, runtime: 'package', zodSelected: true });
-    expect(out).toContain(
-      'import { invokedName, runCli, type CliCommand, type CliWiring } from "@redocly/client-generator";'
-    );
-    expect(out).not.toContain('function parseInvocation');
+  it('zod co-selection wires validation', () => {
+    const out = renderCliModule(MODEL, { ...options, zodSelected: true });
     expect(out).toContain('import { zodValidation } from "./client.zod.js";');
     expect(out).toContain(
       'use(zodValidation(process.argv.includes("--dry-run") ? { response: false } : {}));'
@@ -285,32 +280,6 @@ describe('renderCliModule', () => {
     renderCliModule(MODEL, options);
     expect(warn).toHaveBeenCalledTimes(2);
     warn.mockRestore();
-  });
-});
-
-describe('the package-mode import line', () => {
-  it('names only values the package root exports', async () => {
-    // The emitted entry is the only consumer of these names, and a missing export breaks
-    // every package-mode CLI at import time rather than at generation.
-    const out = renderCliModule(MODEL, {
-      stem: 'client',
-      importExt: 'js',
-      runtime: 'package',
-      zodSelected: false,
-    });
-    const line = out
-      .split('\n')
-      .find((candidate) => candidate.includes('from "@redocly/client-generator"'));
-    expect(line, 'no package import line found').toBeDefined();
-    const names = line!
-      .slice(line!.indexOf('{') + 1, line!.indexOf('}'))
-      .split(',')
-      .map((specifier) => specifier.trim())
-      .filter((specifier) => specifier !== '' && !specifier.startsWith('type '));
-    const root = (await import('../../../index.js')) as Record<string, unknown>;
-    for (const name of names) {
-      expect(typeof root[name], `${name} is imported but not exported`).toBe('function');
-    }
   });
 });
 

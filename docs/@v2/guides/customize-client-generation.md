@@ -204,7 +204,7 @@ Your coding agent then has the contract, the model reference, and this helper ta
 
 TypeScript is one more output language.
 The `@redocly/client-generator/generate` entry exports the TypeScript-specific renderers.
-These renderers are not on the package root, so the import graph of a `runtime: 'package'` client never includes the generation toolkit.
+These renderers are not on the package root, which stays a small authoring surface.
 `tsType` is the schema-to-type renderer that the built-in `typescript` generator itself uses.
 Because of this, the mapping (refs, arrays, unions, formats, parenthesization) is exactly the same as in the generated client:
 

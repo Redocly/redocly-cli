@@ -77,4 +77,4 @@ export type {
 
 // The TypeScript-emitting renderers (`tsType`, `operationSignature`, …) are exported from
 // `@redocly/client-generator/generate`, which also carries the generation entry point —
-// the runtime-only package root stays free of it.
+// the package root stays a small authoring surface.

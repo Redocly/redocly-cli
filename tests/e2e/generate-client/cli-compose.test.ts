@@ -45,9 +45,10 @@ beforeAll(() => {
   // The user-land entry: everything the extension design promises, in ~20 lines.
   writeFileSync(
     join(dir, 'cafe.ts'),
-    `import { runCli, type CustomCommand } from '@redocly/client-generator';
+    `import type { CustomCommand } from '@redocly/client-generator';
 import * as shop from './shop.client.cli.ts';
 import * as kitchen from './kitchen.client.cli.ts';
+const { runCli } = shop; // the engine is embedded in, and re-exported by, each generated cli module
 
 const login: CustomCommand = {
   name: 'login',

@@ -169,16 +169,16 @@ describe('collectGeneratedFiles', () => {
     }
   });
 
-  it('supports runtime: package with outputMode: split (the shared emitter serves both)', () => {
+  it('supports outputMode: split with no schemas (only the entry file)', () => {
     const files = collectGeneratedFiles(model(), {
       outputPath: '/out/api.ts',
       outputMode: 'split',
-      emit: { runtime: 'package' },
+      emit: {},
       generators: ['typescript'],
     });
     // No schemas in the model → only the entry file.
     expect(files.map((f) => f.path)).toEqual(['/out/api.ts']);
-    expect(files[0].content).toContain("from '@redocly/client-generator'");
+    expect(files[0].content).toContain('// ─── Embedded runtime');
   });
 });
 

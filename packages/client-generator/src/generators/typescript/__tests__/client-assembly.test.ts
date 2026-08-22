@@ -13,9 +13,18 @@ import { resolveModelPagination } from '../../../pagination.js';
 import type { EmitOptions } from '../../types.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 
-/** The package arm of the shared emitter. */
+/**
+ * The emitted client with the embedded runtime block cut out, so assertions and the
+ * golden snapshots cover the wiring this file OWNS — the runtime bytes are pinned by
+ * runtime-sources.test.ts, and full inline output by the e2e cafe snapshot.
+ */
 function emit(model: ApiModel, options: EmitOptions = {}): string {
-  return emitClientSingleFile(model, { ...options, runtime: 'package' });
+  const out = emitClientSingleFile(model, options);
+  const start = out.indexOf('// ─── Embedded runtime');
+  if (start === -1) return out;
+  const setup = out.indexOf('// ─── Baked-in setup', start);
+  const end = setup !== -1 ? setup : out.indexOf('export const client =', start);
+  return out.slice(0, start) + out.slice(end);
 }
 
 const getOrder = operation({
@@ -95,19 +104,8 @@ const CAFE = modelWith([getOrder, createPet, upload, streamEvents, configureOp],
   ],
 });
 
-describe('emitClientSingleFile (package arm)', () => {
+describe('emitClientSingleFile (wiring)', () => {
   const output = emit(CAFE, { serverUrl: 'https://x' });
-
-  it('imports from the package instead of inlining the runtime template', () => {
-    // Only the names the file references. The per-call option types went with the flat
-    // wrappers, and an unused type import fails a consumer's `noUnusedLocals` build.
-    expect(output).toContain(
-      "import { createClient, type OperationDescriptor } from '@redocly/client-generator';"
-    );
-    expect(output).not.toContain('__send');
-    expect(output).not.toContain('__buildUrl');
-    expect(output).not.toContain('let BASE');
-  });
 
   it('escapes U+2028/U+2029 in generated string literals (code-shape hardening)', () => {
     const out = emit(
@@ -188,15 +186,6 @@ describe('emitClientSingleFile (package arm)', () => {
     expect(output).toContain('configure_2 } = client;');
   });
 
-  it('re-exports the public surface', () => {
-    expect(output).toContain(
-      "export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';"
-    );
-    expect(output).toContain(
-      "export type { ClientConfig, Envelope, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';"
-    );
-  });
-
   it('keys a path value by its WIRE name, which is what the runtime substitutes', () => {
     const model = modelWith([
       operation({
@@ -229,14 +218,11 @@ describe('emitClientSingleFile (package arm)', () => {
     );
   });
 
-  it('layers a baked setup OVER the spec defaults and imports the contract types', () => {
+  it('layers a baked setup OVER the spec defaults', () => {
     const out = emit(modelWith([getOrder], { schemas: SCHEMAS }), {
       serverUrl: 'https://x',
       setup: '{ config: { retry: { retries: 2 } } }',
     });
-    expect(out).toContain(
-      "import { createClient, mergeSetup, type ClientConfig, type Middleware, type OperationDescriptor } from '@redocly/client-generator';"
-    );
     expect(out).toContain(
       'const __redoclySetup: { config?: ClientConfig; middleware?: Middleware[] } = { config: { retry: { retries: 2 } } };'
     );
@@ -246,14 +232,10 @@ describe('emitClientSingleFile (package arm)', () => {
     );
   });
 
-  it('result mode with an SSE-only spec does not import the (unreferenced) Result type', () => {
+  it('result mode with an SSE-only spec keeps the SSE member unwrapped', () => {
     const out = emit(modelWith([streamEvents], { schemas: SCHEMAS }), { errorMode: 'result' });
-    expect(out).not.toContain('type Result');
-    // The SSE member stays unwrapped, and the re-export list still offers Result.
     expect(out).toContain('kind: "sse"');
-    expect(out).toContain(
-      "export type { ClientConfig, Envelope, Middleware, RequestOptions, Result, ServerSentEvent, SseOptions } from '@redocly/client-generator';"
-    );
+    expect(out).not.toContain('result: Result<');
   });
 
   it('bakes errorMode: result into the config and wraps Ops results', () => {
@@ -265,7 +247,6 @@ describe('emitClientSingleFile (package arm)', () => {
       '{ serverUrl: "https://x", errorMode: "result", clientHeader: "redocly-client-generator" }'
     );
     expect(out).toContain('result: Result<GetOrderResult, GetOrderError>;');
-    expect(out).toContain('type Result');
   });
 
   it('argsStyle: flat merges the inputs and tells the runtime, keeping one binding', () => {
@@ -345,7 +326,7 @@ describe('emitClientSingleFile (package arm)', () => {
   });
 });
 
-describe('emitClientSingleFile (embed arm)', () => {
+describe('emitClientSingleFile (embedded runtime)', () => {
   const output = emitClientSingleFile(CAFE, { serverUrl: 'https://x' });
 
   it('embeds the runtime block instead of importing the package', () => {
@@ -428,22 +409,8 @@ describe('emitClientSingleFile (embed arm)', () => {
     expect((sourceFile as unknown as { parseDiagnostics: unknown[] }).parseDiagnostics).toEqual([]);
   });
 
-  it('emits wiring (Ops → OPERATIONS, client → sugar) byte-identical to the package arm', () => {
-    const packaged = emit(CAFE, { serverUrl: 'https://x' });
-    // `'export type Ops ='` — the trailing `=` skips the embedded `export type OpsShape`.
-    // In embed mode the runtime block sits between OPERATIONS and `client`, so the
-    // wiring is compared as its two contiguous segments around it.
-    const slice = (out: string, from: string, to: number) => out.slice(out.indexOf(from), to);
-    expect(
-      slice(output, 'export type Ops =', output.indexOf('// ─── Embedded runtime')).trim()
-    ).toBe(slice(packaged, 'export type Ops =', packaged.indexOf('export const client')).trim());
-    expect(slice(output, 'export const client', output.length).trim()).toBe(
-      slice(packaged, 'export const client', packaged.indexOf('export { ApiError,')).trim()
-    );
-  });
-
   // The full inline output is not snapshotted here: the runtime bytes are pinned by
-  // runtime-sources.test.ts, the wiring by the byte-identity test above, and a real
+  // runtime-sources.test.ts, the wiring by the trimmed snapshots above, and a real
   // full inline client by the e2e cafe.snapshot.ts.
 });
 
@@ -452,7 +419,7 @@ describe('emitClientSingleFile — pagination', () => {
   const config = { operations: { listOrders: CURSOR_RULE } };
   const pagination = resolveModelPagination(PAGINATED, config);
 
-  it('threads a config rule into the descriptor and the Ops item member (package arm)', () => {
+  it('threads a config rule into the descriptor and the Ops item member', () => {
     const out = emit(PAGINATED, { pagination });
     expect(out).toContain(
       'pagination: { style: "cursor", param: "cursor", nextCursor: "/nextCursor", items: "/orders" }'
@@ -523,11 +490,11 @@ describe('emitClientSingleFile — pagination', () => {
     );
   });
 
-  it('matches the golden output for a paginated package client', () => {
+  it('matches the golden output for a paginated client (wiring only)', () => {
     expect(emit(PAGINATED, { pagination })).toMatchSnapshot();
   });
 
-  it('matches the golden output for a result-mode paginated package client', () => {
+  it('matches the golden output for a result-mode paginated client (wiring only)', () => {
     // Result mode: the Ops entry gains `page` (the raw page `.pages()` yields) next to
     // the envelope-wrapped `result`.
     expect(emit(PAGINATED, { pagination, errorMode: 'result' })).toMatchSnapshot();

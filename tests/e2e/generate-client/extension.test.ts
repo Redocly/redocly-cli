@@ -86,10 +86,8 @@ describe('extension contract — flat surface (configure)', () => {
 describe('extension contract — per-instance config (createClient)', () => {
   let dir = '';
   beforeAll(() => {
-    // The temp dir lives INSIDE the repo so the consumer's import of
-    // `@redocly/client-generator` resolves through the workspace node_modules symlink.
     dir = mkdtempSync(join(__dirname, '.tmp-ext-instance-'));
-    generateInto(dir, fixture, ['--runtime', 'package']);
+    generateInto(dir, fixture);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -99,8 +97,7 @@ describe('extension contract — per-instance config (createClient)', () => {
     const calls = runConsumer(
       dir,
       outdent`
-        import { createClient } from '@redocly/client-generator';
-        import { OPERATIONS, type Ops } from './client.ts';
+        import { createClient, OPERATIONS, type Ops } from './client.ts';
 
         const calls: Array<{ tag: string; url: string; tenant: string }> = [];
         const make = (tag: string) =>

@@ -896,8 +896,8 @@ yargs(hideBin(process.argv))
           },
           runtime: {
             describe:
-              "Runtime distribution: 'inline' (default) embeds the runtime in the generated file; 'package' imports it from @redocly/client-generator.",
-            choices: ['inline', 'package'] as const,
+              "Runtime distribution: 'inline' (default) embeds the runtime in the generated file.",
+            choices: ['inline'] as const,
             requiresArg: true,
           },
           docs: {

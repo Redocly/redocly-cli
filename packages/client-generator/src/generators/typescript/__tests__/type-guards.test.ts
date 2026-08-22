@@ -2,10 +2,15 @@ import { apiModel, namedSchema } from '../../../emitters/__tests__/fixtures.js';
 import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 
-// The package arm keeps the emitted text free of the embedded runtime, so the
-// absence assertions below test the schema types/guards alone.
-const emitPackage: typeof emitClientSingleFile = (model, options = {}) =>
-  emitClientSingleFile(model, { ...options, runtime: 'package' });
+// Cutting the embedded runtime block keeps the emitted text down to the schema
+// types/guards these assertions target (the runtime bytes are pinned elsewhere).
+const emitWiring: typeof emitClientSingleFile = (model, options = {}) => {
+  const out = emitClientSingleFile(model, options);
+  const start = out.indexOf('// ─── Embedded runtime');
+  return start === -1
+    ? out
+    : out.slice(0, start) + out.slice(out.indexOf('export const client =', start));
+};
 
 describe('discriminated-union type guards (C6.4)', () => {
   const beverage = namedSchema('Beverage', {
@@ -30,7 +35,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits is<Member>() guards for an explicit discriminator', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           beverage,
@@ -59,7 +64,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('skips a discriminator entry whose target is not a named schema', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           beverage,
@@ -82,7 +87,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('emits a single guard when two discriminant values map to the same type', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           namedSchema('Pet', { kind: 'object', properties: [] }),
@@ -112,7 +117,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('synthesizes an implicit discriminator from a shared distinct string const', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           beverage,
@@ -132,7 +137,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('finds the implicit discriminant through intersection (allOf) members', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           namedSchema('A', {
@@ -297,11 +302,11 @@ describe('discriminated-union type guards (C6.4)', () => {
       ],
     ],
   ])('emits no guards when %s', (_reason, schemas) => {
-    expect(emitPackage(apiModel({ schemas }))).not.toContain('value is');
+    expect(emitWiring(apiModel({ schemas }))).not.toContain('value is');
   });
 
   it('ignores non-literal properties while detecting the implicit discriminant', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           namedSchema('R1', {
@@ -374,7 +379,7 @@ describe('discriminated-union type guards (C6.4)', () => {
       { kind: 'object', properties: [{ name: 'pet', schema: catOrDog, required: true }] },
     ],
   ])('emits guards for a discriminated union nested under %s', (_position, container) => {
-    const out = emitPackage(apiModel({ schemas: [cat, dog, namedSchema('PetBox', container)] }));
+    const out = emitWiring(apiModel({ schemas: [cat, dog, namedSchema('PetBox', container)] }));
     expect(out).toContain('export function isCat(value: Cat | Dog): value is Cat {');
     expect(out).toContain('export function isDog(value: Cat | Dog): value is Dog {');
   });
@@ -403,7 +408,7 @@ describe('discriminated-union type guards (C6.4)', () => {
           },
         },
       });
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           item('Ok', 'ok'),
@@ -418,7 +423,7 @@ describe('discriminated-union type guards (C6.4)', () => {
   });
 
   it('prefers the top-level named union param when a member also nests elsewhere', () => {
-    const out = emitPackage(
+    const out = emitWiring(
       apiModel({
         schemas: [
           beverage,
