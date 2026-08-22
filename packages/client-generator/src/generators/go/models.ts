@@ -12,8 +12,8 @@ import {
 } from '@redocly/client-generator';
 import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
 
-import { naming } from './naming.js';
-import { goType } from './types.js';
+import { naming } from './naming.ts';
+import { goType } from './types.ts';
 
 function writeStruct(
   printer: GoPrinter,

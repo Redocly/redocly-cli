@@ -28,7 +28,7 @@ describe.each(['python', 'go', 'php'])('%s folder dogfooding invariant', (langua
       const source = readFileSync(resolve(folder, name), 'utf-8');
       const specifiers = [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1]);
       const violations = specifiers.filter(
-        (specifier) => !allowed.has(specifier) && !/^\.\/[a-z-]+\.js$/.test(specifier)
+        (specifier) => !allowed.has(specifier) && !/^\.\/[a-z-]+\.ts$/.test(specifier)
       );
       expect(violations, name).toEqual([]);
     }

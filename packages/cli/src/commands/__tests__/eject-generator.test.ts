@@ -30,7 +30,7 @@ describe('wireConfig', () => {
     const configPath = join(dir, 'redocly.yaml');
     writeFileSync(configPath, source, 'utf-8');
     try {
-      expect(wireConfig(configPath, 'php', './generators/php.mjs')).toBe(true);
+      expect(wireConfig(configPath, 'php', './generators/php/index.ts')).toBe(true);
       return readFileSync(configPath, 'utf-8');
     } finally {
       rmSync(dir, { recursive: true, force: true });
@@ -48,11 +48,11 @@ describe('wireConfig', () => {
     ).toBe(outdent`
       client:
         generators:
-          - ./generators/php.mjs
+          - ./generators/php/index.ts
           - typescript
     `);
     expect(wire('client:\n  generators: [php, typescript]\n')).toBe(
-      'client:\n  generators: [./generators/php.mjs, typescript]\n'
+      'client:\n  generators: [./generators/php/index.ts, typescript]\n'
     );
   });
 
@@ -67,7 +67,7 @@ describe('wireConfig', () => {
       client:
         generators:
           - typescript
-          - ./generators/php.mjs
+          - ./generators/php/index.ts
     `);
   });
 
@@ -83,7 +83,7 @@ describe('wireConfig', () => {
     ).toBe(outdent`
       client:
         generators:
-          - ./generators/php.mjs
+          - ./generators/php/index.ts
         runtime: package
       apis:
         cafe:
@@ -95,23 +95,23 @@ describe('wireConfig', () => {
     // A mention outside the list (a comment, a longer path) is not wiring.
     expect(
       wire(outdent`
-        # was: ./generators/php.mjs
+        # was: ./generators/php/index.ts
         client:
           generators:
             - typescript
       `)
     ).toBe(outdent`
-      # was: ./generators/php.mjs
+      # was: ./generators/php/index.ts
       client:
         generators:
           - typescript
-          - ./generators/php.mjs
+          - ./generators/php/index.ts
     `);
     // A real list entry is — the file stays unchanged.
     const wired = outdent`
       client:
         generators:
-          - ./generators/php.mjs
+          - ./generators/php/index.ts
     `;
     expect(wire(wired)).toBe(wired);
   });
@@ -129,7 +129,7 @@ describe('wireConfig', () => {
       client:
         generators:
           # our copies:
-          - ./generators/php.mjs # ours
+          - ./generators/php/index.ts # ours
           - typescript
     `);
     // An already-wired entry behind a comment line is found, not duplicated.
@@ -138,7 +138,7 @@ describe('wireConfig', () => {
         generators:
           - typescript
           # ejected:
-          - ./generators/php.mjs
+          - ./generators/php/index.ts
     `;
     expect(wire(wired)).toBe(wired);
   });
@@ -160,7 +160,7 @@ describe('wireConfig', () => {
       'utf-8'
     );
     try {
-      expect(wireConfig(configPath, 'php', './generators/php.mjs')).toBe(false);
+      expect(wireConfig(configPath, 'php', './generators/php/index.ts')).toBe(false);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -184,7 +184,7 @@ describe('wireConfig', () => {
             clientOutput: ./src/client.ts
         client:
           generators:
-            - ./generators/php.mjs
+            - ./generators/php/index.ts
       ` + '\n'
     );
   });
@@ -276,13 +276,13 @@ describe('packedAssets', () => {
     // A directory stands in for the version spec `--update` passes: same pack, same
     // extraction, no registry needed to prove the mechanism.
     const members = [
-      'package/eject-assets/generators/php.mjs',
+      'package/eject-assets/generators/php/index.ts',
       'package/eject-assets/skills/php-generator/SKILL.md',
       'package/eject-assets/skills/not-a-member/SKILL.md',
     ];
     const assets = packedAssets(clientGeneratorDir, members);
     expect(assets.get(members[0])).toBe(
-      readFileSync(join(clientGeneratorDir, 'eject-assets/generators/php.mjs'), 'utf-8')
+      readFileSync(join(clientGeneratorDir, 'eject-assets/generators/php/index.ts'), 'utf-8')
     );
     expect(assets.get(members[1])).toBe(
       readFileSync(join(clientGeneratorDir, 'eject-assets/skills/php-generator/SKILL.md'), 'utf-8')

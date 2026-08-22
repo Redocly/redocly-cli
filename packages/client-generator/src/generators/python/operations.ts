@@ -12,9 +12,9 @@ import {
 } from '@redocly/client-generator';
 import type { PythonPrinter } from '@redocly/client-generator/printers/python';
 
-import { envelopeHeaderSpecs } from './descriptor.js';
-import { METHOD_ARG_SLOTS, naming, PY } from './naming.js';
-import { pythonType } from './types.js';
+import { envelopeHeaderSpecs } from './descriptor.ts';
+import { METHOD_ARG_SLOTS, naming, PY } from './naming.ts';
+import { pythonType } from './types.ts';
 
 export function writeMethod(
   printer: PythonPrinter,

@@ -1,1 +1,5 @@
-export function ejectedSkill(source: string, name: string): string;
+export function ejectedSkill(
+  source: string,
+  name: string,
+  options?: { folder?: boolean }
+): string;

@@ -1,21 +1,21 @@
 import { build } from 'esbuild';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
 import { ejectedSkill } from './ejected-skill.mjs';
 
-// Build the ejectable generator assets — one `.mjs` per built-in generator, which
-// `redocly eject-generator <name>` copies into the user's repo verbatim. Two shapes,
-// because the generators have two shapes:
+// Build the ejectable generator assets, which `redocly eject-generator <name>` copies
+// into the user's repo verbatim. Two shapes, because the generators have two shapes:
 //
-// - A language generator is ONE self-contained file, so it ships as its own source,
-//   type-stripped with comments preserved and its imports rewritten to the public
-//   entries. The user reads their own generator, exactly as we wrote it.
-// - A TypeScript generator is a thin entry over shared emitters, so it ships BUNDLED
-//   with the emitters it uses (esbuild, unminified, one module comment per source file).
+// - A language generator is a self-contained FOLDER of TypeScript stage files, so it
+//   ships as that folder — source copied byte-for-byte (the source already imports the
+//   public package entries), runnable under Node's native type stripping. The user
+//   reads their own generator, exactly as we wrote it.
+// - A TypeScript generator is a thin entry over shared modules, so it ships BUNDLED
+//   into one `.mjs` (esbuild, unminified, one module comment per source file).
 //   `@redocly/client-generator` and `@redocly/openapi-core` stay external — those are
 //   the two packages an ejected generator imports.
 //
@@ -25,6 +25,7 @@ const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const { version } = JSON.parse(readFileSync(join(pkgRoot, 'package.json'), 'utf-8'));
 const outDir = join(pkgRoot, 'eject-assets', 'generators');
 const skillsDir = join(pkgRoot, 'eject-assets', 'skills');
+rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 
 // The shared authoring skill ships as a skill too, so an agent in the user's repo loads
@@ -138,10 +139,13 @@ function checkSyntax(outFile, name) {
 }
 
 /** The generator's design, rewritten for the user's repo and shipped as an agent skill. */
-function writeSkill(name) {
+function writeSkill(name, options) {
   const skill = readFileSync(join(pkgRoot, 'src', 'generators', name, 'AGENTS.md'), 'utf-8');
   mkdirSync(join(skillsDir, `${name}-generator`), { recursive: true });
-  writeFileSync(join(skillsDir, `${name}-generator`, 'SKILL.md'), ejectedSkill(skill, name));
+  writeFileSync(
+    join(skillsDir, `${name}-generator`, 'SKILL.md'),
+    ejectedSkill(skill, name, options)
+  );
 }
 
 const LANGUAGE = [
@@ -217,25 +221,26 @@ for (const { name, imports, run, sample, options, docs } of TYPESCRIPT) {
 }
 
 for (const { name, run, sample, docs } of LANGUAGE) {
-  const source = readFileSync(join(pkgRoot, 'src', 'generators', name, 'index.ts'), 'utf-8')
-    .replaceAll("'../../authoring/index.js'", "'@redocly/client-generator'")
-    .replaceAll(`'../../printers/${name}.js'`, `'@redocly/client-generator/printers/${name}'`)
-    .replaceAll(
-      `'../../emitters/${name}-runtime-sources.js'`,
-      "'@redocly/client-generator/runtime-sources'"
-    );
-  const stripped = ts.transpileModule(source, {
-    compilerOptions: {
-      target: ts.ScriptTarget.ESNext,
-      module: ts.ModuleKind.ESNext,
-      removeComments: false,
-    },
-  }).outputText;
-  const outFile = join(outDir, `${name}.mjs`);
-  writeFileSync(
-    outFile,
-    provenanceHeader(name) + stripped + defaultExport(name, { run, sample, docs })
-  );
-  checkSyntax(outFile, name);
-  writeSkill(name);
+  const sourceDir = join(pkgRoot, 'src', 'generators', name);
+  const assetDir = join(outDir, name);
+  mkdirSync(assetDir, { recursive: true });
+  for (const file of readdirSync(sourceDir).filter((entry) => entry.endsWith('.ts'))) {
+    // The source is the asset: it already imports the public package entries and its
+    // sibling stages by `.ts` extension, so the copy runs under Node's type stripping.
+    // Every file carries the provenance header — `--update` merges per file and reads
+    // the version from the file it is merging.
+    const source = readFileSync(join(sourceDir, file), 'utf-8');
+    const content =
+      provenanceHeader(name) +
+      source +
+      (file === 'index.ts' ? defaultExport(name, { run, sample, docs }) : '');
+    const checked = ts.transpileModule(content, { reportDiagnostics: true });
+    if (checked.diagnostics !== undefined && checked.diagnostics.length > 0) {
+      const message = ts.flattenDiagnosticMessageText(checked.diagnostics[0].messageText, '\n');
+      process.stderr.write(`eject asset ${name}/${file} does not parse: ${message}\n`);
+      process.exit(1);
+    }
+    writeFileSync(join(assetDir, file), content);
+  }
+  writeSkill(name, { folder: true });
 }

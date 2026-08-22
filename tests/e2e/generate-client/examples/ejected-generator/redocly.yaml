@@ -6,4 +6,4 @@ apis:
     clientOutput: ./src/api/client.ts
     client:
       generators:
-        - ./generators/php.mjs
+        - ./generators/php/index.ts

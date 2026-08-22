@@ -1,3 +1,7 @@
+// Ejected from @redocly/client-generator@0.3.7 — the built-in "php" generator.
+// This file is yours: edit freely; the generated client stays machine-owned and is
+// rebuilt by `redocly generate-client`. Newer generator versions merge in with
+// `redocly eject-generator php --update`.
 // The `operations` stage: one typed request method per operation, plus the
 // argument planning and request prologue it shares with the pagination wrappers.
 

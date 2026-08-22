@@ -13,10 +13,10 @@ import {
 } from '@redocly/client-generator';
 import type { PythonPrinter } from '@redocly/client-generator/printers/python';
 
-import { fieldName, naming, operationIdents, PY } from './naming.js';
-import { writeMethod } from './operations.js';
-import { writePaginationWrappers } from './pagination.js';
-import { pythonType } from './types.js';
+import { fieldName, naming, operationIdents, PY } from './naming.ts';
+import { writeMethod } from './operations.ts';
+import { writePaginationWrappers } from './pagination.ts';
+import { pythonType } from './types.ts';
 
 /** The server URL as a Python expression: literals concatenated with declared-variable args. */
 function serverUrlExpression(server: ServerModel): string {

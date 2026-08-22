@@ -1,3 +1,7 @@
+// Ejected from @redocly/client-generator@0.3.7 — the built-in "php" generator.
+// This file is yours: edit freely; the generated client stays machine-owned and is
+// rebuilt by `redocly generate-client`. Newer generator versions merge in with
+// `redocly eject-generator php --update`.
 // The `models` stage: named schemas as promoted-constructor classes with
 // fromArray/toArray hydration, native backed enums, and match-based union
 // dispatchers — plus the wire↔typed value expressions the methods reuse.

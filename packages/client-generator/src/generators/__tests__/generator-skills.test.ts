@@ -11,7 +11,7 @@ import { ejectedSkill } from '../../../scripts/ejected-skill.mjs';
 // missing its modify-loop anchors, fails here.
 const generatorsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** Language generators: one self-contained file, ejected as its own source. */
+/** Language generators: self-contained folders, ejected as their own source. */
 const LANGUAGE = ['python', 'go', 'php'];
 /** TypeScript generators: thin entries over shared emitters, ejected bundled with them. */
 const TYPESCRIPT = ['typescript', 'zod', 'mock', 'cli', 'swr', 'tanstack-query', 'transformers'];
@@ -39,11 +39,10 @@ describe.each(LANGUAGE)('%s generator skill ships to users', (name) => {
     expect(readFileSync(skillPath, 'utf-8')).toContain(`runtime/${name}/`);
   });
 
-  it('ships without repo-only references — the user has no index.ts, prepare, or vitest', () => {
+  it('ships without repo-only references — the user has no prepare script or vitest', () => {
     const asset = join(generatorsDir, '../../eject-assets/skills', `${name}-generator`, 'SKILL.md');
     const shipped = readFileSync(asset, 'utf-8');
-    expect(shipped).toContain(`generators/${name}.mjs`);
-    expect(shipped).not.toContain('index.ts');
+    expect(shipped).toContain(`generators/${name}/`);
     expect(shipped).not.toContain('npm run prepare');
     expect(shipped).not.toContain('vitest');
   });
@@ -61,9 +60,14 @@ describe.each(TYPESCRIPT)('%s generator skill (bundled on eject)', (name) => {
 
 describe.each(EJECTABLE)('%s ships an eject asset', (name) => {
   const assetsDir = join(generatorsDir, '../../eject-assets');
+  // A language generator ships as its source folder (entry index.ts); a TypeScript
+  // generator ships as one bundled .mjs.
+  const assetEntry = LANGUAGE.includes(name)
+    ? join(assetsDir, 'generators', name, 'index.ts')
+    : join(assetsDir, 'generators', `${name}.mjs`);
 
   it('has a generator asset and a skill beside it', () => {
-    expect(existsSync(join(assetsDir, 'generators', `${name}.mjs`))).toBe(true);
+    expect(existsSync(assetEntry)).toBe(true);
     const skill = readFileSync(join(assetsDir, 'skills', `${name}-generator`, 'SKILL.md'), 'utf-8');
     expect(skill.startsWith(`---\nname: ${name}-generator\ndescription: `)).toBe(true);
   });
@@ -76,12 +80,12 @@ describe.each(EJECTABLE)('%s ships an eject asset', (name) => {
       'utf-8'
     );
     const source = readFileSync(join(generatorsDir, name, 'AGENTS.md'), 'utf-8');
-    expect(shipped).toBe(ejectedSkill(source, name));
+    expect(shipped).toBe(ejectedSkill(source, name, { folder: LANGUAGE.includes(name) }));
   });
 
   it('declares the default export the resolver loads, with a version range', () => {
     // The bundled assets go through esbuild, which normalizes quotes — match either.
-    const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
+    const asset = readFileSync(assetEntry, 'utf-8');
     expect(asset).toMatch(new RegExp(`name: ['"]${name}['"]`));
     expect(asset).toMatch(/requiresGenerator: ['"]\^\d+\.\d+\.\d+['"]/);
     expect(asset).toContain('Ejected from @redocly/client-generator@');

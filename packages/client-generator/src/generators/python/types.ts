@@ -7,7 +7,7 @@ import {
   unwrapNullable,
 } from '@redocly/client-generator';
 
-import { className, naming } from './naming.js';
+import { className, naming } from './naming.ts';
 
 /** The Python type annotation for a schema (anonymous complex shapes collapse to Any-ish). */
 export function pythonType(schema: SchemaModel, dateType: DateType = 'string'): string {

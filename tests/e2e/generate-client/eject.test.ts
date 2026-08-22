@@ -48,7 +48,9 @@ describe('eject-generator (end-to-end)', () => {
   it('ejects php: the generator, both skills, a pointer beside the code; re-eject needs --force', () => {
     const eject = run(project, ['eject-generator', 'php']);
     expect(eject.status, eject.stderr).toBe(0);
-    expect(existsSync(join(project, 'generators/php.mjs'))).toBe(true);
+    // A language generator ejects as its source folder — one file per stage, entry index.ts.
+    expect(existsSync(join(project, 'generators/php/index.ts'))).toBe(true);
+    expect(existsSync(join(project, 'generators/php/naming.ts'))).toBe(true);
     // Nothing extra is committed: the merge base comes from the version in the header.
     expect(existsSync(join(project, 'generators/.pristine'))).toBe(false);
 
@@ -91,12 +93,14 @@ describe('eject-generator (end-to-end)', () => {
       ).version;
       expect(pkg.devDependencies['@redocly/client-generator']).toBe(`^${toolkitVersion}`);
       expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8')).toBe(
-        'extends: []\nclient:\n  generators:\n    - typescript\n    - ./generators/go.mjs\n'
+        'extends: []\nclient:\n  generators:\n    - typescript\n    - ./generators/go/index.ts\n'
       );
 
       // Re-ejecting must not add the entry twice.
       expect(run(wired, ['eject-generator', 'go', '--force']).status).toBe(0);
-      expect(readFileSync(join(wired, 'redocly.yaml'), 'utf-8').match(/go\.mjs/g)).toHaveLength(1);
+      expect(
+        readFileSync(join(wired, 'redocly.yaml'), 'utf-8').match(/go\/index\.ts/g)
+      ).toHaveLength(1);
 
       // `--update` re-wires a recorded range the new toolkit no longer satisfies.
       const pinned = JSON.parse(readFileSync(join(wired, 'package.json'), 'utf-8'));
@@ -120,10 +124,10 @@ describe('eject-generator (end-to-end)', () => {
       expect(eject.status, eject.stderr).toBe(0);
       const output = eject.stderr + eject.stdout;
       expect(output).toContain('generators:');
-      expect(output).toContain('./generators/go.mjs');
+      expect(output).toContain('./generators/go/index.ts');
       // Unwired, the run instruction has to name the copy — nothing else points at it.
       expect(output).toContain(
-        'Run it: redocly generate-client <api> --output <path> --generator ./generators/go.mjs'
+        'Run it: redocly generate-client <api> --output <path> --generator ./generators/go/index.ts'
       );
       expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
     } finally {
@@ -140,7 +144,7 @@ describe('eject-generator (end-to-end)', () => {
       const output = eject.stderr + eject.stdout;
       // Wired into the config, the generator needs no flag — only an api and an output.
       expect(output).toContain('Run it: redocly generate-client <api> --output <path>\n');
-      expect(output).toContain('Edit generators/python.mjs and run that again');
+      expect(output).toContain('Edit generators/python/ and run that again');
       expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
       // And that command works as printed.
       const generated = run(project, ['generate-client', 'openapi.yaml', '--output', 'client.ts']);
@@ -167,7 +171,7 @@ describe('eject-generator (end-to-end)', () => {
       '--output',
       'ejected/client.ts',
       '--generator',
-      './generators/php.mjs',
+      './generators/php/index.ts',
     ]);
     expect(ejected.status, ejected.stderr).toBe(0);
     expect(ejected.stderr).toContain('takes over the built-in generator');
@@ -215,29 +219,36 @@ describe('eject-generator (end-to-end)', () => {
     expect(run(project, ['eject-generator', 'nowhere']).status).not.toBe(0);
   }, 60_000);
 
-  it('--update merges cleanly around local edits and marks real conflicts', () => {
-    appendFileSync(join(project, 'generators/php.mjs'), '// my local customization\n');
+  it('--update merges a folder generator per file, keeping local edits', () => {
+    appendFileSync(join(project, 'generators/php/index.ts'), '// my local customization\n');
+    appendFileSync(join(project, 'generators/php/naming.ts'), '// naming tweak\n');
     // The skill is edit-first too — an update must merge around a design note, not drop it.
     const skillPath = join(project, '.claude/skills/php-generator/SKILL.md');
     appendFileSync(skillPath, '\n## Our fork\n\nWe keep the legacy auth header.\n');
     const clean = run(project, ['eject-generator', 'php', '--update']);
     expect(clean.status, clean.stderr).toBe(0);
-    expect(readFileSync(join(project, 'generators/php.mjs'), 'utf-8')).toContain(
+    expect(readFileSync(join(project, 'generators/php/index.ts'), 'utf-8')).toContain(
       '// my local customization'
     );
+    expect(readFileSync(join(project, 'generators/php/naming.ts'), 'utf-8')).toContain(
+      '// naming tweak'
+    );
     expect(readFileSync(skillPath, 'utf-8')).toContain('We keep the legacy auth header.');
+  }, 60_000);
 
-    // A `.pristine/` copy from an older CLI still works as the base, and says it can go.
+  it('--update marks real conflicts, and a legacy .pristine base still works', () => {
+    // zod is a single-file eject, where the `.pristine/` copy from an older CLI still
+    // works as the merge base — and the report says it can go.
     const legacy = join(project, 'generators/.pristine');
     mkdirSync(legacy, { recursive: true });
-    const ejected = join(project, 'generators/php.mjs');
+    const ejected = join(project, 'generators/zod.mjs');
     const base = readFileSync(ejected, 'utf-8').split('\n');
     const mine = [...base];
     base[0] = '// OLD base line';
     mine[0] = '// USER edited line';
-    writeFileSync(join(legacy, 'php.mjs'), base.join('\n'), 'utf-8');
+    writeFileSync(join(legacy, 'zod.mjs'), base.join('\n'), 'utf-8');
     writeFileSync(ejected, mine.join('\n'), 'utf-8');
-    const conflicted = run(project, ['eject-generator', 'php', '--update']);
+    const conflicted = run(project, ['eject-generator', 'zod', '--update']);
     expect(conflicted.status, conflicted.stderr).toBe(0);
     const output = conflicted.stderr + conflicted.stdout;
     expect(output).toContain('conflict');
@@ -260,7 +271,10 @@ describe('eject-generator from source (no bundle)', () => {
           { cwd: project, encoding: 'utf-8' }
         );
         expect(result.status, `${generator}: ${result.stdout}\n${result.stderr}`).toBe(0);
-        expect(existsSync(join(project, `generators/${generator}.mjs`))).toBe(true);
+        const copy = ['python', 'go', 'php'].includes(generator)
+          ? `generators/${generator}/index.ts`
+          : `generators/${generator}.mjs`;
+        expect(existsSync(join(project, copy))).toBe(true);
       }
     } finally {
       rmSync(project, { recursive: true, force: true });

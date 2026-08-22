@@ -1,3 +1,7 @@
+// Ejected from @redocly/client-generator@0.3.7 — the built-in "php" generator.
+// This file is yours: edit freely; the generated client stays machine-owned and is
+// rebuilt by `redocly generate-client`. Newer generator versions merge in with
+// `redocly eject-generator php --update`.
 // The built-in `php` generator — the third non-TypeScript library entry, authored
 // with the language-neutral toolkit only (same dogfooding invariant as python/go,
 // pinned by the guard test). Output is a single PHP >= 8.1 file over the curl
@@ -58,6 +62,8 @@ export const phpGenerator: Generator = ({ model, output, emit, pagination }) => 
   printer.line(
     '// Regenerate with `redocly generate-client`. PHP >= 8.1, curl extension — zero Composer dependencies.'
   );
+  // CUSTOMIZATION: our platform banner — regeneration keeps it, `--update` merges around it.
+  printer.line('// Maintained by the Cafe platform team; see generators/php/.');
   printer.blank();
   printer.line('declare(strict_types=1);');
   printer.blank();
@@ -197,3 +203,18 @@ export const phpDocs: Generator = ({ model, output, emit, pagination }) => [
     }),
   },
 ];
+
+export default {
+  name: 'php',
+  run: phpGenerator,
+  sample: phpSample,
+  docs: phpDocs,
+  errorModes: ["throw"],
+  notApplicable: {
+    "outputMode": "it always emits one self-contained file",
+    "runtime": "the runtime is always embedded in the generated file",
+    "argsStyle": "inputs follow the target language's own idiom",
+    "importExt": "the generated file has no relative imports"
+  },
+  requiresGenerator: '^0.3.7',
+};

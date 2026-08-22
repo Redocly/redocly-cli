@@ -1,13 +1,13 @@
 ---
 name: python-generator
-description: Design of the ejected Redocly `python` client generator. Read it, and update it, before changing generators/python.mjs.
+description: Design of the ejected Redocly `python` client generator. Read it, and update it, before changing generators/python/.
 ---
 
 # The `python` generator — its skill
 
-This file is the DESIGN of your ejected `python` generator (`generators/python.mjs`):
+This file is the DESIGN of your ejected `python` generator (`generators/python/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/python.mjs` that has no covering sentence here is incomplete.
+to `generators/python/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -101,7 +101,7 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/python.mjs` match it.
+2. Make `generators/python/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

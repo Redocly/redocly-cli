@@ -29,6 +29,7 @@
     },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
     "esModuleInterop": true
   },
   "exclude": ["tests/e2e/generate-client/examples", "tests/e2e/generate-client/*-consumer"]

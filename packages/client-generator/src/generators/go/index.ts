@@ -20,16 +20,16 @@ import {
 import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
 import { GO_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
 
-import { writeGoServers } from './client.js';
-import { goPaginationLiteral, goSecurityLiteral } from './descriptor.js';
-import { renderGoModels } from './models.js';
-import { GO, goOperationIdents, goPackageName, naming } from './naming.js';
-import { writeGoMethod } from './operations.js';
-import { writeGoPaginationWrappers } from './pagination.js';
-import { goType } from './types.js';
+import { writeGoServers } from './client.ts';
+import { goPaginationLiteral, goSecurityLiteral } from './descriptor.ts';
+import { renderGoModels } from './models.ts';
+import { GO, goOperationIdents, goPackageName, naming } from './naming.ts';
+import { writeGoMethod } from './operations.ts';
+import { writeGoPaginationWrappers } from './pagination.ts';
+import { goType } from './types.ts';
 
-export { renderGoModels } from './models.js';
-export { goType } from './types.js';
+export { renderGoModels } from './models.ts';
+export { goType } from './types.ts';
 
 /** Strip the package clause and import lines/blocks so a section stitches into one file. */
 function stripHeader(source: string): string {

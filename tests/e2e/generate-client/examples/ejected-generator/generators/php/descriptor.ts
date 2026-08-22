@@ -1,3 +1,7 @@
+// Ejected from @redocly/client-generator@0.3.7 — the built-in "php" generator.
+// This file is yours: edit freely; the generated client stays machine-owned and is
+// rebuilt by `redocly generate-client`. Newer generator versions merge in with
+// `redocly eject-generator php --update`.
 // The `descriptor` stage: the operations-table array literals — security
 // OR-alternatives, the pagination spec, and envelope-header coerce specs.
 

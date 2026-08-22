@@ -1,13 +1,13 @@
 ---
 name: php-generator
-description: Design of the ejected Redocly `php` client generator. Read it, and update it, before changing generators/php.mjs.
+description: Design of the ejected Redocly `php` client generator. Read it, and update it, before changing generators/php/.
 ---
 
 # The `php` generator — its skill
 
-This file is the DESIGN of your ejected `php` generator (`generators/php.mjs`):
+This file is the DESIGN of your ejected `php` generator (`generators/php/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/php.mjs` that has no covering sentence here is incomplete.
+to `generators/php/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -103,7 +103,7 @@ $idempotencyKey` on mutating methods.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/php.mjs` match it.
+2. Make `generators/php/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 
