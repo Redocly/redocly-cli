@@ -168,7 +168,7 @@ describe('config-driven composition (client.cliOutput)', () => {
       'utf-8'
     );
     // Eject the cli generator first: composition keys off the emitted module, so a
-    // `./generators/cli.mjs` path entry must compose exactly like the built-in name.
+    // `./generators/cli/index.ts` path entry must compose exactly like the built-in name.
     const ejected = spawnSync(
       'node',
       [cliEntry, 'eject-generator', 'cli', '--config', join(project, 'redocly.yaml')],
@@ -176,7 +176,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     );
     expect(ejected.status, ejected.stderr).toBe(0);
     expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
-      'generators: [typescript, zod, ./generators/cli.mjs]'
+      'generators: [typescript, zod, ./generators/cli/index.ts]'
     );
     const generated = spawnSync(
       'node',
