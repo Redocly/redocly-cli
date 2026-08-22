@@ -1,24 +1,26 @@
-import type { DateType } from '../../authoring/options.js';
-// The operation-level renderers behind the client assembly: the `Ops` type map,
-// the `<Op>*` alias cluster, the flat call sugar, and the split layout's schema
-// import list — all derived from the IR and the shared `EmitContext`.
 import {
   allOperations,
   type ApiModel,
+  type ArgsStyle,
+  type DateType,
+  type ErrorMode,
+  type ModelPagination,
   type NamedSchemaModel,
   type OperationModel,
   type ParamModel,
   type RequestBodyModel,
   type ResponseBodyModel,
   type SchemaModel,
-} from '../../intermediate-representation/model.js';
-import type { ModelPagination } from '../../pagination.js';
-import { pascalCase, safeIdent } from '../../printers/typescript.js';
-import type { ArgsStyle, ErrorMode } from '../types.js';
-import { operationSignature, templatePathParams } from './operation-signature.js';
-import { isTypedMultipart } from './operation-types.js';
-import { responseHeadersTypeText } from './response-headers.js';
-import { tsJsdoc, tsType } from './ts-type.js';
+} from '@redocly/client-generator';
+// The operation-level renderers behind the client assembly: the `Ops` type map,
+// the `<Op>*` alias cluster, the flat call sugar, and the split layout's schema
+// import list — all derived from the IR and the shared `EmitContext`.
+import { pascalCase, safeIdent } from '@redocly/client-generator/printers/typescript';
+
+import { operationSignature, templatePathParams } from './operation-signature.ts';
+import { isTypedMultipart } from './operation-types.ts';
+import { responseHeadersTypeText } from './response-headers.ts';
+import { tsJsdoc, tsType } from './ts-type.ts';
 
 /**
  * The emit configuration every operation shares. Bundling it into one value keeps

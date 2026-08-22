@@ -2,25 +2,23 @@
 // `<stem>.cli.ts` — a shebang entry that embeds (inline) or imports (package)
 // the `runCli` engine and dispatches through the sibling generated client.
 
-import { logger } from '@redocly/openapi-core';
-
-import { casing } from '../../authoring/naming.js';
-import { flatInputShape } from '../../contracts/typescript.js';
-import { embedCliRuntime } from '../../emitters/inline-runtime.js';
-import type {
-  ApiModel,
-  OperationModel,
-  ParamModel,
-  SchemaModel,
-} from '../../intermediate-representation/model.js';
-import type { ModelPagination } from '../../pagination.js';
 import {
-  constantCase,
-  groupSlug,
+  type ApiModel,
+  casing,
   type CliAuthScheme,
   type CliCommand,
   type CliFlag,
-} from './runtime/cli.js';
+  constantCase,
+  groupSlug,
+  type ModelPagination,
+  type OperationModel,
+  type ParamModel,
+  type SchemaModel,
+} from '@redocly/client-generator';
+import { flatInputShape } from '@redocly/client-generator/contracts/typescript';
+import { logger } from '@redocly/openapi-core';
+
+import { embedCliRuntime } from './engine-source.ts';
 
 // The generated-by banner every emitted module carries (same lines as the pipeline's
 // `input.banner`, rendered in `//` syntax).

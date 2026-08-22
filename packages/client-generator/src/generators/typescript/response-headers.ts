@@ -1,14 +1,14 @@
 // Success-response header helpers: descriptor parse hints + Ops / alias type text
 // for throw-mode `{ envelope: true }`.
 
-import { headerCoerceType } from '../../authoring/index.js';
-import type {
-  NamedSchemaModel,
-  ResponseHeaderModel,
-  SchemaModel,
-} from '../../intermediate-representation/model.js';
-import { headerPropertyKey, uniqueIdent } from '../../printers/typescript.js';
-import type { ResponseHeaderSpec } from './runtime/types.js';
+import {
+  headerCoerceType,
+  type NamedSchemaModel,
+  type ResponseHeaderModel,
+  type ResponseHeaderSpec,
+  type SchemaModel,
+} from '@redocly/client-generator';
+import { headerPropertyKey, uniqueIdent } from '@redocly/client-generator/printers/typescript';
 
 const INDENT = '    ';
 

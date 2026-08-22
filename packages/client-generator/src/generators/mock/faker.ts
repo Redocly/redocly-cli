@@ -1,6 +1,6 @@
 // Builds the body value for a faker-mode mock factory: a tree of
 // `@faker-js/faker` call expressions that produce realistic — and, with a seed,
-// reproducible — data. Structurally mirrors `emitters/sample.ts`'s `walk` (same
+// reproducible — data. Structurally mirrors `./sample.ts`'s `walk` (same
 // recursion + same visited-set cycle guard), but yields faker calls instead of a
 // static value. Nested refs are INLINED under the same cycle guard (never
 // `create<Ref>()` calls), so a cyclic schema terminates with `null` at the cycle
@@ -9,16 +9,17 @@
 // `mockData` without touching call sites; `@faker-js/faker` becomes their
 // dev-dep while the real client stays dependency-free.
 
-import type { DateType } from '../../authoring/options.js';
-import type {
-  NamedSchemaModel,
-  ScalarKind,
-  SchemaMetadata,
-  SchemaModel,
-} from '../../intermediate-representation/model.js';
-import { codeLiteral } from '../../printers/typescript.js';
-import { splitIntersection } from './sample.js';
-import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.js';
+import {
+  type DateType,
+  type NamedSchemaModel,
+  type ScalarKind,
+  type SchemaMetadata,
+  type SchemaModel,
+} from '@redocly/client-generator';
+import { codeLiteral } from '@redocly/client-generator/printers/typescript';
+
+import { splitIntersection } from './sample.ts';
+import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.ts';
 
 /** The faker-call value for an IR schema. Refs resolve against `schemas`;
  *  recursion is cut with a visited-set (`null` at the cycle). `dateType` mirrors
@@ -39,7 +40,7 @@ export function fakerExpression(
 /**
  * Sentinel returned by `walk` when a `$ref` re-enters a name already on the stack.
  * Containers turn it into the type-correct empty value for their position — an array
- * to `[]`, a record to `{}`, an optional property to omission — mirroring `emitters/sample.ts`
+ * to `[]`, a record to `{}`, an optional property to omission — mirroring `./sample.ts`
  * so a recursive schema yields a faker tree that still satisfies its non-nullable type.
  * Only a required, non-container self-reference (an uninhabitable schema) degrades to null.
  */

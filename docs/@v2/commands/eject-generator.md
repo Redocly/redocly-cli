@@ -37,14 +37,12 @@ redocly eject-generator php --force
 
 The eject operation writes the generator and its design:
 
-- A language generator (`python`, `go`, `php`) ejects as `<dir>/<name>/` — its TypeScript source folder, exactly as it was written.
-  Each stage of the generator is one file (`naming.ts`, `types.ts`, `models.ts`, `descriptor.ts`, `operations.ts`, `pagination.ts`, `client.ts`), and `index.ts` is the entry.
-  Running a TypeScript generator uses Node's own type stripping, which requires Node 22.18, 23.6, or newer.
-- A TypeScript-family generator ejects as one plain ESM file, `<dir>/<name>.mjs`, bundled together with the shared modules that it uses.
-  The bundle is not minified, and a comment marks each source module.
+- Every generator ejects as `<dir>/<name>/` — its TypeScript source folder, exactly as it was written.
+  Each concern of the generator is one file, and `index.ts` is the entry.
+  Running an ejected generator uses Node's own type stripping, which requires Node 22.18, 23.6, or newer.
 
-  In both cases, the generator imports the authoring toolkit from `@redocly/client-generator`.
-  A bundled generator also imports `logger` and `isPlainObject` from `@redocly/openapi-core`, which is a dependency of the toolkit.
+  The generator imports the authoring toolkit from `@redocly/client-generator`.
+  Some generators also import `logger` or `isPlainObject` from `@redocly/openapi-core`, which is a dependency of the toolkit; the command tells you when yours does.
   If your package manager does not hoist dependencies, add `@redocly/openapi-core` explicitly.
 
 - `.claude/skills/<name>-generator/SKILL.md` is the design of the generator, written as an agent skill.

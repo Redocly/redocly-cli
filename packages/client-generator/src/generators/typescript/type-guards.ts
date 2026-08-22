@@ -1,8 +1,4 @@
-import type {
-  DiscriminatorModel,
-  NamedSchemaModel,
-  SchemaModel,
-} from '../../intermediate-representation/model.js';
+import type { DiscriminatorModel, NamedSchemaModel, SchemaModel } from '@redocly/client-generator';
 
 /**
  * A discriminated union we can emit guards for, found while walking the schema

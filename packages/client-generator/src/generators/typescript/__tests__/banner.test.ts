@@ -1,4 +1,4 @@
-import { apiModel } from '../../../emitters/__tests__/fixtures.js';
+import { apiModel } from '../../../__tests__/fixtures.js';
 import { banner, HEADER, renderTitleComment } from '../banner.js';
 
 describe('banner', () => {

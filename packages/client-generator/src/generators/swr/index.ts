@@ -1,7 +1,7 @@
+import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import type { Generator } from '../types.js';
-import { renderSwrModule } from './render.js';
+import { renderSwrModule } from './render.ts';
 
 /**
  * The swr generator: a standalone `<stem>.swr.ts` module of SWR hooks wrapping the

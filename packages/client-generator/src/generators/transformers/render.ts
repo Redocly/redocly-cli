@@ -9,12 +9,8 @@
 // `transformPet` calls `transformOwner(data["owner"])` when `Pet.owner` is an
 // `Owner` that has dates. Source-text templates throughout.
 
-import type {
-  ApiModel,
-  NamedSchemaModel,
-  SchemaModel,
-} from '../../intermediate-representation/model.js';
-import { pascalCase, safeIdent } from '../../printers/typescript.js';
+import type { ApiModel, NamedSchemaModel, SchemaModel } from '@redocly/client-generator';
+import { pascalCase, safeIdent } from '@redocly/client-generator/printers/typescript';
 
 const INDENT = '    ';
 

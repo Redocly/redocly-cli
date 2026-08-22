@@ -32,13 +32,14 @@ const MODULES = [
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const runtimeDir = join(pkgRoot, 'src', 'generators', 'typescript', 'runtime');
-const outFile = join(pkgRoot, 'src', 'emitters', 'runtime-sources.ts');
+const outFile = join(pkgRoot, 'src', 'runtime-sources', 'typescript.ts');
 
 // The package-level modules whose type declarations the embed splices back in, keyed by
 // the specifier the runtime imports them with.
 const CONTRACT_MODULES = {
   '../../../runtime-contract.js': join(pkgRoot, 'src', 'runtime-contract.ts'),
   '../../../pagination.js': join(pkgRoot, 'src', 'pagination.ts'),
+  '../../../cli-contract.js': join(pkgRoot, 'src', 'cli-contract.ts'),
 };
 
 /** The declaration's start including its own doc comment, excluding detached trivia. */
@@ -59,7 +60,10 @@ function contractDeclarationsText(modulePath, names) {
   const wanted = new Set(names);
   const parts = [];
   for (const statement of file.statements) {
-    if (ts.isTypeAliasDeclaration(statement) && wanted.has(statement.name.text)) {
+    const named =
+      (ts.isTypeAliasDeclaration(statement) || ts.isFunctionDeclaration(statement)) &&
+      statement.name !== undefined;
+    if (named && wanted.has(statement.name.text)) {
       parts.push(source.slice(declStartWithDocs(source, statement), statement.end));
       wanted.delete(statement.name.text);
     }
@@ -175,7 +179,7 @@ const PYTHON_MODULES = [
   '_multipart',
 ];
 const pythonDir = join(pkgRoot, 'src', 'generators', 'python', 'runtime');
-const pythonOut = join(pkgRoot, 'src', 'emitters', 'python-runtime-sources.ts');
+const pythonOut = join(pkgRoot, 'src', 'runtime-sources', 'python.ts');
 const pythonEntries = PYTHON_MODULES.map((name) => {
   const source = readFileSync(join(pythonDir, `${name}.py`), 'utf-8');
   const line = `  '${name}.py': ${toStringLiteral(source)},`;
@@ -196,7 +200,7 @@ writeFileSync(
 
 // The Go runtime embeds the same way (a single stdlib-only module).
 const goDir = join(pkgRoot, 'src', 'generators', 'go', 'runtime');
-const goOut = join(pkgRoot, 'src', 'emitters', 'go-runtime-sources.ts');
+const goOut = join(pkgRoot, 'src', 'runtime-sources', 'go.ts');
 const goSource = readFileSync(join(goDir, 'runtime.go'), 'utf-8');
 writeFileSync(
   goOut,
@@ -210,7 +214,7 @@ writeFileSync(
 
 // The PHP runtime embeds the same way (a single curl-only module).
 const phpDir = join(pkgRoot, 'src', 'generators', 'php', 'runtime');
-const phpOut = join(pkgRoot, 'src', 'emitters', 'php-runtime-sources.ts');
+const phpOut = join(pkgRoot, 'src', 'runtime-sources', 'php.ts');
 const phpSource = readFileSync(join(phpDir, 'runtime.php'), 'utf-8');
 writeFileSync(
   phpOut,
@@ -222,7 +226,7 @@ writeFileSync(
   ].join('\n')
 );
 
-// Stripped variants for inline embedding (emitters/inline-runtime.ts): imports dropped,
+// Stripped variants for inline embedding (generators/typescript/inline-runtime.ts): imports dropped,
 // `export` removed except on the kept surface — done HERE at prepare time so the embed
 // path needs no TypeScript at generate time. Slices are AST-position-driven (no regexes),
 // so comments and formatting survive byte-for-byte.

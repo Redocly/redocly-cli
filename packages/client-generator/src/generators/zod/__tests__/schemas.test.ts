@@ -1,4 +1,4 @@
-import { apiModel, operation, response } from '../../../emitters/__tests__/fixtures.js';
+import { apiModel, operation, response } from '../../../__tests__/fixtures.js';
 import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { renderZodModule, schemaToZodExpression } from '../schemas.js';
 

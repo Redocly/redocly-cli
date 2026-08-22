@@ -1,13 +1,13 @@
 ---
 name: mock-generator
-description: Design of the ejected Redocly `mock` client generator. Read it, and update it, before changing generators/mock.mjs.
+description: Design of the ejected Redocly `mock` client generator. Read it, and update it, before changing generators/mock/.
 ---
 
 # The `mock` generator — its skill
 
-This file is the DESIGN of your ejected `mock` generator (`generators/mock.mjs`):
+This file is the DESIGN of your ejected `mock` generator (`generators/mock/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/mock.mjs` that has no covering sentence here is incomplete.
+to `generators/mock/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -38,7 +38,7 @@ Change the data strategy, the handler shape, or the factory surface, and regener
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/mock.mjs` match it.
+2. Make `generators/mock/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

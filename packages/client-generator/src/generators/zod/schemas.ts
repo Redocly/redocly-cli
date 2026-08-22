@@ -16,8 +16,8 @@ import {
   type ScalarKind,
   type SchemaMetadata,
   type SchemaModel,
-} from '../../intermediate-representation/model.js';
-import { codeLiteral, pascalCase, safeIdent } from '../../printers/typescript.js';
+} from '@redocly/client-generator';
+import { codeLiteral, pascalCase, safeIdent } from '@redocly/client-generator/printers/typescript';
 
 const INDENT = '    ';
 

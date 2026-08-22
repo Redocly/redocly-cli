@@ -1,4 +1,4 @@
-import { operation, param } from '../../emitters/__tests__/fixtures.js';
+import { operation, param } from '../../__tests__/fixtures.js';
 import { operationSignature, templatePathParams } from '../typescript.js';
 
 describe('operationSignature', () => {

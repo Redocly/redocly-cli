@@ -1,4 +1,4 @@
-import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
+import { apiModel, operation } from '../../__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
 import { tanstackQueryGenerator as tanstackQueryGeneratorEntry } from '../tanstack-query/index.js';
 import { generatorInput } from './fixtures/generator-input.js';

@@ -103,3 +103,10 @@ export type ClientSetup = { config?: ClientSetupConfig; middleware?: Middleware[
 export function defineClientSetup(setup: ClientSetup): ClientSetup {
   return setup;
 }
+
+/** One declared response header the runtime coerces into the envelope `headers` object. */
+export type ResponseHeaderSpec = {
+  name: string;
+  key: string;
+  type: 'string' | 'number' | 'boolean';
+};

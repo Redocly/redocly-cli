@@ -1,13 +1,13 @@
 ---
 name: tanstack-query-generator
-description: Design of the ejected Redocly `tanstack-query` client generator. Read it, and update it, before changing generators/tanstack-query.mjs.
+description: Design of the ejected Redocly `tanstack-query` client generator. Read it, and update it, before changing generators/tanstack-query/.
 ---
 
 # The `tanstack-query` generator — its skill
 
-This file is the DESIGN of your ejected `tanstack-query` generator (`generators/tanstack-query.mjs`):
+This file is the DESIGN of your ejected `tanstack-query` generator (`generators/tanstack-query/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/tanstack-query.mjs` that has no covering sentence here is incomplete.
+to `generators/tanstack-query/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -41,7 +41,7 @@ export (`tanstackQueryGenerator('react')`), so switch it to `'vue'`, `'svelte'`,
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/tanstack-query.mjs` match it.
+2. Make `generators/tanstack-query/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

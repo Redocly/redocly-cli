@@ -9,6 +9,7 @@
 import type { PaginationSpec } from '../../../pagination.js';
 import type {
   ApiErrorLike,
+  ResponseHeaderSpec,
   Middleware,
   OperationContext,
   RequestContext,
@@ -63,12 +64,7 @@ export type OperationDescriptor = {
   responseHeaders?: readonly ResponseHeaderSpec[];
 };
 
-/** One declared response header the runtime coerces into the envelope `headers` object. */
-export type ResponseHeaderSpec = {
-  name: string;
-  key: string;
-  type: 'string' | 'number' | 'boolean';
-};
+export type { ResponseHeaderSpec } from '../../../runtime-contract.js';
 
 /** A query value: scalars, arrays of scalars, or objects (serialized as deepObject brackets). */
 export type QueryValue =

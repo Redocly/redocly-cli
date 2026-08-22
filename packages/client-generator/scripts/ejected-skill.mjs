@@ -2,13 +2,12 @@
 // into the user's `.claude/skills/`. The source skill speaks to development inside this repo — its intro and modify
 // loop reference index.ts, the prepare script, and our vitest suites, none of which
 // exist in a user's repo. The ejected copy keeps the design sections verbatim but
-// rewrites those two parts for the user's world: their copy is generators/<name>/ (a
-// language generator's source folder) or generators/<name>.mjs (a bundled TypeScript
-// generator), and their loop is edit → regenerate → diff. The design bullets in between ship
+// rewrites those two parts for the user's world: their copy is the generator's source
+// folder at generators/<name>/, and their loop is edit → regenerate → diff. The design bullets in between ship
 // unchanged, and both anchors are structural (the first `## ` heading and the final
 // `## The modify loop` section), so skills can grow without touching this transform.
-export function ejectedSkill(source, name, { folder = false } = {}) {
-  const copy = folder ? `generators/${name}/` : `generators/${name}.mjs`;
+export function ejectedSkill(source, name) {
+  const copy = `generators/${name}/`;
   const frontmatter = [
     '---',
     `name: ${name}-generator`,

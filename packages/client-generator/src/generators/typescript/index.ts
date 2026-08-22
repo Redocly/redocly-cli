@@ -1,10 +1,14 @@
+import {
+  type CodeSample,
+  type Generator,
+  type OperationModel,
+  renderReferencePage,
+  type SampleContext,
+} from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderReferencePage } from '../../authoring/reference-page.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
-import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client-assembly.js';
-import { packageIdents } from './descriptor.js';
+import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client-assembly.ts';
+import { packageIdents } from './descriptor.ts';
 
 /**
  * The default generator: the full typed client (model types + runtime + endpoints).

@@ -1,4 +1,4 @@
-import { apiModel, modelWith, operation, param } from '../../../emitters/__tests__/fixtures.js';
+import { apiModel, modelWith, operation, param } from '../../../__tests__/fixtures.js';
 import type {
   ApiModel,
   OperationModel,

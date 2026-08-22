@@ -1,13 +1,13 @@
 ---
 name: swr-generator
-description: Design of the ejected Redocly `swr` client generator. Read it, and update it, before changing generators/swr.mjs.
+description: Design of the ejected Redocly `swr` client generator. Read it, and update it, before changing generators/swr/.
 ---
 
 # The `swr` generator — its skill
 
-This file is the DESIGN of your ejected `swr` generator (`generators/swr.mjs`):
+This file is the DESIGN of your ejected `swr` generator (`generators/swr/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/swr.mjs` that has no covering sentence here is incomplete.
+to `generators/swr/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -37,7 +37,7 @@ Change the hook shape or the key strategy, and regenerate.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/swr.mjs` match it.
+2. Make `generators/swr/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

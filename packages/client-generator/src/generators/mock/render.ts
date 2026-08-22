@@ -5,20 +5,24 @@
 // literals — source-text templates — so the generated module depends only on
 // `msw`; the real client stays zero-dependency.
 
-import { isPlainObject } from '@redocly/openapi-core';
-
-import type { DateType } from '../../authoring/options.js';
 import {
   allOperations,
   type ApiModel,
+  type DateType,
   type NamedSchemaModel,
   type OperationModel,
   type ResponseBodyModel,
   type SchemaModel,
-} from '../../intermediate-representation/model.js';
-import { codeLiteral, isIdentifier, pascalCase } from '../../printers/typescript.js';
-import { fakerExpression } from './faker.js';
-import { sampleValue, SampleExpression } from './sample.js';
+} from '@redocly/client-generator';
+import {
+  codeLiteral,
+  isIdentifier,
+  pascalCase,
+} from '@redocly/client-generator/printers/typescript';
+import { isPlainObject } from '@redocly/openapi-core';
+
+import { fakerExpression } from './faker.ts';
+import { sampleValue, SampleExpression } from './sample.ts';
 import {
   expr,
   isObjectValue,
@@ -26,7 +30,7 @@ import {
   objectValue,
   renderMockValue,
   spreadInto,
-} from './values.js';
+} from './values.ts';
 
 const INDENT = '    ';
 

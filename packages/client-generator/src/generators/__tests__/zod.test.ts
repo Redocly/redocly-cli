@@ -1,4 +1,4 @@
-import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema } from '../../__tests__/fixtures.js';
 import { zodGenerator as zodGeneratorEntry } from '../zod/index.js';
 import { generatorInput } from './fixtures/generator-input.js';
 

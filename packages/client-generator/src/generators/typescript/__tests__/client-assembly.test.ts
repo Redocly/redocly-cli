@@ -7,7 +7,7 @@ import {
   param,
   response,
   SCALAR,
-} from '../../../emitters/__tests__/fixtures.js';
+} from '../../../__tests__/fixtures.js';
 import type { ApiModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
 import type { EmitOptions } from '../../types.js';

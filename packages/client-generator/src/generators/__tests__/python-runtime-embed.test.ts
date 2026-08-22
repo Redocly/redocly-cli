@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
+import { PYTHON_RUNTIME_SOURCES } from '../../runtime-sources/python.js';
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const hasPython = spawnSync('python3', ['--version']).status === 0;

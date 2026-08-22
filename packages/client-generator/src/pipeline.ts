@@ -229,7 +229,7 @@ export async function generateClient(
   // Baking parses TypeScript, so the module loads only when setup is actually used.
   let setupBlock: string | undefined;
   if (options.setup) {
-    const { bakeSetup } = await import('./emitters/setup-bake.js');
+    const { bakeSetup } = await import('./setup-bake.js');
     // A relative setup path resolves against `configDir` (cwd when absent), like
     // generator specifiers. The CLI pre-resolves its inputs, so they arrive absolute.
     const setupPath = resolve(options.configDir ?? process.cwd(), options.setup);

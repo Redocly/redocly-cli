@@ -1,4 +1,4 @@
-import { apiModel, namedSchema, operation, response } from '../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema, operation, response } from '../../__tests__/fixtures.js';
 import { mockGenerator as mockGeneratorEntry } from '../mock/index.js';
 import { generatorInput } from './fixtures/generator-input.js';
 

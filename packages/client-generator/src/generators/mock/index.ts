@@ -1,7 +1,7 @@
+import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import type { Generator } from '../types.js';
-import { renderMockModule } from './render.js';
+import { renderMockModule } from './render.ts';
 
 /**
  * The mock generator: a standalone `<stem>.mocks.ts` module of MSW handlers and

@@ -3,23 +3,24 @@
 // descriptor map (`satisfies Record<string, OperationDescriptor>` — the semver skew
 // guard against the runtime contract in src/runtime/types.ts). Text templates.
 
-import { securityRequirements } from '../../authoring/operation.js';
-import type { DateType } from '../../authoring/options.js';
-import { WIRING_NAMES } from '../../emitters/reserved-names.js';
 import {
   allOperations,
   type ApiModel,
+  type ArgsStyle,
+  type DateType,
+  type ModelPagination,
   type NamedSchemaModel,
   type OperationModel,
+  securityRequirements,
   type SecuritySchemeModel,
-} from '../../intermediate-representation/model.js';
-import type { ModelPagination } from '../../pagination.js';
-import { codeLiteral, uniqueIdent } from '../../printers/typescript.js';
-import type { ArgsStyle } from '../types.js';
-import { isTypedMultipart } from './operation-types.js';
-import { flatInputShape, responseText } from './render-client.js';
-import { responseHeaderSpecs } from './response-headers.js';
-import { tsJsdoc } from './ts-type.js';
+  WIRING_NAMES,
+} from '@redocly/client-generator';
+import { codeLiteral, uniqueIdent } from '@redocly/client-generator/printers/typescript';
+
+import { isTypedMultipart } from './operation-types.ts';
+import { flatInputShape, responseText } from './render-client.ts';
+import { responseHeaderSpecs } from './response-headers.ts';
+import { tsJsdoc } from './ts-type.ts';
 
 /**
  * Operation-name → emitted-identifier plan. The full reserved set (wiring + imported

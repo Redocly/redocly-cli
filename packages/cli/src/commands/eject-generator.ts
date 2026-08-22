@@ -646,7 +646,7 @@ export const handleEjectGenerator = async ({
       `\nThe "${name}" generator is the "tanstack-query" generator with one argument changed.\n` +
         `Eject that one and set the framework in your copy's default export:\n\n` +
         `  redocly eject-generator tanstack-query\n` +
-        `  # then in generators/tanstack-query.mjs: run: tanstackQueryGenerator('${framework}')\n`
+        `  # then in generators/tanstack-query/index.ts: run: tanstackQueryGenerator('${framework}')\n`
     );
     return;
   }

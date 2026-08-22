@@ -1,11 +1,15 @@
+import {
+  type CodeSample,
+  type Generator,
+  groupSlug,
+  type OperationModel,
+  type SampleContext,
+} from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { cliRuntimeSource } from '../../emitters/inline-runtime.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
-import { renderCliDocs } from './docs.js';
-import { cliAuthSchemes, commandData, renderCliModule } from './render.js';
-import { groupSlug } from './runtime/cli.js';
+import { renderCliDocs } from './docs.ts';
+import { cliRuntimeSource } from './engine-source.ts';
+import { cliAuthSchemes, commandData, renderCliModule } from './render.ts';
 
 /**
  * The cli generator: a bin-ready `<stem>.cli.ts` — a zero-dependency, typed

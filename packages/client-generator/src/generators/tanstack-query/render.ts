@@ -15,18 +15,23 @@
 // here) — never raw spec text.
 
 import {
+  type ApiModel,
+  type ModelPagination,
+  type OperationModel,
+  type PaginationSpec,
+  resolveSchemaPointer,
+} from '@redocly/client-generator';
+import {
   hasInputs,
   isQuery,
   variablesName,
   wrappableOperations,
-} from '../../contracts/typescript.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+} from '@redocly/client-generator/contracts/typescript';
 import {
-  type ModelPagination,
-  type PaginationSpec,
-  resolveSchemaPointer,
-} from '../../pagination.js';
-import { codeString, isSafeIdentifier, safeIdent } from '../../printers/typescript.js';
+  codeString,
+  isSafeIdentifier,
+  safeIdent,
+} from '@redocly/client-generator/printers/typescript';
 
 export type TanstackOptions = {
   /** Import specifier for the sdk entry the `client` instance and types live in. */

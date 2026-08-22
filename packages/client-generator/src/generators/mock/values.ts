@@ -2,7 +2,7 @@
 // (for intersection merging and `...overrides` spreading) until the final render,
 // where indentation is threaded. Deliberately tiny.
 
-import { safeIdent, sanitizeCodeString } from '../../printers/typescript.js';
+import { safeIdent, sanitizeCodeString } from '@redocly/client-generator/printers/typescript';
 
 export type MockEntry = { key: string; value: MockValue } | { spread: string };
 

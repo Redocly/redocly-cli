@@ -1,5 +1,5 @@
 // Client assembly, shared by both output modes. The generated file embeds the
-// assembled runtime sources (emitters/inline-runtime.ts). Single-file layout:
+// assembled runtime sources (./inline-runtime.ts). Single-file layout:
 // schema types → type guards → `<Op>*` aliases → Ops → OPERATIONS → embedded
 // runtime → (baked setup) → client instance → sugar — the embedded types are
 // already exported in place, so no re-exports. Split mode moves the schema types +
@@ -7,28 +7,29 @@
 // Text templates throughout — no `typescript` at generate time.
 
 import {
+  allOperations,
+  type ApiModel,
+  type EmitOptions,
+  type OperationModel,
+} from '@redocly/client-generator';
+import { codeString } from '@redocly/client-generator/printers/typescript';
+
+import { banner, HEADER, renderTitleComment } from './banner.ts';
+import { packageIdents, renderDescriptors } from './descriptor.ts';
+import {
   assembleInlineRuntime,
   type InlineRuntimeNeeds,
   runtimeModuleFiles,
-} from '../../emitters/inline-runtime.js';
-import {
-  allOperations,
-  type ApiModel,
-  type OperationModel,
-} from '../../intermediate-representation/model.js';
-import { codeString } from '../../printers/typescript.js';
-import type { EmitOptions } from '../types.js';
-import { banner, HEADER, renderTitleComment } from './banner.js';
-import { packageIdents, renderDescriptors } from './descriptor.js';
-import { isTypedMultipart } from './operation-types.js';
+} from './inline-runtime.ts';
+import { isTypedMultipart } from './operation-types.ts';
 import {
   collectEntrySchemaRefs,
   type EmitContext,
   renderAliases,
   renderOpsType,
-} from './render-client.js';
-import { renderTypeAliases } from './ts-type.js';
-import { renderTypeGuards } from './type-guards.js';
+} from './render-client.ts';
+import { renderTypeAliases } from './ts-type.ts';
+import { renderTypeGuards } from './type-guards.ts';
 
 export function emitClientSingleFile(model: ApiModel, options: EmitOptions = {}): string {
   return emitClient(model, options).entry;

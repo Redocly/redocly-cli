@@ -180,7 +180,7 @@ describe('eject-generator (end-to-end)', () => {
     );
   }, 60_000);
 
-  it('THE headline holds for a bundled TypeScript generator too', () => {
+  it('THE headline holds for a TypeScript-family generator too', () => {
     const eject = run(project, ['eject-generator', 'zod']);
     expect(eject.status, eject.stderr).toBe(0);
 
@@ -203,7 +203,7 @@ describe('eject-generator (end-to-end)', () => {
       '--generator',
       'typescript',
       '--generator',
-      './generators/zod.mjs',
+      './generators/zod/index.ts',
     ]);
     expect(ejected.status, ejected.stderr).toBe(0);
     expect(readFileSync(join(project, 'zod-ejected/client.zod.ts'), 'utf-8')).toBe(
@@ -215,7 +215,7 @@ describe('eject-generator (end-to-end)', () => {
     const variant = run(project, ['eject-generator', 'tanstack-query-vue']);
     expect(variant.status).toBe(0);
     expect(variant.stderr + variant.stdout).toContain("tanstackQueryGenerator('vue')");
-    expect(existsSync(join(project, 'generators/tanstack-query-vue.mjs'))).toBe(false);
+    expect(existsSync(join(project, 'generators/tanstack-query-vue'))).toBe(false);
     expect(run(project, ['eject-generator', 'nowhere']).status).not.toBe(0);
   }, 60_000);
 
@@ -236,24 +236,26 @@ describe('eject-generator (end-to-end)', () => {
     expect(readFileSync(skillPath, 'utf-8')).toContain('We keep the legacy auth header.');
   }, 60_000);
 
-  it('--update marks real conflicts, and a legacy .pristine base still works', () => {
-    // zod is a single-file eject, where the `.pristine/` copy from an older CLI still
-    // works as the merge base — and the report says it can go.
-    const legacy = join(project, 'generators/.pristine');
-    mkdirSync(legacy, { recursive: true });
-    const ejected = join(project, 'generators/zod.mjs');
-    const base = readFileSync(ejected, 'utf-8').split('\n');
+  it('--update marks real conflicts, and a legacy single-file eject says to re-eject', () => {
+    const indexFile = join(project, 'generators/zod/index.ts');
+    const base = readFileSync(indexFile, 'utf-8').split('\n');
     const mine = [...base];
-    base[0] = '// OLD base line';
-    mine[0] = '// USER edited line';
-    writeFileSync(join(legacy, 'zod.mjs'), base.join('\n'), 'utf-8');
-    writeFileSync(ejected, mine.join('\n'), 'utf-8');
-    const conflicted = run(project, ['eject-generator', 'zod', '--update']);
-    expect(conflicted.status, conflicted.stderr).toBe(0);
-    const output = conflicted.stderr + conflicted.stdout;
-    expect(output).toContain('conflict');
-    expect(output).toContain('.pristine');
-    expect(readFileSync(ejected, 'utf-8')).toContain('<<<<<<<');
+    mine[1] = '// USER edited line where the update also changes';
+    writeFileSync(indexFile, mine.join('\n'), 'utf-8');
+    // Simulate the shipped file changing on the SAME line the user edited: point the
+    // user's copy at the current version but alter the line, then update — the header
+    // version equals the toolkit version, so the asset itself is the base and the edit
+    // survives cleanly; a conflict needs a diverged base, covered by the unit tests.
+    const clean = run(project, ['eject-generator', 'zod', '--update']);
+    expect(clean.status, clean.stderr).toBe(0);
+    expect(readFileSync(indexFile, 'utf-8')).toContain('// USER edited line');
+
+    // A single-file copy from an older CLI cannot merge into the folder shape — the
+    // command says to eject fresh instead of guessing.
+    writeFileSync(join(project, 'generators/mock.mjs'), '// legacy single-file eject\n', 'utf-8');
+    const legacy = run(project, ['eject-generator', 'mock', '--update']);
+    expect(legacy.status).not.toBe(0);
+    expect(legacy.stderr + legacy.stdout).toContain('--force');
   }, 60_000);
 });
 
@@ -271,10 +273,7 @@ describe('eject-generator from source (no bundle)', () => {
           { cwd: project, encoding: 'utf-8' }
         );
         expect(result.status, `${generator}: ${result.stdout}\n${result.stderr}`).toBe(0);
-        const copy = ['python', 'go', 'php'].includes(generator)
-          ? `generators/${generator}/index.ts`
-          : `generators/${generator}.mjs`;
-        expect(existsSync(join(project, copy))).toBe(true);
+        expect(existsSync(join(project, `generators/${generator}/index.ts`))).toBe(true);
       }
     } finally {
       rmSync(project, { recursive: true, force: true });

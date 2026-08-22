@@ -1,4 +1,4 @@
-import { apiModel, namedSchema } from '../../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema } from '../../../__tests__/fixtures.js';
 import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
 import { emitClientSingleFile } from '../client-assembly.js';
 

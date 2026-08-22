@@ -8,6 +8,7 @@
 // `swr`/`swr/mutation` are the consumer's peer; the sdk stays dependency-free.
 // Source-text templates throughout.
 
+import type { ApiModel, OperationModel } from '@redocly/client-generator';
 import {
   hasInputs,
   isQuery,
@@ -15,9 +16,8 @@ import {
   sdkNamedImportText,
   variablesName,
   wrappableOperations,
-} from '../../contracts/typescript.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import { pascalCase } from '../../printers/typescript.js';
+} from '@redocly/client-generator/contracts/typescript';
+import { pascalCase } from '@redocly/client-generator/printers/typescript';
 
 export type SwrOptions = {
   /** Import specifier for the sdk entry the operation functions/types live in. */

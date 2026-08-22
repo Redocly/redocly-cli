@@ -3,8 +3,13 @@
 // runtime addresses groups and reads credentials with. A second model would drift from
 // the tool the first time either side changed.
 
-import { Printer } from '../../authoring/printer.js';
-import { constantCase, groupSlug, type CliCommand, type CliFlag } from './runtime/cli.js';
+import {
+  type CliCommand,
+  type CliFlag,
+  constantCase,
+  groupSlug,
+  Printer,
+} from '@redocly/client-generator';
 
 export type CliDocsOptions = {
   /** Page heading. */

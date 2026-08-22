@@ -8,9 +8,9 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
-import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
-import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
+import { GO_RUNTIME_SOURCE } from '../../runtime-sources/go.js';
+import { PHP_RUNTIME_SOURCE } from '../../runtime-sources/php.js';
+import { PYTHON_RUNTIME_SOURCES } from '../../runtime-sources/python.js';
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const STALE = 'stale embed — run `npm run prepare -w @redocly/client-generator`';

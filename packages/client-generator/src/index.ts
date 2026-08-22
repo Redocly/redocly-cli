@@ -18,18 +18,28 @@ export type {
   RetryContext,
   RetryStrategy,
 } from './runtime-contract.js';
-// The generated-CLI command shapes — authoring types for wrappers around a generated
-// or composed CLI (a custom `login` command); the engine itself (`runCli`) is embedded
-// in, and re-exported by, every generated cli module.
+// Descriptor wire shapes the generators emit and every runtime implements.
+export type { ResponseHeaderSpec } from './runtime-contract.js';
+export type { ModelPagination, PaginationSpec } from './pagination.js';
+export { resolveSchemaPointer } from './pagination.js';
+// Names the generated sdk wiring reserves — the typescript descriptor keeps schema
+// identifiers clear of them.
+export { WIRING_NAMES } from './reserved-names.js';
+// The generated-CLI authoring contract — the command/wiring shapes a wrapper around a
+// generated or composed CLI is written against, plus the two casing helpers CLI-flavored
+// generators share; the engine itself (`runCli`) is embedded in, and re-exported by,
+// every generated cli module.
+export { constantCase, groupSlug } from './cli-contract.js';
 export type {
   CliAuthScheme,
   CliCommand,
+  CliFlag,
   CliGlobals,
   CliWiring,
   CommandContext,
   CommandSource,
   CustomCommand,
-} from './generators/cli/runtime/cli.js';
+} from './cli-contract.js';
 // The user-facing pagination rule shapes (`Config.pagination` / `x-redoclyPagination`).
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './pagination.js';
 export type {

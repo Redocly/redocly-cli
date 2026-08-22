@@ -1,6 +1,6 @@
 // Shared operation-shape predicates.
 
-import type { RequestBodyModel } from '../../intermediate-representation/model.js';
+import type { RequestBodyModel } from '@redocly/client-generator';
 
 /**
  * A multipart body whose schema is a concrete object — the case worth typing. Such a body

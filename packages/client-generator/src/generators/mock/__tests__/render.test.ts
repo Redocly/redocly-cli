@@ -1,4 +1,4 @@
-import { apiModel, namedSchema, operation, param } from '../../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema, operation, param } from '../../../__tests__/fixtures.js';
 import { renderMockModule } from '../render.js';
 
 describe('renderMockModule', () => {

@@ -1,10 +1,4 @@
-import {
-  apiModel,
-  namedSchema,
-  operation,
-  param,
-  SCALAR,
-} from '../../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
 import { renderSwrModule } from '../render.js';
 
 const SDK = './client.js';

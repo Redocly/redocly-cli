@@ -1,13 +1,13 @@
 ---
 name: cli-generator
-description: Design of the ejected Redocly `cli` client generator. Read it, and update it, before changing generators/cli.mjs.
+description: Design of the ejected Redocly `cli` client generator. Read it, and update it, before changing generators/cli/.
 ---
 
 # The `cli` generator — its skill
 
-This file is the DESIGN of your ejected `cli` generator (`generators/cli.mjs`):
+This file is the DESIGN of your ejected `cli` generator (`generators/cli/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/cli.mjs` that has no covering sentence here is incomplete.
+to `generators/cli/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -105,7 +105,7 @@ codes are a contract for scripts, so change them only deliberately.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/cli.mjs` match it.
+2. Make `generators/cli/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

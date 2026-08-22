@@ -1,4 +1,4 @@
-import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema } from '../../__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
 import { transformersGenerator as transformersGeneratorEntry } from '../transformers/index.js';
 import { generatorInput } from './fixtures/generator-input.js';

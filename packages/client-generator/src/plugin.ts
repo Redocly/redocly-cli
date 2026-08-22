@@ -59,17 +59,21 @@ export type {
 } from './generators/types.js';
 
 // --- The intermediate representation (the `model` a generator walks) ---------------------------
+export { allOperations } from './intermediate-representation/model.js';
 export type {
   ApiModel,
+  DiscriminatorModel,
   NamedSchemaModel,
   OperationModel,
   ParamModel,
   PropertyModel,
   RequestBodyModel,
   ResponseBodyModel,
+  ResponseHeaderModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
+  SecuritySchemeModel,
   ServerModel,
   ServiceModel,
   SseModel,

@@ -1,6 +1,6 @@
 import ts from 'typescript';
 
-import { NotSupportedError } from '../errors.js';
+import { NotSupportedError } from './errors.js';
 
 // TypeScript 7 (the native compiler) ships only the tsc binary — none of the compiler API
 // this module is built on — yet its package resolves fine, so the first `ts.*` call would

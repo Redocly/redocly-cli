@@ -1,7 +1,7 @@
 import ts from 'typescript';
 
 import { reservedModuleNames } from '../reserved-names.js';
-import { RUNTIME_SOURCES } from '../runtime-sources.js';
+import { RUNTIME_SOURCES } from '../runtime-sources/typescript.js';
 
 /**
  * Every free identifier of a source — referenced but bound in no enclosing scope, so

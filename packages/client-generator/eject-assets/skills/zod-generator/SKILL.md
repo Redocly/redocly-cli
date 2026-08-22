@@ -1,13 +1,13 @@
 ---
 name: zod-generator
-description: Design of the ejected Redocly `zod` client generator. Read it, and update it, before changing generators/zod.mjs.
+description: Design of the ejected Redocly `zod` client generator. Read it, and update it, before changing generators/zod/.
 ---
 
 # The `zod` generator — its skill
 
-This file is the DESIGN of your ejected `zod` generator (`generators/zod.mjs`):
+This file is the DESIGN of your ejected `zod` generator (`generators/zod/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/zod.mjs` that has no covering sentence here is incomplete.
+to `generators/zod/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -42,7 +42,7 @@ Change the schema shapes, the naming, or what gets a schema at all, and regenera
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/zod.mjs` match it.
+2. Make `generators/zod/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

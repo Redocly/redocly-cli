@@ -5,7 +5,7 @@ import {
   namedSchema,
   operation,
   param,
-} from '../../../emitters/__tests__/fixtures.js';
+} from '../../../__tests__/fixtures.js';
 // One operation's developer-facing surface in the descriptor-wired single-file client:
 // the input shape in both styles, and the `<Op>*` aliases. The wiring itself (Ops,
 // OPERATIONS, client, sugar) is covered in client-assembly.test.ts.

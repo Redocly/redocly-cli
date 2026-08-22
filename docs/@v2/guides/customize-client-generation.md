@@ -77,7 +77,7 @@ See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main
 
 The quickest method to get a customized generator is
 [`redocly eject-generator <name>`](../commands/eject-generator.md).
-The command copies any built-in generator into `./generators/` as editable source that you own — a language generator as its TypeScript folder, a TypeScript-family generator as one `.mjs` file.
+The command copies any built-in generator into `./generators/` as its TypeScript source folder — editable source that you own.
 An ejected generator with no changes produces byte-identical output.
 In `client.generators`, the path to your copy replaces the built-in name.
 Because of this, `redocly generate-client` now runs your version.

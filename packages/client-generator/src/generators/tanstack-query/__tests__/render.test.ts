@@ -1,10 +1,4 @@
-import {
-  apiModel,
-  namedSchema,
-  operation,
-  param,
-  SCALAR,
-} from '../../../emitters/__tests__/fixtures.js';
+import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
 import { resolveModelPagination, type PaginationConfig } from '../../../pagination.js';
 import { renderTanstackModule } from '../render.js';
 
