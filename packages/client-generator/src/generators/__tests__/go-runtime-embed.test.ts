@@ -27,7 +27,7 @@ describe('GO_RUNTIME_SOURCE (the embedded Go runtime)', () => {
 
   it.skipIf(!hasGo)('the runtime module passes go vet', () => {
     const result = spawnSync('go', ['vet', './...'], {
-      cwd: join(pkgRoot, 'runtime', 'go'),
+      cwd: join(pkgRoot, 'src', 'generators', 'go', 'runtime'),
       encoding: 'utf-8',
     });
     expect(result.status, result.stderr).toBe(0);

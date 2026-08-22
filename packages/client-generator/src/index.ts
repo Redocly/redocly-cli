@@ -29,7 +29,7 @@ export type {
   CommandContext,
   CommandSource,
   CustomCommand,
-} from './runtime/cli.js';
+} from './generators/cli/runtime/cli.js';
 // The user-facing pagination rule shapes (`Config.pagination` / `x-redoclyPagination`).
 export type { PaginationConfig, PaginationRule, PaginationStyle } from './pagination.js';
 export type {

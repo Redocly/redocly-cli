@@ -177,4 +177,4 @@ npm run unit                    # unit tests (this package is held at 100% cover
 VITEST_SUITE=e2e npx vitest run tests/e2e/generate-client/   # behavioral e2e
 ```
 
-The client runtime lives in `src/runtime/` (real, unit-testable modules that generation embeds), the structural emitters in `src/emitters/`, the IR in `src/intermediate-representation/`, and the generators in `src/generators/`.
+Each generator that embeds a runtime keeps its sources in its own folder (`src/generators/<name>/runtime/` — real, unit-testable modules that generation embeds), the IR lives in `src/intermediate-representation/`, and the generators in `src/generators/`.

@@ -1,4 +1,4 @@
-import { defineClientSetup, type Middleware } from '../../runtime-contract.js';
+import { defineClientSetup, type Middleware } from '../../../../runtime-contract.js';
 import { ApiError, createClient, mergeSetup, type OperationDescriptor } from '../index.js';
 
 const OPS = {

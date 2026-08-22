@@ -4,7 +4,7 @@
 // the tool the first time either side changed.
 
 import { Printer } from '../../authoring/printer.js';
-import { constantCase, groupSlug, type CliCommand, type CliFlag } from '../../runtime/cli.js';
+import { constantCase, groupSlug, type CliCommand, type CliFlag } from './runtime/cli.js';
 
 export type CliDocsOptions = {
   /** Page heading. */

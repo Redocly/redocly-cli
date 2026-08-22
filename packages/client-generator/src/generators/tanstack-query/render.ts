@@ -21,9 +21,12 @@ import {
   wrappableOperations,
 } from '../../contracts/typescript.js';
 import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import { type ModelPagination, resolveSchemaPointer } from '../../pagination.js';
+import {
+  type ModelPagination,
+  type PaginationSpec,
+  resolveSchemaPointer,
+} from '../../pagination.js';
 import { codeString, isSafeIdentifier, safeIdent } from '../../printers/typescript.js';
-import type { PaginationSpec } from '../../runtime/types.js';
 
 export type TanstackOptions = {
   /** Import specifier for the sdk entry the `client` instance and types live in. */

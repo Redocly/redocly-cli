@@ -3,10 +3,17 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 
-// Snapshot src/runtime/*.ts source text into a tracked TS module so the inline assembler
-// can embed the real runtime (a readFileSync asset would not survive the CLI's esbuild
-// bundling). Order is the assembler's fixed dependency order; the barrel (index.ts) is
-// not embedded — the assembler emits its own local createClient wiring.
+// Snapshot the runtime sources (src/generators/typescript/runtime/*.ts and the cli
+// engine at src/generators/cli/runtime/cli.ts) into a tracked TS module so the inline
+// assembler can embed the real runtime (a readFileSync asset would not survive the CLI's
+// esbuild bundling). Order is the assembler's fixed dependency order; the barrel
+// (index.ts) is not embedded — the assembler emits its own local createClient wiring.
+//
+// The contract types the runtime imports from the package level (ADR-0022: the setup
+// contract in src/runtime-contract.ts, `PaginationSpec` beside its resolver in
+// src/pagination.ts) are spliced back into the embedded `types.ts` here, replacing the
+// re-export statements — the embedded module stays self-contained with one definition
+// in the source tree.
 const MODULES = [
   'types',
   'errors',
@@ -24,8 +31,88 @@ const MODULES = [
 ];
 
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const runtimeDir = join(pkgRoot, 'src', 'runtime');
+const runtimeDir = join(pkgRoot, 'src', 'generators', 'typescript', 'runtime');
 const outFile = join(pkgRoot, 'src', 'emitters', 'runtime-sources.ts');
+
+// The package-level modules whose type declarations the embed splices back in, keyed by
+// the specifier the runtime imports them with.
+const CONTRACT_MODULES = {
+  '../../../runtime-contract.js': join(pkgRoot, 'src', 'runtime-contract.ts'),
+  '../../../pagination.js': join(pkgRoot, 'src', 'pagination.ts'),
+};
+
+/** The declaration's start including its own doc comment, excluding detached trivia. */
+function declStartWithDocs(source, declaration) {
+  const ranges = ts.getLeadingCommentRanges(source, declaration.getFullStart()) ?? [];
+  let start = declaration.getStart();
+  for (let index = ranges.length - 1; index >= 0; index--) {
+    if (/\n\s*\n/.test(source.slice(ranges[index].end, start))) break;
+    start = ranges[index].pos;
+  }
+  return start;
+}
+
+/** The named type declarations of a contract module, verbatim and in source order. */
+function contractDeclarationsText(modulePath, names) {
+  const source = readFileSync(modulePath, 'utf-8');
+  const file = ts.createSourceFile('__contract.ts', source, ts.ScriptTarget.Latest, true);
+  const wanted = new Set(names);
+  const parts = [];
+  for (const statement of file.statements) {
+    if (ts.isTypeAliasDeclaration(statement) && wanted.has(statement.name.text)) {
+      parts.push(source.slice(declStartWithDocs(source, statement), statement.end));
+      wanted.delete(statement.name.text);
+    }
+  }
+  if (wanted.size > 0) {
+    throw new Error(`contract splice: ${[...wanted].join(', ')} not found in ${modulePath}`);
+  }
+  return parts.join('\n\n');
+}
+
+/**
+ * Replace the runtime module's contract imports/re-exports with the definitions they
+ * point at, so every downstream use (full source, stripped embed, declared names) sees
+ * one self-contained module.
+ */
+function spliceContracts(source) {
+  const file = ts.createSourceFile('__splice.ts', source, ts.ScriptTarget.Latest, true);
+  const edits = [];
+  for (const statement of file.statements) {
+    if (ts.isImportDeclaration(statement) && CONTRACT_MODULES[statement.moduleSpecifier.text]) {
+      // Delete the import line and its trailing newlines only — the module's header
+      // comment is this statement's leading trivia and must survive.
+      let end = statement.end;
+      while (source[end] === '\n') end++;
+      edits.push({ start: statement.getStart(), end, text: '' });
+    } else if (
+      ts.isExportDeclaration(statement) &&
+      statement.moduleSpecifier !== undefined &&
+      CONTRACT_MODULES[statement.moduleSpecifier.text]
+    ) {
+      const names = statement.exportClause.elements.map((element) => element.name.text);
+      const block = contractDeclarationsText(
+        CONTRACT_MODULES[statement.moduleSpecifier.text],
+        names
+      );
+      edits.push({ start: statement.getFullStart(), end: statement.end, text: `\n\n${block}` });
+    }
+  }
+  let spliced = source;
+  for (const edit of edits.reverse()) {
+    spliced = spliced.slice(0, edit.start) + edit.text + spliced.slice(edit.end);
+  }
+  return spliced;
+}
+
+/** A runtime module's embeddable source: the cli engine lives in the cli generator. */
+function runtimeSource(name) {
+  const path =
+    name === 'cli'
+      ? join(pkgRoot, 'src', 'generators', 'cli', 'runtime', 'cli.ts')
+      : join(runtimeDir, `${name}.ts`);
+  return spliceContracts(readFileSync(path, 'utf-8'));
+}
 
 // Emit the literal exactly as oxfmt (singleQuote: true) would format it, so that
 // compile → format is a no-op: prefer single quotes unless that needs more escapes.
@@ -41,7 +128,7 @@ function toStringLiteral(source) {
 }
 
 const entries = MODULES.map((name) => {
-  const source = readFileSync(join(runtimeDir, `${name}.ts`), 'utf-8');
+  const source = runtimeSource(name);
   const line = `  '${name}.ts': ${toStringLiteral(source)},`;
   // oxfmt (printWidth: 100) breaks an over-width property onto a continuation line.
   return line.length <= 100 ? line : `  '${name}.ts':\n    ${toStringLiteral(source)},`;
@@ -53,7 +140,7 @@ const entries = MODULES.map((name) => {
 function declaredNames() {
   const names = new Set();
   for (const name of MODULES) {
-    const source = readFileSync(join(runtimeDir, `${name}.ts`), 'utf-8');
+    const source = runtimeSource(name);
     const file = ts.createSourceFile(`${name}.ts`, source, ts.ScriptTarget.Latest, false);
     for (const statement of file.statements) {
       if (
@@ -75,7 +162,7 @@ function declaredNames() {
   return [...names].sort();
 }
 
-// The Python runtime (runtime/python/*.py) embeds the same way: hand-authored
+// The Python runtime (src/generators/python/runtime/*.py) embeds the same way: hand-authored
 // once, stitched into every generated Python client by the python generator.
 const PYTHON_MODULES = [
   '_errors',
@@ -87,7 +174,7 @@ const PYTHON_MODULES = [
   '_sse',
   '_multipart',
 ];
-const pythonDir = join(pkgRoot, 'runtime', 'python');
+const pythonDir = join(pkgRoot, 'src', 'generators', 'python', 'runtime');
 const pythonOut = join(pkgRoot, 'src', 'emitters', 'python-runtime-sources.ts');
 const pythonEntries = PYTHON_MODULES.map((name) => {
   const source = readFileSync(join(pythonDir, `${name}.py`), 'utf-8');
@@ -108,7 +195,7 @@ writeFileSync(
 );
 
 // The Go runtime embeds the same way (a single stdlib-only module).
-const goDir = join(pkgRoot, 'runtime', 'go');
+const goDir = join(pkgRoot, 'src', 'generators', 'go', 'runtime');
 const goOut = join(pkgRoot, 'src', 'emitters', 'go-runtime-sources.ts');
 const goSource = readFileSync(join(goDir, 'runtime.go'), 'utf-8');
 writeFileSync(
@@ -122,7 +209,7 @@ writeFileSync(
 );
 
 // The PHP runtime embeds the same way (a single curl-only module).
-const phpDir = join(pkgRoot, 'runtime', 'php');
+const phpDir = join(pkgRoot, 'src', 'generators', 'php', 'runtime');
 const phpOut = join(pkgRoot, 'src', 'emitters', 'php-runtime-sources.ts');
 const phpSource = readFileSync(join(phpDir, 'runtime.php'), 'utf-8');
 writeFileSync(
@@ -174,7 +261,7 @@ function stripModule(name, source) {
 }
 
 const strippedEntries = MODULES.map((name) => {
-  const source = readFileSync(join(runtimeDir, `${name}.ts`), 'utf-8');
+  const source = runtimeSource(name);
   const stripped = stripModule(`${name}.ts`, source);
   const line = `  '${name}.ts': ${toStringLiteral(stripped)},`;
   return line.length <= 100 ? line : `  '${name}.ts':\n    ${toStringLiteral(stripped)},`;

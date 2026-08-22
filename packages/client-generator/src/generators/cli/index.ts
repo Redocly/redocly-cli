@@ -1,10 +1,10 @@
 import { join } from 'node:path';
 
 import type { OperationModel } from '../../intermediate-representation/model.js';
-import { groupSlug } from '../../runtime/cli.js';
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 import { renderCliDocs } from './docs.js';
 import { cliAuthSchemes, commandData, renderCliModule } from './render.js';
+import { groupSlug } from './runtime/cli.js';
 
 /**
  * The cli generator: a bin-ready `<stem>.cli.ts` — a zero-dependency, typed

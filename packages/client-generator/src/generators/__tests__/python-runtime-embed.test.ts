@@ -21,7 +21,7 @@ describe('PYTHON_RUNTIME_SOURCES (the embedded Python runtime)', () => {
     for (const name of Object.keys(PYTHON_RUNTIME_SOURCES)) {
       const result = spawnSync(
         'python3',
-        ['-m', 'py_compile', join(pkgRoot, 'runtime', 'python', name)],
+        ['-m', 'py_compile', join(pkgRoot, 'src', 'generators', 'python', 'runtime', name)],
         {
           encoding: 'utf-8',
         }

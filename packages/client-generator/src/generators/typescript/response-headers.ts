@@ -8,7 +8,7 @@ import type {
   SchemaModel,
 } from '../../intermediate-representation/model.js';
 import { headerPropertyKey, uniqueIdent } from '../../printers/typescript.js';
-import type { ResponseHeaderSpec } from '../../runtime/types.js';
+import type { ResponseHeaderSpec } from './runtime/types.js';
 
 const INDENT = '    ';
 

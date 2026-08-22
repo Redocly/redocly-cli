@@ -15,7 +15,42 @@ import {
   type OperationModel,
   type SchemaModel,
 } from './intermediate-representation/model.js';
-import type { PaginationSpec } from './runtime/types.js';
+
+/**
+ * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
+ * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
+ */
+export type PaginationSpec =
+  | {
+      style: 'cursor';
+      /** The query param the iterator advances with the response's cursor. */
+      param: string;
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the next cursor in the page. */
+      nextCursor: string;
+      /** Optional pointer to a boolean "more pages" flag — `false` stops iteration. */
+      hasMore?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      style: 'offset' | 'page';
+      /** The numeric query param the iterator advances. */
+      param: string;
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      /** RFC 8288: follow the response's `Link` header `rel="next"`; stop when absent. */
+      style: 'link';
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    };
 
 /** The pagination styles the generated runtime can drive. */
 export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';

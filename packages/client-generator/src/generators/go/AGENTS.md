@@ -71,7 +71,7 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
     inside a doc comment is `//` — never `// ` with a trailing space.
     A change here is verified by the `gofmt -l` bar in the unit suite, at cafe AND
     large-description scale.
-- The runtime is hand-written in `runtime/go/runtime.go` (gofmt-clean, `go vet`-clean)
+- The runtime is hand-written in `runtime/runtime.go` in this folder (gofmt-clean, `go vet`-clean)
   and embedded at prepare time.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
@@ -86,7 +86,7 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change `index.ts` (and `runtime/go/runtime.go` for runtime behavior; `gofmt -w` +
+2. Change `index.ts` (and `runtime/runtime.go` for runtime behavior; `gofmt -w` +
    `go vet ./...` it, then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
    `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/go.test.ts`

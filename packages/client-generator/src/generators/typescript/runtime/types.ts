@@ -6,6 +6,15 @@
  * incompatible runtime/generated pair fails the consumer's build (the semver skew guard).
  */
 
+import type { PaginationSpec } from '../../../pagination.js';
+import type {
+  ApiErrorLike,
+  Middleware,
+  OperationContext,
+  RequestContext,
+  RetryConfig,
+} from '../../../runtime-contract.js';
+
 /** How one operation parameter is sent: its location plus OpenAPI query-serialization hints. */
 export type ParamSpec = {
   name: string;
@@ -20,41 +29,11 @@ export type SecuritySpec =
   | { scheme: string; kind: 'bearer' | 'basic' }
   | { scheme: string; kind: 'apiKey'; name: string; in: 'header' | 'query' | 'cookie' };
 
-/**
- * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
- * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
- */
-export type PaginationSpec =
-  | {
-      style: 'cursor';
-      /** The query param the iterator advances with the response's cursor. */
-      param: string;
-      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
-      limitParam?: string;
-      /** Pointer to the next cursor in the page. */
-      nextCursor: string;
-      /** Optional pointer to a boolean "more pages" flag — `false` stops iteration. */
-      hasMore?: string;
-      /** Pointer to the page's item array. */
-      items: string;
-    }
-  | {
-      style: 'offset' | 'page';
-      /** The numeric query param the iterator advances. */
-      param: string;
-      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
-      limitParam?: string;
-      /** Pointer to the page's item array. */
-      items: string;
-    }
-  | {
-      /** RFC 8288: follow the response's `Link` header `rel="next"`; stop when absent. */
-      style: 'link';
-      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
-      limitParam?: string;
-      /** Pointer to the page's item array. */
-      items: string;
-    };
+// The spec this runtime drives is DEFINED at the package level, beside the resolver
+// that produces it (src/pagination.ts); re-exported here so the generated client's
+// type surface is unchanged. The embed splices the definition back in (see
+// scripts/generate-runtime-sources.mjs).
+export type { PaginationSpec } from '../../../pagination.js';
 
 /** The frozen data contract between generated code and the runtime: one operation's wire shape. */
 export type OperationDescriptor = {
@@ -111,75 +90,18 @@ export type AuthCredentials = {
   apiKey?: Record<string, TokenProvider>;
 };
 
-/** Backoff shape: 'fixed' = constant delay; 'exponential' = doubling per attempt. */
-export type RetryStrategy = 'fixed' | 'exponential';
-
-/**
- * The operation's identity, exposed to middleware for targeting (`ctx.operation`).
- * Generated clients instantiate the type parameters with the spec's literal unions
- * (`OperationId`/`OperationPath`/`OperationTag`) so a misspelled operation id in a
- * middleware comparison fails to compile; the string defaults keep every
- * spec-independent consumer (`runtime-contract.ts`, the runtime internals) working
- * with the base shape. `tags` stays mutable (`Tag[]`) so setup-contract types
- * (byte-locked to generated output) remain assignable through middleware callbacks.
- */
-export type OperationContext<
-  Id extends string = string,
-  Path extends string = string,
-  Tag extends string = string,
-> = { id: Id; path: Path; tags: Tag[] };
-
-/** The mutable request context threaded through the middleware chain. */
-export type RequestContext<Op extends OperationContext = OperationContext> = {
-  url: string;
-  method: string;
-  headers: Record<string, string>;
-  body?: unknown;
-  operation: Op;
-};
-
-/** The failed attempt handed to a custom `retryOn`: exactly one of `response`/`error` is set. */
-export type RetryContext<Op extends OperationContext = OperationContext> = {
-  attempt: number;
-  request: RequestContext<Op>;
-  response?: Response;
-  error?: unknown;
-};
-
-/** Opt-in retry policy; a per-call override merges field-by-field over the config policy. */
-export type RetryConfig<Op extends OperationContext = OperationContext> = {
-  retries?: number;
-  retryDelay?: number;
-  retryStrategy?: RetryStrategy;
-  jitter?: boolean;
-  retryOn?: (ctx: RetryContext<Op>) => boolean | Promise<boolean>;
-};
-
-/**
- * Structural stand-in for the runtime's ApiError so this module stays import-free
- * (pure types); the real `ApiError` class is assignable to it.
- */
-export type ApiErrorLike = globalThis.Error & {
-  url: string;
-  status: number;
-  statusText: string;
-  body: unknown;
-};
-
-/** One interceptor: any subset of the three hooks. */
-export type Middleware<Op extends OperationContext = OperationContext> = {
-  onRequest?: (ctx: RequestContext<Op>) => void | Promise<void>;
-  onResponse?: (
-    response: Response,
-    ctx: RequestContext<Op>
-  ) => Response | void | Promise<Response | void>;
-  /** Throw mode only: may map/replace the error. */
-  // `globalThis.Error` so a spec schema named `Error` cannot shadow it in inline mode.
-  onError?: (
-    error: ApiErrorLike,
-    ctx: RequestContext<Op>
-  ) => globalThis.Error | Promise<globalThis.Error>;
-};
+// The setup contract (ADR-0022): these types are defined at the package level in
+// src/runtime-contract.ts — the layer publishers author `--setup` files against —
+// and re-exported here. The embed splices the definitions back in.
+export type {
+  ApiErrorLike,
+  Middleware,
+  OperationContext,
+  RequestContext,
+  RetryConfig,
+  RetryContext,
+  RetryStrategy,
+} from '../../../runtime-contract.js';
 
 /** Client configuration: transport, defaults, retry policy, middleware, and credentials. */
 export type ClientConfig<Op extends OperationContext = OperationContext> = {

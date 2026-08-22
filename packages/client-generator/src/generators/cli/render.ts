@@ -20,7 +20,7 @@ import {
   type CliAuthScheme,
   type CliCommand,
   type CliFlag,
-} from '../../runtime/cli.js';
+} from './runtime/cli.js';
 
 // The generated-by banner every emitted module carries (same lines as the pipeline's
 // `input.banner`, rendered in `//` syntax).
