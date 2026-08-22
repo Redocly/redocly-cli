@@ -11,7 +11,7 @@ import type {
 import { casing, uniqueIdentifiers } from './naming.js';
 
 /** Follow a `ref` chain through the model's named schemas; undefined on a miss or cycle. */
-function deref(schema: SchemaModel, model: ApiModel): SchemaModel | undefined {
+export function deref(schema: SchemaModel, model: ApiModel): SchemaModel | undefined {
   const seen = new Set<string>();
   let current = schema;
   while (current.kind === 'ref') {

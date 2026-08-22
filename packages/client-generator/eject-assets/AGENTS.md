@@ -94,6 +94,9 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | Helper                                                 | Use                                                                                                                              |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
 | `flattenAllOf(schema, model)`                          | The merged property view of allOf compositions — languages without intersection types render this.                               |
+| `deref(schema, model)`                                 | Follow a `ref` chain to the schema it names (cycle-guarded).                                                                     |
+| `jsonSuccessSchema(op)` / `sseResponse(op)`            | The primary JSON success schema; the `text/event-stream` response when the operation streams.                                    |
+| `isMultipartBody(op)`                                  | Whether the request body is multipart.                                                                                           |
 | `discriminatorCases(schema, model)`                    | `{ property, cases }` dispatch table for discriminated unions.                                                                   |
 | `isNullable(schema)` / `unwrapNullable(schema)`        | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
 | `enumValues(schema)`                                   | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |

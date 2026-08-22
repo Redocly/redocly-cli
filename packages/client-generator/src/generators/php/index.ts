@@ -22,6 +22,10 @@ import {
   unwrapNullable,
   type NeutralPaginationRule,
   type DateType,
+  isMultipartBody,
+  jsonSuccessSchema,
+  sseResponse,
+  deref,
 } from '../../authoring/index.js';
 import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
 import type {
@@ -46,21 +50,6 @@ function propertyName(name: string): string {
 /** `'…'` with backslashes and quotes escaped — safe for any spec-supplied text. */
 function phpString(value: string): string {
   return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
-}
-
-/** Follow ref chains through the named schemas (cycle-guarded). */
-function deref(schema: SchemaModel, model: ApiModel): SchemaModel | undefined {
-  const seen = new Set<string>();
-  let current = schema;
-  while (current.kind === 'ref') {
-    const { name } = current;
-    if (seen.has(name)) return undefined;
-    seen.add(name);
-    const named = model.schemas.find((candidate) => candidate.name === name);
-    if (named === undefined) return undefined;
-    current = named.schema;
-  }
-  return current;
 }
 
 /** What a named schema renders as: a class, a native enum, or nothing (alias). */
@@ -463,22 +452,6 @@ export function renderPhpModels(model: ApiModel, dateType: DateType = 'string'):
   return printer.toString();
 }
 
-/** The op's primary JSON success schema, or undefined for void/no-body ops. */
-function successSchema(op: OperationModel): SchemaModel | undefined {
-  return op.successResponses.find((response) => response.contentType.toLowerCase().includes('json'))
-    ?.schema;
-}
-
-function sseResponse(op: OperationModel) {
-  return op.successResponses.find((response) =>
-    response.contentType.toLowerCase().includes('text/event-stream')
-  );
-}
-
-function isMultipart(op: OperationModel): boolean {
-  return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
-}
-
 function methodName(op: OperationModel): string {
   return identifierFor(op.name, { style: 'camel', reserved: PHP });
 }
@@ -587,7 +560,7 @@ function methodArgs(
     ...pathArgs.map(({ php, type }) => `${type} ${'$'}${php}`),
     ...(includeBody && op.requestBody
       ? [
-          `${isMultipart(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
+          `${isMultipartBody(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
         ]
       : []),
     ...queryArgs.map(({ php, type }) => {
@@ -656,7 +629,7 @@ function writePhpMethod(
 ): void {
   const args = methodArgs(op, model, true, dateType);
   const sse = sseResponse(op);
-  const success = successSchema(op);
+  const success = jsonSuccessSchema(op);
   // Non-JSON success bodies (PDFs, images, octet streams) return the raw body string.
   const rawBody =
     sse === undefined &&
@@ -716,7 +689,7 @@ function writePhpMethod(
         `'headers' => $requestHeaders`,
         `'query' => $query`,
       ];
-      if (op.requestBody && isMultipart(op)) {
+      if (op.requestBody && isMultipartBody(op)) {
         printer.line('[$contentType, $encoded] = toMultipart($body);');
         request.push(`'body' => $encoded`, `'contentType' => $contentType`);
       } else if (op.requestBody) {
@@ -827,7 +800,7 @@ function writePhpPaginationWrappers(
     );
   };
 
-  const pageType = phpType(successSchema(op) ?? { kind: 'unknown' }, model, dateType);
+  const pageType = phpType(jsonSuccessSchema(op) ?? { kind: 'unknown' }, model, dateType);
   const pageYield = pageType === 'mixed' ? 'mixed' : pageType;
   printer.line('/**');
   printer.line(` * ${name} response pages, following the pagination rule automatically.`);
@@ -1043,7 +1016,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
         }
         const rule = paginationRules.get(op.name);
         if (rule === undefined) continue;
-        const success = successSchema(op);
+        const success = jsonSuccessSchema(op);
         const pageHydration =
           success === undefined ? undefined : hydration(success, '$page', model, dateType);
         // Resolve the items ARRAY, then take its raw element, so a `ref` element

@@ -19,6 +19,9 @@ import {
   uniqueIdentifiers,
   unwrapNullable,
   type DateType,
+  isMultipartBody,
+  jsonSuccessSchema,
+  sseResponse,
 } from '../../authoring/index.js';
 import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
 import type {
@@ -392,11 +395,6 @@ function discriminatorRegistrations(model: ApiModel, annotated: Set<string>): st
   return lines;
 }
 
-/** The operation's primary JSON success schema, or undefined for void/no-body ops. */
-function successSchema(op: OperationModel): SchemaModel | undefined {
-  return op.successResponses.find((r) => r.contentType.toLowerCase().includes('json'))?.schema;
-}
-
 /** Security specs for the descriptor dict — the wire shape resolve_auth consumes. */
 function securitySpecs(op: OperationModel, model: ApiModel): unknown[][] {
   return op.security
@@ -448,15 +446,6 @@ function operationIdents(model: ApiModel): Array<{ op: OperationModel; ident: st
     }
   }
   return out;
-}
-
-/** The op's SSE success response, when it streams text/event-stream. */
-function sseResponse(op: OperationModel) {
-  return op.successResponses.find((r) => r.contentType.toLowerCase().includes('text/event-stream'));
-}
-
-function isMultipart(op: OperationModel): boolean {
-  return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
 }
 
 /** The neutral pagination rule mapped to the snake_case spec dict the embedded
@@ -530,7 +519,7 @@ function writeMethod(
     'retry: Optional[Dict[str, Any]] = None',
     'idempotency_key: Any = None',
   ];
-  const success = successSchema(op);
+  const success = jsonSuccessSchema(op);
   const sse = sseResponse(op);
   const returns = envelope
     ? `Envelope[${success === undefined ? 'None' : pythonType(success, dateType)}]`
@@ -578,9 +567,9 @@ function writeMethod(
       printer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
       return;
     }
-    if (isMultipart(op)) printer.line('form_data, form_files = to_multipart(body)');
+    if (isMultipartBody(op)) printer.line('form_data, form_files = to_multipart(body)');
     const bodyKw = op.requestBody
-      ? isMultipart(op)
+      ? isMultipartBody(op)
         ? ', data=form_data, files=form_files'
         : ', json_body=encode(body)'
       : '';
@@ -628,7 +617,7 @@ function writePaginationWrappers(
   itemType: string,
   dateType: DateType
 ): void {
-  const success = successSchema(op);
+  const success = jsonSuccessSchema(op);
   const pageType = success === undefined ? 'Any' : pythonType(success, dateType);
   // The iterators take the same arguments as the operation itself, computed the same way,
   // so a name the method moved aside (`id_2`) is the same name here — copying a call from
@@ -775,7 +764,7 @@ function writeClientClass(
       }
       const spec = paginationSpecs.get(ident);
       if (spec !== undefined) {
-        const success = successSchema(op);
+        const success = jsonSuccessSchema(op);
         // Resolve the items ARRAY, then take its raw element schema — a `ref`
         // element keeps its name (a deref'd result would type as Any).
         const itemsArray =

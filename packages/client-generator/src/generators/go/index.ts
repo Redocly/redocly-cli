@@ -23,6 +23,9 @@ import {
   unwrapNullable,
   type DateType,
   type NeutralPaginationRule,
+  isMultipartBody,
+  jsonSuccessSchema,
+  sseResponse,
 } from '../../authoring/index.js';
 import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 import type {
@@ -292,11 +295,6 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
   return printer.toString();
 }
 
-/** The operation's primary JSON success schema, or undefined for void/no-body ops. */
-function successSchema(op: OperationModel): SchemaModel | undefined {
-  return op.successResponses.find((r) => r.contentType.toLowerCase().includes('json'))?.schema;
-}
-
 /** Go composite literal for one operation's security OR-alternatives. */
 function goSecurityLiteral(op: OperationModel, model: ApiModel): string | undefined {
   const alternatives = op.security
@@ -458,17 +456,6 @@ function stripHeader(source: string): string {
   return out.join('\n').trim();
 }
 
-/** The op's SSE success response, when it streams text/event-stream. */
-function sseResponse(op: OperationModel) {
-  return op.successResponses.find((response) =>
-    response.contentType.toLowerCase().includes('text/event-stream')
-  );
-}
-
-function isMultipart(op: OperationModel): boolean {
-  return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
-}
-
 /** The neutral rule as a `&PaginationSpec{…}` composite literal for the operations table. */
 function goPaginationLiteral(rule: NeutralPaginationRule): string {
   const fields = [
@@ -541,7 +528,7 @@ function writeGoMethod(
 ): void {
   const pathArgs = pathArguments(op, dateType);
   const hasParams = op.queryParams.length > 0;
-  const success = successSchema(op);
+  const success = jsonSuccessSchema(op);
   const returnType = success === undefined ? undefined : goType(success, dateType);
   const headerPlan = envelope ? envelopeHeaderPlan(op, model!) : [];
   if (envelope) {
@@ -673,7 +660,7 @@ function writeGoMethod(
         'Headers: authHeaders',
         'Query: query',
       ];
-      if (op.requestBody && isMultipart(op)) {
+      if (op.requestBody && isMultipartBody(op)) {
         printer.line('contentType, reader, err := toMultipart(body)');
         printer.block(
           'if err != nil {',
@@ -1118,7 +1105,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
     }
     const rule = paginationRules.get(ident);
     if (rule === undefined) continue;
-    const success = successSchema(op);
+    const success = jsonSuccessSchema(op);
     const pageType = success === undefined ? 'any' : goType(success, dateType);
     // Resolve the items ARRAY, then take its raw element, so a `ref` element
     // keeps its name (a deref'd result would type as `any`).
@@ -1171,7 +1158,7 @@ export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
   const statement =
     sseResponse(op) !== undefined
       ? `stream := ${call}`
-      : successSchema(op) === undefined
+      : jsonSuccessSchema(op) === undefined
         ? `err := ${call}`
         : `result, err := ${call}`;
   return {
