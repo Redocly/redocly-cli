@@ -1,9 +1,14 @@
 // The `pagination` stage: the `<op>Pages()` / `<op>Items()` generator methods
 // over the runtime's iterPages.
 
-import { jsonSuccessSchema, type DateType } from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import type { PhpPrinter } from '../../printers/php.js';
+import {
+  type ApiModel,
+  type DateType,
+  jsonSuccessSchema,
+  type OperationModel,
+} from '@redocly/client-generator';
+import type { PhpPrinter } from '@redocly/client-generator/printers/php';
+
 import { phpString } from './naming.js';
 import { methodArgs } from './operations.js';
 import { phpType } from './types.js';

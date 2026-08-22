@@ -1,9 +1,14 @@
 // The `naming` stage: the shared printer/naming instance, the string escaper, and
 // the collision-free class/property/method identifiers every other stage builds on.
 
-import { identifierFor, RESERVED_WORDS, uniqueIdentifiers } from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import { PhpPrinter } from '../../printers/php.js';
+import {
+  type ApiModel,
+  identifierFor,
+  type OperationModel,
+  RESERVED_WORDS,
+  uniqueIdentifiers,
+} from '@redocly/client-generator';
+import { PhpPrinter } from '@redocly/client-generator/printers/php';
 
 export const PHP = RESERVED_WORDS.php;
 

@@ -1,9 +1,14 @@
 // The `client` stage: the `Servers` helper class of one static method per
 // declared server.
 
-import { identifierFor, serverUrlParts } from '../../authoring/index.js';
-import type { ApiModel, ServerModel } from '../../intermediate-representation/model.js';
-import type { PhpPrinter } from '../../printers/php.js';
+import {
+  type ApiModel,
+  identifierFor,
+  type ServerModel,
+  serverUrlParts,
+} from '@redocly/client-generator';
+import type { PhpPrinter } from '@redocly/client-generator/printers/php';
+
 import { PHP, phpString, propertyName } from './naming.js';
 
 /** The server URL as a PHP expression: literals concatenated with declared-variable args. */

@@ -2,14 +2,16 @@
 // with the optional `_with_headers` envelope variant.
 
 import {
+  type ApiModel,
+  type DateType,
   isMultipartBody,
   jsonSuccessSchema,
+  type OperationModel,
   sseResponse,
   uniqueIdentifiers,
-  type DateType,
-} from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import type { PythonPrinter } from '../../printers/python.js';
+} from '@redocly/client-generator';
+import type { PythonPrinter } from '@redocly/client-generator/printers/python';
+
 import { envelopeHeaderSpecs } from './descriptor.js';
 import { METHOD_ARG_SLOTS, naming, PY } from './naming.js';
 import { pythonType } from './types.js';

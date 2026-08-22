@@ -42,14 +42,21 @@ export function defineGenerator(generator: CustomGenerator): CustomGenerator {
 
 // --- The authoring contract + the data a generator receives -----------------------------------
 export type {
+  ArgsStyle,
+  CodeSample,
   CustomGenerator,
+  DateType,
+  EmitOptions,
+  ErrorMode,
   GeneratedFile,
   Generator,
   GeneratorInput,
   GeneratorName,
+  GeneratorOptionsSchema,
+  OutputAnchor,
   OutputMode,
+  SampleContext,
 } from './generators/types.js';
-export type { ArgsStyle, DateType, ErrorMode } from './generators/types.js';
 
 // --- The intermediate representation (the `model` a generator walks) ---------------------------
 export type {
@@ -63,7 +70,9 @@ export type {
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
+  ServerModel,
   ServiceModel,
+  SseModel,
 } from './intermediate-representation/model.js';
 
 // The TypeScript-emitting renderers (`tsType`, `operationSignature`, …) are exported from

@@ -1,9 +1,13 @@
 // The `naming` stage: the shared printer/naming instance and the collision-free
 // identifier derivations every other stage builds on.
 
-import { RESERVED_WORDS, uniqueIdentifiers } from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import { PythonPrinter } from '../../printers/python.js';
+import {
+  type ApiModel,
+  type OperationModel,
+  RESERVED_WORDS,
+  uniqueIdentifiers,
+} from '@redocly/client-generator';
+import { PythonPrinter } from '@redocly/client-generator/printers/python';
 
 export const PY = RESERVED_WORDS.python;
 

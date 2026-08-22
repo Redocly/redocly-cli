@@ -1,7 +1,12 @@
 // The `types` stage: schema → Python type annotation.
 
-import { isNullable, unwrapNullable, type DateType } from '../../authoring/index.js';
-import type { SchemaModel } from '../../intermediate-representation/model.js';
+import {
+  type DateType,
+  isNullable,
+  type SchemaModel,
+  unwrapNullable,
+} from '@redocly/client-generator';
+
 import { className, naming } from './naming.js';
 
 /** The Python type annotation for a schema (anonymous complex shapes collapse to Any-ish). */

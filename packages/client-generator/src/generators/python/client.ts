@@ -2,15 +2,17 @@
 // classes that assemble the per-operation methods.
 
 import {
+  type ApiModel,
+  type DateType,
   identifierFor,
   jsonSuccessSchema,
   paginationItemSchema,
+  type ServerModel,
   serverUrlParts,
   sseResponse,
-  type DateType,
-} from '../../authoring/index.js';
-import type { ApiModel, ServerModel } from '../../intermediate-representation/model.js';
-import type { PythonPrinter } from '../../printers/python.js';
+} from '@redocly/client-generator';
+import type { PythonPrinter } from '@redocly/client-generator/printers/python';
+
 import { fieldName, naming, operationIdents, PY } from './naming.js';
 import { writeMethod } from './operations.js';
 import { writePaginationWrappers } from './pagination.js';

@@ -2,14 +2,16 @@
 // union forms, and the element type PHP's own syntax erases.
 
 import {
+  type ApiModel,
+  type DateType,
   deref,
   enumValues,
   flattenAllOf,
   isNullable,
+  type SchemaModel,
   unwrapNullable,
-  type DateType,
-} from '../../authoring/index.js';
-import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
+} from '@redocly/client-generator';
+
 import { className } from './naming.js';
 
 /** What a named schema renders as: a class, a native enum, or nothing (alias). */

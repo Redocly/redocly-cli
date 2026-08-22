@@ -6,17 +6,20 @@
 // embedded runtime. Exceptions are the error mode (`errorMode` does not apply).
 
 import {
+  type CodeSample,
+  type Generator,
   identifierFor,
   jsonSuccessSchema,
+  type NeutralPaginationRule,
+  type OperationModel,
   paginationItemSchema,
   renderReferencePage,
+  type SampleContext,
   sseResponse,
-  type NeutralPaginationRule,
-} from '../../authoring/index.js';
-import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import { PhpPrinter } from '../../printers/php.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
+} from '@redocly/client-generator';
+import { PhpPrinter } from '@redocly/client-generator/printers/php';
+import { PHP_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
+
 import { writeServers } from './client.js';
 import { phpPaginationLiteral, phpSecurityLiteral } from './descriptor.js';
 import { hydration, renderPhpModels } from './models.js';

@@ -1,9 +1,13 @@
 // The `naming` stage: the shared printer/naming instance, the package clause, and
 // the collision-free operation identifiers every other stage builds on.
 
-import { NotSupportedError, RESERVED_WORDS } from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import { exported, GoPrinter } from '../../printers/go.js';
+import {
+  type ApiModel,
+  NotSupportedError,
+  type OperationModel,
+  RESERVED_WORDS,
+} from '@redocly/client-generator';
+import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
 
 // One escaping policy for every Go string literal this generator prints.
 export const naming = new GoPrinter();

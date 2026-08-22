@@ -2,12 +2,14 @@
 // OR-alternatives, the pagination spec, and envelope-header coerce specs.
 
 import {
+  type ApiModel,
   headerCoerceType,
   identifierFor,
-  securityRequirements,
   type NeutralPaginationRule,
-} from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+  type OperationModel,
+  securityRequirements,
+} from '@redocly/client-generator';
+
 import { PHP, phpString } from './naming.js';
 
 /** Security literal for the operations table, denormalized from the model's schemes. */

@@ -1,8 +1,8 @@
 // The `pagination` stage: the `<Op>Pages` / `<Op>Items` yield-func iterators.
 
-import type { DateType } from '../../authoring/index.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import { exported, type GoPrinter } from '../../printers/go.js';
+import { type DateType, type OperationModel } from '@redocly/client-generator';
+import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
+
 import { naming } from './naming.js';
 import { goQueryFormat, pathArguments } from './operations.js';
 import { goType } from './types.js';

@@ -1,8 +1,13 @@
 // The `client` stage: one `<Name>URL` function per declared server.
 
-import { identifierFor, serverUrlParts } from '../../authoring/index.js';
-import type { ApiModel, ServerModel } from '../../intermediate-representation/model.js';
-import { exported, type GoPrinter } from '../../printers/go.js';
+import {
+  type ApiModel,
+  identifierFor,
+  type ServerModel,
+  serverUrlParts,
+} from '@redocly/client-generator';
+import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
+
 import { GO, naming } from './naming.js';
 
 /** The server URL as a Go expression: literals concatenated with declared-variable args. */

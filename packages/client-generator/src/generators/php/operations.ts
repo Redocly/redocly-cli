@@ -2,14 +2,16 @@
 // argument planning and request prologue it shares with the pagination wrappers.
 
 import {
+  type ApiModel,
+  type DateType,
   isMultipartBody,
   jsonSuccessSchema,
+  type OperationModel,
   sseResponse,
   uniqueIdentifiers,
-  type DateType,
-} from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
-import type { PhpPrinter } from '../../printers/php.js';
+} from '@redocly/client-generator';
+import type { PhpPrinter } from '@redocly/client-generator/printers/php';
+
 import { envelopeHeaderSpecs } from './descriptor.js';
 import { hydration, serialization } from './models.js';
 import { PHP, phpString } from './naming.js';

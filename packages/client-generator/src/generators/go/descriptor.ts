@@ -1,8 +1,13 @@
 // The `descriptor` stage: the operations-table composite literals — security
 // OR-alternatives and the pagination spec.
 
-import { securityRequirements, type NeutralPaginationRule } from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+import {
+  type ApiModel,
+  type NeutralPaginationRule,
+  type OperationModel,
+  securityRequirements,
+} from '@redocly/client-generator';
+
 import { naming } from './naming.js';
 
 /** Go composite literal for one operation's security OR-alternatives. */

@@ -6,17 +6,20 @@
 // One file per pipeline stage (ADR-0020); this entry assembles them.
 
 import {
+  type CodeSample,
+  type Generator,
   identifierFor,
   jsonSuccessSchema,
+  type NeutralPaginationRule,
+  type OperationModel,
   paginationItemSchema,
   renderReferencePage,
+  type SampleContext,
   sseResponse,
-  type NeutralPaginationRule,
-} from '../../authoring/index.js';
-import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import { exported, GoPrinter } from '../../printers/go.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
+} from '@redocly/client-generator';
+import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
+import { GO_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
+
 import { writeGoServers } from './client.js';
 import { goPaginationLiteral, goSecurityLiteral } from './descriptor.js';
 import { renderGoModels } from './models.js';

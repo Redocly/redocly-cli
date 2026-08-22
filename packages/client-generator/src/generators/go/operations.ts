@@ -2,19 +2,18 @@
 // argument and envelope-header planning it shares with the pagination wrappers.
 
 import {
+  type ApiModel,
+  type DateType,
   headerCoerceType,
   isMultipartBody,
   jsonSuccessSchema,
+  type OperationModel,
+  type ParamModel,
   sseResponse,
   uniqueIdentifiers,
-  type DateType,
-} from '../../authoring/index.js';
-import type {
-  ApiModel,
-  OperationModel,
-  ParamModel,
-} from '../../intermediate-representation/model.js';
-import { exported, type GoPrinter } from '../../printers/go.js';
+} from '@redocly/client-generator';
+import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
+
 import { GO, naming } from './naming.js';
 import { goType } from './types.js';
 

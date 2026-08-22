@@ -1,9 +1,14 @@
 // The `pagination` stage: `<ident>_pages` / `<ident>_items` iterator methods for
 // paginated operations, sync and async.
 
-import { jsonSuccessSchema, uniqueIdentifiers, type DateType } from '../../authoring/index.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import type { PythonPrinter } from '../../printers/python.js';
+import {
+  type DateType,
+  jsonSuccessSchema,
+  type OperationModel,
+  uniqueIdentifiers,
+} from '@redocly/client-generator';
+import type { PythonPrinter } from '@redocly/client-generator/printers/python';
+
 import { METHOD_ARG_SLOTS, naming, PY } from './naming.js';
 import { pythonType } from './types.js';
 

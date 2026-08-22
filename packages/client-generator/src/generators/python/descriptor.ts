@@ -2,11 +2,13 @@
 // pagination specs, envelope-header coerce specs, and Python data literals.
 
 import {
+  type ApiModel,
   headerCoerceType,
   identifierFor,
   type NeutralPaginationRule,
-} from '../../authoring/index.js';
-import type { ApiModel, OperationModel } from '../../intermediate-representation/model.js';
+  type OperationModel,
+} from '@redocly/client-generator';
+
 import { naming, PY } from './naming.js';
 
 /** JSON → Python literal (dicts/lists/strings/numbers/bools/None). */

@@ -2,14 +2,16 @@
 // (allOf flattened), and discriminated unions with unmarshal dispatchers.
 
 import {
+  type ApiModel,
   casing,
+  type DateType,
   discriminatorCases,
   enumValues,
   flattenAllOf,
-  type DateType,
-} from '../../authoring/index.js';
-import type { ApiModel, PropertyModel } from '../../intermediate-representation/model.js';
-import { exported, GoPrinter } from '../../printers/go.js';
+  type PropertyModel,
+} from '@redocly/client-generator';
+import { exported, GoPrinter } from '@redocly/client-generator/printers/go';
+
 import { naming } from './naming.js';
 import { goType } from './types.js';
 

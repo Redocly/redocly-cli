@@ -2,13 +2,15 @@
 // (allOf flattened), union aliases, and the decoder's discriminator registrations.
 
 import {
+  type ApiModel,
+  type DateType,
   discriminatorCases,
   enumValues,
   flattenAllOf,
-  type DateType,
-} from '../../authoring/index.js';
-import type { ApiModel, PropertyModel } from '../../intermediate-representation/model.js';
-import { PythonPrinter } from '../../printers/python.js';
+  type PropertyModel,
+} from '@redocly/client-generator';
+import { PythonPrinter } from '@redocly/client-generator/printers/python';
+
 import { className, fieldName, naming } from './naming.js';
 import { pythonType } from './types.js';
 

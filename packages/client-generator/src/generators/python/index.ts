@@ -4,11 +4,19 @@
 // A guard test pins that this module never imports the TS emitter toolkit.
 // One file per pipeline stage (ADR-0020); this entry assembles them.
 
-import { identifierFor, renderReferencePage, securityRequirements } from '../../authoring/index.js';
-import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import { PythonPrinter } from '../../printers/python.js';
-import type { CodeSample, Generator, GeneratorOptionsSchema, SampleContext } from '../types.js';
+import {
+  type CodeSample,
+  type Generator,
+  type GeneratorOptionsSchema,
+  identifierFor,
+  type OperationModel,
+  renderReferencePage,
+  type SampleContext,
+  securityRequirements,
+} from '@redocly/client-generator';
+import { PythonPrinter } from '@redocly/client-generator/printers/python';
+import { PYTHON_RUNTIME_SOURCES } from '@redocly/client-generator/runtime-sources';
+
 import { writeClientClass, writePythonServers } from './client.js';
 import { paginationSpec, pythonLiteral } from './descriptor.js';
 import {

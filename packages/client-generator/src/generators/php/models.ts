@@ -3,20 +3,19 @@
 // dispatchers — plus the wire↔typed value expressions the methods reuse.
 
 import {
+  type ApiModel,
+  type DateType,
   deref,
   discriminatorCases,
   enumValues,
   flattenAllOf,
+  type PropertyModel,
+  type SchemaModel,
   uniqueIdentifiers,
   unwrapNullable,
-  type DateType,
-} from '../../authoring/index.js';
-import type {
-  ApiModel,
-  PropertyModel,
-  SchemaModel,
-} from '../../intermediate-representation/model.js';
-import { PhpPrinter } from '../../printers/php.js';
+} from '@redocly/client-generator';
+import { PhpPrinter } from '@redocly/client-generator/printers/php';
+
 import { className, PHP, phpString, propertyName } from './naming.js';
 import { classify, isDateFormat, phpNullable, phpType } from './types.js';
 

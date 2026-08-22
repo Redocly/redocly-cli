@@ -1,8 +1,12 @@
 // The `types` stage: the Go type annotation for a schema.
 
-import { isNullable, unwrapNullable, type DateType } from '../../authoring/index.js';
-import type { SchemaModel } from '../../intermediate-representation/model.js';
-import { exported } from '../../printers/go.js';
+import {
+  type DateType,
+  isNullable,
+  type SchemaModel,
+  unwrapNullable,
+} from '@redocly/client-generator';
+import { exported } from '@redocly/client-generator/printers/go';
 
 /** The Go type for a schema; `required=false` optionals become pointers at the field site. */
 export function goType(schema: SchemaModel, dateType: DateType = 'string'): string {
