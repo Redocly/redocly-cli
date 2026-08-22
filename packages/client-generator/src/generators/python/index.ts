@@ -397,19 +397,12 @@ function pythonLiteral(value: unknown): string {
 
 /** Every operation with its collision-free snake_case Python method name. */
 function operationIdents(model: ApiModel): Array<{ op: OperationModel; ident: string }> {
-  const used = new Set<string>();
-  const out: Array<{ op: OperationModel; ident: string }> = [];
-  for (const service of model.services) {
-    for (const op of service.operations) {
-      let ident = identifierFor(op.name, { style: 'snake', reserved: PY });
-      let suffix = 2;
-      while (used.has(ident))
-        ident = `${identifierFor(op.name, { style: 'snake', reserved: PY })}_${suffix++}`;
-      used.add(ident);
-      out.push({ op, ident });
-    }
-  }
-  return out;
+  const operations = model.services.flatMap((service) => service.operations);
+  const idents = uniqueIdentifiers(
+    operations.map((op) => op.name),
+    { style: 'snake', reserved: PY }
+  );
+  return operations.map((op, index) => ({ op, ident: idents[index] }));
 }
 
 /** The neutral pagination rule mapped to the snake_case spec dict the embedded

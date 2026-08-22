@@ -1,3 +1,4 @@
+import { RESERVED_WORDS } from '../authoring/naming.js';
 // Identifier sanitization — mapping OpenAPI names (which may contain `-`, `.`,
 // spaces, or be reserved words) onto valid TypeScript identifiers. Pure string
 // logic with no dependency on the IR or other emitters.
@@ -5,55 +6,8 @@
 /** Matches a string that is already a valid JS identifier (ignoring reserved words). */
 const IDENT_RE = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 
-const TS_RESERVED = new Set([
-  'break',
-  'case',
-  'catch',
-  'class',
-  'const',
-  'continue',
-  'debugger',
-  'default',
-  'delete',
-  'do',
-  'else',
-  'enum',
-  'export',
-  'extends',
-  'false',
-  'finally',
-  'for',
-  'function',
-  'if',
-  'import',
-  'in',
-  'instanceof',
-  'new',
-  'null',
-  'return',
-  'super',
-  'switch',
-  'this',
-  'throw',
-  'true',
-  'try',
-  'typeof',
-  'var',
-  'void',
-  'while',
-  'with',
-  'yield',
-  // Strict-mode reserved words — generated files are ES modules, always strict.
-  'await',
-  'implements',
-  'interface',
-  'let',
-  'package',
-  'private',
-  'protected',
-  'public',
-  'static',
-]);
+// One list for the package: `identifierFor` (suffix convention) reads the same set.
+const TS_RESERVED = RESERVED_WORDS.typescript;
 
 /** True when `name` matches the JS identifier grammar (reserved words still pass). */
 export function isIdentifier(name: string): boolean {
