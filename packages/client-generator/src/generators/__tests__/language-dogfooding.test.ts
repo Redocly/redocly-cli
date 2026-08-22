@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -16,18 +16,22 @@ const SHARED_SPECIFIERS = [
   '../types.js', // the generator contract
 ];
 
-describe.each(['python', 'go', 'php'])('%s/index.ts dogfooding invariant', (language) => {
+describe.each(['python', 'go', 'php'])('%s folder dogfooding invariant', (language) => {
   it('imports only what the authoring skill offers to any custom generator', () => {
-    const source = readFileSync(
-      resolve(dirname(fileURLToPath(import.meta.url)), '..', language, 'index.ts'),
-      'utf-8'
-    );
+    const folder = resolve(dirname(fileURLToPath(import.meta.url)), '..', language);
+    const stageFiles = readdirSync(folder).filter((name) => name.endsWith('.ts'));
+    expect(stageFiles.length).toBeGreaterThan(0);
     // A generator's sharing tiers (ADR-0020): the neutral toolkit, its OWN language
-    // printer — never another language's — the runtime sources, and the contract.
+    // printer — never another language's — the runtime sources, the contract, and
+    // its own stage files.
     const allowed = new Set([...SHARED_SPECIFIERS, `../../printers/${language}.js`]);
-    const specifiers = [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1]);
-    expect(specifiers.length).toBeGreaterThan(0);
-    const violations = specifiers.filter((specifier) => !allowed.has(specifier));
-    expect(violations).toEqual([]);
+    for (const name of stageFiles) {
+      const source = readFileSync(resolve(folder, name), 'utf-8');
+      const specifiers = [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1]);
+      const violations = specifiers.filter(
+        (specifier) => !allowed.has(specifier) && !/^\.\/[a-z-]+\.js$/.test(specifier)
+      );
+      expect(violations, name).toEqual([]);
+    }
   });
 });
