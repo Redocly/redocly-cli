@@ -7,6 +7,7 @@ import type {
   OperationModel,
   ResponseBodyModel,
   SchemaModel,
+  ServerModel,
 } from '../intermediate-representation/model.js';
 
 /** The schema of the operation's primary JSON success response, if it has one. */
@@ -25,4 +26,35 @@ export function sseResponse(op: OperationModel): ResponseBodyModel | undefined {
 /** Whether the request body is multipart (any `multipart/*` content type). */
 export function isMultipartBody(op: OperationModel): boolean {
   return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
+}
+
+/** One piece of a parsed server-URL template: literal text, or a declared variable's name. */
+export type ServerUrlPart = { kind: 'literal'; value: string } | { kind: 'variable'; name: string };
+
+/**
+ * A server's URL template as parts a generator concatenates in its own syntax:
+ * `https://{region}.api.example.com/v1` → literal, variable `region`, literal. A variable
+ * the server does not declare has nothing to substitute, so its placeholder stays literal
+ * text and remains visible in the generated code.
+ */
+export function serverUrlParts(server: ServerModel): ServerUrlPart[] {
+  const declared = new Set(server.variables.map((variable) => variable.name));
+  const parts: ServerUrlPart[] = [];
+  let literal = '';
+  let rest = server.url;
+  const template = /\{([^{}]+)\}/;
+  for (let match = template.exec(rest); match !== null; match = template.exec(rest)) {
+    literal += rest.slice(0, match.index);
+    if (declared.has(match[1])) {
+      if (literal !== '') parts.push({ kind: 'literal', value: literal });
+      literal = '';
+      parts.push({ kind: 'variable', name: match[1] });
+    } else {
+      literal += match[0];
+    }
+    rest = rest.slice(match.index + match[0].length);
+  }
+  literal += rest;
+  if (literal !== '' || parts.length === 0) parts.push({ kind: 'literal', value: literal });
+  return parts;
 }

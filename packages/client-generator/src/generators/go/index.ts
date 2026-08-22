@@ -26,6 +26,7 @@ import {
   isMultipartBody,
   jsonSuccessSchema,
   sseResponse,
+  serverUrlParts,
 } from '../../authoring/index.js';
 import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 import type {
@@ -912,27 +913,13 @@ function writeGoPaginationWrappers(
   printer.blank();
 }
 
-/** The server URL as a Go expression: literals concatenated with declared-variable params. */
+/** The server URL as a Go expression: literals concatenated with declared-variable args. */
 function serverUrlExpression(server: ServerModel): string {
-  const declared = new Set(server.variables.map((variable) => variable.name));
-  const parts: string[] = [];
-  let literal = '';
-  let rest = server.url;
-  const template = /\{([^{}]+)\}/;
-  for (let match = template.exec(rest); match !== null; match = template.exec(rest)) {
-    literal += rest.slice(0, match.index);
-    if (declared.has(match[1])) {
-      if (literal !== '') parts.push(JSON.stringify(literal));
-      literal = '';
-      parts.push(identifierFor(match[1], { style: 'camel', reserved: GO }));
-    } else {
-      // An undeclared variable has nothing to substitute; keep its placeholder visible.
-      literal += match[0];
-    }
-    rest = rest.slice(match.index + match[0].length);
-  }
-  literal += rest;
-  if (literal !== '' || parts.length === 0) parts.push(JSON.stringify(literal));
+  const parts = serverUrlParts(server).map((part) =>
+    part.kind === 'literal'
+      ? JSON.stringify(part.value)
+      : identifierFor(part.name, { style: 'camel', reserved: GO })
+  );
   return parts.join(' + ');
 }
 

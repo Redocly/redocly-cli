@@ -97,6 +97,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `deref(schema, model)`                                 | Follow a `ref` chain to the schema it names (cycle-guarded).                                                                     |
 | `jsonSuccessSchema(op)` / `sseResponse(op)`            | The primary JSON success schema; the `text/event-stream` response when the operation streams.                                    |
 | `isMultipartBody(op)`                                  | Whether the request body is multipart.                                                                                           |
+| `serverUrlParts(server)`                               | A server-URL template as literal/variable parts, ready for any concatenation syntax.                                             |
 | `discriminatorCases(schema, model)`                    | `{ property, cases }` dispatch table for discriminated unions.                                                                   |
 | `isNullable(schema)` / `unwrapNullable(schema)`        | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
 | `enumValues(schema)`                                   | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |

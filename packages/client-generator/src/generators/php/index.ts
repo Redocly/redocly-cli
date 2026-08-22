@@ -26,6 +26,7 @@ import {
   jsonSuccessSchema,
   sseResponse,
   deref,
+  serverUrlParts,
 } from '../../authoring/index.js';
 import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
 import type {
@@ -854,27 +855,11 @@ function writePhpPaginationWrappers(
   printer.blank();
 }
 
-/** The server URL as a PHP expression: literals concatenated with declared-variable arguments. */
+/** The server URL as a PHP expression: literals concatenated with declared-variable args. */
 function serverUrlExpression(server: ServerModel): string {
-  const declared = new Set(server.variables.map((variable) => variable.name));
-  const parts: string[] = [];
-  let literal = '';
-  let rest = server.url;
-  const template = /\{([^{}]+)\}/;
-  for (let match = template.exec(rest); match !== null; match = template.exec(rest)) {
-    literal += rest.slice(0, match.index);
-    if (declared.has(match[1])) {
-      if (literal !== '') parts.push(phpString(literal));
-      literal = '';
-      parts.push(`${'$'}${propertyName(match[1])}`);
-    } else {
-      // An undeclared variable has nothing to substitute; keep its placeholder visible.
-      literal += match[0];
-    }
-    rest = rest.slice(match.index + match[0].length);
-  }
-  literal += rest;
-  if (literal !== '' || parts.length === 0) parts.push(phpString(literal));
+  const parts = serverUrlParts(server).map((part) =>
+    part.kind === 'literal' ? phpString(part.value) : `${'$'}${propertyName(part.name)}`
+  );
   return parts.join(' . ');
 }
 

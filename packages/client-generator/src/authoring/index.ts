@@ -17,7 +17,13 @@ export {
   type ReferenceLanguage,
   type ReferencePageOptions,
 } from './reference-page.js';
-export { isMultipartBody, jsonSuccessSchema, sseResponse } from './operation.js';
+export {
+  isMultipartBody,
+  jsonSuccessSchema,
+  serverUrlParts,
+  sseResponse,
+  type ServerUrlPart,
+} from './operation.js';
 export {
   deref,
   discriminatorCases,
@@ -43,6 +49,7 @@ export const AUTHORING_HELPER_NAMES = [
   'jsonSuccessSchema',
   'sseResponse',
   'isMultipartBody',
+  'serverUrlParts',
   'isNullable',
   'unwrapNullable',
   'enumValues',
