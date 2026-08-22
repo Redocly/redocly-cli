@@ -826,7 +826,7 @@ function writeGoServers(printer: GoPrinter, model: ApiModel): void {
 }
 
 /** The whole generated file: models + embedded runtime + operations table + Client. */
-export const goGenerator: Generator = ({ model, outputPath, emit, pagination }) => {
+export const goGenerator: Generator = ({ model, output, emit, pagination }) => {
   const printer = new GoPrinter();
   const dateType = emit.dateType ?? 'string';
   const packageName = goPackageName(emit.goPackage);
@@ -978,7 +978,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit, pagination }) 
 
   return [
     {
-      path: outputPath.replace(/\.[^.\\/]+$/, '.go'),
+      path: output.path.replace(/\.[^.\\/]+$/, '.go'),
       // Sections are stitched with their own trailing blanks; gofmt allows at most one
       // between declarations and none at the end of the file.
       content: printer.toString(),
@@ -1025,9 +1025,9 @@ export function goSample(op: OperationModel, ctx: SampleContext): CodeSample {
  * from `goSample` — this generator's own hook — so the page can only ever show the syntax
  * of the SDK beside it, and ejecting this generator takes the page with it.
  */
-export const goDocs: Generator = ({ model, outputPath, emit, pagination }) => [
+export const goDocs: Generator = ({ model, output, emit, pagination }) => [
   {
-    path: outputPath.replace(/\.[^.\\/]+$/, '.go.md'),
+    path: output.path.replace(/\.[^.\\/]+$/, '.go.md'),
     content: renderReferencePage(model, {
       title: `${model.title} Go SDK reference`,
       frontmatter: emit.docsFrontmatter === true,
@@ -1037,7 +1037,7 @@ export const goDocs: Generator = ({ model, outputPath, emit, pagination }) => [
         fence: 'go',
         requires: 'The SDK needs the standard library only.',
       },
-      sample: (op) => goSample(op, { model, emit, outputPath }),
+      sample: (op) => goSample(op, { model, emit, outputPath: output.path }),
       paginated: new Set(pagination?.keys() ?? []),
     }),
   },

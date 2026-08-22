@@ -730,7 +730,7 @@ function pythonModulePath(outputPath: string): string {
 }
 
 /** The whole generated file: header, models, embedded runtime, descriptors, clients. */
-export const pythonGenerator: Generator = ({ model, outputPath, emit, options, pagination }) => {
+export const pythonGenerator: Generator = ({ model, output, emit, options, pagination }) => {
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
   const models = (options?.models as PythonModels | undefined) ?? 'dataclass';
@@ -814,7 +814,7 @@ export const pythonGenerator: Generator = ({ model, outputPath, emit, options, p
   writeClientClass(printer, model, errorMode, false, paginationSpecs, serverUrl, dateType);
   writeClientClass(printer, model, errorMode, true, paginationSpecs, serverUrl, dateType);
 
-  return [{ path: pythonModulePath(outputPath), content: printer.toString() }];
+  return [{ path: pythonModulePath(output.path), content: printer.toString() }];
 };
 
 /** One idiomatic Python call per operation — feeds `x-codeSamples` for docs. */
@@ -854,9 +854,9 @@ export function pythonSample(op: OperationModel, ctx: SampleContext): CodeSample
  * from `pythonSample` — this generator's own hook — so the page can only ever show the syntax
  * of the SDK beside it, and ejecting this generator takes the page with it.
  */
-export const pythonDocs: Generator = ({ model, outputPath, emit, pagination }) => [
+export const pythonDocs: Generator = ({ model, output, emit, pagination }) => [
   {
-    path: outputPath.replace(/\.[^.\\/]+$/, '.python.md'),
+    path: output.path.replace(/\.[^.\\/]+$/, '.python.md'),
     content: renderReferencePage(model, {
       title: `${model.title} Python SDK reference`,
       frontmatter: emit.docsFrontmatter === true,
@@ -866,7 +866,7 @@ export const pythonDocs: Generator = ({ model, outputPath, emit, pagination }) =
         fence: 'python',
         requires: 'The SDK needs `httpx`.',
       },
-      sample: (op) => pythonSample(op, { model, emit, outputPath }),
+      sample: (op) => pythonSample(op, { model, emit, outputPath: output.path }),
       paginated: new Set(pagination?.keys() ?? []),
     }),
   },

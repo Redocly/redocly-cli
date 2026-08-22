@@ -484,7 +484,7 @@ function stripPhpHeader(source) {
     return lines.slice(start).join('\n').trim();
 }
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
-export const phpGenerator = ({ model, outputPath, emit }) => {
+export const phpGenerator = ({ model, output, emit }) => {
     const writer = new Printer('    ');
     const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
     writer.line('<?php');
@@ -552,7 +552,7 @@ export const phpGenerator = ({ model, outputPath, emit }) => {
             writePhpPaginationWrappers(writer, op, model, pageHydration, itemHydration, rule.items);
         }
     }, '}');
-    return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.php'), content: writer.toString() }];
+    return [{ path: output.path.replace(/\.[^.\\/]+$/, '.php'), content: writer.toString() }];
 };
 /** One idiomatic PHP call per operation — feeds `x-codeSamples` for docs. */
 export function phpSample(op, ctx) {

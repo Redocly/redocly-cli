@@ -98,9 +98,9 @@ describe('runGenerators', () => {
         'permissions-matrix',
         {
           options: MATRIX_SCHEMA,
-          run: ({ options, outputPath }) => {
+          run: ({ options, output }) => {
             seen = options;
-            return [{ path: outputPath.replace(/\.ts$/, '.permissions.md'), content: '' }];
+            return [{ path: output.path.replace(/\.ts$/, '.permissions.md'), content: '' }];
           },
         },
       ],

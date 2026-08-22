@@ -3,7 +3,6 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { resolveModelPagination } from '../../emitters/pagination.js';
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import {
   phpGenerator as phpGeneratorEntry,
@@ -11,11 +10,12 @@ import {
   phpType,
   renderPhpModels,
 } from '../php/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
 
-// The pipeline resolves pagination once and hands generators the map; these direct
-// calls mirror that step.
-const phpGenerator = (input: Omit<Parameters<typeof phpGeneratorEntry>[0], 'pagination'>) =>
-  phpGeneratorEntry({ ...input, pagination: resolveModelPagination(input.model, undefined) });
+// The pipeline parses the output anchor and resolves pagination once; `generatorInput`
+// mirrors those steps for these direct calls.
+const phpGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  phpGeneratorEntry(generatorInput(input));
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
 

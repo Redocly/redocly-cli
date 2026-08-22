@@ -53,11 +53,23 @@ export type GeneratorOptionsSchema = {
   additionalProperties?: boolean;
 };
 
+/**
+ * The `--output` anchor, parsed once by the pipeline: the full `path`, its `dir`,
+ * the `stem` (base name without the final extension), and the `ext` (with the dot).
+ * Generators derive sibling-file names from these instead of re-parsing the path.
+ */
+export type OutputAnchor = { path: string; dir: string; stem: string; ext: string };
+
 /** Everything a generator needs to produce its files. */
 export type GeneratorInput = {
   model: ApiModel;
-  /** The `--output` anchor path. */
-  outputPath: string;
+  /** The `--output` anchor, parsed (see `OutputAnchor`). */
+  output: OutputAnchor;
+  /**
+   * The generated-by banner lines, free of comment markers — each generator prepends
+   * them in its own comment syntax, so every emitted file says the same thing.
+   */
+  banner: string[];
   /**
    * Pagination resolved ONCE by the pipeline — per-op config > `x-redoclyPagination` >
    * convention, fit-verified, pointers resolved — keyed by operation name. Generators

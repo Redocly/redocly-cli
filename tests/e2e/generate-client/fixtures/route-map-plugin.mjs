@@ -9,14 +9,14 @@ export default {
     properties: { exportName: { type: 'string', default: 'routes' } },
     additionalProperties: false,
   },
-  run({ model, outputPath, options }) {
+  run({ model, output, options }) {
     const routes = model.services
       .flatMap((s) => s.operations)
       .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`)
       .join('\n');
     return [
       {
-        path: outputPath.replace(/\.ts$/, '.routes.ts'),
+        path: output.path.replace(/\.ts$/, '.routes.ts'),
         content: `export const ${options.exportName} = {\n${routes}\n} as const;\n`,
       },
     ];

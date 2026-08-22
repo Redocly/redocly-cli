@@ -1,6 +1,11 @@
 import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { transformersGenerator } from '../transformers/index.js';
+import { transformersGenerator as transformersGeneratorEntry } from '../transformers/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const transformersGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  transformersGeneratorEntry(generatorInput(input));
 
 const EVENT = namedSchema('Event', {
   kind: 'object',
@@ -74,6 +79,6 @@ describe('transformersGenerator', () => {
   });
 
   it('is registered under "transformers"', () => {
-    expect(builtinGenerators().get('transformers')?.run).toBe(transformersGenerator);
+    expect(builtinGenerators().get('transformers')?.run).toBe(transformersGeneratorEntry);
   });
 });

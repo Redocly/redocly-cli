@@ -15,8 +15,8 @@ client:
 /** @type {import('@redocly/client-generator').CustomGenerator} */
 export default {
   name: 'my-generator',
-  run({ model, outputPath, outputMode, emit }) {
-    return [{ path: outputPath.replace(/\.ts$/, '.mine.txt'), content: '…' }];
+  run({ model, output, outputMode, emit }) {
+    return [{ path: output.path.replace(/\.ts$/, '.mine.txt'), content: '…' }];
   },
   // Optional: one idiomatic call snippet per operation for docs (x-codeSamples),
   // collected into an overlay file when `client.codeSamples: true` is set.
@@ -26,8 +26,8 @@ export default {
   // Optional: the reference page for what `run` emits, written when `client.docs` (or
   // --docs) is on. Same `{ path, content }` shape as `run`; `renderReferencePage` gives
   // the standard layout and takes `sample` for its snippets. A generator documents itself.
-  docs({ model, outputPath, emit }) {
-    return [{ path: outputPath.replace(/\.ts$/, '.mine.md'), content: '…' }];
+  docs({ model, output, emit }) {
+    return [{ path: output.path.replace(/\.ts$/, '.mine.md'), content: '…' }];
   },
 };
 ```
@@ -45,9 +45,9 @@ export default {
     properties: { groupBy: { enum: ['tag', 'path'], default: 'tag' } },
     additionalProperties: false,
   },
-  run({ model, outputPath, options }) {
+  run({ model, output, options }) {
     return [
-      { path: outputPath.replace(/\.ts$/, '.permissions.md'), content: render(options.groupBy) },
+      { path: output.path.replace(/\.ts$/, '.permissions.md'), content: render(options.groupBy) },
     ];
   },
 };

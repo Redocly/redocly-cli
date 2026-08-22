@@ -1,6 +1,11 @@
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
-import { cliGenerator, cliSample } from '../cli/index.js';
+import { cliGenerator as cliGeneratorEntry, cliSample } from '../cli/index.js';
 import { builtinGenerators, validateGenerators } from '../index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const cliGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  cliGeneratorEntry(generatorInput(input));
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
 

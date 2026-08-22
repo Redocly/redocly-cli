@@ -1,8 +1,6 @@
 import { join } from 'node:path';
 
-import { HEADER } from '../../emitters/emit-options.js';
 import { renderMockModule } from '../../emitters/mock.js';
-import { anchor } from '../anchor.js';
 import type { Generator } from '../types.js';
 
 /**
@@ -11,14 +9,16 @@ import type { Generator } from '../types.js';
  * sdk client stays dependency-free. Output-mode-agnostic in v1 — one module beside
  * the client. Emits nothing when there are no operations.
  */
-export const mockGenerator: Generator = ({ model, outputPath, emit }) => {
-  const { dir, stem } = anchor(outputPath);
+export const mockGenerator: Generator = ({ model, output, banner, emit }) => {
+  const header = banner.map((line) => `// ${line}`).join('\n');
   const content = renderMockModule(model, {
-    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
+    sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
     dateType: emit.dateType,
     mockData: emit.mockData,
     mockSeed: emit.mockSeed,
   });
   if (content === '') return [];
-  return [{ path: join(dir, `${stem}.mocks.ts`), content: `${HEADER}\n\n${content}` }];
+  return [
+    { path: join(output.dir, `${output.stem}.mocks.ts`), content: `${header}\n\n${content}` },
+  ];
 };

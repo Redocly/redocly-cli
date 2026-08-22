@@ -65,7 +65,7 @@ import { tsType } from '@redocly/client-generator/generate';
 export default defineGenerator({
   name: 'response-map',
   requires: ['typescript'],
-  run({ model, outputPath }) {
+  run({ model, output }) {
     const printer = new Printer();
     // One `ResponseShapes` entry per operation with a JSON success body.
     printer.block(
@@ -80,7 +80,7 @@ export default defineGenerator({
       },
       '};'
     );
-    return [{ path: outputPath.replace(/\.ts$/, '.responses.ts'), content: printer.toString() }];
+    return [{ path: output.path.replace(/\.ts$/, '.responses.ts'), content: printer.toString() }];
   },
 });
 ```

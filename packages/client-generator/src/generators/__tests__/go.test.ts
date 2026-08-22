@@ -3,14 +3,14 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { resolveModelPagination } from '../../emitters/pagination.js';
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { goGenerator as goGeneratorEntry, goSample, renderGoModels } from '../go/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
 
-// The pipeline resolves pagination once and hands generators the map; these direct
-// calls mirror that step.
-const goGenerator = (input: Omit<Parameters<typeof goGeneratorEntry>[0], 'pagination'>) =>
-  goGeneratorEntry({ ...input, pagination: resolveModelPagination(input.model, undefined) });
+// The pipeline parses the output anchor and resolves pagination once; `generatorInput`
+// mirrors those steps for these direct calls.
+const goGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  goGeneratorEntry(generatorInput(input));
 
 const hasGo = spawnSync('go', ['version']).status === 0;
 

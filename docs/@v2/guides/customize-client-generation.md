@@ -142,7 +142,7 @@ export default defineGenerator({
     properties: { groupBy: { enum: ['tag', 'path'], default: 'tag' } },
     additionalProperties: false,
   },
-  run({ model, outputPath, options }) {
+  run({ model, output, options }) {
     // `options` is validated against the schema before `run` is called.
   },
 });
@@ -214,7 +214,7 @@ import { tsType } from '@redocly/client-generator/generate';
 export default {
   name: 'response-map',
   requires: ['typescript'],
-  run({ model, outputPath }) {
+  run({ model, output }) {
     const members = model.services
       .flatMap((service) => service.operations)
       .flatMap((op) => {
@@ -223,7 +223,7 @@ export default {
       });
     return [
       {
-        path: outputPath.replace(/\.ts$/, '.responses.ts'),
+        path: output.path.replace(/\.ts$/, '.responses.ts'),
         content: `export type ResponseShapes = {\n${members.join('\n')}\n};\n`,
       },
     ];
@@ -295,14 +295,14 @@ const rubyCall = (operation) => ({ lang: 'ruby', source: `client.${operation.nam
 
 export default defineGenerator({
   name: 'ruby',
-  run({ model, outputPath }) {
+  run({ model, output }) {
     /* the SDK */
   },
   sample: rubyCall,
-  docs({ model, outputPath, emit }) {
+  docs({ model, output, emit }) {
     return [
       {
-        path: outputPath.replace(/\.[^.\\/]+$/, '.ruby.md'),
+        path: output.path.replace(/\.[^.\\/]+$/, '.ruby.md'),
         content: renderReferencePage(model, {
           title: `${model.title} Ruby SDK reference`,
           frontmatter: emit.docsFrontmatter === true,

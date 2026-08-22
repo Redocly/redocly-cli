@@ -881,7 +881,7 @@ function stripPhpHeader(source: string): string {
 }
 
 /** The whole generated file: namespace + models + embedded runtime + operations + Client. */
-export const phpGenerator: Generator = ({ model, outputPath, emit, pagination }) => {
+export const phpGenerator: Generator = ({ model, output, emit, pagination }) => {
   const printer = new PhpPrinter();
   const dateType = emit.dateType ?? 'string';
   const namespace = identifierFor(model.title, { style: 'pascal', reserved: PHP });
@@ -988,7 +988,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit, pagination })
     '}'
   );
 
-  return [{ path: outputPath.replace(/\.[^.\\/]+$/, '.php'), content: printer.toString() }];
+  return [{ path: output.path.replace(/\.[^.\\/]+$/, '.php'), content: printer.toString() }];
 };
 
 /** One idiomatic PHP call per operation — feeds `x-codeSamples` for docs. */
@@ -1015,9 +1015,9 @@ export function phpSample(op: OperationModel, ctx: SampleContext): CodeSample {
  * from `phpSample` — this generator's own hook — so the page can only ever show the syntax
  * of the SDK beside it, and ejecting this generator takes the page with it.
  */
-export const phpDocs: Generator = ({ model, outputPath, emit, pagination }) => [
+export const phpDocs: Generator = ({ model, output, emit, pagination }) => [
   {
-    path: outputPath.replace(/\.[^.\\/]+$/, '.php.md'),
+    path: output.path.replace(/\.[^.\\/]+$/, '.php.md'),
     content: renderReferencePage(model, {
       title: `${model.title} PHP SDK reference`,
       frontmatter: emit.docsFrontmatter === true,
@@ -1027,7 +1027,7 @@ export const phpDocs: Generator = ({ model, outputPath, emit, pagination }) => [
         fence: 'php',
         requires: 'The SDK needs the curl extension.',
       },
-      sample: (op) => phpSample(op, { model, emit, outputPath }),
+      sample: (op) => phpSample(op, { model, emit, outputPath: output.path }),
       paginated: new Set(pagination?.keys() ?? []),
     }),
   },
