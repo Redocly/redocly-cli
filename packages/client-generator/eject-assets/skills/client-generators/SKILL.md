@@ -96,27 +96,28 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 
 ## Helpers (import from '@redocly/client-generator')
 
-| Helper                                                 | Use                                                                                                                              |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `flattenAllOf(schema, model)`                          | The merged property view of allOf compositions — languages without intersection types render this.                               |
-| `deref(schema, model)`                                 | Follow a `ref` chain to the schema it names (cycle-guarded).                                                                     |
-| `jsonSuccessSchema(op)` / `sseResponse(op)`            | The primary JSON success schema; the `text/event-stream` response when the operation streams.                                    |
-| `isMultipartBody(op)`                                  | Whether the request body is multipart.                                                                                           |
-| `serverUrlParts(server)`                               | A server-URL template as literal/variable parts, ready for any concatenation syntax.                                             |
-| `securityRequirements(op, model)`                      | The operation's security as OR-alternatives of AND-sets, denormalized against the declared schemes.                              |
-| `discriminatorCases(schema, model)`                    | `{ property, cases }` dispatch table for discriminated unions.                                                                   |
-| `isNullable(schema)` / `unwrapNullable(schema)`        | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
-| `enumValues(schema)`                                   | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |
-| `headerCoerceType(schema, model)`                      | Response-header coerce hint (`integer`/`number`/`boolean`/`string`) through refs, nullables, and allOf wrappers.                 |
-| `casing` / `identifierFor(name, { style, reserved })`  | camel/pascal/snake/screaming; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped).                          |
-| `uniqueIdentifiers(names, { style, reserved, taken })` | The same, made unique among themselves and among names you already took — for a signature that takes one argument per parameter. |
-| `Printer`                                              | Indentation-aware text builder — no manual whitespace bookkeeping.                                                               |
-| `docText(description)`                                 | Description as trimmed lines for any comment syntax.                                                                             |
-| `schemaAtPointer(schema, pointer, model)`              | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
-| `paginationRuleFor(op, config)`                        | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
-| `renderReferencePage(model, options)`                  | The Markdown reference page a generator's `docs` hook returns — your `sample` hook supplies its call snippets.                   |
-| `NotSupportedError`                                    | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
-| `AUTHORING_HELPER_NAMES`                               | The list of the above (introspection).                                                                                           |
+| Helper                                                  | Use                                                                                                                              |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| `flattenAllOf(schema, model)`                           | The merged property view of allOf compositions — languages without intersection types render this.                               |
+| `deref(schema, model)`                                  | Follow a `ref` chain to the schema it names (cycle-guarded).                                                                     |
+| `jsonSuccessSchema(op)` / `sseResponse(op)`             | The primary JSON success schema; the `text/event-stream` response when the operation streams.                                    |
+| `isMultipartBody(op)`                                   | Whether the request body is multipart.                                                                                           |
+| `serverUrlParts(server)`                                | A server-URL template as literal/variable parts, ready for any concatenation syntax.                                             |
+| `securityRequirements(op, model)`                       | The operation's security as OR-alternatives of AND-sets, denormalized against the declared schemes.                              |
+| `paginationItemSchema(pageSchema, itemsPointer, model)` | The raw element schema behind a pagination rule's `items` pointer — a `ref` element keeps its name.                              |
+| `discriminatorCases(schema, model)`                     | `{ property, cases }` dispatch table for discriminated unions.                                                                   |
+| `isNullable(schema)` / `unwrapNullable(schema)`         | Detect and strip `null` union members (`Optional[T]`, pointers, `Option<T>`).                                                    |
+| `enumValues(schema)`                                    | Values plus SCREAMING_SNAKE member-name suggestions.                                                                             |
+| `headerCoerceType(schema, model)`                       | Response-header coerce hint (`integer`/`number`/`boolean`/`string`) through refs, nullables, and allOf wrappers.                 |
+| `casing` / `identifierFor(name, { style, reserved })`   | camel/pascal/snake/screaming; keyword-safe identifiers (`RESERVED_WORDS.python/go/typescript` shipped).                          |
+| `uniqueIdentifiers(names, { style, reserved, taken })`  | The same, made unique among themselves and among names you already took — for a signature that takes one argument per parameter. |
+| `Printer`                                               | Indentation-aware text builder — no manual whitespace bookkeeping.                                                               |
+| `docText(description)`                                  | Description as trimmed lines for any comment syntax.                                                                             |
+| `schemaAtPointer(schema, pointer, model)`               | Resolve an RFC 6901 JSON pointer over a schema (through refs and allOf) — e.g. a pagination `items` pointer to its element type. |
+| `paginationRuleFor(op, config)`                         | The pagination rule that applies to an operation (per-op config > extension > fitting convention), normalized.                   |
+| `renderReferencePage(model, options)`                   | The Markdown reference page a generator's `docs` hook returns — your `sample` hook supplies its call snippets.                   |
+| `NotSupportedError`                                     | Throw it to reject an option the generator can't honor — the CLI prints the message as a user error, not a crash.                |
+| `AUTHORING_HELPER_NAMES`                                | The list of the above (introspection).                                                                                           |
 
 Worked example: the built-in `python` generator
 (`packages/client-generator/src/generators/python/index.ts` in the Redocly CLI repo) is

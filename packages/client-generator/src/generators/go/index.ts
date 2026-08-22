@@ -19,7 +19,6 @@ import {
   paginationRuleFor,
   renderReferencePage,
   RESERVED_WORDS,
-  schemaAtPointer,
   unwrapNullable,
   type DateType,
   type NeutralPaginationRule,
@@ -28,6 +27,7 @@ import {
   sseResponse,
   serverUrlParts,
   securityRequirements,
+  paginationItemSchema,
 } from '../../authoring/index.js';
 import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
 import type {
@@ -1076,13 +1076,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
     if (rule === undefined) continue;
     const success = jsonSuccessSchema(op);
     const pageType = success === undefined ? 'any' : goType(success, dateType);
-    // Resolve the items ARRAY, then take its raw element, so a `ref` element
-    // keeps its name (a deref'd result would type as `any`).
-    const itemsArray =
-      success !== undefined && rule.items !== undefined
-        ? schemaAtPointer(success, rule.items, model)
-        : undefined;
-    const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
+    const element = paginationItemSchema(success, rule.items, model);
     writeGoPaginationWrappers(
       printer,
       op,

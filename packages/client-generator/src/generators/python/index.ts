@@ -7,7 +7,6 @@ import {
   Printer,
   paginationRuleFor,
   renderReferencePage,
-  schemaAtPointer,
   discriminatorCases,
   docText,
   enumValues,
@@ -24,6 +23,7 @@ import {
   sseResponse,
   serverUrlParts,
   securityRequirements,
+  paginationItemSchema,
 } from '../../authoring/index.js';
 import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
 import type {
@@ -729,13 +729,11 @@ function writeClientClass(
       const spec = paginationSpecs.get(ident);
       if (spec !== undefined) {
         const success = jsonSuccessSchema(op);
-        // Resolve the items ARRAY, then take its raw element schema — a `ref`
-        // element keeps its name (a deref'd result would type as Any).
-        const itemsArray =
-          success !== undefined && typeof spec.items === 'string'
-            ? schemaAtPointer(success, spec.items, model)
-            : undefined;
-        const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
+        const element = paginationItemSchema(
+          success,
+          typeof spec.items === 'string' ? spec.items : undefined,
+          model
+        );
         writePaginationWrappers(
           printer,
           op,

@@ -18,7 +18,6 @@ import {
   paginationRuleFor,
   renderReferencePage,
   RESERVED_WORDS,
-  schemaAtPointer,
   unwrapNullable,
   type NeutralPaginationRule,
   type DateType,
@@ -28,6 +27,7 @@ import {
   deref,
   serverUrlParts,
   securityRequirements,
+  paginationItemSchema,
 } from '../../authoring/index.js';
 import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
 import type {
@@ -988,13 +988,7 @@ export const phpGenerator: Generator = ({ model, outputPath, emit }) => {
         const success = jsonSuccessSchema(op);
         const pageHydration =
           success === undefined ? undefined : hydration(success, '$page', model, dateType);
-        // Resolve the items ARRAY, then take its raw element, so a `ref` element
-        // keeps its class name (a deref'd result would hydrate as plain data).
-        const itemsArray =
-          success !== undefined && rule.items !== undefined
-            ? schemaAtPointer(success, rule.items, model)
-            : undefined;
-        const element = itemsArray?.kind === 'array' ? itemsArray.items : undefined;
+        const element = paginationItemSchema(success, rule.items, model);
         const itemHydration =
           element === undefined ? undefined : hydration(element, '$item', model, dateType);
         writePhpPaginationWrappers(

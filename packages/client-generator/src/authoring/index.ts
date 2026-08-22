@@ -20,6 +20,7 @@ export {
 export {
   isMultipartBody,
   jsonSuccessSchema,
+  paginationItemSchema,
   securityRequirements,
   serverUrlParts,
   sseResponse,
@@ -53,6 +54,7 @@ export const AUTHORING_HELPER_NAMES = [
   'isMultipartBody',
   'serverUrlParts',
   'securityRequirements',
+  'paginationItemSchema',
   'isNullable',
   'unwrapNullable',
   'enumValues',

@@ -10,6 +10,7 @@ import type {
   SchemaModel,
   ServerModel,
 } from '../intermediate-representation/model.js';
+import { schemaAtPointer } from './schema.js';
 
 /** The schema of the operation's primary JSON success response, if it has one. */
 export function jsonSuccessSchema(op: OperationModel): SchemaModel | undefined {
@@ -93,4 +94,20 @@ export function securityRequirements(
       })
     )
     .filter((alternative) => alternative.length > 0);
+}
+
+/**
+ * The element type of a paginated operation's items: resolve the rule's `items` pointer to
+ * the items ARRAY, then take its raw element — a `ref` element keeps its class name (a
+ * deref'd result would hydrate as plain data). Undefined when the pointer misses or the
+ * target is not an array.
+ */
+export function paginationItemSchema(
+  pageSchema: SchemaModel | undefined,
+  itemsPointer: string | undefined,
+  model: ApiModel
+): SchemaModel | undefined {
+  if (pageSchema === undefined || itemsPointer === undefined) return undefined;
+  const itemsArray = schemaAtPointer(pageSchema, itemsPointer, model);
+  return itemsArray?.kind === 'array' ? itemsArray.items : undefined;
 }
