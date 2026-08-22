@@ -71,7 +71,7 @@ export function pythonType(schema: SchemaModel, dateType: DateType = 'string'): 
     case 'ref':
       return className(schema.name);
     case 'literal':
-      return `Literal[${JSON.stringify(schema.value)}]`;
+      return `Literal[${naming.literal(schema.value)}]`;
     case 'enum':
       // Anonymous (inline) enums keep the wire scalar; only NAMED enums get classes.
       return { string: 'str', integer: 'int', number: 'float', boolean: 'bool' }[schema.scalar];
@@ -195,10 +195,10 @@ function writeDataclass(
     for (const property of ordered) {
       const { python, renamed } = fieldName(property.name);
       if (renamed && !pydantic) fieldMap.push([python, property.name]);
-      const alias = renamed && pydantic ? `alias=${JSON.stringify(property.name)}` : undefined;
+      const alias = renamed && pydantic ? `alias=${naming.string(property.name)}` : undefined;
       const baseType =
         pinned?.property === property.name
-          ? `Literal[${JSON.stringify(pinned.value)}]`
+          ? `Literal[${naming.literal(pinned.value)}]`
           : pythonType(property.schema, dateType);
       if (property.required) {
         const value = alias === undefined ? '' : ` = Field(${alias})`;
@@ -212,7 +212,7 @@ function writeDataclass(
     if (fieldMap.length > 0) {
       printer.blank();
       printer.line('# Python field name -> wire (JSON) name, for (de)serialization.');
-      const entries = fieldMap.map(([py, wire]) => `"${py}": ${JSON.stringify(wire)}`).join(', ');
+      const entries = fieldMap.map(([py, wire]) => `"${py}": ${naming.string(wire)}`).join(', ');
       printer.line(`_field_map: ClassVar[Dict[str, str]] = {${entries}}`);
     }
   });
@@ -265,7 +265,7 @@ export function renderPythonModels(
       printer.block(`class ${className(name)}(${base}):`, () => {
         printer.doc(schema.description);
         asEnum.values.forEach((value, index) => {
-          printer.line(`${asEnum.memberNames[index]} = ${JSON.stringify(value)}`);
+          printer.line(`${asEnum.memberNames[index]} = ${naming.literal(value)}`);
         });
       });
       printer.blank();
@@ -301,7 +301,7 @@ export function renderPythonModels(
       const union =
         field === undefined
           ? pythonType(schema, dateType)
-          : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${JSON.stringify(field)})]`;
+          : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${naming.string(field)})]`;
       printer.line(`${className(name)} = ${union}`);
       printer.blank();
     });
@@ -313,7 +313,7 @@ export function renderPythonModels(
 /** The server URL as a Python expression: literals concatenated with declared-variable args. */
 function serverUrlExpression(server: ServerModel): string {
   const parts = serverUrlParts(server).map((part) =>
-    part.kind === 'literal' ? JSON.stringify(part.value) : fieldName(part.name).python
+    part.kind === 'literal' ? naming.string(part.value) : fieldName(part.name).python
   );
   return parts.join(' + ');
 }
@@ -336,8 +336,7 @@ function writePythonServers(printer: PythonPrinter, model: ApiModel): void {
       if (usedNames.has(name)) name = `${name}_${index + 1}`;
       usedNames.add(name);
       const params = server.variables.map(
-        (variable) =>
-          `${fieldName(variable.name).python}: str = ${JSON.stringify(variable.default)}`
+        (variable) => `${fieldName(variable.name).python}: str = ${naming.string(variable.default)}`
       );
       if (index > 0) printer.blank();
       printer.line('@staticmethod');
@@ -362,10 +361,10 @@ function discriminatorRegistrations(model: ApiModel, annotated: Set<string>): st
     const cases = discriminatorCases(schema, model);
     if (cases === undefined) continue;
     const mapping = cases.cases
-      .map((entry) => `${JSON.stringify(entry.value)}: ${className(entry.schemaName)}`)
+      .map((entry) => `${naming.string(entry.value)}: ${className(entry.schemaName)}`)
       .join(', ');
     lines.push(
-      `DISCRIMINATORS[${className(name)}] = (${JSON.stringify(cases.property)}, {${mapping}})`
+      `DISCRIMINATORS[${className(name)}] = (${naming.string(cases.property)}, {${mapping}})`
     );
   }
   return lines;
@@ -373,16 +372,7 @@ function discriminatorRegistrations(model: ApiModel, annotated: Set<string>): st
 
 /** JSON → Python literal (dicts/lists/strings/numbers/bools/None). */
 function pythonLiteral(value: unknown): string {
-  if (value === null || value === undefined) return 'None';
-  if (value === true) return 'True';
-  if (value === false) return 'False';
-  if (typeof value === 'number') return String(value);
-  if (typeof value === 'string') return JSON.stringify(value);
-  if (Array.isArray(value)) return `[${value.map(pythonLiteral).join(', ')}]`;
-  const entries = Object.entries(value as Record<string, unknown>)
-    .map(([key, entry]) => `${JSON.stringify(key)}: ${pythonLiteral(entry)}`)
-    .join(', ');
-  return `{${entries}}`;
+  return naming.literal(value);
 }
 
 /** Every operation with its collision-free snake_case Python method name. */
@@ -423,7 +413,7 @@ function envelopeHeaderSpecs(op: OperationModel, model: ApiModel): string {
     while (used.has(key)) key = `${base}_${suffix++}`;
     used.add(key);
     const type = headerCoerceType(header.schema, model);
-    return `(${JSON.stringify(header.name)}, ${JSON.stringify(key)}, ${JSON.stringify(type)})`;
+    return `(${naming.string(header.name)}, ${naming.string(key)}, ${naming.string(type)})`;
   });
   return `[${specs.join(', ')}]`;
 }
@@ -495,11 +485,11 @@ function writeMethod(
     printer.line('params: Dict[str, Any] = dict(auth_query)');
     for (const { param, python } of queryArgs) {
       printer.block(`if ${python} is not None:`, () => {
-        printer.line(`params[${JSON.stringify(param.name)}] = encode(${python})`);
+        printer.line(`params[${naming.string(param.name)}] = encode(${python})`);
       });
     }
     const pathDict = pathArgs
-      .map(({ param, python }) => `${JSON.stringify(param.name)}: ${python}`)
+      .map(({ param, python }) => `${naming.string(param.name)}: ${python}`)
       .join(', ');
     printer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
     if (sse !== undefined) {
@@ -599,7 +589,7 @@ function writePaginationWrappers(
     printer.line('base: Dict[str, Any] = {}');
     for (const { param, python } of queryArgs) {
       printer.block(`if ${python} is not None:`, () => {
-        printer.line(`base[${JSON.stringify(param.name)}] = encode(${python})`);
+        printer.line(`base[${naming.string(param.name)}] = encode(${python})`);
       });
     }
     const prefix = isAsync ? 'async def' : 'def';
@@ -607,7 +597,7 @@ function writePaginationWrappers(
     printer.block(`${prefix} _page(page_params: Dict[str, Any]) -> Tuple[Any, Any]:`, () => {
       printer.line('auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)');
       const pathDict = pathArgs
-        .map(({ param, python }) => `${JSON.stringify(param.name)}: ${python}`)
+        .map(({ param, python }) => `${naming.string(param.name)}: ${python}`)
         .join(', ');
       printer.line(`url = build_url(self._server_url, op["path"], {${pathDict}})`);
       printer.line(
@@ -679,7 +669,7 @@ function writeClientClass(
   printer.block(`class ${name}:`, () => {
     printer.doc(`${isAsync ? 'Async ' : ''}client for ${model.title} (${model.version}).`);
     printer.block(
-      `def __init__(self, server_url: str = ${JSON.stringify(serverUrl)}, *, ` +
+      `def __init__(self, server_url: str = ${naming.string(serverUrl)}, *, ` +
         'auth: Optional[Dict[str, Any]] = None, headers: Optional[Dict[str, str]] = None, ' +
         'timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, ' +
         'middleware: Optional[List[Any]] = None, idempotency_key: Any = None, ' +

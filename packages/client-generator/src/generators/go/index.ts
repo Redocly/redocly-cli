@@ -37,6 +37,9 @@ import type {
   ServerModel,
 } from '../../intermediate-representation/model.js';
 import { exported, GoPrinter } from '../../printers/go.js';
+
+// One escaping policy for every Go string literal this generator prints.
+const naming = new GoPrinter();
 import type { CodeSample, Generator, SampleContext } from '../types.js';
 
 const GO = RESERVED_WORDS.go;
@@ -184,7 +187,7 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
             for (let n = 2; used.has(base + suffix); n++) suffix = String(n);
             used.add(base + suffix);
             const member = exported(name) + base + suffix;
-            printer.line(`${member} ${exported(name)} = ${JSON.stringify(value)}`);
+            printer.line(`${member} ${exported(name)} = ${naming.literal(value)}`);
           });
         },
         ')'
@@ -238,7 +241,7 @@ function renderGoModelBodies(model: ApiModel, dateType: DateType): string {
           // indented as a block — only each case's statements are.
           printer.line('switch probe.Discriminant {');
           for (const entry of cases.cases) {
-            printer.block(`case ${JSON.stringify(entry.value)}:`, () => {
+            printer.block(`case ${naming.string(entry.value)}:`, () => {
               printer.line(`var value ${exported(entry.schemaName)}`);
               printer.line('err := json.Unmarshal(data, &value)');
               printer.line('return value, err');
@@ -267,8 +270,8 @@ function goSecurityLiteral(op: OperationModel, model: ApiModel): string | undefi
   const alternatives = securityRequirements(op, model).map((alternative) =>
     alternative.map((spec) =>
       spec.kind === 'apiKey'
-        ? `{Scheme: ${JSON.stringify(spec.scheme)}, Kind: "apiKey", Name: ${JSON.stringify(spec.name)}, In: ${JSON.stringify(spec.in)}}`
-        : `{Scheme: ${JSON.stringify(spec.scheme)}, Kind: ${JSON.stringify(spec.kind)}}`
+        ? `{Scheme: ${naming.string(spec.scheme)}, Kind: "apiKey", Name: ${naming.string(spec.name)}, In: ${naming.string(spec.in)}}`
+        : `{Scheme: ${naming.string(spec.scheme)}, Kind: ${naming.string(spec.kind)}}`
     )
   );
   if (alternatives.length === 0) return undefined;
@@ -329,12 +332,12 @@ function stripHeader(source: string): string {
 /** The neutral rule as a `&PaginationSpec{…}` composite literal for the operations table. */
 function goPaginationLiteral(rule: NeutralPaginationRule): string {
   const fields = [
-    `Style: ${JSON.stringify(rule.style)}`,
-    ...(rule.param !== undefined ? [`Param: ${JSON.stringify(rule.param)}`] : []),
-    ...(rule.nextCursor !== undefined ? [`NextCursor: ${JSON.stringify(rule.nextCursor)}`] : []),
-    ...(rule.hasMore !== undefined ? [`HasMore: ${JSON.stringify(rule.hasMore)}`] : []),
-    ...(rule.limitParam !== undefined ? [`LimitParam: ${JSON.stringify(rule.limitParam)}`] : []),
-    ...(rule.items !== undefined ? [`Items: ${JSON.stringify(rule.items)}`] : []),
+    `Style: ${naming.string(rule.style)}`,
+    ...(rule.param !== undefined ? [`Param: ${naming.string(rule.param)}`] : []),
+    ...(rule.nextCursor !== undefined ? [`NextCursor: ${naming.string(rule.nextCursor)}`] : []),
+    ...(rule.hasMore !== undefined ? [`HasMore: ${naming.string(rule.hasMore)}`] : []),
+    ...(rule.limitParam !== undefined ? [`LimitParam: ${naming.string(rule.limitParam)}`] : []),
+    ...(rule.items !== undefined ? [`Items: ${naming.string(rule.items)}`] : []),
   ];
   return `&PaginationSpec{${fields.join(', ')}}`;
 }
@@ -448,7 +451,7 @@ function writeGoMethod(
     () => {
       if (sse === undefined && returnType !== undefined) printer.line(`var out ${returnType}`);
       if (envelope) printer.line(`var headers ${ident}Headers`);
-      printer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
+      printer.line(`op := operations[${naming.string(op.specName ?? op.name)}]`);
       printer.line('authHeaders, query := resolveAuth(op.Security, c.config.Auth)');
       if (hasParams) {
         printer.block(
@@ -468,14 +471,14 @@ function writeGoMethod(
                       `for _, item := range *params.${field} {`,
                       () => {
                         printer.line(
-                          `query.Add(${JSON.stringify(param.name)}, ${goQueryFormat('item', elementType)})`
+                          `query.Add(${naming.string(param.name)}, ${goQueryFormat('item', elementType)})`
                         );
                       },
                       '}'
                     );
                   } else {
                     printer.line(
-                      `query.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
+                      `query.Set(${naming.string(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
                     );
                   }
                 },
@@ -487,7 +490,7 @@ function writeGoMethod(
         );
       }
       const pathDict = pathArgs
-        .map(({ param, go, type }) => `${JSON.stringify(param.name)}: ${goQueryFormat(go, type)}`)
+        .map(({ param, go, type }) => `${naming.string(param.name)}: ${goQueryFormat(go, type)}`)
         .join(', ');
       printer.line(
         `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
@@ -550,7 +553,7 @@ function writeGoMethod(
           '}'
         );
         specFields.push('Body: bytes.NewReader(payload)');
-        specFields.push(`ContentType: ${JSON.stringify(op.requestBody.contentType)}`);
+        specFields.push(`ContentType: ${naming.string(op.requestBody.contentType)}`);
       }
       printer.line(`resp, err := send(ctx, &c.config, requestSpec{${specFields.join(', ')}})`);
       printer.block(
@@ -577,7 +580,7 @@ function writeGoMethod(
         );
         for (const planned of headerPlan) {
           printer.line(
-            `headers.${planned.field} = ${planned.helper}(resp.Header, ${JSON.stringify(planned.name)})`
+            `headers.${planned.field} = ${planned.helper}(resp.Header, ${naming.string(planned.name)})`
           );
         }
         printer.line(returnType === undefined ? 'return headers, nil' : 'return out, headers, nil');
@@ -617,7 +620,7 @@ function writeGoPaginationWrappers(
   ].join(', ');
 
   const writeCallClosure = () => {
-    printer.line(`op := operations[${JSON.stringify(op.specName ?? op.name)}]`);
+    printer.line(`op := operations[${naming.string(op.specName ?? op.name)}]`);
     printer.line('base := url.Values{}');
     if (hasParams) {
       printer.block(
@@ -629,7 +632,7 @@ function writeGoPaginationWrappers(
               `if params.${field} != nil {`,
               () => {
                 printer.line(
-                  `base.Set(${JSON.stringify(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
+                  `base.Set(${naming.string(param.name)}, ${goQueryFormat(`*params.${field}`, goType(param.schema, dateType))})`
                 );
               },
               '}'
@@ -657,7 +660,7 @@ function writeGoPaginationWrappers(
           '}'
         );
         const pathDict = pathArgs
-          .map(({ param, go, type }) => `${JSON.stringify(param.name)}: ${goQueryFormat(go, type)}`)
+          .map(({ param, go, type }) => `${naming.string(param.name)}: ${goQueryFormat(go, type)}`)
           .join(', ');
         printer.line(
           `requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{${pathDict}})`
@@ -785,7 +788,7 @@ function writeGoPaginationWrappers(
 function serverUrlExpression(server: ServerModel): string {
   const parts = serverUrlParts(server).map((part) =>
     part.kind === 'literal'
-      ? JSON.stringify(part.value)
+      ? naming.string(part.value)
       : identifierFor(part.name, { style: 'camel', reserved: GO })
   );
   return parts.join(' + ');
@@ -806,11 +809,11 @@ function writeGoServers(printer: GoPrinter, model: ApiModel): void {
     const defaults = server.variables
       .map(
         (variable) =>
-          `${identifierFor(variable.name, { style: 'camel', reserved: GO })} default: ${JSON.stringify(variable.default)}`
+          `${identifierFor(variable.name, { style: 'camel', reserved: GO })} default: ${naming.string(variable.default)}`
       )
       .join(', ');
     printer.line(
-      `// ${name} returns the ${JSON.stringify(server.description ?? server.url)} base URL${defaults === '' ? '.' : ` (${defaults}).`}`
+      `// ${name} returns the ${naming.string(server.description ?? server.url)} base URL${defaults === '' ? '.' : ` (${defaults}).`}`
     );
     printer.block(
       `func ${name}(${params.join(', ')}) string {`,
@@ -861,7 +864,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
         'strings',
         'time',
       ]) {
-        printer.line(JSON.stringify(spec));
+        printer.line(naming.string(spec));
       }
     },
     ')'
@@ -895,13 +898,13 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
         const security = goSecurityLiteral(op, model);
         const rule = paginationRules.get(ident);
         const fields = [
-          `ID: ${JSON.stringify(id)}`,
-          `Method: ${JSON.stringify(op.method.toUpperCase())}`,
-          `Path: ${JSON.stringify(op.path)}`,
+          `ID: ${naming.string(id)}`,
+          `Method: ${naming.string(op.method.toUpperCase())}`,
+          `Path: ${naming.string(op.path)}`,
           ...(security !== undefined ? [`Security: ${security}`] : []),
           ...(rule !== undefined ? [`Pagination: ${goPaginationLiteral(rule)}`] : []),
         ];
-        printer.line(`${JSON.stringify(id)}: {${fields.join(', ')}},`);
+        printer.line(`${naming.string(id)}: {${fields.join(', ')}},`);
       }
     },
     '}'
@@ -942,7 +945,7 @@ export const goGenerator: Generator = ({ model, outputPath, emit }) => {
         'if config.ServerURL == "" {',
         () => {
           printer.line(
-            `config.ServerURL = ${JSON.stringify(emit.serverUrl ?? model.serverUrl ?? '')}`
+            `config.ServerURL = ${naming.string(emit.serverUrl ?? model.serverUrl ?? '')}`
           );
         },
         '}'
