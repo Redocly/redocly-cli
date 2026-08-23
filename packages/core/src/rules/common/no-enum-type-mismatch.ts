@@ -29,27 +29,18 @@ export const NoEnumTypeMismatch:
       }
 
       if (schema.enum && schema.type && Array.isArray(schema.type)) {
-        const mismatchedResults: { [key: string]: string[] } = {};
-        for (const enumValue of schema.enum) {
-          mismatchedResults[enumValue] = [];
+        const types = schema.type as string[];
 
-          for (const type of schema.type) {
-            const valid = matchesJsonSchemaType(
-              enumValue,
-              type as string,
-              schema.nullable as boolean
-            );
-            if (!valid) mismatchedResults[enumValue].push(type);
-          }
+        for (let index = 0; index < schema.enum.length; index++) {
+          const enumValue = schema.enum[index];
+          const matchesAnyType = types.some((type) =>
+            matchesJsonSchemaType(enumValue, type, schema.nullable as boolean)
+          );
+          if (matchesAnyType) continue;
 
-          if (mismatchedResults[enumValue].length !== schema.type.length)
-            delete mismatchedResults[enumValue];
-        }
-
-        for (const mismatchedKey of Object.keys(mismatchedResults)) {
           report({
-            message: `Enum value \`${mismatchedKey}\` must be of allowed types: \`${schema.type}\`.`,
-            location: location.child(['enum', schema.enum.indexOf(mismatchedKey)]),
+            message: `Enum value \`${enumValue}\` must be of allowed types: \`${schema.type}\`.`,
+            location: location.child(['enum', index]),
             reference: 'https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch',
           });
         }
