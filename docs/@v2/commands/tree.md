@@ -70,7 +70,7 @@ The default view shows one API's overview at a time; pass a single API, or use `
 Selectors combine only in the shapes shown under _Usage_ above; other combinations are a usage error.
 For example, `--tag` and `--component` each select a different, unrelated scope, so combining them fails fast:
 
-```
+```text
 Arguments component and tag are mutually exclusive
 ```
 
@@ -87,7 +87,7 @@ Past 100 operations the tree collapses to tag counts and points at `--tag` inste
 redocly tree cafe.yaml
 ```
 
-```
+```text
 cafe.yaml — Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…  (oas3_2)
 ├── Servers
 │   └── https://api.cafe.redocly.com
@@ -205,7 +205,7 @@ A bare `--tag` lists every tag with its operation count, for when the tag names 
 redocly tree cafe.yaml --tag
 ```
 
-```
+```text
 Tags (4)
 ├── Authorization (1) — Create a client to demo the API.
 ├── Products (4) — Operations related to products.
@@ -221,7 +221,7 @@ With `--format=ai` the same listing is one line per tag, closed by the `next:` l
 redocly tree cafe.yaml --tag --format=ai
 ```
 
-```
+```text
 tags · 4 tags
 Authorization · 1 operation — Create a client to demo the API.
 Products · 4 operations — Operations related to products.
@@ -236,7 +236,7 @@ next: --tag=<name>
 redocly tree cafe.yaml --tag=Orders
 ```
 
-```
+```text
 /orders (2)
 ├── GET "List all orders" 229..314 [Orders]
 └── POST "Create order" 316..372 [Orders]
@@ -368,7 +368,7 @@ redocly tree cafe.yaml --tag=Orders --format=json
 redocly tree cafe.yaml --path=/orders
 ```
 
-```
+```text
 /orders (2)
 ├── GET "List all orders" 229..314 [Orders]
 └── POST "Create order" 316..372 [Orders]
@@ -386,7 +386,7 @@ Add `--operation` with an HTTP method to select a single operation on that path.
 redocly tree cafe.yaml --path=/orders --operation=post
 ```
 
-```
+```text
 POST /orders — Create order (createOrder)
 ├── source: cafe.yaml#/paths/~1orders/post  [316..372]
 ├── refs (5)
@@ -503,7 +503,7 @@ A bare `--operation` value that looks like an HTTP method is rejected, since it'
 redocly tree cafe.yaml --operation=post
 ```
 
-```
+```text
 "post" looks like an HTTP method. Add --path (or --webhook) to select the operation, or pass an operationId.
 ```
 
@@ -515,12 +515,12 @@ redocly tree cafe.yaml --operation=post
 redocly tree cafe.yaml --webhook=order-notification
 ```
 
-```
+```text
 order-notification (1)
 └── POST "Order notification webhook" 665..683 [Orders]
 ```
 
-To list every webhook across the whole description at once — the plural flag, not a specific name — see [List every path, operation, or webhook](#list-every-path-operation-or-webhook) below.
+To list every webhook across the whole description at once — the plural flag, not a specific name — see [List every operation or webhook](#list-every-operation-or-webhook) below.
 
 Add `--operation` for a single webhook operation card:
 
@@ -591,7 +591,7 @@ In JSON, each entry is card-shaped, with typed `refs` and one-hop `usedBy` added
 redocly tree cafe.yaml --component=schemas
 ```
 
-```
+```text
 schemas (15)
 ├── Page 823..866
 ├── MenuBaseItem 868..922
@@ -617,7 +617,7 @@ An unknown section lists the valid ones:
 redocly tree cafe.yaml --component=widgets
 ```
 
-```
+```text
 Unknown component section "widgets". Sections: schemas, responses, parameters, requestBodies, headers, securitySchemes, examples, links, callbacks.
 ```
 
@@ -627,7 +627,7 @@ Add `--name` for a single component card, with its one-hop `refs` and `usedBy`:
 redocly tree cafe.yaml --component=schemas --name=Order
 ```
 
-```
+```text
 schemas/Order
 ├── source: cafe.yaml#/components/schemas/Order  [1033..1106]
 ├── refs (1)
@@ -648,7 +648,7 @@ schemas/Order
 redocly tree cafe.yaml --component=schemas --name=OrderNotification --format=ai
 ```
 
-```
+```text
 schemas/OrderNotification · cafe.yaml L1310-1324
 signature: orderId*:string, orderStatus*→OrderStatus, timestamp*:string
 --- json
@@ -668,7 +668,7 @@ The example below runs against a multi-file version of the same API (a directory
 redocly tree cafe-split/cafe.yaml --component=schemas
 ```
 
-```
+```text
 schemas (0)
 ```
 
@@ -684,7 +684,7 @@ The path is resolved the same way as other file arguments elsewhere in the CLI: 
 redocly tree cafe-split/cafe.yaml --file=paths/orders.yaml
 ```
 
-```
+```text
 cafe-split/paths/orders.yaml
 ├── GET /orders — List all orders (listOrders)  [2..62]
 └── POST /orders — Create order (createOrder)  [64..118]
@@ -875,7 +875,7 @@ This is the same report shape as the plain `--used-by` analysis further below, j
 `--file` also combines with `--files` to filter the file-level graph down to one file's neighborhood — see the file-level graph section below.
 It's mutually exclusive with every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and with `--operations`, `--webhooks`; combining it with `--with-deps` is rejected the same way an incomplete selector is:
 
-```
+```text
 --with-deps requires an operation or component selection.
 ```
 
@@ -887,7 +887,7 @@ It's mutually exclusive with every typed selector (`--tag`, `--path`, `--webhook
 redocly tree cafe.yaml --operations
 ```
 
-```
+```text
 /menu (2)
 ├── GET "List all menu items" 32..111 [Products]
 └── POST "Create menu item" 113..173 [Products]
@@ -991,7 +991,7 @@ It's a standalone selector: it doesn't combine with `--tag`, `--path`, `--webhoo
 redocly tree cafe.yaml --find "order status"
 ```
 
-```
+```text
 find "order status" · 1 operations · 1 components
 
 /orders/{orderId} (1)
@@ -1007,7 +1007,7 @@ components (1)
 redocly tree cafe.yaml --find "order status" --format=ai
 ```
 
-```
+```text
 find "order status" · 1 operation · 1 component
 patch /orders/{orderId} · updateOrder · L418 — Partially update an order
 schemas/OrderStatus · L1025 — Order status.
@@ -1023,7 +1023,7 @@ Combining `--find` with another selector is rejected the same way an incompatibl
 redocly tree cafe.yaml --find "order status" --tag=Orders
 ```
 
-```
+```text
 --find is a standalone search and cannot be combined with other selectors.
 ```
 
@@ -1039,7 +1039,7 @@ A pointer that lands on a component or an operation (`#/components/<section>/<na
 redocly tree cafe.yaml --pointer='#/components/schemas/OrderStatus' --format=ai
 ```
 
-```
+```text
 schemas/OrderStatus · cafe.yaml L1025-1031 — Order status.
 signature: string=placed|preparing|completed|canceled
 --- json
@@ -1054,7 +1054,7 @@ A pointer that lands exactly on a container boundary — the document root (`#/`
 redocly tree cafe.yaml --pointer='#/paths' --format=ai
 ```
 
-```
+```text
 operations · 12 operations
 get /menu · listMenuItems · L32 — List all menu items
 post /menu · createMenuItem · L113 — Create menu item
@@ -1077,7 +1077,7 @@ next: --path=<p> --operation=<method> [--with-deps]
 redocly tree cafe.yaml --pointer='#/components'
 ```
 
-```
+```text
 Point one level deeper: --pointer='#/components/<section>'. Sections: schemas, responses, parameters, requestBodies, headers, securitySchemes, examples, links, callbacks.
 ```
 
@@ -1087,7 +1087,7 @@ A pointer that resolves anywhere else in the document — inside a schema's prop
 redocly tree cafe.yaml --pointer='#/components/schemas/Order/properties/status' --format=ai
 ```
 
-```
+```text
 pointer #/components/schemas/Order/properties/status · cafe.yaml L1059-1061
 --- json
 {"allOf":[{"$ref":"#/components/schemas/OrderStatus"}],"readOnly":true}
@@ -1097,7 +1097,7 @@ ancestor: schemas/Order L1033-1106 · usedBy: 4 (--used-by --pointer='#/componen
 
 `--used-by`/`--with-deps` on that same deep pointer are rejected, naming the ancestor as the nearest node that supports them:
 
-```
+```text
 --used-by and --with-deps need an indexed node. Nearest: --pointer='#/components/schemas/Order'
 ```
 
@@ -1107,7 +1107,7 @@ A pointer that resolves nowhere in the document errors with the nearest pointer 
 redocly tree cafe.yaml --pointer='#/components/schemas/Order/properties/bogus'
 ```
 
-```
+```text
 Nothing at "#/components/schemas/Order/properties/bogus". Nearest resolvable: #/components/schemas/Order/properties.
 ```
 
@@ -1124,7 +1124,7 @@ Two views break that rule: a card's own body ships as one line of minified JSON 
 redocly tree asyncapi.yaml --format=ai
 ```
 
-```
+```text
 {"nodes":[{"id":"asyncapi.yaml","resolved":true,"kind":"root","file":"asyncapi.yaml","root":true},{"id":"channels/userSignedup","resolved":true,"kind":"component","file":"asyncapi.yaml"},…],"links":[{"source":"channels/userSignedup","target":"messages/UserSignedUp","refs":["#/components/messages/UserSignedUp"]},…]}
 ```
 
@@ -1145,7 +1145,7 @@ On a listing view (`--tag`; `--path`/`--webhook` without `--operation`; `--opera
 redocly tree cafe.yaml --tag=Orders --format=ai
 ```
 
-```
+```text
 Orders · 6 operations
 get /orders · listOrders · L229 — List all orders
 post /orders · createOrder · L316 — Create order
@@ -1163,7 +1163,7 @@ A webhook line adds `webhook` before the name (`method webhook name · operation
 redocly tree cafe.yaml --component=schemas --format=ai
 ```
 
-```
+```text
 schemas · 15 components
 schemas/Page · L823
 schemas/MenuBaseItem · L868
@@ -1193,7 +1193,7 @@ The `f:` suffix shows up once a listing spans more than one file — the same ta
 redocly tree cafe-split/cafe.yaml --tag=Orders --format=ai
 ```
 
-```
+```text
 Orders · 6 operations
 get /orders · listOrders · L2 · f:cafe-split/paths/orders.yaml — List all orders
 post /orders · createOrder · L64 · f:cafe-split/paths/orders.yaml — Create order
@@ -1210,7 +1210,7 @@ A view with no listing to project — the overview, a `--used-by` report — sti
 redocly tree cafe.yaml --format=ai
 ```
 
-```
+```text
 cafe.yaml · oas3_2 — Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…
 servers: https://api.cafe.redocly.com
 12 operations · 4 tags · 1 webhook operation
@@ -1450,7 +1450,7 @@ The `content` values above are elided (`…`); the real output carries the actua
 redocly tree cafe.yaml --path=/orders --operation=post --with-deps
 ```
 
-```
+```text
 POST /orders — Create order (createOrder)
 ├── source: cafe.yaml#/paths/~1orders/post  [316..372]
 ├── refs (5)
@@ -1471,7 +1471,7 @@ POST /orders — Create order (createOrder)
 ```
 
 Each `deps` entry is `id → file  [start..end]`, the same arrow shape as `refs`, without the pointer (a dependency's own `refs` are one selector away, or in the JSON `deps[].refs`).
-When the closure hits the cap, the label gains a ` (truncated)` suffix: `deps (12, 64.0 KB of 64 KB cap) (truncated)`.
+When the closure hits the cap, the label ends with `(truncated)`: `deps (12, 64.0 KB of 64 KB cap) (truncated)`.
 Each dependency's own raw source is available the same way, one selector at a time, or in full through `--format=json`.
 
 ### Schema signatures instead of raw YAML: `--with-deps --format=ai`
@@ -1485,7 +1485,7 @@ Anything more than two hops from the selection is listed as a bare id under `dee
 redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
 ```
 
-```
+```text
 post /orders · createOrder · cafe.yaml L316-372 · tags: Orders — Create order
 auth: OAuth2 · oauth2 (orders:write)
 --- json
@@ -1506,7 +1506,7 @@ An operation that declares `security: []` overrides that inheritance and reads `
 Each scheme is printed with what it asks for, because the name alone does not say which header carries the key.
 On a description that states its requirement once at the root, every operation card carries that inherited line, and the overview states it too:
 
-```
+```text
 security: SecretApiKey · apiKey in header REB-APIKEY | JWT · http bearer
 ```
 
@@ -1628,13 +1628,13 @@ cafe.yaml
 `--used-by` needs a single operation or component to run the analysis from.
 On a `--component` selection, that means adding `--name`:
 
-```
+```text
 Add --name to use --used-by or --with-deps with --component.
 ```
 
 On a `--path` or `--webhook` selection, that means adding `--operation`:
 
-```
+```text
 --used-by requires --operation, or --component with --name.
 ```
 
@@ -1644,7 +1644,7 @@ On a `--path` or `--webhook` selection, that means adding `--operation`:
 redocly tree cafe.yaml --component=schemas --name=Order --used-by --with-deps
 ```
 
-```
+```text
 Arguments used-by and with-deps are mutually exclusive
 ```
 
@@ -1658,7 +1658,7 @@ A search with no hits reports both counts as zero and suggests how to widen it:
 redocly tree cafe.yaml --find "graphql subscription" --format=ai
 ```
 
-```
+```text
 find "graphql subscription" · 0 operations · 0 components
 Nothing matched.
 next: --find=<fewer or different terms> · --tag=<name>
@@ -1670,7 +1670,7 @@ A component section the description doesn't use renders as an empty listing:
 redocly tree cafe.yaml --component=links --format=ai
 ```
 
-```
+```text
 links · 0 components
 next: --component=links --name=<Name> [--with-deps]
 ```
@@ -1687,13 +1687,13 @@ An unknown tag, path, webhook, operationId, or component name exits with code `1
 redocly tree cafe.yaml --tag=Order
 ```
 
-```
+```text
 No tag "Order". Did you mean: Orders? Run `redocly tree <api>` to list tags.
 ```
 
 Path, webhook, and operationId lookups report the same way:
 
-```
+```text
 No path "/order". Did you mean: /order-items, /orders, /orders/{orderId}? Run `redocly tree <api> --operations` to list operations.
 No operation "createOrde". Did you mean: createOrder? Run `redocly tree <api> --operations` to list operations.
 No webhook "order-notificatio". Did you mean: order-notification?
@@ -1705,11 +1705,22 @@ Selector combinations that don't make sense are rejected before the description 
 redocly tree cafe.yaml --tag=Orders --component=schemas
 ```
 
-```
+```text
 Arguments component and tag are mutually exclusive
 ```
 
-The full set of rules: `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone; `--path` and `--webhook` exclude each other, `--tag`, and `--file`; `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`; `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph; `--webhooks` excludes every typed selector and the `--operations` listing; `--operations` excludes every selector, listing, and modifier; `--files` excludes every selector, listing, and modifier except `--file`; `--used-by` excludes `--with-deps`; `--find` excludes every other selector, listing, and modifier; `--pointer` excludes every other selector and listing the same way `--find` does, but combines with `--used-by`/`--with-deps` once it resolves to an indexed component or operation — a deep pointer rejects both with a hint naming its nearest indexed ancestor.
+The full set of rules:
+
+- `--tag` excludes `--path`, `--webhook`, `--component`, `--file`, and `--operation` alone.
+- `--path` and `--webhook` exclude each other, `--tag`, and `--file`.
+- `--component` excludes `--tag`, `--path`, `--webhook`, `--file`, and `--operation`.
+- `--file` excludes every typed selector (`--tag`, `--path`, `--webhook`, `--operation`, `--component`, `--name`) and the `--operations`/`--webhooks` listings, but combines with `--used-by`, and with `--files` to filter the file graph.
+- `--webhooks` excludes every typed selector and the `--operations` listing.
+- `--operations` excludes every selector, listing, and modifier.
+- `--files` excludes every selector, listing, and modifier except `--file`.
+- `--used-by` excludes `--with-deps`.
+- `--find` excludes every other selector, listing, and modifier.
+- `--pointer` excludes every other selector and listing the same way `--find` does, but combines with `--used-by`/`--with-deps` once it resolves to an indexed component or operation — a deep pointer rejects both with a hint naming its nearest indexed ancestor.
 
 Selectors, listings, and `--used-by`/`--with-deps` are OpenAPI-only:
 
@@ -1717,7 +1728,7 @@ Selectors, listings, and `--used-by`/`--with-deps` are OpenAPI-only:
 redocly tree async.yaml --tag=foo
 ```
 
-```
+```text
 The tree selectors (--tag, --path, --operation, --webhook, --component, --name, --file, --find, --pointer, --operations, --webhooks, --used-by, --with-deps) support OpenAPI descriptions only for now.
 ```
 
@@ -1762,7 +1773,7 @@ paths:
 redocly tree openapi.yaml
 ```
 
-```
+```text
 Could not resolve https://example.com/error.yaml — shown as unresolved (❌).
 Could not resolve schemas/Item.yaml — shown as unresolved (❌).
 openapi.yaml — Test API  (oas3_2)
@@ -1881,7 +1892,7 @@ It doesn't accept the typed selectors, `--operations`/`--webhooks`, `--used-by`,
 redocly tree cafe-split/cafe.yaml --files --format=ai
 ```
 
-```
+```text
 files · 40 files · 89 links
 root: cafe.yaml
 cafe.yaml · 9 refs
@@ -2035,7 +2046,7 @@ Use `--output` (`-o`) to write any format to a file instead of `stdout`:
 redocly tree cafe.yaml --format=json --output cafe-index.json
 ```
 
-```
+```text
 Tree written to cafe-index.json
 ```
 

@@ -1,0 +1,66 @@
+{
+  "docName": "cafe.yaml",
+  "spec": "oas3_2",
+  "docDescription": "Redocly Cafe — Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic…",
+  "overview": {
+    "pointer": "#/info",
+    "file": "cafe.yaml",
+    "start_line": 3,
+    "end_line": 16,
+    "summary": "Demo API for cafe operators (not customers) to manage menus, orders, and revenue. Create API credentials and try it yourself in a realistic OpenAPI workflow."
+  },
+  "servers": {
+    "pointer": "#/servers",
+    "file": "cafe.yaml",
+    "start_line": 18,
+    "end_line": 19,
+    "urls": ["https://api.cafe.redocly.com"]
+  },
+  "tags": [
+    {
+      "name": "Authorization",
+      "summary": "Create a client to demo the API.",
+      "operations": 1
+    },
+    {
+      "name": "Products",
+      "summary": "Operations related to products.",
+      "operations": 4
+    },
+    {
+      "name": "Orders",
+      "summary": "Order management operations.",
+      "operations": 6
+    },
+    {
+      "name": "Statistics",
+      "summary": "Statistics operations.",
+      "operations": 1
+    }
+  ],
+  "operations": 12,
+  "webhooks": [
+    {
+      "name": "order-notification",
+      "operations": 1
+    }
+  ],
+  "components": [
+    {
+      "section": "schemas",
+      "count": 15
+    },
+    {
+      "section": "responses",
+      "count": 6
+    },
+    {
+      "section": "parameters",
+      "count": 9
+    },
+    {
+      "section": "securitySchemes",
+      "count": 2
+    }
+  ]
+}
