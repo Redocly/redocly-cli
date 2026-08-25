@@ -12,6 +12,7 @@ import { URL } from 'url';
 
 import { addHeaders } from './helpers/add-headers.js';
 import { buildHeaders } from './helpers/build-headers.js';
+import { buildPostData } from './helpers/build-post-data.js';
 import { buildRequestCookies } from './helpers/build-request-cookies.js';
 import { buildResponseCookies } from './helpers/build-response-cookies.js';
 import { getDuration } from './helpers/get-duration.js';
@@ -43,6 +44,7 @@ export const withHar: WithHar = function <T extends typeof fetch>(
     const startTime = process.hrtime();
 
     const url = new URL(typeof input === 'string' ? input : input.url);
+    const postData = buildPostData(options.body, options.headers || {});
 
     const entry = {
       _compressed: false,
@@ -82,8 +84,10 @@ export const withHar: WithHar = function <T extends typeof fetch>(
           value,
         })),
         headersSize: -1,
-        bodySize: -1,
-        postData: {},
+        // -1 means "not available": a body was sent but not recorded (for example FormData).
+        bodySize:
+          postData.text !== undefined ? Buffer.byteLength(postData.text) : options.body ? -1 : 0,
+        ...(postData.text !== undefined && { postData }),
         httpVersion: 'HTTP/1.1',
       },
       response: {},
