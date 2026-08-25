@@ -222,7 +222,7 @@ What the failing runs left out:
 - **Haiku 4.5 · no tree** — 10 runs: no auth scheme
 - **Haiku 4.5 · tree** — 2 runs: no auth scheme
 
-The same file, a corner no tutorial covers, and the picture inverts: every model finds the calls, and Haiku 4.5 goes from none of five to all five. Its control runs name the right calls and never say how they authenticate; with the index they quote the `security:` line back.
+The same file, a corner no tutorial covers, and the picture inverts: every model finds the calls, and Haiku 4.5 goes from none of ten to eight. Its control runs name the right calls and never say how they authenticate; with the index they quote the `security:` line back.
 
 {% /tab %}
 
@@ -289,7 +289,8 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 3 runs: no intent field
 - **Haiku 4.5 · tree** — 2 runs: no intent field, no carrier field
 
-Everything passes for Sonnet 5 and Opus 5, and both pay more context — nine operations barely need finding. Haiku 4.5 gains the `capture_id` chain it kept missing.
+Opus 5 passes every run either way and Sonnet 5 misses one without the index. Both pay more context with it — nine operations barely need finding, and the cards arrive carrying PayPal's deep schemas — which for Opus 5 lands as 26% more billed.
+Haiku 4.5 stays at four working runs, still leaving `intent` out of the order body.
 
 {% /tab %}
 
@@ -354,7 +355,7 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
 
-The same 2,909 files, a corner the tutorials skip: Haiku 4.5 moves from none of five to four. The second of two controls in this grid for what a model remembers versus what it reads.
+The same 2,909 files, a corner the tutorials skip: Sonnet 5 moves from three working runs in ten to nine, the largest single move in the grid, while Haiku 4.5 stays at four and only gets there cheaper. Opus 5 passes either way and pays 39% more for it — with one operation per file, the filenames are already an index. The second of two controls in this grid for what a model remembers versus what it reads.
 
 {% /tab %}
 
@@ -412,7 +413,9 @@ What the failing runs left out:
 - **Haiku 4.5 · no tree** — 4 runs: no token call
 - **Haiku 4.5 · tree** — 4 runs: no token call
 
-At 41 KB the whole description fits in one read, and the index still cuts context by a third for Sonnet 5. Haiku 4.5 loses the token call among the cards twice.
+At 41 KB the whole description fits in one read, and all thirty control runs take it — one call and the model has everything.
+The index still cuts Sonnet 5's context nearly in half, and still costs more: it turns that one read into seven to thirteen calls, and each call is a fresh request carrying the whole conversation again. Sonnet 5 is the clearest case in the grid — 48% less context, 17% more billed.
+Haiku 4.5 loses the token call among the cards exactly as often as it loses it in the file.
 
 {% /tab %}
 
@@ -427,6 +430,7 @@ Opus 5, meanwhile, passes all 120 of its runs either way — it does not need on
 **Almost every one of those failures is the same failure.** The control runs name the right calls in the right order and never say how the request authenticates: no key, no header, no token. It is the largest failure class in the grid by a wide margin, and it is what an index removes, because every card states the requirement that protects the operation.
 
 **It does not pay everywhere, and the grid shows where.** Where a description is small, or already laid out as one file per operation, fetching cards costs more than reading it: Opus 5 pays 49% more context on DigitalOcean and 47% more on PayPal for answers it would have reached anyway.
+The bill follows calls more closely than bytes, because every call is a request that resends the conversation. The Cafe API shows it at its plainest: one read of the whole 41 KB file becomes seven to thirteen index calls, and Sonnet 5 ends up with 48% less context and a 17% larger bill.
 The pattern across all six: the index earns its place on descriptions large enough that search is the only way in, and on models that would otherwise leave something out.
 
 ## How this was measured
