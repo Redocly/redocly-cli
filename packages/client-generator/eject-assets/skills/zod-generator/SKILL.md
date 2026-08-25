@@ -29,15 +29,20 @@ A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schem
 operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
   imported this module.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/zod.ts` (schema expressions + module assembly).
+`schemas.ts` holds the whole renderer — schema expressions, the `operationSchemas` map,
+and the module assembly; `index.ts` is the entry. Naming and literal escaping come from
+the TypeScript printer (`@redocly/client-generator/printers/typescript`).
 
 ## Ejecting it
 
-`redocly eject-generator zod` ships this generator BUNDLED with the emitter it uses — one
-small `.mjs` you own, importing `@redocly/client-generator` and `@redocly/openapi-core`.
-Change the schema shapes, the naming, or what gets a schema at all, and regenerate.
+`redocly eject-generator zod` copies this generator's TypeScript source folder to
+`generators/zod/`, exactly as we wrote it, importing `@redocly/client-generator` and
+`@redocly/client-generator/printers/typescript`. Running a `.ts` generator uses Node's
+type stripping (Node 22.18, 23.6, or newer); newer built-in versions merge in per file
+with `--update`. Change the schema shapes, the naming, or what gets a schema at all, and
+regenerate.
 
 ## The modify loop
 

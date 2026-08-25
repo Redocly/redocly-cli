@@ -21,21 +21,27 @@ React SWR hooks over the sdk's exported operation functions: `use<Op>()` with a
 - **Skips what it cannot wrap** — SSE operations and `<Op>Variables` name collisions —
   with a warning naming each one, never silently.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/swr.ts`, `wrapper-support.ts` (shared wrappable-operation policy).
+`render.ts` holds the whole hook renderer; `index.ts` is the entry. The wrappable-operation
+policy and the sdk calling convention come from the typescript generator's published
+contract (`@redocly/client-generator/contracts/typescript`), so this generator cannot
+drift from the sdk it wraps.
 
 ## Ejecting it
 
-`redocly eject-generator swr` ships this generator BUNDLED with the emitter it uses — one
-small `.mjs` you own, importing `@redocly/client-generator` and `@redocly/openapi-core`.
-Change the hook shape or the key strategy, and regenerate.
+`redocly eject-generator swr` copies this generator's TypeScript source folder to
+`generators/swr/`, exactly as we wrote it, importing `@redocly/client-generator`,
+`@redocly/client-generator/printers/typescript`, and
+`@redocly/client-generator/contracts/typescript`. Running a `.ts` generator uses Node's
+type stripping (Node 22.18, 23.6, or newer); newer built-in versions merge in per file
+with `--update`. Change the hook shape or the key strategy, and regenerate.
 
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change the emitter modules named above (the entry is plumbing — it rarely moves).
-3. Verify: `npm run compile`, the emitter unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/emitters`), the e2e
-   suites for this generator, and the large-description bars
+2. Change the stage files named above (the entry is plumbing — it rarely moves).
+3. Verify: `npm run compile`, the folder's unit suites
+   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/swr`),
+   the e2e suites for this generator, and the large-description bars
    (`tests/e2e/generate-client/large-descriptions.test.ts`).

@@ -13,8 +13,9 @@ to `generators/typescript/` that has no covering sentence here is incomplete.
 
 The typed TypeScript client itself: model types with JSDoc, type guards, the `Ops`
 type map, the `OPERATIONS` descriptor table, a `client` instance, one binding per
-operation, and either the embedded runtime (`runtime: inline`) or imports from
-`@redocly/client-generator` (`runtime: package`).
+operation, and the runtime — embedded in the file (`runtime: inline`, the default) or
+written as real modules in a `runtime/` folder beside it that the client imports
+relatively (`runtime: module`).
 
 ## Design decisions that must hold
 
@@ -43,24 +44,38 @@ operation, and either the embedded runtime (`runtime: inline`) or imports from
   `{ data, headers, response }` with typed declared headers. Result mode returns
   `{ data, error, response }` and ignores `envelope`.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/client-assembly.ts` (orchestration), `render-client.ts` (Ops, aliases, input
-shapes), `descriptor.ts`, `ts-type.ts`/`ts-literal.ts` (type + data text), `sse.ts`,
-`pagination.ts`, `response-headers.ts`, `inline-runtime.ts`, `setup-bake.ts`.
+One file per stage of the emit, same skeleton as the other generators:
+`types.ts` renders type text (`tsType`, JSDoc, the model type aliases);
+`operations.ts` the per-operation surface (the `Ops` map, the `<Op>*` aliases, the
+input shapes, `flatInputShape`);
+`descriptor.ts` the `OPERATIONS` wire table and the collision-safe `packageIdents`;
+`client.ts` the assembly (single/split entries, the runtime needs, the module-mode
+runtime files);
+`type-guards.ts`, `response-headers.ts`, `operation-types.ts`, `operation-signature.ts`
+the narrower questions their names state;
+`banner.ts` the generated-by header and title comment;
+`inline-runtime.ts` the runtime assembly for both modes. The runtime's real sources ship
+inside the package and reach the generator through
+`@redocly/client-generator/runtime-sources` (in this repo they live in `runtime/` beside
+these files). Naming and string escaping live in the TypeScript printer
+(`@redocly/client-generator/printers/typescript`).
 
 ## Ejecting it
 
-`redocly eject-generator typescript` ships this generator BUNDLED with the emitters it uses —
-one `.mjs` you own, unminified, with a comment marking each source module. It imports
-only `@redocly/client-generator` (the toolkit and the embedded runtime) and
-`@redocly/openapi-core` (`logger`, `isPlainObject`), so runtime fixes still arrive by
-`npm update`.
+`redocly eject-generator typescript` copies this generator's TypeScript source folder to
+`generators/typescript/` — the stage files above, exactly as we wrote them. Imports stay
+package specifiers: `@redocly/client-generator` (the toolkit and IR types),
+`@redocly/client-generator/printers/typescript` (naming and text mechanics), and
+`@redocly/client-generator/runtime-sources` (the runtime sources it embeds). Running a
+`.ts` generator uses Node's own type stripping (Node 22.18, 23.6, or newer), and newer
+built-in versions merge into your copy per file with
+`redocly eject-generator typescript --update`.
 
-It is the largest of them (the whole client emitter plus the runtime it embeds), so reach
-for the smaller paths first when they fit: `client.setup` bakes publisher defaults into the
-generated client, and middleware or `configure()` change behavior at run time rather than
-generation time.
+It is the largest of them, so reach for the smaller paths first when they fit:
+`client.setup` bakes publisher defaults into the generated client, and middleware or
+`configure()` change behavior at run time rather than generation time.
 
 - **It documents itself.** With `client.docs` (or `--docs`), the `docs` hook writes
   `<stem>.typescript.md`: the security schemes, then one section per operation with its parameters,

@@ -23,15 +23,19 @@ values and back — the bridge for `dateType: Date` clients.
 - Converters are pure and total: every named schema gets a pair, nested structures
   recurse, and a missing optional stays missing.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/transformers.ts`.
+`render.ts` holds the whole converter renderer; `index.ts` is the entry. Naming comes
+from the TypeScript printer (`@redocly/client-generator/printers/typescript`).
 
 ## Ejecting it
 
-`redocly eject-generator transformers` ships this generator BUNDLED with the emitter it
-uses — one small `.mjs` you own, importing `@redocly/client-generator` and
-`@redocly/openapi-core`. Change which fields are converted, or how, and regenerate.
+`redocly eject-generator transformers` copies this generator's TypeScript source folder
+to `generators/transformers/`, exactly as we wrote it, importing
+`@redocly/client-generator` and `@redocly/client-generator/printers/typescript`. Running
+a `.ts` generator uses Node's type stripping (Node 22.18, 23.6, or newer); newer built-in
+versions merge in per file with `--update`. Change which fields are converted, or how,
+and regenerate.
 
 ## The modify loop
 
