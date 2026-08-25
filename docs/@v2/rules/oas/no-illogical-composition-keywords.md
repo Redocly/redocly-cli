@@ -42,17 +42,22 @@ style AllOf fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ## API design principles
 
 `oneOf` means "exactly one".
-When a value matches two of the listed schemas, no tool can tell which one was intended, and validators, code generators, and documentation all disagree about the result.
+When a value matches two of the listed schemas, no tool can tell which one was intended.
+Validators, code generators, and documentation all disagree about the result.
 
-The most common version of this is nullability: if a referenced schema already accepts `null` and the `oneOf` also lists `type: 'null'`, a null value matches both branches.
+One of the most common ambiguous patterns is nullability.
+If a referenced schema already accepts `null` and the `oneOf` also lists `type: 'null'`, a null value matches both branches.
 The same ambiguity appears one level up, when the schema holding the `oneOf` is itself nullable and a member accepts `null` too.
 
 Deciding whether two arbitrary schemas overlap is not solvable in general, so the comparison stays deliberately narrow.
 It reads `type`, `nullable`, `enum`, `const`, `properties`, `required`, and `additionalProperties: false`.
-A `const` counts as a single-value `enum`, so one member can use `enum` and the other `const`.
-When a member uses any other constraint, such as `not`, `pattern`, `minimum`, or a nested `allOf`, that constraint may be what separates the schemas, so the rule reports nothing for the pair.
+A `const` counts as a single-value `enum`.
+One member can use `enum` and the other `const`.
+When a member uses any other constraint, such as `not`, `pattern`, `minimum`, or a nested `allOf`, that constraint may be what separates the schemas.
+In such cases, the rule reports nothing for the pair.
 
-A `discriminator` names the property that tells the members apart, so the rule trusts it and checks only what the specification requires.
+A `discriminator` names the property that tells the members apart.
+The rule trusts it and checks only what the specification requires.
 The property must be listed in `required` in every member schema, because a value can otherwise omit it and nothing decides which schema applies.
 OAS 3.2 turned this into a specification requirement and added `defaultMapping` as an alternative to marking the property required, so on 3.2 documents [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) reports it and this rule stays quiet.
 Every member must also be a `$ref`: a `discriminator` selects a schema by its component name, and the specification states that inline `oneOf` and `anyOf` subschemas are not considered, so an inline member can never be selected.
@@ -137,7 +142,7 @@ components:
           required: [category]
 ```
 
-> Move the inline schema into `components/schemas` as `Dessert` and reference it with a `$ref`.
+Move the inline schema into `components/schemas` as `Dessert` and reference it with a `$ref`.
 
 Example of an **incorrect** `discriminator`, where `category` is optional:
 
@@ -164,7 +169,7 @@ components:
           const: dessert
 ```
 
-> Add `category` to `required` in both `Beverage` and `Dessert` to fix this.
+Add `category` to `required` in both `Beverage` and `Dessert` to fix this.
 
 Example of a **correct** single-schema `allOf` that declares a subtype:
 
@@ -199,15 +204,15 @@ components:
         - {}
 ```
 
-> `MenuItem` wraps a single schema, and `Order` repeats one schema and adds an empty one that matches any value.
+`MenuItem` wraps a single schema, and `Order` repeats one schema and adds an empty one that matches any value.
 
 ## Related rules
 
 - [no-schema-type-mismatch](../common/no-schema-type-mismatch.md)
 - [no-required-schema-properties-undefined](../common/no-required-schema-properties-undefined.md)
-- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) —
-  reports an optional discriminator property on OAS 3.2, where the specification requires it.
-  This rule covers OAS 3.0 and 3.1 instead, so enable both to check every version.
+- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) — on OAS 3.2, flags a discriminator whose `propertyName` is optional but has no `defaultMapping` required by OAS 3.2.
+  `no-illogical-composition-keywords` checks the same issue on OAS 3.0 and 3.1, where `defaultMapping` doesn't exist.
+  Enable both rules to cover every OAS version.
 
 ## Resources
 
