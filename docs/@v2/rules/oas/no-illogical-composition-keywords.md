@@ -9,14 +9,14 @@ Ensures that `oneOf`, `anyOf`, and `allOf` combine schemas that a value can actu
 The rule reports:
 
 - A `oneOf` or `anyOf` with fewer than two schemas, unless the schema declares a `discriminator`.
-- An `allOf` with fewer than two schemas that neither declares another keyword of its own nor extends a discriminated schema.
-- A schema repeated inside the same keyword.
-- An empty schema (`{}`) used as a member.
-- Two `oneOf` schemas that a single value can match at the same time.
-- A nullable schema whose `oneOf` also accepts `null`.
-- A `discriminator` whose property is missing from `required` in every member schema, on OAS 3.0 and 3.1.
-  To cover OAS 3.2 as well, use this rule together with [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md).
-- An inline `oneOf` or `anyOf` member that a `discriminator` cannot select.
+- `oneOf` or `anyOf` with fewer than two schemas, unless the schema declares a `discriminator`
+- `allOf` with fewer than two schemas that neither declares another keyword of its own nor extends a discriminated schema
+- schemas repeated inside the same keyword
+- empty schemas (`{}`) used as members
+- two `oneOf` schemas that a single value can match at the same time
+- schemas that accept null alongside a `oneOf` member that also accepts null
+- member schemas that omit the `discriminator` property from required
+- inline `oneOf` or `anyOf` members that a `discriminator` cannot select
 
 | OAS | Compatibility |
 | --- | ------------- |
