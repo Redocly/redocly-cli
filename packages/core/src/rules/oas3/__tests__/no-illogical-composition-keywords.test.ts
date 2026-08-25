@@ -281,6 +281,68 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
+    it('should ask for the discriminator property to be declared when no member has it', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Problematic:
+                type: object
+                properties:
+                  data:
+                    discriminator:
+                      propertyName: objectType
+                    oneOf:
+                      - $ref: '#/components/schemas/A'
+                      - $ref: '#/components/schemas/B'
+                  objectType:
+                    type: string
+              A:
+                type: object
+                properties:
+                  message:
+                    type: string
+              B:
+                type: object
+                properties:
+                  message:
+                    type: string
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Problematic/properties/data/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/A\` and \`#/components/schemas/B\`. Declare \`objectType\` in every schema and add it to \`required\`; the \`discriminator\` cannot read a property a value may omit.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
     it('should report inline members that a discriminator cannot select', async () => {
       const document = parseYamlToDocument(
         outdent`

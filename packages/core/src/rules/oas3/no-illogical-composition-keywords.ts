@@ -313,6 +313,13 @@ function describeDiscriminatorGap(
     !!left.required?.includes(propertyName) && !!right.required?.includes(propertyName);
   if (isRequiredInBoth) return null;
 
+  const isDeclaredInBoth =
+    isDefined(getOwn(left.properties ?? {}, propertyName)) &&
+    isDefined(getOwn(right.properties ?? {}, propertyName));
+  if (!isDeclaredInBoth) {
+    return `Declare \`${propertyName}\` in every schema and add it to \`required\`; the \`discriminator\` cannot read a property a value may omit.`;
+  }
+
   return `Add \`${propertyName}\` to \`required\` in every schema; the \`discriminator\` cannot read a property a value may omit.`;
 }
 
