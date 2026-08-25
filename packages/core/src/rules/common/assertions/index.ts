@@ -58,6 +58,10 @@ export const Assertions = (opts: Record<string, Assertion>) => {
       throw new Error(`${assertion.assertionId}: 'type' (String) is required`);
     }
 
+    if (!isPlainObject(assertion.assertions)) {
+      throw new Error(`${assertion.assertionId}: 'assertions' (Object) is required`);
+    }
+
     const subjectVisitor = buildSubjectVisitor(assertion.assertionId, assertion);
     const visitorObject = buildVisitorObject(assertion, subjectVisitor);
     visitors.push(visitorObject);

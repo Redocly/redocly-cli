@@ -1,0 +1,61 @@
+{
+  "refs": {
+    "metric": "🚗 References",
+    "total": 2
+  },
+  "externalDocs": {
+    "metric": "📦 External Documents",
+    "total": 0
+  },
+  "schemas": {
+    "metric": "📈 Schemas",
+    "total": 2
+  },
+  "parameters": {
+    "metric": "👉 Parameters",
+    "total": 1
+  },
+  "links": {
+    "metric": "🔗 Links",
+    "total": 0
+  },
+  "pathItems": {
+    "metric": "🔀 Path Items",
+    "total": 2
+  },
+  "webhooks": {
+    "metric": "🎣 Webhooks",
+    "total": 2
+  },
+  "operations": {
+    "metric": "👷 Operations",
+    "total": 3
+  },
+  "tags": {
+    "metric": "🔖 Tags",
+    "total": 2
+  },
+  "xExtensions": {
+    "metric": "🧩 Vendor Extensions",
+    "total": 12,
+    "counts": {
+      "x-badges": 1,
+      "x-codeSamples": 2,
+      "x-hideReplay": 1,
+      "x-ignoredHeaderParameters": 1,
+      "x-internal": 2,
+      "x-metadata": 1,
+      "x-outer": 1,
+      "x-paths-ext": 1,
+      "x-query": 2,
+      "x-servers": 1,
+      "x-tagGroups": 1,
+      "x-webhooks": 1
+    }
+  }
+}
+Document: openapi.yaml stats:
+
+
+openapi.yaml: stats processed in <test>ms
+

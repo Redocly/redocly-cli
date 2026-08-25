@@ -9,6 +9,7 @@ import {
 } from './json-schema-draft7.shared.js';
 
 const Root: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     asyncapi: null, // TODO: validate semver format and supported version
     info: 'Info',
@@ -27,6 +28,7 @@ const Root: NodeType = {
 };
 
 const Channel: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     description: {
       type: 'string',
@@ -53,6 +55,7 @@ const ChannelMap: NodeType = {
 };
 
 export const Tag: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     name: { type: 'string', description: 'REQUIRED. The name of the tag.' },
     description: {
@@ -67,6 +70,7 @@ export const Tag: NodeType = {
 };
 
 export const ExternalDocs: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     description: {
       type: 'string',
@@ -91,6 +95,7 @@ const SecurityRequirement: NodeType = {
 };
 
 const Server: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     url: {
       type: 'string',
@@ -130,6 +135,7 @@ export const ServerMap: NodeType = {
 };
 
 export const ServerVariable: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     enum: {
       type: 'array',
@@ -158,6 +164,7 @@ export const ServerVariable: NodeType = {
 };
 
 const Info: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     title: {
       type: 'string',
@@ -187,6 +194,7 @@ const Info: NodeType = {
 };
 
 export const Contact: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     name: {
       type: 'string',
@@ -207,6 +215,7 @@ export const Contact: NodeType = {
 };
 
 export const License: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     name: {
       type: 'string',
@@ -223,6 +232,7 @@ export const License: NodeType = {
 };
 
 const Parameter: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     description: {
       type: 'string',
@@ -240,6 +250,7 @@ const Parameter: NodeType = {
 };
 
 export const CorrelationId: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     description: {
       type: 'string',
@@ -258,6 +269,7 @@ export const CorrelationId: NodeType = {
 };
 
 const Message: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     messageId: {
       type: 'string',
@@ -305,6 +317,7 @@ const Message: NodeType = {
 };
 
 const OperationTrait: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     tags: 'TagList',
     summary: {
@@ -332,6 +345,7 @@ const OperationTrait: NodeType = {
 };
 
 const MessageTrait: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     messageId: {
       type: 'string',
@@ -379,6 +393,7 @@ const MessageTrait: NodeType = {
 };
 
 const Operation: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     tags: 'TagList',
     summary: {
@@ -408,6 +423,7 @@ const Operation: NodeType = {
 };
 
 export const MessageExample: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     payload: {
       isExample: true,
@@ -431,6 +447,7 @@ export const MessageExample: NodeType = {
 };
 
 const Components: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     messages: 'NamedMessages',
     parameters: 'NamedParameters',
@@ -450,6 +467,7 @@ const Components: NodeType = {
 };
 
 const ImplicitFlow: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -460,6 +478,7 @@ const ImplicitFlow: NodeType = {
 };
 
 const PasswordFlow: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -470,6 +489,7 @@ const PasswordFlow: NodeType = {
 };
 
 const ClientCredentials: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     scopes: { type: 'object', additionalProperties: { type: 'string' } }, // TODO: validate scopes
@@ -480,6 +500,7 @@ const ClientCredentials: NodeType = {
 };
 
 const AuthorizationCode: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
@@ -491,6 +512,7 @@ const AuthorizationCode: NodeType = {
 };
 
 export const SecuritySchemeFlows: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     implicit: 'ImplicitFlow',
     password: 'PasswordFlow',

@@ -7,6 +7,23 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.47.0 (2026-08-21)
+
+### Minor Changes
+
+- Added a Vendor Extensions metric to the `stats` command that reports how many distinct `x-` extensions a description file uses and how often each one occurs.
+
+### Patch Changes
+
+- Fixed the `stats` command reporting wrong parameter count for AsyncAPI descriptions.
+- Updated @redocly/openapi-core to v2.47.0.
+
+## 2.46.2 (2026-08-19)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.2.
+
 ## 2.46.1 (2026-08-11)
 
 ### Patch Changes
@@ -23,17 +40,11 @@ toc:
 
 ### Patch Changes
 
-- Updated @redocly/openapi-core to v2.46.0.
-
-## 2.45.1 (2026-08-06)
-
-### Patch Changes
-
 - Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.
 - Reduced CLI startup time on Node 22.8 and later reusing Node's on-disk compile cache.
   Set `NODE_DISABLE_COMPILE_CACHE=1` to turn it off.
 - Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
-- Updated @redocly/openapi-core to v2.45.1.
+- Updated @redocly/openapi-core to v2.46.0.
 
 ## 2.45.0 (2026-08-06)
 

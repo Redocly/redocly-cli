@@ -34,6 +34,11 @@
   "tags": {
     "metric": "🔖 Tags",
     "total": 3
+  },
+  "xExtensions": {
+    "metric": "🧩 Vendor Extensions",
+    "total": 0,
+    "counts": {}
   }
 }
 Document: museum.yaml stats:

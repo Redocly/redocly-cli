@@ -68,7 +68,7 @@ export function listOf(
 
 export function mapOf(
   typeName: string,
-  opts: { description?: string; documentationLink?: string } = {}
+  opts: { description?: string; documentationLink?: string; extensionsPrefix?: string } = {}
 ) {
   return {
     name: `${typeName}Map`,

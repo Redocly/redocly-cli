@@ -51,6 +51,10 @@ export const GraphqlAssertions: GraphqlRule = (
     const kind = assertion.subject?.type as GraphqlNodeKind | undefined;
     if (!kind) continue;
 
+    if (!isPlainObject(assertion.assertions)) {
+      throw new Error(`${assertion.assertionId}: 'assertions' (Object) is required`);
+    }
+
     const assertsToApply = getGraphqlAssertsToApply(assertion);
     const whereMatchers = buildWhereMatchers(assertion);
 
@@ -72,6 +76,11 @@ function buildWhereMatchers(assertion: Assertion): WhereMatcher[] {
     if (!isString(definition.subject?.type)) {
       throw new Error(
         `${assertion.assertionId} -> where -> [${index}]: 'type' (String) is required`
+      );
+    }
+    if (!isPlainObject(definition.assertions)) {
+      throw new Error(
+        `${assertion.assertionId} -> where -> [${index}]: 'assertions' (Object) is required`
       );
     }
     return {

@@ -849,6 +849,7 @@ const Ros2MessageBinding: NodeType = {
 };
 
 export const ServerBindings: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     http: 'HttpServerBinding',
     ws: 'WsServerBinding',
@@ -872,6 +873,7 @@ export const ServerBindings: NodeType = {
 };
 
 export const ChannelBindings: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     http: 'HttpChannelBinding',
     ws: 'WsChannelBinding',
@@ -898,6 +900,7 @@ export const ChannelBindings: NodeType = {
 };
 
 export const OperationBindings: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     http: 'HttpOperationBinding',
     ws: 'WsOperationBinding',
@@ -921,6 +924,7 @@ export const OperationBindings: NodeType = {
 };
 
 export const MessageBindings: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     http: 'HttpMessageBinding',
     ws: 'WsMessageBinding',

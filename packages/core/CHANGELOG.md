@@ -1,5 +1,24 @@
 # @redocly/openapi-core
 
+## 2.47.0
+
+### Minor Changes
+
+- Added a Vendor Extensions metric to the `stats` command that reports how many distinct `x-` extensions a description file uses and how often each one occurs.
+
+### Patch Changes
+
+- Fixed the `stats` command reporting wrong parameter count for AsyncAPI descriptions.
+
+## 2.46.2
+
+### Patch Changes
+
+- Improved the error message raised when a configurable rule is missing the `assertions` block.
+- Fixed an issue where the `no-duplicated-enum-values` rule didn't report duplicated enum values that are objects or arrays.
+
+  Fixed an issue where the `no-duplicated-enum-values` rule printed `[object Object]` when reporting duplicate values.
+
 ## 2.46.1
 
 ### Patch Changes
@@ -11,8 +30,6 @@
 ### Minor Changes
 
 - Added the `spec-ref-siblings` rule that reports properties placed next to a `$ref` which the specification does not allow.
-
-## 2.45.1
 
 ### Patch Changes
 
