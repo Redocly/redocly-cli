@@ -88,7 +88,6 @@ export const withHar: WithHar = function <T extends typeof fetch>(
         bodySize:
           postData.text !== undefined ? Buffer.byteLength(postData.text) : options.body ? -1 : 0,
         ...(postData.text !== undefined && { postData }),
-        postData,
         httpVersion: 'HTTP/1.1',
       },
       response: {},
