@@ -10,7 +10,7 @@ async function main(): Promise<void> {
 
   try {
     for await (const order of listOrders.items(
-      { params: { limit: 2 } },
+      { query: { limit: 2 } },
       { signal: controller.signal }
     )) {
       void order;

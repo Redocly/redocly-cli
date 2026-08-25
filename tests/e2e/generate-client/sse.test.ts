@@ -56,9 +56,9 @@ describe('generate-client SSE', () => {
       'streamTicks: { id: "streamTicks", method: "GET", path: "/ticks", tags: ["Ticks"], responseKind: "sse", sseDataKind: "text" }'
     );
     expect(generated).toMatch(/streamTicks: \{\s*args: \{\};\s*result: string;\s*kind: "sse";/);
-    // Flat call sugar: an SSE op is a top-level export returning the async generator.
+    // The binding is the client's own method, which returns the async generator.
     expect(generated).toContain(
-      'export const streamMessages = (init: SseOptions = {}) => client.streamMessages({}, init);'
+      'export const { getHealth, streamMessages, streamAbort, streamTicks } = client;'
     );
 
     // A type-usage snippet proving `ServerSentEvent<Message>.data.text` is typed
@@ -69,7 +69,7 @@ describe('generate-client SSE', () => {
         `import { streamMessages, configure } from './client.js';`,
         `async function check() {`,
         `  for await (const ev of streamMessages()) { const t: string = ev.data.text; void t; const id: string | undefined = ev.id; void id; }`,
-        `  const it = streamMessages({ reconnect: false, reconnectDelay: 500 });`,
+        `  const it = streamMessages({}, { reconnect: false, reconnectDelay: 500 });`,
         `  void it;`,
         `}`,
         `void check; void configure;`,
@@ -90,7 +90,9 @@ describe('generate-client SSE', () => {
 
     const entrySrc = readFileSync(entry, 'utf-8');
     expect(entrySrc).toContain('async function* sse<T>(');
-    expect(entrySrc).toContain('export const streamMessages = (init: SseOptions = {})');
+    expect(entrySrc).toContain(
+      'export const { getHealth, streamMessages, streamAbort, streamTicks } = client;'
+    );
 
     const files = collectTsFiles(dir);
     expect(files.map((f) => f.split('/').pop()).sort()).toEqual(['client.schemas.ts', 'client.ts']);

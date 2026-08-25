@@ -1,8 +1,28 @@
-import { type GenerateClientConfig } from '@redocly/client-generator';
+import type {
+  GenerateClientConfig,
+  generateClient as generateClientFunction,
+  mergeConfig as mergeConfigFunction,
+} from '@redocly/client-generator';
 import { HandledError, isPlainObject, logger, pluralize } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
-import { basename, dirname, extname, isAbsolute, resolve as resolvePath } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
+import {
+  basename,
+  dirname,
+  extname,
+  isAbsolute,
+  relative,
+  resolve as resolvePath,
+} from 'node:path';
 
+import {
+  BUILTIN_GENERATOR_NAMES,
+  categorizeGenerateClientError,
+  collectToolkitImports,
+  generateClientTelemetry,
+  parseEjectedProvenance,
+} from '../utils/client-generator-telemetry.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import { type CommandArgs } from '../wrapper.js';
 
@@ -12,13 +32,15 @@ export type GenerateClientCommandArgv = {
   config?: string;
   'server-url'?: string;
   'output-mode'?: 'single' | 'split';
-  runtime?: 'inline' | 'package';
+  runtime?: 'inline' | 'module';
   'import-ext'?: 'js' | 'ts';
+  'go-package'?: string;
   'args-style'?: 'flat' | 'grouped';
   'error-mode'?: 'throw' | 'result';
   'date-type'?: 'string' | 'Date';
   'mock-data'?: 'static' | 'faker';
   'mock-seed'?: number;
+  docs?: boolean;
   generator?: string[];
   setup?: string;
 };
@@ -44,8 +66,6 @@ function fileNameFor(name: string): string {
   return `${name.replace(/[\\/]/g, '_')}.client.ts`;
 }
 
-// Accepts an absolute http(s) URL or a root-relative path; rejects bare hostnames,
-// protocol-relative `//host`, and non-http(s) schemes.
 function isValidServerUrl(value: string): boolean {
   if (value.startsWith('//')) return false;
   if (value.startsWith('/')) return true;
@@ -57,11 +77,30 @@ function isValidServerUrl(value: string): boolean {
   }
 }
 
+type ClientGeneratorToolkit = {
+  generateClient: typeof generateClientFunction;
+  mergeConfig: typeof mergeConfigFunction;
+  helperNames: readonly string[];
+};
+
+type GenerationRun = {
+  config: CommandArgs<GenerateClientCommandArgv>['config'];
+  configDir: string;
+  cliFlags: GenerateClientConfig;
+  outputFlag: string | undefined;
+  toolkit: ClientGeneratorToolkit;
+  /** Every path this run wrote or will write — collision guard across apis and the composed entry. */
+  seenOutputs: Set<string>;
+  /** Every api that emits a cli module, gathered for the composed entry (client.cliOutput). */
+  composable: Array<{ alias: string; cliPath: string }>;
+};
+
 export async function handleGenerateClient({
   argv,
   config,
 }: CommandArgs<GenerateClientCommandArgv>) {
-  const { generateClient, mergeConfig } = await import('@redocly/client-generator');
+  const { AUTHORING_HELPER_NAMES, generateClient, mergeConfig } =
+    await import('@redocly/client-generator');
 
   const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
@@ -70,14 +109,13 @@ export async function handleGenerateClient({
     outputMode: argv['output-mode'],
     runtime: argv.runtime,
     importExt: argv['import-ext'],
+    goPackage: argv['go-package'],
     argsStyle: argv['args-style'],
     errorMode: argv['error-mode'],
     dateType: argv['date-type'],
     mockData: argv['mock-data'],
     mockSeed: argv['mock-seed'],
-    // Like `setup` below: flag paths resolve against the cwd, while config-file entries
-    // resolve against the config dir (in `resolveGenerators`). Package specifiers and
-    // built-in names pass through.
+    docs: argv.docs,
     generators: argv.generator?.map((specifier) =>
       specifier.startsWith('.') ? resolvePath(specifier) : specifier
     ),
@@ -108,63 +146,187 @@ export async function handleGenerateClient({
     config
   );
 
-  const seenOutputs = new Set<string>();
+  const run: GenerationRun = {
+    config,
+    configDir,
+    cliFlags,
+    outputFlag: argv.output,
+    toolkit: { generateClient, mergeConfig, helperNames: AUTHORING_HELPER_NAMES },
+    seenOutputs: new Set<string>(),
+    composable: [],
+  };
 
-  for (const { path, alias } of entrypoints) {
-    const name = alias ?? basename(path, extname(path));
-    // `forAlias` layers the api's entry over the root config, so `client` is the
-    // per-api block when the api declares one and the top-level block otherwise.
-    const aliasConfig = config.forAlias(alias);
-    const { client, clientOutput } = aliasConfig.resolvedConfig;
-    const clientBlock = resolveSetup(
-      (isPlainObject(client) ? client : {}) as GenerateClientConfig,
-      configDir
+  for (const entry of entrypoints) {
+    await generateApiClient(entry, run);
+  }
+
+  // Top-level `client.cliOutput` only — a per-api block composes nothing — and only for
+  // the run-everything form, where all the modules exist.
+  const topLevelClient = (
+    isPlainObject(config.resolvedConfig.client) ? config.resolvedConfig.client : {}
+  ) as GenerateClientConfig;
+  if (
+    topLevelClient.cliOutput !== undefined &&
+    argv.api === undefined &&
+    run.composable.length > 0
+  ) {
+    await writeComposedCliEntry(topLevelClient.cliOutput, run);
+  }
+}
+
+async function generateApiClient(
+  entry: { path: string; alias?: string },
+  { config, configDir, cliFlags, outputFlag, toolkit, seenOutputs, composable }: GenerationRun
+): Promise<void> {
+  const { path, alias } = entry;
+  const name = alias ?? basename(path, extname(path));
+  const aliasConfig = config.forAlias(alias);
+  const { client, clientOutput } = aliasConfig.resolvedConfig;
+  const clientBlock = resolveSetup(
+    (isPlainObject(client) ? client : {}) as GenerateClientConfig,
+    configDir
+  );
+  const clientConfig = toolkit.mergeConfig(clientBlock, cliFlags);
+  collectGeneratorUsage(clientConfig.generators ?? [], toolkit.helperNames, configDir);
+
+  const outputPath =
+    outputFlag !== undefined
+      ? resolvePath(outputFlag)
+      : clientOutput !== undefined
+        ? resolvePath(configDir, clientOutput)
+        : resolvePath(configDir, fileNameFor(name));
+
+  if (!outputPath.endsWith('.ts')) {
+    throw new HandledError(
+      `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
     );
-    const clientConfig = mergeConfig(clientBlock, cliFlags);
+  }
+  if (seenOutputs.has(outputPath)) {
+    throw new HandledError(
+      `\n❌  Two APIs write to the same path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
+    );
+  }
+  seenOutputs.add(outputPath);
+  if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
+    throw new HandledError(
+      `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
+    );
+  }
 
-    const outputPath =
-      argv.output !== undefined
-        ? resolvePath(argv.output)
-        : clientOutput !== undefined
-          ? resolvePath(configDir, clientOutput)
-          : resolvePath(configDir, fileNameFor(name));
-
-    if (!outputPath.endsWith('.ts')) {
-      throw new HandledError(
-        `\n❌  output must point at a TypeScript file (ending in .ts).\n   Got: ${outputPath}\n`
-      );
-    }
-    if (seenOutputs.has(outputPath)) {
-      throw new HandledError(
-        `\n❌  Two APIs resolve to the same output path: ${outputPath}.\n   Give each api a distinct \`clientOutput\`.\n`
-      );
-    }
-    seenOutputs.add(outputPath);
-    if (clientConfig.serverUrl !== undefined && !isValidServerUrl(clientConfig.serverUrl)) {
-      throw new HandledError(
-        `\n❌  serverUrl must be an absolute URL (https://api.example.com) or a root-relative path (/v1) — set via --server-url or the \`client\` block in redocly.yaml.\n   Got: ${clientConfig.serverUrl}\n`
-      );
-    }
-
-    try {
-      logger.info(gray(`\n  Generating TypeScript client for ${name}... \n`));
-      const result = await generateClient({
-        ...clientConfig,
-        api: path,
-        output: outputPath,
-        config: aliasConfig,
-        configDir,
+  try {
+    logger.info(gray(`\n  Generating client for ${name}... \n`));
+    const result = await toolkit.generateClient({
+      ...clientConfig,
+      api: path,
+      output: outputPath,
+      config: aliasConfig,
+      configDir,
+    });
+    // The emitted module decides what composes: `cli` reaches a run as a built-in
+    // name, a path to an ejected copy, or another generator's prerequisite.
+    const cliModule = result.files.find((file) => file.path.endsWith('.cli.ts'));
+    if (cliModule !== undefined) {
+      const importExt = clientConfig.importExt ?? 'js';
+      composable.push({
+        alias: name,
+        cliPath: cliModule.path.replace(/\.ts$/, importExt === 'ts' ? '.ts' : '.js'),
       });
-      const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
-      const summary = `TypeScript client successfully generated: ${fileCount} (${
-        result.bytes
-      } bytes) at ${yellow(result.outputPath)}.`;
-      logger.info('\n' + blue(summary) + '\n');
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      throw new HandledError(
-        `\n❌  Failed to generate TypeScript client for ${name}.\n   ${message}\n`
-      );
+    }
+    // Sibling modules (`.cli.ts`, `.zod.ts`, …) count too: the composed entry is
+    // written after the per-api runs and must not land on any of them.
+    for (const file of result.files) {
+      seenOutputs.add(file.path);
+    }
+    const fileCount = `${result.files.length} ${pluralize('file', result.files.length)}`;
+    const summary = `Client successfully generated: ${fileCount} (${
+      result.bytes
+    } bytes) at ${yellow(result.outputPath)}.`;
+    logger.info('\n' + blue(summary) + '\n');
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    generateClientTelemetry.generate_client_error_category = categorizeGenerateClientError(message);
+    throw new HandledError(`\n❌  Failed to generate client for ${name}.\n   ${message}\n`);
+  }
+}
+
+/** The composed entry: one binary over every api that emitted a cli module, each behind
+ * its alias as a namespace. */
+async function writeComposedCliEntry(
+  cliOutput: string,
+  { configDir, seenOutputs, composable }: GenerationRun
+): Promise<void> {
+  const { renderComposedCliEntry } = await import('@redocly/client-generator/generate');
+  const entryPath = resolvePath(configDir, cliOutput);
+  if (!entryPath.endsWith('.ts')) {
+    throw new HandledError(
+      `\n❌  client.cliOutput must point at a TypeScript file (ending in .ts).\n   Got: ${entryPath}\n`
+    );
+  }
+  if (seenOutputs.has(entryPath)) {
+    throw new HandledError(
+      `\n❌  client.cliOutput resolves to a file this run generated: ${entryPath}.\n   Give the composed entry its own path.\n`
+    );
+  }
+  const stem = basename(entryPath, extname(entryPath));
+  const content = renderComposedCliEntry(
+    composable.map(({ alias, cliPath }) => ({
+      alias,
+      modulePath: `./${relative(dirname(entryPath), cliPath).split('\\').join('/')}`,
+    })),
+    stem
+  );
+  await mkdir(dirname(entryPath), { recursive: true });
+  await writeFile(entryPath, content, 'utf-8');
+  generateClientTelemetry.generate_client_composed_apis_count = composable.length;
+  logger.info(
+    '\n' +
+      blue(
+        `Composed CLI written to ${yellow(relative(process.cwd(), entryPath))} — ${composable
+          .map(({ alias }) => alias)
+          .join(', ')} behind one \`${stem}\` binary.`
+      ) +
+      '\n'
+  );
+}
+
+/** A custom generator shared by several apis counts once, like the built-in names. */
+const seenCustomEntries = new Set<string>();
+
+/** Telemetry: allowlisted built-in names, custom count, and OUR helper names a
+ * path generator imports — never user code, paths, or names. */
+export function collectGeneratorUsage(
+  entries: string[],
+  knownHelpers: readonly string[],
+  configDir: string
+): void {
+  const builtins = new Set(generateClientTelemetry.generate_client_builtin_generators ?? []);
+  const toolkitImports = new Set(generateClientTelemetry.generate_client_toolkit_imports ?? []);
+  const ejected = new Set(generateClientTelemetry.generate_client_ejected_generators ?? []);
+  let customCount = generateClientTelemetry.generate_client_custom_generators_count ?? 0;
+  for (const entry of entries) {
+    if (BUILTIN_GENERATOR_NAMES.has(entry)) {
+      builtins.add(entry);
+      continue;
+    }
+    if (seenCustomEntries.has(entry)) continue;
+    seenCustomEntries.add(entry);
+    customCount++;
+    if (entry.startsWith('.') || isAbsolute(entry)) {
+      try {
+        // Relative entries resolve against the config's directory, like the pipeline does.
+        const source = readFileSync(resolvePath(configDir, entry), 'utf-8');
+        for (const helper of collectToolkitImports(source, knownHelpers)) {
+          toolkitImports.add(helper);
+        }
+        const provenance = parseEjectedProvenance(source);
+        if (provenance) ejected.add(`${provenance.name}@${provenance.version}`);
+      } catch {
+        // Unreadable path: generation fails later with its own error; nothing to record.
+      }
     }
   }
+  generateClientTelemetry.generate_client_builtin_generators = [...builtins];
+  generateClientTelemetry.generate_client_custom_generators_count = customCount;
+  generateClientTelemetry.generate_client_toolkit_imports = [...toolkitImports];
+  generateClientTelemetry.generate_client_ejected_generators = [...ejected];
 }

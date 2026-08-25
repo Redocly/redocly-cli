@@ -1,9 +1,7 @@
+import { logger } from '@redocly/openapi-core';
+
 import type { ApiModel, OperationModel, SchemaModel } from '../model.js';
-import {
-  assertPathParamsAvoidArgSlots,
-  assertSafeIdentifiers,
-  sanitizeIdentifiers,
-} from '../sanitize-identifiers.js';
+import { assertSafeIdentifiers, sanitizeIdentifiers } from '../sanitize-identifiers.js';
 
 function model(schemas: ApiModel['schemas'], operations: OperationModel[] = []): ApiModel {
   return {
@@ -133,15 +131,16 @@ describe('sanitizeIdentifiers', () => {
     expect(m.schemas.map((schema) => schema.name)).toEqual(['Date_2', 'Promise_2']);
   });
 
-  it('renames a schema that collides with an auth setter derived from the security schemes', () => {
-    // A bearer scheme makes the sugar emit `export const setBearer = …`; a string-enum
-    // schema of the same name emits an `export const` companion — a duplicate declaration.
+  it('keeps a schema named after a former auth setter: nothing exports that name now', () => {
+    // The generator used to emit `export const setBearer = …` for a bearer scheme, which
+    // collided with a string-enum schema's `export const` companion. Credentials moved to
+    // `configure`/`client.auth`, so no generated export claims the name.
     const m = model([
       { name: 'setBearer', schema: { kind: 'enum', scalar: 'string', values: ['a', 'b'] } },
     ]);
     m.securitySchemes = [{ kind: 'bearer', key: 'bearerAuth' }];
     sanitizeIdentifiers(m);
-    expect(m.schemas[0].name).toBe('setBearer_2');
+    expect(m.schemas[0].name).toBe('setBearer');
   });
 
   it('renames an operation that collides with a runtime declaration', () => {
@@ -304,31 +303,6 @@ describe('sanitizeIdentifiers', () => {
   });
 });
 
-describe('assertPathParamsAvoidArgSlots', () => {
-  function opWithPathParam(name: string): OperationModel {
-    return op({
-      path: `/x/{${name}}`,
-      pathParams: [
-        { name, in: 'path', required: true, schema: { kind: 'scalar', scalar: 'string' } },
-      ],
-    });
-  }
-
-  it('throws for a path parameter named after a request-args slot', () => {
-    // The runtime routes path values as `args[param.name]` at the top level, next to the
-    // `params`/`body`/`headers`/`cookies` slots — a same-named path param is ambiguous.
-    const m = model([], [opWithPathParam('body')]);
-    expect(() => assertPathParamsAvoidArgSlots(m)).toThrow(
-      /path parameter "body".*rename the parameter/s
-    );
-  });
-
-  it('allows a path parameter named init (only a flat-sugar binding, remapped there)', () => {
-    const m = model([], [opWithPathParam('init')]);
-    expect(() => assertPathParamsAvoidArgSlots(m)).not.toThrow();
-  });
-});
-
 describe('assertSafeIdentifiers', () => {
   it('passes for a fully sanitized model', () => {
     const m = model(
@@ -354,5 +328,60 @@ describe('assertSafeIdentifiers', () => {
     expect(() => assertSafeIdentifiers(m)).toThrow(
       /security scheme name .* is not a safe identifier/
     );
+  });
+});
+
+describe('rename warnings name the cause and the fix', () => {
+  function warningsFor(build: () => void): string {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    try {
+      build();
+      return warn.mock.calls.map(([message]) => message).join('');
+    } finally {
+      warn.mockRestore();
+    }
+  }
+
+  it('says the description has a duplicate operationId — the only real fix', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(
+        model([], [op({ name: 'patchCreditMemo' }), op({ name: 'patchCreditMemo' })])
+      )
+    );
+    expect(messages).toContain('two operations share the operationId "patchCreditMemo"');
+    expect(messages).toContain('patchCreditMemo_2');
+    expect(messages).toContain('give each operation a unique operationId');
+    // The old message blamed the identifier and offered nothing to act on.
+    expect(messages).not.toContain('is not a valid TypeScript identifier');
+  });
+
+  it('says which reserved name a schema clashed with', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(model([{ name: 'Error', schema: { kind: 'unknown' } }]))
+    );
+    expect(messages).toContain('schema "Error"');
+    expect(messages).toContain('a name a generated client already declares');
+    expect(messages).toContain('Error_2');
+    // The reserved set is the union across languages, so the name is the same in every SDK.
+    expect(messages).toContain('spans every target language');
+  });
+
+  it('says a name was not a usable identifier when that is the actual cause', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(model([{ name: 'not a name!', schema: { kind: 'unknown' } }]))
+    );
+    expect(messages).toContain('is not a usable identifier');
+  });
+  it('says an operation collided with a schema of the same name — the common real case', () => {
+    const messages = warningsFor(() =>
+      sanitizeIdentifiers(
+        model(
+          [{ name: 'PatchCreditMemo', schema: { kind: 'unknown' } }],
+          [op({ name: 'PatchCreditMemo' })]
+        )
+      )
+    );
+    expect(messages).toContain('collides with the schema of the same name');
+    expect(messages).toContain('rename the operation or the schema in the description');
   });
 });

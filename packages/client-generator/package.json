@@ -16,6 +16,41 @@
       "import": "./lib/generate.js",
       "default": "./lib/generate.js"
     },
+    "./printers/python": {
+      "types": "./lib/printers/python.d.ts",
+      "import": "./lib/printers/python.js",
+      "default": "./lib/printers/python.js"
+    },
+    "./printers/go": {
+      "types": "./lib/printers/go.d.ts",
+      "import": "./lib/printers/go.js",
+      "default": "./lib/printers/go.js"
+    },
+    "./printers/php": {
+      "types": "./lib/printers/php.d.ts",
+      "import": "./lib/printers/php.js",
+      "default": "./lib/printers/php.js"
+    },
+    "./printers/typescript": {
+      "types": "./lib/printers/typescript.d.ts",
+      "import": "./lib/printers/typescript.js",
+      "default": "./lib/printers/typescript.js"
+    },
+    "./printers": {
+      "types": "./lib/printers/index.d.ts",
+      "import": "./lib/printers/index.js",
+      "default": "./lib/printers/index.js"
+    },
+    "./contracts/typescript": {
+      "types": "./lib/contracts/typescript.d.ts",
+      "import": "./lib/contracts/typescript.js",
+      "default": "./lib/contracts/typescript.js"
+    },
+    "./runtime-sources": {
+      "types": "./lib/runtime-sources.d.ts",
+      "import": "./lib/runtime-sources.js",
+      "default": "./lib/runtime-sources.js"
+    },
     "./package.json": "./package.json"
   },
   "engines": {
@@ -28,7 +63,7 @@
   },
   "scripts": {
     "examples:regen": "node scripts/regenerate-examples.mjs",
-    "prepare": "node scripts/generate-runtime-sources.mjs",
+    "prepare": "node scripts/generate-runtime-sources.mjs && node scripts/generate-eject-assets.mjs",
     "typecheck:examples": "node scripts/typecheck-examples.mjs"
   },
   "license": "MIT",
@@ -64,6 +99,7 @@
     "typescript": "6.0.2"
   },
   "files": [
-    "lib"
+    "lib",
+    "eject-assets"
   ]
 }

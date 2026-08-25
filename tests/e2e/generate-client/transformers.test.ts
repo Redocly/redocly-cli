@@ -2,7 +2,7 @@
 // e2e for the `transformers` generator paired with the sdk `--date-type Date`
 // knob. Two tiers:
 //
-//  - TYPE-CHECK: generate `sdk,transformers --date-type Date` into a temp dir,
+//  - TYPE-CHECK: generate `typescript,transformers --date-type Date` into a temp dir,
 //    assert the sdk types `Date` for date fields and the transformers module has
 //    `transform<Name>` with `new Date(`, then strict-`tsc` `client.ts` +
 //    `client.transformers.ts` TOGETHER. tsc exit 0 proves each generated
@@ -43,7 +43,7 @@ describe('generate-client transformers generator', () => {
     const out = join(dir, 'client.ts');
     const transformersOut = join(dir, 'client.transformers.ts');
 
-    generate(out, ['sdk,transformers', '--date-type', 'Date']);
+    generate(out, ['typescript,transformers', '--date-type', 'Date']);
 
     expect(existsSync(out)).toBe(true);
     expect(existsSync(transformersOut)).toBe(true);
@@ -70,7 +70,7 @@ describe('generate-client transformers generator', () => {
     const transformersFile = join(consumerDir, 'client.transformers.ts');
     for (const f of [sdkFile, transformersFile]) if (existsSync(f)) rmSync(f, { force: true });
 
-    generate(sdkFile, ['sdk,transformers', '--date-type', 'Date']);
+    generate(sdkFile, ['typescript,transformers', '--date-type', 'Date']);
     expect(existsSync(transformersFile)).toBe(true);
 
     const mod = await import(transformersFile);
@@ -98,7 +98,7 @@ describe('generate-client transformers generator', () => {
   it('without --date-type Date the sdk date field stays typed string (default)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-transformers-default-'));
     const out = join(dir, 'client.ts');
-    generate(out, ['sdk']);
+    generate(out, ['typescript']);
     expect(readFileSync(out, 'utf-8')).toContain('createdAt?: string;');
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

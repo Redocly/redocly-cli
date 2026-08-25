@@ -1,0 +1,9 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+# The path entry takes over the built-in `php` name (the ejected generator shadows its origin).
+apis:
+  ejected-generator:
+    root: ../_shared/cafe.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - ./generators/php/index.ts

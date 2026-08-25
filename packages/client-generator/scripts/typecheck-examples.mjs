@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,7 +19,10 @@ const examples = readdirSync(examplesDir, { withFileTypes: true })
 
 let failed = false;
 for (const name of examples) {
-  const res = spawnSync(tsc, ['--noEmit', '-p', join(examplesDir, name, 'tsconfig.json')], {
+  const tsconfig = join(examplesDir, name, 'tsconfig.json');
+  // Language-SDK examples (python/go/php) have no TypeScript consumer to check.
+  if (!existsSync(tsconfig)) continue;
+  const res = spawnSync(tsc, ['--noEmit', '-p', tsconfig], {
     stdio: 'inherit',
   });
   if (res.status !== 0) failed = true;

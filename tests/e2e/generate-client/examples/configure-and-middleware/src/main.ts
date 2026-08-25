@@ -4,17 +4,17 @@
 //   `Retry-After` honored; per-call override via `init.retry`).
 // * `use()`: middleware that targets `ctx.operation.id` — a LITERAL UNION of this
 //   spec's operation ids, so a typo fails the build instead of silently never matching.
-// * `setApiKey()`: per-scheme auth sugar; injected only on operations whose
+// * `client.auth.apiKey()`: a credential per scheme; injected only on operations whose
 //   `security` names the scheme.
 // * `ApiError`: a non-2xx response throws, carrying the decoded problem document
 //   on `error.body`.
 import {
   ApiError,
+  client,
   configure,
   createPayment,
   getPayment,
   listPayments,
-  setApiKey,
   use,
   type ProblemDetails,
 } from './api/client.js';
@@ -61,7 +61,7 @@ configure({
 
 // Auth sugar generated from the spec's `ApiKeyAuth` scheme: every operation whose
 // `security` requires it gets an `X-Api-Key` header — nothing to wire by hand.
-setApiKey('demo-key-123');
+client.auth.apiKey('ApiKey', 'demo-key-123');
 
 use({
   onRequest: (ctx) => {
@@ -89,9 +89,11 @@ use({
 async function main() {
   // A header for this one call only goes in the trailing RequestOptions argument.
   const payments = await listPayments({}, { headers: { 'X-Request-Id': '42' } }); // 503 first, then retried to 200
-  const payment = await createPayment({ amount: 4200, currency: 'EUR', reference: 'INV-17' });
+  const payment = await createPayment({
+    body: { amount: 4200, currency: 'EUR', reference: 'INV-17' },
+  });
   try {
-    await getPayment('pay_missing');
+    await getPayment({ path: { paymentId: 'pay_missing' } });
   } catch (error) {
     if (error instanceof ApiError) {
       // `error.body` is the decoded response body; per the spec's 4xx contract

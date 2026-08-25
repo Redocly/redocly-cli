@@ -1,5 +1,5 @@
 /**
- * Behavioral e2e for the `mock` generator. We generate `sdk,mock` into a temp dir,
+ * Behavioral e2e for the `mock` generator. We generate `typescript,mock` into a temp dir,
  * then run a real consumer (via tsx) that installs the emitted MSW handlers into
  * `setupServer` and calls a generated client operation whose native `fetch` MSW
  * intercepts. With `onUnhandledRequest: 'error'`, a resolved call proves interception
@@ -29,7 +29,7 @@ describe('mock generator — generated client through MSW', () => {
     // relative to the importing file, so the temp dir must live inside the repo
     // tree to walk up to the root node_modules — `os.tmpdir()` would not resolve it.
     dir = mkdtempSync(join(__dirname, 'mock-consumer-'));
-    generateInto(dir, fixture, ['--generator', 'sdk', '--generator', 'mock']);
+    generateInto(dir, fixture, ['--generator', 'typescript', '--generator', 'mock']);
   }, 60_000);
   afterAll(() => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
@@ -51,7 +51,7 @@ describe('mock generator — generated client through MSW', () => {
         server.listen({ onUnhandledRequest: 'error' });
         configure({ serverUrl: 'https://api.example.com' });
         try {
-          const pet = await getPetById(1);
+          const pet = await getPetById({ path: { id: 1 } });
           process.stdout.write(JSON.stringify({ ok: pet !== undefined, id: pet.id, name: pet.name }));
         } finally {
           server.close();
@@ -102,7 +102,7 @@ describe('mock generator — mock + transformers + --date-type Date compile toge
     // so the mock sampler must bake `new Date(...)` to type-check (BUG 1 regression).
     generateInto(dir, dateFixture, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'mock',
       '--generator',
@@ -148,7 +148,7 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
     dir = mkdtempSync(join(__dirname, 'mock-faker-'));
     generateInto(dir, fixture, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'mock',
       '--mock-data',

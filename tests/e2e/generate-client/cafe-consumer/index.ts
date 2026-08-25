@@ -1,5 +1,6 @@
 import {
   ApiError,
+  client,
   createOrder,
   deleteMenuItem,
   deleteOrder,
@@ -10,8 +11,6 @@ import {
   listOrderItems,
   listOrders,
   registerOAuth2Client,
-  setApiKey,
-  setBearer,
   updateOrder,
   createMenuItem,
   isBeverage,
@@ -42,12 +41,12 @@ async function main(): Promise<void> {
   // Set credentials once. Every OAuth2/bearer operation now sends
   // `Authorization: Bearer <token>`, and every ApiKey operation sends the
   // `X-API-Key` header. Operations declared `security: []` send neither.
-  setBearer('test-bearer-token');
-  setApiKey('test-api-key');
+  client.auth.bearer('test-bearer-token');
+  client.auth.apiKey('ApiKey', 'test-api-key');
 
   results.push(
     await step('listMenuItems', () =>
-      listMenuItems({ after: 'cursor1', limit: 5, sort: '-name', search: 'coffee' })
+      listMenuItems({ query: { after: 'cursor1', limit: 5, sort: '-name', search: 'coffee' } })
     )
   );
 
@@ -59,18 +58,21 @@ async function main(): Promise<void> {
       form.append('category', 'beverage');
       form.append('volume', '250');
       form.append('containsCaffeine', 'true');
-      return createMenuItem(form);
+      return createMenuItem({ body: form });
     })
   );
 
   results.push(
-    await step('deleteMenuItem', () => deleteMenuItem('prd_01h1s5z6vf2mm1mz3hevnn9va7'))
+    await step('deleteMenuItem', () =>
+      deleteMenuItem({ path: { menuItemId: 'prd_01h1s5z6vf2mm1mz3hevnn9va7' } })
+    )
   );
 
   results.push(
     await step('getMenuItemPhoto', async () => {
-      const result = await getMenuItemPhoto('prd_01h1s5z6vf2mm1mz3hevnn9va7', {
-        photoSize: 'medium',
+      const result = await getMenuItemPhoto({
+        path: { menuItemId: 'prd_01h1s5z6vf2mm1mz3hevnn9va7' },
+        query: { photoSize: 'medium' },
       });
       if (result instanceof Blob) {
         return { kind: 'blob', size: result.size, type: result.type };
@@ -79,49 +81,65 @@ async function main(): Promise<void> {
     })
   );
 
-  results.push(await step('listOrders', () => listOrders({ filter: 'status:placed', limit: 5 })));
+  results.push(
+    await step('listOrders', () => listOrders({ query: { filter: 'status:placed', limit: 5 } }))
+  );
 
   results.push(
     await step('createOrder', () =>
       createOrder({
-        customerName: 'Ada Lovelace',
-        orderItems: [{ menuItemId: 'prd_01h1s5z6vf2mm1mz3hevnn9va7', quantity: 2 }],
+        body: {
+          customerName: 'Ada Lovelace',
+          orderItems: [{ menuItemId: 'prd_01h1s5z6vf2mm1mz3hevnn9va7', quantity: 2 }],
+        },
       })
     )
   );
 
   results.push(
     await step('getOrderById', () =>
-      getOrderById('ord_01h1s5z6vf2mm1mz3hevnn9va7', {
-        'X-Request-Id': '11111111-2222-3333-4444-555555555555',
+      getOrderById({
+        path: { orderId: 'ord_01h1s5z6vf2mm1mz3hevnn9va7' },
+        headers: { 'X-Request-Id': '11111111-2222-3333-4444-555555555555' },
       })
     )
   );
 
   results.push(
     await step('updateOrder', () =>
-      updateOrder('ord_01h1s5z6vf2mm1mz3hevnn9va7', { status: OrderStatus.completed })
+      updateOrder({
+        path: { orderId: 'ord_01h1s5z6vf2mm1mz3hevnn9va7' },
+        body: { status: OrderStatus.completed },
+      })
     )
   );
 
-  results.push(await step('deleteOrder', () => deleteOrder('ord_01h1s5z6vf2mm1mz3hevnn9va7')));
+  results.push(
+    await step('deleteOrder', () =>
+      deleteOrder({ path: { orderId: 'ord_01h1s5z6vf2mm1mz3hevnn9va7' } })
+    )
+  );
 
   results.push(
     await step('listOrderItems', () =>
-      listOrderItems({ filter: 'orderId:ord_01h1s5z6vf2mm1mz3hevnn9va7' })
+      listOrderItems({ query: { filter: 'orderId:ord_01h1s5z6vf2mm1mz3hevnn9va7' } })
     )
   );
 
   results.push(
-    await step('getRevenue', () => getRevenue({ startDate: '2026-01-01', endDate: '2026-01-31' }))
+    await step('getRevenue', () =>
+      getRevenue({ query: { startDate: '2026-01-01', endDate: '2026-01-31' } })
+    )
   );
 
   results.push(
     await step('registerOAuth2Client', () =>
       registerOAuth2Client({
-        name: 'demo-client',
-        scopes: ['menu:read', 'orders:read'],
-        grantTypes: ['client_credentials'],
+        body: {
+          name: 'demo-client',
+          scopes: ['menu:read', 'orders:read'],
+          grantTypes: ['client_credentials'],
+        },
       })
     )
   );
@@ -130,7 +148,7 @@ async function main(): Promise<void> {
   // type guards and confirm they agree with the raw discriminant.
   results.push(
     await step('menuItemGuards', async () => {
-      const list = await listMenuItems({});
+      const list = await listMenuItems();
       const item = list.items[0];
       const category = (item as { category?: string }).category;
       const beverage = isBeverage(item);
