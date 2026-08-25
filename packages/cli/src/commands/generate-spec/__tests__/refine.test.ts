@@ -1,12 +1,12 @@
 import { logger } from '@redocly/openapi-core';
 
-import { CliNotFoundError, runProvider } from '../ai/providers.js';
+import { CliNotFoundError, runProvider } from '../../../utils/ai/providers.js';
 import { refineSpecWithAi } from '../ai/refine.js';
 import type { GeneratedDocument } from '../generator.js';
 
-vi.mock('../ai/providers.js', async (importOriginal) => ({
+vi.mock('../../../utils/ai/providers.js', async (importOriginal) => ({
   // oxlint-disable-next-line typescript/consistent-type-imports
-  ...(await importOriginal<typeof import('../ai/providers.js')>()),
+  ...(await importOriginal<typeof import('../../../utils/ai/providers.js')>()),
   runProvider: vi.fn(),
 }));
 

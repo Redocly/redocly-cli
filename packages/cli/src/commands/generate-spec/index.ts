@@ -2,11 +2,11 @@ import { logger, stringifyYaml } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { type AiProvider } from '../../utils/ai/providers.js';
 import { exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { TrafficFormat } from '../drift/types/index.js';
 import { normalizeFsPath } from '../drift/utils/files.js';
-import { type AiProvider } from './ai/providers.js';
 import { refineSpecWithAi } from './ai/refine.js';
 import { extractSchemaComponents } from './components.js';
 import { countOperations, generateSpecFromTraffic } from './generator.js';

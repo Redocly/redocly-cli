@@ -9,7 +9,7 @@ describe('generateSecurityInputsArazzoComponents', () => {
     expect(result).toEqual({ inputs: {} });
   });
 
-  it('should generate the correct inputs for the Basic auth security scheme', () => {
+  it('should generate username and password inputs for the Basic auth security scheme', () => {
     const securitySchemes = {
       basicAuth: {
         type: 'http' as const,
@@ -22,9 +22,13 @@ describe('generateSecurityInputsArazzoComponents', () => {
         basicAuth: {
           type: 'object',
           properties: {
-            basicAuth: {
+            username: {
               type: 'string',
-              description: 'Basic authentication',
+              description: 'Username for basicAuth',
+            },
+            password: {
+              type: 'string',
+              description: 'Password for basicAuth',
               format: 'password',
             },
           },
@@ -48,13 +52,47 @@ describe('generateSecurityInputsArazzoComponents', () => {
           properties: {
             bearerAuth: {
               type: 'string',
-              description: 'JWT Authentication token for ${name}',
+              description: 'JWT Authentication token for bearerAuth',
               format: 'password',
             },
           },
         },
       },
     });
+  });
+
+  it('should generate an access token input for the OAuth2 security scheme', () => {
+    const securitySchemes = {
+      OAuth2: {
+        type: 'oauth2' as const,
+        flows: {},
+      } as Oas3SecurityScheme,
+    };
+    const result = generateSecurityInputsArazzoComponents(securitySchemes);
+    expect(result).toEqual({
+      inputs: {
+        OAuth2: {
+          type: 'object',
+          properties: {
+            OAuth2: {
+              type: 'string',
+              description: 'Access token for OAuth2',
+              format: 'password',
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it('should generate no input for a mutualTLS security scheme', () => {
+    const securitySchemes = {
+      mtls: {
+        type: 'mutualTLS' as const,
+      } as Oas3SecurityScheme,
+    };
+    const result = generateSecurityInputsArazzoComponents(securitySchemes);
+    expect(result).toEqual({ inputs: {} });
   });
 
   it('should generate the correct inputs for the ApiKey auth security scheme', () => {

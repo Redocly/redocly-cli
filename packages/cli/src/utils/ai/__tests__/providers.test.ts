@@ -1,11 +1,11 @@
 import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 
-import { runProvider } from '../ai/providers.js';
+import { runProvider } from '../providers.js';
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn() }));
 vi.mock('node:fs/promises', () => ({
-  mkdtemp: vi.fn(async () => '/tmp/generate-spec-empty'),
+  mkdtemp: vi.fn(async () => '/tmp/redocly-ai-empty'),
 }));
 
 function stubChildProcess(stdout: string) {
@@ -57,7 +57,7 @@ describe('runProvider', () => {
         'sys prompt',
       ],
       expect.objectContaining({
-        cwd: '/tmp/generate-spec-empty',
+        cwd: '/tmp/redocly-ai-empty',
         env: expect.objectContaining({ CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1' }),
       })
     );
@@ -82,7 +82,7 @@ describe('runProvider', () => {
         'gpt-5',
         '-',
       ],
-      expect.objectContaining({ cwd: '/tmp/generate-spec-empty' })
+      expect.objectContaining({ cwd: '/tmp/redocly-ai-empty' })
     );
     expect(child.pipedInput).toBe('sys prompt\n\nuser prompt');
   });
@@ -93,7 +93,7 @@ describe('runProvider', () => {
     expect(spawn).toHaveBeenCalledWith(
       'cursor-agent',
       ['-p', '--output-format', 'text', '--trust'],
-      expect.objectContaining({ cwd: '/tmp/generate-spec-empty' })
+      expect.objectContaining({ cwd: '/tmp/redocly-ai-empty' })
     );
     expect(child.pipedInput).toBe('sys prompt\n\nuser prompt');
   });

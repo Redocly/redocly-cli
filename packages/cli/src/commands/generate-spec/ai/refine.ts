@@ -2,18 +2,18 @@ import {
   type Config,
   createConfig,
   isPlainObject,
-  lintFromString,
   logger,
   parseYaml,
   stringifyYaml,
 } from '@redocly/openapi-core';
 import * as process from 'node:process';
 
+import { lintDocumentSource, stripCodeFences } from '../../../utils/ai/output.js';
+import { type AiProvider, CliNotFoundError, runProvider } from '../../../utils/ai/providers.js';
 import { Spinner } from '../../../utils/spinner.js';
 import type { GeneratedDocument, GeneratedOperation } from '../generator.js';
 import { operationSampleKey, type TrafficSample } from '../samples.js';
 import { buildOperationPrompt } from './prompt.js';
-import { type AiProvider, CliNotFoundError, runProvider } from './providers.js';
 
 export interface RefineOptions {
   provider: AiProvider;
@@ -45,13 +45,6 @@ export interface RefineResult {
 interface OperationFragment {
   operation: Record<string, unknown>;
   components: Record<string, unknown>;
-}
-
-/** Strip Markdown code fences the model may have added despite instructions. */
-function stripCodeFences(text: string): string {
-  const trimmed = text.trim();
-  const fenceMatch = trimmed.match(/^```(?:ya?ml|json)?\s*\n([\s\S]*?)\n```$/);
-  return fenceMatch ? fenceMatch[1] : trimmed;
 }
 
 const COMPONENT_REF_RE = /^#\/components\/schemas\/(.+)$/;
@@ -163,18 +156,6 @@ function missingStatuses(
 ): string[] {
   const responses = isPlainObject(refinedOperation.responses) ? refinedOperation.responses : {};
   return Object.keys(baselineOperation.responses).filter((status) => !(status in responses));
-}
-
-async function lintDocumentSource(source: string, config: Config): Promise<void> {
-  const problems = await lintFromString({ source, config });
-  const errors = problems.filter((problem) => problem.severity === 'error');
-  if (errors.length > 0) {
-    const summary = errors
-      .slice(0, 5)
-      .map((problem) => `${problem.ruleId}: ${problem.message}`)
-      .join('; ');
-    throw new Error(`the result has ${errors.length} validation problem(s): ${summary}`);
-  }
 }
 
 interface RefineOperationOptions {

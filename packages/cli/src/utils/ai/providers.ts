@@ -25,7 +25,7 @@ export interface ProviderResult {
 let emptyCwdPromise: Promise<string> | undefined;
 
 function getEmptyCwd(): Promise<string> {
-  emptyCwdPromise ??= mkdtemp(path.join(tmpdir(), 'redocly-generate-spec-'));
+  emptyCwdPromise ??= mkdtemp(path.join(tmpdir(), 'redocly-ai-'));
   return emptyCwdPromise;
 }
 
