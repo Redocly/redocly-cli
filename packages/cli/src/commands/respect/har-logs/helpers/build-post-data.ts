@@ -16,7 +16,7 @@ export function buildPostData(
 
   // Via `buildHeaders`, so every shape a request can carry its headers in is
   // handled the same way here as it is for the entry's `headers` list.
-  const contentType = buildHeaders(headers).find(
+  const contentTypeValue = buildHeaders(headers).find(
     ({ name }) => String(name).toLowerCase() === 'content-type'
   )?.value;
   const fallbackMimeType =
