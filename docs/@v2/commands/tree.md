@@ -673,9 +673,9 @@ schemas (0)
 ```
 
 Use `--files` to see those components' files instead, or read a card's `refs[].file`/`usedBy[].file`.
-A component invisible to `--component` this way still has real `$ref` edges in the graph — see [Everything one file defines](#everything-one-file-defines) below for how `--file --used-by` reaches it anyway.
+A component invisible to `--component` this way still has real `$ref` edges in the graph — see [List what one file defines](#list-what-one-file-defines) below for how `--file --used-by` reaches it anyway.
 
-### Everything one file defines
+### List what one file defines
 
 `--file=<path>` shows every operation and component a single file defines — most useful on a split, multi-file layout, where `--component`/`--name` can't address a component the root document never registers (see the empty listing just above).
 The path is resolved the same way as other file arguments elsewhere in the CLI: relative to the API's own directory first, falling back to the current directory.
@@ -2042,7 +2042,7 @@ cafe.yaml
 ```
 
 This excludes every file outside `components/schemas/Order.yaml`'s neighborhood — `paths/menu.yaml`, the other component files, and the rest of the full graph shown earlier — leaving only the files that lead to it or that it leads to.
-For the card-shaped view of what one file itself defines, or that file's own impact analysis, see [Everything one file defines](#everything-one-file-defines) above.
+For the card-shaped view of what one file itself defines, or that file's own impact analysis, see [List what one file defines](#list-what-one-file-defines) above.
 
 Component addressing by `--component`/`--name` needs the root document to declare the component (see [Component sections and one component](#component-sections-and-one-component) above); `--files` is what still works on a fully split layout that has no such registry.
 
