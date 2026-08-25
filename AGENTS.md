@@ -74,7 +74,7 @@ This package is also used in external apps such as `language-server` and `vs-cod
 
 Key directories:
 
-- `src/rules/` — Built-in linting rules, organized by spec type (`oas2/`, `oas3/`, `async2/`, `async3/`, `arazzo/`, `overlay1/`, `openrpc/`, `graphql/`, `catalog-entity/`, `respect/`) plus `common/` for rules that apply across specs. Each rule is its own file.
+- `src/rules/` — Built-in linting rules, organized by spec type (`oas2/`, `oas3/`, `oas3_1/`, `async2/`, `async3/`, `arazzo/`, `common/`). Each rule is its own file.
 - `src/config/` — Configuration loading and resolution (reads `redocly.yaml`).
 - `src/decorators/` — Built-in decorators for transforming API descriptions.
 - `src/bundle/` — Bundling logic that resolves `$ref` across multiple files.
@@ -106,7 +106,7 @@ Experimental package for generating TypeScript clients from OpenAPI specs.
 ## Build System
 
 `packages/core`, `packages/respect-core`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
-`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~260 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
+`packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
 The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
