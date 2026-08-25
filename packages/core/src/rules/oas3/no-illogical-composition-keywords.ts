@@ -65,7 +65,7 @@ const UNDERSTOOD_KEYWORDS: ReadonlySet<string> = new Set<keyof Oas3Schema | keyo
 export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
   return {
     AllOf(members, ctx) {
-      const parentSchema = getParentSchema(ctx);
+      const parentSchema = ctx.parent as CompositionSchema | undefined;
       if (!Array.isArray(members) || !parentSchema) return;
 
       if (
@@ -82,7 +82,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
     },
 
     AnyOf(members, ctx) {
-      const parentSchema = getParentSchema(ctx);
+      const parentSchema = ctx.parent as CompositionSchema | undefined;
       if (!Array.isArray(members) || !parentSchema) return;
 
       const hasDiscriminator = isPlainObject(parentSchema.discriminator);
@@ -100,7 +100,7 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
     },
 
     OneOf(members, ctx) {
-      const parentSchema = getParentSchema(ctx);
+      const parentSchema = ctx.parent as CompositionSchema | undefined;
       if (!Array.isArray(members) || !parentSchema) return;
 
       const { discriminator } = parentSchema;
@@ -125,10 +125,6 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
     },
   };
 };
-
-function getParentSchema(ctx: UserContext): CompositionSchema | undefined {
-  return isPlainObject(ctx.parent) ? ctx.parent : undefined;
-}
 
 function reportSingleSchema(
   members: CompositionSchema[],
