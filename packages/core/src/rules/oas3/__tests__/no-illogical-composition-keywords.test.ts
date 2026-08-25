@@ -12,12 +12,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: string
         `,
@@ -37,7 +37,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -56,20 +56,20 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+              Beverage:
                 type: object
                 properties:
-                  petType:
+                  category:
                     type: string
         `,
         'foobar.yaml'
@@ -91,17 +91,17 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
+                  - $ref: '#/components/schemas/Beverage'
                   - type: integer
-                  - $ref: '#/components/schemas/Cat'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+              Beverage:
                 type: object
         `,
         'foobar.yaml'
@@ -120,7 +120,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf/2",
+                "pointer": "#/components/schemas/MenuItem/oneOf/2",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -139,21 +139,21 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Kitten'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Cake'
+              Beverage:
                 type: object
                 properties:
                   id:
                     type: string
-              Kitten:
+              Cake:
                 type: object
                 properties:
                   id:
@@ -175,12 +175,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/Cat\` and \`#/components/schemas/Kitten\`. Both schemas define \`id\` without constraints that exclude each other. Add a discriminator, or constrain the shared properties to different values.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/Beverage\` and \`#/components/schemas/Cake\`. Both schemas define \`id\` without constraints that exclude each other. Add a discriminator, or constrain the shared properties to different values.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -194,18 +194,18 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Cat:
+              Beverage:
                 type: object
                 properties:
                   name:
                     type: string
                 required: [name]
-              Dog:
+              Dessert:
                 type: object
                 properties:
                   name:
@@ -213,14 +213,14 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                   bark:
                     type: string
                 required: [name]
-              Test:
+              MenuItem:
                 discriminator:
                   propertyName:
                     name:
                       type: string
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Dog'
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Dessert'
         `,
         'foobar.yaml'
       );
@@ -241,31 +241,31 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.2.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Cat:
+              Beverage:
                 type: object
                 properties:
-                  petType:
+                  category:
                     type: string
                   shared:
                     type: string
-              Dog:
+              Dessert:
                 type: object
                 properties:
-                  petType:
+                  category:
                     type: string
                   shared:
                     type: string
-              Pet:
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Dog'
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Dessert'
         `,
         'foobar.yaml'
       );
@@ -286,31 +286,31 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Problematic:
+              MenuResponse:
                 type: object
                 properties:
                   data:
                     discriminator:
-                      propertyName: objectType
+                      propertyName: category
                     oneOf:
-                      - $ref: '#/components/schemas/A'
-                      - $ref: '#/components/schemas/B'
-                  objectType:
+                      - $ref: '#/components/schemas/Beverage'
+                      - $ref: '#/components/schemas/Dessert'
+                  category:
                     type: string
-              A:
+              Beverage:
                 type: object
                 properties:
-                  message:
+                  name:
                     type: string
-              B:
+              Dessert:
                 type: object
                 properties:
-                  message:
+                  name:
                     type: string
         `,
         'foobar.yaml'
@@ -329,12 +329,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Problematic/properties/data/oneOf",
+                "pointer": "#/components/schemas/MenuResponse/properties/data/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/A\` and \`#/components/schemas/B\`. Declare \`objectType\` in every schema and add it to \`required\`; the \`discriminator\` cannot read a property a value may omit.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/Beverage\` and \`#/components/schemas/Dessert\`. Declare \`category\` in every schema and add it to \`required\`; the \`discriminator\` cannot read a property a value may omit.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -348,27 +348,27 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Cat:
+              Beverage:
                 type: object
                 properties:
-                  petType:
+                  category:
                     type: string
-                required: [petType]
-              Test:
+                required: [category]
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
+                  - $ref: '#/components/schemas/Beverage'
                   - type: object
                     properties:
-                      petType:
+                      category:
                         type: string
-                    required: [petType]
+                    required: [category]
         `,
         'foobar.yaml'
       );
@@ -386,7 +386,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf/1",
+                "pointer": "#/components/schemas/MenuItem/oneOf/1",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -405,7 +405,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
@@ -413,13 +413,13 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Exclusive:
                 oneOf:
                   - type: string
-                    enum: [card]
+                    enum: [beverage]
                   - type: string
-                    const: bank
+                    const: dessert
               Overlapping:
                 oneOf:
-                  - enum: [card]
-                  - const: card
+                  - enum: [beverage]
+                  - const: beverage
         `,
         'foobar.yaml'
       );
@@ -442,7 +442,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Both schemas allow the values ["card"].",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Both schemas allow the values ["beverage"].",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -456,12 +456,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: string
                   - {}
@@ -482,7 +482,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf/1",
+                "pointer": "#/components/schemas/MenuItem/oneOf/1",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -501,16 +501,16 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
-                  - $ref: '#/components/schemas/ContainsNull'
+                  - $ref: '#/components/schemas/NullablePhotoUrl'
                   - type: 'null'
-              ContainsNull:
+              NullablePhotoUrl:
                 type:
                   - object
                   - 'null'
@@ -531,12 +531,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/ContainsNull\` and schema at position 2. Both schemas accept \`null\`.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/NullablePhotoUrl\` and schema at position 2. Both schemas accept \`null\`.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -550,12 +550,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: string
                   - type:
@@ -578,7 +578,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -597,7 +597,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
@@ -651,29 +651,29 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
-                  - $ref: '#/components/schemas/Lizard'
-                  - $ref: '#/components/schemas/OtherPet'
-              Lizard:
+                  - $ref: '#/components/schemas/Coffee'
+                  - $ref: '#/components/schemas/OtherBeverage'
+              Coffee:
                 type: object
-                required: [petType]
+                required: [category]
                 properties:
-                  petType:
+                  category:
                     type: string
-                    enum: ['Lizard']
-              OtherPet:
+                    enum: ['coffee']
+              OtherBeverage:
                 type: object
-                required: [petType]
+                required: [category]
                 properties:
-                  petType:
+                  category:
                     not:
-                      enum: ['Lizard']
+                      enum: ['coffee']
         `,
         'foobar.yaml'
       );
@@ -694,7 +694,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
@@ -706,13 +706,13 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               Properties:
                 oneOf:
                   - type: object
-                    required: [kind]
+                    required: [category]
                     properties:
-                      kind: true
+                      category: true
                   - type: object
-                    required: [kind]
+                    required: [category]
                     properties:
-                      kind:
+                      category:
                         type: string
         `,
         'foobar.yaml'
@@ -734,12 +734,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: object
                     required: []
@@ -769,7 +769,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -788,12 +788,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: object
                     additionalProperties: false
@@ -828,23 +828,23 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: object
                     properties:
-                      kind:
+                      category:
                         type: string
-                        enum: [cat]
+                        enum: [beverage]
                   - type: object
                     properties:
-                      kind:
+                      category:
                         type: string
-                        enum: [dog]
+                        enum: [dessert]
         `,
         'foobar.yaml'
       );
@@ -862,12 +862,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Add \`kind\` to \`required\` in every schema; an optional property cannot distinguish the schemas.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Add \`category\` to \`required\` in every schema; an optional property cannot distinguish the schemas.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -881,12 +881,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: string
                   - type: string
@@ -910,7 +910,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -923,7 +923,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -936,7 +936,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -955,26 +955,26 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Pet:
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Dog'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Dessert'
+              Beverage:
                 type: object
                 properties:
-                  petType:
+                  category:
                     type: string
-              Dog:
+              Dessert:
                 type: object
                 properties:
-                  petType:
+                  category:
                     type: string
         `,
         'foobar.yaml'
@@ -993,12 +993,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Pet/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/Cat\` and \`#/components/schemas/Dog\`. Add \`petType\` to \`required\` in every schema; the \`discriminator\` cannot read a property a value may omit.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: \`#/components/schemas/Beverage\` and \`#/components/schemas/Dessert\`. Add \`category\` to \`required\` in every schema; the \`discriminator\` cannot read a property a value may omit.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -1012,26 +1012,26 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Pet:
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 oneOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Dog'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Dessert'
+              Beverage:
                 type: object
-                required: [petType, name]
+                required: [category, name]
                 properties:
                   name:
                     type: string
-              Dog:
+              Dessert:
                 type: object
-                required: [petType, name]
+                required: [category, name]
                 properties:
                   name:
                     type: string
@@ -1055,12 +1055,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: object
                     required: [id]
@@ -1091,7 +1091,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -1110,7 +1110,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
@@ -1162,29 +1162,29 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: object
                     additionalProperties:
                       type: string
                     properties:
-                      kind:
+                      category:
                         type: string
-                        enum: [cat]
-                    required: [kind]
+                        enum: [beverage]
+                    required: [category]
                   - type: object
                     additionalProperties:
                       type: string
                     properties:
-                      kind:
+                      category:
                         type: string
-                        enum: [dog]
-                    required: [kind]
+                        enum: [dessert]
+                    required: [category]
         `,
         'foobar.yaml'
       );
@@ -1205,12 +1205,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: object
                     additionalProperties: false
@@ -1240,7 +1240,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -1259,25 +1259,25 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 oneOf:
                   - type: object
                     properties:
-                      petType:
+                      category:
                         type: string
-                        enum: [cat]
+                        enum: [beverage]
                   - type: object
                     properties:
-                      petType:
+                      category:
                         type: string
-                        enum: [dog]
+                        enum: [dessert]
         `,
         'foobar.yaml'
       );
@@ -1295,7 +1295,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf/0",
+                "pointer": "#/components/schemas/MenuItem/oneOf/0",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -1308,7 +1308,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf/1",
+                "pointer": "#/components/schemas/MenuItem/oneOf/1",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -1321,12 +1321,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/oneOf",
+                "pointer": "#/components/schemas/MenuItem/oneOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
             ],
-            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Add \`petType\` to \`required\` in every schema; the \`discriminator\` cannot read a property a value may omit.",
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Add \`category\` to \`required\` in every schema; the \`discriminator\` cannot read a property a value may omit.",
             "ruleId": "no-illogical-composition-keywords",
             "severity": "error",
             "suggest": [],
@@ -1340,12 +1340,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 oneOf:
                   - type: string
                   - type: integer
@@ -1371,12 +1371,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 anyOf:
                   - type: string
         `,
@@ -1396,7 +1396,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/anyOf",
+                "pointer": "#/components/schemas/MenuItem/anyOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -1415,12 +1415,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 anyOf:
                   - type: string
                   - type: string
@@ -1442,7 +1442,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/anyOf/2",
+                "pointer": "#/components/schemas/MenuItem/anyOf/2",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -1455,7 +1455,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/anyOf/1",
+                "pointer": "#/components/schemas/MenuItem/anyOf/1",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -1474,20 +1474,20 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 discriminator:
-                  propertyName: petType
+                  propertyName: category
                 anyOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Dog'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Dessert'
+              Beverage:
                 type: object
-              Dog:
+              Dessert:
                 type: string
         `,
         'foobar.yaml'
@@ -1511,15 +1511,15 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 allOf:
-                  - $ref: '#/components/schemas/Cat'
-              Cat:
+                  - $ref: '#/components/schemas/Beverage'
+              Beverage:
                 type: object
         `,
         'foobar.yaml'
@@ -1538,7 +1538,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/allOf",
+                "pointer": "#/components/schemas/MenuItem/allOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -1557,19 +1557,19 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 type: object
                 properties:
-                  customerId:
+                  menuItemId:
                     readOnly: true
                     allOf:
-                      - $ref: '#/components/schemas/CustomerId'
-              CustomerId:
+                      - $ref: '#/components/schemas/MenuItemId'
+              MenuItemId:
                 type: string
         `,
         'foobar.yaml'
@@ -1591,22 +1591,22 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.3
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Pet:
+              MenuItem:
                 type: object
-                required: [petType]
+                required: [category]
                 properties:
-                  petType:
+                  category:
                     type: string
                 discriminator:
-                  propertyName: petType
-              Cat:
+                  propertyName: category
+              Beverage:
                 allOf:
-                  - $ref: '#/components/schemas/Pet'
+                  - $ref: '#/components/schemas/MenuItem'
         `,
         'foobar.yaml'
       );
@@ -1627,12 +1627,12 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.1.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 allOf: []
         `,
         'foobar.yaml'
@@ -1651,7 +1651,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/allOf",
+                "pointer": "#/components/schemas/MenuItem/allOf",
                 "reportOnKey": true,
                 "source": "foobar.yaml",
               },
@@ -1670,17 +1670,17 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         outdent`
           openapi: 3.0.0
           info:
-            title: Test
+            title: Cafe
             version: '1.0'
           paths: {}
           components:
             schemas:
-              Test:
+              MenuItem:
                 allOf:
-                  - $ref: '#/components/schemas/Cat'
-                  - $ref: '#/components/schemas/Cat'
+                  - $ref: '#/components/schemas/Beverage'
+                  - $ref: '#/components/schemas/Beverage'
                   - {}
-              Cat:
+              Beverage:
                 type: object
         `,
         'foobar.yaml'
@@ -1699,7 +1699,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/allOf/2",
+                "pointer": "#/components/schemas/MenuItem/allOf/2",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -1712,7 +1712,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
           {
             "location": [
               {
-                "pointer": "#/components/schemas/Test/allOf/1",
+                "pointer": "#/components/schemas/MenuItem/allOf/1",
                 "reportOnKey": false,
                 "source": "foobar.yaml",
               },
@@ -1732,7 +1732,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       outdent`
         openapi: 3.1.0
         info:
-          title: Test
+          title: Cafe
           version: '1.0'
         paths: {}
         components:
@@ -1741,9 +1741,9 @@ describe('Oas3 no-illogical-composition-keywords', () => {
               oneOf:
                 - type: string
               allOf:
-                - $ref: '#/components/schemas/Cat'
-                - $ref: '#/components/schemas/Cat'
-            Cat:
+                - $ref: '#/components/schemas/Beverage'
+                - $ref: '#/components/schemas/Beverage'
+            Beverage:
               type: object
       `,
       'foobar.yaml'

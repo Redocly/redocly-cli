@@ -126,7 +126,6 @@ export const NoIllogicalCompositionKeywords: Oas3Rule = () => {
   };
 };
 
-// `struct` is not guaranteed to have rejected a malformed composition first.
 function getParentSchema(ctx: UserContext): CompositionSchema | undefined {
   return isPlainObject(ctx.parent) ? ctx.parent : undefined;
 }

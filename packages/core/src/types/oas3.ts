@@ -911,7 +911,6 @@ export const Oas3Types = {
   Link,
   Logo,
   Schema,
-  // Registered so rules and configurable rules can target these node names.
   AllOf,
   AnyOf,
   OneOf,

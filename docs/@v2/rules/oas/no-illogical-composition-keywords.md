@@ -89,11 +89,12 @@ Example of an **incorrect** `oneOf` where both schemas accept `null`:
 ```yaml
 components:
   schemas:
-    TimeShift:
-      type: [object, 'null']
-    Invoice:
+    PhotoUrl:
+      type: [string, 'null']
+      format: uri
+    MenuItemPhoto:
       oneOf:
-        - $ref: '#/components/schemas/TimeShift'
+        - $ref: '#/components/schemas/PhotoUrl'
         - type: 'null'
 ```
 
@@ -102,11 +103,12 @@ Example of a **correct** `oneOf`:
 ```yaml
 components:
   schemas:
-    TimeShift:
-      type: object
-    Invoice:
+    PhotoUrl:
+      type: string
+      format: uri
+    MenuItemPhoto:
       oneOf:
-        - $ref: '#/components/schemas/TimeShift'
+        - $ref: '#/components/schemas/PhotoUrl'
         - type: 'null'
 ```
 
@@ -115,67 +117,71 @@ Example of an **incorrect** `discriminator` with an inline member:
 ```yaml
 components:
   schemas:
-    Cat:
+    Beverage:
       type: object
       properties:
-        petType:
+        category:
           type: string
-      required: [petType]
-    Pet:
+          const: beverage
+      required: [category]
+    MenuItem:
       discriminator:
-        propertyName: petType
+        propertyName: category
       oneOf:
-        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Beverage'
         - type: object
           properties:
-            petType:
+            category:
               type: string
-          required: [petType]
+              const: dessert
+          required: [category]
 ```
 
-> Move the inline schema into `components/schemas` and reference it with a `$ref`.
+> Move the inline schema into `components/schemas` as `Dessert` and reference it with a `$ref`.
 
-Example of an **incorrect** `discriminator`, where `petType` is optional:
+Example of an **incorrect** `discriminator`, where `category` is optional:
 
 ```yaml
 components:
   schemas:
-    Pet:
+    MenuItem:
       discriminator:
-        propertyName: petType
+        propertyName: category
       oneOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Dog'
-    Cat:
+        - $ref: '#/components/schemas/Beverage'
+        - $ref: '#/components/schemas/Dessert'
+    Beverage:
       type: object
       properties:
-        petType:
+        category:
           type: string
-    Dog:
+          const: beverage
+    Dessert:
       type: object
       properties:
-        petType:
+        category:
           type: string
+          const: dessert
 ```
 
-> Add `petType` to `required` in both `Cat` and `Dog` to fix this.
+> Add `category` to `required` in both `Beverage` and `Dessert` to fix this.
 
 Example of a **correct** single-schema `allOf` that declares a subtype:
 
 ```yaml
 components:
   schemas:
-    Pet:
+    MenuBaseItem:
       type: object
-      required: [petType]
+      required: [category]
       properties:
-        petType:
+        category:
           type: string
       discriminator:
-        propertyName: petType
-    Cat:
+        propertyName: category
+    Dessert:
       allOf:
-        - $ref: '#/components/schemas/Pet'
+        - $ref: '#/components/schemas/MenuBaseItem'
 ```
 
 Example of **incorrect** composition keywords:
@@ -183,17 +189,17 @@ Example of **incorrect** composition keywords:
 ```yaml
 components:
   schemas:
-    Pet:
+    MenuItem:
       oneOf:
-        - $ref: '#/components/schemas/Cat'
-    Animal:
+        - $ref: '#/components/schemas/Beverage'
+    Order:
       allOf:
-        - $ref: '#/components/schemas/Cat'
-        - $ref: '#/components/schemas/Cat'
+        - $ref: '#/components/schemas/Beverage'
+        - $ref: '#/components/schemas/Beverage'
         - {}
 ```
 
-> `Pet` wraps a single schema, and `Animal` repeats one schema and adds an empty one that matches any value.
+> `MenuItem` wraps a single schema, and `Order` repeats one schema and adds an empty one that matches any value.
 
 ## Related rules
 
@@ -208,3 +214,4 @@ components:
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/no-illogical-composition-keywords.ts)
 - [Schema object docs](https://redocly.com/docs/openapi-visual-reference/schemas/)
 - [Discriminator object docs](https://redocly.com/docs/openapi-visual-reference/discriminator/)
+- [How to use oneOf and anyOf in OpenAPI](https://redocly.com/learn/openapi/any-of-one-of)
