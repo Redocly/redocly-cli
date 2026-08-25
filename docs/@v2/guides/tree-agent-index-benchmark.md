@@ -30,7 +30,7 @@ The index rarely changes what a strong model can do. What it changes is whether 
 | Cafe API      | order a coffee       | Haiku 4.5 |   6/10 → 6/10 |    $0.07 | $0.10 |   +43% |
 
 Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
-Context moves the same way and more steadily; it is in each tab below, and per-run in [the detailed version](./tree-agent-index-benchmark-detailed.md).
+Context moves the same way and more steadily; it is per cell and per run in [the detailed version](./tree-agent-index-benchmark-detailed.md).
 
 ## The head-to-heads
 
@@ -80,11 +80,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |     no tree |        tree | Δ context |
-| --------- | ------------: | ----------: | ----------: | --------: |
-| Sonnet 5  | 10/10 → 10/10 | 12,614 / 10 |  11,304 / 9 |      −10% |
-| Opus 5    | 10/10 → 10/10 | 20,266 / 17 | 14,435 / 11 |      −29% |
-| Haiku 4.5 |   3/10 → 3/10 | 11,060 / 10 | 10,262 / 10 |       −7% |
+| Model     |         works | no tree |  tree | Δ cost |
+| --------- | ------------: | ------: | ----: | -----: |
+| Sonnet 5  | 10/10 → 10/10 |   $0.42 | $0.32 |   −24% |
+| Opus 5    | 10/10 → 10/10 |   $0.82 | $0.64 |   −22% |
+| Haiku 4.5 |   3/10 → 3/10 |   $0.10 | $0.10 |    −0% |
 
 What the failing runs left out:
 
@@ -142,11 +142,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |        no tree |        tree | Δ context |
-| --------- | ------------: | -------------: | ----------: | --------: |
-| Sonnet 5  |   2/10 → 6/10 |    18,538 / 19 | 25,739 / 18 |      +39% |
-| Opus 5    | 10/10 → 10/10 |    46,231 / 36 | 36,880 / 22 |      −20% |
-| Haiku 4.5 |   0/10 → 1/10 | 31,613 / 16 ❌ | 20,710 / 19 |         — |
+| Model     |         works |  no tree |  tree | Δ cost |
+| --------- | ------------: | -------: | ----: | -----: |
+| Sonnet 5  |   2/10 → 6/10 |    $1.06 | $0.60 |   −43% |
+| Opus 5    | 10/10 → 10/10 |    $1.85 | $1.11 |   −40% |
+| Haiku 4.5 |   0/10 → 1/10 | $0.19 ❌ | $0.17 |      — |
 
 What the failing runs left out:
 
@@ -210,11 +210,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |       no tree |        tree | Δ context |
-| --------- | ------------: | ------------: | ----------: | --------: |
-| Sonnet 5  |  9/10 → 10/10 |    14,065 / 7 |   7,732 / 6 |      −45% |
-| Opus 5    | 10/10 → 10/10 |    14,913 / 7 |   9,622 / 7 |      −35% |
-| Haiku 4.5 |   0/10 → 8/10 | 12,952 / 7 ❌ | 10,202 / 12 |         — |
+| Model     |         works |  no tree |  tree | Δ cost |
+| --------- | ------------: | -------: | ----: | -----: |
+| Sonnet 5  |  9/10 → 10/10 |    $0.32 | $0.25 |   −22% |
+| Opus 5    | 10/10 → 10/10 |    $0.54 | $0.45 |   −17% |
+| Haiku 4.5 |   0/10 → 8/10 | $0.09 ❌ | $0.10 |      — |
 
 What the failing runs left out:
 
@@ -270,11 +270,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |     no tree |        tree | Δ context |
-| --------- | ------------: | ----------: | ----------: | --------: |
-| Sonnet 5  |  9/10 → 10/10 | 17,351 / 10 |  23,572 / 8 |      +36% |
-| Opus 5    | 10/10 → 10/10 | 19,024 / 13 | 27,908 / 16 |      +47% |
-| Haiku 4.5 |   4/10 → 4/10 | 21,759 / 10 |  23,054 / 8 |       +6% |
+| Model     |         works | no tree |  tree | Δ cost |
+| --------- | ------------: | ------: | ----: | -----: |
+| Sonnet 5  |  9/10 → 10/10 |   $0.40 | $0.41 |    +2% |
+| Opus 5    | 10/10 → 10/10 |   $0.77 | $0.97 |   +26% |
+| Haiku 4.5 |   4/10 → 4/10 |   $0.13 | $0.11 |   −15% |
 
 What the failing runs left out:
 
@@ -338,11 +338,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |     no tree |        tree | Δ context |
-| --------- | ------------: | ----------: | ----------: | --------: |
-| Sonnet 5  |   3/10 → 9/10 | 11,729 / 19 | 12,282 / 13 |       +5% |
-| Opus 5    | 10/10 → 10/10 |  17,143 / 9 | 25,474 / 14 |      +49% |
-| Haiku 4.5 |   4/10 → 4/10 | 37,888 / 14 | 13,508 / 13 |      −64% |
+| Model     |         works | no tree |  tree | Δ cost |
+| --------- | ------------: | ------: | ----: | -----: |
+| Sonnet 5  |   3/10 → 9/10 |   $0.34 | $0.36 |    +6% |
+| Opus 5    | 10/10 → 10/10 |   $0.56 | $0.78 |   +39% |
+| Haiku 4.5 |   4/10 → 4/10 |   $0.20 | $0.14 |   −30% |
 
 What the failing runs left out:
 
@@ -401,11 +401,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |    no tree |        tree | Δ context |
-| --------- | ------------: | ---------: | ----------: | --------: |
-| Sonnet 5  |  10/10 → 9/10 | 16,912 / 1 |  8,840 / 10 |      −48% |
-| Opus 5    | 10/10 → 10/10 | 16,926 / 2 | 15,417 / 13 |       −9% |
-| Haiku 4.5 |   6/10 → 6/10 | 14,373 / 1 |  19,100 / 7 |      +33% |
+| Model     |         works | no tree |  tree | Δ cost |
+| --------- | ------------: | ------: | ----: | -----: |
+| Sonnet 5  |  10/10 → 9/10 |   $0.24 | $0.28 |   +17% |
+| Opus 5    | 10/10 → 10/10 |   $0.44 | $0.67 |   +52% |
+| Haiku 4.5 |   6/10 → 6/10 |   $0.07 | $0.10 |   +43% |
 
 What the failing runs left out:
 
