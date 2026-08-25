@@ -1,0 +1,50 @@
+asyncapi: 3.0.0
+info:
+  title: Account Service
+  version: 1.0.0
+  description: This service is in charge of processing user signups
+channels:
+  userSignedup:
+    address: user/signedup
+    messages:
+      UserSignedUpMultiFormat:
+        title: Multi-format headers and payload
+        headers:
+          schemaFormat: 'application/vnd.aai.asyncapi+yaml;version=3.0.0'
+          schema:
+            $ref: ./MessageHeaders.yaml
+        payload:
+          schemaFormat: 'application/vnd.aai.asyncapi+yaml;version=3.0.0'
+          schema:
+            $ref: ./UserSignedUp.yaml
+        traits:
+          - headers:
+              schemaFormat: 'application/vnd.aai.asyncapi+yaml;version=3.0.0'
+              schema:
+                $ref: ./MessageHeaders.yaml
+      UserSignedUpWithoutSchemaFormat:
+        title: Multi-format payload relying on the default schemaFormat
+        payload:
+          schema:
+            $ref: ./UserSignedUp.yaml
+      UserSignedUpPlain:
+        title: Plain Schema Object headers and payload
+        headers:
+          $ref: ./MessageHeaders.yaml
+        payload:
+          $ref: ./UserSignedUp.yaml
+operations:
+  sendUserSignedup:
+    action: send
+    channel:
+      $ref: '#/channels/userSignedup'
+    messages:
+      - $ref: '#/channels/userSignedup/messages/UserSignedUpMultiFormat'
+      - $ref: '#/channels/userSignedup/messages/UserSignedUpWithoutSchemaFormat'
+      - $ref: '#/channels/userSignedup/messages/UserSignedUpPlain'
+components:
+  schemas:
+    ReusableMultiFormat:
+      schemaFormat: 'application/vnd.aai.asyncapi+yaml;version=3.0.0'
+      schema:
+        $ref: ./UserSignedUp.yaml
