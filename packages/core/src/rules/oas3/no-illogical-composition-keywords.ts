@@ -455,7 +455,6 @@ function areExclusive(left: CompositionSchema, right: CompositionSchema): boolea
     return !leftValues.some((value) => rightValues.some((other) => dequal(value, other)));
   }
 
-  // `format` is an annotation, not an assertion, so differing formats prove nothing.
   return getSharedTypes(left, right)?.length === 0;
 }
 
