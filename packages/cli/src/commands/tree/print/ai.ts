@@ -108,7 +108,9 @@ function aiSecurityLine(label: string, security: SecurityView): string {
       })
       .join(' + ');
   });
-  return `${label}: ${alternatives.join(' | ')}`;
+  // An empty requirements list is an explicit `security: []` — the operation overrides whatever
+  // the root asks for and needs nothing, which the caller has to be told rather than left to infer.
+  return `${label}: ${alternatives.length > 0 ? alternatives.join(' | ') : 'none'}`;
 }
 
 /** Above this many files the graph collapses to per-directory counts, as the overview does for tags. */

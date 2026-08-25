@@ -1080,6 +1080,18 @@ describe('renderView (ai)', () => {
     expect(overview).toContain('security: SecretApiKey · apiKey in header REB-APIKEY');
   });
 
+  it('says an operation that declares `security: []` needs none', () => {
+    const card = renderView(
+      {
+        kind: 'operation-card',
+        card: { ...operationCardWithDepsFixture, security: { requirements: [], schemes: [] } },
+      },
+      'ai'
+    );
+    // `security: []` overrides the root requirement, so the card has to say so, not go quiet.
+    expect(card).toContain('auth: none');
+  });
+
   it('keeps whole-file dependencies in the closure and names them once', () => {
     // A description that lays its files out its own way — not `components/<section>/<name>` —
     // still has to reach the caller: before, every such ref was unclassifiable and the closure

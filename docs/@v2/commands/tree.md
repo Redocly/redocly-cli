@@ -148,18 +148,51 @@ redocly tree cafe.yaml --format=json
     "urls": ["https://api.cafe.redocly.com"]
   },
   "tags": [
-    { "name": "Authorization", "summary": "Create a client to demo the API.", "operations": 1 },
-    { "name": "Products", "summary": "Operations related to products.", "operations": 4 },
-    { "name": "Orders", "summary": "Order management operations.", "operations": 6 },
-    { "name": "Statistics", "summary": "Statistics operations.", "operations": 1 }
+    {
+      "name": "Authorization",
+      "summary": "Create a client to demo the API.",
+      "operations": 1
+    },
+    {
+      "name": "Products",
+      "summary": "Operations related to products.",
+      "operations": 4
+    },
+    {
+      "name": "Orders",
+      "summary": "Order management operations.",
+      "operations": 6
+    },
+    {
+      "name": "Statistics",
+      "summary": "Statistics operations.",
+      "operations": 1
+    }
   ],
   "operations": 12,
-  "webhooks": [{ "name": "order-notification", "operations": 1 }],
+  "webhooks": [
+    {
+      "name": "order-notification",
+      "operations": 1
+    }
+  ],
   "components": [
-    { "section": "schemas", "count": 15 },
-    { "section": "responses", "count": 6 },
-    { "section": "parameters", "count": 9 },
-    { "section": "securitySchemes", "count": 2 }
+    {
+      "section": "schemas",
+      "count": 15
+    },
+    {
+      "section": "responses",
+      "count": 6
+    },
+    {
+      "section": "parameters",
+      "count": 9
+    },
+    {
+      "section": "securitySchemes",
+      "count": 2
+    }
   ]
 }
 ```
@@ -217,7 +250,7 @@ redocly tree cafe.yaml --tag=Orders
 └── GET "List all order items with menu item details" 505..546 [Orders]
 ```
 
-`--format=json` returns the same operations as a flat list, but card-shaped: each entry carries the same coordinates as before, plus a `description`, its typed one-hop `refs`, and one-hop `usedBy` — the same shape as the single operation card shown under [Get one operation](#get-one-operation) below, just one per operation instead of one per selection.
+`--format=json` returns the same operations as a flat list, but card-shaped: each entry carries the same coordinates as before, plus a `description`, the `security` the operation effectively requires, its typed one-hop `refs`, and one-hop `usedBy` — the same shape as the single operation card shown under [Get one operation](#get-one-operation) below, just one per operation instead of one per selection.
 The full response for this tag has six entries; here are the first two:
 
 ```bash
@@ -237,6 +270,19 @@ redocly tree cafe.yaml --tag=Orders --format=json
     "start_line": 229,
     "end_line": 314,
     "description": "Retrieve a collection of orders with optional filtering and pagination.",
+    "security": {
+      "requirements": [
+        {
+          "OAuth2": ["orders:read"]
+        }
+      ],
+      "schemes": [
+        {
+          "name": "OAuth2",
+          "type": "oauth2"
+        }
+      ]
+    },
     "refs": [
       {
         "ref": "#/components/parameters/After",
@@ -272,6 +318,19 @@ redocly tree cafe.yaml --tag=Orders --format=json
     "start_line": 316,
     "end_line": 372,
     "description": "Create a new order. Order items cannot be changed - if they need to be updated, cancel the order and place a new one.",
+    "security": {
+      "requirements": [
+        {
+          "OAuth2": ["orders:write"]
+        }
+      ],
+      "schemes": [
+        {
+          "name": "OAuth2",
+          "type": "oauth2"
+        }
+      ]
+    },
     "refs": [
       {
         "ref": "#/components/responses/BadRequest",
@@ -360,6 +419,19 @@ redocly tree cafe.yaml --path=/orders --operation=post --format=json
   "start_line": 316,
   "end_line": 372,
   "description": "Create a new order. Order items cannot be changed - if they need to be updated, cancel the order and place a new one.",
+  "security": {
+    "requirements": [
+      {
+        "OAuth2": ["orders:write"]
+      }
+    ],
+    "schemes": [
+      {
+        "name": "OAuth2",
+        "type": "oauth2"
+      }
+    ]
+  },
   "refs": [
     {
       "ref": "#/components/responses/BadRequest",
@@ -468,6 +540,10 @@ redocly tree cafe.yaml --webhook=order-notification --operation=post --format=js
   "start_line": 665,
   "end_line": 683,
   "description": "Webhook triggered when a new order is placed.",
+  "security": {
+    "requirements": [],
+    "schemes": []
+  },
   "refs": [
     {
       "ref": "#/components/responses/BadRequest",
@@ -635,6 +711,19 @@ redocly tree cafe-split/cafe.yaml --file=paths/orders.yaml --format=json
       "start_line": 2,
       "end_line": 62,
       "description": "Retrieve a collection of orders with optional filtering and pagination.",
+      "security": {
+        "requirements": [
+          {
+            "OAuth2": ["orders:read"]
+          }
+        ],
+        "schemes": [
+          {
+            "name": "OAuth2",
+            "type": "oauth2"
+          }
+        ]
+      },
       "refs": [
         {
           "ref": "../components/parameters/After.yaml",
@@ -670,6 +759,19 @@ redocly tree cafe-split/cafe.yaml --file=paths/orders.yaml --format=json
       "start_line": 64,
       "end_line": 118,
       "description": "Create a new order. Order items cannot be changed - if they need to be updated, cancel the order and place a new one.",
+      "security": {
+        "requirements": [
+          {
+            "OAuth2": ["orders:write"]
+          }
+        ],
+        "schemes": [
+          {
+            "name": "OAuth2",
+            "type": "oauth2"
+          }
+        ]
+      },
       "refs": [
         {
           "ref": "../components/responses/BadRequest.yaml",
@@ -834,6 +936,10 @@ redocly tree cafe.yaml --webhooks --format=json
     "start_line": 665,
     "end_line": 683,
     "description": "Webhook triggered when a new order is placed.",
+    "security": {
+      "requirements": [],
+      "schemes": []
+    },
     "refs": [
       {
         "ref": "#/components/responses/BadRequest",
@@ -1010,7 +1116,7 @@ A pointer that only makes sense after following a `$ref` into another file — a
 
 ### Plain text for agents: `--format=ai`
 
-`--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
+`--format=json` (used throughout the examples above) is the tooling/debug format: full card-shaped entries — coordinates, a `security` object holding the effective `requirements` and the `schemes` they name, a one-hop `refs` array, and `usedBy` — pretty-printed with two-space indentation.
 `--format=ai` is the agent format, and it's plain text: no braces, keys, or quotes in a listing, an overview, or a find result.
 Two views break that rule: a card's own body ships as one line of minified JSON (below), and the file-level graph, which `--files` and a non-OpenAPI description still render as minified JSON:
 
@@ -1155,6 +1261,19 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
   "start_line": 316,
   "end_line": 372,
   "description": "Create a new order. Order items cannot be changed - if they need to be updated, cancel the order and place a new one.",
+  "security": {
+    "requirements": [
+      {
+        "OAuth2": ["orders:write"]
+      }
+    ],
+    "schemes": [
+      {
+        "name": "OAuth2",
+        "type": "oauth2"
+      }
+    ]
+  },
   "refs": [
     {
       "ref": "#/components/responses/BadRequest",
@@ -1208,7 +1327,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
     }
   ],
   "usedBy": [],
-  "content": "…",
+  "content": "      tags:\n        - Orders\n      summary: Create order\n      description: >\n        Create a new order.\n\n        Order items cannot be changed - if they need to be updated, cancel the\n        order and place a new one.\n      operationId: createOrder\n      security:\n        - OAuth2:\n            - orders:write\n      requestBody:\n        required: true\n        content:\n          application/json:\n            schema:\n              $ref: '#/components/schemas/Order'\n            examples:\n              OrderRequest:\n                dataValue:\n                  customerName: Mary Ann\n                  orderItems:\n                    - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7\n                      quantity: 2\n                      comment: No sugar!\n                      discount: 0\n      responses:\n        '201':\n          description: Order placed successfully.\n          content:\n            application/json:\n              schema:\n                $ref: '#/components/schemas/Order'\n              examples:\n                OrderResponse:\n                  dataValue:\n                    id: ord_01h1s5z6vf2mm1mz3hevnn9va7\n                    customerName: Mary Ann\n                    orderItems:\n                      - menuItemId: prd_01h1s5z6vf2mm1mz3hevnn9va7\n                        quantity: 2\n                        comment: No sugar!\n                        discount: 0\n                    object: order\n                    status: placed\n                    totalPrice: 200\n                    createdAt: '2026-08-24T14:15:22Z'\n                    updatedAt: '2026-08-24T14:15:22Z'\n        '400':\n          $ref: '#/components/responses/BadRequest'\n        '401':\n          $ref: '#/components/responses/Unauthorized'\n        '403':\n          $ref: '#/components/responses/Forbidden'\n        '500':\n          $ref: '#/components/responses/InternalServerError'",
   "deps": [
     {
       "id": "responses/BadRequest",
@@ -1216,7 +1335,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 1327,
       "end_line": 1331,
-      "content": "…",
+      "content": "      description: Bad request - invalid input parameters.\n      content:\n        application/problem+json:\n          schema:\n            $ref: '#/components/schemas/Error'",
       "refs": [
         {
           "ref": "#/components/schemas/Error",
@@ -1234,7 +1353,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 1345,
       "end_line": 1349,
-      "content": "…",
+      "content": "      description: Forbidden - insufficient permissions.\n      content:\n        application/problem+json:\n          schema:\n            $ref: '#/components/schemas/Error'",
       "refs": [
         {
           "ref": "#/components/schemas/Error",
@@ -1252,7 +1371,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 1333,
       "end_line": 1337,
-      "content": "…",
+      "content": "      description: Internal server error.\n      content:\n        application/problem+json:\n          schema:\n            $ref: '#/components/schemas/Error'",
       "refs": [
         {
           "ref": "#/components/schemas/Error",
@@ -1270,7 +1389,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 1339,
       "end_line": 1343,
-      "content": "…",
+      "content": "      description: Unauthorized - authorization required.\n      content:\n        application/problem+json:\n          schema:\n            $ref: '#/components/schemas/Error'",
       "refs": [
         {
           "ref": "#/components/schemas/Error",
@@ -1288,7 +1407,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 1033,
       "end_line": 1106,
-      "content": "…",
+      "content": "      type: object\n      title: Order\n      properties:\n        id:\n          description: Order ID. Unique identifier prefixed with `ord_`.\n          type: string\n          format: ulid\n          readOnly: true\n          pattern: ^ord_[0-9abcdefghjkmnpqrstvwxyz]{26}$\n          example: ord_01h1s5z6vf2mm1mz3hevnn9va7\n        object:\n          description: Entity name.\n          type: string\n          const: order\n          readOnly: true\n        customerName:\n          description: >\n            Name of the customer who placed the order.\n\n            Must start and end with a letter, and can contain letters, spaces,\n            hyphens, and apostrophes (e.g., \"John Doe\", \"Mary-Jane\", \"O'Brien\").\n          type: string\n          pattern: ^[A-Za-z]+(?:[\\s'-][A-Za-z]+)*$\n          minLength: 1\n          maxLength: 100\n        status:\n          allOf:\n            - $ref: '#/components/schemas/OrderStatus'\n          readOnly: true\n        totalPrice:\n          description: Total order price in cents.\n          type: integer\n          minimum: 0\n          readOnly: true\n        createdAt:\n          description: Created date.\n          type: string\n          format: date-time\n          readOnly: true\n        updatedAt:\n          description: Updated date.\n          type: string\n          format: date-time\n          readOnly: true\n        orderItems:\n          type: array\n          description: List of items to include in the order.\n          minItems: 1\n          items:\n            type: object\n            properties:\n              menuItemId:\n                type: string\n                format: ulid\n                description: ID of the menu item to add to the order.\n              quantity:\n                type: integer\n                minimum: 1\n                description: Quantity of the menu item.\n              discount:\n                type: integer\n                minimum: 0\n                description: Discount amount in cents (absolute value).\n                default: 0\n              comment:\n                type: string\n                maxLength: 500\n                description: Optional comment for the order item (e.g., \"No sugar\").\n            required:\n              - menuItemId\n              - quantity\n      required:\n        - customerName\n        - orderItems",
       "refs": [
         {
           "ref": "#/components/schemas/OrderStatus",
@@ -1306,7 +1425,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 988,
       "end_line": 1023,
-      "content": "…",
+      "content": "      type: object\n      properties:\n        type:\n          type: string\n          format: uri-reference\n          description: URI reference that identifies the problem type.\n          default: about:blank\n        title:\n          type: string\n          description: Short summary of the problem type.\n        status:\n          type: integer\n          format: int32\n          description: >\n            HTTP status code generated by the origin server for this occurrence\n            of the problem.\n          minimum: 100\n          exclusiveMaximum: 600\n        instance:\n          type: string\n          format: uri-reference\n          description: >\n            URI reference that identifies the specific occurrence of the\n            problem, e.g. by adding a fragment identifier or sub-path to the\n            problem type.\n\n            Can be used to locate the root of this problem in the source code.\n          example: /some/uri-reference#specific-occurrence-context\n        details:\n          description: Additional error details.\n          type: object\n          additionalProperties: true\n      required:\n        - type\n        - title\n        - status",
       "refs": []
     },
     {
@@ -1315,7 +1434,7 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
       "file": "cafe.yaml",
       "start_line": 1025,
       "end_line": 1031,
-      "content": "…",
+      "content": "      type: string\n      description: Order status.\n      enum:\n        - placed\n        - preparing\n        - completed\n        - canceled",
       "refs": []
     }
   ]
@@ -1382,7 +1501,8 @@ schemas/OrderStatus L1025-1031: string=placed|preparing|completed|canceled
 next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 ```
 
-An `auth:` line opens the card whenever the operation is protected, resolved from the operation's own `security` or, when it declares none, from the root requirement it inherits — the case the operation's source does not show at all.
+An `auth:` line opens the card whenever the operation's security is decided, resolved from the operation's own `security` or, when it declares none, from the root requirement it inherits — the case the operation's source does not show at all.
+An operation that declares `security: []` overrides that inheritance and reads `auth: none`, which is not the same as no line at all.
 Each scheme is printed with what it asks for, because the name alone does not say which header carries the key.
 On a description that states its requirement once at the root, every operation card carries that inherited line, and the overview states it too:
 
