@@ -84,7 +84,10 @@ export const withHar: WithHar = function <T extends typeof fetch>(
           value,
         })),
         headersSize: -1,
-        bodySize: postData.text === undefined ? -1 : Buffer.byteLength(postData.text),
+        // -1 means "not available": a body was sent but not recorded (for example FormData).
+        bodySize:
+          postData.text !== undefined ? Buffer.byteLength(postData.text) : options.body ? -1 : 0,
+        ...(postData.text !== undefined && { postData }),
         postData,
         httpVersion: 'HTTP/1.1',
       },
