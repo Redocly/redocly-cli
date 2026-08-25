@@ -7951,6 +7951,8 @@ sed -n '229,320p' cafe.yaml
 {% /tab %}
 {% tab label="Opus 5 · run 5 · no tree" %}
 
+<!-- markdownlint-disable MD013 -->
+
 ```bash
 cat cafe.yaml
 curl -s -X POST https://api.cafe.redocly.com/oauth2/register -H 'Content-Type: application/json' -d '{"name":"cafe-mobile-verify","scopes":["menu:read","orders:read","orders:write"],"grantTypes":["client_credentials"]}' -o reg.json -w '%{http_code}\n' && cat reg.json
@@ -7967,6 +7969,8 @@ import json;d=json.load(open('list.json'));print('total',d['page']['total']);
 [print(' ',o['id'],o['status'],o['customerName']) for o in d['items']]" && echo "$NEW" > cleanup.txt
 TOK=c5ee30eba0fb51a81d059945a0fad5304b613348a85f931d554579213982fa4c; for O in ord_01m0fskvd4h1ksbbdyfjgxrpbj ord_01m0fsmv822p6qp57j3q7z7csm; do curl -s -X DELETE "https://api.cafe.redocly.com/orders/$O" -H "Authorization: Bearer $TOK" -w "delete $O -> %{http_code}\n"; done
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 {% /tab %}
 {% tab label="Opus 5 · run 5 · tree" %}

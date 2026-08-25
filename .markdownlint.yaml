@@ -14,9 +14,6 @@ MD013:
   # TODO: Consider to decrease allowed line length
   line_length: 800
   tables: false
-  # Captured command output is verbatim — a JSON body or a shell line cannot be wrapped
-  # without ceasing to be what the command prints.
-  code_blocks: false
 
 ## Allow same headers in siblings
 MD024:

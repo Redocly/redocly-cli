@@ -1249,6 +1249,8 @@ Add `--with-deps` to an operation or component selection to append its raw sourc
 redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
 ```
 
+<!-- markdownlint-disable MD013 -->
+
 ```json
 {
   "method": "post",
@@ -1441,6 +1443,8 @@ redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=json
 }
 ```
 
+<!-- markdownlint-enable MD013 -->
+
 The `content` values above are elided (`…`); the real output carries the actual raw source lines for the operation and for every dependency.
 `--with-deps` also works on a component selection (`--component` + `--name`), and is mutually exclusive with `--used-by`.
 
@@ -1485,6 +1489,8 @@ Anything more than two hops from the selection is listed as a bare id under `dee
 redocly tree cafe.yaml --path=/orders --operation=post --with-deps --format=ai
 ```
 
+<!-- markdownlint-disable MD013 -->
+
 ```text
 post /orders · createOrder · cafe.yaml L316-372 · tags: Orders — Create order
 auth: OAuth2 · oauth2 (orders:write)
@@ -1500,6 +1506,8 @@ schemas/Error L988-1023: type*:string, title*:string, status*:integer, instance:
 schemas/OrderStatus L1025-1031: string=placed|preparing|completed|canceled
 next: --component=<section> --name=<Name> (any id above) · --pointer=<$ref>
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 An `auth:` line opens the card whenever the operation's security is decided, resolved from the operation's own `security` or, when it declares none, from the root requirement it inherits — the case the operation's source does not show at all.
 An operation that declares `security: []` overrides that inheritance and reads `auth: none`, which is not the same as no line at all.
