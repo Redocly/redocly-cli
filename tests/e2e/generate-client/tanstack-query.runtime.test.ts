@@ -2,7 +2,7 @@
 //
 // Tier-3 runtime React-hook integration for the tanstack-query generator.
 //
-// MECHANISM (documented choice): we generate `sdk,tanstack-query` into a fixed,
+// MECHANISM (documented choice): we generate `typescript,tanstack-query` into a fixed,
 // checked-in consumer dir (`tanstack-consumer/`) and dynamic-`import()` the
 // generated `client.tanstack.ts` directly — vite transforms it and resolves its
 // `./client.js` import to the sibling `.ts` reliably (verified). The data is
@@ -48,7 +48,7 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
     }
     generate(join(__dirname, 'fixtures', 'base.yaml'), sdkFile, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'tanstack-query',
     ]);
@@ -78,7 +78,7 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
       },
     });
 
-    const { result } = renderHook(() => useQuery(mod.getPetByIdOptions({ id: 1 })), {
+    const { result } = renderHook(() => useQuery(mod.getPetByIdOptions({ path: { id: 1 } })), {
       wrapper: wrapper(newClient()),
     });
 

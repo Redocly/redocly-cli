@@ -1,8 +1,8 @@
 import { logger, type Oas3Definition, type Oas3Schema } from '@redocly/openapi-core';
 
 import { NotSupportedError } from '../../errors.js';
-import { buildApiModel } from '../build.js';
-import type { OperationModel, SchemaModel } from '../model.js';
+import { buildApiModel, sseFromResponses } from '../build.js';
+import type { OperationModel, ResponseBodyModel, SchemaModel } from '../model.js';
 
 /**
  * Build a minimal Oas3Definition wrapper so each test only declares the part it
@@ -254,24 +254,24 @@ describe('buildOperation — tags', () => {
   });
 });
 
-describe('buildOperation — x-redocly-pagination extension', () => {
-  it('captures the x-redocly-pagination value verbatim, without validation', () => {
+describe('buildOperation — x-redoclyPagination extension', () => {
+  it('captures the x-redoclyPagination value verbatim, without validation', () => {
     const extension = { style: 'cursor', cursorParam: 'cursor', bogus: 42 };
     const op = buildOpOnly({
       paths: {
         '/orders': {
-          get: { operationId: 'listOrders', 'x-redocly-pagination': extension, responses: {} },
+          get: { operationId: 'listOrders', 'x-redoclyPagination': extension, responses: {} },
         } as never,
       },
     });
     expect(op.paginationExtension).toBe(extension);
   });
 
-  it('captures a non-object x-redocly-pagination value too (validated by the emitter, not the IR)', () => {
+  it('captures a non-object x-redoclyPagination value too (validated by the emitter, not the IR)', () => {
     const op = buildOpOnly({
       paths: {
         '/orders': {
-          get: { operationId: 'listOrders', 'x-redocly-pagination': 'nonsense', responses: {} },
+          get: { operationId: 'listOrders', 'x-redoclyPagination': 'nonsense', responses: {} },
         } as never,
       },
     });
@@ -1845,6 +1845,75 @@ describe('buildApiModel — request body readOnly stripping', () => {
     });
   });
 
+  // OpenAPI 3.1 is JSON Schema 2020-12: `$ref` is an ordinary keyword, so keywords
+  // beside it take effect (this repo's own `spec-ref-siblings` rule says as much).
+  // Dropping them left server-computed properties in every request body.
+  it('applies a readOnly sibling of a $ref in OpenAPI 3.1', () => {
+    const op = buildOpOnly({
+      openapi: '3.1.0',
+      components: {
+        schemas: {
+          Computed: { type: 'object', properties: { tier: { type: 'string' } } },
+          Widget: {
+            type: 'object',
+            required: ['name', 'refComputed'],
+            properties: {
+              name: { type: 'string' },
+              refComputed: { $ref: '#/components/schemas/Computed', readOnly: true },
+            },
+          },
+        },
+      } as never,
+      paths: {
+        '/widgets': {
+          post: {
+            operationId: 'createWidget',
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': { schema: { $ref: '#/components/schemas/Widget' } },
+              },
+            },
+            responses: { '201': { description: 'ok' } },
+          },
+        },
+      },
+    } as Partial<Oas3Definition>);
+    expect(op.requestBody?.schema).toEqual({
+      kind: 'omit',
+      base: 'Widget',
+      keys: ['refComputed'],
+    });
+  });
+
+  it('ignores a readOnly sibling in OpenAPI 3.0, where a $ref replaces the schema, and says so', () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    try {
+      const op = postBody(
+        {
+          Computed: { type: 'object', properties: { tier: { type: 'string' } } },
+          Widget: {
+            type: 'object',
+            required: ['name', 'refComputed'],
+            properties: {
+              name: { type: 'string' },
+              refComputed: { $ref: '#/components/schemas/Computed', readOnly: true },
+            },
+          },
+        },
+        { $ref: '#/components/schemas/Widget' }
+      );
+      // 3.0 semantics: the sibling has no meaning, so the property stays sendable…
+      expect(op.requestBody?.schema).toEqual({ kind: 'ref', name: 'Widget' });
+      // …but the intent is obvious enough that silence would be the wrong answer.
+      const messages = warn.mock.calls.map(([message]) => message).join('');
+      expect(messages).toContain('refComputed');
+      expect(messages).toContain('readOnly');
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
   it('collects readOnly keys through allOf members (deduped)', () => {
     const op = postBody(
       {
@@ -2124,5 +2193,95 @@ describe('extractMetadata — example/default', () => {
     const got = buildSchemaOnly({ type: 'string', default: 'fallback' } as never);
     expect(got.metadata?.default).toBe('fallback');
     expect(got.metadata?.example).toBeUndefined();
+  });
+});
+
+/** A success-response list whose entry streams `text/event-stream`. */
+function sseResponses(response: Partial<ResponseBodyModel>): ResponseBodyModel[] {
+  return [
+    { contentType: 'text/event-stream', schema: { kind: 'unknown' }, ...response, status: 200 },
+  ];
+}
+
+describe('sseFromResponses — detection', () => {
+  it('is present for a success response with the text/event-stream content type', () => {
+    expect(sseFromResponses(sseResponses({}))).toBeDefined();
+  });
+
+  it('matches with parameters and is case-insensitive', () => {
+    expect(
+      sseFromResponses(sseResponses({ contentType: 'text/event-stream; charset=utf-8' }))
+    ).toBeDefined();
+    expect(sseFromResponses(sseResponses({ contentType: 'Text/Event-Stream' }))).toBeDefined();
+  });
+
+  it('is undefined for a plain JSON operation and for no responses at all', () => {
+    expect(
+      sseFromResponses([
+        { contentType: 'application/json', schema: { kind: 'ref', name: 'Pet' }, status: 200 },
+      ])
+    ).toBeUndefined();
+    expect(sseFromResponses([])).toBeUndefined();
+  });
+});
+
+describe('sseFromResponses — eventSchema (drives the streamed payload type)', () => {
+  it('uses the per-item schema when present', () => {
+    expect(
+      sseFromResponses(sseResponses({ itemSchema: { kind: 'ref', name: 'Message' } }))?.eventSchema
+    ).toEqual({ kind: 'ref', name: 'Message' });
+  });
+
+  it('falls back to the response schema when it is meaningful', () => {
+    expect(
+      sseFromResponses(sseResponses({ schema: { kind: 'ref', name: 'Token' } }))?.eventSchema
+    ).toEqual({ kind: 'ref', name: 'Token' });
+  });
+
+  it('ignores a typeless `itemSchema` and falls back to the response schema', () => {
+    expect(
+      sseFromResponses(
+        sseResponses({ itemSchema: { kind: 'unknown' }, schema: { kind: 'ref', name: 'Token' } })
+      )?.eventSchema
+    ).toEqual({ kind: 'ref', name: 'Token' });
+  });
+
+  it('is undefined when no schema is declared (payload types as `string`)', () => {
+    expect(sseFromResponses(sseResponses({}))?.eventSchema).toBeUndefined();
+  });
+});
+
+describe('sseFromResponses — dataKind', () => {
+  it("is 'json' for object/ref/array/record/union/intersection event types", () => {
+    const json: SchemaModel[] = [
+      { kind: 'object', properties: [] },
+      { kind: 'ref', name: 'Message' },
+      { kind: 'array', items: { kind: 'scalar', scalar: 'string' } },
+      { kind: 'record', value: { kind: 'scalar', scalar: 'string' } },
+      { kind: 'union', members: [{ kind: 'ref', name: 'A' }] },
+      { kind: 'intersection', members: [{ kind: 'ref', name: 'A' }] },
+    ];
+    for (const itemSchema of json) {
+      expect(sseFromResponses(sseResponses({ itemSchema }))?.dataKind).toBe('json');
+    }
+  });
+
+  it("is 'text' for the string fallback and for a typeless `itemSchema`", () => {
+    expect(sseFromResponses(sseResponses({}))?.dataKind).toBe('text');
+    expect(sseFromResponses(sseResponses({ itemSchema: { kind: 'unknown' } }))?.dataKind).toBe(
+      'text'
+    );
+  });
+
+  it("is 'text' for scalar/literal/enum/null event types", () => {
+    const text: SchemaModel[] = [
+      { kind: 'scalar', scalar: 'string' },
+      { kind: 'literal', value: 'x' },
+      { kind: 'enum', values: ['a'], scalar: 'string' },
+      { kind: 'null' },
+    ];
+    for (const itemSchema of text) {
+      expect(sseFromResponses(sseResponses({ itemSchema }))?.dataKind).toBe('text');
+    }
   });
 });

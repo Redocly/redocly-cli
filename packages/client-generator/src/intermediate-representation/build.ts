@@ -28,6 +28,7 @@ import type {
   PropertyModel,
   RequestBodyModel,
   ResponseBodyModel,
+  SseModel,
   ResponseHeaderModel,
   ScalarKind,
   SchemaMetadata,
@@ -35,11 +36,7 @@ import type {
   SecuritySchemeModel,
   ServiceModel,
 } from './model.js';
-import {
-  assertPathParamsAvoidArgSlots,
-  assertSafeIdentifiers,
-  sanitizeIdentifiers,
-} from './sanitize-identifiers.js';
+import { assertSafeIdentifiers, sanitizeIdentifiers } from './sanitize-identifiers.js';
 
 type Oas3SecurityScheme = {
   type?: string;
@@ -221,6 +218,15 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
   const version = doc.info?.version ?? '0.0.0';
   const description = doc.info?.description;
   const serverUrl = resolveServerUrl(doc.servers?.[0]);
+  const servers = (doc.servers ?? []).map((server) => ({
+    url: server.url,
+    description: server.description,
+    variables: Object.entries(server.variables ?? {}).map(([name, variable]) => ({
+      name,
+      default: variable.default,
+      description: variable.description,
+    })),
+  }));
 
   const schemas = buildNamedSchemas(doc);
   const securitySchemes = buildSecuritySchemes(doc);
@@ -231,6 +237,7 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
     version,
     description,
     serverUrl,
+    servers,
     services,
     schemas,
     securitySchemes,
@@ -243,7 +250,6 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
   // Hard gate: no unsafe name may reach the printer (see sanitize-identifiers.ts).
   assertSafeIdentifiers(model);
   // A path parameter named like a request-args slot cannot be routed — fail loudly.
-  assertPathParamsAvoidArgSlots(model);
 
   return model;
 }
@@ -530,9 +536,10 @@ function buildOperation(
   const security = resolveOperationSecurity(operation, doc, injectable);
 
   // Extensions aren't in the @redocly operation type — read loosely, like `deprecated`.
-  const paginationExtension = (operation as unknown as Record<string, unknown>)[
-    'x-redocly-pagination'
-  ];
+  const extensions = operation as unknown as Record<string, unknown>;
+  const paginationExtension = extensions['x-redoclyPagination'];
+
+  const sse = sseFromResponses(successResponses);
 
   return {
     name,
@@ -551,7 +558,36 @@ function buildOperation(
     security,
     tags: Array.isArray(operation.tags) ? operation.tags.filter((t) => typeof t === 'string') : [],
     ...(paginationExtension !== undefined ? { paginationExtension } : {}),
+    ...(sse === undefined ? {} : { sse }),
   };
+}
+
+/**
+ * The operation's SSE facts, from its `text/event-stream` success response (exact media
+ * type, parameters and case ignored). The event schema prefers the 3.2 `itemSchema` over
+ * the response `schema`, skipping typeless slots; structured kinds stream as JSON,
+ * scalar-ish ones as raw text.
+ */
+export function sseFromResponses(successResponses: ResponseBodyModel[]): SseModel | undefined {
+  const response = successResponses.find(
+    (candidate) => candidate.contentType.split(';')[0].trim().toLowerCase() === 'text/event-stream'
+  );
+  if (response === undefined) return undefined;
+  const declared =
+    response.itemSchema && response.itemSchema.kind !== 'unknown'
+      ? response.itemSchema
+      : response.schema.kind !== 'unknown'
+        ? response.schema
+        : undefined;
+  if (declared === undefined) return { dataKind: 'text' };
+  const streamsJson =
+    declared.kind === 'object' ||
+    declared.kind === 'ref' ||
+    declared.kind === 'array' ||
+    declared.kind === 'record' ||
+    declared.kind === 'union' ||
+    declared.kind === 'intersection';
+  return { eventSchema: declared, dataKind: streamsJson ? 'json' : 'text' };
 }
 
 function buildParameter(param: Oas3Parameter, location: string, doc: Oas3Definition): ParamModel {
@@ -975,6 +1011,17 @@ function scalarForEnumValues(values: unknown[], location: string): ScalarKind {
   return 'string';
 }
 
+/**
+ * Whether keywords beside a `$ref` apply. OpenAPI 3.1 is JSON Schema 2020-12, where
+ * `$ref` is an ordinary keyword and its siblings take effect; 3.0 and 2.0 predate that
+ * and a `$ref` replaces the whole schema object, so siblings mean nothing (the
+ * `spec-ref-siblings` lint rule reports them). Swagger 2 arrives here normalized to
+ * `3.0.3`, so it takes the 3.0 path.
+ */
+function refSiblingsApply(doc: Oas3Definition): boolean {
+  return !(doc.openapi ?? '').startsWith('3.0');
+}
+
 function buildProperties(
   schema: Oas3Schema,
   location: string,
@@ -982,8 +1029,18 @@ function buildProperties(
 ): PropertyModel[] {
   const props = schema.properties ?? {};
   const required = new Set(schema.required ?? []);
+  const siblingsApply = refSiblingsApply(doc);
   return Object.entries(props).map(([name, sub]) => {
-    const readOnly = !isRef(sub) && (sub as { readOnly?: boolean }).readOnly === true;
+    const declared = (sub as { readOnly?: boolean }).readOnly === true;
+    // A `readOnly` sibling on a 3.0 `$ref` is a no-op the author almost certainly did
+    // not intend — it leaves a server-computed property in every request body — so it
+    // is reported rather than dropped in silence.
+    if (declared && isRef(sub) && !siblingsApply) {
+      logger.warn(
+        `generate-client: "${name}" declares readOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in request bodies. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.\n`
+      );
+    }
+    const readOnly = declared && (siblingsApply || !isRef(sub));
     return {
       name,
       schema: schemaFromSlot(sub, `${location}.${name}`, doc),

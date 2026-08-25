@@ -46,11 +46,11 @@ describe('generate-client end-to-end (--args-style grouped)', () => {
     expect(src).toMatch(/export const \{ [^}]*getOrderById[^}]* \} = client;/);
     // The grouped `<Op>Variables` aliases are still emitted for consumers.
     expect(src).toContain('export type GetOrderByIdVariables = {');
-    // getOrderById's grouped args carry the path param as a member in Ops.
-    expect(src).toMatch(/getOrderById: \{\s*args: \{[\s\S]*?orderId: string;/);
+    // getOrderById's args carry the path parameter inside its own layer.
+    expect(src).toMatch(/getOrderById: \{\s*args: \{\s*path: GetOrderByIdPath;/);
 
-    // No flat positional sugar leaks through in grouped mode.
-    expect(src).not.toContain('export const getOrderById = (orderId: string');
+    // Nothing wraps the method: the export IS the method.
+    expect(src).not.toContain('=> client.getOrderById(');
   }, 90_000);
 
   test('the grouped-style client type-checks under strict mode with no unused locals', () => {

@@ -18,9 +18,18 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
     "lib": ["ESNext", "DOM", "dom.iterable"],
-    "paths": { "*": ["./packages/*"] },
+    "paths": {
+      "*": ["./packages/*"],
+      "@redocly/client-generator": ["./packages/client-generator/src/index.ts"],
+      "@redocly/client-generator/printers/*": ["./packages/client-generator/src/printers/*.ts"],
+      "@redocly/client-generator/contracts/*": ["./packages/client-generator/src/contracts/*.ts"],
+      "@redocly/client-generator/runtime-sources": [
+        "./packages/client-generator/src/runtime-sources.ts"
+      ]
+    },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
+    "rewriteRelativeImportExtensions": true,
     "esModuleInterop": true
   },
   "exclude": ["tests/e2e/generate-client/examples", "tests/e2e/generate-client/*-consumer"]
