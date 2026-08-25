@@ -19,7 +19,10 @@ export function buildPostData(
   const contentType = buildHeaders(headers).find(
     ({ name }) => String(name).toLowerCase() === 'content-type'
   )?.value;
-
+const fallbackMimeType =
+    body instanceof URLSearchParams
+      ? 'application/x-www-form-urlencoded;charset=UTF-8'
+      : 'application/octet-stream';
   return {
     mimeType: typeof contentType === 'string' ? contentType : 'application/octet-stream',
     text,
