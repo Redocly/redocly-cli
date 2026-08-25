@@ -77,7 +77,7 @@ See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main
 
 The quickest method to get a customized generator is
 [`redocly eject-generator <name>`](../commands/eject-generator.md).
-The command copies any built-in generator into `./generators/` as an editable file that you own.
+The command copies any built-in generator into `./generators/` as its TypeScript source folder — editable source that you own.
 An ejected generator with no changes produces byte-identical output.
 In `client.generators`, the path to your copy replaces the built-in name.
 Because of this, `redocly generate-client` now runs your version.
@@ -142,7 +142,7 @@ export default defineGenerator({
     properties: { groupBy: { enum: ['tag', 'path'], default: 'tag' } },
     additionalProperties: false,
   },
-  run({ model, outputPath, options }) {
+  run({ model, output, options }) {
     // `options` is validated against the schema before `run` is called.
   },
 });
@@ -204,7 +204,7 @@ Your coding agent then has the contract, the model reference, and this helper ta
 
 TypeScript is one more output language.
 The `@redocly/client-generator/generate` entry exports the TypeScript-specific renderers.
-These renderers are not on the package root, so the import graph of a `runtime: 'package'` client never includes the generation toolkit.
+These renderers are not on the package root, which stays a small authoring surface.
 `tsType` is the schema-to-type renderer that the built-in `typescript` generator itself uses.
 Because of this, the mapping (refs, arrays, unions, formats, parenthesization) is exactly the same as in the generated client:
 
@@ -214,7 +214,7 @@ import { tsType } from '@redocly/client-generator/generate';
 export default {
   name: 'response-map',
   requires: ['typescript'],
-  run({ model, outputPath }) {
+  run({ model, output }) {
     const members = model.services
       .flatMap((service) => service.operations)
       .flatMap((op) => {
@@ -223,7 +223,7 @@ export default {
       });
     return [
       {
-        path: outputPath.replace(/\.ts$/, '.responses.ts'),
+        path: output.path.replace(/\.ts$/, '.responses.ts'),
         content: `export type ResponseShapes = {\n${members.join('\n')}\n};\n`,
       },
     ];
@@ -295,14 +295,14 @@ const rubyCall = (operation) => ({ lang: 'ruby', source: `client.${operation.nam
 
 export default defineGenerator({
   name: 'ruby',
-  run({ model, outputPath }) {
+  run({ model, output }) {
     /* the SDK */
   },
   sample: rubyCall,
-  docs({ model, outputPath, emit }) {
+  docs({ model, output, emit }) {
     return [
       {
-        path: outputPath.replace(/\.[^.\\/]+$/, '.ruby.md'),
+        path: output.path.replace(/\.[^.\\/]+$/, '.ruby.md'),
         content: renderReferencePage(model, {
           title: `${model.title} Ruby SDK reference`,
           frontmatter: emit.docsFrontmatter === true,

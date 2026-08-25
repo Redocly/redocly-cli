@@ -84,8 +84,10 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Parity surface:** auth (bearer/basic/apiKey), retries with `Retry-After` + jittered
   backoff, timeouts, idempotency keys, middleware, pagination (`<op>_pages()` /
   `<op>_items()` + `aiter` mirrors), SSE (`iter_sse`/`aiter_sse`), multipart.
-- The runtime is hand-written in `runtime/python/*.py` and embedded as strings at prepare
+- The runtime is hand-written in `runtime/*.py` in this folder and embedded as strings at prepare
   time — generator code never builds runtime logic from templates.
+  Under `--runtime module` the same sources are written as sibling `_*.py` files instead
+  (package-relative imports become sibling imports; the client star-imports each module).
 - Authored ONLY with the neutral toolkit (`Printer`, naming, schema, pagination helpers) —
   the dogfooding guard fails otherwise.
 
@@ -100,7 +102,7 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change `index.ts` (and `runtime/python/*.py` if runtime behavior changes; then
+2. Change `index.ts` (and `runtime/*.py` if runtime behavior changes; then
    `npm run prepare -w @redocly/client-generator` re-embeds).
 3. Verify: `npm run compile`, then
    `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/python.test.ts`

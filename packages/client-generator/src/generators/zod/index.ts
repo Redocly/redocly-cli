@@ -1,9 +1,7 @@
+import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { HEADER } from '../../emitters/emit-options.js';
-import { renderZodModule } from '../../emitters/zod.js';
-import { anchor } from '../anchor.js';
-import type { Generator } from '../types.js';
+import { renderZodModule } from './schemas.ts';
 
 /**
  * The zod generator: a standalone `<stem>.zod.ts` module of Zod schemas (one
@@ -16,9 +14,9 @@ import type { Generator } from '../types.js';
  * how the sdk partitions its files. Emits nothing when the model has neither
  * named schemas nor JSON operation bodies.
  */
-export const zodGenerator: Generator = ({ model, outputPath }) => {
+export const zodGenerator: Generator = ({ model, output, banner }) => {
   const content = renderZodModule(model);
   if (content === '') return [];
-  const { dir, stem } = anchor(outputPath);
-  return [{ path: join(dir, `${stem}.zod.ts`), content: `${HEADER}\n\n${content}` }];
+  const header = banner.map((line) => `// ${line}`).join('\n');
+  return [{ path: join(output.dir, `${output.stem}.zod.ts`), content: `${header}\n\n${content}` }];
 };

@@ -1,11 +1,15 @@
+import {
+  type CodeSample,
+  type Generator,
+  groupSlug,
+  type OperationModel,
+  type SampleContext,
+} from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderCliDocs } from '../../emitters/cli-docs.js';
-import { cliAuthSchemes, commandData, renderCliModule } from '../../emitters/cli.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import { groupSlug } from '../../runtime/cli.js';
-import { anchor } from '../anchor.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
+import { renderCliDocs } from './docs.ts';
+import { cliRuntimeSource } from './engine-source.ts';
+import { cliAuthSchemes, commandData, renderCliModule } from './render.ts';
 
 /**
  * The cli generator: a bin-ready `<stem>.cli.ts` — a zero-dependency, typed
@@ -13,17 +17,25 @@ import type { CodeSample, Generator, SampleContext } from '../types.js';
  * bodies, env auth, `--page-all`, SSE/blob output, a documented exit-code
  * contract). Requires `typescript` (throw mode); wires zod validation when co-selected.
  */
-export const cliGenerator: Generator = ({ model, outputPath, emit, selected }) => {
-  const { dir, stem } = anchor(outputPath);
+export const cliGenerator: Generator = ({ model, output, banner, emit, selected, pagination }) => {
   const content = renderCliModule(model, {
-    stem,
+    stem: output.stem,
     importExt: emit.importExt ?? 'js',
-    runtime: emit.runtime ?? 'inline',
     zodSelected: selected?.includes('zod') ?? false,
-    pagination: emit.pagination,
+    pagination,
     argsStyle: emit.argsStyle ?? 'grouped',
+    runtime: emit.runtime ?? 'inline',
   });
-  return [{ path: join(dir, `${stem}.cli.ts`), content }];
+  const entry = { path: join(output.dir, `${output.stem}.cli.ts`), content };
+  if (emit.runtime !== 'module') return [entry];
+  const header = banner.map((line) => `// ${line}`).join('\n');
+  return [
+    entry,
+    {
+      path: join(output.dir, 'runtime', 'cli.ts'),
+      content: `${header}\n\n${cliRuntimeSource().trim()}\n`,
+    },
+  ];
 };
 
 /**
@@ -32,20 +44,19 @@ export const cliGenerator: Generator = ({ model, outputPath, emit, selected }) =
  * It renders from `commandData` — the same table `runCli` dispatches on — so the page
  * cannot describe a tool other than the one beside it.
  */
-export const cliDocs: Generator = ({ model, outputPath, emit }) => {
-  const { dir, stem } = anchor(outputPath);
-  const content = renderCliDocs(commandData(model, { pagination: emit.pagination }), {
+export const cliDocs: Generator = ({ model, output, emit, pagination }) => {
+  const content = renderCliDocs(commandData(model, { pagination }), {
     title: `${model.title} command-line reference`,
     frontmatter: emit.docsFrontmatter === true,
-    name: stem,
+    name: output.stem,
     schemes: cliAuthSchemes(model),
   });
-  return [{ path: join(dir, `${stem}.cli.md`), content }];
+  return [{ path: join(output.dir, `${output.stem}.cli.md`), content }];
 };
 
 /** One shell invocation per operation — feeds `x-codeSamples` for docs. */
 export function cliSample(op: OperationModel, ctx: SampleContext): CodeSample | undefined {
-  const command = commandData(ctx.model, { pagination: ctx.emit.pagination }).find(
+  const command = commandData(ctx.model, { pagination: ctx.pagination }).find(
     (candidate) => candidate.name === op.name
   );
   if (command === undefined) return undefined;

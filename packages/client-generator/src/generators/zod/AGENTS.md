@@ -26,21 +26,26 @@ A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schem
 operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
   imported this module.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/zod.ts` (schema expressions + module assembly).
+`schemas.ts` holds the whole renderer — schema expressions, the `operationSchemas` map,
+and the module assembly; `index.ts` is the entry. Naming and literal escaping come from
+the TypeScript printer (`@redocly/client-generator/printers/typescript`).
 
 ## Ejecting it
 
-`redocly eject-generator zod` ships this generator BUNDLED with the emitter it uses — one
-small `.mjs` you own, importing `@redocly/client-generator` and `@redocly/openapi-core`.
-Change the schema shapes, the naming, or what gets a schema at all, and regenerate.
+`redocly eject-generator zod` copies this generator's TypeScript source folder to
+`generators/zod/`, exactly as we wrote it, importing `@redocly/client-generator` and
+`@redocly/client-generator/printers/typescript`. Running a `.ts` generator uses Node's
+type stripping (Node 22.18, 23.6, or newer); newer built-in versions merge in per file
+with `--update`. Change the schema shapes, the naming, or what gets a schema at all, and
+regenerate.
 
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change the emitter modules named above (the entry is plumbing — it rarely moves).
-3. Verify: `npm run compile`, the emitter unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/emitters`), the e2e
-   suites for this generator, and the large-description bars
+2. Change the stage files named above (the entry is plumbing — it rarely moves).
+3. Verify: `npm run compile`, the folder's unit suites
+   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/zod`),
+   the e2e suites for this generator, and the large-description bars
    (`tests/e2e/generate-client/large-descriptions.test.ts`).

@@ -33,6 +33,23 @@ describe('resolveGenerators', () => {
     expect(registry.get('route-map')?.options).toEqual(custom.options);
   });
 
+  it('keeps the docs and notApplicable hooks — an ejected generator exports both', async () => {
+    // Dropping either makes an ejected generator quietly do less than the built-in it
+    // replaced: `--docs` writes no page, ignored options stop warning.
+    const docs = noopRun;
+    const custom: CustomGenerator = {
+      name: 'route-map',
+      run: noopRun,
+      docs,
+      notApplicable: { importExt: 'it emits no imports' },
+    };
+    const { registry } = await resolveGenerators(['route-map'], { customGenerators: [custom] });
+    expect(registry.get('route-map')?.docs).toBe(docs);
+    expect(registry.get('route-map')?.notApplicable).toEqual({
+      importExt: 'it emits no imports',
+    });
+  });
+
   it('registers an inline custom generator and selects it by name', async () => {
     const custom: CustomGenerator = { name: 'route-map', run: noopRun };
     const { selected, registry } = await resolveGenerators(['typescript', 'route-map'], {

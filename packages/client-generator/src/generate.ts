@@ -5,9 +5,13 @@
 // root: package-mode clients import the root at app runtime, and the root reaches
 // the pipeline only through a dynamic import.
 
-import type { EmitOptions } from './emitters/emit-options.js';
 import { builtinGenerators, validateGenerators } from './generators/index.js';
-import type { GeneratedFile, GeneratorDescriptor, OutputMode } from './generators/types.js';
+import type {
+  EmitOptions,
+  GeneratedFile,
+  GeneratorDescriptor,
+  OutputMode,
+} from './generators/types.js';
 import type { ApiModel } from './intermediate-representation/model.js';
 import { runGenerators } from './pipeline.js';
 
@@ -16,15 +20,15 @@ import { runGenerators } from './pipeline.js';
 // when every built-in generator migrated to text (one authoring model for every
 // output language). `tsType`/`tsJsdoc`/`codeLiteral` are the TypeScript-specific
 // text renderers the sdk itself uses.
-export { tsJsdoc, tsType } from './emitters/ts-type.js';
-export { codeLiteral } from './emitters/ts-literal.js';
+export { tsJsdoc, tsType } from './generators/typescript/types.js';
+export { codeLiteral } from './printers/typescript.js';
 // The language-neutral authoring helpers, re-exported here so both toolkit
 // entries offer the full authoring surface (the root offers them TS-free).
 export * from './authoring/index.js';
-export { operationSignature } from './emitters/operation-signature.js';
-export type { OperationSignature } from './emitters/operation-signature.js';
-export { pascalCase } from './emitters/support.js';
-export { safeIdent } from './emitters/identifier.js';
+export { operationSignature } from './contracts/typescript.js';
+export type { OperationSignature } from './contracts/typescript.js';
+export { pascalCase } from './printers/typescript.js';
+export { safeIdent } from './printers/typescript.js';
 
 /**
  * Validate the generator selection (see `validateGenerators`), then run each
@@ -52,4 +56,4 @@ export function collectGeneratedFiles(
 export { generateClient } from './pipeline.js';
 // The composed-cli entry renderer: consumed by the redocly CLI across apis (it needs the
 // embedded runtime text, which must stay off the runtime-only root barrel).
-export { renderComposedCliEntry, type ComposedCliSource } from './emitters/cli.js';
+export { renderComposedCliEntry, type ComposedCliSource } from './generators/cli/render.js';

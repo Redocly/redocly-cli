@@ -142,11 +142,15 @@ function register(registry: Map<string, GeneratorDescriptor>, custom: CustomGene
   registry.set(custom.name, {
     run: custom.run,
     sample: custom.sample,
+    // `docs` and `notApplicable` are part of the contract the ejected files export —
+    // dropping either makes an ejected generator quietly do less than the built-in it
+    // replaced (`--docs` writes no page, ignored options stop warning).
+    docs: custom.docs,
+    notApplicable: custom.notApplicable,
     options: custom.options,
     requires: custom.requires,
     errorModes: custom.errorModes,
     dateTypes: custom.dateTypes,
-    runtimes: custom.runtimes,
   });
 }
 
@@ -161,6 +165,13 @@ async function importGenerator(specifier: string, configDir: string): Promise<Cu
   }
   const isPath = specifier.startsWith('.') || isAbsolute(specifier);
   const target = isPath ? pathToFileURL(resolvePath(configDir, specifier)).href : specifier;
+  // An ejected generator is TypeScript source, run through Node's own type stripping —
+  // absent that, `import()` would die with ERR_UNKNOWN_FILE_EXTENSION deep in the loader.
+  if (isPath && specifier.endsWith('.ts') && !process.features.typescript) {
+    throw new NotSupportedError(
+      `Generator "${specifier}" is TypeScript, which this Node cannot run directly — use Node 22.18, 23.6, or newer.`
+    );
+  }
   let module: Record<string, unknown>;
   try {
     module = (await import(target)) as Record<string, unknown>;

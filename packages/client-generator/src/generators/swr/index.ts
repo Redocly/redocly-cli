@@ -1,9 +1,7 @@
+import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { HEADER } from '../../emitters/emit-options.js';
-import { renderSwrModule } from '../../emitters/swr.js';
-import { anchor } from '../anchor.js';
-import type { Generator } from '../types.js';
+import { renderSwrModule } from './render.ts';
 
 /**
  * The swr generator: a standalone `<stem>.swr.ts` module of SWR hooks wrapping the
@@ -17,11 +15,11 @@ import type { Generator } from '../types.js';
  * multi-file barrel at the output anchor either way. Emits nothing when there are
  * no operations.
  */
-export const swrGenerator: Generator = ({ model, outputPath, emit }) => {
-  const { dir, stem } = anchor(outputPath);
+export const swrGenerator: Generator = ({ model, output, banner, emit }) => {
   const content = renderSwrModule(model, {
-    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
+    sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
   });
   if (content === '') return [];
-  return [{ path: join(dir, `${stem}.swr.ts`), content: `${HEADER}\n\n${content}` }];
+  const header = banner.map((line) => `// ${line}`).join('\n');
+  return [{ path: join(output.dir, `${output.stem}.swr.ts`), content: `${header}\n\n${content}` }];
 };

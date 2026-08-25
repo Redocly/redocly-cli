@@ -36,26 +36,15 @@ function staticGraph(entry: string): { files: Set<string>; externals: Set<string
   return { files, externals };
 }
 
-// Emitter modules the IR legitimately shares (identifier/name sanitizing) — all
-// pure string/data helpers with no `typescript` import. Anything else from
-// emitters/ appearing in the pipeline graph is a leak.
-const PURE_EMITTER_HELPERS = new Set([
-  'auth.js',
-  'identifier.js',
-  'reserved-names.js',
-  'runtime-sources.js',
-  'support.js',
-]);
-
 describe('pipeline (lib/pipeline.js)', () => {
-  it('statically loads no typescript and only the pure emitter helpers', () => {
+  it('statically loads no typescript and no generator folder', () => {
     const { files, externals } = staticGraph(join(libDir, 'pipeline.js'));
     expect(externals.has('typescript')).toBe(false);
-    const emitterFiles = [...files]
-      .filter((file) => /\/emitters\//.test(file))
-      .map((file) => file.split('/emitters/')[1])
-      .filter((name) => !PURE_EMITTER_HELPERS.has(name));
-    expect(emitterFiles).toEqual([]);
+    // Built-ins are reached only through the dynamic imports in generators/meta.js —
+    // a generator folder in the static graph would load every language's emit stack
+    // (and, for the TS family, its printers) on every pipeline start.
+    const generatorFiles = [...files].filter((file) => /\/generators\/[a-z-]+\//.test(file));
+    expect(generatorFiles).toEqual([]);
   });
 });
 

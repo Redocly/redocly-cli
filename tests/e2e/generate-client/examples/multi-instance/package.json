@@ -8,9 +8,6 @@
     "dev": "vite",
     "build": "vite build"
   },
-  "dependencies": {
-    "@redocly/client-generator": "latest"
-  },
   "devDependencies": {
     "@redocly/cli": "latest",
     "typescript": "^5.5.0",

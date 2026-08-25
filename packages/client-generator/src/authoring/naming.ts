@@ -1,6 +1,6 @@
 // Language-neutral naming: one word splitter, four casings, and an identifier
 // sanitizer parameterized by the target language's reserved words. TypeScript
-// keeps its specialized sanitizer in emitters/identifier.ts; this is for the
+// keeps its specialized sanitizer in the TypeScript printer; this is for the
 // other output languages.
 
 /** Split on delimiters and camel/acronym boundaries: 'APIKey-v2' → ['api', 'key', 'v2']. */

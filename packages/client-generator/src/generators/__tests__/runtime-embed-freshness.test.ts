@@ -8,26 +8,26 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
-import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
-import { PYTHON_RUNTIME_SOURCES } from '../../emitters/python-runtime-sources.js';
+import { GO_RUNTIME_SOURCE } from '../../runtime-sources/go.js';
+import { PHP_RUNTIME_SOURCE } from '../../runtime-sources/php.js';
+import { PYTHON_RUNTIME_SOURCES } from '../../runtime-sources/python.js';
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const STALE = 'stale embed — run `npm run prepare -w @redocly/client-generator`';
 
 describe('embedded runtimes match their source files', () => {
   it('go', () => {
-    const source = readFileSync(join(pkgRoot, 'runtime/go/runtime.go'), 'utf-8');
+    const source = readFileSync(join(pkgRoot, 'src/generators/go/runtime/runtime.go'), 'utf-8');
     expect(GO_RUNTIME_SOURCE, STALE).toBe(source);
   });
 
   it('php', () => {
-    const source = readFileSync(join(pkgRoot, 'runtime/php/runtime.php'), 'utf-8');
+    const source = readFileSync(join(pkgRoot, 'src/generators/php/runtime/runtime.php'), 'utf-8');
     expect(PHP_RUNTIME_SOURCE, STALE).toBe(source);
   });
 
   it('python — every module, and no module missing from the snapshot', () => {
-    const dir = join(pkgRoot, 'runtime', 'python');
+    const dir = join(pkgRoot, 'src', 'generators', 'python', 'runtime');
     const onDisk = readdirSync(dir).filter((name) => name.endsWith('.py'));
     expect(Object.keys(PYTHON_RUNTIME_SOURCES).sort(), STALE).toEqual(onDisk.sort());
     const embedded: Record<string, string> = PYTHON_RUNTIME_SOURCES;

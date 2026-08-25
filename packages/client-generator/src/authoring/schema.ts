@@ -8,10 +8,10 @@ import type {
   PropertyModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
-import { casing } from './naming.js';
+import { casing, uniqueIdentifiers } from './naming.js';
 
 /** Follow a `ref` chain through the model's named schemas; undefined on a miss or cycle. */
-function deref(schema: SchemaModel, model: ApiModel): SchemaModel | undefined {
+export function deref(schema: SchemaModel, model: ApiModel): SchemaModel | undefined {
   const seen = new Set<string>();
   let current = schema;
   while (current.kind === 'ref') {
@@ -84,8 +84,16 @@ export function enumValues(
   schema: SchemaModel
 ): { values: Array<string | number | boolean>; scalar: string; memberNames: string[] } | undefined {
   if (schema.kind !== 'enum') return undefined;
-  const memberNames = schema.values.map((value) =>
-    typeof value === 'string' ? casing.screaming(value) : `VALUE_${String(value).toUpperCase()}`
+  // `casing` owns the value-to-word rules (`-1` → `MINUS_1`), and `uniqueIdentifiers` owns
+  // the rest of "language-safe": two values may fold to one name (`a-b` and `a b`), and an
+  // empty string folds to nothing at all — both must still yield distinct usable members.
+  const memberNames = uniqueIdentifiers(
+    schema.values.map((value) =>
+      typeof value === 'string'
+        ? casing.screaming(value)
+        : `VALUE_${casing.screaming(String(value))}`
+    ),
+    { style: 'screaming' }
   );
   return { values: schema.values, scalar: schema.scalar, memberNames };
 }

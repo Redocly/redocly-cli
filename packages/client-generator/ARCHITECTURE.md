@@ -1,25 +1,19 @@
 # Client Generator — Architecture
 
 How `@redocly/client-generator` is built.
-This is a **descriptive** map of the current shape — the pipeline, the modules, and the seams.
+This is a **descriptive** map of the current shape — the pipeline, the folders, and the seams.
 It says _what is_; the **why** (the significant decisions and their trade-offs) lives in the Architecture Decision Records under [`docs/adr/`](./docs/adr/), linked inline below.
-For the vocabulary used here (IR, emitter, writer, runtime, output mode, …), see [CONTEXT.md](./CONTEXT.md).
-This is not a roadmap; planned refactors live in their own specs.
+For the vocabulary used here (IR, generator, printer, runtime, output mode, …), see [CONTEXT.md](./CONTEXT.md).
 
 ## Overview
 
-The package turns an OpenAPI description into a typed TypeScript client with **zero runtime dependencies** — the generated code uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`), so it runs in browsers, Node, Bun, Deno, and edge runtimes (see [ADR-0002](./docs/adr/0002-typescript-peer-dep.md)).
-It backs the `redocly generate-client` CLI command.
+The package turns an OpenAPI description into typed API clients — the TypeScript client plus the `python`, `go`, and `php` SDKs, the generated CLI, and satellite modules (`zod`, `mock`, `swr`, `tanstack-query`, `transformers`) — with **zero runtime dependencies** in the generated code ([ADR-0002](./docs/adr/0002-typescript-peer-dep.md)).
+It backs the `redocly generate-client` and `redocly eject-generator` CLI commands.
 
 ## Codegen approach
 
-Generated TypeScript is built as a **TypeScript AST** (`ts.factory` nodes) and emitted by the compiler's own printer (`ts.createPrinter`), **not** by string interpolation — rationale and trade-offs in [ADR-0001](./docs/adr/0001-ast-codegen.md).
-The one generation-time dependency is `typescript` itself, declared as a **peer** ([ADR-0002](./docs/adr/0002-typescript-peer-dep.md)); it is never emitted, so the generated client stays dependency-free.
-
-A foundation module (`emitters/ts.ts`) wraps the ergonomics: re-exports `ts` (the `factory`), `printNodes(nodes)` over a shared printer, `parseStatements(source)` to parse hand-authored source (used by the inline assembler and the baked-setup emitter), and `jsdoc(node, text)`.
-Each emitter produces `ts.Statement[]` / `ts.TypeNode`s; the shared wiring emitter (`emitters/package-client.ts`) assembles the per-file content and prints **once**.
-The **runtime** is not emitter-built at all — it is real TypeScript under `src/runtime/`, imported (package mode) or embedded from a source snapshot (inline mode).
-Formatting is the printer's; a pretty-print pass is deferred to optional-formatter work (roadmap P7.3).
+Generated code is **text**, written with a small structural `Printer` (indentation, blocks, blank-line discipline) and one **syntax printer per output language** that owns naming, string escaping, literals, and comments ([ADR-0021](./docs/adr/0021-text-printers.md); this superseded the original AST approach of [ADR-0001](./docs/adr/0001-ast-codegen.md) — `typescript` is no longer loaded on the generation path).
+The **runtimes** are not generated at all: each is hand-written source in its generator's `runtime/` folder, embedded or copied verbatim ([ADR-0017](./docs/adr/0017-runtime-module-and-descriptor-client.md), [ADR-0022](./docs/adr/0022-runtime-inline-or-module.md)).
 
 ## Pipeline
 
@@ -28,125 +22,90 @@ flowchart LR
   spec[OpenAPI doc] --> load["loadSpec()"]
   load --> build["buildApiModel()"]
   build --> ir[("ApiModel / IR")]
-  ir --> gw["getWriter(outputMode)"]
-  gw --> writer["a Writer"]
-  writer --> emit["emitters"]
-  emit --> files[[".ts files"]]
+  ir --> resolve["resolveModelPagination()"]
+  resolve --> run["runGenerators()"]
+  run --> gen["generator folders"]
+  gen --> files[["generated files"]]
 ```
 
-1. **`loadSpec`** (`loader.ts`) — bundles the OpenAPI document via `@redocly/openapi-core`, resolving external `$ref`s while **preserving internal `$ref`s** (the IR builder relies on named references staying intact).
-   Also detects the spec version (`detectSpec`).
-   1.5. **`normalizeSwagger2`** (`intermediate-representation/normalize-swagger2.ts`) — when the detected version is `oas2`, converts the Swagger 2.0 document to the OpenAPI 3.x shape (definitions → components.schemas, host/basePath/schemes → servers, body/formData params → requestBody, `responses[].schema` → `responses[].content`, securityDefinitions → securitySchemes, `$ref` rewrite).
-   OAS 3.0/3.1/3.2 skip this step.
-2. **`buildApiModel`** (`intermediate-representation/build.ts`) — walks the OpenAPI document and produces the spec-agnostic **IR** (`intermediate-representation/model.ts`).
+1. **`loadSpec`** (`loader.ts`) — bundles the OpenAPI document via `@redocly/openapi-core`, resolving external `$ref`s while preserving internal ones, and detects the spec version.
+   Swagger 2.0 is converted to the 3.x shape by `intermediate-representation/normalize-swagger2.ts` first.
+2. **`buildApiModel`** (`intermediate-representation/build.ts`) — walks the document and produces the spec-agnostic **IR** (`intermediate-representation/model.ts`).
    Everything downstream reads the IR, never the raw spec ([ADR-0003](./docs/adr/0003-spec-agnostic-ir.md)).
-3. **`getWriter(outputMode)`** (`writers/index.ts`) — selects the **Writer** for the chosen output mode.
-4. The **Writer** decides the file layout and fills each file by calling the **emitters**.
-5. The **emitters** (`emitters/`) build a **TypeScript AST** and print it via `emitters/ts.ts`.
-6. `generateClient` (`index.ts`) writes the files to disk.
+   Facts every generator would otherwise re-derive are computed once here — for example `op.sse` (the streaming facts of a `text/event-stream` operation).
+   `intermediate-representation/sanitize-identifiers.ts` renames spec names that collide with generated-module identifiers (the reserved set in `reserved-names.ts` spans every target language, so one schema keeps one name across SDKs).
+3. **`pipeline.ts`** — resolves pagination ONCE for the run (`pagination.ts`: per-operation config > `x-redoclyPagination` > convention, statically fit-verified, one aggregated error; [ADR-0018](./docs/adr/0018-auto-pagination.md)), parses the `--output` anchor, and calls `runGenerators`.
+   Each selected generator receives one `GeneratorInput`: the IR, the parsed `output` anchor, the `banner` lines, the emit options, and the resolved pagination map.
+   Every emitted path is contained under the output directory — a generator (ours or a user's) cannot write outside it.
+4. **The generators** (`generators/<name>/`) render their files; `pipeline.ts` writes them to disk.
 
-## Module map
+## Generator folders
 
-**Where a renderer lives.** `generators/<name>/index.ts` is the entry: it reads the
-options, decides the output paths, and calls a renderer. The renderer itself lives in
-`emitters/`, because that layer already holds the shared pieces every renderer composes
-with — `operation-signature.ts` for the calling convention, `ts-type.ts` for schema
-types, `pagination.ts`, `sse.ts`. `emitters/cli.ts` is there for that reason: `cli`
-renders from it, its `docs` hook renders the reference page from the same command table, and the
-package entry exports its composed-entry renderer.
+Every generator is a self-contained folder ([ADR-0020](./docs/adr/0020-self-contained-generator-folders.md)): `AGENTS.md` (its design, shipped to users as an agent skill), `index.ts` (the entry: `run`/`sample`/`docs`/`options`), and one file per pipeline stage — `naming`, `types`, `models`, `descriptor`, `operations`, `pagination`, `client` — plus `runtime/` where the generator embeds one.
+The skeleton is descriptive, not prescriptive: a generator omits a stage it does not have, and the small satellites keep one `render.ts`.
+An agent that has read `generators/python/` can navigate `generators/typescript/` without re-learning.
 
-The three language SDKs are the exception. `python`, `go`, and `php` compose with
-nothing in `emitters/` — each is one self-contained file in its generator folder, which
-is also what lets `eject-generator` hand a user its source instead of a bundle.
+Sharing has four tiers, and only four — each folder imports its own package by the SAME specifiers an ejected copy uses (a tsconfig `paths` entry resolves them to `src/` in this repo):
 
-| Area       | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Owns                                                                                                                                                                                                                                                                                                                                                                                                           | Depth                                                                                                                               |
-| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Entry      | `index.ts`, `types.ts`, `config.ts`, `config-file.ts`, `plugin.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | `generateClient` orchestration; public option/result types; config loading; the experimental `@redocly/client-generator` entry (`defineGenerator` + IR types + codegen toolkit)                                                                                                                                                                                                                                | thin orchestrator                                                                                                                   |
-| Load       | `loader.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | bundle + `$ref` resolution, preserving internal refs                                                                                                                                                                                                                                                                                                                                                           | deep (hides `openapi-core`)                                                                                                         |
-| IR         | `intermediate-representation/build.ts`, `intermediate-representation/model.ts`, `intermediate-representation/refs.ts`, `intermediate-representation/normalize-swagger2.ts`, `intermediate-representation/sanitize-identifiers.ts`                                                                                                                                                                                                                                                                                                                                                                                                        | OpenAPI → IR; the IR type model; ref collection; Swagger 2.0 → 3.x normalization; coerce document-derived names to safe unique identifiers (security boundary)                                                                                                                                                                                                                                                 | deep (`buildApiModel` + `normalizeSwagger2` each one interface over a whole walk)                                                   |
-| Generators | `generators/index.ts` (registry + `validateGenerators`), `meta.ts` (lazy-load metadata + selection validation), `resolve.ts` (built-in / inline / specifier resolution), `contract.ts` (`GENERATOR_CONTRACT`), `types.ts`, and ONE FOLDER PER GENERATOR — `sdk/`, `zod/`, `tanstack-query/`, `swr/`, `transformers/`, `mock/`, `cli/`, `python/`, `go/`, `php/` — each holding `index.ts` plus its own `AGENTS.md` design skill                                                                                                                                                                                                          | the generator registry seam: each descriptor declares its requires/errorModes/dateTypes/runtimes (plus `notApplicable` options it can't honor) and produces `GeneratedFile[]`; `resolve.ts` turns a selection into a name→descriptor registry. The three language generators are self-contained single files (hence ejectable); the TypeScript ones are thin entries over the shared emitters                  | thin adapters at the `getGenerator` seam ([ADR-0004](./docs/adr/0004-registry-seams.md), [ADR-0012](./docs/adr/0012-plugin-api.md)) |
-| Runtime    | `runtime/types.ts`, `errors.ts`, `url.ts`, `parse.ts`, `retry.ts`, `multipart.ts`, `auth.ts`, `setup.ts`, `send.ts`, `sse.ts`, `create-client.ts`, `index.ts` (the package barrel)                                                                                                                                                                                                                                                                                                                                                                                                                                                       | the client engine as real, unit-testable TypeScript modules: `createClient` builds a typed instance client over operation descriptors, dispatching optional behaviors (multipart, auth, SSE) through a capability seam; the barrel wires the full capability set for package-mode consumers                                                                                                                    | deep (`createClient` is one interface over the whole engine)                                                                        |
-| Emitters   | sdk: `emitters/client-assembly.ts` (assembly + output modes), `render-client.ts` (Ops, `<Op>*` aliases, flat sugar), `descriptor.ts`, `ts-type.ts`/`ts-literal.ts`, `type-guards.ts`, `sse.ts`, `pagination.ts`, `response-headers.ts`, `inline-runtime.ts` + generated `runtime-sources.ts`, `setup-bake.ts`; satellite: `zod.ts`, `transformers.ts`, `tanstack-query.ts`, `swr.ts` (+ shared `wrapper-support.ts`), `mock.ts`/`mock-value.ts`/`faker.ts`/`sample.ts`, `cli.ts`; shared `operation-signature.ts`; private `support.ts`, `jsdoc.ts`, `identifier.ts`; `ts.ts` (the last `typescript` dependency — `--setup` baking only) | IR → TypeScript SOURCE TEXT (templates over `Printer`-style string building, not an AST — see the ADR on the AST removal); `descriptor.ts` emits the pure-data descriptors and the `Ops` type; `sse.ts` is the SSE detection seam; `operation-signature.ts` is the single source of an operation's calling convention; `wrapper-support.ts` is the shared eligibility/param model for `swr` + `tanstack-query` | each emitter is deep (one entry point over hidden bulk); `client-assembly.ts` assembles per-file content                            |
-| Errors     | `errors.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `NotSupportedError`                                                                                                                                                                                                                                                                                                                                                                                            | trivial                                                                                                                             |
+1. **The neutral toolkit** — `@redocly/client-generator`: the IR types, the schema/naming/operation helpers under `authoring/`, the structural `Printer`, and the generator contract types.
+2. **Its own language printer** — `@redocly/client-generator/printers/<language>` (`printers/*.ts`): syntax mechanics with exactly one right answer per language.
+   Never another language's printer.
+3. **The runtime sources** — `@redocly/client-generator/runtime-sources`: prepare-time snapshots (`runtime-sources/*.ts`, generated by `scripts/generate-runtime-sources.mjs`) of each runtime's real sources, for the generators that embed one.
+4. **A required generator's published contract** — `@redocly/client-generator/contracts/typescript` (`contracts/typescript.ts`): the generated SDK's ABI (`operationSignature`, `variablesName`, `sdkCallText`, `wrappableOperations`, `flatInputShape`), imported only along a declared `requires` edge (`swr`, `tanstack-query`, `cli`).
 
-The IR (`intermediate-representation/model.ts`) is a **pure type model** — no runtime code. It is the contract between the
-builder and the emitters ([ADR-0003](./docs/adr/0003-spec-agnostic-ir.md)).
+No relative import may leave a folder; `generators/__tests__/language-dogfooding.test.ts` enforces the tiers for all ten generators.
 
-## Seams
+## Contracts at package level
 
-Places where behavior varies without editing in place:
+Types that both the pipeline and a runtime must agree on are defined once, at package level, and the runtime imports them: `runtime-contract.ts` (the `--setup` surface — `ClientSetup`, `Middleware`, `RetryConfig`, … — plus `PaginationSpec` beside its resolver in `pagination.ts`) and `cli-contract.ts` (the composed-CLI authoring types).
+Because embedded runtime modules must stay self-contained, `scripts/generate-runtime-sources.mjs` splices the contract definitions back into the snapshot text verbatim at prepare time — one definition in the tree, byte-identical embedded output.
 
-- **The `getGenerator` seam** — a generator is `(input) => GeneratedFile[]` (`generators/types.ts`).
-  `generateClient` resolves the configured selection (default `['typescript']`) via `resolveGenerators` (`generators/resolve.ts`) into a name→descriptor registry, then runs them through `collectGeneratedFiles` and merges their files (duplicate output paths throw).
-  A selection entry is a built-in name, the `name` of an inline `customGenerators` entry, or a **plugin import specifier** (path or package, dynamically imported and validated).
-  This is the public, **experimental** extension point — authored with `defineGenerator` from `@redocly/client-generator`, which also re-exports the IR types and the codegen toolkit.
-  Where new capabilities (zod, framework hooks) plug in.
-  See [ADR-0004](./docs/adr/0004-registry-seams.md) and [ADR-0012](./docs/adr/0012-plugin-api.md).
-- **The `getWriter` seam** — `getWriter(outputMode)` maps an output mode to a `Writer`.
-  Two adapters: `single` (the whole client in one file) and `split` (schema types + type guards carved out into a sibling `<stem>.schemas.ts` the entry re-exports).
-  Both delegate to the shared wiring emitter (`emitClientSingleFile` / `emitClientSplit`); where a new file layout plugs in.
-  See [ADR-0004](./docs/adr/0004-registry-seams.md).
-- **The runtime seam** — the client engine is real TypeScript under `src/runtime/`, and the generated wiring (descriptors + `createClient` call + sugar) is identical for both distributions; only the runtime block differs.
-  `runtime: 'package'` emits an import of `createClient` from `@redocly/client-generator` (the barrel, `runtime/index.ts`, wires every capability); `runtime: 'inline'` (default) embeds the runtime sources in its place — a build step (`scripts/generate-runtime-sources.mjs`) snapshots `src/runtime/*.ts` into the tracked, generated `emitters/runtime-sources.ts` (drift-tested), and `emitters/inline-runtime.ts` walks the import graph in dependency order, strips module syntax via the TS AST, and appends a local `createClient` factory wiring **only** the capabilities the API needs.
-- **The capability seam** — `createClient` dispatches optional behaviors through a `Capabilities` object (`runtime/create-client.ts`): `serializeMultipart` (typed multipart bodies), `resolveAuth` (credential injection), `sse` (event streaming).
-  The core never statically imports them, so an inline client embeds only what its spec uses, and a package client gets the full set from the barrel.
-- **Error mode is config, not codegen** — `--error-mode` is baked into the client's initial config; the runtime's `execute` branches on it (throw `ApiError` vs return `Result`), and `configure()` ignores runtime attempts to flip it (the static types are fixed at generate time).
-  See [ADR-0005](./docs/adr/0005-error-mode-terminals.md) for the original decision (the terminals mechanism it describes is superseded).
-- **Response decoding is a runtime concern** — `runtime/parse.ts` decodes the body; the inferred kind comes from the operation descriptor's `responseKind` (a generate-time hint).
-  The per-call `RequestOptions.parseAs` overrides it (e.g. `'stream'` for the raw `ReadableStream`); the static return type is **not** narrowed by `parseAs`, keeping operation signatures stable.
-- **The SSE seam** — an operation whose 2xx response declares `text/event-stream` is a **derived response kind**, detected by `emitters/sse.ts` (`responseKind: 'sse'` on the descriptor) and surfaced as a typed async-generator client method plus the matching free function; the `sse` capability is wired only when a spec streams.
-- **The async-auth seam** — credentials are **per instance** (`ClientConfig.auth`), resolved per request by the `resolveAuth` capability (`runtime/auth.ts`); operations without declared `security` trigger no auth work.
-  The generated `set*` setters are instance-bound sugar over `client.auth.*`.
-  See [ADR-0007](./docs/adr/0007-call-site-auth.md) and [ADR-0009](./docs/adr/0009-per-instance-auth.md).
+## Runtime modes
 
-## Configuration
+`runtime: 'inline'` (default) embeds the runtime into the generated file — only the modules the API needs, assembled by `generators/typescript/inline-runtime.ts` (and each language generator's own stitching) from the stripped snapshots.
+`runtime: 'module'` writes the same sources as real files in a `runtime/` folder beside the generated client, which imports them relatively — deduplication without a package dependency ([ADR-0022](./docs/adr/0022-runtime-inline-or-module.md); the former `package` mode is removed, and the package root exports only the authoring surface).
 
-`generate-client` reads its options from a `client` block in `redocly.yaml`: top-level shared defaults plus per-API overrides under `apis.<name>.client`, with the input as `apis.<name>.root` and the output as `apis.<name>.clientOutput`. CLI flags layer over the config (top-level `client` → per-API `client` → flags).
-The extraction lives in the CLI command, not this package's core.
-See [ADR-0008](./docs/adr/0008-redocly-yaml-config.md).
+## Eject
+
+`redocly eject-generator <name>` copies the generator's source folder into the user's repo as TypeScript, with a provenance header per file and the descriptor default export appended to `index.ts` — no bundling, no import rewriting (`scripts/generate-eject-assets.mjs` builds the assets at prepare time).
+`--update` three-way-merges a newer built-in version into the user's copy per file, fetching the merge base from the version the header records.
+Running a `.ts` generator uses Node's type stripping; the resolver (`generators/resolve.ts`) checks the floor (Node ≥ 22.18 / 23.6) at the point of use.
+The generator's `AGENTS.md` ships alongside as `.claude/skills/<name>-generator/SKILL.md` (`scripts/ejected-skill.mjs`).
+
+## Config
+
+`redocly.yaml` carries the same options as the flags under the `client` block (top-level `client` → per-API `client` → flags); the schema lives in `packages/core`'s `redocly-yaml.ts`.
+See [ADR-0008](./docs/adr/0008-redocly-yaml-config.md) and [ADR-0019](./docs/adr/0019-first-class-client-config.md).
 
 ## What varies
 
-Three orthogonal knobs combine freely:
-
 - **Output mode** (`--output-mode`): `single` · `split` — file layout.
-- **Runtime** (`--runtime`): `inline` · `package` — where the client engine lives.
-- **Args style** (`--args-style`): `flat` · `grouped` — how inputs reach the free functions (the `client` instance's methods are always grouped).
+- **Runtime** (`--runtime`): `inline` · `module` — where the client engine lives.
+- **Args style** (`--args-style`): `flat` · `grouped` — how a call spells its inputs.
+- **Error mode** (`--error-mode`): `throw` · `result`; **date type** (`--date-type`): `string` · `Date`; plus `--server-url` / `--setup` ([ADR-0015](./docs/adr/0015-publisher-setup-bake-in.md)).
+- **`--generator`** selects which generators run (default `typescript`), with per-generator options validated against the schema each generator declares; custom generators load by path or `customGenerators` ([ADR-0012](./docs/adr/0012-plugin-api.md)).
 
-Plus **error mode** (`--error-mode`: `throw` · `result`), **date type** (`--date-type`: `string` · `Date`), and the `--server-url` / `--setup` modifiers.
-Every client exports **both call styles** — the instance and the free functions; args style only shapes the free-function sugar.
+## Test architecture
 
-Orthogonally, **`--generator`** selects which generators run (default `typescript`; plus `zod`, `tanstack-query` (React; `-vue`/`-svelte`/`-solid` variants), `swr`, `transformers`, `mock`, and custom plugins), with per-generator knobs: `--mock-data` (`static` · `faker`) / `--mock-seed` (for `mock`).
+- **Unit tests** (`VITEST_SUITE=unit`) live in `__tests__/` beside their module.
+  Rendering is covered by output-string assertions; the language suites additionally compile their output for real (`py_compile`, `go build`, `php -l`).
+- **E2E tests** (`VITEST_SUITE=client-generators`, under `tests/e2e/generate-client/`) generate real clients, type-check them under strict `tsc`, run them against local mock servers, and pin the headline guarantee: an ejected-unmodified generator produces byte-identical output.
+- **Guard tests** pin the architecture itself: `language-dogfooding.test.ts` (the import tiers), `pipeline-ts-free.test.ts` (the pipeline's static graph reaches no generator folder and no `typescript`), `runtime-embed-freshness.test.ts` and the `runtime-sources` suites (snapshots track the real sources; the contract splice is byte-exact), and `generator-skills.test.ts` (every generator ships a skill).
 
-## Test architeture
-
-- **Unit tests** (`VITEST_SUITE=unit`) live in `__tests__/` beside source.
-  This package is held to **100% per-file coverage**.
-  The IR builder, ref collection, writers, and each emitter are tested directly through their interfaces, sharing `__tests__/fixtures.ts`; the emitters are largely covered by output-string assertions.
-- **E2E tests** (`VITEST_SUITE=e2e`, under `tests/e2e/generate-client/`) generate a client, type-check it under strict `tsc` (`--noUnusedLocals`), and — for behavioral cases — run it against a local mock server.
-- **The runtime** is real modules (`src/runtime/`) with direct unit tests; its end-to-end behavior (retry, abort, body serialization, query building, SSE reconnection) is also exercised through the e2e path, and a drift test keeps the generated `emitters/runtime-sources.ts` snapshot in lockstep with the sources.
-
-Tests run from a single root `vitest.config.ts`; there are no per-package vitest configs.
-Compile (`npm run compile`) before running tests — they run against built output.
+Compile (`npm run compile`) before running tests, and `npm run prepare -w @redocly/client-generator` after changing runtime sources or eject assets.
 
 ## How to add things
 
-- **A new output mode** — add the literal to `OutputMode` (`writers/types.ts`), write a `Writer` over the shared wiring emitter, and register it in the `WRITERS` map (`writers/index.ts`).
-  Wire the CLI choice in the `generate-client` command.
-- **A new schema kind** — add the variant to `SchemaModel` (`intermediate-representation/model.ts`), produce it in `intermediate-representation/build.ts`, render it in `tsType` (`emitters/ts-type.ts`), and cover it in each language generator's type mapper (`generators/<lang>/index.ts`).
-- **A new runtime capability** — add a module under `src/runtime/`, thread it through the `Capabilities` seam (`runtime/create-client.ts`), wire it in the barrel (`runtime/index.ts`), list it in `scripts/generate-runtime-sources.mjs`, and teach `emitters/inline-runtime.ts` when to embed it (a new `InlineRuntimeNeeds` flag).
-  Run `npm run compile` to regenerate the `runtime-sources.ts` snapshot.
-- **A new wrapper generator** (a framework adapter that forwards to the sdk functions) — reuse `emitters/wrapper-support.ts` for operation eligibility (SSE / `<Op>Variables`-collision skips) and the `vars`/`init` parameter shape, and derive the forwarding call's argument order and `<Op>Variables` naming from `operationSignature` (`emitters/operation-signature.ts`), the same source the sdk's parameter list uses, so the wrappers cannot drift.
-  Declare its compatibility contract (`requires`/`errorModes`/`dateTypes`/`runtimes`, plus `notApplicable` for options it cannot honor) in `generators/meta.ts`, and give it a folder with an `AGENTS.md` design skill (a guard test enforces this).
+- **A new schema kind** — add the variant to `SchemaModel` (`intermediate-representation/model.ts`), produce it in `intermediate-representation/build.ts`, and cover it in each generator's `types` stage.
+- **A new runtime capability** — add a module under `generators/typescript/runtime/`, thread it through the capabilities seam (`runtime/create-client.ts`), list it in `scripts/generate-runtime-sources.mjs`, and teach `inline-runtime.ts` when to embed it; then `npm run prepare` regenerates the snapshot.
+- **A new wrapper generator** — reuse `@redocly/client-generator/contracts/typescript` for operation eligibility and the calling convention, declare its contract (`requires`/`errorModes`/`dateTypes`) in `generators/meta.ts`, and give it a folder with an `AGENTS.md` design skill (a guard test enforces this).
   See [ADR-0011](./docs/adr/0011-wrapper-generators.md).
-- **A new mock data source** — the `mock` generator's data comes from `emitters/sample.ts` (baked literals) or `emitters/faker.ts` (faker calls), selected by `--mock-data`; both walk the IR with the same cycle semantics.
-  See [ADR-0010](./docs/adr/0010-mock-data-baked-vs-faker.md).
-- **A custom generator (plugin, experimental)** — author `{ name, run }` with `defineGenerator` from the `@redocly/client-generator` entry (it also exports the IR types and the codegen toolkit); select it in `generators` by inline `customGenerators` name or by import specifier.
-  No core change is needed — `resolve.ts` loads and validates it.
+- **A new language generator** — a folder authored ONLY with the neutral toolkit and its own printer, following the stage skeleton; the dogfooding guard holds it to the same tiers users' generators get.
+- **A custom generator (plugin, experimental)** — author `{ name, run }` with `defineGenerator` from the package root; no core change is needed — `generators/resolve.ts` loads and validates it.
   See [ADR-0012](./docs/adr/0012-plugin-api.md).
 
 ## Keep this current
 
-Update this file when the **pipeline** stages, the **seams**, or the **module map** change — not for routine feature work within an existing module.
+Update this file when the **pipeline** stages, the **seams**, or the **folder layout** change — not for routine feature work within an existing folder.
 Keep it **descriptive**.
 When you make a significant, hard-to-reverse decision, record it as a new ADR in [`docs/adr/`](./docs/adr/) (don't rewrite an existing ADR — supersede it), and link the relevant seam here to it.

@@ -1,6 +1,13 @@
-import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
+import { apiModel, operation } from '../../__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { tanstackQueryGenerator } from '../tanstack-query/index.js';
+import { tanstackQueryGenerator as tanstackQueryGeneratorEntry } from '../tanstack-query/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const tanstackQueryGenerator =
+  (framework: Parameters<typeof tanstackQueryGeneratorEntry>[0]) =>
+  (input: Parameters<typeof generatorInput>[0]) =>
+    tanstackQueryGeneratorEntry(framework)(generatorInput(input));
 
 const SERVICES = [
   {
@@ -51,12 +58,12 @@ describe('tanstackQueryGenerator', () => {
 
   it('binds the framework per registry name — bare tanstack-query stays React', () => {
     const registry = builtinGenerators();
-    const input = {
+    const input = generatorInput({
       model: apiModel({ services: SERVICES }),
       outputPath: '/tmp/out/client.ts',
       outputMode: 'single' as const,
       emit: {},
-    };
+    });
     const importOf = (name: string) =>
       registry
         .get(name)!

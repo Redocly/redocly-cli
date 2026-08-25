@@ -73,8 +73,10 @@ $idempotencyKey` on mutating methods.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   curl timeouts, middleware callables, pagination (`<op>Pages()` / `<op>Items()` as
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.
-- The runtime is hand-written in `runtime/php/runtime.php` (`php -l`-clean) and embedded
+- The runtime is hand-written in `runtime/runtime.php` in this folder (`php -l`-clean) and embedded
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
+  Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
+  with its namespace rewritten to the client's so one namespace spans both files.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 ## Migrating from a service-based SDK
@@ -102,7 +104,7 @@ $idempotencyKey` on mutating methods.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change `index.ts` (and `runtime/php/runtime.php` for runtime behavior; `php -l` it,
+2. Change `index.ts` (and `runtime/runtime.php` for runtime behavior; `php -l` it,
    then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
    `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/php.test.ts`

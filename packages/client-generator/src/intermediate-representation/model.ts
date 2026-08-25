@@ -227,6 +227,20 @@ export type OperationModel = {
    * extensions are untyped). Validated by the pagination emitter, not the IR.
    */
   paginationExtension?: unknown;
+  /**
+   * Present exactly when the operation streams Server-Sent Events (a `text/event-stream`
+   * success response). Computed once by the IR builder so no generator re-derives it:
+   * the per-event schema (OpenAPI 3.2 `itemSchema` over the response `schema`; absent
+   * when typeless — the payload types as a string) and whether the runtime should
+   * `JSON.parse` each `data:` payload.
+   */
+  sse?: SseModel;
+};
+
+/** An SSE operation's streaming facts (see `OperationModel.sse`). */
+export type SseModel = {
+  eventSchema?: SchemaModel;
+  dataKind: 'json' | 'text';
 };
 
 export type ServiceModel = {

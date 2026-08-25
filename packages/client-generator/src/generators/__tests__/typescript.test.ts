@@ -1,6 +1,11 @@
-import { HEADER } from '../../emitters/emit-options.js';
 import type { ApiModel } from '../../intermediate-representation/model.js';
-import { typescriptGenerator } from '../typescript/index.js';
+import { HEADER } from '../typescript/banner.js';
+import { typescriptGenerator as typescriptGeneratorEntry } from '../typescript/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const typescriptGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  typescriptGeneratorEntry(generatorInput(input));
 
 function apiModel(): ApiModel {
   return {

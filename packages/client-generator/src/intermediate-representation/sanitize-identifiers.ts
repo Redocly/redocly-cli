@@ -1,8 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
-import { isSafeIdentifier, sanitizeIdentifier } from '../emitters/identifier.js';
-import { reservedModuleNames } from '../emitters/reserved-names.js';
-import { pascalCase } from '../emitters/support.js';
+import { isSafeIdentifier, pascalCase, sanitizeIdentifier } from '../printers/typescript.js';
+import { reservedModuleNames } from '../reserved-names.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
 
 /**

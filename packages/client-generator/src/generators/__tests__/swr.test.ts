@@ -1,6 +1,11 @@
-import { apiModel, operation } from '../../emitters/__tests__/fixtures.js';
+import { apiModel, operation } from '../../__tests__/fixtures.js';
 import { builtinGenerators } from '../index.js';
-import { swrGenerator } from '../swr/index.js';
+import { swrGenerator as swrGeneratorEntry } from '../swr/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const swrGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  swrGeneratorEntry(generatorInput(input));
 
 const SERVICES = [
   {
@@ -41,6 +46,6 @@ describe('swrGenerator', () => {
   });
 
   it('is registered under "swr"', () => {
-    expect(builtinGenerators().get('swr')?.run).toBe(swrGenerator);
+    expect(builtinGenerators().get('swr')?.run).toBe(swrGeneratorEntry);
   });
 });

@@ -1,4 +1,3 @@
-import type { EmitOptions } from '../emitters/emit-options.js';
 import { cliDocs, cliGenerator, cliSample } from './cli/index.js';
 import { goDocs, goGenerator, goSample } from './go/index.js';
 import { BUILTIN_META, validateSelection, type BuiltinMeta } from './meta.js';
@@ -8,7 +7,7 @@ import { pythonDocs, pythonGenerator, pythonSample } from './python/index.js';
 import { swrGenerator } from './swr/index.js';
 import { tanstackQueryGenerator } from './tanstack-query/index.js';
 import { transformersGenerator } from './transformers/index.js';
-import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
+import type { EmitOptions, GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 import { typescriptDocs, typescriptGenerator, typescriptSample } from './typescript/index.js';
 import { zodGenerator } from './zod/index.js';
 

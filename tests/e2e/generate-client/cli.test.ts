@@ -1,5 +1,5 @@
 import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -78,6 +78,36 @@ describe('generate-client cli generator (end-to-end)', () => {
     if (serverProcess) await killServer(serverProcess);
     rmSync(clientDir, { recursive: true, force: true });
     rmSync(stripDir, { recursive: true, force: true });
+  });
+
+  it('--runtime module writes runtime/cli.ts and the entry runs through it', () => {
+    const moduleDir = join(consumerDir, 'client-module');
+    rmSync(moduleDir, { recursive: true, force: true });
+    generate(fixture, join(moduleDir, 'client.ts'), [
+      '--generator',
+      'typescript',
+      '--generator',
+      'zod',
+      '--generator',
+      'cli',
+      '--runtime',
+      'module',
+    ]);
+    writeFileSync(join(moduleDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
+    try {
+      const entry = readFileSync(join(moduleDir, 'client.cli.ts'), 'utf-8');
+      expect(entry).toContain('from "./runtime/cli.js"');
+      expect(entry).not.toContain('function parseInvocation');
+      expect(existsSync(join(moduleDir, 'runtime', 'cli.ts'))).toBe(true);
+      const help = spawnSync(tsxBin, [join(moduleDir, 'client.cli.ts'), '--help'], {
+        cwd: moduleDir,
+        encoding: 'utf-8',
+      });
+      expect(help.status, help.stderr).toBe(0);
+      expect(help.stdout).toContain('Usage:');
+    } finally {
+      rmSync(moduleDir, { recursive: true, force: true });
+    }
   });
 
   it('generates client.cli.ts and strict tsc (types: node) accepts it', () => {

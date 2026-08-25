@@ -1,13 +1,13 @@
 ---
 name: php-generator
-description: Design of the ejected Redocly `php` client generator. Read it, and update it, before changing generators/php.mjs.
+description: Design of the ejected Redocly `php` client generator. Read it, and update it, before changing generators/php/.
 ---
 
 # The `php` generator — its skill
 
-This file is the DESIGN of your ejected `php` generator (`generators/php.mjs`):
+This file is the DESIGN of your ejected `php` generator (`generators/php/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/php.mjs` that has no covering sentence here is incomplete.
+to `generators/php/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -74,8 +74,10 @@ $idempotencyKey` on mutating methods.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   curl timeouts, middleware callables, pagination (`<op>Pages()` / `<op>Items()` as
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.
-- The runtime is hand-written in `runtime/php/runtime.php` (`php -l`-clean) and embedded
+- The runtime is hand-written in `runtime/runtime.php` in this folder (`php -l`-clean) and embedded
   at prepare time. `curl_close` is never called (deprecated since PHP 8.5, no-op since 8.0).
+  Under `--runtime module` it is written as a `runtime.php` the client `require_once`s,
+  with its namespace rewritten to the client's so one namespace spans both files.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 ## Migrating from a service-based SDK
@@ -103,7 +105,7 @@ $idempotencyKey` on mutating methods.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/php.mjs` match it.
+2. Make `generators/php/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

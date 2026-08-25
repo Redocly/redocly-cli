@@ -1,5 +1,10 @@
-import { apiModel, namedSchema, operation, response } from '../../emitters/__tests__/fixtures.js';
-import { mockGenerator } from '../mock/index.js';
+import { apiModel, namedSchema, operation, response } from '../../__tests__/fixtures.js';
+import { mockGenerator as mockGeneratorEntry } from '../mock/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const mockGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  mockGeneratorEntry(generatorInput(input));
 
 describe('mockGenerator', () => {
   it('returns [] for a model with no operations', () => {

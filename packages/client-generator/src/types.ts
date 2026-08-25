@@ -1,8 +1,7 @@
 import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
 
-import type { ArgsStyle } from './emitters/emit-options.js';
-import type { PaginationConfig } from './emitters/pagination.js';
-import type { CustomGenerator, OutputMode } from './generators/types.js';
+import type { ArgsStyle, CustomGenerator, OutputMode } from './generators/types.js';
+import type { PaginationConfig } from './pagination.js';
 
 export type GenerateClientOptions = {
   /** Path or URL to the OpenAPI description (or an `apis:` alias from `redocly.yaml`). */
@@ -82,8 +81,9 @@ export type GenerateClientOptions = {
    * across all output modes.
    */
   setup?: string;
-  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
-  runtime?: 'inline' | 'package';
+  /** Runtime distribution: `'inline'` (default) embeds the runtime in the generated
+   * file; `'module'` writes it as real files in a `runtime/` folder beside the client. */
+  runtime?: 'inline' | 'module';
   /** Extension in generated relative imports. `'js'` (default) suits tsc and bundlers;
    * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
    * type stripping (`node client.ts`). */

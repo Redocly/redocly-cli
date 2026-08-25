@@ -22,21 +22,26 @@ A standalone MSW module: `create<Name>()` data factories, `<op>Handler()` /
 - Handlers are opt-in overrides: `<op>ErrorHandler` is NOT in `handlers`.
 - The module references the sdk's TYPES only — never its runtime.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/mock.ts`, `mock-value.ts` (data trees), `faker.ts`, `sample.ts`.
+`render.ts` assembles the module (factories, handlers, the `handlers` array);
+`sample.ts` bakes deterministic sample values from the schema, `values.ts` renders the
+data trees, and `faker.ts` emits the faker-mode expressions. `index.ts` is the entry.
 
 ## Ejecting it
 
-`redocly eject-generator mock` ships this generator BUNDLED with the emitter it uses — one
-small `.mjs` you own, importing `@redocly/client-generator` and `@redocly/openapi-core`.
-Change the data strategy, the handler shape, or the factory surface, and regenerate.
+`redocly eject-generator mock` copies this generator's TypeScript source folder to
+`generators/mock/`, exactly as we wrote it, importing `@redocly/client-generator`,
+`@redocly/client-generator/printers/typescript`, and `@redocly/openapi-core`. Running a
+`.ts` generator uses Node's type stripping (Node 22.18, 23.6, or newer); newer built-in
+versions merge in per file with `--update`. Change the data strategy, the handler shape,
+or the factory surface, and regenerate.
 
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Change the emitter modules named above (the entry is plumbing — it rarely moves).
-3. Verify: `npm run compile`, the emitter unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/emitters`), the e2e
-   suites for this generator, and the large-description bars
+2. Change the stage files named above (the entry is plumbing — it rarely moves).
+3. Verify: `npm run compile`, the folder's unit suites
+   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/mock`),
+   the e2e suites for this generator, and the large-description bars
    (`tests/e2e/generate-client/large-descriptions.test.ts`).

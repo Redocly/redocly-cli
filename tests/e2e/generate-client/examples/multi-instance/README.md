@@ -1,13 +1,9 @@
 # multi-instance example
 
-Per-tenant client instances from one generated module: `createClient` (from
-`@redocly/client-generator`) plus the generated `OPERATIONS` descriptors and
-`Ops`/`OperationId`/… types build one isolated instance per tenant — each with its own
-`serverUrl`, bearer token, and middleware.
-
-The generated module exports `createClient` in **both runtimes**, so the same pattern
-works with the default `inline` mode (import it from the generated file instead). This
-example uses `runtime: package` to also show the factory coming from the installed package.
+Per-tenant client instances from one generated module: the generated `createClient`
+factory plus the `OPERATIONS` descriptors and `Ops`/`OperationId`/… types build one
+isolated instance per tenant — each with its own `serverUrl`, bearer token, and
+middleware. Everything comes from the generated file; nothing is module-global.
 
 ## Run
 

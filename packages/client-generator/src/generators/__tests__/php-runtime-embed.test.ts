@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { PHP_RUNTIME_SOURCE } from '../../emitters/php-runtime-sources.js';
+import { PHP_RUNTIME_SOURCE } from '../../runtime-sources/php.js';
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const hasPhp = spawnSync('php', ['--version']).status === 0;
@@ -27,7 +27,7 @@ describe('PHP_RUNTIME_SOURCE (the embedded PHP runtime)', () => {
 
   it.skipIf(!hasPhp)('the runtime module passes php -l', () => {
     const result = spawnSync('php', ['-l', 'runtime.php'], {
-      cwd: join(pkgRoot, 'runtime', 'php'),
+      cwd: join(pkgRoot, 'src', 'generators', 'php', 'runtime'),
       encoding: 'utf-8',
     });
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);

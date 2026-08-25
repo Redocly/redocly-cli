@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `eject-generator` command copies a built-in client generator into your repository as an editable file.
+The `eject-generator` command copies a built-in client generator into your repository as editable source.
 You own the ejected generator and can customize it.
 The generated client stays generated and reproducible.
 Do not edit it manually.
@@ -29,23 +29,20 @@ redocly eject-generator php --force
 | ---------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------- |
 | generator  | string  | The built-in generator to eject.                                                                                                   |
 | `--config` | string  | The path to the config file.                                                                                                       |
-| `--dir`    | string  | The directory that receives the ejected files. Default: `./generators`.                                                            |
+| `--dir`    | string  | The directory that receives the ejected copy. Default: `./generators`.                                                             |
 | `--update` | boolean | Do a three-way merge of the current built-in version into your customized copy. The command marks conflicts with standard markers. |
-| `--force`  | boolean | Overwrite an existing ejected file and discard the local edits.                                                                    |
+| `--force`  | boolean | Overwrite an existing ejected copy and discard the local edits.                                                                    |
 
 ## How it works
 
-The eject operation writes two files:
+The eject operation writes the generator and its design:
 
-- `<dir>/<name>.mjs` is the generator itself, as a plain ESM file that you own.
-  The file contains everything that it needs to run standalone.
-  A language generator (`python`, `go`, `php`) is one self-contained file.
-  You get its source exactly as it was written.
-  A TypeScript generator is a thin entry point that uses shared emitters, so you get it bundled together with those emitters.
-  The bundle is not minified, and a comment marks each source module.
+- Every generator ejects as `<dir>/<name>/` — its TypeScript source folder, exactly as it was written.
+  Each concern of the generator is one file, and `index.ts` is the entry.
+  Running an ejected generator uses Node's own type stripping, which requires Node 22.18, 23.6, or newer.
 
-  In both cases, the file imports the authoring toolkit from `@redocly/client-generator`.
-  A bundled generator also imports `logger` and `isPlainObject` from `@redocly/openapi-core`, which is a dependency of the toolkit.
+  The generator imports the authoring toolkit from `@redocly/client-generator`.
+  Some generators also import `logger` or `isPlainObject` from `@redocly/openapi-core`, which is a dependency of the toolkit; the command tells you when yours does.
   If your package manager does not hoist dependencies, add `@redocly/openapi-core` explicitly.
 
 - `.claude/skills/<name>-generator/SKILL.md` is the design of the generator, written as an agent skill.
@@ -65,17 +62,17 @@ The command keeps everything that you add outside the markers in that file.
 
 The eject command also configures your project.
 It adds `@redocly/client-generator` to your `devDependencies` if the package is not there.
-It also points your config at the ejected file: in `client.generators`, the path to your copy replaces the built-in name.
+It also points your config at the ejected copy: in `client.generators`, the path to your copy replaces the built-in name.
 If the config has no `client.generators` list yet, the command adds one.
 
 ```yaml
 client:
   generators:
-    - ./generators/python.mjs
+    - ./generators/python/index.ts
 ```
 
 If you leave the ejected generator unmodified, its output is byte-identical to the output of the built-in generator.
-To roll back, delete the file and the config line.
+To roll back, delete the ejected copy and the config line.
 
 ## Run the ejected generator
 
@@ -85,21 +82,21 @@ Generation is the same command as before the eject, because the config now point
 redocly generate-client openapi.yaml --output src/client.ts
 ```
 
-If you did not wire the config, name the file with `--generator`:
+If you did not wire the config, name your copy with `--generator`:
 
 ```sh
-redocly generate-client openapi.yaml --output src/client.ts --generator ./generators/python.mjs
+redocly generate-client openapi.yaml --output src/client.ts --generator ./generators/python/index.ts
 ```
 
 The command reports a generator that takes over a built-in name, so you can see that your copy is the one that runs.
-Edit the file and run the command again to see the change.
+Edit your copy and run the command again to see the change.
 The eject command prints these instructions as well.
 
 ## Update an ejected generator
 
 The `redocly eject-generator <name> --update` command merges a newer version into your copy.
 That version is the one shipped by your installed `@redocly/client-generator` package.
-The three-way merge uses the version recorded in the header of the ejected file as the common ancestor.
+The three-way merge uses the version recorded in the header of each ejected file as the common ancestor, and a folder generator merges file by file.
 Because of this, you do not have to commit extra files, and there is no snapshot to keep in sync.
 
 The command merges the two skills in the same way, so an update keeps the design notes that you added to them.

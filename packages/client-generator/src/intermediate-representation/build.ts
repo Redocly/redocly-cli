@@ -28,6 +28,7 @@ import type {
   PropertyModel,
   RequestBodyModel,
   ResponseBodyModel,
+  SseModel,
   ResponseHeaderModel,
   ScalarKind,
   SchemaMetadata,
@@ -538,6 +539,8 @@ function buildOperation(
   const extensions = operation as unknown as Record<string, unknown>;
   const paginationExtension = extensions['x-redoclyPagination'];
 
+  const sse = sseFromResponses(successResponses);
+
   return {
     name,
     method,
@@ -555,7 +558,36 @@ function buildOperation(
     security,
     tags: Array.isArray(operation.tags) ? operation.tags.filter((t) => typeof t === 'string') : [],
     ...(paginationExtension !== undefined ? { paginationExtension } : {}),
+    ...(sse === undefined ? {} : { sse }),
   };
+}
+
+/**
+ * The operation's SSE facts, from its `text/event-stream` success response (exact media
+ * type, parameters and case ignored). The event schema prefers the 3.2 `itemSchema` over
+ * the response `schema`, skipping typeless slots; structured kinds stream as JSON,
+ * scalar-ish ones as raw text.
+ */
+export function sseFromResponses(successResponses: ResponseBodyModel[]): SseModel | undefined {
+  const response = successResponses.find(
+    (candidate) => candidate.contentType.split(';')[0].trim().toLowerCase() === 'text/event-stream'
+  );
+  if (response === undefined) return undefined;
+  const declared =
+    response.itemSchema && response.itemSchema.kind !== 'unknown'
+      ? response.itemSchema
+      : response.schema.kind !== 'unknown'
+        ? response.schema
+        : undefined;
+  if (declared === undefined) return { dataKind: 'text' };
+  const streamsJson =
+    declared.kind === 'object' ||
+    declared.kind === 'ref' ||
+    declared.kind === 'array' ||
+    declared.kind === 'record' ||
+    declared.kind === 'union' ||
+    declared.kind === 'intersection';
+  return { eventSchema: declared, dataKind: streamsJson ? 'json' : 'text' };
 }
 
 function buildParameter(param: Oas3Parameter, location: string, doc: Oas3Definition): ParamModel {

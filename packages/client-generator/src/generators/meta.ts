@@ -5,9 +5,8 @@
 
 import { logger } from '@redocly/openapi-core';
 
-import type { EmitOptions } from '../emitters/emit-options.js';
 import { NotSupportedError } from '../errors.js';
-import type { GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
+import type { EmitOptions, GeneratorDescriptor, GeneratorName, OutputMode } from './types.js';
 
 export type BuiltinMeta = Omit<GeneratorDescriptor, 'run' | 'sample' | 'docs'> & {
   load: () => Promise<Pick<GeneratorDescriptor, 'run' | 'sample' | 'docs'>>;
@@ -151,7 +150,6 @@ export function validateSelection(
   }
   const errorMode = emit.errorMode ?? 'throw';
   const dateType = emit.dateType ?? 'string';
-  const runtime = emit.runtime ?? 'inline';
   for (const name of names) {
     const descriptor = registry.get(name);
     if (!descriptor) {
@@ -173,11 +171,6 @@ export function validateSelection(
     if (descriptor.dateTypes && !descriptor.dateTypes.includes(dateType)) {
       throw new NotSupportedError(
         `The "${name}" generator requires --date-type ${descriptor.dateTypes.join(' or ')} (got "${dateType}") so the runtime values match the generated types.`
-      );
-    }
-    if (descriptor.runtimes && !descriptor.runtimes.includes(runtime)) {
-      throw new NotSupportedError(
-        `The "${name}" generator does not support runtime "${runtime}" (supported: ${descriptor.runtimes.join(', ')}).`
       );
     }
     // An option this generator can't apply is announced, not silently dropped. Only an

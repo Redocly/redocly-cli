@@ -1,17 +1,11 @@
 // multi-instance — one generated module, many isolated client instances.
 //
-// The generated file exports the raw wiring — the `OPERATIONS` descriptors and the
-// `Ops`/`OperationId`/`OperationPath`/`OperationTag` types — alongside its default
-// `client`. With `runtime: package`, `createClient` is imported from
-// `@redocly/client-generator`, so an app can build one instance per tenant, each
-// with its own `serverUrl`, credentials, and middleware — nothing is module-global.
-//
-// (The generated module exports `createClient` in BOTH runtimes, so the same
-// pattern works with the default `inline` mode too — this example uses
-// `runtime: package` to also demonstrate importing the factory from the package.)
-import { createClient } from '@redocly/client-generator';
-
+// The generated file exports the raw wiring — the `createClient` factory, the
+// `OPERATIONS` descriptors, and the `Ops`/`OperationId`/`OperationPath`/`OperationTag`
+// types — alongside its default `client`, so an app can build one instance per tenant,
+// each with its own `serverUrl`, credentials, and middleware — nothing is module-global.
 import {
+  createClient,
   OPERATIONS,
   type OperationId,
   type OperationPath,

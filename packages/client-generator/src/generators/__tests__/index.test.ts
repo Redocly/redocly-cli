@@ -77,7 +77,7 @@ describe('validateGenerators', () => {
     const warn = vi.spyOn(logger, 'warn').mockImplementation(() => {});
     try {
       // `outputMode` travels beside `emit`, hence the trailing argument.
-      validateGenerators(['php'], { runtime: 'package', argsStyle: 'grouped' }, undefined, 'split');
+      validateGenerators(['php'], { runtime: 'inline', argsStyle: 'grouped' }, undefined, 'split');
       const messages = warn.mock.calls.map(([message]) => message).join('');
       expect(messages).toContain('the "php" generator ignores outputMode');
       expect(messages).toContain('the "php" generator ignores runtime');
@@ -92,7 +92,7 @@ describe('validateGenerators', () => {
       warn.mockClear();
       validateGenerators(
         ['typescript'],
-        { runtime: 'package', argsStyle: 'grouped' },
+        { runtime: 'inline', argsStyle: 'grouped' },
         undefined,
         'split'
       );
@@ -133,38 +133,6 @@ describe('swr generator', () => {
 
   it('accepts sdk + swr with the default error-mode', () => {
     expect(() => validateGenerators(['typescript', 'swr'], {})).not.toThrow();
-  });
-});
-
-describe('validateGenerators — runtime compatibility', () => {
-  /** A registry with one runtimes-restricted generator (no built-in restricts runtimes anymore). */
-  function registryWith(runtimes: ('inline' | 'package')[]) {
-    const registry = builtinGenerators();
-    registry.set('inline-only', { run: () => [], runtimes });
-    return registry;
-  }
-
-  it('rejects a runtimes-restricted generator with runtime: package, naming both', () => {
-    expect(() =>
-      validateGenerators(['inline-only'], { runtime: 'package' }, registryWith(['inline']))
-    ).toThrow(/"inline-only".*runtime "package".*inline/);
-  });
-
-  it('accepts a runtimes-restricted generator when the runtime matches (or is defaulted)', () => {
-    expect(() =>
-      validateGenerators(['inline-only'], { runtime: 'inline' }, registryWith(['inline']))
-    ).not.toThrow();
-    expect(() => validateGenerators(['inline-only'], {}, registryWith(['inline']))).not.toThrow();
-  });
-
-  it('accepts the wrapper generators with runtime: package (no longer restricted)', () => {
-    expect(() =>
-      validateGenerators(
-        ['typescript', 'tanstack-query', 'swr'],
-        { runtime: 'package' },
-        builtinGenerators()
-      )
-    ).not.toThrow();
   });
 });
 

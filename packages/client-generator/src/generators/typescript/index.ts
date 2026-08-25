@@ -1,11 +1,14 @@
+import {
+  type CodeSample,
+  type Generator,
+  type OperationModel,
+  renderReferencePage,
+  type SampleContext,
+} from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderReferencePage } from '../../authoring/reference-page.js';
-import { emitClientSingleFile, emitClientSplit } from '../../emitters/client-assembly.js';
-import { packageIdents } from '../../emitters/descriptor.js';
-import type { OperationModel } from '../../intermediate-representation/model.js';
-import { anchor } from '../anchor.js';
-import type { CodeSample, Generator, SampleContext } from '../types.js';
+import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client.ts';
+import { packageIdents } from './descriptor.ts';
 
 /**
  * The default generator: the full typed client (model types + runtime + endpoints).
@@ -16,18 +19,24 @@ import type { CodeSample, Generator, SampleContext } from '../types.js';
  * const-objects, type guards; skipped when the document declares no schemas) and
  * `<stem>.ts` (everything else, which `export *`s the schemas module).
  */
-export const typescriptGenerator: Generator = ({ model, outputPath, outputMode, emit }) => {
+export const typescriptGenerator: Generator = ({ model, output, outputMode, emit }) => {
+  // `runtime: 'module'` adds the per-needs runtime files beside the client.
+  const runtime = emitRuntimeFiles(model, emit).map(({ name, content }) => ({
+    path: join(output.dir, 'runtime', name),
+    content,
+  }));
   if (outputMode === 'split') {
-    const { dir, stem } = anchor(outputPath);
+    const { dir, stem } = output;
     const { entry, schemas } = emitClientSplit(model, emit, stem);
     return [
       ...(schemas === undefined
         ? []
         : [{ path: join(dir, `${stem}.schemas.ts`), content: schemas }]),
-      { path: outputPath, content: entry },
+      { path: output.path, content: entry },
+      ...runtime,
     ];
   }
-  return [{ path: outputPath, content: emitClientSingleFile(model, emit) }];
+  return [{ path: output.path, content: emitClientSingleFile(model, emit) }, ...runtime];
 };
 
 /**
@@ -35,9 +44,9 @@ export const typescriptGenerator: Generator = ({ model, outputPath, outputMode, 
  * `typescriptSample` below, so the page shows the calling convention this run generated —
  * `argsStyle` included.
  */
-export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
+export const typescriptDocs: Generator = ({ model, output, emit, pagination }) => [
   {
-    path: outputPath.replace(/\.[^.\\/]+$/, '.typescript.md'),
+    path: output.path.replace(/\.[^.\\/]+$/, '.typescript.md'),
     content: renderReferencePage(model, {
       title: `${model.title} TypeScript client reference`,
       frontmatter: emit.docsFrontmatter === true,
@@ -47,8 +56,8 @@ export const typescriptDocs: Generator = ({ model, outputPath, emit }) => [
         fence: 'typescript',
         requires: 'The client has no dependencies.',
       },
-      sample: (op) => typescriptSample(op, { model, emit, outputPath }),
-      pagination: emit.pagination,
+      sample: (op) => typescriptSample(op, { model, emit, outputPath: output.path }),
+      paginated: new Set(pagination?.keys() ?? []),
     }),
   },
 ];

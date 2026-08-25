@@ -18,6 +18,17 @@ export {
   type ReferencePageOptions,
 } from './reference-page.js';
 export {
+  isMultipartBody,
+  jsonSuccessSchema,
+  paginationItemSchema,
+  securityRequirements,
+  serverUrlParts,
+  sseResponse,
+  type SecurityRequirement,
+  type ServerUrlPart,
+} from './operation.js';
+export {
+  deref,
   discriminatorCases,
   docText,
   enumValues,
@@ -36,7 +47,14 @@ export const AUTHORING_HELPER_NAMES = [
   'uniqueIdentifiers',
   'RESERVED_WORDS',
   'flattenAllOf',
+  'deref',
   'discriminatorCases',
+  'jsonSuccessSchema',
+  'sseResponse',
+  'isMultipartBody',
+  'serverUrlParts',
+  'securityRequirements',
+  'paginationItemSchema',
   'isNullable',
   'unwrapNullable',
   'enumValues',

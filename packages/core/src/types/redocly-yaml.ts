@@ -377,7 +377,7 @@ const Client: NodeType = {
     argsStyle: { enum: ['flat', 'grouped'] },
     serverUrl: { type: 'string' },
     outputMode: { enum: ['single', 'split'] },
-    runtime: { enum: ['inline', 'package'] },
+    runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
     goPackage: { type: 'string' },
     cliOutput: { type: 'string' },

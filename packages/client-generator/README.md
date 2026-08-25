@@ -11,7 +11,7 @@ See https://github.com/Redocly/redocly-cli for the full project.
 The generated client uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`), so by default it is a single self-contained file with zero runtime dependencies that runs in browsers, Node ≥ 18, Bun, Deno, and edge runtimes.
 (Running the generator itself requires the Node version in this package's `engines` field.)
 Code is produced through the TypeScript compiler AST, not string templates; `typescript` is the only peer dependency — optional, needed only when you run generation, and it must be 6.x there (TypeScript 7's native compiler has no compiler API).
-Apps that only consume a package-runtime client don't need it at all, and can compile the generated code with any TypeScript, including 7.
+Apps that only consume a generated client don't need it at all, and can compile the generated code with any TypeScript, including 7.
 
 This package is the engine behind the [`generate-client` command](https://redocly.com/docs/cli/commands/generate-client) — install [`@redocly/cli`](https://www.npmjs.com/package/@redocly/cli) to run it from the command line or `redocly.yaml`.
 How to use the generated client — auth, middleware, retries, pagination, Server-Sent Events, and the add-on generators (`zod`, `tanstack-query`, `swr`, `mock`, `transformers`) — is documented in [Use the generated client](https://redocly.com/docs/cli/guides/use-generated-client).
@@ -41,16 +41,13 @@ For type-safe authoring of a standalone options object, annotate it with `satisf
 The generated module exports its operation descriptors, so an app can build additional instances with independent configuration and credentials over the same generated code:
 
 ```ts
-import { createClient } from '@redocly/client-generator';
-import { OPERATIONS, type Ops } from './client.ts';
+import { createClient, OPERATIONS, type Ops } from './client.ts';
 
 const internal = createClient<Ops>(OPERATIONS, {
   serverUrl: 'https://api.example.com',
   auth: { basic: { username: 'svc', password: 's3cr3t' } },
 });
 ```
-
-With `runtime: 'package'` the generated client also imports its whole engine from this package (instead of embedding it), so engine fixes arrive via `npm update` — install this package as a regular dependency of the consuming app.
 
 ### Write a custom generator
 
@@ -65,7 +62,7 @@ import { tsType } from '@redocly/client-generator/generate';
 export default defineGenerator({
   name: 'response-map',
   requires: ['typescript'],
-  run({ model, outputPath }) {
+  run({ model, output }) {
     const printer = new Printer();
     // One `ResponseShapes` entry per operation with a JSON success body.
     printer.block(
@@ -80,7 +77,7 @@ export default defineGenerator({
       },
       '};'
     );
-    return [{ path: outputPath.replace(/\.ts$/, '.responses.ts'), content: printer.toString() }];
+    return [{ path: output.path.replace(/\.ts$/, '.responses.ts'), content: printer.toString() }];
   },
 });
 ```
@@ -116,7 +113,7 @@ type GenerateClientResult = {
 ### `collectGeneratedFiles`
 
 Runs the configured generators against a built model and returns the files in memory, without writing to disk.
-Imported from `@redocly/client-generator/generate` — the generation-time entry; the package root stays runtime-only so package-mode clients never load the generator stack:
+Imported from `@redocly/client-generator/generate` — the generation-time entry; the package root stays a small authoring surface:
 
 ```ts
 function collectGeneratedFiles(
@@ -133,7 +130,7 @@ function collectGeneratedFiles(
 
 ### `defineGenerator`
 
-Authors a custom generator (`{ name, run }` plus optional `requires`/`errorModes`/`dateTypes`/`runtimes` compatibility metadata, validated up front):
+Authors a custom generator (`{ name, run }` plus optional `requires`/`errorModes`/`dateTypes` compatibility metadata, validated up front):
 
 ```ts
 function defineGenerator(generator: CustomGenerator): CustomGenerator;
@@ -157,20 +154,9 @@ function defineClientSetup(setup: {
 
 A setup module may import only from `@redocly/client-generator`, so it never adds a dependency to the client (the import is stripped at generation time).
 
-### `createClient`
-
-The runtime factory that `runtime: 'package'` clients import, also usable directly to build extra instances over generated descriptors (see [Basic usage](#build-extra-client-instances)):
-
-```ts
-function createClient<Ops>(
-  operations: Record<string, OperationDescriptor>,
-  config?: ClientConfig
-): Client<Ops>;
-```
-
 ## Examples
 
-Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, custom generators, and the package runtime — live in [`tests/e2e/generate-client/examples`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples).
+Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, and custom generators — live in [`tests/e2e/generate-client/examples`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation
@@ -191,4 +177,4 @@ npm run unit                    # unit tests (this package is held at 100% cover
 VITEST_SUITE=e2e npx vitest run tests/e2e/generate-client/   # behavioral e2e
 ```
 
-The client runtime lives in `src/runtime/` (real, unit-testable modules; package mode imports them, inline mode embeds them), the structural emitters in `src/emitters/`, the IR in `src/intermediate-representation/`, the generators in `src/generators/`, and the file-layout writers in `src/writers/`.
+Each generator that embeds a runtime keeps its sources in its own folder (`src/generators/<name>/runtime/` — real, unit-testable modules that generation embeds), the IR lives in `src/intermediate-representation/`, and the generators in `src/generators/`.

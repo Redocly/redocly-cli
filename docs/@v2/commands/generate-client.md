@@ -76,7 +76,7 @@ redocly generate-client [--help] [--version]
 | `api`            | string   | The file path to the OpenAPI description, a URL, or an `apis:` alias. Omit it to generate a client for each api that has a `client` block or `clientOutput`.                                                                                                                                                                                                                           |
 | `--output`, `-o` | string   | The output path (it must end in `.ts`). In multi-file modes, this is the entry file. Defaults to the `clientOutput` of the api, else `<name>.client.ts` next to the configuration file. Use this option only when you generate one API.                                                                                                                                                |
 | `--output-mode`  | string   | The file layout. See [Choose an output mode](#choose-an-output-mode). <br/> **Possible values:** `single`, `split`. Default: `single`.                                                                                                                                                                                                                                                 |
-| `--runtime`      | string   | The location of the client engine. See [Choose a runtime](#choose-a-runtime). <br/> **Possible values:** `inline`, `package`. Default: `inline`.                                                                                                                                                                                                                                       |
+| `--runtime`      | string   | The location of the client engine. <br/> **Possible values:** `inline`, `module`. Default: `inline`.                                                                                                                                                                                                                                                                                   |
 | `--import-ext`   | string   | The extension in the generated relative imports. See [Run with Node directly](../guides/use-generated-client.md#run-with-node-directly). <br/> **Possible values:** `js` (the tsc/bundler convention), `ts` (for Node's built-in type stripping). Default: `js`.                                                                                                                       |
 | `--generator`    | [string] | The generator to run: a built-in name, or the path or package of a custom generator. Repeat the flag to run more than one generator. Default value is `typescript`. See [Generators](../guides/use-generated-client.md#generators) for the full list.                                                                                                                                  |
 | `--args-style`   | string   | Sets how you pass inputs to operations. See [Argument style](../guides/use-generated-client.md#argument-style). <br/> **Possible values:** `grouped`, `flat`. Default: `grouped`.                                                                                                                                                                                                      |
@@ -141,22 +141,25 @@ The `--output-mode` flag controls how the command splits the client into files:
 redocly generate-client openapi.yaml -o src/api/client.ts --output-mode split
 ```
 
-Both modes work with both runtimes.
-
 ### Choose a runtime
 
-The `--runtime` flag controls the location of the client engine (request building, auth, retries, middleware, SSE):
+The `--runtime` flag controls where the client engine lives:
 
-- `inline` (default): the command embeds the runtime source in the generated output.
-  It embeds only the parts that your API needs.
-  The output is self-contained and has zero runtime dependencies.
-- `package`: the generated file imports the runtime from `@redocly/client-generator`.
-  The file contains only the types, the operation descriptors, and thin call wrappers.
+- `inline` (default): the engine is embedded in the generated file, so the client is one self-contained file.
+- `module`: the command writes the engine as real files in a `runtime/` folder beside the client, and the client imports them relatively.
+  Several generated clients in one repository can share one `runtime/` folder, and you can read the engine as ordinary source files.
+  The files are still machine-owned: the command regenerates them on every run.
 
-Choose `package` if you want to get engine fixes with `npm update @redocly/client-generator` and no regeneration.
-In this mode, the app that uses the client must install that package as a regular dependency.
-Your application code is the same in both modes.
-See [Package runtime](../guides/use-generated-client.md#package-runtime) in the usage guide and the [`package-runtime` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/package-runtime).
+Every generator that embeds an engine supports both modes, each in its language's shape:
+
+- `typescript` and `cli` write `runtime/*.ts` modules.
+- `python` writes the `_*.py` runtime modules beside the client, which imports them.
+- `go` writes a `runtime.go` file in the same package as the client.
+- `php` writes a `runtime.php` file that the client loads with `require_once`.
+
+```bash
+redocly generate-client openapi.yaml -o src/api/client.ts --runtime module
+```
 
 ## Resources
 

@@ -8,6 +8,7 @@ import {
   readFileSync,
   realpathSync,
   rmSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -221,7 +222,22 @@ export function packedAssets(spec: string, members: string[]): Map<string, strin
 }
 
 const generatorMember = (name: string) => `package/eject-assets/generators/${name}.mjs`;
+const folderMember = (name: string, file: string) =>
+  `package/eject-assets/generators/${name}/${file}`;
 const skillMember = (skill: string) => `package/eject-assets/skills/${skill}/SKILL.md`;
+
+/**
+ * How a generator ships: the language generators are FOLDERS of TypeScript stage files
+ * (ejected verbatim, run under Node's type stripping); the TypeScript-family generators
+ * are one bundled `.mjs` each.
+ */
+function assetFolderFiles(assetsDir: string, name: string): string[] | undefined {
+  const folder = join(assetsDir, 'generators', name);
+  if (!existsSync(folder) || !statSync(folder).isDirectory()) return undefined;
+  return readdirSync(folder)
+    .filter((file) => file.endsWith('.ts'))
+    .sort();
+}
 
 /**
  * Refresh one skill during `--update`. The skill tells its owner to edit it first, so it
@@ -254,7 +270,9 @@ function updateSkill(skill: string, assetsDir: string, baseSkill: string | undef
 
 /** The built-in generators already ejected into `dir`, so the pointer lists every one of them. */
 function ejectedIn(dir: string): string[] {
-  return [...EJECTABLE].filter((name) => existsSync(join(dir, `${name}.mjs`)));
+  return [...EJECTABLE].filter(
+    (name) => existsSync(join(dir, `${name}.mjs`)) || existsSync(join(dir, name, 'index.ts'))
+  );
 }
 
 /**
@@ -407,6 +425,111 @@ export function wireConfig(configPath: string | undefined, name: string, entry: 
 }
 
 /**
+ * The `--update` flow for a folder generator: three-way-merge each stage file the new
+ * version ships (a file the user lacks is written new; a base that cannot be fetched
+ * leaves the user's copy and drops the update beside it as `<file>.new`), merge the two
+ * skills the same way, and report the total conflict count. Files the user added and the
+ * new version does not ship are left alone — they are the user's.
+ */
+function updateEjectedFolder({
+  name,
+  files,
+  toolkitVersion,
+  assetsDir,
+  dir,
+  targetDir,
+}: {
+  name: string;
+  files: string[];
+  toolkitVersion: string;
+  assetsDir: string;
+  dir: string;
+  targetDir: string;
+}): void {
+  const entry = join(targetDir, 'index.ts');
+  const printedEntry = relative(process.cwd(), entry) || entry;
+  if (!existsSync(entry)) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'missing-target';
+    const legacy = join(dir, `${name}.mjs`);
+    throw new HandledError(
+      existsSync(legacy)
+        ? `\n❌  ${relative(process.cwd(), legacy)} is a single-file eject from an older version; this version ejects a folder. Eject fresh: redocly eject-generator ${name} --force\n`
+        : `\n❌  Nothing to update: ${printedEntry} does not exist. Eject first.\n`
+    );
+  }
+  const from = recordedVersion(readFileSync(entry, 'utf-8'));
+  if (from !== undefined && semver.valid(from) !== null) {
+    ejectGeneratorTelemetry.eject_generator_from_version = from;
+  }
+  ejectGeneratorTelemetry.eject_generator_to_version = toolkitVersion;
+  // One pack fetches every merge base: each stage file plus both skills.
+  const packed =
+    from === toolkitVersion || from === undefined
+      ? new Map<string, string>()
+      : packedAssets(`${TOOLKIT_PACKAGE}@${from}`, [
+          ...files.map((file) => folderMember(name, file)),
+          skillMember('client-generators'),
+          skillMember(`${name}-generator`),
+        ]);
+  if (from === undefined) {
+    ejectGeneratorTelemetry.eject_generator_outcome = 'missing-base';
+    throw new HandledError(
+      `\n❌  Could not read the version ${printedEntry} was ejected from (not recorded in its header), so there is no merge base.\n` +
+        `   Eject to a temporary directory and diff by hand, or re-eject with --force.\n`
+    );
+  }
+  let conflicts = 0;
+  for (const file of files) {
+    const updated = readFileSync(join(assetsDir, 'generators', name, file), 'utf-8');
+    const target = join(targetDir, file);
+    if (!existsSync(target)) {
+      writeFileSync(target, updated, 'utf-8');
+      continue;
+    }
+    const customized = readFileSync(target, 'utf-8');
+    if (customized === updated) continue;
+    const base = from === toolkitVersion ? updated : packed.get(folderMember(name, file));
+    if (base === undefined) {
+      writeFileSync(`${target}.new`, updated, 'utf-8');
+      logger.warn(
+        `${relative(process.cwd(), target)} has no merge base in ${TOOLKIT_PACKAGE}@${from} — the new file is beside it as ${file}.new.\n`
+      );
+      continue;
+    }
+    const merged = threeWayMerge(customized, base, updated);
+    writeFileSync(target, merged.merged, 'utf-8');
+    conflicts += merged.conflicts;
+  }
+  const skillBase = (skill: string): string | undefined =>
+    from === toolkitVersion
+      ? readFileSync(join(assetsDir, 'skills', skill, 'SKILL.md'), 'utf-8')
+      : packed.get(skillMember(skill));
+  const skillConflicts =
+    updateSkill('client-generators', assetsDir, skillBase('client-generators')) +
+    updateSkill(`${name}-generator`, assetsDir, skillBase(`${name}-generator`));
+  dropPointer(dir, ejectedIn(dir));
+  const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion }, true);
+  if (dependency === 'updated' || dependency === 'added') {
+    logger.info(
+      `Set ${TOOLKIT_PACKAGE} to ^${toolkitVersion} in package.json — run your installer.\n`
+    );
+  }
+  const totalConflicts = conflicts + skillConflicts;
+  ejectGeneratorTelemetry.eject_generator_outcome = totalConflicts > 0 ? 'conflicts' : 'success';
+  const printedDir = relative(process.cwd(), targetDir) || targetDir;
+  if (totalConflicts > 0) {
+    ejectGeneratorTelemetry.eject_generator_conflicts = totalConflicts;
+    logger.warn(
+      `Updated ${printedDir} with ${totalConflicts} conflict(s)${
+        skillConflicts > 0 ? ' (some in .claude/skills)' : ''
+      } — resolve the <<<<<<< markers, then regenerate.\n`
+    );
+  } else {
+    logger.info(`Updated ${printedDir} cleanly.\n`);
+  }
+}
+
+/**
  * The `--update` flow: three-way-merge the newer built-in version into the user's copy,
  * merging the two skills the same way, and report the conflict count.
  */
@@ -523,7 +646,7 @@ export const handleEjectGenerator = async ({
       `\nThe "${name}" generator is the "tanstack-query" generator with one argument changed.\n` +
         `Eject that one and set the framework in your copy's default export:\n\n` +
         `  redocly eject-generator tanstack-query\n` +
-        `  # then in generators/tanstack-query.mjs: run: tanstackQueryGenerator('${framework}')\n`
+        `  # then in generators/tanstack-query/index.ts: run: tanstackQueryGenerator('${framework}')\n`
     );
     return;
   }
@@ -535,16 +658,37 @@ export const handleEjectGenerator = async ({
   }
 
   const assetsDir = ejectAssetsDir();
-  const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
+  const folderFiles = assetFolderFiles(assetsDir, name);
   // The ejected file records and imports the toolkit's version; the CLI versions
   // independently of it.
   const { GENERATOR_VERSION: toolkitVersion } = await import('@redocly/client-generator');
   const dir = resolve(argv.dir ?? './generators');
-  const target = join(dir, `${name}.mjs`);
+  // A folder generator's existence, config entry, and provenance all key on its index.ts.
+  const target = folderFiles === undefined ? join(dir, `${name}.mjs`) : join(dir, name, 'index.ts');
   const printedTarget = relative(process.cwd(), target) || target;
 
   if (argv.update) {
-    updateEjectedGenerator({ name, asset, toolkitVersion, assetsDir, dir, target, printedTarget });
+    if (folderFiles === undefined) {
+      const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
+      updateEjectedGenerator({
+        name,
+        asset,
+        toolkitVersion,
+        assetsDir,
+        dir,
+        target,
+        printedTarget,
+      });
+    } else {
+      updateEjectedFolder({
+        name,
+        files: folderFiles,
+        toolkitVersion,
+        assetsDir,
+        dir,
+        targetDir: join(dir, name),
+      });
+    }
     return;
   }
 
@@ -554,8 +698,18 @@ export const handleEjectGenerator = async ({
       `\n❌  ${printedTarget} already exists. Use --update to merge the newer version in, or --force to overwrite.\n`
     );
   }
-  mkdirSync(dir, { recursive: true });
-  writeFileSync(target, asset, 'utf-8');
+  mkdirSync(dirname(target), { recursive: true });
+  const copied =
+    folderFiles === undefined
+      ? [readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8')]
+      : folderFiles.map((file) => readFileSync(join(assetsDir, 'generators', name, file), 'utf-8'));
+  if (folderFiles === undefined) {
+    writeFileSync(target, copied[0], 'utf-8');
+  } else {
+    folderFiles.forEach((file, index) => {
+      writeFileSync(join(dir, name, file), copied[index], 'utf-8');
+    });
+  }
   const authoringSkill = dropSkill('client-generators', assetsDir);
   const designSkill = dropSkill(`${name}-generator`, assetsDir);
   dropPointer(dir, ejectedIn(dir));
@@ -569,10 +723,15 @@ export const handleEjectGenerator = async ({
     .join('/')}`;
   const dependency = wireDependency({ [TOOLKIT_PACKAGE]: toolkitVersion });
   // A bundled TypeScript generator also imports from core; without hoisting it must be explicit.
-  const needsCore = asset.includes(`from "${CORE_PACKAGE}"`);
+  const needsCore = copied.some(
+    (source) =>
+      source.includes(`from "${CORE_PACKAGE}"`) || source.includes(`from '${CORE_PACKAGE}'`)
+  );
   const wired = wireConfig(config.configPath, name, configEntry);
+  const printedLocation =
+    folderFiles === undefined ? printedTarget : relative(process.cwd(), join(dir, name)) + '/';
   logger.info(
-    `Ejected the "${name}" generator to ${printedTarget}.\n` +
+    `Ejected the "${name}" generator to ${printedLocation}.\n` +
       (dependency === 'added'
         ? `Added ${TOOLKIT_PACKAGE} to devDependencies (the ejected file imports its toolkit) — run your installer.\n`
         : dependency === 'no-package-json'
@@ -583,14 +742,17 @@ export const handleEjectGenerator = async ({
         : '') +
       (wired
         ? `Added it to client.generators in ${relative(process.cwd(), config.configPath!)} — the path to your copy replaces the built-in name.\n`
-        : `Point your config at the file — the path to your copy replaces the built-in name:\n\n` +
+        : `Point your config at the ${folderFiles === undefined ? 'file' : 'entry file'} — the path to your copy replaces the built-in name:\n\n` +
           `  client:\n    generators:\n      - ${configEntry}\n\n`) +
+      (folderFiles === undefined
+        ? ''
+        : `Running TypeScript generators uses Node's type stripping — Node 22.18 or 23.6 and newer.\n`) +
       `Your agent's skills: ${designSkill} (this generator's design) and ${authoringSkill} (the toolkit).\n` +
       // The next command, spelled out: a wired config still needs an output, and an unwired
       // copy is reached with `--generator`. Either way the reader can run it without
       // leaving the terminal to look it up.
       `\nRun it: redocly generate-client <api> --output <path>${wired ? '' : ` --generator ${configEntry}`}\n` +
-      `Edit ${printedTarget} and run that again to see your change.\n` +
+      `Edit ${printedLocation} and run that again to see your change.\n` +
       `Reference: ${DOCS_URL}\n`
   );
   // Last, so wiring the dependency or the config entry failing is not reported as success.

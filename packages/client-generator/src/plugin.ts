@@ -18,10 +18,10 @@
 //   export default defineGenerator({
 //     name: 'route-map',
 //     requires: ['typescript'],
-//     run({ model, outputPath }) {
+//     run({ model, output }) {
 //       const routes = model.services.flatMap((s) => s.operations)
 //         .map((op) => `  ${op.name}: '${op.method.toUpperCase()} ${op.path}',`).join('\n');
-//       return [{ path: outputPath.replace(/\.ts$/, '.routes.ts'),
+//       return [{ path: output.path.replace(/\.ts$/, '.routes.ts'),
 //                 content: `export const routes = {\n${routes}\n} as const;\n` }];
 //     },
 //   });
@@ -42,31 +42,43 @@ export function defineGenerator(generator: CustomGenerator): CustomGenerator {
 
 // --- The authoring contract + the data a generator receives -----------------------------------
 export type {
+  ArgsStyle,
+  CodeSample,
   CustomGenerator,
+  DateType,
+  EmitOptions,
+  ErrorMode,
   GeneratedFile,
   Generator,
   GeneratorInput,
   GeneratorName,
+  GeneratorOptionsSchema,
+  OutputAnchor,
   OutputMode,
+  SampleContext,
 } from './generators/types.js';
-export type { ArgsStyle, ErrorMode } from './emitters/operations.js';
-export type { DateType } from './emitters/types.js';
 
 // --- The intermediate representation (the `model` a generator walks) ---------------------------
+export { allOperations } from './intermediate-representation/model.js';
 export type {
   ApiModel,
+  DiscriminatorModel,
   NamedSchemaModel,
   OperationModel,
   ParamModel,
   PropertyModel,
   RequestBodyModel,
   ResponseBodyModel,
+  ResponseHeaderModel,
   ScalarKind,
   SchemaMetadata,
   SchemaModel,
+  SecuritySchemeModel,
+  ServerModel,
   ServiceModel,
+  SseModel,
 } from './intermediate-representation/model.js';
 
 // The TypeScript-emitting renderers (`tsType`, `operationSignature`, …) are exported from
 // `@redocly/client-generator/generate`, which also carries the generation entry point —
-// the runtime-only package root stays free of it.
+// the package root stays a small authoring surface.

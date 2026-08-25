@@ -60,6 +60,28 @@ const configExtension: { [key: string]: ViteUserConfig } = {
 
 export default mergeConfig(
   defineConfig({
+    // Generator-folder sources import their own package by name (the same specifier an
+    // ejected copy uses); resolve those to src so tests exercise the working tree, not lib.
+    resolve: {
+      alias: [
+        {
+          find: /^@redocly\/client-generator\/printers\/([a-z]+)$/,
+          replacement: `${import.meta.dirname}/packages/client-generator/src/printers/$1.ts`,
+        },
+        {
+          find: /^@redocly\/client-generator\/contracts\/([a-z]+)$/,
+          replacement: `${import.meta.dirname}/packages/client-generator/src/contracts/$1.ts`,
+        },
+        {
+          find: '@redocly/client-generator/runtime-sources',
+          replacement: `${import.meta.dirname}/packages/client-generator/src/runtime-sources.ts`,
+        },
+        {
+          find: /^@redocly\/client-generator$/,
+          replacement: `${import.meta.dirname}/packages/client-generator/src/index.ts`,
+        },
+      ],
+    },
     test: {
       globals: true,
       restoreMocks: true,

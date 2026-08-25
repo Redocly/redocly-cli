@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { GO_RUNTIME_SOURCE } from '../../emitters/go-runtime-sources.js';
+import { GO_RUNTIME_SOURCE } from '../../runtime-sources/go.js';
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const hasGo = spawnSync('go', ['version']).status === 0;
@@ -27,7 +27,7 @@ describe('GO_RUNTIME_SOURCE (the embedded Go runtime)', () => {
 
   it.skipIf(!hasGo)('the runtime module passes go vet', () => {
     const result = spawnSync('go', ['vet', './...'], {
-      cwd: join(pkgRoot, 'runtime', 'go'),
+      cwd: join(pkgRoot, 'src', 'generators', 'go', 'runtime'),
       encoding: 'utf-8',
     });
     expect(result.status, result.stderr).toBe(0);

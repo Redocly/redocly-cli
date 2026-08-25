@@ -1,13 +1,13 @@
 ---
 name: cli-generator
-description: Design of the ejected Redocly `cli` client generator. Read it, and update it, before changing generators/cli.mjs.
+description: Design of the ejected Redocly `cli` client generator. Read it, and update it, before changing generators/cli/.
 ---
 
 # The `cli` generator — its skill
 
-This file is the DESIGN of your ejected `cli` generator (`generators/cli.mjs`):
+This file is the DESIGN of your ejected `cli` generator (`generators/cli/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/cli.mjs` that has no covering sentence here is incomplete.
+to `generators/cli/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -90,22 +90,31 @@ command with its positionals and flags.
   linter (ATX headings, a blank line around every block, no hard tabs, one sentence per
   line) and it escapes what descriptions contain, because a summary is arbitrary text.
 
-## Emitters that implement it
+## The stage files
 
-`emitters/cli.ts` (commands + module) and `emitters/cli-docs.ts` (the page), plus the
-sdk's operation types.
+`render.ts` derives `commandData` from the IR and renders the module and the composed
+entry; `docs.ts` renders the reference page from the same command table;
+`engine-source.ts` supplies the cli engine's source text — the engine itself (`runCli`,
+the parser, help, dispatch) ships inside the package and arrives through
+`@redocly/client-generator/runtime-sources` (in this repo it lives in `runtime/cli.ts`
+beside these files). `index.ts` is the entry. The sdk calling convention comes from
+`@redocly/client-generator/contracts/typescript`.
 
 ## Ejecting it
 
-`redocly eject-generator cli` ships this generator BUNDLED with the emitters it uses — one
-`.mjs` you own, importing `@redocly/client-generator` and `@redocly/openapi-core`. Change
+`redocly eject-generator cli` copies this generator's TypeScript source folder to
+`generators/cli/`, exactly as we wrote it, importing `@redocly/client-generator`,
+`@redocly/client-generator/contracts/typescript`,
+`@redocly/client-generator/runtime-sources` (the embedded cli engine), and
+`@redocly/openapi-core`. Running a `.ts` generator uses Node's type stripping (Node
+22.18, 23.6, or newer); newer built-in versions merge in per file with `--update`. Change
 the command surface, the help layout, or the exit-code mapping, and regenerate. The exit
 codes are a contract for scripts, so change them only deliberately.
 
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/cli.mjs` match it.
+2. Make `generators/cli/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

@@ -1,9 +1,7 @@
+import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { HEADER } from '../../emitters/emit-options.js';
-import { renderTransformersModule } from '../../emitters/transformers.js';
-import { anchor } from '../anchor.js';
-import type { Generator } from '../types.js';
+import { renderTransformersModule } from './render.ts';
 
 /**
  * The transformers generator: a standalone `<stem>.transformers.ts` module of
@@ -21,11 +19,16 @@ import type { Generator } from '../types.js';
  * beside the client regardless of how the sdk partitions its files. Emits
  * nothing when no schema has a date field (nothing to transform).
  */
-export const transformersGenerator: Generator = ({ model, outputPath, emit }) => {
-  const { dir, stem } = anchor(outputPath);
+export const transformersGenerator: Generator = ({ model, output, banner, emit }) => {
   const content = renderTransformersModule(model, {
-    sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
+    sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
   });
   if (content === '') return [];
-  return [{ path: join(dir, `${stem}.transformers.ts`), content: `${HEADER}\n\n${content}` }];
+  const header = banner.map((line) => `// ${line}`).join('\n');
+  return [
+    {
+      path: join(output.dir, `${output.stem}.transformers.ts`),
+      content: `${header}\n\n${content}`,
+    },
+  ];
 };

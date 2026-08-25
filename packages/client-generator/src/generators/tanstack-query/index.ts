@@ -1,9 +1,7 @@
+import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { HEADER } from '../../emitters/emit-options.js';
-import { renderTanstackModule } from '../../emitters/tanstack-query.js';
-import { anchor } from '../anchor.js';
-import type { Generator } from '../types.js';
+import { renderTanstackModule } from './render.ts';
 
 /**
  * The tanstack-query generator: a standalone `<stem>.tanstack.ts` module of
@@ -21,16 +19,18 @@ import type { Generator } from '../types.js';
  * no operations.
  */
 export function tanstackQueryGenerator(framework: 'react' | 'vue' | 'svelte' | 'solid'): Generator {
-  return ({ model, outputPath, emit }) => {
-    const { dir, stem } = anchor(outputPath);
+  return ({ model, output, banner, emit, pagination }) => {
     const content = renderTanstackModule(model, {
       argsStyle: emit.argsStyle ?? 'grouped',
-      sdkModule: `./${stem}.${emit.importExt ?? 'js'}`,
+      sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
       framework,
-      pagination: emit.pagination,
+      pagination,
       queryKeyPrefix: emit.queryKeyPrefix,
     });
     if (content === '') return [];
-    return [{ path: join(dir, `${stem}.tanstack.ts`), content: `${HEADER}\n\n${content}` }];
+    const header = banner.map((line) => `// ${line}`).join('\n');
+    return [
+      { path: join(output.dir, `${output.stem}.tanstack.ts`), content: `${header}\n\n${content}` },
+    ];
   };
 }

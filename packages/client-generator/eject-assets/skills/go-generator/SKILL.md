@@ -1,13 +1,13 @@
 ---
 name: go-generator
-description: Design of the ejected Redocly `go` client generator. Read it, and update it, before changing generators/go.mjs.
+description: Design of the ejected Redocly `go` client generator. Read it, and update it, before changing generators/go/.
 ---
 
 # The `go` generator — its skill
 
-This file is the DESIGN of your ejected `go` generator (`generators/go.mjs`):
+This file is the DESIGN of your ejected `go` generator (`generators/go/`):
 **to change the generator, edit this skill first, then make the code match it** — a diff
-to `generators/go.mjs` that has no covering sentence here is incomplete.
+to `generators/go/` that has no covering sentence here is incomplete.
 
 ## What it emits
 
@@ -72,8 +72,10 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
     inside a doc comment is `//` — never `// ` with a trailing space.
     A change here is verified by the `gofmt -l` bar in the unit suite, at cafe AND
     large-description scale.
-- The runtime is hand-written in `runtime/go/runtime.go` (gofmt-clean, `go vet`-clean)
+- The runtime is hand-written in `runtime/runtime.go` in this folder (gofmt-clean, `go vet`-clean)
   and embedded at prepare time.
+  Under `--runtime module` it is written as a same-package `runtime.go` beside the client,
+  whose import block then lists only the packages its own body uses.
 - Authored ONLY with the neutral toolkit — the dogfooding guard fails otherwise.
 
 - **It documents itself.** With `client.docs` (or `--docs`), the `docs` hook writes
@@ -87,7 +89,7 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
 ## The modify loop
 
 1. Edit this skill: state the new behavior or decision.
-2. Make `generators/go.mjs` match it.
+2. Make `generators/go/` match it.
 3. Run `redocly generate-client` and inspect the `git diff` of the generated output —
    generated files are never hand-edited.
 

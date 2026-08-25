@@ -3,7 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // The prepare-time transform that rewrites the repo-facing intro and modify loop
-// into their user-repo equivalents (plain .mjs, importable straight from scripts/).
+// into their user-repo equivalents (importable straight from scripts/).
 import { ejectedSkill } from '../../../scripts/ejected-skill.mjs';
 
 // Skill-first development: EVERY generator lives in a folder with its own AGENTS.md —
@@ -11,11 +11,19 @@ import { ejectedSkill } from '../../../scripts/ejected-skill.mjs';
 // missing its modify-loop anchors, fails here.
 const generatorsDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-/** Language generators: one self-contained file, ejected as its own source. */
-const LANGUAGE = ['python', 'go', 'php'];
-/** TypeScript generators: thin entries over shared emitters, ejected bundled with them. */
-const TYPESCRIPT = ['typescript', 'zod', 'mock', 'cli', 'swr', 'tanstack-query', 'transformers'];
-const EJECTABLE = [...LANGUAGE, ...TYPESCRIPT];
+/** Every generator: a self-contained folder, ejected as its own source. */
+const EJECTABLE = [
+  'python',
+  'go',
+  'php',
+  'typescript',
+  'zod',
+  'mock',
+  'cli',
+  'swr',
+  'tanstack-query',
+  'transformers',
+];
 
 describe.each(EJECTABLE)('%s generator skill', (name) => {
   const skillPath = join(generatorsDir, name, 'AGENTS.md');
@@ -32,38 +40,23 @@ describe.each(EJECTABLE)('%s generator skill', (name) => {
   });
 });
 
-describe.each(LANGUAGE)('%s generator skill ships to users', (name) => {
-  const skillPath = join(generatorsDir, name, 'AGENTS.md');
-
-  it('names its runtime', () => {
-    expect(readFileSync(skillPath, 'utf-8')).toContain(`runtime/${name}/`);
-  });
-
-  it('ships without repo-only references — the user has no index.ts, prepare, or vitest', () => {
+describe.each(EJECTABLE)('%s generator skill ships to users', (name) => {
+  it('ships without repo-only references — the user has no prepare script or vitest', () => {
     const asset = join(generatorsDir, '../../eject-assets/skills', `${name}-generator`, 'SKILL.md');
     const shipped = readFileSync(asset, 'utf-8');
-    expect(shipped).toContain(`generators/${name}.mjs`);
-    expect(shipped).not.toContain('index.ts');
+    expect(shipped).toContain(`generators/${name}/`);
     expect(shipped).not.toContain('npm run prepare');
     expect(shipped).not.toContain('vitest');
   });
 });
 
-describe.each(TYPESCRIPT)('%s generator skill (bundled on eject)', (name) => {
-  it('points at the emitters that implement it and says what ejecting ships', () => {
-    const skill = readFileSync(join(generatorsDir, name, 'AGENTS.md'), 'utf-8');
-    expect(skill).toContain('## Emitters that implement it');
-    expect(skill).toContain('## Ejecting it');
-    // The two packages a bundled generator imports — the user installs both.
-    expect(skill).toContain('@redocly/openapi-core');
-  });
-});
-
 describe.each(EJECTABLE)('%s ships an eject asset', (name) => {
   const assetsDir = join(generatorsDir, '../../eject-assets');
+  // Every generator ships as its source folder, entry index.ts.
+  const assetEntry = join(assetsDir, 'generators', name, 'index.ts');
 
   it('has a generator asset and a skill beside it', () => {
-    expect(existsSync(join(assetsDir, 'generators', `${name}.mjs`))).toBe(true);
+    expect(existsSync(assetEntry)).toBe(true);
     const skill = readFileSync(join(assetsDir, 'skills', `${name}-generator`, 'SKILL.md'), 'utf-8');
     expect(skill.startsWith(`---\nname: ${name}-generator\ndescription: `)).toBe(true);
   });
@@ -80,8 +73,7 @@ describe.each(EJECTABLE)('%s ships an eject asset', (name) => {
   });
 
   it('declares the default export the resolver loads, with a version range', () => {
-    // The bundled assets go through esbuild, which normalizes quotes — match either.
-    const asset = readFileSync(join(assetsDir, 'generators', `${name}.mjs`), 'utf-8');
+    const asset = readFileSync(assetEntry, 'utf-8');
     expect(asset).toMatch(new RegExp(`name: ['"]${name}['"]`));
     expect(asset).toMatch(/requiresGenerator: ['"]\^\d+\.\d+\.\d+['"]/);
     expect(asset).toContain('Ejected from @redocly/client-generator@');
