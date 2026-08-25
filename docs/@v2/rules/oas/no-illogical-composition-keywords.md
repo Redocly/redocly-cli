@@ -14,7 +14,8 @@ The rule reports:
 - An empty schema (`{}`) used as a member.
 - Two `oneOf` schemas that a single value can match at the same time.
 - A nullable schema whose `oneOf` also accepts `null`.
-- A `discriminator` whose property is missing from `required` in every member schema.
+- A `discriminator` whose property is missing from `required` in every member schema, on OAS 3.0 and 3.1.
+  To cover OAS 3.2 as well, use this rule together with [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md).
 - An inline `oneOf` or `anyOf` member that a `discriminator` cannot select.
 
 | OAS | Compatibility |
@@ -53,7 +54,7 @@ When a member uses any other constraint, such as `not`, `pattern`, `minimum`, or
 
 A `discriminator` names the property that tells the members apart, so the rule trusts it and checks only what the specification requires.
 The property must be listed in `required` in every member schema, because a value can otherwise omit it and nothing decides which schema applies.
-An OAS 3.2 `discriminator` may instead declare `defaultMapping`, which names the schema to fall back to, so the property can stay optional.
+OAS 3.2 turned this into a specification requirement and added `defaultMapping` as an alternative to marking the property required, so on 3.2 documents [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) reports it and this rule stays quiet.
 Every member must also be a `$ref`: a `discriminator` selects a schema by its component name, and the specification states that inline `oneOf` and `anyOf` subschemas are not considered, so an inline member can never be selected.
 A member that declares `$id` is exempt, because a `mapping` entry can name it by URI.
 
@@ -199,8 +200,8 @@ components:
 - [no-schema-type-mismatch](../common/no-schema-type-mismatch.md)
 - [no-required-schema-properties-undefined](../common/no-required-schema-properties-undefined.md)
 - [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) —
-  reports the same gap on OAS 3.2 as a specification requirement.
-  Both rules report an optional discriminator property, and either fix silences both.
+  reports an optional discriminator property on OAS 3.2, where the specification requires it.
+  This rule covers OAS 3.0 and 3.1 instead, so enable both to check every version.
 
 ## Resources
 

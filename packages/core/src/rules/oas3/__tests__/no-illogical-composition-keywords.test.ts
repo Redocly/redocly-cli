@@ -236,7 +236,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
-    it('should not report a discriminator gap when `defaultMapping` is declared', async () => {
+    it('should leave the discriminator gap to spec-discriminator-defaultMapping on OAS 3.2', async () => {
       const document = parseYamlToDocument(
         outdent`
           openapi: 3.2.0
@@ -251,19 +251,18 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 properties:
                   petType:
                     type: string
-                  name:
+                  shared:
                     type: string
               Dog:
                 type: object
                 properties:
                   petType:
                     type: string
-                  bark:
+                  shared:
                     type: string
               Pet:
                 discriminator:
                   propertyName: petType
-                  defaultMapping: Cat
                 oneOf:
                   - $ref: '#/components/schemas/Cat'
                   - $ref: '#/components/schemas/Dog'

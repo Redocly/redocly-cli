@@ -216,6 +216,7 @@ function reportAmbiguousMembers(
   ctx: UserContext
 ) {
   const { resolve, report, location } = ctx;
+  const shouldReportDiscriminatorGap = ctx.specVersion !== 'oas3_2';
   const resolvedMembers = members.map((member) => resolveSchema(member, resolve));
 
   for (let leftIndex = 0; leftIndex < resolvedMembers.length - 1; leftIndex++) {
@@ -229,7 +230,13 @@ function reportAmbiguousMembers(
       // Skip only pairs `reportDuplicateMembers` already reported, which compares raw nodes too.
       if (dequal(members[leftIndex], members[rightIndex])) continue;
 
-      const reason = findOverlapReason(left, right, resolve, discriminator);
+      const reason = findOverlapReason(
+        left,
+        right,
+        resolve,
+        discriminator,
+        shouldReportDiscriminatorGap
+      );
       if (!reason) continue;
 
       report({
@@ -253,7 +260,8 @@ function findOverlapReason(
   left: SourcedSchema,
   right: SourcedSchema,
   resolve: ResolveFn,
-  discriminator?: Oas3Discriminator
+  discriminator: Oas3Discriminator | undefined,
+  shouldReportDiscriminatorGap: boolean
 ): string | null {
   const leftSchema = left.schema;
   const rightSchema = right.schema;
@@ -274,7 +282,9 @@ function findOverlapReason(
   }
 
   if (discriminator) {
-    return describeDiscriminatorGap(leftSchema, rightSchema, discriminator);
+    return shouldReportDiscriminatorGap
+      ? describeDiscriminatorGap(leftSchema, rightSchema, discriminator)
+      : null;
   }
 
   const propertyOverlap = findPropertyOverlap(left, right, resolve);
@@ -298,8 +308,6 @@ function describeDiscriminatorGap(
   const { propertyName } = discriminator;
   // `struct` is not guaranteed to have rejected a non-string `propertyName` first.
   if (typeof propertyName !== 'string') return null;
-
-  if (isDefined(discriminator.defaultMapping)) return null;
 
   const isRequiredInBoth =
     !!left.required?.includes(propertyName) && !!right.required?.includes(propertyName);
