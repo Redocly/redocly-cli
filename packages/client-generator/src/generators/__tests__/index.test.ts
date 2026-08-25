@@ -80,8 +80,9 @@ describe('validateGenerators', () => {
       validateGenerators(['php'], { runtime: 'inline', argsStyle: 'grouped' }, undefined, 'split');
       const messages = warn.mock.calls.map(([message]) => message).join('');
       expect(messages).toContain('the "php" generator ignores outputMode');
-      expect(messages).toContain('the "php" generator ignores runtime');
       expect(messages).toContain('the "php" generator ignores argsStyle');
+      // `runtime` applies to every runtime-embedding generator since module mode landed.
+      expect(messages).not.toContain('ignores runtime');
 
       // Defaults must stay quiet: only an EXPLICIT option warns.
       warn.mockClear();

@@ -24,13 +24,13 @@ function tanstackQuery(framework: 'react' | 'vue' | 'svelte' | 'solid'): Builtin
 }
 
 /**
- * The TypeScript-only knobs a standalone language SDK cannot apply: it always emits
- * one self-contained file with the runtime embedded, and each language passes inputs
- * its own idiomatic way (keyword arguments, named arguments, a params struct).
+ * The TypeScript-only knobs a standalone language SDK cannot apply: the client is
+ * always one module (`runtime: module` adds its runtime files beside it), and each
+ * language passes inputs its own idiomatic way (keyword arguments, named arguments,
+ * a params struct).
  */
 const LANGUAGE_SDK_NOT_APPLICABLE: BuiltinMeta['notApplicable'] = {
-  outputMode: 'it always emits one self-contained file',
-  runtime: 'the runtime is always embedded in the generated file',
+  outputMode: 'the client is always one module (`split` applies to the TypeScript client)',
   argsStyle: "inputs follow the target language's own idiom",
   importExt: 'the generated file has no relative imports',
 };
