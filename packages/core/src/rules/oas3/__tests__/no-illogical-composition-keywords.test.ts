@@ -549,6 +549,11 @@ describe('Oas3 no-illogical-composition-keywords', () => {
                 oneOf:
                   - type: integer
                   - type: string
+              FractionalOnly:
+                oneOf:
+                  - type: integer
+                  - type: number
+                    enum: [1.5, 2.5]
         `,
         'foobar.yaml'
       );

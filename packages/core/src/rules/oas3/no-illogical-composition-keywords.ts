@@ -482,15 +482,23 @@ function getSharedTypes(left: CompositionSchema, right: CompositionSchema): stri
   if (!leftTypes || !rightTypes) return undefined;
 
   const shared = [...leftTypes].filter((type) => rightTypes.has(type));
-  if (shared.length === 0 && integerMeetsNumber(leftTypes, rightTypes)) return ['integer'];
+  if (shared.length === 0 && integerMeetsNumber(left, right)) return ['integer'];
 
   return shared;
 }
 
-function integerMeetsNumber(left: Set<string>, right: Set<string>): boolean {
-  return (
-    (left.has('integer') && right.has('number')) || (left.has('number') && right.has('integer'))
-  );
+function integerMeetsNumber(left: CompositionSchema, right: CompositionSchema): boolean {
+  const leftTypes = getTypeSet(left);
+  const rightTypes = getTypeSet(right);
+  if (leftTypes?.has('integer') && rightTypes?.has('number')) return allowsInteger(right);
+  if (leftTypes?.has('number') && rightTypes?.has('integer')) return allowsInteger(left);
+
+  return false;
+}
+
+function allowsInteger(schema: CompositionSchema): boolean {
+  const values = readAllowedValues(schema);
+  return !values || values.some((value) => typeof value === 'number' && Number.isInteger(value));
 }
 
 function schemaAllowsNull(schema: CompositionSchema): boolean {
