@@ -1,5 +1,20 @@
 # @redocly/cli
 
+## 2.48.0
+
+### Minor Changes
+
+- Added agent-friendly client generation: `python`, `go`, `php`, and `cli` generators beside the TypeScript client, each self-documenting with `--docs`, configurable per generator, and available as source in your own repository through `eject-generator`.
+
+### Patch Changes
+
+- Fixed an issue where the `bundle` command didn't resolve `$ref`s inside an AsyncAPI 3 Multi Format Schema Object.
+- Fixed an issue where `respect --har-output` recorded an empty `postData` for every request.
+  Request bodies are written to the HAR.
+  Captures replayed through `drift` can have their request bodies validated instead of silently passing.
+- Updated @redocly/client-generator to v0.4.0.
+- Updated @redocly/openapi-core to v2.48.0.
+
 ## 2.47.0
 
 ### Minor Changes
