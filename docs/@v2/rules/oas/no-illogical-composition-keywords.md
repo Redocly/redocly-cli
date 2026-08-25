@@ -53,6 +53,7 @@ When a member uses any other constraint, such as `not`, `pattern`, `minimum`, or
 
 A `discriminator` names the property that tells the members apart, so the rule trusts it and checks only what the specification requires.
 The property must be listed in `required` in every member schema, because a value can otherwise omit it and nothing decides which schema applies.
+An OAS 3.2 `discriminator` may instead declare `defaultMapping`, which names the schema to fall back to, so the property can stay optional.
 Every member must also be a `$ref`: a `discriminator` selects a schema by its component name, and the specification states that inline `oneOf` and `anyOf` subschemas are not considered, so an inline member can never be selected.
 A member that declares `$id` is exempt, because a `mapping` entry can name it by URI.
 
@@ -197,7 +198,9 @@ components:
 
 - [no-schema-type-mismatch](../common/no-schema-type-mismatch.md)
 - [no-required-schema-properties-undefined](../common/no-required-schema-properties-undefined.md)
-- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md)
+- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) —
+  reports the same gap on OAS 3.2 as a specification requirement.
+  Both rules report an optional discriminator property, and either fix silences both.
 
 ## Resources
 

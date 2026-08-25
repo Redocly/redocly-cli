@@ -236,6 +236,52 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
+    it('should not report a discriminator gap when `defaultMapping` is declared', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+          openapi: 3.2.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Cat:
+                type: object
+                properties:
+                  petType:
+                    type: string
+                  name:
+                    type: string
+              Dog:
+                type: object
+                properties:
+                  petType:
+                    type: string
+                  bark:
+                    type: string
+              Pet:
+                discriminator:
+                  propertyName: petType
+                  defaultMapping: Cat
+                oneOf:
+                  - $ref: '#/components/schemas/Cat'
+                  - $ref: '#/components/schemas/Dog'
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    });
+
     it('should report inline members that a discriminator cannot select', async () => {
       const document = parseYamlToDocument(
         outdent`

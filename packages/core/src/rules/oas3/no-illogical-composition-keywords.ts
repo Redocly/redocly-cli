@@ -299,6 +299,8 @@ function describeDiscriminatorGap(
   // `struct` is not guaranteed to have rejected a non-string `propertyName` first.
   if (typeof propertyName !== 'string') return null;
 
+  if (isDefined(discriminator.defaultMapping)) return null;
+
   const isRequiredInBoth =
     !!left.required?.includes(propertyName) && !!right.required?.includes(propertyName);
   if (isRequiredInBoth) return null;
