@@ -1,378 +1,443 @@
-# What the `tree` index costs an agent, measured
+# Where the index pays
 
-{% admonition type="warning" name="Superseded" %}
-This benchmark measured `@redocly/cli@0.0.0-snapshot.1786868116`. `tree --format=ai` has changed since — long prose is clipped, error responses fold to their codes, and every card states the security requirement that applies to it — so the numbers here no longer reproduce.
+An agent handed an API description has two ways to work: read and search the file, or ask `tree` for an index of it.
+This measures both on the same tasks — six of them, over six descriptions from 41 KB to 2,909 files — and judges the answer, not the effort: does the flow the agent produces actually run?
 
-Read [Whether the flow an agent produces would actually run](./tree-agent-index-benchmark-v2.md) instead: it measures the current output over four models and three repeats a cell, and checks that the answer would work rather than only that it names the right calls.
-{% /admonition %}
+**260 of 360 runs produced a working flow: 120 of 180 without the index, 140 of 180 with it.**
+The index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach.
 
-Same multi-step task, fresh isolated sessions per description and model (Claude Sonnet 5, Opus, Fable 5; English prompts):
+## What it changes
 
-- **no tree** — the task and the path to the file, nothing else. Neither `tree` nor Redocly is named, so the agent has no hint the command exists and works the file with general-purpose tools.
-- **tree** — the same task plus the run line (`npx -y @redocly/cli@<snapshot> tree <file> --format=ai`), and one sentence: every view ends with a `next:` line naming the flags that continue from it, follow those.
+| Description   | Task                 | Model     |         works |  no tree |  tree | Δ cost |
+| ------------- | -------------------- | --------- | ------------: | -------: | ----: | -----: |
+| GitHub REST   | publish a release    | Sonnet 5  | 10/10 → 10/10 |    $0.42 | $0.32 |   −24% |
+| GitHub REST   | publish a release    | Opus 5    | 10/10 → 10/10 |    $0.82 | $0.64 |   −22% |
+| GitHub REST   | publish a release    | Haiku 4.5 |   3/10 → 3/10 |    $0.10 | $0.10 |    −0% |
+| Billing API   | start a subscription | Sonnet 5  |   2/10 → 6/10 |    $1.06 | $0.60 |   −43% |
+| Billing API   | start a subscription | Opus 5    | 10/10 → 10/10 |    $1.85 | $1.11 |   −40% |
+| Billing API   | start a subscription | Haiku 4.5 |   0/10 → 1/10 | $0.19 ❌ | $0.17 |      — |
+| Stripe        | buy carbon removal   | Sonnet 5  |  9/10 → 10/10 |    $0.32 | $0.25 |   −22% |
+| Stripe        | buy carbon removal   | Opus 5    | 10/10 → 10/10 |    $0.54 | $0.45 |   −17% |
+| Stripe        | buy carbon removal   | Haiku 4.5 |   0/10 → 8/10 | $0.09 ❌ | $0.10 |      — |
+| PayPal Orders | capture and track    | Sonnet 5  |  9/10 → 10/10 |    $0.40 | $0.41 |    +2% |
+| PayPal Orders | capture and track    | Opus 5    | 10/10 → 10/10 |    $0.77 | $0.97 |   +26% |
+| PayPal Orders | capture and track    | Haiku 4.5 |   4/10 → 4/10 |    $0.13 | $0.11 |   −15% |
+| DigitalOcean  | shared file storage  | Sonnet 5  |   3/10 → 9/10 |    $0.34 | $0.36 |    +6% |
+| DigitalOcean  | shared file storage  | Opus 5    | 10/10 → 10/10 |    $0.56 | $0.78 |   +39% |
+| DigitalOcean  | shared file storage  | Haiku 4.5 |   4/10 → 4/10 |    $0.20 | $0.14 |   −30% |
+| Cafe API      | order a coffee       | Sonnet 5  |  10/10 → 9/10 |    $0.24 | $0.28 |   +17% |
+| Cafe API      | order a coffee       | Opus 5    | 10/10 → 10/10 |    $0.44 | $0.67 |   +52% |
+| Cafe API      | order a coffee       | Haiku 4.5 |   6/10 → 6/10 |    $0.07 | $0.10 |   +43% |
 
-Both prompts are printed in full under each description below.
-Neither lists the flags, and the tree prompt links no documentation: the agent learns the surface from the output itself.
-That is deliberate on both counts — this command's reference page is 87 KB, about 20,000 tokens, and an agent offered it reads it, which costs more than the exploration it saves; and the run line carries `--format=ai`, because the stylish views are built for a terminal and end with no `next:` line, so an agent given those falls back to guessing flags and reading the file.
-
-Each run is measured by the context it added to its own session — how much of the description the agent had to pull into the window — with tool calls after the slash, and by what it was billed.
-How both are counted is in [How this was measured](#how-this-was-measured) at the end.
-
-Descriptions: GitHub REST (`api.github.com.yaml` from [`github/rest-api-description`](https://github.com/github/rest-api-description), 10.0 MB — far beyond any context window),
-a billing API (Rebilly, 1.3 MB), the Cafe demo API (41 KB).
+Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
+Context moves the same way and more steadily; it is in each tab below, and per-run in [the detailed version](./tree-agent-index-benchmark-detailed.md).
 
 ## The head-to-heads
 
 {% tabs %}
-{% tab label="GitHub REST · 10.0 MB" %}
 
-**Task:** publish a release, upload a zip asset to it, delete the asset — hosts, required fields, what feeds each next request.
-Trap: the upload operation overrides its server to `https://uploads.github.com` at the operation level.
+{% tab label="GitHub REST · publish a release" %}
+
+**Description:** 9.52 MB in one file.
+
+**Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
+Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+
+**The trap:** the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
 {% tabs %}
 {% tab label="Prompt: no tree" %}
 
 ```text
-Task: in a large OpenAPI description of a REST API, work out how to publish a release in a repository, upload a zip asset to it, and then delete that asset.
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
 
-List the requests in order: method, path, the exact HOST (base URL) of each request, required fields with types, success status codes, and which field from each response feeds the next request.
+API description: github-api.yaml
 
-Description: github-api.yaml
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% tab label="Prompt: tree" %}
 
 ```text
-Task: in a large OpenAPI description of a REST API, work out how to publish a release in a repository, upload a zip asset to it, and then delete that asset.
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
 
-List the requests in order: method, path, the exact HOST (base URL) of each request, required fields with types, success status codes, and which field from each response feeds the next request.
+API description: github-api.yaml
 
-The Redocly CLI's `tree` command is available and is meant for exactly this — walking a description in bounded steps instead of reading or grepping it. Run it as:
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree github-api.yaml --format=ai <flags>
 
-npx -y @redocly/cli@<snapshot> tree github-api.yaml --format=ai <flags>
-
-Run it with no extra flags first for the overview. Every view ends with a `next:` line naming the flags that continue from it — follow those. There is no documentation to read for this run.
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% /tabs %}
 
-| Model    |     no tree |      tree | Difference |
-| -------- | ----------: | --------: | ---------: |
-| Sonnet 5 | 10,523 / 11 | 9,459 / 6 |       −10% |
-| Opus 5   |  9,024 / 10 | 9,298 / 7 |        +3% |
-| Fable 5  |   8,762 / 7 | 7,226 / 5 |       −18% |
+| Model     |         works |     no tree |        tree | Δ context |
+| --------- | ------------: | ----------: | ----------: | --------: |
+| Sonnet 5  | 10/10 → 10/10 | 12,614 / 10 |  11,304 / 9 |      −10% |
+| Opus 5    | 10/10 → 10/10 | 20,266 / 17 | 14,435 / 11 |      −29% |
+| Haiku 4.5 |   3/10 → 3/10 | 11,060 / 10 | 10,262 / 10 |       −7% |
 
-What the tree agent ran:
+What the failing runs left out:
 
-{% tabs %}
-{% tab label="Sonnet 5" %}
+- **Haiku 4.5 · no tree** — 5 runs: no app token
+- **Haiku 4.5 · no tree** — 1 run: no asset upload
+- **Haiku 4.5 · no tree** — 1 run: no app token, no asset upload
+- **Haiku 4.5 · tree** — 2 runs: no app token, no asset upload
+- **Haiku 4.5 · tree** — 5 runs: no app token
 
-```bash
-npx -y @redocly/cli tree github-api.yaml --format=ai
-npx -y @redocly/cli tree github-api.yaml --format=ai --find=release
-npx -y @redocly/cli tree github-api.yaml --format=ai --find=upload
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
-```
+Sonnet 5 and Opus 5 answer correctly either way; the index buys 9% to 13% less context and fewer calls. Haiku 4.5 never mints the installation token its own flow declares.
 
 {% /tab %}
-{% tab label="Opus 5" %}
 
-```bash
-npx -y @redocly/cli tree github-api.yaml --format=ai
-npx -y @redocly/cli tree github-api.yaml --format=ai --find=release
-npx -y @redocly/cli tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases' --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --find='upload release asset'
-npx -y @redocly/cli tree github-api.yaml --format=ai --find='upload asset'
-npx -y @redocly/cli tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/{release_id}/assets' --operation=post
-npx -y @redocly/cli tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/assets/{asset_id}' --operation=delete --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=asset-id
-npx -y @redocly/cli tree github-api.yaml --format=ai --component=parameters --name=release-id
-```
+{% tab label="Billing API · start a subscription" %}
 
-7 tool calls, 9 invocations: this model bundled several commands into one shell call.
+**Description:** 1.25 MB in one file.
 
-{% /tab %}
-{% tab label="Fable 5" %}
+**Task:** put an existing customer onto a recurring plan, with nothing else set up yet.
+Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
 
-```bash
-npx -y @redocly/cli tree github-api.yaml --format=ai
-npx -y @redocly/cli tree github-api.yaml --format=ai --find="release asset"
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
-npx -y @redocly/cli tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
-```
-
-{% /tab %}
-{% /tabs %}
-
-Both agents correct, including the host override.
-No tag listing was needed: `--find` narrowed 1,000+ operations to a handful in one call, and every model started there.
-Sonnet 5 shows the widest gap in actions: 11 `grep`/`sed` calls against 6 bounded ones.
-Opus 5 is the one cell in the grid where the index does not pay off — a first `grep` that lands well returns as little as a card does.
-
-{% /tab %}
-{% tab label="Billing API · 1.3 MB" %}
-
-**Task:** create a product, a recurring-billing plan for it, then subscribe an existing customer.
-Traps: `Plan` is an `anyOf` without a discriminator (the recurring variant is `SubscriptionPlan`), and the subscription lives under the `Orders` tag.
+**The trap:** the subscription body needs four named fields, and every call needs the key in the `REB-APIKEY` header.
 
 {% tabs %}
 {% tab label="Prompt: no tree" %}
 
 ```text
-Task: in the OpenAPI description of a billing API, work out how to set up a recurring subscription for an existing customer from scratch — create a product, create a plan with recurring pricing for it, and then create the subscription itself.
+We're moving existing customers onto monthly recurring billing. One of them is already in
+the system, nothing else is set up yet. Work out what our backend has to call to get that
+customer onto a recurring plan.
 
-List the requests in order: method, path, HOST (base URL), required fields with types, success status codes, and which field from each step's response feeds the next request.
+API description: rebilly.yaml
 
-Description: rebilly.yaml
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% tab label="Prompt: tree" %}
 
 ```text
-Task: in the OpenAPI description of a billing API, work out how to set up a recurring subscription for an existing customer from scratch — create a product, create a plan with recurring pricing for it, and then create the subscription itself.
+We're moving existing customers onto monthly recurring billing. One of them is already in
+the system, nothing else is set up yet. Work out what our backend has to call to get that
+customer onto a recurring plan.
 
-List the requests in order: method, path, HOST (base URL), required fields with types, success status codes, and which field from each step's response feeds the next request.
+API description: rebilly.yaml
 
-The Redocly CLI's `tree` command is available and is meant for exactly this — walking a description in bounded steps instead of reading or grepping it. Run it as:
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree rebilly.yaml --format=ai <flags>
 
-npx -y @redocly/cli@<snapshot> tree rebilly.yaml --format=ai <flags>
-
-Run it with no extra flags first for the overview. Every view ends with a `next:` line naming the flags that continue from it — follow those. There is no documentation to read for this run.
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% /tabs %}
 
-| Model    |     no tree |        tree | Difference |
-| -------- | ----------: | ----------: | ---------: |
-| Sonnet 5 | 20,705 / 26 | 20,457 / 13 |        −1% |
-| Opus 5   | 19,435 / 17 | 18,512 / 10 |        −5% |
-| Fable 5  | 18,476 / 22 | 15,304 / 12 |       −17% |
+| Model     |         works |        no tree |        tree | Δ context |
+| --------- | ------------: | -------------: | ----------: | --------: |
+| Sonnet 5  |   2/10 → 6/10 |    18,538 / 19 | 25,739 / 18 |      +39% |
+| Opus 5    | 10/10 → 10/10 |    46,231 / 36 | 36,880 / 22 |      −20% |
+| Haiku 4.5 |   0/10 → 1/10 | 31,613 / 16 ❌ | 20,710 / 19 |         — |
 
-What the tree agent ran:
+What the failing runs left out:
 
-{% tabs %}
-{% tab label="Sonnet 5" %}
+- **Sonnet 5 · no tree** — 6 runs: no auth scheme
+- **Sonnet 5 · no tree** — 1 run: no product call, no auth scheme
+- **Sonnet 5 · no tree** — 1 run: wrong auth header
+- **Sonnet 5 · tree** — 4 runs: no auth scheme
+- **Haiku 4.5 · no tree** — 3 runs: no product call, no plan call, no auth scheme
+- **Haiku 4.5 · no tree** — 6 runs: no product call, no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no product call, no plan call, no orderType field, no auth scheme
+- **Haiku 4.5 · tree** — 1 run: no product call, no plan call
+- **Haiku 4.5 · tree** — 5 runs: no product call, no auth scheme
+- **Haiku 4.5 · tree** — 3 runs: no product call
 
-```bash
-npx -y @redocly/cli tree rebilly.yaml --format=ai
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Products
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Plans
-npx -y @redocly/cli tree rebilly.yaml --format=ai --find=subscription
-npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=Subscription
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=requestBodies --name=Product
-```
+The index turns Sonnet 5 from nothing that runs into four flows in five, and halves what Opus 5 pays. Every control failure here is the same one: the secret key never reaches the request.
 
 {% /tab %}
-{% tab label="Opus 5" %}
 
-```bash
-npx -y @redocly/cli tree rebilly.yaml --format=ai
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --tag=$t
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --tag=Orders
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --path=/products --operation=post --with-deps
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=Product
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula --with-deps
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=requestBodies --name=Subscription
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem --with-deps
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --pointer='#/components/schemas/Subscription'
-npx -y @redocly/cli tree specs/rebilly.yaml --format=ai --component=schemas --name=release-id
-```
+{% tab label="Stripe · buy carbon removal" %}
 
-10 tool calls, 13 invocations: this model bundled several commands into one shell call.
+**Description:** 6.07 MB in one file — the same file as the previous tab.
 
-{% /tab %}
-{% tab label="Fable 5" %}
+**Task:** buy carbon removal — pick a product from what's on offer, order a set number of metric tons, and be able to cancel before delivery.
+Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
+The point of this description: it is the same file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
 
-```bash
-npx -y @redocly/cli tree rebilly.yaml --format=ai
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Products
-npx -y @redocly/cli tree rebilly.yaml --format=ai --tag=Plans
-npx -y @redocly/cli tree rebilly.yaml --format=ai --find=subscription
-npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/products --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/plans --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --path=/subscriptions --operation=post --with-deps
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrOneTimeSaleItem
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
-npx -y @redocly/cli tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFixedFee
-```
-
-{% /tab %}
-{% /tabs %}
-
-Both agents correct, including the `anyOf` plan choice and the `Orders` tag.
-This is the description where the index is worked hardest — a subscription pulls in a dozen schemas — and where the context saving is smallest: 1–17%. The work still halves in actions — 13 bounded calls against 26 searches on Sonnet 5 — but a closure of a dozen schemas has to enter the window either way.
-
-{% /tab %}
-{% tab label="Cafe API · 41 KB" %}
-
-**Task:** find a coffee item on the menu, create an order for it, then check that order's status — including where the OAuth2 token comes from.
+**The trap:** the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance.
 
 {% tabs %}
 {% tab label="Prompt: no tree" %}
 
 ```text
-Task: in the OpenAPI description of a cafe, work out how to find a coffee item on the menu, create an order for it, and then check that order's status.
+Our company committed to buying carbon removal. Pick a removal product from what's on
+offer, place an order for a set number of metric tons, and be able to cancel that order
+before delivery if finance rejects the spend. Work out what our backend has to call.
 
-List the requests in order: method, path, HOST (base URL), required fields with types, authorization (if needed — where the token comes from), success status codes, and which field from each response feeds the next request.
+API description: climate.yaml
 
-Description: cafe.yaml
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% tab label="Prompt: tree" %}
 
 ```text
-Task: in the OpenAPI description of a cafe, work out how to find a coffee item on the menu, create an order for it, and then check that order's status.
+Our company committed to buying carbon removal. Pick a removal product from what's on
+offer, place an order for a set number of metric tons, and be able to cancel that order
+before delivery if finance rejects the spend. Work out what our backend has to call.
 
-List the requests in order: method, path, HOST (base URL), required fields with types, authorization (if needed — where the token comes from), success status codes, and which field from each response feeds the next request.
+API description: climate.yaml
 
-The Redocly CLI's `tree` command is available and is meant for exactly this — walking a description in bounded steps instead of reading or grepping it. Run it as:
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree climate.yaml --format=ai <flags>
 
-npx -y @redocly/cli@<snapshot> tree cafe.yaml --format=ai <flags>
-
-Run it with no extra flags first for the overview. Every view ends with a `next:` line naming the flags that continue from it — follow those. There is no documentation to read for this run.
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% /tabs %}
 
-| Model    |    no tree |      tree | Difference |
-| -------- | ---------: | --------: | ---------: |
-| Sonnet 5 | 16,866 / 1 | 8,095 / 8 |       −52% |
-| Opus 5   | 16,916 / 2 | 9,375 / 4 |       −45% |
-| Fable 5  | 16,840 / 1 | 8,181 / 7 |       −51% |
+| Model     |         works |       no tree |        tree | Δ context |
+| --------- | ------------: | ------------: | ----------: | --------: |
+| Sonnet 5  |  9/10 → 10/10 |    14,065 / 7 |   7,732 / 6 |      −45% |
+| Opus 5    | 10/10 → 10/10 |    14,913 / 7 |   9,622 / 7 |      −35% |
+| Haiku 4.5 |   0/10 → 8/10 | 12,952 / 7 ❌ | 10,202 / 12 |         — |
 
-What the tree agent ran:
+What the failing runs left out:
+
+- **Sonnet 5 · no tree** — 1 run: no auth scheme
+- **Haiku 4.5 · no tree** — 10 runs: no auth scheme
+- **Haiku 4.5 · tree** — 2 runs: no auth scheme
+
+The same file, a corner no tutorial covers, and the picture inverts: every model finds the calls, and Haiku 4.5 goes from none of ten to eight. Its control runs name the right calls and never say how they authenticate; with the index they quote the `security:` line back.
+
+{% /tab %}
+
+{% tab label="PayPal Orders · capture and track" %}
+
+**Description:** 0.93 MB in one file, JSON rather than YAML.
+
+**Task:** take the buyer's payment for a cart, capture it once they approve, and file the shipment's tracking number against that payment.
+Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
+
+**The trap:** the tracker binds to the `capture_id` from the capture response, not to the order.
 
 {% tabs %}
-{% tab label="Sonnet 5" %}
+{% tab label="Prompt: no tree" %}
 
-```bash
-npx -y @redocly/cli tree cafe.yaml --format=ai
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
+```text
+We sell physical goods online: take the buyer's payment for a cart, capture the money once
+they approve, and file the shipment's tracking number against that payment so the buyer
+sees it. Work out what our backend has to call, end to end.
+
+API description: paypal.json
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
-{% tab label="Opus 5" %}
+{% tab label="Prompt: tree" %}
 
-```bash
-npx -y @redocly/cli tree cafe.yaml --format=ai
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=schemas --name=$c
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=securitySchemes
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
-npx -y @redocly/cli tree specs/cafe.yaml --format=ai --component=parameters --name=OrderId
-```
+```text
+We sell physical goods online: take the buyer's payment for a cart, capture the money once
+they approve, and file the shipment's tracking number against that payment so the buyer
+sees it. Work out what our backend has to call, end to end.
 
-4 tool calls, 10 invocations: this model bundled several commands into one shell call.
+API description: paypal.json
 
-{% /tab %}
-{% tab label="Fable 5" %}
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree paypal.json --format=ai <flags>
 
-```bash
-npx -y @redocly/cli tree cafe.yaml --format=ai
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/menu --operation=get --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/orders --operation=post --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --path='/orders/{orderId}' --operation=get --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
-npx -y @redocly/cli tree cafe.yaml --format=ai --path=/oauth2/register --operation=post --with-deps
-npx -y @redocly/cli tree cafe.yaml --format=ai --component=schemas --name=Order
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
 {% /tab %}
 {% /tabs %}
 
-On a file this small the no-tree agent simply reads it whole — one action.
-That read is the whole cost: ~16,850 tokens of context on every model, against 7,400–9,400 through cards. Halving the context is the most consistent result in the grid. It is also the steadiest: three models, three runs, the same halving each time.
+| Model     |         works |     no tree |        tree | Δ context |
+| --------- | ------------: | ----------: | ----------: | --------: |
+| Sonnet 5  |  9/10 → 10/10 | 17,351 / 10 |  23,572 / 8 |      +36% |
+| Opus 5    | 10/10 → 10/10 | 19,024 / 13 | 27,908 / 16 |      +47% |
+| Haiku 4.5 |   4/10 → 4/10 | 21,759 / 10 |  23,054 / 8 |       +6% |
+
+What the failing runs left out:
+
+- **Sonnet 5 · no tree** — 1 run: no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no intent field, no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no intent field, no tracker call
+- **Haiku 4.5 · no tree** — 1 run: no tracker call, no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no carrier field
+- **Haiku 4.5 · no tree** — 1 run: no carrier field, no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no auth scheme
+- **Haiku 4.5 · tree** — 1 run: no carrier field
+- **Haiku 4.5 · tree** — 3 runs: no intent field
+- **Haiku 4.5 · tree** — 2 runs: no intent field, no carrier field
+
+Opus 5 passes every run either way and Sonnet 5 misses one without the index. Both pay more context with it — nine operations barely need finding, and the cards arrive carrying PayPal's deep schemas — which for Opus 5 lands as 26% more billed.
+Haiku 4.5 stays at four working runs, still leaving `intent` out of the order body.
+
+{% /tab %}
+
+{% tab label="DigitalOcean · shared file storage" %}
+
+**Description:** 2.62 MB across 2,909 files — the same description as the previous tab.
+
+**Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
+Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+
+**The trap:** the share takes a `vpc_ids` array while an access point takes one `vpc_id`.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean/DigitalOcean-public.v2.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean/DigitalOcean-public.v2.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
 
 {% /tab %}
 {% /tabs %}
 
-## The grid in one view
+| Model     |         works |     no tree |        tree | Δ context |
+| --------- | ------------: | ----------: | ----------: | --------: |
+| Sonnet 5  |   3/10 → 9/10 | 11,729 / 19 | 12,282 / 13 |       +5% |
+| Opus 5    | 10/10 → 10/10 |  17,143 / 9 | 25,474 / 14 |      +49% |
+| Haiku 4.5 |   4/10 → 4/10 | 37,888 / 14 | 13,508 / 13 |      −64% |
 
-| Description | Model    |     no tree |        tree | Difference |
-| ----------- | -------- | ----------: | ----------: | ---------: |
-| GitHub REST | Sonnet 5 | 10,523 / 11 |   9,459 / 6 |       −10% |
-| GitHub REST | Opus 5   |  9,024 / 10 |   9,298 / 7 |        +3% |
-| GitHub REST | Fable 5  |   8,762 / 7 |   7,226 / 5 |       −18% |
-| Billing API | Sonnet 5 | 20,705 / 26 | 20,457 / 13 |        −1% |
-| Billing API | Opus 5   | 19,435 / 17 | 18,512 / 10 |        −5% |
-| Billing API | Fable 5  | 18,476 / 22 | 15,304 / 12 |       −17% |
-| Cafe API    | Sonnet 5 |  16,866 / 1 |   8,095 / 8 |       −52% |
-| Cafe API    | Opus 5   |  16,916 / 2 |   9,375 / 4 |       −45% |
-| Cafe API    | Fable 5  |  16,840 / 1 |   8,181 / 7 |       −51% |
+What the failing runs left out:
 
-The size of the win tracks how much of the description the other agent has to pull in: half of it on the 41 KB Cafe API, which it reads whole, and 1–18% on the two large ones, which it can search instead.
-Tool calls halve in almost every cell — 13 against 26, 10 against 17, 6 against 11 — which is where the saving comes from on the large descriptions, since a closure of a dozen schemas has to enter the window either way.
+- **Sonnet 5 · no tree** — 7 runs: no auth scheme
+- **Sonnet 5 · tree** — 1 run: no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no vpc_ids field, no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no auth scheme
+- **Haiku 4.5 · no tree** — 4 runs: no access point call, no auth scheme
+- **Haiku 4.5 · tree** — 4 runs: no auth scheme
+- **Haiku 4.5 · tree** — 1 run: no share call, no access point call
+- **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
 
-What the same runs were billed:
+The same 2,909 files, a corner the tutorials skip: Sonnet 5 moves from three working runs in ten to nine, the largest single move in the grid, while Haiku 4.5 stays at four and only gets there cheaper. Opus 5 passes either way and pays 39% more for it — with one operation per file, the filenames are already an index. The second of two controls in this grid for what a model remembers versus what it reads.
 
-| Description | Model    | no tree |   tree | Difference |
-| ----------- | -------- | ------: | -----: | ---------: |
-| GitHub REST | Sonnet 5 |  $0.338 | $0.253 |       −25% |
-| GitHub REST | Opus 5   |  $0.372 | $0.390 |        +5% |
-| GitHub REST | Fable 5  |  $0.703 | $0.586 |       −17% |
-| Billing API | Sonnet 5 |  $0.873 | $0.379 |       −57% |
-| Billing API | Opus 5   |  $0.720 | $0.592 |       −18% |
-| Billing API | Fable 5  |  $1.665 | $0.964 |       −42% |
-| Cafe API    | Sonnet 5 |  $0.219 | $0.224 |        +2% |
-| Cafe API    | Opus 5   |  $0.348 | $0.337 |        −3% |
-| Cafe API    | Fable 5  |  $0.635 | $0.610 |        −4% |
+{% /tab %}
 
-Read this table for its shape, not its precision: it is the same tokens seen from the billing side, where a cached read costs about a tenth of fresh input, so it rewards fewer turns as much as smaller ones.
-That is why the billing API saves most here and least on context — 26 searches against 13 bounded calls — and why the Cafe API is the other way round.
-Amounts compare across a row only: the same billing-API task costs $0.72 on Opus 5 and $1.67 on Fable 5, which says nothing about the index.
+{% tab label="Cafe API · order a coffee" %}
+
+**Description:** 0.04 MB in one file.
+
+**Task:** a customer app that browses the menu, orders a coffee, and follows the order until it is ready.
+Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
+
+**The trap:** ordering needs an OAuth2 token with the `orders:write` scope, minted by a call the task never mentions.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
+and follows that order until it's ready. Work out what the app has to call, end to end.
+
+API description: cafe.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
+and follows that order until it's ready. Work out what the app has to call, end to end.
+
+API description: cafe.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree cafe.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+| Model     |         works |    no tree |        tree | Δ context |
+| --------- | ------------: | ---------: | ----------: | --------: |
+| Sonnet 5  |  10/10 → 9/10 | 16,912 / 1 |  8,840 / 10 |      −48% |
+| Opus 5    | 10/10 → 10/10 | 16,926 / 2 | 15,417 / 13 |       −9% |
+| Haiku 4.5 |   6/10 → 6/10 | 14,373 / 1 |  19,100 / 7 |      +33% |
+
+What the failing runs left out:
+
+- **Sonnet 5 · tree** — 1 run: no token call
+- **Haiku 4.5 · no tree** — 4 runs: no token call
+- **Haiku 4.5 · tree** — 4 runs: no token call
+
+At 41 KB the whole description fits in one read, and all thirty control runs take it — one call and the model has everything.
+The index still cuts Sonnet 5's context nearly in half, and still costs more: it turns that one read into seven to thirteen calls, and each call is a fresh request carrying the whole conversation again. Sonnet 5 is the clearest case in the grid — 48% less context, 17% more billed.
+Haiku 4.5 loses the token call among the cards exactly as often as it loses it in the file.
+
+{% /tab %}
+
+{% /tabs %}
+
+## What the numbers show
+
+**An index decides whether a smaller model gets there at all.**
+Three cells move from at most three working flows in ten to six or more once it is available: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal, which goes from none of ten to eight.
+Opus 5, meanwhile, passes all 120 of its runs either way — it does not need one.
+
+**Almost every one of those failures is the same failure.** The control runs name the right calls in the right order and never say how the request authenticates: no key, no header, no token. It is the largest failure class in the grid by a wide margin, and it is what an index removes, because every card states the requirement that protects the operation.
+
+**It does not pay everywhere, and the grid shows where.** Where a description is small, or already laid out as one file per operation, fetching cards costs more than reading it: Opus 5 pays 49% more context on DigitalOcean and 47% more on PayPal for answers it would have reached anyway.
+The bill follows calls more closely than bytes, because every call is a request that resends the conversation. The Cafe API shows it at its plainest: one read of the whole 41 KB file becomes seven to thirteen index calls, and Sonnet 5 ends up with 48% less context and a 17% larger bill.
+The pattern across all six: the index earns its place on descriptions large enough that search is the only way in, and on models that would otherwise leave something out.
 
 ## How this was measured
 
-Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
-Sessions start in an empty directory with the description outside any repository, so no `AGENTS.md` or `CLAUDE.md` reaches the model; the tree runs call `@redocly/cli@0.0.0-snapshot.1786868116` through `npx`.
-Each cell is one run, and all 18 answers were checked and correct on both sides.
+Every run is a fresh Claude Code session with the task text as its only input, allowed to run shell commands, read files and search them, starting in a directory holding nothing but the description.
+The **no tree** prompt names neither `tree` nor Redocly; the **tree** prompt adds two lines saying the CLI is installed and that `redocly tree --help` lists what it can select.
+Each cell is ten runs; the tables give the median over the ones whose flow works, and a cell marked ❌ is one where none did.
+An answer works when it names every required call, the host each goes to, the fields the body needs, and how the request authenticates.
 
-The numbers on this page belong to that build. `--format=ai` has since been made to carry less — long prose is clipped, error responses fold to their codes, and every card states the security requirement that applies to it — so a run repeated today pulls in less than the tables here show.
-[Whether the flow an agent produces would actually run](./tree-agent-index-benchmark-v2.md) measures the current output, over four models and three repeats a cell, and checks that the answer would work rather than only that it names the right calls.
-
-**context** — from the run's transcript, `~/.claude/projects/<directory>/<session_id>.jsonl`, over the `assistant` records that carry a `message.usage`.
-A turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, which is the whole prompt the model was handed on that turn; the table gives the last turn's minus the first turn's.
-The first turn is the system prompt plus the task, so the subtraction drops 26,000 to 43,000 tokens that are identical in both conditions and drift between batches.
-
-**actions** — `tool_use` blocks in those same records. One shell call can chain several commands with `;`, so a run's command list is sometimes longer.
-
-**cost** — `total_cost_usd` as the run itself reports it, not recomputed here.
-It is the least reproducible number on this page: the same no-tree task on the Cafe API cost $0.390 and then $0.219 for identical work, because the second run met a warm prompt cache and paid for reads instead of writes. In a series, whichever condition runs second gets that discount.
-
-**Not used: the run's token totals.**
-The summed `usage` a run reports counts the context once per turn, so it grows with the number of turns rather than the material pulled in — on the Cafe API it makes the index look 63–79% worse.
-
-**Noise.** Repeating a cell through the index lands within a few percent, without it by up to 83%, because the agent invents a fresh search strategy every time; where a cell was run twice, the table shows the sample less favourable to `tree`.
-A no-tree run that finishes in two calls on a large description has usually handed the task to a sub-agent, whose context is not reported; those are discarded and repeated.
-Treat anything under about 15% as a tie.
+Every run, every command it issued, and every verdict is in [the detailed version](./tree-agent-index-benchmark-detailed.md).

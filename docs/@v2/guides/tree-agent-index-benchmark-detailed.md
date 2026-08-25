@@ -5,11 +5,11 @@ Measured on a build of PR #3005 at `a823f0ee9`, ten runs a cell for every model.
 The grid moves to a published snapshot once one carries this build.
 {% /admonition %}
 
-This is the long form of [Where the index pays](./tree-agent-index-benchmark-v3.md): every run, every command, every verdict.
+This is the long form of [Where the index pays](./tree-agent-index-benchmark.md): every run, every command, every verdict.
 Read the short version first — this page exists to check it.
 
-The [second benchmark](./tree-agent-index-benchmark-v2.md) asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
-This one adds five task-description pairs chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; DigitalOcean, which ships as 2,909 files with one operation each — and, for two of them, a second task asking about a corner of the same file that no tutorial covers, so that what a model remembers can be told apart from what it reads.
+Earlier rounds asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
+This round adds five task-description pairs chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; DigitalOcean, which ships as 2,909 files with one operation each — and, for two of them, a second task asking about a corner of the same file that no tutorial covers, so that what a model remembers can be told apart from what it reads.
 
 Six description-task pairs, three models, two conditions, ten runs a cell — 360 runs:
 
