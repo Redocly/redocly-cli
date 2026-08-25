@@ -1,5 +1,98 @@
 # @redocly/openapi-core
 
+## 2.47.0
+
+### Minor Changes
+
+- Added a Vendor Extensions metric to the `stats` command that reports how many distinct `x-` extensions a description file uses and how often each one occurs.
+
+### Patch Changes
+
+- Fixed the `stats` command reporting wrong parameter count for AsyncAPI descriptions.
+
+## 2.46.2
+
+### Patch Changes
+
+- Improved the error message raised when a configurable rule is missing the `assertions` block.
+- Fixed an issue where the `no-duplicated-enum-values` rule didn't report duplicated enum values that are objects or arrays.
+
+  Fixed an issue where the `no-duplicated-enum-values` rule printed `[object Object]` when reporting duplicate values.
+
+## 2.46.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `^8.18.3`.
+
+## 2.46.0
+
+### Minor Changes
+
+- Added the `spec-ref-siblings` rule that reports properties placed next to a `$ref` which the specification does not allow.
+
+### Patch Changes
+
+- Fixed the `struct` rule to report unexpected fields on AsyncAPI 3 messages and message traits.
+- Fixed an issue where remote `$ref`s with query parameters in the URL were not resolved.
+
+## 2.45.0
+
+### Minor Changes
+
+- Fixed the `bundle` command losing schema keywords (such as `title`, `properties`, or `required`) written next to a `$ref` when the referenced schemas started with their own `$ref`.
+
+## 2.44.2
+
+### Patch Changes
+
+- Changed the severity of the `security-defined` rule for AsyncAPI 2.x and 3.x in the `recommended` ruleset from `error` to `warn`.
+  AsyncAPI descriptions with undefined or unresolved security no longer fail linting by default.
+
+## 2.44.1
+
+### Patch Changes
+
+- Fixed an issue where the `operation-4xx-problem-details-rfc7807` rule incorrectly reported the `type` and `title` properties inherited through `allOf` as missing.
+
+## 2.44.0
+
+### Minor Changes
+
+- Added the `no-duplicated-enum-values` rule that requires all values in an `enum` to be unique.
+  The rule is enabled at the `warn` level in the `recommended` ruleset.
+
+  **Note**: linting output may include new warnings for API descriptions that contain duplicated enum values.
+
+- Added the `no-unsafe-markdown` rule that disallows potentially executable content in `description` fields.
+  The rule is enabled at the `warn` level in the `recommended` ruleset.
+
+  **Note**: linting output may include new warnings for `description` fields that contain potentially executable content.
+
+- Added `security-defined` rule for AsyncAPI 2.x and 3.x.
+
+  **Warning**: this rule is enabled at `error` severity in the `recommended` ruleset, so AsyncAPI documents that previously linted clean may now fail. The rule flags security `$ref`s that target an undefined scheme or a path outside `components.securitySchemes`, and operations that declare no `security` of their own when the applicable servers don't supply one either.
+
+## 2.43.3
+
+## 2.43.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.53.1.
+
+## 2.43.1
+
+### Patch Changes
+
+- Fixed `skipPluginEval` to keep `extends` unresolved instead of failing when the config extends a plugin preset.
+
+## 2.43.0
+
+### Minor Changes
+
+- Added a `skipPluginEval` option to `loadConfig` that resolves plugin paths without importing or executing plugin code — the returned plugins contain only their `absolutePath`.
+
 ## 2.42.0
 
 ### Minor Changes

@@ -103,10 +103,12 @@
             - separator: Common
             - page: rules/common/struct.md
             - page: rules/common/no-unresolved-refs.md
+            - page: rules/common/no-duplicated-enum-values.md
             - page: rules/common/no-enum-type-mismatch.md
             - page: rules/common/no-schema-type-mismatch.md
             - page: rules/common/no-required-schema-properties-undefined.md
             - page: rules/common/no-mixed-number-range-constraints.md
+            - page: rules/common/no-unsafe-markdown.md
             - page: rules/common/security-scopes-defined.md
             - separator: OpenAPI
             - page: rules/oas/array-parameter-serialization.md
@@ -128,6 +130,7 @@
             - page: rules/oas/spec-discriminator-defaultMapping.md
             - page: rules/oas/spec-no-invalid-encoding-combinations.md
             - page: rules/oas/spec-querystring-parameters.md
+            - page: rules/oas/spec-ref-siblings.md
             - page: rules/oas/no-path-trailing-slash.md
             - page: rules/oas/no-server-example-com.md
             - page: rules/oas/no-server-trailing-slash.md
@@ -167,6 +170,7 @@
             - separator: AsyncAPI
             - page: rules/async/channels-kebab-case.md
             - page: rules/async/no-channel-trailing-slash.md
+            - page: rules/async/security-defined.md
             - separator: Open-RPC
             - page: rules/openrpc/spec-no-duplicated-method-params.md
             - page: rules/openrpc/spec-no-required-params-after-optional.md

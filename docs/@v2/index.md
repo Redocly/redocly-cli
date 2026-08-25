@@ -38,6 +38,13 @@ Publish a subset of endpoints, or use decorators to enhance your existing OpenAP
 Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
 {% /card %}
 
+{% card
+    title="Generate SDK client"
+    to="./commands/generate-client"
+  %}
+Generate a typed, zero-dependency TypeScript client from an OpenAPI description — auth, retries, and pagination included — plus companions like Zod schemas, TanStack Query hooks, and mocks.
+{% /card %}
+
 {% /cards %}
 
 {% admonition type="warning" %}

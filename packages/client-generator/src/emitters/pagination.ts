@@ -172,7 +172,8 @@ function applyRule(
     // only to operations that document it; an explicit rule applies regardless (a spec
     // often under-documents headers) but says so, since the runtime then depends on an
     // undocumented behavior.
-    const documentsLink = page.headers?.includes('link') === true;
+    const documentsLink =
+      op.successResponseHeaders?.some((header) => header.name === 'link') === true;
     if (!documentsLink && !explicit) return {};
     if (!documentsLink) {
       logger.warn(
@@ -274,8 +275,9 @@ function ruleShapeProblem(rule: unknown): string | undefined {
  * Resolve an RFC 6901 JSON pointer (`~1` → `/`, `~0` → `~`) over a schema, walking the
  * VALUE shape it describes: object property steps by name, record values for any token,
  * array items for numeric tokens, with `ref` steps resolved through the model's named
- * schemas (cycle-guarded). Unions and intersections bail (v1 is strict). Returns
- * `undefined` on any miss — the caller decides whether that is an error.
+ * schemas (cycle-guarded). Intersections (`allOf` — the common collection-base pattern)
+ * resolve across their members; unions bail (genuinely ambiguous — v1 is strict).
+ * Returns `undefined` on any miss — the caller decides whether that is an error.
  */
 export function resolveSchemaPointer(
   schema: SchemaModel,
@@ -287,19 +289,33 @@ export function resolveSchemaPointer(
   if (pointer === '') return current;
   for (const token of pointer.slice(1).split('/')) {
     const key = token.replaceAll('~1', '/').replaceAll('~0', '~');
-    let next: SchemaModel | undefined;
-    if (current.kind === 'object') {
-      next = current.properties.find((p) => p.name === key)?.schema;
-    } else if (current.kind === 'record') {
-      next = current.value;
-    } else if (current.kind === 'array' && /^(0|[1-9]\d*)$/.test(key)) {
-      next = current.items;
-    }
+    const next = stepIntoSchema(current, key, model);
     if (next === undefined) return undefined;
     current = deref(next, model);
     if (current === undefined) return undefined;
   }
   return current;
+}
+
+/** One pointer step over a (dereferenced) schema; an intersection takes the LAST member that resolves, since later `allOf` members refine earlier ones. */
+function stepIntoSchema(
+  schema: SchemaModel,
+  key: string,
+  model: ApiModel
+): SchemaModel | undefined {
+  if (schema.kind === 'object') return schema.properties.find((p) => p.name === key)?.schema;
+  if (schema.kind === 'record') return schema.value;
+  if (schema.kind === 'array' && /^(0|[1-9]\d*)$/.test(key)) return schema.items;
+  if (schema.kind === 'intersection') {
+    let match: SchemaModel | undefined;
+    for (const member of schema.members) {
+      const target = deref(member, model);
+      if (target === undefined) continue;
+      match = stepIntoSchema(target, key, model) ?? match;
+    }
+    return match;
+  }
+  return undefined;
 }
 
 /** A (dereferenced) schema named for a fit-error message; scalars/enums by their scalar. */

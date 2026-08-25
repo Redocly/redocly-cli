@@ -79,24 +79,31 @@ export function varsParam(op: OperationModel): ts.ParameterDeclaration {
   );
 }
 
-/** An `init?: RequestOptions` parameter. */
+/**
+ * An `init?: Omit<RequestOptions, "envelope">` parameter. The wrappers cache the
+ * fetched body, so the throw-only `envelope` option is excluded from the type and
+ * stripped at runtime by `sdkCall`.
+ */
 export function initParam(): ts.ParameterDeclaration {
   return factory.createParameterDeclaration(
     undefined,
     undefined,
     'init',
     factory.createToken(ts.SyntaxKind.QuestionToken),
-    factory.createTypeReferenceNode('RequestOptions')
+    factory.createTypeReferenceNode('Omit', [
+      factory.createTypeReferenceNode('RequestOptions'),
+      factory.createLiteralTypeNode(factory.createStringLiteral('envelope')),
+    ])
   );
 }
 
 /**
- * The forwarding call to the sdk operation function. Argument order comes from the
- * shared `operationSignature`, so it lines up with the sdk's parameter list by
- * construction. `grouped` passes the source object (when inputs); `flat` spreads
- * `<source>.<pathIdent>` (URL-template order), then `<source>.params` / `.body` /
- * `.headers` for the slots the op has. `init` is appended last when `withInit`
- * (the sdk function's trailing `RequestOptions`).
+ * The forwarding call to the sdk operation function; argument order comes from the
+ * shared `operationSignature`. `grouped` passes the source object — `{}` for a
+ * no-input op with an init, which must not land in the `(args?, init?)` args slot;
+ * `flat` spreads `<source>.<pathIdent>`, then `.params` / `.body` / `.headers`.
+ * `withInit` appends `{ ...init, envelope: undefined }` — a runtime strip, since
+ * `initParam`'s `Omit` is type-only.
  */
 export function sdkCall(
   op: OperationModel,
@@ -110,6 +117,7 @@ export function sdkCall(
 
   if (argsStyle === 'grouped') {
     if (sig.hasInputs) args.push(sourceIdent);
+    else if (withInit) args.push(factory.createObjectLiteralExpression([]));
   } else {
     for (const { ident } of sig.pathParams) {
       args.push(factory.createPropertyAccessExpression(sourceIdent, ident));
@@ -119,7 +127,14 @@ export function sdkCall(
     if (sig.hasHeaders) args.push(factory.createPropertyAccessExpression(sourceIdent, 'headers'));
     if (sig.hasCookies) args.push(factory.createPropertyAccessExpression(sourceIdent, 'cookies'));
   }
-  if (withInit) args.push(factory.createIdentifier('init'));
+  if (withInit) {
+    args.push(
+      factory.createObjectLiteralExpression([
+        factory.createSpreadAssignment(factory.createIdentifier('init')),
+        factory.createPropertyAssignment('envelope', factory.createIdentifier('undefined')),
+      ])
+    );
+  }
 
   return factory.createCallExpression(factory.createIdentifier(op.name), undefined, args);
 }

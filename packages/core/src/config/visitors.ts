@@ -66,11 +66,16 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
+  skipPluginEval?: boolean;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
   if (isPlainObject(node) && node.extends) {
-    const { plugins } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+    const { plugins, skipPluginEval } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+    if (skipPluginEval) {
+      // `extends` may reference plugin presets, which are unknown when plugin code is not evaluated.
+      return;
+    }
     const bundled = bundleExtends({ node, ctx, plugins });
     Object.assign(node, bundled);
     delete node.extends;

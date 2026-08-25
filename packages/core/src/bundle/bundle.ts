@@ -16,7 +16,7 @@ import {
 } from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
-import type { CollectFn } from '../utils/types.js';
+import type { CollectSpecData } from '../utils/types.js';
 import { walkDocument, type NormalizedProblem, type WalkContext } from '../walk.js';
 import { bundleDocument, type CoreBundleOptions } from './bundle-document.js';
 
@@ -49,9 +49,10 @@ export function collectConfigPlugins(
 export function bundleConfig(
   document: Document,
   resolvedRefMap: ResolvedRefMap,
-  plugins: Plugin[]
+  plugins: Plugin[],
+  skipPluginEval = false
 ): ResolvedConfig {
-  const visitorsData: ConfigBundlerVisitorData = { plugins };
+  const visitorsData: ConfigBundlerVisitorData = { plugins, skipPluginEval };
   const ctx: BundleContext = {
     problems: [],
     specVersion: 'config',
@@ -76,7 +77,7 @@ export async function bundle(
   opts: {
     ref?: string;
     doc?: Document;
-    collectSpecData?: CollectFn;
+    collectSpecData?: CollectSpecData;
   } & CoreBundleOptions
 ) {
   const {

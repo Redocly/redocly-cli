@@ -73,6 +73,68 @@ describe('walk order', () => {
     }
   });
 
+  it('should fire ref visitors once per composed $ref regardless of key order', async () => {
+    const countComposedRefVisits = async (documentYaml: string) => {
+      const visits: string[] = [];
+      const testRuleSet: Oas3RuleSet = {
+        test: () => ({
+          ref(node: any, ctx: any) {
+            if (Object.keys(node).length > 1) {
+              visits.push(ctx.location.pointer);
+            }
+          },
+        }),
+      };
+
+      await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document: parseYamlToDocument(documentYaml, ''),
+        config: await createConfig({
+          plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+          rules: { 'test/test': 'error' },
+        }),
+      });
+
+      return visits;
+    };
+
+    const usageFirst = outdent`
+      openapi: 3.1.0
+      info:
+        title: Test
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Usage:
+            $ref: '#/components/schemas/Composed'
+          Composed:
+            $ref: '#/components/schemas/Base'
+            title: Composed
+          Base:
+            type: object
+    `;
+    const composedFirst = outdent`
+      openapi: 3.1.0
+      info:
+        title: Test
+        version: 1.0.0
+      paths: {}
+      components:
+        schemas:
+          Composed:
+            $ref: '#/components/schemas/Base'
+            title: Composed
+          Base:
+            type: object
+          Usage:
+            $ref: '#/components/schemas/Composed'
+    `;
+
+    expect(await countComposedRefVisits(usageFirst)).toEqual(['#/components/schemas/Composed']);
+    expect(await countComposedRefVisits(composedFirst)).toEqual(['#/components/schemas/Composed']);
+  });
+
   it('should run legacy visitors', async () => {
     const visitors = {
       DefinitionRoot: {
@@ -1771,6 +1833,305 @@ describe('type extensions', () => {
       'leave XWebHooks',
       'leave Root',
     ]);
+  });
+});
+
+describe('spec extensions', () => {
+  it('should visit a declared extension node once, not once per visitor kind', async () => {
+    const anyVisits: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        any: {
+          enter: (_node: any, ctx: any) => anyVisits.push(ctx.location.pointer),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples:
+                  - lang: curl
+                    source: echo
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    const extensionVisits = anyVisits.filter(
+      (pointer) => pointer === '#/paths/~1pet/get/x-codeSamples'
+    );
+    expect(extensionVisits).toHaveLength(1);
+  });
+
+  it('should walk a declared extension subtree once for nested visitors', async () => {
+    const operationVisits: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        PathItem: {
+          Operation: {
+            leave: (operation: any) => operationVisits.push(operation.operationId),
+          },
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+              x-query:
+                operationId: query
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(operationVisits).toEqual(['get', 'query']);
+  });
+
+  it('should give a full SpecExtension lifecycle to a declared extension with a plain schema', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`enter ${ctx.key}`),
+          leave: (_node: any, ctx: any) => calls.push(`leave ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-hideTryItPanel: true
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['enter x-hideTryItPanel', 'leave x-hideTryItPanel']);
+  });
+
+  it('should dispatch an x- key inside Swagger 2.0 scopes, leaving scope names to the map', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas2RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          swagger: '2.0'
+          info:
+            title: t
+            version: '1'
+          paths: {}
+          securityDefinitions:
+            oauth:
+              type: oauth2
+              flow: implicit
+              authorizationUrl: https://example.com/auth
+              scopes:
+                read: Read access
+                x-scopes-ext: internal note
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas2: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['extension x-scopes-ext']);
+  });
+
+  it('should dispatch an x- key on a callback, leaving expression keys to the map', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(`extension ${ctx.key}`),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                callbacks:
+                  onEvent:
+                    x-callback-ext: true
+                    '{$request.body#/url}':
+                      post:
+                        responses:
+                          '200':
+                            description: ok
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['extension x-callback-ext']);
+  });
+
+  it('should visit every occurrence of extensions with equal scalar values', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        SpecExtension: {
+          enter: (_node: any, ctx: any) => calls.push(ctx.location.pointer),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-internal: true
+            /dog:
+              get:
+                operationId: getDog
+                x-internal: true
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toEqual(['#/paths/~1pet/get/x-internal', '#/paths/~1dog/get/x-internal']);
+  });
+
+  it('should keep struct validation for a typed extension with an invalid shape', async () => {
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          info:
+            title: t
+            version: '1'
+          paths:
+            /pet:
+              get:
+                operationId: get
+                x-codeSamples: just a string
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(results.map((problem) => problem.message)).toContain(
+      'Expected type `XCodeSampleList` (array) but got `string`'
+    );
+  });
+
+  it('should not re-visit $refs inside a declared extension subtree', async () => {
+    const refCalls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        ref: {
+          enter: (node: any) => refCalls.push(node.$ref),
+        },
+      }),
+    };
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /pet:
+              get:
+                operationId: get
+          x-webhooks:
+            newPet:
+              $ref: '#/components/x-hook-item'
+          components:
+            x-hook-item:
+              post:
+                responses:
+                  '200':
+                    description: ok
+        `,
+        ''
+      ),
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(refCalls.filter((ref) => ref === '#/components/x-hook-item')).toHaveLength(1);
   });
 });
 

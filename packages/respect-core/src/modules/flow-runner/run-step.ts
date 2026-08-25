@@ -34,6 +34,7 @@ import { prepareRequest, type RequestData } from './prepare-request.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export async function runStep({
   step,
   ctx,
@@ -300,6 +301,7 @@ export async function runStep({
   }
 
   // Internal function to run actions
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   async function runActions(
     actions: OnFailureObject[] | OnSuccessObject[] = [],
     kind: 'failure' | 'success',

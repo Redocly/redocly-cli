@@ -49,7 +49,6 @@ const Logo: NodeType = {
     backgroundColor: { type: 'string' },
     href: { type: 'string' },
   },
-  extensionsPrefix: 'x-',
 };
 
 const Contact: NodeType = {
@@ -71,6 +70,7 @@ const License: NodeType = {
 };
 
 const Paths: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {},
   additionalProperties: (_value: unknown, key: string) =>
     key.startsWith('/') ? 'PathItem' : undefined,
@@ -215,6 +215,7 @@ const ParameterItems: NodeType = {
 };
 
 const Responses: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     default: 'Response',
   },
@@ -366,6 +367,12 @@ const Xml: NodeType = {
   extensionsPrefix: 'x-',
 };
 
+const Scopes: NodeType = {
+  extensionsPrefix: 'x-',
+  properties: {},
+  additionalProperties: { type: 'string' },
+};
+
 const SecurityScheme: NodeType = {
   properties: {
     type: { enum: ['basic', 'apiKey', 'oauth2'] },
@@ -375,7 +382,7 @@ const SecurityScheme: NodeType = {
     flow: { enum: ['implicit', 'password', 'application', 'accessCode'] },
     authorizationUrl: { type: 'string' },
     tokenUrl: { type: 'string' },
-    scopes: { type: 'object', additionalProperties: { type: 'string' } },
+    scopes: 'Scopes',
     'x-defaultClientId': { type: 'string' },
   },
   required(value) {
@@ -472,6 +479,7 @@ export const Oas2Types = {
   NamedParameters: mapOf('Parameter'),
   NamedSecuritySchemes: mapOf('SecurityScheme'),
   SecurityScheme,
+  Scopes,
   XCodeSample,
   XCodeSampleList: listOf('XCodeSample'),
   XServerList: listOf('XServer'),

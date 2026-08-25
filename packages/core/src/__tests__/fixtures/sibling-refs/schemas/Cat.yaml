@@ -1,0 +1,5 @@
+title: Cat
+$ref: ./BaseProblem.yaml
+properties:
+  toy:
+    $ref: ./Toy.yaml

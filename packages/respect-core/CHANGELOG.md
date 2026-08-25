@@ -1,5 +1,79 @@
 # @redocly/respect-core
 
+## 2.47.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.47.0.
+
+## 2.46.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.2.
+
+## 2.46.1
+
+### Patch Changes
+
+- Updated `@redocly/ajv` to `^8.18.3`.
+- Updated @redocly/openapi-core to v2.46.1.
+
+## 2.46.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.0.
+
+## 2.45.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.45.0.
+
+## 2.44.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.2.
+
+## 2.44.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.1.
+
+## 2.44.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.0.
+
+## 2.43.3
+
+### Patch Changes
+
+- Fixed an issue where secrets masking did not cover encoded secrets in `har-output`.
+- Updated @redocly/openapi-core to v2.43.3.
+
+## 2.43.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.2.
+
+## 2.43.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.1.
+
+## 2.43.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.0.
+
 ## 2.42.0
 
 ### Patch Changes

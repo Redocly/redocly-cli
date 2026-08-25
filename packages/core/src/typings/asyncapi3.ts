@@ -1,28 +1,11 @@
 export type Async3Definition = {
   asyncapi: string;
-  servers?: Record<string, any>;
+  servers?: Record<string, Async3Server>;
   info: Async3Info;
   channels?: Record<string, Channel>;
   components?: Record<string, any>;
   operations?: Record<string, Async3Operation>;
   defaultContentType?: string;
-};
-
-export type Async3Operation = {
-  action: 'send' | 'receive';
-  channel: Channel;
-  title?: string;
-  summary?: string;
-  description?: string;
-  security?: Record<string, any>[];
-  tags?: Tag[];
-  externalDocs?: ExternalDocumentation;
-  bindings?: Record<string, any>;
-  traits?: Record<string, any>[];
-  messages?: Record<string, any>[];
-  reply?: Record<string, any>;
-
-  'x-send-operations'?: string[]; // internal type
 };
 
 export interface Async3Info {
@@ -61,18 +44,62 @@ export interface ExternalDoc {
   description?: string;
 }
 
-export type Channel = {
+export interface Async3Server {
+  host: string;
+  protocol: string;
+  protocolVersion?: string;
+  pathname?: string;
+  description?: string;
+  variables?: Record<string, unknown>;
+  security?: Array<Async3SecurityScheme>;
+  bindings?: unknown;
+}
+
+export interface Async3Channel {
   address?: string | null;
   messages?: Record<string, any>;
   title?: string;
   summary?: string;
   description?: string;
-  servers?: Record<string, any>[];
-  parameters?: Record<string, any>;
-  tags?: Record<string, any>;
+  servers?: Array<Async3Server>;
+  parameters?: Record<string, unknown>;
+  tags?: Tag[];
   externalDocs?: ExternalDocumentation;
   bindings?: ChannelBindings;
-};
+}
+
+/**
+ * @deprecated Use `Async3Channel` instead.
+ */
+export type Channel = Async3Channel;
+
+export interface Async3OperationTrait {
+  title?: string;
+  summary?: string;
+  description?: string;
+  tags?: Tag[];
+  externalDocs?: ExternalDoc;
+  bindings?: OperationBindings;
+  security?: Array<Async3SecurityScheme>;
+}
+
+export interface Async3Operation {
+  action: 'send' | 'receive';
+  channel: Async3Channel;
+  title?: string;
+  summary?: string;
+  description?: string;
+  tags?: Tag[];
+  externalDocs?: ExternalDoc;
+  operationId?: string;
+  security?: Array<Async3SecurityScheme>;
+  bindings?: OperationBindings;
+  traits?: Array<Async3OperationTrait>;
+  messages?: Array<Record<string, any>>;
+  reply?: Record<string, any>;
+
+  'x-send-operations'?: string[]; // internal type
+}
 
 export interface ExternalDocumentation {
   url: string;
@@ -82,6 +109,24 @@ export interface ExternalDocumentation {
 export type ChannelBindings = {
   amqp?: AmqpChannelBinding;
 } & Record<string, Record<string, any> | undefined>;
+
+export type OperationBindings = {
+  amqp?: AmqpOperationBinding;
+} & Record<string, Record<string, any> | undefined>;
+
+export type AmqpOperationBinding = {
+  expiration?: number;
+  userId?: string;
+  cc?: string[];
+  priority?: number;
+  deliveryMode?: number;
+  mandatory?: boolean;
+  bcc?: string[];
+  replyTo?: string;
+  timestamp?: boolean;
+  ack?: boolean;
+  bindingVersion?: string;
+};
 
 export type AmqpChannelBinding = {
   is?: 'queue' | 'routingKey';

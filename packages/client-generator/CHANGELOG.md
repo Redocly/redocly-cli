@@ -1,5 +1,92 @@
 # @redocly/client-generator
 
+## 0.3.8
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.47.0.
+
+## 0.3.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.2.
+
+## 0.3.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.1.
+
+## 0.3.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.46.0.
+
+## 0.3.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.45.1.
+
+## 0.3.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.45.0.
+
+## 0.3.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.2.
+
+## 0.3.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.1.
+
+## 0.3.0
+
+### Minor Changes
+
+- Added an opt-in success envelope to throw-mode calls.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.44.0.
+
+## 0.2.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.3.
+
+## 0.2.0
+
+### Minor Changes
+
+- Added three request-hardening options to generated clients: `timeout` aborts slow attempts (a fresh budget per retry attempt, composable with your own `AbortSignal`; failures surface as a structured `TimeoutError` carrying the operation, budget, and attempt), `idempotencyKey` stamps POST/PATCH requests with a stable `Idempotency-Key` header and makes their retries safe under the default policy, and an `X-Redocly-Client` identification header is sent outside browsers (override or disable it with `clientHeader`). The default retry predicate is now exported as `defaultRetryOn` so custom `retryOn` rules can compose with it instead of replacing it.
+
+### Patch Changes
+
+- Fixed request bodies to be sent with the operation's declared content type (for example `application/merge-patch+json`) instead of always `application/json`, and pagination pointers (`items`, `nextCursor`, `hasMore`) to resolve through `allOf` response schemas, so collection schemas composed from a shared base no longer need flattening.
+- Updated @redocly/openapi-core to v2.43.2.
+
+## 0.1.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.1.
+
+## 0.1.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.43.0.
+
 ## 0.1.0
 
 ### Minor Changes

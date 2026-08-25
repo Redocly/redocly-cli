@@ -1,0 +1,75 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should resolve step outputs in path parameters 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow outputs-in-path-parameters.arazzo.yaml / photo-by-menu-item-id 
+ 
+  ✓ GET /menu - step search-menu-by-id 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=prd_0000000000seedtrams0000000
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "startCursor": null,
+          "endCursor": null,
+          "hasNextPage": false,
+          "hasPrevPage": false,
+          "limit": 10,
+          "total": 0
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✓ GET /menu-item-images/{menuItemId} - step get-menu-item-photo 
+
+    Request URL: https://api.cafe.redocly.com/menu-item-images/prd_0000000000seedtrams0000000
+    Request Headers:
+      accept: text/plain 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      A classic Italian tiramisu layered with mascarpone and espresso 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $response.body == 'A classic Italian tiramisu laye...
+    ✓ status code check - $statusCode in [200, 404, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+  Summary for outputs-in-path-parameters.arazzo.yaml
+  
+  Workflows: 1 passed, 1 total
+  Steps: 2 passed, 2 total
+  Checks: 9 passed, 9 total
+  Time: <test>ms 
+ 
+ 
+┌────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                       │ Workflows  │ Passed  │ Failed  │ Warnings │
+├────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ ✓ outputs-in-path-parameters.arazzo.yaml                                       │ 1          │ 1       │ -       │ -        │
+└────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+"
+`;

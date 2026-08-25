@@ -18,6 +18,7 @@ import { addSecurityPrefix } from './add-security-prefix.js';
 import { formatTags } from './format-tags.js';
 import { populateTags } from './populate-tags.js';
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function collectPaths({
   joinedDef,
   withoutXTagGroups,

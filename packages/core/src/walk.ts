@@ -1,8 +1,14 @@
 import type { Config, RuleSeverity } from './config/index.js';
 import { YamlParseError } from './errors/yaml-parse-error.js';
 import type { SpecVersion } from './oas-types.js';
-import { Location, isRef } from './ref-utils.js';
-import type { ResolveError, Source, ResolvedRefMap, Document } from './resolve.js';
+import { Location, isRef, isRefWithSiblings } from './ref-utils.js';
+import type {
+  ResolveError,
+  Source,
+  ResolvedRefMap,
+  ResolvedRefChainHop,
+  Document,
+} from './resolve.js';
 import { isNamedType, SpecExtension, type NormalizedNodeType } from './types/index.js';
 import type { Referenced } from './typings/openapi.js';
 import { getOwn } from './utils/get-own.js';
@@ -30,8 +36,18 @@ export type NonUndefined =
   | Record<string, any>;
 
 export type ResolveResult<T extends NonUndefined> =
-  | { node: T; location: Location; error?: ResolveError | YamlParseError }
-  | { node: undefined; location: undefined; error?: ResolveError | YamlParseError };
+  | {
+      node: T;
+      location: Location;
+      error?: ResolveError | YamlParseError;
+      chain?: ResolvedRefChainHop[];
+    }
+  | {
+      node: undefined;
+      location: undefined;
+      error?: ResolveError | YamlParseError;
+      chain?: ResolvedRefChainHop[];
+    };
 
 export type ResolveFn = <T extends NonUndefined>(
   node: Referenced<T>,
@@ -132,6 +148,9 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 }) {
   const { document, rootType, normalizedVisitors, resolvedRefMap, ctx } = opts;
   const seenNodesPerType: Record<string, Set<unknown>> = {};
+  const walkedComposedRefs = new Set<string>();
+  const composedRefWalkId = (type: NormalizedNodeType, location: Location) =>
+    `${type.name}::${location.absolutePointer}`;
   const ignoredNodes = new Set<string>();
 
   // Pre-compute combined enter/leave arrays per type to avoid per-node array allocations
@@ -147,6 +166,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
   walkNode(document.parsed, rootType, new Location(document.source, '#/'), undefined, '');
 
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   function walkNode(
     node: any,
     type: NormalizedNodeType,
@@ -165,23 +185,36 @@ export function walkDocument<T extends BaseVisitor>(opts: {
         };
       }
 
-      const { resolved, node, document, nodePointer, error } = resolvedRef;
+      const { resolved, node, document, nodePointer, error, chain } = resolvedRef;
       const newLocation = resolved
         ? new Location(document!.source, nodePointer!)
         : error instanceof YamlParseError
           ? new Location(error.source, '')
           : undefined;
 
-      return { location: newLocation, node, error };
+      return { location: newLocation, node, error, chain };
     };
 
     const rawLocation = location;
     let currentLocation = location;
     const nodeIsRef = isRef(node);
-    const { node: resolvedNode, location: resolvedLocation, error } = resolve(node);
+    const {
+      node: resolvedNode,
+      location: resolvedLocation,
+      error,
+      chain: resolvedChain,
+    } = resolve(node);
     const enteredContexts: Set<VisitorLevelContext> = new Set();
 
-    if (nodeIsRef) {
+    // a composed $ref can be reached twice: as a chain hop and at its own place in the tree;
+    // ref visitors and sibling keys are processed only on the first visit
+    const composedRefAlreadyWalked =
+      isRefWithSiblings(node) && walkedComposedRefs.has(composedRefWalkId(type, location));
+    if (isRefWithSiblings(node)) {
+      walkedComposedRefs.add(composedRefWalkId(type, location));
+    }
+
+    if (nodeIsRef && !composedRefAlreadyWalked) {
       const refEnterVisitors = normalizedVisitors.ref.enter;
       for (const { visit: visitor, ruleId, severity, message, context } of refEnterVisitors) {
         enteredContexts.add(context);
@@ -202,7 +235,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             config: ctx.config,
             getVisitorData: () => getVisitorDataFn(ruleId),
           },
-          { node: resolvedNode, location: resolvedLocation, error }
+          { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
         );
         if (resolvedLocation?.source.absoluteRef && ctx.refTypes) {
           ctx.refTypes.set(resolvedLocation?.source.absoluteRef, type);
@@ -211,8 +244,45 @@ export function walkDocument<T extends BaseVisitor>(opts: {
     }
 
     if (resolvedNode !== undefined && resolvedLocation && type.name !== 'scalar') {
+      const walkProp = (propName: string, value: unknown, loc: Location, valueParent: unknown) => {
+        let propType = getOwn(type.properties, propName);
+        const isExtensionKey =
+          type.extensionsPrefix !== undefined && propName.startsWith(type.extensionsPrefix);
+
+        // extensions are not additional properties — only regular undeclared keys take the catch-all type
+        if (propType === undefined && !isExtensionKey) {
+          propType = type.additionalProperties;
+        }
+        // a function type picks the concrete type from the value; runs after the fallback because additionalProperties can be a function too
+        if (typeof propType === 'function') propType = propType(value, propName);
+        // an extension key that resolved to anything but a named type (undeclared or a plain schema) walks as SpecExtension
+        if (isExtensionKey && !isNamedType(propType)) {
+          propType = SpecExtension;
+        }
+
+        if (!isNamedType(propType) && propType?.directResolveAs) {
+          propType = propType.directResolveAs;
+          value = { $ref: value };
+        }
+
+        if (propType && propType.name === undefined && propType.resolvable !== false) {
+          propType = { name: 'scalar', properties: {} };
+        }
+
+        if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
+          return;
+        }
+
+        walkNode(value, propType, loc.child([propName]), valueParent, propName);
+      };
+
       currentLocation = resolvedLocation;
-      const isNodeSeen = seenNodesPerType[type.name]?.has?.(resolvedNode);
+      // primitives have no identity to dedupe by — use their location; objects dedupe by identity
+      const seenKey =
+        isPlainObject(resolvedNode) || Array.isArray(resolvedNode)
+          ? resolvedNode
+          : location.absolutePointer;
+      const isNodeSeen = seenNodesPerType[type.name]?.has?.(seenKey);
       let visitedBySome = false;
 
       const currentEnterVisitors =
@@ -284,7 +354,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
       if (visitedBySome || !isNodeSeen) {
         seenNodesPerType[type.name] = seenNodesPerType[type.name] || new Set();
-        seenNodesPerType[type.name].add(resolvedNode);
+        seenNodesPerType[type.name].add(seenKey);
 
         if (Array.isArray(resolvedNode)) {
           const itemsType = type.items;
@@ -313,58 +383,36 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           if (type.additionalProperties) {
             props.push(...Object.keys(resolvedNode).filter((k) => !props.includes(k)));
           } else if (type.extensionsPrefix) {
+            // declared extensions (like x-query) are already in props — pushing them again would walk their subtree twice
             props.push(
-              ...Object.keys(resolvedNode).filter((k) =>
-                k.startsWith(type.extensionsPrefix as string)
+              ...Object.keys(resolvedNode).filter(
+                (k) => k.startsWith(type.extensionsPrefix as string) && !props.includes(k)
               )
             );
           }
 
-          if (nodeIsRef) {
-            props.push(...Object.keys(node).filter((k) => k !== '$ref' && !props.includes(k))); // properties on the same level as $ref
-          }
-
           for (const propName of props) {
-            let value = resolvedNode[propName];
-
-            let loc = resolvedLocation;
-
-            if (value === undefined) {
-              value = node[propName];
-              loc = location; // properties on the same level as $ref should resolve against original location, not target
+            const resolvedValue = resolvedNode[propName];
+            if (resolvedValue !== undefined) {
+              walkProp(propName, resolvedValue, resolvedLocation, resolvedNode);
             }
+          }
+        }
+      }
 
-            let propType = getOwn(type.properties, propName);
-            if (propType === undefined) propType = type.additionalProperties;
-            if (typeof propType === 'function') propType = propType(value, propName);
+      if (nodeIsRef && resolvedChain?.length) {
+        // walk the composed $ref the resolution passed through; the rest of the chain follows
+        const chainHop = resolvedChain[0];
+        if (!walkedComposedRefs.has(composedRefWalkId(type, chainHop.location))) {
+          walkNode(chainHop.node, type, chainHop.location, undefined, key);
+        }
+      }
 
-            if (
-              propType === undefined &&
-              type.extensionsPrefix &&
-              propName.startsWith(type.extensionsPrefix)
-            ) {
-              propType = SpecExtension;
-            }
-
-            if (!isNamedType(propType) && propType?.directResolveAs) {
-              propType = propType.directResolveAs;
-              value = { $ref: value };
-            }
-
-            if (propType && propType.name === undefined && propType.resolvable !== false) {
-              propType = { name: 'scalar', properties: {} };
-            }
-
-            if (isRef(node[propName]) && propType?.name === 'scalar') {
-              walkNode(node[propName], propType, location.child([propName]), node, propName);
-              continue;
-            }
-
-            if (!isNamedType(propType) || (propType.name === 'scalar' && !isRef(value))) {
-              continue;
-            }
-
-            walkNode(value, propType, loc.child([propName]), resolvedNode, propName);
+      if (isRefWithSiblings(node) && !composedRefAlreadyWalked) {
+        // walk the keys written next to $ref; they resolve against the ref's own location
+        for (const propName of Object.keys(node)) {
+          if (propName !== '$ref' && node[propName] !== resolvedNode?.[propName]) {
+            walkProp(propName, node[propName], location, node);
           }
         }
       }
@@ -398,7 +446,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
 
     currentLocation = location;
 
-    if (nodeIsRef) {
+    if (nodeIsRef && !composedRefAlreadyWalked) {
       const refLeaveVisitors = normalizedVisitors.ref.leave;
       for (const { visit: visitor, ruleId, severity, context, message } of refLeaveVisitors) {
         if (enteredContexts.has(context)) {
@@ -419,7 +467,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               config: ctx.config,
               getVisitorData: () => getVisitorDataFn(ruleId),
             },
-            { node: resolvedNode, location: resolvedLocation, error }
+            { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
           );
         }
       }

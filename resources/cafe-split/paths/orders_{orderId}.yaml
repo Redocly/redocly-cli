@@ -47,7 +47,7 @@ patch:
   summary: Partially update an order
   description: |
     Update an existing order status.
-    Order items cannot be changed - if they need to be updated, the order should be canceled and a new one placed.
+    Order items cannot be changed - if they need to be updated, cancel the order and place a new one.
   operationId: updateOrder
   security:
     - OAuth2:
@@ -104,7 +104,7 @@ delete:
   summary: Delete an order
   description: |
     Delete the order.
-    To keep the order history, the order should be canceled instead of deleted.
+    To keep the order history, cancel the order instead of deleting it.
   operationId: deleteOrder
   security:
     - OAuth2:

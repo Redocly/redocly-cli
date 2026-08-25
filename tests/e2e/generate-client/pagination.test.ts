@@ -106,7 +106,9 @@ describe('generate-client pagination consumer', () => {
       'getOrder: { id: "getOrder", method: "GET", path: "/orders/{orderId}", params: [{ name: "orderId", in: "path" }] }'
     );
     // …and the flat sugar preserves `.pages`/`.items` via Object.assign.
-    expect(api).toContain('export const listOrders = Object.assign((params: {');
+    expect(api).toContain(
+      'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
+    );
     expect(api).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
     expect(api).not.toContain('client.listMenuItems.pages');
     // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).

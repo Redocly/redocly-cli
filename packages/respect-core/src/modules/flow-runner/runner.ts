@@ -1,4 +1,4 @@
-import type { CollectFn, Config } from '@redocly/openapi-core';
+import type { CollectSpecData, Config } from '@redocly/openapi-core';
 import { blue, red } from 'colorette';
 import { basename, dirname, resolve } from 'node:path';
 
@@ -38,7 +38,7 @@ export async function runTestFile({
   executedStepsCount,
 }: {
   options: RunOptions;
-  collectSpecData?: CollectFn;
+  collectSpecData?: CollectSpecData;
   executedStepsCount: ExecutedStepsCount;
 }) {
   const workflowOptions = {

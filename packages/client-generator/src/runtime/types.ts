@@ -71,6 +71,18 @@ export type OperationDescriptor = {
   /** OR-alternatives, each an AND-set: the runtime applies the first fully-configured one. */
   security?: readonly (readonly SecuritySpec[])[];
   pagination?: PaginationSpec;
+  /**
+   * Declared success-response headers for throw-mode `{ envelope: true }`.
+   * `name` is the lowercased wire name; `key` is the camelCase envelope property.
+   */
+  responseHeaders?: readonly ResponseHeaderSpec[];
+};
+
+/** One declared response header the runtime coerces into the envelope `headers` object. */
+export type ResponseHeaderSpec = {
+  name: string;
+  key: string;
+  type: 'string' | 'number' | 'boolean';
 };
 
 /** A query value: scalars, arrays of scalars, or objects (serialized as deepObject brackets). */
@@ -171,6 +183,18 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
     | Record<string, string>
     | (() => Record<string, string> | Promise<Record<string, string>>);
   retry?: RetryConfig<Op>;
+  /** Milliseconds before a request attempt aborts (covers the body read too; each retry
+   * attempt gets a fresh budget). Per-call `timeout` overrides it, `0` disables it.
+   * SSE streams are long-lived by design and never inherit this value. */
+  timeout?: number;
+  /** Send an `Idempotency-Key` header on POST/PATCH (one stable key per logical call,
+   * reused across retry attempts) — which also makes those retries safe under the
+   * default retry policy. `true` generates a UUID per call; a function supplies the key. */
+  idempotencyKey?: boolean | (() => string);
+  /** Identifies this client to the API via an `X-Redocly-Client` header (the generator
+   * bakes a default). Sent only OUTSIDE browsers — a custom header would force a CORS
+   * preflight. Override with your own value, or `false` to disable. */
+  clientHeader?: string | false;
   middleware?: Middleware<Op>[];
   auth?: AuthCredentials;
   /** Fixed at generate time by the generator (`'throw'` when omitted); `configure()` ignores it. */
@@ -183,8 +207,28 @@ export type ClientConfig<Op extends OperationContext = OperationContext> = {
 /** Response readers for the per-call `parseAs` override. */
 export type ParseAs = 'auto' | 'json' | 'text' | 'blob' | 'arrayBuffer' | 'formData' | 'stream';
 
-/** Per-call options: standard `RequestInit` plus a retry override and a forced reader. */
-export type RequestOptions = RequestInit & { retry?: RetryConfig; parseAs?: ParseAs };
+/** Per-call options: standard `RequestInit` plus a retry override, a timeout override
+ * (`0` disables the config default), and a forced reader. */
+export type RequestOptions = RequestInit & {
+  retry?: RetryConfig;
+  timeout?: number;
+  /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
+  idempotencyKey?: string | boolean | (() => string);
+  parseAs?: ParseAs;
+  /**
+   * Throw mode only: return `{ data, headers, response }` instead of the parsed body;
+   * ignored in result mode. The explicit `| undefined` keeps the wrappers' emitted
+   * `envelope: undefined` strip legal under `exactOptionalPropertyTypes`.
+   */
+  envelope?: boolean | undefined;
+};
+
+/** Throw-mode success envelope when `RequestOptions.envelope` is `true`. */
+export type Envelope<TData, THeaders = Record<string, never>> = {
+  data: TData;
+  headers: THeaders;
+  response: Response;
+};
 
 /** Per-call options for an SSE stream; reconnect defaults to true. */
 export type SseOptions = RequestInit & { reconnect?: boolean; reconnectDelay?: number };
@@ -205,7 +249,17 @@ export type Result<TData, TError> =
  */
 export type OpsShape = Record<
   string,
-  { args: object; result: unknown; kind?: 'sse'; item?: unknown; page?: unknown }
+  {
+    args: object;
+    result: unknown;
+    kind?: 'sse';
+    item?: unknown;
+    page?: unknown;
+    /** Declared success-response headers for `{ envelope: true }` (camelCase keys). */
+    headers?: object;
+    /** Result-mode entries ignore the throw-only `envelope` option. */
+    mode?: 'result';
+  }
 >;
 
 /** The always-present client members (assigned after the operation loop — they win collisions). */
@@ -264,6 +318,61 @@ type Paginated<Entry extends OpsShape[string]> = 'item' extends keyof Entry
  */
 export type OperationMethodIdentity = { readonly operationId: string };
 
+/** Declared response-header bag for an Ops entry; empty object when none are declared. */
+type HeadersOf<Entry extends OpsShape[string]> = 'headers' extends keyof Entry
+  ? NonNullable<Entry['headers']>
+  : Record<string, never>;
+
+/**
+ * Return type of a throw-mode call: the body by default, `Envelope<…>` for a literal
+ * `envelope: true`, their union when the flag is a widened `boolean`. Exact
+ * `RequestOptions` stays the body — pre-envelope package-mode flat sugar typed every
+ * `init` parameter as `RequestOptions`, and widening that would break upgrades without
+ * a regenerate. The `keyof` presence gate keeps `{ headers }` / `{ signal }` as the body
+ * (`TInit['envelope']` through `TInit & RequestOptions` would otherwise be
+ * `boolean | undefined`).
+ */
+export type EnvelopeResult<
+  TData,
+  THeaders,
+  TInit extends RequestOptions | undefined,
+> = TInit extends undefined
+  ? TData
+  : RequestOptions extends TInit
+    ? TInit extends RequestOptions
+      ? TData
+      : EnvelopeResultForKnownInit<TData, THeaders, TInit>
+    : EnvelopeResultForKnownInit<TData, THeaders, TInit>;
+
+type EnvelopeResultForKnownInit<TData, THeaders, TInit> = 'envelope' extends keyof TInit
+  ? [TInit['envelope' & keyof TInit]] extends [true]
+    ? Envelope<TData, THeaders>
+    : [TInit['envelope' & keyof TInit]] extends [false | undefined]
+      ? TData
+      : TData | Envelope<TData, THeaders>
+  : TData;
+
+/** A one-shot method whose return shape never varies with per-call options. */
+type BodyMethod<Entry extends OpsShape[string]> =
+  NoRequiredKeys<Entry['args']> extends true
+    ? (args?: Entry['args'], init?: RequestOptions) => Promise<Entry['result']>
+    : (args: Entry['args'], init?: RequestOptions) => Promise<Entry['result']>;
+
+/**
+ * One-shot (non-SSE) method: default returns the body; `{ envelope: true }` returns
+ * `{ data, headers, response }` with typed declared headers.
+ */
+type ThrowMethod<Entry extends OpsShape[string]> =
+  NoRequiredKeys<Entry['args']> extends true
+    ? <Init extends RequestOptions | undefined = undefined>(
+        args?: Entry['args'],
+        init?: Init
+      ) => Promise<EnvelopeResult<Entry['result'], HeadersOf<Entry>, Init>>
+    : <Init extends RequestOptions | undefined = undefined>(
+        args: Entry['args'],
+        init?: Init
+      ) => Promise<EnvelopeResult<Entry['result'], HeadersOf<Entry>, Init>>;
+
 /** The typed instance client: one bound method per operation plus the core members. */
 export type Client<Ops extends OpsShape, Op extends OperationContext = OperationContext> = {
   [K in keyof Ops]: Ops[K] extends { kind: 'sse' }
@@ -277,9 +386,7 @@ export type Client<Ops extends OpsShape, Op extends OperationContext = Operation
             init?: SseOptions
           ) => AsyncGenerator<ServerSentEvent<Ops[K]['result']>>) &
         OperationMethodIdentity
-    : (NoRequiredKeys<Ops[K]['args']> extends true
-        ? (args?: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>
-        : (args: Ops[K]['args'], init?: RequestOptions) => Promise<Ops[K]['result']>) &
+    : (Ops[K] extends { mode: 'result' } ? BodyMethod<Ops[K]> : ThrowMethod<Ops[K]>) &
         OperationMethodIdentity &
         Paginated<Ops[K]>;
 } & ClientCore<Op>;

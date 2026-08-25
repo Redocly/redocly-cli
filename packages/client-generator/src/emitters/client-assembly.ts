@@ -25,6 +25,7 @@ import { operationSignature } from './operation-signature.js';
 import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-types.js';
 import { type EmitContext, renderArgList } from './operations.js';
 import { resolveModelPagination } from './pagination.js';
+import { responseHeadersTypeLiteral } from './response-headers.js';
 import { isSseOp } from './sse.js';
 import { pascalCase } from './support.js';
 import {
@@ -34,6 +35,7 @@ import {
   printNodes,
   printStatements,
   ts,
+  typedArrow,
 } from './ts.js';
 import { typeGuardStatements } from './type-guards.js';
 import { typesStatements } from './types.js';
@@ -78,6 +80,7 @@ function emitClient(
     errorMode: options.errorMode ?? 'throw',
     dateType: options.dateType ?? 'string',
     schemaNames: new Set(model.schemas.map((s) => s.name)),
+    schemas: model.schemas,
     pagination,
   };
   const flat = ctx.argsStyle === 'flat';
@@ -208,6 +211,8 @@ function importLine(
     'OperationDescriptor',
     // Flat sugar signatures reference the per-call option types.
     ...(refs.hasFlatRegular ? ['RequestOptions'] : []),
+    // Flat throw-mode sugar return types vary with the inferred request-option type.
+    ...(refs.hasFlatRegular && ctx.errorMode !== 'result' ? ['EnvelopeResult'] : []),
     // `Ops` wraps results in `Result` in result mode — but only NON-SSE members
     // (an SSE-only spec would otherwise import it unused and fail noUnusedLocals).
     ...(ctx.errorMode === 'result' && refs.hasRegular ? ['Result'] : []),
@@ -250,6 +255,9 @@ function clientSection(options: EmitOptions, ctx: EmitContext, model: ApiModel):
     // relative URL, which Node's fetch rejects.
     ...(serverUrl !== undefined ? [`serverUrl: ${codeString(serverUrl)}`] : []),
     ...(ctx.errorMode === 'result' ? ['errorMode: "result"'] : []),
+    // Client identification for API-owner telemetry; the runtime sends it only
+    // outside browsers, and `configure({ clientHeader: false })` disables it.
+    'clientHeader: "redocly-client-generator"',
   ];
   const config = fields.length > 0 ? `{ ${fields.join(', ')} }` : '{}';
   // Precedence, lowest → highest: spec defaults → baked publisher setup → app `configure()`.
@@ -321,6 +329,8 @@ function sugarStatements(
  * collide with the slot keys — a spec-acknowledged runtime-contract limitation.
  * A paginated operation's arrow is wrapped in `Object.assign(…, { pages, items })`
  * so the flat sugar preserves the method-attached iterators.
+ * Throw-mode (non-SSE) arrows are generic over `init` so `{ envelope: true }` narrows
+ * the return type to `Envelope<…>` (plain `RequestOptions` would collapse the overload).
  */
 function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext): ts.Statement {
   const { pathParams } = operationSignature(op);
@@ -351,7 +361,10 @@ function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext)
     undefined,
     [factory.createObjectLiteralExpression(props, false), factory.createIdentifier('init')]
   );
-  const fn = arrow(params, call);
+  const fn =
+    ctx.errorMode !== 'result' && !isSseOp(op)
+      ? envelopeAwareFlatArrow(op, params, call, ctx)
+      : arrow(params, call);
   if (!ctx.pagination?.has(op.name)) return exportConstStatement(ident, fn);
   const methodMember = (name: string) =>
     factory.createPropertyAssignment(
@@ -377,10 +390,78 @@ function flatSugarStatement(op: OperationModel, ident: string, ctx: EmitContext)
   );
 }
 
+/**
+ * `<I extends RequestOptions | undefined = undefined>(…, init?: I) =>
+ * Promise<EnvelopeResult<Result, Headers, I>>`
+ */
+function envelopeAwareFlatArrow(
+  op: OperationModel,
+  params: ts.ParameterDeclaration[],
+  call: ts.Expression,
+  ctx: EmitContext
+): ts.ArrowFunction {
+  // `renderArgList` always appends `init` last — retype it as optional generic `I`
+  // (no default: `init?: I = {}` is invalid, and `init: I = {}` fails under strict
+  // generic checks). Cast the call's Promise so the conditional return type sticks.
+  const initTyped = [
+    ...params.slice(0, -1),
+    factory.createParameterDeclaration(
+      undefined,
+      undefined,
+      'init',
+      factory.createToken(ts.SyntaxKind.QuestionToken),
+      factory.createTypeReferenceNode('I')
+    ),
+  ];
+  const resultType = flatResultType(op, ctx);
+  const headersType = flatHeadersType(op, ctx);
+  const returnType = factory.createTypeReferenceNode('Promise', [
+    factory.createTypeReferenceNode('EnvelopeResult', [
+      resultType,
+      headersType,
+      factory.createTypeReferenceNode('I'),
+    ]),
+  ]);
+  const typeParam = factory.createTypeParameterDeclaration(
+    undefined,
+    'I',
+    factory.createUnionTypeNode([
+      factory.createTypeReferenceNode('RequestOptions'),
+      factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword),
+    ]),
+    factory.createKeywordTypeNode(ts.SyntaxKind.UndefinedKeyword)
+  );
+  const castCall = factory.createAsExpression(call, returnType);
+  return typedArrow([typeParam], initTyped, returnType, castCall);
+}
+
+function flatResultType(op: OperationModel, ctx: EmitContext): ts.TypeNode {
+  const { responseType } = computeResponse(op.successResponses, ctx.dateType);
+  const resultName = `${pascalCase(op.name)}Result`;
+  return ctx.schemaNames.has(resultName)
+    ? responseType
+    : factory.createTypeReferenceNode(resultName);
+}
+
+function flatHeadersType(op: OperationModel, ctx: EmitContext): ts.TypeNode {
+  const headers = op.successResponseHeaders;
+  if (!headers || headers.length === 0) {
+    return factory.createTypeReferenceNode('Record', [
+      factory.createKeywordTypeNode(ts.SyntaxKind.StringKeyword),
+      factory.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword),
+    ]);
+  }
+  const alias = `${pascalCase(op.name)}ResponseHeaders`;
+  return ctx.schemaNames.has(alias)
+    ? responseHeadersTypeLiteral(headers, ctx.schemas)
+    : factory.createTypeReferenceNode(alias);
+}
+
 /** Public type surface re-exported for single-import DX (plus the `ApiError` class). */
 function reexportLines(ctx: EmitContext, hasSse: boolean): string {
   const types = [
     'ClientConfig',
+    'Envelope',
     'Middleware',
     'RequestOptions',
     ...(ctx.errorMode === 'result' ? ['Result'] : []),
@@ -389,7 +470,7 @@ function reexportLines(ctx: EmitContext, hasSse: boolean): string {
   return (
     // `createClient` is re-exported so package-mode consumers can build additional
     // instances from the generated module alone — symmetric with inline output.
-    `export { ApiError, createClient } from '${PACKAGE_SPECIFIER}';\n` +
+    `export { ApiError, createClient, defaultRetryOn, TimeoutError } from '${PACKAGE_SPECIFIER}';\n` +
     `export type { ${types.join(', ')} } from '${PACKAGE_SPECIFIER}';`
   );
 }

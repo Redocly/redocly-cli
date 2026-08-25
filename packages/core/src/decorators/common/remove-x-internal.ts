@@ -10,6 +10,7 @@ const DEFAULT_INTERNAL_PROPERTY_NAME = 'x-internal';
 export const RemoveXInternal: Oas3Decorator | Oas2Decorator = ({
   internalFlagProperty = DEFAULT_INTERNAL_PROPERTY_NAME,
 }) => {
+  // oxlint-disable-next-line sonarjs/cognitive-complexity
   function removeInternal(
     node: unknown,
     ctx: UserContext,

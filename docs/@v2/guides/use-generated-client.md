@@ -177,6 +177,10 @@ Per-request headers merge lowest to highest — the caller always wins:
 2. Typed header parameters.
 3. The caller's `init.headers`.
 
+Outside browsers, the client also identifies itself to the API with an `X-Redocly-Client` header (useful for the API owner's telemetry).
+Override it with `configure({ clientHeader: 'my-service/2.0' })`, or disable it with `clientHeader: false`.
+Browsers never send it — a custom header would force a CORS preflight.
+
 `use()` appends to the middleware chain, composing with any already-registered or publisher pre-configured middleware.
 `configure({ middleware: [...] })` replaces the whole chain — use it to reset, but prefer `use()` to add to existing (including [publisher pre-configured](./customize-client-generation.md#publisher-defaults)) middleware.
 
@@ -194,7 +198,19 @@ await getOrderById('ord_123', {}, { retry: { retries: 5 } }); // per call
 
 By default only **idempotent** methods (`GET`, `HEAD`, `PUT`, `DELETE`, `OPTIONS`) are retried, on a network error or a transient status (`408`, `429`, `500`, `502`, `503`, `504`).
 `POST`/`PATCH` are not, since re-sending can duplicate side effects — opt in with a custom `retryOn` when safe.
+
+A custom `retryOn` **replaces** the default policy entirely — a predicate like `({ response }) => (response?.status ?? 0) >= 500` silently stops retrying network errors and timeouts, which have no `response`.
+Compose with the exported default instead: `retryOn: (ctx) => defaultRetryOn(ctx) || myRule(ctx)`.
+
+For APIs that support [idempotency keys](https://datatracker.ietf.org/doc/draft-ietf-httpapi-idempotency-key-header/), set `idempotencyKey: true` (or a key factory) on the instance: every `POST`/`PATCH` gets an `Idempotency-Key` header — one stable key per logical call, re-sent unchanged on every retry attempt — and the default retry policy then treats those requests as safe to retry.
+Per call, pass a literal key (`{ idempotencyKey: 'order-42-submit' }`) or `false` to skip; a caller-set `Idempotency-Key` header always wins.
 Backoff is exponential with full jitter (`retryStrategy: 'fixed'` for a constant delay); a `Retry-After` header takes precedence; an aborted `AbortSignal` stops retries immediately.
+
+A `timeout` (milliseconds) aborts an attempt that takes too long — including reading the body — and composes with your own `AbortSignal`.
+Each retry attempt gets a fresh budget; a timed-out attempt retries under the same policy as a network error.
+When retries are exhausted, the failure surfaces as a `TimeoutError` (exported next to `ApiError`) carrying `operationId`, the effective `timeout`, and the `attempt` number — everything a log line needs.
+Set it on the instance (`configure({ timeout: 10_000 })`) or per call (`{ timeout: 500 }`, where `0` disables the instance default).
+SSE streams are long-lived by design and never inherit the instance timeout.
 
 A retry **resends the same request** — the `onRequest` chain, `config.headers()`, and body serialization run once and are reused across attempts.
 To refresh a token, signature, or timestamp per attempt, do it in `onResponse`/`onError` or a custom `retryOn` rather than expecting `onRequest` to re-run.
@@ -264,7 +280,39 @@ const res = await getMenuItemPhoto('prd_123', { parseAs: 'stream' });
 `parseAs` accepts `'json'`, `'text'`, `'blob'`, `'arrayBuffer'`, `'formData'`, `'stream'`, or `'auto'` (default).
 It changes the runtime reader only, not the static return type.
 
-An operation whose success response declares no content is typed `void`, but if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data — reach it with a cast while the description catches up.
+An operation whose success response declares no content is typed `void`.
+However, if the server sends a JSON body anyway (a gap in the API description), the runtime still parses and returns it rather than silently dropping real data.
+Reach it with a cast while the description catches up.
+
+## Response headers (envelope)
+
+By default throw mode returns only the parsed success body.
+When you need response headers (pagination totals, rate limits, `Location`, and so on) without switching to `--error-mode result`, pass `{ envelope: true }` on that call:
+
+```ts
+// Flat args (default): query/body slots, then per-call init.
+const { data, headers, response } = await listCustomers({ limit: 1 }, { envelope: true });
+
+headers.paginationTotal; // number — required Pagination-Total in the description
+headers.xFlag; // boolean | undefined — optional X-Flag
+response.headers.get('X-Undocumented'); // anything not declared in OpenAPI
+
+// Grouped args / instance client: trailing init is always separate.
+const envelope = await client.listCustomers({ params: { limit: 1 } }, { envelope: true });
+```
+
+- `headers` is a safe camelCase object of headers declared on the operation's success response.
+  String, number, and boolean schemas drive the TypeScript type and number/boolean coercion.
+  Complex header schemas remain strings because HTTP exposes header values as text.
+  Required response headers are required properties — the type trusts the API description, the same way response body types do.
+  Colliding normalized names get a deterministic numeric suffix.
+- `response` is the raw `Response` — use it for undocumented headers.
+- Non-2xx responses still throw `ApiError`.
+- Default call sites stay body-only (non-breaking), including calls that pass other options (`headers`, `signal`, `parseAs`, a retry override).
+- In `--error-mode result` the flag is ignored; that mode already returns `response`.
+- The TanStack Query and SWR wrappers don't accept `envelope`.
+  It's excluded from their options and stripped from the forwarded call, so cached data is always the plain body.
+  Call the sdk function directly when you need headers.
 
 ## Runtime validation
 
@@ -407,7 +455,7 @@ useQuery(internal.getOrderOptions({ orderId }));
 When several generated APIs share one `QueryClient`, their operationIds can collide (two APIs with a `check` operation would mix caches).
 Set `queryKeyPrefix` in the `client` block to namespace every key: `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
 
-## Formatting and linting the generated files
+## Format and lint the generated files
 
 The generator prints one canonical style — the TypeScript compiler's printer (four-space indent, double quotes).
 If your project's formatter enforces a different style, its check fails on freshly generated files.

@@ -94,10 +94,12 @@ describe('renderTanstackModule', () => {
     it('emits an Options factory whose queryFn forwards the abort signal to the client call', () => {
       const out = render([getOp]);
       expect(out).toContain(
-        'getPetOptions: (vars: GetPetVariables, init?: RequestOptions) => queryOptions({'
+        'getPetOptions: (vars: GetPetVariables, init?: Omit<RequestOptions, "envelope">) => queryOptions({'
       );
       expect(out).toContain('queryKey: getPetQueryKey(vars)');
-      expect(out).toContain('queryFn: ({ signal }) => instance.getPet(vars, { ...init, signal })');
+      expect(out).toContain(
+        'queryFn: ({ signal }) => instance.getPet(vars, { ...init, signal, envelope: undefined })'
+      );
     });
   });
 
@@ -111,10 +113,10 @@ describe('renderTanstackModule', () => {
 
     it('emits a Mutation factory that accepts and forwards per-call init', () => {
       const out = render([postOp]);
-      expect(out).toContain('createPetMutation: (init?: RequestOptions) => ({');
+      expect(out).toContain('createPetMutation: (init?: Omit<RequestOptions, "envelope">) => ({');
       expect(out).toContain('mutationKey: ["createPet"] as const');
       expect(out).toContain(
-        'mutationFn: (vars: CreatePetVariables) => instance.createPet(vars, init)'
+        'mutationFn: (vars: CreatePetVariables) => instance.createPet(vars, { ...init, envelope: undefined })'
       );
     });
   });
@@ -223,11 +225,11 @@ describe('renderTanstackModule', () => {
     it('compiles a cursor rule into initialPageParam + getNextPageParam with a distinct key', () => {
       const out = render([listOp], { pagination: cursorRule });
       expect(out).toContain(
-        'listOrdersInfiniteOptions: (vars: ListOrdersVariables, init?: RequestOptions) => infiniteQueryOptions({'
+        'listOrdersInfiniteOptions: (vars: ListOrdersVariables, init?: Omit<RequestOptions, "envelope">) => infiniteQueryOptions({'
       );
       expect(out).toContain('queryKey: [...listOrdersQueryKey(vars), "infinite"] as const');
       expect(out).toContain(
-        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, params: { ...vars.params, after: pageParam } }, { ...init, signal })'
+        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, params: { ...vars.params, after: pageParam } }, { ...init, signal, envelope: undefined })'
       );
       expect(out).toContain('initialPageParam: vars.params?.after');
       expect(out).toContain('if (lastPage.page?.hasNextPage === false)');
@@ -306,7 +308,9 @@ describe('renderTanstackModule', () => {
     it('skips InfiniteOptions for link-style pagination (the next page lives in a header)', () => {
       const linkOp = {
         ...listOp,
-        successResponses: [{ ...listOp.successResponses[0], headers: ['link'] }],
+        successResponseHeaders: [
+          { name: 'link', schema: { kind: 'scalar', scalar: 'string' } as const },
+        ],
       };
       const out = render([linkOp], { pagination: { style: 'link', items: '/items' } });
       expect(out).toContain('listOrdersOptions');
@@ -326,15 +330,21 @@ describe('renderTanstackModule', () => {
     it('query: init-only Options, queryKey without vars, empty args object to the client', () => {
       const out = render([{ name: 'listPets', method: 'get', path: '/pets' }]);
       expect(out).toContain('export const listPetsQueryKey = () => ["listPets"] as const;');
-      expect(out).toContain('listPetsOptions: (init?: RequestOptions) => queryOptions({');
+      expect(out).toContain(
+        'listPetsOptions: (init?: Omit<RequestOptions, "envelope">) => queryOptions({'
+      );
       expect(out).toContain('queryKey: listPetsQueryKey()');
-      expect(out).toContain('queryFn: ({ signal }) => instance.listPets({}, { ...init, signal })');
+      expect(out).toContain(
+        'queryFn: ({ signal }) => instance.listPets({}, { ...init, signal, envelope: undefined })'
+      );
     });
 
     it('mutation: mutationFn takes no vars, passes an empty args object plus init', () => {
       const out = render([{ name: 'ping', method: 'post', path: '/ping' }]);
-      expect(out).toContain('pingMutation: (init?: RequestOptions) => ({');
-      expect(out).toContain('mutationFn: () => instance.ping({}, init)');
+      expect(out).toContain('pingMutation: (init?: Omit<RequestOptions, "envelope">) => ({');
+      expect(out).toContain(
+        'mutationFn: () => instance.ping({}, { ...init, envelope: undefined })'
+      );
     });
   });
 

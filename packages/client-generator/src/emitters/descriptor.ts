@@ -6,6 +6,7 @@
 import {
   allOperations,
   type ApiModel,
+  type NamedSchemaModel,
   type OperationModel,
   type SecuritySchemeModel,
 } from '../intermediate-representation/model.js';
@@ -18,6 +19,7 @@ import { computeResponse, errorTypeNodes, isTypedMultipart } from './operation-t
 import type { EmitContext } from './operations.js';
 import type { ModelPagination } from './pagination.js';
 import { WIRING_NAMES } from './reserved-names.js';
+import { responseHeadersTypeLiteral, responseHeaderSpecs } from './response-headers.js';
 import { isSseOp, sseDataKind, sseEventType } from './sse.js';
 import { pascalCase } from './support.js';
 import { jsdoc, literalExpression, parseStatements, ts } from './ts.js';
@@ -43,7 +45,8 @@ function descriptorValue(
   op: OperationModel,
   schemes: SecuritySchemeModel[],
   dateType: DateType,
-  pagination?: ModelPagination
+  pagination?: ModelPagination,
+  schemas: readonly NamedSchemaModel[] = []
 ) {
   const params = [...op.pathParams, ...op.queryParams, ...op.headerParams, ...op.cookieParams].map(
     (p) => ({
@@ -71,6 +74,7 @@ function descriptorValue(
     .filter((alternative) => alternative.length > 0);
   const sse = isSseOp(op);
   const responseKind = sse ? 'sse' : computeResponse(op.successResponses, dateType).responseKind;
+  const responseHeaders = responseHeaderSpecs(op.successResponseHeaders, schemas);
   return {
     // The spec's operationId, NOT the (possibly renamed) map key: `id` drives middleware
     // targeting (`ctx.operation.id`) and must match inline mode's `operationMetaExpr`.
@@ -94,6 +98,7 @@ function descriptorValue(
     ...(security.length > 0 ? { security } : {}),
     // The resolved spec is already normalized with stable key order (see pagination.ts).
     ...(pagination?.has(op.name) ? { pagination: pagination.get(op.name)!.spec } : {}),
+    ...(responseHeaders === undefined ? {} : { responseHeaders }),
   };
 }
 
@@ -109,7 +114,9 @@ export function descriptorStatements(
   const entries = ops.map((op) =>
     factory.createPropertyAssignment(
       idents.get(op.name)!,
-      literalExpression(descriptorValue(op, model.securitySchemes, dateType, pagination))
+      literalExpression(
+        descriptorValue(op, model.securitySchemes, dateType, pagination, model.schemas)
+      )
     )
   );
   const operations = jsdoc(
@@ -199,6 +206,28 @@ function opsMember(op: OperationModel, ident: string, ctx: EmitContext): ts.Prop
     factory.createPropertySignature(undefined, 'args', undefined, args),
     factory.createPropertySignature(undefined, 'result', undefined, resultType(op, ctx)),
   ];
+  if (ctx.errorMode === 'result' && !isSseOp(op)) {
+    members.push(
+      factory.createPropertySignature(
+        undefined,
+        'mode',
+        undefined,
+        factory.createLiteralTypeNode(factory.createStringLiteral('result'))
+      )
+    );
+  }
+  // Declared success-response headers type the throw-mode `{ envelope: true }` bag.
+  const responseHeaders = op.successResponseHeaders;
+  if (responseHeaders && responseHeaders.length > 0) {
+    members.push(
+      factory.createPropertySignature(
+        undefined,
+        'headers',
+        undefined,
+        responseHeadersTypeLiteral(responseHeaders, ctx.schemas)
+      )
+    );
+  }
   // Paginated operations declare the page's element type — it drives the runtime's
   // `.pages()`/`.items()` members on the method (`Client<Ops>` keys off `item`).
   const paginated = ctx.pagination?.get(op.name);

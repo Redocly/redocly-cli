@@ -21,15 +21,15 @@ function generateAndTypecheck(fixture: string): { generated: string } {
 describe('generate-client spec versions', () => {
   it('generates a type-checking client from a Swagger 2.0 document', () => {
     const { generated } = generateAndTypecheck('swagger2.yaml');
-    expect(generated).toContain('export const getPet = (');
-    expect(generated).toContain('export const createPet = (');
+    expect(generated).toContain('export const getPet = <I extends RequestOptions');
+    expect(generated).toContain('export const createPet = <I extends RequestOptions');
     expect(generated).toContain('export type Pet');
     expect(generated).toContain('serverUrl: "https://api.example.com/v2"');
   }, 60_000);
 
   it('generates a type-checking client from an OpenAPI 3.2 document', () => {
     const { generated } = generateAndTypecheck('oas3.2.yaml');
-    expect(generated).toContain('export const getThing = (');
+    expect(generated).toContain('export const getThing = <I extends RequestOptions');
     expect(generated).toContain('export type Thing');
     // 3.1/3.2 nullable enum renders as a nullable union.
     expect(generated).toMatch(/status\?:\s*\("active" \| "archived"\) \| null;/);
@@ -37,6 +37,6 @@ describe('generate-client spec versions', () => {
 
   it('synthesizes operation names from method+path when operationId is omitted', () => {
     const { generated } = generateAndTypecheck('no-operationid.yaml');
-    expect(generated).toContain('export const getGiftcardsCardId = (');
+    expect(generated).toContain('export const getGiftcardsCardId = <I extends RequestOptions');
   }, 60_000);
 });

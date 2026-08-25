@@ -91,7 +91,7 @@ describe('emitClientSingleFile (package arm)', () => {
 
   it('imports from the package instead of inlining the runtime template', () => {
     expect(output).toContain(
-      "import { createClient, type OperationDescriptor, type RequestOptions, type SseOptions, type TokenProvider } from '@redocly/client-generator';"
+      "import { createClient, type EnvelopeResult, type OperationDescriptor, type RequestOptions, type SseOptions, type TokenProvider } from '@redocly/client-generator';"
     );
     expect(output).not.toContain('__send');
     expect(output).not.toContain('__buildUrl');
@@ -114,7 +114,7 @@ describe('emitClientSingleFile (package arm)', () => {
 
   it('bakes the serverUrl into the createClient config and narrows ctx.operation', () => {
     expect(output).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://x" });'
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { serverUrl: "https://x", clientHeader: "redocly-client-generator" });'
     );
   });
 
@@ -160,14 +160,16 @@ describe('emitClientSingleFile (package arm)', () => {
   });
 
   it('emits flat sugar one-liners forwarding to the grouped client methods', () => {
-    // Same positional signature style as inline flat mode (`renderArgList`): inline
-    // param object types with `= {}` defaults, trailing `init: … = {}`.
-    expect(output).toContain('export const getOrder = (orderId: string, params: {');
-    expect(output).toContain('=> client.getOrder({ orderId, params }, init);');
+    // Throw-mode flat sugar is generic over `init` so `{ envelope: true }` narrows.
     expect(output).toContain(
-      'export const createPet = (body: Pet, init: RequestOptions = {}) => client.createPet({ body }, init);'
+      'export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {'
     );
-    // SSE sugar takes SseOptions and returns the generator directly.
+    expect(output).toContain('=> client.getOrder({ orderId, params }, init) as Promise<');
+    expect(output).toContain(
+      'export const createPet = <I extends RequestOptions | undefined = undefined>(body: Pet, init?: I): Promise<EnvelopeResult<'
+    );
+    expect(output).toContain('EnvelopeResult<CreatePetResult, Record<string, never>, I>');
+    // SSE sugar takes SseOptions and returns the generator directly (no envelope).
     expect(output).toContain(
       'export const streamEvents = (init: SseOptions = {}) => client.streamEvents({}, init);'
     );
@@ -177,14 +179,17 @@ describe('emitClientSingleFile (package arm)', () => {
     expect(output).toContain('configure_2: {');
     expect(output).toContain('id: "configure"'); // descriptor id stays the spec operationId
     expect(output).toContain(
-      'export const configure_2 = (init: RequestOptions = {}) => client.configure_2({}, init);'
+      'export const configure_2 = <I extends RequestOptions | undefined = undefined>(init?: I): Promise<EnvelopeResult<'
     );
+    expect(output).toContain('=> client.configure_2({}, init) as Promise<');
   });
 
   it('re-exports the public surface', () => {
-    expect(output).toContain("export { ApiError, createClient } from '@redocly/client-generator';");
     expect(output).toContain(
-      "export type { ClientConfig, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';"
+      "export { ApiError, createClient, defaultRetryOn, TimeoutError } from '@redocly/client-generator';"
+    );
+    expect(output).toContain(
+      "export type { ClientConfig, Envelope, Middleware, RequestOptions, ServerSentEvent, SseOptions } from '@redocly/client-generator';"
     );
   });
 
@@ -200,8 +205,9 @@ describe('emitClientSingleFile (package arm)', () => {
     // No options at all — the emitter's own defaults apply.
     const out = emit(model);
     expect(out).toContain(
-      'export const getPet = (pet_id: string, init: RequestOptions = {}) => client.getPet({ "pet-id": pet_id }, init);'
+      'export const getPet = <I extends RequestOptions | undefined = undefined>(pet_id: string, init?: I): Promise<EnvelopeResult<'
     );
+    expect(out).toContain('=> client.getPet({ "pet-id": pet_id }, init) as Promise<');
     expect(out).toContain('"pet-id": string;'); // Ops args + Variables alias, wire-keyed
   });
 
@@ -216,7 +222,7 @@ describe('emitClientSingleFile (package arm)', () => {
     ]);
     // `a-b` sanitizes to `a_b`, so the literal `a_b` param is deduped to `a_b_2` —
     // but both forward under their wire names.
-    expect(emit(model)).toContain('client.compare({ "a-b": a_b, a_b: a_b_2 }, init);');
+    expect(emit(model)).toContain('client.compare({ "a-b": a_b, a_b: a_b_2 }, init) as Promise<');
   });
 
   it('layers a baked setup OVER the spec defaults and imports the contract types', () => {
@@ -225,14 +231,14 @@ describe('emitClientSingleFile (package arm)', () => {
       setup: '{ config: { retry: { retries: 2 } } }',
     });
     expect(out).toContain(
-      "import { createClient, mergeSetup, type ClientConfig, type Middleware, type OperationDescriptor, type RequestOptions } from '@redocly/client-generator';"
+      "import { createClient, mergeSetup, type ClientConfig, type EnvelopeResult, type Middleware, type OperationDescriptor, type RequestOptions } from '@redocly/client-generator';"
     );
     expect(out).toContain(
       'const __redoclySetup: { config?: ClientConfig; middleware?: Middleware[] } = { config: { retry: { retries: 2 } } };'
     );
     // Precedence lowest→highest: spec default → baked setup (→ app configure()).
     expect(out).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x" } }, mergeSetup(__redoclySetup, {})));'
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x", clientHeader: "redocly-client-generator" } }, mergeSetup(__redoclySetup, {})));'
     );
   });
 
@@ -242,7 +248,7 @@ describe('emitClientSingleFile (package arm)', () => {
     // The SSE member stays unwrapped, and the re-export list still offers Result.
     expect(out).toContain('kind: "sse"');
     expect(out).toContain(
-      "export type { ClientConfig, Middleware, RequestOptions, Result, ServerSentEvent, SseOptions } from '@redocly/client-generator';"
+      "export type { ClientConfig, Envelope, Middleware, RequestOptions, Result, ServerSentEvent, SseOptions } from '@redocly/client-generator';"
     );
   });
 
@@ -251,7 +257,9 @@ describe('emitClientSingleFile (package arm)', () => {
       serverUrl: 'https://x',
       errorMode: 'result',
     });
-    expect(out).toContain('{ serverUrl: "https://x", errorMode: "result" }');
+    expect(out).toContain(
+      '{ serverUrl: "https://x", errorMode: "result", clientHeader: "redocly-client-generator" }'
+    );
     expect(out).toContain('result: Result<GetOrderResult, GetOrderError>;');
     expect(out).toContain('type Result');
   });
@@ -312,7 +320,7 @@ describe('emitClientSingleFile (package arm)', () => {
     );
     // model fixture has a serverUrl — still baked.
     expect(out).toContain(
-      'export const client = createClient<Ops>(OPERATIONS, { serverUrl: "https://api.example.com" });'
+      'export const client = createClient<Ops>(OPERATIONS, { serverUrl: "https://api.example.com", clientHeader: "redocly-client-generator" });'
     );
     expect(out).toContain('export const { configure, use } = client;');
   });
@@ -320,7 +328,7 @@ describe('emitClientSingleFile (package arm)', () => {
   it('emits an empty config object when neither options nor the document set a serverUrl', () => {
     const out = emit(modelWith([getOrder], { serverUrl: undefined, schemas: SCHEMAS }));
     expect(out).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, {});'
+      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS, { clientHeader: "redocly-client-generator" });'
     );
   });
 
@@ -335,7 +343,7 @@ describe('emitClientSingleFile (package arm)', () => {
         }),
       ])
     );
-    expect(out).toContain('=> client.ping({ headers }, init);');
+    expect(out).toContain('=> client.ping({ headers }, init) as Promise<');
   });
 
   it('matches the golden output for a small model', () => {
@@ -407,7 +415,7 @@ describe('emitClientSingleFile (embed arm)', () => {
     );
     // Precedence lowest→highest: spec default → baked setup (→ app configure()).
     expect(out).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x" } }, mergeSetup(__redoclySetup, {})));'
+      'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, mergeSetup({ config: { serverUrl: "https://x", clientHeader: "redocly-client-generator" } }, mergeSetup(__redoclySetup, {})));'
     );
   });
 
@@ -480,12 +488,15 @@ describe('emitClientSingleFile — pagination', () => {
 
   it('wraps the flat sugar in Object.assign, preserving .pages/.items', () => {
     const out = emit(PAGINATED, { pagination: config });
-    expect(out).toContain('export const listOrders = Object.assign((params: {');
     expect(out).toContain(
-      '} = {}, init: RequestOptions = {}) => client.listOrders({ params }, init), { pages: client.listOrders.pages, items: client.listOrders.items });'
+      'export const listOrders = Object.assign(<I extends RequestOptions | undefined = undefined>(params: {'
     );
+    expect(out).toContain('=> client.listOrders({ params }, init) as Promise<');
+    expect(out).toContain('{ pages: client.listOrders.pages, items: client.listOrders.items });');
     // Non-paginated siblings keep the plain arrow.
-    expect(out).toContain('export const getOrder = (orderId: string, params: {');
+    expect(out).toContain(
+      'export const getOrder = <I extends RequestOptions | undefined = undefined>(orderId: string, params: {'
+    );
     expect(out).not.toContain('Object.assign((orderId');
   });
 

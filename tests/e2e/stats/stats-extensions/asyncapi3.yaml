@@ -1,0 +1,19 @@
+asyncapi: 3.0.0
+info:
+  title: AsyncAPI 3 vendor extensions fixture
+  version: '1.0.0'
+channels:
+  userSignedup:
+    x-channel-ext: 1
+    address: user/signedup
+    messages:
+      userSignedUp:
+        x-msg-ext: a
+        payload:
+          type: object
+operations:
+  onSignup:
+    x-op-ext: true
+    action: receive
+    channel:
+      $ref: '#/channels/userSignedup'
