@@ -485,6 +485,55 @@ describe('Oas3 no-illogical-composition-keywords', () => {
       `);
     });
 
+    it('should report `integer` against `number` as overlapping', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Test
+            version: '1.0'
+          paths: {}
+          components:
+            schemas:
+              Overlapping:
+                oneOf:
+                  - type: integer
+                  - type: number
+              Exclusive:
+                oneOf:
+                  - type: integer
+                  - type: string
+        `,
+        'foobar.yaml'
+      );
+
+      const results = await lintDocument({
+        externalRefResolver: new BaseResolver(),
+        document,
+        config: await createConfig({
+          rules: { 'no-illogical-composition-keywords': 'error' },
+        }),
+      });
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Overlapping/oneOf",
+                "reportOnKey": true,
+                "source": "foobar.yaml",
+              },
+            ],
+            "message": "Schemas in \`oneOf\` must be mutually exclusive. Found overlapping schemas: schema at position 1 and schema at position 2. Both schemas accept \`integer\`.",
+            "ruleId": "no-illogical-composition-keywords",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
     it('should not report when a shared property uses an unmodelled keyword such as `not`', async () => {
       const document = parseYamlToDocument(
         outdent`
