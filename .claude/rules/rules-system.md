@@ -72,7 +72,7 @@ export const MyRule: Oas3Rule = (options) => {
 };
 ```
 
-Available rule types: `Oas3Rule`, `Oas3_1Rule`, `Oas2Rule`, `Async2Rule`, `Async3Rule`, `ArazzoRule`.
+Available rule types: `Oas2Rule`, `Oas3Rule`, `OasRule` (both OAS versions), `Async2Rule`, `Async3Rule`, `Arazzo1Rule`, `Overlay1Rule`, `OpenRpc1Rule`, `CatalogEntityRule`, and `ConfigRule`.
 
 ### Minimal rule example
 
