@@ -24,7 +24,7 @@ const fallbackMimeType =
       ? 'application/x-www-form-urlencoded;charset=UTF-8'
       : 'application/octet-stream';
   return {
-    mimeType: typeof contentType === 'string' ? contentType : 'application/octet-stream',
+    mimeType: typeof contentType === 'string' ? contentType : fallbackMimeType,
     text,
   };
 }
