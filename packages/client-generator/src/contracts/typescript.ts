@@ -102,4 +102,4 @@ export {
   templatePathParams,
   type OperationSignature,
 } from '../generators/typescript/operation-signature.js';
-export { flatInputShape } from '../generators/typescript/render-client.js';
+export { flatInputShape } from '../generators/typescript/operations.js';

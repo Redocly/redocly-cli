@@ -18,9 +18,9 @@ import {
 import { codeLiteral, uniqueIdent } from '@redocly/client-generator/printers/typescript';
 
 import { isTypedMultipart } from './operation-types.ts';
-import { flatInputShape, responseText } from './render-client.ts';
+import { flatInputShape, responseText } from './operations.ts';
 import { responseHeaderSpecs } from './response-headers.ts';
-import { tsJsdoc } from './ts-type.ts';
+import { tsJsdoc } from './types.ts';
 
 /**
  * Operation-name → emitted-identifier plan. The full reserved set (wiring + imported

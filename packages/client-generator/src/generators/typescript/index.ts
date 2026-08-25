@@ -7,7 +7,7 @@ import {
 } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client-assembly.ts';
+import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client.ts';
 import { packageIdents } from './descriptor.ts';
 
 /**

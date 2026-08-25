@@ -11,7 +11,7 @@ import {
 import type { ApiModel } from '../../../intermediate-representation/model.js';
 import { resolveModelPagination } from '../../../pagination.js';
 import type { EmitOptions } from '../../types.js';
-import { emitClientSingleFile, emitRuntimeFiles } from '../client-assembly.js';
+import { emitClientSingleFile, emitRuntimeFiles } from '../client.js';
 
 /**
  * The emitted client with the embedded runtime block cut out, so assertions and the

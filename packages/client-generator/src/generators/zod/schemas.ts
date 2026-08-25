@@ -1,6 +1,6 @@
 // Emits Zod schemas from the IR. Each named schema becomes an
 // `export const <Name>Schema = z.<…>;` — source-text templates mirroring the
-// type emitter (`ts-type.ts`) but targeting runtime validators instead of types.
+// type renderer (`typescript/types.ts`) but targeting runtime validators instead of types.
 // Operations with a JSON request or response body additionally land in the
 // `operationSchemas` map, which powers the `zodValidation` client middleware.
 //
@@ -73,7 +73,7 @@ function baseExpression(schema: SchemaModel, byName: SchemaByName, indent: strin
 function scalarExpression(scalar: ScalarKind, metadata?: SchemaMetadata): string {
   switch (scalar) {
     case 'string':
-      // `format: binary` is typed as `Blob` (see ts-type.ts); validate it as one so the
+      // `format: binary` is typed as `Blob` (see typescript/types.ts); validate it as one so the
       // zod schema agrees with the generated type instead of expecting a string.
       return metadata?.format === 'binary' ? 'z.instanceof(Blob)' : 'z.string()';
     case 'integer':

@@ -27,9 +27,9 @@ import {
   type EmitContext,
   renderAliases,
   renderOpsType,
-} from './render-client.ts';
-import { renderTypeAliases } from './ts-type.ts';
+} from './operations.ts';
 import { renderTypeGuards } from './type-guards.ts';
+import { renderTypeAliases } from './types.ts';
 
 export function emitClientSingleFile(model: ApiModel, options: EmitOptions = {}): string {
   return emitClient(model, options).entry;

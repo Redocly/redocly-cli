@@ -1,6 +1,6 @@
 import { apiModel, namedSchema } from '../../../__tests__/fixtures.js';
 import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
-import { emitClientSingleFile } from '../client-assembly.js';
+import { emitClientSingleFile } from '../client.js';
 
 // Cutting the embedded runtime block keeps the emitted text down to the schema
 // types/guards these assertions target (the runtime bytes are pinned elsewhere).

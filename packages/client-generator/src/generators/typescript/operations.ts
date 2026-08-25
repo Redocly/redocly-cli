@@ -20,7 +20,7 @@ import { pascalCase, safeIdent } from '@redocly/client-generator/printers/typesc
 import { operationSignature, templatePathParams } from './operation-signature.ts';
 import { isTypedMultipart } from './operation-types.ts';
 import { responseHeadersTypeText } from './response-headers.ts';
-import { tsJsdoc, tsType } from './ts-type.ts';
+import { tsJsdoc, tsType } from './types.ts';
 
 /**
  * The emit configuration every operation shares. Bundling it into one value keeps

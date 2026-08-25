@@ -1,4 +1,4 @@
-import { emitClientSingleFile } from '../generators/typescript/client-assembly.js';
+import { emitClientSingleFile } from '../generators/typescript/client.js';
 import { sseFromResponses } from '../intermediate-representation/build.js';
 import type {
   ApiModel,

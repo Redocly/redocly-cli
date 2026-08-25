@@ -6,7 +6,7 @@ import type {
 } from '../../../intermediate-representation/model.js';
 import type { ModelPagination } from '../../../pagination.js';
 import { packageIdents, renderDescriptors } from '../descriptor.js';
-import { type EmitContext, renderOpsType } from '../render-client.js';
+import { type EmitContext, renderOpsType } from '../operations.js';
 
 function emitDescriptors(model: ApiModel): string {
   return renderDescriptors(model, packageIdents(model), 'string');

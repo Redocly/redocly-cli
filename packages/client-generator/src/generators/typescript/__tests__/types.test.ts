@@ -1,5 +1,5 @@
 import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
-import { renderTypeAliases, tsType } from '../ts-type.js';
+import { renderTypeAliases, tsType } from '../types.js';
 
 // Literal expectations for the TS type renderer — the formatting contract every
 // generated client's types follow (4-space indent, double quotes, parenthesized

@@ -20,7 +20,7 @@ import { runGenerators } from './pipeline.js';
 // when every built-in generator migrated to text (one authoring model for every
 // output language). `tsType`/`tsJsdoc`/`codeLiteral` are the TypeScript-specific
 // text renderers the sdk itself uses.
-export { tsJsdoc, tsType } from './generators/typescript/ts-type.js';
+export { tsJsdoc, tsType } from './generators/typescript/types.js';
 export { codeLiteral } from './printers/typescript.js';
 // The language-neutral authoring helpers, re-exported here so both toolkit
 // entries offer the full authoring surface (the root offers them TS-free).
