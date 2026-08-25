@@ -1,5 +1,6 @@
 ---
 '@redocly/cli': minor
+'@redocly/openapi-core': minor
 ---
 
 Added the `no-illogical-composition-keywords` rule.
