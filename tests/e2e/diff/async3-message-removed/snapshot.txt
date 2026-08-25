@@ -1,0 +1,11 @@
+channels
+  ✖ breaking      removed  channels/userSignedUp/messages/signout
+      The message was removed. (message-removed)
+      at base.yaml:21:9
+
+1 breaking, 0 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 breaking change.

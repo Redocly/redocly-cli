@@ -1,0 +1,9 @@
+channels
+  ✔ non-breaking  changed  channels/userSignedUp/messages/signup/payload · required
+      at revision.yaml:14:13
+
+0 breaking, 1 non-breaking.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+

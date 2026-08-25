@@ -1,0 +1,18 @@
+openapi: 3.1.0
+info:
+  title: enum-values-removed
+  version: '1.0'
+paths:
+  /pets:
+    get:
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      responses:
+        '200':
+          description: OK

@@ -1,0 +1,36 @@
+asyncapi: 3.0.0
+info:
+  title: asyncapi3-channel-removed
+  version: '1.0'
+channels:
+  userSignedUp:
+    address: user/signedup
+    messages:
+      signup:
+        contentType: application/json
+        payload:
+          type: object
+          required:
+            - id
+          properties:
+            id:
+              type: string
+            plan:
+              type: string
+  userDeleted:
+    address: user/deleted
+    messages:
+      deleted:
+        payload:
+          type: object
+operations:
+  onUserSignedUp:
+    action: receive
+    channel:
+      $ref: '#/channels/userSignedUp'
+    messages:
+      - $ref: '#/channels/userSignedUp/messages/signup'
+  onUserDeleted:
+    action: receive
+    channel:
+      $ref: '#/channels/userDeleted'
