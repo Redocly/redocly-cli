@@ -10,7 +10,7 @@ See https://github.com/Redocly/redocly-cli for the full project.
 
 The generated client uses only web-standard APIs (`fetch`, `AbortController`, `URLSearchParams`), so by default it is a single self-contained file with zero runtime dependencies that runs in browsers, Node ≥ 18, Bun, Deno, and edge runtimes.
 (Running the generator itself requires the Node version in this package's `engines` field.)
-Code is produced through the TypeScript compiler AST, not string templates; `typescript` is the only peer dependency — optional, needed only when you run generation, and it must be 6.x there (TypeScript 7's native compiler has no compiler API).
+Code is printed through per-language text printers; `typescript` is the only peer dependency — optional, needed only when generation bakes a `--setup` module, and it must be 6.x there (TypeScript 7's native compiler has no compiler API).
 Apps that only consume a generated client don't need it at all, and can compile the generated code with any TypeScript, including 7.
 
 This package is the engine behind the [`generate-client` command](https://redocly.com/docs/cli/commands/generate-client) — install [`@redocly/cli`](https://www.npmjs.com/package/@redocly/cli) to run it from the command line or `redocly.yaml`.
@@ -52,7 +52,7 @@ const internal = createClient<Ops>(OPERATIONS, {
 ### Write a custom generator
 
 A custom generator reads the same API model the built-ins consume, runs in the same pass, and returns files.
-Emitters print text: `Printer` handles indentation, and `tsType` is the same schema→type renderer the built-in sdk uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
+Generators print text: `Printer` handles indentation, and `tsType` is the same schema→type renderer the built-in sdk uses, so the mapping (refs, arrays, unions, formats, parenthesization) matches the generated client exactly:
 
 ```ts
 // response-map-generator.ts
@@ -108,7 +108,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `setup`, `pagination` optional) plus an optional resolved Redocly `config` used to load the description.
+`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter` optional) plus an optional resolved Redocly `config` used to load the description.
 
 ### `collectGeneratedFiles`
 
@@ -173,7 +173,7 @@ Run all commands from the repo root:
 
 ```sh
 npm run compile                 # build this package
-npm run unit                    # unit tests (this package is held at 100% coverage)
+npm run unit                    # unit tests
 VITEST_SUITE=e2e npx vitest run tests/e2e/generate-client/   # behavioral e2e
 ```
 

@@ -225,7 +225,8 @@ Only the `cli` generator emits a command: the `python`, `go`, and `php` SDKs are
 ### Language SDKs
 
 The `python`, `go`, and `php` generators each emit a full SDK for that language.
-The SDK is one self-contained file.
+The SDK is one self-contained file with the default `inline` runtime.
+The [`module` runtime](../commands/generate-client.md#choose-a-runtime) writes the runtime as real files beside the client instead.
 It has no dependencies other than the HTTP support of the language: `httpx` for Python, the standard library for Go, and the curl extension for PHP.
 
 One file is the intended deliverable, not a limitation.
@@ -407,7 +408,7 @@ The renderer is the template, so an ejected generator keeps writing its page and
 
 ## Run with Node directly
 
-Node 22.7+ runs TypeScript natively with type stripping.
+Node 22.18+ (and 23.6+) runs TypeScript natively with type stripping.
 Because of this, you can run a script that uses the generated client with plain `node`, without `tsx` and without a build step.
 Node resolves import specifiers literally, with no `.js` to `.ts` remap.
 Because of this, generate with [`--import-ext ts`](../commands/generate-client.md#options) to get real on-disk `.ts` specifiers.
@@ -1021,8 +1022,7 @@ The module-level factories bind the generated module's default `client`.
 For an isolated instance with its own credentials, middleware, and retry, build a bound set with `createQueryFactories`:
 
 ```ts
-import { createClient } from '@redocly/client-generator';
-import { OPERATIONS, type Ops } from './api/client';
+import { createClient, OPERATIONS, type Ops } from './api/client';
 import { createQueryFactories } from './api/client.tanstack';
 
 const internal = createQueryFactories(
@@ -1038,7 +1038,7 @@ For example, `queryKeyPrefix: main` makes the keys `['main', 'check', vars]`.
 
 ## Format and lint the generated files
 
-The generator prints one canonical style: the TypeScript compiler's printer, with a four-space indent and double quotes.
+The generator prints one canonical style: a four-space indent and double quotes.
 If your project's formatter enforces a different style, its check fails on newly generated files.
 Run your formatter over the output immediately after generation, for example as the next step in the same script.
 Or add the generated paths to your formatter's ignore list.

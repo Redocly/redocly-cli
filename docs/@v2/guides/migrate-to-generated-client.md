@@ -71,9 +71,9 @@ Three differences account for most of the compiler errors:
 
 - **Operation names come from the description.** The generated name is the `operationId`, so `getOrder` becomes whatever the description calls it.
   If the names read badly, fix them in the description: every consumer improves at once.
-- **Inputs have named slots.** Query parameters go in `params`, the body in `body`, headers in `headers`.
+- **Inputs are grouped by layer.** Path parameters go in `path`, query parameters in `query`, the body in `body`, and headers in `headers`.
   A call that passes an undeclared key fails with a `TypeError` that names the key, so a wrong call cannot reach the network.
-  [`--args-style grouped`](../commands/generate-client.md#options) puts every input in one object, which reads better at large call sites.
+  [`--args-style flat`](../commands/generate-client.md#options) merges the layers into one object instead, which some hand-written wrappers are closer to.
 - **Errors are typed.** By default an operation throws `ApiError` on a non-2xx response.
   With [`--error-mode result`](./use-generated-client.md#error-handling) it returns `{ data, error, response }` instead, which is closer to some hand-written wrappers.
 

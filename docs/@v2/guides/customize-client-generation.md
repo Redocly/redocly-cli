@@ -275,9 +275,8 @@ The built-in `typescript` generator implements the hook.
 If you only set the flag, your Redoc docs get a TypeScript example for each operation.
 These examples always agree with the SDK.
 
-Do not read the built-in TypeScript generators as a model for your own.
-Each one is a short entry over renderers that are internal to the package, so you cannot import the parts it uses.
-The runnable examples at the end of this page are the model to copy.
+The built-in generators are also readable models: each one is a source folder that imports only the public entries (the package root, its printer, and its contract), and `redocly eject-generator <name>` hands you that folder.
+For a small artifact, the runnable examples at the end of this page are the quicker starting point.
 They use only the public toolkit.
 
 ### Reference documentation for what you generate
@@ -299,7 +298,7 @@ export default defineGenerator({
     /* the SDK */
   },
   sample: rubyCall,
-  docs({ model, output, emit }) {
+  docs({ model, output, emit, pagination }) {
     return [
       {
         path: output.path.replace(/\.[^.\\/]+$/, '.ruby.md'),
@@ -313,7 +312,8 @@ export default defineGenerator({
             requires: 'The SDK needs `faraday`.',
           },
           sample: rubyCall,
-          pagination: emit.pagination,
+          // `pagination` is the run's resolved map; the page marks these operations as paginated.
+          paginated: new Set(pagination?.keys() ?? []),
         }),
       },
     ];
