@@ -19,6 +19,9 @@ export function buildPostData(
   const contentTypeValue = buildHeaders(headers).find(
     ({ name }) => String(name).toLowerCase() === 'content-type'
   )?.value;
+  const contentType = Array.isArray(contentTypeValue)
+    ? contentTypeValue.join(',')
+    : contentTypeValue;
   const fallbackMimeType =
     body instanceof URLSearchParams
       ? 'application/x-www-form-urlencoded;charset=UTF-8'
