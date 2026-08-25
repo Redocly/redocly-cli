@@ -1,0 +1,10 @@
+type: object
+properties:
+  id:
+    type: string
+  status:
+    $ref: OrderStatus.yaml
+  items:
+    type: array
+    items:
+      $ref: MenuItem.yaml

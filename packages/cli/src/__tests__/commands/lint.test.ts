@@ -310,7 +310,7 @@ describe('handleLint', () => {
 describe('handleLintConfig', () => {
   const configWithDocument = { ...configFixture, document: { parsed: {} } } as any;
 
-  it.each(['json', 'junit', 'checkstyle'] as const)(
+  it.each(['json', 'junit', 'checkstyle', 'ai'] as const)(
     'should not print config lint results for the single-document %s format',
     async (format) => {
       vi.mocked(lintConfig).mockResolvedValue(['config-problem'] as any);

@@ -1,0 +1,38 @@
+[
+  {
+    "method": "post",
+    "webhook": "orderShipped",
+    "summary": "Order shipped",
+    "tags": [],
+    "pointer": "#/webhooks/orderShipped/post",
+    "file": "webhooks.yaml",
+    "start_line": 9,
+    "end_line": 17,
+    "refs": [
+      {
+        "ref": "#/components/schemas/Order",
+        "resolved": true,
+        "file": "webhooks.yaml",
+        "pointer": "#/components/schemas/Order",
+        "start_line": 27,
+        "end_line": 30,
+        "component": "schemas",
+        "name": "Order"
+      }
+    ],
+    "usedBy": []
+  },
+  {
+    "method": "post",
+    "webhook": "orderCancelled",
+    "summary": "Order cancelled",
+    "tags": [],
+    "pointer": "#/webhooks/orderCancelled/post",
+    "file": "webhooks.yaml",
+    "start_line": 20,
+    "end_line": 23,
+    "refs": [],
+    "usedBy": []
+  }
+]
+

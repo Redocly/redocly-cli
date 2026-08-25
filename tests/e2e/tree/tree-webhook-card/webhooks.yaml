@@ -1,0 +1,12 @@
+openapi: 3.1.0
+info:
+  title: Webhooks API
+  version: 1.0.0
+paths: {}
+webhooks:
+  newTicket:
+    post:
+      summary: New ticket alert
+      responses:
+        '200':
+          description: ok

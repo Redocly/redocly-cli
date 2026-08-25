@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as process from 'node:process';
 import { compare } from 'semver';
+import type { ArgumentsCamelCase } from 'yargs';
 
 import { DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import fetch from './fetch-with-timeout.js';
@@ -21,8 +22,9 @@ const SHOULD_NOT_NOTIFY =
   !!process.env.LAMBDA_TASK_ROOT ||
   process.env.REDOCLY_SUPPRESS_UPDATE_NOTICE === 'true';
 
-export const notifyUpdateCliVersion = () => {
-  if (SHOULD_NOT_NOTIFY) {
+export const notifyUpdateCliVersion = (argv: ArgumentsCamelCase) => {
+  // `ai` output is read by an agent, which pays for every byte of this banner on every call.
+  if (SHOULD_NOT_NOTIFY || argv.format === 'ai') {
     return;
   }
   try {

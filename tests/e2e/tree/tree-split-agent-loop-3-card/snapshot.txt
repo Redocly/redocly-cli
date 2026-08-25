@@ -1,0 +1,74 @@
+{
+  "method": "post",
+  "path": "/orders",
+  "operationId": "createOrder",
+  "summary": "Create an order",
+  "tags": [
+    "Orders"
+  ],
+  "pointer": "#/post",
+  "file": "paths/orders.yaml",
+  "start_line": 13,
+  "end_line": 28,
+  "refs": [
+    {
+      "ref": "../components/schemas/Order.yaml",
+      "resolved": true,
+      "file": "components/schemas/Order.yaml",
+      "pointer": "#/",
+      "start_line": 1,
+      "end_line": 10,
+      "component": "schemas",
+      "name": "Order"
+    }
+  ],
+  "usedBy": [],
+  "content": "  operationId: createOrder\n  summary: Create an order\n  tags: [Orders]\n  requestBody:\n    required: true\n    content:\n      application/json:\n        schema:\n          $ref: ../components/schemas/Order.yaml\n  responses:\n    '201':\n      description: The created order.\n      content:\n        application/json:\n          schema:\n            $ref: ../components/schemas/Order.yaml",
+  "deps": [
+    {
+      "id": "schemas/Order",
+      "pointer": "#/",
+      "file": "components/schemas/Order.yaml",
+      "start_line": 1,
+      "end_line": 10,
+      "content": "type: object\nproperties:\n  id:\n    type: string\n  status:\n    $ref: OrderStatus.yaml\n  items:\n    type: array\n    items:\n      $ref: MenuItem.yaml",
+      "refs": [
+        {
+          "ref": "MenuItem.yaml",
+          "resolved": true,
+          "file": "components/schemas/MenuItem.yaml",
+          "pointer": "#/",
+          "start_line": 1,
+          "end_line": 8
+        },
+        {
+          "ref": "OrderStatus.yaml",
+          "resolved": true,
+          "file": "components/schemas/OrderStatus.yaml",
+          "pointer": "#/",
+          "start_line": 1,
+          "end_line": 5
+        }
+      ]
+    },
+    {
+      "id": "schemas/MenuItem",
+      "pointer": "#/",
+      "file": "components/schemas/MenuItem.yaml",
+      "start_line": 1,
+      "end_line": 8,
+      "content": "type: object\nproperties:\n  id:\n    type: string\n  name:\n    type: string\n  price:\n    type: number",
+      "refs": []
+    },
+    {
+      "id": "schemas/OrderStatus",
+      "pointer": "#/",
+      "file": "components/schemas/OrderStatus.yaml",
+      "start_line": 1,
+      "end_line": 5,
+      "content": "type: string\nenum:\n  - placed\n  - served\n  - paid",
+      "refs": []
+    }
+  ]
+}
+

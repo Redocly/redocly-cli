@@ -1,0 +1,167 @@
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { detectSpec } from '../../detect-spec.js';
+import { getTypes } from '../../oas-types.js';
+import { BaseResolver, makeDocumentFromString, type Document } from '../../resolve.js';
+import { normalizeTypes } from '../../types/index.js';
+import { analyzeApi, collectReversePathsTo } from '../build-graph.js';
+import type { DependencyGraph, GraphEdge } from '../types.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const CWD = '/project';
+
+async function graphOfString(yaml: string): Promise<DependencyGraph> {
+  const document = makeDocumentFromString(yaml, '/project/openapi.yaml');
+  return graphOfDocument(document, CWD);
+}
+
+async function graphOfDocument(document: Document, cwd: string): Promise<DependencyGraph> {
+  const specVersion = detectSpec(document.parsed);
+  const types = normalizeTypes(getTypes(specVersion), {});
+  const { graph } = await analyzeApi({
+    rootDocument: document,
+    specVersion,
+    types,
+    externalRefResolver: new BaseResolver(),
+    cwd,
+    resolveRef: (base, uri) => join(dirname(base), uri),
+  });
+  return graph;
+}
+
+describe('analyzeApi structure graph', () => {
+  it('builds the root -> path -> operation spine for a single file', async () => {
+    const graph = await graphOfString(
+      [
+        'openapi: 3.0.0',
+        'info: { title: t, version: "1" }',
+        'paths:',
+        '  /pets:',
+        '    get:',
+        '      operationId: listPets',
+        "      responses: { '200': { description: ok } }",
+      ].join('\n')
+    );
+
+    expect(graph.roots).toEqual(['openapi.yaml']);
+    const operation = graph.nodes.find((node) => node.id === 'GET /pets');
+    expect(operation).toMatchObject({
+      kind: 'operation',
+      operationId: 'listPets',
+      file: 'openapi.yaml',
+      resolved: true,
+    });
+    expect(graph.edges).toContainEqual({ from: 'openapi.yaml', to: '/pets', refs: [] });
+    expect(graph.edges).toContainEqual({ from: '/pets', to: 'GET /pets', refs: [] });
+  });
+
+  it('marks an unresolvable ref as an unresolved node instead of failing', async () => {
+    const graph = await graphOfString(
+      [
+        'openapi: 3.0.0',
+        'info: { title: t, version: "1" }',
+        'paths:',
+        '  /pets:',
+        '    get:',
+        '      responses:',
+        "        '200':",
+        '          description: ok',
+        '          content:',
+        '            application/json:',
+        '              schema:',
+        "                $ref: '#/components/schemas/Missing'",
+      ].join('\n')
+    );
+
+    const missing = graph.nodes.find((node) => node.id === 'schemas/Missing');
+    expect(missing).toMatchObject({ kind: 'component', resolved: false });
+  });
+
+  it('attaches real files and operationId for a split multi-file description', async () => {
+    const fixtureRoot = join(__dirname, 'fixtures', 'split');
+    const resolver = new BaseResolver();
+    const rootDocument = (await resolver.resolveDocument(
+      null,
+      join(fixtureRoot, 'openapi.yaml'),
+      true
+    )) as Document;
+
+    const graph = await graphOfDocument(rootDocument, fixtureRoot);
+
+    const operation = graph.nodes.find((node) => node.id === 'POST /tickets');
+    expect(operation).toMatchObject({
+      kind: 'operation',
+      operationId: 'buyTickets',
+      file: 'paths/tickets.yaml',
+    });
+
+    // The root's `components.schemas.Ticket` alias is a whole-file ref, so the file keeps the
+    // canonical `schemas/Ticket` id (with the real defining file attached) — the same id the
+    // bundled walk used to produce. Neither the aliased file nor the path-item file appear as
+    // separate file nodes.
+    const ticketSchema = graph.nodes.find((node) => node.id === 'schemas/Ticket');
+    expect(ticketSchema).toMatchObject({
+      kind: 'component',
+      file: 'components/schemas/Ticket.yaml',
+      resolved: true,
+    });
+    expect(
+      graph.nodes.find((node) => node.id === 'components/schemas/Ticket.yaml')
+    ).toBeUndefined();
+    expect(graph.nodes.find((node) => node.id === 'paths/tickets.yaml')).toBeUndefined();
+
+    // The operation's response schema $ref lives directly in the operation's own file, so its
+    // owner is the operation itself — and the whole-file target collapses to the alias id.
+    expect(
+      graph.edges.some((edge) => edge.from === 'POST /tickets' && edge.to === 'schemas/Ticket')
+    ).toBe(true);
+    // TicketId.yaml has no root alias, so it stays a plain file node behind the schema.
+    expect(
+      graph.edges.some(
+        (edge) => edge.from === 'schemas/Ticket' && edge.to === 'components/schemas/TicketId.yaml'
+      )
+    ).toBe(true);
+    expect(
+      graph.edges.some(
+        (edge) => edge.from === 'paths/tickets.yaml' && edge.to === 'components/schemas/Ticket.yaml'
+      )
+    ).toBe(false);
+
+    const pathNode = graph.nodes.find((node) => node.id === '/tickets');
+    expect(pathNode).toMatchObject({ kind: 'path', file: 'paths/tickets.yaml' });
+
+    // The operation's own `callbacks.onEvent` nested operation must not be misattributed to
+    // the outer /tickets path: its operationId must not leak onto any node, and it must not
+    // get its own top-level spine node under a synthesized callback-expression "path".
+    expect(graph.nodes.some((node) => node.operationId === 'handleEvent')).toBe(false);
+    expect(
+      graph.nodes.find((node) => node.id === 'POST {$request.body#/callbackUrl}')
+    ).toBeUndefined();
+
+    // A ref inside a callback subtree attributes to the OUTER spine operation,
+    // never to a callback-owned node or the path-item file.
+    expect(graph.edges.some((edge) => edge.from === 'paths/tickets.yaml')).toBe(false);
+  });
+});
+
+describe('collectReversePathsTo', () => {
+  it('returns shortest target-first chains for every transitive referrer', () => {
+    const edges: GraphEdge[] = [
+      { from: 'POST /tickets', to: 'schemas/Ticket', refs: [] },
+      { from: 'schemas/Ticket', to: 'schemas/Money', refs: [] },
+      { from: 'schemas/Order', to: 'schemas/Money', refs: [] },
+      { from: 'GET /orders', to: 'schemas/Order', refs: [] },
+    ];
+    const chains = collectReversePathsTo('schemas/Money', edges);
+
+    expect(chains.get('schemas/Ticket')).toEqual(['schemas/Money', 'schemas/Ticket']);
+    expect(chains.get('POST /tickets')).toEqual([
+      'schemas/Money',
+      'schemas/Ticket',
+      'POST /tickets',
+    ]);
+    expect(chains.get('GET /orders')).toEqual(['schemas/Money', 'schemas/Order', 'GET /orders']);
+    expect(chains.has('schemas/Money')).toBe(false);
+  });
+});

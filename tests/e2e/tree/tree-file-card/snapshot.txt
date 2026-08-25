@@ -1,0 +1,67 @@
+{
+  "file": "components/schemas/Order.yaml",
+  "defines": [
+    {
+      "component": "schemas",
+      "name": "Order",
+      "pointer": "#/",
+      "file": "components/schemas/Order.yaml",
+      "start_line": 1,
+      "end_line": 10,
+      "refs": [
+        {
+          "ref": "MenuItem.yaml",
+          "resolved": true,
+          "file": "components/schemas/MenuItem.yaml",
+          "pointer": "#/",
+          "start_line": 1,
+          "end_line": 8,
+          "component": "schemas",
+          "name": "MenuItem"
+        },
+        {
+          "ref": "OrderStatus.yaml",
+          "resolved": true,
+          "file": "components/schemas/OrderStatus.yaml",
+          "pointer": "#/",
+          "start_line": 1,
+          "end_line": 5,
+          "component": "schemas",
+          "name": "OrderStatus"
+        }
+      ],
+      "usedBy": [
+        {
+          "id": "GET /orders/{orderId}",
+          "method": "get",
+          "path": "/orders/{orderId}",
+          "operationId": "getOrder",
+          "pointer": "#/get",
+          "file": "paths/orders_{orderId}.yaml",
+          "start_line": 2,
+          "end_line": 16
+        },
+        {
+          "id": "POST /orders",
+          "method": "post",
+          "path": "/orders",
+          "operationId": "createOrder",
+          "pointer": "#/post",
+          "file": "paths/orders.yaml",
+          "start_line": 12,
+          "end_line": 26
+        },
+        {
+          "id": "schemas/OrderList",
+          "component": "schemas",
+          "name": "OrderList",
+          "pointer": "#/",
+          "file": "components/schemas/OrderList.yaml",
+          "start_line": 1,
+          "end_line": 6
+        }
+      ]
+    }
+  ]
+}
+

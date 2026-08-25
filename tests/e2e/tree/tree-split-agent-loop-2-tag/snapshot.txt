@@ -1,0 +1,55 @@
+[
+  {
+    "method": "get",
+    "path": "/orders",
+    "operationId": "listOrders",
+    "summary": "List orders",
+    "tags": [
+      "Orders"
+    ],
+    "pointer": "#/get",
+    "file": "paths/orders.yaml",
+    "start_line": 2,
+    "end_line": 11,
+    "refs": [
+      {
+        "ref": "../components/schemas/OrderList.yaml",
+        "resolved": true,
+        "file": "components/schemas/OrderList.yaml",
+        "pointer": "#/",
+        "start_line": 1,
+        "end_line": 6,
+        "component": "schemas",
+        "name": "OrderList"
+      }
+    ],
+    "usedBy": []
+  },
+  {
+    "method": "post",
+    "path": "/orders",
+    "operationId": "createOrder",
+    "summary": "Create an order",
+    "tags": [
+      "Orders"
+    ],
+    "pointer": "#/post",
+    "file": "paths/orders.yaml",
+    "start_line": 13,
+    "end_line": 28,
+    "refs": [
+      {
+        "ref": "../components/schemas/Order.yaml",
+        "resolved": true,
+        "file": "components/schemas/Order.yaml",
+        "pointer": "#/",
+        "start_line": 1,
+        "end_line": 10,
+        "component": "schemas",
+        "name": "Order"
+      }
+    ],
+    "usedBy": []
+  }
+]
+

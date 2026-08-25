@@ -1,0 +1,30 @@
+openapi: 3.1.0
+info:
+  title: Webhooks API
+  version: 1.0.0
+paths: {}
+webhooks:
+  orderShipped:
+    post:
+      summary: Order shipped
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: ok
+  orderCancelled:
+    post:
+      summary: Order cancelled
+      responses:
+        '200':
+          description: ok
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        id:
+          type: string

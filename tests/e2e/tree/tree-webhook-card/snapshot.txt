@@ -1,0 +1,13 @@
+{
+  "method": "post",
+  "webhook": "newTicket",
+  "summary": "New ticket alert",
+  "tags": [],
+  "pointer": "#/webhooks/newTicket/post",
+  "file": "webhooks.yaml",
+  "start_line": 9,
+  "end_line": 12,
+  "refs": [],
+  "usedBy": []
+}
+

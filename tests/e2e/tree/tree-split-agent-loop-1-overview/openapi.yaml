@@ -1,0 +1,26 @@
+openapi: 3.2.0
+info:
+  title: Sample Cafe API
+  version: 1.0.0
+servers:
+  - url: https://api.cafe-example.com/v1
+tags:
+  - name: Orders
+    description: Manage cafe orders.
+paths:
+  /orders:
+    $ref: paths/orders.yaml
+  /orders/{orderId}:
+    $ref: paths/orders_{orderId}.yaml
+components:
+  schemas:
+    Order:
+      $ref: components/schemas/Order.yaml
+    OrderStatus:
+      $ref: components/schemas/OrderStatus.yaml
+    MenuItem:
+      $ref: components/schemas/MenuItem.yaml
+    OrderList:
+      $ref: components/schemas/OrderList.yaml
+    Error:
+      $ref: components/schemas/Error.yaml

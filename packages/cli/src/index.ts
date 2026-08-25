@@ -3,9 +3,9 @@ import './utils/assert-node-version.js';
 
 import {
   logger,
+  type ComponentNamesStrategy,
   type OutputFormat,
   type RuleSeverity,
-  type ComponentNamesStrategy,
 } from '@redocly/openapi-core';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
@@ -44,6 +44,8 @@ import type {
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
+import { handleTree } from './commands/tree/index.js';
+import type { TreeFormat } from './commands/tree/types.js';
 import { handlePushStatus } from './reunite/commands/push-status.js';
 import { handlePush } from './reunite/commands/push.js';
 import { outputExtensions } from './types.js';
@@ -85,6 +87,145 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'tree [apis...]',
+    'Display the structure of an API description as a tree.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_TREE')
+        .positional('apis', { array: true, type: 'string' })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['stylish', 'json', 'ai'] as ReadonlyArray<TreeFormat>,
+            default: 'stylish' as TreeFormat,
+          },
+          tag: {
+            description: 'Show the operations of one tag, or list every tag when no name is given.',
+            type: 'string' as const,
+          },
+          path: {
+            description: 'Show the operations of one path.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          webhook: {
+            description: 'Show the operations of one webhook.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          operation: {
+            description:
+              'Show one operation: an HTTP method (with --path or --webhook) or an operationId.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          find: {
+            description:
+              'Search operations and components by words in their path, id, name, summary, description, or tags.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          pointer: {
+            description:
+              "Navigate by a raw JSON pointer from a $ref or lint output; shows the node's location and usage.",
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          component: {
+            description:
+              'Show a component section (schemas, responses, …) or, with --name, one component.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          name: {
+            description: 'Component name; requires --component.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          file: {
+            description:
+              'Show everything one file defines. Combine with --used-by, or with --files to filter the file graph.',
+            type: 'string' as const,
+            requiresArg: true,
+          },
+          operations: {
+            description: 'List every operation.',
+            type: 'boolean' as const,
+          },
+          webhooks: {
+            description: 'List every webhook operation.',
+            type: 'boolean' as const,
+          },
+          'used-by': {
+            description:
+              'With a selector: show every operation and component that transitively references it.',
+            type: 'boolean' as const,
+          },
+          'with-deps': {
+            description:
+              'With an operation or component selection: append its raw source and transitive $ref closure.',
+            type: 'boolean' as const,
+          },
+          output: {
+            alias: 'o',
+            description: 'Write the output to a file instead of stdout.',
+            type: 'string',
+          },
+          files: {
+            description: 'Show the file-level graph instead of the API structure.',
+            type: 'boolean' as const,
+          },
+        })
+        .conflicts('operations', [
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'component',
+          'name',
+          'webhooks',
+        ])
+        .conflicts('component', ['tag', 'path', 'webhook', 'operation'])
+        .conflicts('webhook', ['path', 'tag', 'webhooks'])
+        .conflicts('webhooks', ['tag', 'path', 'operation', 'component', 'name'])
+        .conflicts('path', ['tag'])
+        .conflicts('tag', ['operation'])
+        .conflicts('used-by', ['with-deps'])
+        .conflicts('file', [
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'component',
+          'name',
+          'operations',
+          'webhooks',
+        ])
+        .conflicts('files', [
+          'operations',
+          'webhooks',
+          'tag',
+          'path',
+          'webhook',
+          'operation',
+          'find',
+          'pointer',
+          'component',
+          'name',
+          'used-by',
+          'with-deps',
+        ]),
+    (argv) => {
+      commandWrapper(handleTree)(argv);
     }
   )
   .command(

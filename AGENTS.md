@@ -80,6 +80,7 @@ Key directories:
 - `src/bundle/` — Bundling logic that resolves `$ref` across multiple files.
 - `src/resolve.ts` — Document resolution for multi-file specs (local and remote).
 - `src/types/` — TypeScript type definitions for OAS2, OAS3, AsyncAPI, Arazzo.
+- `src/api-graph/` — The index the `tree` command reads: the node graph, its selectors, and the views built from it.
 
 ### `packages/cli` (@redocly/cli)
 
@@ -109,6 +110,24 @@ Experimental package for generating TypeScript clients from OpenAPI specs.
 The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
+
+## Explore an API description with `tree`
+
+API descriptions are often too large to read directly — the OpenAPI descriptions used in this repository's benchmarks run to millions of tokens.
+Use [`tree`](./docs/@v2/commands/tree.md) to walk one in bounded steps instead of reading or grepping the file:
+
+```bash
+redocly tree <file> --format=ai                                                  # overview: tags, webhooks, component sections
+redocly tree <file> --find "<task words>" --format=ai                            # locate candidate operations/components
+redocly tree <file> --pointer='<ptr>' --format=ai                                # already hold a $ref/lint pointer: jump straight to its location and usage
+redocly tree <file> --path=<path> --operation=<method> --with-deps --format=ai   # one operation with its full $ref closure, as schema signatures
+redocly tree <file> --tag=<tag> --format=ai                                      # a whole area's operations, only when browsing is genuinely needed
+```
+
+`--format=ai` is the agent format: plain text, one line per listing entry, and schema signatures instead of raw YAML in a `--with-deps` closure.
+`--find` ranks operations and components by how many search terms hit their path, id, name, summary, or description, so step 2 usually narrows a whole API down to a few candidates in one call; anything a card's closure lists under `deeper` is one `--component`/`--name` call away.
+Every result carries the defining `file` and `start_line`/`end_line`, so any answer can be checked against the source it came from.
+Each view also ends with a `next:` line naming the flags that continue from it, so these five commands are enough — reading the full [command reference](./docs/@v2/commands/tree.md) costs more tokens than the exploration it saves.
 
 ## Respect the architecture: Walker, Visitors, Nodes
 

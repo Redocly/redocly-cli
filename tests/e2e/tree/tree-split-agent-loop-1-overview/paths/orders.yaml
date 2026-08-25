@@ -1,0 +1,28 @@
+get:
+  operationId: listOrders
+  summary: List orders
+  tags: [Orders]
+  responses:
+    '200':
+      description: A list of orders.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/OrderList.yaml
+post:
+  operationId: createOrder
+  summary: Create an order
+  tags: [Orders]
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../components/schemas/Order.yaml
+  responses:
+    '201':
+      description: The created order.
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/Order.yaml

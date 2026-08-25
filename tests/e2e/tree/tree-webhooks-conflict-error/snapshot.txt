@@ -1,0 +1,42 @@
+
+index.js tree [apis...]
+
+Display the structure of an API description as a tree.
+
+Positionals:
+  apis                                                     [array] [default: []]
+
+Options:
+      --version      Show version number.                              [boolean]
+      --help         Show help.                                        [boolean]
+      --config       Path to the config file.                           [string]
+      --lint-config  Severity level for config file linting.
+                             [choices: "warn", "error", "off"] [default: "warn"]
+      --format       Use a specific output format.
+                         [choices: "stylish", "json", "ai"] [default: "stylish"]
+      --tag          Show the operations of one tag, or list every tag when no n
+                     ame is given.                                      [string]
+      --path         Show the operations of one path.                   [string]
+      --webhook      Show the operations of one webhook.                [string]
+      --operation    Show one operation: an HTTP method (with --path or --webhoo
+                     k) or an operationId.                              [string]
+      --find         Search operations and components by words in their path, id
+                     , name, summary, description, or tags.             [string]
+      --pointer      Navigate by a raw JSON pointer from a $ref or lint output;
+                     shows the node's location and usage.               [string]
+      --component    Show a component section (schemas, responses, …) or, with -
+                     -name, one component.                              [string]
+      --name         Component name; requires --component.              [string]
+      --file         Show everything one file defines. Combine with --used-by, o
+                     r with --files to filter the file graph.           [string]
+      --operations   List every operation.                             [boolean]
+      --webhooks     List every webhook operation.                     [boolean]
+      --used-by      With a selector: show every operation and component that tr
+                     ansitively references it.                         [boolean]
+      --with-deps    With an operation or component selection: append its raw so
+                     urce and transitive $ref closure.                 [boolean]
+  -o, --output       Write the output to a file instead of stdout.      [string]
+      --files        Show the file-level graph instead of the API structure.
+                                                                       [boolean]
+
+Arguments webhooks and tag are mutually exclusive

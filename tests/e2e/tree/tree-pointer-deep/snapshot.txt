@@ -1,0 +1,4 @@
+pointer #/components/schemas/Ticket/properties/ticketId
+├── source: openapi.yaml#/components/schemas/Ticket/properties/ticketId  [54..54]
+└── ancestor: schemas/Ticket  [50..54] · usedBy: 1
+

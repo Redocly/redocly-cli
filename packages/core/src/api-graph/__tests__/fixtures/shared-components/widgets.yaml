@@ -1,0 +1,15 @@
+post:
+  summary: Create a widget
+  operationId: createWidget
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: './shared.yaml#/components/schemas/WidgetRequest'
+  responses:
+    '201':
+      description: Created.
+      content:
+        application/json:
+          schema:
+            $ref: './shared.yaml#/components/schemas/WidgetA'
