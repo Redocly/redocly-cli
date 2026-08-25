@@ -55,6 +55,7 @@ jobs:
             npx changeset version
             npm i
             node scripts/post-changeset.js
+            node scripts/refresh-ejected-example.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
