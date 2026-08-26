@@ -15229,3 +15229,12 @@ Every run of every condition is listed twice below: once as a verdict, and once 
 **cost** — `total_cost_usd` as the run reports it. It moves with the prompt cache, so read it for shape.
 
 **working** — the answer is parsed for the calls it proposes and compared with the flow the description requires: every required call, the host, the required body fields, the authentication. The check accepts any placeholder spelling — `{volume_id}`, `$VOLUME_ID`, a URL carried from an earlier response — and reports only what is nowhere in the answer.
+
+## Conclusions
+
+- Both indexes improve correctness — 158 of 240 working flows reading the description, 184 with `tree`, 201 with the map — and the whole gap sits in the smaller models. Opus 5 answers the same with or without an index.
+- The map is the stronger index for correctness (Haiku 4.5: 25 → 32 → 46 working runs) because a row carries the auth and the required fields in the same read; with `tree`, each of those is another call.
+- Priced per working answer, both indexes come out about 15% cheaper than plain reading overall ($0.61 → $0.52 → $0.51) — but the saving is not uniform. It concentrates where the description is large and single-file; on a small file, or one laid out as a file per operation, plain reading is already the cheap path.
+- `tree`'s value follows the description's layout: it wins on the 9.5 MB single file and loses on the same API split into 2,842 files. The map holds its result on both layouts of both APIs tested.
+- Neither index fixes what the description never states: GitHub's token-minting call is not marked as a security requirement, and the smaller models miss it under every condition.
+- Limits to keep in mind: one task family (short call chains with id hand-offs), ten runs a cell, one agent harness, and a cost metric that moves with the prompt cache.
