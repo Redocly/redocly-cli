@@ -109,7 +109,7 @@ export function buildNodeEnvelope(options: {
     throw new Error(`Source document for "${indexNode.file}" is not resolved.`);
   }
 
-  const lines = document.source.body.split('\n');
+  const lines = linesOf(document);
   const content = lines.slice(indexNode.start_line - 1, indexNode.end_line).join('\n');
 
   const refs = collectNodeRefs({
@@ -132,6 +132,18 @@ export function buildNodeEnvelope(options: {
 
 // Nested by analysis, then cwd: the same analysis can be sliced against more than one cwd.
 const documentsByFileCache = new WeakMap<ApiAnalysis, Map<string, Map<string, Document>>>();
+
+// Splitting a large source into lines costs real time (a 9.5 MB description is ~275k lines), and
+// building a card per operation used to re-split it every time; memoize per document instead.
+const documentLinesCache = new WeakMap<Document, string[]>();
+
+function linesOf(document: Document): string[] {
+  const cached = documentLinesCache.get(document);
+  if (cached) return cached;
+  const lines = document.source.body.split('\n');
+  documentLinesCache.set(document, lines);
+  return lines;
+}
 
 export const DEPS_CONTENT_CAP_BYTES = 65536;
 
@@ -235,7 +247,7 @@ function wholeFileEnvelope(
 ): ApiNodeEnvelope | undefined {
   const document = documentsByFile(analysis, cwd).get(fileId);
   if (!document) return undefined;
-  const lineCount = document.source.body.split('\n').length;
+  const lineCount = linesOf(document).length;
   return {
     id: fileId,
     file: fileId,
