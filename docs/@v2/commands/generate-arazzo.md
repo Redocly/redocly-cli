@@ -158,6 +158,7 @@ The AI's answer is never trusted blindly: the `arazzo`, `info`, and `sourceDescr
 If the answer is rejected, the provider fails, or the description is too large to prompt with, the command keeps the auto-generated workflows.
 
 The generated file starts with a comment marking the workflows as AI-inferred — they are a guess derived from the description, not verified behavior, so review them before use.
+The result also varies between runs: the same description can produce different workflows each time.
 
 ```bash
 redocly generate-arazzo openapi.yaml --with-ai --ai-provider claude --max-workflows 5

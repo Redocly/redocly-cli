@@ -101,6 +101,32 @@ describe('generateWorkflowsWithAi', () => {
     );
   });
 
+  it('drops description and example prose when the full description does not fit the prompt', async () => {
+    vi.mocked(runProvider).mockResolvedValueOnce({ text: redesignedWorkflows });
+    const result = await generateWorkflowsWithAi({
+      provider: 'claude',
+      baseline: baseline(),
+      description: {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0', description: 'x'.repeat(400_001) },
+        components: {
+          schemas: {
+            User: { type: 'object', properties: { description: { type: 'string' } } },
+          },
+        },
+      },
+      maxWorkflows: 10,
+    });
+    expect(result.workflows).toBe(1);
+    const request = vi.mocked(runProvider).mock.calls[0][1];
+    expect(request.user).not.toContain('xxxx');
+    // A schema property named "description" is data, not prose, and survives.
+    expect(request.user).toContain('description:');
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('without description and example fields')
+    );
+  });
+
   it('rejects a description too large to prompt with, without calling the provider', async () => {
     await expect(
       generateWorkflowsWithAi({

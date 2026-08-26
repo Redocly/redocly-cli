@@ -8,6 +8,7 @@ function buildSystemInstructions(maxWorkflows: number): string {
 Follow these rules:
 - Reference operations exactly the way the baseline does: "operationId: $sourceDescriptions.<name>.<operationId>" for operations that have an operationId, or the baseline's "operationPath" value otherwise. Reference only operations that appear in the baseline. The result is programmatically checked and rejected otherwise.
 - Group related operations into multi-step scenario workflows — for example create a resource, read it, update it, and delete it. A workflow may also be a single step when an operation stands alone.
+- Prefer grouping operations that share a tag into the same workflow, and when scenarios are equally likely, follow the order in which operations appear in the description.
 - Design at most ${maxWorkflows} workflow(s); this limit is programmatically checked. Prefer covering every operation from the baseline in at least one workflow; when the limit does not allow that, choose the operations that form the most likely real-world scenarios.
 - When the API has authentication or token-issuing operations, run them first and pass their result to the steps that need it.
 - When a step registers or configures an OAuth2 client, request every grant type the security scheme's flows declare (for example both authorization_code and client_credentials), so the example works with any declared flow.

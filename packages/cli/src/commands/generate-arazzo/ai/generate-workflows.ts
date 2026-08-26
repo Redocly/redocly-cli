@@ -27,6 +27,30 @@ export interface GenerateWorkflowsOptions {
 // the answer; ~400k characters is roughly 100k tokens.
 export const MAX_PROMPT_CHARS = 400_000;
 
+const PROSE_KEYS = new Set(['description', 'example', 'examples', 'externalDocs']);
+
+/**
+ * Copy the description without its prose fields. Under a `properties` key the
+ * keys are schema property names, not OpenAPI keywords — a property named
+ * "description" must survive.
+ */
+function stripProse(value: unknown, keysArePropertyNames = false): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => stripProse(item));
+  }
+  if (!isPlainObject(value)) {
+    return value;
+  }
+  const result: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value)) {
+    if (!keysArePropertyNames && PROSE_KEYS.has(key)) {
+      continue;
+    }
+    result[key] = stripProse(child, !keysArePropertyNames && key === 'properties');
+  }
+  return result;
+}
+
 export interface GeneratedWorkflowsResult {
   /** The Arazzo description with the AI-designed workflows, as YAML. */
   yaml: string;
@@ -136,11 +160,24 @@ function validateReferences(workflows: unknown[], baseline: TestDescription): vo
 export async function generateWorkflowsWithAi(
   options: GenerateWorkflowsOptions
 ): Promise<GeneratedWorkflowsResult> {
-  const { system, user } = buildWorkflowsPrompt({
+  let { system, user } = buildWorkflowsPrompt({
     description: options.description,
     baseline: options.baseline,
     maxWorkflows: options.maxWorkflows,
   });
+
+  if (system.length + user.length > MAX_PROMPT_CHARS) {
+    // Chaining operations needs the description's structure, not its prose;
+    // dropping the prose lets much larger descriptions fit the prompt.
+    ({ system, user } = buildWorkflowsPrompt({
+      description: stripProse(options.description),
+      baseline: options.baseline,
+      maxWorkflows: options.maxWorkflows,
+    }));
+    logger.info(
+      'The OpenAPI description is large; sending it to the AI provider without description and example fields.\n'
+    );
+  }
 
   if (system.length + user.length > MAX_PROMPT_CHARS) {
     throw new Error('the OpenAPI description is too large to send to the AI provider');
