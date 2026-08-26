@@ -1,33 +1,42 @@
 # Where the index pays
 
-An agent handed an API description has two ways to work: read and search the file, or ask `tree` for an index of it.
-This measures both on the same tasks — six of them, over six descriptions from 41 KB to 2,909 files — and judges the answer, not the effort: does the flow the agent produces actually run?
+An agent handed an API description has three ways to work: read and search the file, ask `tree` for an index of it, or search a map of it generated ahead of time with `generate-map`.
+This measures all three on the same tasks — eight description-task pairs, from 41 KB to 2,909 files, two of them the same description in the opposite layout — and judges the answer, not the effort: does the flow the agent produces actually run?
 
-**260 of 360 runs produced a working flow: 120 of 180 without the index, 140 of 180 with it.**
-The index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach.
+**342 of 480 runs produced a working flow reading the description or exploring it with `tree`: 158 of 240 and 184 of 240.**
+The map condition is measured on five of the eight pairs so far — 140 of 150 runs — and is being re-run on the other three; see ⏳ below.
+An index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach — and on the five pairs already final the pre-generated map changes that most: Haiku 4.5 works in 40 of 50 runs against 25 of 50 with `tree`.
 
 ## What it changes
 
-| Description   | Task                 | Model     |         works |  no tree |  tree | Δ cost |
-| ------------- | -------------------- | --------- | ------------: | -------: | ----: | -----: |
-| GitHub REST   | publish a release    | Sonnet 5  | 10/10 → 10/10 |    $0.42 | $0.32 |   −24% |
-| GitHub REST   | publish a release    | Opus 5    | 10/10 → 10/10 |    $0.82 | $0.64 |   −22% |
-| GitHub REST   | publish a release    | Haiku 4.5 |   3/10 → 3/10 |    $0.10 | $0.10 |    −0% |
-| Billing API   | start a subscription | Sonnet 5  |   2/10 → 6/10 |    $1.06 | $0.60 |   −43% |
-| Billing API   | start a subscription | Opus 5    | 10/10 → 10/10 |    $1.85 | $1.11 |   −40% |
-| Billing API   | start a subscription | Haiku 4.5 |   0/10 → 1/10 | $0.19 ❌ | $0.17 |      — |
-| Stripe        | buy carbon removal   | Sonnet 5  |  9/10 → 10/10 |    $0.32 | $0.25 |   −22% |
-| Stripe        | buy carbon removal   | Opus 5    | 10/10 → 10/10 |    $0.54 | $0.45 |   −17% |
-| Stripe        | buy carbon removal   | Haiku 4.5 |   0/10 → 8/10 | $0.09 ❌ | $0.10 |      — |
-| PayPal Orders | capture and track    | Sonnet 5  |  9/10 → 10/10 |    $0.40 | $0.41 |    +2% |
-| PayPal Orders | capture and track    | Opus 5    | 10/10 → 10/10 |    $0.77 | $0.97 |   +26% |
-| PayPal Orders | capture and track    | Haiku 4.5 |   4/10 → 4/10 |    $0.13 | $0.11 |   −15% |
-| DigitalOcean  | shared file storage  | Sonnet 5  |   3/10 → 9/10 |    $0.34 | $0.36 |    +6% |
-| DigitalOcean  | shared file storage  | Opus 5    | 10/10 → 10/10 |    $0.56 | $0.78 |   +39% |
-| DigitalOcean  | shared file storage  | Haiku 4.5 |   4/10 → 4/10 |    $0.20 | $0.14 |   −30% |
-| Cafe API      | order a coffee       | Sonnet 5  |  10/10 → 9/10 |    $0.24 | $0.28 |   +17% |
-| Cafe API      | order a coffee       | Opus 5    | 10/10 → 10/10 |    $0.44 | $0.67 |   +52% |
-| Cafe API      | order a coffee       | Haiku 4.5 |   6/10 → 6/10 |    $0.07 | $0.10 |   +43% |
+| Description            | Task                 | Model     | works: no tree → tree → map |  no tree |  tree |   map |
+| ---------------------- | -------------------- | --------- | --------------------------: | -------: | ----: | ----: |
+| GitHub REST            | publish a release    | Sonnet 5  |          10/10 → 10/10 → ⏳ |    $0.42 | $0.32 |    ⏳ |
+| GitHub REST            | publish a release    | Opus 5    |          10/10 → 10/10 → ⏳ |    $0.82 | $0.64 |    ⏳ |
+| GitHub REST            | publish a release    | Haiku 4.5 |            3/10 → 3/10 → ⏳ |    $0.10 | $0.10 |    ⏳ |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |            9/10 → 9/10 → ⏳ |    $0.21 | $0.24 |    ⏳ |
+| GitHub REST (split)    | publish a release    | Opus 5    |            8/10 → 9/10 → ⏳ |    $0.69 | $0.67 |    ⏳ |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |            5/10 → 1/10 → ⏳ |    $0.16 | $0.14 |    ⏳ |
+| Billing API            | start a subscription | Sonnet 5  |            2/10 → 6/10 → ⏳ |    $1.06 | $0.60 |    ⏳ |
+| Billing API            | start a subscription | Opus 5    |          10/10 → 10/10 → ⏳ |    $1.85 | $1.11 |    ⏳ |
+| Billing API            | start a subscription | Haiku 4.5 |            0/10 → 1/10 → ⏳ | $0.19 ❌ | $0.17 |    ⏳ |
+| Stripe                 | buy carbon removal   | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |
+| Stripe                 | buy carbon removal   | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |
+| Stripe                 | buy carbon removal   | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |
+| PayPal Orders          | capture and track    | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.40 | $0.41 | $0.34 |
+| PayPal Orders          | capture and track    | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.77 | $0.97 | $0.79 |
+| PayPal Orders          | capture and track    | Haiku 4.5 |          4/10 → 4/10 → 2/10 |    $0.13 | $0.11 | $0.12 |
+| DigitalOcean           | shared file storage  | Sonnet 5  |         3/10 → 9/10 → 10/10 |    $0.34 | $0.36 | $0.20 |
+| DigitalOcean           | shared file storage  | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.56 | $0.78 | $0.73 |
+| DigitalOcean           | shared file storage  | Haiku 4.5 |         4/10 → 4/10 → 10/10 |    $0.20 | $0.14 | $0.16 |
+| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |        5/10 → 10/10 → 10/10 |    $0.33 | $0.17 | $0.23 |
+| DigitalOcean (bundled) | shared file storage  | Opus 5    |        8/10 → 10/10 → 10/10 |    $0.85 | $0.90 | $0.79 |
+| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |          3/10 → 5/10 → 8/10 |    $0.14 | $0.11 | $0.15 |
+| Cafe API               | order a coffee       | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.24 | $0.28 | $0.24 |
+| Cafe API               | order a coffee       | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.44 | $0.67 | $0.62 |
+| Cafe API               | order a coffee       | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.07 |
+
+⏳ marks a cell being re-measured: the map for the billing API and for both GitHub layouts is regenerated after two fixes the first round of runs exposed — an `apiKey` scheme now carries its header on the row itself, and a description that declares no security says so in the map instead of leaving every row bare. Those numbers land when the runs finish.
 
 Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
 Context moves the same way and more steadily; it is per cell and per run in [the detailed version](./tree-agent-index-benchmark-detailed.md).
@@ -80,11 +89,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works | no tree |  tree | Δ cost |
-| --------- | ------------: | ------: | ----: | -----: |
-| Sonnet 5  | 10/10 → 10/10 |   $0.42 | $0.32 |   −24% |
-| Opus 5    | 10/10 → 10/10 |   $0.82 | $0.64 |   −22% |
-| Haiku 4.5 |   3/10 → 3/10 |   $0.10 | $0.10 |    −0% |
+| Model     | works: no tree → tree → map | no tree |  tree | map |
+| --------- | --------------------------: | ------: | ----: | --: |
+| Sonnet 5  |          10/10 → 10/10 → ⏳ |   $0.42 | $0.32 |  ⏳ |
+| Opus 5    |          10/10 → 10/10 → ⏳ |   $0.82 | $0.64 |  ⏳ |
+| Haiku 4.5 |            3/10 → 3/10 → ⏳ |   $0.10 | $0.10 |  ⏳ |
 
 What the failing runs left out:
 
@@ -95,6 +104,72 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 5 runs: no app token
 
 Sonnet 5 and Opus 5 answer correctly either way; the index buys 9% to 13% less context and fewer calls. Haiku 4.5 never mints the installation token its own flow declares.
+
+{% /tab %}
+
+{% tab label="GitHub REST (split) · publish a release" %}
+
+**Description:** 16 MB across 2,842 files — the same GitHub description split into one file per operation with `redocly split`.
+
+**Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
+Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+
+**The trap:** the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
+
+API description: github-split/openapi.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
+
+API description: github-split/openapi.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree github-split/openapi.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+| Model     | works: no tree → tree → map | no tree |  tree | map |
+| --------- | --------------------------: | ------: | ----: | --: |
+| Sonnet 5  |            9/10 → 9/10 → ⏳ |   $0.21 | $0.24 |  ⏳ |
+| Opus 5    |            8/10 → 9/10 → ⏳ |   $0.69 | $0.67 |  ⏳ |
+| Haiku 4.5 |            5/10 → 1/10 → ⏳ |   $0.16 | $0.14 |  ⏳ |
+
+What the failing runs left out:
+
+- **Sonnet 5 · no tree** — 1 run: no app token
+- **Sonnet 5 · tree** — 1 run: no app token
+- **Opus 5 · no tree** — 2 runs: no asset upload
+- **Opus 5 · tree** — 1 run: no asset upload
+- **Haiku 4.5 · no tree** — 3 runs: no app token
+- **Haiku 4.5 · no tree** — 1 run: no asset delete
+- **Haiku 4.5 · no tree** — 1 run: no app token, no asset upload
+- **Haiku 4.5 · tree** — 8 runs: no app token
+- **Haiku 4.5 · tree** — 1 run: no app token, no asset upload
+
+Split into a file per operation, the layout is itself the index, and the advantage the command held on the 9.5 MB single file is gone: the control gets twice as cheap, Sonnet 5 pays 14% more through the index, and Haiku 4.5 drops from five working runs to one, losing the installation-token call among the cards.
 
 {% /tab %}
 
@@ -142,11 +217,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |  no tree |  tree | Δ cost |
-| --------- | ------------: | -------: | ----: | -----: |
-| Sonnet 5  |   2/10 → 6/10 |    $1.06 | $0.60 |   −43% |
-| Opus 5    | 10/10 → 10/10 |    $1.85 | $1.11 |   −40% |
-| Haiku 4.5 |   0/10 → 1/10 | $0.19 ❌ | $0.17 |      — |
+| Model     | works: no tree → tree → map |  no tree |  tree | map |
+| --------- | --------------------------: | -------: | ----: | --: |
+| Sonnet 5  |            2/10 → 6/10 → ⏳ |    $1.06 | $0.60 |  ⏳ |
+| Opus 5    |          10/10 → 10/10 → ⏳ |    $1.85 | $1.11 |  ⏳ |
+| Haiku 4.5 |            0/10 → 1/10 → ⏳ | $0.19 ❌ | $0.17 |  ⏳ |
 
 What the failing runs left out:
 
@@ -210,11 +285,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works |  no tree |  tree | Δ cost |
-| --------- | ------------: | -------: | ----: | -----: |
-| Sonnet 5  |  9/10 → 10/10 |    $0.32 | $0.25 |   −22% |
-| Opus 5    | 10/10 → 10/10 |    $0.54 | $0.45 |   −17% |
-| Haiku 4.5 |   0/10 → 8/10 | $0.09 ❌ | $0.10 |      — |
+| Model     | works: no tree → tree → map |  no tree |  tree |   map |
+| --------- | --------------------------: | -------: | ----: | ----: |
+| Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |
+| Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |
+| Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |
 
 What the failing runs left out:
 
@@ -270,11 +345,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works | no tree |  tree | Δ cost |
-| --------- | ------------: | ------: | ----: | -----: |
-| Sonnet 5  |  9/10 → 10/10 |   $0.40 | $0.41 |    +2% |
-| Opus 5    | 10/10 → 10/10 |   $0.77 | $0.97 |   +26% |
-| Haiku 4.5 |   4/10 → 4/10 |   $0.13 | $0.11 |   −15% |
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |        9/10 → 10/10 → 10/10 |   $0.40 | $0.41 | $0.34 |
+| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.77 | $0.97 | $0.79 |
+| Haiku 4.5 |          4/10 → 4/10 → 2/10 |   $0.13 | $0.11 | $0.12 |
 
 What the failing runs left out:
 
@@ -338,11 +413,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works | no tree |  tree | Δ cost |
-| --------- | ------------: | ------: | ----: | -----: |
-| Sonnet 5  |   3/10 → 9/10 |   $0.34 | $0.36 |    +6% |
-| Opus 5    | 10/10 → 10/10 |   $0.56 | $0.78 |   +39% |
-| Haiku 4.5 |   4/10 → 4/10 |   $0.20 | $0.14 |   −30% |
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |         3/10 → 9/10 → 10/10 |   $0.34 | $0.36 | $0.20 |
+| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.56 | $0.78 | $0.73 |
+| Haiku 4.5 |         4/10 → 4/10 → 10/10 |   $0.20 | $0.14 | $0.16 |
 
 What the failing runs left out:
 
@@ -356,6 +431,69 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
 
 The same 2,909 files, a corner the tutorials skip: Sonnet 5 moves from three working runs in ten to nine, the largest single move in the grid, while Haiku 4.5 stays at four and only gets there cheaper. Opus 5 passes either way and pays 39% more for it — with one operation per file, the filenames are already an index. The second of two controls in this grid for what a model remembers versus what it reads.
+
+{% /tab %}
+
+{% tab label="DigitalOcean (bundled) · shared file storage" %}
+
+**Description:** 2.87 MB in one file — the 2,909-file DigitalOcean description bundled into a single document with `redocly bundle`.
+
+**Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
+Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+
+**The trap:** the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean-bundled.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean-bundled.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree digitalocean-bundled.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |        5/10 → 10/10 → 10/10 |   $0.33 | $0.17 | $0.23 |
+| Opus 5    |        8/10 → 10/10 → 10/10 |   $0.85 | $0.90 | $0.79 |
+| Haiku 4.5 |          3/10 → 5/10 → 8/10 |   $0.14 | $0.11 | $0.15 |
+
+What the failing runs left out:
+
+- **Sonnet 5 · no tree** — 5 runs: no auth scheme
+- **Opus 5 · no tree** — 2 runs: no access point call
+- **Haiku 4.5 · no tree** — 6 runs: no auth scheme
+- **Haiku 4.5 · no tree** — 1 run: no access point call, no auth scheme
+- **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
+- **Haiku 4.5 · tree** — 4 runs: no auth scheme
+
+Bundled into one 2.87 MB file, the description stops answering "where is it" by itself: Sonnet 5 goes from five working runs to all ten at half the cost through the index, and Opus 5 drops two control runs it passed on the split layout.
 
 {% /tab %}
 
@@ -401,11 +539,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     |         works | no tree |  tree | Δ cost |
-| --------- | ------------: | ------: | ----: | -----: |
-| Sonnet 5  |  10/10 → 9/10 |   $0.24 | $0.28 |   +17% |
-| Opus 5    | 10/10 → 10/10 |   $0.44 | $0.67 |   +52% |
-| Haiku 4.5 |   6/10 → 6/10 |   $0.07 | $0.10 |   +43% |
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |        10/10 → 9/10 → 10/10 |   $0.24 | $0.28 | $0.24 |
+| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.44 | $0.67 | $0.62 |
+| Haiku 4.5 |         6/10 → 6/10 → 10/10 |   $0.07 | $0.10 | $0.07 |
 
 What the failing runs left out:
 
@@ -421,22 +559,49 @@ Haiku 4.5 loses the token call among the cards exactly as often as it loses it i
 
 {% /tabs %}
 
+## Same description, opposite layout
+
+If the pattern above is right — the index earns its place exactly where the description's layout defeats search — then flipping a description's layout should flip the result. Two counter-layouts, generated with the CLI itself, test that: GitHub split into 2,842 files (`redocly split`), and DigitalOcean bundled into one 2.87 MB file (`redocly bundle`). Same tasks, same checks, ten runs a cell on a build at `77a6894a7`.
+
+GitHub, split — the file-per-operation layout is now the index, and the advantage the command held on the 9.5 MB single file disappears:
+
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |         9/10 → 9/10 → 10/10 |   $0.21 | $0.24 | $0.24 |
+| Opus 5    |         8/10 → 9/10 → 10/10 |   $0.69 | $0.67 | $0.62 |
+| Haiku 4.5 |         5/10 → 1/10 → 10/10 |   $0.16 | $0.14 | $0.07 |
+
+DigitalOcean, bundled — search now has to dig through one 2.87 MB file, and the index that lost on 2,909 well-named files starts paying: Sonnet 5 goes from five working runs to all ten at half the cost:
+
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |        5/10 → 10/10 → 10/10 |   $0.33 | $0.17 | $0.24 |
+| Opus 5    |        8/10 → 10/10 → 10/10 |   $0.85 | $0.90 | $0.62 |
+| Haiku 4.5 |         3/10 → 5/10 → 10/10 |   $0.14 | $0.11 | $0.07 |
+
+Both signs flipped with the layout. What decides the index's value is not the API or the model but whether the description's own shape already answers "where is it" — and the failure classes stay the same on both sides: the bundled DigitalOcean's control runs miss `bearer_auth` eleven times, exactly like the split one's did, and the split GitHub's Haiku 4.5 keeps skipping the installation-token call with or without the index.
+
 ## What the numbers show
 
 **An index decides whether a smaller model gets there at all.**
 Three cells move from at most three working flows in ten to six or more once it is available: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal, which goes from none of ten to eight.
-Opus 5, meanwhile, passes all 120 of its runs either way — it does not need one.
+Opus 5, meanwhile, misses only five of its 160 runs — the index is not what decides its answer.
 
 **Almost every one of those failures is the same failure.** The control runs name the right calls in the right order and never say how the request authenticates: no key, no header, no token. It is the largest failure class in the grid by a wide margin, and it is what an index removes, because every card states the requirement that protects the operation.
 
 **It does not pay everywhere, and the grid shows where.** Where a description is small, or already laid out as one file per operation, fetching cards costs more than reading it: Opus 5 pays 49% more context on DigitalOcean and 47% more on PayPal for answers it would have reached anyway.
 The bill follows calls more closely than bytes, because every call is a request that resends the conversation. The Cafe API shows it at its plainest: one read of the whole 41 KB file becomes seven to thirteen index calls, and Sonnet 5 ends up with 48% less context and a 17% larger bill.
-The pattern across all six: the index earns its place on descriptions large enough that search is the only way in, and on models that would otherwise leave something out.
+The pattern across all eight: the index earns its place on descriptions large enough that search is the only way in, and on models that would otherwise leave something out.
+
+**A map generated ahead of time gets most of the way there for the smallest model, without the round trips.**
+Where `tree` answers one question per call, `generate-map` writes the same facts into a file the agent greps locally — so the auth and the required fields arrive in the same read as the operation name.
+That closes the gap `tree` leaves on Haiku 4.5: across the five pairs already final it works in 40 runs of 50 against 25 with `tree`, and on three cells it is the whole difference between a flow that runs and one that does not — carbon removal 0 → 10, shared file storage 4 → 10, a coffee order 6 → 10 at the price of reading the file.
+For Sonnet 5 and Opus 5 the map is a wash against `tree` on those pairs, and spend across them is the same to the dollar.
 
 ## How this was measured
 
 Every run is a fresh Claude Code session with the task text as its only input, allowed to run shell commands, read files and search them, starting in a directory holding nothing but the description.
-The **no tree** prompt names neither `tree` nor Redocly; the **tree** prompt adds two lines saying the CLI is installed and that `redocly tree --help` lists what it can select.
+The **no tree** prompt names neither `tree` nor Redocly; the **tree** prompt adds two lines saying the CLI is installed and that `redocly tree --help` lists what it can select; the **map** prompt names neither, and instead says a generated index of every operation sits next to the description and to start there — the map is written before the session begins, so those runs never call the CLI at all.
 Each cell is ten runs; the tables give the median over the ones whose flow works, and a cell marked ❌ is one where none did.
 An answer works when it names every required call, the host each goes to, the fields the body needs, and how the request authenticates.
 

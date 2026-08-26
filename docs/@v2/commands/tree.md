@@ -2065,6 +2065,7 @@ Instead of feeding the whole file to a model, let the agent navigate the selecto
 Every result is generated deterministically from the document structure — no AI calls or API keys are needed.
 It is available for OpenAPI descriptions; the typed selectors, `--used-by`, and `--with-deps` report an error for other specification types.
 For measured costs — 360 agent runs over six descriptions, from 41 KB to 2,909 files, each compared against a read-and-search baseline — see [Where the index pays](../guides/tree-agent-index-benchmark.md).
+For a precomputed, CLI-free variant of the same index — one text file an agent greps locally — see the [`generate-map` command](./generate-map.md).
 
 When wiring this into an agent, hand it the run line with `--format=ai` and let the `next:` lines carry it from there.
 Pasting this page into a prompt, or pointing an agent at it, costs 6,000 to 21,000 tokens depending on the model — more than the exploration it saves.

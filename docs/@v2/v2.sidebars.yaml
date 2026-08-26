@@ -22,6 +22,8 @@
           page: commands/generate-arazzo.md
         - label: generate-client
           page: commands/generate-client.md
+        - label: generate-map
+          page: commands/generate-map.md
         - label: generate-spec
           page: commands/generate-spec.md
         - label: join

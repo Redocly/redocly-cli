@@ -11,10 +11,11 @@ Read the short version first — this page exists to check it.
 Earlier rounds asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
 This round adds five task-description pairs chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; DigitalOcean, which ships as 2,909 files with one operation each — and, for two of them, a second task asking about a corner of the same file that no tutorial covers, so that what a model remembers can be told apart from what it reads.
 
-Six description-task pairs, three models, two conditions, ten runs a cell — 360 runs:
+Eight description-task pairs, three models, three conditions, ten runs a cell — 720 runs:
 
 - **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
 - **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select.
+- **map** ⏳ — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by `redocly generate-map` before the session begins, so these runs never call the CLI.
 
 Every context and cost cell is the median of the runs in it whose flow works; a cell marked ❌ is one where none did, and its numbers are the median of all its runs.
 A difference is printed only where both sides carry the same mark.
@@ -68,19 +69,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree | Difference |
-| ---------------- | ----------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |       −10% |
-| Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 |       −29% |
-| Haiku 4.5 (n=10) | 11,060 / 10 | 10,262 / 10 |        −7% |
+| Model            |     no tree |        tree | map | Δ tree |
+| ---------------- | ----------: | ----------: | --: | -----: |
+| Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |  ⏳ |   −10% |
+| Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 |  ⏳ |   −29% |
+| Haiku 4.5 (n=10) | 11,060 / 10 | 10,262 / 10 |  ⏳ |    −7% |
 
 What those runs were billed:
 
-| Model            | no tree |  tree | Difference |
-| ---------------- | ------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |   $0.42 | $0.32 |       −24% |
-| Opus 5 (n=10)    |   $0.82 | $0.64 |       −22% |
-| Haiku 4.5 (n=10) |   $0.10 | $0.10 |        −0% |
+| Model            | no tree |  tree | map | Δ tree |
+| ---------------- | ------: | ----: | --: | -----: |
+| Sonnet 5 (n=10)  |   $0.42 | $0.32 |  ⏳ |   −24% |
+| Opus 5 (n=10)    |   $0.82 | $0.64 |  ⏳ |   −22% |
+| Haiku 4.5 (n=10) |   $0.10 | $0.10 |  ⏳ |    −0% |
 
 Whether each run produced a flow that would run:
 
@@ -1137,6 +1138,1244 @@ Haiku 4.5 fails the same way each time — it declares an installation token it 
 
 {% /tab %}
 
+{% tab label="GitHub REST (split) · publish a release" %}
+
+**Description:** 16 MB across 2,842 files — the same GitHub description split into one file per operation with `redocly split`.
+
+**Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
+Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+Traps: the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
+
+API description: github-split/openapi.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
+
+API description: github-split/openapi.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree github-split/openapi.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+Context the run added, and the tool calls it took (medians over the working runs):
+
+| Model            |     no tree |        tree | map | Δ tree |
+| ---------------- | ----------: | ----------: | --: | -----: |
+| Sonnet 5 (n=10)  |  10,994 / 8 | 10,606 / 11 |  ⏳ |    −4% |
+| Opus 5 (n=10)    | 15,772 / 12 | 14,233 / 17 |  ⏳ |   −10% |
+| Haiku 4.5 (n=10) |  36,143 / 7 | 11,706 / 16 |  ⏳ |   −68% |
+
+What those runs were billed:
+
+| Model            | no tree |  tree | map | Δ tree |
+| ---------------- | ------: | ----: | --: | -----: |
+| Sonnet 5 (n=10)  |   $0.21 | $0.24 |  ⏳ |   +14% |
+| Opus 5 (n=10)    |   $0.69 | $0.67 |  ⏳ |    −3% |
+| Haiku 4.5 (n=10) |   $0.16 | $0.14 |  ⏳ |   −12% |
+
+Whether each run produced a flow that would run:
+
+| Run                | no tree                       | tree                          |
+| ------------------ | ----------------------------- | ----------------------------- |
+| Sonnet 5 · run 1   | works                         | works                         |
+| Sonnet 5 · run 2   | no app token                  | works                         |
+| Sonnet 5 · run 3   | works                         | works                         |
+| Sonnet 5 · run 4   | works                         | no app token                  |
+| Sonnet 5 · run 5   | works                         | works                         |
+| Sonnet 5 · run 6   | works                         | works                         |
+| Sonnet 5 · run 7   | works                         | works                         |
+| Sonnet 5 · run 8   | works                         | works                         |
+| Sonnet 5 · run 9   | works                         | works                         |
+| Sonnet 5 · run 10  | works                         | works                         |
+| Opus 5 · run 1     | works                         | works                         |
+| Opus 5 · run 2     | works                         | works                         |
+| Opus 5 · run 3     | works                         | works                         |
+| Opus 5 · run 4     | works                         | works                         |
+| Opus 5 · run 5     | works                         | works                         |
+| Opus 5 · run 6     | works                         | no asset upload               |
+| Opus 5 · run 7     | works                         | works                         |
+| Opus 5 · run 8     | no asset upload               | works                         |
+| Opus 5 · run 9     | works                         | works                         |
+| Opus 5 · run 10    | no asset upload               | works                         |
+| Haiku 4.5 · run 1  | works                         | works                         |
+| Haiku 4.5 · run 2  | works                         | no app token                  |
+| Haiku 4.5 · run 3  | no app token                  | no app token, no asset upload |
+| Haiku 4.5 · run 4  | works                         | no app token                  |
+| Haiku 4.5 · run 5  | no asset delete               | no app token                  |
+| Haiku 4.5 · run 6  | no app token, no asset upload | no app token                  |
+| Haiku 4.5 · run 7  | works                         | no app token                  |
+| Haiku 4.5 · run 8  | no app token                  | no app token                  |
+| Haiku 4.5 · run 9  | no app token                  | no app token                  |
+| Haiku 4.5 · run 10 | works                         | no app token                  |
+
+A run works when its flow contains the installation token call, `POST /releases`, the asset upload sent to `uploads.github.com`, and the delete keyed by asset id.
+
+What each run ran:
+
+{% tabs %}
+{% tab label="Sonnet 5 · publish a release" %}
+
+{% tabs %}
+{% tab label="Sonnet 5 · run 1 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml
+Grep
+ls paths | grep -i release; echo ---; ls paths | grep -i access_tokens
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+cat github-split/components/schemas/installation-token.yaml | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release
+redocly tree github-split/openapi.yaml --format=ai --find=upload
+redocly tree github-split/openapi.yaml --format=ai --find="installation access token"
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release | head -50
+redocly tree github-split/openapi.yaml --format=ai --pointer=github-split/components/schemas/installation-token.yaml
+redocly tree github-split/openapi.yaml --format=ai --pointer=github-split/components/schemas/release-asset.yaml
+redocly tree github-split/openapi.yaml --format=ai --pointer=github-split/components/schemas/release.yaml | head -60
+Read github-split/components/schemas/installation-token.yaml
+Read github-split/components/schemas/release-asset.yaml
+Read github-split/components/schemas/release.yaml
+cat <<'EOF'
+{
+"flow": "publish-release-with-asset",
+"steps": [
+"step": 1,
+"name": "get_installation_token",
+"calls": "POST /app/installations/{installation_id}/access_tokens",
+"operationId": "apps/create-installation-access-token",
+"auth": "Bearer <App JWT> (minted by CI from the App's private key, NOT the installation token)",
+"needs": {
+"path": { "installation_id": "the GitHub App installation ID for this org/repo" },
+"body_optional": { "repositories": ["<repo-name>"], "permissions": {"contents": "write"} }
+},
+"carry_forward": {
+"token": "installation access token -> used as 'Authorization: Bearer <token>' on steps 2-4",
+"expires_at": "token expires 1h after issuance; re-run this step if the job runs long"
+}
+"step": 2,
+"name": "create_release",
+"calls": "POST /repos/{owner}/{repo}/releases",
+"operationId": "repos/create-release",
+"auth": "Bearer <installation token from step 1>",
+"path": { "owner": "repo owner", "repo": "repo name" },
+"body": {
+"tag_name": "e.g. v1.2.3 (required)",
+"name": "release title, optional",
+"body": "release notes, optional",
+"draft": false,
+"prerelease": false
+"id": "release_id -> used as {release_id} in step 4 (delete-release-asset works off asset_id though) and for step 5",
+"upload_url": "templated URL (host is uploads.github.com) -> used as the base for step 3's POST, after stripping the {?name,label} URI template suffix and appending ?name=<filename>"
+"step": 3,
+"name": "upload_release_asset",
+"calls": "POST {upload_url from step 2}?name=<zip-filename>",
+"operationId": "repos/upload-release-asset",
+"server_note": "This call goes to uploads.github.com, NOT api.github.com — use the upload_url verbatim.",
+"path_equivalent": { "owner": "repo owner", "repo": "repo name", "release_id": "from step 2 (implicit in upload_url)" },
+"query": { "name": "filename for the asset, required, e.g. build.zip", "label": "optional display label" },
+"headers": { "Content-Type": "application/octet-stream" },
+"body": "raw bytes of the built zip file"
+"id": "asset_id -> used as {asset_id} in step 4 if a rollback/removal is needed",
+"browser_download_url": "public download link for the asset, useful for notifications/summaries"
+"step": 4,
+"name": "delete_release_asset (conditional rollback)",
+"calls": "DELETE /repos/{owner}/{repo}/releases/assets/{asset_id}",
+"operationId": "repos/delete-release-asset",
+"run_when": "the upload in step 3 succeeded but was later determined to be wrong (e.g. checksum mismatch, wrong build) and needs to be taken back down",
+"path": { "owner": "repo owner", "repo": "repo name", "asset_id": "from step 3's response id" }
+"response": "204 No Content on success"
+],
+"notes": [
+"Steps 2 and 3 are sequential and required for every run: you cannot upload an asset without a release_id/upload_url from step 2.",
+"Step 4 is the rollback branch, only triggered if post-upload validation fails; it does not delete the release itself, only the asset.",
+"If you also want to remove the whole release on rollback, add DELETE /repos/{owner}/{repo}/releases/{release_id} (operationId repos/delete-release) using the id carried from step 2 — not requested here but adjacent if needed.",
+"The installation token from step 1 is reused across steps 2-4 as long as it hasn't expired (1 hour)."
+]
+EOF
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · no tree" %}
+
+```bash
+grep -n "operationId\|summary:" github-split/openapi.yaml | grep -i "release"
+ls github-split/ ; wc -l github-split/openapi.yaml
+ls github-split/paths | grep -i release
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+grep -n -A3 "^  id:\|^  upload_url:\|^  url:" github-split/components/schemas/release.yaml | head -40
+grep -n -A3 "^  id:\|^  name:\|^  state:" github-split/components/schemas/release-asset.yaml | head -40
+grep -rn "access_tokens\|access-tokens" github-split/paths/ | grep -i install
+Artifact /dev/null
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release | head -200
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset" | head -50
+redocly tree github-split/openapi.yaml --format=ai --find="installation access token" | head -50
+redocly tree github-split/openapi.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --pointer=github-split/components/schemas/installation-token.yaml | head -80
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -100
+cat "github-split/components/schemas/installation-token.yaml"
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post | head -150
+grep -n -A3 "^  id:\|^  upload_url:\|^  url:\|^  assets_url:" "github-split/components/schemas/release.yaml" | head -30
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post | head -150
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete | head -150
+grep -n -A3 "^  id:" "github-split/components/schemas/release-asset.yaml" | head -10
+grep -n -B2 -A15 "securitySchemes" github-split/openapi.yaml
+grep -rn "securityScheme\|bearerFormat\|security:" github-split/openapi.yaml github-split/components/ 2>/dev/null | head -20
+grep -n "app-jwt\|JWT\|Authenticating as a GitHub App\|generate-jwt" github-split/openapi.yaml github-split/paths/app_installations_{installation_id}_access_tokens.yaml 2>/dev/null | head -10
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-tree-help-v4-sonnet-r2/24b6d1a2-ba72-41a7-b5b2-6b86f01df755/scratchpad/flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · no tree" %}
+
+```bash
+grep -n "operationId\|^  /repos/{owner}/{repo}/releases" github-split/openapi.yaml | grep -i "release"
+cd github-split
+sed -n '1464,1500p' openapi.yaml
+grep -n "reposCreateRelease\|createRelease\|repos-create-release" openapi.yaml | head -20
+D=github-split
+cat "$D/paths/repos_{owner}_{repo}_releases.yaml"
+cat "$D/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml" 2>/dev/null
+cat "$D/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml" 2>/dev/null
+grep -rln "access_tokens" "$D/paths" | head
+grep -rln "installation" "$D/paths" | grep -i "access_token\|installations"
+cat "$D/paths/app_installations_{installation_id}_access_tokens.yaml"
+cat "$D/components/schemas/installation-token.yaml" | head -20
+grep -n "^  id:\|^  upload_url:\|^  url:" "$D/components/schemas/release.yaml"
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release | head -200
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset" | head -50
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset | head -60
+redocly tree github-split/openapi.yaml --format=ai --find="installation access token" | head -30
+redocly tree github-split/openapi.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -60
+cat github-split/components/schemas/installation-token.yaml | head -60
+grep -n -A2 -B2 "upload_url\|^  id:" github-split/components/schemas/release.yaml | head -40
+grep -n -A5 "security" github-split/paths/repos_{owner}_{repo}_releases.yaml | head -20
+grep -n -A2 -B2 "^  id:\|^  url:\|browser_download_url" github-split/components/schemas/release-asset.yaml | head -40
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; grep -n "operationId" github-split/openapi.yaml | grep -i -E "release|asset"
+grep -n -i "release" github-split/openapi.yaml | head -100
+DIR=github-split; cat "$DIR/paths/repos_{owner}_{repo}_releases.yaml"; echo "-----ASSETS-----"; cat "$DIR/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"; echo "-----ASSET_ID-----"; cat "$DIR/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+DIR=github-split; grep -n -i "access_tokens\|installation" "$DIR/openapi.yaml" | grep -i "access_tokens"
+DIR=github-split; cat "$DIR/paths/app_installations_{installation_id}_access_tokens.yaml"
+DIR=github-split; cat "$DIR/components/schemas/installation-token.yaml" | head -30; echo ---; cat "$DIR/components/schemas/release-asset.yaml" | grep -n "^\s*[a-z_]*:" | head -40
+Write /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-control-v4-sonnet-r4/c754b0ed-549c-46c8-8acc-376dfe7f4bbc/scratchpad/release-flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release | head -200
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset" | head -50
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release | head -100
+redocly tree github-split/openapi.yaml --format=ai --pointer=../components/schemas/release.yaml | head -150
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/release.yaml | head -150
+Read github-split/components/schemas/release.yaml
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps | head -150
+Read github-split/components/schemas/release-asset.yaml
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps | head -100
+redocly tree github-split/openapi.yaml --format=ai --component=securitySchemes | head -50
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · no tree" %}
+
+```bash
+grep -n "operationId\|^  /repos.*release" github-split/openapi.yaml | grep -i "release"
+awk 'NR>=1464 && NR<=1480' github-split/openapi.yaml
+cd github-split
+sed -n '1,80p' paths/repos_\{owner\}_\{repo\}_releases.yaml
+cat paths/repos_\{owner\}_\{repo\}_releases_assets_\{asset_id\}.yaml
+cat paths/repos_\{owner\}_\{repo\}_releases_\{release_id\}_assets.yaml
+grep -rn "operationId: apps/create-installation-access-token\|access_tokens" paths/*.yaml | grep -v "\.yaml:.*#"
+grep -rln "access_tokens" paths/ | head
+sed -n '1,120p' paths/app_installations_\{installation_id\}_access_tokens.yaml
+sed -n '80,160p' paths/repos_\{owner\}_\{repo\}_releases.yaml
+sed -n '1,40p' components/schemas/installation-token.yaml
+grep -n "^\s*id:\|upload_url\|html_url" components/schemas/release.yaml | head -20
+grep -n "^\s*id:\|browser_download_url" components/schemas/release-asset.yaml | head -10
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release | head -150
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset" | head -60
+redocly tree github-split/openapi.yaml --format=ai --find="installation access token" | head -40
+redocly tree github-split/openapi.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release --with-deps | head -80
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | grep -i "release\b\|release-asset\|installation-token"
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
+find github-split/components/schemas -iname "*release-asset*" -o -iname "*installation-token*"
+Read github-split/components/schemas/installation-token.yaml
+Read github-split/components/schemas/release-asset.yaml
+grep -n "upload_url\|^  id:\|title:" github-split/components/schemas/release.yaml | head -20
+grep -n "security\|bearer\|scheme" github-split/openapi.yaml | head -20
+grep -n "security" "github-split/paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n "securitySchemes\|- bearer\|- basic\|- oauth\|- token\|- app" github-split/openapi.yaml | head -30
+find github-split/components -iname "*securit*"
+grep -n "^  id:\|^  target_commitish:\|properties:" github-split/components/schemas/release.yaml | head -10
+Artifact
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml
+Grep
+ls github-split/paths/ | grep -i -E "releases|access_tokens"
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/components/schemas/installation-token.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release
+redocly tree github-split/openapi.yaml --format=ai --find="installation access token"
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset"
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token
+redocly tree github-split/openapi.yaml --format=ai --pointer=../components/schemas/installation-token.yaml | head -50; echo ---; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token; echo ---; grep -n "" github-split/components/schemas/installation-token.yaml | head -60
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-tree-help-v4-sonnet-r6/8e702133-6a35-497c-92ea-051d7cbe648a/scratchpad/release-flow.html
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 7 · no tree" %}
+
+```bash
+grep -n "operationId\|^  /repos.*release\|summary:" github-split/openapi.yaml | grep -i release
+grep -n "access_tokens\|operationId" github-split/openapi.yaml | grep -i -B2 -A2 "access_token"
+ls github-split/paths/ | grep -i "access_tokens\|releases"
+cd github-split/paths
+cd github-split
+grep -n "upload_url\|\"id\"\|^  id:" components/schemas/release.yaml | head -20
+cat "paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+cat "paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml" | sed -n '/^delete:/,/^  x-github:/p'
+grep -n "^  id:\|^  url:\|^  name:" components/schemas/release-asset.yaml | head
+grep -n "security\|bearer\|BearerAuth\|token" openapi.yaml | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 7 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find release
+redocly tree github-split/openapi.yaml --format=ai --find "upload release asset"
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token"
+redocly tree github-split/openapi.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release_asset
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token
+redocly tree github-split/openapi.yaml --format=ai --component=parameters --name=asset-id
+redocly tree github-split/openapi.yaml --format=ai --component=parameters --name=release-id
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release
+redocly tree github-split/openapi.yaml --format=ai --pointer="../components/schemas/installation-token.yaml"
+redocly tree github-split/openapi.yaml --format=ai --pointer="../components/schemas/release.yaml"
+find github-split -iname "*installation-token*"
+find github-split -iname "*release-asset*" -o -iname "*asset-id*" -o -iname "*release-id*" | head -30
+find github-split -iname "*release.yaml*"
+Read github-split/components/schemas/installation-token.yaml
+Read github-split/components/parameters/asset-id.yaml
+Read github-split/components/parameters/release-id.yaml
+Read github-split/components/schemas/release-asset.yaml
+grep -n -A2 "^  id:\|^  upload_url:\|^  html_url:\|^  assets_url:" github-split/components/schemas/release.yaml | head -30
+grep -n "securitySchemes" -A30 github-split/openapi.yaml | head -60
+grep -rn "securitySchemes" github-split/ | head; echo "---"; grep -rln "securitySchemes" github-split/*.yaml github-split/**/*.yaml 2>/dev/null | head
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml
+Grep
+Read github-split/openapi.yaml
+ls paths | grep -i "releases\|access_tokens\|installations"
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find="release"
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset"
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset
+redocly tree github-split/openapi.yaml --format=ai --pointer="../components/schemas/release-asset.yaml" --path="/repos/{owner}/{repo}/releases/{release_id}/assets" | head -50
+find github-split -iname "release-asset.yaml"
+Read github-split/components/schemas/release-asset.yaml
+Read github-split/components/schemas/release.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 9 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml
+Grep
+grep -n "releases" github-split/openapi.yaml
+D=github-split
+Artifact /dev/null
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 9 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find="release"
+redocly tree github-split/openapi.yaml --format=ai --find="upload release asset"; echo ---; redocly tree github-split/openapi.yaml --format=ai --find="installation access token"
+redocly tree github-split/openapi.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -150
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -50
+redocly tree github-split/openapi.yaml --format=ai --pointer="github-split/components/schemas/installation-token.yaml" | head -80
+Read github-split/components/schemas/installation-token.yaml
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -150
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -150
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -100
+grep -n "^  id:\|^  upload_url:\|^  url:" -A2 github-split/components/schemas/release.yaml github-split/components/schemas/release-asset.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml
+Grep
+grep -n "^  /" github-split/openapi.yaml | head -100
+grep -n "operationId\|^paths:\|^  /\|security:" github-split/openapi.yaml | head -200
+Read github-split/openapi.yaml
+grep -n "repos/{owner}/{repo}/releases\|installations/{installation_id}/access_tokens" github-split/openapi.yaml
+cd github-split
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · tree" %}
+
+```bash
+redocly tree --help
+ls github-split/ 2>/dev/null; find . -iname "openapi.yaml" 2>/dev/null | head
+redocly tree github-split/openapi.yaml --format=ai --find="create release" | head -100
+redocly tree github-split/openapi.yaml --format=ai --find="release asset" | head -100
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -200
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -200
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -100
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Opus 5 · publish a release" %}
+
+{% tabs %}
+{% tab label="Opus 5 · run 1 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls github-split/
+ls paths | head -100 && echo "---" && ls components
+ls | grep -i release
+cat "repos_{owner}_{repo}_releases.yaml" && echo "=====ASSETS UPLOAD" && cat "repos_{owner}_{repo}_releases_{release_id}_assets.yaml" && echo "=====ASSET BY ID" && cat "repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+cat "paths/app_installations_{installation_id}_access_tokens.yaml" | head -120 && echo "=====SEC" && grep -n -A30 "securitySchemes\|^security" openapi.yaml | head -60 && echo "=====SERVERS" && grep -n -A8 "^servers" openapi.yaml
+ls paths | grep -i "installation" && echo "=====INSTTOKEN" && cat components/schemas/installation-token.yaml | head -40 && echo "=====RELEASE SCHEMA" && grep -n "^  [a-z_]*:" components/schemas/release.yaml | head -40
+sed -n '50,60p' components/schemas/release.yaml && echo "=====IMMUT PATH" && head -40 "paths/repos_{owner}_{repo}_immutable-releases.yaml" && echo "=====REPO INSTALL" && head -30 "paths/repos_{owner}_{repo}_installation.yaml" && echo "===PERMS contents" && grep -n -A6 "^  contents:" components/schemas/app-permissions.yaml
+grep -n "^  [a-z_]*:" components/schemas/release-asset.yaml && echo "=== upload_url ex" && sed -n '11,20p' components/schemas/release.yaml && echo "=== params" && cat components/parameters/release-id.yaml components/parameters/asset-id.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 1 · tree" %}
+
+```bash
+redocly tree --help | head -100
+ls && ls github-split | head -30 && wc -l github-split/openapi.yaml
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -80
+redocly tree github-split/openapi.yaml --format=ai --find "installation token" | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -150
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release | head -40; echo ====; redocly tree github-split/openapi.yaml --format=ai --operation=apps/get-repo-installation | head -30
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token --with-deps | head -40; echo ====; redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete | head -30
+redocly tree github-split/openapi.yaml --format=ai --pointer="github-split/components/schemas/installation-token.yaml" | head -40
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/get-repo-installation | head -30
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/installation-token.yaml | head -40
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete | head -30
+sed -n 1,40p installation-token.yaml
+grep -n "^  [a-z_]*:" release.yaml | head -40; echo "--- asset"; grep -n "^  [a-z_]*:" release-asset.yaml | head -30; echo "--- perms contents"; grep -n "contents\|Contents" app-permissions.yaml | head
+sed -n 1,20p openapi.yaml; echo "--- servers/security"; grep -n "^servers:\|^security:\|url:" openapi.yaml | head
+grep -rn "immutable" paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml paths/repos_{owner}_{repo}_releases_{release_id}.yaml | head; echo "--- asset-id param"; cat components/parameters/asset-id.yaml
+redocly tree github-split/openapi.yaml --format=ai --path="/installation/token" --operation=delete | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml && ls github-split/
+grep -n "releases\|assets" github-split/openapi.yaml | head -80
+cat 'repos_{owner}_{repo}_releases.yaml'
+cat 'repos_{owner}_{repo}_releases_{release_id}_assets.yaml' && echo ===== && cat 'repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+cat 'repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'; echo "===IMMUT==="; cat 'repos_{owner}_{repo}_immutable-releases.yaml'
+cat components/parameters/release-id.yaml components/parameters/asset-id.yaml 2>/dev/null; sed -n '1,80p' openapi.yaml
+grep -n "app/installations\|/app/\b\|installation" openapi.yaml | head -30; echo "=== servers ==="; grep -n -A6 "^servers:" openapi.yaml
+grep -n "upload_url\|^  id:\|browser_download_url\|node_id" components/schemas/release.yaml components/schemas/release-asset.yaml | head -30
+sed -n '1,120p' 'paths/app_installations_{installation_id}_access_tokens.yaml'
+sed -n '1,40p' components/schemas/release.yaml; echo "=== asset ==="; sed -n '1,30p' components/schemas/release-asset.yaml
+grep -n -B2 -A6 "^  contents:\|^  workflows:" components/schemas/app-permissions.yaml; echo "=== token schema ==="; cat components/schemas/installation-token.yaml | head -40
+grep -n "operationId\|summary" 'paths/repos_{owner}_{repo}_installation.yaml'; echo ---; grep -n -A20 "'201'" 'paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml' | head -5; echo "=== release_id param in upload? ==="; grep -rn "immutable" components/schemas/release.yaml
+grep -n "operationId\|^get:\|^patch:\|^delete:" 'paths/repos_{owner}_{repo}_releases_{release_id}.yaml'; grep -n -A4 "  upload_url:" -A2 components/schemas/release.yaml; grep -n "example" components/examples/release.yaml | head; grep -n "upload_url" components/examples/release.yaml
+sed -n '1,12p' components/examples/release.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · tree" %}
+
+```bash
+redocly tree --help | head -100; ls
+redocly tree github-split/openapi.yaml --format=ai --find release | head -60
+cd /Users/tora/bench-run/ghsplit-tree-help-v4-opus-r2
+redocly tree github-split/openapi.yaml --format=ai --find "upload release asset" | head -20
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -20
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token | head -60
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release | head -40
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset | head -40
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset | head -40
+redocly tree github-split/openapi.yaml --format=ai --pointer='components/schemas/installation-token.yaml' | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/check-immutable-releases | head -20
+grep -ril "immutab" github-split/paths/ | head -20
+ls github-split/components/schemas/ | grep -i "installation-token\|app-permissions"
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token.yaml | head -30
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | tr ' ' '\n' | grep -i "instal\|permission" | head -20
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | head -20
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/installation-token.yaml | head -30
+head -30 github-split/components/schemas/installation-token.yaml
+grep -n "upload_url\|^  id:\|assets_url\|^  draft:\|html_url" github-split/components/schemas/release.yaml | head -20
+grep -n "^  id:\|^  name:\|^  url:\|state\|browser_download_url" github-split/components/schemas/release-asset.yaml | head -20
+grep -n -A6 "^  contents:" github-split/components/schemas/app-permissions.yaml | head -20
+cat github-split/components/parameters/installation-id.yaml github-split/components/parameters/release-id.yaml github-split/components/parameters/asset-id.yaml
+sed -n '1,40p' "github-split/paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n -A15 "securitySchemes" github-split/openapi.yaml | head -25
+sed -n '40,70p' "github-split/paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n -A6 "^servers" github-split/openapi.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls github-split/
+ls paths components components/* | head -100
+ls paths | grep -i -E 'release|asset'
+cat 'repos_{owner}_{repo}_releases.yaml'
+cat 'repos_{owner}_{repo}_releases_{release_id}_assets.yaml' && echo "=====ASSET=====" && cat 'repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+ls | grep -i -E 'installation|^app'
+cat 'repos_{owner}_{repo}_installation.yaml' && echo "===TOKEN===" && cat 'app_installations_{installation_id}_access_tokens.yaml'
+sed -n '1,60p' openapi.yaml && echo "===IMMUT===" && cat 'paths/repos_{owner}_{repo}_immutable-releases.yaml'
+grep -n -A6 '^servers' openapi.yaml; echo "===REL SCHEMA==="; grep -n -E '^  [a-z_]+:|upload_url|^    type' components/schemas/release.yaml | head -60; echo "===ASSET SCHEMA==="; grep -n -E '^  [a-z_]+:' components/schemas/release-asset.yaml; echo "===INST TOKEN==="; cat components/schemas/installation-token.yaml | head -40
+sed -n '1,60p' components/schemas/release-asset.yaml; echo "===PERMS==="; grep -n -A6 -E '^  (contents|workflows):' components/schemas/app-permissions.yaml; echo "===RELID PARAM==="; cat components/parameters/release-id.yaml components/parameters/asset-id.yaml
+grep -n -E 'operationId|^  |summary' 'paths/repos_{owner}_{repo}_releases_{release_id}.yaml' | grep -E 'operationId|^[0-9]+:(get|patch|delete):' ; echo "---patch body---"; sed -n '/^patch:/,/^delete:/p' 'paths/repos_{owner}_{repo}_releases_{release_id}.yaml' | grep -n -E '^\s{10,14}[a-z_]+:|responses|\x27[0-9]{3}\x27' | head -40
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help | head -80
+redocly tree github-split/openapi.yaml --format=ai --find release | head -60
+redocly tree github-split/openapi.yaml --format=ai --find "asset" | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release | head -60; echo "=== UPLOAD ==="; redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset | head -60
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token | head -40; echo "=== DELETE ASSET ==="; redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset | head -30
+redocly tree github-split/openapi.yaml --format=ai --find "repo installation" | head -20
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/get-repo-installation | head -20; echo "=== INST TOKEN SCHEMA ==="; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -30
+redocly tree github-split/openapi.yaml --format=ai --component=securitySchemes | head -30
+redocly tree github-split/openapi.yaml --format=ai --pointer='components/schemas/installation-token.yaml' | head -20
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/release.yaml | head -40
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | grep -A40 'installation-token'| head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps | tail -40
+head -30 github-split/openapi.yaml && echo "=== TOKEN ===" && head -40 github-split/components/schemas/installation-token.yaml
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/check-immutable-releases | head -20
+grep -n -A6 '^servers' github-split/openapi.yaml; echo "=== RELEASE ==="; grep -n -E '^  (id|upload_url|html_url|assets|draft|tag_name|immutable|url):' github-split/components/schemas/release.yaml; echo "=== ASSET ==="; grep -n -E '^  [a-z_]+:' github-split/components/schemas/release-asset.yaml
+sed -n 46,120p 'github-split/paths/repos_{owner}_{repo}_releases.yaml'
+sed -n 50,60p github-split/components/schemas/release.yaml; echo "=== DELETE ASSET FILE ==="; sed -n 90,116p 'github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'; echo "=== IMMUTABLE ENABLE DESC ==="; sed -n 1,60p 'github-split/paths/repos_{owner}_{repo}_immutable-releases.yaml' | grep -n -i -B2 -A8 'immutab'| head -50
+grep -n -A5 '  contents:' github-split/components/schemas/app-permissions.yaml | head -20
+sed -n 59,70p github-split/components/schemas/app-permissions.yaml; echo "=== PARAMS ==="; cat github-split/components/parameters/release-id.yaml github-split/components/parameters/asset-id.yaml github-split/components/parameters/installation-id.yaml
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/update-release | head -20
+sed -n 22,35p github-split/components/schemas/release-asset.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls github-split/
+Grep
+grep -n "releases" openapi.yaml | head -50; echo ---; ls paths | head
+cat "app_installations_{installation_id}_access_tokens.yaml"
+cat "repos_{owner}_{repo}_releases.yaml"
+cat "repos_{owner}_{repo}_releases_{release_id}_assets.yaml"; echo "=========ASSET_ID========="; cat "repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+cat components/schemas/installation-token.yaml | head -40; echo ===SERVERS===; sed -n '1,40p' openapi.yaml; echo ===REPOINST===; grep -n "repos/{owner}/{repo}/installation" openapi.yaml
+grep -n -A6 "^    contents:\|^    metadata:\|^    workflows:" components/schemas/app-permissions.yaml | head -60
+sed -n '1,40p' openapi.yaml; echo "===REPOINST==="; grep -n "repo}_installation" openapi.yaml; echo "===PERMS==="; grep -n "contents:\|workflows:\|metadata:" components/schemas/app-permissions.yaml
+sed -n '55,75p;112,125p' components/schemas/app-permissions.yaml; echo ===SERVERURL===; grep -n "^servers:" -A5 openapi.yaml; echo ===SEC===; grep -n "^security:" -A5 openapi.yaml; echo ===REPOINST===; sed -n '1,40p' "paths/repos_{owner}_{repo}_installation.yaml"
+grep -n "servers:" -A4 openapi.yaml | head -20; echo "===TAILEND==="; tail -20 openapi.yaml
+grep -n "upload_url\|^  id:\|html_url" components/schemas/release.yaml | head; echo ===ASSET===; grep -n "^  id:\|^  name:\|^  state:\|browser_download_url\|^  url:" -A3 components/schemas/release-asset.yaml | head -40; echo ===INST===; grep -n "operationId\|summary" "paths/repos_{owner}_{repo}_installation.yaml"
+sed -n '1,30p' components/schemas/release.yaml; echo "=====ASSET====="; sed -n '1,45p' components/schemas/release-asset.yaml; echo "=====INST====="; grep -n "operationId" "paths/repos_{owner}_{repo}_installation.yaml"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+ls && ls github-split | head -50
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -80
+redocly tree github-split/openapi.yaml --format=ai --find "asset" | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -40; redocly tree github-split/openapi.yaml --format=ai --find "repo installation" | head -20
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release | head -60
+sed -n '1,200p' paths/repos_\{owner\}_\{repo\}_releases.yaml
+cat paths/repos_\{owner\}_\{repo\}_releases_\{release_id\}_assets.yaml
+cat 'paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml' | sed -n '30,150p'
+sed -n '85,120p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml' && echo ---- && cat components/parameters/asset-id.yaml components/parameters/release-id.yaml
+sed -n '1,80p' openapi.yaml; echo ====; grep -n "security" -A6 openapi.yaml | head -40
+grep -n "id\|upload_url\|url" components/schemas/release.yaml | head -30; echo ==== ; cat components/schemas/installation-token.yaml; echo ====; grep -n "id:" -A4 components/schemas/release-asset.yaml | head -20
+grep -n "servers" -A10 openapi.yaml | head -20; echo SEC; grep -n "securitySchemes" -A20 openapi.yaml | head -30; echo TOK; cat components/schemas/installation-token.yaml | head -40
+sed -n '1,30p' components/schemas/release.yaml; echo ASSET; sed -n '1,40p' components/schemas/release-asset.yaml
+grep -rn "securitySchemes" openapi.yaml components/ | head; echo PERMS; grep -n "^  contents:\|^  workflows:" -A6 components/schemas/app-permissions.yaml
+redocly tree openapi.yaml --format=ai --operation=apps/get-repo-installation | head -20
+redocly tree openapi.yaml --format=ai --operation=apps/revoke-installation-access-token | head -8; echo INST; grep -n "^  id:" -A4 components/schemas/installation.yaml | head
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls github-split/
+grep -n "release" openapi.yaml | head -50; echo ---; ls paths | head -80
+cat "app_installations_{installation_id}_access_tokens.yaml"
+sed -n 1,400p "repos_{owner}_{repo}_releases.yaml"
+cat "repos_{owner}_{repo}_releases_{release_id}_assets.yaml"; echo ===DELETE===; cat "repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+cat 'repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+cat 'paths/repos_{owner}_{repo}_immutable-releases.yaml'; echo ===; cat components/schemas/installation-token.yaml; echo ===; grep -n "contents\|workflows" components/schemas/app-permissions.yaml | head -20
+cat components/schemas/installation-token.yaml; echo ====; grep -n "^ *contents:\|^ *workflows:" -A4 components/schemas/app-permissions.yaml
+grep -n "  contents:" -A 6 components/schemas/app-permissions.yaml; grep -n "  workflows:" -A 6 components/schemas/app-permissions.yaml; echo ---REPOINST---; ls paths | grep -i "repos_{owner}_{repo}_installation\|_installation.yaml"
+sed -n 1,60p 'paths/repos_{owner}_{repo}_installation.yaml'; echo ===RELEASE_SCHEMA===; grep -n "upload_url\|^  id:\|assets_url\|html_url\|^  tag_name\|^  draft\|^  assets:" components/schemas/release.yaml; echo ===SECURITY===; grep -n "security\|servers" -A6 openapi.yaml | head -40
+grep -n "upload_url\|^  id:\|assets_url\|^  tag_name:\|^  draft:\|^  assets:\|immutable" components/schemas/release.yaml; echo ===ASSET===; grep -n "^  id:\|^  name:\|^  url:\|^  state:\|browser_download" components/schemas/release-asset.yaml; echo ===TOP===; sed -n 1,30p openapi.yaml
+sed -n 1,30p components/schemas/release.yaml; sed -n 40,70p components/schemas/release.yaml; echo "===ASSET==="; sed -n 1,40p components/schemas/release-asset.yaml; echo "===TOP==="; sed -n 1,25p openapi.yaml
+grep -n "^servers:" -A 6 openapi.yaml; grep -n "immutable" components/schemas/check-immutable-releases.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help | head -100
+ls && ls github-split | head -30 && wc -l github-split/openapi.yaml
+redocly tree github-split/openapi.yaml --format=ai --find release | head -80
+redocly tree github-split/openapi.yaml --format=ai --find asset | head -60; redocly tree github-split/openapi.yaml --format=ai --find installation | head -60
+for op in apps/create-installation-access-token repos/create-release repos/upload-release-asset repos/delete-release-asset; do echo "=== $op"; redocly tree github-split/openapi.yaml --format=ai --operation="$op" | head -60; done
+sed -n '46,80p' paths/repos_{owner}_{repo}_releases.yaml; echo "=== upload"; sed -n '37,75p' 'paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml'; echo "=== delete asset file"; sed -n '90,116p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+redocly tree openapi.yaml --format=ai --component=securitySchemes | head -30; redocly tree openapi.yaml --format=ai --component=schemas --name=installation-token | head -40
+grep -n "security\|servers\|^components\|url:" openapi.yaml | head -30; echo ===; cat components/schemas/installation-token.yaml | head -40
+sed -n '1,60p' components/schemas/release-asset.yaml; echo "=== app-permissions contents/workflows"; grep -n -A4 "^  contents:\|^  workflows:" components/schemas/app-permissions.yaml
+cat components/schemas/installation-token.yaml | head -40; echo "--- create token desc"; sed -n '1,40p' 'paths/app_installations_{installation_id}_access_tokens.yaml'
+grep -rn "immutable" components/schemas/release.yaml | head; echo "--- upload url field"; grep -n "upload_url\|assets_url\|\"id\"\|^  id:" components/schemas/release.yaml | head; echo "--- immutable check desc"; sed -n '1,60p' 'paths/repos_{owner}_{repo}_immutable-releases.yaml'
+grep -rn "immutab" paths/repos_{owner}_{repo}_releases*.yaml | head -20; echo "--- update-release"; redocly tree openapi.yaml --format=ai --operation=repos/update-release | head -20
+for p in owner repo release-id asset-id installation-id; do echo "== $p"; cat components/parameters/$p.yaml; done
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml && ls github-split/
+ls paths | head -50 && echo "---" && ls components
+ls paths | grep -i release
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+ls paths | grep -i "installation" | head -20; echo "--- servers ---"; sed -n '1,40p' openapi.yaml
+grep -n "servers" -A6 openapi.yaml | tail -20; echo "=== release schema keys ==="; grep -n "^  [a-z_]*:" components/schemas/release.yaml | head -40; echo "=== upload_url ==="; grep -n "upload_url" -A6 components/schemas/release.yaml; echo "=== installation-token ==="; sed -n '1,60p' components/schemas/installation-token.yaml
+Read github-split/paths/repos_{owner}_{repo}_installation.yaml
+head -12 components/schemas/installation.yaml; echo "=== params ==="; cat components/parameters/release-id.yaml components/parameters/asset-id.yaml components/parameters/installation-id.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · tree" %}
+
+```bash
+redocly tree --help | head -100
+ls && ls github-split | head -30 && wc -l github-split/openapi.yaml
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -80
+redocly tree github-split/openapi.yaml --format=ai --find "installation token" | head -60
+redocly tree github-split/openapi.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --find "upload release asset" | head -30
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -40
+redocly tree github-split/openapi.yaml --format=ai --component=securitySchemes|head -20; echo ---; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token|head -30
+redocly tree github-split/openapi.yaml --format=ai --find "repository installation app"|head -20; echo "=== SERVERS ==="; redocly tree github-split/openapi.yaml --format=ai|head -30
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/installation-token.yaml|head -40
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/installation" --operation=get|head -20
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token --with-deps|head -20
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset --with-deps|head -20
+cat installation-token.yaml | head -40 && echo "=== ASSET ===" && head -40 release-asset.yaml
+grep -n -A3 "upload_url\|^    id:\|^    url:\|^    tag_name" release.yaml | head -40
+head -30 release.yaml; echo "=== ID PARAM ==="; cat ../parameters/release-id.yaml ../parameters/asset-id.yaml ../parameters/installation-id.yaml
+grep -n -A6 "^  contents:" app-permissions.yaml | head -12
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls github-split/
+ls paths | head -100 && echo "---" && ls components
+ls | grep -E "releases|assets"
+sed -n 1,200p "repos_{owner}_{repo}_releases.yaml"
+cat "repos_{owner}_{repo}_releases_{release_id}_assets.yaml" && echo "=====ASSET_ID=====" && cat "repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+sed -n 1,60p openapi.yaml && echo "=====" && ls paths | grep -E "installation" && echo "=====" && sed -n 1,80p "paths/app_installations_{installation_id}_access_tokens.yaml"
+sed -n 80,140p "paths/app_installations_{installation_id}_access_tokens.yaml"; echo "=====REPOINST"; sed -n 1,60p "paths/repos_{owner}_{repo}_installation.yaml"; echo "=====SERVERS"; grep -n "^servers:" -A 8 openapi.yaml; echo "=====PERMS"; grep -n "contents:" -A 12 components/schemas/app-permissions.yaml | head -30
+grep -n "upload_url\|^  id:\|html_url" components/schemas/release.yaml | head; echo "=====ASSET"; grep -n "^  id:\|browser_download_url\|^  state:\|^  name:" components/schemas/release-asset.yaml | head; echo "=====TOK"; grep -n "^  " components/schemas/installation-token.yaml | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · tree" %}
+
+```bash
+redocly tree --help
+ls && ls github-split | head -50
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -80
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation "repos/upload-release-asset" --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation "apps/create-installation-access-token" --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --operation "repos/create-release" --with-deps | head -40
+redocly tree github-split/openapi.yaml --format=ai --operation "repos/delete-release-asset" | head -20
+redocly tree github-split/openapi.yaml --format=ai --operation "apps/get-repo-installation" | head -20
+redocly tree github-split/openapi.yaml --format=ai --component schemas --name installation-token | head -40
+cat components/schemas/installation-token.yaml && echo "=== asset-id ===" && cat components/parameters/asset-id.yaml && echo "=== release-id ===" && cat components/parameters/release-id.yaml
+grep -n "upload_url\|^  id:\|^  url:\|html_url\|assets:" -A3 components/schemas/release.yaml | head -40
+grep -n "upload_url\|^  id:\|assets:\|^  url:" components/schemas/release.yaml | head -20 && echo "=== ASSET ===" && grep -n "^  id:\|^  url:\|browser_download_url\|^  name:\|^  state:" components/schemas/release-asset.yaml | head -20
+head -40 openapi.yaml && echo "=== SEC ===" && ls components/securitySchemes 2>/dev/null; grep -rn "securitySchemes" openapi.yaml components/*.yaml 2>/dev/null | head
+grep -n "servers:" -A6 openapi.yaml | head -20; echo "=== components dirs ==="; ls components
+grep -n "contents:" -A6 components/schemas/app-permissions.yaml | head -12
+sed -n 1,30p components/schemas/release.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · no tree" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/openapi.yaml
+ls | grep -i -E 'releases|access_tokens|installation'
+cat app_installations_{installation_id}_access_tokens.yaml
+cat 'repos_{owner}_{repo}_releases.yaml' && echo "=====ASSETS=====" && cat 'repos_{owner}_{repo}_releases_{release_id}_assets.yaml' && echo "=====ASSET_ID=====" && cat 'repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+sed -n '1,40p' openapi.yaml && echo "=====INSTALLATION_TOKEN_SCHEMA=====" && cat components/schemas/installation-token.yaml && echo "=====REPO_INSTALLATION=====" && sed -n '1,60p' 'paths/repos_{owner}_{repo}_installation.yaml'
+grep -n "^servers:" -A 6 openapi.yaml; echo "=====RELEASE_SCHEMA====="; sed -n '1,80p' components/schemas/release.yaml; echo "=====ASSET_SCHEMA====="; sed -n '1,60p' components/schemas/release-asset.yaml
+grep -n "contents:" -A 10 components/schemas/app-permissions.yaml | head -20; echo "=====IMMUTABLE====="; sed -n '1,45p' 'paths/repos_{owner}_{repo}_immutable-releases.yaml'; echo "=====INSTALLATION_ID_PARAM====="; cat components/parameters/installation-id.yaml components/parameters/release-id.yaml components/parameters/asset-id.yaml
+grep -n "operationId\|^get:\|^patch:\|^delete:\|^post:" 'paths/repos_{owner}_{repo}_releases_{release_id}.yaml'; grep -n "draft:\|make_latest:\|tag_name:" 'paths/repos_{owner}_{repo}_releases_{release_id}.yaml' | head
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · tree" %}
+
+```bash
+redocly tree --help | head -100
+ls && ls github-split | head -30 && wc -l github-split/openapi.yaml
+redocly tree github-split/openapi.yaml --format=ai --find release | head -80
+redocly tree github-split/openapi.yaml --format=ai --find asset | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -40
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -40; echo ====; redocly tree github-split/openapi.yaml --format=ai --find "repo installation" | head -20
+redocly tree github-split/openapi.yaml --format=ai --find "installation for repository" | head -20; echo "-----"; redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/installation" | head -20
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -30; echo "-----ASSET"; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset | head -30
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/installation-token.yaml --with-deps | head -30
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/release-asset.yaml --with-deps | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/get-repo-installation | head -30
+redocly tree github-split/openapi.yaml --format=ai --pointer="github-split/components/schemas/installation-token.yaml#/" | head -40
+redocly tree github-split/openapi.yaml --format=ai --pointer="github-split/components/schemas/release.yaml#/" | head -40
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/release.yaml | head -40
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/installation-token.yaml | head -40
+sed -n '1,60p' installation-token.yaml
+grep -n "^  [a-z_]*:" release.yaml | head -40 && echo "--ASSET--" && grep -n "^  [a-z_]*:" release-asset.yaml | head -30
+grep -n -A12 "^servers:" github-split/openapi.yaml | head -20; grep -n -A20 "securitySchemes" github-split/openapi.yaml | head -30; grep -n "^security:" -A6 github-split/openapi.yaml | head
+cat release-id.yaml asset-id.yaml installation-id.yaml owner.yaml repo.yaml
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/check-immutable-releases | head -20; echo ---; redocly tree github-split/openapi.yaml --format=ai --operation=repos/update-release | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 9 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls -la github-split/
+ls | grep -i -E 'releases|installation|access-token'
+cat "app_installations_{installation_id}_access_tokens.yaml"
+cat "repos_{owner}_{repo}_releases.yaml"
+cat "repos_{owner}_{repo}_releases_{release_id}_assets.yaml" && echo "=====DELETE/ASSET=====" && cat "repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+sed -n '1,60p' openapi.yaml && echo "=====SEC=====" && grep -rn -A15 'securitySchemes' components/ openapi.yaml | head -40
+grep -n -A6 '^servers' openapi.yaml && echo "==TOKEN SCHEMA==" && cat components/schemas/installation-token.yaml && echo "==PERMS contents/workflows==" && grep -n -B2 -A12 -E '^  (contents|workflows):' components/schemas/app-permissions.yaml
+grep -n -E '^  (id|upload_url|html_url|assets_url|tag_name|immutable)' components/schemas/release.yaml && echo "==IMMUTABLE==" && grep -n -i -m40 'immutable' components/schemas/release.yaml "paths/repos_{owner}_{repo}_immutable-releases.yaml" | head -40
+grep -n -A60 '^patch:' "paths/repos_{owner}_{repo}_releases_{release_id}.yaml" | grep -n -E 'summary|operationId|draft|make_latest|required|description: |tag_name|responses|201|200' | head -30; echo "==INSTALLATION==" && grep -n -E 'summary|operationId|\$ref: \.\./components/parameters' "paths/repos_{owner}_{repo}_installation.yaml"
+sed -n '45,70p' "paths/repos_{owner}_{repo}_releases_{release_id}.yaml"; echo "== asset-id param =="; cat components/parameters/asset-id.yaml components/parameters/release-id.yaml
+grep -n -E '^(get|patch|delete|post):|operationId' "paths/repos_{owner}_{repo}_releases_{release_id}.yaml" "paths/app_installations_{installation_id}_access_tokens.yaml"; sed -n '1,35p' "paths/repos_{owner}_{repo}_immutable-releases.yaml"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 9 · tree" %}
+
+```bash
+redocly tree --help | head -100
+ls && ls github-split | head -30
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -80
+redocly tree github-split/openapi.yaml --format=ai --find "asset" | head -60
+redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete | head -30; echo "=== PERMS ==="; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=app-permissions | head -40
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token | head -30; echo "=== ASSET ==="; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release-asset | head -30
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/installation-token.yaml | head -30; echo "=== ASSET ==="; redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/release-asset.yaml | head -30
+redocly tree github-split/openapi.yaml --format=ai --file=github-split/components/schemas/release.yaml | head -30; echo "=== SERVERS/SEC ==="; head -40 github-split/openapi.yaml
+grep -n "^servers:" -A6 github-split/openapi.yaml; echo "=== TOKEN SCHEMA ==="; sed -n 1,40p github-split/components/schemas/installation-token.yaml; echo "=== ASSET SCHEMA ==="; grep -n "^ *\(id\|name\|url\|browser_download_url\|node_id\|state\):" github-split/components/schemas/release-asset.yaml | head -20
+grep -n "upload_url\|^ *id:\|html_url\|assets_url" -A3 github-split/components/schemas/release.yaml | head -40; echo "=== ASSET-ID PARAM ==="; cat github-split/components/parameters/asset-id.yaml; echo "=== RELEASE-ID PARAM ==="; cat github-split/components/parameters/release-id.yaml
+ls github-split/components/; grep -rn "securitySchemes" github-split/openapi.yaml; grep -n "contents:" -A4 github-split/components/schemas/app-permissions.yaml | head -12
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · no tree" %}
+
+```bash
+wc -l github-split/openapi.yaml; ls github-split/
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/repos_{owner}_{repo}_immutable-releases.yaml
+sed -n 1,60p 'github-split/openapi.yaml'
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+grep -n "servers:" -A5 openapi.yaml | head -20; ls paths | grep -i "installation"
+grep -n "upload_url\|^  id:\|html_url\|assets_url" -m 40 components/schemas/release.yaml | head -20; echo ===ASSET; grep -n "id:\|url:\|name:\|state:" components/schemas/release-asset.yaml | head -20; echo ===PERMS; grep -n "contents:" -A6 components/schemas/app-permissions.yaml | head -20
+cat components/schemas/installation-token.yaml && cat components/parameters/asset-id.yaml components/parameters/release-id.yaml && sed -n 1,40p components/schemas/release-asset.yaml && sed -n 1,30p 'paths/repos_{owner}_{repo}_installation.yaml' && sed -n 1,20p components/schemas/release.yaml
+grep -n "operationId\|draft:\|make_latest\|tag_name:\|^patch\|^delete\|^get" 'paths/repos_{owner}_{repo}_releases_{release_id}.yaml' | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · tree" %}
+
+```bash
+redocly tree --help | head -100; ls
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -80
+redocly tree github-split/openapi.yaml --format=ai --find "upload release asset" | head -30; echo ====; redocly tree github-split/openapi.yaml --format=ai --operation repos/create-release --with-deps | head -120
+redocly tree github-split/openapi.yaml --format=ai --operation repos/create-release --with-deps | head -150
+redocly tree github-split/openapi.yaml --format=ai --operation repos/upload-release-asset --with-deps | head -60
+redocly tree github-split/openapi.yaml --format=ai --operation repos/delete-release-asset --with-deps | head -20; echo "=== app auth ==="; redocly tree github-split/openapi.yaml --format=ai --find "installation access token" | head -20
+redocly tree github-split/openapi.yaml --format=ai --operation apps/create-installation-access-token --with-deps | head -30; echo "=== repo installation ==="; redocly tree github-split/openapi.yaml --format=ai --find "get a repository installation" | head -10
+redocly tree github-split/openapi.yaml --format=ai --component schemas --name installation-token | head -20; echo "=== release ==="; redocly tree github-split/openapi.yaml --format=ai --component schemas --name release | head -20
+redocly tree github-split/openapi.yaml --format=ai --pointer "components/schemas/installation-token.yaml" | head -30
+redocly tree github-split/openapi.yaml --format=ai --file "github-split/components/schemas/installation-token.yaml" | head -40
+head -30 components/schemas/installation-token.yaml; echo "=== RELEASE ==="; head -60 components/schemas/release.yaml; echo "=== ASSET ==="; head -50 components/schemas/release-asset.yaml
+grep -n -A6 "^servers:" openapi.yaml; grep -n -A15 "securitySchemes" openapi.yaml | head -30; echo "=== app-perms contents ==="; grep -n -B2 -A8 "^  contents:" components/schemas/app-permissions.yaml
+grep -rn "securitySchemes\|security:" openapi.yaml | head; echo "=== getrepoinst ==="; cd ..; redocly tree github-split/openapi.yaml --format=ai --operation apps/get-repo-installation | head -10
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Haiku 4.5 · publish a release" %}
+
+{% tabs %}
+{% tab label="Haiku 4.5 · run 1 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+ls -la github-split/ | head -20
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find "release" 2>/dev/null | head -100
+redocly tree github-split/openapi.yaml --format=ai --find "asset" 2>/dev/null | head -100
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation="post" --with-deps 2>/dev/null
+redocly tree github-split/openapi.yaml --format=ai --component="schemas" --name="release" --with-deps 2>/dev/null | head -80
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation="post" --with-deps 2>/dev/null
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation="delete" --with-deps 2>/dev/null
+Read /Users/tora/bench-run/ghsplit-tree-help-v4-haiku-r1
+ls -la
+ls -la github-split/ | head -20
+Read github-split/openapi.yaml
+grep -n "securitySchemes\|security:" github-split/openapi.yaml | head -20
+grep -n "^components:\|^servers:" github-split/openapi.yaml | head -5
+tail -50 github-split/openapi.yaml
+redocly tree github-split/openapi.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation="post" 2>/dev/null
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+grep -n "releases" github-split/openapi.yaml | head -20
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+grep -A 2 "releases.*assets" github-split/openapi.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find "release"
+redocly tree github-split/openapi.yaml --format=ai --find "asset"
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · no tree" %}
+
+```bash
+Skill
+Read github-split/openapi.yaml
+Grep
+Glob
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --find release --format=ai
+redocly tree github-split/openapi.yaml --find "upload asset" --format=ai
+redocly tree github-split/openapi.yaml --operation=post --path="/repos/{owner}/{repo}/releases" --format=ai --with-deps
+redocly tree github-split/openapi.yaml --operation=post --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --format=ai --with-deps
+redocly tree github-split/openapi.yaml --operation=delete --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --format=ai --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths
+Glob
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release
+redocly tree github-split/openapi.yaml --format=ai --find=asset
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | head -30
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · no tree" %}
+
+```bash
+Skill
+Read github-split/openapi.yaml
+Grep
+ls github-split/paths/ | grep -i releases | head -10
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find "release"
+redocly tree github-split/openapi.yaml --format=ai --find "upload"
+redocly tree github-split/openapi.yaml --format=ai --operation="repos/create-release" --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation="repos/upload-release-asset" --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation="repos/delete-release-asset" --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | grep -i release | head -20
+redocly tree github-split/openapi.yaml --format=ai --pointer="/components/examples/release.yaml"
+Read github-split/components/examples/release.yaml
+Read github-split/components/examples/release-asset-response-for-successful-upload.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/components/schemas/release.yaml
+Read github-split/components/schemas/release-asset.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find=release
+redocly tree github-split/openapi.yaml --format=ai --find=asset
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find "release"
+redocly tree github-split/openapi.yaml --format=ai --find "upload asset"
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation="post" --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation="post" --with-deps
+redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation="delete" --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+ls -la github-split/paths/ | grep releases | head -20
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/components/schemas/release.yaml
+Read github-split/components/schemas/release-asset.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · tree" %}
+
+```bash
+ls -la
+redocly tree --help
+redocly tree openapi.yaml --format=ai --find "release"
+redocly tree github-split/openapi.yaml --format=ai --find "release"
+ls -la github-split/
+pwd && ls -la
+redocly tree openapi.yaml --format=ai --find "asset"
+redocly tree openapi.yaml --format=ai --operation repos/create-release --with-deps
+redocly tree openapi.yaml --format=ai --operation repos/upload-release-asset --with-deps
+redocly tree openapi.yaml --format=ai --operation repos/delete-release-asset --with-deps
+redocly tree openapi.yaml --format=ai --component schemas --name release
+redocly tree openapi.yaml --format=ai --component examples --name release
+Read github-split/components/examples/release.yaml
+Read github-split/components/examples/release-asset-response-for-successful-upload.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · no tree" %}
+
+```bash
+Skill
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find "release"
+redocly tree github-split/openapi.yaml --format=ai --find "upload"
+redocly tree github-split/openapi.yaml --format=ai --operation=create-release --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | head -30
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps
+redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps
+Read github-split/components/examples/release.yaml
+Read github-split/components/examples/release-asset-response-for-successful-upload.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · no tree" %}
+
+```bash
+Read github-split/openapi.yaml
+Grep
+Glob
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/components/schemas/release.yaml
+Read github-split/components/schemas/release-asset.yaml
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · tree" %}
+
+```bash
+Skill
+redocly tree --help
+redocly tree github-split/openapi.yaml --format=ai --find "release" | head -100
+redocly tree github-split/openapi.yaml --format=ai --operation="repos/create-release" --with-deps | head -200
+redocly tree github-split/openapi.yaml --format=ai --find "upload" | head -100
+redocly tree github-split/openapi.yaml --format=ai --operation="repos/upload-release-asset" --with-deps | head -300
+redocly tree github-split/openapi.yaml --format=ai --operation="repos/delete-release-asset" --with-deps | head -200
+redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release | head -300
+redocly tree github-split/openapi.yaml --format=ai --component=schemas | grep -i release | head -20
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% /tabs %}
+
+Split into a file per operation, the layout is itself the index: the control halves its single-file price, Sonnet 5 pays more through the index than around it, and Haiku 4.5 falls from five working runs to one — nine of its ten index runs never mint the installation token.
+Read against the single-file GitHub tab, this is one half of the layout experiment: same description, same task, only the layout changed.
+
+{% /tab %}
+
 {% tab label="Billing API · start a subscription" %}
 
 **Description:** 1.25 MB in one file.
@@ -1182,19 +2421,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |        no tree |        tree | Difference |
-| ---------------- | -------------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  |    18,538 / 19 | 25,739 / 18 |       +39% |
-| Opus 5 (n=10)    |    46,231 / 36 | 36,880 / 22 |       −20% |
-| Haiku 4.5 (n=10) | 31,613 / 16 ❌ | 20,710 / 19 |          — |
+| Model            |        no tree |        tree | map | Δ tree |
+| ---------------- | -------------: | ----------: | --: | -----: |
+| Sonnet 5 (n=10)  |    18,538 / 19 | 25,739 / 18 |  ⏳ |   +39% |
+| Opus 5 (n=10)    |    46,231 / 36 | 36,880 / 22 |  ⏳ |   −20% |
+| Haiku 4.5 (n=10) | 31,613 / 16 ❌ | 20,710 / 19 |  ⏳ |      — |
 
 What those runs were billed:
 
-| Model            |  no tree |  tree | Difference |
-| ---------------- | -------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |    $1.06 | $0.60 |       −43% |
-| Opus 5 (n=10)    |    $1.85 | $1.11 |       −40% |
-| Haiku 4.5 (n=10) | $0.19 ❌ | $0.17 |          — |
+| Model            |  no tree |  tree | map | Δ tree |
+| ---------------- | -------: | ----: | --: | -----: |
+| Sonnet 5 (n=10)  |    $1.06 | $0.60 |  ⏳ |   −43% |
+| Opus 5 (n=10)    |    $1.85 | $1.11 |  ⏳ |   −40% |
+| Haiku 4.5 (n=10) | $0.19 ❌ | $0.17 |  ⏳ |      — |
 
 Whether each run produced a flow that would run:
 
@@ -3027,19 +4266,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |       no tree |        tree | Difference |
-| ---------------- | ------------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  |    14,065 / 7 |   7,732 / 6 |       −45% |
-| Opus 5 (n=10)    |    14,913 / 7 |   9,622 / 7 |       −35% |
-| Haiku 4.5 (n=10) | 12,952 / 7 ❌ | 10,202 / 12 |          — |
+| Model            |       no tree |        tree |        map | Δ tree |
+| ---------------- | ------------: | ----------: | ---------: | -----: |
+| Sonnet 5 (n=10)  |    14,065 / 7 |   7,732 / 6 | 28,172 / 6 |   −45% |
+| Opus 5 (n=10)    |    14,913 / 7 |   9,622 / 7 | 27,820 / 9 |   −35% |
+| Haiku 4.5 (n=10) | 12,952 / 7 ❌ | 10,202 / 12 | 34,768 / 7 |      — |
 
 What those runs were billed:
 
-| Model            |  no tree |  tree | Difference |
-| ---------------- | -------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |    $0.32 | $0.25 |       −22% |
-| Opus 5 (n=10)    |    $0.54 | $0.45 |       −17% |
-| Haiku 4.5 (n=10) | $0.09 ❌ | $0.10 |          — |
+| Model            |  no tree |  tree |   map | Δ tree |
+| ---------------- | -------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |    $0.32 | $0.25 | $0.26 |   −22% |
+| Opus 5 (n=10)    |    $0.54 | $0.45 | $0.67 |   −17% |
+| Haiku 4.5 (n=10) | $0.09 ❌ | $0.10 | $0.14 |      — |
 
 Whether each run produced a flow that would run:
 
@@ -3996,19 +5235,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree | Difference |
-| ---------------- | ----------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  | 17,351 / 10 |  23,572 / 8 |       +36% |
-| Opus 5 (n=10)    | 19,024 / 13 | 27,908 / 16 |       +47% |
-| Haiku 4.5 (n=10) | 21,759 / 10 |  23,054 / 8 |        +6% |
+| Model            |     no tree |        tree |         map | Δ tree |
+| ---------------- | ----------: | ----------: | ----------: | -----: |
+| Sonnet 5 (n=10)  | 17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
+| Opus 5 (n=10)    | 19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
+| Haiku 4.5 (n=10) | 21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |
 
 What those runs were billed:
 
-| Model            | no tree |  tree | Difference |
-| ---------------- | ------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |   $0.40 | $0.41 |        +2% |
-| Opus 5 (n=10)    |   $0.77 | $0.97 |       +26% |
-| Haiku 4.5 (n=10) |   $0.13 | $0.11 |       −15% |
+| Model            | no tree |  tree |   map | Δ tree |
+| ---------------- | ------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |   $0.40 | $0.41 | $0.34 |    +2% |
+| Opus 5 (n=10)    |   $0.77 | $0.97 | $0.79 |   +26% |
+| Haiku 4.5 (n=10) |   $0.13 | $0.11 | $0.12 |   −15% |
 
 Whether each run produced a flow that would run:
 
@@ -6211,19 +7450,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree | Difference |
-| ---------------- | ----------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  | 11,729 / 19 | 12,282 / 13 |        +5% |
-| Opus 5 (n=10)    |  17,143 / 9 | 25,474 / 14 |       +49% |
-| Haiku 4.5 (n=10) | 37,888 / 14 | 13,508 / 13 |       −64% |
+| Model            |     no tree |        tree |         map | Δ tree |
+| ---------------- | ----------: | ----------: | ----------: | -----: |
+| Sonnet 5 (n=10)  | 11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
+| Opus 5 (n=10)    |  17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
+| Haiku 4.5 (n=10) | 37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |
 
 What those runs were billed:
 
-| Model            | no tree |  tree | Difference |
-| ---------------- | ------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |   $0.34 | $0.36 |        +6% |
-| Opus 5 (n=10)    |   $0.56 | $0.78 |       +39% |
-| Haiku 4.5 (n=10) |   $0.20 | $0.14 |       −30% |
+| Model            | no tree |  tree |   map | Δ tree |
+| ---------------- | ------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |   $0.34 | $0.36 | $0.20 |    +6% |
+| Opus 5 (n=10)    |   $0.56 | $0.78 | $0.73 |   +39% |
+| Haiku 4.5 (n=10) |   $0.20 | $0.14 | $0.16 |   −30% |
 
 Whether each run produced a flow that would run:
 
@@ -7473,6 +8712,1227 @@ Read against the previous tab, this is the second prior-contamination control in
 
 {% /tab %}
 
+{% tab label="DigitalOcean (bundled) · shared file storage" %}
+
+**Description:** 2.87 MB in one file — the 2,909-file DigitalOcean description bundled into a single document with `redocly bundle`.
+
+**Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
+Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
+
+{% tabs %}
+{% tab label="Prompt: no tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean-bundled.yaml
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: tree" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean-bundled.yaml
+
+The Redocly CLI is installed and its `tree` command can search the description for you.
+Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
+redocly tree digitalocean-bundled.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% /tabs %}
+
+Context the run added, and the tool calls it took (medians over the working runs):
+
+| Model            |     no tree |        tree |         map | Δ tree |
+| ---------------- | ----------: | ----------: | ----------: | -----: |
+| Sonnet 5 (n=10)  | 15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
+| Opus 5 (n=10)    | 24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
+| Haiku 4.5 (n=10) | 22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |
+
+What those runs were billed:
+
+| Model            | no tree |  tree |   map | Δ tree |
+| ---------------- | ------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |   $0.33 | $0.17 | $0.23 |   −48% |
+| Opus 5 (n=10)    |   $0.85 | $0.90 | $0.79 |    +6% |
+| Haiku 4.5 (n=10) |   $0.14 | $0.11 | $0.15 |   −21% |
+
+Whether each run produced a flow that would run:
+
+| Run                | no tree                              | tree                                                |
+| ------------------ | ------------------------------------ | --------------------------------------------------- |
+| Sonnet 5 · run 1   | works                                | works                                               |
+| Sonnet 5 · run 2   | no auth scheme                       | works                                               |
+| Sonnet 5 · run 3   | no auth scheme                       | works                                               |
+| Sonnet 5 · run 4   | works                                | works                                               |
+| Sonnet 5 · run 5   | no auth scheme                       | works                                               |
+| Sonnet 5 · run 6   | works                                | works                                               |
+| Sonnet 5 · run 7   | works                                | works                                               |
+| Sonnet 5 · run 8   | no auth scheme                       | works                                               |
+| Sonnet 5 · run 9   | works                                | works                                               |
+| Sonnet 5 · run 10  | no auth scheme                       | works                                               |
+| Opus 5 · run 1     | no access point call                 | works                                               |
+| Opus 5 · run 2     | works                                | works                                               |
+| Opus 5 · run 3     | works                                | works                                               |
+| Opus 5 · run 4     | works                                | works                                               |
+| Opus 5 · run 5     | works                                | works                                               |
+| Opus 5 · run 6     | works                                | works                                               |
+| Opus 5 · run 7     | works                                | works                                               |
+| Opus 5 · run 8     | no access point call                 | works                                               |
+| Opus 5 · run 9     | works                                | works                                               |
+| Opus 5 · run 10    | works                                | works                                               |
+| Haiku 4.5 · run 1  | no auth scheme                       | works                                               |
+| Haiku 4.5 · run 2  | works                                | works                                               |
+| Haiku 4.5 · run 3  | works                                | no share call, no access point call, no auth scheme |
+| Haiku 4.5 · run 4  | works                                | no auth scheme                                      |
+| Haiku 4.5 · run 5  | no auth scheme                       | works                                               |
+| Haiku 4.5 · run 6  | no auth scheme                       | no auth scheme                                      |
+| Haiku 4.5 · run 7  | no auth scheme                       | works                                               |
+| Haiku 4.5 · run 8  | no access point call, no auth scheme | no auth scheme                                      |
+| Haiku 4.5 · run 9  | no auth scheme                       | no auth scheme                                      |
+| Haiku 4.5 · run 10 | no auth scheme                       | works                                               |
+
+A run works when its flow contains `POST /v2/nfs` naming `name`, `size_gib`, `region` and `vpc_ids`, and the access-point create naming `path` and `vpc_id`, under `bearer_auth`.
+
+What each run ran:
+
+{% tabs %}
+{% tab label="Sonnet 5 · shared file storage" %}
+
+{% tabs %}
+{% tab label="Sonnet 5 · run 1 · no tree" %}
+
+```bash
+grep -n -i "file.share\|nfs\|export" digitalocean-bundled.yaml | head -100
+awk '/nfs_request:/,/^    [a-z_]+:$/' digitalocean-bundled.yaml | head -80
+Grep
+Read digitalocean-bundled.yaml
+grep -n "^    access_point_request:\|^    access_policy:\|^    action_response\|nfs_action-2:" digitalocean-bundled.yaml
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-control-v4-sonnet-r1/ffecf2b4-4b96-46df-830f-982a5c0ebb7b/scratchpad/nfs_flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/{nfs_id} --operation=get | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · no tree" %}
+
+```bash
+Grep
+Read digitalocean-bundled.yaml
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-control-v4-sonnet-r2/682818b1-d87c-4416-b48d-c4c45bd957df/scratchpad/nfs-flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find="share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_request
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_policy
+redocly tree digitalocean-bundled.yaml --format=ai --component=responses --name=nfs_create
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · no tree" %}
+
+```bash
+grep -n -i "share\|nfs" digitalocean-bundled.yaml | head -80
+grep -n "nfs_request:\|nfs_action_attach:\|nfs_action_detach:\|nfs_action_reassign:\|nfs_action_resize:\|nfs:\s*$\|nfs_share:" digitalocean-bundled.yaml | head -40
+Read digitalocean-bundled.yaml
+grep -n "nfs_response:" digitalocean-bundled.yaml
+grep -n "access_point_response:" digitalocean-bundled.yaml
+grep -n "access_point\|access-point\|/nfs/{nfs_id}/access" digitalocean-bundled.yaml | grep -v "^54" | head -60
+grep -n "access_point_request:\|access_policy:" digitalocean-bundled.yaml
+Read
+grep -n "nfs_id:\|share_id_path:\|access_point_id:" -A6 digitalocean-bundled.yaml | sed -n '1,60p'
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 3 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find="share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_request --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=responses --name=access_point_create --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · no tree" %}
+
+```bash
+grep -n "share\|nfs\|export\|storage" digitalocean-bundled.yaml -i | grep -i "path:\|summary:\|operationId" | head -100
+Read digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point_request:\|nfs_share:\|access_point:\|nfs_create:\|access_point_create:\|^    nfs_\|^    access_point" digitalocean-bundled.yaml | head -60
+mkdir -p /private/tmp/claude-501/-Users-tora-bench-run-dobundle-control-v4-sonnet-r4/a6d4d07c-68d2-46ab-9c7a-4dfa8f164ab3/scratchpad
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · tree" %}
+
+```bash
+redocly tree --help | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="nfs" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · no tree" %}
+
+```bash
+grep -n "^  /" digitalocean-bundled.yaml | grep -i -E "share|nfs|volume|storage"
+Read digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point_request:\|^    nfs:\|^    access_point:\|nfs_create:\|access_point_create:" digitalocean-bundled.yaml | head -30
+grep -n "^    nfs_response:\|^    access_point_response:\|^    access_point:" digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find="share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response --with-deps | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -150
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action-2 --with-deps | head -40
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · no tree" %}
+
+```bash
+grep -n -i "nfs\|share\|export" digitalocean-bundled.yaml | head -100
+awk '/nfs_request:/,/^    [a-z_]+:$/' digitalocean-bundled.yaml | head -60
+Grep
+Read digitalocean-bundled.yaml
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-control-v4-sonnet-r6/54bb9a35-41f3-40e0-8c6f-b9e4da524fe1/scratchpad/nfs_flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_request | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -150
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_policy | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 7 · no tree" %}
+
+```bash
+grep -n -i "nfs\|share\|export" digitalocean-bundled.yaml | head -100
+grep -n "nfs_request:\|nfs_action_attach:\|nfs_action_reassign:\|^    nfs:\|nfs_create:\|nfs_get:\|nfs_actions:" -A 30 digitalocean-bundled.yaml | head -260
+grep -n "nfs_create_response:\|nfs_get_response:\|access_point" -A 20 digitalocean-bundled.yaml | head -150
+grep -n "access_point_request:\|access_point_create:\|^    access_point:" -A 40 digitalocean-bundled.yaml | head -180
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 7 · tree" %}
+
+```bash
+redocly tree --help | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="NFS" | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --find="shared filesystem" | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/{nfs_id} --operation=get --with-deps | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/access_points/{access_point_id} --operation=get --with-deps | head -60
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · no tree" %}
+
+```bash
+grep -n "^  /" digitalocean-bundled.yaml | grep -i "share\|nfs\|volume\|storage"
+Read digitalocean-bundled.yaml
+grep -n "nfs_request:\|^    nfs:\|nfs_create:\|access_point_request:\|access_point:\|access_point_create:" digitalocean-bundled.yaml | head -50
+grep -n "^    nfs_response:\|^    access_point_response:" digitalocean-bundled.yaml
+grep -n "nfs.*action" digitalocean-bundled.yaml | grep -i "get\|operationId" | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · tree" %}
+
+```bash
+redocly tree --help | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="nfs" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="share" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -60
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 9 · no tree" %}
+
+```bash
+grep -n "share\|nfs\|NFS\|export" digitalocean-bundled.yaml -i | head -100
+awk '/nfs_request:/,/^    [a-z_]+:$/' digitalocean-bundled.yaml | head -80
+Grep
+Read digitalocean-bundled.yaml
+grep -n "/v2/vpcs:" digitalocean-bundled.yaml | head -5
+cat << 'EOF' > /private/tmp/claude-501/-Users-tora-bench-run-dobundle-control-v4-sonnet-r9/413048be-6fcc-4426-a3bb-7fc5ef90c71b/scratchpad/flow.json
+placeholder
+EOF
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 9 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -60
+true
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · no tree" %}
+
+```bash
+grep -n -i "share\|nfs\|export" digitalocean-bundled.yaml | head -100
+awk '/nfs_request:/,/^    [a-z_]+:$/' digitalocean-bundled.yaml | head -60
+Grep
+Read digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · tree" %}
+
+```bash
+redocly tree --help | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="nfs" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="share" | head -150
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -300
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -80
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -80
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Opus 5 · shared file storage" %}
+
+{% tabs %}
+{% tab label="Opus 5 · run 1 · no tree" %}
+
+```bash
+grep -n -i -E "nfs|file share|shared_?storage|export" digitalocean-bundled.yaml | head -80
+grep -n -E "^  nfs_|^    nfs_" digitalocean-bundled.yaml | head -40; echo ---; sed -n '22236,22300p' digitalocean-bundled.yaml
+sed -n '54137,54260p;54276,54340p' digitalocean-bundled.yaml
+grep -n -i "access_point\|access point" digitalocean-bundled.yaml | head -60
+sed -n '22567,22635p' digitalocean-bundled.yaml; echo ===; sed -n '54000,54137p' digitalocean-bundled.yaml
+sed -n '53990,54137p' digitalocean-bundled.yaml
+grep -n "access_point_request:\|access_point_create:\|access_point_action\|access_point_conflict:" digitalocean-bundled.yaml
+sed -n '54513,54600p' digitalocean-bundled.yaml; echo "=== responses"; sed -n '72806,72850p' digitalocean-bundled.yaml
+sed -n '54365,54430p' digitalocean-bundled.yaml; echo "=== region-2"; grep -n "    region-2:" -A 15 digitalocean-bundled.yaml; echo "=== nfs actions get?"; sed -n '22458,22567p' digitalocean-bundled.yaml | grep -n "operationId\|/v2\|summary"
+grep -n "operationId: vpcs_create\|operationId: vpcs_get\b" -A 5 digitalocean-bundled.yaml | head -20; echo "=== vpc schema"; grep -n "^    vpc:" -A 60 digitalocean-bundled.yaml | head -80
+grep -n "    vpc_create:" -A 30 digitalocean-bundled.yaml; echo "=== updatable/base"; grep -n "    vpc_updatable:" -A 22 digitalocean-bundled.yaml; grep -n "    vpc_base:" -A 20 digitalocean-bundled.yaml
+sed -n '72589,72680p' digitalocean-bundled.yaml; echo "=== vpc create resp"; sed -n '30974,31058p' digitalocean-bundled.yaml | grep -n "responses\|\\$ref\|201"
+grep -n "    existing_vpc:" -A 12 digitalocean-bundled.yaml; echo "=== get_access_point resp"; sed -n '22683,22720p' digitalocean-bundled.yaml | grep -n "parameters\|ref\|200"
+sed -n '22326,22335p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 1 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file system" | head -60; echo ====; redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps | head -150
+for n in nfs_request nfs_response access_point_response access_policy nfs_create_response; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -60; echo "-----"; done
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -60; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_request --with-deps | head -30
+sed -n '54514,54560p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --tag=NFS | head -40; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action --with-deps | head -30; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action-2 | head -20
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get_access_point --with-deps | head -25; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get | head -20
+redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=region-2|head -8; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_create --with-deps | head -25; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_list | head -8
+sed -n '54064,54136p' digitalocean-bundled.yaml; echo ===; sed -n '56747,56800p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc --with-deps | head -20
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_list | head -6; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_list_access_points | head -6
+redocly tree digitalocean-bundled.yaml --format=ai | head -15
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · no tree" %}
+
+```bash
+ls -la digitalocean-bundled.yaml && wc -l digitalocean-bundled.yaml
+Grep
+sed -n '22236,22520p' digitalocean-bundled.yaml
+sed -n '54137,54380p' digitalocean-bundled.yaml; echo ===PARAMS===; sed -n '41889,41925p' digitalocean-bundled.yaml; echo ===REGION2===; grep -n "region-2:" -A 20 digitalocean-bundled.yaml | head -40
+sed -n '22567,22640p' digitalocean-bundled.yaml; echo "===SCHEMAS 53990-54140==="; sed -n '53990,54137p' digitalocean-bundled.yaml
+grep -n "    access_point_request:" -A 40 digitalocean-bundled.yaml; echo "===RESP==="; grep -n "    access_point_create:" -A 25 digitalocean-bundled.yaml; echo "===CREATE RESP SCHEMA==="; grep -n "access_point_create_response:\|access_point_action\b" -A 20 digitalocean-bundled.yaml | head -50
+grep -n "  /v2/vpcs:" -A 60 digitalocean-bundled.yaml | head -70; echo ===VPCSCHEMA===; grep -n "^    vpc_base:\|^    vpc_create:\|^    vpc_updatable:\|^    vpc:" -A 45 digitalocean-bundled.yaml | head -120
+sed -n '30971,31010p' digitalocean-bundled.yaml; echo ===; grep -n "^    vpc_base:" -A 60 digitalocean-bundled.yaml | head -80
+grep -n "    vpc_updatable:" -A 30 digitalocean-bundled.yaml; grep -n "    vpc_create:" -A 40 digitalocean-bundled.yaml
+grep -n "    nfs_actions_response:" -A 12 digitalocean-bundled.yaml; grep -n "    nfs_action-2:" -A 60 digitalocean-bundled.yaml | sed -n '1,70p'
+grep -n "^  /v2/nfs" digitalocean-bundled.yaml; echo ===; grep -n "    share_id_path:" -A 12 digitalocean-bundled.yaml; grep -n "    region-2:" -A 12 digitalocean-bundled.yaml
+grep -n "share_id_path:" -A 12 digitalocean-bundled.yaml; echo "=== region-2"; grep -n "^    region-2:" -A 12 digitalocean-bundled.yaml; echo "=== nfs_id param"; sed -n '41880,41935p' digitalocean-bundled.yaml
+sed -n '31010,31070p' digitalocean-bundled.yaml | grep -n "vpc:"
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file share" | head -60
+for t in nfs "file storage" share export; do echo "=== $t"; redocly tree digitalocean-bundled.yaml --format=ai --find "$t" | head -40; done
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps | head -200
+for n in nfs_request nfs_response access_point_response access_policy; do echo "=== $n"; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -60; done
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps | head -60; echo "#####"; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_request | head -30
+sed -n '54514,54560p' digitalocean-bundled.yaml; echo "=== attach/detach"; sed -n '54256,54365p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_create --with-deps | head -30
+for op in nfs_get nfs_get_access_point nfs_list_access_points; do echo "=== $op"; redocly tree digitalocean-bundled.yaml --format=ai --operation=$op | head -8; done; echo "=== region-2 param"; sed -n '41883,41925p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action-2 | head -12; echo "=== regions"; redocly tree digitalocean-bundled.yaml --format=ai --operation=regions_list | head -6
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_base | head -6; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_create | head -6
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · no tree" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.yaml
+grep -n -i -E "nfs|file_?share|shares|export" digitalocean-bundled.yaml | head -100
+grep -n -E "^    nfs_[a-z_]*:|^  nfs_[a-z_]*:" digitalocean-bundled.yaml
+sed -n '22236,22300p;22388,22460p' digitalocean-bundled.yaml
+sed -n '54137,54430p' digitalocean-bundled.yaml
+sed -n '41889,41925p' digitalocean-bundled.yaml; echo ---; grep -n "    region-2:" -A 15 digitalocean-bundled.yaml
+grep -n -i "access_point" digitalocean-bundled.yaml | head -60
+grep -n "/v2/vpcs" digitalocean-bundled.yaml | head -20
+sed -n '22567,22640p' digitalocean-bundled.yaml; echo "=== SCHEMAS ==="; sed -n '54063,54136p;54487,54570p' digitalocean-bundled.yaml
+sed -n '30970,31056p' digitalocean-bundled.yaml
+grep -n "^    access_policy:" -A 60 digitalocean-bundled.yaml | head -80
+sed -n '72589,72705p' digitalocean-bundled.yaml; echo "=== AP RESPONSES ==="; grep -n "    access_point_create:" -A 40 digitalocean-bundled.yaml | head -60
+grep -n "    access_point_get:" -A 35 digitalocean-bundled.yaml | head -45; echo "=== conflict/badreq ==="; grep -n "    access_point_conflict:" -A 20 digitalocean-bundled.yaml | head -25
+grep -n "    vpc_create:" -A 30 digitalocean-bundled.yaml | head -40; echo "=== updatable ==="; grep -n "    vpc_updatable:" -A 25 digitalocean-bundled.yaml | head -30; echo "=== existing_vpc resp ==="; grep -n "    existing_vpc:" -A 30 digitalocean-bundled.yaml | head -35
+sed -n '56758,56800p' digitalocean-bundled.yaml; echo "=== vpc: ==="; grep -n "^    vpc:" -A 12 digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file share" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -60; echo ====; redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --path /v2/nfs --operation post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name nfs_request --with-deps | head -80; echo "=========="; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name nfs_response --with-deps | head -120
+redocly tree digitalocean-bundled.yaml --format=ai --path "/v2/nfs/shares/{share_id}/access_points" --operation post --with-deps | head -60; echo ==========; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name access_point_request --with-deps | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name access_point_request --with-deps | head -40
+sed -n '54014,54070p;54508,54560p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -40; echo XXXX; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name nfs_action-2 --with-deps | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --tag NFS | head -40; echo XXXX; redocly tree digitalocean-bundled.yaml --format=ai --operation vpcs_create --with-deps | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get|head -20; echo XXXX; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get_access_point --with-deps|head -25; echo XXXX; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list|head -12
+sed -n '41883,41935p;54064,54137p' digitalocean-bundled.yaml
+sed -n '72577,72650p;72781,72900p' digitalocean-bundled.yaml
+sed -n '56723,56800p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list_access_points|head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · no tree" %}
+
+```bash
+ls -la digitalocean-bundled.yaml; wc -l digitalocean-bundled.yaml
+Grep
+Read digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file share nfs" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -40; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -40; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --tag | head -80
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create --with-deps | head -200
+for n in nfs_request nfs_response access_point_request access_point_response access_policy nfs_create_response; do redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name $n --with-deps | head -60; echo "======"; done
+sed -n '54514,54560p' digitalocean-bundled.yaml; echo "=== ap op ==="; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create_access_point --with-deps | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --tag NFS | head -60; echo "=== vpc ==="; redocly tree digitalocean-bundled.yaml --format=ai --tag VPCs | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --operation vpcs_create --with-deps | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name vpc_base|head -12; echo ===; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get|head -12; echo ===; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get_access_point|head -12; echo ===; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list|head -12
+for op in nfs_get nfs_get_access_point nfs_list nfs_list_access_points; do redocly tree digitalocean-bundled.yaml --format=ai --operation $op|head -8; echo "-----"; done
+sed -n '41883,41930p' digitalocean-bundled.yaml; echo "=== nfs_action-2 ==="; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name nfs_action-2|head -8
+grep -n "NFS lets you create fully managed" -A 20 digitalocean-bundled.yaml | head -40
+sed -n '72807,72850p;72867,72885p' digitalocean-bundled.yaml
+sed -n '72619,72731p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · no tree" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.yaml
+grep -niE "nfs|file_?share|filesystem|file system|share" digitalocean-bundled.yaml | head -80
+sed -n '22236,22470p' digitalocean-bundled.yaml
+grep -n "^  nfs_\|^  nfs:" digitalocean-bundled.yaml
+grep -n "    nfs_request:\|    nfs_action_attach:\|    nfs_action_reassign:\|    nfs:\|    nfs_full:\|    nfs_base:\|    nfs_id:\|    region-2:\|    nfs_create:\|    nfs_get:\|    nfs_actions:\|    nfs_action:" digitalocean-bundled.yaml
+sed -n '41878,41900p;54214,54400p' digitalocean-bundled.yaml
+sed -n '72589,72720p' digitalocean-bundled.yaml
+grep -n "access_point\|access-point\|accesspoint" digitalocean-bundled.yaml | grep -iE "^\s*[0-9]+:\s*(/v2|.*operationId|.*schemas: )|/v2/nfs|operationId" | head -40
+grep -n "^  /v2/nfs" digitalocean-bundled.yaml
+sed -n '22567,22690p' digitalocean-bundled.yaml
+grep -n "nfs_access_point\|nfs_response:" digitalocean-bundled.yaml | head -30
+grep -n "    access_point_request:\|    access_point_create:\|    access_point:\|    access_policy:\|    access_point_response\|    share_id_path:\|    access_point_conflict:\|    access_point_bad_request:" digitalocean-bundled.yaml
+sed -n '54137,54214p' digitalocean-bundled.yaml
+sed -n '54019,54137p;54513,54575p' digitalocean-bundled.yaml
+sed -n '41905,41925p;72780,72860p' digitalocean-bundled.yaml
+grep -n "^  /v2/vpcs" digitalocean-bundled.yaml; grep -n "    vpc_base:\|    vpc:\|    vpc_create\|    vpc_updatable\|    vpc_default" digitalocean-bundled.yaml | head
+sed -n '30910,31010p' digitalocean-bundled.yaml
+sed -n '56722,56800p' digitalocean-bundled.yaml
+grep -n "mount" digitalocean-bundled.yaml | grep -iE "nfs|share|export|access|path|gateway" | head -20; echo ---; sed -n '775,795p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file system" | head -60; echo "=== VPC ==="; redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -40; echo "=== share ==="; redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps | head -150
+for n in nfs_request nfs_response nfs_create_response access_point_response access_policy; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -40; echo "-----"; done
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps | head -60; echo "=== req schema ==="; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_request --with-deps | head -30
+Read digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get_access_point --with-deps | head -30; echo "=== action-2 ==="; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action-2 | head -20; echo "=== nfs_create_action ==="; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_action --with-deps | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_list --with-deps | head -20; echo "=== create ==="; redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_create --with-deps | head -20; echo "=== vpc_create schema ==="; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_create --with-deps|head -20; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_base|head -12
+redocly tree digitalocean-bundled.yaml --format=ai --find "regions" | head -8; echo "=== list aps ==="; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_list_access_points | head -6
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · no tree" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.yaml
+Grep
+sed -n '22236,22460p' digitalocean-bundled.yaml
+sed -n '54137,54290p;54304,54332p' digitalocean-bundled.yaml; echo ===PARAMS===; sed -n '41889,41915p' digitalocean-bundled.yaml
+sed -n '41889,41915p' digitalocean-bundled.yaml
+sed -n '22567,22640p' digitalocean-bundled.yaml; echo "=== SCHEMAS ==="; sed -n '54063,54137p;54487,54570p' digitalocean-bundled.yaml
+grep -n "^    access_policy:" digitalocean-bundled.yaml; echo ===; sed -n '72618,72700p;72806,72900p' digitalocean-bundled.yaml
+sed -n '54019,54063p' digitalocean-bundled.yaml; echo "===NFSGET RESP==="; sed -n '72618,72705p' digitalocean-bundled.yaml; echo "===AP CREATE RESP==="; sed -n '72806,72870p' digitalocean-bundled.yaml
+sed -n '30910,31000p' digitalocean-bundled.yaml
+grep -n "^    vpc_updatable:\|^    vpc_create:\|^    vpc_base:\|^    vpc:" digitalocean-bundled.yaml
+sed -n '56722,56800p' digitalocean-bundled.yaml
+grep -n "^    region-2:" -A 12 digitalocean-bundled.yaml; echo ===; grep -n "^    existing_vpc:" -A 30 digitalocean-bundled.yaml | head -40; echo ===AP LIST PARAMS===; sed -n '22640,22690p' digitalocean-bundled.yaml; echo ===SHAREIDPATH===; grep -n "^    share_id_path:" -A 9 digitalocean-bundled.yaml
+grep -n "^    existing_vpc:" -A 28 digitalocean-bundled.yaml | head -36; echo "###AP LIST"; sed -n '22640,22684p' digitalocean-bundled.yaml; echo "###SIDPATH"; grep -n "^    share_id_path:" -A 9 digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file system" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "NFS" | head -40; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -200
+for n in nfs_request nfs_response access_point_response access_policy access_point_request; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -60; echo =====; done
+for n in nfs_response access_point_response access_policy access_point_request; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n | head -40; echo "-----"; done
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -60
+sed -n '54514,54560p' digitalocean-bundled.yaml; echo "=== ACTIONS ==="; sed -n '54256,54440p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_create --with-deps | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_base | head -12; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get|head -12; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get_access_point|head -12
+sed -n '41883,41935p' digitalocean-bundled.yaml; echo "=== resp nfs_create/ap_create ==="; sed -n '72590,72602p;72807,72880p' digitalocean-bundled.yaml
+sed -n '72880,72960p' digitalocean-bundled.yaml; echo "=== list aps op ==="; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_list_access_points|head -8
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/regions|head -6
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · no tree" %}
+
+```bash
+grep -n "shared_file\|shared-file\|sharedFile\|file_system\|fileSystem" digitalocean-bundled.yaml | head -80
+wc -l digitalocean-bundled.yaml
+grep -n "^  /" digitalocean-bundled.yaml | head -300
+sed -n '22236,22760p' digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    nfs:\|^    access_point_request:\|^    access_point:\|^    nfs_action_attach:\|^    access_policy\|^  responses:\|^    nfs_create:\|^    access_point_create:\|^    nfs_snapshot\|^    nfs_id:\|^    share_id_path:\|^    region-2:\|^    access_point_id:" digitalocean-bundled.yaml
+grep -n "nfs_request\|access_point_request\|access_point_create\|nfs_create\|nfs_action_attach\|access_policy" digitalocean-bundled.yaml
+sed -n '54019,54350p' digitalocean-bundled.yaml
+sed -n '54513,54570p;41882,41935p' digitalocean-bundled.yaml
+grep -n "^  /v2/vpcs" digitalocean-bundled.yaml; grep -n "    nfs_action-2:" digitalocean-bundled.yaml; sed -n '72589,72620p;72806,72840p' digitalocean-bundled.yaml
+sed -n '54365,54430p' digitalocean-bundled.yaml; echo ---VPC---; sed -n '30910,31060p' digitalocean-bundled.yaml
+grep -n "^    vpc_updatable:\|^    vpc_create:\|^    vpc_base:\|^    vpc:" digitalocean-bundled.yaml
+sed -n '56722,56800p' digitalocean-bundled.yaml
+grep -n -A12 "^    existing_vpc:" digitalocean-bundled.yaml | head -20
+sed -n '72620,72705p;72840,72960p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file share" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -60; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -200
+for n in nfs_request nfs_response access_point_request access_point_response access_policy; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -60; echo ====; done
+for n in nfs_response access_point_request access_point_response access_policy; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -60; echo "-----"; done
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -80
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action --with-deps | head -40; echo -----; for n in nfs_action_attach nfs_action-2; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n|head -20; echo -----; done; sed -n '54514,54546p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpcs" | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/vpcs --operation=post --with-deps | head -40
+for n in vpc_create vpc_updatable vpc_base; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n|head -12; echo -----; done; redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/{nfs_id} --operation=get|head -12
+redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=region-2|head -6; redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=nfs_id|head -6; redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=share_id_path|head -6; redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/access_points/{access_point_id} --operation=get|head -8
+redocly tree digitalocean-bundled.yaml --format=ai | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · no tree" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.yaml
+grep -n -i "share\|nfs\|file_system\|filesystem" digitalocean-bundled.yaml | head -80
+sed -n '22236,22470p' digitalocean-bundled.yaml
+grep -n "^  nfs\|^  nfs_" digitalocean-bundled.yaml | head -60
+grep -n "    nfs_request:\|    nfs_action_attach:\|    nfs_full:\|    nfs:\|    nfs_action_base\|    nfs_base\|    nfs_action:\|nfs_create:\|nfs_actions:\|nfs_get:\|nfs_list:\|    nfs_id:\|    region-2:\|    nfs_export\|nfs_action_reassign:" digitalocean-bundled.yaml
+sed -n '54140,54400p' digitalocean-bundled.yaml; echo "=====PARAMS"; sed -n '41875,41900p' digitalocean-bundled.yaml
+sed -n '72576,72720p' digitalocean-bundled.yaml
+grep -n "access_point" digitalocean-bundled.yaml | head -60
+sed -n '22567,22640p' digitalocean-bundled.yaml; echo ===SCHEMA; sed -n '54063,54140p' digitalocean-bundled.yaml; echo ===REQ; sed -n '54497,54570p' digitalocean-bundled.yaml
+sed -n '72780,72870p' digitalocean-bundled.yaml
+sed -n '54063,54140p' digitalocean-bundled.yaml; echo "===REQ==="; sed -n '54487,54570p' digitalocean-bundled.yaml
+grep -n "    access_policy:" digitalocean-bundled.yaml
+grep -n "^  /v2/vpcs" digitalocean-bundled.yaml
+sed -n '54019,54063p' digitalocean-bundled.yaml
+sed -n '30910,31000p' digitalocean-bundled.yaml
+grep -n "    vpc_updatable:\|    vpc_create:\|    vpc_base:\|    vpc:" digitalocean-bundled.yaml; echo ===; grep -n "^  /v2/nfs" digitalocean-bundled.yaml
+sed -n '56722,56800p' digitalocean-bundled.yaml
+grep -n "  /v2/nfs" digitalocean-bundled.yaml
+grep -n "    existing_vpc:" -A 12 digitalocean-bundled.yaml | head -20; echo ===; grep -n "nfs" digitalocean-bundled.yaml | grep -i "region\|available" | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file system" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -40; echo ===; redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create --with-deps | head -150
+redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name nfs_request --with-deps | head -60; echo "====="; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name nfs_response --with-deps | head -80
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create_access_point --with-deps | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name access_point_request | head -30; echo "====="; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name access_policy | head -30
+sed -n '54514,54560p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --operation vpcs_create --with-deps | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get | head -20; echo "====="; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list | head -20; echo "====="; redocly tree digitalocean-bundled.yaml --format=ai --operation regions_list | head -20
+redocly tree digitalocean-bundled.yaml --format=ai --component parameters --name region-2|head -10; echo =====; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get_access_point | head -10; echo =====; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list_access_points | head -10
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get_access_point | head -10; echo XXXXX; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list_access_points | head -10; echo XXXXX; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name access_point_response | head -20
+sed -n '54064,54136p' digitalocean-bundled.yaml; echo XXXXX; sed -n '72807,72870p' digitalocean-bundled.yaml
+sed -n '72577,72620p' digitalocean-bundled.yaml; echo XXXXX; sed -n '72619,72731p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "access point" | head -40
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 9 · no tree" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.yaml
+Grep
+sed -n '22236,22760p' digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    nfs_share:\|^    access_point_request:\|^    access_point\b\|^    nfs_action_attach:\|^    nfs:\|^    access_point:\|^    nfs_access_point" digitalocean-bundled.yaml; echo ---; grep -n "^  nfs_create:\|^  access_point_create:\|^  nfs_get:\|^  access_point_list:" digitalocean-bundled.yaml
+sed -n '54180,54700p' digitalocean-bundled.yaml
+grep -n "^    access_policy:\|^    access_point_response:\|^    nfs_response:" digitalocean-bundled.yaml
+sed -n '54019,54180p' digitalocean-bundled.yaml
+grep -n "^  /v2/vpcs" digitalocean-bundled.yaml; echo ---; grep -n "    region-2:\|    nfs_id:\|    share_id:\|    share_id_path:\|    access_point_id:\|    nfs_snapshot_id:" digitalocean-bundled.yaml; echo ---; grep -n "^    nfs_create:\|^    access_point_create:\|^    nfs_actions:" digitalocean-bundled.yaml
+sed -n '41882,41932p' digitalocean-bundled.yaml; echo ===; sed -n '72589,72620p;72806,72840p' digitalocean-bundled.yaml; echo ===VPCS; sed -n '30910,31000p' digitalocean-bundled.yaml
+f=digitalocean-bundled.yaml; sed -n '72589,72620p;72806,72845p' $f; echo VPCS; sed -n '30910,31005p' $f
+f=digitalocean-bundled.yaml; grep -n "^    vpc_updatable:\|^    vpc_create:\|^    vpc_base:\|^    vpc:" $f
+sed -n '56722,56800p' digitalocean-bundled.yaml
+f=digitalocean-bundled.yaml; grep -n "^    existing_vpc:" -A 14 $f; grep -n "available:" -B18 $f | grep -n "region\|features\|available" | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 9 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file share" | head -60; echo ====; redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --tag | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --tag "NFS" | head -60; echo "=== ACTIONS"; redocly tree digitalocean-bundled.yaml --format=ai --tag "NFS Actions" | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create --with-deps | head -150
+for n in nfs_request nfs_response access_point_response access_policy nfs_create_response; do echo "### $n"; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name $n --with-deps | head -60; done
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create_access_point --with-deps | head -60; echo "=== ACTION"; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_create_action --with-deps | head -60
+sed -n '22390,22450p;54305,54350p;54514,54560p' digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --tag "VPCs"|head -20; echo ===; redocly tree digitalocean-bundled.yaml --format=ai --operation vpcs_create --with-deps|head -30; echo ===; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name "nfs_action-2"|head -20
+redocly tree digitalocean-bundled.yaml --format=ai --operation vpcs_create --with-deps|head -25; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --component schemas --name vpc_base|head -12
+sed -n '54064,54136p' digitalocean-bundled.yaml; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get|head -12; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_get_access_point|head -12
+sed -n '41883,41930p' digitalocean-bundled.yaml; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --component responses --name access_point_create --with-deps|head -20
+redocly tree digitalocean-bundled.yaml --format=ai --component responses --name nfs_get|head -8; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --component responses --name access_point_get|head -8; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --tag "Actions"|head -8
+redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list|head -6; echo XXX; sed -n '56723,56750p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · no tree" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.yaml
+Grep
+sed -n '22236,22470p' digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    nfs_action_attach:\|^    nfs_action_reassign:\|^    nfs:\|^    nfs_full:\|^    nfs_base:\|^    region-2:\|^    nfs_id:\|^    nfs_create:\|^    nfs_get:\|^    nfs_actions:\|^    nfs_list:\|^    nfs_action:" digitalocean-bundled.yaml
+sed -n '41875,41900p' digitalocean-bundled.yaml && echo "=====SCHEMAS" && sed -n '54180,54380p' digitalocean-bundled.yaml
+sed -n '72576,72700p' digitalocean-bundled.yaml
+sed -n '22567,22640p' digitalocean-bundled.yaml && echo "==== AP SCHEMAS" && sed -n '54063,54130p' digitalocean-bundled.yaml && echo "==== AP REQUEST" && sed -n '54487,54570p' digitalocean-bundled.yaml
+sed -n '72780,72870p' digitalocean-bundled.yaml && sed -n '41920,41930p' digitalocean-bundled.yaml
+grep -n "^    access_policy:" digitalocean-bundled.yaml && sed -n '54130,54182p' digitalocean-bundled.yaml
+grep -n "^  /v2/vpcs" digitalocean-bundled.yaml
+sed -n '54019,54063p' digitalocean-bundled.yaml
+sed -n '30910,30990p' digitalocean-bundled.yaml && echo "=== VPC SCHEMA" && grep -n "^    vpc_base:\|^    vpc_create:\|^    vpc:" digitalocean-bundled.yaml
+sed -n '56735,56800p' digitalocean-bundled.yaml && echo "=== post 30990-31060" && sed -n '30990,31060p' digitalocean-bundled.yaml
+sed -n '22640,22660p' digitalocean-bundled.yaml && echo "===" && sed -n '22683,22700p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · tree" %}
+
+```bash
+ls && redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file system" | head -60
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" | head -40; echo ====; redocly tree digitalocean-bundled.yaml --format=ai --find "share" | head -40
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps | head -120
+for n in nfs_request nfs_response access_point_response access_policy nfs_create_response; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n --with-deps | head -40; echo "-----"; done
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps | head -60; echo "-----"; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get --with-deps | head -30
+for n in access_point_request nfs_action_attach nfs_action-2 access_point_action_response; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n | head -20; echo "-----"; done; redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=region-2|head -10; redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=share_id_path|head -10
+Read digitalocean-bundled.yaml
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" | head -30
+redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_create --with-deps | head -30
+for n in vpc_create vpc_updatable vpc_base; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n|head -8; echo ---; done
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_get_access_point|head -8; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_list|head -8; echo ---; redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_list_access_points|head -8
+redocly tree digitalocean-bundled.yaml --format=ai --operation=regions_list|head -6
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% tab label="Haiku 4.5 · shared file storage" %}
+
+{% tabs %}
+{% tab label="Haiku 4.5 · run 1 · no tree" %}
+
+```bash
+Skill
+Read digitalocean-bundled.yaml
+Grep
+grep -n "^  /.*volume\|^  /.*nfs\|^  /.*space" digitalocean-bundled.yaml | head -20
+grep -n "nfs_request:\|access_point_request:\|nfs_response:" digitalocean-bundled.yaml | head -10
+grep -n "access_point_response:" digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 1 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --find="file" --format=ai
+redocly tree digitalocean-bundled.yaml --find="volume" --format=ai
+redocly tree digitalocean-bundled.yaml --find="nfs" --format=ai
+redocly tree digitalocean-bundled.yaml --operation=post --path=/v2/nfs --format=ai --with-deps
+redocly tree digitalocean-bundled.yaml --operation=post --path=/v2/nfs/shares/{share_id}/access_points --format=ai --with-deps
+redocly tree digitalocean-bundled.yaml --component=schemas --name=nfs_response --format=ai --with-deps
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r1/scratchpad/nfs-provisioning-flow.json
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r1/scratchpad/nfs-provisioning-flow.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · no tree" %}
+
+```bash
+Skill
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file storage volume" 2>/dev/null | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs network file" 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --tag 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --tag=NFS 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response 2>/dev/null
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · no tree" %}
+
+```bash
+Read digitalocean-bundled.yaml
+Grep
+grep -n "^  nfs_request:" digitalocean-bundled.yaml | head -5
+grep -n "nfs_request\|nfs_response\|access_point" digitalocean-bundled.yaml | grep "^[0-9]*:  " | head -20
+grep -n "^components:" digitalocean-bundled.yaml
+grep -n "^    nfs_request\|^    nfs_response\|^    access_point_request\|^    nfs_share" digitalocean-bundled.yaml | head -20
+grep -n "^    access_point_response:" digitalocean-bundled.yaml
+grep -n "^    access_policy:" digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · tree" %}
+
+```bash
+Skill
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --find "space" --format=ai
+redocly tree digitalocean-bundled.yaml --find "volume" --format=ai
+redocly tree digitalocean-bundled.yaml --find "file" --format=ai | head -100
+redocly tree digitalocean-bundled.yaml --operations | grep -i "share\|nfs\|export\|mount" | head -20
+redocly tree digitalocean-bundled.yaml --tag "NFS" --format=ai
+redocly tree digitalocean-bundled.yaml --operation "post" --path "/v2/nfs" --with-deps --format=ai
+redocly tree digitalocean-bundled.yaml --operation "post" --path "/v2/nfs/shares/{share_id}/access_points" --with-deps --format=ai
+redocly tree digitalocean-bundled.yaml --component "schemas" --name "nfs_response" --format=ai
+redocly tree digitalocean-bundled.yaml --component "schemas" --name "access_point_response" --format=ai
+cat > /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r3/bce60642-0cbd-42f7-8199-ee521cd734cf/scratchpad/nfs-provisioning-workflow.json << 'EOF'
+{
+"workflow": "DigitalOcean NFS Cluster Storage Provisioning",
+"description": "Create a network file share (NFS) with multiple export paths for different private networks",
+"steps": [
+"step": 1,
+"name": "Create NFS Share",
+"operation": "POST /v2/nfs",
+"operationId": "nfs_create",
+"auth": "Bearer token (scope: nfs:create)",
+"request_body": {
+"name": "string (e.g., 'cluster-storage')",
+"size_gib": "integer (minimum 50, e.g., 1024)",
+"region": "string (e.g., 'atl1', 'nyc2')",
+"vpc_ids": [
+"string (UUIDs of VPCs that can access the share, e.g., primary VPC)"
+],
+"performance_tier": "string (optional, e.g., 'standard' or 'PERFORMANCE_TIER_HIGH')"
+},
+"example_request": {
+"name": "cluster-storage",
+"size_gib": 1024,
+"region": "atl1",
+"796c6fe3-2a1d-4da2-9f3e-38239827dc91"
+"performance_tier": "standard"
+"response_status": 201,
+"response_body": {
+"share": {
+"id": "string (UUID, e.g., '0a1b2c3d-4e5f-6a7b-8c9d-0e1f2a3b4c5d') [CAPTURE FOR STEP 2]",
+"name": "string",
+"size_gib": "integer",
+"region": "string",
+"status": "enum: CREATING|ACTIVE|INACTIVE|FAILED|DELETED",
+"created_at": "ISO 8601 timestamp",
+"vpc_ids": "array of strings",
+"performance_tier": "string",
+"mount_path": "string (default export path, e.g., '/123456/your-nfs-share-uuid') [CAPTURE]",
+"host": "string (NFS server IP, e.g., '10.128.32.2') [CAPTURE]",
+"access_points": "array (initially empty or with default)"
+}
+"note": "Share creation is asynchronous. Poll GET /v2/nfs/{nfs_id} until status='ACTIVE' before proceeding to Step 2.",
+"polling": {
+"endpoint": "GET /v2/nfs/{nfs_id}",
+"status_field": "response.share.status",
+"ready_when": "ACTIVE",
+"timeout_recommendation": "300 seconds"
+"errors": {
+"400": "Invalid parameters (e.g., size < 50GiB)",
+"401": "Authentication failed",
+"429": "Rate limit exceeded",
+"500": "Server error"
+"step": 2,
+"name": "Create Access Point for First Private Network (Region 1)",
+"operation": "POST /v2/nfs/shares/{share_id}/access_points",
+"operationId": "nfs_create_access_point",
+"dependencies": [
+"Step 1: Use 'share.id' from response"
+"path_parameters": {
+"share_id": "string (from Step 1 response: share.id)"
+"name": "string (unique per share, e.g., 'primary-network-export')",
+"path": "string (export sub-path, must start with '/', e.g., '/primary-network')",
+"vpc_id": "string (UUID of secondary private network/VPC)",
+"access_policy": {
+"anonuid": "integer (NFS anonymous user ID, e.g., 65534)",
+"anongid": "integer (NFS anonymous group ID, e.g., 65534)",
+"protocols": [
+"string enum: NFS4|NFS (e.g., ['NFS4', 'NFS'])"
+"squash_config": "string enum: NO_SQUASH|ROOT_SQUASH|ALL_SQUASH (default: ROOT_SQUASH)",
+"identity_enforcement_enabled": "boolean (default: false)"
+"name": "primary-network-export",
+"path": "/primary-network",
+"vpc_id": "3f34cdb2-1e4f-4100-b5c7-f55f2762085f",
+"anonuid": 65534,
+"anongid": 65534,
+"NFS4",
+"NFS"
+"squash_config": "ROOT_SQUASH",
+"identity_enforcement_enabled": false
+"access_point": {
+"id": "string (UUID) [CAPTURE]",
+"share_id": "string (same as Step 1 share.id)",
+"path": "string (e.g., '/primary-network') [CAPTURE]",
+"status": "enum: ACCESS_POINT_CREATING|ACCESS_POINT_ACTIVE|ACCESS_POINT_FAILED|ACCESS_POINT_DELETED",
+"anonuid": "integer",
+"anongid": "integer",
+"protocols": "array of strings",
+"squash_config": "string",
+"identity_enforcement_enabled": "boolean"
+"updated_at": "ISO 8601 timestamp (may be empty while creating)",
+"is_default": "boolean (false for non-default access points)",
+"vpc_id": "string (the VPC this access point is pinned to)"
+"action": {
+"id": "string (action ID for tracking async operation)",
+"status": "string enum: in-progress|completed|errored",
+"type": "string"
+"mount_info": {
+"host": "Use from Step 1 response: share.host",
+"export_path": "Use from this response: access_point.path",
+"mount_command_example": "mount -t nfs -o vers=4,minorversion=0 {host}:{export_path} {local_mount_point}",
+"complete_export_path": "{host}:{export_path} (e.g., '10.128.32.2:/primary-network')"
+"note": "Access point creation is asynchronous. Poll GET /v2/nfs/access_points/{access_point_id} until status='ACCESS_POINT_ACTIVE'.",
+"endpoint": "GET /v2/nfs/access_points/{access_point_id}",
+"status_field": "response.access_point.status",
+"ready_when": "ACCESS_POINT_ACTIVE",
+"timeout_recommendation": "120 seconds"
+"400": "Invalid parameters or ineligible share state",
+"404": "Share not found",
+"409": "Conflict: duplicate access point name or path already exists",
+"step": 3,
+"name": "Create Access Point for Second Private Network (Region 2)",
+"Step 1: Use 'share.id' from response",
+"Step 2: Must complete and reach ACCESS_POINT_ACTIVE before proceeding (optional, but recommended)"
+"name": "string (unique per share, e.g., 'secondary-network-export')",
+"path": "string (export sub-path, must start with '/', e.g., '/secondary-network')",
+"vpc_id": "string (UUID of different private network/VPC from Step 2)",
+"anonuid": "integer (e.g., 65534)",
+"anongid": "integer (e.g., 65534)",
+"string enum: NFS4|NFS"
+"squash_config": "string enum: NO_SQUASH|ROOT_SQUASH|ALL_SQUASH",
+"name": "secondary-network-export",
+"path": "/secondary-network",
+"vpc_id": "a9b8c7d6-e5f4-3c2b-1a0f-9e8d7c6b5a4f",
+"path": "string (e.g., '/secondary-network') [CAPTURE]",
+"updated_at": "ISO 8601 timestamp",
+"complete_export_path": "{host}:{export_path} (e.g., '10.128.32.2:/secondary-network')"
+"note": "This creates a second export path on the same NFS share. Poll GET /v2/nfs/access_points/{access_point_id} until status='ACCESS_POINT_ACTIVE'.",
+"step": 4,
+"name": "Verify Complete NFS Share Configuration",
+"operation": "GET /v2/nfs/{nfs_id}",
+"operationId": "nfs_get",
+"Step 1: Use 'share.id'",
+"Step 2 & 3: Both access points should be in ACCESS_POINT_ACTIVE state"
+"auth": "Bearer token (scope: nfs:read or nfs:*)",
+"nfs_id": "string (from Step 1 response: share.id)"
+"response_status": 200,
+"id": "string (UUID)",
+"status": "enum: CREATING|ACTIVE|INACTIVE|FAILED|DELETED (should be ACTIVE)",
+"vpc_ids": "array of strings (all VPCs that can access this share)",
+"mount_path": "string (default export path)",
+"host": "string (NFS server IP address)",
+"access_points": [
+"id": "string (UUID from Step 2)",
+"name": "string (primary-network-export)",
+"path": "string (/primary-network)",
+"status": "enum: ACCESS_POINT_ACTIVE (verify this)",
+"vpc_id": "string (primary network UUID)"
+"id": "string (UUID from Step 3)",
+"name": "string (secondary-network-export)",
+"path": "string (/secondary-network)",
+"vpc_id": "string (secondary network UUID)"
+]
+"success_criteria": [
+"share.status = 'ACTIVE'",
+"access_points array contains exactly 2 entries (or more if additional exports added)",
+"All access_points[*].status = 'ACCESS_POINT_ACTIVE'",
+"access_points[0].path and access_points[1].path match the created paths"
+"provisioning_complete": {
+"summary": "NFS storage is now ready for mounting",
+"nfs_server_details": {
+"host": "Captured from share.host (Step 1 response)",
+"region": "Captured from share.region",
+"size_gib": "Captured from share.size_gib"
+"export_paths": [
+"export_name": "Primary Network Export",
+"mount_target": "{host}:/primary-network (e.g., 10.128.32.2:/primary-network)"
+"export_name": "Secondary Network Export",
+"mount_target": "{host}:/secondary-network (e.g., 10.128.32.2:/secondary-network)"
+"state_carryover": {
+"step_1_to_2": [
+"share.id → use as {share_id} path parameter in Step 2"
+"step_1_to_3": [
+"share.id → use as {share_id} path parameter in Step 3"
+"step_2_to_3": [
+"No hard dependency, but Step 2 should complete before Step 3 for clean provisioning"
+"all_steps_to_4": [
+"share.id → use as {nfs_id} path parameter",
+"access_point.id from Steps 2 & 3 → used for polling during each step"
+"authentication": {
+"method": "HTTP Bearer Token",
+"required_scope": "nfs:create (for create operations), nfs:read or nfs:* (for read operations)",
+"header_format": "Authorization: Bearer {api_token}"
+"rate_limits": {
+"requests_per_hour": 5000,
+"requests_per_minute": 250,
+"response_headers": [
+"RateLimit-Limit",
+"RateLimit-Remaining",
+"RateLimit-Reset"
+"implementation_notes": {
+"async_operations": "Steps 1-3 are asynchronous. Always poll the respective status field before considering the step complete.",
+"vpc_requirement": "The VPCs referenced in vpc_ids and access_point.vpc_id must exist in the same region as the NFS share.",
+"default_access_point": "Each NFS share has a default access point that appears in the access_points array. Custom access points are created per VPC.",
+"error_handling": "409 Conflict errors on duplicate names/paths are common when retrying. Consider idempotent create patterns.",
+"cleanup_if_needed": "DELETE /v2/nfs/{nfs_id} removes the entire share and all access points. DELETE /v2/nfs/access_points/{access_point_id} removes individual access points."
+EOF
+cat /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r3/bce60642-0cbd-42f7-8199-ee521cd734cf/scratchpad/nfs-provisioning-workflow.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · no tree" %}
+
+```bash
+Skill
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find="space" 2>/dev/null | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find="volume" 2>/dev/null | head -150
+redocly tree digitalocean-bundled.yaml --format=ai --find="nfs" 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --operation=get --path=/v2/nfs/{nfs_id} 2>/dev/null
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · no tree" %}
+
+```bash
+Skill
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · tree" %}
+
+```bash
+redocly tree --help
+Read /Users/tora/bench-run/dobundle-tree-help-v4-haiku-r5
+ls -la  | grep -E "yaml|yml|json"
+redocly tree digitalocean-bundled.yaml --format=ai --find "volume" 2>/dev/null | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "export" 2>/dev/null | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "network" 2>/dev/null | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs" 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --find "access" 2>/dev/null | head -50
+redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response --with-deps 2>/dev/null
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" 2>/dev/null | head -40
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · no tree" %}
+
+```bash
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · tree" %}
+
+```bash
+Skill
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "storage" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs"
+redocly tree digitalocean-bundled.yaml --format=ai --operation=POST --path="/v2/nfs" --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_request --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --operation=POST --path="/v2/nfs/shares/{share_id}/access_points" --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · no tree" %}
+
+```bash
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find="spaces file storage"
+redocly tree digitalocean-bundled.yaml --format=ai --find="volume filesystem nfs"
+redocly tree digitalocean-bundled.yaml --format=ai --tag
+redocly tree digitalocean-bundled.yaml --format=ai --tag=NFS
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --tag=VPCs | head -40
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · no tree" %}
+
+```bash
+Read digitalocean-bundled.yaml
+Grep
+cat /Users/tora/.claude/projects/-Users-tora-bench-run-dobundle-control-v4-haiku-r8/2e729a9b-33a4-4255-8a9e-a29014ce5502/tool-results/toolu_01C2y8P3kqduk9WwPgsVKPoW.txt | head -n 100
+grep -n "nfs_request\|nfs_export\|export_path" digitalocean-bundled.yaml | head -40
+grep -n "^    nfs_response:" digitalocean-bundled.yaml
+grep -n "access_point" digitalocean-bundled.yaml | head -20
+grep -n "^    access_point_request:\|^    access_point_response:" digitalocean-bundled.yaml
+grep -n "^    access_policy:" digitalocean-bundled.yaml
+grep -n "/v2/vpcs" digitalocean-bundled.yaml | head -20
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · tree" %}
+
+```bash
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find="NFS"
+redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · no tree" %}
+
+```bash
+Skill
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · tree" %}
+
+```bash
+ls -la digitalocean-bundled.yaml 2>/dev/null || echo "File check..."
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --find="space volume" --format=ai
+redocly tree digitalocean-bundled.yaml --find="space" --format=ai
+redocly tree digitalocean-bundled.yaml --tag="" --format=ai | head -50
+redocly tree digitalocean-bundled.yaml --tag="NFS" --format=ai
+redocly tree digitalocean-bundled.yaml --operation="nfs_create" --with-deps --format=ai
+redocly tree digitalocean-bundled.yaml --component=schemas --name=nfs_response --format=ai
+redocly tree digitalocean-bundled.yaml --operation="nfs_create_access_point" --with-deps --format=ai
+redocly tree digitalocean-bundled.yaml --component=schemas --name=access_point_response --format=ai
+redocly tree digitalocean-bundled.yaml --component=schemas --name=access_policy --format=ai
+redocly tree digitalocean-bundled.yaml --component=schemas --name=nfs_request --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · no tree" %}
+
+```bash
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · tree" %}
+
+```bash
+Skill
+redocly tree --help
+redocly tree digitalocean-bundled.yaml --format=ai --find "file storage" | head -100
+redocly tree digitalocean-bundled.yaml --format=ai --find "nfs"
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_request --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps | head -150
+redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -200
+redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_request --with-deps
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" --find "list" | head -50
+redocly tree digitalocean-bundled.yaml --format=ai --find "vpcs" | head -50
+Write nfs-provisioning-plan.md
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r10/4e06318c-bb96-485e-9fd2-8bbe260e5f08/scratchpad/nfs-provisioning-workflow.json
+Read /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r10/4e06318c-bb96-485e-9fd2-8bbe260e5f08/scratchpad/nfs-provisioning-workflow.json
+```
+
+{% /tab %}
+{% /tabs %}
+
+{% /tab %}
+{% /tabs %}
+
+Bundled, the search that was one `cat` on the split layout digs through a 2.87 MB file: Sonnet 5 goes from five working runs to all ten at half the cost, Opus 5 recovers its two dropped control runs, and every failure on both sides is the same class the split layout produced — `bearer_auth` never reaching the answer.
+Read against the previous tab, this is the other half of the layout experiment: same description, same task, only the layout changed.
+
+{% /tab %}
+
 {% tab label="Cafe API · order a coffee" %}
 
 **Description:** 0.04 MB in one file.
@@ -7516,19 +9976,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    no tree |        tree | Difference |
-| ---------------- | ---------: | ----------: | ---------: |
-| Sonnet 5 (n=10)  | 16,912 / 1 |  8,840 / 10 |       −48% |
-| Opus 5 (n=10)    | 16,926 / 2 | 15,417 / 13 |        −9% |
-| Haiku 4.5 (n=10) | 14,373 / 1 |  19,100 / 7 |       +33% |
+| Model            |    no tree |        tree |         map | Δ tree |
+| ---------------- | ---------: | ----------: | ----------: | -----: |
+| Sonnet 5 (n=10)  | 16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
+| Opus 5 (n=10)    | 16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
+| Haiku 4.5 (n=10) | 14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |
 
 What those runs were billed:
 
-| Model            | no tree |  tree | Difference |
-| ---------------- | ------: | ----: | ---------: |
-| Sonnet 5 (n=10)  |   $0.24 | $0.28 |       +17% |
-| Opus 5 (n=10)    |   $0.44 | $0.67 |       +52% |
-| Haiku 4.5 (n=10) |   $0.07 | $0.10 |       +43% |
+| Model            | no tree |  tree |   map | Δ tree |
+| ---------------- | ------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |   $0.24 | $0.28 | $0.24 |   +17% |
+| Opus 5 (n=10)    |   $0.44 | $0.67 | $0.62 |   +52% |
+| Haiku 4.5 (n=10) |   $0.07 | $0.10 | $0.07 |   +43% |
 
 Whether each run produced a flow that would run:
 
@@ -8374,97 +10834,141 @@ Haiku 4.5 lands on six working runs either way.
 
 How many of the ten runs in each cell produced a flow that would run:
 
-| Description   | Task                 | Model     | no tree |  tree |
-| ------------- | -------------------- | --------- | ------: | ----: |
-| GitHub REST   | publish a release    | Sonnet 5  |   10/10 | 10/10 |
-| GitHub REST   | publish a release    | Opus 5    |   10/10 | 10/10 |
-| GitHub REST   | publish a release    | Haiku 4.5 |    3/10 |  3/10 |
-| Billing API   | start a subscription | Sonnet 5  |    2/10 |  6/10 |
-| Billing API   | start a subscription | Opus 5    |   10/10 | 10/10 |
-| Billing API   | start a subscription | Haiku 4.5 |    0/10 |  1/10 |
-| Stripe        | buy carbon removal   | Sonnet 5  |    9/10 | 10/10 |
-| Stripe        | buy carbon removal   | Opus 5    |   10/10 | 10/10 |
-| Stripe        | buy carbon removal   | Haiku 4.5 |    0/10 |  8/10 |
-| PayPal Orders | capture and track    | Sonnet 5  |    9/10 | 10/10 |
-| PayPal Orders | capture and track    | Opus 5    |   10/10 | 10/10 |
-| PayPal Orders | capture and track    | Haiku 4.5 |    4/10 |  4/10 |
-| DigitalOcean  | shared file storage  | Sonnet 5  |    3/10 |  9/10 |
-| DigitalOcean  | shared file storage  | Opus 5    |   10/10 | 10/10 |
-| DigitalOcean  | shared file storage  | Haiku 4.5 |    4/10 |  4/10 |
-| Cafe API      | order a coffee       | Sonnet 5  |   10/10 |  9/10 |
-| Cafe API      | order a coffee       | Opus 5    |   10/10 | 10/10 |
-| Cafe API      | order a coffee       | Haiku 4.5 |    6/10 |  6/10 |
+| Description            | Task                 | Model     | no tree |  tree |   map |
+| ---------------------- | -------------------- | --------- | ------: | ----: | ----: |
+| GitHub REST            | publish a release    | Sonnet 5  |   10/10 | 10/10 |    ⏳ |
+| GitHub REST            | publish a release    | Opus 5    |   10/10 | 10/10 |    ⏳ |
+| GitHub REST            | publish a release    | Haiku 4.5 |    3/10 |  3/10 |    ⏳ |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |    9/10 |  9/10 |    ⏳ |
+| GitHub REST (split)    | publish a release    | Opus 5    |    8/10 |  9/10 |    ⏳ |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |    5/10 |  1/10 |    ⏳ |
+| Billing API            | start a subscription | Sonnet 5  |    2/10 |  6/10 |    ⏳ |
+| Billing API            | start a subscription | Opus 5    |   10/10 | 10/10 |    ⏳ |
+| Billing API            | start a subscription | Haiku 4.5 |    0/10 |  1/10 |    ⏳ |
+| Stripe                 | buy carbon removal   | Sonnet 5  |    9/10 | 10/10 | 10/10 |
+| Stripe                 | buy carbon removal   | Opus 5    |   10/10 | 10/10 | 10/10 |
+| Stripe                 | buy carbon removal   | Haiku 4.5 |    0/10 |  8/10 | 10/10 |
+| PayPal Orders          | capture and track    | Sonnet 5  |    9/10 | 10/10 | 10/10 |
+| PayPal Orders          | capture and track    | Opus 5    |   10/10 | 10/10 | 10/10 |
+| PayPal Orders          | capture and track    | Haiku 4.5 |    4/10 |  4/10 |  2/10 |
+| DigitalOcean           | shared file storage  | Sonnet 5  |    3/10 |  9/10 | 10/10 |
+| DigitalOcean           | shared file storage  | Opus 5    |   10/10 | 10/10 | 10/10 |
+| DigitalOcean           | shared file storage  | Haiku 4.5 |    4/10 |  4/10 | 10/10 |
+| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    5/10 | 10/10 | 10/10 |
+| DigitalOcean (bundled) | shared file storage  | Opus 5    |    8/10 | 10/10 | 10/10 |
+| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    3/10 |  5/10 |  8/10 |
+| Cafe API               | order a coffee       | Sonnet 5  |   10/10 |  9/10 | 10/10 |
+| Cafe API               | order a coffee       | Opus 5    |   10/10 | 10/10 | 10/10 |
+| Cafe API               | order a coffee       | Haiku 4.5 |    6/10 |  6/10 | 10/10 |
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all ten):
 
-| Description   | Task                 | Model     |        no tree |        tree | Difference |
-| ------------- | -------------------- | --------- | -------------: | ----------: | ---------: |
-| GitHub REST   | publish a release    | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |       −10% |
-| GitHub REST   | publish a release    | Opus 5    |    20,266 / 17 | 14,435 / 11 |       −29% |
-| GitHub REST   | publish a release    | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |        −7% |
-| Billing API   | start a subscription | Sonnet 5  |    18,538 / 19 | 25,739 / 18 |       +39% |
-| Billing API   | start a subscription | Opus 5    |    46,231 / 36 | 36,880 / 22 |       −20% |
-| Billing API   | start a subscription | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 |          — |
-| Stripe        | buy carbon removal   | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |       −45% |
-| Stripe        | buy carbon removal   | Opus 5    |     14,913 / 7 |   9,622 / 7 |       −35% |
-| Stripe        | buy carbon removal   | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |          — |
-| PayPal Orders | capture and track    | Sonnet 5  |    17,351 / 10 |  23,572 / 8 |       +36% |
-| PayPal Orders | capture and track    | Opus 5    |    19,024 / 13 | 27,908 / 16 |       +47% |
-| PayPal Orders | capture and track    | Haiku 4.5 |    21,759 / 10 |  23,054 / 8 |        +6% |
-| DigitalOcean  | shared file storage  | Sonnet 5  |    11,729 / 19 | 12,282 / 13 |        +5% |
-| DigitalOcean  | shared file storage  | Opus 5    |     17,143 / 9 | 25,474 / 14 |       +49% |
-| DigitalOcean  | shared file storage  | Haiku 4.5 |    37,888 / 14 | 13,508 / 13 |       −64% |
-| Cafe API      | order a coffee       | Sonnet 5  |     16,912 / 1 |  8,840 / 10 |       −48% |
-| Cafe API      | order a coffee       | Opus 5    |     16,926 / 2 | 15,417 / 13 |        −9% |
-| Cafe API      | order a coffee       | Haiku 4.5 |     14,373 / 1 |  19,100 / 7 |       +33% |
+| Description            | Task                 | Model     |        no tree |        tree |         map | Δ tree |
+| ---------------------- | -------------------- | --------- | -------------: | ----------: | ----------: | -----: |
+| GitHub REST            | publish a release    | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |          ⏳ |   −10% |
+| GitHub REST            | publish a release    | Opus 5    |    20,266 / 17 | 14,435 / 11 |          ⏳ |   −29% |
+| GitHub REST            | publish a release    | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |          ⏳ |    −7% |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |     10,994 / 8 | 10,606 / 11 |          ⏳ |    −4% |
+| GitHub REST (split)    | publish a release    | Opus 5    |    15,772 / 12 | 14,233 / 17 |          ⏳ |   −10% |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |     36,143 / 7 | 11,706 / 16 |          ⏳ |   −68% |
+| Billing API            | start a subscription | Sonnet 5  |    18,538 / 19 | 25,739 / 18 |          ⏳ |   +39% |
+| Billing API            | start a subscription | Opus 5    |    46,231 / 36 | 36,880 / 22 |          ⏳ |   −20% |
+| Billing API            | start a subscription | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 |          ⏳ |      — |
+| Stripe                 | buy carbon removal   | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |  28,172 / 6 |   −45% |
+| Stripe                 | buy carbon removal   | Opus 5    |     14,913 / 7 |   9,622 / 7 |  27,820 / 9 |   −35% |
+| Stripe                 | buy carbon removal   | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |  34,768 / 7 |      — |
+| PayPal Orders          | capture and track    | Sonnet 5  |    17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
+| PayPal Orders          | capture and track    | Opus 5    |    19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
+| PayPal Orders          | capture and track    | Haiku 4.5 |    21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |
+| DigitalOcean           | shared file storage  | Sonnet 5  |    11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
+| DigitalOcean           | shared file storage  | Opus 5    |     17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
+| DigitalOcean           | shared file storage  | Haiku 4.5 |    37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |
+| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
+| DigitalOcean (bundled) | shared file storage  | Opus 5    |    24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
+| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |
+| Cafe API               | order a coffee       | Sonnet 5  |     16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
+| Cafe API               | order a coffee       | Opus 5    |     16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
+| Cafe API               | order a coffee       | Haiku 4.5 |     14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |
 
 What those runs were billed:
 
-| Description   | Task                 | Model     |  no tree |  tree | Difference |
-| ------------- | -------------------- | --------- | -------: | ----: | ---------: |
-| GitHub REST   | publish a release    | Sonnet 5  |    $0.42 | $0.32 |       −24% |
-| GitHub REST   | publish a release    | Opus 5    |    $0.82 | $0.64 |       −22% |
-| GitHub REST   | publish a release    | Haiku 4.5 |    $0.10 | $0.10 |        −0% |
-| Billing API   | start a subscription | Sonnet 5  |    $1.06 | $0.60 |       −43% |
-| Billing API   | start a subscription | Opus 5    |    $1.85 | $1.11 |       −40% |
-| Billing API   | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 |          — |
-| Stripe        | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 |       −22% |
-| Stripe        | buy carbon removal   | Opus 5    |    $0.54 | $0.45 |       −17% |
-| Stripe        | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 |          — |
-| PayPal Orders | capture and track    | Sonnet 5  |    $0.40 | $0.41 |        +2% |
-| PayPal Orders | capture and track    | Opus 5    |    $0.77 | $0.97 |       +26% |
-| PayPal Orders | capture and track    | Haiku 4.5 |    $0.13 | $0.11 |       −15% |
-| DigitalOcean  | shared file storage  | Sonnet 5  |    $0.34 | $0.36 |        +6% |
-| DigitalOcean  | shared file storage  | Opus 5    |    $0.56 | $0.78 |       +39% |
-| DigitalOcean  | shared file storage  | Haiku 4.5 |    $0.20 | $0.14 |       −30% |
-| Cafe API      | order a coffee       | Sonnet 5  |    $0.24 | $0.28 |       +17% |
-| Cafe API      | order a coffee       | Opus 5    |    $0.44 | $0.67 |       +52% |
-| Cafe API      | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 |       +43% |
+| Description            | Task                 | Model     |  no tree |  tree |   map | Δ tree |
+| ---------------------- | -------------------- | --------- | -------: | ----: | ----: | -----: |
+| GitHub REST            | publish a release    | Sonnet 5  |    $0.42 | $0.32 |    ⏳ |   −24% |
+| GitHub REST            | publish a release    | Opus 5    |    $0.82 | $0.64 |    ⏳ |   −22% |
+| GitHub REST            | publish a release    | Haiku 4.5 |    $0.10 | $0.10 |    ⏳ |    −0% |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |    $0.21 | $0.24 |    ⏳ |   +14% |
+| GitHub REST (split)    | publish a release    | Opus 5    |    $0.69 | $0.67 |    ⏳ |    −3% |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |    $0.16 | $0.14 |    ⏳ |   −12% |
+| Billing API            | start a subscription | Sonnet 5  |    $1.06 | $0.60 |    ⏳ |   −43% |
+| Billing API            | start a subscription | Opus 5    |    $1.85 | $1.11 |    ⏳ |   −40% |
+| Billing API            | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 |    ⏳ |      — |
+| Stripe                 | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 | $0.26 |   −22% |
+| Stripe                 | buy carbon removal   | Opus 5    |    $0.54 | $0.45 | $0.67 |   −17% |
+| Stripe                 | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 | $0.14 |      — |
+| PayPal Orders          | capture and track    | Sonnet 5  |    $0.40 | $0.41 | $0.34 |    +2% |
+| PayPal Orders          | capture and track    | Opus 5    |    $0.77 | $0.97 | $0.79 |   +26% |
+| PayPal Orders          | capture and track    | Haiku 4.5 |    $0.13 | $0.11 | $0.12 |   −15% |
+| DigitalOcean           | shared file storage  | Sonnet 5  |    $0.34 | $0.36 | $0.20 |    +6% |
+| DigitalOcean           | shared file storage  | Opus 5    |    $0.56 | $0.78 | $0.73 |   +39% |
+| DigitalOcean           | shared file storage  | Haiku 4.5 |    $0.20 | $0.14 | $0.16 |   −30% |
+| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    $0.33 | $0.17 | $0.23 |   −48% |
+| DigitalOcean (bundled) | shared file storage  | Opus 5    |    $0.85 | $0.90 | $0.79 |    +6% |
+| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    $0.14 | $0.11 | $0.15 |   −21% |
+| Cafe API               | order a coffee       | Sonnet 5  |    $0.24 | $0.28 | $0.24 |   +17% |
+| Cafe API               | order a coffee       | Opus 5    |    $0.44 | $0.67 | $0.62 |   +52% |
+| Cafe API               | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 | $0.07 |   +43% |
 
-Two hundred sixty of 360 runs produced a flow that passes the check: 120 of 180 without the index, 140 of 180 with it.
+Three hundred forty-two of 480 runs produced a flow that passes the check reading the description or exploring it with `tree`: 158 of 240 and 184 of 240.
+The map condition is final on five of the eight pairs — 140 of 150 runs — and is being re-run on the billing API and both GitHub layouts after two fixes to the artifact; those cells read ⏳.
 Three cells move from at most three working runs in ten to six or more once the index is there: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal. In every one of them the control runs name the right calls and never say how they authenticate.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 The Cafe API is the same lesson from the other end — 41 KB that every control run reads in a single call, against seven to thirteen index calls to assemble the same knowledge. Because each call is a request that resends the conversation, the bill follows calls rather than bytes: Sonnet 5 finishes with 48% less context and pays 17% more.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
 
+## Same description, opposite layout
+
+If the pattern above is right — the index earns its place exactly where the description's layout defeats search — then flipping a description's layout should flip the result. Two counter-layouts, generated with the CLI itself, test that: GitHub split into 2,842 files (`redocly split`), and DigitalOcean bundled into one 2.87 MB file (`redocly bundle`). Same tasks, same checks, ten runs a cell on a build at `77a6894a7`.
+
+GitHub, split — the file-per-operation layout is now the index, and the advantage the command held on the 9.5 MB single file disappears:
+
+| Model     |       works | no tree |  tree | Δ cost |
+| --------- | ----------: | ------: | ----: | -----: |
+| Sonnet 5  | 9/10 → 9/10 |   $0.21 | $0.24 |   +14% |
+| Opus 5    | 8/10 → 9/10 |   $0.69 | $0.67 |    −3% |
+| Haiku 4.5 | 5/10 → 1/10 |   $0.16 | $0.14 |   −12% |
+
+DigitalOcean, bundled — search now has to dig through one 2.87 MB file, and the index that lost on 2,909 well-named files starts paying: Sonnet 5 goes from five working runs to all ten at half the cost:
+
+| Model     |        works | no tree |  tree | Δ cost |
+| --------- | -----------: | ------: | ----: | -----: |
+| Sonnet 5  | 5/10 → 10/10 |   $0.33 | $0.17 |   −48% |
+| Opus 5    | 8/10 → 10/10 |   $0.85 | $0.90 |    +6% |
+| Haiku 4.5 |  3/10 → 5/10 |   $0.14 | $0.11 |   −21% |
+
+Both signs flipped with the layout. What decides the index's value is not the API or the model but whether the description's own shape already answers "where is it" — and the failure classes stay the same on both sides: the bundled DigitalOcean's control runs miss `bearer_auth` eleven times, exactly like the split one's did, and the split GitHub's Haiku 4.5 keeps skipping the installation-token call with or without the index.
+
+Both relaid-out pairs sit in the grid above as first-class rows and have their own tabs; this section reads them against their original layouts.
+
 ## What the failures were
 
 | Reason                                                                                      | Runs |
 | ------------------------------------------------------------------------------------------- | ---: |
-| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   63 |
+| how a call authenticates is never stated — the key, header, or token is nowhere in the flow |   80 |
+| no call to mint the GitHub App installation token, though the flow says it uses one         |   28 |
 | the product (or price's product) is never created, though nothing exists yet                |   20 |
-| no call to mint the GitHub App installation token, though the flow says it uses one         |   13 |
 | no `POST /oauth2/token`, so the cafe order and its status return 401                        |    9 |
+| no asset upload                                                                             |    9 |
 | no intent field                                                                             |    7 |
 | no access point call                                                                        |    6 |
 | the plan/price step is missing                                                              |    5 |
 | no carrier field                                                                            |    5 |
-| no asset upload                                                                             |    4 |
 | no tracker call                                                                             |    2 |
 | no share call                                                                               |    2 |
 | the billing key is sent as `Authorization`, which this API rejects                          |    1 |
 | no orderType field                                                                          |    1 |
 | no vpc_ids field                                                                            |    1 |
+| no asset delete                                                                             |    1 |
 
 The two big classes are the same ones every earlier round found: authentication that never reaches the request, and a resource the flow depends on but never creates.
 Stripe adds a sharper version of the second: the model does not miss the call, it assumes the object — "your price id" — because that is how most Stripe tutorials read.
@@ -8472,9 +10976,9 @@ Stripe adds a sharper version of the second: the model does not miss the call, i
 ## How this was measured
 
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
-Sessions start in a directory holding nothing but the description, outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
+Sessions start in a directory holding nothing but the description — plus, in the map condition, the map generated from it — outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
 The PayPal tree runs were measured on that build; the other five descriptions ran on the earlier `c06d24541`, whose `tree` output for them is byte-identical — 598 command comparisons, no difference.
-Each cell holds ten runs; the tables give the median over the runs whose flow works.
+Each cell holds ten runs; the tables give the median over the runs whose flow works. The `Δ tree` column compares **tree** against **no tree**; the map column carries its own numbers.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.
 
