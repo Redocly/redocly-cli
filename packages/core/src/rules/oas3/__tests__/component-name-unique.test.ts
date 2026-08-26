@@ -1080,7 +1080,7 @@ describe('Oas3 component-name-unique', () => {
               },
             ],
             "message": "Component 'schemas/UserAccount' is not unique. It is also defined at:
-        - /b/Account.yaml#/title",
+        - /b/Account.yaml",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
@@ -1095,7 +1095,7 @@ describe('Oas3 component-name-unique', () => {
               },
             ],
             "message": "Component 'schemas/UserAccount' is not unique. It is also defined at:
-        - /a/User.yaml#/title",
+        - /a/User.yaml",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
@@ -1103,6 +1103,49 @@ describe('Oas3 component-name-unique', () => {
           },
         ]
       `);
+    });
+
+    it('should not report a root schema whose title matches its own component name', async () => {
+      const rootBody = outdent`
+        openapi: 3.0.0
+        paths:
+          /things:
+            get:
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '/Other.yaml'
+        components:
+          schemas:
+            BarThing:
+              title: Bar thing
+              type: object
+      `;
+      const document = parseYamlToDocument(rootBody, '/foobar.yaml');
+      const additionalDocuments = [
+        { absoluteRef: '/foobar.yaml', body: rootBody },
+        {
+          absoluteRef: '/Other.yaml',
+          body: outdent`
+            title: Other thing
+            type: object
+            properties:
+              inner:
+                $ref: '/foobar.yaml#/components/schemas/BarThing'
+          `,
+        },
+      ];
+
+      const results = await lintDocumentForTest(
+        { 'component-name-unique': { severity: 'error', strategy: 'title' } },
+        document,
+        additionalDocuments
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
     });
 
     it('should report a root schema that another file refers to by title', async () => {
@@ -1156,7 +1199,7 @@ describe('Oas3 component-name-unique', () => {
               },
             ],
             "message": "Component 'schemas/BarThing' is not unique. It is also defined at:
-        - /Other.yaml#/title",
+        - /Other.yaml",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
@@ -1171,7 +1214,7 @@ describe('Oas3 component-name-unique', () => {
               },
             ],
             "message": "Component 'schemas/BarThing' is not unique. It is also defined at:
-        - /foobar.yaml#/components/schemas/Foo/title",
+        - /foobar.yaml#/components/schemas/Foo",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",

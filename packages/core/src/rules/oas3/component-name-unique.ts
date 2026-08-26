@@ -29,7 +29,7 @@ const TYPE_NAME_TO_OPTION_COMPONENT_NAME: { [key: string]: string } = {
   [TYPE_NAME_REQUEST_BODY]: 'requestBodies',
 };
 
-type ComponentsMapValue = { absolutePointers: Set<string>; locations: Location[] };
+type ComponentsMapValue = Map<string, Location>;
 
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   const components = new Map<string, ComponentsMapValue>();
@@ -62,7 +62,12 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
           if (usesTitleStrategy(typeName, location, resolvedRef.location)) {
             const { title, name } = componentNameFromTitle(resolvedRef.node);
             if (title) {
-              addFoundComponent(typeName, name, resolvedRef.location.child('title'));
+              addFoundComponent(
+                typeName,
+                name,
+                resolvedRef.location,
+                resolvedRef.location.child('title')
+              );
               return;
             }
             schemasWithoutTitle.set(
@@ -80,14 +85,14 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
         rootSourceRef = location.source.absoluteRef;
       },
       leave(root: AnyOas3Definition, ctx: UserContext) {
-        components.forEach((value, key, _) => {
-          if (value.absolutePointers.size > 1) {
+        components.forEach((entry, key, _) => {
+          if (entry.size > 1) {
             const component = getComponentFromKey(key);
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
-            for (const location of value.locations) {
-              const definitions = Array.from(value.absolutePointers)
-                .filter((v) => v !== location.absolutePointer.toString())
+            for (const [absolutePointer, location] of entry) {
+              const definitions = Array.from(entry.keys())
+                .filter((v) => v !== absolutePointer)
                 .map((v) => `- ${v}`)
                 .join('\n');
               const problem: Problem = {
@@ -161,16 +166,17 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     return componentName;
   }
 
-  function addFoundComponent(typeName: string, componentName: string, location: Location): void {
+  function addFoundComponent(
+    typeName: string,
+    componentName: string,
+    location: Location,
+    reportLocation: Location = location
+  ): void {
     const key = getKeyForComponent(typeName, componentName);
-    const entry: ComponentsMapValue = components.get(key) ?? {
-      absolutePointers: new Set(),
-      locations: [],
-    };
+    const entry: ComponentsMapValue = components.get(key) ?? new Map();
     const absoluteLocation = location.absolutePointer.toString();
-    if (!entry.absolutePointers.has(absoluteLocation)) {
-      entry.absolutePointers.add(absoluteLocation);
-      entry.locations.push(location);
+    if (!entry.has(absoluteLocation)) {
+      entry.set(absoluteLocation, reportLocation);
     }
     components.set(key, entry);
   }
