@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.48.0
+
+### Patch Changes
+
+- Fixed an issue where the `bundle` command didn't resolve `$ref`s inside an AsyncAPI 3 Multi Format Schema Object.
+
 ## 2.47.0
 
 ### Minor Changes
