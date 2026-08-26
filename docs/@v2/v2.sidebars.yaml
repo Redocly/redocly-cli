@@ -126,6 +126,7 @@
             - page: rules/oas/no-example-value-and-externalValue.md
             - page: rules/oas/no-http-verbs-in-paths.md
             - page: rules/oas/no-identical-paths.md
+            - page: rules/oas/no-illogical-composition-keywords.md
             - page: rules/oas/no-invalid-media-type-examples.md
             - page: rules/oas/no-invalid-parameter-examples.md
             - page: rules/oas/no-invalid-schema-examples.md
