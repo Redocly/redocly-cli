@@ -40,32 +40,32 @@ An index rarely changes what a strong model can do. What it changes is whether a
 The grid above prices an average working run; this table adds the failed attempts to that bill: the mean working run times total runs over working runs.
 With five of ten working at a $0.28 average, a working answer really costs $0.56. — marks a cell where nothing worked, at any price.
 
-| Description            | Model     | no tree |  tree |   map |
-| ---------------------- | --------- | ------: | ----: | ----: |
-| GitHub REST            | Sonnet 5  |   $0.41 | $0.31 | $0.23 |
-| GitHub REST            | Opus 5    |   $0.79 | $0.66 | $0.65 |
-| GitHub REST            | Haiku 4.5 |   $0.35 | $0.34 | $0.87 |
-| GitHub REST (split)    | Sonnet 5  |   $0.24 | $0.27 | $0.22 |
-| GitHub REST (split)    | Opus 5    |   $0.81 | $0.77 | $0.54 |
-| GitHub REST (split)    | Haiku 4.5 |   $0.33 | $1.35 | $0.42 |
-| Billing API            | Sonnet 5  |   $5.04 | $0.99 | $0.89 |
-| Billing API            | Opus 5    |   $1.74 | $1.10 | $2.22 |
-| Billing API            | Haiku 4.5 |       — | $1.70 | $0.83 |
-| Stripe                 | Sonnet 5  |   $0.36 | $0.25 | $0.25 |
-| Stripe                 | Opus 5    |   $0.55 | $0.44 | $0.67 |
-| Stripe                 | Haiku 4.5 |       — | $0.14 | $0.14 |
-| PayPal Orders          | Sonnet 5  |   $0.44 | $0.44 | $0.34 |
-| PayPal Orders          | Opus 5    |   $0.75 | $1.06 | $0.75 |
-| PayPal Orders          | Haiku 4.5 |   $0.33 | $0.29 | $0.53 |
-| DigitalOcean           | Sonnet 5  |   $1.18 | $0.40 | $0.23 |
-| DigitalOcean           | Opus 5    |   $0.57 | $0.80 | $0.71 |
-| DigitalOcean           | Haiku 4.5 |   $0.46 | $0.31 | $0.16 |
-| DigitalOcean (bundled) | Sonnet 5  |   $0.57 | $0.17 | $0.25 |
-| DigitalOcean (bundled) | Opus 5    |   $1.04 | $0.88 | $0.75 |
-| DigitalOcean (bundled) | Haiku 4.5 |   $0.64 | $0.24 | $0.18 |
-| Cafe API               | Sonnet 5  |   $0.25 | $0.34 | $0.25 |
-| Cafe API               | Opus 5    |   $0.46 | $0.66 | $0.70 |
-| Cafe API               | Haiku 4.5 |   $0.11 | $0.16 | $0.08 |
+| Description            | Model     | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------------- | --------- | ------: | ----: | ----: | -----: | ----: |
+| GitHub REST            | Sonnet 5  |   $0.41 | $0.31 | $0.23 |   −24% |  −44% |
+| GitHub REST            | Opus 5    |   $0.79 | $0.66 | $0.65 |   −16% |  −17% |
+| GitHub REST            | Haiku 4.5 |   $0.35 | $0.34 | $0.87 |    −3% | +151% |
+| GitHub REST (split)    | Sonnet 5  |   $0.24 | $0.27 | $0.22 |   +14% |   −8% |
+| GitHub REST (split)    | Opus 5    |   $0.81 | $0.77 | $0.54 |    −5% |  −33% |
+| GitHub REST (split)    | Haiku 4.5 |   $0.33 | $1.35 | $0.42 |  +310% |  +28% |
+| Billing API            | Sonnet 5  |   $5.04 | $0.99 | $0.89 |   −80% |  −82% |
+| Billing API            | Opus 5    |   $1.74 | $1.10 | $2.22 |   −37% |  +28% |
+| Billing API            | Haiku 4.5 |       — | $1.70 | $0.83 |      — |     — |
+| Stripe                 | Sonnet 5  |   $0.36 | $0.25 | $0.25 |   −30% |  −32% |
+| Stripe                 | Opus 5    |   $0.55 | $0.44 | $0.67 |   −19% |  +22% |
+| Stripe                 | Haiku 4.5 |       — | $0.14 | $0.14 |      — |     — |
+| PayPal Orders          | Sonnet 5  |   $0.44 | $0.44 | $0.34 |    +0% |  −23% |
+| PayPal Orders          | Opus 5    |   $0.75 | $1.06 | $0.75 |   +40% |   +0% |
+| PayPal Orders          | Haiku 4.5 |   $0.33 | $0.29 | $0.53 |   −13% |  +63% |
+| DigitalOcean           | Sonnet 5  |   $1.18 | $0.40 | $0.23 |   −66% |  −81% |
+| DigitalOcean           | Opus 5    |   $0.57 | $0.80 | $0.71 |   +40% |  +24% |
+| DigitalOcean           | Haiku 4.5 |   $0.46 | $0.31 | $0.16 |   −33% |  −66% |
+| DigitalOcean (bundled) | Sonnet 5  |   $0.57 | $0.17 | $0.25 |   −71% |  −57% |
+| DigitalOcean (bundled) | Opus 5    |   $1.04 | $0.88 | $0.75 |   −16% |  −28% |
+| DigitalOcean (bundled) | Haiku 4.5 |   $0.64 | $0.24 | $0.18 |   −62% |  −72% |
+| Cafe API               | Sonnet 5  |   $0.25 | $0.34 | $0.25 |   +33% |   −2% |
+| Cafe API               | Opus 5    |   $0.46 | $0.66 | $0.70 |   +42% |  +51% |
+| Cafe API               | Haiku 4.5 |   $0.11 | $0.16 | $0.08 |   +45% |  −29% |
 
 Read it by rows: where the map column is lowest, the artifact pays for itself — most of the grid; where it is not, the reason is visible one tab up: the billing API's expensive re-reads for Opus 5, and GitHub's unmarked token call, which no condition carries for Haiku 4.5.
 
