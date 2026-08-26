@@ -10,30 +10,44 @@ An index rarely changes what a strong model can do. What it changes is whether a
 
 | Description            | Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
 | ---------------------- | --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | Sonnet 5  |        10/10 → 10/10 → 8/10 |    $0.42 | $0.32 | $0.18 |   −24% |  −57% |
-| GitHub REST            | Opus 5    |        10/10 → 10/10 → 9/10 |    $0.82 | $0.64 | $0.56 |   −22% |  −32% |
-| GitHub REST            | Haiku 4.5 |          3/10 → 3/10 → 1/10 |    $0.10 | $0.10 | $0.09 |    +0% |  −10% |
-| GitHub REST (split)    | Sonnet 5  |          9/10 → 9/10 → 9/10 |    $0.21 | $0.24 | $0.19 |   +14% |  −10% |
-| GitHub REST (split)    | Opus 5    |         8/10 → 9/10 → 10/10 |    $0.69 | $0.67 | $0.55 |    −3% |  −20% |
-| GitHub REST (split)    | Haiku 4.5 |          5/10 → 1/10 → 2/10 |    $0.16 | $0.14 | $0.09 |   −12% |  −44% |
-| Billing API            | Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
-| Billing API            | Opus 5    |       10/10 → 10/10 → 10/10 |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
-| Billing API            | Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
-| Stripe                 | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
-| Stripe                 | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
-| Stripe                 | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
-| PayPal Orders          | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.40 | $0.41 | $0.34 |    +2% |  −15% |
-| PayPal Orders          | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.77 | $0.97 | $0.79 |   +26% |   +3% |
-| PayPal Orders          | Haiku 4.5 |          4/10 → 4/10 → 2/10 |    $0.13 | $0.11 | $0.12 |   −15% |   −8% |
-| DigitalOcean           | Sonnet 5  |         3/10 → 9/10 → 10/10 |    $0.34 | $0.36 | $0.20 |    +6% |  −41% |
-| DigitalOcean           | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.56 | $0.78 | $0.73 |   +39% |  +30% |
-| DigitalOcean           | Haiku 4.5 |         4/10 → 4/10 → 10/10 |    $0.20 | $0.14 | $0.16 |   −30% |  −20% |
-| DigitalOcean (bundled) | Sonnet 5  |        5/10 → 10/10 → 10/10 |    $0.33 | $0.17 | $0.23 |   −48% |  −30% |
-| DigitalOcean (bundled) | Opus 5    |        8/10 → 10/10 → 10/10 |    $0.85 | $0.90 | $0.79 |    +6% |   −7% |
-| DigitalOcean (bundled) | Haiku 4.5 |          3/10 → 5/10 → 8/10 |    $0.14 | $0.11 | $0.15 |   −21% |   +7% |
-| Cafe API               | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.24 | $0.28 | $0.24 |   +17% |   +0% |
-| Cafe API               | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.44 | $0.67 | $0.62 |   +52% |  +41% |
-| Cafe API               | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.07 |   +43% |   +0% |
+| GitHub REST            | Sonnet 5  |        10/10 → 10/10 → 8/10 |    $0.41 | $0.31 | $0.18 |   −24% |  −55% |
+| GitHub REST            | Opus 5    |        10/10 → 10/10 → 9/10 |    $0.79 | $0.66 | $0.59 |   −16% |  −26% |
+| GitHub REST            | Haiku 4.5 |          3/10 → 3/10 → 1/10 |    $0.10 | $0.10 | $0.09 |    −3% |  −16% |
+| GitHub REST (split)    | Sonnet 5  |          9/10 → 9/10 → 9/10 |    $0.21 | $0.24 | $0.19 |   +14% |   −8% |
+| GitHub REST (split)    | Opus 5    |         8/10 → 9/10 → 10/10 |    $0.65 | $0.69 | $0.54 |    +7% |  −16% |
+| GitHub REST (split)    | Haiku 4.5 |          5/10 → 1/10 → 2/10 |    $0.16 | $0.14 | $0.08 |   −18% |  −49% |
+| Billing API            | Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.01 | $0.59 | $0.80 |   −41% |  −21% |
+| Billing API            | Opus 5    |       10/10 → 10/10 → 10/10 |    $1.74 | $1.10 | $2.22 |   −37% |  +28% |
+| Billing API            | Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.18 ❌ | $0.17 | $0.25 |      — |     — |
+| Stripe                 | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.25 |   −22% |  −24% |
+| Stripe                 | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.55 | $0.44 | $0.67 |   −19% |  +22% |
+| Stripe                 | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.10 ❌ | $0.12 | $0.14 |      — |     — |
+| PayPal Orders          | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.39 | $0.44 | $0.34 |   +11% |  −14% |
+| PayPal Orders          | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.75 | $1.06 | $0.75 |   +40% |   +0% |
+| PayPal Orders          | Haiku 4.5 |          4/10 → 4/10 → 2/10 |    $0.13 | $0.11 | $0.11 |   −13% |  −19% |
+| DigitalOcean           | Sonnet 5  |         3/10 → 9/10 → 10/10 |    $0.35 | $0.36 | $0.23 |    +1% |  −35% |
+| DigitalOcean           | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.57 | $0.80 | $0.71 |   +40% |  +24% |
+| DigitalOcean           | Haiku 4.5 |         4/10 → 4/10 → 10/10 |    $0.19 | $0.12 | $0.16 |   −33% |  −15% |
+| DigitalOcean (bundled) | Sonnet 5  |        5/10 → 10/10 → 10/10 |    $0.29 | $0.17 | $0.25 |   −42% |  −13% |
+| DigitalOcean (bundled) | Opus 5    |        8/10 → 10/10 → 10/10 |    $0.83 | $0.88 | $0.75 |    +5% |  −10% |
+| DigitalOcean (bundled) | Haiku 4.5 |          3/10 → 5/10 → 8/10 |    $0.19 | $0.12 | $0.14 |   −37% |  −25% |
+| Cafe API               | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.25 | $0.30 | $0.25 |   +20% |   −2% |
+| Cafe API               | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.46 | $0.66 | $0.70 |   +42% |  +51% |
+| Cafe API               | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.08 |   +45% |  +18% |
+
+## The price of a working answer
+
+The grid above prices an average working run; this table adds the failed attempts to that bill: the mean working run times total runs over working runs.
+With five of ten working at a $0.28 average, a working answer really costs $0.56.
+
+| Model      | no tree |  tree |   map |
+| ---------- | ------: | ----: | ----: |
+| Sonnet 5   |   $0.48 | $0.35 | $0.33 |
+| Opus 5     |   $0.84 | $0.80 | $0.88 |
+| Haiku 4.5  |   $0.43 | $0.29 | $0.23 |
+| All models |   $0.80 | $0.63 | $0.58 |
+
+One description skews Opus 5: on the billing API a working map answer costs about twice its `tree` price, and that pair alone tips its total. The per-description breakdown is in [the detailed version](./tree-agent-index-benchmark-detailed.md).
 
 ## The head-to-heads
 
@@ -102,9 +116,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        10/10 → 10/10 → 8/10 |   $0.42 | $0.32 | $0.18 |   −24% |  −57% |
-| Opus 5    |        10/10 → 10/10 → 9/10 |   $0.82 | $0.64 | $0.56 |   −22% |  −32% |
-| Haiku 4.5 |          3/10 → 3/10 → 1/10 |   $0.10 | $0.10 | $0.09 |    +0% |  −10% |
+| Sonnet 5  |        10/10 → 10/10 → 8/10 |   $0.41 | $0.31 | $0.18 |   −24% |  −55% |
+| Opus 5    |        10/10 → 10/10 → 9/10 |   $0.79 | $0.66 | $0.59 |   −16% |  −26% |
+| Haiku 4.5 |          3/10 → 3/10 → 1/10 |   $0.10 | $0.10 | $0.09 |    −3% |  −16% |
 
 What the failing runs left out:
 
@@ -184,9 +198,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |          9/10 → 9/10 → 9/10 |   $0.21 | $0.24 | $0.19 |   +14% |  −10% |
-| Opus 5    |         8/10 → 9/10 → 10/10 |   $0.69 | $0.67 | $0.55 |    −3% |  −20% |
-| Haiku 4.5 |          5/10 → 1/10 → 2/10 |   $0.16 | $0.14 | $0.09 |   −12% |  −44% |
+| Sonnet 5  |          9/10 → 9/10 → 9/10 |   $0.21 | $0.24 | $0.19 |   +14% |   −8% |
+| Opus 5    |         8/10 → 9/10 → 10/10 |   $0.65 | $0.69 | $0.54 |    +7% |  −16% |
+| Haiku 4.5 |          5/10 → 1/10 → 2/10 |   $0.16 | $0.14 | $0.08 |   −18% |  −49% |
 
 What the failing runs left out:
 
@@ -270,9 +284,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
-| Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
+| Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.01 | $0.59 | $0.80 |   −41% |  −21% |
+| Opus 5    |       10/10 → 10/10 → 10/10 |    $1.74 | $1.10 | $2.22 |   −37% |  +28% |
+| Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.18 ❌ | $0.17 | $0.25 |      — |     — |
 
 What the failing runs left out:
 
@@ -360,9 +374,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
-| Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
+| Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.25 |   −22% |  −24% |
+| Opus 5    |       10/10 → 10/10 → 10/10 |    $0.55 | $0.44 | $0.67 |   −19% |  +22% |
+| Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.10 ❌ | $0.12 | $0.14 |      — |     — |
 
 What the failing runs left out:
 
@@ -437,9 +451,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        9/10 → 10/10 → 10/10 |   $0.40 | $0.41 | $0.34 |    +2% |  −15% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.77 | $0.97 | $0.79 |   +26% |   +3% |
-| Haiku 4.5 |          4/10 → 4/10 → 2/10 |   $0.13 | $0.11 | $0.12 |   −15% |   −8% |
+| Sonnet 5  |        9/10 → 10/10 → 10/10 |   $0.39 | $0.44 | $0.34 |   +11% |  −14% |
+| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.75 | $1.06 | $0.75 |   +40% |   +0% |
+| Haiku 4.5 |          4/10 → 4/10 → 2/10 |   $0.13 | $0.11 | $0.11 |   −13% |  −19% |
 
 What the failing runs left out:
 
@@ -525,9 +539,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |         3/10 → 9/10 → 10/10 |   $0.34 | $0.36 | $0.20 |    +6% |  −41% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.56 | $0.78 | $0.73 |   +39% |  +30% |
-| Haiku 4.5 |         4/10 → 4/10 → 10/10 |   $0.20 | $0.14 | $0.16 |   −30% |  −20% |
+| Sonnet 5  |         3/10 → 9/10 → 10/10 |   $0.35 | $0.36 | $0.23 |    +1% |  −35% |
+| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.57 | $0.80 | $0.71 |   +40% |  +24% |
+| Haiku 4.5 |         4/10 → 4/10 → 10/10 |   $0.19 | $0.12 | $0.16 |   −33% |  −15% |
 
 What the failing runs left out:
 
@@ -607,9 +621,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        5/10 → 10/10 → 10/10 |   $0.33 | $0.17 | $0.23 |   −48% |  −30% |
-| Opus 5    |        8/10 → 10/10 → 10/10 |   $0.85 | $0.90 | $0.79 |    +6% |   −7% |
-| Haiku 4.5 |          3/10 → 5/10 → 8/10 |   $0.14 | $0.11 | $0.15 |   −21% |   +7% |
+| Sonnet 5  |        5/10 → 10/10 → 10/10 |   $0.29 | $0.17 | $0.25 |   −42% |  −13% |
+| Opus 5    |        8/10 → 10/10 → 10/10 |   $0.83 | $0.88 | $0.75 |    +5% |  −10% |
+| Haiku 4.5 |          3/10 → 5/10 → 8/10 |   $0.19 | $0.12 | $0.14 |   −37% |  −25% |
 
 What the failing runs left out:
 
@@ -685,9 +699,9 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
 | --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        10/10 → 9/10 → 10/10 |   $0.24 | $0.28 | $0.24 |   +17% |   +0% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.44 | $0.67 | $0.62 |   +52% |  +41% |
-| Haiku 4.5 |         6/10 → 6/10 → 10/10 |   $0.07 | $0.10 | $0.07 |   +43% |   +0% |
+| Sonnet 5  |        10/10 → 9/10 → 10/10 |   $0.25 | $0.30 | $0.25 |   +20% |   −2% |
+| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.46 | $0.66 | $0.70 |   +42% |  +51% |
+| Haiku 4.5 |         6/10 → 6/10 → 10/10 |   $0.07 | $0.10 | $0.08 |   +45% |  +18% |
 
 What the failing runs left out:
 
@@ -714,6 +728,6 @@ Haiku 4.5 loses the token call among the cards exactly as often as it loses it i
 
 Every run is a fresh Claude Code session in a directory holding only the description — plus, in the map condition, the map `generate-map` wrote beforehand — with the task text as the only input.
 **no tree** names no tooling; **tree** adds two lines pointing the agent at the CLI; **map** adds three lines pointing it at the artifact.
-Ten runs per cell; the tables give the median over the working runs (❌ — none worked), and an answer works when it names every required call, the host each goes to, the required body fields, and the auth.
+Ten runs per cell; a cost cell is the mean over the working runs (❌ — none worked, shown over all ten), and an answer works when it names every required call, the host each goes to, the required body fields, and the auth.
 
 Every run, every command it issued, and every verdict is in [the detailed version](./tree-agent-index-benchmark-detailed.md).
