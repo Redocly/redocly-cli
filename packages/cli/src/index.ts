@@ -27,6 +27,7 @@ import {
   handleGenerateClient,
   type GenerateClientCommandArgv,
 } from './commands/generate-client.js';
+import { handleGenerateMap, type GenerateMapArgv } from './commands/generate-map/index.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
@@ -1168,6 +1169,32 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handleGenerateSpec } = await import('./commands/generate-spec/index.js');
       commandWrapper(handleGenerateSpec)(argv as Arguments<GenerateSpecArgv>);
+    }
+  )
+  .command(
+    'generate-map [api]',
+    'Generate a plain-text map of an OpenAPI description for LLM agents [experimental].',
+    (yargs) =>
+      yargs
+        .positional('api', {
+          describe: 'OpenAPI description file path (or alias from redocly.yaml `apis:`).',
+          type: 'string',
+        })
+        .options({
+          output: {
+            alias: 'o',
+            describe: 'Output file path. Defaults to <name>.map.txt next to the description.',
+            type: 'string',
+            requiresArg: true,
+          },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as const,
+            default: 'warn' as const,
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleGenerateMap)(argv as Arguments<GenerateMapArgv>);
     }
   )
   .command(

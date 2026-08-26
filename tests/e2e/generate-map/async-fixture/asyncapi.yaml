@@ -1,0 +1,5 @@
+asyncapi: 2.6.0
+info:
+  title: Async fixture
+  version: 1.0.0
+channels: {}

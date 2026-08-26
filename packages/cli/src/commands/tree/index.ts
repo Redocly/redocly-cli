@@ -660,7 +660,7 @@ export async function handleTree({ argv, config, collectSpecData }: CommandArgs<
   });
 }
 
-async function loadApi({
+export async function loadApi({
   apiPath,
   config,
   collectSpecData,
