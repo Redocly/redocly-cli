@@ -18,6 +18,8 @@ paths:
         onEventB:
           'https://callbacks.example.com/b':
             $ref: '#/components/pathItems/notify'
+  /notify:
+    $ref: '#/components/pathItems/notify'
 
 components:
   pathItems:
