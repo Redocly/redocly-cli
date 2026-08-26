@@ -65,6 +65,23 @@ needs, and what to carry from its response into the next step. It has to work as
 ```
 
 {% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
+
+API description: github-api.yaml
+Next to it is github-api.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
 {% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
@@ -1541,6 +1558,23 @@ API description: github-split/openapi.yaml
 The Redocly CLI is installed and its `tree` command can search the description for you.
 Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree github-split/openapi.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+I want a CI job that publishes a release for a repository, attaches the built zip to it,
+and can take that file back down if the upload turns out wrong. Work out what it calls.
+The CI authenticates as a GitHub App installation.
+
+API description: github-split/openapi.yaml
+Next to it is github-split/openapi.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
@@ -3200,6 +3234,23 @@ API description: rebilly.yaml
 The Redocly CLI is installed and its `tree` command can search the description for you.
 Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree rebilly.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+We're moving existing customers onto monthly recurring billing. One of them is already in
+the system, nothing else is set up yet. Work out what our backend has to call to get that
+customer onto a recurring plan.
+
+API description: rebilly.yaml
+Next to it is rebilly.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
@@ -5751,6 +5802,23 @@ needs, and what to carry from its response into the next step. It has to work as
 ```
 
 {% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+Our company committed to buying carbon removal. Pick a removal product from what's on
+offer, place an order for a set number of metric tons, and be able to cancel that order
+before delivery if finance rejects the spend. Work out what our backend has to call.
+
+API description: climate.yaml
+Next to it is climate.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
 {% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
@@ -7059,6 +7127,23 @@ API description: paypal.json
 The Redocly CLI is installed and its `tree` command can search the description for you.
 Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree paypal.json --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+We sell physical goods online: take the buyer's payment for a cart, capture the money once
+they approve, and file the shipment's tracking number against that payment so the buyer
+sees it. Work out what our backend has to call, end to end.
+
+API description: paypal.json
+Next to it is paypal.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
@@ -10304,6 +10389,23 @@ needs, and what to carry from its response into the next step. It has to work as
 ```
 
 {% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean/DigitalOcean-public.v2.yaml
+Next to it is digitalocean/DigitalOcean-public.v2.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
 {% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
@@ -12103,6 +12205,23 @@ needs, and what to carry from its response into the next step. It has to work as
 ```
 
 {% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+We need shared storage for a cluster: a network file share in one region, reachable from
+our private network, plus a second export path that a different private network can
+mount. Nothing is set up yet. Work out what our provisioning script has to call.
+
+API description: digitalocean-bundled.yaml
+Next to it is digitalocean-bundled.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
 {% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
@@ -13757,6 +13876,22 @@ API description: cafe.yaml
 The Redocly CLI is installed and its `tree` command can search the description for you.
 Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
 redocly tree cafe.yaml --format=ai <flags>
+
+Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
+needs, and what to carry from its response into the next step. It has to work as written.
+```
+
+{% /tab %}
+{% tab label="Prompt: map" %}
+
+```text
+I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
+and follows that order until it's ready. Work out what the app has to call, end to end.
+
+API description: cafe.yaml
+Next to it is cafe.map.txt — a generated index of every operation in this API:
+auth, required fields, what to carry from each response, and source line ranges.
+Start there.
 
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
