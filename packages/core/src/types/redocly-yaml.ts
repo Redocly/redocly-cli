@@ -107,6 +107,7 @@ const builtInOAS3Rules = [
   'component-name-unique',
   'no-empty-servers',
   'no-example-value-and-externalValue',
+  'no-illogical-composition-keywords',
   'no-invalid-media-type-examples',
   'no-server-example.com',
   'no-server-trailing-slash',

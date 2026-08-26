@@ -114,6 +114,7 @@ Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent ex
 |                                        | `no-ambiguous-paths`                                             |
 |                                        | `no-http-verbs-in-paths`                                         |
 |                                        | `no-identical-paths`                                             |
+|                                        | `no-illogical-composition-keywords`                              |
 |                                        | `no-invalid-parameter-examples`                                  |
 |                                        | `no-mixed-number-range-constraints`                              |
 |                                        | `no-required-schema-properties-undefined`                        |
