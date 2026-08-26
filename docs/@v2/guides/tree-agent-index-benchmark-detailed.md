@@ -14944,110 +14944,90 @@ Haiku 4.5 lands on six working runs either way.
 
 How many of the ten runs in each cell produced a flow that would run:
 
-| Description            | Task                 | Model     | no tree |  tree |   map |
-| ---------------------- | -------------------- | --------- | ------: | ----: | ----: |
-| GitHub REST            | publish a release    | Sonnet 5  |   10/10 | 10/10 |  8/10 |
-| GitHub REST            | publish a release    | Opus 5    |   10/10 | 10/10 |  9/10 |
-| GitHub REST            | publish a release    | Haiku 4.5 |    3/10 |  3/10 |  1/10 |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |    9/10 |  9/10 |  9/10 |
-| GitHub REST (split)    | publish a release    | Opus 5    |    8/10 |  9/10 | 10/10 |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |    5/10 |  1/10 |  2/10 |
-| Billing API            | start a subscription | Sonnet 5  |    2/10 |  6/10 |  9/10 |
-| Billing API            | start a subscription | Opus 5    |   10/10 | 10/10 | 10/10 |
-| Billing API            | start a subscription | Haiku 4.5 |    0/10 |  1/10 |  3/10 |
-| Stripe                 | buy carbon removal   | Sonnet 5  |    9/10 | 10/10 | 10/10 |
-| Stripe                 | buy carbon removal   | Opus 5    |   10/10 | 10/10 | 10/10 |
-| Stripe                 | buy carbon removal   | Haiku 4.5 |    0/10 |  8/10 | 10/10 |
-| PayPal Orders          | capture and track    | Sonnet 5  |    9/10 | 10/10 | 10/10 |
-| PayPal Orders          | capture and track    | Opus 5    |   10/10 | 10/10 | 10/10 |
-| PayPal Orders          | capture and track    | Haiku 4.5 |    4/10 |  4/10 |  2/10 |
-| DigitalOcean           | shared file storage  | Sonnet 5  |    3/10 |  9/10 | 10/10 |
-| DigitalOcean           | shared file storage  | Opus 5    |   10/10 | 10/10 | 10/10 |
-| DigitalOcean           | shared file storage  | Haiku 4.5 |    4/10 |  4/10 | 10/10 |
-| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    5/10 | 10/10 | 10/10 |
-| DigitalOcean (bundled) | shared file storage  | Opus 5    |    8/10 | 10/10 | 10/10 |
-| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    3/10 |  5/10 |  8/10 |
-| Cafe API               | order a coffee       | Sonnet 5  |   10/10 |  9/10 | 10/10 |
-| Cafe API               | order a coffee       | Opus 5    |   10/10 | 10/10 | 10/10 |
-| Cafe API               | order a coffee       | Haiku 4.5 |    6/10 |  6/10 | 10/10 |
+| Description            | Model     | no tree |  tree |   map |
+| ---------------------- | --------- | ------: | ----: | ----: |
+| GitHub REST            | Sonnet 5  |   10/10 | 10/10 |  8/10 |
+| GitHub REST            | Opus 5    |   10/10 | 10/10 |  9/10 |
+| GitHub REST            | Haiku 4.5 |    3/10 |  3/10 |  1/10 |
+| GitHub REST (split)    | Sonnet 5  |    9/10 |  9/10 |  9/10 |
+| GitHub REST (split)    | Opus 5    |    8/10 |  9/10 | 10/10 |
+| GitHub REST (split)    | Haiku 4.5 |    5/10 |  1/10 |  2/10 |
+| Billing API            | Sonnet 5  |    2/10 |  6/10 |  9/10 |
+| Billing API            | Opus 5    |   10/10 | 10/10 | 10/10 |
+| Billing API            | Haiku 4.5 |    0/10 |  1/10 |  3/10 |
+| Stripe                 | Sonnet 5  |    9/10 | 10/10 | 10/10 |
+| Stripe                 | Opus 5    |   10/10 | 10/10 | 10/10 |
+| Stripe                 | Haiku 4.5 |    0/10 |  8/10 | 10/10 |
+| PayPal Orders          | Sonnet 5  |    9/10 | 10/10 | 10/10 |
+| PayPal Orders          | Opus 5    |   10/10 | 10/10 | 10/10 |
+| PayPal Orders          | Haiku 4.5 |    4/10 |  4/10 |  2/10 |
+| DigitalOcean           | Sonnet 5  |    3/10 |  9/10 | 10/10 |
+| DigitalOcean           | Opus 5    |   10/10 | 10/10 | 10/10 |
+| DigitalOcean           | Haiku 4.5 |    4/10 |  4/10 | 10/10 |
+| DigitalOcean (bundled) | Sonnet 5  |    5/10 | 10/10 | 10/10 |
+| DigitalOcean (bundled) | Opus 5    |    8/10 | 10/10 | 10/10 |
+| DigitalOcean (bundled) | Haiku 4.5 |    3/10 |  5/10 |  8/10 |
+| Cafe API               | Sonnet 5  |   10/10 |  9/10 | 10/10 |
+| Cafe API               | Opus 5    |   10/10 | 10/10 | 10/10 |
+| Cafe API               | Haiku 4.5 |    6/10 |  6/10 | 10/10 |
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all ten):
 
-| Description            | Task                 | Model     |        no tree |        tree |         map | Δ tree |
-| ---------------------- | -------------------- | --------- | -------------: | ----------: | ----------: | -----: |
-| GitHub REST            | publish a release    | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |   9,927 / 7 |   −10% |
-| GitHub REST            | publish a release    | Opus 5    |    20,266 / 17 | 14,435 / 11 |  14,870 / 9 |   −29% |
-| GitHub REST            | publish a release    | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |  16,495 / 7 |    −7% |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |     10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
-| GitHub REST (split)    | publish a release    | Opus 5    |    15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |     36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |
-| Billing API            | start a subscription | Sonnet 5  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
-| Billing API            | start a subscription | Opus 5    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
-| Billing API            | start a subscription | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 | 53,080 / 20 |      — |
-| Stripe                 | buy carbon removal   | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |  28,172 / 6 |   −45% |
-| Stripe                 | buy carbon removal   | Opus 5    |     14,913 / 7 |   9,622 / 7 |  27,820 / 9 |   −35% |
-| Stripe                 | buy carbon removal   | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |  34,768 / 7 |      — |
-| PayPal Orders          | capture and track    | Sonnet 5  |    17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
-| PayPal Orders          | capture and track    | Opus 5    |    19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
-| PayPal Orders          | capture and track    | Haiku 4.5 |    21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |
-| DigitalOcean           | shared file storage  | Sonnet 5  |    11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
-| DigitalOcean           | shared file storage  | Opus 5    |     17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
-| DigitalOcean           | shared file storage  | Haiku 4.5 |    37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |
-| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
-| DigitalOcean (bundled) | shared file storage  | Opus 5    |    24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
-| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |
-| Cafe API               | order a coffee       | Sonnet 5  |     16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
-| Cafe API               | order a coffee       | Opus 5    |     16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
-| Cafe API               | order a coffee       | Haiku 4.5 |     14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |
+| Description            | Model     |        no tree |        tree |         map | Δ tree |
+| ---------------------- | --------- | -------------: | ----------: | ----------: | -----: |
+| GitHub REST            | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |   9,927 / 7 |   −10% |
+| GitHub REST            | Opus 5    |    20,266 / 17 | 14,435 / 11 |  14,870 / 9 |   −29% |
+| GitHub REST            | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |  16,495 / 7 |    −7% |
+| GitHub REST (split)    | Sonnet 5  |     10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
+| GitHub REST (split)    | Opus 5    |    15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
+| GitHub REST (split)    | Haiku 4.5 |     36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |
+| Billing API            | Sonnet 5  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
+| Billing API            | Opus 5    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
+| Billing API            | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 | 53,080 / 20 |      — |
+| Stripe                 | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |  28,172 / 6 |   −45% |
+| Stripe                 | Opus 5    |     14,913 / 7 |   9,622 / 7 |  27,820 / 9 |   −35% |
+| Stripe                 | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |  34,768 / 7 |      — |
+| PayPal Orders          | Sonnet 5  |    17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
+| PayPal Orders          | Opus 5    |    19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
+| PayPal Orders          | Haiku 4.5 |    21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |
+| DigitalOcean           | Sonnet 5  |    11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
+| DigitalOcean           | Opus 5    |     17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
+| DigitalOcean           | Haiku 4.5 |    37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |
+| DigitalOcean (bundled) | Sonnet 5  |    15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
+| DigitalOcean (bundled) | Opus 5    |    24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
+| DigitalOcean (bundled) | Haiku 4.5 |    22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |
+| Cafe API               | Sonnet 5  |     16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
+| Cafe API               | Opus 5    |     16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
+| Cafe API               | Haiku 4.5 |     14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |
 
 What those runs were billed:
 
-| Description            | Task                 | Model     |  no tree |  tree |   map | Δ tree | Δ map |
-| ---------------------- | -------------------- | --------- | -------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | publish a release    | Sonnet 5  |    $0.42 | $0.32 | $0.18 |   −24% |  −57% |
-| GitHub REST            | publish a release    | Opus 5    |    $0.82 | $0.64 | $0.56 |   −22% |  −32% |
-| GitHub REST            | publish a release    | Haiku 4.5 |    $0.10 | $0.10 | $0.09 |    −0% |  −10% |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |    $0.21 | $0.24 | $0.19 |   +14% |  −10% |
-| GitHub REST (split)    | publish a release    | Opus 5    |    $0.69 | $0.67 | $0.55 |    −3% |  −20% |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |    $0.16 | $0.14 | $0.09 |   −12% |  −44% |
-| Billing API            | start a subscription | Sonnet 5  |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
-| Billing API            | start a subscription | Opus 5    |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
-| Billing API            | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
-| Stripe                 | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
-| Stripe                 | buy carbon removal   | Opus 5    |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
-| Stripe                 | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
-| PayPal Orders          | capture and track    | Sonnet 5  |    $0.40 | $0.41 | $0.34 |    +2% |  −15% |
-| PayPal Orders          | capture and track    | Opus 5    |    $0.77 | $0.97 | $0.79 |   +26% |   +3% |
-| PayPal Orders          | capture and track    | Haiku 4.5 |    $0.13 | $0.11 | $0.12 |   −15% |   −8% |
-| DigitalOcean           | shared file storage  | Sonnet 5  |    $0.34 | $0.36 | $0.20 |    +6% |  −41% |
-| DigitalOcean           | shared file storage  | Opus 5    |    $0.56 | $0.78 | $0.73 |   +39% |  +30% |
-| DigitalOcean           | shared file storage  | Haiku 4.5 |    $0.20 | $0.14 | $0.16 |   −30% |  −20% |
-| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    $0.33 | $0.17 | $0.23 |   −48% |  −30% |
-| DigitalOcean (bundled) | shared file storage  | Opus 5    |    $0.85 | $0.90 | $0.79 |    +6% |   −7% |
-| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    $0.14 | $0.11 | $0.15 |   −21% |   +7% |
-| Cafe API               | order a coffee       | Sonnet 5  |    $0.24 | $0.28 | $0.24 |   +17% |   +0% |
-| Cafe API               | order a coffee       | Opus 5    |    $0.44 | $0.67 | $0.62 |   +52% |  +41% |
-| Cafe API               | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 | $0.07 |   +43% |   +0% |
-
-## The price of a working answer
-
-The medians above price a run; this table prices a result: everything a condition spent across all eight pairs, divided by the number of runs whose flow works.
-Failed runs cost money too, so they stay in the bill.
-
-| Model      | no tree |  tree |   map |
-| ---------- | ------: | ----: | ----: |
-| Sonnet 5   |   $0.55 | $0.37 | $0.33 |
-| Opus 5     |   $0.83 | $0.79 | $0.87 |
-| Haiku 4.5  |   $0.43 | $0.26 | $0.22 |
-| All models |   $0.67 | $0.53 | $0.52 |
-
-The map buys the most working answers for the least money on Sonnet 5 and Haiku 4.5; Opus 5 alone pays slightly more with it than with `tree`, dragged by the billing API, where reading a 92 KB map whole loses to four targeted calls.
-
-Five hundred forty-three of 720 runs produced a flow that passes the check: 158 of 240 reading the description, 184 of 240 exploring it with `tree`, 201 of 240 searching a pre-generated map.
-Three cells move from at most three working runs in ten to six or more once the index is there: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal. In every one of them the control runs name the right calls and never say how they authenticate.
-The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
-The Cafe API is the same lesson from the other end — 41 KB that every control run reads in a single call, against seven to thirteen index calls to assemble the same knowledge. Because each call is a request that resends the conversation, the bill follows calls rather than bytes: Sonnet 5 finishes with 48% less context and pays 17% more.
-Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
+| Description            | Model     |  no tree |  tree |   map | Δ tree | Δ map |
+| ---------------------- | --------- | -------: | ----: | ----: | -----: | ----: |
+| GitHub REST            | Sonnet 5  |    $0.42 | $0.32 | $0.18 |   −24% |  −57% |
+| GitHub REST            | Opus 5    |    $0.82 | $0.64 | $0.56 |   −22% |  −32% |
+| GitHub REST            | Haiku 4.5 |    $0.10 | $0.10 | $0.09 |    −0% |  −10% |
+| GitHub REST (split)    | Sonnet 5  |    $0.21 | $0.24 | $0.19 |   +14% |  −10% |
+| GitHub REST (split)    | Opus 5    |    $0.69 | $0.67 | $0.55 |    −3% |  −20% |
+| GitHub REST (split)    | Haiku 4.5 |    $0.16 | $0.14 | $0.09 |   −12% |  −44% |
+| Billing API            | Sonnet 5  |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
+| Billing API            | Opus 5    |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
+| Billing API            | Haiku 4.5 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
+| Stripe                 | Sonnet 5  |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
+| Stripe                 | Opus 5    |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
+| Stripe                 | Haiku 4.5 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
+| PayPal Orders          | Sonnet 5  |    $0.40 | $0.41 | $0.34 |    +2% |  −15% |
+| PayPal Orders          | Opus 5    |    $0.77 | $0.97 | $0.79 |   +26% |   +3% |
+| PayPal Orders          | Haiku 4.5 |    $0.13 | $0.11 | $0.12 |   −15% |   −8% |
+| DigitalOcean           | Sonnet 5  |    $0.34 | $0.36 | $0.20 |    +6% |  −41% |
+| DigitalOcean           | Opus 5    |    $0.56 | $0.78 | $0.73 |   +39% |  +30% |
+| DigitalOcean           | Haiku 4.5 |    $0.20 | $0.14 | $0.16 |   −30% |  −20% |
+| DigitalOcean (bundled) | Sonnet 5  |    $0.33 | $0.17 | $0.23 |   −48% |  −30% |
+| DigitalOcean (bundled) | Opus 5    |    $0.85 | $0.90 | $0.79 |    +6% |   −7% |
+| DigitalOcean (bundled) | Haiku 4.5 |    $0.14 | $0.11 | $0.15 |   −21% |   +7% |
+| Cafe API               | Sonnet 5  |    $0.24 | $0.28 | $0.24 |   +17% |   +0% |
+| Cafe API               | Opus 5    |    $0.44 | $0.67 | $0.62 |   +52% |  +41% |
+| Cafe API               | Haiku 4.5 |    $0.07 | $0.10 | $0.07 |   +43% |   +0% |
 
 ## What the failures were
 

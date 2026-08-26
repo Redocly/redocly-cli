@@ -8,49 +8,32 @@ An index rarely changes what a strong model can do. What it changes is whether a
 
 ## What it changes
 
-| Description            | Task                 | Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
-| ---------------------- | -------------------- | --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | publish a release    | Sonnet 5  |        10/10 → 10/10 → 8/10 |    $0.42 | $0.32 | $0.18 |   −24% |  −57% |
-| GitHub REST            | publish a release    | Opus 5    |        10/10 → 10/10 → 9/10 |    $0.82 | $0.64 | $0.56 |   −22% |  −32% |
-| GitHub REST            | publish a release    | Haiku 4.5 |          3/10 → 3/10 → 1/10 |    $0.10 | $0.10 | $0.09 |    +0% |  −10% |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |          9/10 → 9/10 → 9/10 |    $0.21 | $0.24 | $0.19 |   +14% |  −10% |
-| GitHub REST (split)    | publish a release    | Opus 5    |         8/10 → 9/10 → 10/10 |    $0.69 | $0.67 | $0.55 |    −3% |  −20% |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |          5/10 → 1/10 → 2/10 |    $0.16 | $0.14 | $0.09 |   −12% |  −44% |
-| Billing API            | start a subscription | Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
-| Billing API            | start a subscription | Opus 5    |       10/10 → 10/10 → 10/10 |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
-| Billing API            | start a subscription | Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
-| Stripe                 | buy carbon removal   | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
-| Stripe                 | buy carbon removal   | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
-| Stripe                 | buy carbon removal   | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
-| PayPal Orders          | capture and track    | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.40 | $0.41 | $0.34 |    +2% |  −15% |
-| PayPal Orders          | capture and track    | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.77 | $0.97 | $0.79 |   +26% |   +3% |
-| PayPal Orders          | capture and track    | Haiku 4.5 |          4/10 → 4/10 → 2/10 |    $0.13 | $0.11 | $0.12 |   −15% |   −8% |
-| DigitalOcean           | shared file storage  | Sonnet 5  |         3/10 → 9/10 → 10/10 |    $0.34 | $0.36 | $0.20 |    +6% |  −41% |
-| DigitalOcean           | shared file storage  | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.56 | $0.78 | $0.73 |   +39% |  +30% |
-| DigitalOcean           | shared file storage  | Haiku 4.5 |         4/10 → 4/10 → 10/10 |    $0.20 | $0.14 | $0.16 |   −30% |  −20% |
-| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |        5/10 → 10/10 → 10/10 |    $0.33 | $0.17 | $0.23 |   −48% |  −30% |
-| DigitalOcean (bundled) | shared file storage  | Opus 5    |        8/10 → 10/10 → 10/10 |    $0.85 | $0.90 | $0.79 |    +6% |   −7% |
-| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |          3/10 → 5/10 → 8/10 |    $0.14 | $0.11 | $0.15 |   −21% |   +7% |
-| Cafe API               | order a coffee       | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.24 | $0.28 | $0.24 |   +17% |   +0% |
-| Cafe API               | order a coffee       | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.44 | $0.67 | $0.62 |   +52% |  +41% |
-| Cafe API               | order a coffee       | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.07 |   +43% |   +0% |
-
-## The price of a working answer
-
-The medians above price a run; this table prices a result: everything a condition spent across all eight pairs, divided by the number of runs whose flow works.
-Failed runs cost money too, so they stay in the bill.
-
-| Model      | no tree |  tree |   map |
-| ---------- | ------: | ----: | ----: |
-| Sonnet 5   |   $0.55 | $0.37 | $0.33 |
-| Opus 5     |   $0.83 | $0.79 | $0.87 |
-| Haiku 4.5  |   $0.43 | $0.26 | $0.22 |
-| All models |   $0.67 | $0.53 | $0.52 |
-
-The map buys the most working answers for the least money on Sonnet 5 and Haiku 4.5; Opus 5 alone pays slightly more with it than with `tree`, dragged by the billing API, where reading a 92 KB map whole loses to four targeted calls.
-
-Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
-Context moves the same way and more steadily; it is per cell and per run in [the detailed version](./tree-agent-index-benchmark-detailed.md).
+| Description            | Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
+| ---------------------- | --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
+| GitHub REST            | Sonnet 5  |        10/10 → 10/10 → 8/10 |    $0.42 | $0.32 | $0.18 |   −24% |  −57% |
+| GitHub REST            | Opus 5    |        10/10 → 10/10 → 9/10 |    $0.82 | $0.64 | $0.56 |   −22% |  −32% |
+| GitHub REST            | Haiku 4.5 |          3/10 → 3/10 → 1/10 |    $0.10 | $0.10 | $0.09 |    +0% |  −10% |
+| GitHub REST (split)    | Sonnet 5  |          9/10 → 9/10 → 9/10 |    $0.21 | $0.24 | $0.19 |   +14% |  −10% |
+| GitHub REST (split)    | Opus 5    |         8/10 → 9/10 → 10/10 |    $0.69 | $0.67 | $0.55 |    −3% |  −20% |
+| GitHub REST (split)    | Haiku 4.5 |          5/10 → 1/10 → 2/10 |    $0.16 | $0.14 | $0.09 |   −12% |  −44% |
+| Billing API            | Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
+| Billing API            | Opus 5    |       10/10 → 10/10 → 10/10 |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
+| Billing API            | Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
+| Stripe                 | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
+| Stripe                 | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
+| Stripe                 | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
+| PayPal Orders          | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.40 | $0.41 | $0.34 |    +2% |  −15% |
+| PayPal Orders          | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.77 | $0.97 | $0.79 |   +26% |   +3% |
+| PayPal Orders          | Haiku 4.5 |          4/10 → 4/10 → 2/10 |    $0.13 | $0.11 | $0.12 |   −15% |   −8% |
+| DigitalOcean           | Sonnet 5  |         3/10 → 9/10 → 10/10 |    $0.34 | $0.36 | $0.20 |    +6% |  −41% |
+| DigitalOcean           | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.56 | $0.78 | $0.73 |   +39% |  +30% |
+| DigitalOcean           | Haiku 4.5 |         4/10 → 4/10 → 10/10 |    $0.20 | $0.14 | $0.16 |   −30% |  −20% |
+| DigitalOcean (bundled) | Sonnet 5  |        5/10 → 10/10 → 10/10 |    $0.33 | $0.17 | $0.23 |   −48% |  −30% |
+| DigitalOcean (bundled) | Opus 5    |        8/10 → 10/10 → 10/10 |    $0.85 | $0.90 | $0.79 |    +6% |   −7% |
+| DigitalOcean (bundled) | Haiku 4.5 |          3/10 → 5/10 → 8/10 |    $0.14 | $0.11 | $0.15 |   −21% |   +7% |
+| Cafe API               | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.24 | $0.28 | $0.24 |   +17% |   +0% |
+| Cafe API               | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.44 | $0.67 | $0.62 |   +52% |  +41% |
+| Cafe API               | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.07 |   +43% |   +0% |
 
 ## The head-to-heads
 
@@ -573,7 +556,7 @@ Haiku 4.5 loses the token call among the cards exactly as often as it loses it i
 ## What the numbers show
 
 - **Correctness:** map 201/240, `tree` 184, plain reading 158 — and the gap is almost all Haiku 4.5: 25 → 32 → 46 working runs.
-- **Price of a working answer:** the map is the cheapest way to a correct flow for Sonnet 5 and Haiku 4.5; Opus 5 alone pays a little more with it than with `tree`.
+- **Price:** both indexes are cheaper than reading the description on the large single-file APIs, and dearer on the small and the file-per-operation ones.
 - **The failure an index removes is auth:** runs without one name the right calls and never say how the request authenticates.
 - **What the description never states, no index can carry:** GitHub's token-minting call is not marked as a security requirement, and Haiku 4.5 skips it under every condition.
 
