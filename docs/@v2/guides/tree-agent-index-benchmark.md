@@ -96,6 +96,9 @@ What the failing runs left out:
 - **Haiku 4.5 · no tree** — 1 run: no app token, no asset upload
 - **Haiku 4.5 · tree** — 2 runs: no app token, no asset upload
 - **Haiku 4.5 · tree** — 5 runs: no app token
+- **Sonnet 5 · map** — 2 runs: no app token
+- **Opus 5 · map** — 1 run: no asset upload
+- **Haiku 4.5 · map** — 9 runs: no app token
 
 Sonnet 5 and Opus 5 answer correctly either way; the index buys 9% to 13% less context and fewer calls. Haiku 4.5 never mints the installation token its own flow declares.
 
@@ -162,6 +165,9 @@ What the failing runs left out:
 - **Haiku 4.5 · no tree** — 1 run: no app token, no asset upload
 - **Haiku 4.5 · tree** — 8 runs: no app token
 - **Haiku 4.5 · tree** — 1 run: no app token, no asset upload
+- **Sonnet 5 · map** — 1 run: no app token
+- **Haiku 4.5 · map** — 7 runs: no app token
+- **Haiku 4.5 · map** — 1 run: no asset upload
 
 Split into a file per operation, the layout is itself the index, and the advantage the command held on the 9.5 MB single file is gone: the control gets twice as cheap, Sonnet 5 pays 14% more through the index, and Haiku 4.5 drops from five working runs to one, losing the installation-token call among the cards.
 
@@ -229,6 +235,11 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 1 run: no product call, no plan call
 - **Haiku 4.5 · tree** — 5 runs: no product call, no auth scheme
 - **Haiku 4.5 · tree** — 3 runs: no product call
+- **Sonnet 5 · map** — 1 run: no product call, no plan call
+- **Haiku 4.5 · map** — 2 runs: no product call, no plan call, no orderType field
+- **Haiku 4.5 · map** — 1 run: no product call, no plan call
+- **Haiku 4.5 · map** — 1 run: no product call, no orderType field
+- **Haiku 4.5 · map** — 3 runs: no product call
 
 The index turns Sonnet 5 from nothing that runs into four flows in five, and halves what Opus 5 pays. Every control failure here is the same one: the secret key never reaches the request.
 
@@ -357,6 +368,9 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 1 run: no carrier field
 - **Haiku 4.5 · tree** — 3 runs: no intent field
 - **Haiku 4.5 · tree** — 2 runs: no intent field, no carrier field
+- **Haiku 4.5 · map** — 1 run: no intent field
+- **Haiku 4.5 · map** — 2 runs: no intent field, no carrier field
+- **Haiku 4.5 · map** — 5 runs: no carrier field
 
 Opus 5 passes every run either way and Sonnet 5 misses one without the index. Both pay more context with it — nine operations barely need finding, and the cards arrive carrying PayPal's deep schemas — which for Opus 5 lands as 26% more billed.
 Haiku 4.5 stays at four working runs, still leaving `intent` out of the order body.
@@ -486,6 +500,7 @@ What the failing runs left out:
 - **Haiku 4.5 · no tree** — 1 run: no access point call, no auth scheme
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
 - **Haiku 4.5 · tree** — 4 runs: no auth scheme
+- **Haiku 4.5 · map** — 2 runs: no auth scheme
 
 Bundled into one 2.87 MB file, the description stops answering "where is it" by itself: Sonnet 5 goes from five working runs to all ten at half the cost through the index, and Opus 5 drops two control runs it passed on the split layout.
 
