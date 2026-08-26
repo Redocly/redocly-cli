@@ -14,8 +14,8 @@ This round adds five task-description pairs chosen to be hard in new ways — St
 Eight description-task pairs, three models, three conditions, ten runs a cell — 720 runs:
 
 - **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
-- **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select.
-- **map** — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by `redocly generate-map` before the session begins, so these runs never call the CLI.
+- **tree** — the same task plus two lines: the CLI is installed, and [`redocly tree --help`](../commands/tree.md) lists what it can select.
+- **map** — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by [`redocly generate-map`](../commands/generate-map.md) before the session begins, so these runs never call the CLI.
 
 Every context and cost cell is the median of the runs in it whose flow works; a cell marked ❌ is one where none did, and its numbers are the median of all its runs.
 A difference is printed only where both sides carry the same mark.
@@ -77,11 +77,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree |
-| ---------------- | ------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |   $0.42 | $0.32 | $0.18 |   −24% |
-| Opus 5 (n=10)    |   $0.82 | $0.64 | $0.56 |   −22% |
-| Haiku 4.5 (n=10) |   $0.10 | $0.10 | $0.09 |    −0% |
+| Model            | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | ------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |   $0.42 | $0.32 | $0.18 |   −24% |  −57% |
+| Opus 5 (n=10)    |   $0.82 | $0.64 | $0.56 |   −22% |  −32% |
+| Haiku 4.5 (n=10) |   $0.10 | $0.10 | $0.09 |    −0% |  −10% |
 
 Whether each run produced a flow that would run:
 
@@ -1191,11 +1191,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree |
-| ---------------- | ------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |   $0.21 | $0.24 | $0.19 |   +14% |
-| Opus 5 (n=10)    |   $0.69 | $0.67 | $0.55 |    −3% |
-| Haiku 4.5 (n=10) |   $0.16 | $0.14 | $0.09 |   −12% |
+| Model            | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | ------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |   $0.21 | $0.24 | $0.19 |   +14% |  −10% |
+| Opus 5 (n=10)    |   $0.69 | $0.67 | $0.55 |    −3% |  −20% |
+| Haiku 4.5 (n=10) |   $0.16 | $0.14 | $0.09 |   −12% |  −44% |
 
 Whether each run produced a flow that would run:
 
@@ -2429,11 +2429,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            |  no tree |  tree |   map | Δ tree |
-| ---------------- | -------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |    $1.06 | $0.60 | $0.75 |   −43% |
-| Opus 5 (n=10)    |    $1.85 | $1.11 | $2.06 |   −40% |
-| Haiku 4.5 (n=10) | $0.19 ❌ | $0.17 | $0.23 |      — |
+| Model            |  no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
+| Opus 5 (n=10)    |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
+| Haiku 4.5 (n=10) | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
 
 Whether each run produced a flow that would run:
 
@@ -4274,11 +4274,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            |  no tree |  tree |   map | Δ tree |
-| ---------------- | -------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |    $0.32 | $0.25 | $0.26 |   −22% |
-| Opus 5 (n=10)    |    $0.54 | $0.45 | $0.67 |   −17% |
-| Haiku 4.5 (n=10) | $0.09 ❌ | $0.10 | $0.14 |      — |
+| Model            |  no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
+| Opus 5 (n=10)    |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
+| Haiku 4.5 (n=10) | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
 
 Whether each run produced a flow that would run:
 
@@ -5243,11 +5243,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree |
-| ---------------- | ------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |   $0.40 | $0.41 | $0.34 |    +2% |
-| Opus 5 (n=10)    |   $0.77 | $0.97 | $0.79 |   +26% |
-| Haiku 4.5 (n=10) |   $0.13 | $0.11 | $0.12 |   −15% |
+| Model            | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | ------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |   $0.40 | $0.41 | $0.34 |    +2% |  −15% |
+| Opus 5 (n=10)    |   $0.77 | $0.97 | $0.79 |   +26% |   +3% |
+| Haiku 4.5 (n=10) |   $0.13 | $0.11 | $0.12 |   −15% |   −8% |
 
 Whether each run produced a flow that would run:
 
@@ -7458,11 +7458,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree |
-| ---------------- | ------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |   $0.34 | $0.36 | $0.20 |    +6% |
-| Opus 5 (n=10)    |   $0.56 | $0.78 | $0.73 |   +39% |
-| Haiku 4.5 (n=10) |   $0.20 | $0.14 | $0.16 |   −30% |
+| Model            | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | ------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |   $0.34 | $0.36 | $0.20 |    +6% |  −41% |
+| Opus 5 (n=10)    |   $0.56 | $0.78 | $0.73 |   +39% |  +30% |
+| Haiku 4.5 (n=10) |   $0.20 | $0.14 | $0.16 |   −30% |  −20% |
 
 Whether each run produced a flow that would run:
 
@@ -8765,11 +8765,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree |
-| ---------------- | ------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |   $0.33 | $0.17 | $0.23 |   −48% |
-| Opus 5 (n=10)    |   $0.85 | $0.90 | $0.79 |    +6% |
-| Haiku 4.5 (n=10) |   $0.14 | $0.11 | $0.15 |   −21% |
+| Model            | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | ------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |   $0.33 | $0.17 | $0.23 |   −48% |  −30% |
+| Opus 5 (n=10)    |   $0.85 | $0.90 | $0.79 |    +6% |   −7% |
+| Haiku 4.5 (n=10) |   $0.14 | $0.11 | $0.15 |   −21% |   +7% |
 
 Whether each run produced a flow that would run:
 
@@ -9984,11 +9984,11 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree |
-| ---------------- | ------: | ----: | ----: | -----: |
-| Sonnet 5 (n=10)  |   $0.24 | $0.28 | $0.24 |   +17% |
-| Opus 5 (n=10)    |   $0.44 | $0.67 | $0.62 |   +52% |
-| Haiku 4.5 (n=10) |   $0.07 | $0.10 | $0.07 |   +43% |
+| Model            | no tree |  tree |   map | Δ tree | Δ map |
+| ---------------- | ------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |   $0.24 | $0.28 | $0.24 |   +17% |   +0% |
+| Opus 5 (n=10)    |   $0.44 | $0.67 | $0.62 |   +52% |  +41% |
+| Haiku 4.5 (n=10) |   $0.07 | $0.10 | $0.07 |   +43% |   +0% |
 
 Whether each run produced a flow that would run:
 
@@ -10892,62 +10892,52 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Description            | Task                 | Model     |  no tree |  tree |   map | Δ tree |
-| ---------------------- | -------------------- | --------- | -------: | ----: | ----: | -----: |
-| GitHub REST            | publish a release    | Sonnet 5  |    $0.42 | $0.32 | $0.18 |   −24% |
-| GitHub REST            | publish a release    | Opus 5    |    $0.82 | $0.64 | $0.56 |   −22% |
-| GitHub REST            | publish a release    | Haiku 4.5 |    $0.10 | $0.10 | $0.09 |    −0% |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |    $0.21 | $0.24 | $0.19 |   +14% |
-| GitHub REST (split)    | publish a release    | Opus 5    |    $0.69 | $0.67 | $0.55 |    −3% |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |    $0.16 | $0.14 | $0.09 |   −12% |
-| Billing API            | start a subscription | Sonnet 5  |    $1.06 | $0.60 | $0.75 |   −43% |
-| Billing API            | start a subscription | Opus 5    |    $1.85 | $1.11 | $2.06 |   −40% |
-| Billing API            | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 | $0.23 |      — |
-| Stripe                 | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 | $0.26 |   −22% |
-| Stripe                 | buy carbon removal   | Opus 5    |    $0.54 | $0.45 | $0.67 |   −17% |
-| Stripe                 | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 | $0.14 |      — |
-| PayPal Orders          | capture and track    | Sonnet 5  |    $0.40 | $0.41 | $0.34 |    +2% |
-| PayPal Orders          | capture and track    | Opus 5    |    $0.77 | $0.97 | $0.79 |   +26% |
-| PayPal Orders          | capture and track    | Haiku 4.5 |    $0.13 | $0.11 | $0.12 |   −15% |
-| DigitalOcean           | shared file storage  | Sonnet 5  |    $0.34 | $0.36 | $0.20 |    +6% |
-| DigitalOcean           | shared file storage  | Opus 5    |    $0.56 | $0.78 | $0.73 |   +39% |
-| DigitalOcean           | shared file storage  | Haiku 4.5 |    $0.20 | $0.14 | $0.16 |   −30% |
-| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    $0.33 | $0.17 | $0.23 |   −48% |
-| DigitalOcean (bundled) | shared file storage  | Opus 5    |    $0.85 | $0.90 | $0.79 |    +6% |
-| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    $0.14 | $0.11 | $0.15 |   −21% |
-| Cafe API               | order a coffee       | Sonnet 5  |    $0.24 | $0.28 | $0.24 |   +17% |
-| Cafe API               | order a coffee       | Opus 5    |    $0.44 | $0.67 | $0.62 |   +52% |
-| Cafe API               | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 | $0.07 |   +43% |
+| Description            | Task                 | Model     |  no tree |  tree |   map | Δ tree | Δ map |
+| ---------------------- | -------------------- | --------- | -------: | ----: | ----: | -----: | ----: |
+| GitHub REST            | publish a release    | Sonnet 5  |    $0.42 | $0.32 | $0.18 |   −24% |  −57% |
+| GitHub REST            | publish a release    | Opus 5    |    $0.82 | $0.64 | $0.56 |   −22% |  −32% |
+| GitHub REST            | publish a release    | Haiku 4.5 |    $0.10 | $0.10 | $0.09 |    −0% |  −10% |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |    $0.21 | $0.24 | $0.19 |   +14% |  −10% |
+| GitHub REST (split)    | publish a release    | Opus 5    |    $0.69 | $0.67 | $0.55 |    −3% |  −20% |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |    $0.16 | $0.14 | $0.09 |   −12% |  −44% |
+| Billing API            | start a subscription | Sonnet 5  |    $1.06 | $0.60 | $0.75 |   −43% |  −29% |
+| Billing API            | start a subscription | Opus 5    |    $1.85 | $1.11 | $2.06 |   −40% |  +11% |
+| Billing API            | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 | $0.23 |      — |     — |
+| Stripe                 | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 | $0.26 |   −22% |  −19% |
+| Stripe                 | buy carbon removal   | Opus 5    |    $0.54 | $0.45 | $0.67 |   −17% |  +24% |
+| Stripe                 | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 | $0.14 |      — |     — |
+| PayPal Orders          | capture and track    | Sonnet 5  |    $0.40 | $0.41 | $0.34 |    +2% |  −15% |
+| PayPal Orders          | capture and track    | Opus 5    |    $0.77 | $0.97 | $0.79 |   +26% |   +3% |
+| PayPal Orders          | capture and track    | Haiku 4.5 |    $0.13 | $0.11 | $0.12 |   −15% |   −8% |
+| DigitalOcean           | shared file storage  | Sonnet 5  |    $0.34 | $0.36 | $0.20 |    +6% |  −41% |
+| DigitalOcean           | shared file storage  | Opus 5    |    $0.56 | $0.78 | $0.73 |   +39% |  +30% |
+| DigitalOcean           | shared file storage  | Haiku 4.5 |    $0.20 | $0.14 | $0.16 |   −30% |  −20% |
+| DigitalOcean (bundled) | shared file storage  | Sonnet 5  |    $0.33 | $0.17 | $0.23 |   −48% |  −30% |
+| DigitalOcean (bundled) | shared file storage  | Opus 5    |    $0.85 | $0.90 | $0.79 |    +6% |   −7% |
+| DigitalOcean (bundled) | shared file storage  | Haiku 4.5 |    $0.14 | $0.11 | $0.15 |   −21% |   +7% |
+| Cafe API               | order a coffee       | Sonnet 5  |    $0.24 | $0.28 | $0.24 |   +17% |   +0% |
+| Cafe API               | order a coffee       | Opus 5    |    $0.44 | $0.67 | $0.62 |   +52% |  +41% |
+| Cafe API               | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 | $0.07 |   +43% |   +0% |
+
+## The price of a working answer
+
+The medians above price a run; this table prices a result: everything a condition spent across all eight pairs, divided by the number of runs whose flow works.
+Failed runs cost money too, so they stay in the bill.
+
+| Model      | no tree |  tree |   map |
+| ---------- | ------: | ----: | ----: |
+| Sonnet 5   |   $0.55 | $0.37 | $0.33 |
+| Opus 5     |   $0.83 | $0.79 | $0.87 |
+| Haiku 4.5  |   $0.43 | $0.26 | $0.22 |
+| All models |   $0.67 | $0.53 | $0.52 |
+
+The map buys the most working answers for the least money on Sonnet 5 and Haiku 4.5; Opus 5 alone pays slightly more with it than with `tree`, dragged by the billing API, where reading a 92 KB map whole loses to four targeted calls.
 
 Five hundred forty-three of 720 runs produced a flow that passes the check: 158 of 240 reading the description, 184 of 240 exploring it with `tree`, 201 of 240 searching a pre-generated map.
 Three cells move from at most three working runs in ten to six or more once the index is there: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal. In every one of them the control runs name the right calls and never say how they authenticate.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 The Cafe API is the same lesson from the other end — 41 KB that every control run reads in a single call, against seven to thirteen index calls to assemble the same knowledge. Because each call is a request that resends the conversation, the bill follows calls rather than bytes: Sonnet 5 finishes with 48% less context and pays 17% more.
 Stripe splits the difference — the index cannot rescue a plan that starts from a price that does not exist yet, and only Opus 5 avoids that premise.
-
-## Same description, opposite layout
-
-If the pattern above is right — the index earns its place exactly where the description's layout defeats search — then flipping a description's layout should flip the result. Two counter-layouts, generated with the CLI itself, test that: GitHub split into 2,842 files (`redocly split`), and DigitalOcean bundled into one 2.87 MB file (`redocly bundle`). Same tasks, same checks, ten runs a cell on a build at `77a6894a7`.
-
-GitHub, split — the file-per-operation layout is now the index, and the advantage the command held on the 9.5 MB single file disappears:
-
-| Model     |       works | no tree |  tree | Δ cost |
-| --------- | ----------: | ------: | ----: | -----: |
-| Sonnet 5  | 9/10 → 9/10 |   $0.21 | $0.24 |   +14% |
-| Opus 5    | 8/10 → 9/10 |   $0.69 | $0.67 |    −3% |
-| Haiku 4.5 | 5/10 → 1/10 |   $0.16 | $0.14 |   −12% |
-
-DigitalOcean, bundled — search now has to dig through one 2.87 MB file, and the index that lost on 2,909 well-named files starts paying: Sonnet 5 goes from five working runs to all ten at half the cost:
-
-| Model     |        works | no tree |  tree | Δ cost |
-| --------- | -----------: | ------: | ----: | -----: |
-| Sonnet 5  | 5/10 → 10/10 |   $0.33 | $0.17 |   −48% |
-| Opus 5    | 8/10 → 10/10 |   $0.85 | $0.90 |    +6% |
-| Haiku 4.5 |  3/10 → 5/10 |   $0.14 | $0.11 |   −21% |
-
-Both signs flipped with the layout. What decides the index's value is not the API or the model but whether the description's own shape already answers "where is it" — and the failure classes stay the same on both sides: the bundled DigitalOcean's control runs miss `bearer_auth` eleven times, exactly like the split one's did, and the split GitHub's Haiku 4.5 keeps skipping the installation-token call with or without the index.
-
-Both relaid-out pairs sit in the grid above as first-class rows and have their own tabs; this section reads them against their original layouts.
 
 ## What the failures were
 
@@ -10977,7 +10967,7 @@ Stripe adds a sharper version of the second: the model does not miss the call, i
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
 Sessions start in a directory holding nothing but the description — plus, in the map condition, the map generated from it — outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
 The PayPal tree runs were measured on that build; the other five descriptions ran on the earlier `c06d24541`, whose `tree` output for them is byte-identical — 598 command comparisons, no difference.
-Each cell holds ten runs; the tables give the median over the runs whose flow works. The `Δ tree` column compares **tree** against **no tree**; the map column carries its own numbers.
+Each cell holds ten runs; the tables give the median over the runs whose flow works. `Δ tree` and `Δ map` compare each condition against **no tree**.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.
 
