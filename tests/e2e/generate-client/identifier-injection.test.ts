@@ -64,16 +64,20 @@ describe('generate-client identifier / comment injection', () => {
     );
     expect(res.status, res.stderr).toBe(0);
     // The unsafe operationId is reported and rewritten, not silently accepted.
-    expect(res.stderr).toMatch(/is not a valid TypeScript identifier/);
+    expect(res.stderr).toMatch(/is not a usable identifier/);
 
     const src = readFileSync(entry, 'utf-8');
     // No live comment-breakout: the payload's `*/` is neutralized to `*\/`.
     expect(src).not.toMatch(/\*\/\s*;globalThis/);
     // No payload survives as a top-level statement (only inside identifiers/comments).
     expect(src).not.toMatch(/^\s*globalThis\.PWNED/m);
-    // The operation name became a single valid identifier (no parens/spaces/semicolons)
-    // in the flat call sugar.
-    expect(src).toMatch(/export const [A-Za-z_$][A-Za-z0-9_$]* = \([^)]*\) => client\./);
+    // The operation name became a single valid identifier (no parens, spaces, or
+    // semicolons), and it is exported by destructuring the client under that same name.
+    const bindings = src.match(/export const \{ ([^}]*) \} = client;\s*$/m);
+    expect(bindings, 'no operation bindings found in the generated client').not.toBeNull();
+    for (const name of bindings![1].split(', ')) {
+      expect(name).toMatch(/^[A-Za-z_$][A-Za-z0-9_$]*$/);
+    }
 
     // Strongest proof: the whole file type-checks. Injected statements would not.
     const tsc = spawnSync(

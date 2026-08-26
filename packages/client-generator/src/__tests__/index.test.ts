@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -90,7 +91,7 @@ describe('collectGeneratedFiles', () => {
       outputPath: '/out/api.ts',
       outputMode: 'single',
       emit: {},
-      generators: ['sdk'],
+      generators: ['typescript'],
     });
     expect(files.length).toBe(1);
     expect(files[0].path).toBe('/out/api.ts');
@@ -102,21 +103,82 @@ describe('collectGeneratedFiles', () => {
         outputPath: '/out/api.ts',
         outputMode: 'single',
         emit: {},
-        generators: ['sdk', 'sdk'],
+        generators: ['typescript', 'typescript'],
       })
     ).toThrow(/already emitted/);
   });
 
-  it('supports runtime: package with outputMode: split (the shared emitter serves both)', () => {
+  it('rejects a generated file path that escapes the output directory', () => {
+    const escapes = [
+      { name: 'traversal', path: '../../outside.txt' },
+      { name: 'absolute', path: '/etc/outside.txt' },
+    ];
+    for (const attempt of escapes) {
+      const registry = new Map([['rogue', { run: () => [{ path: attempt.path, content: 'x' }] }]]);
+      expect(() =>
+        collectGeneratedFiles(model(), {
+          outputPath: '/out/api.ts',
+          outputMode: 'single',
+          emit: {},
+          generators: ['rogue'],
+          registry,
+        })
+      ).toThrow(/Generator "rogue" failed: .*escapes the output directory/);
+    }
+    // A relative path resolves against the output directory — the same base the guard
+    // checked — never against the cwd at write time.
+    const relativeRegistry = new Map([
+      ['relative', { run: () => [{ path: 'fixtures/data.json', content: '{}' }] }],
+    ]);
+    expect(
+      collectGeneratedFiles(model(), {
+        outputPath: '/out/api.ts',
+        outputMode: 'single',
+        emit: {},
+        generators: ['relative'],
+        registry: relativeRegistry,
+      })[0].path
+    ).toBe('/out/fixtures/data.json');
+    // Subdirectories under the output directory stay legal (mock fixtures, split files).
+    const registry = new Map([
+      ['nested', { run: () => [{ path: '/out/fixtures/data.json', content: '{}' }] }],
+    ]);
+    expect(
+      collectGeneratedFiles(model(), {
+        outputPath: '/out/api.ts',
+        outputMode: 'single',
+        emit: {},
+        generators: ['nested'],
+        registry,
+      })
+    ).toHaveLength(1);
+  });
+
+  it('rejects a run() result that is not an array of { path, content } files', () => {
+    for (const bad of [undefined, 'files', [{ path: '', content: 'x' }], [{ path: '/out/a' }]]) {
+      const registry = new Map([['broken', { run: () => bad as never }]]);
+      expect(() =>
+        collectGeneratedFiles(model(), {
+          outputPath: '/out/api.ts',
+          outputMode: 'single',
+          emit: {},
+          generators: ['broken'],
+          registry,
+        })
+      ).toThrow(/Generator "broken" failed: run\(\) must return/);
+    }
+  });
+
+  it('supports outputMode: split with no schemas (only the entry file)', () => {
     const files = collectGeneratedFiles(model(), {
       outputPath: '/out/api.ts',
       outputMode: 'split',
-      emit: { runtime: 'package' },
-      generators: ['sdk'],
+      emit: {},
+      generators: ['typescript'],
     });
     // No schemas in the model → only the entry file.
     expect(files.map((f) => f.path)).toEqual(['/out/api.ts']);
-    expect(files[0].content).toContain("from '@redocly/client-generator'");
+    expect(files[0].content).toContain('// ─── Embedded runtime');
   });
 });
 
@@ -129,6 +191,37 @@ describe('generateClient — end-to-end orchestration', () => {
 
   afterEach(async () => {
     await rm(workDir, { recursive: true, force: true });
+  });
+
+  it('reports a parameter name used in two locations, which every SDK has to spell once', async () => {
+    const warn = vi.spyOn(logger, 'warn').mockImplementation(() => undefined);
+    const api = join(workDir, 'repeated.yaml');
+    await writeFile(
+      api,
+      outdent`
+        openapi: 3.1.0
+        info: { title: Repeated, version: 1.0.0 }
+        paths:
+          /things/{id}:
+            get:
+              operationId: getThing
+              parameters:
+                - { name: id, in: path, required: true, schema: { type: string } }
+                - { name: id, in: query, required: false, schema: { type: integer } }
+              responses:
+                '200':
+                  description: OK
+                  content:
+                    application/json:
+                      schema: { type: object }
+      `,
+      'utf-8'
+    );
+    await generateClient({ api, output: join(workDir, 'client.ts') });
+    expect(warn.mock.calls.map(([message]) => message).join('\n')).toContain(
+      'operation "getThing" uses "id" in more than one parameter location'
+    );
+    warn.mockRestore();
   });
 
   it('writes the generated file to disk and reports its size', async () => {
@@ -161,9 +254,7 @@ describe('generateClient — end-to-end orchestration', () => {
     expect(result.bytes).toBeGreaterThan(0);
 
     const contents = await readFile(output, 'utf-8');
-    expect(contents).toContain(
-      'export const ping = <I extends RequestOptions | undefined = undefined>(init?: I): Promise<EnvelopeResult<PingResult, Record<string, never>, I>>'
-    );
+    expect(contents).toContain('export const { ping } = client;');
     expect(contents).toContain('// Generated by @redocly/client-generator');
     // bytes should match what we wrote.
     expect(result.bytes).toBe(Buffer.byteLength(contents, 'utf-8'));
@@ -252,9 +343,8 @@ describe('generateClient — end-to-end orchestration', () => {
       'pagination: { style: "cursor", param: "cursor", nextCursor: "/nextCursor", items: "/orders" }'
     );
     expect(contents).toContain('item: string;');
-    expect(contents).toContain(
-      '{ pages: client.listOrders.pages, items: client.listOrders.items });'
-    );
+    // `.pages`/`.items` ride the client method the binding points at.
+    expect(contents).toContain('export const { listOrders } = client;');
   });
 
   it('normalizes a Swagger 2.0 document before generating', async () => {
@@ -295,9 +385,7 @@ describe('generateClient — end-to-end orchestration', () => {
 
     expect(result.bytes).toBeGreaterThan(0);
     const contents = await readFile(output, 'utf-8');
-    expect(contents).toContain(
-      'export const listItems = <I extends RequestOptions | undefined = undefined>('
-    );
+    expect(contents).toContain('export const { listItems } = client;');
     expect(contents).toContain('export type Item');
     expect(contents).toContain('serverUrl: "https://api.example.com/v1"');
   });

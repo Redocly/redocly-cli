@@ -37,18 +37,22 @@ async function main(): Promise<void> {
 
   // 1) Baseline: the file was generated with --server-url ${CAFE_BASE}, so the first
   //    call should succeed against the mock server.
-  results.push(await step('initial-call-against-mock', () => listMenuItems({ limit: 1 })));
+  results.push(
+    await step('initial-call-against-mock', () => listMenuItems({ query: { limit: 1 } }))
+  );
 
   // 2) Flip serverUrl to an unreachable host. The same operation should now fail to
   //    connect. This is the proof that configure() actually mutated the instance config.
   configure({ serverUrl: UNREACHABLE });
   results.push(
-    await step('call-after-configure-to-unreachable', () => listMenuItems({ limit: 1 }))
+    await step('call-after-configure-to-unreachable', () => listMenuItems({ query: { limit: 1 } }))
   );
 
   // 3) Flip serverUrl back to the live mock and confirm the config restored cleanly.
   configure({ serverUrl: liveBase });
-  results.push(await step('call-after-configure-restored', () => listMenuItems({ limit: 1 })));
+  results.push(
+    await step('call-after-configure-restored', () => listMenuItems({ query: { limit: 1 } }))
+  );
 
   process.stdout.write(JSON.stringify(results, null, 2) + '\n');
 }

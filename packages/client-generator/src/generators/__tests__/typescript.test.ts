@@ -1,0 +1,102 @@
+import type { ApiModel } from '../../intermediate-representation/model.js';
+import { HEADER } from '../typescript/banner.js';
+import { typescriptGenerator as typescriptGeneratorEntry } from '../typescript/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const typescriptGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  typescriptGeneratorEntry(generatorInput(input));
+
+function apiModel(): ApiModel {
+  return {
+    title: 'T',
+    version: '1.0.0',
+    serverUrl: 'https://api.example.com',
+    services: [
+      {
+        name: 'Default',
+        operations: [
+          {
+            name: 'op',
+            method: 'get',
+            path: '/p',
+            pathParams: [],
+            queryParams: [],
+            headerParams: [],
+            cookieParams: [],
+            successResponses: [],
+            errorResponses: [],
+            security: [],
+            tags: [],
+          },
+        ],
+      },
+    ],
+    schemas: [],
+    securitySchemes: [],
+  };
+}
+
+describe('typescriptGenerator', () => {
+  it('writes the whole client to the output path in single mode', () => {
+    const files = typescriptGenerator({
+      model: apiModel(),
+      outputPath: '/out/api.ts',
+      outputMode: 'single',
+      emit: {},
+    });
+    expect(files.map((file) => file.path)).toEqual(['/out/api.ts']);
+    expect(files[0].content.startsWith(HEADER)).toBe(true);
+    expect(files[0].content).toContain('export const client =');
+  });
+
+  it('honors the output mode (split carves the schemas into a sibling file)', () => {
+    const model = apiModel();
+    model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];
+    const files = typescriptGenerator({
+      model,
+      outputPath: '/out/api.ts',
+      outputMode: 'split',
+      emit: {},
+    });
+    expect(files.map((f) => f.path)).toEqual(['/out/api.schemas.ts', '/out/api.ts']);
+  });
+
+  it('imports only schema names used in TYPE positions (a value identifier is not a use)', () => {
+    // Every descriptor entry contains an `id:` property key; a schema named `id` must
+    // not be dragged into the entry's type-only import by that value-position match —
+    // strict consumer lint configs flag the unused import.
+    const model = apiModel();
+    model.schemas = [
+      { name: 'id', schema: { kind: 'scalar', scalar: 'string' } },
+      { name: 'Pet', schema: { kind: 'object', properties: [] } },
+    ];
+    model.services[0].operations[0].successResponses = [
+      { contentType: 'application/json', schema: { kind: 'ref', name: 'Pet' }, status: 200 },
+    ];
+    const files = typescriptGenerator({
+      model,
+      outputPath: '/out/api.ts',
+      outputMode: 'split',
+      emit: {},
+    });
+    const entry = files.find((file) => file.path === '/out/api.ts')!;
+    expect(entry.content).toContain("import type { Pet } from './api.schemas.js';");
+    expect(entry.content).not.toContain('import type { Pet, id');
+    expect(entry.content).not.toContain('import type { id');
+  });
+
+  it('emits .ts import extensions when importExt is ts (Node native TS execution)', () => {
+    const model = apiModel();
+    model.schemas = [{ name: 'Thing', schema: { kind: 'object', properties: [] } }];
+    const files = typescriptGenerator({
+      model,
+      outputPath: '/out/api.ts',
+      outputMode: 'split',
+      emit: { importExt: 'ts' },
+    });
+    const entry = files.find((file) => file.path === '/out/api.ts')!;
+    expect(entry.content).toContain("from './api.schemas.ts'");
+    expect(entry.content).not.toContain('.schemas.js');
+  });
+});

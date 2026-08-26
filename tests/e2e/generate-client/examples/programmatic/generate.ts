@@ -13,7 +13,7 @@ const result = await generateClient({
   outputMode: 'single', // 'single' | 'split'
   argsStyle: 'flat', // 'flat' | 'grouped'
   errorMode: 'throw', // 'throw' | 'result'
-  generators: ['sdk'], // add 'zod' | 'tanstack-query' | 'transformers'
+  generators: ['typescript'], // add 'zod' | 'tanstack-query' | 'transformers'
 });
 
 console.log(`Wrote ${result.files.length} file(s), ${result.bytes} bytes to ${result.outputPath}`);

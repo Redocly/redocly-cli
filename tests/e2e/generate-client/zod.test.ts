@@ -28,7 +28,7 @@ describe('generate-client zod generator', () => {
 
     generate(join(__dirname, 'fixtures', 'cafe.yaml'), out, [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'zod',
     ]);
@@ -140,7 +140,7 @@ describe('generate-client zod generator', () => {
     );
     generate(join(dir, 'openapi.yaml'), join(dir, 'client.ts'), [
       '--generator',
-      'sdk',
+      'typescript',
       '--generator',
       'zod',
     ]);

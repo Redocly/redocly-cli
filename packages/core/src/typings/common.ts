@@ -3,6 +3,7 @@ export interface StatsRow {
   total: number;
   color: 'red' | 'yellow' | 'green' | 'white' | 'magenta' | 'cyan';
   items?: Set<string>;
+  counts?: Record<string, number>;
 }
 
 export type OASStatsName =
@@ -14,7 +15,8 @@ export type OASStatsName =
   | 'links'
   | 'schemas'
   | 'webhooks'
-  | 'parameters';
+  | 'parameters'
+  | 'xExtensions';
 
 export type AsyncAPIStatsName =
   | 'operations'
@@ -23,7 +25,8 @@ export type AsyncAPIStatsName =
   | 'externalDocs'
   | 'channels'
   | 'schemas'
-  | 'parameters';
+  | 'parameters'
+  | 'xExtensions';
 
 export type StatsName = OASStatsName | AsyncAPIStatsName;
 export type OASStatsAccumulator = Record<OASStatsName, StatsRow>;

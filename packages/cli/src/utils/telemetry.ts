@@ -21,6 +21,10 @@ import type { Arguments } from 'yargs';
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
 import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
+import type {
+  EjectGeneratorTelemetry,
+  GenerateClientTelemetry,
+} from './client-generator-telemetry.js';
 import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
 import type { ExitCode } from './miscellaneous.js';
 import { respondWithinMs } from './network-check.js';
@@ -46,6 +50,8 @@ export async function sendTelemetry({
   lint_rules_with_errors,
   lint_rules_with_warnings,
   lint_rules_with_ignored_problems,
+  generate_client,
+  eject_generator,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -60,6 +66,8 @@ export async function sendTelemetry({
   lint_rules_with_errors: string[] | undefined;
   lint_rules_with_warnings: string[] | undefined;
   lint_rules_with_ignored_problems: string[] | undefined;
+  generate_client?: GenerateClientTelemetry;
+  eject_generator?: EjectGeneratorTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -128,6 +136,31 @@ export async function sendTelemetry({
         lint_rules_with_ignored_problems: lint_rules_with_ignored_problems?.length
           ? JSON.stringify(lint_rules_with_ignored_problems)
           : undefined,
+        // generate-client usage (names of OUR generators/helpers only — never user
+        // code, paths, or names; see utils/generate-client-telemetry.ts).
+        generate_client_builtin_generators: generate_client?.generate_client_builtin_generators
+          ?.length
+          ? JSON.stringify(generate_client.generate_client_builtin_generators)
+          : undefined,
+        generate_client_custom_generators_count:
+          generate_client?.generate_client_custom_generators_count,
+        generate_client_toolkit_imports: generate_client?.generate_client_toolkit_imports?.length
+          ? JSON.stringify(generate_client.generate_client_toolkit_imports)
+          : undefined,
+        generate_client_error_category: generate_client?.generate_client_error_category,
+        generate_client_ejected_generators: generate_client?.generate_client_ejected_generators
+          ?.length
+          ? JSON.stringify(generate_client.generate_client_ejected_generators)
+          : undefined,
+        generate_client_composed_apis_count: generate_client?.generate_client_composed_apis_count,
+        // eject-generator usage (action, allowlisted name, coarse outcome — never
+        // user paths or user-chosen names).
+        eject_generator_action: eject_generator?.eject_generator_action,
+        eject_generator_name: eject_generator?.eject_generator_name,
+        eject_generator_outcome: eject_generator?.eject_generator_outcome,
+        eject_generator_conflicts: eject_generator?.eject_generator_conflicts,
+        eject_generator_from_version: eject_generator?.eject_generator_from_version,
+        eject_generator_to_version: eject_generator?.eject_generator_to_version,
       },
     ];
 
@@ -217,6 +250,7 @@ function getCriterionObjectType(criterionObject: CriterionObject) {
     : type?.type || (criterionObject.condition ? 'simple' : undefined);
 }
 
+// oxlint-disable-next-line sonarjs/cognitive-complexity
 export function collectXSecurityAuthTypes(
   document: Partial<ArazzoDefinition>,
   respectXSecurityAuthTypesAndSchemeName: Set<string>

@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, killServer, repoRoot, startServer } from './helpers.js';
+import { cliEntry, killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
@@ -106,8 +106,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
     results = JSON.parse(run.stdout.trim()) as StepResult[];
 
-    const logResponse = await fetch(`${SERVER_BASE}/__test__/log`);
-    log = (await logResponse.json()) as LogEntry[];
+    log = await serverLog<LogEntry[]>(SERVER_BASE);
   }, 120_000);
 
   afterAll(async () => {
@@ -134,7 +133,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(generated).toContain('export type OAuth2Client = {');
   });
 
-  test('generated file declares one flat call-sugar function per operation', () => {
+  test('generated file exports one binding per operation', () => {
     const expected = [
       'listMenuItems',
       'createMenuItem',
@@ -143,16 +142,14 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       'listOrders',
       'createOrder',
       'getOrderById',
-      'updateOrder',
       'deleteOrder',
+      'updateOrder',
       'listOrderItems',
       'getRevenue',
       'registerOAuth2Client',
     ];
-    for (const name of expected) {
-      // Plain arrow, generic envelope-aware arrow, or Object.assign-wrapped (paginated).
-      expect(generated).toMatch(new RegExp(`export const ${name} = (Object\\.assign\\()?[(<]`));
-    }
+    // One destructure of the client: the exported name IS the method.
+    expect(generated).toContain(`export const { ${expected.join(', ')} } = client;`);
   });
 
   test('exports an OPERATIONS descriptor map keyed by operationId (method + path template)', () => {
@@ -178,18 +175,18 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(generated).toContain('export const { configure, use } = client;');
   });
 
-  test('generated file uses ergonomic signatures (positional path params + params object + body)', () => {
-    // Throw-mode flat sugar is generic over `init` (envelope-aware return type).
-    const sugar = '<I extends RequestOptions | undefined = undefined>';
-    expect(generated).toContain(`export const deleteMenuItem = ${sugar}(menuItemId: string,`);
-    expect(generated).toContain(`export const getMenuItemPhoto = ${sugar}(menuItemId: string,`);
-    expect(generated).toContain(`export const updateOrder = ${sugar}(orderId: string,`);
-    expect(generated).toContain(`export const listMenuItems = ${sugar}(params:`);
+  test('inputs are grouped by layer, one type per layer', () => {
+    expect(generated).toContain('export type DeleteMenuItemPath = {');
+    expect(generated).toContain('export type GetMenuItemPhotoVariables = {');
+    expect(generated).toContain('    path: GetMenuItemPhotoPath;');
+    expect(generated).toContain('    query?: GetMenuItemPhotoQuery;');
+    expect(generated).toContain('export type UpdateOrderVariables = {');
+    expect(generated).toContain('export type ListMenuItemsQuery = {');
     // readOnly fields are dropped from the create body (Bucket C).
     expect(generated).toContain(
-      `export const createOrder = ${sugar}(body: Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">,`
+      'export type CreateOrderBody = Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">;'
     );
-    expect(generated).toContain(`export const createMenuItem = ${sugar}(body: FormData,`);
+    expect(generated).toContain('export type CreateMenuItemBody = FormData;');
   });
 
   // Named string enums get a runtime const-object companion by default, which the
@@ -275,10 +272,10 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(entry!.headers['x-request-id']).toBe('11111111-2222-3333-4444-555555555555');
   });
 
-  // The consumer calls setBearer()/setApiKey() once; every OAuth2 operation must
+  // The consumer sets each credential once on the instance; every OAuth2 operation must
   // then carry the bearer header, every ApiKey operation the X-API-Key header,
   // and `security: []` operations neither.
-  test('setBearer() injects Authorization on OAuth2 operations (getOrderById)', () => {
+  test('a bearer credential injects Authorization on OAuth2 operations (getOrderById)', () => {
     const entry = log.find(
       (e) => e.method === 'GET' && e.url === '/orders/ord_01h1s5z6vf2mm1mz3hevnn9va7'
     );
@@ -286,7 +283,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(entry!.headers['authorization']).toBe('Bearer test-bearer-token');
   });
 
-  test('setApiKey() injects X-API-Key on ApiKey operations (getRevenue)', () => {
+  test('an apiKey credential injects X-API-Key on ApiKey operations (getRevenue)', () => {
     const entry = log.find((e) => e.method === 'GET' && e.url.startsWith('/revenue'));
     expect(entry).toBeDefined();
     expect(entry!.headers['x-api-key']).toBe('test-api-key');

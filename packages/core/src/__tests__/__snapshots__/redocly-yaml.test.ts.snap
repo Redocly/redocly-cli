@@ -219,11 +219,23 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "grouped",
         ],
       },
+      "cliOutput": {
+        "type": "string",
+      },
+      "codeSamples": {
+        "type": "boolean",
+      },
       "dateType": {
         "enum": [
           "string",
           "Date",
         ],
+      },
+      "docs": {
+        "type": "boolean",
+      },
+      "docsFrontmatter": {
+        "type": "boolean",
       },
       "errorMode": {
         "enum": [
@@ -236,6 +248,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "type": "string",
         },
         "type": "array",
+      },
+      "goPackage": {
+        "type": "string",
       },
       "importExt": {
         "enum": [
@@ -252,6 +267,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "mockSeed": {
         "type": "number",
       },
+      "options": {
+        "additionalProperties": [Function],
+        "name": "ClientGeneratorOptionsMap",
+        "properties": {},
+      },
       "outputMode": {
         "enum": [
           "single",
@@ -265,7 +285,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "runtime": {
         "enum": [
           "inline",
-          "package",
+          "module",
         ],
       },
       "serverUrl": {
@@ -275,6 +295,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
     },
+  },
+  "ClientGeneratorOptions": {
+    "additionalProperties": {},
+    "properties": {},
   },
   "ClientPagination": {
     "properties": {
@@ -1366,6 +1390,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "NamedParameters",
           "NamedSecuritySchemes",
           "SecurityScheme",
+          "Scopes",
           "XCodeSample",
           "XCodeSampleList",
           "XServerList",
@@ -1523,6 +1548,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "Ros2OperationBinding",
           "Ros2QosPolicies",
           "Ros2MessageBinding",
+          "MultiFormatSchema",
           "OperationReply",
           "OperationReplyAddress",
           "NamedTags",

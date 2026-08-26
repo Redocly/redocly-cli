@@ -1,6 +1,7 @@
 import type { AssertionContext, AssertResult } from '../../../config/index.js';
 import { colorize } from '../../../logger.js';
 import { isRef, isAbsoluteUrl } from '../../../ref-utils.js';
+import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { keysOf } from '../../../utils/keys-of.js';
@@ -162,6 +163,12 @@ export function buildVisitorObject(
     if (!isString(assertionDefinitionNode.subject?.type)) {
       throw new Error(
         `${assertion.assertionId} -> where -> [${index}]: 'type' (String) is required`
+      );
+    }
+
+    if (!isPlainObject(assertionDefinitionNode.assertions)) {
+      throw new Error(
+        `${assertion.assertionId} -> where -> [${index}]: 'assertions' (Object) is required`
       );
     }
 

@@ -1,0 +1,24 @@
+asyncapi: '2.6.0'
+info:
+  title: AsyncAPI vendor extensions fixture
+  version: '1.0.0'
+  x-metadata:
+    team: Docs
+tags:
+  - name: signup
+    x-displayName: Sign up events
+channels:
+  user/signedup:
+    x-channel-ext: true
+    subscribe:
+      operationId: userSignedUp
+      x-internal: true
+      message:
+        x-internal: true
+        payload:
+          type: object
+          x-enumDescriptions:
+            FREE: Free tier
+          properties:
+            userId:
+              type: string

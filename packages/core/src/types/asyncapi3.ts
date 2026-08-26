@@ -21,6 +21,7 @@ import {
 } from './json-schema-draft7.shared.js';
 
 const Root: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     asyncapi: {
       type: 'string',
@@ -47,6 +48,7 @@ const Root: NodeType = {
 };
 
 const Channel: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     address: {
       type: 'string',
@@ -76,6 +78,7 @@ const Channel: NodeType = {
 };
 
 const Server: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     host: {
       type: 'string',
@@ -113,6 +116,7 @@ const Server: NodeType = {
 };
 
 const Info: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     title: {
       type: 'string',
@@ -144,6 +148,7 @@ const Info: NodeType = {
 };
 
 const Parameter: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     description: {
       type: 'string',
@@ -175,20 +180,13 @@ const Parameter: NodeType = {
 };
 
 const Message: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
-    headers: 'Schema',
-    payload: (value: Record<string, unknown>) => {
-      if (!!value && value?.['schemaFormat']) {
-        return {
-          properties: {
-            schema: 'Schema',
-            schemaFormat: { type: 'string' },
-          },
-          required: ['schema', 'schemaFormat'],
-        };
-      } else {
-        return 'Schema';
-      }
+    headers: (value: unknown) => {
+      return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
+    },
+    payload: (value: unknown) => {
+      return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
     },
     correlationId: 'CorrelationId',
 
@@ -223,6 +221,7 @@ const Message: NodeType = {
 };
 
 const OperationTrait: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     tags: 'TagList',
     title: {
@@ -249,18 +248,10 @@ const OperationTrait: NodeType = {
 };
 
 const MessageTrait: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     headers: (value: unknown) => {
-      if (typeof value === 'function' || isPlainObject(value)) {
-        return {
-          properties: {
-            schema: 'Schema',
-            schemaFormat: { type: 'string' },
-          },
-        };
-      } else {
-        return 'Schema';
-      }
+      return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
     },
     correlationId: 'CorrelationId',
 
@@ -295,6 +286,7 @@ const MessageTrait: NodeType = {
 };
 
 const Operation: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     action: {
       type: 'string',
@@ -329,6 +321,7 @@ const Operation: NodeType = {
 };
 
 const OperationReply: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     channel: 'Channel',
     messages: 'MessageList',
@@ -339,6 +332,7 @@ const OperationReply: NodeType = {
 };
 
 const OperationReplyAddress: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     location: {
       type: 'string',
@@ -356,6 +350,7 @@ const OperationReplyAddress: NodeType = {
 };
 
 const Components: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     messages: 'NamedMessages',
     parameters: 'NamedParameters',
@@ -382,6 +377,7 @@ const Components: NodeType = {
 };
 
 const ImplicitFlow: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
@@ -392,6 +388,7 @@ const ImplicitFlow: NodeType = {
 };
 
 const PasswordFlow: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
@@ -402,6 +399,7 @@ const PasswordFlow: NodeType = {
 };
 
 const ClientCredentials: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     availableScopes: { type: 'object', additionalProperties: { type: 'string' } },
@@ -412,6 +410,7 @@ const ClientCredentials: NodeType = {
 };
 
 const AuthorizationCode: NodeType = {
+  extensionsPrefix: 'x-',
   properties: {
     refreshUrl: { type: 'string' },
     authorizationUrl: { type: 'string' },
@@ -548,6 +547,23 @@ const MessageBindings: NodeType = {
   },
 };
 
+const MultiFormatSchema: NodeType = {
+  extensionsPrefix: 'x-',
+  properties: {
+    schema: 'Schema',
+    schemaFormat: { type: 'string' },
+  },
+  description:
+    'Represents a schema definition. Unlike the Schema Object, it supports multiple schema formats or languages.',
+};
+
+const NamedSchemas: NodeType = {
+  properties: {},
+  additionalProperties: (value: unknown) => {
+    return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
+  },
+};
+
 export const AsyncApi3Types: Record<string, NodeType> = {
   ...AsyncApiBindings,
   ...Ros2Bindings,
@@ -564,6 +580,7 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   Tag,
   Dependencies,
   Schema,
+  MultiFormatSchema,
   Discriminator,
   DiscriminatorMapping,
   SchemaProperties,
@@ -594,7 +611,7 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   NamedOperations: mapOf('Operation'),
   NamedOperationReplies: mapOf('OperationReply'),
   NamedOperationRelyAddresses: mapOf('OperationReplyAddress'),
-  NamedSchemas: mapOf('Schema'),
+  NamedSchemas,
   NamedMessages: mapOf('Message'),
   NamedMessageTraits: mapOf('MessageTrait'),
   NamedOperationTraits: mapOf('OperationTrait'),

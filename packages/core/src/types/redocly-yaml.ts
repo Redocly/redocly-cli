@@ -377,16 +377,29 @@ const Client: NodeType = {
     argsStyle: { enum: ['flat', 'grouped'] },
     serverUrl: { type: 'string' },
     outputMode: { enum: ['single', 'split'] },
-    runtime: { enum: ['inline', 'package'] },
+    runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
+    goPackage: { type: 'string' },
+    cliOutput: { type: 'string' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    codeSamples: { type: 'boolean' },
+    docs: { type: 'boolean' },
+    docsFrontmatter: { type: 'boolean' },
     setup: { type: 'string' },
+    options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
+};
+
+// Options a generator declares itself, so the vocabulary is the generator's, not ours;
+// `generate-client` validates each block against the schema its generator declares.
+const ClientGeneratorOptions: NodeType = {
+  properties: {},
+  additionalProperties: {},
 };
 const ClientPaginationRule: NodeType = {
   properties: {
@@ -805,6 +818,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigGovernance,
   ConfigHTTP,
   Client,
+  ClientGeneratorOptions,
   ClientPagination,
   ClientPaginationRule,
   Where,
