@@ -15,7 +15,7 @@ Eight description-task pairs, three models, three conditions, ten runs a cell �
 
 - **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
 - **tree** — the same task plus two lines: the CLI is installed, and `redocly tree --help` lists what it can select.
-- **map** ⏳ — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by `redocly generate-map` before the session begins, so these runs never call the CLI.
+- **map** — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by `redocly generate-map` before the session begins, so these runs never call the CLI.
 
 Every context and cost cell is the median of the runs in it whose flow works; a cell marked ❌ is one where none did, and its numbers are the median of all its runs.
 A difference is printed only where both sides carry the same mark.
@@ -69,19 +69,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree | map | Δ tree |
-| ---------------- | ----------: | ----------: | --: | -----: |
-| Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |  ⏳ |   −10% |
-| Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 |  ⏳ |   −29% |
-| Haiku 4.5 (n=10) | 11,060 / 10 | 10,262 / 10 |  ⏳ |    −7% |
+| Model            |     no tree |        tree |        map | Δ tree |
+| ---------------- | ----------: | ----------: | ---------: | -----: |
+| Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |  9,927 / 7 |   −10% |
+| Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 | 14,870 / 9 |   −29% |
+| Haiku 4.5 (n=10) | 11,060 / 10 | 10,262 / 10 | 16,495 / 7 |    −7% |
 
 What those runs were billed:
 
-| Model            | no tree |  tree | map | Δ tree |
-| ---------------- | ------: | ----: | --: | -----: |
-| Sonnet 5 (n=10)  |   $0.42 | $0.32 |  ⏳ |   −24% |
-| Opus 5 (n=10)    |   $0.82 | $0.64 |  ⏳ |   −22% |
-| Haiku 4.5 (n=10) |   $0.10 | $0.10 |  ⏳ |    −0% |
+| Model            | no tree |  tree |   map | Δ tree |
+| ---------------- | ------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |   $0.42 | $0.32 | $0.18 |   −24% |
+| Opus 5 (n=10)    |   $0.82 | $0.64 | $0.56 |   −22% |
+| Haiku 4.5 (n=10) |   $0.10 | $0.10 | $0.09 |    −0% |
 
 Whether each run produced a flow that would run:
 
@@ -1183,19 +1183,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree | map | Δ tree |
-| ---------------- | ----------: | ----------: | --: | -----: |
-| Sonnet 5 (n=10)  |  10,994 / 8 | 10,606 / 11 |  ⏳ |    −4% |
-| Opus 5 (n=10)    | 15,772 / 12 | 14,233 / 17 |  ⏳ |   −10% |
-| Haiku 4.5 (n=10) |  36,143 / 7 | 11,706 / 16 |  ⏳ |   −68% |
+| Model            |     no tree |        tree |         map | Δ tree |
+| ---------------- | ----------: | ----------: | ----------: | -----: |
+| Sonnet 5 (n=10)  |  10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
+| Opus 5 (n=10)    | 15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
+| Haiku 4.5 (n=10) |  36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |
 
 What those runs were billed:
 
-| Model            | no tree |  tree | map | Δ tree |
-| ---------------- | ------: | ----: | --: | -----: |
-| Sonnet 5 (n=10)  |   $0.21 | $0.24 |  ⏳ |   +14% |
-| Opus 5 (n=10)    |   $0.69 | $0.67 |  ⏳ |    −3% |
-| Haiku 4.5 (n=10) |   $0.16 | $0.14 |  ⏳ |   −12% |
+| Model            | no tree |  tree |   map | Δ tree |
+| ---------------- | ------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |   $0.21 | $0.24 | $0.19 |   +14% |
+| Opus 5 (n=10)    |   $0.69 | $0.67 | $0.55 |    −3% |
+| Haiku 4.5 (n=10) |   $0.16 | $0.14 | $0.09 |   −12% |
 
 Whether each run produced a flow that would run:
 
@@ -2421,19 +2421,19 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |        no tree |        tree | map | Δ tree |
-| ---------------- | -------------: | ----------: | --: | -----: |
-| Sonnet 5 (n=10)  |    18,538 / 19 | 25,739 / 18 |  ⏳ |   +39% |
-| Opus 5 (n=10)    |    46,231 / 36 | 36,880 / 22 |  ⏳ |   −20% |
-| Haiku 4.5 (n=10) | 31,613 / 16 ❌ | 20,710 / 19 |  ⏳ |      — |
+| Model            |        no tree |        tree |         map | Δ tree |
+| ---------------- | -------------: | ----------: | ----------: | -----: |
+| Sonnet 5 (n=10)  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
+| Opus 5 (n=10)    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
+| Haiku 4.5 (n=10) | 31,613 / 16 ❌ | 20,710 / 19 | 53,080 / 20 |      — |
 
 What those runs were billed:
 
-| Model            |  no tree |  tree | map | Δ tree |
-| ---------------- | -------: | ----: | --: | -----: |
-| Sonnet 5 (n=10)  |    $1.06 | $0.60 |  ⏳ |   −43% |
-| Opus 5 (n=10)    |    $1.85 | $1.11 |  ⏳ |   −40% |
-| Haiku 4.5 (n=10) | $0.19 ❌ | $0.17 |  ⏳ |      — |
+| Model            |  no tree |  tree |   map | Δ tree |
+| ---------------- | -------: | ----: | ----: | -----: |
+| Sonnet 5 (n=10)  |    $1.06 | $0.60 | $0.75 |   −43% |
+| Opus 5 (n=10)    |    $1.85 | $1.11 | $2.06 |   −40% |
+| Haiku 4.5 (n=10) | $0.19 ❌ | $0.17 | $0.23 |      — |
 
 Whether each run produced a flow that would run:
 
@@ -10836,15 +10836,15 @@ How many of the ten runs in each cell produced a flow that would run:
 
 | Description            | Task                 | Model     | no tree |  tree |   map |
 | ---------------------- | -------------------- | --------- | ------: | ----: | ----: |
-| GitHub REST            | publish a release    | Sonnet 5  |   10/10 | 10/10 |    ⏳ |
-| GitHub REST            | publish a release    | Opus 5    |   10/10 | 10/10 |    ⏳ |
-| GitHub REST            | publish a release    | Haiku 4.5 |    3/10 |  3/10 |    ⏳ |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |    9/10 |  9/10 |    ⏳ |
-| GitHub REST (split)    | publish a release    | Opus 5    |    8/10 |  9/10 |    ⏳ |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |    5/10 |  1/10 |    ⏳ |
-| Billing API            | start a subscription | Sonnet 5  |    2/10 |  6/10 |    ⏳ |
-| Billing API            | start a subscription | Opus 5    |   10/10 | 10/10 |    ⏳ |
-| Billing API            | start a subscription | Haiku 4.5 |    0/10 |  1/10 |    ⏳ |
+| GitHub REST            | publish a release    | Sonnet 5  |   10/10 | 10/10 |  8/10 |
+| GitHub REST            | publish a release    | Opus 5    |   10/10 | 10/10 |  9/10 |
+| GitHub REST            | publish a release    | Haiku 4.5 |    3/10 |  3/10 |  1/10 |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |    9/10 |  9/10 |  9/10 |
+| GitHub REST (split)    | publish a release    | Opus 5    |    8/10 |  9/10 | 10/10 |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |    5/10 |  1/10 |  2/10 |
+| Billing API            | start a subscription | Sonnet 5  |    2/10 |  6/10 |  9/10 |
+| Billing API            | start a subscription | Opus 5    |   10/10 | 10/10 | 10/10 |
+| Billing API            | start a subscription | Haiku 4.5 |    0/10 |  1/10 |  3/10 |
 | Stripe                 | buy carbon removal   | Sonnet 5  |    9/10 | 10/10 | 10/10 |
 | Stripe                 | buy carbon removal   | Opus 5    |   10/10 | 10/10 | 10/10 |
 | Stripe                 | buy carbon removal   | Haiku 4.5 |    0/10 |  8/10 | 10/10 |
@@ -10865,15 +10865,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 | Description            | Task                 | Model     |        no tree |        tree |         map | Δ tree |
 | ---------------------- | -------------------- | --------- | -------------: | ----------: | ----------: | -----: |
-| GitHub REST            | publish a release    | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |          ⏳ |   −10% |
-| GitHub REST            | publish a release    | Opus 5    |    20,266 / 17 | 14,435 / 11 |          ⏳ |   −29% |
-| GitHub REST            | publish a release    | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |          ⏳ |    −7% |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |     10,994 / 8 | 10,606 / 11 |          ⏳ |    −4% |
-| GitHub REST (split)    | publish a release    | Opus 5    |    15,772 / 12 | 14,233 / 17 |          ⏳ |   −10% |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |     36,143 / 7 | 11,706 / 16 |          ⏳ |   −68% |
-| Billing API            | start a subscription | Sonnet 5  |    18,538 / 19 | 25,739 / 18 |          ⏳ |   +39% |
-| Billing API            | start a subscription | Opus 5    |    46,231 / 36 | 36,880 / 22 |          ⏳ |   −20% |
-| Billing API            | start a subscription | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 |          ⏳ |      — |
+| GitHub REST            | publish a release    | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |   9,927 / 7 |   −10% |
+| GitHub REST            | publish a release    | Opus 5    |    20,266 / 17 | 14,435 / 11 |  14,870 / 9 |   −29% |
+| GitHub REST            | publish a release    | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |  16,495 / 7 |    −7% |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |     10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
+| GitHub REST (split)    | publish a release    | Opus 5    |    15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |     36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |
+| Billing API            | start a subscription | Sonnet 5  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
+| Billing API            | start a subscription | Opus 5    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
+| Billing API            | start a subscription | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 | 53,080 / 20 |      — |
 | Stripe                 | buy carbon removal   | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |  28,172 / 6 |   −45% |
 | Stripe                 | buy carbon removal   | Opus 5    |     14,913 / 7 |   9,622 / 7 |  27,820 / 9 |   −35% |
 | Stripe                 | buy carbon removal   | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |  34,768 / 7 |      — |
@@ -10894,15 +10894,15 @@ What those runs were billed:
 
 | Description            | Task                 | Model     |  no tree |  tree |   map | Δ tree |
 | ---------------------- | -------------------- | --------- | -------: | ----: | ----: | -----: |
-| GitHub REST            | publish a release    | Sonnet 5  |    $0.42 | $0.32 |    ⏳ |   −24% |
-| GitHub REST            | publish a release    | Opus 5    |    $0.82 | $0.64 |    ⏳ |   −22% |
-| GitHub REST            | publish a release    | Haiku 4.5 |    $0.10 | $0.10 |    ⏳ |    −0% |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |    $0.21 | $0.24 |    ⏳ |   +14% |
-| GitHub REST (split)    | publish a release    | Opus 5    |    $0.69 | $0.67 |    ⏳ |    −3% |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |    $0.16 | $0.14 |    ⏳ |   −12% |
-| Billing API            | start a subscription | Sonnet 5  |    $1.06 | $0.60 |    ⏳ |   −43% |
-| Billing API            | start a subscription | Opus 5    |    $1.85 | $1.11 |    ⏳ |   −40% |
-| Billing API            | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 |    ⏳ |      — |
+| GitHub REST            | publish a release    | Sonnet 5  |    $0.42 | $0.32 | $0.18 |   −24% |
+| GitHub REST            | publish a release    | Opus 5    |    $0.82 | $0.64 | $0.56 |   −22% |
+| GitHub REST            | publish a release    | Haiku 4.5 |    $0.10 | $0.10 | $0.09 |    −0% |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |    $0.21 | $0.24 | $0.19 |   +14% |
+| GitHub REST (split)    | publish a release    | Opus 5    |    $0.69 | $0.67 | $0.55 |    −3% |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |    $0.16 | $0.14 | $0.09 |   −12% |
+| Billing API            | start a subscription | Sonnet 5  |    $1.06 | $0.60 | $0.75 |   −43% |
+| Billing API            | start a subscription | Opus 5    |    $1.85 | $1.11 | $2.06 |   −40% |
+| Billing API            | start a subscription | Haiku 4.5 | $0.19 ❌ | $0.17 | $0.23 |      — |
 | Stripe                 | buy carbon removal   | Sonnet 5  |    $0.32 | $0.25 | $0.26 |   −22% |
 | Stripe                 | buy carbon removal   | Opus 5    |    $0.54 | $0.45 | $0.67 |   −17% |
 | Stripe                 | buy carbon removal   | Haiku 4.5 | $0.09 ❌ | $0.10 | $0.14 |      — |
@@ -10919,8 +10919,7 @@ What those runs were billed:
 | Cafe API               | order a coffee       | Opus 5    |    $0.44 | $0.67 | $0.62 |   +52% |
 | Cafe API               | order a coffee       | Haiku 4.5 |    $0.07 | $0.10 | $0.07 |   +43% |
 
-Three hundred forty-two of 480 runs produced a flow that passes the check reading the description or exploring it with `tree`: 158 of 240 and 184 of 240.
-The map condition is final on five of the eight pairs — 140 of 150 runs — and is being re-run on the billing API and both GitHub layouts after two fixes to the artifact; those cells read ⏳.
+Five hundred forty-three of 720 runs produced a flow that passes the check: 158 of 240 reading the description, 184 of 240 exploring it with `tree`, 201 of 240 searching a pre-generated map.
 Three cells move from at most three working runs in ten to six or more once the index is there: Sonnet 5 on the billing API and on shared file storage, Haiku 4.5 on carbon removal. In every one of them the control runs name the right calls and never say how they authenticate.
 The clearest counter-example is DigitalOcean: a description already split into 2,909 single-operation files is an index, and the command's cards cost more than reading those files directly.
 The Cafe API is the same lesson from the other end — 41 KB that every control run reads in a single call, against seven to thirteen index calls to assemble the same knowledge. Because each call is a request that resends the conversation, the bill follows calls rather than bytes: Sonnet 5 finishes with 48% less context and pays 17% more.

@@ -3,23 +3,22 @@
 An agent handed an API description has three ways to work: read and search the file, ask `tree` for an index of it, or search a map of it generated ahead of time with `generate-map`.
 This measures all three on the same tasks — eight description-task pairs, from 41 KB to 2,909 files, two of them the same description in the opposite layout — and judges the answer, not the effort: does the flow the agent produces actually run?
 
-**342 of 480 runs produced a working flow reading the description or exploring it with `tree`: 158 of 240 and 184 of 240.**
-The map condition is measured on five of the eight pairs so far — 140 of 150 runs — and is being re-run on the other three; see ⏳ below.
-An index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach — and on the five pairs already final the pre-generated map changes that most: Haiku 4.5 works in 40 of 50 runs against 25 of 50 with `tree`.
+**543 of 720 runs produced a working flow: 158 of 240 reading the description, 184 of 240 exploring it with `tree`, 201 of 240 searching a pre-generated map.**
+An index rarely changes what a strong model can do. What it changes is whether a smaller one gets there at all, and what the answer costs to reach — and the pre-generated map changes that most: Haiku 4.5 works in 46 runs against 32 with `tree` and 25 with neither.
 
 ## What it changes
 
 | Description            | Task                 | Model     | works: no tree → tree → map |  no tree |  tree |   map |
 | ---------------------- | -------------------- | --------- | --------------------------: | -------: | ----: | ----: |
-| GitHub REST            | publish a release    | Sonnet 5  |          10/10 → 10/10 → ⏳ |    $0.42 | $0.32 |    ⏳ |
-| GitHub REST            | publish a release    | Opus 5    |          10/10 → 10/10 → ⏳ |    $0.82 | $0.64 |    ⏳ |
-| GitHub REST            | publish a release    | Haiku 4.5 |            3/10 → 3/10 → ⏳ |    $0.10 | $0.10 |    ⏳ |
-| GitHub REST (split)    | publish a release    | Sonnet 5  |            9/10 → 9/10 → ⏳ |    $0.21 | $0.24 |    ⏳ |
-| GitHub REST (split)    | publish a release    | Opus 5    |            8/10 → 9/10 → ⏳ |    $0.69 | $0.67 |    ⏳ |
-| GitHub REST (split)    | publish a release    | Haiku 4.5 |            5/10 → 1/10 → ⏳ |    $0.16 | $0.14 |    ⏳ |
-| Billing API            | start a subscription | Sonnet 5  |            2/10 → 6/10 → ⏳ |    $1.06 | $0.60 |    ⏳ |
-| Billing API            | start a subscription | Opus 5    |          10/10 → 10/10 → ⏳ |    $1.85 | $1.11 |    ⏳ |
-| Billing API            | start a subscription | Haiku 4.5 |            0/10 → 1/10 → ⏳ | $0.19 ❌ | $0.17 |    ⏳ |
+| GitHub REST            | publish a release    | Sonnet 5  |        10/10 → 10/10 → 8/10 |    $0.42 | $0.32 | $0.18 |
+| GitHub REST            | publish a release    | Opus 5    |        10/10 → 10/10 → 9/10 |    $0.82 | $0.64 | $0.56 |
+| GitHub REST            | publish a release    | Haiku 4.5 |          3/10 → 3/10 → 1/10 |    $0.10 | $0.10 | $0.09 |
+| GitHub REST (split)    | publish a release    | Sonnet 5  |          9/10 → 9/10 → 9/10 |    $0.21 | $0.24 | $0.19 |
+| GitHub REST (split)    | publish a release    | Opus 5    |         8/10 → 9/10 → 10/10 |    $0.69 | $0.67 | $0.55 |
+| GitHub REST (split)    | publish a release    | Haiku 4.5 |          5/10 → 1/10 → 2/10 |    $0.16 | $0.14 | $0.09 |
+| Billing API            | start a subscription | Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.06 | $0.60 | $0.75 |
+| Billing API            | start a subscription | Opus 5    |       10/10 → 10/10 → 10/10 |    $1.85 | $1.11 | $2.06 |
+| Billing API            | start a subscription | Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.19 ❌ | $0.17 | $0.23 |
 | Stripe                 | buy carbon removal   | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.26 |
 | Stripe                 | buy carbon removal   | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.54 | $0.45 | $0.67 |
 | Stripe                 | buy carbon removal   | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.09 ❌ | $0.10 | $0.14 |
@@ -35,8 +34,6 @@ An index rarely changes what a strong model can do. What it changes is whether a
 | Cafe API               | order a coffee       | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.24 | $0.28 | $0.24 |
 | Cafe API               | order a coffee       | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.44 | $0.67 | $0.62 |
 | Cafe API               | order a coffee       | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.07 |
-
-⏳ marks a cell being re-measured: the map for the billing API and for both GitHub layouts is regenerated after two fixes the first round of runs exposed — an `apiKey` scheme now carries its header on the row itself, and a description that declares no security says so in the map instead of leaving every row bare. Those numbers land when the runs finish.
 
 Cost is the least reproducible number here — a warm prompt cache can halve it for identical work — so read it for shape.
 Context moves the same way and more steadily; it is per cell and per run in [the detailed version](./tree-agent-index-benchmark-detailed.md).
@@ -89,11 +86,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree | map |
-| --------- | --------------------------: | ------: | ----: | --: |
-| Sonnet 5  |          10/10 → 10/10 → ⏳ |   $0.42 | $0.32 |  ⏳ |
-| Opus 5    |          10/10 → 10/10 → ⏳ |   $0.82 | $0.64 |  ⏳ |
-| Haiku 4.5 |            3/10 → 3/10 → ⏳ |   $0.10 | $0.10 |  ⏳ |
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |        10/10 → 10/10 → 8/10 |   $0.42 | $0.32 | $0.18 |
+| Opus 5    |        10/10 → 10/10 → 9/10 |   $0.82 | $0.64 | $0.56 |
+| Haiku 4.5 |          3/10 → 3/10 → 1/10 |   $0.10 | $0.10 | $0.09 |
 
 What the failing runs left out:
 
@@ -151,11 +148,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree | map |
-| --------- | --------------------------: | ------: | ----: | --: |
-| Sonnet 5  |            9/10 → 9/10 → ⏳ |   $0.21 | $0.24 |  ⏳ |
-| Opus 5    |            8/10 → 9/10 → ⏳ |   $0.69 | $0.67 |  ⏳ |
-| Haiku 4.5 |            5/10 → 1/10 → ⏳ |   $0.16 | $0.14 |  ⏳ |
+| Model     | works: no tree → tree → map | no tree |  tree |   map |
+| --------- | --------------------------: | ------: | ----: | ----: |
+| Sonnet 5  |          9/10 → 9/10 → 9/10 |   $0.21 | $0.24 | $0.19 |
+| Opus 5    |         8/10 → 9/10 → 10/10 |   $0.69 | $0.67 | $0.55 |
+| Haiku 4.5 |          5/10 → 1/10 → 2/10 |   $0.16 | $0.14 | $0.09 |
 
 What the failing runs left out:
 
@@ -217,11 +214,11 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map |  no tree |  tree | map |
-| --------- | --------------------------: | -------: | ----: | --: |
-| Sonnet 5  |            2/10 → 6/10 → ⏳ |    $1.06 | $0.60 |  ⏳ |
-| Opus 5    |          10/10 → 10/10 → ⏳ |    $1.85 | $1.11 |  ⏳ |
-| Haiku 4.5 |            0/10 → 1/10 → ⏳ | $0.19 ❌ | $0.17 |  ⏳ |
+| Model     | works: no tree → tree → map |  no tree |  tree |   map |
+| --------- | --------------------------: | -------: | ----: | ----: |
+| Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.06 | $0.60 | $0.75 |
+| Opus 5    |       10/10 → 10/10 → 10/10 |    $1.85 | $1.11 | $2.06 |
+| Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.19 ❌ | $0.17 | $0.23 |
 
 What the failing runs left out:
 
@@ -595,8 +592,10 @@ The pattern across all eight: the index earns its place on descriptions large en
 
 **A map generated ahead of time gets most of the way there for the smallest model, without the round trips.**
 Where `tree` answers one question per call, `generate-map` writes the same facts into a file the agent greps locally — so the auth and the required fields arrive in the same read as the operation name.
-That closes the gap `tree` leaves on Haiku 4.5: across the five pairs already final it works in 40 runs of 50 against 25 with `tree`, and on three cells it is the whole difference between a flow that runs and one that does not — carbon removal 0 → 10, shared file storage 4 → 10, a coffee order 6 → 10 at the price of reading the file.
-For Sonnet 5 and Opus 5 the map is a wash against `tree` on those pairs, and spend across them is the same to the dollar.
+That closes part of the gap `tree` leaves on Haiku 4.5 — 46 working runs against 32 — and on three cells it is the whole difference between a flow that runs and one that does not: carbon removal 0 → 10, shared file storage 4 → 10, a coffee order 6 → 10 at the price of reading the file.
+For Sonnet 5 and Opus 5 the map is a wash against `tree` (76 and 79 working runs against 73 and 79), and it is the cheapest of the three conditions on both GitHub layouts.
+It is not free of the same trap: on the billing API the map costs Opus 5 $2.06 against $1.11 with `tree`, because a 92 KB map read whole is worse than four targeted calls.
+And it does not close the class it was not built for: the GitHub task needs a token-minting call that the description never marks as a security requirement, so no row can carry it — Haiku 4.5 skips that call in nine runs of ten whatever it is given.
 
 ## How this was measured
 
