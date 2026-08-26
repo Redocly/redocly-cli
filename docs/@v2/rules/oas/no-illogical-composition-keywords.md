@@ -128,7 +128,8 @@ components:
         category:
           type: string
           const: beverage
-      required: [category]
+      required:
+        - category
     MenuItem:
       discriminator:
         propertyName: category
@@ -139,7 +140,8 @@ components:
             category:
               type: string
               const: dessert
-          required: [category]
+          required:
+            - category
 ```
 
 Move the inline schema into `components/schemas` as `Dessert` and reference it with a `$ref`.
@@ -178,7 +180,8 @@ components:
   schemas:
     MenuBaseItem:
       type: object
-      required: [category]
+      required:
+        - category
       properties:
         category:
           type: string
