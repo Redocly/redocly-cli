@@ -85,38 +85,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                       | tree                          |
-| ------------------ | ----------------------------- | ----------------------------- |
-| Sonnet 5 · run 1   | works                         | works                         |
-| Sonnet 5 · run 2   | works                         | works                         |
-| Sonnet 5 · run 3   | works                         | works                         |
-| Sonnet 5 · run 4   | works                         | works                         |
-| Sonnet 5 · run 5   | works                         | works                         |
-| Sonnet 5 · run 6   | works                         | works                         |
-| Sonnet 5 · run 7   | works                         | works                         |
-| Sonnet 5 · run 8   | works                         | works                         |
-| Sonnet 5 · run 9   | works                         | works                         |
-| Sonnet 5 · run 10  | works                         | works                         |
-| Opus 5 · run 1     | works                         | works                         |
-| Opus 5 · run 2     | works                         | works                         |
-| Opus 5 · run 3     | works                         | works                         |
-| Opus 5 · run 4     | works                         | works                         |
-| Opus 5 · run 5     | works                         | works                         |
-| Opus 5 · run 6     | works                         | works                         |
-| Opus 5 · run 7     | works                         | works                         |
-| Opus 5 · run 8     | works                         | works                         |
-| Opus 5 · run 9     | works                         | works                         |
-| Opus 5 · run 10    | works                         | works                         |
-| Haiku 4.5 · run 1  | no app token                  | no app token, no asset upload |
-| Haiku 4.5 · run 2  | no app token                  | no app token                  |
-| Haiku 4.5 · run 3  | no asset upload               | no app token                  |
-| Haiku 4.5 · run 4  | works                         | works                         |
-| Haiku 4.5 · run 5  | no app token                  | no app token                  |
-| Haiku 4.5 · run 6  | works                         | works                         |
-| Haiku 4.5 · run 7  | works                         | no app token                  |
-| Haiku 4.5 · run 8  | no app token                  | works                         |
-| Haiku 4.5 · run 9  | no app token                  | no app token, no asset upload |
-| Haiku 4.5 · run 10 | no app token, no asset upload | no app token                  |
+| Run                | no tree                       | tree                          | map             |
+| ------------------ | ----------------------------- | ----------------------------- | --------------- |
+| Sonnet 5 · run 1   | works                         | works                         | no app token    |
+| Sonnet 5 · run 2   | works                         | works                         | works           |
+| Sonnet 5 · run 3   | works                         | works                         | works           |
+| Sonnet 5 · run 4   | works                         | works                         | works           |
+| Sonnet 5 · run 5   | works                         | works                         | works           |
+| Sonnet 5 · run 6   | works                         | works                         | works           |
+| Sonnet 5 · run 7   | works                         | works                         | works           |
+| Sonnet 5 · run 8   | works                         | works                         | works           |
+| Sonnet 5 · run 9   | works                         | works                         | works           |
+| Sonnet 5 · run 10  | works                         | works                         | no app token    |
+| Opus 5 · run 1     | works                         | works                         | works           |
+| Opus 5 · run 2     | works                         | works                         | works           |
+| Opus 5 · run 3     | works                         | works                         | works           |
+| Opus 5 · run 4     | works                         | works                         | works           |
+| Opus 5 · run 5     | works                         | works                         | works           |
+| Opus 5 · run 6     | works                         | works                         | no asset upload |
+| Opus 5 · run 7     | works                         | works                         | works           |
+| Opus 5 · run 8     | works                         | works                         | works           |
+| Opus 5 · run 9     | works                         | works                         | works           |
+| Opus 5 · run 10    | works                         | works                         | works           |
+| Haiku 4.5 · run 1  | no app token                  | no app token, no asset upload | no app token    |
+| Haiku 4.5 · run 2  | no app token                  | no app token                  | no app token    |
+| Haiku 4.5 · run 3  | no asset upload               | no app token                  | no app token    |
+| Haiku 4.5 · run 4  | works                         | works                         | no app token    |
+| Haiku 4.5 · run 5  | no app token                  | no app token                  | no app token    |
+| Haiku 4.5 · run 6  | works                         | works                         | no app token    |
+| Haiku 4.5 · run 7  | works                         | no app token                  | works           |
+| Haiku 4.5 · run 8  | no app token                  | works                         | no app token    |
+| Haiku 4.5 · run 9  | no app token                  | no app token, no asset upload | no app token    |
+| Haiku 4.5 · run 10 | no app token, no asset upload | no app token                  | no app token    |
 
 A run works when its flow contains the installation token call, `POST /releases`, the asset upload sent to `uploads.github.com`, and the delete keyed by asset id.
 
@@ -147,6 +147,18 @@ redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/
 redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -60
 redocly tree github-api.yaml --format=ai --component=securitySchemes | head -40
 Artifact
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+ls  && wc -l github-api.map.txt
+Grep
+Read github-api.map.txt
+sed -n '53313,53430p' github-api.yaml
+sed -n '53880,53958p' github-api.yaml
+sed -n '53520,53541p' github-api.yaml
 ```
 
 {% /tab %}
@@ -182,6 +194,16 @@ redocly tree github-api.yaml --format=ai --find="create an installation access t
 redocly tree github-api.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -120
 redocly tree github-api.yaml --format=ai --pointer="#/paths/~1app~1installations~1{installation_id}~1access_tokens/post/security" | head -30
 redocly tree github-api.yaml --format=ai --component=securitySchemes | head -40
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+ls; wc -l github-api.map.txt github-api.yaml 2>/dev/null
+Grep
+Read github-api.map.txt
+Read github-api.yaml
 ```
 
 {% /tab %}
@@ -221,6 +243,17 @@ sed -n '3415,3425p' github-api.yaml
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+ls
+Grep
+sed -n '53313,53430p' github-api.yaml
+sed -n '53880,53958p' github-api.yaml; echo ---; sed -n '53520,53545p' github-api.yaml
+sed -n '3421,3500p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -255,6 +288,20 @@ redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/a
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+ls  | head -50
+wc -l github-api.map.txt; grep -n -i "releases" github-api.map.txt | head -80
+grep -n -i "access_tokens\|installations" github-api.map.txt | head -30
+sed -n '3421,3500p' github-api.yaml
+sed -n '53880,53958p' github-api.yaml
+sed -n '53313,53430p' github-api.yaml | grep -n "operationId\|name: owner\|name: repo\|tag_name\|upload_url\|security"
+sed -n '53520,53541p' github-api.yaml
+grep -n "installation-id" github-api.yaml | head -5
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 5 · no tree" %}
 
 ```bash
@@ -283,6 +330,16 @@ redocly tree github-api.yaml --format=ai --path="/app/installations/{installatio
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+ls  | head -50
+Grep
+head -30 github-api.map.txt
+sed -n '3421,3440p' github-api.yaml; echo ---; sed -n '53313,53330p' github-api.yaml; echo ---; sed -n '53880,53960p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -305,6 +362,16 @@ redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/
 redocly tree github-api.yaml --format=ai --find="installation access token" | head -40
 redocly tree github-api.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -150
 redocly tree github-api.yaml --format=ai --pointer="#/components/schemas/installation-token" | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "github-api.map.txt" 2>/dev/null; find / -maxdepth 6 -iname "github-api.yaml" 2>/dev/null
+Grep
+Read github-api.map.txt
+Read github-api.yaml
 ```
 
 {% /tab %}
@@ -335,6 +402,17 @@ redocly tree github-api.yaml --format=ai --path="/app/installations/{installatio
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+ls; echo "---"; wc -l github-api.map.txt github-api.yaml 2>/dev/null
+Grep
+Read github-api.map.txt
+sed -n '53880,53960p' github-api.yaml
+sed -n '53313,53433p' github-api.yaml | grep -n "operationId\|enabledForGitHubApps\|x-github"
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -357,6 +435,17 @@ redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/
 redocly tree github-api.yaml --format=ai --find="installation access token" | head -60
 redocly tree github-api.yaml --format=ai --path="/app/installations/{installation_id}/access_tokens" --operation=post --with-deps | head -100
 redocly tree github-api.yaml --format=ai --pointer="#/paths/~1app~1installations~1{installation_id}~1access_tokens/post/security" | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+ls; wc -l github-api.yaml github-api.map.txt 2>/dev/null
+Grep
+Read github-api.map.txt
+Read github-api.yaml
+true
 ```
 
 {% /tab %}
@@ -389,6 +478,19 @@ redocly tree github-api.yaml --format=ai --path="/app/installations/{installatio
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+ls; echo ---; wc -l github-api.map.txt
+Grep
+Read github-api.map.txt
+sed -n '53313,53430p' github-api.yaml
+grep -n "^security:" github-api.yaml; grep -n "securitySchemes" github-api.yaml; sed -n '/securitySchemes:/,/^  [a-zA-Z]/p' github-api.yaml | head -50
+sed -n '53880,53960p' github-api.yaml
+sed -n '53520,53545p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 10 · no tree" %}
 
 ```bash
@@ -416,6 +518,17 @@ redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases -
 redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/{release_id}/assets --operation=post --with-deps | head -150
 redocly tree github-api.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps | head -80
 redocly tree github-api.yaml --format=ai --component=parameters --name=asset-id | head -20
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "github-api.map.txt" 2>/dev/null; find / -maxdepth 6 -iname "github-api.yaml" 2>/dev/null
+Grep
+Read github-api.map.txt
+Read github-api.yaml
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-github-api-map-v5-sonnet-r10/e2e1cbb0-9b01-41fe-a5b4-3e9ab7b724ac/scratchpad/placeholder.txt
 ```
 
 {% /tab %}
@@ -474,6 +587,20 @@ redocly tree github-api.yaml --format=ai --operation=apps/revoke-installation-ac
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la  && wc -l github-api.map.txt github-api.yaml
+Read github-api.map.txt
+grep -n "release" github-api.map.txt | head -40
+sed -n '282,319p' github-api.map.txt
+sed -n '45811,45843p' github-api.yaml && echo "=====TOKEN" && sed -n '3421,3495p' github-api.yaml
+sed -n '53880,53958p' github-api.yaml
+grep -n "^    release:" github-api.yaml; grep -n "^    release-asset:" github-api.yaml
+sed -n '90926,90985p;90866,90900p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -511,6 +638,20 @@ redocly tree github-api.yaml --format=ai --find "release" | head -80
 redocly tree github-api.yaml --format=ai --find "upload release asset" | head -30; echo "=== APPS"; redocly tree github-api.yaml --format=ai --find "installation access token" | head -30
 cd /Users/tora/bench-run/github-api-tree-help-v3f-opus-r2
 redocly tree github-api.yaml --format=ai --component=schemas --name=release | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la  && wc -l *
+head -60 github-api.map.txt
+grep -n -i "release" github-api.map.txt
+sed -n '282,320p' github-api.map.txt
+sed -n '53880,53958p' github-api.yaml
+sed -n '3421,3500p' github-api.yaml
+grep -n "^    release:" github-api.yaml | head -3
+sed -n '90926,90985p' github-api.yaml
 ```
 
 {% /tab %}
@@ -561,6 +702,19 @@ redocly tree github-api.yaml --format=ai --component=schemas --name=release-asse
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+Read github-api.map.txt
+Grep
+sed -n '282,320p' github-api.map.txt
+sed -n '45811,45845p' github-api.yaml && echo "=====TOKEN" && sed -n '3421,3500p' github-api.yaml
+sed -n '53313,53360p' github-api.yaml; echo "=====UPLOAD"; sed -n '53880,53960p' github-api.yaml; echo "=====DELASSET"; sed -n '53520,53545p' github-api.yaml
+sed -n '45240,45275p' github-api.yaml; echo ==REL-ID-PARAM; grep -n "release-id:" -A8 github-api.yaml | head -20
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 4 · no tree" %}
 
 ```bash
@@ -603,6 +757,22 @@ redocly tree github-api.yaml --format=ai --operation=repos/update-release | head
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+head -60 github-api.map.txt
+grep -n -i "release" github-api.map.txt | head -60
+sed -n '282,320p' github-api.map.txt
+grep -n "    contents:" -A 8 github-api.yaml | grep -n "app-permissions" ; awk '/^    app-permissions:/,/^    [a-z-]+:$/' github-api.yaml | grep -n -m1 "" ; grep -n "^    app-permissions:" github-api.yaml
+sed -n '86225,86260p' github-api.yaml; echo ---; sed -n '86225,86700p' github-api.yaml | grep -n -E "^        (contents|workflows|metadata):" -A 6
+grep -n "^    release:" github-api.yaml; grep -n "^    release-asset:" github-api.yaml
+sed -n '90866,90930p' github-api.yaml; echo "=== release"; sed -n '90926,90990p' github-api.yaml
+sed -n '45240,45275p' github-api.yaml; echo "=== update-release"; sed -n '53723,53760p' github-api.yaml
+sed -n '7741,7760p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 5 · no tree" %}
 
 ```bash
@@ -640,6 +810,19 @@ redocly tree github-api.yaml --format=ai --path='/repos/{owner}/{repo}/releases/
 redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset --with-deps | head -30; echo "-----"; redocly tree github-api.yaml --format=ai --operation=apps/create-installation-access-token --with-deps | head -40
 redocly tree github-api.yaml --format=ai --operation=repos/check-immutable-releases | head -20
 redocly tree github-api.yaml --format=ai --operation=repos/update-release | head -10; echo ---; redocly tree github-api.yaml --format=ai --operation=repos/get-release-asset | head -10
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la  && wc -l github-api.map.txt github-api.yaml
+Read github-api.map.txt
+grep -nE "release|asset" github-api.map.txt | head -50
+sed -n '282,319p' github-api.map.txt
+sed -n '3421,3495p' github-api.yaml; echo "=== get-repo-installation ==="; sed -n '45811,45843p' github-api.yaml
+grep -n "^    release:" github-api.yaml
+sed -n '90926,90990p' github-api.yaml
 ```
 
 {% /tab %}
@@ -684,6 +867,18 @@ redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissi
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la  && wc -l github-api.map.txt
+Read github-api.map.txt
+Grep
+sed -n '45811,45843p' github-api.yaml && echo "=====TOKEN=====" && sed -n '3421,3495p' github-api.yaml
+sed -n '53880,53958p' github-api.yaml
+sed -n '53313,53360p' github-api.yaml; echo "=====DELASSET====="; sed -n '53520,53541p' github-api.yaml; echo "=====LISTASSETS====="; sed -n '53845,53860p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 7 · no tree" %}
 
 ```bash
@@ -722,6 +917,22 @@ redocly tree github-api.yaml --format=ai --path="/repos/{owner}/{repo}/releases/
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la  && wc -l *
+head -60 github-api.map.txt
+grep -n -i "release" github-api.map.txt | head -40
+sed -n '282,320p' github-api.map.txt
+sed -n '45811,45843p;3421,3470p' github-api.yaml
+sed -n '53313,53340p' github-api.yaml; echo "=== UPLOAD ==="; sed -n '53880,53958p' github-api.yaml; echo "=== DELETE ASSET ==="; sed -n '53520,53541p' github-api.yaml
+grep -n "^  release:" -A 40 github-api.yaml | grep -n -E "upload_url|^\s+id:|assets_url|tag_name" | head; echo "=== perms ==="; grep -n "app-permissions:" github-api.yaml | head -3
+awk 'NR>=86225 && NR<=86600' github-api.yaml | grep -n -E "^        (contents|workflows|metadata):" -A 3
+grep -n "^    release:" github-api.yaml; grep -n "^    release-asset:" github-api.yaml
+sed -n '90926,90990p;90866,90900p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 8 · no tree" %}
 
 ```bash
@@ -754,6 +965,27 @@ redocly tree github-api.yaml --format=ai --find "repo installation app" | head -
 redocly tree github-api.yaml --format=ai --operation "apps/get-repo-installation" --with-deps | head -12
 grep -n "securitySchemes" -A 20 github-api.yaml | head -30; grep -n "^servers:" -A 5 github-api.yaml | head -10
 redocly tree github-api.yaml --format=ai --operation "repos/check-immutable-releases" --with-deps | head -8; redocly tree github-api.yaml --format=ai --operation "repos/update-release" | head -5
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la && wc -l github-api.yaml github-api.map.txt
+head -60 github-api.map.txt
+grep -n "releases" github-api.map.txt | head -40
+grep -n "apps/create-installation-access-token\|installation" github-api.map.txt | head -20
+sed -n '53313,53430p' github-api.yaml
+sed -n '53880,53960p' github-api.yaml
+sed -n '53520,53545p' github-api.yaml; echo ===; sed -n '3421,3500p' github-api.yaml
+sed -n '45811,45845p' github-api.yaml; echo === PERMS; grep -n "app-permissions:" github-api.yaml
+sed -n '3421,3500p' github-api.yaml
+grep -n "^    app-permissions:" github-api.yaml; grep -n "contents:" github-api.yaml | head -5
+sed -n '86275,86300p' github-api.yaml; echo === WORKFLOWS; awk 'NR>=86225 && NR<=86900 && /workflows:/{print NR": "$0}' github-api.yaml
+grep -n "release-asset:" github-api.yaml | head; grep -n "  installation-token:" github-api.yaml | head
+awk 'NR>=86225 && NR<=87000 && /workflows/{print NR": "$0}' github-api.yaml; echo ---; sed -n '87440,87475p' github-api.yaml
+sed -n '90866,90960p' github-api.yaml
+sed -n '86418,86430p' github-api.yaml
 ```
 
 {% /tab %}
@@ -793,6 +1025,22 @@ sed -n '260615,260630p' github-api.yaml
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+Read github-api.map.txt
+grep -n "releases" github-api.map.txt | head -40
+sed -n '282,319p' github-api.map.txt
+sed -n '3421,3500p' github-api.yaml
+sed -n '53880,53960p' github-api.yaml
+sed -n '53313,53340p;53520,53545p' github-api.yaml; echo ---; sed -n '45811,45845p' github-api.yaml
+grep -n "upload_url" github-api.yaml | head -20
+sed -n '90925,91020p' github-api.yaml
+sed -n '45240,45275p' github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -824,6 +1072,17 @@ redocly tree github-api.yaml --format=ai --operation=apps/get-repo-installation 
 redocly tree github-api.yaml --format=ai --component=schemas --name=release | head -12; echo "-----"; redocly tree github-api.yaml --format=ai --component=schemas --name=release-asset | head -8
 redocly tree github-api.yaml --format=ai --component=schemas --name=app-permissions | grep -o '"contents":{[^}]*}' | head -3; echo "-----"; redocly tree github-api.yaml --format=ai --operation=apps/revoke-installation-access-token | head -20
 redocly tree github-api.yaml --format=ai | head -30
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+Read github-api.map.txt
+Grep
+sed -n '53880,53958p' github-api.yaml && echo "=====INSTALL TOKEN" && sed -n '3421,3500p' github-api.yaml
+sed -n '45811,45843p' github-api.yaml; echo ==== ; sed -n '53520,53545p' github-api.yaml
 ```
 
 {% /tab %}
@@ -860,6 +1119,17 @@ redocly tree github-api.yaml --path="/repos/{owner}/{repo}/releases/assets/{asse
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Skill
+Read github-api.map.txt
+Read github-api.yaml
+Grep
+Write docs/RELEASE_WORKFLOW_DESIGN.md
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -890,6 +1160,15 @@ redocly tree github-api.yaml --format=ai --operation=repos/delete-release-asset 
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read github-api.map.txt
+Grep
+Read github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 3 · no tree" %}
 
 ```bash
@@ -916,6 +1195,16 @@ redocly tree github-api.yaml --find "asset" --format=ai | head -50
 redocly tree github-api.yaml --operation="post" --path="/repos/{owner}/{repo}/releases" --format=ai --with-deps | head -150
 redocly tree github-api.yaml --operation="post" --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --format=ai --with-deps | head -150
 redocly tree github-api.yaml --operation="delete" --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --format=ai --with-deps | head -150
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read github-api.map.txt
+Read github-api.yaml
+Grep
+Read /Users/tora/.claude/projects/-Users-tora-bench-run-github-api-map-v5-haiku-r3/e1af8ef0-698f-4fde-b579-9aebd80aa514/tool-results/toolu_01RC3bMYj3UT9UsnrBoUs7GS.txt
 ```
 
 {% /tab %}
@@ -952,6 +1241,22 @@ Artifact
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read github-api.map.txt
+Read github-api.yaml
+Grep
+grep -n "repos/create-release" github-api.yaml | head -5
+grep -n "components/schemas/release" github-api.yaml | head -10
+grep -n "^  release:" github-api.yaml | head -2
+grep -n "    release:" github-api.yaml
+grep -i "authentication\|bearer\|token" github-api.yaml | head -30
+grep -n "securitySchemes\|components:" github-api.yaml | head -5
+grep -n "^  securitySchemes:" github-api.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 5 · no tree" %}
 
 ```bash
@@ -976,6 +1281,16 @@ redocly tree github-api.yaml --operation="post" --path="/repos/{owner}/{repo}/re
 redocly tree github-api.yaml --operation="post" --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --format=ai --with-deps
 redocly tree github-api.yaml --operation="delete" --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --format=ai --with-deps
 redocly tree github-api.yaml --component=examples --name=release --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read github-api.map.txt
+Read github-api.yaml
+Grep
+grep -n "release:" github-api.yaml | head -20
 ```
 
 {% /tab %}
@@ -1004,6 +1319,16 @@ redocly tree github-api.yaml --format=ai --operation repos/upload-release-asset 
 redocly tree github-api.yaml --format=ai --operation repos/delete-release-asset --with-deps
 redocly tree github-api.yaml --format=ai --find "authentication" --path "/repos" | head -100
 redocly tree github-api.yaml --format=ai --component securitySchemes
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Skill
+Read github-api.map.txt
+Grep
+Read github-api.yaml
 ```
 
 {% /tab %}
@@ -1037,6 +1362,16 @@ redocly tree github-api.yaml --format=ai --operation="repos/delete-release-asset
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Skill
+Read github-api.map.txt
+Read github-api.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 8 · no tree" %}
 
 ```bash
@@ -1063,6 +1398,18 @@ redocly tree github-api.yaml --format=ai --find "authentication" | head -20
 redocly tree github-api.yaml --format=ai --find "installation" --find "access_tokens"
 redocly tree github-api.yaml --format=ai --find "installation access token"
 redocly tree github-api.yaml --format=ai --path=/app/installations/{installation_id}/access_tokens --operation=post --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read /Users/tora/bench-run/github-api-map-v5-haiku-r8
+Glob
+Read github-api.map.txt
+Grep
+Read github-api.yaml
+grep -n "securitySchemes\|security:" github-api.yaml | head -20
 ```
 
 {% /tab %}
@@ -1101,6 +1448,17 @@ redocly tree github-api.yaml --component schemas --name release --format=ai
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read github-api.map.txt
+Glob
+Grep
+Read github-api.yaml
+grep -n "^\s*release:" github-api.yaml | head -5
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 10 · no tree" %}
 
 ```bash
@@ -1125,6 +1483,16 @@ redocly tree github-api.yaml --find upload --format=ai
 redocly tree github-api.yaml --operation repos/create-release --format=ai --with-deps
 redocly tree github-api.yaml --operation repos/upload-release-asset --format=ai --with-deps
 redocly tree github-api.yaml --operation repos/delete-release-asset --format=ai --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read github-api.map.txt
+Grep
+Read /Users/tora/.claude/projects/-Users-tora-bench-run-github-api-map-v5-haiku-r10/d0aab575-4e2f-4849-8129-3d256514dad2/tool-results/toolu_01BjnjH8ASrwyRMBUZJqY647.txt
+Read github-api.yaml
 ```
 
 {% /tab %}
@@ -1199,38 +1567,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                       | tree                          |
-| ------------------ | ----------------------------- | ----------------------------- |
-| Sonnet 5 · run 1   | works                         | works                         |
-| Sonnet 5 · run 2   | no app token                  | works                         |
-| Sonnet 5 · run 3   | works                         | works                         |
-| Sonnet 5 · run 4   | works                         | no app token                  |
-| Sonnet 5 · run 5   | works                         | works                         |
-| Sonnet 5 · run 6   | works                         | works                         |
-| Sonnet 5 · run 7   | works                         | works                         |
-| Sonnet 5 · run 8   | works                         | works                         |
-| Sonnet 5 · run 9   | works                         | works                         |
-| Sonnet 5 · run 10  | works                         | works                         |
-| Opus 5 · run 1     | works                         | works                         |
-| Opus 5 · run 2     | works                         | works                         |
-| Opus 5 · run 3     | works                         | works                         |
-| Opus 5 · run 4     | works                         | works                         |
-| Opus 5 · run 5     | works                         | works                         |
-| Opus 5 · run 6     | works                         | no asset upload               |
-| Opus 5 · run 7     | works                         | works                         |
-| Opus 5 · run 8     | no asset upload               | works                         |
-| Opus 5 · run 9     | works                         | works                         |
-| Opus 5 · run 10    | no asset upload               | works                         |
-| Haiku 4.5 · run 1  | works                         | works                         |
-| Haiku 4.5 · run 2  | works                         | no app token                  |
-| Haiku 4.5 · run 3  | no app token                  | no app token, no asset upload |
-| Haiku 4.5 · run 4  | works                         | no app token                  |
-| Haiku 4.5 · run 5  | no asset delete               | no app token                  |
-| Haiku 4.5 · run 6  | no app token, no asset upload | no app token                  |
-| Haiku 4.5 · run 7  | works                         | no app token                  |
-| Haiku 4.5 · run 8  | no app token                  | no app token                  |
-| Haiku 4.5 · run 9  | no app token                  | no app token                  |
-| Haiku 4.5 · run 10 | works                         | no app token                  |
+| Run                | no tree                       | tree                          | map             |
+| ------------------ | ----------------------------- | ----------------------------- | --------------- |
+| Sonnet 5 · run 1   | works                         | works                         | works           |
+| Sonnet 5 · run 2   | no app token                  | works                         | no app token    |
+| Sonnet 5 · run 3   | works                         | works                         | works           |
+| Sonnet 5 · run 4   | works                         | no app token                  | works           |
+| Sonnet 5 · run 5   | works                         | works                         | works           |
+| Sonnet 5 · run 6   | works                         | works                         | works           |
+| Sonnet 5 · run 7   | works                         | works                         | works           |
+| Sonnet 5 · run 8   | works                         | works                         | works           |
+| Sonnet 5 · run 9   | works                         | works                         | works           |
+| Sonnet 5 · run 10  | works                         | works                         | works           |
+| Opus 5 · run 1     | works                         | works                         | works           |
+| Opus 5 · run 2     | works                         | works                         | works           |
+| Opus 5 · run 3     | works                         | works                         | works           |
+| Opus 5 · run 4     | works                         | works                         | works           |
+| Opus 5 · run 5     | works                         | works                         | works           |
+| Opus 5 · run 6     | works                         | no asset upload               | works           |
+| Opus 5 · run 7     | works                         | works                         | works           |
+| Opus 5 · run 8     | no asset upload               | works                         | works           |
+| Opus 5 · run 9     | works                         | works                         | works           |
+| Opus 5 · run 10    | no asset upload               | works                         | works           |
+| Haiku 4.5 · run 1  | works                         | works                         | no app token    |
+| Haiku 4.5 · run 2  | works                         | no app token                  | no asset upload |
+| Haiku 4.5 · run 3  | no app token                  | no app token, no asset upload | no app token    |
+| Haiku 4.5 · run 4  | works                         | no app token                  | no app token    |
+| Haiku 4.5 · run 5  | no asset delete               | no app token                  | no app token    |
+| Haiku 4.5 · run 6  | no app token, no asset upload | no app token                  | no app token    |
+| Haiku 4.5 · run 7  | works                         | no app token                  | works           |
+| Haiku 4.5 · run 8  | no app token                  | no app token                  | no app token    |
+| Haiku 4.5 · run 9  | no app token                  | no app token                  | works           |
+| Haiku 4.5 · run 10 | works                         | no app token                  | no app token    |
 
 A run works when its flow contains the installation token call, `POST /releases`, the asset upload sent to `uploads.github.com`, and the delete keyed by asset id.
 
@@ -1334,6 +1702,22 @@ EOF
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+wc -l github-split/openapi.map.txt github-split/openapi.yaml
+Grep
+Read github-split/openapi.map.txt
+sed -n '1,200p' github-split/paths/repos_{owner}_{repo}_releases.yaml
+grep -n "^security" -A5 github-split/openapi.yaml | head -30
+sed -n '1,160p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+sed -n '90,120p' "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+grep -n "securitySchemes" -A40 github-split/openapi.yaml | head -60
+sed -n '1,110p' "github-split/paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n "installation-token.yaml" -r github-split/components/schemas/ 2>/dev/null; sed -n '1,30p' github-split/components/schemas/installation-token.yaml 2>/dev/null | head -30
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
@@ -1370,6 +1754,23 @@ grep -n -B2 -A15 "securitySchemes" github-split/openapi.yaml
 grep -rn "securityScheme\|bearerFormat\|security:" github-split/openapi.yaml github-split/components/ 2>/dev/null | head -20
 grep -n "app-jwt\|JWT\|Authenticating as a GitHub App\|generate-jwt" github-split/openapi.yaml github-split/paths/app_installations_{installation_id}_access_tokens.yaml 2>/dev/null | head -10
 Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-tree-help-v4-sonnet-r2/24b6d1a2-ba72-41a7-b5b2-6b86f01df755/scratchpad/flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+wc -l github-split/openapi.map.txt github-split/openapi.yaml
+Grep
+Read github-split/openapi.map.txt
+sed -n '282,319p' github-split/openapi.map.txt
+grep -n -A5 "security" github-split/paths/app_installations_{installation_id}_access_tokens.yaml github-split/paths/repos_{owner}_{repo}_releases.yaml "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml" "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+sed -n '1,50p' "github-split/paths/repos_{owner}_{repo}_releases.yaml"
+grep -n "security" github-split/openapi.yaml | head -30; echo ---; grep -n "securitySchemes" -A20 github-split/openapi.yaml | head -40
+sed -n '1,150p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+sed -n '45,192p' "github-split/paths/repos_{owner}_{repo}_releases.yaml"; echo ===DELETE===; sed -n '1,120p' "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+sed -n '1,120p' 'github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+true
 ```
 
 {% /tab %}
@@ -1412,6 +1813,18 @@ grep -n -A2 -B2 "^  id:\|^  url:\|browser_download_url" github-split/components/
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+cat "github-split/openapi.map.txt" | head -50
+grep -n "releases" "github-split/openapi.map.txt" | head -50
+sed -n '1,50p' "github-split/paths/repos_{owner}_{repo}_releases.yaml" | sed -n '40,192p'; echo "---ASSET UPLOAD---"; cat "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"; echo "---DELETE ASSET---"; sed -n '1,120p' "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+grep -n "access_tokens\|installation" "github-split/openapi.map.txt" | grep -i "apps/" | head -20
+sed -n '1,40p' "github-split/paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n "securitySchemes" -A 30 "github-split/openapi.yaml" | head -60
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -1440,6 +1853,19 @@ redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/
 Read github-split/components/schemas/release-asset.yaml
 redocly tree github-split/openapi.yaml --format=ai --path=/repos/{owner}/{repo}/releases/assets/{asset_id} --operation=delete --with-deps | head -100
 redocly tree github-split/openapi.yaml --format=ai --component=securitySchemes | head -50
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+cat github-split/openapi.map.txt | head -50; echo "---"; wc -l github-split/openapi.map.txt
+Grep
+cd github-split
+grep -n "securitySchemes" -A 30 openapi.yaml | head -60
+grep -n "^security:" -A 5 openapi.yaml
+cat openapi.yaml | head -40
+grep -n "security" openapi.yaml
 ```
 
 {% /tab %}
@@ -1490,6 +1916,17 @@ Artifact
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+wc -l github-split/openapi.map.txt; grep -n -i "release" github-split/openapi.map.txt | head -100
+sed -n '1,40p' github-split/openapi.map.txt
+sed -n '282,319p' github-split/openapi.map.txt
+sed -n '1,110p' github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '1,150p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -1518,6 +1955,16 @@ redocly tree github-split/openapi.yaml --format=ai --path=/app/installations/{in
 redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token
 redocly tree github-split/openapi.yaml --format=ai --pointer=../components/schemas/installation-token.yaml | head -50; echo ---; redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=installation-token; echo ---; grep -n "" github-split/components/schemas/installation-token.yaml | head -60
 Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-tree-help-v4-sonnet-r6/8e702133-6a35-497c-92ea-051d7cbe648a/scratchpad/release-flow.html
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
 ```
 
 {% /tab %}
@@ -1569,6 +2016,18 @@ grep -rn "securitySchemes" github-split/ | head; echo "---"; grep -rln "security
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+wc -l github-split/openapi.map.txt github-split/openapi.yaml
+Grep
+Read github-split/openapi.map.txt
+sed -n '1,110p' paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '1,150p' paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '1,60p' paths/repos_{owner}_{repo}_releases.yaml | sed -n '44,60p'; echo ---; sed -n '90,120p' paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -1600,6 +2059,19 @@ Read github-split/components/schemas/release.yaml
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+wc -l github-split/openapi.map.txt; grep -n -i "release" github-split/openapi.map.txt | head -80
+head -40 github-split/openapi.map.txt; echo ---; grep -n -i "auth" github-split/openapi.map.txt | head -20
+grep -n -i "access-token\|access_token" github-split/openapi.map.txt | head -20
+sed -n '1,50p' github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '1,150p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+sed -n '1,40p' "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-map-v5-sonnet-r8/7a0c450d-17f3-4a32-b007-659a94e0d62c/scratchpad/release-flow.html
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 9 · no tree" %}
 
 ```bash
@@ -1628,6 +2100,28 @@ grep -n "^  id:\|^  upload_url:\|^  url:" -A2 github-split/components/schemas/re
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+cat github-split/openapi.map.txt | grep -n -iE "release|asset" | head -100
+head -30 github-split/openapi.map.txt
+grep -n -A2 -B2 "create-release \|upload-release-asset\|delete-release-asset" github-split/openapi.map.txt
+grep -n -iE "installation.*access.*token|access_tokens" github-split/openapi.map.txt
+cd github-split
+sed -n '1,40p' paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '1,20p' paths/repos_{owner}_{repo}_releases.yaml | grep -n -A5 security
+sed -n '1,60p' paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+grep -n -A15 "^security:" openapi.yaml
+grep -n -B2 -A20 "securitySchemes:" openapi.yaml | head -60
+grep -n -A5 "security:" paths/app_installations_{installation_id}_access_tokens.yaml
+grep -n "upload_url" components/schemas/release.yaml
+sed -n '1,20p' components/schemas/release.yaml
+sed -n '40,110p' paths/app_installations_{installation_id}_access_tokens.yaml
+cat components/parameters/release-id.yaml 2>/dev/null
+sed -n '1,50p' paths/repos_{owner}_{repo}_releases.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 10 · no tree" %}
 
 ```bash
@@ -1651,6 +2145,24 @@ redocly tree github-split/openapi.yaml --format=ai --find="release asset" | head
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation=post --with-deps | head -200
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation=post --with-deps | head -200
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps | head -100
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+cat github-split/openapi.map.txt | head -50
+grep -n "releases" github-split/openapi.map.txt | grep -iv "^== " | head -60
+grep -n "repos/create-release \|repos/upload-release-asset \|repos/delete-release-asset " github-split/openapi.map.txt
+grep -n "apps/create-installation-access-token\|access_tokens" github-split/openapi.map.txt
+cd /Users/tora/bench-run/ghsplit-map-v5-sonnet-r10
+sed -n '1,110p' github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '1,70p' "github-split/paths/repos_{owner}_{repo}_releases.yaml" | grep -n -A5 "security\|post:"
+sed -n '1,50p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+sed -n '1,40p' "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+sed -n '37,148p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"
+sed -n '95,116p' "github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-map-v5-sonnet-r10/aa9f7553-8152-4c22-8f7f-abfb1cbc1642/scratchpad/flow.json
 ```
 
 {% /tab %}
@@ -1694,6 +2206,19 @@ grep -n "^  [a-z_]*:" release.yaml | head -40; echo "--- asset"; grep -n "^  [a-
 sed -n 1,20p openapi.yaml; echo "--- servers/security"; grep -n "^servers:\|^security:\|url:" openapi.yaml | head
 grep -rn "immutable" paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml paths/repos_{owner}_{repo}_releases_{release_id}.yaml | head; echo "--- asset-id param"; cat components/parameters/asset-id.yaml
 redocly tree github-split/openapi.yaml --format=ai --path="/installation/token" --operation=delete | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+head -60 openapi.map.txt
+grep -n -i "release" openapi.map.txt | head -40
+sed -n '282,319p' openapi.map.txt
+sed -n '2,40p' paths/repos_{owner}_{repo}_installation.yaml && echo "=====ACCESS TOKENS" && sed -n '2,107p' paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '37,148p' 'paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml'
+sed -n '46,110p' 'paths/repos_{owner}_{repo}_releases.yaml'; echo "=== DELETE ASSET"; sed -n '95,116p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
 ```
 
 {% /tab %}
@@ -1750,6 +2275,21 @@ grep -n -A6 "^servers" github-split/openapi.yaml
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la && wc -l openapi.yaml openapi.map.txt
+head -60 openapi.map.txt
+grep -n -i "release" openapi.map.txt | head -50
+sed -n '282,320p' openapi.map.txt
+sed -n '37,148p' paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '46,130p' paths/repos_{owner}_{repo}_releases.yaml; echo ---DELETE---; sed -n '95,116p' paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml; echo ---TOKEN---; sed -n '1,107p' paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '130,192p' paths/repos_{owner}_{repo}_releases.yaml; echo ---PERMS---; grep -n -A4 "^  contents:\|^  workflows:" components/schemas/app-permissions.yaml
+sed -n '1,20p' paths/repos_{owner}_{repo}_installation.yaml; echo ---; grep -n "upload_url" -A6 components/schemas/release.yaml | head -20
+grep -rn "X-GitHub-Api-Version" components/parameters/ | head -3
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 3 · no tree" %}
 
 ```bash
@@ -1792,6 +2332,22 @@ grep -n -A5 '  contents:' github-split/components/schemas/app-permissions.yaml |
 sed -n 59,70p github-split/components/schemas/app-permissions.yaml; echo "=== PARAMS ==="; cat github-split/components/parameters/release-id.yaml github-split/components/parameters/asset-id.yaml github-split/components/parameters/installation-id.yaml
 redocly tree github-split/openapi.yaml --format=ai --operation=repos/update-release | head -20
 sed -n 22,35p github-split/components/schemas/release-asset.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la && wc -l openapi.yaml openapi.map.txt
+head -60 openapi.map.txt
+grep -n "releases" openapi.map.txt | head -40
+grep -n "installation" openapi.map.txt | head -30
+sed -n '37,148p' paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '1,107p' paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '46,120p' 'paths/repos_{owner}_{repo}_releases.yaml' && echo "=== DELETE ASSET ===" && sed -n '95,116p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+grep -n -A6 "^  contents:" components/schemas/app-permissions.yaml && echo "=== repo installation ===" && sed -n '1,40p' 'paths/repos_{owner}_{repo}_installation.yaml'
+sed -n '120,192p' 'paths/repos_{owner}_{repo}_releases.yaml'
+grep -n -m1 -A5 "upload_url" components/schemas/release.yaml; echo "--- release id ---"; grep -n -m1 -A4 "^  id:" components/schemas/release.yaml; echo "--- asset id ---"; grep -n -m1 -A4 "^  id:" components/schemas/release-asset.yaml; echo "--- asset state ---"; grep -n -A8 "^  state:" components/schemas/release-asset.yaml
 ```
 
 {% /tab %}
@@ -1841,6 +2397,19 @@ redocly tree openapi.yaml --format=ai --operation=apps/revoke-installation-acces
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la && wc -l openapi.yaml openapi.map.txt
+Read github-split/openapi.map.txt
+grep -n "releases" github-split/openapi.map.txt | head -40; echo ---; grep -n "apps/create-installation-access-token\|access_tokens\|installation" github-split/openapi.map.txt | head -20
+sed -n '37,148p' paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '46,120p' paths/repos_{owner}_{repo}_releases.yaml; echo "=== DELETE ASSET ==="; sed -n '95,116p' paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml; echo "=== TOKEN ==="; sed -n '1,60p' paths/app_installations_{installation_id}_access_tokens.yaml
+sed -n '1,25p' paths/repos_{owner}_{repo}_installation.yaml; echo === ; sed -n '120,160p' paths/repos_{owner}_{repo}_releases.yaml; echo "=== ASSET GET/upload_url note ==="; grep -n "upload_url" -A6 components/schemas/release.yaml | head -20
+sed -n '120,165p' 'paths/repos_{owner}_{repo}_releases.yaml'; echo "--- upload_url schema ---"; grep -n "upload_url" -A5 components/schemas/release.yaml | head -20
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 5 · no tree" %}
 
 ```bash
@@ -1876,6 +2445,21 @@ cat components/schemas/installation-token.yaml | head -40; echo "--- create toke
 grep -rn "immutable" components/schemas/release.yaml | head; echo "--- upload url field"; grep -n "upload_url\|assets_url\|\"id\"\|^  id:" components/schemas/release.yaml | head; echo "--- immutable check desc"; sed -n '1,60p' 'paths/repos_{owner}_{repo}_immutable-releases.yaml'
 grep -rn "immutab" paths/repos_{owner}_{repo}_releases*.yaml | head -20; echo "--- update-release"; redocly tree openapi.yaml --format=ai --operation=repos/update-release | head -20
 for p in owner repo release-id asset-id installation-id; do echo "== $p"; cat components/parameters/$p.yaml; done
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+head -60 github-split/openapi.map.txt
+grep -n "release" openapi.map.txt | grep -iE "repos/(create|delete|upload|update|get)"
+sed -n '282,319p' openapi.map.txt
+sed -n '1,148p' 'paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml'
+sed -n '2,107p' 'paths/app_installations_{installation_id}_access_tokens.yaml' && echo "=====REPOINST" && cat 'paths/repos_{owner}_{repo}_installation.yaml'
+sed -n '46,192p' 'paths/repos_{owner}_{repo}_releases.yaml'
+sed -n '95,116p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'; echo ===; grep -nE "^  (id|url|browser_download_url|name|state|node_id):" -A2 components/schemas/release-asset.yaml | head -40; echo ===UPLOADURL; grep -n "upload_url" -A4 components/schemas/release.yaml | head
+grep -nE "^ +(id|url|browser_download_url|name|state):" components/schemas/release-asset.yaml | head -20; echo "---REL"; grep -nE "^ +(id|upload_url|assets_url|html_url|tag_name):" components/schemas/release.yaml | head -20; echo "---INSTTOKEN"; grep -nE "^ +(token|expires_at|permissions):" components/schemas/installation-token.yaml | head; echo "---INSTALL"; grep -nE "^ +(id|app_id|access_tokens_url):" components/schemas/installation.yaml | head
 ```
 
 {% /tab %}
@@ -1921,6 +2505,23 @@ grep -n -A6 "^  contents:" app-permissions.yaml | head -12
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+Grep
+Read github-split/openapi.map.txt
+sed -n '37,148p' 'repos_{owner}_{repo}_releases_{release_id}_assets.yaml'
+sed -n '282,319p' openapi.map.txt
+sed -n '46,80p' 'repos_{owner}_{repo}_releases.yaml' && echo "=== DELETE ASSET ===" && sed -n '95,116p' 'repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'
+sed -n '1,60p' 'app_installations_{installation_id}_access_tokens.yaml'
+grep -n -A6 -E '^  (contents|workflows):' components/schemas/app-permissions.yaml | head -40
+grep -rn "upload_url" components/examples/release.yaml components/schemas/release.yaml 2>/dev/null | head; echo "---"; grep -rn "assets/{?name,label}\|upload_url" components/examples/*.yaml | head -5
+cat components/parameters/asset-id.yaml && grep -n -A4 "^  state:" components/schemas/release-asset.yaml
+sed -n '1,10p' components/examples/release.yaml; echo "=== create-release body ==="; sed -n '80,192p' 'paths/repos_{owner}_{repo}_releases.yaml' | grep -n -E "^\s+(tag_name|name|body|draft|prerelease|target_commitish|make_latest|generate_release_notes|required|- )" | head -30
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 7 · no tree" %}
 
 ```bash
@@ -1955,6 +2556,20 @@ head -40 openapi.yaml && echo "=== SEC ===" && ls components/securitySchemes 2>/
 grep -n "servers:" -A6 openapi.yaml | head -20; echo "=== components dirs ==="; ls components
 grep -n "contents:" -A6 components/schemas/app-permissions.yaml | head -12
 sed -n 1,30p components/schemas/release.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+head -60 github-split/openapi.map.txt
+grep -n -i "release" openapi.map.txt | head -40
+sed -n '282,320p' openapi.map.txt
+sed -n '37,148p' paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '46,192p' paths/repos_{owner}_{repo}_releases.yaml; echo ===; sed -n '95,116p' paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+sed -n '95,120p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml'; echo "-----INSTALL TOKEN-----"; sed -n '1,110p' 'paths/app_installations_{installation_id}_access_tokens.yaml'
+grep -n "upload_url" -A6 components/schemas/release.yaml | head -20; echo ---; grep -n "^  id:" -A4 components/schemas/release.yaml | head; echo ---ASSET---; grep -n "^  id:\|^  name:\|^  url:\|^  state:" -A3 components/schemas/release-asset.yaml | head -30; echo ---PERM---; grep -n "  contents:\|  workflows:" -A3 components/schemas/app-permissions.yaml | head -20
 ```
 
 {% /tab %}
@@ -2001,6 +2616,23 @@ redocly tree github-split/openapi.yaml --format=ai --operation=repos/check-immut
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+head -60 github-split/openapi.map.txt
+grep -n "release" openapi.map.txt | head -50
+sed -n '282,320p' openapi.map.txt
+sed -n '1,50p' paths/app_installations_{installation_id}_access_tokens.yaml && echo ===REPOINST=== && sed -n '1,40p' paths/repos_{owner}_{repo}_installation.yaml
+sed -n '1,40p' "paths/repos_{owner}_{repo}_installation.yaml"; echo "===CREATE==="; sed -n '46,192p' "paths/repos_{owner}_{repo}_releases.yaml"
+sed -n '37,148p' "paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml"; echo "===DELASSET==="; sed -n '95,116p' "paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml"
+grep -n "^    contents:\|^    workflows:\|^    metadata:" -A4 components/schemas/app-permissions.yaml | head -40; echo ===; sed -n '50,107p' "paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n "contents:\|workflows:" -A3 components/schemas/app-permissions.yaml | head -30; echo "SEP"; sed -n '50,107p' "paths/app_installations_{installation_id}_access_tokens.yaml"
+grep -n "upload_url\|assets_url" components/examples/release.yaml | head
+sed -n '1,12p' components/examples/release.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 9 · no tree" %}
 
 ```bash
@@ -2039,6 +2671,22 @@ ls github-split/components/; grep -rn "securitySchemes" github-split/openapi.yam
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+Read github-split/openapi.map.txt
+grep -n "release" openapi.map.txt | head -50
+sed -n '282,320p' openapi.map.txt
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '46,130p' 'paths/repos_{owner}_{repo}_releases.yaml' && echo "=====ASSET DELETE" && sed -n '90,120p' 'paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml' && echo "=====TOKEN" && sed -n '1,60p' 'paths/app_installations_{installation_id}_access_tokens.yaml'
+grep -n "description" 'paths/repos_{owner}_{repo}_installation.yaml' | head -5; echo ---; sed -n '1,20p' 'paths/repos_{owner}_{repo}_installation.yaml'; echo ===ASSETSCHEMA; grep -n "^  [a-z_]*:" components/schemas/release-asset.yaml | head -30
+grep -n "^      [a-z_]*:" components/schemas/release-asset.yaml | head -30; echo ===PERMS; grep -n "contents:" -A6 components/schemas/app-permissions.yaml | head -20
+grep -nE "^ *[a-z_]+:" components/schemas/release-asset.yaml | head -40; echo "PERMS:"; grep -n "contents:" -A 8 components/schemas/app-permissions.yaml | head -20
+grep -rn "X-GitHub-Api-Version" components/parameters/ openapi.yaml | head -5
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -2073,6 +2721,19 @@ redocly tree github-split/openapi.yaml --format=ai --file "github-split/componen
 head -30 components/schemas/installation-token.yaml; echo "=== RELEASE ==="; head -60 components/schemas/release.yaml; echo "=== ASSET ==="; head -50 components/schemas/release-asset.yaml
 grep -n -A6 "^servers:" openapi.yaml; grep -n -A15 "securitySchemes" openapi.yaml | head -30; echo "=== app-perms contents ==="; grep -n -B2 -A8 "^  contents:" components/schemas/app-permissions.yaml
 grep -rn "securitySchemes\|security:" openapi.yaml | head; echo "=== getrepoinst ==="; cd ..; redocly tree github-split/openapi.yaml --format=ai --operation apps/get-repo-installation | head -10
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la github-split/ && wc -l github-split/*
+Grep
+Read github-split/openapi.map.txt
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+sed -n '282,319p' github-split/openapi.map.txt
+sed -n '1,40p;95,107p' paths/app_installations_{installation_id}_access_tokens.yaml && echo ---- && sed -n '1,30p' paths/repos_{owner}_{repo}_installation.yaml && echo ----DEL && sed -n '95,116p' paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+sed -n '46,110p' paths/repos_{owner}_{repo}_releases.yaml
 ```
 
 {% /tab %}
@@ -2115,6 +2776,17 @@ redocly tree github-split/openapi.yaml --format=ai --path="/app/installations/{i
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -2138,6 +2810,19 @@ redocly tree github-split/openapi.yaml --format=ai --find "asset"
 redocly tree github-split/openapi.yaml --format=ai --operation=repos/create-release --with-deps
 redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-release-asset --with-deps
 redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Skill
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
 ```
 
 {% /tab %}
@@ -2166,6 +2851,17 @@ redocly tree github-split/openapi.yaml --operation=delete --path="/repos/{owner}
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 4 · no tree" %}
 
 ```bash
@@ -2190,6 +2886,23 @@ redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation=delete --with-deps
 redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release
 redocly tree github-split/openapi.yaml --format=ai --component=schemas | head -30
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+head -50 github-split/openapi.map.txt
+grep -n "repos/create-release\|repos/upload-release-asset\|repos/delete-release-asset" github-split/openapi.map.txt
+head -100 github-split/paths/repos_{owner}_{repo}_releases.yaml
+head -150 github-split/components/schemas/release.yaml | tail -80
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+head -60 github-split/components/schemas/release-asset.yaml
+head -10 github-split/openapi.map.txt
 ```
 
 {% /tab %}
@@ -2224,6 +2937,17 @@ Read github-split/components/examples/release-asset-response-for-successful-uplo
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Grep
+Read github-split/openapi.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 6 · no tree" %}
 
 ```bash
@@ -2249,6 +2973,20 @@ redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-rele
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/components/schemas/release.yaml
+head -300 github-split/openapi.yaml | tail -200
+grep -A 10 "x-github" github-split/paths/repos_{owner}_{repo}_releases.yaml | head -20
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 7 · no tree" %}
 
 ```bash
@@ -2270,6 +3008,18 @@ redocly tree github-split/openapi.yaml --format=ai --find "upload asset"
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases" --operation="post" --with-deps
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/{release_id}/assets" --operation="post" --with-deps
 redocly tree github-split/openapi.yaml --format=ai --path="/repos/{owner}/{repo}/releases/assets/{asset_id}" --operation="delete" --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
 ```
 
 {% /tab %}
@@ -2307,6 +3057,19 @@ Read github-split/components/examples/release-asset-response-for-successful-uplo
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/components/schemas/release.yaml
+Read github-split/components/schemas/release-asset.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 9 · no tree" %}
 
 ```bash
@@ -2333,6 +3096,21 @@ redocly tree github-split/openapi.yaml --format=ai --operation=repos/upload-rele
 redocly tree github-split/openapi.yaml --format=ai --operation=repos/delete-release-asset --with-deps
 Read github-split/components/examples/release.yaml
 Read github-split/components/examples/release-asset-response-for-successful-upload.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
+Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
+Read github-split/components/schemas/release.yaml
+Read github-split/components/schemas/release-asset.yaml
 ```
 
 {% /tab %}
@@ -2363,6 +3141,17 @@ redocly tree github-split/openapi.yaml --format=ai --operation="repos/upload-rel
 redocly tree github-split/openapi.yaml --format=ai --operation="repos/delete-release-asset" --with-deps | head -200
 redocly tree github-split/openapi.yaml --format=ai --component=schemas --name=release | head -300
 redocly tree github-split/openapi.yaml --format=ai --component=schemas | grep -i release | head -20
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read github-split/openapi.map.txt
+Read github-split/openapi.yaml
+Grep
+Read github-split/paths/repos_{owner}_{repo}_releases_{release_id}_assets.yaml
+Read github-split/paths/repos_{owner}_{repo}_releases.yaml
 ```
 
 {% /tab %}
@@ -2437,38 +3226,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                                                           | tree                            |
-| ------------------ | ----------------------------------------------------------------- | ------------------------------- |
-| Sonnet 5 · run 1   | no auth scheme                                                    | works                           |
-| Sonnet 5 · run 2   | no auth scheme                                                    | no auth scheme                  |
-| Sonnet 5 · run 3   | no product call, no auth scheme                                   | works                           |
-| Sonnet 5 · run 4   | wrong auth header                                                 | works                           |
-| Sonnet 5 · run 5   | no auth scheme                                                    | works                           |
-| Sonnet 5 · run 6   | no auth scheme                                                    | works                           |
-| Sonnet 5 · run 7   | no auth scheme                                                    | no auth scheme                  |
-| Sonnet 5 · run 8   | works                                                             | no auth scheme                  |
-| Sonnet 5 · run 9   | no auth scheme                                                    | no auth scheme                  |
-| Sonnet 5 · run 10  | works                                                             | works                           |
-| Opus 5 · run 1     | works                                                             | works                           |
-| Opus 5 · run 2     | works                                                             | works                           |
-| Opus 5 · run 3     | works                                                             | works                           |
-| Opus 5 · run 4     | works                                                             | works                           |
-| Opus 5 · run 5     | works                                                             | works                           |
-| Opus 5 · run 6     | works                                                             | works                           |
-| Opus 5 · run 7     | works                                                             | works                           |
-| Opus 5 · run 8     | works                                                             | works                           |
-| Opus 5 · run 9     | works                                                             | works                           |
-| Opus 5 · run 10    | works                                                             | works                           |
-| Haiku 4.5 · run 1  | no product call, no plan call, no auth scheme                     | no product call, no plan call   |
-| Haiku 4.5 · run 2  | no product call, no auth scheme                                   | no product call, no auth scheme |
-| Haiku 4.5 · run 3  | no product call, no auth scheme                                   | no product call, no auth scheme |
-| Haiku 4.5 · run 4  | no product call, no plan call, no auth scheme                     | no product call                 |
-| Haiku 4.5 · run 5  | no product call, no auth scheme                                   | works                           |
-| Haiku 4.5 · run 6  | no product call, no auth scheme                                   | no product call                 |
-| Haiku 4.5 · run 7  | no product call, no plan call, no orderType field, no auth scheme | no product call                 |
-| Haiku 4.5 · run 8  | no product call, no plan call, no auth scheme                     | no product call, no auth scheme |
-| Haiku 4.5 · run 9  | no product call, no auth scheme                                   | no product call, no auth scheme |
-| Haiku 4.5 · run 10 | no product call, no auth scheme                                   | no product call, no auth scheme |
+| Run                | no tree                                                           | tree                            | map                                               |
+| ------------------ | ----------------------------------------------------------------- | ------------------------------- | ------------------------------------------------- |
+| Sonnet 5 · run 1   | no auth scheme                                                    | works                           | works                                             |
+| Sonnet 5 · run 2   | no auth scheme                                                    | no auth scheme                  | works                                             |
+| Sonnet 5 · run 3   | no product call, no auth scheme                                   | works                           | no product call, no plan call                     |
+| Sonnet 5 · run 4   | wrong auth header                                                 | works                           | works                                             |
+| Sonnet 5 · run 5   | no auth scheme                                                    | works                           | works                                             |
+| Sonnet 5 · run 6   | no auth scheme                                                    | works                           | works                                             |
+| Sonnet 5 · run 7   | no auth scheme                                                    | no auth scheme                  | works                                             |
+| Sonnet 5 · run 8   | works                                                             | no auth scheme                  | works                                             |
+| Sonnet 5 · run 9   | no auth scheme                                                    | no auth scheme                  | works                                             |
+| Sonnet 5 · run 10  | works                                                             | works                           | works                                             |
+| Opus 5 · run 1     | works                                                             | works                           | works                                             |
+| Opus 5 · run 2     | works                                                             | works                           | works                                             |
+| Opus 5 · run 3     | works                                                             | works                           | works                                             |
+| Opus 5 · run 4     | works                                                             | works                           | works                                             |
+| Opus 5 · run 5     | works                                                             | works                           | works                                             |
+| Opus 5 · run 6     | works                                                             | works                           | works                                             |
+| Opus 5 · run 7     | works                                                             | works                           | works                                             |
+| Opus 5 · run 8     | works                                                             | works                           | works                                             |
+| Opus 5 · run 9     | works                                                             | works                           | works                                             |
+| Opus 5 · run 10    | works                                                             | works                           | works                                             |
+| Haiku 4.5 · run 1  | no product call, no plan call, no auth scheme                     | no product call, no plan call   | no product call, no plan call, no orderType field |
+| Haiku 4.5 · run 2  | no product call, no auth scheme                                   | no product call, no auth scheme | works                                             |
+| Haiku 4.5 · run 3  | no product call, no auth scheme                                   | no product call, no auth scheme | no product call, no plan call                     |
+| Haiku 4.5 · run 4  | no product call, no plan call, no auth scheme                     | no product call                 | no product call, no orderType field               |
+| Haiku 4.5 · run 5  | no product call, no auth scheme                                   | works                           | works                                             |
+| Haiku 4.5 · run 6  | no product call, no auth scheme                                   | no product call                 | works                                             |
+| Haiku 4.5 · run 7  | no product call, no plan call, no orderType field, no auth scheme | no product call                 | no product call, no plan call, no orderType field |
+| Haiku 4.5 · run 8  | no product call, no plan call, no auth scheme                     | no product call, no auth scheme | no product call                                   |
+| Haiku 4.5 · run 9  | no product call, no auth scheme                                   | no product call, no auth scheme | no product call                                   |
+| Haiku 4.5 · run 10 | no product call, no auth scheme                                   | no product call, no auth scheme | no product call                                   |
 
 A run works when its flow contains `POST /products`, `POST /plans` and `POST /subscriptions`, names `orderType`, `customerId`, `websiteId` and `items`, and sends the key in the `REB-APIKEY` header.
 
@@ -2539,6 +3328,26 @@ redocly tree rebilly.yaml --format=ai --path=/products --operation=post | head -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+ls | head -50
+wc -l rebilly.map.txt; grep -n -i "subscription\|plan" rebilly.map.txt | head -80
+grep -n -i "customer\|payment-instrument\|payment_instrument" rebilly.map.txt | grep -i "POST\|PUT" | head -40
+grep -n "^GET /customers" rebilly.map.txt
+Read rebilly.yaml
+grep -n "^    Plan:" rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:" rebilly.yaml
+grep -n "^    PlanPriceFormula:\|^    PlanFormulaFlatRate:" rebilly.yaml
+grep -n "^POST /products\b\|POST /products " rebilly.map.txt
+grep -n "^    Subscription:\|^  requestBodies:" rebilly.yaml | head; grep -n "^      Subscription:" rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSale:" rebilly.yaml
+sed -n '15233,15600p' rebilly.yaml | grep -n "paymentInstrumentId\|billingAddress\|items:\|OrderItem\|required"
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "^GET /websites\|^POST /websites" rebilly.map.txt | head -5
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
@@ -2594,6 +3403,25 @@ redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=po
 redocly tree rebilly.yaml --format=ai --find="website" | head -20
 redocly tree rebilly.yaml --format=ai --path=/customers/{id} --operation=get | head -20
 redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentCardCreatePlain | head -20
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "rebilly.map.txt" 2>/dev/null; find / -maxdepth 6 -iname "rebilly.yaml" 2>/dev/null
+wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+grep -n "^        items:\|planId\|paymentInstrument\|paymentCard\|OrderItem:" rebilly.yaml | awk -F: '$1>15233 && $1<15900'
+grep -n "^    Plan:$\|^    PaymentInstrument:$\|^    Product:$\|^    OriginalPlan:$\|^    FlexiblePlan:$" rebilly.yaml
+grep -n "^    Plan:\|^    PaymentInstrument:\|^    Product:\|^    OriginalPlan:" rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    RecurringInterval:\|^    ServicePeriod\|^    Price:" rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml
+grep -n "PostPaymentInstrument:" rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+grep -n "^    PlanFormulaFlatRate:" -A 20 rebilly.yaml | head -25
 ```
 
 {% /tab %}
@@ -2661,6 +3489,18 @@ redocly tree rebilly.yaml --format=ai --path=/customers/{id} --operation=get | h
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+ls; echo "---"; find / -maxdepth 4 -iname "rebilly.map.txt" 2>/dev/null; find / -maxdepth 4 -iname "rebilly.yaml" 2>/dev/null
+wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+Grep
+Read rebilly.yaml
+awk 'NR==15233,NR==16200' rebilly.yaml | grep -n "paymentInstrument\|websiteId:\|^        items:\|planId\|plan:\|billingAddress:\|renewalPolicy\|OrderItem" | head -60
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -2710,6 +3550,33 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFlat
 redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post --with-deps | head -80
 redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription | head -20
 redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -10; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=CustomerId | head -10
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+ls
+grep -n -i "subscription\|plan" rebilly.map.txt | head -100
+sed -n '1,50p' rebilly.map.txt | head -60
+sed -n '246,300p' rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:" rebilly.yaml
+Read rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:\|^    PlanFormula" rebilly.yaml
+grep -n "^  requestBodies:" rebilly.yaml
+grep -n "^    Subscription:$" rebilly.yaml
+grep -n "Subscription:" rebilly.yaml | grep -i "requestBodies" -A2
+sed -n '/^  requestBodies:/,/^components:/p' rebilly.yaml | grep -n "Subscription" | head -20
+grep -n "^    SubscriptionOrOneTimeSale:" rebilly.yaml
+grep -n "^    Subscription:$\|^    OneTimeSale:$" rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n -i "websites\b" rebilly.map.txt | head -10
+sed -n '30552,30776p' rebilly.yaml | head -120
+grep -n "PostPaymentInstrument:" rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:\|^    PaymentCardCreatePlain:" rebilly.yaml
+grep -n "^## Products" -A6 rebilly.map.txt
+grep -n "^## Customers$" -A5 rebilly.map.txt
 ```
 
 {% /tab %}
@@ -2780,6 +3647,37 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=CurrencyCode | 
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+find / -maxdepth 4 -iname "rebilly.map.txt" -o -iname "rebilly.yaml" 2>/dev/null
+find / -iname "rebilly.map.txt" 2>/dev/null; echo "---"; ls -la /Users/tora/Desktop/ 2>/dev/null; echo "---"; ls -la ~/bench-run/rebilly-map-v5-sonnet-r5 2>/dev/null
+Glob
+wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+sed -n '32632,32781p' rebilly.yaml
+grep -n "Subscription:" rebilly.yaml | head -20
+sed -n '15233,15400p' rebilly.yaml
+sed -n '15400,15600p' rebilly.yaml
+sed -n '30552,30780p' rebilly.yaml
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:" rebilly.yaml
+sed -n '12201,12260p' rebilly.yaml
+grep -n "SubscriptionPlan:" rebilly.yaml | head -5
+sed -n '11888,11960p' rebilly.yaml
+grep -n "PlanPriceFormula:\|SubscriptionOrderPlanRecurringInterval:\|^    ServicePeriod:" rebilly.yaml | head
+grep -n "recurringInterval:" rebilly.yaml | sed -n '1,10p'
+sed -n '11615,11660p' rebilly.yaml; echo ---; sed -n '11960,12010p' rebilly.yaml
+grep -n "PlanFormulaFlatRate:" rebilly.yaml
+sed -n '11222,11250p' rebilly.yaml
+grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml
+grep -n "^    OriginalPlan:" rebilly.yaml
+sed -n '12321,12345p' rebilly.yaml
+grep -n "PostToken\b" rebilly.yaml | head -3
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -2824,6 +3722,28 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrO
 redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | head -30; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId | head -20; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=CustomerId | head -20
 redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanPriceFormula | head -20; echo ---; redocly tree rebilly.yaml --format=ai --component=schemas --name=PlanFormulaFlatRate | head -20
 redocly tree rebilly.yaml --format=ai --path=/customers/{id} --operation=get | head -20
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+find / -maxdepth 4 -iname "rebilly.map.txt" -o -iname "rebilly.yaml" 2>/dev/null
+find / -iname "rebilly.map.txt" 2>/dev/null; ls -la /Users/tora/Desktop/ 2>/dev/null | head -50
+ls -la /Users/tora/Desktop/ 2>/dev/null | head -50
+pwd; ls -la .; find /Users/tora/bench-run -iname "*rebilly*" 2>/dev/null
+wc -l rebilly.map.txt; head -100 rebilly.map.txt
+grep -n "^## Plans" -A 10 rebilly.map.txt; echo "---ORDERS---"; grep -n "^## Orders$" -A 32 rebilly.map.txt
+grep -n "^## Payment instruments" -A 8 rebilly.map.txt; echo "---CUSTOMERS---"; grep -n "^## Customers$" -A 15 rebilly.map.txt
+Read rebilly.yaml
+grep -n "^    Plan:" rebilly.yaml; grep -n "^    SubscriptionOrder:\|^    Subscription:" rebilly.yaml
+grep -n "^    SubscriptionPlan:" rebilly.yaml
+grep -n "^  requestBodies:" rebilly.yaml; grep -n "^    Subscription:$" rebilly.yaml -A2; awk '/^  requestBodies:/{f=1} f' rebilly.yaml | grep -n "Subscription:" | head -5
+sed -n '15372,15600p' rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "PostPaymentInstrument:" rebilly.yaml | head; grep -n "^    PaymentInstrument:$" rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml
 ```
 
 {% /tab %}
@@ -2886,6 +3806,31 @@ redocly tree rebilly.yaml --format=ai --find=website | head -30
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+find / -iname "rebilly.map.txt" -o -iname "rebilly.yaml" 2>/dev/null | grep -v Trash
+Glob
+wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+Read rebilly.yaml
+grep -n "Subscription:" rebilly.yaml | head -20
+grep -n "^  requestBodies:" rebilly.yaml; grep -n "    Subscription:$" rebilly.yaml
+grep -n "SubscriptionOrOneTimeSale:" rebilly.yaml
+awk 'NR==15233,NR==15900' rebilly.yaml | grep -n "paymentInstrumentId\|websiteId:\|items:\|OrderItem\|^    [A-Z]"
+grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "PaymentInstrument:$" rebilly.yaml | head; grep -n "^    Plan:$" rebilly.yaml
+grep -n "^    SubscriptionPlan:" rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml
+grep -n "PostPaymentInstrument:" rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:\|^    PaymentCardCreatePlain:" rebilly.yaml
+grep -n "^    CompositeToken:" rebilly.yaml
+grep -n "^    PaymentCardToken:" rebilly.yaml
+awk 'NR>=17081 && NR<=17300' rebilly.yaml | grep -n "^        id:\|readOnly: true" | head -5
+grep -n "^    PlanFormulaFlatRate:" rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -2930,6 +3875,30 @@ redocly tree rebilly.yaml --format=ai --tag="Payment tokens"
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+find / -maxdepth 4 -iname "rebilly.map.txt" -o -iname "rebilly.yaml" 2>/dev/null
+find / -iname "rebilly.map.txt" 2>/dev/null; ls -la /Users/tora/Desktop/ | grep -i rebilly
+ls -la /Users/tora/Desktop/ | grep -i rebilly
+ls -la ~/bench-run/rebilly-map-v5-sonnet-r8/ 2>/dev/null; pwd
+Read rebilly.map.txt
+grep -n "^## " rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:" rebilly.yaml
+Read rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:\|^    PlanFormulaFlatRate:\|^    SubscriptionOrderPlanRecurringInterval:" rebilly.yaml
+grep -n "^  requestBodies:\|^    Subscription:$\|Subscription:\s*$" rebilly.yaml | head -30
+grep -n "^    SubscriptionOrOneTimeSale:" rebilly.yaml
+awk 'NR==15233,NR==16038' rebilly.yaml | grep -n "items:\|paymentInstrument\|billingAddress\|websiteId" | head -30
+grep -n "^    SubscriptionOrOneTimeSaleItem:\|^    OrderItemPlan:\|^    FlexiblePlan:\|^    OrderItem:" rebilly.yaml
+grep -n "PostPaymentInstrument:\|CommonPaymentInstrument:\|PaymentCardInstrument:\|TokenPaymentInstrument:" rebilly.yaml | head -20
+grep -n "^    PaymentInstrumentCreateToken:\|^    PaymentCardCreatePlain:" rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 9 · no tree" %}
 
 ```bash
@@ -2967,6 +3936,27 @@ redocly tree rebilly.yaml --format=ai --pointer="#/components/requestBodies/Post
 redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrumentCreateToken | sed -n '1,6p'
 redocly tree rebilly.yaml --format=ai --find=website | head -30
 redocly tree rebilly.yaml --format=ai --path=/customers/{id} --operation=get | head -10
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+ls  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+grep -n "Subscription:" rebilly.yaml | head -20
+grep -n "paymentInstrumentId\|paymentToken\|billingAddress:\|items:\|websiteId:" rebilly.yaml | awk -F: '$1>15233 && $1<15900'
+grep -n "PostPaymentInstrument:" rebilly.yaml
+grep -n "PaymentInstrumentCreateToken:" rebilly.yaml
+grep -n "^    CompositeToken:" rebilly.yaml
+grep -n "^    PaymentCardToken:" rebilly.yaml
+sed -n '17801,17900p' rebilly.yaml | grep -n "oneOf\|anyOf\|allOf\|properties\|required\|^    [A-Z]"
+awk 'NR==17801,NR==18100' rebilly.yaml | grep -n "oneOf:"
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-rebilly-map-v5-sonnet-r9/7cdfd4e0-dece-42d0-83c9-a257608a944f/scratchpad/placeholder.txt
 ```
 
 {% /tab %}
@@ -3020,6 +4010,25 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan
 redocly tree rebilly.yaml --format=ai --find=website | head -30
 redocly tree rebilly.yaml --format=ai --component=schemas --name=WebsiteId
 redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=post | head -5; echo ---requestBodies---; redocly tree rebilly.yaml --format=ai --pointer="#/components/requestBodies/PostPaymentInstrument"
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+find / -maxdepth 4 -iname "rebilly.map.txt" -o -iname "rebilly.yaml" 2>/dev/null
+find / -iname "*rebilly*" 2>/dev/null | grep -v "/\.Trash"
+ls -la ~/Desktop/ 2>/dev/null | grep -i rebilly; ls -la  2>/dev/null
+wc -l rebilly.map.txt
+Read rebilly.map.txt
+Read /Users/tora/Desktop/rebilly.yaml
+Grep
+sed -n '15233,15233p' /Users/tora/Desktop/rebilly.yaml; awk 'NR==15233,NR==15700 && /items:/{print NR": "$0}' /Users/tora/Desktop/rebilly.yaml | head -5
+awk 'NR>=15233 && NR<=15570' /Users/tora/Desktop/rebilly.yaml | grep -n "paymentInstrument\|websiteId:\|initialInvoiceId\|customerId:"
+grep -n "defaultPaymentInstrument" /Users/tora/Desktop/rebilly.yaml | head -20
+grep -n "^    Plan:$" /Users/tora/Desktop/rebilly.yaml; sed -n '31089,31180p' /Users/tora/Desktop/rebilly.yaml | grep -n "requestBody\|\$ref"
+grep -n "^    CurrencyCode:" /Users/tora/Desktop/rebilly.yaml
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-rebilly-map-v5-sonnet-r10/7787af3d-c405-40a6-8f8f-1a95387fdc41/scratchpad/placeholder.txt
 ```
 
 {% /tab %}
@@ -3118,6 +4127,57 @@ redocly tree rebilly.yaml --format=ai --pointer='#/components/parameters/subscri
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:\|^    PlanFormula\|^    SubscriptionOrderPlan" rebilly.yaml | head -40
+sed -n '12201,12420p' rebilly.yaml
+grep -n "    SubscriptionPlan:" rebilly.yaml
+sed -n '11888,12201p' rebilly.yaml
+grep -n "    PlanPriceFormula:" rebilly.yaml; sed -n '11222,11290p' rebilly.yaml
+sed -n '32632,32700p' rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml; grep -n "  requestBodies:" rebilly.yaml
+sed -n '20470,20500p' rebilly.yaml
+grep -n "    SubscriptionOrOneTimeSale:" rebilly.yaml; sed -n '15233,15420p' rebilly.yaml
+awk 'NR>=15420 && NR<=16038' rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+sed -n '15503,15520p;15537,15545p;15564,15580p' rebilly.yaml
+grep -n "    SubscriptionOrOneTimeSaleItem:\|    WebsiteId:" rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml; echo "=== WebsiteId ==="; sed -n '2897,2915p' rebilly.yaml
+sed -n '30552,30700p' rebilly.yaml
+grep -n "    PostPaymentInstrument:" rebilly.yaml
+sed -n '20441,20470p' rebilly.yaml
+grep -n "    PaymentInstrumentCreateToken:" rebilly.yaml
+sed -n '10876,10940p' rebilly.yaml
+sed -n '34894,34960p' rebilly.yaml
+grep -n "    CompositeToken:\|    PaymentCardToken:" rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml; echo "=== PaymentCardToken ==="; sed -n '17081,17150p' rebilly.yaml
+awk 'NR>=17150 && NR<=17260' rebilly.yaml | grep -n "^        [a-zA-Z_]*:\|^            [a-zA-Z_]*:" | head -30
+sed -n '17151,17166p' rebilly.yaml
+grep -n "^    PaymentInstrument:" rebilly.yaml
+sed -n '10722,10760p' rebilly.yaml
+grep -n "^    PaymentCard:" rebilly.yaml
+sed -n '9936,9990p' rebilly.yaml
+grep -n "    PaymentInstruction:" rebilly.yaml
+sed -n '18061,18130p' rebilly.yaml
+grep -n "    PaymentInstructionInstrument:" rebilly.yaml && sed -n "$(grep -n '    PaymentInstructionInstrument:' rebilly.yaml | cut -d: -f1),+25p" rebilly.yaml
+grep -n "defaultPaymentInstrument:" rebilly.yaml | head; echo ---; grep -n "^    Customer:" rebilly.yaml
+sed -n '3509,3600p' rebilly.yaml
+sed -n "$(grep -n '    VaultedInstrument:' rebilly.yaml | cut -d: -f1),+15p" rebilly.yaml
+sed -n "$(grep -n '    VaultedInstrument:' rebilly.yaml | cut -d: -f1),+40p" rebilly.yaml | tail -26
+sed -n '16038,16060p' rebilly.yaml
+sed -n '15516,15537p' rebilly.yaml
+grep -n "invoiceIds:" rebilly.yaml | head -3; sed -n "$(grep -n 'invoiceIds:' rebilly.yaml | head -1 | cut -d: -f1),+12p" rebilly.yaml
+sed -n '5810,5835p' rebilly.yaml
+sed -n '35260,35300p' rebilly.yaml
+awk 'NR>=35300 && NR<=35400' rebilly.yaml | grep -n "requestBody\|\$ref\|schema:"
+sed -n '20560,20600p' rebilly.yaml
+sed -n '20540,20562p' rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -3186,6 +4246,45 @@ cd /Users/tora/bench-run/rebilly-tree-help-v3f-opus-r2; redocly tree rebilly.yam
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+sed -n '119,131p;246,300p;302,307p;282,293p' rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:\|^    PlanFormula\|^    SubscriptionOrderPlanRecurringInterval:\|^    PlanRecurringInterval" rebilly.yaml
+sed -n '12201,12420p' rebilly.yaml
+grep -n "^    SubscriptionPlan:" rebilly.yaml
+sed -n '11888,12201p' rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml; sed -n '11222,11290p' rebilly.yaml
+sed -n '32632,32700p' rebilly.yaml; echo "=====PI====="; sed -n '30552,30640p' rebilly.yaml
+grep -n "^  requestBodies:" rebilly.yaml; grep -n "^    Subscription:$\|^    PostPaymentInstrument:$" rebilly.yaml
+awk 'NR>=20150 && NR<=20600' rebilly.yaml | grep -n "^    [A-Za-z]" | head -40
+sed -n '20441,20460p;20470,20482p' rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSale:\|^    Subscription:\|^    PaymentInstrumentCreateToken:" rebilly.yaml
+sed -n '16038,16060p' rebilly.yaml; echo "==SUB=="; sed -n '15233,15400p' rebilly.yaml
+sed -n '15400,15560p' rebilly.yaml
+sed -n '15560,15760p' rebilly.yaml | grep -n "items:\|planId\|quantity\|required"
+sed -n '15560,15600p' rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml
+sed -n '10876,10960p' rebilly.yaml
+sed -n '34894,34960p' rebilly.yaml
+grep -n "^    CompositeToken:\|^    PaymentCardToken:" rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml; echo "==PCT=="; sed -n '17081,17180p' rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml; grep -n "^    PaymentInstrument:" rebilly.yaml
+sed -n '3261,3300p' rebilly.yaml; echo "==PI=="; sed -n '10722,10790p' rebilly.yaml
+grep -n "^    PaymentCard:" rebilly.yaml
+sed -n '9936,9990p' rebilly.yaml
+grep -n "defaultPaymentInstrument:" rebilly.yaml | head; grep -n "^    Customer:" rebilly.yaml
+sed -n '3509,3600p' rebilly.yaml
+grep -n "^    VaultedInstrument:" rebilly.yaml && sed -n "$(grep -n '^    VaultedInstrument:' rebilly.yaml | cut -d: -f1),+25p" rebilly.yaml
+sed -n '11615,11640p' rebilly.yaml
+grep -n "^servers:" rebilly.yaml && sed -n "$(grep -n '^servers:' rebilly.yaml | cut -d: -f1),+25p" rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 3 · no tree" %}
 
 ```bash
@@ -3241,6 +4340,41 @@ redocly tree rebilly.yaml --format=ai --operations | grep -iE "organi|website|cu
 redocly tree rebilly.yaml --format=ai --operation=GetCustomerCollection|head -8; echo; redocly tree rebilly.yaml --format=ai --component=schemas --name=Customer|head -5
 redocly tree rebilly.yaml --format=ai|head -20; echo "=== filter ==="; redocly tree rebilly.yaml --format=ai --component=parameters --name=collectionFilter|head -6; echo "=== contact ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=ContactObject|head -5
 redocly tree rebilly.yaml --format=ai --component=parameters --name=subscriptionExpand|head -6; echo "=== ServicePeriodAnchorInstruction ==="; redocly tree rebilly.yaml --format=ai --component=schemas --name=ServicePeriodAnchorInstruction|head -6
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+sed -n '119,131p;246,307p' rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:\|^    PlanFormula\|^    SubscriptionOrderPlanRecurringInterval:\|^    PlanRecurringInterval" rebilly.yaml
+sed -n '12201,12420p' rebilly.yaml
+grep -n "^    SubscriptionPlan:" rebilly.yaml
+sed -n '11888,12201p' rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml; sed -n '11222,11290p' rebilly.yaml
+sed -n '32632,32700p' rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml; grep -n "^    SubscriptionCreate\|^    SubscriptionOrOneTimeSale:\|^    OneTimeSale" rebilly.yaml | head -20
+sed -n '20470,20490p' rebilly.yaml; echo ---; sed -n '15233,15260p' rebilly.yaml
+sed -n '16038,16060p' rebilly.yaml; echo "--- subscription schema fields ---"; sed -n '15260,15792p' rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+sed -n '15394,15406p;15503,15520p;15537,15600p' rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:\|^    WebsiteId:" rebilly.yaml
+sed -n '15099,15160p' rebilly.yaml; echo ---; sed -n '2897,2910p' rebilly.yaml
+sed -n '30552,30620p' rebilly.yaml
+grep -n "    PostPaymentInstrument:" rebilly.yaml
+sed -n '20441,20470p' rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+sed -n '10876,10940p' rebilly.yaml
+sed -n '34894,34935p' rebilly.yaml
+grep -n "^    CompositeToken:\|^    PaymentCardToken:" rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml; echo ---; sed -n '17081,17130p' rebilly.yaml
+sed -n '17130,17250p' rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+sed -n '17157,17165p' rebilly.yaml; echo "--- ContactObject required ---"; grep -n "^    ContactObject:" rebilly.yaml
+sed -n '3261,3290p' rebilly.yaml
+sed -n '15306,15325p;15405,15420p' rebilly.yaml
+sed -n '188,204p' rebilly.map.txt
 ```
 
 {% /tab %}
@@ -3310,6 +4444,30 @@ redocly tree rebilly.yaml --format=ai | head -30
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+Read rebilly.yaml
+grep -n "^    Plan:\|^    Plan[A-Za-z]*:\|^    SubscriptionOrder[A-Za-z]*:\|^    PaymentInstrument[A-Za-z]*:\|^    PaymentCardToken\|^    Token[A-Za-z]*:\|^    Website:" rebilly.yaml | head -60
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:" rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml; grep -n "  requestBodies:" rebilly.yaml; grep -n "^    SubscriptionCreate\|^    SubscriptionOrOneTimeSale:\|^    NewSubscription" rebilly.yaml
+sed -n '15432,15700p' rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "^    WebsiteId:" -A 12 rebilly.yaml; sed -n '119,131p' rebilly.map.txt
+awk 'NR>=20150 && NR<=20470 && /^    PostPaymentInstrument:/{f=1} f{print NR": "$0} f&&/^    [A-Z]/&&NR>20150 && !/PostPaymentInstrument/{exit}' rebilly.yaml | head -20
+sed -n '34894,34960p' rebilly.yaml; echo ---; grep -n "^    ContactObject:" -A 30 rebilly.yaml
+grep -n "^    CompositeToken:" -A 15 rebilly.yaml; echo ---; sed -n '17081,17160p' rebilly.yaml
+sed -n '17160,17210p' rebilly.yaml
+grep -n "^    PaymentInstruction:" -A 40 rebilly.yaml
+grep -n "^    PaymentInstructionInstrument:" -A 12 rebilly.yaml; echo ---; sed -n '10722,10760p' rebilly.yaml
+grep -n "^    PaymentCard:" rebilly.yaml && sed -n "$(grep -n '^    PaymentCard:' rebilly.yaml | cut -d: -f1),+45p" rebilly.yaml | grep -n "        [a-zA-Z]*:"
+grep -n "^    Customer:" rebilly.yaml && sed -n "$(grep -n '^    Customer:' rebilly.yaml|cut -d: -f1),+60p" rebilly.yaml | grep -n "^        [a-zA-Z]*:"
+sed -n '3509,3600p' rebilly.yaml | grep -n "^        [a-zA-Z]*:"
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 5 · no tree" %}
 
 ```bash
@@ -3361,6 +4519,49 @@ cd /Users/tora/bench-run/rebilly-tree-help-v3f-opus-r5; redocly tree rebilly.yam
 cd /Users/tora/bench-run/rebilly-tree-help-v3f-opus-r5; sed -n '17082,17140p' rebilly.yaml
 cd /Users/tora/bench-run/rebilly-tree-help-v3f-opus-r5; grep -n "^servers:" -A 10 rebilly.yaml | head -20; echo "=== secschemes"; grep -n "SecretApiKey:" -A 8 rebilly.yaml | head -25
 cd /Users/tora/bench-run/rebilly-tree-help-v3f-opus-r5; sed -n '176,200p' rebilly.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read rebilly.map.txt
+sed -n '31089,31185p' rebilly.yaml
+grep -n "^    Plan:\|^    Product:\|^    SubscriptionOrder\|^    PaymentInstrument\|^    PaymentToken\|^    Subscription:" rebilly.yaml | head -40
+sed -n '12201,12240p' rebilly.yaml; echo ---; sed -n '15233,15250p' rebilly.yaml
+grep -n "    SubscriptionPlan:" rebilly.yaml
+sed -n '11888,12060p' rebilly.yaml
+grep -n "    PlanPriceFormula:\|    PlanFormulaFlatRate:\|    PlanSetup:" rebilly.yaml
+sed -n '11222,11260p' rebilly.yaml; echo ---; sed -n '11615,11660p' rebilly.yaml
+sed -n '15250,15520p' rebilly.yaml
+sed -n '15520,15760p' rebilly.yaml | grep -n "items:\|planId\|quantity\|websiteId\|required\|billingAddress\|deliveryAddress\|^        [a-zA-Z]"
+sed -n '15536,15585p' rebilly.yaml
+grep -n "    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml
+grep -n "    OriginalPlan:\|    FlexiblePlan:" rebilly.yaml
+sed -n '12321,12360p' rebilly.yaml
+sed -n '30552,30620p' rebilly.yaml; echo "=== PICreateToken ==="; sed -n '10876,10990p' rebilly.yaml
+grep -n "    PostPaymentInstrument:" rebilly.yaml
+sed -n '20441,20470p' rebilly.yaml
+sed -n '10722,10876p' rebilly.yaml | grep -n "status\|active\|description" | head -40
+sed -n '10722,10760p' rebilly.yaml
+grep -n "^    PaymentCard:" rebilly.yaml
+awk 'NR>=9936 && NR<=10200 && /status:/{print NR": "$0; f=1; next} f&&NR<=10200{print NR": "$0; if(++c>25) exit}' rebilly.yaml
+sed -n '34894,34960p' rebilly.yaml
+grep -n "    CompositeToken:" rebilly.yaml && sed -n "$(grep -n '    CompositeToken:' rebilly.yaml | cut -d: -f1),+45p" rebilly.yaml
+sed -n "$(grep -n '^    PaymentCardToken:' rebilly.yaml | cut -d: -f1),+55p" rebilly.yaml
+awk "NR>=$(grep -n '^    PaymentCardToken:' rebilly.yaml | cut -d: -f1) && NR<=$(( $(grep -n '^    PaymentCardToken:' rebilly.yaml | cut -d: -f1) + 200 ))" rebilly.yaml | grep -n "^        [a-zA-Z_]*:"
+grep -n "^  /websites\|^  /gateway-accounts" rebilly.yaml; grep -n "    WebsiteId:" rebilly.yaml && sed -n "$(grep -n '    WebsiteId:' rebilly.yaml|cut -d: -f1),+12p" rebilly.yaml
+sed -n '37280,37300p' rebilly.yaml; sed -n '36830,36845p' rebilly.yaml
+sed -n '32632,32700p' rebilly.yaml
+sed -n '20470,20485p' rebilly.yaml; echo ===; grep -n "    SubscriptionOrOneTimeSale:" rebilly.yaml && sed -n "$(grep -n '    SubscriptionOrOneTimeSale:' rebilly.yaml|cut -d: -f1),+12p" rebilly.yaml
+grep -n "SubscriptionOrOneTimeSale:" rebilly.yaml | head; sed -n "$(grep -n '^    SubscriptionOrOneTimeSale:' rebilly.yaml|cut -d: -f1),+14p" rebilly.yaml
+grep -n "    PaymentInstruction:" rebilly.yaml && sed -n "$(grep -n '    PaymentInstruction:' rebilly.yaml|cut -d: -f1),+40p" rebilly.yaml
+sed -n "$(grep -n '    PaymentInstructionInstrument:' rebilly.yaml|cut -d: -f1),+16p" rebilly.yaml
+sed -n '35260,35340p' rebilly.yaml | grep -n "setup\|amount\|schema\|requestBody\|\$ref"
+sed -n "$(grep -n '^    TransactionRequest:' rebilly.yaml|cut -d: -f1),+60p" rebilly.yaml
+sed -n '11256,11275p' rebilly.yaml
 ```
 
 {% /tab %}
@@ -3430,6 +4631,55 @@ sed -n '20509,20620p' rebilly.yaml
 redocly tree rebilly.yaml --format=ai --component schemas --name PaymentInstruction --with-deps|head -20; echo "--- CARDTOKEN"; sed -n '17082,17135p' rebilly.yaml
 sed -n '11223,11260p' rebilly.yaml; echo "--- PRODUCT req"; sed -n '12216,12240p' rebilly.yaml
 redocly tree rebilly.yaml --format=ai --tag "Invoices"|head -22
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+grep -n "websites" rebilly.yaml | head -30
+sed -n '37280,37300p' rebilly.yaml && echo ---- && grep -n "^  /" rebilly.yaml | sed -n '1,400p' | grep -i -E "website|gateway"
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:\|^    PlanFormula\|^    SubscriptionOrderPlan\|^    Product:\|^    PaymentInstrument\|^    Subscription" rebilly.yaml | head -40
+sed -n '11888,12230p' rebilly.yaml
+grep -n "PlanPriceFormula:" rebilly.yaml; sed -n '11222,11290p' rebilly.yaml
+sed -n '32632,32700p' rebilly.yaml
+sed -n '15233,15420p' rebilly.yaml
+sed -n '15420,15620p' rebilly.yaml
+sed -n '15099,15233p' rebilly.yaml
+grep -n "    OriginalPlan:\|    FlexiblePlan:" rebilly.yaml
+sed -n '12321,12400p' rebilly.yaml
+grep -n -i "gateway" rebilly.map.txt | head; echo ----; sed -n '30552,30700p' rebilly.yaml
+grep -n "    PostPaymentInstrument:" rebilly.yaml; sed -n '10876,11069p' rebilly.yaml
+sed -n '10722,10876p' rebilly.yaml
+grep -n "^    PaymentCard:" rebilly.yaml
+sed -n '9936,10010p' rebilly.yaml; echo ...; grep -n "status:" rebilly.yaml | awk -F: '$1>9936 && $1<10200' | head
+grep -n "    PaymentInstruction:" rebilly.yaml; sed -n '35260,35300p' rebilly.yaml
+sed -n '18061,18140p' rebilly.yaml
+grep -n "    PaymentInstructionInstrument:\|    PaymentInstructionToken:" rebilly.yaml
+sed -n '18013,18061p' rebilly.yaml
+sed -n '34894,34960p' rebilly.yaml; echo ====; grep -n "    PaymentTokenRequest\|    PaymentToken:" rebilly.yaml | head
+grep -n "    CompositeToken:" rebilly.yaml
+sed -n '17801,17900p' rebilly.yaml
+grep -n "    PaymentCardToken:" rebilly.yaml
+sed -n '17081,17170p' rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml
+sed -n '3261,3330p' rebilly.yaml
+grep -n "    TransactionCreate\|requestBodies:" rebilly.yaml | head; sed -n '35380,35420p' rebilly.yaml
+grep -n "requestBody:" rebilly.yaml | awk -F: '$1>35300 && $1<35483'
+sed -n '35312,35320p' rebilly.yaml; echo ====; grep -n "    PostTransaction:" rebilly.yaml
+grep -n "    TransactionRequest:" rebilly.yaml; grep -n "    PostTransactionRequest\|    TransactionCreate:" rebilly.yaml
+sed -n '20508,20530p' rebilly.yaml
+sed -n '20530,20640p' rebilly.yaml | grep -n "^              [a-zA-Z]"
+sed -n '20573,20585p' rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml | awk -F: '$1>20150'; sed -n '20470,20508p' rebilly.yaml; echo ====; grep -n "    WebsiteId:" rebilly.yaml
+sed -n '16038,16060p' rebilly.yaml; echo ---; grep -n "^    WebsiteId:" rebilly.yaml
+sed -n '2897,2915p' rebilly.yaml
+grep -n "^    Customer:" rebilly.yaml;
+sed -n '3509,3560p' rebilly.yaml; echo ---; grep -n "        websiteId:\|        defaultPaymentInstrument:" rebilly.yaml | awk -F: '$1>3509 && $1<3800'
+sed -n '11615,11640p' rebilly.yaml
 ```
 
 {% /tab %}
@@ -3507,6 +4757,26 @@ sed -n '11223,11250p' rebilly.yaml; echo "=== product required"; sed -n '12216,1
 grep -n -A8 "^servers:" rebilly.yaml | head -20
 sed -n '166,200p' rebilly.yaml
 sed -n '448,474p' rebilly.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+Read rebilly.yaml
+grep -n "^    Plan:\|^    SubscriptionOrder:\|^    Subscription:\|^    SubscriptionOrOneTimeSale:\|^    OrderItem:\|^    PlanFormula\|^    PaymentInstrument:\|^  requestBodies:\|^    Subscription:" rebilly.yaml | head -50
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:" rebilly.yaml
+grep -n "PlanPriceFormula:" rebilly.yaml
+awk 'NR>=15352 && NR<=16038' rebilly.yaml | grep -n "^        [a-zA-Z_]*:" | head -60
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "^    PostPaymentInstrument:" rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+grep -n "^    CompositeToken:\|^    PaymentCardToken:" rebilly.yaml
+grep -n "subscriptionExpand:" -A 12 rebilly.yaml | head -20
+grep -n "^    PaymentInstruction:" -A 40 rebilly.yaml | head -45
+grep -n "^    PaymentInstructionInstrument:" -A 14 rebilly.yaml
 ```
 
 {% /tab %}
@@ -3660,6 +4930,60 @@ redocly tree rebilly.yaml --format=ai | head -30
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la
+head -100 rebilly.map.txt
+sed -n '119,131p;246,320p' rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:\|^    Plan[A-Z]\|^    SubscriptionOrder\|^    PaymentInstrument\|^    Product:\|^    Customer:" rebilly.yaml | head -40
+sed -n '12201,12230p' rebilly.yaml; echo ===; grep -n "PlanCreate\|PlanUpdate\|SubscriptionPlan\b" rebilly.yaml | head -20
+grep -n "    SubscriptionPlan:\|    OneTimeSalePlan:\|    TrialOnlyPlan:" rebilly.yaml
+sed -n '11888,12087p' rebilly.yaml
+sed -n '11222,11288p;11615,11647p' rebilly.yaml
+sed -n '32632,32700p' rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml; grep -n "  requestBodies:" rebilly.yaml
+sed -n '20470,20490p' rebilly.yaml
+grep -n "    SubscriptionOrOneTimeSale:" rebilly.yaml; sed -n '15233,15260p' rebilly.yaml
+sed -n '16038,16060p' rebilly.yaml; echo "-----"; sed -n '15260,15600p' rebilly.yaml
+grep -n "    WebsiteId:\|    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+sed -n '2897,2910p' rebilly.yaml; echo ---; sed -n '15099,15170p' rebilly.yaml
+grep -n "    OriginalPlan:\|    FlexiblePlan:" rebilly.yaml
+sed -n '12321,12345p' rebilly.yaml
+sed -n '10876,10960p' rebilly.yaml
+sed -n '30552,30620p' rebilly.yaml
+grep -n "    PostPaymentInstrument:" rebilly.yaml
+sed -n '20441,20470p' rebilly.yaml
+sed -n '34894,34960p' rebilly.yaml
+grep -n "    CompositeToken:\|    PaymentCardToken:" rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml; echo ---; sed -n '17081,17140p' rebilly.yaml
+sed -n '17140,17240p' rebilly.yaml | grep -n "^        [a-z]"
+sed -n '17157,17162p' rebilly.yaml
+sed -n '10722,10876p' rebilly.yaml | grep -n "status\|enum\|- active\|- inactive\|id:"
+sed -n '10722,10740p' rebilly.yaml
+grep -n "^    PaymentCard:" rebilly.yaml
+sed -n '9936,10010p' rebilly.yaml
+sed -n '188,204p;367,382p' rebilly.map.txt
+grep -n "^    PaymentInstruction:" rebilly.yaml
+sed -n '18061,18110p' rebilly.yaml
+grep -n "    PaymentInstructionInstrument:" rebilly.yaml
+sed -n '18022,18061p' rebilly.yaml
+grep -n "    subscriptionExpand:" rebilly.yaml
+sed -n '447,470p' rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml
+sed -n '3261,3290p' rebilly.yaml
+grep -n "^    Transaction:" rebilly.yaml; sed -n '35260,35300p' rebilly.yaml
+awk 'NR>=5706 && NR<=5790' rebilly.yaml | grep -n "invoiceIds" ; grep -n "invoiceIds:" rebilly.yaml | head
+sed -n '5706,5720p;5818,5832p' rebilly.yaml
+sed -n '20540,20620p' rebilly.yaml
+sed -n '3509,3520p' rebilly.yaml; grep -n "defaultPaymentInstrument:" rebilly.yaml | head -3
+sed -n '3560,3600p' rebilly.yaml
+grep -n "    VaultedInstrument:" rebilly.yaml
+sed -n '3096,3120p' rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 9 · no tree" %}
 
 ```bash
@@ -3732,6 +5056,29 @@ redocly tree rebilly.yaml --format=ai --component=parameters --name=collectionFi
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+Read rebilly.map.txt
+Read rebilly.yaml
+grep -n "^    Plan:\|^    SubscriptionOrder:\|^    SubscriptionOrOneTimeSale:\|^    Subscription:\|^      Subscription:\|^    PlanFormula\|^    PaymentInstrument:\|^    PaymentCardPaymentInstrument\|^    OrderItem:\|^    SubscriptionOrderPlanRecurringInterval:\|^    PaymentToken:\|^    Website:" rebilly.yaml | head -40
+grep -n "^    SubscriptionPlan:\|^    OneTimeSalePlan:\|^    TrialOnlyPlan:" rebilly.yaml; sed -n '16038,16060p' rebilly.yaml; sed -n '15233,15250p' rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:\|^    PlanPriceFormula:\|^    WebsiteId:\|^    CustomerId:" rebilly.yaml
+sed -n '15099,15135p' rebilly.yaml; echo ---; sed -n '11615,11650p' rebilly.yaml; echo ---; sed -n '11222,11290p' rebilly.yaml; echo ---WEBSITEID; sed -n '2897,2910p' rebilly.yaml
+grep -n "^    OriginalPlan:\|^    FlexiblePlan:" rebilly.yaml; echo ---; sed -n '30552,30640p' rebilly.yaml
+sed -n '12321,12360p' rebilly.yaml; echo ---REQBODY; grep -n "    PostPaymentInstrument:" rebilly.yaml
+sed -n '20441,20470p' rebilly.yaml
+grep -n "^    PaymentInstrumentCreateToken:" rebilly.yaml
+sed -n '34894,34960p' rebilly.yaml
+grep -n "^    CompositeToken:\|^    PaymentCardToken:" rebilly.yaml
+sed -n '17801,17830p' rebilly.yaml; echo ---; sed -n '17081,17150p' rebilly.yaml
+sed -n '17150,17260p' rebilly.yaml | grep -n "^        [a-z_]*:" ; echo "--- full tail"; sed -n '17150,17250p' rebilly.yaml
+sed -n '10722,10760p' rebilly.yaml
+grep -n "^    ContactObject:" rebilly.yaml && sed -n "$(grep -n '^    ContactObject:' rebilly.yaml | cut -d: -f1),+25p" rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -3798,6 +5145,35 @@ cd /Users/tora/bench-run/rebilly-tree-help-v3f-opus-r10; redocly tree rebilly.ya
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la  && wc -l rebilly.map.txt rebilly.yaml
+Read rebilly.map.txt
+sed -n '119,131p;246,307p;282,293p' rebilly.map.txt
+sed -n '31089,31180p' rebilly.yaml
+grep -n "^    Plan:\|^    SubscriptionOrder\|^    PaymentInstrument\|^    Website:\|^    Token:" rebilly.yaml | head -40
+sed -n '12201,12420p' rebilly.yaml
+grep -n "^    SubscriptionPlan:\|^    PlanFormula\|^    SubscriptionOrderPlanRecurringInterval:" rebilly.yaml
+sed -n '11888,12100p' rebilly.yaml
+sed -n '11222,11290p' rebilly.yaml; echo "=====SUBSCRIPTION POST====="; sed -n '32632,32700p' rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml; grep -n "^    SubscriptionOrOneTimeSale:\|^    SubscriptionOrder:\|^    OneTimeSale:" rebilly.yaml; grep -n "  requestBodies:" rebilly.yaml
+sed -n '20470,20490p' rebilly.yaml; echo "=== Subscription schema ==="; sed -n '15233,15420p' rebilly.yaml
+awk 'NR>=15420 && NR<=15792' rebilly.yaml | grep -n "^        [a-zA-Z_]*:" | head -60
+sed -n '15503,15520p;15537,15580p' rebilly.yaml; echo "=== SubscriptionItems ==="; grep -n "^    SubscriptionItem" rebilly.yaml
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml && sed -n "$(grep -n '^    SubscriptionOrOneTimeSaleItem:' rebilly.yaml | cut -d: -f1),+45p" rebilly.yaml
+grep -n "websites\|WebsiteId:" rebilly.map.txt | head; echo "==="; sed -n "$(grep -n '^    WebsiteId:' rebilly.yaml | cut -d: -f1),+12p" rebilly.yaml
+sed -n '30552,30600p' rebilly.yaml; echo "=== PaymentInstrumentCreateToken ==="; sed -n '10876,10960p' rebilly.yaml
+sed -n "$(grep -n '^    PostPaymentInstrument:' rebilly.yaml | cut -d: -f1),+25p" rebilly.yaml; echo "=== POST /tokens body ==="; sed -n '34894,34960p' rebilly.yaml | grep -n "requestBody\|\$ref\|schema"
+sed -n "$(grep -n '^    CompositeToken:' rebilly.yaml | cut -d: -f1),+40p" rebilly.yaml
+sed -n "$(grep -n '^    PaymentCardToken:' rebilly.yaml | cut -d: -f1),+60p" rebilly.yaml
+sed -n '10722,10790p' rebilly.yaml
+grep -n "defaultPaymentInstrument" rebilly.yaml | head; echo "---"; sed -n "$(grep -n '^    CustomerDefaultPaymentInstrument:' rebilly.yaml | cut -d: -f1),+30p" rebilly.yaml
+sed -n '3540,3600p' rebilly.yaml
+sed -n "$(grep -n '^    VaultedInstrument:' rebilly.yaml | cut -d: -f1),+14p" rebilly.yaml; echo "--- ServicePeriodAnchorInstruction ---"; sed -n "$(grep -n '^    ServicePeriodAnchorInstruction:' rebilly.yaml | cut -d: -f1),+25p" rebilly.yaml
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -3847,6 +5223,15 @@ sed -n '32632,32782p' /Users/tora/bench-run/rebilly-tree-help-v3f-haiku-r1/rebil
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -3878,6 +5263,15 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionOrO
 redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan --with-deps | head -150
 redocly tree rebilly.yaml --format=ai --operation=PostPlan --with-deps
 redocly tree rebilly.yaml --format=ai --find "payment instrument"
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
 ```
 
 {% /tab %}
@@ -3917,6 +5311,15 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPla
 redocly tree rebilly.yaml --format=ai --find="month" | head -40
 redocly tree rebilly.yaml --format=ai --find="payment instrument" | head -60
 redocly tree rebilly.yaml --format=ai --component=schemas --name=FlexiblePlan
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
 ```
 
 {% /tab %}
@@ -3962,6 +5365,17 @@ redocly tree rebilly.yaml --format=ai --path=/payment-instruments --operation=ge
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read rebilly.map.txt
+Grep
+Read rebilly.yaml
+grep -n "^ *Subscription:" rebilly.yaml | head -5
+grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml | head -3
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 5 · no tree" %}
 
 ```bash
@@ -3999,6 +5413,15 @@ redocly tree rebilly.yaml --operation=PostSubscription --format=ai | grep -A 5 '
 cat /Users/tora/bench-run/rebilly-tree-help-v3f-haiku-r5/rebilly.yaml
 grep -n "Subscription:" /Users/tora/bench-run/rebilly-tree-help-v3f-haiku-r5/rebilly.yaml | head -10
 sed -n '15230,15280p' /Users/tora/bench-run/rebilly-tree-help-v3f-haiku-r5/rebilly.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
 ```
 
 {% /tab %}
@@ -4045,6 +5468,17 @@ redocly tree rebilly.yaml --format=ai --find "customer"
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read /Users/tora/bench-run/rebilly-map-v5-haiku-r6
+Glob
+Read rebilly.map.txt
+Grep
+Read rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 7 · no tree" %}
 
 ```bash
@@ -4073,6 +5507,16 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=OriginalPlan | 
 redocly tree rebilly.yaml --format=ai --component=schemas --name=FlexiblePlan | head -100
 redocly tree rebilly.yaml --format=ai --path=/plans --operation=get | head -100
 redocly tree rebilly.yaml --format=ai --component=requestBodies --name=Subscription
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+grep -n "PostSubscription\|/subscriptions" rebilly.yaml | head -20
 ```
 
 {% /tab %}
@@ -4126,6 +5570,20 @@ redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription --
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Skill
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+grep -n "components:" rebilly.yaml | head -5
+grep -n "requestBodies:\|Subscription:" rebilly.yaml | head -20
+grep -n "items:" rebilly.yaml | grep -A2 -B2 "15"
+grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 9 · no tree" %}
 
 ```bash
@@ -4162,6 +5620,20 @@ redocly tree rebilly.yaml --format=ai --find "payment instrument"
 redocly tree rebilly.yaml --format=ai --component=schemas --name=SubscriptionPlan
 redocly tree rebilly.yaml --format=ai --component=schemas --name=Subscription
 redocly tree rebilly.yaml --format=ai --component=schemas --name=PaymentInstrument
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+grep -n "requestBodies:" rebilly.yaml | head -20
+grep -n "SubscriptionOrOneTimeSale:" rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml
+grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml
+grep -n "^    OriginalPlan:" rebilly.yaml
 ```
 
 {% /tab %}
@@ -4208,6 +5680,23 @@ redocly tree rebilly.yaml --component schemas --name SubscriptionOrOneTimeSaleIt
 redocly tree rebilly.yaml --component schemas --name SubscriptionPlan --format=ai --with-deps
 redocly tree rebilly.yaml --find "payment" --format=ai | head -80
 redocly tree rebilly.yaml --find "customer" --format=ai | head -50
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read rebilly.map.txt
+Read rebilly.yaml
+Grep
+grep -n "components/schemas/Plan:" rebilly.yaml | head -1
+grep -n "^  Plan:" rebilly.yaml | head -5
+grep -n "^    Plan:" rebilly.yaml
+grep -n "^    SubscriptionPlan:" rebilly.yaml
+grep -n "^    PlanPriceFormula:" rebilly.yaml
+grep -n "^    PlanFormulaFlatRate:" rebilly.yaml
+grep -n "^    Subscription:" rebilly.yaml | head -1
+grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
 ```
 
 {% /tab %}
@@ -4282,38 +5771,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree        | tree           |
-| ------------------ | -------------- | -------------- |
-| Sonnet 5 · run 1   | works          | works          |
-| Sonnet 5 · run 2   | works          | works          |
-| Sonnet 5 · run 3   | works          | works          |
-| Sonnet 5 · run 4   | works          | works          |
-| Sonnet 5 · run 5   | works          | works          |
-| Sonnet 5 · run 6   | works          | works          |
-| Sonnet 5 · run 7   | no auth scheme | works          |
-| Sonnet 5 · run 8   | works          | works          |
-| Sonnet 5 · run 9   | works          | works          |
-| Sonnet 5 · run 10  | works          | works          |
-| Opus 5 · run 1     | works          | works          |
-| Opus 5 · run 2     | works          | works          |
-| Opus 5 · run 3     | works          | works          |
-| Opus 5 · run 4     | works          | works          |
-| Opus 5 · run 5     | works          | works          |
-| Opus 5 · run 6     | works          | works          |
-| Opus 5 · run 7     | works          | works          |
-| Opus 5 · run 8     | works          | works          |
-| Opus 5 · run 9     | works          | works          |
-| Opus 5 · run 10    | works          | works          |
-| Haiku 4.5 · run 1  | no auth scheme | works          |
-| Haiku 4.5 · run 2  | no auth scheme | works          |
-| Haiku 4.5 · run 3  | no auth scheme | works          |
-| Haiku 4.5 · run 4  | no auth scheme | works          |
-| Haiku 4.5 · run 5  | no auth scheme | works          |
-| Haiku 4.5 · run 6  | no auth scheme | works          |
-| Haiku 4.5 · run 7  | no auth scheme | works          |
-| Haiku 4.5 · run 8  | no auth scheme | works          |
-| Haiku 4.5 · run 9  | no auth scheme | no auth scheme |
-| Haiku 4.5 · run 10 | no auth scheme | no auth scheme |
+| Run                | no tree        | tree           | map   |
+| ------------------ | -------------- | -------------- | ----- |
+| Sonnet 5 · run 1   | works          | works          | works |
+| Sonnet 5 · run 2   | works          | works          | works |
+| Sonnet 5 · run 3   | works          | works          | works |
+| Sonnet 5 · run 4   | works          | works          | works |
+| Sonnet 5 · run 5   | works          | works          | works |
+| Sonnet 5 · run 6   | works          | works          | works |
+| Sonnet 5 · run 7   | no auth scheme | works          | works |
+| Sonnet 5 · run 8   | works          | works          | works |
+| Sonnet 5 · run 9   | works          | works          | works |
+| Sonnet 5 · run 10  | works          | works          | works |
+| Opus 5 · run 1     | works          | works          | works |
+| Opus 5 · run 2     | works          | works          | works |
+| Opus 5 · run 3     | works          | works          | works |
+| Opus 5 · run 4     | works          | works          | works |
+| Opus 5 · run 5     | works          | works          | works |
+| Opus 5 · run 6     | works          | works          | works |
+| Opus 5 · run 7     | works          | works          | works |
+| Opus 5 · run 8     | works          | works          | works |
+| Opus 5 · run 9     | works          | works          | works |
+| Opus 5 · run 10    | works          | works          | works |
+| Haiku 4.5 · run 1  | no auth scheme | works          | works |
+| Haiku 4.5 · run 2  | no auth scheme | works          | works |
+| Haiku 4.5 · run 3  | no auth scheme | works          | works |
+| Haiku 4.5 · run 4  | no auth scheme | works          | works |
+| Haiku 4.5 · run 5  | no auth scheme | works          | works |
+| Haiku 4.5 · run 6  | no auth scheme | works          | works |
+| Haiku 4.5 · run 7  | no auth scheme | works          | works |
+| Haiku 4.5 · run 8  | no auth scheme | works          | works |
+| Haiku 4.5 · run 9  | no auth scheme | no auth scheme | works |
+| Haiku 4.5 · run 10 | no auth scheme | no auth scheme | works |
 
 A run works when its flow contains the product listing, the order create naming `product` and `metric_tons`, and the cancel call, authenticated with the secret key.
 
@@ -4347,6 +5836,17 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+ls climate.map.txt climate.yaml; echo ---; cat climate.map.txt
+Grep
+grep -n "/v1/climate" climate.map.txt
+sed -n '81866,82014p' climate.yaml
+sed -n '81580,81863p' climate.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
@@ -4373,6 +5873,15 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/products/{product}
 redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps | head -300
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps | head -300
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps | head -300
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+ls; echo ---; find / -maxdepth 4 -iname "climate.yaml" 2>/dev/null; find / -maxdepth 6 -iname "climate.map.txt" 2>/dev/null
+Read climate.map.txt
+Read climate.yaml
 ```
 
 {% /tab %}
@@ -4404,6 +5913,17 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+find / -iname "climate.map.txt" -o -iname "climate.yaml" 2>/dev/null
+Glob
+Read climate.map.txt
+Read climate.yaml
+Artifact /tmp/noop.html
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -4426,6 +5946,15 @@ redocly tree climate.yaml --format=ai --find climate
 redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "climate.map.txt" -o -iname "climate.yaml" 2>/dev/null | grep -v Trash
+Read climate.map.txt
+Read climate.yaml
 ```
 
 {% /tab %}
@@ -4459,6 +5988,18 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+ls; echo ---; cat climate.map.txt | head -200
+Grep
+sed -n '81866,81968p' climate.yaml
+sed -n '81580,81674p' climate.yaml
+sed -n '81810,81863p' climate.yaml
+grep -n "climate.product:" -A 40 climate.yaml | head -60
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -4484,6 +6025,18 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=ge
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order} --operation=get
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+ls; echo "---"; find / -maxdepth 4 -iname "climate.map.txt" 2>/dev/null; find / -maxdepth 4 -iname "climate.yaml" 2>/dev/null
+Read climate.map.txt
+sed -n '81866,81968p' climate.yaml
+grep -n "climate.product:" -A 60 climate.yaml | head -80
+sed -n '81580,81674p' climate.yaml
+sed -n '81810,81863p' climate.yaml; echo "---ORDER SCHEMA---"; grep -n "^    climate.order:" -A 90 climate.yaml | head -100
 ```
 
 {% /tab %}
@@ -4515,6 +6068,15 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+ls
+Read climate.map.txt
+Read climate.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -4536,6 +6098,17 @@ redocly tree climate.yaml --format=ai --find climate | head -100
 redocly tree climate.yaml --format=ai --path /v1/climate/products --operation get --with-deps | head -150
 redocly tree climate.yaml --format=ai --path /v1/climate/orders --operation post --with-deps | head -200
 redocly tree climate.yaml --format=ai --path /v1/climate/orders/{order}/cancel --operation post --with-deps | head -100
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+ls
+Read climate.map.txt
+Read climate.yaml
+Grep
+grep -n "climate\.order\"\|climate\.order:\|climate.product:" climate.yaml | head -20
 ```
 
 {% /tab %}
@@ -4564,6 +6137,17 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+find / -iname "climate.map.txt" -not -path "*/node_modules/*" 2>/dev/null; find / -iname "climate.yaml" -not -path "*/node_modules/*" 2>/dev/null
+Glob
+Read climate.map.txt
+Read climate.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 10 · no tree" %}
 
 ```bash
@@ -4585,6 +6169,20 @@ redocly tree climate.yaml --format=ai --find climate
 redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+ls -la  2>/dev/null || find / -maxdepth 4 -iname "climate.yaml" 2>/dev/null
+grep -n -i "order\|removal\|product\|cancel" climate.map.txt | head -100
+cd /Users/tora/bench-run/climate-map-v4-sonnet-r10
+sed -n '81866,82014p' climate.yaml
+grep -n "climate.product:" climate.yaml
+grep -n "climate.order:" climate.yaml
+Read climate.yaml
+sed -n '81580,81865p' climate.yaml
 ```
 
 {% /tab %}
@@ -4621,6 +6219,18 @@ redocly tree climate.yaml --format=ai --component=schemas --name=climate.product
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read climate.map.txt
+Read climate.yaml
+grep -n "^    climate\.\(order\|product\|supplier\):" climate.yaml
+grep -n "climate_removals_products_price:" -A 25 climate.yaml | head -30
+sed -n '81866,81970p' climate.yaml | grep -n "name:\|required:\|in: query"
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -4647,6 +6257,20 @@ redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder | head -
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la /Users/tora/bench-run/climate-map-v4-opus-r2 && wc -l *
+Read climate.map.txt
+sed -n '81866,82014p' climate.yaml
+sed -n '81580,81863p' climate.yaml
+grep -n "^    climate\.\(product\|order\|supplier\):" climate.yaml
+sed -n '9345,9640p' climate.yaml | grep -n "^          [a-z_]*:\|^            description\|^            enum\|^                - \|^          required:\|^            - \|^        required:" | head -160
+sed -n '9506,9583p' climate.yaml
+grep -n "climate_removals_products_price:" -A 30 climate.yaml | head -40; echo ---; sed -n '9345,9360p;9455,9506p' climate.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 3 · no tree" %}
 
 ```bash
@@ -4669,6 +6293,21 @@ redocly tree climate.yaml --format=ai --find=climate | head -60
 redocly tree climate.yaml --format=ai --path=/v1/climate/products --operation=get --with-deps | head -120
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=post --with-deps | head -60; echo "=====CANCEL"; redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel --operation=post | head -40
 redocly tree climate.yaml --format=ai --component=schemas --name=climate.product --with-deps | head -40; echo "=====GET ORDER"; redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order} --operation=get | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+Read climate.map.txt
+Grep
+sed -n '81580,81680p;81866,82014p' climate.yaml
+sed -n '81810,81863p' climate.yaml; echo ===SCHEMAS===; grep -n "^    climate\.\(order\|product\|supplier\):" climate.yaml
+grep -n "^    climate\." climate.yaml
+sed -n '9345,9583p' climate.yaml
+sed -n '81725,81760p' climate.yaml
+grep -in "idempotency" climate.yaml | head -5; grep -in "Stripe-Account\|in: header" climate.yaml | head -5
 ```
 
 {% /tab %}
@@ -4700,6 +6339,19 @@ grep -n -m2 -A4 "^servers:" climate.yaml
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la
+wc -l climate.map.txt climate.yaml
+Read climate.map.txt
+Grep
+Read climate.yaml
+grep -n "^    climate\.\(product\|order\):" climate.yaml
+grep -n "climate_removals_products_price:" -A 25 climate.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 5 · no tree" %}
 
 ```bash
@@ -4721,6 +6373,19 @@ redocly tree climate.yaml --format=ai --find=climate
 redocly tree climate.yaml --format=ai --operation=GetClimateProducts --with-deps | head -120
 redocly tree climate.yaml --format=ai --operation=PostClimateOrders --with-deps | head -60; echo "=== CANCEL ==="; redocly tree climate.yaml --format=ai --operation=PostClimateOrdersOrderCancel --with-deps | head -40
 redocly tree climate.yaml --format=ai --component=schemas --name=climate.product --with-deps | head -30; echo "=== RETRIEVE ORDER ==="; redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la  && wc -l climate.map.txt climate.yaml
+Read climate.map.txt
+Grep
+sed -n '81580,81674p;81866,82014p' climate.yaml
+sed -n '81810,81863p' climate.yaml; echo "=== schemas ==="; grep -n "^    climate\.\(product\|order\):" climate.yaml
+sed -n '9345,9600p' climate.yaml
+grep -n "climate_removals_products_price:" -A 30 climate.yaml | head -40
 ```
 
 {% /tab %}
@@ -4751,6 +6416,21 @@ redocly tree climate.yaml --format=ai --component=schemas --name=climate.product
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la
+head -100 climate.map.txt; echo "=== WC ==="; wc -l climate.map.txt
+grep -n "climate" climate.map.txt
+Grep
+sed -n '81866,82014p' climate.yaml
+sed -n '81580,81674p;81810,81863p' climate.yaml
+grep -n "^    climate\.\(product\|order\)\|^    climate\." climate.yaml | head -20
+sed -n '9345,9583p' climate.yaml
+grep -n "climate_removals_products_price:" -A 20 climate.yaml | head -25
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 7 · no tree" %}
 
 ```bash
@@ -4778,6 +6458,21 @@ redocly tree climate.yaml --format=ai --operation=PostClimateOrdersOrder | head 
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read climate.map.txt
+sed -n '81580,81680p' climate.yaml
+sed -n '81810,81870p' climate.yaml && echo ===PRODUCTS=== && sed -n '81866,81975p' climate.yaml
+sed -n '81866,81970p' climate.yaml
+grep -n "^    climate.product:\|^    climate.order:\|^    climate.supplier:" climate.yaml
+sed -n '9345,9583p' climate.yaml
+grep -c "Idempotency-Key" climate.yaml; sed -n '9583,9600p' climate.yaml; grep -n "climate_removals_products_price:" climate.yaml
+sed -n '9717,9740p' climate.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 8 · no tree" %}
 
 ```bash
@@ -4800,6 +6495,18 @@ redocly tree climate.yaml --format=ai --operation=GetClimateProducts --with-deps
 redocly tree climate.yaml --format=ai --operation=PostClimateOrders --with-deps | head -60
 redocly tree climate.yaml --format=ai --operation=PostClimateOrdersOrderCancel --with-deps | head -20; echo "=====RETRIEVE"; redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder | head -20
 redocly tree climate.yaml --format=ai --component=schemas --name=climate.product --with-deps | head -30; echo "=====SERVER"; grep -n -A5 "^servers:" climate.yaml | head
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la /Users/tora/bench-run/climate-map-v4-opus-r8
+Read climate.map.txt
+sed -n '81866,82014p' climate.yaml
+sed -n '81580,81863p' climate.yaml
+grep -n "^    climate\.\(order\|product\|supplier\):" climate.yaml
+sed -n '9345,9583p' climate.yaml
 ```
 
 {% /tab %}
@@ -4829,6 +6536,17 @@ redocly tree climate.yaml --format=ai --component=schemas --name=climate.product
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la  && wc -l climate.map.txt climate.yaml
+Read climate.map.txt
+Read climate.yaml
+grep -n "^    climate\." climate.yaml
+grep -n -A 25 "    climate_removals_products_price:" climate.yaml | head -35
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -4855,6 +6573,23 @@ redocly tree climate.yaml --format=ai --operation=GetClimateProducts --with-deps
 redocly tree climate.yaml --format=ai --operation=PostClimateOrders --with-deps | head -80
 redocly tree climate.yaml --format=ai --operation=PostClimateOrdersOrderCancel | head -40; echo "=== ORDER SCHEMA ==="; redocly tree climate.yaml --format=ai --component=schemas --name=climate.order --with-deps | head -60
 redocly tree climate.yaml --format=ai --component=schemas --name=climate.product | sed -n '3,6p'; echo "=== RETRIEVE ORDER ==="; redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder | sed -n '3,5p'; echo "=== SERVERS ==="; redocly tree climate.yaml --format=ai | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la
+head -100 climate.map.txt; echo ===; wc -l climate.map.txt
+Grep
+sed -n '81866,82014p' climate.yaml
+sed -n '81580,81863p' climate.yaml
+grep -n "^  climate\." climate.yaml
+grep -n "climate\.\(product\|order\|supplier\):" climate.yaml | head -20
+sed -n '9345,9583p' climate.yaml
+grep -n "climate_removals_products_price:" climate.yaml
+sed -n '9717,9760p' climate.yaml
+grep -c "Idempotency-Key" climate.yaml
 ```
 
 {% /tab %}
@@ -4899,6 +6634,16 @@ redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder --with-d
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
+grep -n "climate\.order:" climate.yaml | head -5
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -4925,6 +6670,15 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=POST
 redocly tree climate.yaml --format=ai --path=/v1/climate/orders --operation=GET | head -200
 redocly tree climate.yaml --format=ai --operation=GetClimateOrdersOrder | head -200
 redocly tree climate.yaml --format=ai --operation=PostClimateOrdersOrderCancel --with-deps | head -250
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
 ```
 
 {% /tab %}
@@ -4968,6 +6722,15 @@ sed -n '9506,9606p' /Users/tora/bench-run/climate-tree-help-v3f-haiku-r3/climate
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 4 · no tree" %}
 
 ```bash
@@ -4996,6 +6759,17 @@ redocly tree climate.yaml --format=ai --path="/v1/climate/orders"
 redocly tree climate.yaml --format=ai --path="/v1/climate/orders" --operation="post" --with-deps
 redocly tree climate.yaml --format=ai --path="/v1/climate/orders/{order}/cancel" --operation="post" --with-deps
 redocly tree climate.yaml --format=ai --path="/v1/climate/products/{product}" --operation="get" --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
+grep -n "^  climate\\.order:" climate.yaml | head -1
+grep -n "climate\.order:" climate.yaml
 ```
 
 {% /tab %}
@@ -5030,6 +6804,15 @@ redocly tree climate.yaml --format=ai --path=/v1/climate/orders/{order}/cancel -
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 6 · no tree" %}
 
 ```bash
@@ -5055,6 +6838,15 @@ redocly tree climate.yaml --format=ai --path="/v1/climate/orders"
 redocly tree climate.yaml --format=ai --operation="get" --path="/v1/climate/products" --with-deps
 redocly tree climate.yaml --format=ai --operation="post" --path="/v1/climate/orders" --with-deps
 redocly tree climate.yaml --format=ai --operation="post" --path="/v1/climate/orders/{order}/cancel" --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
 ```
 
 {% /tab %}
@@ -5092,6 +6884,18 @@ Artifact
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep climate.yaml
+Grep
+grep -n "climate.order:" climate.yaml | head -5
+grep -n "climate_removals_products_price:" climate.yaml | head -1
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 8 · no tree" %}
 
 ```bash
@@ -5116,6 +6920,15 @@ redocly tree climate.yaml --path="/v1/climate/products" --operation="get" --with
 redocly tree climate.yaml --path="/v1/climate/orders" --operation="post" --with-deps --format=ai
 redocly tree climate.yaml --path="/v1/climate/orders/{order}/cancel" --operation="post" --with-deps --format=ai
 redocly tree climate.yaml --path="/v1/climate/orders/{order}" --operation="get" --with-deps --format=ai | head -100
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
 ```
 
 {% /tab %}
@@ -5153,6 +6966,15 @@ sed -n '9506,9606p' /Users/tora/bench-run/climate-tree-help-v3f-haiku-r9/climate
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read climate.map.txt
+Read climate.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 10 · no tree" %}
 
 ```bash
@@ -5176,6 +6998,18 @@ grep -n "POST /v1/climate/orders\|operationId.*[Cc]reate.*[Oo]rder" /Users/tora/
 sed -n '81470,81870p' /Users/tora/bench-run/climate-tree-help-v3f-haiku-r10/climate.yaml
 sed -n '81864,82164p' /Users/tora/bench-run/climate-tree-help-v3f-haiku-r10/climate.yaml
 sed -n '9345,9545p' /Users/tora/bench-run/climate-tree-help-v3f-haiku-r10/climate.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Skill
+Read climate.map.txt
+Read climate.yaml
+Grep
+grep -n "^\s*climate\.order:" climate.yaml | head -1
+grep -n "^\s*climate\.product:" climate.yaml | head -1
 ```
 
 {% /tab %}
@@ -5251,38 +7085,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                          | tree                              |
-| ------------------ | -------------------------------- | --------------------------------- |
-| Sonnet 5 · run 1   | works                            | works                             |
-| Sonnet 5 · run 2   | no auth scheme                   | works                             |
-| Sonnet 5 · run 3   | works                            | works                             |
-| Sonnet 5 · run 4   | works                            | works                             |
-| Sonnet 5 · run 5   | works                            | works                             |
-| Sonnet 5 · run 6   | works                            | works                             |
-| Sonnet 5 · run 7   | works                            | works                             |
-| Sonnet 5 · run 8   | works                            | works                             |
-| Sonnet 5 · run 9   | works                            | works                             |
-| Sonnet 5 · run 10  | works                            | works                             |
-| Opus 5 · run 1     | works                            | works                             |
-| Opus 5 · run 2     | works                            | works                             |
-| Opus 5 · run 3     | works                            | works                             |
-| Opus 5 · run 4     | works                            | works                             |
-| Opus 5 · run 5     | works                            | works                             |
-| Opus 5 · run 6     | works                            | works                             |
-| Opus 5 · run 7     | works                            | works                             |
-| Opus 5 · run 8     | works                            | works                             |
-| Opus 5 · run 9     | works                            | works                             |
-| Opus 5 · run 10    | works                            | works                             |
-| Haiku 4.5 · run 1  | works                            | works                             |
-| Haiku 4.5 · run 2  | no intent field, no auth scheme  | no carrier field                  |
-| Haiku 4.5 · run 3  | no intent field, no tracker call | no intent field                   |
-| Haiku 4.5 · run 4  | no tracker call, no auth scheme  | works                             |
-| Haiku 4.5 · run 5  | works                            | no intent field, no carrier field |
-| Haiku 4.5 · run 6  | works                            | no intent field                   |
-| Haiku 4.5 · run 7  | no carrier field                 | works                             |
-| Haiku 4.5 · run 8  | works                            | works                             |
-| Haiku 4.5 · run 9  | no carrier field, no auth scheme | no intent field, no carrier field |
-| Haiku 4.5 · run 10 | no auth scheme                   | no intent field                   |
+| Run                | no tree                          | tree                              | map                               |
+| ------------------ | -------------------------------- | --------------------------------- | --------------------------------- |
+| Sonnet 5 · run 1   | works                            | works                             | works                             |
+| Sonnet 5 · run 2   | no auth scheme                   | works                             | works                             |
+| Sonnet 5 · run 3   | works                            | works                             | works                             |
+| Sonnet 5 · run 4   | works                            | works                             | works                             |
+| Sonnet 5 · run 5   | works                            | works                             | works                             |
+| Sonnet 5 · run 6   | works                            | works                             | works                             |
+| Sonnet 5 · run 7   | works                            | works                             | works                             |
+| Sonnet 5 · run 8   | works                            | works                             | works                             |
+| Sonnet 5 · run 9   | works                            | works                             | works                             |
+| Sonnet 5 · run 10  | works                            | works                             | works                             |
+| Opus 5 · run 1     | works                            | works                             | works                             |
+| Opus 5 · run 2     | works                            | works                             | works                             |
+| Opus 5 · run 3     | works                            | works                             | works                             |
+| Opus 5 · run 4     | works                            | works                             | works                             |
+| Opus 5 · run 5     | works                            | works                             | works                             |
+| Opus 5 · run 6     | works                            | works                             | works                             |
+| Opus 5 · run 7     | works                            | works                             | works                             |
+| Opus 5 · run 8     | works                            | works                             | works                             |
+| Opus 5 · run 9     | works                            | works                             | works                             |
+| Opus 5 · run 10    | works                            | works                             | works                             |
+| Haiku 4.5 · run 1  | works                            | works                             | no intent field                   |
+| Haiku 4.5 · run 2  | no intent field, no auth scheme  | no carrier field                  | no intent field, no carrier field |
+| Haiku 4.5 · run 3  | no intent field, no tracker call | no intent field                   | no carrier field                  |
+| Haiku 4.5 · run 4  | no tracker call, no auth scheme  | works                             | no carrier field                  |
+| Haiku 4.5 · run 5  | works                            | no intent field, no carrier field | no carrier field                  |
+| Haiku 4.5 · run 6  | works                            | no intent field                   | no intent field, no carrier field |
+| Haiku 4.5 · run 7  | no carrier field                 | works                             | no carrier field                  |
+| Haiku 4.5 · run 8  | works                            | works                             | works                             |
+| Haiku 4.5 · run 9  | no carrier field, no auth scheme | no intent field, no carrier field | no carrier field                  |
+| Haiku 4.5 · run 10 | no auth scheme                   | no intent field                   | works                             |
 
 A run works when its flow contains the order create naming `intent` and `purchase_units`, the capture, and the tracker call naming `capture_id`, `tracking_number` and `carrier`, with the OAuth2 access token named in any spelling.
 
@@ -5323,6 +7157,55 @@ redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --ope
 redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request
 redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker
 redocly tree paypal.json --format=ai --find=token | head -30
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+find /Users/tora/bench-run/paypal-map-v4-sonnet-r1 -iname "paypal*" 2>/dev/null
+wc -l paypal.map.txt; echo "---"; grep -n -iE "order|capture|track|shipment" paypal.map.txt | head -100
+Read paypal.map.txt
+Read paypal.json
+cd /Users/tora/bench-run/paypal-map-v4-sonnet-r1
+python3 -c "
+import json
+d = json.load(open('paypal.json'))
+s = d['components']['schemas']
+for name in ['order_request','purchase_unit_request','amount_with_breakdown','order','purchase_unit','capture_request','order_tracker_request','order_tracker']:
+if name in s:
+sch = s[name]
+req = sch.get('required')
+print(name, '-> required:', req)
+"
+print('amount_with_breakdown props required-ish:', json.dumps(s['amount_with_breakdown'], indent=1)[:800])
+print()
+print('order_tracker_request:', json.dumps(s['order_tracker_request'], indent=1)[:1500])
+print(json.dumps(s['shipment_tracker'], indent=1)[:2000])
+paths = d['paths']
+cap = paths['/v2/checkout/orders/{id}/capture']['post']
+print('CAPTURE params:', [p.get('\$ref', p.get('name')) for p in cap['parameters']])
+print('CAPTURE responses:', list(cap['responses'].keys()))
+r201 = cap['responses'].get('201', cap['responses'].get('200'))
+print(json.dumps(r201, indent=1)[:600])
+print('order props:', list(s['order'].get('properties',{}).keys()) or s['order'].get('allOf'))
+print('purchase_unit props:', list(s.get('purchase_unit',{}).get('properties',{}).keys()))
+pc = s.get('payment_collection')
+print('payment_collection:', json.dumps(pc, indent=1)[:500] if pc else None)
+tr = paths['/v2/checkout/orders/{id}/track']['post']
+print('TRACK params:', [p.get('\$ref', p.get('name')) for p in tr['parameters']])
+print('TRACK responses:', list(tr['responses'].keys()))
+r = tr['responses'].get('201', tr['responses'].get('200'))
+print(json.dumps(r, indent=1)[:500])
+print('security schemes:', list(d.get('components',{}).get('securitySchemes',{}).keys()))
+print(json.dumps(d['components']['securitySchemes'], indent=1)[:800])
+sh = s.get('shipping_with_track_time_and_carrier') or s.get('shipping_detail')
+import re
+for k in s:
+if 'shipping' in k.lower():
+print(k)
+print(list(s['shipment_carrier'])[:5] if 'shipment_carrier' in s else 'no shipment_carrier top-level')
+print(s.get('shipment_carrier',{}).get('description','')[:200])
 ```
 
 {% /tab %}
@@ -5377,6 +7260,61 @@ redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --ope
 redocly tree paypal.json --format=ai --find=oauth2 | head -30
 redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request
 redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+ls -la  && wc -l paypal.map.txt
+Read paypal.map.txt
+sed -n '33,90p' paypal.json
+cd /Users/tora/bench-run/paypal-map-v4-sonnet-r2
+awk 'NR==33,NR==687' paypal.json | grep -n '"required"'
+sed -n '600,687p' paypal.json
+python3 -c "
+import json
+d = json.load(open('paypal.json'))
+ex = d['paths']['/v2/checkout/orders']['post']['requestBody']['content']['application/json']['examples']['orders_create_simple']
+print(json.dumps(ex, indent=2))
+"
+rb = d['paths']['/v2/checkout/orders']['post']['requestBody']
+print(json.dumps(rb['content']['application/json']['schema'], indent=2)[:2000])
+print('---')
+print(json.dumps(list(rb['content']['application/json']['examples'].keys()), indent=2))
+s = d['components']['schemas']['order_request']
+print('required:', s.get('required'))
+print('properties keys:', list(s.get('properties',{}).keys()))
+pu = d['components']['schemas']['purchase_unit_request']
+print('purchase_unit_request required:', pu.get('required'))
+resp = d['paths']['/v2/checkout/orders']['post']['responses']
+print(list(resp.keys()))
+ex = resp['201']['content']['application/json']['examples']['orders_create_simple']
+op = d['paths']['/v2/checkout/orders/{id}/capture']['post']
+print('params:', [p.get('name') for p in op.get('parameters',[])])
+print('security:', op.get('security'))
+rb = op.get('requestBody')
+print('requestBody required:', rb.get('required') if rb else None)
+print('resp codes:', list(op['responses'].keys()))
+resp = op['responses']['201']['content']['application/json']
+print(list(resp.get('examples',{}).keys()))
+ex = op['responses']['201']['content']['application/json']['examples']['00_orders_capture']
+print(json.dumps(ex, indent=2)[:3000])
+op = d['paths']['/v2/checkout/orders/{id}/track']['post']
+rb = op['requestBody']
+print('required:', rb.get('required'))
+schema = rb['content']['application/json']['schema']
+print(json.dumps(schema, indent=2)[:1500])
+s = d['components']['schemas']['order_tracker_request']
+print('properties:', list(s.get('properties',{}).keys()))
+for k,v in s.get('properties',{}).items():
+print(k, '->', v.get('\$ref', v.get('type')), v.get('enum') if 'enum' in v else '')
+print(json.dumps(s, indent=2)[:2000])
+s = d['components']['schemas']['shipment_tracker']
+print(json.dumps(s, indent=2)[:2500])
+print(list(op['responses'].keys()))
+ex = op['responses'].get('201', op['responses'].get('200'))
+print(json.dumps(ex, indent=2)[:2500])
 ```
 
 {% /tab %}
@@ -5435,6 +7373,16 @@ redocly tree paypal.json --format=ai --pointer="#/components/securitySchemes/Oau
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+ls -la | head -50
+Read paypal.map.txt
+Read paypal.json
+Grep
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -5488,6 +7436,17 @@ redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2 -
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+find / -maxdepth 4 -iname "paypal.map.txt" 2>/dev/null; find / -maxdepth 6 -iname "paypal.map.txt" 2>/dev/null
+Glob
+Read paypal.map.txt
+Read paypal.json
+Grep
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 5 · no tree" %}
 
 ```bash
@@ -5531,6 +7490,69 @@ Artifact
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+ls
+wc -l paypal.map.txt; grep -n -i "order\|capture\|tracking\|shipment" paypal.map.txt | head -100
+Read paypal.map.txt
+Read paypal.json
+Grep
+python3 - <<'EOF'
+import json
+d = json.load(open('paypal.json'))
+schemas = d['components']['schemas']
+for name in ['order_request','purchase_unit_request','amount_with_breakdown','order','purchase_unit','capture','tracker','tracker_request']:
+s = schemas.get(name)
+if s:
+print(name, '->', s.get('required'))
+else:
+print(name, 'NOT FOUND')
+EOF
+for k in schemas:
+if 'track' in k.lower():
+print(k, schemas[k].get('required'))
+for name in ['order_tracker_request','shipment_tracker','order_tracker_response','order_tracker_collection']:
+print(name, json.dumps(s, indent=2)[:1500] if s else "NOT FOUND")
+print('---')
+paths = d['paths']
+def show_responses(path, method):
+op = paths[path][method]
+print(f"=== {method.upper()} {path} ===")
+for code, resp in op['responses'].items():
+content = resp.get('content', {})
+schema = content.get('application/json', {}).get('schema')
+print(code, schema)
+print()
+show_responses('/v2/checkout/orders', 'post')
+show_responses('/v2/checkout/orders/{id}/capture', 'post')
+show_responses('/v2/checkout/orders/{id}/track', 'post')
+show_responses('/v2/checkout/orders/{id}', 'get')
+op = paths['/v2/checkout/orders/{id}/capture']['post']
+print("params:", [p.get('name') for p in op.get('parameters',[])])
+print("requestBody required:", op.get('requestBody',{}).get('required'))
+print("requestBody schema:", op.get('requestBody',{}).get('content',{}).get('application/json',{}).get('schema'))
+op2 = paths['/v2/checkout/orders/{id}/track']['post']
+print("\ntrack params:", [p.get('name') for p in op2.get('parameters',[])])
+print("track body required:", op2.get('requestBody',{}).get('required'))
+print("track body schema:", op2.get('requestBody',{}).get('content',{}).get('application/json',{}).get('schema'))
+order = schemas['order']
+print(list(order.get('properties',{}).keys()) if 'properties' in order else order)
+pu = schemas['purchase_unit']
+def flatten(props):
+return list(props.keys())
+# purchase_unit likely allOf; find payments
+import re
+s=json.dumps(pu)
+print('payments' in s, 'capture' in s)
+payments = schemas.get('payment_collection')
+print(payments)
+capture = schemas.get('capture')
+print(list(capture.get('properties',{}).keys()) if capture and 'properties' in capture else capture)
+print(d.get('components',{}).get('securitySchemes'))
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -5556,6 +7578,69 @@ redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --o
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -100
 redocly tree paypal.json --format=ai --component=schemas --name=order_tracker_request
 redocly tree paypal.json --format=ai --component=schemas --name=shipment_tracker
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+ls | head -50
+wc -l paypal.map.txt; grep -n -i "operationId\|^===\|^##\|order\|capture\|tracking" paypal.map.txt | head -100
+Read paypal.map.txt
+Read paypal.json
+python3 - <<'EOF'
+import json
+d=json.load(open('paypal.json'))
+s=d['components']['schemas']['order_request']
+print("order_request required:", s.get('required'))
+print(list(s.get('properties',{}).keys()))
+EOF
+s=d['components']['schemas']['purchase_unit_request']
+print("purchase_unit_request required:", s.get('required'))
+amt=d['components']['schemas']['amount_with_breakdown']
+print("amount required:", amt.get('required'))
+print(list(amt.get('properties',{}).keys()))
+print(json.dumps(amt, indent=2)[:1500])
+m=d['components']['schemas']['money']
+print("money required:", m.get('required'), list(m.get('properties',{}).keys()))
+op=d['paths']['/v2/checkout/orders']['post']
+resp=op['responses']
+print(list(resp.keys()))
+for code in ['201']:
+r=resp[code]
+print(code, r.get('description'))
+sch=r['content']['application/json']['schema']
+print(sch)
+op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+print("params:", [p.get('name') for p in op.get('parameters',[]) if isinstance(p,dict) and 'name' in p])
+for p in op.get('parameters',[]):
+if '$ref' in p:
+print("ref param:", p['$ref'])
+rb = op.get('requestBody')
+print("requestBody required:", rb.get('required') if rb else None)
+if rb:
+sch = rb['content']['application/json']['schema']
+resp = op['responses']
+print(resp['201']['content']['application/json']['schema'] if '201' in resp else None)
+order = d['components']['schemas']['order']
+print(list(order.get('properties',{}).keys()))
+pu = d['components']['schemas']['purchase_unit']
+print("purchase_unit props:", list(pu.get('properties',{}).keys()))
+pay = d['components']['schemas']['payment_collection']
+print("payment_collection props:", list(pay.get('properties',{}).keys()))
+cap = d['components']['schemas']['capture']
+print("capture props:", list(cap.get('properties',{}).keys()))
+print(order.get('allOf'))
+print(cap.get('allOf'))
+op=d['paths']['/v2/checkout/orders/{id}/track']['post']
+print("params:", [p.get('name') or p.get('$ref') for p in op.get('parameters',[])])
+print("requestBody required:", rb.get('required'))
+tr = d['components']['schemas'].get('order_tracker_request') or d['components']['schemas'].get('tracker_v2_request')
+s=d['components']['schemas']['order_tracker_request']
+print(json.dumps(s, indent=2))
+s=d['components']['schemas']['shipment_tracker']
+print(resp.get('201',{}).get('description'))
+print(resp.get('201',{}).get('content'))
 ```
 
 {% /tab %}
@@ -5591,6 +7676,26 @@ redocly tree paypal.json --format=ai --pointer='#/components/schemas/shipment_ca
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+ls  && wc -l paypal.map.txt
+Read paypal.map.txt
+sed -n '33,120p' paypal.json
+grep -n '"order_request"\|"purchase_unit_request"\|"order":\s*{' paypal.json | head -30
+sed -n '8886,8960p' paypal.json
+sed -n '5708,5760p' paypal.json
+sed -n '2146,2230p' paypal.json
+grep -n '"responses"' paypal.json | awk -F: -v s=2146 -v e=2820 '$1>=s && $1<=e'
+sed -n '2700,2820p' paypal.json
+sed -n '2300,2340p' paypal.json
+sed -n '2823,2920p' paypal.json
+grep -n '"order_tracker_request"' paypal.json
+Read paypal.json
+grep -n '"shipment_tracker"' paypal.json
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -5623,6 +7728,26 @@ redocly tree paypal.json --format=ai --find=token | head -30
 redocly tree paypal.json --format=ai --component=securitySchemes | head -30
 redocly tree paypal.json --format=ai --component=securitySchemes --name=Oauth2
 redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier | head -10
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+ls  && echo --- && wc -l paypal.map.txt
+Read paypal.map.txt
+sed -n '33,150p' paypal.json
+grep -n '"order_request"' paypal.json | head; echo ---; grep -n '"order_request": {' paypal.json
+Read paypal.json
+grep -n '"purchase_unit_request": {' paypal.json; grep -n '"amount_with_breakdown": {' paypal.json
+sed -n '2146,2260p' paypal.json
+sed -n '2260,2340p' paypal.json
+sed -n '2823,2920p' paypal.json
+grep -n '"order_tracker_request": {' paypal.json
+grep -n '"shipment_tracker": {' paypal.json
+grep -n '"201":' paypal.json | head -3; sed -n '560,687p' paypal.json | grep -n 'rel\|"id"\|"status"\|href' | head -30
+sed -n '324,420p' paypal.json
+true
 ```
 
 {% /tab %}
@@ -5713,6 +7838,20 @@ redocly tree paypal.json --format=ai --component=securitySchemes | head -30
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "paypal.map.txt" 2>/dev/null; find / -maxdepth 6 -iname "paypal.json" 2>/dev/null
+Read paypal.map.txt
+Read paypal.json
+Grep
+grep -n '"responses"' paypal.json | awk -F: '$1>=33 && $1<=687'
+grep -n '"responses"\|"201":\|"200":' paypal.json | awk -F: '$1>=2263 && $1<=2820'
+grep -n '"responses"' paypal.json | awk -F: '$1>=2874 && $1<=3317'
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-paypal-map-v4-sonnet-r9/9a72e688-50cc-403e-80c4-1b67a9b7db08/scratchpad/paypal-flow.html
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 10 · no tree" %}
 
 ```bash
@@ -5754,6 +7893,20 @@ redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --o
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps | head -150
 redocly tree paypal.json --format=ai --find=oauth2/token | head -30
 redocly tree paypal.json --format=ai --find="token" | head -40
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+ls -la | head -50
+Read paypal.map.txt
+Read paypal.json
+grep -n '"order_request"\|"purchase_unit_request"\|"amount_with_breakdown"\|"required"' paypal.json | grep -i -A0 "order_request\|purchase_unit_request"
+grep -n '"order_tracker_request"' paypal.json
+grep -n '"shipment_tracker"' paypal.json
+Grep
+Write /private/tmp/claude-501/-Users-tora-bench-run-paypal-map-v4-sonnet-r10/210e4c0b-623d-4233-9b45-616fa61230ad/scratchpad/flow.json
 ```
 
 {% /tab %}
@@ -5987,6 +8140,58 @@ for k,v in list(ex.items())[:2]: print('###',k,json.dumps(v['value'])[:400])
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la  && wc -l paypal.map.txt paypal.json
+Read paypal.map.txt
+sed -n '33,200p' paypal.json
+python3 -c "
+import json
+s=json.load(open('paypal.json'))
+sch=s['components']['schemas']
+for n in ['order_request','order','purchase_unit_request','amount_with_breakdown','order_tracker_request','order_authorize_request','order_capture_request']:
+if n in sch:
+d=sch[n]
+print('==',n,'required:',d.get('required'))
+print('   props:',list((d.get('properties') or {}).keys()))
+"
+for n in ['order','amount_with_breakdown','order_tracker_request','tracker_request','order_tracker','tracker']:
+if n in sch: print('==',n,json.dumps(sch[n])[:900],'\n')
+print('ALL TRACK-ish:',[k for k in sch if 'track' in k.lower()])
+print('shipment_tracker:',json.dumps(sch['shipment_tracker'])[:1500])
+print()
+print('capture resp schema keys')
+cap=s['paths']['/v2/checkout/orders/{id}/capture']['post']
+print('params:',[ (p.get('name') or p.get('\$ref')) for p in cap['parameters']])
+print('body req:',cap['requestBody'].get('required'), list(cap['requestBody']['content'].keys()))
+print('responses:',{k:(v['content']['application/json']['schema'] if 'content' in v else None) for k,v in cap['responses'].items()})
+p=s['paths']
+tr=p['/v2/checkout/orders/{id}/track']['post']
+print('TRACK params:',[(x.get('name'),x.get('required')) if 'name' in x else x['\$ref'] for x in tr['parameters']])
+print('TRACK bodyreq:',tr['requestBody'].get('required'),json.dumps(tr['requestBody']['content']['application/json']['schema']))
+print('TRACK resp:',{k:(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in tr['responses'].items()})
+cr=p['/v2/checkout/orders']['post']
+print('CREATE resp:',{k:(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in cr['responses'].items()})
+print('intent enum:',s['components']['schemas']['checkout_payment_intent'])
+print('order_status:',json.dumps(s['components']['schemas'].get('order_status'))[:400])
+print(json.dumps(s['components']['securitySchemes'])[:800])
+print('purchase_unit props:',json.dumps(sch['purchase_unit'])[:200])
+print('payment_collection:',json.dumps(sch.get('payment_collection'))[:600])
+print('capture keys:',list((sch.get('capture',{}).get('properties') or {}).keys()) or json.dumps(sch.get('capture'))[:400])
+c=sch['shipment_carrier']['enum']; print('carrier enum n=',len(c), c[:6])
+grep -o '"rel": "[a-z-]*"' paypal.json | sort | uniq -c | sort -rn | head -15
+print('shipping_with_tracking_details:',json.dumps(sch['shipping_with_tracking_details'])[:700])
+pt=s['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print('PATCH params:',[(x.get('name'),x.get('required')) if 'name' in x else x['\$ref'] for x in pt['parameters']])
+print('PATCH body:',json.dumps(pt['requestBody'])[:300])
+print('patch schema:',json.dumps(sch.get('patch'))[:500])
+for x in pt['parameters']:
+if x.get('name')=='tracker_id': print(json.dumps(x)[:600])
+print(json.dumps(pt['requestBody']['content']['application/json'].get('examples'))[:800])
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -6099,6 +8304,57 @@ R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; grep -o '"rel": *"p
 R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --operation=orders.track.create | tr ',' '\n' | grep -nE '"20[01]"|"responses"|order_tracker|\$ref.*schemas/order' | head -20; echo "=== carrier sample ==="; $R tree $P --format=ai --component=schemas --name=shipment_carrier | tr ',' '\n' | grep -oE '"(FEDEX|UPS|USPS|DHL|OTHER)"' | sort -u
 R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --pointer='#/paths/~1v2~1checkout~1orders~1{id}~1track/post/responses/201/content/application~1json/examples' | head -c 2200
 R=/Users/tora/bench-builds/final/bin/redocly; P=paypal.json; $R tree $P --format=ai --operation=orders.trackers.patch | tr ',' '\n' | grep -E 'patch_request|requestBody|"20[04]"|"204"|patch|op"|path"|value"' | head -25
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la  && wc -l paypal.map.txt paypal.json
+Read paypal.map.txt
+sed -n '33,140p' paypal.json
+sed -n '2823,2960p' paypal.json
+python3 -c "
+import json
+s=json.load(open('paypal.json'))
+c=s['components']
+print(json.dumps(s.get('components',{}).get('securitySchemes'),indent=1)[:1500])
+for n in ['order_request','order_tracker_request','purchase_unit_request','order','tracker']:
+sc=c['schemas'].get(n)
+if sc: print('==',n,'required=',sc.get('required'),'props=',list(sc.get('properties',{}).keys()))
+"
+c=s['components']['schemas']
+for n in ['order_tracker_request','order','amount_with_breakdown','capture']:
+print('==',n, json.dumps(c.get(n))[:1200]); print()
+print(json.dumps(c['shipment_tracker'])[:1500])
+print()
+print(json.dumps(c.get('link_description'))[:600])
+print(json.dumps(c['payment_collection'])[:400])
+op=s['paths']['/v2/checkout/orders/{id}/capture']['post']
+print([p.get('name',p.get('\$ref')) for p in op['parameters']])
+print(json.dumps(op['requestBody'],indent=0)[:800])
+ex=op['responses']['201']['content']['application/json']['examples']
+k=list(ex)[0]; print(k)
+print(json.dumps(ex[k]['value'])[:2500])
+op=s['paths']['/v2/checkout/orders']['post']
+print(list(op['responses']))
+for code in op['responses']:
+ct=op['responses'][code].get('content')
+if not ct: continue
+ex=ct['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]:
+print(code,k,json.dumps(v['value'])[:900]);print()
+op=s['paths']['/v2/checkout/orders/{id}/track']['post']
+ex=op['responses']['201']['content']['application/json']['examples'] if '201' in op['responses'] else {}
+for k,v in list(ex.items())[:1]:
+print(k, json.dumps(v['value'])[:1800])
+print('---PATCH params')
+p=s['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print([q.get('name',q.get('\$ref')) for q in p['parameters']])
+print(json.dumps(p['requestBody']['content']['application/json']['examples'])[:700])
+print(json.dumps(c['order_status'])[:600] if 'order_status' in c else [k for k in c if 'status' in k][:20])
+sc=c['shipment_carrier']
+print(str(sc)[:300]); print('enum count', len(sc.get('enum',[])), sc.get('enum',[])[:5], [e for e in sc.get('enum',[]) if e in ('FEDEX','UPS','USPS','OTHER','DHL')])
 ```
 
 {% /tab %}
@@ -6277,6 +8533,75 @@ print(json.dumps(S['tracker'],indent=1)[:1200])
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read paypal.map.txt
+sed -n '33,240p' paypal.json
+python3 - <<'EOF'
+import json
+d=json.load(open('paypal.json'))
+s=d['components']['schemas']
+def show(n,depth=0):
+sc=s.get(n)
+print(n, '| required:', sc.get('required'), '| props:', list(sc.get('properties',{}).keys())[:30])
+for n in ['order_request','order','order_tracker_request','order_authorize_request','capture_request','tracker_request']:
+if n in s: show(n)
+print([k for k in s if 'track' in k.lower()])
+EOF
+print(json.dumps(s['order_tracker_request'],indent=1)[:2000])
+print('---tracker---')
+print(json.dumps(s['tracker'],indent=1)[:1500])
+print('---shipment_tracker---')
+print(json.dumps(s['shipment_tracker'],indent=1)[:2500])
+for p,ops in d['paths'].items():
+for m,o in ops.items():
+if m not in('get','post','patch','put','delete'):continue
+rb=o.get('requestBody')
+print(m.upper(),p,'| reqBody required:',rb.get('required') if rb else None,
+'| schema:',(rb['content']['application/json']['schema'].get('$ref') if rb else None))
+print('   params:',[(x.get('name') or x.get('$ref'),x.get('required')) for x in o.get('parameters',[])])
+print('   responses:',{k:(v.get('content',{}).get('application/json',{}).get('schema',{}).get('$ref')) for k,v in o['responses'].items() if k.startswith('2')})
+print(json.dumps(d['components'].get('parameters',{}),indent=1)[:2500])
+print('=== sec ===')
+print(json.dumps(d['components'].get('securitySchemes',{}),indent=1)[:1500])
+p=d['paths']
+# create order 200/201 example keys
+for code in ['200','201']:
+r=p['/v2/checkout/orders']['post']['responses'][code]
+ex=r['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]:
+print(code,k,json.dumps(v.get('value'))[:600]);print()
+cap=p['/v2/checkout/orders/{id}/capture']['post']
+for code,r in cap['responses'].items():
+if not code.startswith('2'):continue
+for k,v in list(ex.items())[:1]:
+print('CAPTURE',code,k,json.dumps(v.get('value'))[:1200]);print()
+tr=p['/v2/checkout/orders/{id}/track']['post']
+print('TRACK req examples:')
+for k,v in list(tr['requestBody']['content']['application/json'].get('examples',{}).items())[:3]:
+print(k,json.dumps(v.get('value'))[:600])
+print()
+for code,r in tr['responses'].items():
+for k,v in list(r['content']['application/json'].get('examples',{}).items())[:2]:
+print('TRACK resp',code,k,json.dumps(v.get('value'))[:1500]);print()
+print(json.dumps(s['order'])[:1200])
+print('--- order_status ---')
+for k in s:
+if k.startswith('order_status') or k=='status':
+print(k, json.dumps(s[k])[:500])
+print('--- carrier ---')
+print(json.dumps(s['shipment_carrier'])[:400])
+import re
+print(len(s['shipment_carrier'].get('enum',[])), s['shipment_carrier'].get('enum',[])[:15])
+tp=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+for k,v in list(tp['requestBody']['content']['application/json'].get('examples',{}).items())[:3]:
+print(k,json.dumps(v.get('value'))[:400])
+print(json.dumps(d['components']['schemas']['patch'],indent=1)[:900])
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 4 · no tree" %}
 
 ```bash
@@ -6428,6 +8753,85 @@ redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -4
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la  && wc -l paypal.map.txt paypal.json
+Read paypal.map.txt
+sed -n '33,200p' paypal.json
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+s=d['components']['schemas']
+print('order_request req:', s['order_request'].get('required'))
+print('order_request props:', list(s['order_request']['properties'].keys()))
+pu=s['order_request']['properties']['purchase_units']
+print('pu:', json.dumps(pu)[:400])
+"
+for n in ['purchase_unit_request','amount_with_breakdown','item','order','checkout_payment_intent']:
+if n in s:
+print(n,'req=',s[n].get('required'),'props=',list(s[n].get('properties',{}).keys()) or s[n].get('enum'))
+p=d['paths']
+for path,m in p.items():
+for meth,op in m.items():
+if meth in ('get','post','patch'):
+print('==',meth.upper(),path,op.get('operationId'))
+rb=op.get('requestBody')
+if rb:
+sch=rb['content']['application/json']['schema']
+print('  body required:',rb.get('required'),'schema:',sch.get('\$ref') or list(sch.get('properties',{}).keys()))
+for code,r in op.get('responses',{}).items():
+c=r.get('content',{}).get('application/json',{}).get('schema',{})
+if code.startswith('2'): print('  resp',code, c.get('\$ref') or list(c.get('properties',{}).keys()) or 'none')
+print('  params:',[(pp.get('name') or pp.get('\$ref'),pp.get('required')) for pp in op.get('parameters',[])])
+t=s['order_tracker_request']
+print('tracker req:',t.get('required'))
+print(json.dumps(t,indent=1)[:3000])
+print(json.dumps(s['shipment_tracker'],indent=1)[:2500])
+o=s['order']
+print(json.dumps(o)[:600])
+print('---')
+print('purchase_unit props:', list(s['purchase_unit']['properties'].keys()) if 'purchase_unit' in s else 'n/a')
+for n in s:
+if 'payment_collection' in n or n in ('capture','payments'): print('KEY',n, list(s[n].get('properties',{}).keys()))
+print(json.dumps(s['payment_collection']['properties']['captures'])[:400])
+print('--- capture:'); print(json.dumps(s['capture'])[:800])
+print('--- order top props:'); print(list(s['order']['allOf'][1]['properties'].keys()))
+print('--- shipping_with_tracking_details?' )
+if 'shipping' in n and 'detail' in n: print(n, list(s[n].get('properties',{}).keys()))
+print(json.dumps(s['shipping_with_tracking_details'],indent=1)[:1200])
+print('--- tracker:');
+if n.startswith('tracker') or n=='shipment_tracker': print(n, json.dumps(s[n])[:300])
+op=d['paths']['/v2/checkout/orders']['post']
+for code,r in op['responses'].items():
+if not code.startswith('2'): continue
+ex=r.get('content',{}).get('application/json',{}).get('examples',{})
+for k,v in list(ex.items())[:3]:
+print('==',code,k); print(json.dumps(v.get('value'))[:900])
+print(json.dumps(d['components']['securitySchemes'],indent=1))
+op=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+ex=op['responses']['201']['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]:
+print('==',k); print(json.dumps(v.get('value'),indent=1)[:1500])
+op=d['paths']['/v2/checkout/orders/{id}/track']['post']
+ex=op['requestBody']['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]: print('REQ',k,json.dumps(v.get('value'))[:600])
+if code.startswith('2'):
+for k,v in list(r.get('content',{}).get('application/json',{}).get('examples',{}).items())[:2]:
+print('RESP',code,k,json.dumps(v.get('value'))[:1200])
+print('order_status', d['components']['schemas']['order_status'] if 'order_status' in d['components']['schemas'] else [n for n in d['components']['schemas'] if 'status' in n][:20])
+c=s['shipment_carrier']
+en=c.get('enum') or c
+print(type(en), (en[:12] if isinstance(en,list) else json.dumps(en)[:300]), 'count', len(en) if isinstance(en,list) else '')
+print([x for x in en if x in ('FEDEX','UPS','USPS','DHL','OTHER')] if isinstance(en,list) else '')
+print('--- params:'); print(json.dumps(d['components']['parameters'],indent=1)[:1200])
+print('--- capture req:', json.dumps(s['order_capture_request'])[:400])
+print(json.dumps(s['patch'],indent=1)[:900])
+op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+for k,v in list(ex.items())[:3]: print(k, json.dumps(v.get('value'))[:300])
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 5 · no tree" %}
 
 ```bash
@@ -6519,6 +8923,89 @@ print(list(op['responses']))
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read paypal.map.txt
+Read paypal.json
+python3 -c "
+import json
+d=json.load(open('paypal.json'))
+s=d['components']['schemas']
+print(list(s.keys())[:80])
+"
+for n in ['order_request','purchase_unit_request','amount_with_breakdown','item_request','money','shipping_detail','order','order_capture_request','order_tracker_request','tracker']:
+if n in s:
+sc=s[n]
+print('==',n,'required=',sc.get('required'))
+print('   props=',list((sc.get('properties') or {}).keys()))
+else: print('== MISSING',n)
+for n in ['order','amount_with_breakdown','order_tracker_request','tracker']:
+print('====',n)
+print(json.dumps(s[n])[:2500])
+print()
+print(json.dumps(s['shipment_tracker'])[:3000])
+print('--- capture op')
+p=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+print('params',[ (x.get('name') or x.get('\$ref')) for x in p['parameters']])
+print('body',json.dumps(p['requestBody'])[:300])
+print('resps',{k:json.dumps(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in p['responses'].items() if k.startswith('2')})
+print('--- track op')
+t=d['paths']['/v2/checkout/orders/{id}/track']['post']
+print('params',[ (x.get('name') or x.get('\$ref')) for x in t['parameters']])
+print('bodyreq',t['requestBody'].get('required'),json.dumps(t['requestBody']['content']['application/json']['schema']))
+print('resps',{k:json.dumps(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in t['responses'].items() if k.startswith('2')})
+print('--- create resps')
+c=d['paths']['/v2/checkout/orders']['post']
+print({k:json.dumps(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in c['responses'].items() if k.startswith('2')})
+print('intent',json.dumps(s['checkout_payment_intent']))
+print('carrier enum count',len(s['shipment_carrier'].get('enum',[])), s['shipment_carrier'].get('enum',[])[:15])
+pu=s['purchase_unit']; print('purchase_unit props', json.dumps(pu)[:1200])
+print('auth param', json.dumps(d['components']['parameters']['authorization']))
+print('tracker_item', json.dumps(s['tracker_item'])[:900])
+pu=json.loads(json.dumps(s['purchase_unit']))
+print(list(pu['properties'].keys()))
+print('payments:',json.dumps(pu['properties'].get('payments')))
+print('payment_collection:',json.dumps(s['payment_collection'])[:900])
+print('capture keys:',list(json.loads(json.dumps(s['capture'])).get('properties',{}).keys()) if 'capture' in s else 'n/a')
+print(json.dumps(s.get('capture'))[:1200])
+print(json.dumps(d['components']['securitySchemes']))
+pu=s['purchase_unit']['properties']
+print('shipping:',json.dumps(pu['shipping']))
+print(json.dumps(s.get('shipping_with_tracking_details'))[:1500])
+c=d['paths']['/v2/checkout/orders']['post']['responses']
+ex=c['200']['content']['application/json'].get('examples',{})
+print('200 ex keys',list(ex.keys())[:10])
+for k,v in list(ex.items())[:2]:
+print(k, json.dumps(v.get('value'))[:1500])
+ex2=c['201']['content']['application/json'].get('examples',{})
+print('201 keys',list(ex2.keys())[:10])
+for k,v in list(ex2.items())[:2]:
+print(k, json.dumps(v.get('value'))[:1200])
+ex=t['requestBody']['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:3]: print('REQ',k,json.dumps(v.get('value'))[:800]);print()
+for code in ['200','201']:
+e=t['responses'][code]['content']['application/json'].get('examples',{})
+for k,v in list(e.items())[:2]: print('RESP',code,k,json.dumps(v.get('value'))[:1200]);print()
+print('capture ex resp:')
+cp=d['paths']['/v2/checkout/orders/{id}/capture']['post']
+e=cp['responses']['201']['content']['application/json'].get('examples',{})
+for k,v in list(e.items())[:1]: print(k,json.dumps(v.get('value'))[:1800])
+print('capture 200:')
+e=cp['responses']['200']['content']['application/json'].get('examples',{})
+print(list(e.keys()))
+p=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print([x.get('name') or x.get('\$ref') for x in p['parameters']])
+print(json.dumps(p['requestBody'])[:700])
+print(list(p['responses'].keys()))
+print('order_status',json.dumps(s['order_status'].get('enum')))
+print('tracker_status',json.dumps(s['tracker_status'].get('enum')))
+e=d['components']['schemas']['shipment_carrier']['enum']
+print([x for x in e if x in ('OTHER','UPS','FEDEX','USPS','DHL','FEDEX_UK','UPS_MI')])
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 6 · no tree" %}
 
 ```bash
@@ -6602,6 +9089,86 @@ redocly tree paypal.json --format=ai --component=schemas --name=order | head -c 
 redocly tree paypal.json --format=ai --operation=orders.get | head -c 2000
 redocly tree paypal.json --format=ai --component=schemas --name=order_status | head -10; echo "=== TRACKERS PATCH ==="; redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -c 1800
 redocly tree paypal.json --format=ai --component=schemas --name=paypal_wallet_experience_context | head -c 1800
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read paypal.map.txt
+sed -n '33,180p' paypal.json
+python3 - <<'EOF'
+import json
+d=json.load(open('paypal.json'))
+s=d['components']['schemas']
+def show(n, depth=0):
+sc=s[n]
+print(n, '| required:', sc.get('required'), '| props:', list(sc.get('properties',{}).keys())[:40])
+for n in ['order_request','order','purchase_unit_request','amount_with_breakdown','payment_source','paypal_wallet','experience_context_base','order_capture_request','order_authorize_request']:
+if n in s: show(n)
+else: print(n,'MISSING')
+EOF
+print(json.dumps(s['order'],indent=1)[:1500])
+p=d['paths']
+tr=p['/v2/checkout/orders/{id}/track']['post']
+print('params:',[ (x.get('name') or x.get('$ref'), x.get('required')) for x in tr.get('parameters',[])])
+rb=tr['requestBody']
+print('rb required:', rb.get('required'), rb['content']['application/json']['schema'])
+print('responses:', list(tr['responses'].keys()))
+for k,v in tr['responses'].items():
+c=v.get('content',{})
+for ct,cv in c.items():
+print(k, ct, cv.get('schema'))
+for n in ['order_tracker_request','tracker_request','order_tracker']:
+if n in s: print(n, s[n].get('required'), list(s[n].get('properties',{}).keys()))
+print(json.dumps(s['order_tracker_request'],indent=1)[:4000])
+print(json.dumps(s['shipment_tracker'],indent=1)[:3000])
+grep -o '"rel": "[a-z-]*"' paypal.json | sort | uniq -c | sort -rn
+cap=p['/v2/checkout/orders/{id}/capture']['post']
+print('cap params:',[ (x.get('name') or x.get('$ref'), x.get('required')) for x in cap.get('parameters',[])])
+print('cap rb required:',cap['requestBody'].get('required'), cap['requestBody']['content']['application/json']['schema'])
+print('cap responses:',{k:(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in cap['responses'].items()})
+cr=p['/v2/checkout/orders']['post']
+print('create resp:',{k:(v.get('content',{}).get('application/json',{}).get('schema')) for k,v in cr['responses'].items()})
+# example of create 201 response
+ex=cr['responses']['200']['content']['application/json'].get('examples') if '200' in cr['responses'] else None
+print(json.dumps(d['components']['securitySchemes'],indent=1))
+print(json.dumps(d.get('servers'),indent=1))
+p=d['components']['parameters']
+for k in ['authorization','paypal_auth_assertion','paypal_client_metadata_id']:
+print(k, json.dumps(p[k])[:400])
+def props(n):
+out={}
+def walk(x):
+if '$ref' in x: walk(s[x['$ref'].split('/')[-1]])
+for k in ('allOf','anyOf'):
+for y in x.get(k,[]): walk(y)
+out.update(x.get('properties',{}))
+walk(sc)
+return out
+print('purchase_unit:', list(props('purchase_unit').keys()))
+print('payment_collection:', list(props('payment_collection').keys()))
+print('capture:', list(props('capture').keys()))
+sh=props('shipping_with_tracking_details') if 'shipping_with_tracking_details' in s else None
+print([k for k in s if 'track' in k.lower()])
+print(json.dumps(s['shipping_with_tracking_details'],indent=1)[:1200])
+print('---tracker---')
+print(json.dumps(s['tracker'],indent=1)[:1500])
+print('intent',s['checkout_payment_intent'])
+sc=s[n]; out={}
+walk(sc); return out
+o=props('order')
+print('order status', o['status'])
+print('tracker_status', s['tracker_status'].get('enum'))
+print('carrier enum count', len(s['shipment_carrier'].get('enum',[])), s['shipment_carrier'].get('enum',[])[:5])
+pt=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print('patch params',[(x.get('name') or x.get('$ref'),x.get('required')) for x in pt.get('parameters',[])])
+print('patch rb',pt['requestBody'].get('required'), json.dumps(pt['requestBody']['content'])[:300])
+print(json.dumps(d['components']['schemas']['order_status'],indent=1))
+grep -n '"payer-action"' -A4 -B12 paypal.json | head -40
+e=d['components']['schemas']['shipment_carrier']['enum']
+print([x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER')])
 ```
 
 {% /tab %}
@@ -6731,6 +9298,89 @@ print(json.dumps(s.get('patch_request'))[:400]); print(json.dumps(s.get('patch')
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la && wc -l paypal.json paypal.map.txt
+Read paypal.map.txt
+sed -n '33,140p' paypal.json
+grep -n '"order_request"\|"order_tracking_request"\|"order_authorize_request"\|"order_capture_request"\|"order"' paypal.json | head -40
+sed -n '8886,8960p' paypal.json; echo ---; sed -n '12635,12720p' paypal.json
+python3 - <<'EOF'
+import json
+d=json.load(open('paypal.json'))
+s=d['components']['schemas']
+pu=s['purchase_unit_request']
+print('PU required:', pu.get('required'), list(pu['properties'].keys()))
+print('amount req:', s['amount_with_breakdown'].get('required') if 'amount_with_breakdown' in s else None)
+print([k for k in s if 'track' in k.lower()])
+EOF
+for k in ['order_tracker_request','shipment_tracker','tracker']:
+o=s[k]
+print('==',k, o.get('required'))
+print(json.dumps({p:{kk:vv for kk,vv in v.items() if kk in ('type','description','$ref','enum','allOf')} for p,v in o.get('properties',{}).items()}, indent=1)[:2500])
+print('amount:', s['amount_with_breakdown'].get('allOf', s['amount_with_breakdown']))
+print(json.dumps(s['order_tracker_request'])[:3000])
+print('---TRACKER---')
+print(json.dumps(s['tracker'])[:2000])
+print('---money---')
+print(json.dumps(s['money']))
+p=d['paths']
+for path,ops in p.items():
+for m,op in ops.items():
+if m in ('get','post','patch'):
+rb=op.get('requestBody')
+print(m.upper(),path,op['operationId'],'| bodyReq:',rb.get('required') if rb else None,
+'| schema:', (rb['content']['application/json']['schema'] if rb else None) and json.dumps(rb['content']['application/json']['schema'])[:120])
+prms=[]
+for pr in op.get('parameters',[]):
+if '$ref' in pr:
+nm=pr['$ref'].split('/')[-1]; r=d['components']['parameters'][nm]; prms.append((r['name'],r['in'],r.get('required')))
+else: prms.append((pr['name'],pr['in'],pr.get('required')))
+print('   params:',prms)
+print('   resp:',{c:(v.get('content',{}).get('application/json',{}).get('schema',{}).get('$ref') or 'none') for c,v in op['responses'].items() if c.startswith('2')})
+print('intent:', json.dumps(s['checkout_payment_intent'])[:400])
+print('order_status:', json.dumps(s['order_status'])[:600])
+print('tracker_status:', json.dumps(s['tracker_status'])[:300])
+pu=s['purchase_unit']
+print('PU keys:', json.dumps(pu)[:200])
+def keys(sc):
+out={}
+for part in sc.get('allOf',[sc]):
+out.update(part.get('properties',{}))
+return out
+k=keys(pu)
+print('purchase_unit props:', list(k.keys()))
+print('payments ref:', json.dumps(k.get('payments'))[:200])
+print('shipping ref:', json.dumps(k.get('shipping'))[:300])
+print('swtd:', json.dumps(s['shipping_with_tracking_details'])[:1200])
+print('capture:', json.dumps(s.get('capture'))[:600])
+op=d['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+for pr in op['parameters']:
+if 'name' in pr and pr['name']=='tracker_id': print(json.dumps(pr,indent=1)[:1200])
+tr=d['paths']['/v2/checkout/orders/{id}/track']['post']
+ex=tr['requestBody']['content']['application/json'].get('examples')
+print(json.dumps(ex,indent=1)[:1500])
+print('--- responses examples ---')
+r=tr['responses']
+for c,v in r.items():
+if c.startswith('2'):
+e=v.get('content',{}).get('application/json',{}).get('examples')
+print(c, json.dumps(e)[:1500])
+sc=s['shipment_carrier']
+print(json.dumps(sc)[:300]); print('enum count', len(sc.get('enum',[])))
+print([e for e in sc.get('enum',[]) if e in ('UPS','FEDEX','USPS','DHL','OTHER','UPS_MI')])
+op=d['paths']['/v2/checkout/orders']['post']
+for c,v in op['responses'].items():
+ex=v.get('content',{}).get('application/json',{}).get('examples',{})
+for n,e in list(ex.items())[:2]:
+print(c,n,json.dumps(e.get('value',{}).get('links'))[:600], 'status:',e.get('value',{}).get('status'))
+print(json.dumps(d['components']['securitySchemes'],indent=1)[:900])
+print(json.dumps(d.get('servers')))
+print(json.dumps(op['requestBody']['content']['application/json'].get('examples'),indent=1)[:1200])
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 8 · no tree" %}
 
 ```bash
@@ -6823,6 +9473,78 @@ redocly tree paypal.json --format=ai --component=schemas --name=shipment_carrier
 redocly tree paypal.json --format=ai --component=schemas --name=order_status | head -c 900; echo; echo "=== GET ==="; redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id} --operation=get | head -c 2500
 redocly tree paypal.json --format=ai --component=schemas --name=purchase_unit_request | head -c 3000; echo; echo "=== TRACKER_ITEM ==="; redocly tree paypal.json --format=ai --component=schemas --name=tracker_item | head -c 1500
 redocly tree paypal.json --format=ai --operation=orders.trackers.patch | head -c 3000
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la  && wc -l paypal.map.txt paypal.json
+Read paypal.map.txt
+sed -n '33,200p' paypal.json
+python3 -c "
+import json
+s=json.load(open('paypal.json'))
+sc=s['components']['schemas']
+for n in ['order_request','order','purchase_unit_request','amount_with_breakdown','payment_source','order_tracker_request','order_tracker','order_capture_request','capture','link_description','shipping_detail']:
+if n in sc:
+d=sc[n]
+print('==',n,'| required:',d.get('required'),'| type:',d.get('type'))
+print('   props:',list(d.get('properties',{}).keys()))
+else: print('== MISSING',n)
+"
+for n in ['order','order_tracker_request','capture','amount_with_breakdown']:
+print('===',n); print(json.dumps(sc[n])[:1800]); print()
+print('== shipment_tracker'); print(json.dumps(sc['shipment_tracker'])[:1500])
+print()
+print('== tracker_item req:', sc['tracker_item'].get('required'), list(sc['tracker_item'].get('properties',{}).keys()))
+print('== order_status:', json.dumps(sc['order_status'])[:400])
+print('== capture_status:', json.dumps(sc['capture_status'])[:600])
+print('== checkout_payment_intent:', json.dumps(sc['checkout_payment_intent'])[:400])
+p=s['paths']
+for path,m in [('/v2/checkout/orders/{id}/capture','post'),('/v2/checkout/orders/{id}/track','post'),('/v2/checkout/orders/{id}','get')]:
+op=p[path][m]
+print('===',op['operationId'])
+for pr in op.get('parameters',[]):
+if '\$ref' in pr: print('  param ref:', pr['\$ref'])
+else: print('  param:', pr['name'], pr['in'], 'required=',pr.get('required'))
+rb=op.get('requestBody')
+if rb: print('  body required:',rb.get('required'),'schema:',json.dumps(rb['content']['application/json']['schema'])[:200])
+print('  responses:', {k:(json.dumps(v.get('content',{}).get('application/json',{}).get('schema',{}))[:120]) for k,v in op['responses'].items() if k.startswith('2')})
+print('securitySchemes:', json.dumps(s['components']['securitySchemes'])[:900])
+print('param authorization:', json.dumps(s['components']['parameters']['authorization'])[:600])
+pu=sc['purchase_unit']
+print('purchase_unit:', json.dumps(pu)[:200])
+print('payment_collection:', json.dumps(sc['payment_collection'])[:700])
+print('purchase_unit props:', list(sc['purchase_unit']['properties'].keys()))
+print('payments:', json.dumps(sc['purchase_unit']['properties']['payments'])[:300])
+r=s['paths']['/v2/checkout/orders']['post']['responses']['200']
+ex=r['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:3]:
+print('--',k, json.dumps(v.get('value'))[:600])
+" ; grep -o '\"rel\": \"[a-z-]*\"' paypal.json | sort | uniq -c | sort -rn | head -20
+print('shipping in purchase_unit:', json.dumps(sc['purchase_unit']['properties']['shipping'])[:300])
+for n in sc:
+if 'tracker' in n or 'tracking' in n: print('SCHEMA:',n, sc[n].get('required'), list(sc[n].get('properties',{}).keys())[:12])
+c=sc['shipment_carrier']
+print('carrier enum count:', len(c.get('enum',[])), c.get('enum',[])[:5])
+print([x for x in c.get('enum',[]) if x in ('FEDEX','UPS','USPS','DHL','OTHER')])
+print('tracker:', json.dumps(sc['tracker'])[:1200])
+print('shipping_with_tracking_details:', json.dumps(sc['shipping_with_tracking_details'])[:900])
+op=s['paths']['/v2/checkout/orders/{id}/capture']['post']
+ex=op['responses']['201']['content']['application/json'].get('examples',{})
+k=list(ex)[0]; print('CAPTURE EX',k); print(json.dumps(ex[k]['value'])[:1400])
+t=s['paths']['/v2/checkout/orders/{id}/track']['post']
+rb=t['requestBody']['content']['application/json'].get('examples',{})
+for k,v in list(rb.items())[:2]: print('TRACK REQ',k,json.dumps(v.get('value'))[:500])
+te=t['responses'].get('201',t['responses']['200'])['content']['application/json'].get('examples',{})
+for k,v in list(te.items())[:1]: print('TRACK RES',k,json.dumps(v.get('value'))[:800])
+op=s['paths']['/v2/checkout/orders/{id}/trackers/{tracker_id}']['patch']
+print([ (p.get('name') or p.get('\$ref'), p.get('required')) for p in op['parameters']])
+print(json.dumps(op['requestBody']['content']['application/json']['schema'])[:200])
+ex=op['requestBody']['content']['application/json'].get('examples',{})
+for k,v in list(ex.items())[:2]: print(k, json.dumps(v.get('value'))[:300])
+print('patch schema:', json.dumps(sc['patch'])[:400])
 ```
 
 {% /tab %}
@@ -6963,6 +9685,42 @@ print('responses:', list(p['responses'].keys()))
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la  && wc -l paypal.map.txt paypal.json
+Read paypal.map.txt
+Read paypal.json
+grep -n '"order_tracker_request"\|"order_request"\|"tracker"' paypal.json | head -20
+python3 -c "
+import json
+s=json.load(open('paypal.json'))
+c=s['components']
+print(json.dumps(c.get('securitySchemes'),indent=1)[:1200])
+st=c['schemas']['shipment_tracker']
+print('shipment_tracker required:',st.get('required'), list(st.get('properties',{}).keys()))
+for k in ['tracking_number','carrier','carrier_name_other']:
+if k in st.get('properties',{}): print(k, json.dumps(st['properties'][k])[:300])
+pu=c['schemas']['purchase_unit_request']
+print('PU required:',pu.get('required'), list(pu.get('properties',{}).keys()))
+print('intent enum:', c['schemas']['checkout_payment_intent'])
+"
+p=s['paths']
+cr=p['/v2/checkout/orders']['post']['responses']
+print('create resp codes',list(cr.keys()))
+ex=cr['200' if '200' in cr else '201']['content']['application/json'].get('examples',{})
+k=list(ex)[0]; print(json.dumps(ex[k]['value'])[:700])
+cap=p['/v2/checkout/orders/{id}/capture']['post']['responses']
+print('capture codes',list(cap.keys()))
+ce=cap['201']['content']['application/json'].get('examples',{})
+k2=[x for x in ce][0]; print(k2, json.dumps(ce[k2]['value'])[:900])
+import json;s=json.load(open('paypal.json'))
+e=s['components']['schemas']['shipment_carrier']['enum']
+print(len(e),[x for x in e if x in ('FEDEX','UPS','USPS','DHL','OTHER')])
+print(s['components']['parameters']['authorization'])
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -7086,6 +9844,21 @@ redocly tree paypal.json --format=ai --operation orders.trackers.patch|head -4
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la && wc -l paypal.json paypal.map.txt
+Read paypal.map.txt
+Read paypal.json
+grep -n '"order_request"\|"order_tracker_request"\|"carrier"' paypal.json | head -30
+grep -n 'oauth2/token\|tokenUrl\|"purchase_unit_request"' paypal.json | head; echo ---; sed -n '17900,17988p' paypal.json
+sed -n '400,690p' paypal.json | grep -n '"rel"\|"status"\|"id":\|payer-action\|approve\|"200"\|"201"' | head -40
+sed -n '5708,5760p' paypal.json; echo === ; sed -n '4082,4100p' paypal.json
+awk 'NR>=2400 && NR<=2820' paypal.json | grep -n '"201"\|"status": "COMPLETED"\|"captures"\|"id": "3C6\|payer-action\|"rel"' | head -30
+sed -n '2409,2460p' paypal.json; echo "=== token scheme ==="; sed -n '4083,4098p' paypal.json
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -7117,6 +9890,14 @@ redocly tree paypal.json --format=ai --find="capture" 2>/dev/null | head -50
 redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders --with-deps 2>/dev/null | head -100
 redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/\{id\}/capture --with-deps 2>/dev/null | head -100
 redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders/\{id\}/track --with-deps 2>/dev/null | head -100
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
 ```
 
 {% /tab %}
@@ -7154,6 +9935,14 @@ redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 3 · no tree" %}
 
 ```bash
@@ -7178,6 +9967,15 @@ redocly tree paypal.json --operation orders.create --format=ai
 redocly tree paypal.json --operation orders.authorize --format=ai
 redocly tree paypal.json --operation orders.capture --format=ai
 redocly tree paypal.json --operation "orders.track.create" --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+Grep
 ```
 
 {% /tab %}
@@ -7216,6 +10014,14 @@ redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 5 · no tree" %}
 
 ```bash
@@ -7242,6 +10048,17 @@ redocly tree paypal.json --format=ai --find tracking
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders --operation=post --with-deps
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/capture --operation=post --with-deps
 redocly tree paypal.json --format=ai --path=/v2/checkout/orders/{id}/track --operation=post --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+Grep
+grep -n "\"order_request\"" paypal.json | head -5
+grep -n "\"checkout_payment_intent\"" paypal.json | head -1
 ```
 
 {% /tab %}
@@ -7276,6 +10093,14 @@ redocly tree paypal.json --operation=post --path=/v2/checkout/orders --format=ai
 redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/authorize --format=ai | head -150
 redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/capture --format=ai | head -150
 redocly tree paypal.json --operation=post --path=/v2/checkout/orders/{id}/track --format=ai | head -150
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
 ```
 
 {% /tab %}
@@ -7314,6 +10139,14 @@ redocly tree paypal.json --path="/v2/checkout/orders/{id}/track" --operation="PO
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 8 · no tree" %}
 
 ```bash
@@ -7344,6 +10177,14 @@ redocly tree paypal.json --format=ai --operation=orders.track.create --with-deps
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 9 · no tree" %}
 
 ```bash
@@ -7369,6 +10210,14 @@ redocly tree paypal.json --format=ai --operation=post --path=/v2/checkout/orders
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 10 · no tree" %}
 
 ```bash
@@ -7391,6 +10240,15 @@ redocly tree paypal.json --format=ai --find="order create"
 redocly tree paypal.json --format=ai --path="/v2/checkout/orders" --operation="post" --with-deps
 redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/capture" --operation="post" --with-deps
 redocly tree paypal.json --format=ai --path="/v2/checkout/orders/{id}/track" --operation="post" --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read paypal.map.txt
+Read paypal.json
+Grep
 ```
 
 {% /tab %}
@@ -7466,38 +10324,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                              | tree                                                |
-| ------------------ | ------------------------------------ | --------------------------------------------------- |
-| Sonnet 5 · run 1   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 2   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 3   | works                                | works                                               |
-| Sonnet 5 · run 4   | works                                | works                                               |
-| Sonnet 5 · run 5   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 6   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 7   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 8   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 9   | works                                | works                                               |
-| Sonnet 5 · run 10  | no auth scheme                       | no auth scheme                                      |
-| Opus 5 · run 1     | works                                | works                                               |
-| Opus 5 · run 2     | works                                | works                                               |
-| Opus 5 · run 3     | works                                | works                                               |
-| Opus 5 · run 4     | works                                | works                                               |
-| Opus 5 · run 5     | works                                | works                                               |
-| Opus 5 · run 6     | works                                | works                                               |
-| Opus 5 · run 7     | works                                | works                                               |
-| Opus 5 · run 8     | works                                | works                                               |
-| Opus 5 · run 9     | works                                | works                                               |
-| Opus 5 · run 10    | works                                | works                                               |
-| Haiku 4.5 · run 1  | works                                | works                                               |
-| Haiku 4.5 · run 2  | works                                | no auth scheme                                      |
-| Haiku 4.5 · run 3  | no vpc_ids field, no auth scheme     | no auth scheme                                      |
-| Haiku 4.5 · run 4  | no auth scheme                       | no share call, no access point call                 |
-| Haiku 4.5 · run 5  | no access point call, no auth scheme | no auth scheme                                      |
-| Haiku 4.5 · run 6  | no access point call, no auth scheme | works                                               |
-| Haiku 4.5 · run 7  | works                                | works                                               |
-| Haiku 4.5 · run 8  | no access point call, no auth scheme | no share call, no access point call, no auth scheme |
-| Haiku 4.5 · run 9  | no access point call, no auth scheme | no auth scheme                                      |
-| Haiku 4.5 · run 10 | works                                | works                                               |
+| Run                | no tree                              | tree                                                | map   |
+| ------------------ | ------------------------------------ | --------------------------------------------------- | ----- |
+| Sonnet 5 · run 1   | no auth scheme                       | works                                               | works |
+| Sonnet 5 · run 2   | no auth scheme                       | works                                               | works |
+| Sonnet 5 · run 3   | works                                | works                                               | works |
+| Sonnet 5 · run 4   | works                                | works                                               | works |
+| Sonnet 5 · run 5   | no auth scheme                       | works                                               | works |
+| Sonnet 5 · run 6   | no auth scheme                       | works                                               | works |
+| Sonnet 5 · run 7   | no auth scheme                       | works                                               | works |
+| Sonnet 5 · run 8   | no auth scheme                       | works                                               | works |
+| Sonnet 5 · run 9   | works                                | works                                               | works |
+| Sonnet 5 · run 10  | no auth scheme                       | no auth scheme                                      | works |
+| Opus 5 · run 1     | works                                | works                                               | works |
+| Opus 5 · run 2     | works                                | works                                               | works |
+| Opus 5 · run 3     | works                                | works                                               | works |
+| Opus 5 · run 4     | works                                | works                                               | works |
+| Opus 5 · run 5     | works                                | works                                               | works |
+| Opus 5 · run 6     | works                                | works                                               | works |
+| Opus 5 · run 7     | works                                | works                                               | works |
+| Opus 5 · run 8     | works                                | works                                               | works |
+| Opus 5 · run 9     | works                                | works                                               | works |
+| Opus 5 · run 10    | works                                | works                                               | works |
+| Haiku 4.5 · run 1  | works                                | works                                               | works |
+| Haiku 4.5 · run 2  | works                                | no auth scheme                                      | works |
+| Haiku 4.5 · run 3  | no vpc_ids field, no auth scheme     | no auth scheme                                      | works |
+| Haiku 4.5 · run 4  | no auth scheme                       | no share call, no access point call                 | works |
+| Haiku 4.5 · run 5  | no access point call, no auth scheme | no auth scheme                                      | works |
+| Haiku 4.5 · run 6  | no access point call, no auth scheme | works                                               | works |
+| Haiku 4.5 · run 7  | works                                | works                                               | works |
+| Haiku 4.5 · run 8  | no access point call, no auth scheme | no share call, no access point call, no auth scheme | works |
+| Haiku 4.5 · run 9  | no access point call, no auth scheme | no auth scheme                                      | works |
+| Haiku 4.5 · run 10 | works                                | works                                               | works |
 
 A run works when its flow contains `POST /v2/nfs` naming `name`, `size_gib`, `region` and `vpc_ids`, and the access-point create naming `path` and `vpc_id`, under `bearer_auth`.
 Creating the private networks first is optional: the task calls them "our" and "a different" private network, which reads as well on ids that already exist.
@@ -7553,6 +10411,27 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+find / -iname "DigitalOcean-public.v2*" 2>/dev/null
+Glob
+Grep
+sed -n '1,60p' nfs_create.yml
+pwd && ls digitalocean/resources/nfs/ | head -30
+ls -la . models/
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+cat responses/nfs_create.yml; echo ---; cat responses/access_point_create.yml
+cat parameters.yml 2>/dev/null | head -40
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
@@ -7591,6 +10470,16 @@ cat digitalocean/resources/nfs/responses/access_point_create.yml
 cat digitalocean/resources/nfs/responses/nfs_create.yml
 cat digitalocean/resources/nfs/models/nfs_create_response.yml
 grep -n "share_id_path" digitalocean/resources/nfs/parameters.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+wc -l digitalocean/DigitalOcean-public.v2.map.txt; grep -ni "nfs\|file.*share\|share" digitalocean/DigitalOcean-public.v2.map.txt | head -80
+cat digitalocean/resources/nfs/nfs_create.yml
+cat digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml 2>/dev/null; echo ---; cat digitalocean/resources/nfs/models/access_point_request.yml 2>/dev/null; echo ---; cat digitalocean/resources/nfs/responses/nfs_create.yml 2>/dev/null; echo ---; cat digitalocean/resources/nfs/responses/access_point_create.yml 2>/dev/null
 ```
 
 {% /tab %}
@@ -7649,6 +10538,19 @@ cat digitalocean/resources/nfs/responses/access_point_create.yml
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+find / -iname "DigitalOcean-public.v2.map.txt" 2>/dev/null
+ls digitalocean/ 2>/dev/null; echo "---"; pwd; ls
+grep -in "nfs\|file.*share\|file.*system\|network file" digitalocean/DigitalOcean-public.v2.map.txt | head -100
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+cat digitalocean/resources/nfs/models/nfs_request.yml; echo "---access_point_request---"; cat digitalocean/resources/nfs/models/access_point_request.yml; echo "---responses/nfs_create---"; cat digitalocean/resources/nfs/responses/nfs_create.yml; echo "---responses/access_point_create---"; cat digitalocean/resources/nfs/responses/access_point_create.yml
+cat digitalocean/resources/nfs/models/access_policy.yml 2>/dev/null; find digitalocean -iname "access_policy.yml"
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -7698,6 +10600,28 @@ Artifact
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+find / -iname "DigitalOcean-public.v2.map.txt" 2>/dev/null
+Glob
+Grep
+grep -n -i "nfs" digitalocean/DigitalOcean-public.v2.map.txt | head -100
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+grep -n -i "^GET /v2/vpcs\|vpc_list\|vpcs ·" digitalocean/DigitalOcean-public.v2.map.txt | head -20
+cat digitalocean/resources/vpcs/vpcs_list.yml | head -60; echo ---; find digitalocean/resources/vpcs -iname "*list*"
+find digitalocean/resources/vpcs -iname "all_vpcs.yml" -o -iname "*vpc_response*" -o -iname "*models*"; echo ---; cat digitalocean/resources/vpcs/responses/all_vpcs.yml 2>/dev/null
+sed -n '805,806p' digitalocean/DigitalOcean-public.v2.map.txt
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 5 · no tree" %}
 
 ```bash
@@ -7741,6 +10665,31 @@ cat digitalocean/resources/nfs/models/nfs_response.yml
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+find / -iname "DigitalOcean-public.v2*" 2>/dev/null
+Glob
+Grep
+Read digitalocean/DigitalOcean-public.v2.map.txt
+sed -n '650,665p' digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+find digitalocean/resources/nfs -iname "*.yml" | xargs -I{} echo {}
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/access_point_get_response.yml
+sed -n '804,815p' digitalocean/DigitalOcean-public.v2.map.txt; echo ---; sed -n '790,803p' digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/vpcs/vpcs_list.yml
+Read digitalocean/resources/nfs/nfs_actions_create.yml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -7777,6 +10726,17 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path="/v2/nf
 cat ./digitalocean/resources/nfs/models/access_point_request.yml
 cat ./digitalocean/resources/nfs/parameters.yml | head -40
 cat ./digitalocean/resources/nfs/parameters.yml | sed -n '40,90p'
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+grep -n -i "nfs\|file share\|share\|export" digitalocean/DigitalOcean-public.v2.map.txt | head -100
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
 ```
 
 {% /tab %}
@@ -7827,6 +10787,22 @@ cat digitalocean/resources/nfs/parameters.yml
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+find / -iname "DigitalOcean-public.v2*" 2>/dev/null
+Glob
+Grep
+cat -n digitalocean/resources/nfs/nfs_create.yml; echo "---ACCESS POINT---"; cat -n digitalocean/resources/nfs/nfs_access_point_create.yml
+cat -n digitalocean/resources/nfs/models/nfs_request.yml 2>/dev/null; echo "---"; find digitalocean/resources/nfs -iname "*.yml" | xargs -I{} echo {}
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -7871,6 +10847,22 @@ cat digitalocean/resources/nfs/models/access_point_response.yml
 cat digitalocean/resources/nfs/models/access_point_request.yml
 cat digitalocean/resources/nfs/models/access_policy.yml
 cat digitalocean/resources/nfs/parameters.yml
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+ls digitalocean/ 2>/dev/null | head -20; echo "---"; wc -l digitalocean/DigitalOcean-public.v2.map.txt 2>/dev/null
+Grep
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+find digitalocean/resources/nfs -iname "*.yml" | xargs -I{} echo {}
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
 ```
 
 {% /tab %}
@@ -7930,6 +10922,20 @@ cat /Users/tora/bench-run/donfs-tree-help-v3f-sonnet-r9/digitalocean/resources/n
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+ls digitalocean/ 2>/dev/null; wc -l digitalocean/DigitalOcean-public.v2.map.txt 2>/dev/null
+Grep
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/DigitalOcean-public.v2.map.txt
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 10 · no tree" %}
 
 ```bash
@@ -7980,6 +10986,24 @@ Artifact
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+find / -iname "DigitalOcean-public.v2*" 2>/dev/null
+Glob
+wc -l digitalocean/DigitalOcean-public.v2.map.txt; grep -in "nfs\|file.*share\|share.*file" digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/responses/access_point_create.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -8016,6 +11040,24 @@ cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r1; cat digitalocean/resources
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la digitalocean/
+head -60 digitalocean/DigitalOcean-public.v2.map.txt; echo ---; wc -l digitalocean/DigitalOcean-public.v2.map.txt
+sed -n '650,670p' digitalocean/DigitalOcean-public.v2.map.txt
+sed -n '796,835p' digitalocean/DigitalOcean-public.v2.map.txt
+cat resources/nfs/nfs_create.yml; echo "=====AP CREATE"; cat resources/nfs/nfs_access_point_create.yml; echo "=====VPC CREATE"; cat resources/vpcs/vpcs_create.yml
+ls; echo "=== models"; ls models; echo; cat models/nfs_request.yml; echo "=====AP REQ"; cat models/access_point_request.yml
+cat models/access_policy.yml; echo "=====NFS RESP"; cat models/nfs_response.yml; echo "=====AP RESP"; cat models/access_point_response.yml; echo "=====CREATE RESP"; cat models/nfs_create_response.yml responses/nfs_create.yml
+cat responses/access_point_create.yml; echo "=== ACTION RESP MODEL"; cat models/access_point_action_response.yml; echo "=== NFS ACTIONS"; cat models/nfs_actions.yml; echo "=== ACTION"; cat models/nfs_action.yml; echo "=== ACTIONS CREATE OP"; cat nfs_actions_create.yml
+sed -n 1,120p vpcs/models/vpc.yml; echo "=== REGIONS"; cat regions/regions_list.yml 2>/dev/null | head -30; ls regions; echo; cat regions/models/*.yml 2>/dev/null | head -60
+cat nfs_access_point_get.yml responses/access_point_get.yml 2>/dev/null | head -60; ls responses; echo "=== list ap"; cat nfs_access_point_list.yml
+cat parameters.yml; echo "=== LIST"; sed -n 1,30p nfs_list.yml; echo "=== GET"; sed -n 1,25p nfs_get.yml; echo "=== AP GET RESP EX"; sed -n 15,80p responses/access_point_get.yml
+sed -n 1,40p responses/existing_vpc.yml; echo === ; cat examples/curl/vpcs_create.yml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -8048,6 +11090,21 @@ cat nfs_actions_create.yml && echo "=== action req models" && ls models && cat m
 grep -rn "host" models/ responses/ | head -20; echo "=== ap get resp"; cat responses/access_point_get.yml
 cat resources/nfs/models/nfs_actions.yml; echo "=== regions"; redocly tree DigitalOcean-public.v2.yaml --format=ai --find "regions" | head -20
 grep -A4 "security" resources/regions/regions_list.yml | tail -5; grep -n "required\|available" resources/regions/models/region.yml | head
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+grep -n -i "share\|nfs\|glusterfs\|file_storage\|filesystem" digitalocean/DigitalOcean-public.v2.map.txt | head -60
+cat resources/nfs/nfs_create.yml; echo ===; cat resources/nfs/nfs_access_point_create.yml; echo ===; cat resources/nfs/nfs_actions_create.yml
+grep -n "vpcs\|## VPC\|regions" DigitalOcean-public.v2.map.txt | head -30
+ls; echo "=== models"; ls models responses 2>/dev/null; echo "=== req"; cat models/nfs_request.yml; echo "=== ap create"; cat nfs_access_point_create.yml
+for f in models/access_point_request.yml models/access_policy.yml models/nfs_response.yml models/access_point_response.yml models/nfs_actions.yml models/nfs_action.yml; do echo "===== $f"; cat $f; done
+cat nfs/responses/nfs_create.yml; echo "=== apcreate resp"; cat nfs/responses/access_point_create.yml; echo "=== apgetresp"; cat nfs/models/access_point_get_response.yml nfs/models/nfs_create_response.yml; echo "=== params"; cat nfs/parameters.yml; echo "=== vpcs_create"; cat vpcs/vpcs_create.yml; echo "=== vpcs_list"; sed -n 1,45p vpcs/vpcs_list.yml
+sed -n 1,80p vpcs/models/vpc.yml; echo "=== nfs_get"; sed -n 1,25p nfs/nfs_get.yml; echo "=== nfs_list"; sed -n 1,25p nfs/nfs_list.yml; echo "=== aplist"; sed -n 1,30p nfs/nfs_access_point_list.yml
+grep -n "nfs" DigitalOcean-public.v2.yaml | head -30; echo "=== apget"; sed -n 1,20p resources/nfs/nfs_access_point_get.yml
 ```
 
 {% /tab %}
@@ -8087,6 +11144,24 @@ grep -n -B2 -A8 "servers:" digitalocean/DigitalOcean-public.v2.yaml | head -20; 
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+head -60 digitalocean/DigitalOcean-public.v2.map.txt
+sed -n '640,670p;695,700p;796,835p' digitalocean/DigitalOcean-public.v2.map.txt
+cat nfs/nfs_create.yml; echo "=====AP CREATE"; cat nfs/nfs_access_point_create.yml; echo "=====VPC CREATE"; cat vpcs/vpcs_create.yml
+cat nfs/models/nfs_request.yml; echo "=====AP REQ"; cat nfs/models/access_point_request.yml; echo "=====VPC MODEL"; cat vpcs/models/vpc.yml
+cat models/access_policy.yml; echo "=====RESP CREATE"; cat responses/nfs_create.yml; ls models responses
+cat nfs_response.yml; echo "=====CREATE RESP"; cat nfs_create_response.yml; echo "=====AP RESP"; cat access_point_response.yml
+cat nfs_actions_create.yml; echo "=====ACTION MODEL"; cat models/nfs_action.yml models/nfs_actions.yml; echo "=====APCREATE RESP"; cat responses/access_point_create.yml models/access_point_action_response.yml
+cat nfs_get.yml parameters.yml; echo "=====AP GET RESP MODELS"; cat models/access_point_get_response.yml models/access_point_list_response.yml models/nfs_get_response.yml; echo ===; cat responses/access_point_get.yml
+cat responses/access_point_list.yml; echo "=====NFSGET RESP"; cat responses/nfs_get.yml; echo "=== BADREQ"; cat responses/access_point_bad_request.yml
+cat responses/existing_vpc.yml; echo === ; sed -n 1,40p ../nfs/nfs_list.yml
+sed -n '1,40p' digitalocean/resources/nfs/nfs_list.yml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 4 · no tree" %}
 
 ```bash
@@ -8115,6 +11190,24 @@ cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r4; cat digitalocean/resources
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r4; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "regions list" | head -8; echo ===; grep -A4 "^servers:" digitalocean/DigitalOcean-public.v2.yaml | head -8; echo "=== ap_list"; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation nfs_list_access_points | head -6
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r4; grep -n -A5 "^servers:" digitalocean/DigitalOcean-public.v2.yaml | head; echo "=== attach action?"; cat digitalocean/resources/nfs/nfs_actions_create.yml | head -60
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r4; cat digitalocean/resources/nfs/responses/access_point_get.yml; echo "=== list"; cat digitalocean/resources/nfs/responses/access_point_list.yml 2>/dev/null | head -50
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+grep -n -i "share\|nfs\|export\|filesystem\|file_system" digitalocean/DigitalOcean-public.v2.map.txt | head -80
+grep -n "vpcs\|## VPC\|regions" DigitalOcean-public.v2.map.txt | head -40
+cat resources/nfs/nfs_create.yml resources/nfs/nfs_access_point_create.yml
+ls; echo ---; ls models responses; echo ===; cat models/nfs_request.yml models/access_point_request.yml
+cat vpcs_create.yml; echo ===; ls models 2>/dev/null; cat models/vpc.yml 2>/dev/null
+cat nfs_request.yml access_point_request.yml access_policy.yml nfs_response.yml access_point_response.yml
+cat models/vpc.yml
+cat nfs_actions_create.yml; echo ====; cat models/nfs_action.yml models/nfs_actions.yml; echo ==== ; cat models/access_point_action_response.yml models/nfs_create_response.yml; echo ====; cat responses/access_point_create.yml responses/nfs_create.yml responses/access_point_bad_request.yml
+for f in models/nfs_action.yml models/nfs_actions.yml models/access_point_action_response.yml models/nfs_create_response.yml responses/access_point_create.yml responses/nfs_create.yml responses/access_point_bad_request.yml responses/bad_request.yml; do echo "----- $f"; cat $f; done
+cat nfs/parameters.yml; echo ----; cat vpcs/responses/existing_vpc.yml; echo ----; sed -n 1,44p regions/regions_list.yml
+grep -rn "host\|mount" . | grep -v "^./examples/curl" | head -30; echo ----; cat responses/access_point_get.yml models/access_point_get_response.yml
 ```
 
 {% /tab %}
@@ -8154,6 +11247,22 @@ cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r5/digitalocean; cat resources
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+head -60 DigitalOcean-public.v2.map.txt && echo "=== GREP ===" && grep -n -i "share\|nfs\|export" DigitalOcean-public.v2.map.txt | head -60
+sed -n '697,700p;797,835p' DigitalOcean-public.v2.map.txt
+cat resources/nfs/nfs_create.yml && echo "=====AP CREATE" && cat resources/nfs/nfs_access_point_create.yml && echo "=====VPC CREATE" && cat resources/vpcs/vpcs_create.yml
+cat models/nfs_request.yml && echo "=====AP REQ" && cat models/access_point_request.yml && echo "=====NFS MODEL" && ls models/
+cat models/access_policy.yml && echo "=====NFS RESP" && cat models/nfs_response.yml && echo "=====AP RESP" && cat models/access_point_response.yml && echo "=== AP CREATE RESP" && cat responses/access_point_create.yml
+cat responses/nfs_create.yml && echo "=== ACTIONS" && cat nfs_actions_create.yml && echo "=== ACTION MODEL" && cat models/nfs_actions.yml
+cat models/nfs_create_response.yml; echo "=== PARAMS"; cat parameters.yml; echo "=== GET"; cat nfs_get.yml | head -40; echo "=== APGET"; cat nfs_access_point_get.yml
+cat models/vpc.yml && echo "=== REGIONS"; cd ../regions && sed -n '1,44p' regions_list.yml; cat ../../shared/models/region.yml 2>/dev/null | head -40
+cat resources/regions/models/region.yml 2>/dev/null | head -50; echo "=== VPCRESP"; cat resources/vpcs/responses/existing_vpc.yml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 6 · no tree" %}
 
 ```bash
@@ -8184,6 +11293,34 @@ cat digitalocean/resources/vpcs/models/vpc.yml
 cat digitalocean/resources/nfs/models/nfs_actions.yml; echo "=== full actions desc ==="; sed -n 1,45p digitalocean/resources/nfs/nfs_actions_create.yml
 for op in nfs_get nfs_get_access_point nfs_list_access_points; do redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=$op | head -4; done; grep -n "url:" digitalocean/DigitalOcean-public.v2.yaml | head
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find="regions" | head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+Grep
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+ls digitalocean/resources/nfs/models/ digitalocean/resources/nfs/responses/
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/vpcs/vpcs_create.yml
+Read digitalocean/resources/nfs/models/access_point_action_response.yml
+Read digitalocean/resources/nfs/responses/access_point_create.yml
+Read digitalocean/resources/vpcs/models/vpc.yml
+Read digitalocean/resources/nfs/nfs_actions_create.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/responses/access_point_bad_request.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_get_response.yml
+Read digitalocean/resources/nfs/models/access_point_get_response.yml
+grep -n "v2/regions" digitalocean/DigitalOcean-public.v2.map.txt
+cat digitalocean/resources/vpcs/responses/existing_vpc.yml
 ```
 
 {% /tab %}
@@ -8224,6 +11361,24 @@ grep -n -A4 "^servers:" digitalocean/DigitalOcean-public.v2.yaml | head -10; ech
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls digitalocean/ && wc -l digitalocean/*
+Grep
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+ls models responses && echo ---- && cat models/nfs_request.yml models/access_point_request.yml
+Read digitalocean/resources/vpcs/vpcs_create.yml
+cat models/nfs_response.yml models/access_policy.yml models/access_point_response.yml
+cat models/vpc.yml | head -80
+cat models/nfs_create_response.yml models/access_point_action_response.yml models/nfs_action.yml responses/access_point_create.yml responses/nfs_create.yml
+cat models/access_point_get_response.yml && sed -n 1,80p nfs_actions_create.yml && cat models/nfs_actions.yml && cat parameters.yml
+sed -n 1,30p nfs_get.yml; echo ===; sed -n 1,30p nfs_access_point_get.yml
+sed -n 1,20p nfs_access_point_get.yml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 8 · no tree" %}
 
 ```bash
@@ -8256,6 +11411,21 @@ cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r8; redocly tree digitalocean/
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r8; sed -n '1,80p' digitalocean/resources/nfs/nfs_actions_create.yml; echo "=== actions model"; cat digitalocean/resources/nfs/models/nfs_actions.yml
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r8; sed -n '1,40p' digitalocean/resources/nfs/nfs_access_point_create.yml; echo "=== list ops file"; sed -n '1,45p' digitalocean/resources/nfs/nfs_access_point_list.yml; echo "=== grep mount refs"; grep -rn "mount" digitalocean/resources/nfs/ | head -20
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r8; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "regions list"|head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+grep -n -i "share\|nfs\|filesystem\|file_system" digitalocean/DigitalOcean-public.v2.map.txt | head -60
+cat nfs_create.yml nfs_access_point_create.yml nfs_get.yml
+grep -n "vpc\|## VPC" digitalocean/DigitalOcean-public.v2.map.txt | grep -i "^.*v2/vpc\|## VPC" | head -30
+cat parameters.yml && echo "=== MODELS ===" && ls models && for f in models/*.yml; do echo "--- $f"; cat $f; done
+cat vpcs/vpcs_create.yml && echo "=== model ===" && ls vpcs/models 2>/dev/null; sed -n '/^## Regions/,/^$/p' ../DigitalOcean-public.v2.map.txt; grep -n "nfs_list.yml\|nfs_access_point_list" -A2 /dev/null; cat nfs/nfs_list.yml | head -30
+cat resources/nfs/responses/nfs_create.yml resources/nfs/responses/access_point_create.yml; echo "=== vpc model ==="; find . -path "*vpcs*" -name "*.yml" | head;
+cat resources/vpcs/models/vpc.yml && cat resources/regions/regions_list.yml | head -25 && cat resources/nfs/nfs_access_point_get.yml | head -20
+grep -rn "host" responses/ examples/ | head -20; echo ---; cat responses/nfs_get.yml
 ```
 
 {% /tab %}
@@ -8292,6 +11462,23 @@ cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r9; redocly tree digitalocean/
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+head -60 DigitalOcean-public.v2.map.txt && echo ---- && grep -in "share\|nfs\|file_storage\|filesystem" DigitalOcean-public.v2.map.txt | head -60
+sed -n '790,835p' DigitalOcean-public.v2.map.txt && echo ==== && cat resources/nfs/nfs_create.yml && echo ==== && cat resources/nfs/nfs_access_point_create.yml
+cat resources/nfs/nfs_create.yml; echo "=====AP"; cat resources/nfs/nfs_access_point_create.yml; echo "=====VPC"; cat resources/vpcs/vpcs_create.yml
+cat models/nfs_request.yml; echo "=====AP model"; cat models/access_point_request.yml; echo "=====resp"; cat responses/nfs_create.yml; ls models responses
+cat models/nfs_response.yml; echo "=====AP resp"; cat models/access_point_response.yml; echo "=====policy"; cat models/access_policy.yml
+cat models/nfs_response.yml; echo "=====createresp"; cat models/nfs_create_response.yml; echo "=====apcreate"; cat models/access_point_get_response.yml responses/access_point_create.yml
+cat nfs_actions_create.yml; echo "=====actions model"; cat models/nfs_actions.yml models/nfs_action.yml; echo "====list"; sed -n '1,40p' nfs_list.yml; echo "===params"; cat parameters.yml
+cat resources/vpcs/models/vpc.yml; echo ====; cat resources/vpcs/responses/existing_vpc.yml; echo ===regions; cat resources/regions/regions_list.yml | head -30; cat resources/regions/models/*.yml 2>/dev/null | head -60
+cat resources/vpcs/responses/existing_vpc.yml && grep -n "vpcs_get\|regions_list" DigitalOcean-public.v2.map.txt
+sed -n '1,20p' resources/nfs/nfs_get.yml; sed -n '1,20p' resources/nfs/nfs_access_point_get.yml; sed -n '1,25p' resources/nfs/nfs_access_point_list.yml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -8321,6 +11508,23 @@ cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r10; cat digitalocean/resource
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r10; cat digitalocean/resources/nfs/nfs_access_point_get.yml; echo "=== resp"; cat digitalocean/resources/nfs/responses/access_point_get.yml 2>/dev/null || ls digitalocean/resources/nfs/responses/
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r10; sed -n 1,40p digitalocean/resources/nfs/nfs_list.yml; echo "=== AP BAD REQ"; cat digitalocean/resources/nfs/responses/access_point_bad_request.yml; echo "=== AP LIST"; sed -n 1,40p digitalocean/resources/nfs/nfs_access_point_list.yml
 cd /Users/tora/bench-run/donfs-tree-help-v3f-opus-r10; redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --find "regions list" | head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la digitalocean/ && wc -l digitalocean/*
+head -60 DigitalOcean-public.v2.map.txt && echo ==== && grep -n -i "share\|nfs\|file" DigitalOcean-public.v2.map.txt | head -60
+sed -n '650,670p' DigitalOcean-public.v2.map.txt && echo "-----VPC" && grep -n "vpcs\|VPC" DigitalOcean-public.v2.map.txt | sed -n '1,40p' && echo "----regions" && sed -n '698,700p' DigitalOcean-public.v2.map.txt
+cat resources/nfs/nfs_create.yml && echo "=====AP CREATE" && cat resources/nfs/nfs_access_point_create.yml
+cat models/nfs_request.yml && echo "=====AP REQ" && cat models/access_point_request.yml && echo "=====" && ls models responses
+cat models/access_policy.yml && echo "=====NFS RESP" && cat models/nfs_response.yml && echo "===AP RESP" && cat models/access_point_response.yml
+cat models/access_policy.yml && echo "=====NFS RESP" && cat models/nfs_response.yml && echo "===AP RESP" && cat models/access_point_response.yml && echo "===AP CREATE RESP" && cat responses/access_point_create.yml models/access_point_action_response.yml
+cat resources/vpcs/vpcs_create.yml && echo "===MODEL" && ls resources/vpcs/models && cat resources/vpcs/models/vpc*.yml | head -80
+cat resources/nfs/nfs_actions_create.yml && echo "===ACTION MODEL" && cat resources/nfs/models/nfs_action.yml resources/nfs/models/nfs_actions.yml
+cat resources/nfs/parameters.yml && echo "===GET" && cat resources/nfs/nfs_get.yml | head -30 && echo "===APGET" && cat resources/nfs/nfs_access_point_get.yml | head -25
+cat resources/nfs/responses/nfs_get.yml && echo ===== && cat resources/nfs/responses/access_point_get.yml
 ```
 
 {% /tab %}
@@ -8375,6 +11579,24 @@ cat ./digitalocean/resources/nfs/responses/access_point_create.yml
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/DigitalOcean-public.v2.yaml
+grep -n "nfs_create\|nfs_get\|nfs_access_point" digitalocean/DigitalOcean-public.v2.yaml | head -20
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -8419,6 +11641,17 @@ cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r2/digitalocean/resources/nf
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/vpcs/vpcs_create.yml
+Read digitalocean/resources/vpcs/vpcs_list.yml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 3 · no tree" %}
 
 ```bash
@@ -8446,6 +11679,18 @@ cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r3/digitalocean/resources/nf
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r3/digitalocean/resources/nfs/models/access_point_response.yml
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r3/digitalocean/resources/nfs/models/access_policy.yml
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r3/digitalocean/resources/nfs/models/nfs_response.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/DigitalOcean-public.v2.yaml
+Grep
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/vpcs/vpcs_list.yml
 ```
 
 {% /tab %}
@@ -8489,6 +11734,25 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --path=/v2/nfs
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+ls -la digitalocean/ | head -20
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/responses/access_point_create.yml
+find digitalocean/resources/nfs/models -name "*.yml" | head -10
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 5 · no tree" %}
 
 ```bash
@@ -8517,6 +11781,25 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=po
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --name=nfs_response
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | head -50
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas --with-deps | head -30
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Skill
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/DigitalOcean-public.v2.yaml
+Grep
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/responses/access_point_create.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
 ```
 
 {% /tab %}
@@ -8549,6 +11832,13 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=sc
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r6/digitalocean/resources/nfs/models/nfs_response.yml
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r6/digitalocean/resources/nfs/models/access_point_response.yml
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r6/digitalocean/resources/nfs/models/access_policy.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
 ```
 
 {% /tab %}
@@ -8587,6 +11877,23 @@ cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r7/digitalocean/resources/nf
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/responses/access_point_create.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
+Read digitalocean/resources/nfs/models/access_policy.yml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 8 · no tree" %}
 
 ```bash
@@ -8619,6 +11926,24 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=sc
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=schemas | grep -i access
 redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --operation=nfs_get --with-deps | head -60
 # write /private/tmp/claude-501/-Users-tora-bench-run-donfs-tree-help-v3f-haiku-r8/19cdb987-c0e2-4928-9fab-e754c7d184ca/scratchpad/nfs_provisioning_workflow.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/responses
+Glob
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/responses/access_point_create.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_point_request.yml
 ```
 
 {% /tab %}
@@ -8668,6 +11993,21 @@ cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r9/digitalocean/resources/nf
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Skill
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
+Read digitalocean/resources/nfs/responses/nfs_create.yml
+Read digitalocean/resources/nfs/models/nfs_create_response.yml
+Read digitalocean/resources/nfs/models/nfs_request.yml
+Read digitalocean/resources/nfs/models/nfs_response.yml
+Read digitalocean/resources/nfs/models/access_point_response.yml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 10 · no tree" %}
 
 ```bash
@@ -8698,6 +12038,16 @@ redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai --component=sc
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r10/digitalocean/resources/nfs/models/nfs_response.yml
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r10/digitalocean/resources/nfs/models/access_point_response.yml
 cat /Users/tora/bench-run/donfs-tree-help-v3f-haiku-r10/digitalocean/resources/nfs/models/access_policy.yml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read digitalocean/DigitalOcean-public.v2.map.txt
+Read digitalocean/DigitalOcean-public.v2.yaml
+Read digitalocean/resources/nfs/nfs_create.yml
+Read digitalocean/resources/nfs/nfs_access_point_create.yml
 ```
 
 {% /tab %}
@@ -8773,38 +12123,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                              | tree                                                |
-| ------------------ | ------------------------------------ | --------------------------------------------------- |
-| Sonnet 5 · run 1   | works                                | works                                               |
-| Sonnet 5 · run 2   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 3   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 4   | works                                | works                                               |
-| Sonnet 5 · run 5   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 6   | works                                | works                                               |
-| Sonnet 5 · run 7   | works                                | works                                               |
-| Sonnet 5 · run 8   | no auth scheme                       | works                                               |
-| Sonnet 5 · run 9   | works                                | works                                               |
-| Sonnet 5 · run 10  | no auth scheme                       | works                                               |
-| Opus 5 · run 1     | no access point call                 | works                                               |
-| Opus 5 · run 2     | works                                | works                                               |
-| Opus 5 · run 3     | works                                | works                                               |
-| Opus 5 · run 4     | works                                | works                                               |
-| Opus 5 · run 5     | works                                | works                                               |
-| Opus 5 · run 6     | works                                | works                                               |
-| Opus 5 · run 7     | works                                | works                                               |
-| Opus 5 · run 8     | no access point call                 | works                                               |
-| Opus 5 · run 9     | works                                | works                                               |
-| Opus 5 · run 10    | works                                | works                                               |
-| Haiku 4.5 · run 1  | no auth scheme                       | works                                               |
-| Haiku 4.5 · run 2  | works                                | works                                               |
-| Haiku 4.5 · run 3  | works                                | no share call, no access point call, no auth scheme |
-| Haiku 4.5 · run 4  | works                                | no auth scheme                                      |
-| Haiku 4.5 · run 5  | no auth scheme                       | works                                               |
-| Haiku 4.5 · run 6  | no auth scheme                       | no auth scheme                                      |
-| Haiku 4.5 · run 7  | no auth scheme                       | works                                               |
-| Haiku 4.5 · run 8  | no access point call, no auth scheme | no auth scheme                                      |
-| Haiku 4.5 · run 9  | no auth scheme                       | no auth scheme                                      |
-| Haiku 4.5 · run 10 | no auth scheme                       | works                                               |
+| Run                | no tree                              | tree                                                | map            |
+| ------------------ | ------------------------------------ | --------------------------------------------------- | -------------- |
+| Sonnet 5 · run 1   | works                                | works                                               | works          |
+| Sonnet 5 · run 2   | no auth scheme                       | works                                               | works          |
+| Sonnet 5 · run 3   | no auth scheme                       | works                                               | works          |
+| Sonnet 5 · run 4   | works                                | works                                               | works          |
+| Sonnet 5 · run 5   | no auth scheme                       | works                                               | works          |
+| Sonnet 5 · run 6   | works                                | works                                               | works          |
+| Sonnet 5 · run 7   | works                                | works                                               | works          |
+| Sonnet 5 · run 8   | no auth scheme                       | works                                               | works          |
+| Sonnet 5 · run 9   | works                                | works                                               | works          |
+| Sonnet 5 · run 10  | no auth scheme                       | works                                               | works          |
+| Opus 5 · run 1     | no access point call                 | works                                               | works          |
+| Opus 5 · run 2     | works                                | works                                               | works          |
+| Opus 5 · run 3     | works                                | works                                               | works          |
+| Opus 5 · run 4     | works                                | works                                               | works          |
+| Opus 5 · run 5     | works                                | works                                               | works          |
+| Opus 5 · run 6     | works                                | works                                               | works          |
+| Opus 5 · run 7     | works                                | works                                               | works          |
+| Opus 5 · run 8     | no access point call                 | works                                               | works          |
+| Opus 5 · run 9     | works                                | works                                               | works          |
+| Opus 5 · run 10    | works                                | works                                               | works          |
+| Haiku 4.5 · run 1  | no auth scheme                       | works                                               | works          |
+| Haiku 4.5 · run 2  | works                                | works                                               | no auth scheme |
+| Haiku 4.5 · run 3  | works                                | no share call, no access point call, no auth scheme | works          |
+| Haiku 4.5 · run 4  | works                                | no auth scheme                                      | works          |
+| Haiku 4.5 · run 5  | no auth scheme                       | works                                               | works          |
+| Haiku 4.5 · run 6  | no auth scheme                       | no auth scheme                                      | works          |
+| Haiku 4.5 · run 7  | no auth scheme                       | works                                               | no auth scheme |
+| Haiku 4.5 · run 8  | no access point call, no auth scheme | no auth scheme                                      | works          |
+| Haiku 4.5 · run 9  | no auth scheme                       | no auth scheme                                      | works          |
+| Haiku 4.5 · run 10 | no auth scheme                       | works                                               | works          |
 
 A run works when its flow contains `POST /v2/nfs` naming `name`, `size_gib`, `region` and `vpc_ids`, and the access-point create naming `path` and `vpc_id`, under `bearer_auth`.
 
@@ -8839,6 +12189,17 @@ redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/{nfs_id} --ope
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+ls -la digitalocean-bundled.map.txt digitalocean-bundled.yaml | head -20
+grep -ni "share\|nfs\|export" digitalocean-bundled.map.txt | head -80
+Read digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point_request:\|access_policy:\|nfs_create:\|nfs_get:\|access_point_create:\|^\s*responses:" digitalocean-bundled.yaml | grep -i "nfs\|access_point\|access_policy" | head -40
+true
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
@@ -8860,6 +12221,20 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=ac
 redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_policy
 redocly tree digitalocean-bundled.yaml --format=ai --component=responses --name=nfs_create
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+find / -iname "digitalocean-bundled*" -not -path "*/node_modules/*" 2>/dev/null
+Glob
+wc -l digitalocean-bundled.map.txt digitalocean-bundled.yaml
+Grep
+sed -n '22238,22400p' digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point:\|access_policy:" digitalocean-bundled.yaml | head -30
+sed -n '54000,54260p' digitalocean-bundled.yaml
+sed -n '22569,22632p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
@@ -8891,6 +12266,27 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=responses --name=
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+ls | head -50
+wc -l digitalocean-bundled.map.txt
+grep -n -i "share\|nfs" digitalocean-bundled.map.txt | head -80
+Read digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point_request:\|access_policy:" -A 40 digitalocean-bundled.yaml | head -150
+grep -n -i "vpc_list\|vpc_create\|^GET /v2/vpcs\|^POST /v2/vpcs" digitalocean-bundled.map.txt | head -20
+grep -n "access_point_request:" -A 25 digitalocean-bundled.yaml | head -30
+sed -n '54236,54260p' digitalocean-bundled.yaml
+cat <<'EOF'
+Flow validated against schema constraints:
+- size_gib >= 50
+- access_point name: ^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]$, not "default"
+- access_point path: starts with "/", not exactly "/"
+- access_policy required: anonuid, anongid (only 65534 supported)
+EOF
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -8914,6 +12310,17 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=ac
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+ls | head -50
+wc -l digitalocean-bundled.map.txt
+grep -in "share\|nfs\|export" digitalocean-bundled.map.txt | head -80
+Read digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point_request:\|access_policy:" digitalocean-bundled.yaml | head -20
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 5 · no tree" %}
 
 ```bash
@@ -8934,6 +12341,21 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nf
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response --with-deps | head -100
 redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -150
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action-2 --with-deps | head -40
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+ls  2>/dev/null; find / -maxdepth 4 -iname "digitalocean-bundled*" 2>/dev/null
+wc -l digitalocean-bundled.map.txt && grep -n -i "share\|nfs\|export\|storage" digitalocean-bundled.map.txt | head -80
+grep -n -i "vpc" digitalocean-bundled.map.txt | head -40
+Read digitalocean-bundled.yaml
+grep -n "region-2:\|share_id_path:\|access_point_id:\|nfs_id:" digitalocean-bundled.yaml | head -20
+grep -n "access_point_request:\|access_policy:" digitalocean-bundled.yaml | head -10
+grep -n "existing_vpc:" digitalocean-bundled.yaml
+Artifact
+true
 ```
 
 {% /tab %}
@@ -8962,6 +12384,19 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=ac
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+ls -la digitalocean-bundled* 2>/dev/null || find / -iname "digitalocean-bundled*" -maxdepth 6 2>/dev/null
+grep -in "nfs\|file share\|export\|mount" digitalocean-bundled.map.txt | head -80
+sed -n '22238,22320p' digitalocean-bundled.yaml
+sed -n '22569,22633p' digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_policy:" digitalocean-bundled.yaml | head -20
+sed -n '54214,54260p' digitalocean-bundled.yaml
+grep -n "access_point_request:" digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 7 · no tree" %}
 
 ```bash
@@ -8987,6 +12422,19 @@ redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/access_points/
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "digitalocean-bundled*" 2>/dev/null
+wc -l digitalocean-bundled.map.txt; grep -n -i "share\|nfs\|volume\|storage" digitalocean-bundled.map.txt | head -80
+sed -n '22238,22320p' digitalocean-bundled.yaml
+grep -n "nfs_request:\|access_point_request:\|access_policy:" digitalocean-bundled.yaml | head -20
+sed -n '54214,54270p' digitalocean-bundled.yaml; echo ---; sed -n '54513,54600p' digitalocean-bundled.yaml; echo ---policy---; sed -n '54019,54060p' digitalocean-bundled.yaml
+grep -n "nfs_create:\|nfs_response:\|access_point_response:" digitalocean-bundled.yaml | head -10
+sed -n '54063,54214p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -9008,6 +12456,25 @@ redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=po
 redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -200
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -60
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -60
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+find / -maxdepth 6 -iname "digitalocean-bundled*" 2>/dev/null
+wc -l digitalocean-bundled.map.txt; head -50 digitalocean-bundled.map.txt
+sed -n '/^NFS /,/^NFS Actions/p' digitalocean-bundled.map.txt | head -5
+grep -n "^== NFS" -A 30 digitalocean-bundled.map.txt
+grep -n "^==" digitalocean-bundled.map.txt
+grep -n -i "nfs" digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+grep -n -i "^VPC\|vpcs_list\|vpc_list\|/v2/vpcs" digitalocean-bundled.map.txt
+grep -n "nfs_request:\|access_point_request:" -A 60 digitalocean-bundled.yaml | head -150
+grep -n "^    access_policy:" -A 40 digitalocean-bundled.yaml | head -50
+grep -n "^    nfs_response:\|^    access_point_response:" -A 60 digitalocean-bundled.yaml | head -140
+grep -n "region-2:\|nfs_id:\|share_id_path:\|access_point_id" digitalocean-bundled.yaml | grep -i "parameters" -A2; sed -n '/region-2:/,+10p' digitalocean-bundled.yaml | head -12
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-map-v4-sonnet-r8/19eed7dc-ac6f-4464-a9ba-7f19d50a0644/scratchpad/nfs_provision_flow.json
 ```
 
 {% /tab %}
@@ -9038,6 +12505,22 @@ true
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+ls  2>/dev/null; find / -maxdepth 4 -iname "digitalocean-bundled*" 2>/dev/null
+Grep
+wc -l digitalocean-bundled.map.txt digitalocean-bundled.yaml
+sed -n '1,20p;640,680p' digitalocean-bundled.map.txt
+sed -n '22238,22282p' digitalocean-bundled.yaml
+sed -n '22569,22633p' digitalocean-bundled.yaml
+grep -n "vpc:" digitalocean-bundled.yaml | head -5
+awk '/vpc_ips_object:|^    vpc:$/{print NR": "$0}' digitalocean-bundled.yaml | head
+sed -n '30912,30975p' digitalocean-bundled.yaml
+grep -n "all_vpcs:" -A 15 digitalocean-bundled.yaml | head -20
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 10 · no tree" %}
 
 ```bash
@@ -9058,6 +12541,17 @@ redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs --operation=po
 redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/shares/{share_id}/access_points --operation=post --with-deps | head -300
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response | head -80
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=access_point_response | head -80
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+ls -la | head -50
+Grep
+head -100 digitalocean-bundled.map.txt
+grep -n "^## NFS" -A 15 digitalocean-bundled.map.txt
+grep -n "^## VPCs" -A 12 digitalocean-bundled.map.txt
 ```
 
 {% /tab %}
@@ -9108,6 +12602,25 @@ redocly tree digitalocean-bundled.yaml --format=ai | head -15
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la  && wc -l digitalocean-bundled.map.txt
+head -60 digitalocean-bundled.map.txt
+sed -n '650,664p;790,835p' digitalocean-bundled.map.txt
+sed -n '22238,22320p' digitalocean-bundled.yaml
+sed -n '22569,22640p' digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    access_point_request:\|^    access_policy:\|^    nfs_share:\|^    access_point:" digitalocean-bundled.yaml
+sed -n '54019,54120p;54214,54330p;54513,54600p' digitalocean-bundled.yaml
+grep -n "^    nfs_response:" digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+sed -n '54137,54215p' digitalocean-bundled.yaml; echo ---; grep -n "    vpc_base:\|    vpc_create:\|    vpc_updatable:" digitalocean-bundled.yaml
+sed -n '56722,56800p' digitalocean-bundled.yaml
+sed -n '698,699p' digitalocean-bundled.map.txt; grep -n "    nfs_action-2:" digitalocean-bundled.yaml
+sed -n '54365,54420p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -9142,6 +12655,34 @@ redocly tree digitalocean-bundled.yaml --format=ai --operation=vpcs_create --wit
 for op in nfs_get nfs_get_access_point nfs_list_access_points; do echo "=== $op"; redocly tree digitalocean-bundled.yaml --format=ai --operation=$op | head -8; done; echo "=== region-2 param"; sed -n '41883,41925p' digitalocean-bundled.yaml
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_action-2 | head -12; echo "=== regions"; redocly tree digitalocean-bundled.yaml --format=ai --operation=regions_list | head -6
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_base | head -6; redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=vpc_create | head -6
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la
+head -60 digitalocean-bundled.map.txt
+grep -n -i -E "share|nfs|export|filesystem|file_system" digitalocean-bundled.map.txt | head -60
+sed -n '22238,22320p' digitalocean-bundled.yaml
+sed -n '22569,22640p' digitalocean-bundled.yaml
+sed -n '790,810p' digitalocean-bundled.map.txt
+grep -n "^    nfs_request:\|^    access_point_request:\|^    access_policy:\|^    nfs_share:\|^    nfs_access_point:" digitalocean-bundled.yaml
+grep -n "nfs_request\|access_point_request\|access_point_create:\|nfs_create:" digitalocean-bundled.yaml | head -30
+sed -n '54214,54300p' digitalocean-bundled.yaml
+sed -n '54513,54600p' digitalocean-bundled.yaml; echo ===ACCESS_POLICY===; sed -n '54019,54120p' digitalocean-bundled.yaml
+sed -n '54019,54120p' digitalocean-bundled.yaml
+grep -n "^    nfs_response:\|^    access_point_response:" digitalocean-bundled.yaml
+sed -n '54120,54214p' digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+grep -n "vpc_base\|^    vpc:" digitalocean-bundled.yaml | head; echo ===; sed -n '698,700p' digitalocean-bundled.map.txt
+sed -n '56730,56800p' digitalocean-bundled.yaml; echo "=== existing_vpc response ==="; grep -n "  existing_vpc:" digitalocean-bundled.yaml
+sed -n '22633,22700p' digitalocean-bundled.yaml
+sed -n '72806,72830p' digitalocean-bundled.yaml; echo "=== nfs_action-2 ==="; grep -n "^    nfs_action-2:" digitalocean-bundled.yaml
+grep -n "^    region:" digitalocean-bundled.yaml | head -3
+sed -n '41370,41400p' digitalocean-bundled.yaml; echo "=== nfs_get 22319-22352 ==="; sed -n '22319,22352p' digitalocean-bundled.yaml
+grep -n "region-2:" digitalocean-bundled.yaml;
+sed -n '41882,41900p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
@@ -9187,6 +12728,23 @@ redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list_access_p
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la && wc -l digitalocean-bundled.map.txt digitalocean-bundled.yaml
+head -60 digitalocean-bundled.map.txt
+sed -n '650,670p;696,700p;796,835p' digitalocean-bundled.map.txt
+sed -n '22238,22320p' digitalocean-bundled.yaml
+sed -n '22569,22640p' digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    access_point_request:\|^    access_policy:\|^    nfs_share\|^    access_point:" digitalocean-bundled.yaml
+sed -n '54019,54120p' digitalocean-bundled.yaml
+sed -n '54214,54300p;54513,54580p' digitalocean-bundled.yaml
+grep -n "    nfs_response:" digitalocean-bundled.yaml
+sed -n '54137,54214p' digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 4 · no tree" %}
 
 ```bash
@@ -9213,6 +12771,25 @@ sed -n '41883,41930p' digitalocean-bundled.yaml; echo "=== nfs_action-2 ==="; re
 grep -n "NFS lets you create fully managed" -A 20 digitalocean-bundled.yaml | head -40
 sed -n '72807,72850p;72867,72885p' digitalocean-bundled.yaml
 sed -n '72619,72731p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la
+head -60 digitalocean-bundled.map.txt && echo "=====" && grep -in "file system\|filesystem\|nfs\|share" digitalocean-bundled.map.txt | head -50
+sed -n '780,800p' digitalocean-bundled.map.txt && echo "== regions ==" && sed -n '698,699p' digitalocean-bundled.map.txt
+grep -n "^## VPCs" -A 12 digitalocean-bundled.map.txt
+sed -n '22238,22320p' digitalocean-bundled.yaml
+grep -n "nfs_request:\|nfs_share:\|nfs_access_point\|nfs_create:\|nfs_ap" digitalocean-bundled.yaml | head -40
+sed -n '54214,54500p' digitalocean-bundled.yaml
+grep -n "    nfs_response:\|    access_point_response:\|    access_point_request:\|    access_policy:" digitalocean-bundled.yaml
+sed -n '54019,54214p' digitalocean-bundled.yaml; echo "=== request ==="; sed -n '54513,54570p' digitalocean-bundled.yaml
+sed -n '22569,22640p' digitalocean-bundled.yaml; echo "=== action resp 201 ==="; sed -n '72589,72620p' digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+grep -n "    existing_vpc:" -A 15 digitalocean-bundled.yaml | head -20; echo "=== nfs tag ==="; grep -n "name: NFS" -A 25 digitalocean-bundled.yaml | head -60
+sed -n '22640,22700p' digitalocean-bundled.yaml; echo "=== params ==="; grep -n "    share_id_path:\|    access_point_id_path:\|    region-2:" -A 12 digitalocean-bundled.yaml | head -50
 ```
 
 {% /tab %}
@@ -9257,6 +12834,29 @@ redocly tree digitalocean-bundled.yaml --format=ai --find "regions" | head -8; e
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la
+head -60 digitalocean-bundled.map.txt
+grep -in "share\|nfs\|file system\|filesystem" digitalocean-bundled.map.txt | head -60
+sed -n '22238,22282p;22569,22631p' digitalocean-bundled.yaml
+grep -n "^## VPCs" -A 12 digitalocean-bundled.map.txt
+grep -n "    nfs_request:\|    access_point_request:\|    access_policy:\|    nfs_share:\|    access_point:\|  nfs_create:\|  access_point_create:" digitalocean-bundled.yaml | head -30
+sed -n '54019,54120p;54214,54300p;54513,54580p' digitalocean-bundled.yaml
+grep -n "    nfs_response:" digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+sed -n '54137,54214p' digitalocean-bundled.yaml
+grep -n "    vpc_base:\|    vpc_create:\|    vpc_updatable:\|  existing_vpc:" digitalocean-bundled.yaml | head
+sed -n '56722,56790p' digitalocean-bundled.yaml; echo ---; sed -n '75246,75280p' digitalocean-bundled.yaml
+sed -n '72806,72830p' digitalocean-bundled.yaml; echo ---; grep -n "    nfs_action-2:" digitalocean-bundled.yaml
+sed -n '22633,22682p' digitalocean-bundled.yaml
+sed -n '22284,22352p' digitalocean-bundled.yaml
+grep -n "    region-2:" -A 12 digitalocean-bundled.yaml
+sed -n '54118,54137p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 6 · no tree" %}
 
 ```bash
@@ -9296,6 +12896,26 @@ redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/regions|head -6
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la  && wc -l *
+head -60 digitalocean-bundled.map.txt
+sed -n '650,664p' digitalocean-bundled.map.txt && echo "=== VPC ===" && sed -n '789,835p' digitalocean-bundled.map.txt && echo "=== regions ===" && sed -n '698,699p' digitalocean-bundled.map.txt
+sed -n '22238,22320p' digitalocean-bundled.yaml
+grep -n "nfs_request:\|nfs_share:\|nfs_access_point\|access_policy" digitalocean-bundled.yaml | head -40
+sed -n '54010,54140p;54214,54290p' digitalocean-bundled.yaml
+sed -n '22569,22635p' digitalocean-bundled.yaml; echo ===; sed -n '54500,54560p' digitalocean-bundled.yaml
+sed -n '54490,54560p' digitalocean-bundled.yaml; echo XXX; sed -n '54136,54214p' digitalocean-bundled.yaml
+grep -n "region-2:" -A 20 digitalocean-bundled.yaml | head -30; echo XXX; grep -n "share_id_path:" -A 12 digitalocean-bundled.yaml | head -20
+sed -n '30974,31000p' digitalocean-bundled.yaml; echo XXX; grep -n "^    vpc:" -A 60 digitalocean-bundled.yaml | grep -n "name:\|region\|id:\|ip_range\|default\|required\|urn" | head -30
+sed -n '56740,56830p' digitalocean-bundled.yaml
+grep -n "    region:" -A 45 digitalocean-bundled.yaml | sed -n '1,60p'; echo XXX; grep -n "nfs_action-2:" -A 40 digitalocean-bundled.yaml | head -50
+sed -n '24436,24470p' digitalocean-bundled.yaml
+sed -n '22319,22356p' digitalocean-bundled.yaml; echo XXX; sed -n '22685,22700p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 7 · no tree" %}
 
 ```bash
@@ -9332,6 +12952,26 @@ redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/vpcs --operation=p
 for n in vpc_create vpc_updatable vpc_base; do redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=$n|head -12; echo -----; done; redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/{nfs_id} --operation=get|head -12
 redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=region-2|head -6; redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=nfs_id|head -6; redocly tree digitalocean-bundled.yaml --format=ai --component=parameters --name=share_id_path|head -6; redocly tree digitalocean-bundled.yaml --format=ai --path=/v2/nfs/access_points/{access_point_id} --operation=get|head -8
 redocly tree digitalocean-bundled.yaml --format=ai | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la
+head -60 digitalocean-bundled.map.txt
+sed -n '650,664p;696,700p' digitalocean-bundled.map.txt && echo "=== VPC ===" && grep -n "vpcs\|VPC" digitalocean-bundled.map.txt | head -40
+sed -n '22238,22320p' digitalocean-bundled.yaml
+grep -n "nfs_request:\|nfs_share:\|nfs_access_point\|access_policy" digitalocean-bundled.yaml | head -40
+sed -n '54019,54140p;54214,54290p' digitalocean-bundled.yaml
+sed -n '22569,22635p' digitalocean-bundled.yaml; echo "=== nfs_response ==="; sed -n '54130,54214p' digitalocean-bundled.yaml
+sed -n '54500,54560p' digitalocean-bundled.yaml; echo "=== share_id_path ==="; grep -n "share_id_path:" -A 12 digitalocean-bundled.yaml
+sed -n '30974,31060p' digitalocean-bundled.yaml
+grep -n "    existing_vpc:" -A 20 digitalocean-bundled.yaml; echo "=== vpc schema id ==="; grep -n "^    vpc_base:\|^    vpc:" -A 30 digitalocean-bundled.yaml | head -50
+grep -n "    nfs_action-2:" -A 30 digitalocean-bundled.yaml; echo "=== access_point_create resp ==="; grep -n "    access_point_create:" -A 18 digitalocean-bundled.yaml
+grep -n "    region:" -A 45 digitalocean-bundled.yaml | sed -n '1,60p'
+grep -n "^    region-2:" -A 12 digitalocean-bundled.yaml; grep -n "^    regions:" -A 45 digitalocean-bundled.yaml | head -50
+sed -n '24436,24460p' digitalocean-bundled.yaml; grep -n "^    region:" -A 40 digitalocean-bundled.yaml | grep -n "available\|features\|sizes\|slug" | head
 ```
 
 {% /tab %}
@@ -9382,6 +13022,26 @@ redocly tree digitalocean-bundled.yaml --format=ai --find "access point" | head 
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la  && wc -l *.txt *.yaml
+head -60 digitalocean-bundled.map.txt
+sed -n '650,670p' digitalocean-bundled.map.txt; echo ---; sed -n '796,835p' digitalocean-bundled.map.txt
+sed -n '22238,22360p' digitalocean-bundled.yaml
+grep -n "    region-2:" -A 14 digitalocean-bundled.yaml; echo "=== nfs_id param ==="; grep -n "    nfs_id:" -A 12 digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    nfs_share\|^    nfs_access_point\|^    access_policy\|^    nfs_" digitalocean-bundled.yaml | head -40
+sed -n '54019,54260p' digitalocean-bundled.yaml
+sed -n '22569,22640p' digitalocean-bundled.yaml; echo "=== actions ==="; sed -n '54255,54430p' digitalocean-bundled.yaml
+grep -n "^    access_point_request:" -A 30 digitalocean-bundled.yaml; echo "=== resp ==="; grep -n "^    access_point_create:" -A 25 digitalocean-bundled.yaml; echo "=== share_id_path ==="; grep -n "^    share_id_path:" -A 10 digitalocean-bundled.yaml
+sed -n '22685,22720p' digitalocean-bundled.yaml; echo "=== get resp ==="; grep -n "^    access_point_get:" -A 30 digitalocean-bundled.yaml; echo "=== host in AP? ==="; grep -n "host" digitalocean-bundled.yaml | sed -n '1,5p'
+sed -n '72618,72680p' digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+grep -n "^    existing_vpc:" -A 22 digitalocean-bundled.yaml; echo "=== regions_list ==="; sed -n '698,700p' digitalocean-bundled.map.txt
+sed -n '22640,22662p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 9 · no tree" %}
 
 ```bash
@@ -9418,6 +13078,25 @@ sed -n '54064,54136p' digitalocean-bundled.yaml; echo XXX; redocly tree digitalo
 sed -n '41883,41930p' digitalocean-bundled.yaml; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --component responses --name access_point_create --with-deps|head -20
 redocly tree digitalocean-bundled.yaml --format=ai --component responses --name nfs_get|head -8; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --component responses --name access_point_get|head -8; echo XXX; redocly tree digitalocean-bundled.yaml --format=ai --tag "Actions"|head -8
 redocly tree digitalocean-bundled.yaml --format=ai --operation nfs_list|head -6; echo XXX; sed -n '56723,56750p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la
+grep -n -i -E "share|nfs|vpc" digitalocean-bundled.map.txt | head -80
+sed -n '22238,22335p' digitalocean-bundled.yaml
+sed -n '22569,22640p' digitalocean-bundled.yaml; echo ===; sed -n '30974,31056p' digitalocean-bundled.yaml
+grep -n "^    nfs_request:\|^    access_point_request:\|^    access_policy:\|^    nfs_share:\|^    access_point:" digitalocean-bundled.yaml
+sed -n '30974,31056p' digitalocean-bundled.yaml
+sed -n '54019,54100p;54214,54330p;54513,54600p' digitalocean-bundled.yaml
+grep -n "^    region-2:\|^    nfs_id:\|^    share_id_path:\|^    nfs_response:\|^    nfs_action-2:" digitalocean-bundled.yaml
+sed -n '41882,41930p;54137,54214p' digitalocean-bundled.yaml
+sed -n '54100,54137p;54365,54400p' digitalocean-bundled.yaml; echo ===TAG===; cd /Users/tora/bench-run/dobundle-map-v4-opus-r9; grep -n "name: NFS" -A 20 digitalocean-bundled.yaml | head -50
+grep -n "^    vpc_create:\|^    vpc_updatable:\|^    vpc_base:" digitalocean-bundled.yaml
+sed -n '56722,56800p' digitalocean-bundled.yaml
+grep -n "v2/regions" digitalocean-bundled.map.txt
 ```
 
 {% /tab %}
@@ -9460,6 +13139,26 @@ redocly tree digitalocean-bundled.yaml --format=ai --operation=regions_list|head
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la
+grep -n -i -E "share|nfs|file_storage|filestorage" digitalocean-bundled.map.txt | head -80
+grep -n -i -E "^GET /v2/vpcs|^POST /v2/vpcs|^GET /v2/regions" digitalocean-bundled.map.txt; echo ---; sed -n '22238,22320p' digitalocean-bundled.yaml
+grep -n "  nfs_request:\|  nfs_share:\|  nfs_access_point\|  access_policy" digitalocean-bundled.yaml | head -30
+sed -n '22569,22635p' digitalocean-bundled.yaml
+sed -n '54010,54130p' digitalocean-bundled.yaml; echo ===; sed -n '54214,54300p' digitalocean-bundled.yaml
+sed -n '54214,54330p' digitalocean-bundled.yaml
+grep -n "    nfs_response:\|    access_point_request:" digitalocean-bundled.yaml
+sed -n '54137,54214p' digitalocean-bundled.yaml; echo "-----"; sed -n '54513,54560p' digitalocean-bundled.yaml
+grep -n "    nfs_action-2:" digitalocean-bundled.yaml; sed -n '30974,31060p' digitalocean-bundled.yaml
+sed -n '54365,54400p' digitalocean-bundled.yaml; echo ----; grep -n "    existing_vpc:" digitalocean-bundled.yaml
+sed -n '75246,75290p' digitalocean-bundled.yaml
+sed -n '54126,54137p' digitalocean-bundled.yaml; echo ---; grep -n "region-2:" -A 12 digitalocean-bundled.yaml | head -20
+sed -n '22319,22345p' digitalocean-bundled.yaml; echo ---; sed -n '22633,22660p' digitalocean-bundled.yaml; echo ---; sed -n '22685,22700p' digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% /tabs %}
 
 {% /tab %}
@@ -9493,6 +13192,14 @@ Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -9513,6 +13220,16 @@ redocly tree digitalocean-bundled.yaml --format=ai --tag=NFS 2>/dev/null
 redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with-deps 2>/dev/null
 redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps 2>/dev/null
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response 2>/dev/null
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+Grep
+Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-map-v4-haiku-r2/256dbc45-f736-4f67-b908-cdb5c323a69a/scratchpad/nfs-provisioning-flow.json
 ```
 
 {% /tab %}
@@ -9743,6 +13460,16 @@ cat /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r3
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Skill
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 4 · no tree" %}
 
 ```bash
@@ -9763,6 +13490,14 @@ redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/n
 redocly tree digitalocean-bundled.yaml --format=ai --operation=post --path=/v2/nfs/shares/{share_id}/access_points --with-deps 2>/dev/null
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps 2>/dev/null
 redocly tree digitalocean-bundled.yaml --format=ai --operation=get --path=/v2/nfs/{nfs_id} 2>/dev/null
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
 ```
 
 {% /tab %}
@@ -9794,6 +13529,15 @@ redocly tree digitalocean-bundled.yaml --format=ai --find "vpc" 2>/dev/null | he
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 6 · no tree" %}
 
 ```bash
@@ -9818,6 +13562,19 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=ac
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+Grep
+grep -n "nfs_create_response\|nfs_create:\|access_point_create:" digitalocean-bundled.yaml | head -20
+grep -n "nfs_response:" digitalocean-bundled.yaml
+grep -n "access_point_response:" digitalocean-bundled.yaml
+grep -n "access_policy:" digitalocean-bundled.yaml | head -5
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 7 · no tree" %}
 
 ```bash
@@ -9838,6 +13595,15 @@ redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create --with
 redocly tree digitalocean-bundled.yaml --format=ai --operation=nfs_create_access_point --with-deps
 redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=nfs_response --with-deps
 redocly tree digitalocean-bundled.yaml --format=ai --tag=VPCs | head -40
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+Grep
 ```
 
 {% /tab %}
@@ -9868,6 +13634,14 @@ redocly tree digitalocean-bundled.yaml --format=ai --component=schemas --name=ac
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 9 · no tree" %}
 
 ```bash
@@ -9892,6 +13666,14 @@ redocly tree digitalocean-bundled.yaml --operation="nfs_create_access_point" --w
 redocly tree digitalocean-bundled.yaml --component=schemas --name=access_point_response --format=ai
 redocly tree digitalocean-bundled.yaml --component=schemas --name=access_policy --format=ai
 redocly tree digitalocean-bundled.yaml --component=schemas --name=nfs_request --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
 ```
 
 {% /tab %}
@@ -9920,6 +13702,15 @@ redocly tree digitalocean-bundled.yaml --format=ai --find "vpcs" | head -50
 Write nfs-provisioning-plan.md
 Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r10/4e06318c-bb96-485e-9fd2-8bbe260e5f08/scratchpad/nfs-provisioning-workflow.json
 Read /private/tmp/claude-501/-Users-tora-bench-run-dobundle-tree-help-v4-haiku-r10/4e06318c-bb96-485e-9fd2-8bbe260e5f08/scratchpad/nfs-provisioning-workflow.json
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read digitalocean-bundled.map.txt
+Read digitalocean-bundled.yaml
+Grep
 ```
 
 {% /tab %}
@@ -9992,38 +13783,38 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree       | tree          |
-| ------------------ | ------------- | ------------- |
-| Sonnet 5 · run 1   | works         | works         |
-| Sonnet 5 · run 2   | works         | works         |
-| Sonnet 5 · run 3   | works         | works         |
-| Sonnet 5 · run 4   | works         | no token call |
-| Sonnet 5 · run 5   | works         | works         |
-| Sonnet 5 · run 6   | works         | works         |
-| Sonnet 5 · run 7   | works         | works         |
-| Sonnet 5 · run 8   | works         | works         |
-| Sonnet 5 · run 9   | works         | works         |
-| Sonnet 5 · run 10  | works         | works         |
-| Opus 5 · run 1     | works         | works         |
-| Opus 5 · run 2     | works         | works         |
-| Opus 5 · run 3     | works         | works         |
-| Opus 5 · run 4     | works         | works         |
-| Opus 5 · run 5     | works         | works         |
-| Opus 5 · run 6     | works         | works         |
-| Opus 5 · run 7     | works         | works         |
-| Opus 5 · run 8     | works         | works         |
-| Opus 5 · run 9     | works         | works         |
-| Opus 5 · run 10    | works         | works         |
-| Haiku 4.5 · run 1  | no token call | no token call |
-| Haiku 4.5 · run 2  | no token call | works         |
-| Haiku 4.5 · run 3  | no token call | works         |
-| Haiku 4.5 · run 4  | works         | works         |
-| Haiku 4.5 · run 5  | works         | no token call |
-| Haiku 4.5 · run 6  | works         | no token call |
-| Haiku 4.5 · run 7  | no token call | works         |
-| Haiku 4.5 · run 8  | works         | no token call |
-| Haiku 4.5 · run 9  | works         | works         |
-| Haiku 4.5 · run 10 | works         | works         |
+| Run                | no tree       | tree          | map   |
+| ------------------ | ------------- | ------------- | ----- |
+| Sonnet 5 · run 1   | works         | works         | works |
+| Sonnet 5 · run 2   | works         | works         | works |
+| Sonnet 5 · run 3   | works         | works         | works |
+| Sonnet 5 · run 4   | works         | no token call | works |
+| Sonnet 5 · run 5   | works         | works         | works |
+| Sonnet 5 · run 6   | works         | works         | works |
+| Sonnet 5 · run 7   | works         | works         | works |
+| Sonnet 5 · run 8   | works         | works         | works |
+| Sonnet 5 · run 9   | works         | works         | works |
+| Sonnet 5 · run 10  | works         | works         | works |
+| Opus 5 · run 1     | works         | works         | works |
+| Opus 5 · run 2     | works         | works         | works |
+| Opus 5 · run 3     | works         | works         | works |
+| Opus 5 · run 4     | works         | works         | works |
+| Opus 5 · run 5     | works         | works         | works |
+| Opus 5 · run 6     | works         | works         | works |
+| Opus 5 · run 7     | works         | works         | works |
+| Opus 5 · run 8     | works         | works         | works |
+| Opus 5 · run 9     | works         | works         | works |
+| Opus 5 · run 10    | works         | works         | works |
+| Haiku 4.5 · run 1  | no token call | no token call | works |
+| Haiku 4.5 · run 2  | no token call | works         | works |
+| Haiku 4.5 · run 3  | no token call | works         | works |
+| Haiku 4.5 · run 4  | works         | works         | works |
+| Haiku 4.5 · run 5  | works         | no token call | works |
+| Haiku 4.5 · run 6  | works         | no token call | works |
+| Haiku 4.5 · run 7  | no token call | works         | works |
+| Haiku 4.5 · run 8  | works         | no token call | works |
+| Haiku 4.5 · run 9  | works         | works         | works |
+| Haiku 4.5 · run 10 | works         | works         | works |
 
 A run works when its flow contains `POST /oauth2/token`, `GET /menu`, `POST /orders` and `GET /orders/{orderId}`, all against `api.cafe.redocly.com`.
 
@@ -10061,6 +13852,18 @@ ToolSearch
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 1 · map" %}
+
+```bash
+ls
+Read cafe.map.txt
+grep -n -A 40 "oauth2:" cafe.yaml | head -80
+Grep
+Read cafe.yaml
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-sonnet-r1/e615bc0a-16d7-40de-95c3-023a124af326/scratchpad/placeholder.html
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 2 · no tree" %}
 
 ```bash
@@ -10083,6 +13886,17 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=MenuItem
 redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage
 redocly tree cafe.yaml --format=ai --component=schemas --name=Order
 redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 2 · map" %}
+
+```bash
+ls -la
+Read cafe.map.txt
+grep -n "oauth2\|flows\|authorizationCode\|clientCredentials\|tokenUrl\|scopes:" cafe.yaml | head -60
+Read cafe.yaml
+grep -n "OrderStatus:\|enum:\|placed\|preparing\|ready\|completed\|cancelled" cafe.yaml | head -40
 ```
 
 {% /tab %}
@@ -10117,6 +13931,19 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=OrderItem --with-d
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 3 · map" %}
+
+```bash
+ls
+Read cafe.map.txt
+Read cafe.yaml
+grep -n "securitySchemes\|flows\|clientCredentials\|authorizationCode\|tokenUrl\|scopes:" cafe.yaml | head -50
+grep -n "OrderStatus:\|enum:" cafe.yaml | head -20
+grep -n "MenuItem:\|MenuItemList:\|MenuItemSummary" cafe.yaml
+grep -n "oauth2/token\|/oauth2/" cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 4 · no tree" %}
 
 ```bash
@@ -10137,6 +13964,16 @@ redocly tree cafe.yaml --format=ai --component=securitySchemes
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2
 redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps
 redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 4 · map" %}
+
+```bash
+Glob
+Read cafe.map.txt
+Read cafe.yaml
+Grep
 ```
 
 {% /tab %}
@@ -10166,6 +14003,16 @@ redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --opera
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 5 · map" %}
+
+```bash
+ls
+Read cafe.map.txt
+Read cafe.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 6 · no tree" %}
 
 ```bash
@@ -10188,6 +14035,17 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-de
 redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps
 redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
 mkdir -p "/private/tmp/claude-501/-Users-tora-bench-run-cafe-tree-help-v3f-sonnet-r6/1070f150-f2c1-4a34-a5d3-3f7d552d8c62/scratchpad"
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 6 · map" %}
+
+```bash
+find /Users/tora/bench-run/cafe-map-v4-sonnet-r6 -maxdepth 2 -iname "cafe*"
+Read cafe.map.txt
+grep -n "oauth2\|OrderStatus\|flows\|tokenUrl\|scopes:" cafe.yaml | head -80
+Read cafe.yaml
+grep -n "MenuItem:\|MenuItemList:" -A 20 cafe.yaml | head -40
 ```
 
 {% /tab %}
@@ -10215,6 +14073,22 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps
 ```
 
 {% /tab %}
+{% tab label="Sonnet 5 · run 7 · map" %}
+
+```bash
+ls
+Read cafe.map.txt
+Read cafe.yaml
+grep -n "OrderStatus:" -A 15 cafe.yaml | head -30
+grep -n "OAuth2:" -A 30 cafe.yaml | grep -n "flows\|clientCredentials\|authorizationCode\|tokenUrl\|scopes:" | head -30
+grep -n "oauth2/token\|/oauth2:" cafe.yaml
+grep -n "MenuItem:\|MenuItemList:" -A 20 cafe.yaml | head -60
+grep -n "Beverage:\|Dessert:\|MenuItemBase\|^    id:" -A 5 cafe.yaml | head -40
+sed -n '900,960p' cafe.yaml
+Write /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-sonnet-r7/65781763-e187-43cf-a484-468886839cc4/scratchpad/cafe-flow.json
+```
+
+{% /tab %}
 {% tab label="Sonnet 5 · run 8 · no tree" %}
 
 ```bash
@@ -10235,6 +14109,16 @@ redocly tree cafe.yaml --format=ai --path=/orders/{orderId} --operation=get --wi
 redocly tree cafe.yaml --format=ai --component=securitySchemes
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
 redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 8 · map" %}
+
+```bash
+find /Users/tora/bench-run/cafe-map-v4-sonnet-r8 -iname "cafe*" -maxdepth 3
+Read cafe.map.txt
+Read cafe.yaml
+Grep
 ```
 
 {% /tab %}
@@ -10259,6 +14143,20 @@ redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --opera
 redocly tree cafe.yaml --format=ai --component=securitySchemes
 redocly tree cafe.yaml --format=ai --component=securitySchemes --name=OAuth2 --with-deps
 redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps; echo ---; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 9 · map" %}
+
+```bash
+ls
+Read cafe.map.txt
+sed -n '1,35p' cafe.yaml
+grep -n "securitySchemes\|flows\|OAuth2\|ApiKey\|OrderStatus\|orderStatus" cafe.yaml | head -60
+sed -n '685,720p' cafe.yaml; echo ---; sed -n '1024,1060p' cafe.yaml
+grep -n "oauth2/token\|/oauth2" cafe.yaml
+sed -n '32,115p' cafe.yaml
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-sonnet-r9/767da326-0232-4400-88b8-4f0535de30f3/scratchpad/placeholder.html
 ```
 
 {% /tab %}
@@ -10287,6 +14185,16 @@ redocly tree cafe.yaml --format=ai --path=/order-items --operation=get --with-de
 redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
 redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage
 # write /private/tmp/claude-501/-Users-tora-bench-run-cafe-tree-help-v3f-sonnet-r10/9a15e313-cdba-421b-a0c0-b04f3cebc730/scratchpad/cafe-flow.json
+```
+
+{% /tab %}
+{% tab label="Sonnet 5 · run 10 · map" %}
+
+```bash
+ls
+Read cafe.map.txt
+Read cafe.yaml
+Grep
 ```
 
 {% /tab %}
@@ -10324,6 +14232,16 @@ redocly tree cafe.yaml --format=ai --operation=updateOrder
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 1 · map" %}
+
+```bash
+ls -la /Users/tora/bench-run/cafe-map-v4-opus-r1 && wc -l *
+Read cafe.map.txt
+Read cafe.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 2 · no tree" %}
 
 ```bash
@@ -10345,6 +14263,16 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-de
 redocly tree cafe.yaml --format=ai --component=parameters --name=Limit --with-deps|head -20; echo "-----"; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem --with-deps|head -20; echo "-----"; redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps|head -30
 redocly tree cafe.yaml --format=ai --operation=listOrderItems --with-deps|head -25; echo "-----"; redocly tree cafe.yaml --format=ai --operation=listOrders|head -25; echo "-----"; redocly tree cafe.yaml --format=ai --find=security|head; sed -n '1,32p' cafe.yaml
 sed -n '203,228p' cafe.yaml; echo ----; redocly tree cafe.yaml --format=ai --component=schemas --name=OrderItem|head -12
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 2 · map" %}
+
+```bash
+ls -la  && wc -l cafe.map.txt cafe.yaml
+Read cafe.map.txt
+Read cafe.yaml
+Grep
 ```
 
 {% /tab %}
@@ -10370,6 +14298,23 @@ redocly tree cafe.yaml --format=ai --path="/menu-item-images/{menuItemId}"; echo
 redocly tree cafe.yaml --format=ai --component=parameters --name=MenuItemId --used-by; echo "=== UPDATE ==="; redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps
 redocly tree cafe.yaml --format=ai --webhook=order-notification --operation=post --with-deps | head -60; echo "=== SERVERS ==="; redocly tree cafe.yaml --format=ai | head -40
 redocly tree cafe.yaml --format=ai --component=schemas --name=RegisterClientObject; echo "=== FILTER ==="; redocly tree cafe.yaml --format=ai --component=parameters --name=Filter; echo "=== LISTORDERS ==="; redocly tree cafe.yaml --format=ai --operation=listOrders | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 3 · map" %}
+
+```bash
+ls -la  && wc -l cafe.map.txt cafe.yaml
+Read cafe.map.txt
+sed -n '604,700p' cafe.yaml
+sed -n '32,111p' cafe.yaml
+sed -n '316,476p' cafe.yaml
+grep -n "OrderStatus:\|MenuItem:\|MenuItemList:\|Order:\|OrderItem\|CreateOrder\|PageInfo\|oauth2/token" cafe.yaml | head -40
+sed -n '959,1160p' cafe.yaml
+grep -n -A12 "^  parameters:" cafe.yaml | sed -n '1,80p'; echo ---; sed -n '700,760p' cafe.yaml
+grep -n -A40 "    Beverage:" cafe.yaml | head -60; echo "=== PAGE ==="; grep -n -A25 "    Page:" cafe.yaml | head -30; echo "=== ORDERID PARAM ==="; grep -n -A12 "    OrderId:" cafe.yaml
+sed -n '203,226p' cafe.yaml; echo "=== BASE ==="; grep -n -B2 -A38 "MenuItemBase:" cafe.yaml | head -50
+sed -n '174,204p' cafe.yaml; echo "=== PhotoSize ==="; grep -n -A14 "    PhotoSize:" cafe.yaml; echo "=== menuitem props ==="; sed -n '860,925p' cafe.yaml
 ```
 
 {% /tab %}
@@ -10406,6 +14351,15 @@ sed -n '32,112p' cafe.yaml
 sed -n '200,228p' cafe.yaml
 redocly tree cafe.yaml --format=ai --component=parameters --name=MenuItemId
 sed -n '229,320p' cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 4 · map" %}
+
+```bash
+ls -la  && wc -l *
+Read cafe.map.txt
+Read cafe.yaml
 ```
 
 {% /tab %}
@@ -10455,6 +14409,16 @@ sed -n '32,112p' /Users/tora/bench-run/cafe-tree-help-v3f-opus-r5/cafe.yaml
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 5 · map" %}
+
+```bash
+ls -la  && wc -l *.yaml *.txt
+Read cafe.map.txt
+Read cafe.yaml
+grep -n "^    [A-Za-z0-9]*:$" cafe.yaml | sed -n '1,200p'
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 6 · no tree" %}
 
 ```bash
@@ -10482,6 +14446,22 @@ sed -n 200,228p cafe.yaml; echo ---; redocly tree cafe.yaml --format=ai --find=t
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 6 · map" %}
+
+```bash
+ls -la  && wc -l *.yaml *.txt
+Read cafe.map.txt
+sed -n '1,32p;604,700p' cafe.yaml
+sed -n '32,111p;316,416p' cafe.yaml
+grep -n "OrderStatus:\|MenuItemList:\|    Order:\|MenuItem:\|OrderItem:\|RegisterClientObject:\|OAuth2Client:\|  parameters:\|    Limit:\|    After:\|    OrderId:" cafe.yaml
+sed -n '712,830p;959,1060p' cafe.yaml
+sed -n '1032,1180p;1206,1290p' cafe.yaml
+sed -n '835,960p' cafe.yaml
+sed -n '203,229p;418,478p' cafe.yaml
+sed -n '174,203p' cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 7 · no tree" %}
 
 ```bash
@@ -10505,6 +14485,16 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem; echo
 redocly tree cafe.yaml --format=ai --path='/menu-item-images/{menuItemId}'; echo ---; redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize; echo ---; redocly tree cafe.yaml --format=ai --component=parameters --name=OrderId
 redocly tree cafe.yaml --format=ai --component=parameters --name=After; echo ---; redocly tree cafe.yaml --format=ai --component=schemas --name=Page; echo ---; redocly tree cafe.yaml --format=ai --component=schemas --name=MenuItemList
 redocly tree cafe.yaml --format=ai --component=schemas --name=RegisterClientObject; echo ---; redocly tree cafe.yaml --format=ai --operation=updateOrder | head -20
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 7 · map" %}
+
+```bash
+ls -la  && wc -l *.yaml *.txt
+Read cafe.map.txt
+Read cafe.yaml
+grep -n "^    [A-Za-z0-9]*:" cafe.yaml | sed -n '1,200p'
 ```
 
 {% /tab %}
@@ -10535,6 +14525,18 @@ for n in Search Sort; do redocly tree cafe.yaml --format=ai --component=paramete
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 8 · map" %}
+
+```bash
+ls -la && wc -l cafe.yaml cafe.map.txt
+Read cafe.map.txt
+Read cafe.yaml
+Grep
+sed -n '203,226p;712,800p;860,960p' cafe.yaml
+sed -n '174,204p;800,860p' cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 9 · no tree" %}
 
 ```bash
@@ -10561,6 +14563,16 @@ sed -n '200,212p' /Users/tora/bench-run/cafe-tree-help-v3f-opus-r9/cafe.yaml
 ```
 
 {% /tab %}
+{% tab label="Opus 5 · run 9 · map" %}
+
+```bash
+ls -la
+Read cafe.map.txt
+Read cafe.yaml
+Grep
+```
+
+{% /tab %}
 {% tab label="Opus 5 · run 10 · no tree" %}
 
 ```bash
@@ -10584,6 +14596,23 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=Order --with-deps;
 redocly tree cafe.yaml --format=ai | head -40; redocly tree cafe.yaml --format=ai --component=schemas --name=Beverage --with-deps
 redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem; redocly tree cafe.yaml --format=ai --component=parameters --name=PhotoSize; redocly tree cafe.yaml --format=ai --path=/menu-item-images/{menuItemId} --operation=get --with-deps | head -20
 redocly tree cafe.yaml --format=ai --operation=updateOrder --with-deps | head -25; redocly tree cafe.yaml --format=ai --component=parameters --name=Limit; redocly tree cafe.yaml --format=ai --path=/menu --operation=get | head -8
+```
+
+{% /tab %}
+{% tab label="Opus 5 · run 10 · map" %}
+
+```bash
+ls -la  && wc -l *.yaml *.txt
+Read cafe.map.txt
+sed -n '600,700p' cafe.yaml
+sed -n '32,120p' cafe.yaml
+sed -n '316,420p' cafe.yaml
+grep -n "OrderStatus\|MenuItemList:\|Order:\|MenuItem:\|OrderItem\|CreateOrder\|schemas:" cafe.yaml | head -60
+sed -n '959,1060p' cafe.yaml
+sed -n '1060,1175p' cafe.yaml
+sed -n '821,960p' cafe.yaml
+grep -n "parameters:" cafe.yaml | tail -3; sed -n '1176,1361p' cafe.yaml
+sed -n '712,821p' cafe.yaml; echo "--- PATCH ---"; sed -n '418,478p' cafe.yaml
 ```
 
 {% /tab %}
@@ -10615,6 +14644,14 @@ redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 1 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 2 · no tree" %}
 
 ```bash
@@ -10630,6 +14667,14 @@ redocly tree --help
 redocly tree --help || redocly tree cafe.yaml --help
 ls -la /Users/tora/bench-run/cafe-tree-help-v3f-haiku-r2/
 cat /Users/tora/bench-run/cafe-tree-help-v3f-haiku-r2/cafe.yaml
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 2 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
 ```
 
 {% /tab %}
@@ -10650,6 +14695,14 @@ cat /Users/tora/bench-run/cafe-tree-help-v3f-haiku-r3/cafe.yaml
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 3 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 4 · no tree" %}
 
 ```bash
@@ -10666,6 +14719,14 @@ redocly tree cafe.yaml --format=ai --operations
 redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
 redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
 redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 4 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
 ```
 
 {% /tab %}
@@ -10694,6 +14755,14 @@ redocly tree cafe.yaml --format=ai --component=schemas --name=MenuBaseItem
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 5 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 6 · no tree" %}
 
 ```bash
@@ -10719,6 +14788,14 @@ redocly tree cafe.yaml --format=ai --component=securitySchemes
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 6 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 7 · no tree" %}
 
 ```bash
@@ -10736,6 +14813,14 @@ redocly tree cafe.yaml --format=ai --operation=listMenuItems --with-deps
 redocly tree cafe.yaml --format=ai --operation=createOrder --with-deps
 redocly tree cafe.yaml --format=ai --operation=getOrderById --with-deps
 redocly tree cafe.yaml --format=ai --operation=registerOAuth2Client --with-deps
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 7 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
 ```
 
 {% /tab %}
@@ -10764,6 +14849,14 @@ redocly tree cafe.yaml --path=/menu-item-images/{menuItemId} --operation=get --f
 redocly tree cafe.yaml --component=schemas --name=MenuBaseItem --format=ai
 redocly tree cafe.yaml --component=parameters --name=PhotoSize --format=ai
 redocly tree cafe.yaml --component=securitySchemes --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 8 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
 ```
 
 {% /tab %}
@@ -10796,6 +14889,14 @@ sed -n '685,725p' /Users/tora/bench-run/cafe-tree-help-v3f-haiku-r9/cafe.yaml
 ```
 
 {% /tab %}
+{% tab label="Haiku 4.5 · run 9 · map" %}
+
+```bash
+Read cafe.yaml
+Read cafe.map.txt
+```
+
+{% /tab %}
 {% tab label="Haiku 4.5 · run 10 · no tree" %}
 
 ```bash
@@ -10814,6 +14915,15 @@ redocly tree cafe.yaml --path=/orders/{orderId} --operation=get --with-deps --fo
 redocly tree cafe.yaml --component=schemas --name=MenuItem --with-deps --format=ai
 redocly tree cafe.yaml --component=schemas --name=OrderItem --with-deps --format=ai
 redocly tree cafe.yaml --path=/oauth2/register --operation=post --with-deps --format=ai
+```
+
+{% /tab %}
+{% tab label="Haiku 4.5 · run 10 · map" %}
+
+```bash
+Read cafe.map.txt
+Read cafe.yaml
+Artifact /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-haiku-r10/8e6598e3-7803-4d4d-ade1-e14f5aacc4d2/scratchpad/cafe-flow.json
 ```
 
 {% /tab %}
@@ -10968,6 +15078,7 @@ Every run is a fresh Claude Code session started from the command line with the 
 Sessions start in a directory holding nothing but the description — plus, in the map condition, the map generated from it — outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
 The PayPal tree runs were measured on that build; the other five descriptions ran on the earlier `c06d24541`, whose `tree` output for them is byte-identical — 598 command comparisons, no difference.
 Each cell holds ten runs; the tables give the median over the runs whose flow works. `Δ tree` and `Δ map` compare each condition against **no tree**.
+Every run of every condition is listed twice below: once as a verdict, and once as the commands it actually issued.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.
 
