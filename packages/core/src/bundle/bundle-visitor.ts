@@ -16,8 +16,6 @@ import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
 import { componentNameFromTitle } from '../utils/component-name-from-title.js';
 import { dequal } from '../utils/dequal.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { isString } from '../utils/is-string.js';
 import { makeRefId } from '../utils/make-ref-id.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult, type NonUndefined, type Problem } from '../walk.js';
@@ -325,9 +323,7 @@ export function makeBundleVisitor({
     componentsGroup: ComponentsGroup,
     ctx: UserContext
   ): { key: string; problem?: Problem } {
-    const { node } = target;
-    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
-    const key = componentNameFromTitle(title);
+    const { title, name: key } = componentNameFromTitle(target.node);
     const titleLocation = target.location.child('title');
 
     if (title === '') {

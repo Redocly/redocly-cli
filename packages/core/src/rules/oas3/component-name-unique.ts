@@ -11,8 +11,6 @@ import type {
   OasRef,
 } from '../../typings/openapi.js';
 import { componentNameFromTitle } from '../../utils/component-name-from-title.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
-import { isString } from '../../utils/is-string.js';
 import { isSupportedExtension } from '../../utils/is-supported-extension.js';
 import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Problem, UserContext } from '../../walk.js';
@@ -35,6 +33,7 @@ type ComponentsMapValue = { absolutePointers: Set<string>; locations: Location[]
 
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   const components = new Map<string, ComponentsMapValue>();
+  const schemasWithoutTitle = new Map<string, Location>();
   const useTitleStrategy = options.strategy === 'title';
   let rootSourceRef: string;
 
@@ -54,18 +53,25 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   const rule: Oas3Visitor = {
     ref: {
-      leave(ref: OasRef, { type, resolve }: UserContext) {
+      leave(ref: OasRef, { type, resolve, location }: UserContext) {
         const typeName = type.name;
         if (typeNames.includes(typeName)) {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
 
-          const titleName = getTitleComponentName(typeName, resolvedRef);
-          if (titleName) {
-            addFoundComponent(typeName, titleName, resolvedRef.location);
-          } else {
-            addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
+          if (usesTitleStrategy(typeName, location, resolvedRef.location)) {
+            const { title, name } = componentNameFromTitle(resolvedRef.node);
+            if (title) {
+              addFoundComponent(typeName, name, resolvedRef.location.child('title'));
+              return;
+            }
+            schemasWithoutTitle.set(
+              resolvedRef.location.absolutePointer.toString(),
+              resolvedRef.location
+            );
           }
+
+          addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
         }
       },
     },
@@ -96,6 +102,19 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
             }
           }
         });
+
+        for (const location of schemasWithoutTitle.values()) {
+          const problem: Problem = {
+            message:
+              'Schema must define a `title` when using `strategy: title`. Bundling fails without it.',
+            location,
+            reference: 'https://redocly.com/docs/cli/rules/oas/component-name-unique',
+          };
+          if (options.schemas) {
+            problem.forceSeverity = options.schemas;
+          }
+          ctx.report(problem);
+        }
       },
     },
   };
@@ -161,21 +180,17 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     addFoundComponent(typeName, componentName, location);
   }
 
-  function getTitleComponentName(
+  function usesTitleStrategy(
     typeName: string,
-    resolved: { node: unknown; location: Location }
-  ): string | null {
-    if (
-      !useTitleStrategy ||
-      typeName !== TYPE_NAME_SCHEMA ||
-      resolved.location.source.absoluteRef === rootSourceRef
-    ) {
-      return null;
-    }
-
-    const { node } = resolved;
-    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
-    return title === '' ? null : componentNameFromTitle(title);
+    refLocation: Location,
+    targetLocation: Location
+  ): boolean {
+    return (
+      useTitleStrategy &&
+      typeName === TYPE_NAME_SCHEMA &&
+      (refLocation.source.absoluteRef !== rootSourceRef ||
+        targetLocation.source.absoluteRef !== rootSourceRef)
+    );
   }
 };
 

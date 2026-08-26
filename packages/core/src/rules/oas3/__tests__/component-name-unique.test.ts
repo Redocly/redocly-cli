@@ -1074,13 +1074,13 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/title",
                 "reportOnKey": false,
                 "source": "/a/User.yaml",
               },
             ],
             "message": "Component 'schemas/UserAccount' is not unique. It is also defined at:
-        - /b/Account.yaml",
+        - /b/Account.yaml#/title",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
@@ -1089,13 +1089,179 @@ describe('Oas3 component-name-unique', () => {
           {
             "location": [
               {
-                "pointer": "#/",
+                "pointer": "#/title",
                 "reportOnKey": false,
                 "source": "/b/Account.yaml",
               },
             ],
             "message": "Component 'schemas/UserAccount' is not unique. It is also defined at:
-        - /a/User.yaml",
+        - /a/User.yaml#/title",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
+            "ruleId": "component-name-unique",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should report a root schema that another file refers to by title', async () => {
+      const rootBody = outdent`
+        openapi: 3.0.0
+        paths:
+          /things:
+            get:
+              responses:
+                '200':
+                  description: ok
+                  content:
+                    application/json:
+                      schema:
+                        $ref: '/Other.yaml'
+        components:
+          schemas:
+            Foo:
+              title: Bar thing
+              type: object
+      `;
+      const document = parseYamlToDocument(rootBody, '/foobar.yaml');
+      const additionalDocuments = [
+        { absoluteRef: '/foobar.yaml', body: rootBody },
+        {
+          absoluteRef: '/Other.yaml',
+          body: outdent`
+            title: Bar thing
+            type: object
+            properties:
+              inner:
+                $ref: '/foobar.yaml#/components/schemas/Foo'
+          `,
+        },
+      ];
+
+      const results = await lintDocumentForTest(
+        { 'component-name-unique': { severity: 'error', strategy: 'title' } },
+        document,
+        additionalDocuments
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/components/schemas/Foo/title",
+                "reportOnKey": false,
+                "source": "/foobar.yaml",
+              },
+            ],
+            "message": "Component 'schemas/BarThing' is not unique. It is also defined at:
+        - /Other.yaml#/title",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
+            "ruleId": "component-name-unique",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "location": [
+              {
+                "pointer": "#/title",
+                "reportOnKey": false,
+                "source": "/Other.yaml",
+              },
+            ],
+            "message": "Component 'schemas/BarThing' is not unique. It is also defined at:
+        - /foobar.yaml#/components/schemas/Foo/title",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
+            "ruleId": "component-name-unique",
+            "severity": "error",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
+    it('should not report schemas that only the root document refers to', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /orders:
+              get:
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '#/components/schemas/Order'
+          components:
+            schemas:
+              Order:
+                title: Order model
+                type: object
+              OrderModel:
+                title: Something else
+                type: object
+        `,
+        '/foobar.yaml'
+      );
+
+      const results = await lintDocumentForTest(
+        { 'component-name-unique': { severity: 'error', strategy: 'title' } },
+        document,
+        []
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    });
+
+    it('should report a referenced schema without a title', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /carts:
+              get:
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '/Cart.yaml'
+        `,
+        '/foobar.yaml'
+      );
+      const additionalDocuments = [
+        {
+          absoluteRef: '/Cart.yaml',
+          body: outdent`
+            type: object
+            properties:
+              total:
+                type: number
+          `,
+        },
+      ];
+
+      const results = await lintDocumentForTest(
+        { 'component-name-unique': { severity: 'error', strategy: 'title' } },
+        document,
+        additionalDocuments
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "location": [
+              {
+                "pointer": "#/",
+                "reportOnKey": false,
+                "source": "/Cart.yaml",
+              },
+            ],
+            "message": "Schema must define a \`title\` when using \`strategy: title\`. Bundling fails without it.",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
@@ -1163,6 +1329,20 @@ describe('Oas3 component-name-unique', () => {
             ],
             "message": "Component 'schemas/Order' is not unique. It is also defined at:
         - /foobar.yaml#/components/schemas/Order",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
+            "ruleId": "component-name-unique",
+            "severity": "error",
+            "suggest": [],
+          },
+          {
+            "location": [
+              {
+                "pointer": "#/",
+                "reportOnKey": false,
+                "source": "/a/Order.yaml",
+              },
+            ],
+            "message": "Schema must define a \`title\` when using \`strategy: title\`. Bundling fails without it.",
             "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
             "ruleId": "component-name-unique",
             "severity": "error",
