@@ -11,6 +11,7 @@ The other two conditions add to it:
 - **tree** — two lines: the CLI is installed, and [`redocly tree --help`](../commands/tree.md) lists what it can select.
 - **map** — three lines: `<description>.map.txt` sits next to the description and carries auth, required fields, response carries and source line ranges, so start there. [`redocly generate-map`](../commands/generate-map.md) writes it before the session begins, so these runs never call the CLI.
 
+_An index_ means either `tree` or the map; **original** is the description on its own.
 A context cell is the median, and a cost cell the mean, of the runs whose flow works; ❌ marks a cell where none did, so it has nothing to report.
 `Δ tree` and `Δ map` compare each condition against **original**, and read — when either side is ❌.
 
@@ -1473,8 +1474,8 @@ Read github-api.yaml
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5 and Opus 5 pass every run on both sides, with 9% to 13% less context and fewer calls through the index.
-Haiku 4.5 fails the same way each time — it declares an installation token it never mints — and its one pass came without the index.
+Sonnet 5 and Opus 5 pass every run with and without `tree`, at 10% and 29% less context and fewer calls through it.
+Haiku 4.5 fails the same way each time — it declares an installation token it never mints — passing three of ten both with `tree` and without, and one of ten with the map.
 
 {% /tab %}
 
@@ -3110,7 +3111,7 @@ Read github-split/paths/repos_{owner}_{repo}_releases.yaml
 {% /tab %}
 {% /tabs %}
 
-Split into a file per operation, the layout is itself the index: the control halves its single-file price, Sonnet 5 pays more through the index than around it, and Haiku 4.5 falls from five working runs to one — nine of its ten index runs never mint the installation token.
+Split into a file per operation, the layout is itself an index: reading the description outright halves its single-file price, Sonnet 5 pays more through `tree` than around it, and Haiku 4.5 falls from five working runs to one — nine of its ten `tree` runs never mint the installation token.
 Read against the single-file GitHub tab, this is one half of the layout experiment: same description, same task, only the layout changed.
 
 {% /tab %}
@@ -5633,8 +5634,8 @@ grep -n "^    SubscriptionOrOneTimeSaleItem:" rebilly.yaml
 {% /tab %}
 {% /tabs %}
 
-Opus 5 passes everything; the index nearly halves its price. Sonnet 5 passes two of ten without the index and six with it, and Haiku 4.5 goes from none to one — on this description the failures were always the same missing key header, and the card's `auth:` line is where that answer now comes from.
-The sign flips on context for Sonnet 5 (+84%) because its five cheap control runs all produced broken flows: the working answer costs more than the broken one it replaces.
+Opus 5 passes everything, and `tree` cuts its price by 41%. Sonnet 5 passes two of ten without an index, six with `tree` and nine with the map, and Haiku 4.5 goes from none to one and three — on this description the failures were always the same missing key header, and the card's `auth:` line is where that answer now comes from.
+The sign flips on context for Sonnet 5 (+39%), but the baseline is thin: only two runs work without an index, so the median it is measured against comes from those two.
 
 {% /tab %}
 
@@ -6924,7 +6925,7 @@ grep -n "^\s*climate\.product:" climate.yaml | head -1
 {% /tab %}
 {% /tabs %}
 
-The same file that defeats Sonnet 5 and Haiku 4.5 on the mainstream task is no obstacle here: every model finds the three calls, and the index cuts context by roughly a third for all of them.
+The same file that defeats Sonnet 5 and Haiku 4.5 on the mainstream task is no obstacle here: every model finds the three calls, and `tree` cuts context by 45% for Sonnet 5 and 35% for Opus 5. The map roughly doubles it — it is read whole — and still works in every run.
 Haiku 4.5 is the cleanest result in the whole grid — its ten control runs all propose the right calls and all fail for the same missing authentication, and eight of its ten index runs pass, quoting the `Authorization: Bearer` header the overview's `security:` line hands it.
 Set against the previous tab, this is the prior-contamination experiment: same file, same models, and only the corner of the API changed. The mainstream failures were never about finding things — they were about not looking.
 
@@ -10141,8 +10142,8 @@ Grep
 {% /tab %}
 {% /tabs %}
 
-Opus 5 passes every run on both sides and Sonnet 5 misses one without the index; both pay more context through it — +47% and +36% — because nine operations barely need finding, while the cards arrive heavy with PayPal's deep schemas.
-For Opus 5 that lands as 26% more billed — the same shape as DigitalOcean, where the description is easy enough to navigate that the index is paying for an answer the model would have reached anyway.
+Opus 5 passes every run under every condition and Sonnet 5 misses one without an index; both pay more context through `tree` — +47% and +36% — because nine operations barely need finding, while the cards arrive heavy with PayPal's deep schemas.
+For Opus 5 that lands as 40% more billed — the same shape as DigitalOcean, where the description is easy enough to navigate that `tree` is paying for an answer the model would have reached anyway.
 Haiku 4.5 lands on four working runs either way: the cards hand it the tracker call's `capture_id` chain, and it still leaves `intent` out of the order body in five of its six failures.
 
 {% /tab %}
@@ -11918,8 +11919,8 @@ Read digitalocean/resources/nfs/nfs_access_point_create.yml
 {% /tab %}
 {% /tabs %}
 
-Sonnet 5 moves from three of ten to nine — the largest single move in the grid, and the same mechanism as the carbon-removal tab: without the index its answers name the right calls and never say how they authenticate, and with it they quote the `security:` line back.
-Haiku 4.5 stays at four working runs but reaches them for 30% less, because without the index it hunts through the file tree. Opus 5 passes either way and pays 49% more context and 39% more money through the index, because eleven NFS operations are cheap to grep and the cards arrive with the schemas attached.
+Sonnet 5 moves from three of ten to nine with `tree` and all ten with the map, by the same mechanism as the carbon-removal tab: without an index its answers name the right calls and never say how they authenticate, and with one they quote the `security:` line back.
+Haiku 4.5 stays at four working runs with `tree` but reaches them for 33% less, because without it the model hunts through the file tree; the map takes it to all ten. Opus 5 passes under every condition and pays 49% more context and 40% more money through `tree`, because eleven NFS operations are cheap to grep and the cards arrive with the schemas attached.
 Read against the previous tab, this is the second prior-contamination control in the grid: the mainstream droplet task and this one sit on the same 2,909 files, and only the corner of the API changed.
 
 {% /tab %}
@@ -14751,8 +14752,8 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-haiku-r10/8e6
 {% /tab %}
 {% /tabs %}
 
-Opus 5 passes everything and Sonnet 5 drops one run; Sonnet 5 answers with 48% less context through the index even here, where the alternative is one read of the whole file — which all thirty control runs take.
-That one read is also why the index costs more on this description than it saves: it becomes seven to thirteen calls, and a call is a request that resends the conversation, so the bill follows requests rather than bytes. Sonnet 5 shows it plainest — 48% less context, 17% more billed. Ten of the thirty index runs read the whole file anyway, after working through the cards.
+Opus 5 passes everything and Sonnet 5 drops one run; Sonnet 5 answers with 48% less context through `tree` even here, where the alternative is one read of the whole file — which all thirty runs without an index take.
+That one read is also why `tree` costs more on this description than it saves: it becomes seven to thirteen calls, and a call is a request that resends the conversation, so the bill follows requests rather than bytes. Sonnet 5 shows it plainest — 48% less context, 20% more billed. Ten of the thirty `tree` runs read the whole file anyway, after working through the cards.
 Haiku 4.5 lands on six working runs either way.
 
 {% /tab %}

@@ -1,6 +1,7 @@
 # Where the index pays
 
 An agent handed an API description has three ways to work: read the file, ask [`tree`](../commands/tree.md) to index it, or search a map built ahead of time by [`generate-map`](../commands/generate-map.md).
+Where this page says _an index_, it means either of the last two.
 This measures all three on eight description-task pairs, from 41 KB to 2,909 files, and judges the answer rather than the effort: does the flow the agent writes actually run?
 
 **543 of 720 runs produced a working flow — original 158, tree 184, map 201, out of 240 each.**
@@ -38,35 +39,35 @@ The best cell in each row is bold.
 | Cafe API               | Opus 5    | **10/10** | **10/10** | **10/10** |
 | Cafe API               | Haiku 4.5 |      6/10 |      6/10 | **10/10** |
 
-**cost** is the mean of those working runs, with the change against **original** beside it.
-❌ means nothing worked, so there is no price.
+**cost** is the mean of those working runs, and `Δ tree` / `Δ map` are each condition's change against **original**.
+❌ means nothing worked, so there is no price, and a change against it reads —.
 
-| API specification      | Model     |  original |           tree |            map |
-| ---------------------- | --------- | --------: | -------------: | -------------: |
-| GitHub REST            | Sonnet 5  |     $0.41 |     $0.31 −24% | **$0.18** −55% |
-| GitHub REST            | Opus 5    |     $0.79 |     $0.66 −16% | **$0.59** −26% |
-| GitHub REST            | Haiku 4.5 |     $0.10 |      $0.10 −3% | **$0.09** −16% |
-| GitHub REST (split)    | Sonnet 5  |     $0.21 |     $0.24 +14% |  **$0.19** −8% |
-| GitHub REST (split)    | Opus 5    |     $0.65 |      $0.69 +7% | **$0.54** −16% |
-| GitHub REST (split)    | Haiku 4.5 |     $0.16 |     $0.14 −18% | **$0.08** −49% |
-| Billing API            | Sonnet 5  |     $1.01 | **$0.59** −41% |     $0.80 −21% |
-| Billing API            | Opus 5    |     $1.74 | **$1.10** −37% |     $2.22 +28% |
-| Billing API            | Haiku 4.5 |        ❌ |      **$0.17** |          $0.25 |
-| Stripe                 | Sonnet 5  |     $0.32 |     $0.25 −22% | **$0.25** −24% |
-| Stripe                 | Opus 5    |     $0.55 | **$0.44** −19% |     $0.67 +22% |
-| Stripe                 | Haiku 4.5 |        ❌ |      **$0.12** |          $0.14 |
-| PayPal Orders          | Sonnet 5  |     $0.39 |     $0.44 +11% | **$0.34** −14% |
-| PayPal Orders          | Opus 5    | **$0.75** |     $1.06 +40% |      $0.75 ±0% |
-| PayPal Orders          | Haiku 4.5 |     $0.13 |     $0.11 −13% | **$0.11** −19% |
-| DigitalOcean           | Sonnet 5  |     $0.36 |      $0.36 +1% | **$0.23** −35% |
-| DigitalOcean           | Opus 5    | **$0.57** |     $0.80 +40% |     $0.71 +24% |
-| DigitalOcean           | Haiku 4.5 |     $0.19 | **$0.12** −33% |     $0.16 −15% |
-| DigitalOcean (bundled) | Sonnet 5  |     $0.29 | **$0.17** −42% |     $0.25 −13% |
-| DigitalOcean (bundled) | Opus 5    |     $0.83 |      $0.88 +5% | **$0.75** −10% |
-| DigitalOcean (bundled) | Haiku 4.5 |     $0.19 | **$0.12** −37% |     $0.14 −24% |
-| Cafe API               | Sonnet 5  |     $0.25 |     $0.30 +20% |  **$0.25** −2% |
-| Cafe API               | Opus 5    | **$0.46** |     $0.66 +42% |     $0.70 +51% |
-| Cafe API               | Haiku 4.5 | **$0.07** |     $0.10 +45% |     $0.08 +18% |
+| API specification      | Model     |  original |      tree |       map | Δ tree | Δ map |
+| ---------------------- | --------- | --------: | --------: | --------: | -----: | ----: |
+| GitHub REST            | Sonnet 5  |     $0.41 |     $0.31 | **$0.18** |   −24% |  −55% |
+| GitHub REST            | Opus 5    |     $0.79 |     $0.66 | **$0.59** |   −16% |  −26% |
+| GitHub REST            | Haiku 4.5 |     $0.10 |     $0.10 | **$0.09** |    −3% |  −16% |
+| GitHub REST (split)    | Sonnet 5  |     $0.21 |     $0.24 | **$0.19** |   +14% |   −8% |
+| GitHub REST (split)    | Opus 5    |     $0.65 |     $0.69 | **$0.54** |    +7% |  −16% |
+| GitHub REST (split)    | Haiku 4.5 |     $0.16 |     $0.14 | **$0.08** |   −18% |  −49% |
+| Billing API            | Sonnet 5  |     $1.01 | **$0.59** |     $0.80 |   −41% |  −21% |
+| Billing API            | Opus 5    |     $1.74 | **$1.10** |     $2.22 |   −37% |  +28% |
+| Billing API            | Haiku 4.5 |        ❌ | **$0.17** |     $0.25 |      — |     — |
+| Stripe                 | Sonnet 5  |     $0.32 |     $0.25 | **$0.25** |   −22% |  −24% |
+| Stripe                 | Opus 5    |     $0.55 | **$0.44** |     $0.67 |   −19% |  +22% |
+| Stripe                 | Haiku 4.5 |        ❌ | **$0.12** |     $0.14 |      — |     — |
+| PayPal Orders          | Sonnet 5  |     $0.39 |     $0.44 | **$0.34** |   +11% |  −14% |
+| PayPal Orders          | Opus 5    | **$0.75** |     $1.06 |     $0.75 |   +40% |   ±0% |
+| PayPal Orders          | Haiku 4.5 |     $0.13 |     $0.11 | **$0.11** |   −13% |  −19% |
+| DigitalOcean           | Sonnet 5  |     $0.36 |     $0.36 | **$0.23** |    +1% |  −35% |
+| DigitalOcean           | Opus 5    | **$0.57** |     $0.80 |     $0.71 |   +40% |  +24% |
+| DigitalOcean           | Haiku 4.5 |     $0.19 | **$0.12** |     $0.16 |   −33% |  −15% |
+| DigitalOcean (bundled) | Sonnet 5  |     $0.29 | **$0.17** |     $0.25 |   −42% |  −13% |
+| DigitalOcean (bundled) | Opus 5    |     $0.83 |     $0.88 | **$0.75** |    +5% |  −10% |
+| DigitalOcean (bundled) | Haiku 4.5 |     $0.19 | **$0.12** |     $0.14 |   −37% |  −24% |
+| Cafe API               | Sonnet 5  |     $0.25 |     $0.30 | **$0.25** |   +20% |   −2% |
+| Cafe API               | Opus 5    | **$0.46** |     $0.66 |     $0.70 |   +42% |  +51% |
+| Cafe API               | Haiku 4.5 | **$0.07** |     $0.10 |     $0.08 |   +45% |  +18% |
 
 ## The head-to-heads
 
@@ -94,11 +95,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |  map | cost: original |       tree |            map |
-| --------- | --------------: | --------: | ---: | -------------: | ---------: | -------------: |
-| Sonnet 5  |       **10/10** | **10/10** | 8/10 |          $0.41 | $0.31 −24% | **$0.18** −55% |
-| Opus 5    |       **10/10** | **10/10** | 9/10 |          $0.79 | $0.66 −16% | **$0.59** −26% |
-| Haiku 4.5 |        **3/10** |  **3/10** | 1/10 |          $0.10 |  $0.10 −3% | **$0.09** −16% |
+| Model     | works: original |      tree |  map | cost: original |  tree |       map | Δ tree | Δ map |
+| --------- | --------------: | --------: | ---: | -------------: | ----: | --------: | -----: | ----: |
+| Sonnet 5  |       **10/10** | **10/10** | 8/10 |          $0.41 | $0.31 | **$0.18** |   −24% |  −55% |
+| Opus 5    |       **10/10** | **10/10** | 9/10 |          $0.79 | $0.66 | **$0.59** |   −16% |  −26% |
+| Haiku 4.5 |        **3/10** |  **3/10** | 1/10 |          $0.10 | $0.10 | **$0.09** |    −3% |  −16% |
 
 What the failing runs left out:
 
@@ -111,7 +112,7 @@ What the failing runs left out:
 - **Opus 5 · map** — 1 run: no asset upload
 - **Haiku 4.5 · map** — 9 runs: no app token
 
-Sonnet 5 and Opus 5 answer correctly either way; the index buys 9% to 13% less context and fewer calls. Haiku 4.5 never mints the installation token its own flow declares.
+Sonnet 5 and Opus 5 answer correctly with or without `tree`, which buys them 10% and 29% less context and fewer calls; the map costs them two runs and one. Haiku 4.5 never mints the installation token its own flow declares, under any condition.
 
 {% /tab %}
 
@@ -137,11 +138,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |     tree |       map | cost: original |       tree |            map |
-| --------- | --------------: | -------: | --------: | -------------: | ---------: | -------------: |
-| Sonnet 5  |        **9/10** | **9/10** |  **9/10** |          $0.21 | $0.24 +14% |  **$0.19** −8% |
-| Opus 5    |            8/10 |     9/10 | **10/10** |          $0.65 |  $0.69 +7% | **$0.54** −16% |
-| Haiku 4.5 |        **5/10** |     1/10 |      2/10 |          $0.16 | $0.14 −18% | **$0.08** −49% |
+| Model     | works: original |     tree |       map | cost: original |  tree |       map | Δ tree | Δ map |
+| --------- | --------------: | -------: | --------: | -------------: | ----: | --------: | -----: | ----: |
+| Sonnet 5  |        **9/10** | **9/10** |  **9/10** |          $0.21 | $0.24 | **$0.19** |   +14% |   −8% |
+| Opus 5    |            8/10 |     9/10 | **10/10** |          $0.65 | $0.69 | **$0.54** |    +7% |  −16% |
+| Haiku 4.5 |        **5/10** |     1/10 |      2/10 |          $0.16 | $0.14 | **$0.08** |   −18% |  −49% |
 
 What the failing runs left out:
 
@@ -158,7 +159,7 @@ What the failing runs left out:
 - **Haiku 4.5 · map** — 7 runs: no app token
 - **Haiku 4.5 · map** — 1 run: no asset upload
 
-Split into a file per operation, the layout is itself the index, and the advantage the command held on the 9.5 MB single file is gone: the control gets twice as cheap, Sonnet 5 pays 14% more through the index, and Haiku 4.5 drops from five working runs to one, losing the installation-token call among the cards.
+Split into a file per operation, the layout is itself an index, and the advantage `tree` held on the 9.5 MB single file is gone: reading the description outright gets twice as cheap, Sonnet 5 pays 14% more through `tree`, and Haiku 4.5 drops from five working runs to one, losing the installation-token call among the cards. The map still pays: Opus 5 reaches all ten runs at 16% less.
 
 {% /tab %}
 
@@ -184,11 +185,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |           tree |        map |
-| --------- | --------------: | --------: | --------: | -------------: | -------------: | ---------: |
-| Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** −41% | $0.80 −21% |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** −37% | $2.22 +28% |
-| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ |      **$0.17** |      $0.25 |
+| Model     | works: original |      tree |       map | cost: original |      tree |   map | Δ tree | Δ map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | ----: | -----: | ----: |
+| Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** | $0.80 |   −41% |  −21% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** | $2.22 |   −37% |  +28% |
+| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ | **$0.17** | $0.25 |      — |     — |
 
 What the failing runs left out:
 
@@ -208,7 +209,7 @@ What the failing runs left out:
 - **Haiku 4.5 · map** — 1 run: no product call, no orderType field
 - **Haiku 4.5 · map** — 3 runs: no product call
 
-The index turns Sonnet 5 from nothing that runs into four flows in five, and halves what Opus 5 pays. Every control failure here is the same one: the secret key never reaches the request.
+Sonnet 5 goes from two working runs to six with `tree` and nine with the map, and `tree` cuts what Opus 5 pays by 41%. Every failure without an index is the same one: the secret key never reaches the request.
 
 {% /tab %}
 
@@ -235,11 +236,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |           tree |            map |
-| --------- | --------------: | --------: | --------: | -------------: | -------------: | -------------: |
-| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 −22% | **$0.25** −24% |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** −19% |     $0.67 +22% |
-| Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ |      **$0.12** |          $0.14 |
+| Model     | works: original |      tree |       map | cost: original |      tree |       map | Δ tree | Δ map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: | -----: | ----: |
+| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |   −22% |  −24% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |   −19% |  +22% |
+| Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ | **$0.12** |     $0.14 |      — |     — |
 
 What the failing runs left out:
 
@@ -247,7 +248,7 @@ What the failing runs left out:
 - **Haiku 4.5 · original** — 10 runs: no auth scheme
 - **Haiku 4.5 · tree** — 2 runs: no auth scheme
 
-The same file, a corner no tutorial covers, and the picture inverts: every model finds the calls, and Haiku 4.5 goes from none of ten to eight. Its control runs name the right calls and never say how they authenticate; with the index they quote the `security:` line back.
+The same file, a corner no tutorial covers, and the picture inverts: every model finds the calls, and Haiku 4.5 goes from none of ten to eight with `tree` and all ten with the map. Without an index its runs name the right calls and never say how they authenticate; with one they quote the `security:` line back.
 
 {% /tab %}
 
@@ -273,11 +274,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |       tree |            map |
-| --------- | --------------: | --------: | --------: | -------------: | ---------: | -------------: |
-| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 | $0.44 +11% | **$0.34** −14% |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** | $1.06 +40% |      $0.75 ±0% |
-| Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 | $0.11 −13% | **$0.11** −19% |
+| Model     | works: original |      tree |       map | cost: original |  tree |       map | Δ tree | Δ map |
+| --------- | --------------: | --------: | --------: | -------------: | ----: | --------: | -----: | ----: |
+| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 | $0.44 | **$0.34** |   +11% |  −14% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** | $1.06 |     $0.75 |   +40% |   ±0% |
+| Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 | $0.11 | **$0.11** |   −13% |  −19% |
 
 What the failing runs left out:
 
@@ -295,7 +296,7 @@ What the failing runs left out:
 - **Haiku 4.5 · map** — 2 runs: no intent field, no carrier field
 - **Haiku 4.5 · map** — 5 runs: no carrier field
 
-Opus 5 passes every run either way and Sonnet 5 misses one without the index. Both pay more context with it — nine operations barely need finding, and the cards arrive carrying PayPal's deep schemas — which for Opus 5 lands as 26% more billed.
+Opus 5 passes every run under every condition, and Sonnet 5 misses one without an index. `tree` costs both more context here — nine operations barely need finding, and the cards arrive carrying PayPal's deep schemas — which for Opus 5 lands as 40% more billed. Read once, the map avoids that: it is the cheapest condition for Sonnet 5 and level with the description for Opus 5.
 Haiku 4.5 stays at four working runs, still leaving `intent` out of the order body.
 
 {% /tab %}
@@ -322,11 +323,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |           tree |            map |
-| --------- | --------------: | --------: | --------: | -------------: | -------------: | -------------: |
-| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |      $0.36 +1% | **$0.23** −35% |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 +40% |     $0.71 +24% |
-| Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** −33% |     $0.16 −15% |
+| Model     | works: original |      tree |       map | cost: original |      tree |       map | Δ tree | Δ map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: | -----: | ----: |
+| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |     $0.36 | **$0.23** |    +1% |  −35% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |   +40% |  +24% |
+| Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |   −33% |  −15% |
 
 What the failing runs left out:
 
@@ -339,7 +340,7 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
 
-The same 2,909 files, a corner the tutorials skip: Sonnet 5 moves from three working runs in ten to nine, the largest single move in the grid, while Haiku 4.5 stays at four and only gets there cheaper. Opus 5 passes either way and pays 39% more for it — with one operation per file, the filenames are already an index. The second of two controls in this grid for what a model remembers versus what it reads.
+The same 2,909 files, a corner the tutorials skip: `tree` moves Sonnet 5 from three working runs in ten to nine and the map to all ten, while Haiku 4.5 stays at four with `tree` and reaches ten with the map. Opus 5 passes under every condition and pays 40% more for `tree` — with one operation per file, the filenames are already an index. The second of two controls in this grid for what a model remembers versus what it reads.
 
 {% /tab %}
 
@@ -365,11 +366,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |           tree |            map |
-| --------- | --------------: | --------: | --------: | -------------: | -------------: | -------------: |
-| Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** −42% |     $0.25 −13% |
-| Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |      $0.88 +5% | **$0.75** −10% |
-| Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** −37% |     $0.14 −24% |
+| Model     | works: original |      tree |       map | cost: original |      tree |       map | Δ tree | Δ map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: | -----: | ----: |
+| Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** |     $0.25 |   −42% |  −13% |
+| Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |     $0.88 | **$0.75** |    +5% |  −10% |
+| Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** |     $0.14 |   −37% |  −24% |
 
 What the failing runs left out:
 
@@ -381,7 +382,7 @@ What the failing runs left out:
 - **Haiku 4.5 · tree** — 4 runs: no auth scheme
 - **Haiku 4.5 · map** — 2 runs: no auth scheme
 
-Bundled into one 2.87 MB file, the description stops answering "where is it" by itself: Sonnet 5 goes from five working runs to all ten at half the cost through the index, and Opus 5 drops two control runs it passed on the split layout.
+Bundled into one 2.87 MB file, the description stops answering "where is it" by itself: both indexes take Sonnet 5 from five working runs to all ten, `tree` at 42% less and the map at 13% less, and Opus 5 drops two runs without an index that it passed on the split layout.
 
 {% /tab %}
 
@@ -406,11 +407,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |       tree |           map |
-| --------- | --------------: | --------: | --------: | -------------: | ---------: | ------------: |
-| Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 | $0.30 +20% | **$0.25** −2% |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** | $0.66 +42% |    $0.70 +51% |
-| Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** | $0.10 +45% |    $0.08 +18% |
+| Model     | works: original |      tree |       map | cost: original |  tree |       map | Δ tree | Δ map |
+| --------- | --------------: | --------: | --------: | -------------: | ----: | --------: | -----: | ----: |
+| Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 | $0.30 | **$0.25** |   +20% |   −2% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** | $0.66 |     $0.70 |   +42% |  +51% |
+| Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** | $0.10 |     $0.08 |   +45% |  +18% |
 
 What the failing runs left out:
 
@@ -418,8 +419,8 @@ What the failing runs left out:
 - **Haiku 4.5 · original** — 4 runs: no token call
 - **Haiku 4.5 · tree** — 4 runs: no token call
 
-At 41 KB the whole description fits in one read, and all thirty control runs take it — one call and the model has everything.
-The index still cuts Sonnet 5's context nearly in half, and still costs more: it turns that one read into seven to thirteen calls, and each call is a fresh request carrying the whole conversation again. Sonnet 5 is the clearest case in the grid — 48% less context, 17% more billed.
+At 41 KB the whole description fits in one read, and all thirty runs without an index take it — one call and the model has everything.
+`tree` still cuts Sonnet 5's context nearly in half, and still costs more: it turns that one read into seven to thirteen calls, and each call is a fresh request carrying the whole conversation again. Sonnet 5 is the clearest case in the grid — 48% less context, 20% more billed.
 Haiku 4.5 loses the token call among the cards exactly as often as it loses it in the file.
 
 {% /tab %}
