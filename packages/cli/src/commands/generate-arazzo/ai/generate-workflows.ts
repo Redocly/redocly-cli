@@ -172,13 +172,12 @@ export async function generateWorkflowsWithAi(
       baseline: options.baseline,
       maxWorkflows: options.maxWorkflows,
     }));
+    if (system.length + user.length > MAX_PROMPT_CHARS) {
+      throw new Error('the OpenAPI description is too large to send to the AI provider');
+    }
     logger.info(
       'The OpenAPI description is large; sending it to the AI provider without description and example fields.\n'
     );
-  }
-
-  if (system.length + user.length > MAX_PROMPT_CHARS) {
-    throw new Error('the OpenAPI description is too large to send to the AI provider');
   }
 
   const spinner = new Spinner();

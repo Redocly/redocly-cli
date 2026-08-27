@@ -137,6 +137,9 @@ describe('generateWorkflowsWithAi', () => {
       })
     ).rejects.toThrow('the OpenAPI description is too large to send to the AI provider');
     expect(runProvider).not.toHaveBeenCalled();
+    expect(logger.info).not.toHaveBeenCalledWith(
+      expect.stringContaining('without description and example fields')
+    );
   });
 
   it('strips Markdown code fences before parsing', async () => {
