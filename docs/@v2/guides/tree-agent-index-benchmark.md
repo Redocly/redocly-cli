@@ -8,10 +8,8 @@ An index rarely changes what a strong model can do. What it changes is whether a
 
 ## What it changes
 
-{% admonition type="info" name="Reading the grid" %}
 **works** is how many of ten runs produced a flow that would actually run; **cost** is the mean of those working runs.
-The best cell in each row is bold. A ❌ cell is one where nothing worked, priced over all ten runs.
-{% /admonition %}
+The best cell in each row is bold, and a ❌ cell is one where nothing worked, priced over all ten runs.
 
 | API specification      | Model     | works: original |      tree |       map | cost: original |      tree |       map |
 | ---------------------- | --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
@@ -725,10 +723,8 @@ Every run, every command it issued, and every verdict is in [the detailed versio
 
 ## Conclusions
 
-{% admonition type="success" name="The short answer" %}
-On these tasks an index changes what a **small** model can do, not what a large one can.
+**The short answer:** on these tasks an index changes what a small model can do, not what a large one can.
 Haiku 4.5 goes from 25 working flows in 80 to 46 with the map; Opus 5 moves from 76 to 79 and pays more for it.
-{% /admonition %}
 
 **Sonnet 5 — both indexes help, the map most.**
 Working flows go 57 → 73 → 76 of 80, and a working run costs about the same either way ($0.34 → $0.32 → $0.31).

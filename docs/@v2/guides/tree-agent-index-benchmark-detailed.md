@@ -15203,10 +15203,8 @@ Every run of every condition is listed twice below: once as a verdict, and once 
 
 ## Conclusions
 
-{% admonition type="success" name="The short answer" %}
-On these tasks an index changes what a **small** model can do, not what a large one can.
+**The short answer:** on these tasks an index changes what a small model can do, not what a large one can.
 Haiku 4.5 goes from 25 working flows in 80 to 46 with the map; Opus 5 moves from 76 to 79 and pays more for it.
-{% /admonition %}
 
 **Sonnet 5 — both indexes help, the map most.**
 Working flows go 57 → 73 → 76 of 80, and a working run costs about the same either way ($0.34 → $0.32 → $0.31).
