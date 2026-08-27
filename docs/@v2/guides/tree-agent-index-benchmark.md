@@ -9,7 +9,7 @@ An index rarely changes what a strong model can do. What it changes is whether a
 ## What it changes
 
 **works** is how many of ten runs produced a flow that would actually run; **cost** is the mean of those working runs.
-The best cell in each row is bold, and a ❌ cell is one where nothing worked, priced over all ten runs.
+The best cell in each row is bold, and ❌ means nothing worked in that cell — there is no working run to price.
 
 | API specification      | Model     | works: original |      tree |       map | cost: original |      tree |       map |
 | ---------------------- | --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
@@ -21,14 +21,14 @@ The best cell in each row is bold, and a ❌ cell is one where nothing worked, p
 | GitHub REST (split)    | Haiku 4.5 |        **5/10** |      1/10 |      2/10 |          $0.16 |     $0.14 | **$0.08** |
 | Billing API            | Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** |     $0.80 |
 | Billing API            | Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** |     $2.22 |
-| Billing API            | Haiku 4.5 |            0/10 |      1/10 |  **3/10** |       $0.18 ❌ | **$0.17** |     $0.25 |
+| Billing API            | Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ | **$0.17** |     $0.25 |
 | Stripe                 | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |
 | Stripe                 | Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |
-| Stripe                 | Haiku 4.5 |            0/10 |      8/10 | **10/10** |       $0.10 ❌ | **$0.12** |     $0.14 |
+| Stripe                 | Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ | **$0.12** |     $0.14 |
 | PayPal Orders          | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 |     $0.44 | **$0.34** |
 | PayPal Orders          | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** |     $1.06 |     $0.75 |
 | PayPal Orders          | Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 |     $0.11 | **$0.11** |
-| DigitalOcean           | Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.35 |     $0.36 | **$0.23** |
+| DigitalOcean           | Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |     $0.36 | **$0.23** |
 | DigitalOcean           | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |
 | DigitalOcean           | Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |
 | DigitalOcean (bundled) | Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** |     $0.25 |
@@ -275,7 +275,7 @@ needs, and what to carry from its response into the next step. It has to work as
 | --------- | --------------: | --------: | --------: | -------------: | --------: | ----: |
 | Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** | $0.80 |
 | Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** | $2.22 |
-| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |       $0.18 ❌ | **$0.17** | $0.25 |
+| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ | **$0.17** | $0.25 |
 
 What the failing runs left out:
 
@@ -365,7 +365,7 @@ needs, and what to carry from its response into the next step. It has to work as
 | --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
 | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |
 | Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |
-| Haiku 4.5 |            0/10 |      8/10 | **10/10** |       $0.10 ❌ | **$0.12** |     $0.14 |
+| Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ | **$0.12** |     $0.14 |
 
 What the failing runs left out:
 
@@ -528,7 +528,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 | Model     | works: original |      tree |       map | cost: original |      tree |       map |
 | --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
-| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.35 |     $0.36 | **$0.23** |
+| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |     $0.36 | **$0.23** |
 | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |
 | Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |
 
@@ -717,7 +717,7 @@ Haiku 4.5 loses the token call among the cards exactly as often as it loses it i
 
 Every run is a fresh Claude Code session in a directory holding only the description — plus, in the map condition, the map `generate-map` wrote beforehand — with the task text as the only input.
 **original** names no tooling; **tree** adds two lines pointing the agent at the CLI; **map** adds three lines pointing it at the artifact.
-Ten runs per cell; a cost cell is the mean over the working runs (❌ — none worked, shown over all ten), and an answer works when it names every required call, the host each goes to, the required body fields, and the auth.
+Ten runs per cell; a cost cell is the mean of that cell's working runs, and ❌ marks a cell with none. An answer works when it names every required call, the host each goes to, the required body fields, and the auth.
 
 Every run, every command it issued, and every verdict is in [the detailed version](./tree-agent-index-benchmark-detailed.md).
 
