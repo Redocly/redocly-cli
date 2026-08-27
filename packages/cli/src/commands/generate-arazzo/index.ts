@@ -59,7 +59,6 @@ function collectWorkflowInputNames(document: unknown): string[] {
   return [...names];
 }
 
-/** A ready-to-run `respect` command with a placeholder for every input. */
 export function buildRespectHint(resultYaml: string, outputFile: string): string {
   const inputNames = collectWorkflowInputNames(parseYaml(resultYaml));
   const inputFlags = inputNames

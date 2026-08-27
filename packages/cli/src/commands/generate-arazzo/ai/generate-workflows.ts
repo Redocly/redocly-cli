@@ -17,9 +17,7 @@ export interface GenerateWorkflowsOptions {
   provider: AiProvider;
   /** The mechanically generated Arazzo description the AI redesigns. */
   baseline: TestDescription;
-  /** The bundled OpenAPI description, sent to the AI as context. */
   description: unknown;
-  /** The most workflows the AI may design; more get the answer rejected. */
   maxWorkflows: number;
 }
 
