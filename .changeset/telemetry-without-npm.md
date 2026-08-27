@@ -2,4 +2,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed telemetry when `npm` is not available.
+Fixed an issue where telemetry silently failed to send when `npm` was not available.
