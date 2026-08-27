@@ -8,66 +8,37 @@ An index rarely changes what a strong model can do. What it changes is whether a
 
 ## What it changes
 
-| Description            | Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
-| ---------------------- | --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | Sonnet 5  |        10/10 → 10/10 → 8/10 |    $0.41 | $0.31 | $0.18 |   −24% |  −55% |
-| GitHub REST            | Opus 5    |        10/10 → 10/10 → 9/10 |    $0.79 | $0.66 | $0.59 |   −16% |  −26% |
-| GitHub REST            | Haiku 4.5 |          3/10 → 3/10 → 1/10 |    $0.10 | $0.10 | $0.09 |    −3% |  −16% |
-| GitHub REST (split)    | Sonnet 5  |          9/10 → 9/10 → 9/10 |    $0.21 | $0.24 | $0.19 |   +14% |   −8% |
-| GitHub REST (split)    | Opus 5    |         8/10 → 9/10 → 10/10 |    $0.65 | $0.69 | $0.54 |    +7% |  −16% |
-| GitHub REST (split)    | Haiku 4.5 |          5/10 → 1/10 → 2/10 |    $0.16 | $0.14 | $0.08 |   −18% |  −49% |
-| Billing API            | Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.01 | $0.59 | $0.80 |   −41% |  −21% |
-| Billing API            | Opus 5    |       10/10 → 10/10 → 10/10 |    $1.74 | $1.10 | $2.22 |   −37% |  +28% |
-| Billing API            | Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.18 ❌ | $0.17 | $0.25 |      — |     — |
-| Stripe                 | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.25 |   −22% |  −24% |
-| Stripe                 | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.55 | $0.44 | $0.67 |   −19% |  +22% |
-| Stripe                 | Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.10 ❌ | $0.12 | $0.14 |      — |     — |
-| PayPal Orders          | Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.39 | $0.44 | $0.34 |   +11% |  −14% |
-| PayPal Orders          | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.75 | $1.06 | $0.75 |   +40% |   +0% |
-| PayPal Orders          | Haiku 4.5 |          4/10 → 4/10 → 2/10 |    $0.13 | $0.11 | $0.11 |   −13% |  −19% |
-| DigitalOcean           | Sonnet 5  |         3/10 → 9/10 → 10/10 |    $0.35 | $0.36 | $0.23 |    +1% |  −35% |
-| DigitalOcean           | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.57 | $0.80 | $0.71 |   +40% |  +24% |
-| DigitalOcean           | Haiku 4.5 |         4/10 → 4/10 → 10/10 |    $0.19 | $0.12 | $0.16 |   −33% |  −15% |
-| DigitalOcean (bundled) | Sonnet 5  |        5/10 → 10/10 → 10/10 |    $0.29 | $0.17 | $0.25 |   −42% |  −13% |
-| DigitalOcean (bundled) | Opus 5    |        8/10 → 10/10 → 10/10 |    $0.83 | $0.88 | $0.75 |    +5% |  −10% |
-| DigitalOcean (bundled) | Haiku 4.5 |          3/10 → 5/10 → 8/10 |    $0.19 | $0.12 | $0.14 |   −37% |  −25% |
-| Cafe API               | Sonnet 5  |        10/10 → 9/10 → 10/10 |    $0.25 | $0.30 | $0.25 |   +20% |   −2% |
-| Cafe API               | Opus 5    |       10/10 → 10/10 → 10/10 |    $0.46 | $0.66 | $0.70 |   +42% |  +51% |
-| Cafe API               | Haiku 4.5 |         6/10 → 6/10 → 10/10 |    $0.07 | $0.10 | $0.08 |   +45% |  +18% |
+{% admonition type="info" name="Reading the grid" %}
+**works** is how many of ten runs produced a flow that would actually run; **cost** is the mean of those working runs.
+The best cell in each row is bold. A ❌ cell is one where nothing worked, priced over all ten runs.
+{% /admonition %}
 
-## The price of a working answer
-
-The grid above prices an average working run; this table adds the failed attempts to that bill: the mean working run times total runs over working runs.
-With five of ten working at a $0.28 average, a working answer really costs $0.56. — marks a cell where nothing worked, at any price.
-
-| Description            | Model     | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------------- | --------- | ------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | Sonnet 5  |   $0.41 | $0.31 | $0.23 |   −24% |  −44% |
-| GitHub REST            | Opus 5    |   $0.79 | $0.66 | $0.65 |   −16% |  −17% |
-| GitHub REST            | Haiku 4.5 |   $0.35 | $0.34 | $0.87 |    −3% | +151% |
-| GitHub REST (split)    | Sonnet 5  |   $0.24 | $0.27 | $0.22 |   +14% |   −8% |
-| GitHub REST (split)    | Opus 5    |   $0.81 | $0.77 | $0.54 |    −5% |  −33% |
-| GitHub REST (split)    | Haiku 4.5 |   $0.33 | $1.35 | $0.42 |  +310% |  +28% |
-| Billing API            | Sonnet 5  |   $5.04 | $0.99 | $0.89 |   −80% |  −82% |
-| Billing API            | Opus 5    |   $1.74 | $1.10 | $2.22 |   −37% |  +28% |
-| Billing API            | Haiku 4.5 |       — | $1.70 | $0.83 |      — |     — |
-| Stripe                 | Sonnet 5  |   $0.36 | $0.25 | $0.25 |   −30% |  −32% |
-| Stripe                 | Opus 5    |   $0.55 | $0.44 | $0.67 |   −19% |  +22% |
-| Stripe                 | Haiku 4.5 |       — | $0.14 | $0.14 |      — |     — |
-| PayPal Orders          | Sonnet 5  |   $0.44 | $0.44 | $0.34 |    +0% |  −23% |
-| PayPal Orders          | Opus 5    |   $0.75 | $1.06 | $0.75 |   +40% |   +0% |
-| PayPal Orders          | Haiku 4.5 |   $0.33 | $0.29 | $0.53 |   −13% |  +63% |
-| DigitalOcean           | Sonnet 5  |   $1.18 | $0.40 | $0.23 |   −66% |  −81% |
-| DigitalOcean           | Opus 5    |   $0.57 | $0.80 | $0.71 |   +40% |  +24% |
-| DigitalOcean           | Haiku 4.5 |   $0.46 | $0.31 | $0.16 |   −33% |  −66% |
-| DigitalOcean (bundled) | Sonnet 5  |   $0.57 | $0.17 | $0.25 |   −71% |  −57% |
-| DigitalOcean (bundled) | Opus 5    |   $1.04 | $0.88 | $0.75 |   −16% |  −28% |
-| DigitalOcean (bundled) | Haiku 4.5 |   $0.64 | $0.24 | $0.18 |   −62% |  −72% |
-| Cafe API               | Sonnet 5  |   $0.25 | $0.34 | $0.25 |   +33% |   −2% |
-| Cafe API               | Opus 5    |   $0.46 | $0.66 | $0.70 |   +42% |  +51% |
-| Cafe API               | Haiku 4.5 |   $0.11 | $0.16 | $0.08 |   +45% |  −29% |
-
-Read it by rows: where the map column is lowest, the artifact pays for itself — most of the grid; where it is not, the reason is visible one tab up: the billing API's expensive re-reads for Opus 5, and GitHub's unmarked token call, which no condition carries for Haiku 4.5.
+| API specification      | Model     | works: original |      tree |       map | cost: original |      tree |       map |
+| ---------------------- | --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
+| GitHub REST            | Sonnet 5  |       **10/10** | **10/10** |      8/10 |          $0.41 |     $0.31 | **$0.18** |
+| GitHub REST            | Opus 5    |       **10/10** | **10/10** |      9/10 |          $0.79 |     $0.66 | **$0.59** |
+| GitHub REST            | Haiku 4.5 |        **3/10** |  **3/10** |      1/10 |          $0.10 |     $0.10 | **$0.09** |
+| GitHub REST (split)    | Sonnet 5  |        **9/10** |  **9/10** |  **9/10** |          $0.21 |     $0.24 | **$0.19** |
+| GitHub REST (split)    | Opus 5    |            8/10 |      9/10 | **10/10** |          $0.65 |     $0.69 | **$0.54** |
+| GitHub REST (split)    | Haiku 4.5 |        **5/10** |      1/10 |      2/10 |          $0.16 |     $0.14 | **$0.08** |
+| Billing API            | Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** |     $0.80 |
+| Billing API            | Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** |     $2.22 |
+| Billing API            | Haiku 4.5 |            0/10 |      1/10 |  **3/10** |       $0.18 ❌ | **$0.17** |     $0.25 |
+| Stripe                 | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |
+| Stripe                 | Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |
+| Stripe                 | Haiku 4.5 |            0/10 |      8/10 | **10/10** |       $0.10 ❌ | **$0.12** |     $0.14 |
+| PayPal Orders          | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 |     $0.44 | **$0.34** |
+| PayPal Orders          | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** |     $1.06 |     $0.75 |
+| PayPal Orders          | Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 |     $0.11 | **$0.11** |
+| DigitalOcean           | Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.35 |     $0.36 | **$0.23** |
+| DigitalOcean           | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |
+| DigitalOcean           | Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |
+| DigitalOcean (bundled) | Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** |     $0.25 |
+| DigitalOcean (bundled) | Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |     $0.88 | **$0.75** |
+| DigitalOcean (bundled) | Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** |     $0.14 |
+| Cafe API               | Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 |     $0.30 | **$0.25** |
+| Cafe API               | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** |     $0.66 |     $0.70 |
+| Cafe API               | Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** |     $0.10 |     $0.08 |
 
 ## The head-to-heads
 
@@ -83,7 +54,7 @@ Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → 
 **The trap:** the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 I want a CI job that publishes a release for a repository, attaches the built zip to it,
@@ -134,17 +105,17 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        10/10 → 10/10 → 8/10 |   $0.41 | $0.31 | $0.18 |   −24% |  −55% |
-| Opus 5    |        10/10 → 10/10 → 9/10 |   $0.79 | $0.66 | $0.59 |   −16% |  −26% |
-| Haiku 4.5 |          3/10 → 3/10 → 1/10 |   $0.10 | $0.10 | $0.09 |    −3% |  −16% |
+| Model     | works: original |      tree |  map | cost: original |  tree |       map |
+| --------- | --------------: | --------: | ---: | -------------: | ----: | --------: |
+| Sonnet 5  |       **10/10** | **10/10** | 8/10 |          $0.41 | $0.31 | **$0.18** |
+| Opus 5    |       **10/10** | **10/10** | 9/10 |          $0.79 | $0.66 | **$0.59** |
+| Haiku 4.5 |        **3/10** |  **3/10** | 1/10 |          $0.10 | $0.10 | **$0.09** |
 
 What the failing runs left out:
 
-- **Haiku 4.5 · no tree** — 5 runs: no app token
-- **Haiku 4.5 · no tree** — 1 run: no asset upload
-- **Haiku 4.5 · no tree** — 1 run: no app token, no asset upload
+- **Haiku 4.5 · original** — 5 runs: no app token
+- **Haiku 4.5 · original** — 1 run: no asset upload
+- **Haiku 4.5 · original** — 1 run: no app token, no asset upload
 - **Haiku 4.5 · tree** — 2 runs: no app token, no asset upload
 - **Haiku 4.5 · tree** — 5 runs: no app token
 - **Sonnet 5 · map** — 2 runs: no app token
@@ -165,7 +136,7 @@ Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → 
 **The trap:** the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 I want a CI job that publishes a release for a repository, attaches the built zip to it,
@@ -216,21 +187,21 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |          9/10 → 9/10 → 9/10 |   $0.21 | $0.24 | $0.19 |   +14% |   −8% |
-| Opus 5    |         8/10 → 9/10 → 10/10 |   $0.65 | $0.69 | $0.54 |    +7% |  −16% |
-| Haiku 4.5 |          5/10 → 1/10 → 2/10 |   $0.16 | $0.14 | $0.08 |   −18% |  −49% |
+| Model     | works: original |     tree |       map | cost: original |  tree |       map |
+| --------- | --------------: | -------: | --------: | -------------: | ----: | --------: |
+| Sonnet 5  |        **9/10** | **9/10** |  **9/10** |          $0.21 | $0.24 | **$0.19** |
+| Opus 5    |            8/10 |     9/10 | **10/10** |          $0.65 | $0.69 | **$0.54** |
+| Haiku 4.5 |        **5/10** |     1/10 |      2/10 |          $0.16 | $0.14 | **$0.08** |
 
 What the failing runs left out:
 
-- **Sonnet 5 · no tree** — 1 run: no app token
+- **Sonnet 5 · original** — 1 run: no app token
 - **Sonnet 5 · tree** — 1 run: no app token
-- **Opus 5 · no tree** — 2 runs: no asset upload
+- **Opus 5 · original** — 2 runs: no asset upload
 - **Opus 5 · tree** — 1 run: no asset upload
-- **Haiku 4.5 · no tree** — 3 runs: no app token
-- **Haiku 4.5 · no tree** — 1 run: no asset delete
-- **Haiku 4.5 · no tree** — 1 run: no app token, no asset upload
+- **Haiku 4.5 · original** — 3 runs: no app token
+- **Haiku 4.5 · original** — 1 run: no asset delete
+- **Haiku 4.5 · original** — 1 run: no app token, no asset upload
 - **Haiku 4.5 · tree** — 8 runs: no app token
 - **Haiku 4.5 · tree** — 1 run: no app token, no asset upload
 - **Sonnet 5 · map** — 1 run: no app token
@@ -251,7 +222,7 @@ Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
 **The trap:** the subscription body needs four named fields, and every call needs the key in the `REB-APIKEY` header.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We're moving existing customers onto monthly recurring billing. One of them is already in
@@ -302,21 +273,21 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |          2/10 → 6/10 → 9/10 |    $1.01 | $0.59 | $0.80 |   −41% |  −21% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |    $1.74 | $1.10 | $2.22 |   −37% |  +28% |
-| Haiku 4.5 |          0/10 → 1/10 → 3/10 | $0.18 ❌ | $0.17 | $0.25 |      — |     — |
+| Model     | works: original |      tree |       map | cost: original |      tree |   map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | ----: |
+| Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** | $0.80 |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** | $2.22 |
+| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |       $0.18 ❌ | **$0.17** | $0.25 |
 
 What the failing runs left out:
 
-- **Sonnet 5 · no tree** — 6 runs: no auth scheme
-- **Sonnet 5 · no tree** — 1 run: no product call, no auth scheme
-- **Sonnet 5 · no tree** — 1 run: wrong auth header
+- **Sonnet 5 · original** — 6 runs: no auth scheme
+- **Sonnet 5 · original** — 1 run: no product call, no auth scheme
+- **Sonnet 5 · original** — 1 run: wrong auth header
 - **Sonnet 5 · tree** — 4 runs: no auth scheme
-- **Haiku 4.5 · no tree** — 3 runs: no product call, no plan call, no auth scheme
-- **Haiku 4.5 · no tree** — 6 runs: no product call, no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no product call, no plan call, no orderType field, no auth scheme
+- **Haiku 4.5 · original** — 3 runs: no product call, no plan call, no auth scheme
+- **Haiku 4.5 · original** — 6 runs: no product call, no auth scheme
+- **Haiku 4.5 · original** — 1 run: no product call, no plan call, no orderType field, no auth scheme
 - **Haiku 4.5 · tree** — 1 run: no product call, no plan call
 - **Haiku 4.5 · tree** — 5 runs: no product call, no auth scheme
 - **Haiku 4.5 · tree** — 3 runs: no product call
@@ -341,7 +312,7 @@ The point of this description: it is the same file as the previous tab, but a co
 **The trap:** the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 Our company committed to buying carbon removal. Pick a removal product from what's on
@@ -392,16 +363,16 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map |  no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | -------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        9/10 → 10/10 → 10/10 |    $0.32 | $0.25 | $0.25 |   −22% |  −24% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |    $0.55 | $0.44 | $0.67 |   −19% |  +22% |
-| Haiku 4.5 |         0/10 → 8/10 → 10/10 | $0.10 ❌ | $0.12 | $0.14 |      — |     — |
+| Model     | works: original |      tree |       map | cost: original |      tree |       map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
+| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |
+| Haiku 4.5 |            0/10 |      8/10 | **10/10** |       $0.10 ❌ | **$0.12** |     $0.14 |
 
 What the failing runs left out:
 
-- **Sonnet 5 · no tree** — 1 run: no auth scheme
-- **Haiku 4.5 · no tree** — 10 runs: no auth scheme
+- **Sonnet 5 · original** — 1 run: no auth scheme
+- **Haiku 4.5 · original** — 10 runs: no auth scheme
 - **Haiku 4.5 · tree** — 2 runs: no auth scheme
 
 The same file, a corner no tutorial covers, and the picture inverts: every model finds the calls, and Haiku 4.5 goes from none of ten to eight. Its control runs name the right calls and never say how they authenticate; with the index they quote the `security:` line back.
@@ -418,7 +389,7 @@ Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture`
 **The trap:** the tracker binds to the `capture_id` from the capture response, not to the order.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We sell physical goods online: take the buyer's payment for a cart, capture the money once
@@ -469,21 +440,21 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        9/10 → 10/10 → 10/10 |   $0.39 | $0.44 | $0.34 |   +11% |  −14% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.75 | $1.06 | $0.75 |   +40% |   +0% |
-| Haiku 4.5 |          4/10 → 4/10 → 2/10 |   $0.13 | $0.11 | $0.11 |   −13% |  −19% |
+| Model     | works: original |      tree |       map | cost: original |  tree |       map |
+| --------- | --------------: | --------: | --------: | -------------: | ----: | --------: |
+| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 | $0.44 | **$0.34** |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** | $1.06 |     $0.75 |
+| Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 | $0.11 | **$0.11** |
 
 What the failing runs left out:
 
-- **Sonnet 5 · no tree** — 1 run: no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no intent field, no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no intent field, no tracker call
-- **Haiku 4.5 · no tree** — 1 run: no tracker call, no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no carrier field
-- **Haiku 4.5 · no tree** — 1 run: no carrier field, no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no auth scheme
+- **Sonnet 5 · original** — 1 run: no auth scheme
+- **Haiku 4.5 · original** — 1 run: no intent field, no auth scheme
+- **Haiku 4.5 · original** — 1 run: no intent field, no tracker call
+- **Haiku 4.5 · original** — 1 run: no tracker call, no auth scheme
+- **Haiku 4.5 · original** — 1 run: no carrier field
+- **Haiku 4.5 · original** — 1 run: no carrier field, no auth scheme
+- **Haiku 4.5 · original** — 1 run: no auth scheme
 - **Haiku 4.5 · tree** — 1 run: no carrier field
 - **Haiku 4.5 · tree** — 3 runs: no intent field
 - **Haiku 4.5 · tree** — 2 runs: no intent field, no carrier field
@@ -506,7 +477,7 @@ Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 **The trap:** the share takes a `vpc_ids` array while an access point takes one `vpc_id`.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We need shared storage for a cluster: a network file share in one region, reachable from
@@ -557,19 +528,19 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |         3/10 → 9/10 → 10/10 |   $0.35 | $0.36 | $0.23 |    +1% |  −35% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.57 | $0.80 | $0.71 |   +40% |  +24% |
-| Haiku 4.5 |         4/10 → 4/10 → 10/10 |   $0.19 | $0.12 | $0.16 |   −33% |  −15% |
+| Model     | works: original |      tree |       map | cost: original |      tree |       map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
+| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.35 |     $0.36 | **$0.23** |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |
+| Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |
 
 What the failing runs left out:
 
-- **Sonnet 5 · no tree** — 7 runs: no auth scheme
+- **Sonnet 5 · original** — 7 runs: no auth scheme
 - **Sonnet 5 · tree** — 1 run: no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no vpc_ids field, no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no auth scheme
-- **Haiku 4.5 · no tree** — 4 runs: no access point call, no auth scheme
+- **Haiku 4.5 · original** — 1 run: no vpc_ids field, no auth scheme
+- **Haiku 4.5 · original** — 1 run: no auth scheme
+- **Haiku 4.5 · original** — 4 runs: no access point call, no auth scheme
 - **Haiku 4.5 · tree** — 4 runs: no auth scheme
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
@@ -588,7 +559,7 @@ Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 **The trap:** the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We need shared storage for a cluster: a network file share in one region, reachable from
@@ -639,18 +610,18 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        5/10 → 10/10 → 10/10 |   $0.29 | $0.17 | $0.25 |   −42% |  −13% |
-| Opus 5    |        8/10 → 10/10 → 10/10 |   $0.83 | $0.88 | $0.75 |    +5% |  −10% |
-| Haiku 4.5 |          3/10 → 5/10 → 8/10 |   $0.19 | $0.12 | $0.14 |   −37% |  −25% |
+| Model     | works: original |      tree |       map | cost: original |      tree |       map |
+| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
+| Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** |     $0.25 |
+| Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |     $0.88 | **$0.75** |
+| Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** |     $0.14 |
 
 What the failing runs left out:
 
-- **Sonnet 5 · no tree** — 5 runs: no auth scheme
-- **Opus 5 · no tree** — 2 runs: no access point call
-- **Haiku 4.5 · no tree** — 6 runs: no auth scheme
-- **Haiku 4.5 · no tree** — 1 run: no access point call, no auth scheme
+- **Sonnet 5 · original** — 5 runs: no auth scheme
+- **Opus 5 · original** — 2 runs: no access point call
+- **Haiku 4.5 · original** — 6 runs: no auth scheme
+- **Haiku 4.5 · original** — 1 run: no access point call, no auth scheme
 - **Haiku 4.5 · tree** — 1 run: no share call, no access point call, no auth scheme
 - **Haiku 4.5 · tree** — 4 runs: no auth scheme
 - **Haiku 4.5 · map** — 2 runs: no auth scheme
@@ -669,7 +640,7 @@ Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orde
 **The trap:** ordering needs an OAuth2 token with the `orders:write` scope, minted by a call the task never mentions.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
@@ -717,16 +688,16 @@ needs, and what to carry from its response into the next step. It has to work as
 {% /tab %}
 {% /tabs %}
 
-| Model     | works: no tree → tree → map | no tree |  tree |   map | Δ tree | Δ map |
-| --------- | --------------------------: | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5  |        10/10 → 9/10 → 10/10 |   $0.25 | $0.30 | $0.25 |   +20% |   −2% |
-| Opus 5    |       10/10 → 10/10 → 10/10 |   $0.46 | $0.66 | $0.70 |   +42% |  +51% |
-| Haiku 4.5 |         6/10 → 6/10 → 10/10 |   $0.07 | $0.10 | $0.08 |   +45% |  +18% |
+| Model     | works: original |      tree |       map | cost: original |  tree |       map |
+| --------- | --------------: | --------: | --------: | -------------: | ----: | --------: |
+| Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 | $0.30 | **$0.25** |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** | $0.66 |     $0.70 |
+| Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** | $0.10 |     $0.08 |
 
 What the failing runs left out:
 
 - **Sonnet 5 · tree** — 1 run: no token call
-- **Haiku 4.5 · no tree** — 4 runs: no token call
+- **Haiku 4.5 · original** — 4 runs: no token call
 - **Haiku 4.5 · tree** — 4 runs: no token call
 
 At 41 KB the whole description fits in one read, and all thirty control runs take it — one call and the model has everything.
@@ -739,24 +710,46 @@ Haiku 4.5 loses the token call among the cards exactly as often as it loses it i
 
 ## What the numbers show
 
-- **Correctness:** map 201/240, `tree` 184, plain reading 158 — and the gap is almost all Haiku 4.5: 25 → 32 → 46 working runs.
-- **Price:** both indexes are cheaper than reading the description on the large single-file APIs, and dearer on the small and the file-per-operation ones.
-- **The failure an index removes is auth:** runs without one name the right calls and never say how the request authenticates.
-- **What the description never states, no index can carry:** GitHub's token-minting call is not marked as a security requirement, and Haiku 4.5 skips it under every condition.
+- **Correctness:** map 201 of 240 working flows, `tree` 184, original 158 — and the gap is almost all Haiku 4.5: 25 → 32 → 46.
+- **Price of a working run:** roughly flat per model; what moves is how often a run works at all.
+- **The failure an index removes is auth:** 59 runs name the right calls and never say how they authenticate, 22 with `tree`, 2 with the map.
+- **What the description never states, no index can carry:** GitHub's token-minting call is not marked as a security requirement, and the smaller models miss it under every condition.
 
 ## How this was measured
 
 Every run is a fresh Claude Code session in a directory holding only the description — plus, in the map condition, the map `generate-map` wrote beforehand — with the task text as the only input.
-**no tree** names no tooling; **tree** adds two lines pointing the agent at the CLI; **map** adds three lines pointing it at the artifact.
+**original** names no tooling; **tree** adds two lines pointing the agent at the CLI; **map** adds three lines pointing it at the artifact.
 Ten runs per cell; a cost cell is the mean over the working runs (❌ — none worked, shown over all ten), and an answer works when it names every required call, the host each goes to, the required body fields, and the auth.
 
 Every run, every command it issued, and every verdict is in [the detailed version](./tree-agent-index-benchmark-detailed.md).
 
 ## Conclusions
 
-- Both indexes improve correctness — 158 of 240 working flows reading the description, 184 with `tree`, 201 with the map — and the whole gap sits in the smaller models. Opus 5 answers the same with or without an index.
-- The map is the stronger index for correctness (Haiku 4.5: 25 → 32 → 46 working runs) because a row carries the auth and the required fields in the same read; with `tree`, each of those is another call.
-- Priced per working answer, both indexes come out about 15% cheaper than plain reading overall ($0.61 → $0.52 → $0.51) — but the saving is not uniform. It concentrates where the description is large and single-file; on a small file, or one laid out as a file per operation, plain reading is already the cheap path.
-- `tree`'s value follows the description's layout: it wins on the 9.5 MB single file and loses on the same API split into 2,842 files. The map holds its result on both layouts of both APIs tested.
-- Neither index fixes what the description never states: GitHub's token-minting call is not marked as a security requirement, and the smaller models miss it under every condition.
-- Limits to keep in mind: one task family (short call chains with id hand-offs), ten runs a cell, one agent harness, and a cost metric that moves with the prompt cache.
+{% admonition type="success" name="The short answer" %}
+On these tasks an index changes what a **small** model can do, not what a large one can.
+Haiku 4.5 goes from 25 working flows in 80 to 46 with the map; Opus 5 moves from 76 to 79 and pays more for it.
+{% /admonition %}
+
+**Sonnet 5 — both indexes help, the map most.**
+Working flows go 57 → 73 → 76 of 80, and a working run costs about the same either way ($0.34 → $0.32 → $0.31).
+The map is the best condition on seven of the eight specifications and the cheapest on six.
+Its one loss is the split GitHub layout, where the file tree is already an index.
+
+**Opus 5 — no index is needed for correctness, and the map costs more.**
+76 → 79 → 79 of 80: three runs separate the worst condition from the best, and `tree` and the map tie.
+A working run goes $0.80 → $0.79 → $0.87, so the map is the only condition that is measurably worse — the billing API alone accounts for it, where re-reading a 92 KB map beats out four targeted `tree` calls.
+For this model the honest recommendation is to use whichever is already in the pipeline.
+
+**Haiku 4.5 — the map is the difference between an answer and no answer.**
+25 → 32 → 46 of 80, at an unchanged price per working run ($0.13 → $0.11 → $0.13).
+On four specifications the map takes a cell from failing to passing outright: carbon removal 0 → 10, shared file storage 4 → 10, a coffee order 6 → 10, bundled DigitalOcean 3 → 8.
+It also has this model's one clear regression — GitHub, where it drops to 1 of 10 because the token call the task needs is nowhere in the description for any index to carry.
+
+**Why the map leads where it leads.**
+Both indexes remove the same failure: an answer that names the right calls and never says how they authenticate (59 such runs without an index, 22 with `tree`, 2 with the map).
+The map removes more of it because a row carries the auth and the required fields in the same read, while `tree` puts each of them one call away.
+The corollary is that `tree` follows the shape of the description — it wins on a 9.5 MB single file and loses on the same API split across 2,842 files — while the map holds its result on both layouts.
+
+**What this does not show.**
+One family of tasks (short call chains with id hand-offs), ten runs a cell, one agent harness, and a cost figure that moves with the prompt cache.
+Read the per-run tables before generalising to a different kind of question.

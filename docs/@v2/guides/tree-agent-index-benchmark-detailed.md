@@ -13,7 +13,7 @@ This round adds five task-description pairs chosen to be hard in new ways — St
 
 Eight description-task pairs, three models, three conditions, ten runs a cell — 720 runs:
 
-- **no tree** — the task and the path to the description. Neither `tree` nor Redocly is named.
+- **original** — the task and the path to the description. Neither `tree` nor Redocly is named.
 - **tree** — the same task plus two lines: the CLI is installed, and [`redocly tree --help`](../commands/tree.md) lists what it can select.
 - **map** — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by [`redocly generate-map`](../commands/generate-map.md) before the session begins, so these runs never call the CLI.
 
@@ -33,7 +33,7 @@ Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → 
 Traps: the upload overrides its server to `https://uploads.github.com`, and the delete is keyed by asset, not release.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 I want a CI job that publishes a release for a repository, attaches the built zip to it,
@@ -86,7 +86,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree |        map | Δ tree |
+| Model            |    original |        tree |        map | Δ tree |
 | ---------------- | ----------: | ----------: | ---------: | -----: |
 | Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |  9,927 / 7 |   −10% |
 | Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 | 14,870 / 9 |   −29% |
@@ -94,15 +94,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------- | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5 (n=10)  |   $0.41 | $0.31 | $0.18 |   −24% |  −55% |
-| Opus 5 (n=10)    |   $0.79 | $0.66 | $0.59 |   −16% |  −26% |
-| Haiku 4.5 (n=10) |   $0.10 | $0.10 | $0.09 |    −3% |  −16% |
+| Model            | original |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.41 | $0.31 | $0.18 |   −24% |  −55% |
+| Opus 5 (n=10)    |    $0.79 | $0.66 | $0.59 |   −16% |  −26% |
+| Haiku 4.5 (n=10) |    $0.10 | $0.10 | $0.09 |    −3% |  −16% |
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                       | tree                          | map             |
+| Run                | original                      | tree                          | map             |
 | ------------------ | ----------------------------- | ----------------------------- | --------------- |
 | Sonnet 5 · run 1   | works                         | works                         | no app token    |
 | Sonnet 5 · run 2   | works                         | works                         | works           |
@@ -143,7 +143,7 @@ What each run ran:
 {% tab label="Sonnet 5 · publish a release" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -179,7 +179,7 @@ sed -n '53520,53541p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -224,7 +224,7 @@ Read github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 grep "operationId" github-api.yaml
@@ -271,7 +271,7 @@ sed -n '3421,3500p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -319,7 +319,7 @@ grep -n "installation-id" github-api.yaml | head -5
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -357,7 +357,7 @@ sed -n '3421,3440p' github-api.yaml; echo ---; sed -n '53313,53330p' github-api.
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -392,7 +392,7 @@ Read github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 grep -n "operationId\|^  /" github-api.yaml | grep -i "release\|installation\|access_token\|asset"
@@ -430,7 +430,7 @@ sed -n '53313,53433p' github-api.yaml | grep -n "operationId\|enabledForGitHubAp
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -466,7 +466,7 @@ true
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -508,7 +508,7 @@ sed -n '53520,53545p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -555,7 +555,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-github-api-map-v5-sonnet-
 {% tab label="Opus 5 · publish a release" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -618,7 +618,7 @@ sed -n '90926,90985p;90866,90900p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -672,7 +672,7 @@ sed -n '90926,90985p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -732,7 +732,7 @@ sed -n '45240,45275p' github-api.yaml; echo ==REL-ID-PARAM; grep -n "release-id:
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 wc -l github-api.yaml; grep -n "^  /" github-api.yaml | head -100
@@ -790,7 +790,7 @@ sed -n '7741,7760p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -843,7 +843,7 @@ sed -n '90926,90990p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -896,7 +896,7 @@ sed -n '53313,53360p' github-api.yaml; echo "=====DELASSET====="; sed -n '53520,
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 wc -l github-api.yaml; grep -n "^  /" github-api.yaml
@@ -950,7 +950,7 @@ sed -n '90926,90990p;90866,90900p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -1006,7 +1006,7 @@ sed -n '86418,86430p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -1058,7 +1058,7 @@ sed -n '45240,45275p' github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 wc -l github-api.yaml
@@ -1109,7 +1109,7 @@ sed -n '45811,45843p' github-api.yaml; echo ==== ; sed -n '53520,53545p' github-
 {% tab label="Haiku 4.5 · publish a release" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 Skill
@@ -1147,7 +1147,7 @@ Write docs/RELEASE_WORKFLOW_DESIGN.md
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1186,7 +1186,7 @@ Read github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1225,7 +1225,7 @@ Read /Users/tora/.claude/projects/-Users-tora-bench-run-github-api-map-v5-haiku-
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1274,7 +1274,7 @@ grep -n "^  securitySchemes:" github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1311,7 +1311,7 @@ grep -n "release:" github-api.yaml | head -20
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1349,7 +1349,7 @@ Read github-api.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 Skill
@@ -1389,7 +1389,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1430,7 +1430,7 @@ grep -n "securitySchemes\|security:" github-api.yaml | head -20
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1476,7 +1476,7 @@ grep -n "^\s*release:" github-api.yaml | head -5
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 cat github-api.yaml
@@ -1532,7 +1532,7 @@ Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → 
 Traps: the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 I want a CI job that publishes a release for a repository, attaches the built zip to it,
@@ -1585,7 +1585,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree |         map | Δ tree |
+| Model            |    original |        tree |         map | Δ tree |
 | ---------------- | ----------: | ----------: | ----------: | -----: |
 | Sonnet 5 (n=10)  |  10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
 | Opus 5 (n=10)    | 15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
@@ -1593,15 +1593,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------- | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5 (n=10)  |   $0.21 | $0.24 | $0.19 |   +14% |   −8% |
-| Opus 5 (n=10)    |   $0.65 | $0.69 | $0.54 |    +7% |  −16% |
-| Haiku 4.5 (n=10) |   $0.16 | $0.14 | $0.08 |   −18% |  −49% |
+| Model            | original |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.21 | $0.24 | $0.19 |   +14% |   −8% |
+| Opus 5 (n=10)    |    $0.65 | $0.69 | $0.54 |    +7% |  −16% |
+| Haiku 4.5 (n=10) |    $0.16 | $0.14 | $0.08 |   −18% |  −49% |
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                       | tree                          | map             |
+| Run                | original                      | tree                          | map             |
 | ------------------ | ----------------------------- | ----------------------------- | --------------- |
 | Sonnet 5 · run 1   | works                         | works                         | works           |
 | Sonnet 5 · run 2   | no app token                  | works                         | no app token    |
@@ -1642,7 +1642,7 @@ What each run ran:
 {% tab label="Sonnet 5 · publish a release" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml
@@ -1752,7 +1752,7 @@ grep -n "installation-token.yaml" -r github-split/components/schemas/ 2>/dev/nul
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 grep -n "operationId\|summary:" github-split/openapi.yaml | grep -i "release"
@@ -1808,7 +1808,7 @@ true
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 grep -n "operationId\|^  /repos/{owner}/{repo}/releases" github-split/openapi.yaml | grep -i "release"
@@ -1859,7 +1859,7 @@ grep -n "securitySchemes" -A 30 "github-split/openapi.yaml" | head -60
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; grep -n "operationId" github-split/openapi.yaml | grep -i -E "release|asset"
@@ -1903,7 +1903,7 @@ grep -n "security" openapi.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 grep -n "operationId\|^  /repos.*release" github-split/openapi.yaml | grep -i "release"
@@ -1961,7 +1961,7 @@ sed -n '1,150p' "github-split/paths/repos_{owner}_{repo}_releases_{release_id}_a
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml
@@ -2002,7 +2002,7 @@ Read github-split/paths/app_installations_{installation_id}_access_tokens.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 grep -n "operationId\|^  /repos.*release\|summary:" github-split/openapi.yaml | grep -i release
@@ -2062,7 +2062,7 @@ sed -n '1,60p' paths/repos_{owner}_{repo}_releases.yaml | sed -n '44,60p'; echo 
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml
@@ -2106,7 +2106,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-map-v5-sonnet-r8/
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml
@@ -2156,7 +2156,7 @@ sed -n '1,50p' paths/repos_{owner}_{repo}_releases.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml
@@ -2206,7 +2206,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-ghsplit-map-v5-sonnet-r10
 {% tab label="Opus 5 · publish a release" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls github-split/
@@ -2256,7 +2256,7 @@ sed -n '46,110p' 'paths/repos_{owner}_{repo}_releases.yaml'; echo "=== DELETE AS
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml && ls github-split/
@@ -2324,7 +2324,7 @@ grep -rn "X-GitHub-Api-Version" components/parameters/ | head -3
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls github-split/
@@ -2385,7 +2385,7 @@ grep -n -m1 -A5 "upload_url" components/schemas/release.yaml; echo "--- release 
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls github-split/
@@ -2444,7 +2444,7 @@ sed -n '120,165p' 'paths/repos_{owner}_{repo}_releases.yaml'; echo "--- upload_u
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls github-split/
@@ -2497,7 +2497,7 @@ grep -nE "^ +(id|url|browser_download_url|name|state):" components/schemas/relea
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml && ls github-split/
@@ -2556,7 +2556,7 @@ sed -n '1,10p' components/examples/release.yaml; echo "=== create-release body =
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls github-split/
@@ -2607,7 +2607,7 @@ grep -n "upload_url" -A6 components/schemas/release.yaml | head -20; echo ---; g
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 ls -la github-split/ && wc -l github-split/openapi.yaml
@@ -2667,7 +2667,7 @@ sed -n '1,12p' components/examples/release.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls -la github-split/
@@ -2721,7 +2721,7 @@ grep -rn "X-GitHub-Api-Version" components/parameters/ openapi.yaml | head -5
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 wc -l github-split/openapi.yaml; ls github-split/
@@ -2777,7 +2777,7 @@ sed -n '46,110p' paths/repos_{owner}_{repo}_releases.yaml
 {% tab label="Haiku 4.5 · publish a release" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -2821,7 +2821,7 @@ Read github-split/paths/repos_{owner}_{repo}_releases.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -2860,7 +2860,7 @@ Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 Skill
@@ -2896,7 +2896,7 @@ Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -2940,7 +2940,7 @@ head -10 github-split/openapi.map.txt
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 Skill
@@ -2982,7 +2982,7 @@ Read github-split/paths/repos_{owner}_{repo}_releases.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -3021,7 +3021,7 @@ grep -A 10 "x-github" github-split/paths/repos_{owner}_{repo}_releases.yaml | he
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -3057,7 +3057,7 @@ Read github-split/paths/repos_{owner}_{repo}_releases_assets_{asset_id}.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -3104,7 +3104,7 @@ Read github-split/components/schemas/release-asset.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 Skill
@@ -3148,7 +3148,7 @@ Read github-split/components/schemas/release-asset.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 Read github-split/openapi.yaml
@@ -3208,7 +3208,7 @@ Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
 Traps: the subscription body requires `orderType`, `customerId`, `websiteId` and `items`, and every call needs the `SecretApiKey` key in the `REB-APIKEY` header.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We're moving existing customers onto monthly recurring billing. One of them is already in
@@ -3261,7 +3261,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |        no tree |        tree |         map | Δ tree |
+| Model            |       original |        tree |         map | Δ tree |
 | ---------------- | -------------: | ----------: | ----------: | -----: |
 | Sonnet 5 (n=10)  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
 | Opus 5 (n=10)    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
@@ -3269,7 +3269,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            |  no tree |  tree |   map | Δ tree | Δ map |
+| Model            | original |  tree |   map | Δ tree | Δ map |
 | ---------------- | -------: | ----: | ----: | -----: | ----: |
 | Sonnet 5 (n=10)  |    $1.01 | $0.59 | $0.80 |   −41% |  −21% |
 | Opus 5 (n=10)    |    $1.74 | $1.10 | $2.22 |   −37% |  +28% |
@@ -3277,7 +3277,7 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                                                           | tree                            | map                                               |
+| Run                | original                                                          | tree                            | map                                               |
 | ------------------ | ----------------------------------------------------------------- | ------------------------------- | ------------------------------------------------- |
 | Sonnet 5 · run 1   | no auth scheme                                                    | works                           | works                                             |
 | Sonnet 5 · run 2   | no auth scheme                                                    | no auth scheme                  | works                                             |
@@ -3318,7 +3318,7 @@ What each run ran:
 {% tab label="Sonnet 5 · start a subscription" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3399,7 +3399,7 @@ grep -n "^GET /websites\|^POST /websites" rebilly.map.txt | head -5
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3476,7 +3476,7 @@ grep -n "^    PlanFormulaFlatRate:" -A 20 rebilly.yaml | head -25
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3552,7 +3552,7 @@ awk 'NR==15233,NR==16200' rebilly.yaml | grep -n "paymentInstrument\|websiteId:\
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 wc -l rebilly.yaml; grep -n "^  /" rebilly.yaml | grep -iE "subscription|plan|customer"
@@ -3631,7 +3631,7 @@ grep -n "^## Customers$" -A5 rebilly.map.txt
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3729,7 +3729,7 @@ grep -n "PostToken\b" rebilly.yaml | head -3
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3798,7 +3798,7 @@ grep -n "^    PlanPriceFormula:" rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3882,7 +3882,7 @@ grep -n "^    PlanFormulaFlatRate:" rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -3950,7 +3950,7 @@ grep -n "^    ContactObject:" rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -4011,7 +4011,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-rebilly-map-v5-sonnet-r9/
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 wc -l rebilly.yaml
@@ -4089,7 +4089,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-rebilly-map-v5-sonnet-r10
 {% tab label="Opus 5 · start a subscription" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -4229,7 +4229,7 @@ sed -n '20540,20562p' rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -4336,7 +4336,7 @@ grep -n "^servers:" rebilly.yaml && sed -n "$(grep -n '^servers:' rebilly.yaml |
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -4429,7 +4429,7 @@ sed -n '188,204p' rebilly.map.txt
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -4519,7 +4519,7 @@ sed -n '3509,3600p' rebilly.yaml | grep -n "^        [a-zA-Z]*:"
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -4616,7 +4616,7 @@ sed -n '11256,11275p' rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 ls -la  && wc -l rebilly.yaml
@@ -4734,7 +4734,7 @@ sed -n '11615,11640p' rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -4831,7 +4831,7 @@ grep -n "^    PaymentInstructionInstrument:" -A 14 rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -5035,7 +5035,7 @@ sed -n '3096,3120p' rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -5130,7 +5130,7 @@ grep -n "^    ContactObject:" rebilly.yaml && sed -n "$(grep -n '^    ContactObj
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 ls -la rebilly.yaml && wc -l rebilly.yaml
@@ -5231,7 +5231,7 @@ sed -n "$(grep -n '^    VaultedInstrument:' rebilly.yaml | cut -d: -f1),+14p" re
 {% tab label="Haiku 4.5 · start a subscription" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5283,7 +5283,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 Skill
@@ -5326,7 +5326,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5374,7 +5374,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5427,7 +5427,7 @@ grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml | head -3
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5476,7 +5476,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5530,7 +5530,7 @@ Read rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5571,7 +5571,7 @@ grep -n "PostSubscription\|/subscriptions" rebilly.yaml | head -20
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5635,7 +5635,7 @@ grep -n "SubscriptionOrOneTimeSaleItem:" rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 cat rebilly.yaml
@@ -5688,7 +5688,7 @@ grep -n "^    OriginalPlan:" rebilly.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 Skill
@@ -5770,7 +5770,7 @@ Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1
 The point of this description: it is the same file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 Our company committed to buying carbon removal. Pick a removal product from what's on
@@ -5823,7 +5823,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |       no tree |        tree |        map | Δ tree |
+| Model            |      original |        tree |        map | Δ tree |
 | ---------------- | ------------: | ----------: | ---------: | -----: |
 | Sonnet 5 (n=10)  |    14,065 / 7 |   7,732 / 6 | 28,172 / 6 |   −45% |
 | Opus 5 (n=10)    |    14,913 / 7 |   9,622 / 7 | 27,820 / 9 |   −35% |
@@ -5831,7 +5831,7 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            |  no tree |  tree |   map | Δ tree | Δ map |
+| Model            | original |  tree |   map | Δ tree | Δ map |
 | ---------------- | -------: | ----: | ----: | -----: | ----: |
 | Sonnet 5 (n=10)  |    $0.32 | $0.25 | $0.25 |   −22% |  −24% |
 | Opus 5 (n=10)    |    $0.55 | $0.44 | $0.67 |   −19% |  +22% |
@@ -5839,7 +5839,7 @@ What those runs were billed:
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree        | tree           | map   |
+| Run                | original       | tree           | map   |
 | ------------------ | -------------- | -------------- | ----- |
 | Sonnet 5 · run 1   | works          | works          | works |
 | Sonnet 5 · run 2   | works          | works          | works |
@@ -5880,7 +5880,7 @@ What each run ran:
 {% tab label="Sonnet 5 · buy carbon removal" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 cat climate.yaml
@@ -5915,7 +5915,7 @@ sed -n '81580,81863p' climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 cat climate.yaml
@@ -5953,7 +5953,7 @@ Read climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 cat climate.yaml
@@ -5992,7 +5992,7 @@ Artifact /tmp/noop.html
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6026,7 +6026,7 @@ Read climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6068,7 +6068,7 @@ grep -n "climate.product:" -A 40 climate.yaml | head -60
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6108,7 +6108,7 @@ sed -n '81810,81863p' climate.yaml; echo "---ORDER SCHEMA---"; grep -n "^    cli
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6145,7 +6145,7 @@ Read climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6180,7 +6180,7 @@ grep -n "climate\.order\"\|climate\.order:\|climate.product:" climate.yaml | hea
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6216,7 +6216,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6260,7 +6260,7 @@ sed -n '81580,81865p' climate.yaml
 {% tab label="Opus 5 · buy carbon removal" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6299,7 +6299,7 @@ sed -n '81866,81970p' climate.yaml | grep -n "name:\|required:\|in: query"
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6339,7 +6339,7 @@ grep -n "climate_removals_products_price:" -A 30 climate.yaml | head -40; echo -
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6379,7 +6379,7 @@ grep -in "idempotency" climate.yaml | head -5; grep -in "Stripe-Account\|in: hea
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6420,7 +6420,7 @@ grep -n "climate_removals_products_price:" -A 25 climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6457,7 +6457,7 @@ grep -n "climate_removals_products_price:" -A 30 climate.yaml | head -40
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6499,7 +6499,7 @@ grep -n "climate_removals_products_price:" -A 20 climate.yaml | head -25
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6541,7 +6541,7 @@ sed -n '9717,9740p' climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6578,7 +6578,7 @@ sed -n '9345,9583p' climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6615,7 +6615,7 @@ grep -n -A 25 "    climate_removals_products_price:" climate.yaml | head -35
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 wc -l climate.yaml
@@ -6667,7 +6667,7 @@ grep -c "Idempotency-Key" climate.yaml
 {% tab label="Haiku 4.5 · buy carbon removal" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6712,7 +6712,7 @@ grep -n "climate\.order:" climate.yaml | head -5
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6750,7 +6750,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6799,7 +6799,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6841,7 +6841,7 @@ grep -n "climate\.order:" climate.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6881,7 +6881,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6918,7 +6918,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 cat climate.yaml
@@ -6964,7 +6964,7 @@ grep -n "climate_removals_products_price:" climate.yaml | head -1
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 cat climate.yaml
@@ -7000,7 +7000,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 cat climate.yaml
@@ -7043,7 +7043,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 cat climate.yaml
@@ -7101,7 +7101,7 @@ Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture`
 Traps: capture happens only after an approval step that is not an API call; the tracker binds to the `capture_id` from the capture response, not to the order; the OAuth2 token endpoint is not a path in this description.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We sell physical goods online: take the buyer's payment for a cart, capture the money once
@@ -7154,7 +7154,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree |         map | Δ tree |
+| Model            |    original |        tree |         map | Δ tree |
 | ---------------- | ----------: | ----------: | ----------: | -----: |
 | Sonnet 5 (n=10)  | 17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
 | Opus 5 (n=10)    | 19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
@@ -7162,15 +7162,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------- | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5 (n=10)  |   $0.39 | $0.44 | $0.34 |   +11% |  −14% |
-| Opus 5 (n=10)    |   $0.75 | $1.06 | $0.75 |   +40% |   +0% |
-| Haiku 4.5 (n=10) |   $0.13 | $0.11 | $0.11 |   −13% |  −19% |
+| Model            | original |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.39 | $0.44 | $0.34 |   +11% |  −14% |
+| Opus 5 (n=10)    |    $0.75 | $1.06 | $0.75 |   +40% |   +0% |
+| Haiku 4.5 (n=10) |    $0.13 | $0.11 | $0.11 |   −13% |  −19% |
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                          | tree                              | map                               |
+| Run                | original                         | tree                              | map                               |
 | ------------------ | -------------------------------- | --------------------------------- | --------------------------------- |
 | Sonnet 5 · run 1   | works                            | works                             | works                             |
 | Sonnet 5 · run 2   | no auth scheme                   | works                             | works                             |
@@ -7211,7 +7211,7 @@ What each run ran:
 {% tab label="Sonnet 5 · capture and track" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7294,7 +7294,7 @@ print(s.get('shipment_carrier',{}).get('description','')[:200])
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7403,7 +7403,7 @@ print(json.dumps(ex, indent=2)[:2500])
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 python3 -c "
@@ -7468,7 +7468,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 wc -l paypal.json; grep -n '"/v2' paypal.json | head -100
@@ -7532,7 +7532,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7638,7 +7638,7 @@ print(d.get('components',{}).get('securitySchemes'))
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7729,7 +7729,7 @@ print(resp.get('201',{}).get('content'))
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7781,7 +7781,7 @@ grep -n '"shipment_tracker"' paypal.json
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7836,7 +7836,7 @@ true
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 wc -l paypal.json
@@ -7937,7 +7937,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-paypal-map-v4-sonnet-r9/9
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 python3 -c "
@@ -8001,7 +8001,7 @@ Write /private/tmp/claude-501/-Users-tora-bench-run-paypal-map-v4-sonnet-r10/210
 {% tab label="Opus 5 · capture and track" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 ls -la paypal.json && python3 -c "
@@ -8277,7 +8277,7 @@ print(json.dumps(pt['requestBody']['content']['application/json'].get('examples'
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -8443,7 +8443,7 @@ print(str(sc)[:300]); print('enum count', len(sc.get('enum',[])), sc.get('enum',
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -8687,7 +8687,7 @@ print(json.dumps(d['components']['schemas']['patch'],indent=1)[:900])
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -8917,7 +8917,7 @@ for k,v in list(ex.items())[:3]: print(k, json.dumps(v.get('value'))[:300])
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -9091,7 +9091,7 @@ print([x for x in e if x in ('OTHER','UPS','FEDEX','USPS','DHL','FEDEX_UK','UPS_
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 ls -la paypal.json && python3 -c "
@@ -9257,7 +9257,7 @@ print([x for x in e if x in ('UPS','FEDEX','USPS','DHL','OTHER')])
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -9466,7 +9466,7 @@ print(json.dumps(op['requestBody']['content']['application/json'].get('examples'
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 ls -la paypal.json && python3 -c "
@@ -9633,7 +9633,7 @@ print('patch schema:', json.dumps(sc['patch'])[:400])
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -9806,7 +9806,7 @@ print(s['components']['parameters']['authorization'])
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 ls -la paypal.json && wc -c paypal.json
@@ -9950,7 +9950,7 @@ sed -n '2409,2460p' paypal.json; echo "=== token scheme ==="; sed -n '4083,4098p
 {% tab label="Haiku 4.5 · capture and track" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 cat paypal.json
@@ -9986,7 +9986,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 cat paypal.json
@@ -10028,7 +10028,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 cat paypal.json
@@ -10064,7 +10064,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 cat paypal.json
@@ -10107,7 +10107,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 cat paypal.json
@@ -10147,7 +10147,7 @@ grep -n "\"checkout_payment_intent\"" paypal.json | head -1
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 cat paypal.json
@@ -10189,7 +10189,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 cat paypal.json
@@ -10232,7 +10232,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 cat paypal.json
@@ -10270,7 +10270,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 cat paypal.json
@@ -10303,7 +10303,7 @@ Read paypal.json
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 cat paypal.json
@@ -10357,7 +10357,7 @@ Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 The point of this task: it is the same description as the previous tab, but a corner DigitalOcean's tutorials do not cover — the mainstream droplet-and-firewall recipe is written up everywhere, network file shares are not. Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and `/` as an export path is reserved for the implicit default.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We need shared storage for a cluster: a network file share in one region, reachable from
@@ -10410,7 +10410,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree |         map | Δ tree |
+| Model            |    original |        tree |         map | Δ tree |
 | ---------------- | ----------: | ----------: | ----------: | -----: |
 | Sonnet 5 (n=10)  | 11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
 | Opus 5 (n=10)    |  17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
@@ -10418,15 +10418,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------- | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5 (n=10)  |   $0.35 | $0.36 | $0.23 |    +1% |  −35% |
-| Opus 5 (n=10)    |   $0.57 | $0.80 | $0.71 |   +40% |  +24% |
-| Haiku 4.5 (n=10) |   $0.19 | $0.12 | $0.16 |   −33% |  −15% |
+| Model            | original |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.35 | $0.36 | $0.23 |    +1% |  −35% |
+| Opus 5 (n=10)    |    $0.57 | $0.80 | $0.71 |   +40% |  +24% |
+| Haiku 4.5 (n=10) |    $0.19 | $0.12 | $0.16 |   −33% |  −15% |
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                              | tree                                                | map   |
+| Run                | original                             | tree                                                | map   |
 | ------------------ | ------------------------------------ | --------------------------------------------------- | ----- |
 | Sonnet 5 · run 1   | no auth scheme                       | works                                               | works |
 | Sonnet 5 · run 2   | no auth scheme                       | works                                               | works |
@@ -10468,7 +10468,7 @@ What each run ran:
 {% tab label="Sonnet 5 · shared file storage" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 grep "-nfs-|NFS|export|shares|Shares" digitalocean/DigitalOcean-public.v2.yaml
@@ -10534,7 +10534,7 @@ cat parameters.yml 2>/dev/null | head -40
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 grep -n "shares\|nfs\|file-share\|fileshare\|export" -i "digitalocean/DigitalOcean-public.v2.yaml" | head -80
@@ -10585,7 +10585,7 @@ cat digitalocean/resources/nfs/models/nfs_request.yml 2>/dev/null; echo ---; cat
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 grep -n -i "nfs\|file.*share\|shared_storage\|export" digitalocean/DigitalOcean-public.v2.yaml | head -100
@@ -10653,7 +10653,7 @@ cat digitalocean/resources/nfs/models/access_policy.yml 2>/dev/null; find digita
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 grep -n -i "nfs\|file share\|shares\|export" "digitalocean/DigitalOcean-public.v2.yaml" | head -100
@@ -10724,7 +10724,7 @@ sed -n '805,806p' digitalocean/DigitalOcean-public.v2.map.txt
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 grep -n -i "nfs\|share" digitalocean/DigitalOcean-public.v2.yaml | head -100
@@ -10792,7 +10792,7 @@ Read digitalocean/resources/nfs/nfs_actions_create.yml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 grep "-i\" nfs|shared_filesystem|SharedFilesystem|share|filesystem\"" digitalocean/DigitalOcean-public.v2.yaml
@@ -10842,7 +10842,7 @@ Read digitalocean/resources/nfs/models/nfs_request.yml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 grep "share|nfs|export_path|storage.*network|vpc" digitalocean/DigitalOcean-public.v2.yaml
@@ -10905,7 +10905,7 @@ Read digitalocean/resources/nfs/models/nfs_response.yml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 grep -n -i "nfs\|file share\|shared storage\|export path" digitalocean/DigitalOcean-public.v2.yaml | head -100
@@ -10968,7 +10968,7 @@ Read digitalocean/resources/nfs/models/access_point_response.yml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 grep "-i\" -e \"share\" -e \"nfs\" -e \"filesystem" digitalocean/DigitalOcean-public.v2.yaml
@@ -11038,7 +11038,7 @@ Read digitalocean/DigitalOcean-public.v2.map.txt
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 grep -n -i "share\|nfs" digitalocean/DigitalOcean-public.v2.yaml | head -80
@@ -11112,7 +11112,7 @@ Read digitalocean/resources/nfs/models/nfs_response.yml
 {% tab label="Opus 5 · shared file storage" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 grep -n -i "shared_file\|file_system\|filesystem\|nfs\|share" digitalocean/DigitalOcean-public.v2.yaml | head -80
@@ -11160,7 +11160,7 @@ sed -n 1,40p responses/existing_vpc.yml; echo === ; cat examples/curl/vpcs_creat
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 grep -n -i "nfs\|file_system\|filesystem\|share" digitalocean/DigitalOcean-public.v2.yaml | head -100
@@ -11210,7 +11210,7 @@ grep -n "nfs" DigitalOcean-public.v2.yaml | head -30; echo "=== apget"; sed -n 1
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 grep -n "shared_file\|file_system\|glusterfs\|nfs\|/v2/shared" digitalocean/DigitalOcean-public.v2.yaml | head -60
@@ -11264,7 +11264,7 @@ sed -n '1,40p' digitalocean/resources/nfs/nfs_list.yml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 grep -n -i "share\|nfs\|file_system\|filesystem" digitalocean/DigitalOcean-public.v2.yaml | head -80
@@ -11313,7 +11313,7 @@ grep -rn "host\|mount" . | grep -v "^./examples/curl" | head -30; echo ----; cat
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 ls -la digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
@@ -11365,7 +11365,7 @@ cat resources/regions/models/region.yml 2>/dev/null | head -50; echo "=== VPCRES
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 grep -n -i "file.share\|fileshare\|file_share\|nfs\|shared.file" digitalocean/DigitalOcean-public.v2.yaml | head -80
@@ -11426,7 +11426,7 @@ cat digitalocean/resources/vpcs/responses/existing_vpc.yml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 grep -n -i -E "nfs|file_?system|network file|share" digitalocean/DigitalOcean-public.v2.yaml | head -80
@@ -11481,7 +11481,7 @@ sed -n 1,20p nfs_access_point_get.yml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 grep -n -i -E "nfs|file_system|filesystem|share" digitalocean/DigitalOcean-public.v2.yaml | head -100
@@ -11531,7 +11531,7 @@ grep -rn "host" responses/ examples/ | head -20; echo ---; cat responses/nfs_get
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 ls digitalocean/ && wc -l digitalocean/DigitalOcean-public.v2.yaml
@@ -11581,7 +11581,7 @@ sed -n '1,20p' resources/nfs/nfs_get.yml; sed -n '1,20p' resources/nfs/nfs_acces
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 ls -la digitalocean/DigitalOcean-public.v2.yaml && grep -n "shared_file_system\|file_system\|nfs\|NFS" digitalocean/DigitalOcean-public.v2.yaml | head -60
@@ -11636,7 +11636,7 @@ cat resources/nfs/responses/nfs_get.yml && echo ===== && cat resources/nfs/respo
 {% tab label="Haiku 4.5 · shared file storage" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 cat digitalocean/DigitalOcean-public.v2.yaml
@@ -11699,7 +11699,7 @@ Read digitalocean/resources/nfs/models/access_policy.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 Skill
@@ -11754,7 +11754,7 @@ Read digitalocean/resources/vpcs/vpcs_list.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 Skill
@@ -11796,7 +11796,7 @@ Read digitalocean/resources/vpcs/vpcs_list.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 cat digitalocean/DigitalOcean-public.v2.yaml
@@ -11855,7 +11855,7 @@ Read digitalocean/resources/nfs/models/access_point_response.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 Skill
@@ -11905,7 +11905,7 @@ Read digitalocean/resources/nfs/models/access_policy.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 cat digitalocean/DigitalOcean-public.v2.yaml
@@ -11944,7 +11944,7 @@ Read digitalocean/DigitalOcean-public.v2.map.txt
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 cat digitalocean/DigitalOcean-public.v2.yaml
@@ -11996,7 +11996,7 @@ Read digitalocean/resources/nfs/models/access_policy.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 cat digitalocean/DigitalOcean-public.v2.yaml
@@ -12049,7 +12049,7 @@ Read digitalocean/resources/nfs/models/access_point_request.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 cat digitalocean/DigitalOcean-public.v2.yaml
@@ -12110,7 +12110,7 @@ Read digitalocean/resources/nfs/models/access_point_response.yml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 Skill
@@ -12173,7 +12173,7 @@ Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 We need shared storage for a cluster: a network file share in one region, reachable from
@@ -12226,7 +12226,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |     no tree |        tree |         map | Δ tree |
+| Model            |    original |        tree |         map | Δ tree |
 | ---------------- | ----------: | ----------: | ----------: | -----: |
 | Sonnet 5 (n=10)  | 15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
 | Opus 5 (n=10)    | 24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
@@ -12234,15 +12234,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------- | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5 (n=10)  |   $0.29 | $0.17 | $0.25 |   −42% |  −13% |
-| Opus 5 (n=10)    |   $0.83 | $0.88 | $0.75 |    +5% |  −10% |
-| Haiku 4.5 (n=10) |   $0.19 | $0.12 | $0.14 |   −37% |  −25% |
+| Model            | original |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.29 | $0.17 | $0.25 |   −42% |  −13% |
+| Opus 5 (n=10)    |    $0.83 | $0.88 | $0.75 |    +5% |  −10% |
+| Haiku 4.5 (n=10) |    $0.19 | $0.12 | $0.14 |   −37% |  −25% |
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree                              | tree                                                | map            |
+| Run                | original                             | tree                                                | map            |
 | ------------------ | ------------------------------------ | --------------------------------------------------- | -------------- |
 | Sonnet 5 · run 1   | works                                | works                                               | works          |
 | Sonnet 5 · run 2   | no auth scheme                       | works                                               | works          |
@@ -12283,7 +12283,7 @@ What each run ran:
 {% tab label="Sonnet 5 · shared file storage" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 grep -n -i "file.share\|nfs\|export" digitalocean-bundled.yaml | head -100
@@ -12319,7 +12319,7 @@ true
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 Grep
@@ -12357,7 +12357,7 @@ sed -n '22569,22632p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 grep -n -i "share\|nfs" digitalocean-bundled.yaml | head -80
@@ -12406,7 +12406,7 @@ EOF
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 grep -n "share\|nfs\|export\|storage" digitalocean-bundled.yaml -i | grep -i "path:\|summary:\|operationId" | head -100
@@ -12440,7 +12440,7 @@ grep -n "nfs_request:\|access_point_request:\|access_policy:" digitalocean-bundl
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 grep -n "^  /" digitalocean-bundled.yaml | grep -i -E "share|nfs|volume|storage"
@@ -12478,7 +12478,7 @@ true
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 grep -n -i "nfs\|share\|export" digitalocean-bundled.yaml | head -100
@@ -12516,7 +12516,7 @@ grep -n "access_point_request:" digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 grep -n -i "nfs\|share\|export" digitalocean-bundled.yaml | head -100
@@ -12554,7 +12554,7 @@ sed -n '54063,54214p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 grep -n "^  /" digitalocean-bundled.yaml | grep -i "share\|nfs\|volume\|storage"
@@ -12597,7 +12597,7 @@ Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-map-v4-sonnet-r8/19
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 grep -n "share\|nfs\|NFS\|export" digitalocean-bundled.yaml -i | head -100
@@ -12640,7 +12640,7 @@ grep -n "all_vpcs:" -A 15 digitalocean-bundled.yaml | head -20
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 grep -n -i "share\|nfs\|export" digitalocean-bundled.yaml | head -100
@@ -12680,7 +12680,7 @@ grep -n "^## VPCs" -A 12 digitalocean-bundled.map.txt
 {% tab label="Opus 5 · shared file storage" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 grep -n -i -E "nfs|file share|shared_?storage|export" digitalocean-bundled.yaml | head -80
@@ -12740,7 +12740,7 @@ sed -n '54365,54420p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 ls -la digitalocean-bundled.yaml && wc -l digitalocean-bundled.yaml
@@ -12805,7 +12805,7 @@ sed -n '41882,41900p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 ls -la  && wc -l digitalocean-bundled.yaml
@@ -12864,7 +12864,7 @@ sed -n '30974,31056p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 ls -la digitalocean-bundled.yaml; wc -l digitalocean-bundled.yaml
@@ -12912,7 +12912,7 @@ sed -n '22640,22700p' digitalocean-bundled.yaml; echo "=== params ==="; grep -n 
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 ```bash
 ls -la  && wc -l digitalocean-bundled.yaml
@@ -12976,7 +12976,7 @@ sed -n '54118,54137p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 ls -la  && wc -l digitalocean-bundled.yaml
@@ -13035,7 +13035,7 @@ sed -n '22319,22356p' digitalocean-bundled.yaml; echo XXX; sed -n '22685,22700p'
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 grep -n "shared_file\|shared-file\|sharedFile\|file_system\|fileSystem" digitalocean-bundled.yaml | head -80
@@ -13094,7 +13094,7 @@ sed -n '24436,24460p' digitalocean-bundled.yaml; grep -n "^    region:" -A 40 di
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 ls -la  && wc -l digitalocean-bundled.yaml
@@ -13161,7 +13161,7 @@ sed -n '22640,22662p' digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 ls -la  && wc -l digitalocean-bundled.yaml
@@ -13219,7 +13219,7 @@ grep -n "v2/regions" digitalocean-bundled.map.txt
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 ls -la  && wc -l digitalocean-bundled.yaml
@@ -13284,7 +13284,7 @@ sed -n '22319,22345p' digitalocean-bundled.yaml; echo ---; sed -n '22633,22660p'
 {% tab label="Haiku 4.5 · shared file storage" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 Skill
@@ -13319,7 +13319,7 @@ Read digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 Skill
@@ -13352,7 +13352,7 @@ Write /private/tmp/claude-501/-Users-tora-bench-run-dobundle-map-v4-haiku-r2/256
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 Read digitalocean-bundled.yaml
@@ -13589,7 +13589,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 Skill
@@ -13620,7 +13620,7 @@ Read digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 Skill
@@ -13657,7 +13657,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 Read digitalocean-bundled.yaml
@@ -13694,7 +13694,7 @@ grep -n "access_policy:" digitalocean-bundled.yaml | head -5
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 Read digitalocean-bundled.yaml
@@ -13726,7 +13726,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 Read digitalocean-bundled.yaml
@@ -13761,7 +13761,7 @@ Read digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 Skill
@@ -13796,7 +13796,7 @@ Read digitalocean-bundled.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 Read digitalocean-bundled.yaml
@@ -13852,7 +13852,7 @@ Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orde
 Trap: ordering requires an OAuth2 token with the `orders:write` scope, minted by a call the task never mentions.
 
 {% tabs %}
-{% tab label="Prompt: no tree" %}
+{% tab label="Prompt: original" %}
 
 ```text
 I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
@@ -13902,7 +13902,7 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    no tree |        tree |         map | Δ tree |
+| Model            |   original |        tree |         map | Δ tree |
 | ---------------- | ---------: | ----------: | ----------: | -----: |
 | Sonnet 5 (n=10)  | 16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
 | Opus 5 (n=10)    | 16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
@@ -13910,15 +13910,15 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Model            | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------- | ------: | ----: | ----: | -----: | ----: |
-| Sonnet 5 (n=10)  |   $0.25 | $0.30 | $0.25 |   +20% |   −2% |
-| Opus 5 (n=10)    |   $0.46 | $0.66 | $0.70 |   +42% |  +51% |
-| Haiku 4.5 (n=10) |   $0.07 | $0.10 | $0.08 |   +45% |  +18% |
+| Model            | original |  tree |   map | Δ tree | Δ map |
+| ---------------- | -------: | ----: | ----: | -----: | ----: |
+| Sonnet 5 (n=10)  |    $0.25 | $0.30 | $0.25 |   +20% |   −2% |
+| Opus 5 (n=10)    |    $0.46 | $0.66 | $0.70 |   +42% |  +51% |
+| Haiku 4.5 (n=10) |    $0.07 | $0.10 | $0.08 |   +45% |  +18% |
 
 Whether each run produced a flow that would run:
 
-| Run                | no tree       | tree          | map   |
+| Run                | original      | tree          | map   |
 | ------------------ | ------------- | ------------- | ----- |
 | Sonnet 5 · run 1   | works         | works         | works |
 | Sonnet 5 · run 2   | works         | works         | works |
@@ -13959,7 +13959,7 @@ What each run ran:
 {% tab label="Sonnet 5 · order a coffee" %}
 
 {% tabs %}
-{% tab label="Sonnet 5 · run 1 · no tree" %}
+{% tab label="Sonnet 5 · run 1 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -13999,7 +13999,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-sonnet-r1/e61
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 2 · no tree" %}
+{% tab label="Sonnet 5 · run 2 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14035,7 +14035,7 @@ grep -n "OrderStatus:\|enum:\|placed\|preparing\|ready\|completed\|cancelled" ca
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 3 · no tree" %}
+{% tab label="Sonnet 5 · run 3 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14079,7 +14079,7 @@ grep -n "oauth2/token\|/oauth2/" cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 4 · no tree" %}
+{% tab label="Sonnet 5 · run 4 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14112,7 +14112,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 5 · no tree" %}
+{% tab label="Sonnet 5 · run 5 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14148,7 +14148,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 6 · no tree" %}
+{% tab label="Sonnet 5 · run 6 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14184,7 +14184,7 @@ grep -n "MenuItem:\|MenuItemList:" -A 20 cafe.yaml | head -40
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 7 · no tree" %}
+{% tab label="Sonnet 5 · run 7 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14224,7 +14224,7 @@ Write /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-sonnet-r7/657817
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 8 · no tree" %}
+{% tab label="Sonnet 5 · run 8 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14257,7 +14257,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 9 · no tree" %}
+{% tab label="Sonnet 5 · run 9 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14295,7 +14295,7 @@ Artifact /private/tmp/claude-501/-Users-tora-bench-run-cafe-map-v4-sonnet-r9/767
 ```
 
 {% /tab %}
-{% tab label="Sonnet 5 · run 10 · no tree" %}
+{% tab label="Sonnet 5 · run 10 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14339,7 +14339,7 @@ Grep
 {% tab label="Opus 5 · order a coffee" %}
 
 {% tabs %}
-{% tab label="Opus 5 · run 1 · no tree" %}
+{% tab label="Opus 5 · run 1 · original" %}
 
 ```bash
 wc -l cafe.yaml
@@ -14377,7 +14377,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 2 · no tree" %}
+{% tab label="Opus 5 · run 2 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14411,7 +14411,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 3 · no tree" %}
+{% tab label="Opus 5 · run 3 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14453,7 +14453,7 @@ sed -n '174,204p' cafe.yaml; echo "=== PhotoSize ==="; grep -n -A14 "    PhotoSi
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 4 · no tree" %}
+{% tab label="Opus 5 · run 4 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14498,7 +14498,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 5 · no tree" %}
+{% tab label="Opus 5 · run 5 · original" %}
 
 <!-- markdownlint-disable MD013 -->
 
@@ -14554,7 +14554,7 @@ grep -n "^    [A-Za-z0-9]*:$" cafe.yaml | sed -n '1,200p'
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 6 · no tree" %}
+{% tab label="Opus 5 · run 6 · original" %}
 
 ```bash
 wc -l cafe.yaml
@@ -14597,7 +14597,7 @@ sed -n '174,203p' cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 7 · no tree" %}
+{% tab label="Opus 5 · run 7 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14633,7 +14633,7 @@ grep -n "^    [A-Za-z0-9]*:" cafe.yaml | sed -n '1,200p'
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 8 · no tree" %}
+{% tab label="Opus 5 · run 8 · original" %}
 
 ```bash
 wc -l cafe.yaml
@@ -14672,7 +14672,7 @@ sed -n '174,204p;800,860p' cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 9 · no tree" %}
+{% tab label="Opus 5 · run 9 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14708,7 +14708,7 @@ Grep
 ```
 
 {% /tab %}
-{% tab label="Opus 5 · run 10 · no tree" %}
+{% tab label="Opus 5 · run 10 · original" %}
 
 ```bash
 wc -l cafe.yaml
@@ -14757,7 +14757,7 @@ sed -n '712,821p' cafe.yaml; echo "--- PATCH ---"; sed -n '418,478p' cafe.yaml
 {% tab label="Haiku 4.5 · order a coffee" %}
 
 {% tabs %}
-{% tab label="Haiku 4.5 · run 1 · no tree" %}
+{% tab label="Haiku 4.5 · run 1 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14787,7 +14787,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 2 · no tree" %}
+{% tab label="Haiku 4.5 · run 2 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14813,7 +14813,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 3 · no tree" %}
+{% tab label="Haiku 4.5 · run 3 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14838,7 +14838,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 4 · no tree" %}
+{% tab label="Haiku 4.5 · run 4 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14865,7 +14865,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 5 · no tree" %}
+{% tab label="Haiku 4.5 · run 5 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14898,7 +14898,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 6 · no tree" %}
+{% tab label="Haiku 4.5 · run 6 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14931,7 +14931,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 7 · no tree" %}
+{% tab label="Haiku 4.5 · run 7 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14959,7 +14959,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 8 · no tree" %}
+{% tab label="Haiku 4.5 · run 8 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -14995,7 +14995,7 @@ Read cafe.yaml
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 9 · no tree" %}
+{% tab label="Haiku 4.5 · run 9 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -15032,7 +15032,7 @@ Read cafe.map.txt
 ```
 
 {% /tab %}
-{% tab label="Haiku 4.5 · run 10 · no tree" %}
+{% tab label="Haiku 4.5 · run 10 · original" %}
 
 ```bash
 cat cafe.yaml
@@ -15079,36 +15079,36 @@ Haiku 4.5 lands on six working runs either way.
 
 How many of the ten runs in each cell produced a flow that would run:
 
-| Description            | Model     | no tree |  tree |   map |
-| ---------------------- | --------- | ------: | ----: | ----: |
-| GitHub REST            | Sonnet 5  |   10/10 | 10/10 |  8/10 |
-| GitHub REST            | Opus 5    |   10/10 | 10/10 |  9/10 |
-| GitHub REST            | Haiku 4.5 |    3/10 |  3/10 |  1/10 |
-| GitHub REST (split)    | Sonnet 5  |    9/10 |  9/10 |  9/10 |
-| GitHub REST (split)    | Opus 5    |    8/10 |  9/10 | 10/10 |
-| GitHub REST (split)    | Haiku 4.5 |    5/10 |  1/10 |  2/10 |
-| Billing API            | Sonnet 5  |    2/10 |  6/10 |  9/10 |
-| Billing API            | Opus 5    |   10/10 | 10/10 | 10/10 |
-| Billing API            | Haiku 4.5 |    0/10 |  1/10 |  3/10 |
-| Stripe                 | Sonnet 5  |    9/10 | 10/10 | 10/10 |
-| Stripe                 | Opus 5    |   10/10 | 10/10 | 10/10 |
-| Stripe                 | Haiku 4.5 |    0/10 |  8/10 | 10/10 |
-| PayPal Orders          | Sonnet 5  |    9/10 | 10/10 | 10/10 |
-| PayPal Orders          | Opus 5    |   10/10 | 10/10 | 10/10 |
-| PayPal Orders          | Haiku 4.5 |    4/10 |  4/10 |  2/10 |
-| DigitalOcean           | Sonnet 5  |    3/10 |  9/10 | 10/10 |
-| DigitalOcean           | Opus 5    |   10/10 | 10/10 | 10/10 |
-| DigitalOcean           | Haiku 4.5 |    4/10 |  4/10 | 10/10 |
-| DigitalOcean (bundled) | Sonnet 5  |    5/10 | 10/10 | 10/10 |
-| DigitalOcean (bundled) | Opus 5    |    8/10 | 10/10 | 10/10 |
-| DigitalOcean (bundled) | Haiku 4.5 |    3/10 |  5/10 |  8/10 |
-| Cafe API               | Sonnet 5  |   10/10 |  9/10 | 10/10 |
-| Cafe API               | Opus 5    |   10/10 | 10/10 | 10/10 |
-| Cafe API               | Haiku 4.5 |    6/10 |  6/10 | 10/10 |
+| API specification      | Model     |  original |      tree |       map |
+| ---------------------- | --------- | --------: | --------: | --------: |
+| GitHub REST            | Sonnet 5  | **10/10** | **10/10** |      8/10 |
+| GitHub REST            | Opus 5    | **10/10** | **10/10** |      9/10 |
+| GitHub REST            | Haiku 4.5 |  **3/10** |  **3/10** |      1/10 |
+| GitHub REST (split)    | Sonnet 5  |  **9/10** |  **9/10** |  **9/10** |
+| GitHub REST (split)    | Opus 5    |      8/10 |      9/10 | **10/10** |
+| GitHub REST (split)    | Haiku 4.5 |  **5/10** |      1/10 |      2/10 |
+| Billing API            | Sonnet 5  |      2/10 |      6/10 |  **9/10** |
+| Billing API            | Opus 5    | **10/10** | **10/10** | **10/10** |
+| Billing API            | Haiku 4.5 |      0/10 |      1/10 |  **3/10** |
+| Stripe                 | Sonnet 5  |      9/10 | **10/10** | **10/10** |
+| Stripe                 | Opus 5    | **10/10** | **10/10** | **10/10** |
+| Stripe                 | Haiku 4.5 |      0/10 |      8/10 | **10/10** |
+| PayPal Orders          | Sonnet 5  |      9/10 | **10/10** | **10/10** |
+| PayPal Orders          | Opus 5    | **10/10** | **10/10** | **10/10** |
+| PayPal Orders          | Haiku 4.5 |  **4/10** |  **4/10** |      2/10 |
+| DigitalOcean           | Sonnet 5  |      3/10 |      9/10 | **10/10** |
+| DigitalOcean           | Opus 5    | **10/10** | **10/10** | **10/10** |
+| DigitalOcean           | Haiku 4.5 |      4/10 |      4/10 | **10/10** |
+| DigitalOcean (bundled) | Sonnet 5  |      5/10 | **10/10** | **10/10** |
+| DigitalOcean (bundled) | Opus 5    |      8/10 | **10/10** | **10/10** |
+| DigitalOcean (bundled) | Haiku 4.5 |      3/10 |      5/10 |  **8/10** |
+| Cafe API               | Sonnet 5  | **10/10** |      9/10 | **10/10** |
+| Cafe API               | Opus 5    | **10/10** | **10/10** | **10/10** |
+| Cafe API               | Haiku 4.5 |      6/10 |      6/10 | **10/10** |
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all ten):
 
-| Description            | Model     |        no tree |        tree |         map | Δ tree |
+| API specification      | Model     |       original |        tree |         map | Δ tree |
 | ---------------------- | --------- | -------------: | ----------: | ----------: | -----: |
 | GitHub REST            | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |   9,927 / 7 |   −10% |
 | GitHub REST            | Opus 5    |    20,266 / 17 | 14,435 / 11 |  14,870 / 9 |   −29% |
@@ -15137,61 +15137,32 @@ Context the run added, and the tool calls it took (medians over the working runs
 
 What those runs were billed:
 
-| Description            | Model     |  no tree |  tree |   map | Δ tree | Δ map |
-| ---------------------- | --------- | -------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | Sonnet 5  |    $0.41 | $0.31 | $0.18 |   −24% |  −55% |
-| GitHub REST            | Opus 5    |    $0.79 | $0.66 | $0.59 |   −16% |  −26% |
-| GitHub REST            | Haiku 4.5 |    $0.10 | $0.10 | $0.09 |    −3% |  −16% |
-| GitHub REST (split)    | Sonnet 5  |    $0.21 | $0.24 | $0.19 |   +14% |   −8% |
-| GitHub REST (split)    | Opus 5    |    $0.65 | $0.69 | $0.54 |    +7% |  −16% |
-| GitHub REST (split)    | Haiku 4.5 |    $0.16 | $0.14 | $0.08 |   −18% |  −49% |
-| Billing API            | Sonnet 5  |    $1.01 | $0.59 | $0.80 |   −41% |  −21% |
-| Billing API            | Opus 5    |    $1.74 | $1.10 | $2.22 |   −37% |  +28% |
-| Billing API            | Haiku 4.5 | $0.18 ❌ | $0.17 | $0.25 |      — |     — |
-| Stripe                 | Sonnet 5  |    $0.32 | $0.25 | $0.25 |   −22% |  −24% |
-| Stripe                 | Opus 5    |    $0.55 | $0.44 | $0.67 |   −19% |  +22% |
-| Stripe                 | Haiku 4.5 | $0.10 ❌ | $0.12 | $0.14 |      — |     — |
-| PayPal Orders          | Sonnet 5  |    $0.39 | $0.44 | $0.34 |   +11% |  −14% |
-| PayPal Orders          | Opus 5    |    $0.75 | $1.06 | $0.75 |   +40% |   +0% |
-| PayPal Orders          | Haiku 4.5 |    $0.13 | $0.11 | $0.11 |   −13% |  −19% |
-| DigitalOcean           | Sonnet 5  |    $0.35 | $0.36 | $0.23 |    +1% |  −35% |
-| DigitalOcean           | Opus 5    |    $0.57 | $0.80 | $0.71 |   +40% |  +24% |
-| DigitalOcean           | Haiku 4.5 |    $0.19 | $0.12 | $0.16 |   −33% |  −15% |
-| DigitalOcean (bundled) | Sonnet 5  |    $0.29 | $0.17 | $0.25 |   −42% |  −13% |
-| DigitalOcean (bundled) | Opus 5    |    $0.83 | $0.88 | $0.75 |    +5% |  −10% |
-| DigitalOcean (bundled) | Haiku 4.5 |    $0.19 | $0.12 | $0.14 |   −37% |  −25% |
-| Cafe API               | Sonnet 5  |    $0.25 | $0.30 | $0.25 |   +20% |   −2% |
-| Cafe API               | Opus 5    |    $0.46 | $0.66 | $0.70 |   +42% |  +51% |
-| Cafe API               | Haiku 4.5 |    $0.07 | $0.10 | $0.08 |   +45% |  +18% |
-
-What one working answer cost — the cell's mean working run times ten over its working runs (— marks a cell where none worked):
-
-| Description            | Model     | no tree |  tree |   map | Δ tree | Δ map |
-| ---------------------- | --------- | ------: | ----: | ----: | -----: | ----: |
-| GitHub REST            | Sonnet 5  |   $0.41 | $0.31 | $0.23 |   −24% |  −44% |
-| GitHub REST            | Opus 5    |   $0.79 | $0.66 | $0.65 |   −16% |  −17% |
-| GitHub REST            | Haiku 4.5 |   $0.35 | $0.34 | $0.87 |    −3% | +151% |
-| GitHub REST (split)    | Sonnet 5  |   $0.24 | $0.27 | $0.22 |   +14% |   −8% |
-| GitHub REST (split)    | Opus 5    |   $0.81 | $0.77 | $0.54 |    −5% |  −33% |
-| GitHub REST (split)    | Haiku 4.5 |   $0.33 | $1.35 | $0.42 |  +310% |  +28% |
-| Billing API            | Sonnet 5  |   $5.04 | $0.99 | $0.89 |   −80% |  −82% |
-| Billing API            | Opus 5    |   $1.74 | $1.10 | $2.22 |   −37% |  +28% |
-| Billing API            | Haiku 4.5 |       — | $1.70 | $0.83 |      — |     — |
-| Stripe                 | Sonnet 5  |   $0.36 | $0.25 | $0.25 |   −30% |  −32% |
-| Stripe                 | Opus 5    |   $0.55 | $0.44 | $0.67 |   −19% |  +22% |
-| Stripe                 | Haiku 4.5 |       — | $0.14 | $0.14 |      — |     — |
-| PayPal Orders          | Sonnet 5  |   $0.44 | $0.44 | $0.34 |    +0% |  −23% |
-| PayPal Orders          | Opus 5    |   $0.75 | $1.06 | $0.75 |   +40% |   +0% |
-| PayPal Orders          | Haiku 4.5 |   $0.33 | $0.29 | $0.53 |   −13% |  +63% |
-| DigitalOcean           | Sonnet 5  |   $1.18 | $0.40 | $0.23 |   −66% |  −81% |
-| DigitalOcean           | Opus 5    |   $0.57 | $0.80 | $0.71 |   +40% |  +24% |
-| DigitalOcean           | Haiku 4.5 |   $0.46 | $0.31 | $0.16 |   −33% |  −66% |
-| DigitalOcean (bundled) | Sonnet 5  |   $0.57 | $0.17 | $0.25 |   −71% |  −57% |
-| DigitalOcean (bundled) | Opus 5    |   $1.04 | $0.88 | $0.75 |   −16% |  −28% |
-| DigitalOcean (bundled) | Haiku 4.5 |   $0.64 | $0.24 | $0.18 |   −62% |  −72% |
-| Cafe API               | Sonnet 5  |   $0.25 | $0.34 | $0.25 |   +33% |   −2% |
-| Cafe API               | Opus 5    |   $0.46 | $0.66 | $0.70 |   +42% |  +51% |
-| Cafe API               | Haiku 4.5 |   $0.11 | $0.16 | $0.08 |   +45% |  −29% |
+| API specification      | Model     |  original |      tree |       map | Δ tree | Δ map |
+| ---------------------- | --------- | --------: | --------: | --------: | -----: | ----: |
+| GitHub REST            | Sonnet 5  |     $0.41 |     $0.31 | **$0.18** |   −24% |  −55% |
+| GitHub REST            | Opus 5    |     $0.79 |     $0.66 | **$0.59** |   −16% |  −26% |
+| GitHub REST            | Haiku 4.5 |     $0.10 |     $0.10 | **$0.09** |    −3% |  −16% |
+| GitHub REST (split)    | Sonnet 5  |     $0.21 |     $0.24 | **$0.19** |   +14% |   −8% |
+| GitHub REST (split)    | Opus 5    |     $0.65 |     $0.69 | **$0.54** |    +7% |  −16% |
+| GitHub REST (split)    | Haiku 4.5 |     $0.16 |     $0.14 | **$0.08** |   −18% |  −49% |
+| Billing API            | Sonnet 5  |     $1.01 | **$0.59** |     $0.80 |   −41% |  −21% |
+| Billing API            | Opus 5    |     $1.74 | **$1.10** |     $2.22 |   −37% |  +28% |
+| Billing API            | Haiku 4.5 |  $0.18 ❌ | **$0.17** |     $0.25 |      — |     — |
+| Stripe                 | Sonnet 5  |     $0.32 |     $0.25 | **$0.25** |   −22% |  −24% |
+| Stripe                 | Opus 5    |     $0.55 | **$0.44** |     $0.67 |   −19% |  +22% |
+| Stripe                 | Haiku 4.5 |  $0.10 ❌ | **$0.12** |     $0.14 |      — |     — |
+| PayPal Orders          | Sonnet 5  |     $0.39 |     $0.44 | **$0.34** |   +11% |  −14% |
+| PayPal Orders          | Opus 5    | **$0.75** |     $1.06 |     $0.75 |   +40% |   +0% |
+| PayPal Orders          | Haiku 4.5 |     $0.13 |     $0.11 | **$0.11** |   −13% |  −19% |
+| DigitalOcean           | Sonnet 5  |     $0.35 |     $0.36 | **$0.23** |    +1% |  −35% |
+| DigitalOcean           | Opus 5    | **$0.57** |     $0.80 |     $0.71 |   +40% |  +24% |
+| DigitalOcean           | Haiku 4.5 |     $0.19 | **$0.12** |     $0.16 |   −33% |  −15% |
+| DigitalOcean (bundled) | Sonnet 5  |     $0.29 | **$0.17** |     $0.25 |   −42% |  −13% |
+| DigitalOcean (bundled) | Opus 5    |     $0.83 |     $0.88 | **$0.75** |    +5% |  −10% |
+| DigitalOcean (bundled) | Haiku 4.5 |     $0.19 | **$0.12** |     $0.14 |   −37% |  −25% |
+| Cafe API               | Sonnet 5  |     $0.25 |     $0.30 | **$0.25** |   +20% |   −2% |
+| Cafe API               | Opus 5    | **$0.46** |     $0.66 |     $0.70 |   +42% |  +51% |
+| Cafe API               | Haiku 4.5 | **$0.07** |     $0.10 |     $0.08 |   +45% |  +18% |
 
 ## What the failures were
 
@@ -15221,7 +15192,7 @@ Stripe adds a sharper version of the second: the model does not miss the call, i
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
 Sessions start in a directory holding nothing but the description — plus, in the map condition, the map generated from it — outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
 The PayPal tree runs were measured on that build; the other five descriptions ran on the earlier `c06d24541`, whose `tree` output for them is byte-identical — 598 command comparisons, no difference.
-Each cell holds ten runs; context cells are medians and cost cells means, over the runs whose flow works. `Δ tree` and `Δ map` compare each condition against **no tree**.
+Each cell holds ten runs; context cells are medians and cost cells means, over the runs whose flow works. `Δ tree` and `Δ map` compare each condition against **original**.
 Every run of every condition is listed twice below: once as a verdict, and once as the commands it actually issued.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.
@@ -15232,9 +15203,31 @@ Every run of every condition is listed twice below: once as a verdict, and once 
 
 ## Conclusions
 
-- Both indexes improve correctness — 158 of 240 working flows reading the description, 184 with `tree`, 201 with the map — and the whole gap sits in the smaller models. Opus 5 answers the same with or without an index.
-- The map is the stronger index for correctness (Haiku 4.5: 25 → 32 → 46 working runs) because a row carries the auth and the required fields in the same read; with `tree`, each of those is another call.
-- Priced per working answer, both indexes come out about 15% cheaper than plain reading overall ($0.61 → $0.52 → $0.51) — but the saving is not uniform. It concentrates where the description is large and single-file; on a small file, or one laid out as a file per operation, plain reading is already the cheap path.
-- `tree`'s value follows the description's layout: it wins on the 9.5 MB single file and loses on the same API split into 2,842 files. The map holds its result on both layouts of both APIs tested.
-- Neither index fixes what the description never states: GitHub's token-minting call is not marked as a security requirement, and the smaller models miss it under every condition.
-- Limits to keep in mind: one task family (short call chains with id hand-offs), ten runs a cell, one agent harness, and a cost metric that moves with the prompt cache.
+{% admonition type="success" name="The short answer" %}
+On these tasks an index changes what a **small** model can do, not what a large one can.
+Haiku 4.5 goes from 25 working flows in 80 to 46 with the map; Opus 5 moves from 76 to 79 and pays more for it.
+{% /admonition %}
+
+**Sonnet 5 — both indexes help, the map most.**
+Working flows go 57 → 73 → 76 of 80, and a working run costs about the same either way ($0.34 → $0.32 → $0.31).
+The map is the best condition on seven of the eight specifications and the cheapest on six.
+Its one loss is the split GitHub layout, where the file tree is already an index.
+
+**Opus 5 — no index is needed for correctness, and the map costs more.**
+76 → 79 → 79 of 80: three runs separate the worst condition from the best, and `tree` and the map tie.
+A working run goes $0.80 → $0.79 → $0.87, so the map is the only condition that is measurably worse — the billing API alone accounts for it, where re-reading a 92 KB map beats out four targeted `tree` calls.
+For this model the honest recommendation is to use whichever is already in the pipeline.
+
+**Haiku 4.5 — the map is the difference between an answer and no answer.**
+25 → 32 → 46 of 80, at an unchanged price per working run ($0.13 → $0.11 → $0.13).
+On four specifications the map takes a cell from failing to passing outright: carbon removal 0 → 10, shared file storage 4 → 10, a coffee order 6 → 10, bundled DigitalOcean 3 → 8.
+It also has this model's one clear regression — GitHub, where it drops to 1 of 10 because the token call the task needs is nowhere in the description for any index to carry.
+
+**Why the map leads where it leads.**
+Both indexes remove the same failure: an answer that names the right calls and never says how they authenticate (59 such runs without an index, 22 with `tree`, 2 with the map).
+The map removes more of it because a row carries the auth and the required fields in the same read, while `tree` puts each of them one call away.
+The corollary is that `tree` follows the shape of the description — it wins on a 9.5 MB single file and loses on the same API split across 2,842 files — while the map holds its result on both layouts.
+
+**What this does not show.**
+One family of tasks (short call chains with id hand-offs), ten runs a cell, one agent harness, and a cost figure that moves with the prompt cache.
+Read the per-run tables before generalising to a different kind of question.
