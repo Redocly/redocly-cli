@@ -11,8 +11,8 @@ The other two conditions add to it:
 - **tree** — two lines: the CLI is installed, and [`redocly tree --help`](../commands/tree.md) lists what it can select.
 - **map** — three lines: `<description>.map.txt` sits next to the description and carries auth, required fields, response carries and source line ranges, so start there. [`redocly generate-map`](../commands/generate-map.md) writes it before the session begins, so these runs never call the CLI.
 
-A context cell is the median, and a cost cell the mean, of the runs whose flow works; ❌ marks a cell where none did, which leaves nothing to price.
-A difference is printed only where both sides carry the same mark.
+A context cell is the median, and a cost cell the mean, of the runs whose flow works; ❌ marks a cell where none did, so it has nothing to report.
+`Δ tree` and `Δ map` compare each condition against **original**, and read — when either side is ❌.
 
 ## The head-to-heads
 
@@ -41,11 +41,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    original |        tree |        map | Δ tree |
-| ---------------- | ----------: | ----------: | ---------: | -----: |
-| Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |  9,927 / 7 |   −10% |
-| Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 | 14,870 / 9 |   −29% |
-| Haiku 4.5 (n=10) | 11,060 / 10 | 10,262 / 10 | 16,495 / 7 |    −7% |
+| Model            |    original |        tree |        map | Δ tree | Δ map |
+| ---------------- | ----------: | ----------: | ---------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 12,614 / 10 |  11,304 / 9 |  9,927 / 7 |   −10% |  −21% |
+| Opus 5 (n=10)    | 20,266 / 17 | 14,435 / 11 | 14,870 / 9 |   −29% |  −27% |
+| Haiku 4.5 (n=10) | 11,060 / 10 | 10,262 / 10 | 16,495 / 7 |    −7% |  +49% |
 
 What those runs were billed:
 
@@ -1501,11 +1501,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    original |        tree |         map | Δ tree |
-| ---------------- | ----------: | ----------: | ----------: | -----: |
-| Sonnet 5 (n=10)  |  10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
-| Opus 5 (n=10)    | 15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
-| Haiku 4.5 (n=10) |  36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |
+| Model            |    original |        tree |         map | Δ tree | Δ map |
+| ---------------- | ----------: | ----------: | ----------: | -----: | ----: |
+| Sonnet 5 (n=10)  |  10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |  +20% |
+| Opus 5 (n=10)    | 15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |   −5% |
+| Haiku 4.5 (n=10) |  36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |  −55% |
 
 What those runs were billed:
 
@@ -3138,11 +3138,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |       original |        tree |         map | Δ tree |
-| ---------------- | -------------: | ----------: | ----------: | -----: |
-| Sonnet 5 (n=10)  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
-| Opus 5 (n=10)    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
-| Haiku 4.5 (n=10) | 31,613 / 16 ❌ | 20,710 / 19 | 53,080 / 20 |      — |
+| Model            |    original |        tree |         map | Δ tree | Δ map |
+| ---------------- | ----------: | ----------: | ----------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% | +195% |
+| Opus 5 (n=10)    | 46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |   +7% |
+| Haiku 4.5 (n=10) |          ❌ | 20,710 / 19 | 53,080 / 20 |      — |     — |
 
 What those runs were billed:
 
@@ -5661,11 +5661,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |      original |        tree |        map | Δ tree |
-| ---------------- | ------------: | ----------: | ---------: | -----: |
-| Sonnet 5 (n=10)  |    14,065 / 7 |   7,732 / 6 | 28,172 / 6 |   −45% |
-| Opus 5 (n=10)    |    14,913 / 7 |   9,622 / 7 | 27,820 / 9 |   −35% |
-| Haiku 4.5 (n=10) | 12,952 / 7 ❌ | 10,202 / 12 | 34,768 / 7 |      — |
+| Model            |   original |        tree |        map | Δ tree | Δ map |
+| ---------------- | ---------: | ----------: | ---------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 14,065 / 7 |   7,732 / 6 | 28,172 / 6 |   −45% | +100% |
+| Opus 5 (n=10)    | 14,913 / 7 |   9,622 / 7 | 27,820 / 9 |   −35% |  +87% |
+| Haiku 4.5 (n=10) |         ❌ | 10,202 / 12 | 34,768 / 7 |      — |     — |
 
 What those runs were billed:
 
@@ -6953,18 +6953,18 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    original |        tree |         map | Δ tree |
-| ---------------- | ----------: | ----------: | ----------: | -----: |
-| Sonnet 5 (n=10)  | 17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
-| Opus 5 (n=10)    | 19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
-| Haiku 4.5 (n=10) | 21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |
+| Model            |    original |        tree |         map | Δ tree | Δ map |
+| ---------------- | ----------: | ----------: | ----------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |   −7% |
+| Opus 5 (n=10)    | 19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |   −1% |
+| Haiku 4.5 (n=10) | 21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |   +3% |
 
 What those runs were billed:
 
 | Model            |  original |  tree |       map | Δ tree | Δ map |
 | ---------------- | --------: | ----: | --------: | -----: | ----: |
 | Sonnet 5 (n=10)  |     $0.39 | $0.44 | **$0.34** |   +11% |  −14% |
-| Opus 5 (n=10)    | **$0.75** | $1.06 |     $0.75 |   +40% |   +0% |
+| Opus 5 (n=10)    | **$0.75** | $1.06 |     $0.75 |   +40% |   ±0% |
 | Haiku 4.5 (n=10) |     $0.13 | $0.11 | **$0.11** |   −13% |  −19% |
 
 Whether each run produced a flow that would run:
@@ -10170,11 +10170,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    original |        tree |         map | Δ tree |
-| ---------------- | ----------: | ----------: | ----------: | -----: |
-| Sonnet 5 (n=10)  | 11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
-| Opus 5 (n=10)    |  17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
-| Haiku 4.5 (n=10) | 37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |
+| Model            |    original |        tree |         map | Δ tree | Δ map |
+| ---------------- | ----------: | ----------: | ----------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |  −12% |
+| Opus 5 (n=10)    |  17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |  +25% |
+| Haiku 4.5 (n=10) | 37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |  −19% |
 
 What those runs were billed:
 
@@ -11947,11 +11947,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |    original |        tree |         map | Δ tree |
-| ---------------- | ----------: | ----------: | ----------: | -----: |
-| Sonnet 5 (n=10)  | 15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
-| Opus 5 (n=10)    | 24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
-| Haiku 4.5 (n=10) | 22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |
+| Model            |    original |        tree |         map | Δ tree | Δ map |
+| ---------------- | ----------: | ----------: | ----------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |  −19% |
+| Opus 5 (n=10)    | 24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |  −18% |
+| Haiku 4.5 (n=10) | 22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |  +54% |
 
 What those runs were billed:
 
@@ -13586,11 +13586,11 @@ needs, and what to carry from its response into the next step. It has to work as
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
-| Model            |   original |        tree |         map | Δ tree |
-| ---------------- | ---------: | ----------: | ----------: | -----: |
-| Sonnet 5 (n=10)  | 16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
-| Opus 5 (n=10)    | 16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
-| Haiku 4.5 (n=10) | 14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |
+| Model            |   original |        tree |         map | Δ tree | Δ map |
+| ---------------- | ---------: | ----------: | ----------: | -----: | ----: |
+| Sonnet 5 (n=10)  | 16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |  −42% |
+| Opus 5 (n=10)    | 16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |   −9% |
+| Haiku 4.5 (n=10) | 14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |   +9% |
 
 What those runs were billed:
 
@@ -14792,32 +14792,32 @@ How many of the ten runs in each cell produced a flow that would run:
 
 Context the run added, and the tool calls it took (medians over the working runs; ❌ marks a cell where none work, shown over all ten):
 
-| API specification      | Model     |       original |        tree |         map | Δ tree |
-| ---------------------- | --------- | -------------: | ----------: | ----------: | -----: |
-| GitHub REST            | Sonnet 5  |    12,614 / 10 |  11,304 / 9 |   9,927 / 7 |   −10% |
-| GitHub REST            | Opus 5    |    20,266 / 17 | 14,435 / 11 |  14,870 / 9 |   −29% |
-| GitHub REST            | Haiku 4.5 |    11,060 / 10 | 10,262 / 10 |  16,495 / 7 |    −7% |
-| GitHub REST (split)    | Sonnet 5  |     10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |
-| GitHub REST (split)    | Opus 5    |    15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |
-| GitHub REST (split)    | Haiku 4.5 |     36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |
-| Billing API            | Sonnet 5  |    18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% |
-| Billing API            | Opus 5    |    46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |
-| Billing API            | Haiku 4.5 | 31,613 / 16 ❌ | 20,710 / 19 | 53,080 / 20 |      — |
-| Stripe                 | Sonnet 5  |     14,065 / 7 |   7,732 / 6 |  28,172 / 6 |   −45% |
-| Stripe                 | Opus 5    |     14,913 / 7 |   9,622 / 7 |  27,820 / 9 |   −35% |
-| Stripe                 | Haiku 4.5 |  12,952 / 7 ❌ | 10,202 / 12 |  34,768 / 7 |      — |
-| PayPal Orders          | Sonnet 5  |    17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |
-| PayPal Orders          | Opus 5    |    19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |
-| PayPal Orders          | Haiku 4.5 |    21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |
-| DigitalOcean           | Sonnet 5  |    11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |
-| DigitalOcean           | Opus 5    |     17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |
-| DigitalOcean           | Haiku 4.5 |    37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |
-| DigitalOcean (bundled) | Sonnet 5  |    15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |
-| DigitalOcean (bundled) | Opus 5    |    24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |
-| DigitalOcean (bundled) | Haiku 4.5 |    22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |
-| Cafe API               | Sonnet 5  |     16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |
-| Cafe API               | Opus 5    |     16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |
-| Cafe API               | Haiku 4.5 |     14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |
+| API specification      | Model     |    original |        tree |         map | Δ tree | Δ map |
+| ---------------------- | --------- | ----------: | ----------: | ----------: | -----: | ----: |
+| GitHub REST            | Sonnet 5  | 12,614 / 10 |  11,304 / 9 |   9,927 / 7 |   −10% |  −21% |
+| GitHub REST            | Opus 5    | 20,266 / 17 | 14,435 / 11 |  14,870 / 9 |   −29% |  −27% |
+| GitHub REST            | Haiku 4.5 | 11,060 / 10 | 10,262 / 10 |  16,495 / 7 |    −7% |  +49% |
+| GitHub REST (split)    | Sonnet 5  |  10,994 / 8 | 10,606 / 11 |  13,217 / 7 |    −4% |  +20% |
+| GitHub REST (split)    | Opus 5    | 15,772 / 12 | 14,233 / 17 |  14,939 / 9 |   −10% |   −5% |
+| GitHub REST (split)    | Haiku 4.5 |  36,143 / 7 | 11,706 / 16 | 16,334 / 13 |   −68% |  −55% |
+| Billing API            | Sonnet 5  | 18,538 / 19 | 25,739 / 18 | 54,741 / 28 |   +39% | +195% |
+| Billing API            | Opus 5    | 46,231 / 36 | 36,880 / 22 | 49,486 / 36 |   −20% |   +7% |
+| Billing API            | Haiku 4.5 |          ❌ | 20,710 / 19 | 53,080 / 20 |      — |     — |
+| Stripe                 | Sonnet 5  |  14,065 / 7 |   7,732 / 6 |  28,172 / 6 |   −45% | +100% |
+| Stripe                 | Opus 5    |  14,913 / 7 |   9,622 / 7 |  27,820 / 9 |   −35% |  +87% |
+| Stripe                 | Haiku 4.5 |          ❌ | 10,202 / 12 |  34,768 / 7 |      — |     — |
+| PayPal Orders          | Sonnet 5  | 17,351 / 10 |  23,572 / 8 | 16,107 / 16 |   +36% |   −7% |
+| PayPal Orders          | Opus 5    | 19,024 / 13 | 27,908 / 16 | 18,797 / 13 |   +47% |   −1% |
+| PayPal Orders          | Haiku 4.5 | 21,759 / 10 |  23,054 / 8 | 22,391 / 12 |    +6% |   +3% |
+| DigitalOcean           | Sonnet 5  | 11,729 / 19 | 12,282 / 13 | 10,317 / 11 |    +5% |  −12% |
+| DigitalOcean           | Opus 5    |  17,143 / 9 | 25,474 / 14 | 21,397 / 12 |   +49% |  +25% |
+| DigitalOcean           | Haiku 4.5 | 37,888 / 14 | 13,508 / 13 | 30,618 / 12 |   −64% |  −19% |
+| DigitalOcean (bundled) | Sonnet 5  | 15,618 / 14 |   8,800 / 6 |  12,635 / 8 |   −44% |  −19% |
+| DigitalOcean (bundled) | Opus 5    | 24,830 / 15 | 23,584 / 14 | 20,325 / 14 |    −5% |  −18% |
+| DigitalOcean (bundled) | Haiku 4.5 | 22,332 / 10 |  13,728 / 9 |  34,354 / 6 |   −39% |  +54% |
+| Cafe API               | Sonnet 5  |  16,912 / 1 |  8,840 / 10 |  9,811 / 11 |   −48% |  −42% |
+| Cafe API               | Opus 5    |  16,926 / 2 | 15,417 / 13 | 15,485 / 12 |    −9% |   −9% |
+| Cafe API               | Haiku 4.5 |  14,373 / 1 |  19,100 / 7 |  15,662 / 2 |   +33% |   +9% |
 
 What those runs were billed:
 
@@ -14836,7 +14836,7 @@ What those runs were billed:
 | Stripe                 | Opus 5    |     $0.55 | **$0.44** |     $0.67 |   −19% |  +22% |
 | Stripe                 | Haiku 4.5 |        ❌ | **$0.12** |     $0.14 |      — |     — |
 | PayPal Orders          | Sonnet 5  |     $0.39 |     $0.44 | **$0.34** |   +11% |  −14% |
-| PayPal Orders          | Opus 5    | **$0.75** |     $1.06 |     $0.75 |   +40% |   +0% |
+| PayPal Orders          | Opus 5    | **$0.75** |     $1.06 |     $0.75 |   +40% |   ±0% |
 | PayPal Orders          | Haiku 4.5 |     $0.13 |     $0.11 | **$0.11** |   −13% |  −19% |
 | DigitalOcean           | Sonnet 5  |     $0.36 |     $0.36 | **$0.23** |    +1% |  −35% |
 | DigitalOcean           | Opus 5    | **$0.57** |     $0.80 |     $0.71 |   +40% |  +24% |
@@ -14876,7 +14876,7 @@ Stripe adds a sharper version of the second: the model does not miss the call, i
 Every run is a fresh Claude Code session started from the command line with the task text as its only input, allowed to run shell commands, read files and search them.
 Sessions start in a directory holding nothing but the description — plus, in the map condition, the map generated from it — outside any repository; the tree runs call a local build of PR #3005 at `a823f0ee9`.
 The PayPal tree runs were measured on that build; the other five descriptions ran on the earlier `c06d24541`, whose `tree` output for them is byte-identical — 598 command comparisons, no difference.
-Each cell holds ten runs; context cells are medians and cost cells means, over the runs whose flow works, and ❌ marks a cell with none. `Δ tree` and `Δ map` compare each condition against **original**.
+Each cell holds ten runs; context cells are medians and cost cells means, over the runs whose flow works, and ❌ marks a cell with none. `Δ tree` and `Δ map` compare each condition against **original**, and read — when either side is ❌.
 Every run of every condition is listed twice below: once as a verdict, and once as the commands it actually issued.
 
 **context** — from the run's transcript, over the `assistant` records that carry a `message.usage`: a turn's context is `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`, and the table gives the last turn's minus the first turn's.

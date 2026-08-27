@@ -8,35 +8,65 @@ An index rarely changes what a strong model can do; it changes whether a smaller
 
 ## What it changes
 
-**works** is how many of ten runs produced a flow that would actually run; **cost** is the mean of those runs.
-The best cell in each row is bold; ❌ means nothing worked, so there is no price.
+**works** is how many of ten runs produced a flow that would actually run.
+The best cell in each row is bold.
 
-| API specification      | Model     | works: original |      tree |       map | cost: original |      tree |       map |
-| ---------------------- | --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
-| GitHub REST            | Sonnet 5  |       **10/10** | **10/10** |      8/10 |          $0.41 |     $0.31 | **$0.18** |
-| GitHub REST            | Opus 5    |       **10/10** | **10/10** |      9/10 |          $0.79 |     $0.66 | **$0.59** |
-| GitHub REST            | Haiku 4.5 |        **3/10** |  **3/10** |      1/10 |          $0.10 |     $0.10 | **$0.09** |
-| GitHub REST (split)    | Sonnet 5  |        **9/10** |  **9/10** |  **9/10** |          $0.21 |     $0.24 | **$0.19** |
-| GitHub REST (split)    | Opus 5    |            8/10 |      9/10 | **10/10** |          $0.65 |     $0.69 | **$0.54** |
-| GitHub REST (split)    | Haiku 4.5 |        **5/10** |      1/10 |      2/10 |          $0.16 |     $0.14 | **$0.08** |
-| Billing API            | Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** |     $0.80 |
-| Billing API            | Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** |     $2.22 |
-| Billing API            | Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ | **$0.17** |     $0.25 |
-| Stripe                 | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |
-| Stripe                 | Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |
-| Stripe                 | Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ | **$0.12** |     $0.14 |
-| PayPal Orders          | Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 |     $0.44 | **$0.34** |
-| PayPal Orders          | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** |     $1.06 |     $0.75 |
-| PayPal Orders          | Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 |     $0.11 | **$0.11** |
-| DigitalOcean           | Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |     $0.36 | **$0.23** |
-| DigitalOcean           | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |
-| DigitalOcean           | Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |
-| DigitalOcean (bundled) | Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** |     $0.25 |
-| DigitalOcean (bundled) | Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |     $0.88 | **$0.75** |
-| DigitalOcean (bundled) | Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** |     $0.14 |
-| Cafe API               | Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 |     $0.30 | **$0.25** |
-| Cafe API               | Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** |     $0.66 |     $0.70 |
-| Cafe API               | Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** |     $0.10 |     $0.08 |
+| API specification      | Model     |  original |      tree |       map |
+| ---------------------- | --------- | --------: | --------: | --------: |
+| GitHub REST            | Sonnet 5  | **10/10** | **10/10** |      8/10 |
+| GitHub REST            | Opus 5    | **10/10** | **10/10** |      9/10 |
+| GitHub REST            | Haiku 4.5 |  **3/10** |  **3/10** |      1/10 |
+| GitHub REST (split)    | Sonnet 5  |  **9/10** |  **9/10** |  **9/10** |
+| GitHub REST (split)    | Opus 5    |      8/10 |      9/10 | **10/10** |
+| GitHub REST (split)    | Haiku 4.5 |  **5/10** |      1/10 |      2/10 |
+| Billing API            | Sonnet 5  |      2/10 |      6/10 |  **9/10** |
+| Billing API            | Opus 5    | **10/10** | **10/10** | **10/10** |
+| Billing API            | Haiku 4.5 |      0/10 |      1/10 |  **3/10** |
+| Stripe                 | Sonnet 5  |      9/10 | **10/10** | **10/10** |
+| Stripe                 | Opus 5    | **10/10** | **10/10** | **10/10** |
+| Stripe                 | Haiku 4.5 |      0/10 |      8/10 | **10/10** |
+| PayPal Orders          | Sonnet 5  |      9/10 | **10/10** | **10/10** |
+| PayPal Orders          | Opus 5    | **10/10** | **10/10** | **10/10** |
+| PayPal Orders          | Haiku 4.5 |  **4/10** |  **4/10** |      2/10 |
+| DigitalOcean           | Sonnet 5  |      3/10 |      9/10 | **10/10** |
+| DigitalOcean           | Opus 5    | **10/10** | **10/10** | **10/10** |
+| DigitalOcean           | Haiku 4.5 |      4/10 |      4/10 | **10/10** |
+| DigitalOcean (bundled) | Sonnet 5  |      5/10 | **10/10** | **10/10** |
+| DigitalOcean (bundled) | Opus 5    |      8/10 | **10/10** | **10/10** |
+| DigitalOcean (bundled) | Haiku 4.5 |      3/10 |      5/10 |  **8/10** |
+| Cafe API               | Sonnet 5  | **10/10** |      9/10 | **10/10** |
+| Cafe API               | Opus 5    | **10/10** | **10/10** | **10/10** |
+| Cafe API               | Haiku 4.5 |      6/10 |      6/10 | **10/10** |
+
+**cost** is the mean of those working runs, with the change against **original** beside it.
+❌ means nothing worked, so there is no price.
+
+| API specification      | Model     |  original |           tree |            map |
+| ---------------------- | --------- | --------: | -------------: | -------------: |
+| GitHub REST            | Sonnet 5  |     $0.41 |     $0.31 −24% | **$0.18** −55% |
+| GitHub REST            | Opus 5    |     $0.79 |     $0.66 −16% | **$0.59** −26% |
+| GitHub REST            | Haiku 4.5 |     $0.10 |      $0.10 −3% | **$0.09** −16% |
+| GitHub REST (split)    | Sonnet 5  |     $0.21 |     $0.24 +14% |  **$0.19** −8% |
+| GitHub REST (split)    | Opus 5    |     $0.65 |      $0.69 +7% | **$0.54** −16% |
+| GitHub REST (split)    | Haiku 4.5 |     $0.16 |     $0.14 −18% | **$0.08** −49% |
+| Billing API            | Sonnet 5  |     $1.01 | **$0.59** −41% |     $0.80 −21% |
+| Billing API            | Opus 5    |     $1.74 | **$1.10** −37% |     $2.22 +28% |
+| Billing API            | Haiku 4.5 |        ❌ |      **$0.17** |          $0.25 |
+| Stripe                 | Sonnet 5  |     $0.32 |     $0.25 −22% | **$0.25** −24% |
+| Stripe                 | Opus 5    |     $0.55 | **$0.44** −19% |     $0.67 +22% |
+| Stripe                 | Haiku 4.5 |        ❌ |      **$0.12** |          $0.14 |
+| PayPal Orders          | Sonnet 5  |     $0.39 |     $0.44 +11% | **$0.34** −14% |
+| PayPal Orders          | Opus 5    | **$0.75** |     $1.06 +40% |      $0.75 ±0% |
+| PayPal Orders          | Haiku 4.5 |     $0.13 |     $0.11 −13% | **$0.11** −19% |
+| DigitalOcean           | Sonnet 5  |     $0.36 |      $0.36 +1% | **$0.23** −35% |
+| DigitalOcean           | Opus 5    | **$0.57** |     $0.80 +40% |     $0.71 +24% |
+| DigitalOcean           | Haiku 4.5 |     $0.19 | **$0.12** −33% |     $0.16 −15% |
+| DigitalOcean (bundled) | Sonnet 5  |     $0.29 | **$0.17** −42% |     $0.25 −13% |
+| DigitalOcean (bundled) | Opus 5    |     $0.83 |      $0.88 +5% | **$0.75** −10% |
+| DigitalOcean (bundled) | Haiku 4.5 |     $0.19 | **$0.12** −37% |     $0.14 −24% |
+| Cafe API               | Sonnet 5  |     $0.25 |     $0.30 +20% |  **$0.25** −2% |
+| Cafe API               | Opus 5    | **$0.46** |     $0.66 +42% |     $0.70 +51% |
+| Cafe API               | Haiku 4.5 | **$0.07** |     $0.10 +45% |     $0.08 +18% |
 
 ## The head-to-heads
 
@@ -64,11 +94,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |  map | cost: original |  tree |       map |
-| --------- | --------------: | --------: | ---: | -------------: | ----: | --------: |
-| Sonnet 5  |       **10/10** | **10/10** | 8/10 |          $0.41 | $0.31 | **$0.18** |
-| Opus 5    |       **10/10** | **10/10** | 9/10 |          $0.79 | $0.66 | **$0.59** |
-| Haiku 4.5 |        **3/10** |  **3/10** | 1/10 |          $0.10 | $0.10 | **$0.09** |
+| Model     | works: original |      tree |  map | cost: original |       tree |            map |
+| --------- | --------------: | --------: | ---: | -------------: | ---------: | -------------: |
+| Sonnet 5  |       **10/10** | **10/10** | 8/10 |          $0.41 | $0.31 −24% | **$0.18** −55% |
+| Opus 5    |       **10/10** | **10/10** | 9/10 |          $0.79 | $0.66 −16% | **$0.59** −26% |
+| Haiku 4.5 |        **3/10** |  **3/10** | 1/10 |          $0.10 |  $0.10 −3% | **$0.09** −16% |
 
 What the failing runs left out:
 
@@ -107,11 +137,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |     tree |       map | cost: original |  tree |       map |
-| --------- | --------------: | -------: | --------: | -------------: | ----: | --------: |
-| Sonnet 5  |        **9/10** | **9/10** |  **9/10** |          $0.21 | $0.24 | **$0.19** |
-| Opus 5    |            8/10 |     9/10 | **10/10** |          $0.65 | $0.69 | **$0.54** |
-| Haiku 4.5 |        **5/10** |     1/10 |      2/10 |          $0.16 | $0.14 | **$0.08** |
+| Model     | works: original |     tree |       map | cost: original |       tree |            map |
+| --------- | --------------: | -------: | --------: | -------------: | ---------: | -------------: |
+| Sonnet 5  |        **9/10** | **9/10** |  **9/10** |          $0.21 | $0.24 +14% |  **$0.19** −8% |
+| Opus 5    |            8/10 |     9/10 | **10/10** |          $0.65 |  $0.69 +7% | **$0.54** −16% |
+| Haiku 4.5 |        **5/10** |     1/10 |      2/10 |          $0.16 | $0.14 −18% | **$0.08** −49% |
 
 What the failing runs left out:
 
@@ -154,11 +184,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |      tree |   map |
-| --------- | --------------: | --------: | --------: | -------------: | --------: | ----: |
-| Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** | $0.80 |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** | $2.22 |
-| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ | **$0.17** | $0.25 |
+| Model     | works: original |      tree |       map | cost: original |           tree |        map |
+| --------- | --------------: | --------: | --------: | -------------: | -------------: | ---------: |
+| Sonnet 5  |            2/10 |      6/10 |  **9/10** |          $1.01 | **$0.59** −41% | $0.80 −21% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |          $1.74 | **$1.10** −37% | $2.22 +28% |
+| Haiku 4.5 |            0/10 |      1/10 |  **3/10** |             ❌ |      **$0.17** |      $0.25 |
 
 What the failing runs left out:
 
@@ -205,11 +235,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |      tree |       map |
-| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
-| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 | **$0.25** |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** |     $0.67 |
-| Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ | **$0.12** |     $0.14 |
+| Model     | works: original |      tree |       map | cost: original |           tree |            map |
+| --------- | --------------: | --------: | --------: | -------------: | -------------: | -------------: |
+| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.32 |     $0.25 −22% | **$0.25** −24% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |          $0.55 | **$0.44** −19% |     $0.67 +22% |
+| Haiku 4.5 |            0/10 |      8/10 | **10/10** |             ❌ |      **$0.12** |          $0.14 |
 
 What the failing runs left out:
 
@@ -243,11 +273,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |  tree |       map |
-| --------- | --------------: | --------: | --------: | -------------: | ----: | --------: |
-| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 | $0.44 | **$0.34** |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** | $1.06 |     $0.75 |
-| Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 | $0.11 | **$0.11** |
+| Model     | works: original |      tree |       map | cost: original |       tree |            map |
+| --------- | --------------: | --------: | --------: | -------------: | ---------: | -------------: |
+| Sonnet 5  |            9/10 | **10/10** | **10/10** |          $0.39 | $0.44 +11% | **$0.34** −14% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.75** | $1.06 +40% |      $0.75 ±0% |
+| Haiku 4.5 |        **4/10** |  **4/10** |      2/10 |          $0.13 | $0.11 −13% | **$0.11** −19% |
 
 What the failing runs left out:
 
@@ -292,11 +322,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |      tree |       map |
-| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
-| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |     $0.36 | **$0.23** |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 |     $0.71 |
-| Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** |     $0.16 |
+| Model     | works: original |      tree |       map | cost: original |           tree |            map |
+| --------- | --------------: | --------: | --------: | -------------: | -------------: | -------------: |
+| Sonnet 5  |            3/10 |      9/10 | **10/10** |          $0.36 |      $0.36 +1% | **$0.23** −35% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.57** |     $0.80 +40% |     $0.71 +24% |
+| Haiku 4.5 |            4/10 |      4/10 | **10/10** |          $0.19 | **$0.12** −33% |     $0.16 −15% |
 
 What the failing runs left out:
 
@@ -335,11 +365,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |      tree |       map |
-| --------- | --------------: | --------: | --------: | -------------: | --------: | --------: |
-| Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** |     $0.25 |
-| Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |     $0.88 | **$0.75** |
-| Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** |     $0.14 |
+| Model     | works: original |      tree |       map | cost: original |           tree |            map |
+| --------- | --------------: | --------: | --------: | -------------: | -------------: | -------------: |
+| Sonnet 5  |            5/10 | **10/10** | **10/10** |          $0.29 | **$0.17** −42% |     $0.25 −13% |
+| Opus 5    |            8/10 | **10/10** | **10/10** |          $0.83 |      $0.88 +5% | **$0.75** −10% |
+| Haiku 4.5 |            3/10 |      5/10 |  **8/10** |          $0.19 | **$0.12** −37% |     $0.14 −24% |
 
 What the failing runs left out:
 
@@ -376,11 +406,11 @@ Give me a working flow as JSON in your reply: the steps in order, what each one 
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
 
-| Model     | works: original |      tree |       map | cost: original |  tree |       map |
-| --------- | --------------: | --------: | --------: | -------------: | ----: | --------: |
-| Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 | $0.30 | **$0.25** |
-| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** | $0.66 |     $0.70 |
-| Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** | $0.10 |     $0.08 |
+| Model     | works: original |      tree |       map | cost: original |       tree |           map |
+| --------- | --------------: | --------: | --------: | -------------: | ---------: | ------------: |
+| Sonnet 5  |       **10/10** |      9/10 | **10/10** |          $0.25 | $0.30 +20% | **$0.25** −2% |
+| Opus 5    |       **10/10** | **10/10** | **10/10** |      **$0.46** | $0.66 +42% |    $0.70 +51% |
+| Haiku 4.5 |            6/10 |      6/10 | **10/10** |      **$0.07** | $0.10 +45% |    $0.08 +18% |
 
 What the failing runs left out:
 
