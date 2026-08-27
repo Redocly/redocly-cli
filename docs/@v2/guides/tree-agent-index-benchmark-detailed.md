@@ -1,21 +1,15 @@
 # Where the index pays and where the description already is one — every run
 
-{% admonition type="info" name="Build" %}
-Measured on a build of PR #3005 at `a823f0ee9`, ten runs a cell for every model.
-The grid moves to a published snapshot once one carries this build.
-{% /admonition %}
-
 This is the long form of [Where the index pays](./tree-agent-index-benchmark.md): every run, every command, every verdict.
 Read the short version first — this page exists to check it.
+Measured on a build of PR #3005 at `a823f0ee9`.
 
-Earlier rounds asked whether the flow an agent produces would actually run, over three descriptions that were all one file.
-This round adds five task-description pairs chosen to be hard in new ways — Stripe, whose schemas are enormous; PayPal Orders, small but dense with approval steps and id chains; DigitalOcean, which ships as 2,909 files with one operation each — and, for two of them, a second task asking about a corner of the same file that no tutorial covers, so that what a model remembers can be told apart from what it reads.
+Eight description-task pairs, three models, three conditions, ten runs a cell — 720 runs.
+Each tab shows the prompt as the **original** condition sends it, naming neither `tree` nor Redocly.
+The other two conditions add to it:
 
-Eight description-task pairs, three models, three conditions, ten runs a cell — 720 runs:
-
-- **original** — the task and the path to the description. Neither `tree` nor Redocly is named.
-- **tree** — the same task plus two lines: the CLI is installed, and [`redocly tree --help`](../commands/tree.md) lists what it can select.
-- **map** — the same task plus three lines: a generated index of every operation sits next to the description, it carries auth, required fields, response carries and source line ranges, and the run should start there. The map is written by [`redocly generate-map`](../commands/generate-map.md) before the session begins, so these runs never call the CLI.
+- **tree** — two lines: the CLI is installed, and [`redocly tree --help`](../commands/tree.md) lists what it can select.
+- **map** — three lines: `<description>.map.txt` sits next to the description and carries auth, required fields, response carries and source line ranges, so start there. [`redocly generate-map`](../commands/generate-map.md) writes it before the session begins, so these runs never call the CLI.
 
 A context cell is the median, and a cost cell the mean, of the runs whose flow works; ❌ marks a cell where none did, which leaves nothing to price.
 A difference is printed only where both sides carry the same mark.
@@ -32,8 +26,7 @@ A difference is printed only where both sides carry the same mark.
 Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
 Traps: the upload overrides its server to `https://uploads.github.com`, and the delete is keyed by asset, not release.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 I want a CI job that publishes a release for a repository, attaches the built zip to it,
@@ -45,44 +38,6 @@ API description: github-api.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-I want a CI job that publishes a release for a repository, attaches the built zip to it,
-and can take that file back down if the upload turns out wrong. Work out what it calls.
-The CI authenticates as a GitHub App installation.
-
-API description: github-api.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree github-api.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-I want a CI job that publishes a release for a repository, attaches the built zip to it,
-and can take that file back down if the upload turns out wrong. Work out what it calls.
-The CI authenticates as a GitHub App installation.
-
-API description: github-api.yaml
-Next to it is github-api.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -1531,8 +1486,7 @@ Haiku 4.5 fails the same way each time — it declares an installation token it 
 Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
 Traps: the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 I want a CI job that publishes a release for a repository, attaches the built zip to it,
@@ -1544,44 +1498,6 @@ API description: github-split/openapi.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-I want a CI job that publishes a release for a repository, attaches the built zip to it,
-and can take that file back down if the upload turns out wrong. Work out what it calls.
-The CI authenticates as a GitHub App installation.
-
-API description: github-split/openapi.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree github-split/openapi.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-I want a CI job that publishes a release for a repository, attaches the built zip to it,
-and can take that file back down if the upload turns out wrong. Work out what it calls.
-The CI authenticates as a GitHub App installation.
-
-API description: github-split/openapi.yaml
-Next to it is github-split/openapi.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -3207,8 +3123,7 @@ Read against the single-file GitHub tab, this is one half of the layout experime
 Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
 Traps: the subscription body requires `orderType`, `customerId`, `websiteId` and `items`, and every call needs the `SecretApiKey` key in the `REB-APIKEY` header.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 We're moving existing customers onto monthly recurring billing. One of them is already in
@@ -3220,44 +3135,6 @@ API description: rebilly.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-We're moving existing customers onto monthly recurring billing. One of them is already in
-the system, nothing else is set up yet. Work out what our backend has to call to get that
-customer onto a recurring plan.
-
-API description: rebilly.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree rebilly.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-We're moving existing customers onto monthly recurring billing. One of them is already in
-the system, nothing else is set up yet. Work out what our backend has to call to get that
-customer onto a recurring plan.
-
-API description: rebilly.yaml
-Next to it is rebilly.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -5769,8 +5646,7 @@ The sign flips on context for Sonnet 5 (+84%) because its five cheap control run
 Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
 The point of this description: it is the same file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 Our company committed to buying carbon removal. Pick a removal product from what's on
@@ -5782,44 +5658,6 @@ API description: climate.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-Our company committed to buying carbon removal. Pick a removal product from what's on
-offer, place an order for a set number of metric tons, and be able to cancel that order
-before delivery if finance rejects the spend. Work out what our backend has to call.
-
-API description: climate.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree climate.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-Our company committed to buying carbon removal. Pick a removal product from what's on
-offer, place an order for a set number of metric tons, and be able to cancel that order
-before delivery if finance rejects the spend. Work out what our backend has to call.
-
-API description: climate.yaml
-Next to it is climate.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -7100,8 +6938,7 @@ Set against the previous tab, this is the prior-contamination experiment: same f
 Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
 Traps: capture happens only after an approval step that is not an API call; the tracker binds to the `capture_id` from the capture response, not to the order; the OAuth2 token endpoint is not a path in this description.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 We sell physical goods online: take the buyer's payment for a cart, capture the money once
@@ -7113,44 +6950,6 @@ API description: paypal.json
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-We sell physical goods online: take the buyer's payment for a cart, capture the money once
-they approve, and file the shipment's tracking number against that payment so the buyer
-sees it. Work out what our backend has to call, end to end.
-
-API description: paypal.json
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree paypal.json --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-We sell physical goods online: take the buyer's payment for a cart, capture the money once
-they approve, and file the shipment's tracking number against that payment so the buyer
-sees it. Work out what our backend has to call, end to end.
-
-API description: paypal.json
-Next to it is paypal.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -10356,8 +10155,7 @@ Haiku 4.5 lands on four working runs either way: the cards hand it the tracker c
 Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 The point of this task: it is the same description as the previous tab, but a corner DigitalOcean's tutorials do not cover — the mainstream droplet-and-firewall recipe is written up everywhere, network file shares are not. Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and `/` as an export path is reserved for the implicit default.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 We need shared storage for a cluster: a network file share in one region, reachable from
@@ -10369,44 +10167,6 @@ API description: digitalocean/DigitalOcean-public.v2.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-We need shared storage for a cluster: a network file share in one region, reachable from
-our private network, plus a second export path that a different private network can
-mount. Nothing is set up yet. Work out what our provisioning script has to call.
-
-API description: digitalocean/DigitalOcean-public.v2.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree digitalocean/DigitalOcean-public.v2.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-We need shared storage for a cluster: a network file share in one region, reachable from
-our private network, plus a second export path that a different private network can
-mount. Nothing is set up yet. Work out what our provisioning script has to call.
-
-API description: digitalocean/DigitalOcean-public.v2.yaml
-Next to it is digitalocean/DigitalOcean-public.v2.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -12172,8 +11932,7 @@ Read against the previous tab, this is the second prior-contamination control in
 Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 We need shared storage for a cluster: a network file share in one region, reachable from
@@ -12185,44 +11944,6 @@ API description: digitalocean-bundled.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-We need shared storage for a cluster: a network file share in one region, reachable from
-our private network, plus a second export path that a different private network can
-mount. Nothing is set up yet. Work out what our provisioning script has to call.
-
-API description: digitalocean-bundled.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree digitalocean-bundled.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-We need shared storage for a cluster: a network file share in one region, reachable from
-our private network, plus a second export path that a different private network can
-mount. Nothing is set up yet. Work out what our provisioning script has to call.
-
-API description: digitalocean-bundled.yaml
-Next to it is digitalocean-bundled.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
@@ -13851,8 +13572,7 @@ Read against the previous tab, this is the other half of the layout experiment: 
 Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
 Trap: ordering requires an OAuth2 token with the `orders:write` scope, minted by a call the task never mentions.
 
-{% tabs %}
-{% tab label="Prompt: original" %}
+**Prompt:**
 
 ```text
 I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
@@ -13863,42 +13583,6 @@ API description: cafe.yaml
 Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
 needs, and what to carry from its response into the next step. It has to work as written.
 ```
-
-{% /tab %}
-{% tab label="Prompt: tree" %}
-
-```text
-I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
-and follows that order until it's ready. Work out what the app has to call, end to end.
-
-API description: cafe.yaml
-
-The Redocly CLI is installed and its `tree` command can search the description for you.
-Start with `redocly tree --help` to see what it can select, then work with `--format=ai`:
-redocly tree cafe.yaml --format=ai <flags>
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% tab label="Prompt: map" %}
-
-```text
-I'm building a mobile app for a cafe: the customer browses the menu, orders a coffee,
-and follows that order until it's ready. Work out what the app has to call, end to end.
-
-API description: cafe.yaml
-Next to it is cafe.map.txt — a generated index of every operation in this API:
-auth, required fields, what to carry from each response, and source line ranges.
-Start there.
-
-Give me a working flow as JSON in your reply: the steps in order, what each one calls, what it
-needs, and what to carry from its response into the next step. It has to work as written.
-```
-
-{% /tab %}
-{% /tabs %}
 
 Context the run added, and the tool calls it took (medians over the working runs):
 
