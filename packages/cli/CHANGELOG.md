@@ -1,5 +1,18 @@
 # @redocly/cli
 
+## 2.49.0
+
+### Minor Changes
+
+- Added the `no-illogical-composition-keywords` rule.
+
+  **Note**: the rule is set to `warn` in the `recommended` ruleset and to `error` in `recommended-strict`. Existing API descriptions may report new problems.
+
+### Patch Changes
+
+- Fixed an issue where telemetry silently failed to send when `npm` was not available.
+- Updated @redocly/openapi-core to v2.49.0.
+
 ## 2.48.0
 
 ### Minor Changes

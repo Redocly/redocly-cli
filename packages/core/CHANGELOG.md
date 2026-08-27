@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 2.49.0
+
+### Minor Changes
+
+- Added the `no-illogical-composition-keywords` rule.
+
+  **Note**: the rule is set to `warn` in the `recommended` ruleset and to `error` in `recommended-strict`. Existing API descriptions may report new problems.
+
 ## 2.48.0
 
 ### Patch Changes
