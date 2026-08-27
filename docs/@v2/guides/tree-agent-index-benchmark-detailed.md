@@ -25,7 +25,8 @@ On a cost table the larger of the two savings is bold; a row where neither condi
 **Description:** 9.52 MB in one file.
 
 **Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
-Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+
+**Expected:** `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
 Traps: the upload overrides its server to `https://uploads.github.com`, and the delete is keyed by asset, not release.
 
 **Prompt:**
@@ -1485,7 +1486,8 @@ Haiku 4.5 fails the same way each time — it declares an installation token it 
 **Description:** 16 MB across 2,842 files — the same GitHub description split into one file per operation with `redocly split`.
 
 **Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
-Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+
+**Expected:** `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
 Traps: the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
 **Prompt:**
@@ -3122,7 +3124,8 @@ Read against the single-file GitHub tab, this is one half of the layout experime
 **Description:** 1.25 MB in one file.
 
 **Task:** put an existing customer onto a recurring plan, with nothing else set up yet.
-Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
+
+**Expected:** `POST /products` → `POST /plans` → `POST /subscriptions`.
 Traps: the subscription body requires `orderType`, `customerId`, `websiteId` and `items`, and every call needs the `SecretApiKey` key in the `REB-APIKEY` header.
 
 **Prompt:**
@@ -5645,7 +5648,8 @@ The sign flips on context for Sonnet 5 (+39%), but the baseline is thin: only tw
 **Description:** 6.07 MB in one file — the same file as the previous tab.
 
 **Task:** buy carbon removal — pick a product from what's on offer, order a set number of metric tons, and be able to cancel before delivery.
-Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
+
+**Expected:** `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
 The point of this description: it is the same file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
 
 **Prompt:**
@@ -6937,7 +6941,8 @@ Set against the previous tab, this is the prior-contamination experiment: same f
 **Description:** 0.93 MB in one file, JSON rather than YAML.
 
 **Task:** take the buyer's payment for a cart, capture it once they approve, and file the shipment's tracking number against that payment.
-Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
+
+**Expected:** `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
 Traps: capture happens only after an approval step that is not an API call; the tracker binds to the `capture_id` from the capture response, not to the order; the OAuth2 token endpoint is not a path in this description.
 
 **Prompt:**
@@ -10154,7 +10159,8 @@ Haiku 4.5 lands on four working runs either way: the cards hand it the tracker c
 **Description:** 2.62 MB across 2,909 files — the same description as the previous tab.
 
 **Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
-Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+
+**Expected:** `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 The point of this task: it is the same description as the previous tab, but a corner DigitalOcean's tutorials do not cover — the mainstream droplet-and-firewall recipe is written up everywhere, network file shares are not. Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and `/` as an export path is reserved for the implicit default.
 
 **Prompt:**
@@ -11931,7 +11937,8 @@ Read against the previous tab, this is the second prior-contamination control in
 **Description:** 2.87 MB in one file — the 2,909-file DigitalOcean description bundled into a single document with `redocly bundle`.
 
 **Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
-Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+
+**Expected:** `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 Traps: the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
 
 **Prompt:**
@@ -13571,7 +13578,8 @@ Read against the previous tab, this is the other half of the layout experiment: 
 **Description:** 0.04 MB in one file.
 
 **Task:** a customer app that browses the menu, orders a coffee, and follows the order until it is ready.
-Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
+
+**Expected:** `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
 Trap: ordering requires an OAuth2 token with the `orders:write` scope, minted by a call the task never mentions.
 
 **Prompt:**

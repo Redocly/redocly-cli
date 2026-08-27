@@ -79,7 +79,8 @@ The larger of the two savings is bold; a row where neither condition saves has n
 **Description:** 9.52 MB in one file.
 
 **Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
-Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+
+**Expected:** `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
 
 **The trap:** the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
@@ -122,7 +123,8 @@ Sonnet 5 and Opus 5 answer correctly with or without `tree`, which buys them 10%
 **Description:** 16 MB across 2,842 files — the same GitHub description split into one file per operation with `redocly split`.
 
 **Task:** a CI job that publishes a release, attaches the built zip, and can take that file back down, authenticating as a GitHub App installation.
-Expected: `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
+
+**Expected:** `POST /app/installations/{id}/access_tokens` → `POST /releases` → the asset upload → `DELETE /releases/assets/{asset_id}`.
 
 **The trap:** the upload overrides its server to `uploads.github.com`, and the delete is keyed by asset, not release.
 
@@ -169,7 +171,8 @@ Split into a file per operation, the layout is itself an index, and the advantag
 **Description:** 1.25 MB in one file.
 
 **Task:** put an existing customer onto a recurring plan, with nothing else set up yet.
-Expected: `POST /products` → `POST /plans` → `POST /subscriptions`.
+
+**Expected:** `POST /products` → `POST /plans` → `POST /subscriptions`.
 
 **The trap:** the subscription body needs four named fields, and every call needs the key in the `REB-APIKEY` header.
 
@@ -219,7 +222,8 @@ Sonnet 5 goes from two working runs to six with `tree` and nine with the map, an
 **Description:** 6.07 MB in one file — the same file as the previous tab.
 
 **Task:** buy carbon removal — pick a product from what's on offer, order a set number of metric tons, and be able to cancel before delivery.
-Expected: `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
+
+**Expected:** `GET /v1/climate/products` → `POST /v1/climate/orders` → `POST /v1/climate/orders/{order}/cancel`.
 The point of this description: it is the same file as the previous tab, but a corner no tutorial covers — a model cannot answer it from memory, only from the description. Traps: the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance, so the payment-intent machinery a Stripe-trained prior reaches for has no place here.
 
 **The trap:** the quantity rides on `metric_tons`, the cancel is its own `POST`, and payment comes off the merchant balance.
@@ -258,7 +262,8 @@ The same file, a corner no tutorial covers, and the picture inverts: every model
 **Description:** 0.93 MB in one file, JSON rather than YAML.
 
 **Task:** take the buyer's payment for a cart, capture it once they approve, and file the shipment's tracking number against that payment.
-Expected: `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
+
+**Expected:** `POST /v2/checkout/orders` → `POST /v2/checkout/orders/{id}/capture` → `POST /v2/checkout/orders/{id}/track`.
 
 **The trap:** the tracker binds to the `capture_id` from the capture response, not to the order.
 
@@ -307,7 +312,8 @@ Haiku 4.5 stays at four working runs, still leaving `intent` out of the order bo
 **Description:** 2.62 MB across 2,909 files — the same description as the previous tab.
 
 **Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
-Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+
+**Expected:** `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 
 **The trap:** the share takes a `vpc_ids` array while an access point takes one `vpc_id`.
 
@@ -350,7 +356,8 @@ The same 2,909 files, a corner the tutorials skip: `tree` moves Sonnet 5 from th
 **Description:** 2.87 MB in one file — the 2,909-file DigitalOcean description bundled into a single document with `redocly bundle`.
 
 **Task:** shared storage for a cluster — a network file share in one region reachable from a private network, plus a second export path a different private network can mount.
-Expected: `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
+
+**Expected:** `POST /v2/nfs` → `POST /v2/nfs/shares/{share_id}/access_points`.
 
 **The trap:** the share binds to networks through a `vpc_ids` array while an access point takes a single `vpc_id`, and the file-per-operation layout that made this cheap to `cat` is gone.
 
@@ -392,7 +399,8 @@ Bundled into one 2.87 MB file, the description stops answering "where is it" by 
 **Description:** 0.04 MB in one file.
 
 **Task:** a customer app that browses the menu, orders a coffee, and follows the order until it is ready.
-Expected: `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
+
+**Expected:** `POST /oauth2/token` → `GET /menu` → `POST /orders` → `GET /orders/{orderId}`.
 
 **The trap:** ordering needs an OAuth2 token with the `orders:write` scope, minted by a call the task never mentions.
 
@@ -458,7 +466,7 @@ Working flows out of 80 per model, with the mean price of a working run:
 
 **Sonnet 5 — both indexes help, the map most.**
 original: 57 at $0.34 · tree: 73 at $0.32 · map: 76 at $0.31.
-The map is the best condition on seven of the eight specifications; its one loss is the split GitHub layout, where the file tree is already an index.
+The map is the best condition, or tied for it, on seven of the eight specifications; its one loss is the 9.5 MB GitHub file, where it drops two runs.
 
 **Opus 5 — no index is needed, and the map costs more.**
 original: 76 at $0.80 · tree: 79 at $0.79 · map: 79 at $0.87.
@@ -466,11 +474,13 @@ Three runs separate the worst condition from the best, so use whichever is alrea
 
 **Haiku 4.5 — the map is the difference between an answer and no answer.**
 original: 25 at $0.13 · tree: 32 at $0.11 · map: 46 at $0.13.
-It takes four cells from failing to passing — Stripe 0 to 10, DigitalOcean 4 to 10, Cafe API 6 to 10, bundled DigitalOcean 3 to 8 — and has this model's one clear regression on GitHub, where the token call the task needs is nowhere in the description for any index to carry.
+Its largest gains are Stripe 0 to 10, DigitalOcean 4 to 10, bundled DigitalOcean 3 to 8 and Cafe API 6 to 10.
+It loses ground on three: both GitHub layouts, where the installation-token call the task needs is not marked as a security requirement for any index to carry, and PayPal, where the map clears its auth failures and leaves it dropping a required body field instead.
 
-**Why.** Both indexes remove the same failure, an answer that names the right calls and never says how they authenticate: 59 such runs without an index, 22 with `tree`, 2 with the map.
+**Why.** Both indexes remove the same failure, an answer that names the right calls and never says how they authenticate: 58 such runs without an index, 22 with `tree`, 2 with the map.
 The map removes more of it because a row carries the auth and the required fields in the same read.
-`tree` also follows the shape of the description — it wins on a 9.5 MB single file and loses on the same API split across 2,842 files — while the map holds its result on both layouts.
+`tree` also follows the shape of the description: on the 9.5 MB GitHub file it matches plain reading run for run at 3% to 24% less, and on the same API split across 2,842 files it costs Haiku 4.5 four of its five working runs.
+The map holds its result on both layouts.
 
 **Limits.** One family of tasks, ten runs a cell, one agent harness, and a cost figure that moves with the prompt cache.
 Read the per-run tables before generalising to a different kind of question.
