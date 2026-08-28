@@ -437,15 +437,15 @@ An index changes what a small model can do, not what a large one can.
 Working flows out of 80 per model, with the mean price of a working run:
 
 **Sonnet 5 — both indexes help, the map most.**
-original: 57 at $0.34 · tree: 73 at $0.32 · map: 76 at $0.31.
+original: 57 at $0.34; tree: 73 at $0.32; map: 76 at $0.31.
 The map is the best condition, or tied for it, on seven of the eight specifications; its one loss is the 9.5 MB GitHub file, where it drops two runs.
 
 **Opus 5 — no index is needed, and the map costs more.**
-original: 76 at $0.80 · tree: 79 at $0.79 · map: 79 at $0.87.
+original: 76 at $0.80; tree: 79 at $0.79; map: 79 at $0.87.
 Three runs separate the worst condition from the best, so use whichever is already in the pipeline.
 
 **Haiku 4.5 — the map is the difference between an answer and no answer.**
-original: 25 at $0.13 · tree: 32 at $0.11 · map: 46 at $0.13.
+original: 25 at $0.13; tree: 32 at $0.11; map: 46 at $0.13.
 Its largest gains are Stripe 0 to 10, DigitalOcean 4 to 10, bundled DigitalOcean 3 to 8 and Cafe API 6 to 10.
 It loses ground on three: both GitHub layouts, where the installation-token call the task needs is not marked as a security requirement for any index to carry, and PayPal, where the map clears its auth failures and leaves it dropping a required body field instead.
 
