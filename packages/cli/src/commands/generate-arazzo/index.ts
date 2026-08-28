@@ -18,6 +18,7 @@ export type GenerateArazzoCommandArgv = {
   'output-file'?: string;
   'with-ai'?: boolean;
   'ai-provider': AiProvider;
+  'ai-model'?: string;
   'max-workflows': number;
   config?: string;
 };
@@ -116,6 +117,7 @@ export async function handleGenerateArazzo({
       try {
         const redesigned = await generateWorkflowsWithAi({
           provider,
+          model: argv['ai-model'],
           baseline: generatedArazzo,
           description: bundledDescription,
           maxWorkflows: argv['max-workflows'],

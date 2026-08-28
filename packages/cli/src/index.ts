@@ -873,6 +873,11 @@ yargs(hideBin(process.argv))
             >,
             default: 'claude' as GenerateArazzoCommandArgv['ai-provider'],
           },
+          'ai-model': {
+            describe:
+              'Model passed to the selected AI provider (provider-specific default applies).',
+            type: 'string',
+          },
           'max-workflows': {
             describe: 'Most workflows the AI may design with --with-ai.',
             type: 'number',

@@ -15,6 +15,7 @@ import { buildWorkflowsPrompt } from './prompt.js';
 
 export interface GenerateWorkflowsOptions {
   provider: AiProvider;
+  model?: string;
   /** The mechanically generated Arazzo description the AI redesigns. */
   baseline: TestDescription;
   description: unknown;
@@ -184,7 +185,7 @@ export async function generateWorkflowsWithAi(
   spinner.start('Waiting for the AI-designed workflows');
   let text: string;
   try {
-    ({ text } = await runProvider(options.provider, { system, user }));
+    ({ text } = await runProvider(options.provider, { system, user, model: options.model }));
   } finally {
     spinner.stop();
     if (process.stderr.isTTY) {

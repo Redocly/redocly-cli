@@ -125,6 +125,7 @@ describe('handleGenerateArazzo', () => {
         descriptionPath: 'openapi.yaml',
         'with-ai': true,
         'ai-provider': 'claude',
+        'ai-model': 'claude-sonnet-5',
         'max-workflows': 10,
       } as GenerateArazzoCommandArgv,
       config: mockConfig,
@@ -136,6 +137,7 @@ describe('handleGenerateArazzo', () => {
 
     expect(generateWorkflowsWithAi).toHaveBeenCalledWith({
       provider: 'claude',
+      model: 'claude-sonnet-5',
       baseline: { workflows: [] },
       description: undefined,
       maxWorkflows: 10,

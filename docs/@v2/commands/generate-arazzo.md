@@ -27,7 +27,7 @@ See the [Redesign workflows with AI](#redesign-workflows-with-ai) section.
 
 ```sh
 npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> [-o | --output-file]
-npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [--ai-provider=<option>]
+npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [--ai-provider=<option>] [--ai-model=<string>] [--max-workflows=<number>]
 ```
 
 ## Options
@@ -59,6 +59,13 @@ npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [-
   Runs the corresponding CLI in non-interactive mode.
   **Possible values:** `claude`, `codex`, `cursor`.
   Default: `claude`.
+
+---
+
+- --ai-model
+- string
+- Model passed to the selected AI provider.
+  If not set, the provider's default model is used.
 
 ---
 
@@ -193,7 +200,8 @@ The workflows are designed by a locally installed AI CLI running in non-interact
 The selected CLI must be installed and authenticated on the machine running the command.
 No API key is passed to or stored by Redocly CLI.
 
-The provider runs in isolation: project context the CLIs normally load (such as `CLAUDE.md`, `AGENTS.md`, or `.cursor/rules`) does not apply.
+The provider runs in isolation: project context the CLIs normally load (such as `CLAUDE.md`, `AGENTS.md`, or `.cursor/rules`) and settings like a configured model do not apply.
+Use `--ai-model` to choose a model, or the provider's default is used.
 
 ## Resources
 
