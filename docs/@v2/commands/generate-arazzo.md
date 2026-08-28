@@ -17,7 +17,8 @@ It acts as a starting point for a test file and needs to be extended to be funct
 
 The first HTTP response is used as the success criteria for each step.
 
-After writing the file, the command prints a ready-to-run [`respect`](./respect.md) command, including an `--input` placeholder for every workflow input — replace the placeholder values with real ones before running it.
+After writing the file, the command prints a ready-to-run [`respect`](./respect.md) command, including an `--input` placeholder for every workflow input.
+Replace the placeholder values with real ones before running it.
 
 With `--with-ai`, the generated one-workflow-per-operation skeleton is redesigned by an AI provider into realistic multi-step workflows, using the OpenAPI description as context.
 See the [Redesign workflows with AI](#redesign-workflows-with-ai) section.
@@ -47,19 +48,25 @@ npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [-
 
 - --with-ai
 - boolean
-- Redesign the generated workflows with an AI provider, using the OpenAPI description as context. Default value is `false`. See the [redesign workflows with AI](#redesign-workflows-with-ai) section.
+- Redesign the generated workflows with an AI provider, using the OpenAPI description as context. Default value is `false`.
+  See the [redesign workflows with AI](#redesign-workflows-with-ai) section.
 
 ---
 
 - --ai-provider
 - string
-- AI provider used with `--with-ai`. Runs the corresponding CLI in non-interactive mode.<br/>**Possible values:** `claude`, `codex`, `cursor`. Default value is `claude`.
+- AI provider used with `--with-ai`.
+  Runs the corresponding CLI in non-interactive mode.
+  **Possible values:** `claude`, `codex`, `cursor`.
+  Default: `claude`.
 
 ---
 
 - --max-workflows
 - number
-- Most workflows the AI may design with `--with-ai`, so the output contains the most likely scenarios instead of every combination. Default value is `10`.
+- Most workflows the AI may design with `--with-ai`.
+  The output contains the most likely scenarios instead of every combination.
+  Default: `10`.
 
 {% /table %}
 
@@ -150,14 +157,25 @@ redocly generate-arazzo <your-OAS-description-file> --output-file=arazzo-custom.
 ### Redesign workflows with AI
 
 Without AI, the generated file contains one workflow per operation and no dependencies between them.
-With `--with-ai`, the OpenAPI description and the generated skeleton are sent to an AI provider, which redesigns the workflows into realistic scenarios: related operations are grouped into multi-step workflows (for example create, read, update, then delete a resource), steps pass values to each other through `outputs` and runtime expressions, and workflows declare `inputs` for values a caller must provide.
+With `--with-ai`, the OpenAPI description and the generated skeleton are sent to an AI provider, which redesigns the workflows into realistic scenarios:
+
+- Related operations are grouped into multi-step workflows (for example: create, read, update, then delete a resource).
+- Steps pass values to each other through `outputs` and runtime expressions.
+- Workflows declare `inputs` for values a caller must provide.
 
 The AI designs at most `--max-workflows` workflows (default `10`), preferring to cover every operation and otherwise choosing the most likely scenarios.
+The AI's answer is never trusted blindly:
 
-The AI's answer is never trusted blindly: the `arazzo`, `info`, and `sourceDescriptions` fields always come from the generated baseline, every step must reference an operation that exists in the OpenAPI description, the workflow count must stay within `--max-workflows`, and the result must pass validation with the `spec` ruleset.
+- `arazzo`, `info`, and `sourceDescriptions` must come from the generated baseline
+- every step must reference an existing operation in the OpenAPI description
+- workflow count must stay within `--max-workflows`
+- result must pass validation with the `spec` ruleset
+
 If the answer is rejected, the provider fails, or the description is too large to prompt with, the command keeps the auto-generated workflows.
 
-The generated file starts with a comment marking the workflows as AI-inferred — they are a guess derived from the description, not verified behavior, so review them before use.
+The generated file starts with a comment marking the workflows as AI-inferred.
+The workflows are a guess derived from the description, not verified behavior.
+Review them before use.
 The result also varies between runs: the same description can produce different workflows each time.
 
 ```bash
@@ -172,7 +190,8 @@ Make sure it contains no secrets or personal data you are not allowed to share.
 #### AI providers
 
 The workflows are designed by a locally installed AI CLI running in non-interactive mode: `claude` (Claude Code), `codex` (Codex CLI), or `cursor` (Cursor CLI).
-The selected CLI must be installed and authenticated on the machine running the command — no API key is passed to or stored by Redocly CLI.
+The selected CLI must be installed and authenticated on the machine running the command.
+No API key is passed to or stored by Redocly CLI.
 
 The provider runs in isolation: project context the CLIs normally load (such as `CLAUDE.md`, `AGENTS.md`, or `.cursor/rules`) does not apply.
 
