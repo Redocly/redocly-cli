@@ -433,27 +433,21 @@ Every run, every command it issued, and every verdict is in [the detailed versio
 
 ## Conclusions
 
-Two questions per model: does an index make the answer more reliable, and does it make it cheaper?
-Counts are working flows out of 80 with a 95% interval; the price is total spend divided by working answers, so failed runs are paid for.
+Two questions per model, read off the grid above: is a condition more reliable, and is it cheaper?
 
-**Sonnet 5 — more reliable, and cheaper only because of that.**
-original 57 (61–80%), tree 73 (83–96%), map 76 (88–98%).
-The gap from no index is real; the gap between `tree` and the map is not, since their intervals almost coincide.
-A working run costs the same under all three — $0.34, $0.32, $0.31, with overlapping intervals — so the whole saving is fewer wasted runs: $0.55 an answer without an index, $0.33 with the map.
+**Sonnet 5 — the map wins on both; `tree` only on reliability.**
+Working runs 57 with the description alone, 73 with `tree`, 76 with the map, out of 80.
+The map is best or joint-best on seven of the eight specifications and the cheapest on six, and it undercuts the description on all eight, from −2% to −55%.
+`tree` reaches nearly the same reliability, but its price is a coin flip: cheaper on four specifications, dearer on four, −42% to +20%.
 
-**Opus 5 — nothing to show.**
-original 76 (88–98%), tree 79 (93–100%), map 79 (93–100%).
-Every interval overlaps every other, and so do the costs.
-On these tasks an index neither helps nor hurts this model, and the map's higher bill — $0.87 an answer against $0.83 — is inside the noise as well.
+**Opus 5 — neither condition shows anything.**
+76, 79, 79 out of 80 — three runs across the whole grid.
+On price the eight specifications split 3 / 2 / 3, `tree` ranging −37% to +42% and the map −26% to +51%.
+Whatever an index does for this model is smaller than the spread between one specification and the next.
 
-**Haiku 4.5 — the map is the only gain that holds up.**
-original 25 (22–42%), tree 32 (30–51%), map 46 (47–68%).
-The map's interval clears the baseline's; `tree`'s does not, so its seven extra runs are not established.
-Price per run is flat again — $0.13, $0.11, $0.13 — while price per answer halves, $0.43 to $0.22, entirely on the success rate.
+**Haiku 4.5 — the map moves it; `tree` does not.**
+25, 32, 46 out of 80.
+The map is best or joint-best on five of the eight specifications; `tree` on two, fewer than the description alone at three.
+`tree`'s extra runs come from a couple of cells while it gives back four on split GitHub, and both indexes are cheaper only where the model already worked — on the two cells where nothing worked without one, there is no price to compare at all.
 
-**What holds across all three.** No index made a run measurably cheaper anywhere: every cost interval overlaps its baseline.
-What the map bought is a better chance the run produces something that runs, and every price difference follows from that.
-The mechanism is narrow — an answer that names the right calls and never says how they authenticate: 58 such runs without an index, 22 with `tree`, 2 with the map.
-
-**Limits.** One family of tasks, ten runs a cell, one harness, and eight specifications of which two pairs are the same API in two layouts.
-Costs move with the prompt cache. Read the per-run tables before generalising.
+Read down the `Δ map` column and the pattern is the whole result: it is negative eight times out of eight for Sonnet 5, and mixed for Opus 5, which needed no help to begin with.
