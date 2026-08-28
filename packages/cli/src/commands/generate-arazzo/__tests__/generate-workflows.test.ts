@@ -71,6 +71,7 @@ describe('generateWorkflowsWithAi', () => {
   beforeEach(() => {
     vi.mocked(runProvider).mockReset();
     vi.spyOn(logger, 'info').mockImplementation(() => true);
+    vi.spyOn(logger, 'warn').mockImplementation(() => true);
   });
 
   afterEach(() => {
@@ -191,5 +192,164 @@ describe('generateWorkflowsWithAi', () => {
   it('rejects an answer that fails validation with the spec ruleset', async () => {
     const duplicatedStepId = redesignedWorkflows.replace('stepId: get-user', 'stepId: create-user');
     await expect(generateWorkflows(duplicatedStepId)).rejects.toThrow('validation problem');
+  });
+
+  describe('two-pass mode for large descriptions', () => {
+    // Structure small enough for the operation index, padded so the whole
+    // description can never fit a single prompt.
+    function bigDescription() {
+      return {
+        openapi: '3.1.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        'x-padding': 'x'.repeat(400_001),
+        paths: {
+          '/users': {
+            post: { operationId: 'createUser', summary: 'Create a user', tags: ['Users'] },
+          },
+          '/users/{userId}': {
+            get: { operationId: 'getUser', summary: 'Get a user', tags: ['Users'] },
+          },
+        },
+      };
+    }
+
+    const selectedScenarios = `scenarios:
+  - workflowId: user-lifecycle
+    summary: Create then read a user
+    operations:
+      - $sourceDescriptions.test-api.createUser
+      - $sourceDescriptions.test-api.getUser
+`;
+
+    async function generateTwoPass(...responses: string[]) {
+      for (const text of responses) {
+        vi.mocked(runProvider).mockResolvedValueOnce({ text });
+      }
+      return generateWorkflowsWithAi({
+        provider: 'claude',
+        baseline: baseline(),
+        description: bigDescription(),
+        maxWorkflows: 10,
+      });
+    }
+
+    it('selects scenarios from a compact index, then designs each workflow', async () => {
+      const result = await generateTwoPass(selectedScenarios, redesignedWorkflows);
+
+      expect(result.workflows).toBe(1);
+      expect(result.yaml).toContain('workflowId: user-lifecycle');
+      expect(result.yaml).toContain('arazzo: 1.1.0');
+      expect(vi.mocked(runProvider)).toHaveBeenCalledTimes(2);
+
+      const selectionRequest = vi.mocked(runProvider).mock.calls[0][1];
+      expect(selectionRequest.user).toContain('# Operation index');
+      expect(selectionRequest.user).toContain('POST /users — Create a user [Users]');
+      expect(selectionRequest.user).not.toContain('xxxx');
+
+      const designRequest = vi.mocked(runProvider).mock.calls[1][1];
+      expect(designRequest.user).toContain('# Scenario');
+      expect(designRequest.user).toContain('operationId: createUser');
+      expect(designRequest.user).not.toContain('xxxx');
+    });
+
+    it('rejects a selection that references an operation missing from the index', async () => {
+      const hallucinated = selectedScenarios.replace('getUser', 'listUsers');
+      await expect(generateTwoPass(hallucinated)).rejects.toThrow(
+        'references operation(s) missing from the OpenAPI description: $sourceDescriptions.test-api.listUsers'
+      );
+      expect(vi.mocked(runProvider)).toHaveBeenCalledTimes(1);
+    });
+
+    it('skips a scenario whose design is rejected and keeps the rest', async () => {
+      const twoScenarios = `scenarios:
+  - workflowId: create-user-flow
+    operations:
+      - $sourceDescriptions.test-api.createUser
+  - workflowId: read-user-flow
+    operations:
+      - $sourceDescriptions.test-api.getUser
+`;
+      const readUserWorkflow = `workflows:
+  - workflowId: anything-the-model-said
+    summary: Read a user
+    steps:
+      - stepId: read-user
+        operationId: $sourceDescriptions.test-api.getUser
+        successCriteria:
+          - condition: $statusCode == 200
+`;
+      const result = await generateTwoPass(twoScenarios, 'workflows: [invalid', readUserWorkflow);
+
+      expect(result.workflows).toBe(1);
+      // The scenario id from the selection pass overrides the model's id.
+      expect(result.yaml).toContain('workflowId: read-user-flow');
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('create-user-flow — skipped')
+      );
+    });
+
+    it('rejects when no scenario produces a usable workflow', async () => {
+      await expect(generateTwoPass(selectedScenarios, 'Sorry, I cannot help.')).rejects.toThrow(
+        'did not produce a usable workflow for any scenario'
+      );
+    });
+
+    it('caps schema depth when a scenario slice does not fit the prompt', async () => {
+      const scenario = `scenarios:
+  - workflowId: create-user-flow
+    operations:
+      - $sourceDescriptions.test-api.createUser
+`;
+      const createUserWorkflow = `workflows:
+  - workflowId: create-user-flow
+    summary: Create a user
+    steps:
+      - stepId: create-user
+        operationId: $sourceDescriptions.test-api.createUser
+        successCriteria:
+          - condition: $statusCode == 201
+`;
+      const deepSchema = {
+        type: 'object',
+        properties: {
+          level1: {
+            type: 'object',
+            properties: {
+              level2: {
+                type: 'object',
+                properties: {
+                  level3: { type: 'object', 'x-padding': 'x'.repeat(400_001) },
+                },
+              },
+            },
+          },
+        },
+      };
+      vi.mocked(runProvider).mockResolvedValueOnce({ text: scenario });
+      vi.mocked(runProvider).mockResolvedValueOnce({ text: createUserWorkflow });
+
+      const result = await generateWorkflowsWithAi({
+        provider: 'claude',
+        baseline: baseline(),
+        description: {
+          openapi: '3.1.0',
+          'x-padding': 'x'.repeat(400_001),
+          paths: {
+            '/users': {
+              post: {
+                operationId: 'createUser',
+                requestBody: { content: { 'application/json': { schema: deepSchema } } },
+              },
+            },
+          },
+        },
+        maxWorkflows: 10,
+      });
+
+      expect(result.workflows).toBe(1);
+      const designRequest = vi.mocked(runProvider).mock.calls[1][1];
+      expect(designRequest.user).toContain('level1');
+      expect(designRequest.user).not.toContain('xxxx');
+    });
   });
 });

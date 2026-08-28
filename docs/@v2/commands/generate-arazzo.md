@@ -178,7 +178,10 @@ The AI's answer is never trusted blindly:
 - workflow count must stay within `--max-workflows`
 - result must pass validation with the `spec` ruleset
 
-If the answer is rejected, the provider fails, or the description is too large to prompt with, the command keeps the auto-generated workflows.
+Large descriptions that don't fit a single prompt are handled in two phases: the AI first chooses up to `--max-workflows` scenarios from a compact operation index, then designs each scenario's workflow from only its operations.
+In this mode a scenario whose design is rejected is skipped, and the accepted workflows still land.
+
+If the answer is rejected, the provider fails, or even the operation index is too large to prompt with, the command keeps the auto-generated workflows.
 
 The generated file starts with a comment marking the workflows as AI-inferred.
 The workflows are a guess derived from the description, not verified behavior.
