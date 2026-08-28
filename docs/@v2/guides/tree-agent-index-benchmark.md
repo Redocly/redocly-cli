@@ -433,26 +433,27 @@ Every run, every command it issued, and every verdict is in [the detailed versio
 
 ## Conclusions
 
-An index changes what a small model can do, not what a large one can.
-Working flows out of 80 per model, with the mean price of a working run:
+Two questions per model: does an index make the answer more reliable, and does it make it cheaper?
+Counts are working flows out of 80 with a 95% interval; the price is total spend divided by working answers, so failed runs are paid for.
 
-**Sonnet 5 — both indexes help, the map most.**
-original: 57 at $0.34; tree: 73 at $0.32; map: 76 at $0.31.
-The map is the best condition, or tied for it, on seven of the eight specifications; its one loss is the 9.5 MB GitHub file, where it drops two runs.
+**Sonnet 5 — more reliable, and cheaper only because of that.**
+original 57 (61–80%), tree 73 (83–96%), map 76 (88–98%).
+The gap from no index is real; the gap between `tree` and the map is not, since their intervals almost coincide.
+A working run costs the same under all three — $0.34, $0.32, $0.31, with overlapping intervals — so the whole saving is fewer wasted runs: $0.55 an answer without an index, $0.33 with the map.
 
-**Opus 5 — no index is needed, and the map costs more.**
-original: 76 at $0.80; tree: 79 at $0.79; map: 79 at $0.87.
-Three runs separate the worst condition from the best, so use whichever is already in the pipeline.
+**Opus 5 — nothing to show.**
+original 76 (88–98%), tree 79 (93–100%), map 79 (93–100%).
+Every interval overlaps every other, and so do the costs.
+On these tasks an index neither helps nor hurts this model, and the map's higher bill — $0.87 an answer against $0.83 — is inside the noise as well.
 
-**Haiku 4.5 — the map is the difference between an answer and no answer.**
-original: 25 at $0.13; tree: 32 at $0.11; map: 46 at $0.13.
-Its largest gains are Stripe 0 to 10, DigitalOcean 4 to 10, bundled DigitalOcean 3 to 8 and Cafe API 6 to 10.
-It loses ground on three: both GitHub layouts, where the installation-token call the task needs is not marked as a security requirement for any index to carry, and PayPal, where the map clears its auth failures and leaves it dropping a required body field instead.
+**Haiku 4.5 — the map is the only gain that holds up.**
+original 25 (22–42%), tree 32 (30–51%), map 46 (47–68%).
+The map's interval clears the baseline's; `tree`'s does not, so its seven extra runs are not established.
+Price per run is flat again — $0.13, $0.11, $0.13 — while price per answer halves, $0.43 to $0.22, entirely on the success rate.
 
-**Why.** Both indexes remove the same failure, an answer that names the right calls and never says how they authenticate: 58 such runs without an index, 22 with `tree`, 2 with the map.
-The map removes more of it because a row carries the auth and the required fields in the same read.
-`tree` also follows the shape of the description: on the 9.5 MB GitHub file it matches plain reading run for run at 3% to 24% less, and on the same API split across 2,842 files it costs Haiku 4.5 four of its five working runs.
-The map holds its result on both layouts.
+**What holds across all three.** No index made a run measurably cheaper anywhere: every cost interval overlaps its baseline.
+What the map bought is a better chance the run produces something that runs, and every price difference follows from that.
+The mechanism is narrow — an answer that names the right calls and never says how they authenticate: 58 such runs without an index, 22 with `tree`, 2 with the map.
 
-**Limits.** One family of tasks, ten runs a cell, one agent harness, and a cost figure that moves with the prompt cache.
-Read the per-run tables before generalising to a different kind of question.
+**Limits.** One family of tasks, ten runs a cell, one harness, and eight specifications of which two pairs are the same API in two layouts.
+Costs move with the prompt cache. Read the per-run tables before generalising.
