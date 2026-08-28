@@ -387,7 +387,6 @@ interface DesignScenarioOptions {
   scenario: Scenario;
   entriesByRef: Map<string, OperationEntry>;
   baselineWorkflowsByRef: Map<string, unknown>;
-  progressLabel: string;
   config: Config;
 }
 
@@ -396,7 +395,6 @@ async function designScenario({
   scenario,
   entriesByRef,
   baselineWorkflowsByRef,
-  progressLabel,
   config,
 }: DesignScenarioOptions): Promise<unknown> {
   const entries = scenario.operations
@@ -423,7 +421,8 @@ async function designScenario({
     throw new Error('the scenario is too large to send to the AI provider');
   }
 
-  const text = await callProvider(options, prompt, progressLabel);
+  // No spinner here: concurrent designs share one spinner in the worker pool.
+  const { text } = await runProvider(options.provider, { ...prompt, model: options.model });
   const parsed = parseWorkflowsDocument(text);
   if (parsed.workflows.length !== 1 || !isPlainObject(parsed.workflows[0])) {
     throw new Error('the response must contain exactly one workflow');
@@ -494,23 +493,40 @@ async function generateWorkflowsTwoPass(
   }
 
   const designed: (unknown | null)[] = new Array(scenarios.length).fill(null);
+  // Concurrent workers share one spinner: parallel spinners would overwrite
+  // each other's frames on the same stream.
+  const spinner = new Spinner();
+  const inFlight = new Set<string>();
   let completed = 0;
   let nextIndex = 0;
+
+  const updateSpinner = () => {
+    const [firstLabel] = inFlight;
+    if (!firstLabel) {
+      return;
+    }
+    const others = inFlight.size > 1 ? ` (+${inFlight.size - 1} more)` : '';
+    spinner.start(`[${completed + 1}/${scenarios.length}] Designing ${firstLabel}${others}`);
+  };
+
   const worker = async () => {
     while (nextIndex < scenarios.length) {
       const scenarioIndex = nextIndex++;
       const scenario = scenarios[scenarioIndex];
       const startedAt = Date.now();
+      inFlight.add(scenario.workflowId);
+      updateSpinner();
       try {
         designed[scenarioIndex] = await designScenario({
           options,
           scenario,
           entriesByRef,
           baselineWorkflowsByRef,
-          progressLabel: `[${completed + 1}/${scenarios.length}] Designing ${scenario.workflowId}`,
           config,
         });
         completed += 1;
+        inFlight.delete(scenario.workflowId);
+        finishProgress(spinner);
         logger.info(
           `[${completed}/${scenarios.length}] ${scenario.workflowId} — designed (${Math.round(
             (Date.now() - startedAt) / 1000
@@ -518,6 +534,8 @@ async function generateWorkflowsTwoPass(
         );
       } catch (error) {
         completed += 1;
+        inFlight.delete(scenario.workflowId);
+        finishProgress(spinner);
         if (error instanceof CliNotFoundError) {
           throw error;
         }
@@ -527,6 +545,7 @@ async function generateWorkflowsTwoPass(
           }\n`
         );
       }
+      updateSpinner();
     }
   };
 
