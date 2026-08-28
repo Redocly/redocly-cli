@@ -338,6 +338,23 @@ function pruneOperationSchemas(value: unknown): unknown {
   );
 }
 
+/**
+ * The path item's fields shared by all its operations — `parameters`,
+ * `servers`, extensions — everything except the sibling operations.
+ */
+function slicePathItemSharedFields(
+  pathItem: Record<string, unknown>,
+  pruneSchemas: boolean
+): Record<string, unknown> {
+  const shared: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(pathItem)) {
+    if (!HTTP_METHODS.has(key.toLowerCase())) {
+      shared[key] = pruneSchemas ? pruneOperationSchemas(value) : value;
+    }
+  }
+  return shared;
+}
+
 /** The description sliced down to one scenario's operations. */
 function sliceDescription(
   description: unknown,
@@ -349,10 +366,12 @@ function sliceDescription(
   for (const entry of entries) {
     const pathItem = isPlainObject(descriptionPaths) ? descriptionPaths[entry.path] : undefined;
     const operation = isPlainObject(pathItem) ? pathItem[entry.method] : undefined;
-    if (operation !== undefined) {
-      (paths[entry.path] ??= {})[entry.method] = pruneSchemas
-        ? pruneOperationSchemas(operation)
-        : operation;
+    if (isPlainObject(pathItem) && operation !== undefined) {
+      const slicedPathItem = (paths[entry.path] ??= slicePathItemSharedFields(
+        pathItem,
+        pruneSchemas
+      ));
+      slicedPathItem[entry.method] = pruneSchemas ? pruneOperationSchemas(operation) : operation;
     }
   }
   const components = isPlainObject(description) ? description.components : undefined;

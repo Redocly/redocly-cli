@@ -207,6 +207,9 @@ describe('generateWorkflowsWithAi', () => {
             post: { operationId: 'createUser', summary: 'Create a user', tags: ['Users'] },
           },
           '/users/{userId}': {
+            parameters: [
+              { name: 'userId', in: 'path', required: true, schema: { type: 'string' } },
+            ],
             get: { operationId: 'getUser', summary: 'Get a user', tags: ['Users'] },
           },
         },
@@ -249,6 +252,8 @@ describe('generateWorkflowsWithAi', () => {
       const designRequest = vi.mocked(runProvider).mock.calls[1][1];
       expect(designRequest.user).toContain('# Scenario');
       expect(designRequest.user).toContain('operationId: createUser');
+      // Parameters declared at the path-item level ride along with the slice.
+      expect(designRequest.user).toContain('name: userId');
       expect(designRequest.user).not.toContain('xxxx');
     });
 
