@@ -104,7 +104,7 @@ export async function sendTelemetry({
         command,
         ...cleanArgs(args, process.argv.slice(2)),
         node_version: process.version,
-        npm_version: execSync('npm -v').toString().replace('\n', ''),
+        npm_version: getNpmVersion(),
         version,
         exit_code,
         execution_time,
@@ -408,6 +408,16 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   }
 
   return { arguments: JSON.stringify(commandArguments), raw_input: commandInput };
+}
+
+function getNpmVersion(): string {
+  try {
+    return execSync('npm -v', { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim();
+  } catch {
+    return 'unknown';
+  }
 }
 
 export const cacheAnonymousId = (anonymousId: string): void => {
