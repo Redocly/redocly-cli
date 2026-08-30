@@ -1,0 +1,14 @@
+openapi: 3.2.0
+info:
+  title: Broken refs
+  version: 1.0.0
+paths:
+  /orders:
+    get:
+      responses:
+        '200':
+          description: An order.
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/Order.yaml'
