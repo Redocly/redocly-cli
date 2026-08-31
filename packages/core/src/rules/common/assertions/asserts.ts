@@ -375,7 +375,7 @@ export const asserts: Asserts = {
   schema: (
     value: unknown,
     schema: Oas3_1Schema | boolean,
-    { baseLocation, rawValue, resolve, specVersion }: AssertionFnContext
+    { baseLocation, rawValue, resolve }: AssertionFnContext
   ) => {
     if (typeof value === 'undefined') return [];
 
@@ -398,7 +398,7 @@ export const asserts: Asserts = {
         instancePath: '',
         resolve,
         allowAdditionalProperties: false,
-        specVersion: specVersion!,
+        specVersion: 'oas3_1',
       }));
     } catch (error) {
       throw new Error(`the 'schema' assertion has an invalid schema: ${error.message}`);
