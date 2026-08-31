@@ -3,4 +3,4 @@
 '@redocly/cli': minor
 ---
 
-Added the `schema` assertion for configurable rules.
+Added the new `schema` assertion for configurable rules to be able to validate a property value against a JSON Schema.
