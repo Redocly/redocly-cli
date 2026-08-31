@@ -1,0 +1,51 @@
+name: Lint an API with the Redocly CLI image
+
+# Example of running the CLI from its published Docker image, so the runner
+# does not need Node installed. Each job is an independent variant — pick one.
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/redocly-cli-docker-example.yaml
+  workflow_dispatch:
+
+jobs:
+  # The whole job runs inside the image. Shortest variant: no volume to mount,
+  # because the runner mounts the repository and makes it the working directory.
+  ghcr-container:
+    name: GHCR, job container
+    runs-on: ubuntu-latest
+    container: ghcr.io/redocly/cli:2.49.0
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - run: redocly lint resources/museum.yaml --format=github-actions
+
+  # Only the CLI runs in the container; checkout runs on the host. Use this when
+  # the runner cannot host a job container, or on a non-glibc image.
+  ghcr-docker-run:
+    name: GHCR, docker run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      # /spec is the image WORKDIR, so `resources/museum.yaml` resolves against
+      # the repository root and problem paths stay relative to it. Mounting
+      # anywhere else also needs `-w` to point at the same directory.
+      - run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/spec" \
+            ghcr.io/redocly/cli:2.49.0 \
+            lint resources/museum.yaml --format=github-actions
+
+  # The same image on Docker Hub — drop the registry prefix and nothing else
+  # changes. Anonymous pulls are limited to 100 per hour per IP, which is shared
+  # on GitHub-hosted runners, so add `credentials` for anything but a demo.
+  dockerhub-container:
+    name: Docker Hub, job container
+    runs-on: ubuntu-latest
+    container: redocly/cli:2.49.0
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - run: redocly lint resources/museum.yaml --format=github-actions
