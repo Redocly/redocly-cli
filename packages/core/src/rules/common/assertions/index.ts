@@ -10,7 +10,6 @@ import type {
   Overlay1Visitor,
 } from '../../../visitors.js';
 import type { asserts, AssertionFn } from './asserts.js';
-import { getSchemaValidator } from './schema-validator.js';
 import { buildSubjectVisitor, buildVisitorObject } from './utils.js';
 
 export type AssertionLocators = {
@@ -37,21 +36,6 @@ export type RawAssertion = AssertionDefinition & {
 
 export type Assertion = RawAssertion & { assertionId: string };
 
-function compileSchemaAssertions(assertion: Assertion) {
-  const definitions = [assertion, ...(assertion.where || [])];
-
-  for (const definition of definitions) {
-    const schema = definition.assertions?.schema;
-    if (schema === undefined) continue;
-
-    try {
-      getSchemaValidator(schema);
-    } catch (error) {
-      throw new Error(`${assertion.assertionId}: ${error.message}`);
-    }
-  }
-}
-
 export const Assertions = (opts: Record<string, Assertion>) => {
   const visitors: (
     | Oas2Visitor
@@ -77,8 +61,6 @@ export const Assertions = (opts: Record<string, Assertion>) => {
     if (!isPlainObject(assertion.assertions)) {
       throw new Error(`${assertion.assertionId}: 'assertions' (Object) is required`);
     }
-
-    compileSchemaAssertions(assertion);
 
     const subjectVisitor = buildSubjectVisitor(assertion.assertionId, assertion);
     const visitorObject = buildVisitorObject(assertion, subjectVisitor);

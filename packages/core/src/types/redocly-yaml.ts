@@ -11,6 +11,7 @@ import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
 import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
+import { Oas3_1Types } from './oas3_1.js';
 
 const builtInOAS2Rules = [
   'info-contact',
@@ -553,42 +554,7 @@ const CustomPreprocessor: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
 };
 
-const jsonSchemaTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'];
-
-const schemaOrBoolean = (value: unknown): PropType =>
-  typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
-const SchemaMap = { name: 'SchemaMap', properties: {}, additionalProperties: schemaOrBoolean };
-const SchemaList = { name: 'SchemaList', properties: {}, items: schemaOrBoolean };
-
-const Schema: NodeType = {
-  properties: {
-    type: (value: unknown) =>
-      Array.isArray(value)
-        ? { type: 'array', items: { enum: jsonSchemaTypes } }
-        : { enum: jsonSchemaTypes },
-    properties: SchemaMap,
-    items: schemaOrBoolean,
-    additionalProperties: schemaOrBoolean,
-    required: { type: 'array', items: { type: 'string' } },
-    enum: { type: 'array' },
-    allOf: SchemaList,
-    anyOf: SchemaList,
-    oneOf: SchemaList,
-    not: schemaOrBoolean,
-    description: { type: 'string' },
-    format: { type: 'string' },
-    pattern: { type: 'string' },
-    minLength: { type: 'integer' },
-    maxLength: { type: 'integer' },
-    minimum: { type: 'number' },
-    maximum: { type: 'number' },
-    minItems: { type: 'integer' },
-    maxItems: { type: 'integer' },
-    uniqueItems: { type: 'boolean' },
-  },
-  additionalProperties: {},
-  description: 'A JSON Schema (2020-12 dialect) that describes the shape of a value.',
-};
+const Schema: NodeType = Oas3_1Types.Schema;
 
 function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
   return {
@@ -860,6 +826,14 @@ const CoreConfigTypes: Record<string, NodeType> = {
   BuiltinPreprocessor,
   CustomPreprocessor,
   Schema,
+  SchemaProperties: Oas3_1Types.SchemaProperties,
+  PatternProperties: Oas3_1Types.PatternProperties,
+  NamedSchemas: Oas3_1Types.NamedSchemas,
+  DependentRequired: Oas3_1Types.DependentRequired,
+  Discriminator: Oas3_1Types.Discriminator,
+  DiscriminatorMapping: Oas3_1Types.DiscriminatorMapping,
+  ExternalDocs: Oas3_1Types.ExternalDocs,
+  Xml: Oas3_1Types.Xml,
   Rules,
   Decorators,
   Preprocessors,

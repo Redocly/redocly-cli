@@ -652,25 +652,15 @@ rules:
         required:
           - reviewedBy
           - status
-        additionalProperties: false
 ```
 
 The assertion reports one problem for each violation, at the location of the value that fails.
 
-The assertion keeps standard JSON Schema behavior:
+A property that you describe in `properties` is optional.
+List every mandatory property in `required`.
 
-- List every mandatory property in `required`.
-  A property that you describe in `properties` is optional until you list it in `required`.
-- Set `additionalProperties: false` to reject properties that `properties` does not list.
-- The assertion reports no problem if the `subject` property is absent.
-  To also make the property mandatory, add the [`defined`](#defined-example) assertion to the same rule.
-
-Two limits apply to the schema itself:
-
-- A `$ref` is resolved against `redocly.yaml` before the assertion runs, not against the schema.
-  A pointer such as `#/$defs/Status` therefore looks inside the configuration file, not inside the assertion.
-- A keyword that JSON Schema does not define fails the rule, so a typo such as `tpe` instead of `type` is reported instead of being ignored.
-  The OpenAPI annotations `example`, `nullable`, `externalDocs`, `discriminator`, and `xml` are accepted.
+A `$ref` inside the schema is resolved from the file that contains it, before the assertion runs, and not against the schema.
+A pointer such as `#/$defs/Status` therefore looks inside that file, not inside the assertion.
 
 ## Subject node types and properties
 

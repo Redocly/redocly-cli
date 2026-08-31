@@ -883,14 +883,28 @@ describe('oas3 assertions', () => {
         ).toEqual([]);
       });
 
-      it('allows undeclared properties when the schema does not forbid them', () => {
+      it('reports undeclared properties unless the schema allows them', () => {
+        const openSchema = {
+          type: 'object',
+          properties: { status: { type: 'string' } },
+          additionalProperties: true,
+        };
+        expect(
+          asserts.schema({ status: 'draft', note: 'extra' }, openSchema, assertionProperties)
+        ).toEqual([]);
+
         expect(
           asserts.schema(
-            { status: 'draft', reviewedBy: 'reviewer', note: 'extra' },
+            { status: 'draft', note: 'extra' },
             { type: 'object', properties: { status: { type: 'string' } } },
             assertionProperties
           )
-        ).toEqual([]);
+        ).toEqual([
+          {
+            message: 'must NOT have unevaluated properties `note`',
+            location: baseLocation.child(['note']).key(),
+          },
+        ]);
       });
 
       it('locates problems in the referenced document when the property is a $ref', () => {

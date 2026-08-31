@@ -22,36 +22,6 @@ function getDialectBySpecVersion(specVersion: UserContext['specVersion']): AjvDi
   return '2020';
 }
 
-export function beatifyErrorMessage(error: ErrorObject, instancePath: string) {
-  let message = error.message;
-  const suggest: string[] | undefined =
-    error.keyword === 'enum' ? error.params.allowedValues : undefined;
-  if (suggest) {
-    message += ` ${suggest.map((e) => `"${e}"`).join(', ')}`;
-  }
-
-  if (error.keyword === 'type') {
-    message = `type ${message}`;
-  }
-
-  const relativePath = error.instancePath.substring(instancePath.length + 1);
-  const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
-  if (propName) {
-    message = `\`${propName}\` property ${message}`;
-  }
-  if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
-    const property = error.params.additionalProperty || error.params.unevaluatedProperty;
-    message = `${message} \`${property}\``;
-    error.instancePath += '/' + escapePointerFragment(property);
-  }
-
-  return {
-    ...error,
-    message,
-    suggest,
-  };
-}
-
 export class AjvValidator {
   private instances: Partial<Record<AjvDialect, any>> = {};
 
@@ -91,8 +61,38 @@ export class AjvValidator {
 
     return {
       valid: !!valid,
-      errors: (validate.errors || []).map((error) => beatifyErrorMessage(error, instancePath)),
+      errors: (validate.errors || []).map(beatifyErrorMessage),
     };
+
+    function beatifyErrorMessage(error: ErrorObject) {
+      let message = error.message;
+      const suggest: string[] | undefined =
+        error.keyword === 'enum' ? error.params.allowedValues : undefined;
+      if (suggest) {
+        message += ` ${suggest.map((e) => `"${e}"`).join(', ')}`;
+      }
+
+      if (error.keyword === 'type') {
+        message = `type ${message}`;
+      }
+
+      const relativePath = error.instancePath.substring(instancePath.length + 1);
+      const propName = relativePath.substring(relativePath.lastIndexOf('/') + 1);
+      if (propName) {
+        message = `\`${propName}\` property ${message}`;
+      }
+      if (error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties') {
+        const property = error.params.additionalProperty || error.params.unevaluatedProperty;
+        message = `${message} \`${property}\``;
+        error.instancePath += '/' + escapePointerFragment(property);
+      }
+
+      return {
+        ...error,
+        message,
+        suggest,
+      };
+    }
   }
 
   private getAjv(resolve: ResolveFn, dialect: AjvDialect): any {

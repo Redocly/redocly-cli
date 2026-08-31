@@ -1,13 +1,14 @@
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
 import { isRef, joinPointer, Location } from '../../../ref-utils.js';
+import { Source } from '../../../resolve.js';
+import type { Oas3_1Schema } from '../../../typings/openapi.js';
 import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
 import { isOrdered, type OrderOptions, type OrderDirection } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
-import { beatifyErrorMessage } from '../../ajv.js';
-import { getSchemaValidator } from './schema-validator.js';
+import { AjvValidator } from '../../ajv.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
@@ -66,6 +67,9 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'contains',
   'schema',
 ]);
+
+const schemaValidators = new WeakMap<object, AjvValidator>();
+const assertionSchemaLocation = new Location(new Source('assertion', ''), '#/schema');
 
 export const asserts: Asserts = {
   pattern: (
@@ -370,24 +374,41 @@ export const asserts: Asserts = {
   },
   schema: (
     value: unknown,
-    schema: object,
-    { baseLocation, rawValue, resolve }: AssertionFnContext
+    schema: Oas3_1Schema | boolean,
+    { baseLocation, rawValue, resolve, specVersion }: AssertionFnContext
   ) => {
     if (typeof value === 'undefined') return [];
 
-    const validate = getSchemaValidator(schema);
-    if (validate(value)) return [];
+    if (typeof schema === 'boolean') {
+      return schema ? [] : [{ message: 'boolean schema is false', location: baseLocation }];
+    }
 
-    const valueLocation =
-      (isRef(rawValue) ? resolve?.(rawValue)?.location : undefined) ?? baseLocation;
+    let validator = schemaValidators.get(schema);
+    if (!validator) {
+      validator = new AjvValidator();
+      schemaValidators.set(schema, validator);
+    }
 
-    return (validate.errors || []).map((rawError) => {
-      const error = beatifyErrorMessage(rawError, '');
+    const valueLocation = (isRef(rawValue) && resolve(rawValue)?.location) || baseLocation;
+
+    let errors;
+    try {
+      ({ errors } = validator.validate(value, schema, {
+        schemaLoc: assertionSchemaLocation,
+        instancePath: '',
+        resolve,
+        allowAdditionalProperties: false,
+        specVersion: specVersion!,
+      }));
+    } catch (error) {
+      throw new Error(`the 'schema' assertion has an invalid schema: ${error.message}`);
+    }
+
+    return errors.map((error) => {
       const pointer = error.instancePath
         ? joinPointer(valueLocation.pointer, error.instancePath.slice(1))
         : valueLocation.pointer;
       const location = new Location(valueLocation.source, pointer);
-
       const reportOnKey =
         error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties';
 
