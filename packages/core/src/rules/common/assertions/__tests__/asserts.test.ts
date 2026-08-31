@@ -893,6 +893,29 @@ describe('oas3 assertions', () => {
         ).toEqual([]);
       });
 
+      it('locates problems in the referenced document when the property is a $ref', () => {
+        const referencedSource = { absoluteRef: 'audit.yaml' } as Source;
+        const rawValue = { $ref: './audit.yaml' };
+
+        expect(
+          asserts.schema({ status: 'rejected' }, auditSchema, {
+            ...assertionProperties,
+            rawValue,
+            resolve: () => ({ location: new Location(referencedSource, '#/'), node: {} }),
+          } as AssertionFnContext)
+        ).toEqual([
+          {
+            message: "must have required property 'reviewedBy'",
+            location: new Location(referencedSource, '#/'),
+          },
+          {
+            message:
+              '`status` property must be equal to one of the allowed values "draft", "approved"',
+            location: new Location(referencedSource, '#/status'),
+          },
+        ]);
+      });
+
       it('throws when the schema itself is invalid', () => {
         expect(() => asserts.schema({}, { type: 'strng' }, assertionProperties)).toThrow(
           "the 'schema' assertion has an invalid schema:"

@@ -1,5 +1,5 @@
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
-import { Location } from '../../../ref-utils.js';
+import { isRef, joinPointer, Location } from '../../../ref-utils.js';
 import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
 import { isOrdered, type OrderOptions, type OrderDirection } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
@@ -368,15 +368,25 @@ export const asserts: Asserts = {
           },
         ];
   },
-  schema: (value: unknown, schema: object, { baseLocation }: AssertionFnContext) => {
+  schema: (
+    value: unknown,
+    schema: object,
+    { baseLocation, rawValue, resolve }: AssertionFnContext
+  ) => {
     if (typeof value === 'undefined') return [];
 
     const validate = getSchemaValidator(schema);
     if (validate(value)) return [];
 
+    const valueLocation =
+      (isRef(rawValue) ? resolve?.(rawValue)?.location : undefined) ?? baseLocation;
+
     return (validate.errors || []).map((rawError) => {
       const error = beatifyErrorMessage(rawError, '');
-      const location = new Location(baseLocation.source, baseLocation.pointer + error.instancePath);
+      const pointer = error.instancePath
+        ? joinPointer(valueLocation.pointer, error.instancePath.slice(1))
+        : valueLocation.pointer;
+      const location = new Location(valueLocation.source, pointer);
 
       const reportOnKey =
         error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties';
