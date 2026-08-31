@@ -18,7 +18,7 @@ It acts as a starting point for a test file and needs to be extended to be funct
 The first HTTP response is used as the success criteria for each step.
 
 After writing the file, the command prints a ready-to-run [`respect`](./respect.md) command, including an `--input` placeholder for every workflow input.
-Replace the placeholder values with real ones before running it.
+Before running the command, replace the placeholder values with real ones.
 
 With `--with-ai`, the generated one-workflow-per-operation skeleton is redesigned by an AI provider into realistic multi-step workflows, using the OpenAPI description as context.
 See the [Redesign workflows with AI](#redesign-workflows-with-ai) section.
@@ -48,7 +48,8 @@ npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [-
 
 - --with-ai
 - boolean
-- Redesign the generated workflows with an AI provider, using the OpenAPI description as context. Default value is `false`.
+- Redesign the generated workflows with an AI provider, using the OpenAPI description as context.
+  Default: `false`.
   See the [redesign workflows with AI](#redesign-workflows-with-ai) section.
 
 ---
@@ -176,12 +177,20 @@ The AI's answer is never trusted blindly:
 - `arazzo`, `info`, and `sourceDescriptions` must come from the generated baseline
 - every step must reference an existing operation in the OpenAPI description
 - workflow count must stay within `--max-workflows`
-- result must pass validation with the `spec` ruleset
+- the result must pass validation with the `spec` ruleset
 
-Large descriptions that don't fit a single prompt are handled in two phases: the AI first chooses up to `--max-workflows` scenarios from a compact operation index, then designs each scenario's workflow from only its operations.
-In this mode a scenario whose design is rejected is skipped, and the accepted workflows still land.
+Large descriptions that don't fit a single prompt are handled in two phases:
 
-If the answer is rejected, the provider fails, or even the operation index is too large to prompt with, the command keeps the auto-generated workflows.
+1. The AI chooses up to `--max-workflows` scenarios from a compact operation index.
+2. The AI designs each scenario's workflow from only its operations.
+
+This two-phase mode skips scenarios whose design is rejected, and the accepted workflows are included in the ouptput.
+
+The command keeps the auto-generated workflows even if:
+
+- the answer is rejected
+- the provider fails
+- the operation index is too large to prompt with
 
 The generated file starts with a comment marking the workflows as AI-inferred.
 The workflows are a guess derived from the description, not verified behavior.
