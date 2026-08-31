@@ -190,11 +190,6 @@ export function compileOpenApiPath(pathTemplate: string): {
           continue;
         }
 
-        // A parameter ends where the literal after it begins, which leaves the
-        // engine one candidate split per parameter. A group that can span that
-        // literal instead makes the engine try every way to divide a segment
-        // between its parameters, and a long value that never matches then
-        // takes seconds to reject, blocking the process on a junk path.
         const separator = segment.slice(offset, nextParamMatch.index);
         compiled += separator ? `((?:(?!${escapeRegex(separator)})[^/])+)` : '([^/])';
       }
