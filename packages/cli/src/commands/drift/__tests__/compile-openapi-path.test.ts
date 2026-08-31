@@ -48,6 +48,41 @@ describe('compileOpenApiPath', () => {
     );
   });
 
+  it('gives the first of two adjacent parameters a single character', () => {
+    const { regex, params } = compileOpenApiPath('/tiles/{zoom}{coordinates}');
+
+    expect(params).toEqual(['zoom', 'coordinates']);
+
+    const match = regex.exec('/tiles/4abcd');
+    expect(match?.[1]).toBe('4');
+    expect(match?.[2]).toBe('abcd');
+  });
+
+  it('splits a segment on a multi-character separator', () => {
+    const { regex, params } = compileOpenApiPath('/builds/{project}--{revision}');
+
+    expect(params).toEqual(['project', 'revision']);
+
+    const match = regex.exec('/builds/site--a--b');
+    expect(match?.[1]).toBe('site');
+    expect(match?.[2]).toBe('a--b');
+  });
+
+  it('lets a parameter before a trailing literal contain the literal separator char', () => {
+    const { regex } = compileOpenApiPath('/files/{name}.json');
+
+    expect(regex.exec('/files/report.v1.json')?.[1]).toBe('report.v1');
+  });
+
+  it('rejects a long non-matching value without backtracking blow-up', () => {
+    const { regex } = compileOpenApiPath('/v1/{a}:{b}:{c}.json');
+    const longPath = '/v1/' + 'a:'.repeat(2500) + 'a';
+
+    const startedAt = performance.now();
+    expect(regex.exec(longPath)).toBeNull();
+    expect(performance.now() - startedAt).toBeLessThan(100);
+  });
+
   it('treats a segment with no parameters as a literal', () => {
     const { regex, params } = compileOpenApiPath('/instances/recent');
 

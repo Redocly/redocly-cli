@@ -170,19 +170,33 @@ export function compileOpenApiPath(pathTemplate: string): {
       // A segment may hold several parameters around literal text, as in
       // `/instances/{worldId}:{instanceId}`. Matching the whole segment as one
       // parameter would miss those, and treating it as a literal never matches.
+      const paramMatches = [...segment.matchAll(/\{([^}]+)\}/g)];
       const paramsBefore = params.length;
       let compiled = '';
       let literalLength = 0;
       let offset = 0;
 
-      for (const paramMatch of segment.matchAll(/\{([^}]+)\}/g)) {
+      for (const [paramIndex, paramMatch] of paramMatches.entries()) {
         const literal = segment.slice(offset, paramMatch.index);
 
         compiled += escapeRegex(literal);
         literalLength += literal.length;
         params.push(paramMatch[1]);
-        compiled += '([^/]+?)';
         offset = paramMatch.index + paramMatch[0].length;
+
+        const nextParamMatch = paramMatches[paramIndex + 1];
+        if (!nextParamMatch) {
+          compiled += '([^/]+)';
+          continue;
+        }
+
+        // A parameter ends where the literal after it begins, which leaves the
+        // engine one candidate split per parameter. A group that can span that
+        // literal instead makes the engine try every way to divide a segment
+        // between its parameters, and a long value that never matches then
+        // takes seconds to reject, blocking the process on a junk path.
+        const separator = segment.slice(offset, nextParamMatch.index);
+        compiled += separator ? `((?:(?!${escapeRegex(separator)})[^/])+)` : '([^/])';
       }
 
       const trailing = segment.slice(offset);
