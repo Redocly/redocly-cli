@@ -883,9 +883,19 @@ describe('oas3 assertions', () => {
         ).toEqual([]);
       });
 
+      it('allows undeclared properties when the schema does not forbid them', () => {
+        expect(
+          asserts.schema(
+            { status: 'draft', reviewedBy: 'reviewer', note: 'extra' },
+            { type: 'object', properties: { status: { type: 'string' } } },
+            assertionProperties
+          )
+        ).toEqual([]);
+      });
+
       it('throws when the schema itself is invalid', () => {
         expect(() => asserts.schema({}, { type: 'strng' }, assertionProperties)).toThrow(
-          "The 'schema' assertion has an invalid schema:"
+          "the 'schema' assertion has an invalid schema:"
         );
       });
 

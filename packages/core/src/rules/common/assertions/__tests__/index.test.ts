@@ -137,6 +137,32 @@ describe('Oas3 assertions', () => {
     );
   });
 
+  it('should throw for an invalid schema even when no document uses the property', () => {
+    const rule = {
+      'rule/invalid-schema': {
+        assertionId: 'rule/invalid-schema',
+        subject: { type: 'Info', property: 'x-audit' },
+        assertions: { schema: { type: 'strng' } },
+      },
+    };
+
+    expect(() => Assertions(rule as any)).toThrow(
+      "rule/invalid-schema: the 'schema' assertion has an invalid schema:"
+    );
+  });
+
+  it('should throw for a schema keyword that JSON Schema does not define', () => {
+    const rule = {
+      'rule/typo': {
+        assertionId: 'rule/typo',
+        subject: { type: 'Info', property: 'x-audit' },
+        assertions: { schema: { type: 'object', properties: { status: { tpe: 'string' } } } },
+      },
+    };
+
+    expect(() => Assertions(rule as any)).toThrow('strict mode: unknown keyword: "tpe"');
+  });
+
   it('should report every violation of the schema assertion', async () => {
     const document = parseYamlToDocument(
       outdent`

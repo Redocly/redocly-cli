@@ -1,30 +1,26 @@
 import Ajv2020, { type ValidateFunction } from '@redocly/ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
+const oasAnnotations = ['example', 'nullable', 'externalDocs', 'discriminator', 'xml'];
+
 let ajv: any;
-const validators = new WeakMap<object, ValidateFunction>();
 
-export function getSchemaValidator(schema: object): ValidateFunction {
-  const cached = validators.get(schema);
-  if (cached) return cached;
-
+export function getSchemaValidator(schema: unknown): ValidateFunction {
   if (!ajv) {
     ajv = new (Ajv2020 as any)({
       allErrors: true,
       validateSchema: true,
-      strictSchema: false,
+      strictSchema: true,
       logger: false,
     });
     (addFormats as any)(ajv);
+    for (const keyword of oasAnnotations) {
+      if (!ajv.getKeyword(keyword)) ajv.addKeyword(keyword);
+    }
   }
-
-  let validate: ValidateFunction;
   try {
-    validate = ajv.compile(schema);
+    return ajv.compile(schema);
   } catch (error) {
-    throw new Error(`The 'schema' assertion has an invalid schema: ${error.message}`);
+    throw new Error(`the 'schema' assertion has an invalid schema: ${error.message}`);
   }
-
-  validators.set(schema, validate);
-  return validate;
 }

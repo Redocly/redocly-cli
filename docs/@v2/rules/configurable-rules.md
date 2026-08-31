@@ -625,7 +625,8 @@ rules:
 The `schema` assertion validates the value of the subject property against a JSON Schema.
 The schema uses the JSON Schema 2020-12 dialect, which is the dialect of OpenAPI 3.1.
 
-The following example asserts that the `x-audit` extension of every operation has a reviewer, a review date, and an approved status.
+The following example asserts that the `x-audit` extension of every operation names a reviewer, uses an allowed status, and adds no other properties.
+The review date is optional, because `reviewedOn` is not in `required`.
 
 ```yaml
 rules:
@@ -633,7 +634,6 @@ rules:
     subject:
       type: Operation
       property: x-audit
-    message: The x-audit extension does not follow the required structure.
     assertions:
       schema:
         type: object
@@ -665,8 +665,12 @@ The assertion keeps standard JSON Schema behavior:
 - The assertion reports no problem if the subject property is absent.
   To also make the property mandatory, add the [`defined`](#defined-example) assertion to the same rule.
 
-The `schema` assertion does not support `$ref`.
-Write the full schema in the rule.
+Two limits apply to the schema itself:
+
+- A `$ref` is resolved against `redocly.yaml` before the assertion runs, not against the schema.
+  A pointer such as `#/$defs/Status` therefore looks inside the configuration file, not inside the assertion.
+- A keyword that JSON Schema does not define fails the rule, so a typo such as `tpe` instead of `type` is reported instead of being ignored.
+  The OpenAPI annotations `example`, `nullable`, `externalDocs`, `discriminator`, and `xml` are accepted.
 
 ## Subject node types and properties
 
