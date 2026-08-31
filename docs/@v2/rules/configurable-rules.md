@@ -662,7 +662,7 @@ The assertion keeps standard JSON Schema behavior:
 - List every mandatory property in `required`.
   A property that you describe in `properties` is optional until you list it in `required`.
 - Set `additionalProperties: false` to reject properties that `properties` does not list.
-- The assertion reports no problem if the subject property is absent.
+- The assertion reports no problem if the `subject` property is absent.
   To also make the property mandatory, add the [`defined`](#defined-example) assertion to the same rule.
 
 Two limits apply to the schema itself:
