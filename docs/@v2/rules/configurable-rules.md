@@ -623,7 +623,7 @@ rules:
 ### `schema` example
 
 The `schema` assertion validates the value of the subject property against a JSON Schema.
-The schema uses the JSON Schema 2020-12 dialect, which is the dialect of OpenAPI 3.1.
+The schema uses the JSON Schema 2020-12 dialect, which is the dialect of OpenAPI 3.1+.
 
 The following example asserts that the `x-audit` extension of every operation names a reviewer, uses an allowed status, and adds no other properties.
 The review date is optional, because `reviewedOn` is not in `required`.
