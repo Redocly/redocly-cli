@@ -555,22 +555,26 @@ const CustomPreprocessor: NodeType = {
 
 const jsonSchemaTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'];
 
+const schemaOrBoolean = (value: unknown): PropType =>
+  typeof value === 'boolean' ? { type: 'boolean' } : 'Schema';
+const SchemaMap = { name: 'SchemaMap', properties: {}, additionalProperties: schemaOrBoolean };
+const SchemaList = { name: 'SchemaList', properties: {}, items: schemaOrBoolean };
+
 const Schema: NodeType = {
   properties: {
     type: (value: unknown) =>
       Array.isArray(value)
         ? { type: 'array', items: { enum: jsonSchemaTypes } }
         : { enum: jsonSchemaTypes },
-    properties: mapOf('Schema'),
-    items: 'Schema',
-    additionalProperties: (value: unknown) =>
-      typeof value === 'boolean' ? { type: 'boolean' } : 'Schema',
+    properties: SchemaMap,
+    items: schemaOrBoolean,
+    additionalProperties: schemaOrBoolean,
     required: { type: 'array', items: { type: 'string' } },
     enum: { type: 'array' },
-    allOf: listOf('Schema'),
-    anyOf: listOf('Schema'),
-    oneOf: listOf('Schema'),
-    not: 'Schema',
+    allOf: SchemaList,
+    anyOf: SchemaList,
+    oneOf: SchemaList,
+    not: schemaOrBoolean,
     description: { type: 'string' },
     format: { type: 'string' },
     pattern: { type: 'string' },

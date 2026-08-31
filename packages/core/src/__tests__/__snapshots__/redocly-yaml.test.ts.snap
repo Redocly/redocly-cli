@@ -1067,12 +1067,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "additionalProperties": [Function],
       "allOf": {
-        "items": "Schema",
+        "items": [Function],
         "name": "SchemaList",
         "properties": {},
       },
       "anyOf": {
-        "items": "Schema",
+        "items": [Function],
         "name": "SchemaList",
         "properties": {},
       },
@@ -1085,7 +1085,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "format": {
         "type": "string",
       },
-      "items": "Schema",
+      "items": [Function],
       "maxItems": {
         "type": "integer",
       },
@@ -1104,9 +1104,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "minimum": {
         "type": "number",
       },
-      "not": "Schema",
+      "not": [Function],
       "oneOf": {
-        "items": "Schema",
+        "items": [Function],
         "name": "SchemaList",
         "properties": {},
       },
