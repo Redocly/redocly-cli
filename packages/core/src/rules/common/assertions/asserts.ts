@@ -1,11 +1,13 @@
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
-import type { Location } from '../../../ref-utils.js';
+import { Location } from '../../../ref-utils.js';
 import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
 import { isOrdered, type OrderOptions, type OrderDirection } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
+import { beatifyErrorMessage } from '../../ajv.js';
+import { getSchemaValidator } from './schema-validator.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
@@ -29,6 +31,7 @@ export type Asserts = {
   ref: AssertionFn;
   const: AssertionFn;
   contains: AssertionFn;
+  schema: AssertionFn;
 };
 
 export const runOnKeysSet = new Set<keyof Asserts>([
@@ -61,6 +64,7 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'ref',
   'const',
   'contains',
+  'schema',
 ]);
 
 export const asserts: Asserts = {
@@ -363,6 +367,22 @@ export const asserts: Asserts = {
             location: hasRef ? baseLocation : baseLocation.key(),
           },
         ];
+  },
+  schema: (value: unknown, schema: object, { baseLocation }: AssertionFnContext) => {
+    if (typeof value === 'undefined') return [];
+
+    const validate = getSchemaValidator(schema);
+    if (validate(value)) return [];
+
+    return (validate.errors || []).map((rawError) => {
+      const error = beatifyErrorMessage(rawError, '');
+      const location = new Location(baseLocation.source, baseLocation.pointer + error.instancePath);
+
+      const reportOnKey =
+        error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties';
+
+      return { message: error.message, location: reportOnKey ? location.key() : location };
+    });
   },
 };
 

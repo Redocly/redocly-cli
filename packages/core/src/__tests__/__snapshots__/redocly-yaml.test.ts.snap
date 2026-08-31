@@ -180,6 +180,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "schema": "Schema",
     },
   },
   "BuiltinDecorator": {
@@ -1062,11 +1063,70 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
   },
   "Schema": {
     "additionalProperties": {},
+    "description": "A JSON Schema (2020-12 dialect) that describes the shape of a value.",
     "properties": {
+      "additionalProperties": [Function],
+      "allOf": {
+        "items": "Schema",
+        "name": "SchemaList",
+        "properties": {},
+      },
+      "anyOf": {
+        "items": "Schema",
+        "name": "SchemaList",
+        "properties": {},
+      },
+      "description": {
+        "type": "string",
+      },
+      "enum": {
+        "type": "array",
+      },
+      "format": {
+        "type": "string",
+      },
+      "items": "Schema",
+      "maxItems": {
+        "type": "integer",
+      },
+      "maxLength": {
+        "type": "integer",
+      },
+      "maximum": {
+        "type": "number",
+      },
+      "minItems": {
+        "type": "integer",
+      },
+      "minLength": {
+        "type": "integer",
+      },
+      "minimum": {
+        "type": "number",
+      },
+      "not": "Schema",
+      "oneOf": {
+        "items": "Schema",
+        "name": "SchemaList",
+        "properties": {},
+      },
+      "pattern": {
+        "type": "string",
+      },
       "properties": {
         "additionalProperties": [Function],
         "name": "SchemaMap",
         "properties": {},
+      },
+      "required": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "type": [Function],
+      "uniqueItems": {
+        "type": "boolean",
       },
     },
   },

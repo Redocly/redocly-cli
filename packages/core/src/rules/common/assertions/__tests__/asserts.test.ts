@@ -861,6 +861,67 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('schema', () => {
+      const auditSchema = {
+        type: 'object',
+        properties: {
+          status: { type: 'string', enum: ['draft', 'approved'] },
+          reviewedBy: { type: 'string' },
+          source: { type: 'object', properties: { url: { type: 'string' } } },
+        },
+        required: ['status', 'reviewedBy'],
+        additionalProperties: false,
+      };
+
+      it('value that matches the schema is valid', () => {
+        expect(
+          asserts.schema(
+            { status: 'approved', reviewedBy: 'reviewer' },
+            auditSchema,
+            assertionProperties
+          )
+        ).toEqual([]);
+      });
+
+      it('throws when the schema itself is invalid', () => {
+        expect(() => asserts.schema({}, { type: 'strng' }, assertionProperties)).toThrow(
+          "The 'schema' assertion has an invalid schema:"
+        );
+      });
+
+      it('undefined value is not linted', () => {
+        expect(asserts.schema(undefined, auditSchema, assertionProperties)).toEqual([]);
+      });
+
+      it('reports one problem per violation, located at the failing property', () => {
+        expect(
+          asserts.schema(
+            { status: 'rejected', source: { url: 42 }, extra: true },
+            auditSchema,
+            assertionProperties
+          )
+        ).toEqual([
+          {
+            message: "must have required property 'reviewedBy'",
+            location: baseLocation,
+          },
+          {
+            message: 'must NOT have additional properties `extra`',
+            location: baseLocation.child(['extra']).key(),
+          },
+          {
+            message:
+              '`status` property must be equal to one of the allowed values "draft", "approved"',
+            location: baseLocation.child(['status']),
+          },
+          {
+            message: '`url` property type must be string',
+            location: baseLocation.child(['source', 'url']),
+          },
+        ]);
+      });
+    });
+
     describe('function', () => {
       it('node must have at least one property from predefined list', () => {
         const customFn = vi.fn((value: string[], options: any) => {

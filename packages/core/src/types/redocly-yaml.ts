@@ -553,12 +553,37 @@ const CustomPreprocessor: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
 };
 
-// TODO: add better type tree for this
+const jsonSchemaTypes = ['object', 'array', 'string', 'number', 'integer', 'boolean', 'null'];
+
 const Schema: NodeType = {
   properties: {
+    type: (value: unknown) =>
+      Array.isArray(value)
+        ? { type: 'array', items: { enum: jsonSchemaTypes } }
+        : { enum: jsonSchemaTypes },
     properties: mapOf('Schema'),
+    items: 'Schema',
+    additionalProperties: (value: unknown) =>
+      typeof value === 'boolean' ? { type: 'boolean' } : 'Schema',
+    required: { type: 'array', items: { type: 'string' } },
+    enum: { type: 'array' },
+    allOf: listOf('Schema'),
+    anyOf: listOf('Schema'),
+    oneOf: listOf('Schema'),
+    not: 'Schema',
+    description: { type: 'string' },
+    format: { type: 'string' },
+    pattern: { type: 'string' },
+    minLength: { type: 'integer' },
+    maxLength: { type: 'integer' },
+    minimum: { type: 'number' },
+    maximum: { type: 'number' },
+    minItems: { type: 'integer' },
+    maxItems: { type: 'integer' },
+    uniqueItems: { type: 'boolean' },
   },
   additionalProperties: {},
+  description: 'A JSON Schema (2020-12 dialect) that describes the shape of a value.',
 };
 
 function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
@@ -717,6 +742,7 @@ const Assertions: NodeType = {
       description: 'Asserts a maximum length (inclusive) of a string or list (array).',
       documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#maxlength-example',
     },
+    schema: 'Schema',
     ref: (value: string | boolean) =>
       typeof value === 'string'
         ? {

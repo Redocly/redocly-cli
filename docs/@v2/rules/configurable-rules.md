@@ -61,6 +61,7 @@ A minimum of one assertion property is required to be defined.
 | ref                         | boolean \| string | Asserts a reference object presence in object's property. A boolean value of `true` means the property has a `$ref` defined. A boolean value of `false` means the property has not defined a `$ref` (it has an in-place value). A string value means that the `$ref` is defined and the unresolved value must match the pattern (for example, `'/paths\/. *\.yaml$/'`). See [ref example](#ref-example). |
 | required                    | [string]          | Asserts all listed values are defined. See [required example](#required-example).                                                                                                                                                                                                                                                                                                                        |
 | requireAny                  | [string]          | Asserts that at least one of the listed properties (key names only) is defined. See [requireAny example](#requireany-example).                                                                                                                                                                                                                                                                           |
+| schema                      | object            | Asserts a value conforms to a JSON Schema (2020-12 dialect). See [schema example](#schema-example).                                                                                                                                                                                                                                                                                                      |
 | `{pluginId}/{functionName}` | object            | Custom assertion defined in the plugin. This function is called with options including the value. See [custom function example](#custom-function-example).                                                                                                                                                                                                                                               |
 
 ## Where object
@@ -618,6 +619,54 @@ rules:
         - description
         - externalDocs
 ```
+
+### `schema` example
+
+The `schema` assertion validates the value of the subject property against a JSON Schema.
+The schema uses the JSON Schema 2020-12 dialect, which is the dialect of OpenAPI 3.1.
+
+The following example asserts that the `x-audit` extension of every operation has a reviewer, a review date, and an approved status.
+
+```yaml
+rules:
+  rule/operation-audit:
+    subject:
+      type: Operation
+      property: x-audit
+    message: The x-audit extension does not follow the required structure.
+    assertions:
+      schema:
+        type: object
+        properties:
+          reviewedBy:
+            type: string
+            format: email
+          reviewedOn:
+            type: string
+            format: date
+          status:
+            type: string
+            enum:
+              - draft
+              - approved
+        required:
+          - reviewedBy
+          - status
+        additionalProperties: false
+```
+
+The assertion reports one problem for each violation, at the location of the value that fails.
+
+The assertion keeps standard JSON Schema behavior:
+
+- List every mandatory property in `required`.
+  A property that you describe in `properties` is optional until you list it in `required`.
+- Set `additionalProperties: false` to reject properties that `properties` does not list.
+- The assertion reports no problem if the subject property is absent.
+  To also make the property mandatory, add the [`defined`](#defined-example) assertion to the same rule.
+
+The `schema` assertion does not support `$ref`.
+Write the full schema in the rule.
 
 ## Subject node types and properties
 
