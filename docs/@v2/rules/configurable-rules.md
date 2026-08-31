@@ -660,7 +660,6 @@ A property that you describe in `properties` is optional.
 List every mandatory property in `required`.
 
 A `$ref` inside the schema is resolved from the file that contains it, before the assertion runs, and not against the schema.
-A pointer such as `#/$defs/Status` therefore looks inside that file, not inside the assertion.
 
 ## Subject node types and properties
 
