@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.50.0
+
+### Minor Changes
+
+- Added a new `schema` assertion for configurable rules.
+  The assertion validates a property value against a JSON Schema.
+
 ## 2.49.1
 
 ### Patch Changes
