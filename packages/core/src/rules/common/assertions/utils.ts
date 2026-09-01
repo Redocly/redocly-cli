@@ -257,9 +257,9 @@ function groupProblemsByLocation(problems: AssertResult[]): AssertResult[][] {
   const groups: Record<string, AssertResult[]> = {};
   for (const problem of problems) {
     if (!problem.location) continue;
-    const key = problem.location.absolutePointer;
-    groups[key] = groups[key] || [];
-    groups[key].push(problem);
+    const pointer = problem.location.absolutePointer;
+    groups[pointer] = groups[pointer] || [];
+    groups[pointer].push(problem);
   }
   return Object.values(groups);
 }
