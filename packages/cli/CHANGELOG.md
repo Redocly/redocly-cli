@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.49.1
+
+### Patch Changes
+
+- Fixed an issue where rule incorrectly reported a duplicate parameter when two or more `$ref`s pointed to the same path item.
+- Updated @redocly/openapi-core to v2.49.1.
+
 ## 2.49.0
 
 ### Minor Changes

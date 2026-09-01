@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.49.1 (2026-09-01)
+
+### Patch Changes
+
+- Fixed an issue where rule incorrectly reported a duplicate parameter when two or more `$ref`s pointed to the same path item.
+- Updated @redocly/openapi-core to v2.49.1.
+
 ## 2.49.0 (2026-08-27)
 
 ### Minor Changes
