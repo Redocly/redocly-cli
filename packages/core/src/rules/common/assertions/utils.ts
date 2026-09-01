@@ -226,7 +226,7 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
     });
 
     if (problems.length) {
-      for (const problemGroup of groupProblemsByPointer(problems)) {
+      for (const problemGroup of groupProblemsByLocation(problems)) {
         const message = assertion.message || defaultMessage;
         const problemMessage = getProblemsMessage(problemGroup);
 
@@ -253,11 +253,11 @@ export function buildSubjectVisitor(assertId: string, assertion: Assertion): Vis
   };
 }
 
-function groupProblemsByPointer(problems: AssertResult[]): AssertResult[][] {
+function groupProblemsByLocation(problems: AssertResult[]): AssertResult[][] {
   const groups: Record<string, AssertResult[]> = {};
   for (const problem of problems) {
     if (!problem.location) continue;
-    const pointer = problem.location.pointer;
+    const pointer = problem.location.absolutePointer;
     groups[pointer] = groups[pointer] || [];
     groups[pointer].push(problem);
   }
