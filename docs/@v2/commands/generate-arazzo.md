@@ -184,7 +184,7 @@ Large descriptions that don't fit a single prompt are handled in two phases:
 1. The AI chooses up to `--max-workflows` scenarios from a compact operation index.
 2. The AI designs each scenario's workflow from only its operations.
 
-This two-phase mode skips scenarios whose design is rejected, and the accepted workflows are included in the ouptput.
+This two-phase mode skips scenarios whose design is rejected, and the accepted workflows are included in the output.
 
 The command keeps the auto-generated workflows even if:
 
