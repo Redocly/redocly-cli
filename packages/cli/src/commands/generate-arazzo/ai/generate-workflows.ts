@@ -7,11 +7,11 @@ import {
   stringifyYaml,
 } from '@redocly/openapi-core';
 import type { TestDescription } from '@redocly/respect-core';
-import * as process from 'node:process';
 
 import { lintDocumentSource, stripCodeFences } from '../../../utils/ai/output.js';
-import { type AiProvider, CliNotFoundError, runProvider } from '../../../utils/ai/providers.js';
-import { Spinner } from '../../../utils/spinner.js';
+import { type AiProvider, runProvider } from '../../../utils/ai/providers.js';
+import { runWorkerPool } from '../../../utils/ai/worker-pool.js';
+import { finishProgress, Spinner } from '../../../utils/spinner.js';
 import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
 import {
   buildScenarioDesignPrompt,
@@ -137,14 +137,6 @@ function validateReferences(workflows: unknown[], baseline: TestDescription): vo
     throw new Error(
       `the response references workflow(s) it does not define: ${unknownWorkflows.join(', ')}`
     );
-  }
-}
-
-function finishProgress(spinner: Spinner): void {
-  spinner.stop();
-  if (process.stderr.isTTY) {
-    // Erase the leftover spinner frame so the result line prints clean.
-    logger.info('\x1b[2K');
   }
 }
 
@@ -492,69 +484,16 @@ async function generateWorkflowsTwoPass(
     }
   }
 
-  const designed: (unknown | null)[] = new Array(scenarios.length).fill(null);
-  // Concurrent workers share one spinner: parallel spinners would overwrite
-  // each other's frames on the same stream.
-  const spinner = new Spinner();
-  const inFlight = new Set<string>();
-  let completed = 0;
-  let nextIndex = 0;
-
-  const updateSpinner = () => {
-    const [firstLabel] = inFlight;
-    if (!firstLabel) {
-      return;
-    }
-    const others = inFlight.size > 1 ? ` (+${inFlight.size - 1} more)` : '';
-    spinner.start(`[${completed + 1}/${scenarios.length}] Designing ${firstLabel}${others}`);
-  };
-
-  const worker = async () => {
-    while (nextIndex < scenarios.length) {
-      const scenarioIndex = nextIndex++;
-      const scenario = scenarios[scenarioIndex];
-      const startedAt = Date.now();
-      inFlight.add(scenario.workflowId);
-      updateSpinner();
-      try {
-        designed[scenarioIndex] = await designScenario({
-          options,
-          scenario,
-          entriesByRef,
-          baselineWorkflowsByRef,
-          config,
-        });
-        completed += 1;
-        inFlight.delete(scenario.workflowId);
-        finishProgress(spinner);
-        logger.info(
-          `[${completed}/${scenarios.length}] ${scenario.workflowId} — designed (${Math.round(
-            (Date.now() - startedAt) / 1000
-          )}s)\n`
-        );
-      } catch (error) {
-        completed += 1;
-        inFlight.delete(scenario.workflowId);
-        finishProgress(spinner);
-        if (error instanceof CliNotFoundError) {
-          throw error;
-        }
-        logger.warn(
-          `[${completed}/${scenarios.length}] ${scenario.workflowId} — skipped: ${
-            error instanceof Error ? error.message : String(error)
-          }\n`
-        );
-      }
-      updateSpinner();
-    }
-  };
-
-  const workers = Math.max(1, Math.min(DESIGN_CONCURRENCY, scenarios.length));
-  for (const result of await Promise.allSettled(Array.from({ length: workers }, worker))) {
-    if (result.status === 'rejected') {
-      throw result.reason;
-    }
-  }
+  const designed = await runWorkerPool({
+    items: scenarios,
+    concurrency: DESIGN_CONCURRENCY,
+    action: 'Designing',
+    successNote: 'designed',
+    failureNote: 'skipped',
+    label: (scenario) => scenario.workflowId,
+    run: (scenario) =>
+      designScenario({ options, scenario, entriesByRef, baselineWorkflowsByRef, config }),
+  });
 
   const workflows = designed.filter((workflow) => workflow !== null);
   if (workflows.length === 0) {
