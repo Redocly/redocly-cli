@@ -2860,7 +2860,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -3437,18 +3436,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.apis_additionalProperties.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.apis_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -3597,9 +3584,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -5790,7 +5774,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -6367,18 +6350,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -6487,9 +6458,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -11404,7 +11372,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -11981,18 +11948,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -12141,9 +12096,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -14334,7 +14286,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -14911,18 +14862,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -15031,9 +14970,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -19350,7 +19286,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -19923,18 +19858,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "apiId": {
         "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
       },
     },
     "required": undefined,
@@ -20736,9 +20659,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -27787,7 +27707,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -28360,18 +28279,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "apiId": {
         "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
       },
     },
     "required": undefined,
@@ -28976,9 +28883,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -33063,7 +32967,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -33636,18 +33539,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "apiId": {
         "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
       },
     },
     "required": undefined,
@@ -34449,9 +34340,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
