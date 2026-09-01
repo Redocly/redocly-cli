@@ -1,7 +1,8 @@
 import { isPlainObject, stringifyYaml } from '@redocly/openapi-core';
 
-// CI only exercises stub providers, so editing these instructions or the
+// CI only exercises a mocked provider, so editing these instructions or the
 // prompt layouts below can change workflow quality without failing any test.
+// Run the manual checks in PROMPT_TESTING.md before merging a change here.
 function buildSystemInstructions(maxWorkflows: number): string {
   return `You are an expert in API testing and the Arazzo specification. You are given an OpenAPI description and a baseline Arazzo description that was generated mechanically from it: one workflow per operation, one step each, no dependencies between operations. Redesign the workflows so they reflect how the API is used in the real world.
 
