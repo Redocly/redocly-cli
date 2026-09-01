@@ -659,7 +659,7 @@ The assertion reports one problem for each violation, at the location of the val
 A property that you describe in `properties` is optional.
 List every mandatory property in `required`.
 
-A `$ref` inside the schema is resolved from the file that contains it, before the assertion runs, and not against the schema.
+A `$ref` inside the schema is resolved from the file that contains it, not against the schema.
 
 ## Subject node types and properties
 

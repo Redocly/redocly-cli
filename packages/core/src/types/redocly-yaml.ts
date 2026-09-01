@@ -554,8 +554,6 @@ const CustomPreprocessor: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
 };
 
-const Schema: NodeType = Oas3_1Types.Schema;
-
 function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
   return {
     properties: {
@@ -825,7 +823,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   CustomDecorator,
   BuiltinPreprocessor,
   CustomPreprocessor,
-  Schema,
+  Schema: Oas3_1Types.Schema,
   SchemaProperties: Oas3_1Types.SchemaProperties,
   PatternProperties: Oas3_1Types.PatternProperties,
   NamedSchemas: Oas3_1Types.NamedSchemas,
