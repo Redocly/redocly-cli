@@ -321,7 +321,9 @@ function replaceArgs(
 ): string {
   const targetValues = Array.isArray(targets) ? targets : [targets];
   for (const target of targetValues) {
-    commandInput = commandInput.replaceAll(target, replacement);
+    if (target.length > 1) {
+      commandInput = commandInput.replaceAll(target, replacement);
+    }
   }
   return commandInput;
 }
@@ -371,6 +373,8 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
     'o',
     'input',
     'i',
+    'author',
+    'a',
     'clientCert',
     'clientKey',
     'caCert',
