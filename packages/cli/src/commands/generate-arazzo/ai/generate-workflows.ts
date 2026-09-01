@@ -559,9 +559,25 @@ export async function generateWorkflowsWithAi(
     }
     validateReferences(parsed.workflows, options.baseline);
     workflows = parsed.workflows;
-    // An answer that omits the baseline's components (security inputs) would
-    // break the "$components..." references the prompt asks to keep.
-    components = parsed.components ?? options.baseline.components;
+    // An answer often returns only its own reusable inputs, while its
+    // workflows still $ref the baseline's security inputs — merge instead of
+    // replace, so those references keep resolving. An input the answer
+    // redefines deliberately still wins.
+    const answerComponents = isPlainObject(parsed.components) ? parsed.components : undefined;
+    const baselineComponents = options.baseline.components;
+    if (answerComponents && baselineComponents) {
+      const inputs = {
+        ...(isPlainObject(baselineComponents.inputs) && baselineComponents.inputs),
+        ...(isPlainObject(answerComponents.inputs) && answerComponents.inputs),
+      };
+      components = {
+        ...baselineComponents,
+        ...answerComponents,
+        ...(Object.keys(inputs).length > 0 && { inputs }),
+      };
+    } else {
+      components = answerComponents ?? baselineComponents;
+    }
   }
 
   const document = {

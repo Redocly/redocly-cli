@@ -163,6 +163,23 @@ describe('generateWorkflowsWithAi', () => {
     expect(result.yaml).toContain('basicAuth');
   });
 
+  it('merges the baseline components with the ones the answer adds', async () => {
+    const withComponents = `${redesignedWorkflows}components:
+  inputs:
+    extraInput:
+      type: object
+`;
+    vi.mocked(runProvider).mockResolvedValueOnce({ text: withComponents });
+    const result = await generateWorkflowsWithAi({
+      provider: 'claude',
+      baseline: { ...baseline(), components: { inputs: { basicAuth: { type: 'object' } } } },
+      description: {},
+      maxWorkflows: 10,
+    });
+    expect(result.yaml).toContain('basicAuth');
+    expect(result.yaml).toContain('extraInput');
+  });
+
   it('rejects an answer that is not a workflows document', async () => {
     await expect(generateWorkflows('Sorry, I cannot help with that.')).rejects.toThrow(
       'the response is not a YAML document with a non-empty "workflows" list'
