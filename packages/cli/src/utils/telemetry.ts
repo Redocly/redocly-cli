@@ -321,8 +321,6 @@ function replaceArgs(
 ): string {
   const targetValues = Array.isArray(targets) ? targets : [targets];
   for (const target of targetValues) {
-    // An empty target inserts the replacement between every character, and a single
-    // character such as `-` matches inside every flag.
     if (target.length > 1) {
       commandInput = commandInput.replaceAll(target, replacement);
     }
