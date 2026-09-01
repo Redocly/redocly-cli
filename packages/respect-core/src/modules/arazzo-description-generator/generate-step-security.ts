@@ -54,7 +54,10 @@ export function generateStepSecurity(
       } else if (httpScheme === 'basic' || httpScheme === 'digest') {
         xSecurity.push({
           schemeName: securityName,
-          values: { username: '$inputs.username', password: '$inputs.password' },
+          values: {
+            username: `$inputs.${securityName}_username`,
+            password: `$inputs.${securityName}_password`,
+          },
         });
       } else if (securityScheme?.type === 'http' && securityScheme.scheme) {
         // Respect's x-security does not know this HTTP scheme; an RFC 7235

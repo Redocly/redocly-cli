@@ -23,7 +23,10 @@ describe('generateStepSecurity', () => {
       xSecurity: [
         {
           schemeName: 'basicAuth',
-          values: { username: '$inputs.username', password: '$inputs.password' },
+          values: {
+            username: '$inputs.basicAuth_username',
+            password: '$inputs.basicAuth_password',
+          },
         },
       ],
       parameters: [],

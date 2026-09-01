@@ -9,7 +9,7 @@ describe('generateSecurityInputsArazzoComponents', () => {
     expect(result).toEqual({ inputs: {} });
   });
 
-  it('should generate username and password inputs for the Basic auth security scheme', () => {
+  it('should generate scheme-scoped username and password inputs for the Basic auth security scheme', () => {
     const securitySchemes = {
       basicAuth: {
         type: 'http' as const,
@@ -22,11 +22,11 @@ describe('generateSecurityInputsArazzoComponents', () => {
         basicAuth: {
           type: 'object',
           properties: {
-            username: {
+            basicAuth_username: {
               type: 'string',
               description: 'Username for basicAuth',
             },
-            password: {
+            basicAuth_password: {
               type: 'string',
               description: 'Password for basicAuth',
               format: 'password',

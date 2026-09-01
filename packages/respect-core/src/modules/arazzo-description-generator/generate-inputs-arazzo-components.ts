@@ -10,14 +10,17 @@ export function generateSecurityInputsArazzoComponents(
       securityScheme.type === 'http' ? securityScheme.scheme?.toLowerCase() : undefined;
 
     if (httpScheme === 'basic' || httpScheme === 'digest') {
+      // The input names carry the scheme name, like every other scheme type:
+      // Respect maps provided inputs to all workflows, so a bare "username"
+      // would force every basic/digest scheme onto one credential pair.
       inputs[name] = {
         type: 'object',
         properties: {
-          username: {
+          [`${name}_username`]: {
             type: 'string',
             description: `Username for ${name}`,
           },
-          password: {
+          [`${name}_password`]: {
             type: 'string',
             description: `Password for ${name}`,
             format: 'password',
