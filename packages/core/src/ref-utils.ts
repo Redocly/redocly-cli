@@ -40,7 +40,7 @@ export class Location {
   }
 
   key() {
-    return { ...this, reportOnKey: true };
+    return { ...this, reportOnKey: true, absolutePointer: this.absolutePointer };
   }
 
   get absolutePointer() {
