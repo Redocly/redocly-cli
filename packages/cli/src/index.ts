@@ -878,6 +878,13 @@ yargs(hideBin(process.argv))
               'Model passed to the selected AI provider (provider-specific default applies).',
             type: 'string',
           },
+          'ai-concurrency': {
+            describe:
+              'Number of workflows designed in parallel with --with-ai for large descriptions.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
           'max-workflows': {
             describe: 'Most workflows the AI may design with --with-ai.',
             type: 'number',

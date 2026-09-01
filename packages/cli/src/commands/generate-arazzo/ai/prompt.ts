@@ -28,6 +28,8 @@ workflows:
 components:
   ...only when the baseline has components or new reusable inputs are needed; omit otherwise...
 
+Use only Arazzo fields — for a workflow: workflowId, summary, description, inputs, dependsOn, steps, outputs, parameters, x-security; for a step: stepId, description, operationId, operationPath, workflowId, parameters, requestBody, successCriteria, onSuccess, onFailure, outputs, x-security. The result is validated and rejected otherwise.
+
 Do not output "arazzo", "info", or "sourceDescriptions" — they are added programmatically. Do not wrap the output in Markdown code fences. Do not add any commentary before or after the document.`;
 }
 
@@ -156,6 +158,8 @@ Output ONLY a YAML document with this exact top-level structure:
 
 workflows:
   - ...the single designed workflow...
+
+Use only Arazzo fields — for the workflow: workflowId, summary, description, inputs, steps, outputs, parameters, x-security; for a step: stepId, description, operationId, operationPath, parameters, requestBody, successCriteria, onSuccess, onFailure, outputs, x-security. The result is validated and rejected otherwise.
 
 Do not output "arazzo", "info", "sourceDescriptions", or "components" — they are added programmatically. Do not wrap the output in Markdown code fences. Do not add any commentary before or after the document.`;
 

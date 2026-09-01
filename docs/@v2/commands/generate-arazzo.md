@@ -70,6 +70,13 @@ npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [-
 
 ---
 
+- --ai-concurrency
+- number
+- Number of workflows designed in parallel with `--with-ai` when a large description is handled in two phases.
+  Default: `4`.
+
+---
+
 - --max-workflows
 - number
 - Most workflows the AI may design with `--with-ai`.

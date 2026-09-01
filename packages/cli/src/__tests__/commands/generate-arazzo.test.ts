@@ -126,6 +126,7 @@ describe('handleGenerateArazzo', () => {
         'with-ai': true,
         'ai-provider': 'claude',
         'ai-model': 'claude-sonnet-5',
+        'ai-concurrency': 4,
         'max-workflows': 10,
       } as GenerateArazzoCommandArgv,
       config: mockConfig,
@@ -141,6 +142,7 @@ describe('handleGenerateArazzo', () => {
       baseline: { workflows: [] },
       description: undefined,
       maxWorkflows: 10,
+      concurrency: 4,
     });
     expect(writeFileSync).toHaveBeenCalledWith(
       'auto-generated.arazzo.yaml',

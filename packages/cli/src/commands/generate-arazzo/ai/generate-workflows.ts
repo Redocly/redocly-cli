@@ -31,13 +31,16 @@ export interface GenerateWorkflowsOptions {
   description: unknown;
   /** The most workflows the AI may design; more get the answer rejected. */
   maxWorkflows: number;
+  /** Scenario designs run in parallel in two-pass mode; defaults to 4. */
+  concurrency?: number;
 }
 
 // The whole prompt must fit the provider's context window with room left for
 // the answer; ~400k characters is roughly 100k tokens.
 export const MAX_PROMPT_CHARS = 400_000;
 
-// How many scenario designs run against the provider at once in two-pass mode.
+// Default number of scenario designs run against the provider at once in
+// two-pass mode.
 const DESIGN_CONCURRENCY = 4;
 
 const TOO_LARGE_MESSAGE = 'the OpenAPI description is too large to send to the AI provider';
@@ -486,7 +489,7 @@ async function generateWorkflowsTwoPass(
 
   const designed = await runWorkerPool({
     items: scenarios,
-    concurrency: DESIGN_CONCURRENCY,
+    concurrency: options.concurrency ?? DESIGN_CONCURRENCY,
     action: 'Designing',
     successNote: 'designed',
     failureNote: 'skipped',

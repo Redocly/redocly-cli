@@ -19,6 +19,7 @@ export type GenerateArazzoCommandArgv = {
   'with-ai'?: boolean;
   'ai-provider': AiProvider;
   'ai-model'?: string;
+  'ai-concurrency': number;
   'max-workflows': number;
   config?: string;
 };
@@ -121,6 +122,7 @@ export async function handleGenerateArazzo({
           baseline: generatedArazzo,
           description: bundledDescription,
           maxWorkflows: argv['max-workflows'],
+          concurrency: argv['ai-concurrency'],
         });
         resultYaml = INFERRED_NOTE + redesigned.yaml;
         logger.info(`AI designed ${redesigned.workflows} workflow(s) (${provider}).\n`);
