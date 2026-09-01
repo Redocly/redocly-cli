@@ -115,7 +115,7 @@ async function runClaude(request: ProviderRequest): Promise<ProviderResult> {
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1',
   });
   if (code !== 0) {
-    throw new Error(`claude CLI exited with code ${code}: ${stderr.trim()}`);
+    throw new Error(`claude CLI exited with code ${code}: ${stderr.trim() || stdout.trim()}`);
   }
   if (!stdout.trim()) {
     throw new Error('claude CLI returned no output.');
@@ -144,7 +144,7 @@ async function runCodex(request: ProviderRequest): Promise<ProviderResult> {
   const prompt = `${request.system}\n\n${request.user}`;
   const { stdout, stderr, code } = await runCommand('codex', args, prompt);
   if (code !== 0) {
-    throw new Error(`codex CLI exited with code ${code}: ${stderr.trim()}`);
+    throw new Error(`codex CLI exited with code ${code}: ${stderr.trim() || stdout.trim()}`);
   }
   if (!stdout.trim()) {
     throw new Error('codex CLI returned no output.');
@@ -188,7 +188,7 @@ async function runCursor(request: ProviderRequest): Promise<ProviderResult> {
 
   const { stdout, stderr, code } = result;
   if (code !== 0) {
-    throw new Error(`cursor CLI exited with code ${code}: ${stderr.trim()}`);
+    throw new Error(`cursor CLI exited with code ${code}: ${stderr.trim() || stdout.trim()}`);
   }
   if (!stdout.trim()) {
     throw new Error('cursor CLI returned no output.');

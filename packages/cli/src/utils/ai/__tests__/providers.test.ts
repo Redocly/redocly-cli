@@ -8,7 +8,7 @@ vi.mock('node:fs/promises', () => ({
   mkdtemp: vi.fn(async () => '/tmp/redocly-ai-empty'),
 }));
 
-function stubChildProcess(stdout: string) {
+function stubChildProcess(stdout: string, exitCode = 0) {
   const child = new EventEmitter() as EventEmitter & {
     stdout: EventEmitter;
     stderr: EventEmitter;
@@ -21,7 +21,7 @@ function stubChildProcess(stdout: string) {
     end: (input: string) => {
       child.pipedInput = input;
       child.stdout.emit('data', Buffer.from(stdout));
-      child.emit('close', 0);
+      child.emit('close', exitCode);
     },
   });
   return child;
@@ -96,5 +96,14 @@ describe('runProvider', () => {
       expect.objectContaining({ cwd: '/tmp/redocly-ai-empty' })
     );
     expect(child.pipedInput).toBe('sys prompt\n\nuser prompt');
+  });
+
+  it('surfaces stdout in the error when the CLI fails without writing to stderr', async () => {
+    child = stubChildProcess('Not logged in · Please run /login', 1);
+    vi.mocked(spawn).mockReturnValue(child as unknown as ReturnType<typeof spawn>);
+
+    await expect(runProvider('claude', { system: 'sys', user: 'user' })).rejects.toThrow(
+      'claude CLI exited with code 1: Not logged in · Please run /login'
+    );
   });
 });

@@ -126,7 +126,7 @@ export async function handleGenerateArazzo({
         logger.info(`AI designed ${redesigned.workflows} workflow(s) (${provider}).\n`);
       } catch (error) {
         logger.warn(
-          `AI workflow design failed, keeping the auto-generated workflows: ${
+          `AI workflow design failed, keeping the auto-generated workflows (one workflow per operation): ${
             error instanceof Error ? error.message : String(error)
           }\n`
         );
