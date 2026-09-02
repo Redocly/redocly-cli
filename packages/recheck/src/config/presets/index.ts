@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig, ValidationError } from '../../types/index.js';
+import type { BaseRule, RecheckRules, ValidationError } from '../../types/index.js';
 import { buildApiDescriptionsPreset } from './api-descriptions.js';
 import { buildGooglePreset } from './google.js';
 import { buildInclusiveLanguagePreset } from './inclusive-language.js';
@@ -23,7 +23,7 @@ import { buildTechnicalEnglishPreset } from './technical-english.js';
  * (`recheck/google`/`recheck/microsoft`) or onto `recheck/prose` via a
  * multi-entry `extends` list, not to be used alone.
  */
-export const presets: Record<string, RecheckConfig> = {
+export const presets: Record<string, RecheckRules> = {
   'recheck/markdown': buildMarkdownPreset(),
   'recheck/markdown-relaxed': buildMarkdownRelaxedPreset(),
   'recheck/minimal': buildMinimalPreset(),
@@ -92,7 +92,7 @@ function mergeRule(presetRule: BaseRule, userRule: Partial<BaseRule>): BaseRule 
 
 /**
  * Resolves the `extends` key of a raw config object into a fully merged
- * `RecheckConfig`: presets are applied in listed order (later presets'
+ * `RecheckRules`: presets are applied in listed order (later presets'
  * rule keys override earlier ones, same per-rule merge as user overrides),
  * then the user's own rule keys are merged on top by rule key. The
  * `extends` key itself is stripped from the result — it is not a rule and
@@ -104,11 +104,11 @@ function mergeRule(presetRule: BaseRule, userRule: Partial<BaseRule>): BaseRule 
  * throwing on bad user input.
  */
 export function resolveExtends(config: Record<string, unknown>): {
-  config: RecheckConfig;
+  config: RecheckRules;
   errors: ValidationError[];
 } {
   const { extends: extendsList, ...rest } = config;
-  const userRules = rest as RecheckConfig;
+  const userRules = rest as RecheckRules;
 
   if (extendsList === undefined) {
     return { config: userRules, errors: [] };
@@ -130,7 +130,7 @@ export function resolveExtends(config: Record<string, unknown>): {
 
   const errors: ValidationError[] = [];
 
-  let merged: RecheckConfig = {};
+  let merged: RecheckRules = {};
   for (const name of extendsList) {
     const preset = presets[name as string];
     if (!preset) {

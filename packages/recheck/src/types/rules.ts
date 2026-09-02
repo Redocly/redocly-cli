@@ -1,3 +1,4 @@
+import type { MarkdocUserConfig } from '../parser/markdoc/schema.js';
 import type { AssertionConfig } from './assertions.js';
 
 export type RuleSeverity = 'off' | 'info' | 'warn' | 'error';
@@ -58,6 +59,25 @@ export interface NormalizedRule {
   assertions: Record<string, AssertionConfig>;
 }
 
+/**
+ * A config as a user writes it: rule entries keyed by rule name, plus the
+ * four engine-level keys that are not rules. `config/schema.ts` lists those
+ * four alongside the rule keys, and `config/validate.ts` reads and strips
+ * them before rule iteration.
+ *
+ * A rule entry is `Partial<BaseRule>` because a config that `extends` a
+ * preset may set one field of a preset rule and inherit the rest (see
+ * `mergeRule` in config/presets/index.ts). `severity`, `message` and
+ * `assertions` are required on the MERGED rule, which the JSON schema
+ * enforces at load time.
+ */
 export interface RecheckConfig {
-  [key: string]: BaseRule;
+  extends?: string[];
+  excludes?: string[];
+  baseline?: string;
+  markdoc?: boolean | MarkdocUserConfig;
+  [key: string]: Partial<BaseRule> | string[] | string | boolean | MarkdocUserConfig | undefined;
 }
+
+/** The rule entries of a config, with the engine-level keys removed. */
+export type RecheckRules = Record<string, BaseRule>;

@@ -295,7 +295,6 @@ function rootDirFor(option: unknown, filePath: string): string {
   return best;
 }
 
-// oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
 function checkLinkFragments(ctx: Parameters<TokenRule['check']>[0]) {
   const ignoreCase = !!ctx.config.ignoreCase;
   const crossFile = !!ctx.config.crossFile;

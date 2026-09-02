@@ -7,7 +7,12 @@ import { runRulesUntilStable } from '../../core/runner.js';
 import { lintContent } from '../../index.js';
 import { pattern } from '../../rules/scope/pattern.js';
 import type { ScopeRuleContext } from '../../rules/types.js';
-import type { ConsistencyAssertion, PatternAssertion, SwapAssertion } from '../../types/index.js';
+import type {
+  ConsistencyAssertion,
+  NormalizedRule,
+  PatternAssertion,
+  SwapAssertion,
+} from '../../types/index.js';
 import { presets } from '../presets/index.js';
 import { validate } from '../validate.js';
 
@@ -757,7 +762,11 @@ describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 
   // trailing `\s*` inside the optional group removes the ambiguity, so the
   // new token resolves the same non-match in well under a millisecond.
   it('the live token completes in linear time on a 32KB non-matching whitespace run (no quadratic backtracking)', async () => {
-    const rule = presets['recheck/microsoft']['microsoft/no-blank-table-cell'];
+    const rule: NormalizedRule = {
+      ...presets['recheck/microsoft']['microsoft/no-blank-table-cell'],
+      name: 'microsoft/no-blank-table-cell',
+      shortName: 'microsoft/no-blank-table-cell',
+    };
     const content = `${' '.repeat(32 * 1024)}x`;
     const ctx: ScopeRuleContext = {
       segments: [

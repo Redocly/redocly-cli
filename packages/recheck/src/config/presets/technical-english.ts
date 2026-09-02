@@ -1,4 +1,4 @@
-import type { RecheckConfig } from '../../types/index.js';
+import type { RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/technical-english` — an original rule set that helps writers
@@ -31,8 +31,8 @@ import type { RecheckConfig } from '../../types/index.js';
  *   - NO one-instruction-per-sentence rule. Not reliably detectable;
  *     the sentence-length rule is the closest proxy.
  */
-export function buildTechnicalEnglishPreset(): RecheckConfig {
-  const rules: RecheckConfig = {};
+export function buildTechnicalEnglishPreset(): RecheckRules {
+  const rules: RecheckRules = {};
   const SITE = 'https://www.asd-ste100.org';
 
   // The standard's best-known numeric principle: procedural sentences stay

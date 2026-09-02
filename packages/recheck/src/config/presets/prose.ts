@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/prose` — the Vale-parity counterpart to `recheck/markdown`:
@@ -61,7 +61,7 @@ export const PROSE_PRESET_ASSERTIONS = ['repetition', 'consistency', 'capitaliza
  */
 const PROSE_SCOPE = 'summary';
 
-export function buildProsePreset(): RecheckConfig {
+export function buildProsePreset(): RecheckRules {
   const repetition: BaseRule = {
     severity: 'warn',
     scope: PROSE_SCOPE,

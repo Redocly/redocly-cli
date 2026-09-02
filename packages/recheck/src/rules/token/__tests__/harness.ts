@@ -57,6 +57,7 @@ export function tokenRuleUnitHarness(rule: TokenRule, options: Record<string, un
     rule.check({
       tree,
       lines,
+      filePath: 't.md',
       config: { ...rule.defaults, ...options },
       onError(info) {
         problems.push({

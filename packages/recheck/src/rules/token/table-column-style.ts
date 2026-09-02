@@ -69,7 +69,6 @@ export const tableColumnStyle: TokenRule = {
     style: 'any',
     alignedDelimiter: false,
   },
-  // oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
   check(ctx) {
     const style = String(ctx.config.style || 'any');
     const styleAlignedAllowed = style === 'any' || style === 'aligned';

@@ -39,7 +39,6 @@ export const lineLength: TokenRule = {
     tables: true,
     headings: true,
   },
-  // oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
   check(ctx) {
     const lineLengthOption = Number(ctx.config.lineLength || 80);
     const headingLineLength = Number(ctx.config.headingLineLength || lineLengthOption);

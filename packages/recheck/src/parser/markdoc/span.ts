@@ -627,7 +627,6 @@ function annotation(): ParsedMarkdocSpan {
  * 0-based indexes into this same string. Never throws; unparseable input
  * comes back as `{ kind: 'malformed', reason }`.
  */
-// oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
 export function parseMarkdocSpan(spanText: string): ParsedMarkdocSpan {
   if (!spanText.startsWith('{%')) {
     return malformed("span text does not start with the opening delimiter '{%'");

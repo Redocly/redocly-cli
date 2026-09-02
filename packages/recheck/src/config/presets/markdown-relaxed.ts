@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 import { buildMarkdownPreset } from './markdown.js';
 
 /**
@@ -84,9 +84,9 @@ const RELAXED_OVERRIDES: Record<string, Partial<BaseRule>> = {
   'first-line-h1': { severity: 'off' },
 };
 
-export function buildMarkdownRelaxedPreset(): RecheckConfig {
+export function buildMarkdownRelaxedPreset(): RecheckRules {
   const base = buildMarkdownPreset();
-  const result: RecheckConfig = { ...base };
+  const result: RecheckRules = { ...base };
 
   for (const [shortName, override] of Object.entries(RELAXED_OVERRIDES)) {
     const key = `recheck/${shortName}`;

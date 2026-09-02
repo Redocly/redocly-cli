@@ -20,7 +20,7 @@ export type { ScopedSegment } from './scopes/types.js';
 export { applyFixesToContent } from './core/auto-fix.js';
 export type { ApplyFixesResult } from './core/auto-fix.js';
 export type { Problem, Fix } from './types/problems.js';
-export type { NormalizedRule, RecheckConfig } from './types/rules.js';
+export type { NormalizedRule, RecheckConfig, RecheckRules } from './types/rules.js';
 export type { RuleSeverity } from './types/rules.js';
 export type { ValidationError } from './types/validation.js';
 // Exposed so callers building their own FileInput[] (e.g. the ai-worker
