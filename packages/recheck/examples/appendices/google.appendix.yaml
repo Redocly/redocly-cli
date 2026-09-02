@@ -1,0 +1,91 @@
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/google (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# makes examples/google.yaml stale until you regenerate — the drift test's
+# failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why: packages/recheck/presets/google/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# NOISY — real, guide-confirmed content, judged too broad to enforce
+# mechanically. Shown here as the rule it WOULD be if shipped, commented out,
+# so you can see the shape being avoided rather than just a name.
+# ------------------------------------------------------------------------------
+
+# NOISY: a heading starting with an "-ing" word would also flag ordinary
+# tech-noun headings used as topics, not verb-form imperatives (Networking,
+# Logging, Caching, Monitoring, Testing) — Google names only two exceptions
+# (Billing, Pricing), itself evidence this needs more context than a
+# heading's first word.
+# google/no-gerund-headings:
+#   severity: warn
+#   scope: heading
+#   message: 'Avoid starting a heading with a gerund (Google).'
+#   assertions:
+#     pattern:
+#       ignoreCase: true
+#       tokens: ['^\w*ing\b']
+
+# NOISY: table cells often legitimately contain short labels, proper nouns,
+# or numeric/code values that don't fit sentence-case cleanly.
+# google/table-sentence-case:
+#   severity: warn
+#   scope: table.cell
+#   message: 'Use sentence case for table cells (Google).'
+#   assertions:
+#     capitalization:
+#       match: $sentence
+
+# NOISY: slashes appear constantly in dates, paths, fractions, and URLs — a
+# blind "avoid slashes" pattern would flag nearly all of them.
+# google/no-slashes-general:
+#   severity: warn
+#   message: 'Avoid using slashes, except in code (Google).'
+#   assertions:
+#     pattern:
+#       tokens: ['(?<!\/)\/(?!\/)']
+
+# NOISY: confirmed guide content ("don't put code in quotes or angle
+# brackets"), but the draft that fed this preset already flagged both as
+# NOISY and they were never re-litigated — no safe anchor was found that
+# doesn't also match ordinary quoted/angle-bracketed prose unrelated to code.
+# google/no-quotes-around-code:
+#   severity: warn
+#   message: "Don't wrap code terms in quotation marks (Google)."
+#   assertions:
+#     pattern:
+#       tokens: ['"`[^`]+`"']
+# google/no-angle-brackets-around-code:
+#   severity: warn
+#   message: "Don't wrap code terms in angle brackets (Google)."
+#   assertions:
+#     pattern:
+#       tokens: ['<`[^`]+`>']
+
+# ------------------------------------------------------------------------------
+# NEEDS HUMAN REVIEW — real guide content with no safe mechanical detection
+# (NOT-ENFORCEABLE). Recheck cannot check these; review them yourself:
+# ------------------------------------------------------------------------------
+#   [ ] "Optional:" prefix on genuinely optional sections (requires knowing
+#       whether a section is actually optional)
+#   [ ] Text before a colon must be a complete sentence
+#   [ ] Oxford comma (missing-comma detection needs real clause parsing)
+#   [ ] Acronyms used as verbs ("ping the server") — needs POS tagging
+#   [ ] Spell out an abbreviation on first mention (needs unbounded
+#       first-mention tracking across the document)
+#   [ ] Avoid linking the same destination from different link text (the
+#       guide's own exceptions — different section, long page, multiple
+#       entry points — need judgment a token rule can't apply)
+#   [ ] External link icon (a rendered visual/CSS concern, not markdown text)
+#   [ ] Drop "..." when quoting a UI element name (risks over- and
+#       under-firing with a regex)
+#   [ ] Directional language (above/below/right-hand side) as a spatial UI
+#       reference vs. its equally common non-directional use
+#   [ ] "A link isn't a button" — requires knowing what a referenced UI
+#       element actually is
+#   [ ] Generic he/him/his/she/her — requires knowing whether a pronoun
+#       names a specific person or is used generically
+#   [ ] Active voice, metaphor avoidance, and the "what belongs in code
+#       font" table — all require holistic judgment about content/structure

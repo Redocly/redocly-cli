@@ -1,0 +1,88 @@
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/plain-language (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# makes examples/plain-language.yaml stale until you regenerate — the drift
+# test's failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why:
+# packages/recheck/presets/plain-language/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# NOISY — live, verbatim guide content, judged too broad or too domain-risky
+# to enforce mechanically. Shown here as the rule it WOULD be if shipped,
+# commented out, so you can see the shape being avoided.
+# ------------------------------------------------------------------------------
+
+# NOISY: live on the guide's own table, but this 1:1 substitution misreads
+# ordinary, correct accountability language ("the team is responsible for
+# the migration") as wordiness — no textual signal separates that from padding.
+# plain-language/be-responsible-for:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { be responsible for: must }
+
+# NOISY, HIGH-RISK FOR THIS DOMAIN: "implement" is live guide content, but in
+# software/API documentation "implement an interface", "implement this
+# endpoint", "implement the spec" is ordinary, correct technical vocabulary,
+# not wordiness. Flagging it would misfire across nearly every technical
+# document Recheck targets.
+# plain-language/implement:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { implement: carry out }
+
+# NOISY: this row is itself a garbled pairing on the live page, and
+# separately "command" has a strong, unrelated, extremely common technical
+# sense (CLI command, terminal command) — core developer-docs vocabulary.
+# plain-language/this-activity-command:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { this activity, command: us, we }
+
+# NOT SHIPPED, ANY DIRECTION, EVER: "shall" is live guide content ("use
+# 'must' not 'shall'"), but SHALL is a defined RFC 2119 normative keyword
+# (alongside MUST/SHOULD/MAY/MUST NOT) used throughout specifications and
+# API/interface documentation — exactly Recheck's target content. This is
+# the single highest-risk exclusion in this preset: a rule flagging it would
+# be actively wrong for that whole document class, not an edge case to
+# carve out.
+# plain-language/shall-must:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language) — never for RFC 2119 usage.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { shall: must }
+
+# ------------------------------------------------------------------------------
+# NEEDS HUMAN REVIEW — real guide content with no safe mechanical detection
+# (NOT-ENFORCEABLE). Recheck cannot check these; review them yourself:
+# ------------------------------------------------------------------------------
+#   [ ] Nominalizations ("hidden verbs") — the guide's own suffix pattern
+#       (-ment/-tion/-sion/-ance + a link verb) false-positives constantly on
+#       ordinary correct nouns ("chance", "information", "assurance")
+#   [ ] Sentence-length — no word count is stated anywhere on the live site,
+#       only "write short sentences"
+#   [ ] Grade-level/readability score — no number is stated anywhere on the
+#       live site (see PROVENANCE.md "THE NUMBER"); `metric` stays a
+#       documented opt-in, not something this preset can source from the guide
+#   [ ] Abbreviation count per document ("no more than three, preferably
+#       two") — counts DISTINCT abbreviation TYPES, which neither `occurrence`
+#       nor `length` can express; an engine gap, not a judgment call
+#   [ ] Paraphrase-testing sample size / testing iteration count — user-
+#       testing methodology, not document content a linter can ever evaluate
