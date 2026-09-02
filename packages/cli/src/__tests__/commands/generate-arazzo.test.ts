@@ -1,6 +1,7 @@
 import * as openapiCore from '@redocly/openapi-core';
 import { generate } from '@redocly/respect-core';
 import { writeFileSync } from 'node:fs';
+import { outdent } from 'outdent';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 import { generateWorkflowsWithAi } from '../../commands/generate-arazzo/ai/generate-workflows.js';
@@ -194,25 +195,25 @@ describe('handleGenerateArazzo', () => {
 
 describe('buildRespectHint', () => {
   it('lists a placeholder for every workflow input, resolving component refs', () => {
-    const resultYaml = [
-      'workflows:',
-      '  - workflowId: first',
-      '    inputs:',
-      '      $ref: "#/components/inputs/bearerAuth"',
-      '  - workflowId: second',
-      '    inputs:',
-      '      type: object',
-      '      properties:',
-      '        userEmail:',
-      '          type: string',
-      'components:',
-      '  inputs:',
-      '    bearerAuth:',
-      '      type: object',
-      '      properties:',
-      '        bearerAuth:',
-      '          type: string',
-    ].join('\n');
+    const resultYaml = outdent`
+      workflows:
+        - workflowId: first
+          inputs:
+            $ref: "#/components/inputs/bearerAuth"
+        - workflowId: second
+          inputs:
+            type: object
+            properties:
+              userEmail:
+                type: string
+      components:
+        inputs:
+          bearerAuth:
+            type: object
+            properties:
+              bearerAuth:
+                type: string
+    `;
 
     const hint = buildRespectHint(resultYaml, 'museum.arazzo.yaml');
 

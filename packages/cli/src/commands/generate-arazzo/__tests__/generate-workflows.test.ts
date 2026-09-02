@@ -1,5 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 import type { TestDescription } from '@redocly/respect-core';
+import { outdent } from 'outdent';
 
 import { runProvider } from '../../../utils/ai/providers.js';
 import { generateWorkflowsWithAi } from '../ai/generate-workflows.js';
@@ -40,21 +41,22 @@ function baseline(): TestDescription {
   };
 }
 
-const redesignedWorkflows = `workflows:
-  - workflowId: user-lifecycle
-    summary: Create a user, then read it
-    description: Creates a user and verifies it can be fetched back.
-    steps:
-      - stepId: create-user
-        operationId: $sourceDescriptions.test-api.createUser
-        outputs:
-          id: $response.body#/id
-        successCriteria:
-          - condition: $statusCode == 201
-      - stepId: get-user
-        operationId: $sourceDescriptions.test-api.getUser
-        successCriteria:
-          - condition: $statusCode == 200
+const redesignedWorkflows = outdent`
+  workflows:
+    - workflowId: user-lifecycle
+      summary: Create a user, then read it
+      description: Creates a user and verifies it can be fetched back.
+      steps:
+        - stepId: create-user
+          operationId: $sourceDescriptions.test-api.createUser
+          outputs:
+            id: $response.body#/id
+          successCriteria:
+            - condition: $statusCode == 201
+        - stepId: get-user
+          operationId: $sourceDescriptions.test-api.getUser
+          successCriteria:
+            - condition: $statusCode == 200
 `;
 
 async function generateWorkflows(text: string, maxWorkflows = 10) {
@@ -89,15 +91,22 @@ describe('generateWorkflowsWithAi', () => {
   });
 
   it('rejects an answer with more workflows than --max-workflows allows', async () => {
-    const secondWorkflow = `  - workflowId: read-user
-    summary: Read a user
-    steps:
-      - stepId: read-user-step
-        operationId: $sourceDescriptions.test-api.getUser
-        successCriteria:
-          - condition: $statusCode == 200
-`;
-    await expect(generateWorkflows(redesignedWorkflows + secondWorkflow, 1)).rejects.toThrow(
+    const twoWorkflows = outdent`
+      workflows:
+        - workflowId: create-user
+          steps:
+            - stepId: create-user-step
+              operationId: $sourceDescriptions.test-api.createUser
+              successCriteria:
+                - condition: $statusCode == 201
+        - workflowId: read-user
+          steps:
+            - stepId: read-user-step
+              operationId: $sourceDescriptions.test-api.getUser
+              successCriteria:
+                - condition: $statusCode == 200
+    `;
+    await expect(generateWorkflows(twoWorkflows, 1)).rejects.toThrow(
       'the response contains 2 workflows, more than the --max-workflows limit of 1'
     );
   });
@@ -164,11 +173,13 @@ describe('generateWorkflowsWithAi', () => {
   });
 
   it('merges the baseline components with the ones the answer adds', async () => {
-    const withComponents = `${redesignedWorkflows}components:
-  inputs:
-    extraInput:
-      type: object
-`;
+    const withComponents = outdent`
+      ${redesignedWorkflows}
+      components:
+        inputs:
+          extraInput:
+            type: object
+    `;
     vi.mocked(runProvider).mockResolvedValueOnce({ text: withComponents });
     const result = await generateWorkflowsWithAi({
       provider: 'claude',
@@ -233,13 +244,14 @@ describe('generateWorkflowsWithAi', () => {
       };
     }
 
-    const selectedScenarios = `scenarios:
-  - workflowId: user-lifecycle
-    summary: Create then read a user
-    operations:
-      - $sourceDescriptions.test-api.createUser
-      - $sourceDescriptions.test-api.getUser
-`;
+    const selectedScenarios = outdent`
+      scenarios:
+        - workflowId: user-lifecycle
+          summary: Create then read a user
+          operations:
+            - $sourceDescriptions.test-api.createUser
+            - $sourceDescriptions.test-api.getUser
+    `;
 
     async function generateTwoPass(...responses: string[]) {
       for (const text of responses) {
@@ -283,23 +295,25 @@ describe('generateWorkflowsWithAi', () => {
     });
 
     it('skips a scenario whose design is rejected and keeps the rest', async () => {
-      const twoScenarios = `scenarios:
-  - workflowId: create-user-flow
-    operations:
-      - $sourceDescriptions.test-api.createUser
-  - workflowId: read-user-flow
-    operations:
-      - $sourceDescriptions.test-api.getUser
-`;
-      const readUserWorkflow = `workflows:
-  - workflowId: anything-the-model-said
-    summary: Read a user
-    steps:
-      - stepId: read-user
-        operationId: $sourceDescriptions.test-api.getUser
-        successCriteria:
-          - condition: $statusCode == 200
-`;
+      const twoScenarios = outdent`
+        scenarios:
+          - workflowId: create-user-flow
+            operations:
+              - $sourceDescriptions.test-api.createUser
+          - workflowId: read-user-flow
+            operations:
+              - $sourceDescriptions.test-api.getUser
+      `;
+      const readUserWorkflow = outdent`
+        workflows:
+          - workflowId: anything-the-model-said
+            summary: Read a user
+            steps:
+              - stepId: read-user
+                operationId: $sourceDescriptions.test-api.getUser
+                successCriteria:
+                  - condition: $statusCode == 200
+      `;
       const result = await generateTwoPass(twoScenarios, 'workflows: [invalid', readUserWorkflow);
 
       expect(result.workflows).toBe(1);
@@ -317,20 +331,22 @@ describe('generateWorkflowsWithAi', () => {
     });
 
     it('caps schema depth when a scenario slice does not fit the prompt', async () => {
-      const scenario = `scenarios:
-  - workflowId: create-user-flow
-    operations:
-      - $sourceDescriptions.test-api.createUser
-`;
-      const createUserWorkflow = `workflows:
-  - workflowId: create-user-flow
-    summary: Create a user
-    steps:
-      - stepId: create-user
-        operationId: $sourceDescriptions.test-api.createUser
-        successCriteria:
-          - condition: $statusCode == 201
-`;
+      const scenario = outdent`
+        scenarios:
+          - workflowId: create-user-flow
+            operations:
+              - $sourceDescriptions.test-api.createUser
+      `;
+      const createUserWorkflow = outdent`
+        workflows:
+          - workflowId: create-user-flow
+            summary: Create a user
+            steps:
+              - stepId: create-user
+                operationId: $sourceDescriptions.test-api.createUser
+                successCriteria:
+                  - condition: $statusCode == 201
+      `;
       const deepSchema = {
         type: 'object',
         properties: {
