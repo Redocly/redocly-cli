@@ -1,0 +1,494 @@
+{
+  "normalization": {
+    "method": "main-region-sha256",
+    "description": "Each digest is sha256 over the UTF-8 bytes of the first <main>...</main> region extracted from the raw HTML response -- NOT the full page. This mirrors recheck/google's sources.json normalization in spirit, but Microsoft's style-guide pages do NOT exhibit the same per-request non-determinism Google's pages had: two consecutive curl fetches of every page below, several seconds apart, produced BYTE-IDENTICAL full HTML responses every time (verified empirically, not assumed -- see the fetch log referenced in PROVENANCE.md). The <main> region is extracted anyway, for the same reason Google's provenance extracts <article>: it is the guide's actual rendered content (headings, paragraphs, lists, tables) and is a narrower, more meaningful unit than the raw page even when the raw page itself happens to be stable today.",
+    "extractionPattern": "<main[\\s\\S]*?</main>",
+    "extractionFlags": "first match, dot-matches-newline via [\\s\\S]",
+    "hashedBytesField": "bytes -- the byte length of the EXTRACTED <main> region (UTF-8), not the raw page. A future re-check with a matching bytes but different sha256 (or vice versa) signals the extraction may have changed shape rather than the content, and should be triaged before treating it as drift.",
+    "httpStatusField": "httpStatus -- fix wave B / Step 6: added so a dead URL (a 404, or any non-200) is distinguishable from a live one at a glance, rather than only visible by noticing an entry's bytes/sha256 happen to collide with another entry's (which is exactly how the two pre-existing dead entries this wave fixed were found -- both hashed Microsoft's 404 page, identical bytes: 1898 / sha256: 0ea4f717..., for two different URLs, with 'reproducible: true' technically true but vacuous since a 404 page is trivially reproducible). Every entry below was re-verified at httpStatus 200 as of the fetch date in this wave.",
+    "fetchMethod": "curl -- matches the four verification passes (task-10-verify-{E,F,G,H}.md) and recheck/google's own sources.json precedent (a plain Node fetch() was confirmed there to return a materially different HTML variant of the same URL than curl does). A future re-check must fetch with curl, not fetch() or another HTTP client.",
+    "reproducibilityCheck": "Every page below was fetched TWICE, several seconds apart; the extracted <main> region was byte-identical both times for all of them (see reproducible: true on every entry) -- confirmed empirically, not assumed."
+  },
+  "pages": [
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/a/actionable",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19114,
+      "sha256": "00cd3b85b9f34d3901ad78eeb0b36b39bbd141e8bf5b3413b40b2d3f53110f0c",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/a/as-well-as",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18863,
+      "sha256": "e7b158894ed81a40e584cb1cfea5a58ff99513d521fafc7d117eedafda9d5cd4",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/black-box",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18828,
+      "sha256": "a5105cf9ab523ea244b46bf884e6c86100c405179e5b9c4a570a7c8fa2a17546",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/blacklist",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19105,
+      "sha256": "48285bc4598bb546824554515b094624bf9ea9fe31183c6e95e811c9f2596072",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/blade",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18872,
+      "sha256": "ff975b3c2c1fba9b0553319c1016ec9db586d893dd0da853bd9d96b9010f6881",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/bookmark",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19007,
+      "sha256": "644155e9855794e859ca35dc422a57014186d1102ae56c2b09a882872de7d65a",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/boot",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19595,
+      "sha256": "2a74b070401bff38cd25adcf313e643d86ecacd516712d4a089f3a4fb66fe411",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/bottom-left-bottom-right",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19301,
+      "sha256": "ba7e438f90829af93cdf80b8dbb79bf1f96e339eea8fe1e89ad97c98e3e9a658",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/c/child-folder",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18941,
+      "sha256": "e62892e7f6c5c8098967fb879e63d627e194b3ae872d86e90e3b68dd6fc9e519",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/c/crash",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18935,
+      "sha256": "4927d90e6feaf9615a2ead1c047f86532f2b84ea33a852ad1e4ca2b9464cd934",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/e/email",
+      "fetchedAt": "2026-07-30",
+      "bytes": 20165,
+      "sha256": "17950c08539a86bba491da322ea65e5d9486c6c2554a9aa0f53cbf4026023b00",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/far-east",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18926,
+      "sha256": "d59c6f3790de457b3ecdcad22cd2ad26a7b5281fc22269b030eddac0f30615ce",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/far-left-far-right",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19688,
+      "sha256": "9b72aea37ddd51abc9edc5b577481dd1edec30ea161857b8b2c19ac3b39c95f9",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/finalize",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18873,
+      "sha256": "1ea8eda642271f19ccd42db819d757860fbf7f26149785a8b654a36c1626c42c",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/friendly-name",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18960,
+      "sha256": "78c0e004beb9fc52b5b11f4042ffbed9f98b81c8b6a9106407a7cfb90668edd4",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hang",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19578,
+      "sha256": "ae2f337af015483746be8a102d36c607318760e4c680e6d17bedd5a5ee11810f",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hexadecimal",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19226,
+      "sha256": "56fef1cce48b2bc7287ff4134f458e9cb12d8e1fd53131206ff8e7f8d143a0c2",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hierarchical-menu",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19415,
+      "sha256": "e77b537a00be8a050f185502afd5acba8d53ac11bb630006adf0e3e16d2d96f1",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hit",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19362,
+      "sha256": "999abf50de63316cafa2091f48a7a3e910ac94c6392341322224cb4662cd6449",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/internet-intranet-extranet",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19442,
+      "sha256": "b65c7ad3c4e597999b328dc2268c5f7a939e50cf2dad065451dbc3910ec0fee5",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/italic",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19167,
+      "sha256": "6be5c88d087d524fab7c00b20d5ed6f56ee48d5cb10cd9b1c48106c5bc85bda4",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/l/left-leftmost-left-hand",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19978,
+      "sha256": "4d58863ec00be7e76f09ff62615edd58c6e2ee73c8d173ceffe58a0ac6d2c699",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/l/log-on-log-off",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19262,
+      "sha256": "94d9fa5753f10602dd29dc4abc49a4f803969afd64720271fde2bd1e9442ff8c",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/m/master-slave",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19733,
+      "sha256": "c8a27aa75dd0fe91d58a6fb2663bf7460e5c5c53331fa39ad07e42d743a925df",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/n/number-sign",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19912,
+      "sha256": "0fe64439de70316e04fe07db01efff64730e1dc3817a29c1c6a5e40615bfb906",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/p/please",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19066,
+      "sha256": "df31b2c1de54b2c19bcfd8e9b63d0bfdaead89ad20f39da597927572265f6ce9",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/q/quit",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19395,
+      "sha256": "8fca546120cfe95e61c40a6a1c1ee6c132385e8ce7f2ba585e067221832d6cb1",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/r/roman",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18898,
+      "sha256": "4b367929efd117b115e7442aa2b02282f72646841b5d40875eb1a68e9308ce77",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/t/thanks-thank-you",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19448,
+      "sha256": "9e5929656b81db870ad964e65d49879ba923103bc73e28c4a0b435664f7f193b",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/t/tooltip",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19576,
+      "sha256": "a2d1981ffe36eaa788cb54ab1cfd37c3ea72db26b46a511481f807391a775ea1",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/accessibility-terms",
+      "fetchedAt": "2026-07-30",
+      "bytes": 22241,
+      "sha256": "44f55a4fb3c650a5ac53e708327877cae7dccdeea1797e90c217c9ddde220b9d",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/mouse-mouse-interaction-terms",
+      "fetchedAt": "2026-07-30",
+      "bytes": 24140,
+      "sha256": "84670015cd130b3a6aa204c3e79a9a90875b9f47fba07c6b7dc6018470cfda5b",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/v/versus-vs",
+      "fetchedAt": "2026-07-30",
+      "bytes": 18928,
+      "sha256": "e773c1207cb0d7199c9fe2b6364a46214b9b7bc2cd1db87a696ccfbfdc4d857d",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/v/visit",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19537,
+      "sha256": "584b3a023ebdec76fd27d0762d8f06efdedc4c12059fb45d6694bd1204256cb0",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/accessibility/alternative-text",
+      "fetchedAt": "2026-07-30",
+      "bytes": 24229,
+      "sha256": "094b3ad2b2b8d41b5f39471b65f47cc6b76153322ae19c941df813f818ad9090",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities",
+      "fetchedAt": "2026-07-30",
+      "bytes": 22931,
+      "sha256": "6fcaf1780e3ba83d1b9ea8093093af159ee906dccb5862dbfbcd28ddb22c9abf",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/acronyms",
+      "fetchedAt": "2026-07-30",
+      "bytes": 23467,
+      "sha256": "b5eca5fc8ac45349caaf7c44086faaf10c31b1a0d505feccf50896914991f56c",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/bias-free-communication",
+      "fetchedAt": "2026-07-30",
+      "bytes": 26484,
+      "sha256": "ece5a8fa8342c36ecb5d906e0c6561112683c5ec33445eb79ab1e83d0f441c5f",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/capitalization",
+      "fetchedAt": "2026-07-30",
+      "bytes": 24837,
+      "sha256": "29a3912cbee51d35949bb44bc6e61ce52161d4709434cf125b247ca83811c40f",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/militaristic-language",
+      "fetchedAt": "2026-07-30",
+      "bytes": 22892,
+      "sha256": "776a4e7714cb70c65b9b42de8d6d6eb628036daaf029fcf05e1159267ee45caf",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/numbers",
+      "fetchedAt": "2026-07-30",
+      "bytes": 28332,
+      "sha256": "1a1de49fc6d571f91b9721dd871416362772635f0ab23879843c500d69f3bc99",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/procedures-instructions/describing-interactions-with-ui",
+      "fetchedAt": "2026-07-30",
+      "bytes": 27247,
+      "sha256": "ed69e582fa965e3caf7d1b5820f5c63ea4d6d5bf06a24ef8666eb5f835763b8f",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/procedures-instructions/formatting-text-in-instructions",
+      "fetchedAt": "2026-07-30",
+      "bytes": 33222,
+      "sha256": "8546e2d898ee270c0c6b10c4cefd6c37268c88ccb2859aa5469ceed902bcffc3",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/punctuation/",
+      "fetchedAt": "2026-07-30",
+      "bytes": 21106,
+      "sha256": "e32202ec30730c5349120949a54821f861b792753e57d7837b22d383eb5f5fc4",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/punctuation/apostrophes",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19955,
+      "sha256": "7ce1ffa3478ce43401990f8f15114fa7e387298f3edaaaacc426291dcb9a3960",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/punctuation/colons",
+      "fetchedAt": "2026-07-30",
+      "bytes": 23084,
+      "sha256": "295729bbc7fc3c2b9c3fa39ac06fcc2eb537dc3b9b018193cfe70573cb0de0e6",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/",
+      "fetchedAt": "2026-07-30",
+      "bytes": 21254,
+      "sha256": "177a84b364cf1536c6c99c1fe80cf69e0b28808b3deec0b787884287ab03346e",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/punctuation/periods",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19891,
+      "sha256": "b989efb57da46c24491a4a22132919dc63588c899a53bf76cd1115a00555fdb6",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/punctuation/quotation-marks",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19889,
+      "sha256": "19f5c48ffd186a987d15eb304fbd6cbd5408a0d58a88d964bfe09818fba9da2c",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/scannable-content/",
+      "fetchedAt": "2026-07-30",
+      "bytes": 23117,
+      "sha256": "63b0e59caefa5febdd1e2c0d8e9a798c411254c7f6c9a7ebdcf8d7d54282f70e",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/scannable-content/headings",
+      "fetchedAt": "2026-07-30",
+      "bytes": 26621,
+      "sha256": "46f7bbf4a08d25b1844331964bc1cdf0f8d93f6265d41f5bde1917867192bb32",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/scannable-content/lists",
+      "fetchedAt": "2026-07-30",
+      "bytes": 24135,
+      "sha256": "afd7bf4cf578768c7c959db196a00e92839a6f07d0d507b1b09fa69e5da72382",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/scannable-content/tables",
+      "fetchedAt": "2026-07-30",
+      "bytes": 23004,
+      "sha256": "865626d757b572851637d1d8339b638781f7ee85b883df309c40415ffed692d1",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/top-10-tips-style-voice",
+      "fetchedAt": "2026-07-30",
+      "bytes": 24810,
+      "sha256": "1cace4afd2db0763fcbb052038fd4623e13e6373827c6a471e42bc82f50a3861",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/urls-web-addresses",
+      "fetchedAt": "2026-07-30",
+      "bytes": 22291,
+      "sha256": "d2aff5f58011371ce971278ca413e5660f406a7fed899dbbf9a0261b4445cc62",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/word-choice/avoid-jargon",
+      "fetchedAt": "2026-07-30",
+      "bytes": 20242,
+      "sha256": "03cce5200ac1047227af2a4d87f1c0669685a1e8a4c0ea9ef8e4d3007c94af6b",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/word-choice/dont-use-common-words-in-new-ways",
+      "fetchedAt": "2026-07-30",
+      "bytes": 20429,
+      "sha256": "de143262ad992164126646db470f9548dc6e67a4afae9a64edbb39689bfd8f20",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/word-choice/use-contractions",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19432,
+      "sha256": "b86667dfc2c18a16b94fe66952e282bd5e9546584db69bb0358c1433fa9c9816",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/word-choice/use-simple-words-concise-sentences",
+      "fetchedAt": "2026-07-30",
+      "bytes": 20938,
+      "sha256": "32a6c84c29b017ead423de1e860e612e347c2c310db73dcc981bf6e394b521ee",
+      "reproducible": true,
+      "httpStatus": 200
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/word-choice/use-us-spelling-avoid-non-english-words",
+      "fetchedAt": "2026-07-30",
+      "bytes": 19749,
+      "sha256": "a1ad4fd38e4a11026b75026e88bdeed4953557beabdd48b51587bf967894fbe4",
+      "reproducible": true,
+      "httpStatus": 200
+    }
+  ]
+}

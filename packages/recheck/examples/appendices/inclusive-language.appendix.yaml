@@ -1,0 +1,61 @@
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/inclusive-language (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# makes examples/inclusive-language.yaml stale until you regenerate — the
+# drift test's failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why:
+# packages/recheck/presets/inclusive-language/PROVENANCE.md
+#
+# This preset ships only terms CONFIRMED independently by both
+# recheck/google and recheck/microsoft (the intersection). Most exclusions
+# here are single-guide coverage, not false-positive risk — listed in the
+# "needs a second source" checklist below rather than as commented rule
+# blocks, since most were never actually rule-shaped candidates.
+#
+# ------------------------------------------------------------------------------
+# NOISY — real content on BOTH guides' broader word lists, still excluded
+# from an inclusive-language framing because of an unrelated-sense collision.
+# ------------------------------------------------------------------------------
+
+# NOISY: "hang"/"hung" and "healthy" (of a system) are general word-choice
+# content on both sides, not sourced from either guide's bias-free/
+# accessibility pages — and both collide constantly with unrelated correct
+# senses ("hung the picture", "hung jury", "a healthy amount of caution").
+# inclusive-language/hang-healthy:
+#   severity: warn
+#   message: 'Avoid "%s" as a system-state metaphor; consider a precise term.'
+#   assertions:
+#     pattern:
+#       ignoreCase: true
+#       tokens: ['\bhang(s|ing)?\b', '\bhealthy\b']
+
+# NOISY: "disable"/"disabled" (of a broken system) has a narrow ableist-
+# metaphor sense on both guides, but the bare word is core, ubiquitous,
+# entirely correct API-documentation vocabulary ("disable this feature",
+# "the API is disabled") — a bare-word rule would misfire on nearly every
+# document describing a feature flag.
+# inclusive-language/disable-disabled:
+#   severity: warn
+#   message: 'Avoid "%s" as a system-state metaphor; consider "turn off"/"deactivate".'
+#   assertions:
+#     pattern:
+#       ignoreCase: true
+#       tokens: ['\bdisabled?\b']
+
+# ------------------------------------------------------------------------------
+# NEEDS A SECOND SOURCE — real content on exactly ONE guide's side. Shipping
+# these here would make this preset silently guide-specific, defeating the
+# point of an intersection. Full term lists are in PROVENANCE.md; a sample:
+# ------------------------------------------------------------------------------
+#   [ ] Google-only: blackhat/whitehat, black-box/white-box testing, white
+#       label, grandfathered, ninja, guru, man hours, male/female adapter,
+#       man-in-the-middle, the disabled, a quadriplegic, wheelchair-bound
+#   [ ] Microsoft-only: chairman/chairwoman, mankind, manpower, salesman,
+#       screened subnet, dumb, mute, non-verbal, an epileptic, Asperger's,
+#       lame (already excluded on Microsoft's own preset for the same reason)
+#   [ ] Either term needing a live re-check against the OTHER guide before
+#       it could ever be added here — this is the only path to growing this
+#       preset beyond its current 11 rules

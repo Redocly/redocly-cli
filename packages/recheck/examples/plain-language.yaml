@@ -1,0 +1,325 @@
+# ==============================================================================
+# recheck/plain-language — US federal plain-language guidance, as a config
+# ==============================================================================
+# Source:     US federal plain-language guidance
+#             https://digital.gov/guides/plain-language
+# License:    Public domain (US government work) — no attribution
+#             required; cited here for auditability.
+# Synced:     2026-07-30
+# Provenance: packages/recheck/presets/plain-language/PROVENANCE.md
+#
+# Generated file — do not hand-edit. Regenerate with `pnpm examples:generate`
+# after changing src/config/presets/plain-language.ts or this file's
+# appendix (examples/appendices/plain-language.appendix.yaml).
+
+# ------------------------------------------------------------------------------
+# What to paste
+# ------------------------------------------------------------------------------
+# Unlike recheck/inclusive-language, this composes cleanly onto either
+# flagship: after removing the two pairs that duplicated a flagship outright
+# ("in order to" -> "to", "utilize" -> "use"), only 3 duplicate findings
+# remain against either recheck/google or recheck/microsoft — an accepted
+# paragraph-length overlap and a coincidental substring collision with
+# use-contractions, not content duplication (see PROVENANCE.md's
+# "Duplicate-finding audit"). Combine with recheck/markdown for full
+# structural linting too.
+
+extends:
+  - recheck/markdown
+  - recheck/plain-language
+
+# ------------------------------------------------------------------------------
+# How to tune it
+# ------------------------------------------------------------------------------
+# Your own rule keys always win over the preset's (`extends` resolves
+# first, then your top-level keys are merged on top, per rule key).
+#
+# Turn a rule off entirely:
+#
+#   plain-language/excess-intensifiers:
+#     severity: off
+#
+# Downgrade an error to a warning:
+#
+#   plain-language/paragraph-max-words:
+#     severity: warn
+#
+# Silence one occurrence instead of the whole rule, with an inline HTML
+# comment directive — works on any rule, from any preset:
+#
+#   <!-- recheck-disable-next-line plain-language/excess-intensifiers -->
+#   This is absolutely, completely the right approach.
+#
+#   <!-- recheck-disable plain-language/excess-intensifiers -->
+#   ...several occurrences here are all silenced...
+#   <!-- recheck-enable plain-language/excess-intensifiers -->
+#
+#   <!-- recheck-disable-file -->
+#
+# THE SHARP EDGE — read this before reaching for a per-term override.
+# Merging happens per ASSERTION ID, not per option inside it.
+# Setting:
+#
+#   plain-language/complex-words:
+#     assertions:
+#       swap:
+#         ignoreCase: false
+#
+# does not just flip `ignoreCase` — it REPLACES the whole `swap` assertion
+# object, silently dropping the preset's 8-entry `pairs` map along with
+# it, and the config then fails validation outright:
+#
+#   Rule "plain-language/complex-words": swap requires a "pairs" object
+#   mapping find -> replace strings
+#
+# (verified against this exact rule).
+# So today, to reject one term out of a bundled swap/pattern rule, your
+# options are: turn the whole rule off, restate its entire pairs/tokens
+# yourself, or inline-disable each occurrence as shown above. A per-term
+# opt-out for swap/pattern is a known follow-up, not a promise.
+#
+# This preset ships no `capitalization`/`spelling` rule of its own, so the
+# per-term escape hatch those two assertion types offer doesn't apply here
+# directly — but if you pair this preset with `recheck/prose`, that
+# preset's own `recheck/capitalization` rule already has it. See
+# examples/google.yaml or examples/microsoft.yaml for a worked, verified
+# example of that escape hatch.
+
+# ------------------------------------------------------------------------------
+# Full expansion (reference)
+# ------------------------------------------------------------------------------
+# This is what `extends: [recheck/plain-language]` resolves to today: all 10 rules,
+# alphabetized by rule id, generated straight from the live preset (`pnpm
+# examples:generate`). You do not need to copy any of it — the extends
+# block above already gives you all of this. Read it to see exactly what
+# you are adopting, or as a starting point if you would rather pin or fork
+# specific rules into your own config instead of extending the preset.
+#
+# `fix: false` on every rule below means what it says: detection-only, no
+# exceptions — see "How to tune it" above and PROVENANCE.md for why.
+
+plain-language/an-amount-of:
+  severity: warn
+  message: Avoid the padded phrase "%s"; state the amount directly (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/writing/style
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \ban amount of\b
+      ignoreCase: true
+plain-language/complex-words:
+  severity: warn
+  message: Use "%s" instead of "%s" (federal plain-language guidance).
+  link: https://digital.gov/guides/writing-understanding/familiar-terms
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        addressee: you
+        assist: help
+        assistance: help
+        commence: begin
+        in order that: for
+        in the amount of: for
+        in the event of: if
+        promulgate: issue
+      ignoreCase: true
+      wordBoundary: true
+plain-language/double-negative-patterns:
+  severity: warn
+  message: Avoid the double-negative construction in "%s"; state it positively (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/writing/style
+  scope: sentence
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bmay not\b(?:(?!\buntil\b)[\s\S])*?\buntil\b
+        - \bis not\b(?:(?!\bunless\b)[\s\S])*?\bunless\b
+      ignoreCase: true
+plain-language/double-negative-phrases:
+  severity: warn
+  message: Use "%s" instead of the double negative "%s" (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/writing/style
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        has not yet attained: is under
+        no fewer than: at least
+      ignoreCase: true
+      wordBoundary: true
+plain-language/excess-intensifiers:
+  severity: warn
+  message: Consider cutting the intensifier "%s" (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/principles/short-simple
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \babsolutely\b
+        - \bactually\b
+        - \bcompletely\b
+        - \breally\b
+        - \bquite\b
+        - \btotally\b
+        - \bvery\b
+      ignoreCase: true
+plain-language/filler-phrases:
+  severity: warn
+  message: Prefer "%s" over the padded phrase "%s" (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/writing/style
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        a number of: several, a few, or many
+        a sufficient number of: enough
+        at this point in time: now
+        is able to: can
+        on a monthly basis: monthly
+        on the ground that: because
+      ignoreCase: true
+      wordBoundary: true
+plain-language/jargon-terms:
+  severity: warn
+  message: Use "%s" instead of the jargon term "%s" (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/principles/avoid-jargon
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        Riverine avifauna: River birds
+        Involuntarily undomiciled: Unhoused
+      ignoreCase: true
+      wordBoundary: true
+plain-language/paragraph-max-words:
+  severity: error
+  message: Paragraph is %s %s long; federal plain-language guidance says paragraphs should never exceed 250 words (max %s).
+  link: https://digital.gov/guides/plain-language/writing/clear-short
+  scope: paragraph
+  fix: false
+  assertions:
+    length:
+      unit: words
+      max: 250
+plain-language/paragraph-sentence-count:
+  severity: warn
+  message: Paragraph is %s %s long; federal plain-language guidance recommends at most 8 (roughly 150 words) (max %s).
+  link: https://digital.gov/guides/plain-language/writing/clear-short
+  scope: paragraph
+  fix: false
+  assertions:
+    length:
+      unit: sentences
+      max: 8
+plain-language/redundant-pairs:
+  severity: warn
+  message: Use "%s" instead of the redundant pair "%s" (federal plain-language guidance).
+  link: https://digital.gov/guides/plain-language/principles/short-simple
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        due and payable: due
+        cease and desist: stop
+        knowledge and information: knowledge or information
+      ignoreCase: true
+      wordBoundary: true
+
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/plain-language (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# makes examples/plain-language.yaml stale until you regenerate — the drift
+# test's failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why:
+# packages/recheck/presets/plain-language/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# NOISY — live, verbatim guide content, judged too broad or too domain-risky
+# to enforce mechanically. Shown here as the rule it WOULD be if shipped,
+# commented out, so you can see the shape being avoided.
+# ------------------------------------------------------------------------------
+
+# NOISY: live on the guide's own table, but this 1:1 substitution misreads
+# ordinary, correct accountability language ("the team is responsible for
+# the migration") as wordiness — no textual signal separates that from padding.
+# plain-language/be-responsible-for:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { be responsible for: must }
+
+# NOISY, HIGH-RISK FOR THIS DOMAIN: "implement" is live guide content, but in
+# software/API documentation "implement an interface", "implement this
+# endpoint", "implement the spec" is ordinary, correct technical vocabulary,
+# not wordiness. Flagging it would misfire across nearly every technical
+# document Recheck targets.
+# plain-language/implement:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { implement: carry out }
+
+# NOISY: this row is itself a garbled pairing on the live page, and
+# separately "command" has a strong, unrelated, extremely common technical
+# sense (CLI command, terminal command) — core developer-docs vocabulary.
+# plain-language/this-activity-command:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { this activity, command: us, we }
+
+# NOT SHIPPED, ANY DIRECTION, EVER: "shall" is live guide content ("use
+# 'must' not 'shall'"), but SHALL is a defined RFC 2119 normative keyword
+# (alongside MUST/SHOULD/MAY/MUST NOT) used throughout specifications and
+# API/interface documentation — exactly Recheck's target content. This is
+# the single highest-risk exclusion in this preset: a rule flagging it would
+# be actively wrong for that whole document class, not an edge case to
+# carve out.
+# plain-language/shall-must:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" (plain language) — never for RFC 2119 usage.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { shall: must }
+
+# ------------------------------------------------------------------------------
+# NEEDS HUMAN REVIEW — real guide content with no safe mechanical detection
+# (NOT-ENFORCEABLE). Recheck cannot check these; review them yourself:
+# ------------------------------------------------------------------------------
+#   [ ] Nominalizations ("hidden verbs") — the guide's own suffix pattern
+#       (-ment/-tion/-sion/-ance + a link verb) false-positives constantly on
+#       ordinary correct nouns ("chance", "information", "assurance")
+#   [ ] Sentence-length — no word count is stated anywhere on the live site,
+#       only "write short sentences"
+#   [ ] Grade-level/readability score — no number is stated anywhere on the
+#       live site (see PROVENANCE.md "THE NUMBER"); `metric` stays a
+#       documented opt-in, not something this preset can source from the guide
+#   [ ] Abbreviation count per document ("no more than three, preferably
+#       two") — counts DISTINCT abbreviation TYPES, which neither `occurrence`
+#       nor `length` can express; an engine gap, not a judgment call
+#   [ ] Paraphrase-testing sample size / testing iteration count — user-
+#       testing methodology, not document content a linter can ever evaluate

@@ -1,0 +1,33 @@
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/technical-english (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs).
+#
+# Full detail and reasons: packages/recheck/presets/technical-english/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# NOT SHIPPED — the STE approved-word dictionary
+# ------------------------------------------------------------------------------
+# The dictionary is part of the copyrighted standard; encoding it would
+# reproduce the standard in part. For general word-choice checking, compose
+# this preset with recheck/plain-language.
+#
+# ------------------------------------------------------------------------------
+# NOT SHIPPED — noun clusters, present tense, one instruction per sentence
+# ------------------------------------------------------------------------------
+# Noun clusters need part-of-speech tagging; a tense rule fights legitimate
+# `will` in changelogs and roadmaps; one-instruction-per-sentence is not
+# reliably detectable (sentence length is the proxy).
+#
+# ------------------------------------------------------------------------------
+# TIGHTEN for procedure-only content
+# ------------------------------------------------------------------------------
+# The shipped default is the descriptive-text bound (25 words). A project
+# whose corpus is procedures overrides to the procedural bound:
+#
+# technical-english/sentence-length:
+#   assertions:
+#     length:
+#       unit: words
+#       max: 20

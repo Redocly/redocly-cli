@@ -1,0 +1,99 @@
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/microsoft (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# makes examples/microsoft.yaml stale until you regenerate — the drift
+# test's failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why: packages/recheck/presets/microsoft/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# TOO-RISKY / NOISY — real, guide-confirmed content, judged too broad or too
+# audience-conditional to enforce mechanically. Shown here as the rule it
+# WOULD be if shipped, commented out, so you can see the shape being avoided.
+# ------------------------------------------------------------------------------
+
+# TOO-RISKY: "deprecated" is confirmed guide content ("avoid in content for a
+# technical audience"), but it's itself load-bearing OpenAPI vocabulary (the
+# `deprecated: true` field) — shipping this would misfire on Redocly's own
+# API-documentation domain.
+# microsoft/deprecated-obsolete:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { deprecated: obsolete }
+
+# TOO-RISKY: Microsoft's own page carves out exactly Redocly's audience —
+# "it's OK to use header as a short form of file header, as in HTML header"
+# — the standard, correct term for an HTTP/API header throughout API docs.
+# microsoft/header-heading:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft) — except in developer content.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { header: heading }
+
+# TOO-RISKY: "context menu" is developer-audience-conditional per Microsoft's
+# own page ("use context menu only in content for developers") — Redocly's
+# docs ARE developer content, so this would misfire if shipped unconditionally.
+# microsoft/context-menu:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft) — except in developer content.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { context menu: shortcut menu }
+
+# TOO-RISKY: "that" referring to people is one of the most common words in
+# English; only a small fraction of occurrences refer to people at all, so a
+# literal swap toward "who" would be extraordinarily noisy.
+# microsoft/that-who:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" when referring to a person (Microsoft).'
+#   assertions:
+#     pattern:
+#       tokens: ['\bthat\b']
+
+# TOO-RISKY: "star" is an ordinary English word (star rating, star
+# performer) with a narrow, Microsoft-documented exception (OK for a
+# phone-keypad key) a blanket swap would miss in both directions.
+# microsoft/star-asterisk:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft), except for the phone-keypad key.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { star: asterisk }
+
+# ------------------------------------------------------------------------------
+# NEEDS HUMAN REVIEW — real guide content with no safe mechanical detection
+# (NOT-ENFORCEABLE). Recheck cannot check these; review them yourself:
+# ------------------------------------------------------------------------------
+#   [ ] Active voice, subjunctive mood, verb-first sentences, modifier
+#       stacks, that/who omission — all require POS tagging or grammatical-
+#       role judgment beyond regex/AST primitives
+#   [ ] Table cells in sentence case — reference tables are dense with
+#       identifiers and proper nouns that don't fit cleanly
+#   [ ] "Name" as a column header — genuinely correct in many API reference
+#       tables; Microsoft's own objection needs context this preset doesn't have
+#   [ ] Second-level headings need at least two siblings; no two headings in
+#       a row; list-item parallelism
+#   [ ] En dash for a minus sign; "from"/"through" ranges; closing-quote
+#       placement; mid-sentence colon rules
+#   [ ] Spell out single-digit numbers; no sentence-initial numerals; no
+#       K/M/B abbreviations; spell out months
+#   [ ] Bare-URL/link-formatting rules (available generically via
+#       `recheck/markdown`'s `no-bare-urls` if you want them, just not
+#       attributed to Microsoft specifically here)
+#   [ ] House-rule structural conventions (link fragments, fenced-code
+#       language, single H1, consistent bullet/fence/emphasis style) — real
+#       and worth having, but the guide itself never states them, so they
+#       don't ship under a Microsoft attribution

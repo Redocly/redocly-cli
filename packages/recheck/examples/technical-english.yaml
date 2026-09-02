@@ -1,0 +1,134 @@
+# ==============================================================================
+# recheck/technical-english — ASD-STE100-inspired writing principles, as a config
+# ==============================================================================
+# Source:     Publicly documented principles of ASD-STE100 Simplified
+#             Technical English. https://www.asd-ste100.org
+# Notice:     ASD-STE100 Simplified Technical English is a Copyright and
+#             a Trade Mark of ASD, Brussels, Belgium. This preset is an
+#             independent work; ASD and the STEMG do not review, approve,
+#             certify, or endorse it. It reproduces no part of the
+#             standard.
+# Provenance: packages/recheck/presets/technical-english/PROVENANCE.md
+#
+# Generated file — do not hand-edit. Regenerate with `pnpm examples:generate`
+# after changing src/config/presets/technical-english.ts or this file's
+# appendix (examples/appendices/technical-english.appendix.yaml).
+
+# ------------------------------------------------------------------------------
+# What to paste
+# ------------------------------------------------------------------------------
+# Three rules: sentence length (max 25 words; the descriptive-text bound),
+# paragraph length (max 6 sentences), and a passive-voice heuristic at
+# info. For word-choice checking, compose with recheck/plain-language;
+# the STE approved-word dictionary is deliberately NOT encoded (see the
+# Notice above and PROVENANCE.md).
+
+extends:
+  - recheck/technical-english
+
+# ------------------------------------------------------------------------------
+# How to tune it
+# ------------------------------------------------------------------------------
+# Your own rule keys always win over the preset's (`extends` resolves
+# first, then your top-level keys are merged on top, per rule key).
+#
+# Tighten the sentence bound for procedure-only content (the standard
+# recommends 20 words in procedures, 25 in descriptive text):
+#
+# technical-english/sentence-length:
+#   severity: warn
+#   scope: sentence
+#   assertions:
+#     length:
+#       unit: words
+#       max: 20
+#
+# The passive-voice heuristic ships at `info`; turn it off if it reads
+# as noise for your corpus:
+#
+# technical-english/passive-voice:
+#   severity: off
+#
+# Silence one occurrence instead of the whole rule, with an inline HTML
+# comment directive — works on any rule, from any preset:
+#
+# <!-- recheck-disable-next-line technical-english/sentence-length -->
+
+# ------------------------------------------------------------------------------
+# Full expansion (reference)
+# ------------------------------------------------------------------------------
+# This is what `extends: [recheck/technical-english]` resolves to today: all 3 rules,
+# alphabetized by rule id, generated straight from the live preset (`pnpm
+# examples:generate`). You do not need to copy any of it — the extends
+# block above already gives you all of this. Read it to see exactly what
+# you are adopting, or as a starting point if you would rather pin or fork
+# specific rules into your own config instead of extending the preset.
+#
+# `fix: false` on every rule below means what it says: detection-only, no
+# exceptions — see "How to tune it" above and PROVENANCE.md for why.
+
+technical-english/paragraph-length:
+  severity: warn
+  message: Paragraph is %s %s long; ASD-STE100 recommends at most 6 sentences per paragraph (max %s).
+  link: https://www.asd-ste100.org
+  scope: paragraph
+  fix: false
+  assertions:
+    length:
+      unit: sentences
+      max: 6
+technical-english/passive-voice:
+  severity: info
+  message: Prefer the active voice; ASD-STE100 recommends it ("%s").
+  link: https://www.asd-ste100.org
+  scope: sentence
+  fix: false
+  assertions:
+    pattern:
+      ignoreCase: true
+      tokens:
+        - \b(?:is|are|was|were|be|been|being)\s+(?:\w+ed|begun|broken|brought|built|chosen|done|drawn|driven|found|given|held|hidden|kept|known|left|lost|made|meant|paid|put|read|said|seen|sent|set|shown|taken|told|thrown|understood|written)\b
+technical-english/sentence-length:
+  severity: warn
+  message: Sentence is %s %s long; ASD-STE100 recommends at most 20 words in procedures and 25 in descriptive text (max %s).
+  link: https://www.asd-ste100.org
+  scope: sentence
+  fix: false
+  assertions:
+    length:
+      unit: words
+      max: 25
+
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/technical-english (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs).
+#
+# Full detail and reasons: packages/recheck/presets/technical-english/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# NOT SHIPPED — the STE approved-word dictionary
+# ------------------------------------------------------------------------------
+# The dictionary is part of the copyrighted standard; encoding it would
+# reproduce the standard in part. For general word-choice checking, compose
+# this preset with recheck/plain-language.
+#
+# ------------------------------------------------------------------------------
+# NOT SHIPPED — noun clusters, present tense, one instruction per sentence
+# ------------------------------------------------------------------------------
+# Noun clusters need part-of-speech tagging; a tense rule fights legitimate
+# `will` in changelogs and roadmaps; one-instruction-per-sentence is not
+# reliably detectable (sentence length is the proxy).
+#
+# ------------------------------------------------------------------------------
+# TIGHTEN for procedure-only content
+# ------------------------------------------------------------------------------
+# The shipped default is the descriptive-text bound (25 words). A project
+# whose corpus is procedures overrides to the procedural bound:
+#
+# technical-english/sentence-length:
+#   assertions:
+#     length:
+#       unit: words
+#       max: 20

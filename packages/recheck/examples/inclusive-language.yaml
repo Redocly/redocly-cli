@@ -1,0 +1,304 @@
+# ==============================================================================
+# recheck/inclusive-language — composable inclusive/bias-free word list
+# ==============================================================================
+# What it is: the INTERSECTION of recheck/google's and recheck/microsoft's
+# own confirmed inclusive/bias-free/ableist/accessibility content —
+# terminology both flagship guides independently say to avoid.
+# Guide-agnostic; carries no structural rules of its own.
+# Sources:    Google developer documentation style guide (CC BY 4.0,
+#             https://developers.google.com/style) and the Microsoft
+#             Writing Style Guide (CC BY 4.0 via its backing GitHub
+#             repository's LICENSE file:
+#             https://github.com/MicrosoftDocs/microsoft-style-guide/blob/main/LICENSE)
+# Synced:     2026-07-30 (no new fetch — built from five existing
+#             verification reports; see PROVENANCE.md)
+# Provenance: packages/recheck/presets/inclusive-language/PROVENANCE.md
+#
+# Generated file — do not hand-edit. Regenerate with `pnpm examples:generate`
+# after changing src/config/presets/inclusive-language.ts or this file's
+# appendix (examples/appendices/inclusive-language.appendix.yaml).
+
+# ------------------------------------------------------------------------------
+# What to paste
+# ------------------------------------------------------------------------------
+# Do NOT stack this onto recheck/google or recheck/microsoft: because every
+# rule here is built as the intersection of both flagships' own confirmed
+# content, stacking it onto either one double-reports most of its findings
+# (measured: 7 of 11 duplicate a google/* finding when stacked onto
+# recheck/google alone; 6 of 11 duplicate a microsoft/* finding onto
+# recheck/microsoft alone — see PROVENANCE.md's "Duplicate-finding audit").
+# This preset earns its keep standalone, alongside recheck/prose, or on a
+# project running neither flagship.
+
+extends:
+  - recheck/prose
+  - recheck/inclusive-language
+
+# ------------------------------------------------------------------------------
+# How to tune it
+# ------------------------------------------------------------------------------
+# Your own rule keys always win over the preset's (`extends` resolves
+# first, then your top-level keys are merged on top, per rule key).
+#
+# Turn a rule off entirely:
+#
+#   inclusive-language/nuke:
+#     severity: off
+#
+# Every rule in this preset ships at `warn` — upgrade one to `error` if
+# your team wants it to fail CI:
+#
+#   inclusive-language/slave:
+#     severity: error
+#
+# Silence one occurrence instead of the whole rule, with an inline HTML
+# comment directive — works on any rule, from any preset:
+#
+#   <!-- recheck-disable-next-line inclusive-language/nuke -->
+#   Nuke the staging database before the demo.
+#
+#   <!-- recheck-disable inclusive-language/nuke -->
+#   ...several occurrences here are all silenced...
+#   <!-- recheck-enable inclusive-language/nuke -->
+#
+#   <!-- recheck-disable-file -->
+#
+# THE SHARP EDGE — read this before reaching for a per-term override.
+# Merging happens per ASSERTION ID, not per option inside it.
+# Setting:
+#
+#   inclusive-language/blacklist-whitelist:
+#     assertions:
+#       swap:
+#         ignoreCase: false
+#
+# does not just flip `ignoreCase` — it REPLACES the whole `swap` assertion
+# object, silently dropping the preset's 2-entry `pairs` map along with
+# it, and the config then fails validation outright:
+#
+#   Rule "inclusive-language/blacklist-whitelist": swap requires a "pairs"
+#   object mapping find -> replace strings
+#
+# (verified against this exact rule).
+# So today, to reject one term out of a bundled swap/pattern rule, your
+# options are: turn the whole rule off, restate its entire pairs/tokens
+# yourself, or inline-disable each occurrence as shown above. A per-term
+# opt-out for swap/pattern is a known follow-up, not a promise.
+#
+# This preset ships no `capitalization`/`spelling` rule of its own, so the
+# per-term escape hatch those two assertion types offer doesn't apply
+# here directly — but if you pair this preset with `recheck/prose` (the
+# recommended combination above), that preset's own `recheck/capitalization`
+# rule already has it. See examples/google.yaml or examples/microsoft.yaml
+# for a worked, verified example of that escape hatch.
+
+# ------------------------------------------------------------------------------
+# Full expansion (reference)
+# ------------------------------------------------------------------------------
+# This is what `extends: [recheck/inclusive-language]` resolves to today: all 11 rules,
+# alphabetized by rule id, generated straight from the live preset (`pnpm
+# examples:generate`). You do not need to copy any of it — the extends
+# block above already gives you all of this. Read it to see exactly what
+# you are adopting, or as a starting point if you would rather pin or fork
+# specific rules into your own config instead of extending the preset.
+#
+# `fix: false` on every rule below means what it says: detection-only, no
+# exceptions — see "How to tune it" above and PROVENANCE.md for why.
+
+inclusive-language/blacklist-whitelist:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google C§3.5 rows 3-4; Microsoft a-z/blacklist agrees but prefers the two-word "block list"/"allow list" forms — recheck/microsoft ships those). Verb forms need a rewrite, not a word-for-word swap.
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/blacklist
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        blacklist: denylist
+        whitelist: allowlist
+      ignoreCase: true
+      wordBoundary: true
+inclusive-language/crippled:
+  severity: warn
+  message: Avoid "%s" (Google word-list#cripple D§3.6 row 27; Microsoft accessibility term collection Row 2); use "slowed down" for a figurative/system sense, or person-first language when referring to a person.
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/accessibility-terms
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bcripple\b
+        - \bcrippled\b
+      ignoreCase: true
+inclusive-language/differently-abled:
+  severity: warn
+  message: Avoid the euphemism "%s" (Google inclusive-documentation D§3.6 row 44; Microsoft accessibility term collection Row 8); use specific, person-first language instead.
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/accessibility-terms
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bdifferently[- ]abled\b
+      ignoreCase: true
+inclusive-language/dmz:
+  severity: warn
+  message: Avoid "%s"; use "perimeter network" instead (Google C§3.5 row 26; Microsoft a-z/demilitarized-zone-dmz — both guides recommend the identical replacement).
+  link: https://learn.microsoft.com/en-us/style-guide/bias-free-communication
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bDMZ\b(?!\s+(?:dividing|between|separating)\b)
+        - \bdemilitarized zone\b(?!\s+(?:dividing|between|separating)\b)
+inclusive-language/grayed-out:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google C§3.5 row 20; Microsoft a-z/gray-grayed-out agrees the term itself should be avoided when describing an unusable UI state, preferring "not available"/"isn't available").
+  link: https://developers.google.com/style/word-list#grayed-out
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        grayed-out: unavailable
+        greyed-out: unavailable
+      ignoreCase: true
+      wordBoundary: true
+inclusive-language/he-she:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google pronouns page; Microsoft bias-free-communication V23).
+  link: https://learn.microsoft.com/en-us/style-guide/bias-free-communication
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        he/she: they
+        s/he: they
+      ignoreCase: true
+      wordBoundary: true
+inclusive-language/master-slave-pairing:
+  severity: warn
+  message: Avoid the "%s" pairing (Google C§3.5 row 1; Microsoft a-z/master-slave); both guides agree to avoid it but recommend different replacements — e.g. "primary/replica" or "primary/subordinate".
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/m/master-slave
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bmaster\s*/\s*slave\b
+        - \bmaster-slave\b
+      ignoreCase: true
+inclusive-language/nondisabled-person:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive-documentation D§3.6 row 45; Microsoft accessibility term collection Row 5).
+  link: https://developers.google.com/style/inclusive-documentation
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        normal person: person without a disability
+        healthy person: person without a disability
+      ignoreCase: true
+      wordBoundary: true
+inclusive-language/nuke:
+  severity: warn
+  message: Avoid the violent-metaphor jargon "%s"; use "%s" or "attack" instead (Google word-list#nuke C§3.5; Microsoft militaristic-language "Never use" list agrees).
+  link: https://learn.microsoft.com/en-us/style-guide/militaristic-language
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        nuke: remove
+      ignoreCase: true
+      wordBoundary: true
+inclusive-language/slave:
+  severity: warn
+  message: Avoid "%s"; use "%s" or "replica" instead (Google C§3.5 row 2; Microsoft a-z/master-slave agrees the pairing itself must be avoided).
+  link: https://developers.google.com/style/word-list#slave
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        slave: worker
+      ignoreCase: true
+      wordBoundary: true
+inclusive-language/suffering-victim:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive-documentation D§3.6 row 43; Microsoft accessibility term collection Row 4 agrees this phrase should be avoided, though its own replacement is sometimes a fuller sentence rewrite).
+  link: https://developers.google.com/style/inclusive-documentation
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        suffering from: experiencing
+        victim of: living with
+      ignoreCase: true
+      wordBoundary: true
+
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/inclusive-language (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# makes examples/inclusive-language.yaml stale until you regenerate — the
+# drift test's failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why:
+# packages/recheck/presets/inclusive-language/PROVENANCE.md
+#
+# This preset ships only terms CONFIRMED independently by both
+# recheck/google and recheck/microsoft (the intersection). Most exclusions
+# here are single-guide coverage, not false-positive risk — listed in the
+# "needs a second source" checklist below rather than as commented rule
+# blocks, since most were never actually rule-shaped candidates.
+#
+# ------------------------------------------------------------------------------
+# NOISY — real content on BOTH guides' broader word lists, still excluded
+# from an inclusive-language framing because of an unrelated-sense collision.
+# ------------------------------------------------------------------------------
+
+# NOISY: "hang"/"hung" and "healthy" (of a system) are general word-choice
+# content on both sides, not sourced from either guide's bias-free/
+# accessibility pages — and both collide constantly with unrelated correct
+# senses ("hung the picture", "hung jury", "a healthy amount of caution").
+# inclusive-language/hang-healthy:
+#   severity: warn
+#   message: 'Avoid "%s" as a system-state metaphor; consider a precise term.'
+#   assertions:
+#     pattern:
+#       ignoreCase: true
+#       tokens: ['\bhang(s|ing)?\b', '\bhealthy\b']
+
+# NOISY: "disable"/"disabled" (of a broken system) has a narrow ableist-
+# metaphor sense on both guides, but the bare word is core, ubiquitous,
+# entirely correct API-documentation vocabulary ("disable this feature",
+# "the API is disabled") — a bare-word rule would misfire on nearly every
+# document describing a feature flag.
+# inclusive-language/disable-disabled:
+#   severity: warn
+#   message: 'Avoid "%s" as a system-state metaphor; consider "turn off"/"deactivate".'
+#   assertions:
+#     pattern:
+#       ignoreCase: true
+#       tokens: ['\bdisabled?\b']
+
+# ------------------------------------------------------------------------------
+# NEEDS A SECOND SOURCE — real content on exactly ONE guide's side. Shipping
+# these here would make this preset silently guide-specific, defeating the
+# point of an intersection. Full term lists are in PROVENANCE.md; a sample:
+# ------------------------------------------------------------------------------
+#   [ ] Google-only: blackhat/whitehat, black-box/white-box testing, white
+#       label, grandfathered, ninja, guru, man hours, male/female adapter,
+#       man-in-the-middle, the disabled, a quadriplegic, wheelchair-bound
+#   [ ] Microsoft-only: chairman/chairwoman, mankind, manpower, salesman,
+#       screened subnet, dumb, mute, non-verbal, an epileptic, Asperger's,
+#       lame (already excluded on Microsoft's own preset for the same reason)
+#   [ ] Either term needing a live re-check against the OTHER guide before
+#       it could ever be added here — this is the only path to growing this
+#       preset beyond its current 11 rules
