@@ -123,6 +123,25 @@ describe('generateArazzoDescription', () => {
     });
   });
 
+  it('should keep a remote description URL as-is when output file is provided', async () => {
+    vi.mocked(bundleOpenApi).mockResolvedValue(BUNDLED_DESCRIPTION_MOCK);
+
+    const result = await generateArazzoDescription({
+      descriptionPath: 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml',
+      outputFile: './final-test-location/output.yaml',
+      version: '1.0.0',
+      config: await createConfig({}),
+    });
+
+    expect(result.sourceDescriptions).toEqual([
+      {
+        name: 'cafe',
+        type: 'openapi',
+        url: 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml',
+      },
+    ]);
+  });
+
   it('should generate arazzo description with operationId', async () => {
     vi.mocked(bundleOpenApi).mockResolvedValue(BUNDLED_DESCRIPTION_MOCK);
     vi.mocked(getOperationFromDescription).mockReturnValue({
