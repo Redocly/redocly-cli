@@ -87,76 +87,73 @@ npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [-
 
 ## Examples
 
-Run the command: `npx @redocly/cli@latest generate-arazzo 'https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml'`
+Run the command: `npx @redocly/cli@latest generate-arazzo 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml'`
 
 The command generates an `auto-generated.arazzo.yaml` file in the current directory.
 
-The contents of the generated file are:
+The generated file contains one workflow per operation, with the security setup each operation requires.
+A shortened excerpt:
 
 ```yaml {% title="auto-generated.arazzo.yaml" %}
 arazzo: 1.1.0
 info:
-  title: Warp API
+  title: Redocly Cafe
   version: 1.0.0
 sourceDescriptions:
-  - name: warp
+  - name: cafe
     type: openapi
-    url: https://warp-single-sidebar.redocly.app/_spec/apis/index.yaml
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 workflows:
-  - workflowId: post-timelines-workflow
+  - workflowId: post-menu-workflow
+    inputs:
+      $ref: '#/components/inputs/OAuth2'
     steps:
-      - stepId: post-timelines-step
-        operationId: $sourceDescriptions.warp.createTimeline
+      - stepId: post-menu-step
+        operationId: $sourceDescriptions.cafe.createMenuItem
+        x-security:
+          - schemeName: OAuth2
+            values:
+              accessToken: $inputs.OAuth2
         successCriteria:
           - condition: $statusCode == 201
-  - workflowId: get-timelines-workflow
+  - workflowId: get-menu-workflow
     steps:
-      - stepId: get-timelines-step
-        operationId: $sourceDescriptions.warp.listTimelines
+      - stepId: get-menu-step
+        operationId: $sourceDescriptions.cafe.listMenuItems
         successCriteria:
           - condition: $statusCode == 200
-  - workflowId: delete-timeline-{timeline_id}-workflow
+  - workflowId: get-revenue-workflow
+    inputs:
+      $ref: '#/components/inputs/ApiKey'
     steps:
-      - stepId: delete-timeline-{timeline_id}-step
-        operationId: $sourceDescriptions.warp.deleteTimeline
-        successCriteria:
-          - condition: $statusCode == 204
-  - workflowId: post-travels-workflow
-    steps:
-      - stepId: post-travels-step
-        operationId: $sourceDescriptions.warp.timeTravel
-        successCriteria:
-          - condition: $statusCode == 200
-  - workflowId: post-items-workflow
-    steps:
-      - stepId: post-items-step
-        operationId: $sourceDescriptions.warp.registerItem
+      - stepId: get-revenue-step
+        operationId: $sourceDescriptions.cafe.getRevenue
+        x-security:
+          - schemeName: ApiKey
+            values:
+              apiKey: $inputs.ApiKey
+          - schemeName: OAuth2
+            values:
+              accessToken: $inputs.OAuth2
         successCriteria:
           - condition: $statusCode == 200
-  - workflowId: post-events-workflow
-    steps:
-      - stepId: post-events-step
-        operationId: $sourceDescriptions.warp.manipulateEvent
-        successCriteria:
-          - condition: $statusCode == 200
-  - workflowId: post-anchors-workflow
-    steps:
-      - stepId: post-anchors-step
-        operationId: $sourceDescriptions.warp.setAnchor
-        successCriteria:
-          - condition: $statusCode == 201
-  - workflowId: post-paradox-checks-workflow
-    steps:
-      - stepId: post-paradox-checks-step
-        operationId: $sourceDescriptions.warp.checkParadox
-        successCriteria:
-          - condition: $statusCode == 200
-  - workflowId: get-monitor-timeline-workflow
-    steps:
-      - stepId: get-monitor-timeline-step
-        operationId: $sourceDescriptions.warp.monitorTimeline
-        successCriteria:
-          - condition: $statusCode == 200
+  # ...one workflow like these for every other operation
+components:
+  inputs:
+    OAuth2:
+      type: object
+      properties:
+        OAuth2:
+          type: string
+          description: OAuth2 authorization for API access.
+          format: password
+    ApiKey:
+      type: object
+      properties:
+        ApiKey:
+          type: string
+          description: API key for internal operations.
+          format: password
 ```
 
 The generated file is not a complete test file and needs to be extended to be functional.

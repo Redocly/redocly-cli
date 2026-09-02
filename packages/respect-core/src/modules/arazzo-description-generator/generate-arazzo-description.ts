@@ -1,3 +1,4 @@
+import { isAbsoluteUrl } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import { type GenerateArazzoOptions } from '../../generate.js';
@@ -25,9 +26,12 @@ export async function generateArazzoDescription(opts: GenerateArazzoOptions) {
 
   const { paths: pathsObject, info, security: rootSecurity, components } = document;
   const sourceDescriptionName = resolveDescriptionNameFromPath(descriptionPath);
-  const resolvedDescriptionPath = outputFile
-    ? path.relative(path.dirname(outputFile), path.resolve(descriptionPath))
-    : descriptionPath;
+  // A remote description is referenced as-is: path.relative would mangle the
+  // URL (https:// collapses to https:/).
+  const resolvedDescriptionPath =
+    outputFile && !isAbsoluteUrl(descriptionPath)
+      ? path.relative(path.dirname(outputFile), path.resolve(descriptionPath))
+      : descriptionPath;
   const inputsComponents = components?.securitySchemes
     ? generateSecurityInputsArazzoComponents(components?.securitySchemes)
     : undefined;
