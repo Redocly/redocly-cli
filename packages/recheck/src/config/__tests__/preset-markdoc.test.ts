@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { describe, expect, it, vi, afterEach, beforeAll } from 'vitest';
+import { describe, expect, it, beforeAll } from 'vitest';
 
 import { lintContent } from '../../index.js';
 import type { Problem } from '../../types/index.js';
@@ -251,60 +251,66 @@ describe('composition: extends [recheck/markdown, recheck/markdoc]', () => {
 
 // Extending recheck/markdoc without turning markdoc parsing on still validates,
 // but warns, because the four rules can never fire that way. Uses the same
-// console.warn channel as the other stale-config warnings.
+// `warn` callback as the other stale-config warnings.
 describe('stale-preset warning: recheck/markdoc extended with markdoc off', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('warns when markdoc is absent entirely', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const result = await validate({ extends: ['recheck/markdoc'] });
+    const warnings: string[] = [];
+    const result = await validate(
+      { extends: ['recheck/markdoc'] },
+      { warn: (message) => warnings.push(message) }
+    );
     expect(result.isValid).toBe(true);
     expect(
-      warnSpy.mock.calls.some((call) =>
-        String(call[0]).includes('extends "recheck/markdoc" but "markdoc" parsing is off')
+      warnings.some((message) =>
+        message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
       )
     ).toBe(true);
   });
 
   it('warns when markdoc is explicitly false', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const result = await validate({ extends: ['recheck/markdoc'], markdoc: false });
+    const warnings: string[] = [];
+    const result = await validate(
+      { extends: ['recheck/markdoc'], markdoc: false },
+      { warn: (message) => warnings.push(message) }
+    );
     expect(result.isValid).toBe(true);
     expect(
-      warnSpy.mock.calls.some((call) =>
-        String(call[0]).includes('extends "recheck/markdoc" but "markdoc" parsing is off')
+      warnings.some((message) =>
+        message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
       )
     ).toBe(true);
   });
 
   it('does NOT warn when markdoc: true is set alongside the preset', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const result = await validate({ extends: ['recheck/markdoc'], markdoc: true });
+    const warnings: string[] = [];
+    const result = await validate(
+      { extends: ['recheck/markdoc'], markdoc: true },
+      { warn: (message) => warnings.push(message) }
+    );
     expect(result.isValid).toBe(true);
     expect(
-      warnSpy.mock.calls.some((call) =>
-        String(call[0]).includes('extends "recheck/markdoc" but "markdoc" parsing is off')
+      warnings.some((message) =>
+        message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
       )
     ).toBe(false);
   });
 
   it('does NOT warn for a config that never extends recheck/markdoc at all', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const result = await validate({ extends: ['recheck/markdown'] });
+    const warnings: string[] = [];
+    const result = await validate(
+      { extends: ['recheck/markdown'] },
+      { warn: (message) => warnings.push(message) }
+    );
     expect(result.isValid).toBe(true);
     expect(
-      warnSpy.mock.calls.some((call) =>
-        String(call[0]).includes('recheck/markdoc" but "markdoc" parsing is off')
-      )
+      warnings.some((message) => message.includes('recheck/markdoc" but "markdoc" parsing is off'))
     ).toBe(false);
   });
 
   it('does NOT warn for a config with no extends at all', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    const result = await validate({});
+    const warnings: string[] = [];
+    const result = await validate({}, { warn: (message) => warnings.push(message) });
     expect(result.isValid).toBe(true);
-    expect(warnSpy).not.toHaveBeenCalled();
+    expect(warnings).toHaveLength(0);
   });
 });

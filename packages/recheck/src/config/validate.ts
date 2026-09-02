@@ -1054,7 +1054,7 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
  * turning markdoc parsing on. The preset's four rules only look at
  * `ctx.markdoc`, which the runner populates only when parsing is enabled, so
  * such a config ships four rule entries that can never report. That is dead
- * weight rather than a broken config, so this goes to `console.warn` (the
+ * weight rather than a broken config, so this goes to the `warn` callback (the
  * validation result carries only errors, no warnings) and `isValid` stays
  * `true`.
  *
@@ -1207,7 +1207,7 @@ function warnStalePatternPrefix(
  * scopes itself. A config that EXPLICITLY set some other scope gets a
  * warning that the scope is ignored — a warning, not an error, because the
  * rule still behaves correctly; ValidationResult has no warning channel
- * (only errors), so this uses console.warn via `warnOnce`, the
+ * (only errors), so this uses the `warn` callback via `warnOnce`, the
  * `warnStalePatternPrefix` precedent above. Explicitness comes from
  * `hasExplicitScope` (captured BEFORE schema validation): AJV `useDefaults`
  * injects `scope: 'all'` onto every rule that omitted it, so post-schema the
@@ -1317,6 +1317,7 @@ function messagePlaceholderCap(rule: BaseRule): number {
 
 function validateSemantics(
   config: RecheckRules,
+  warn: (message: string) => void,
   rulesWithExplicitScope: ReadonlySet<string> = new Set()
 ): {
   errors: ValidationError[];
@@ -1332,8 +1333,7 @@ function validateSemantics(
   const warnOnce = (message: string) => {
     if (warnedMessages.has(message)) return;
     warnedMessages.add(message);
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.warn(message);
+    warn(message);
   };
 
   for (const [key, rule] of Object.entries(config)) {
@@ -1409,7 +1409,7 @@ function validateSemantics(
  */
 export async function validate(
   config: any,
-  options?: { configDir?: string }
+  options?: { configDir?: string; warn?: (message: string) => void }
 ): Promise<{
   isValid: boolean;
   errors: ValidationError[];
@@ -1425,6 +1425,8 @@ export async function validate(
   /** The config's top-level `baseline` path, as written (config-relative). */
   baselinePath?: string;
 }> {
+  const warn = options?.warn ?? (() => {});
+
   // Resolve `extends` presets before schema validation of rules: the
   // merged (preset + user) config is what gets schema/semantic-validated,
   // so patternProperties only ever sees real `<namespace>/<rule>` rule keys
@@ -1480,14 +1482,13 @@ export async function validate(
   let { enabled: markdocEnabled, schema: markdocSchema } = resolveMarkdocConfig(rawMarkdoc);
   // The stale-preset warning is independent of structure and semantic
   // validity, so it runs here rather than after an error-return path below
-  // could short-circuit it. A bare `console.warn` is enough: unlike
+  // could short-circuit it. Calling `warn` directly is enough: unlike
   // `warnStalePatternPrefix`, which runs once per rule and needs the deduping
   // `warnOnce`, this fires at most once per `validate()` call.
   warnStaleMarkdocPreset(
     hasExtends ? (config as { extends?: unknown }).extends : undefined,
     markdocEnabled,
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    (message) => console.warn(message)
+    warn
   );
   if (structureErrors.length > 0) {
     return {
@@ -1538,6 +1539,7 @@ export async function validate(
   };
   const { errors: semanticErrors, rules: validatedRules } = validateSemantics(
     rulesOnlyConfig as RecheckRules,
+    warn,
     rulesWithExplicitScope
   );
   // Merged ahead of each rule's own list rather than replacing it: a rule
