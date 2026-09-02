@@ -7,6 +7,23 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.51.0 (2026-09-02)
+
+### Minor Changes
+
+- Enhanced the `generate-arazzo` command to print a ready-to-run `respect` command after generation, including an `--input` placeholder for every workflow input.
+- Added `--with-ai`, `--ai-provider`, `--ai-model`, `--ai-concurrency`, and `--max-workflows` options to the `generate-arazzo` command.
+  `--with-ai` uses a local AI CLI (`claude`, `codex`, or `cursor`) and OpenAPI descriptions to redesign the generated one-workflow-per-operation skeleton into multi-step workflows.
+  The AI designs at most `--max-workflows` workflows (default 10), and the generated file is marked as AI-inferred.
+  For descriptions that don't fit a single prompt, the AI first selects scenarios from a compact operation index, then it designs each workflow separately.
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+- Updated @redocly/openapi-core to v2.51.0.
+- Updated @redocly/respect-core to v2.51.0.
+
 ## 2.50.0 (2026-09-01)
 
 ### Minor Changes
