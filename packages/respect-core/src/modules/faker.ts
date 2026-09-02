@@ -41,7 +41,7 @@ interface FakeAddress {
 interface FakeNumber {
   integer(options?: Omit<NumberOptions, 'precision'>): number;
 
-  float(options: NumberOptions): number;
+  float(options?: NumberOptions): number;
 }
 
 export interface Faker {
@@ -51,16 +51,21 @@ export interface Faker {
   string: FakeString;
 }
 
+// The defaults faker v7 applied to calls without bounds, kept so that upgrading it
+// doesn't widen the values Arazzo tests send.
+const DEFAULT_RANGE_SIZE = 99999;
+const DEFAULT_FLOAT_PRECISION = 0.01;
+
 export function createFaker(): Faker {
   const fakeString: FakeString = {
     email: ({ provider, domain = 'com' }: { provider?: string; domain?: string } = {}) =>
-      faker.internet.email(undefined, undefined, `${provider}.${domain}`),
-    userName: () => faker.internet.userName(),
-    firstName: () => faker.name.firstName(),
-    lastName: () => faker.name.lastName(),
-    fullName: () => faker.name.fullName(),
-    uuid: () => faker.datatype.uuid(),
-    string: ({ length }: { length?: number } = {}) => faker.datatype.string(length),
+      faker.internet.email(provider ? { provider: `${provider}.${domain}` } : undefined),
+    userName: () => faker.internet.username(),
+    firstName: () => faker.person.firstName(),
+    lastName: () => faker.person.lastName(),
+    fullName: () => faker.person.fullName(),
+    uuid: () => faker.string.uuid(),
+    string: ({ length }: { length?: number } = {}) => faker.string.sample(length),
   };
 
   const fakeDate: FakeDate = {
@@ -69,16 +74,20 @@ export function createFaker(): Faker {
   };
 
   const fakeAddress: FakeAddress = {
-    city: () => faker.address.city(),
-    country: () => faker.address.country(),
-    zipCode: () => faker.address.zipCode(),
-    street: () => faker.address.street(),
+    city: () => faker.location.city(),
+    country: () => faker.location.country(),
+    zipCode: () => faker.location.zipCode(),
+    street: () => faker.location.street(),
   };
 
   const fakeNumber: FakeNumber = {
-    integer: ({ min, max }: Omit<NumberOptions, 'precision'> = {}) =>
-      faker.datatype.number({ min, max, precision: 1 }),
-    float: (options: NumberOptions) => faker.datatype.float(options),
+    integer: ({ min = 0, max = min + DEFAULT_RANGE_SIZE }: Omit<NumberOptions, 'precision'> = {}) =>
+      faker.number.int({ min, max }),
+    float: ({
+      min = 0,
+      max = min + DEFAULT_RANGE_SIZE,
+      precision = DEFAULT_FLOAT_PRECISION,
+    }: NumberOptions = {}) => faker.number.float({ min, max, multipleOf: precision }),
   };
 
   return {
