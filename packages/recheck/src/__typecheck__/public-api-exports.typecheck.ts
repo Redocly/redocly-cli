@@ -8,7 +8,14 @@
 // a `RecheckConfig`; a rejected `validate()` call reports `ValidationError[]`),
 // so a consumer importing only `@redocly/recheck` must be able to name them
 // without reaching into internal `../types/*` barrels.
-import type { RecheckConfig, ValidationError } from '../index.js';
+import {
+  resolveRecheckConfig,
+  type RecheckBlockInput,
+  type RecheckConfig,
+  type ResolvedRecheckConfig,
+  type ResolveResult,
+  type ValidationError,
+} from '../index.js';
 
 export const typedConfig: RecheckConfig = {
   'recheck/no-trailing-spaces': {
@@ -22,3 +29,23 @@ export const typedError: ValidationError = {
   message: 'Unknown assertion type "foo"',
   path: 'rule.assertions.foo',
 };
+
+export const typedRecheckBlockInput: RecheckBlockInput = {
+  extends: ['recheck/markdown'],
+  configDir: '/project',
+};
+
+export const typedResolvedRecheckConfig: ResolvedRecheckConfig = {
+  rules: [],
+  configDir: '/project',
+  markdoc: false,
+  markdocSchema: null,
+};
+
+export const typedResolveResult: ResolveResult = {
+  success: true,
+  config: typedResolvedRecheckConfig,
+  errors: [],
+};
+
+export const typedResolveRecheckConfig: typeof resolveRecheckConfig = resolveRecheckConfig;
