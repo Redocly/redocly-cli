@@ -18,7 +18,7 @@ export function outputGitHubActionsFormat(problems: Problem[]): void {
     // Escape the message for GitHub Actions format
     const escapedMessage = problem.message.replace(/::/g, '%3A%3A').replace(/\n/g, '%0A');
 
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log(`::${command} ${properties}::${escapedMessage}`);
   }
 }

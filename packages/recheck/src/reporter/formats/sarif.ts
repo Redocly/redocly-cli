@@ -11,7 +11,7 @@ const SEVERITY_TO_LEVEL: Record<string, 'error' | 'warning' | 'note'> = {
 interface SarifRule {
   id: string;
   shortDescription: { text: string };
-  helpUri: undefined;
+  helpUri?: string;
 }
 
 /**
@@ -24,7 +24,6 @@ export function buildSarif(problems: Problem[]): Record<string, unknown> {
       rulesMap.set(problem.ruleName, {
         id: problem.ruleName,
         shortDescription: { text: problem.ruleName.replace('recheck/', '') },
-        helpUri: undefined,
       });
     }
   }
@@ -70,11 +69,11 @@ export async function outputSarifFormat(problems: Problem[], outputPath?: string
 
   if (outputPath && outputPath.length > 0) {
     await fs.writeFile(outputPath, content, 'utf8');
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log(`\n   Wrote SARIF to ${outputPath}`);
   } else {
     // Print to stdout; note: other logs may be mixed in unless you redirect only this call's output
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log('\n' + content);
   }
 }
