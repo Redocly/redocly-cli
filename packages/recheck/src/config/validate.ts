@@ -16,7 +16,7 @@ import { resolveDictionaryPaths } from '../rules/scope/spelling.js';
 import type { TokenRule } from '../rules/types.js';
 import { tokenizeSelector, wholeDocumentKeywordProblems } from '../scopes/selector.js';
 import { validateScopeSelector } from '../scopes/vocabulary.js';
-import type { RecheckConfig, NormalizedRule, ValidationError, BaseRule } from '../types/index.js';
+import type { RecheckRules, NormalizedRule, ValidationError, BaseRule } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { resolveExtends } from './presets/index.js';
 import { RECHECK_CONFIG_SCHEMA, MARKDOC_TAG_SCHEMA } from './schema.js';
@@ -976,7 +976,6 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
  * `readCustomDictionary`, so validate() and the runtime can never disagree
  * about which files a `dictionary` path names.
  */
-// oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
 async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
   const reportedMessages = new Set<string>();
@@ -1316,7 +1315,7 @@ function messagePlaceholderCap(rule: BaseRule): number {
 }
 
 function validateSemantics(
-  config: RecheckConfig,
+  config: RecheckRules,
   rulesWithExplicitScope: ReadonlySet<string> = new Set()
 ): {
   errors: ValidationError[];
@@ -1443,7 +1442,7 @@ export async function validate(
   const hasExtends = isPlainObject(config) && 'extends' in config;
   const { config: resolvedConfig, errors: extendsErrors } = hasExtends
     ? resolveExtends(config)
-    : { config: config as RecheckConfig, errors: [] as ValidationError[] };
+    : { config: config as RecheckRules, errors: [] as ValidationError[] };
 
   // Which rules carry an EXPLICIT `scope`, recorded before validateStructure
   // runs: AJV `useDefaults` mutates the config in place, injecting
@@ -1531,13 +1530,13 @@ export async function validate(
     excludes: globalExcludes,
     baseline: baselinePath,
     ...rulesOnlyConfig
-  } = resolvedConfig as RecheckConfig & {
+  } = resolvedConfig as RecheckRules & {
     markdoc?: boolean | MarkdocUserConfig;
     excludes?: string[];
     baseline?: string;
   };
   const { errors: semanticErrors, rules: validatedRules } = validateSemantics(
-    rulesOnlyConfig as RecheckConfig,
+    rulesOnlyConfig as RecheckRules,
     rulesWithExplicitScope
   );
   // Merged ahead of each rule's own list rather than replacing it: a rule

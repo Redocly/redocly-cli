@@ -4,10 +4,10 @@
 // config validation, so nothing else covers the keys a user actually writes.
 import { describe, expect, it } from 'vitest';
 
-import { lintContent, type RecheckConfig } from '../index.js';
+import { lintContent, type RecheckConfig, type RecheckRules } from '../index.js';
 
 /** The two rules, in the `recheck/<name>` config form a user writes. */
-const RULES: RecheckConfig = {
+const RULES: RecheckRules = {
   'recheck/markdoc-syntax': {
     severity: 'error',
     message: 'Markdoc syntax error',
@@ -143,10 +143,10 @@ describe('markdoc config -> rules (production path via lintContent)', () => {
         markdoc: true,
         ...RULES,
         'recheck/markdoc-syntax': {
-          ...(RULES['recheck/markdoc-syntax'] as object),
+          ...RULES['recheck/markdoc-syntax'],
           severity: 'off',
         },
-      } as RecheckConfig);
+      });
       expect(problems).toEqual([]);
     });
   });

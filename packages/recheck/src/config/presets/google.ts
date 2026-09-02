@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/google` — Google's developer documentation style guide
@@ -214,8 +214,8 @@ function tokenRule(opts: {
   };
 }
 
-export function buildGooglePreset(): RecheckConfig {
-  const rules: RecheckConfig = {};
+export function buildGooglePreset(): RecheckRules {
+  const rules: RecheckRules = {};
 
   // ======================================================================
   // STRUCTURAL — document mechanics Google states unambiguously (`error`).

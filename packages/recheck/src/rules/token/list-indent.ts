@@ -10,7 +10,6 @@ export const listIndent: TokenRule = {
   defaults: {
     message: 'Inconsistent indentation for list items at the same level',
   },
-  // oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
   check(ctx) {
     for (const list of filterByTypes(ctx.tree, ['listOrdered', 'listUnordered'])) {
       const expectedIndent = list.startColumn - 1;

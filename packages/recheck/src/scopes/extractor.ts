@@ -273,7 +273,6 @@ export function isSummarySource(scope: string): boolean {
   return SUMMARY_BLOCK_SOURCES.has(scope) || scope.startsWith('heading.');
 }
 
-// oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
 export function extractScopes(tree: TokenTree, _content: string): ScopedSegment[] {
   const segments: ScopedSegment[] = [];
 
@@ -318,7 +317,6 @@ export function extractScopes(tree: TokenTree, _content: string): ScopedSegment[
   // call-stack recursion overflowed on deeply nested input (e.g. ~10,000
   // nested blockquotes) that micromark itself parses without issue, so
   // recursion depth here must not track document nesting depth.
-  // oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
   const visit = (token: Token): boolean => {
     switch (token.type) {
       case 'atxHeading':

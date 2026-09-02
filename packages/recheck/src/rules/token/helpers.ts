@@ -597,7 +597,6 @@ export interface GetReferenceLinkImageDataResult {
  * fallback at all (they only need successfully-resolved usages), so this
  * deviation is fully scoped to MD052.
  */
-// oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
 export function getReferenceLinkImageData(tree: TokenTree): GetReferenceLinkImageDataResult {
   const references = new Map<string, ReferenceDatum[]>();
   const shortcuts = new Map<string, ReferenceDatum[]>();
@@ -788,7 +787,6 @@ const undefinedReferenceRe = /\[([^[\]]*)\](?:\[([^[\]]*)\])?/g;
  * requiring whole-container purity) fixes this while still never reading
  * through a real inline token.
  */
-// oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
 function scanUndefinedReferences(
   tree: TokenTree,
   addReferenceToDictionary: (token: Token, label: string, isShortcut: boolean) => void

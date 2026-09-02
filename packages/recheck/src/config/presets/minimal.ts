@@ -1,4 +1,4 @@
-import type { RecheckConfig } from '../../types/index.js';
+import type { RecheckRules } from '../../types/index.js';
 import { registerPresetRules } from './markdown.js';
 
 /**
@@ -19,6 +19,6 @@ const MINIMAL_PRESET_RULES = [
 
 const MINIMAL_PRESET_MESSAGES: Record<string, string> = {};
 
-export function buildMinimalPreset(): RecheckConfig {
+export function buildMinimalPreset(): RecheckRules {
   return registerPresetRules(MINIMAL_PRESET_RULES, MINIMAL_PRESET_MESSAGES);
 }

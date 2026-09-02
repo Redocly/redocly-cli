@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/plain-language` — composable preset derived from the live US
@@ -167,8 +167,8 @@ function patternRule(opts: {
   };
 }
 
-export function buildPlainLanguagePreset(): RecheckConfig {
-  const rules: RecheckConfig = {};
+export function buildPlainLanguagePreset(): RecheckRules {
+  const rules: RecheckRules = {};
 
   // ======================================================================
   // PARAGRAPH LENGTH — the one family with real, stated numbers.

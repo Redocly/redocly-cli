@@ -489,7 +489,7 @@ describe('recheck/prose preset', () => {
     expect(rule.severity).toBe('warn');
     expect(rule.assertions).toEqual({ repetition: {} });
     expect(rule.scope).toBe('summary');
-    expect(rule.message.length).toBeGreaterThan(0);
+    expect(rule.message?.length).toBeGreaterThan(0);
   });
 
   it('consistency declares the four US/UK variant pairs, case-insensitively, at severity warn, scoped to summary (all prose)', () => {
@@ -507,7 +507,7 @@ describe('recheck/prose preset', () => {
         ignoreCase: true,
       },
     });
-    expect(rule.message.length).toBeGreaterThan(0);
+    expect(rule.message?.length).toBeGreaterThan(0);
   });
 
   // Consistency engine guard (fix-posture task, Step 2): `consistency.ts`
@@ -592,7 +592,7 @@ describe('recheck/prose preset', () => {
     const rule = presets['recheck/prose']['recheck/capitalization'];
     expect(rule.severity).toBe('warn');
     expect(rule.scope).toBe('heading');
-    expect(rule.message.length).toBeGreaterThan(0);
+    expect(rule.message?.length).toBeGreaterThan(0);
 
     const options = rule.assertions.capitalization as {
       match: string;

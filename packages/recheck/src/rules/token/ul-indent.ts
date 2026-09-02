@@ -18,7 +18,6 @@ export const ulIndent: TokenRule = {
     startIndented: false,
     startIndent: 2,
   },
-  // oxlint-disable-next-line sonarjs/cognitive-complexity -- ported from the source engine, written and reviewed against that repo's threshold of 100 (this repo's default is 30); needs a dedicated refactor or a per-package override, not a same-task rewrite of correctness-critical rule logic.
   check(ctx) {
     const indent = Number(ctx.config.indent ?? 2);
     const startIndented = !!ctx.config.startIndented;

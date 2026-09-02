@@ -1,5 +1,5 @@
 import { resolveAssertion } from '../../rules/registry.js';
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * Builds preset rule entries for a set of already-ported rule names: one
@@ -23,8 +23,8 @@ import type { BaseRule, RecheckConfig } from '../../types/index.js';
 export function registerPresetRules(
   names: string[],
   messages: Record<string, string> = {}
-): RecheckConfig {
-  const config: RecheckConfig = {};
+): RecheckRules {
+  const config: RecheckRules = {};
   for (const name of names) {
     const message = messages[name] ?? defaultMessageFor(name);
     if (!message) {
@@ -134,6 +134,6 @@ export const MARKDOWN_PRESET_RULES: string[] = [
  */
 export const MARKDOWN_PRESET_MESSAGES: Record<string, string> = {};
 
-export function buildMarkdownPreset(): RecheckConfig {
+export function buildMarkdownPreset(): RecheckRules {
   return registerPresetRules(MARKDOWN_PRESET_RULES, MARKDOWN_PRESET_MESSAGES);
 }

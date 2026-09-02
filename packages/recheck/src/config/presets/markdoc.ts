@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/markdoc` — the four Recheck-original Markdoc rules bundled into one
@@ -52,7 +52,7 @@ const MARKDOC_ATTRIBUTES: BaseRule = {
   assertions: { 'markdoc-attributes': {} },
 };
 
-export function buildMarkdocPreset(): RecheckConfig {
+export function buildMarkdocPreset(): RecheckRules {
   return {
     'recheck/markdoc-syntax': MARKDOC_SYNTAX,
     'recheck/markdoc-pairing': MARKDOC_PAIRING,

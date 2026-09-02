@@ -17,7 +17,7 @@ scopeRules['test-flag-segments'] = {
       match: segment.content,
       ruleName: rule.name,
       severity: rule.severity,
-      message: rule.message,
+      message: rule.message ?? '',
     }));
   },
   async fix(rule, file) {
@@ -46,7 +46,7 @@ scopeRules['test-flag-lines'] = {
           match: lineText,
           ruleName: rule.name,
           severity: rule.severity,
-          message: rule.message,
+          message: rule.message ?? '',
         });
       });
     }
@@ -247,7 +247,7 @@ scopeRules['test-track-files'] = {
       match: lineText,
       ruleName: rule.name,
       severity: rule.severity,
-      message: rule.message,
+      message: rule.message ?? '',
     }));
   },
 };

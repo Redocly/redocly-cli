@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { lintContent } from '../../index.js';
+import { lintContent, type RecheckConfig } from '../../index.js';
 import { validate } from '../validate.js';
 
 const RULE = {
@@ -41,7 +41,7 @@ describe('markdoc.extend.tagsFile', () => {
 
   it('inline tags win over the file on collision (base <- tagsFile <- tags)', async () => {
     await writeTags('my-widget:\n  attributes:\n    size: { type: string, enum: [small] }\n');
-    const config = {
+    const config: RecheckConfig = {
       markdoc: {
         schema: 'realm',
         extend: {
@@ -94,7 +94,7 @@ describe('markdoc.extend.tagsFile', () => {
       { configDir: dir }
     );
     expect(result.isValid).toBe(false);
-    expect(result.errors.some((e) => e.path.startsWith('/markdoc/extend/tagsFile'))).toBe(true);
+    expect(result.errors.some((e) => e.path?.startsWith('/markdoc/extend/tagsFile'))).toBe(true);
     expect(result.errors.some((e) => e.message.includes('my-widget'))).toBe(true);
   });
 

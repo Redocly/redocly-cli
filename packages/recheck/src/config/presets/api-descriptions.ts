@@ -1,4 +1,4 @@
-import type { RecheckConfig } from '../../types/index.js';
+import type { RecheckRules } from '../../types/index.js';
 import { buildMarkdownPreset } from './markdown.js';
 
 // Keep in sync with EMBEDDED_UNSUPPORTED_RULES in core/runner.ts.
@@ -18,7 +18,7 @@ const MEASURED_OUT = ['recheck/line-length', 'recheck/ul-indent'];
  * markdown, such as an OpenAPI `description` field. Derived from
  * `recheck/markdown` by exclusion. Use with the runner's `embedded` option.
  */
-export function buildApiDescriptionsPreset(): RecheckConfig {
+export function buildApiDescriptionsPreset(): RecheckRules {
   const rules = buildMarkdownPreset();
   for (const name of [...UNSUPPORTED, ...MEASURED_OUT]) {
     delete rules[name];

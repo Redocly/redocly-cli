@@ -723,7 +723,7 @@ describe('metric assertion', () => {
 // excluded and every block terminates a sentence. Other summary-scoped rules
 // (prose, inclusive-language) keep seeing headings.
 describe('metric prose extraction (readability-standard view)', () => {
-  const fre = (content: string): number => {
+  const fre = (content: string): Promise<number> => {
     const rule = metricRule('%s|%s', { formula: 'flesch-reading-ease', min: 500 });
     return metric
       .execute(rule, 'test.md', buildMetricContext(content))

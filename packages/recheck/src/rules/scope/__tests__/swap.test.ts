@@ -352,12 +352,10 @@ describe('swap assertion', () => {
         scope: 'all',
         assertions: { swap: { pairs: { behaviour: 'behavior' }, ignoreCase: true } },
       };
-      const first = await runRulesUntilStable([{ path: 't.md', content }], [rule], { fix: true });
+      const first = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
       const fixed = first.fixedFiles.get('t.md');
       expect(fixed).toBe('Behavior matters. behavior too.\n');
-      const second = await runRulesUntilStable([{ path: 't.md', content: fixed ?? '' }], [rule], {
-        fix: true,
-      });
+      const second = await runRulesUntilStable([{ path: 't.md', content: fixed ?? '' }], [rule]);
       expect(second.problems).toEqual([]);
       expect(second.fixedFiles.size).toBe(0);
     });
@@ -459,11 +457,10 @@ describe('swap assertion', () => {
     it('is idempotent under runRulesUntilStable for a zero-width-capable pattern', async () => {
       const content = 'aaa here, also a and bbb.\n';
       const rule = regexSwapRule({ 'a*': 'x' }, { wordBoundary: false });
-      const first = await runRulesUntilStable([{ path: 't.md', content }], [rule], { fix: true });
+      const first = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
       const second = await runRulesUntilStable(
         [{ path: 't.md', content: first.fixedFiles.get('t.md') ?? content }],
-        [rule],
-        { fix: true }
+        [rule]
       );
       expect(second.problems).toEqual([]);
       expect(second.fixedFiles.size).toBe(0);

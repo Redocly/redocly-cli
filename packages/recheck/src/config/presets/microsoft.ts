@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/microsoft` — the Microsoft Writing Style Guide
@@ -298,8 +298,8 @@ function tokenRule(opts: {
   };
 }
 
-export function buildMicrosoftPreset(): RecheckConfig {
-  const rules: RecheckConfig = {};
+export function buildMicrosoftPreset(): RecheckRules {
+  const rules: RecheckRules = {};
 
   // ======================================================================
   // STRUCTURAL — headings, lists, tables, alt text, links (`error`).

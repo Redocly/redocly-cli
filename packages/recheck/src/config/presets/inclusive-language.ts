@@ -1,4 +1,4 @@
-import type { BaseRule, RecheckConfig } from '../../types/index.js';
+import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
  * `recheck/inclusive-language` — composable, guide-agnostic preset: the
@@ -157,8 +157,8 @@ function patternRule(opts: {
   };
 }
 
-export function buildInclusiveLanguagePreset(): RecheckConfig {
-  const rules: RecheckConfig = {};
+export function buildInclusiveLanguagePreset(): RecheckRules {
+  const rules: RecheckRules = {};
 
   // "Never use [master] in conjunction with slave." / "Don't use. Instead,
   // use alternative terms... such as worker or replica." (Google, C§3.5
