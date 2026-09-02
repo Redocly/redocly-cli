@@ -22,6 +22,7 @@ import { resolveExtends } from './presets/index.js';
 import { RECHECK_CONFIG_SCHEMA, MARKDOC_TAG_SCHEMA } from './schema.js';
 
 const ajv = new (Ajv as any)({
+  // mismatching AJV typing due to fork
   useDefaults: true,
   allErrors: true,
   verbose: true,
@@ -1331,7 +1332,7 @@ function validateSemantics(
   const warnOnce = (message: string) => {
     if (warnedMessages.has(message)) return;
     warnedMessages.add(message);
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.warn(message);
   };
 
@@ -1485,7 +1486,7 @@ export async function validate(
   warnStaleMarkdocPreset(
     hasExtends ? (config as { extends?: unknown }).extends : undefined,
     markdocEnabled,
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     (message) => console.warn(message)
   );
   if (structureErrors.length > 0) {

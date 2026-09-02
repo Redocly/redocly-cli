@@ -38,10 +38,10 @@ export async function generateReport(
   if (prioritized.length > 0) {
     const limitInfoEnd =
       typeof options.annotationsLimit === 'number' ? ` (limit ${options.annotationsLimit})` : '';
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log(`\n   Annotations prepared: ${prioritized.length}${limitInfoEnd}`);
   } else {
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log(`\n   Annotations prepared: 0`);
   }
 }

@@ -27,7 +27,7 @@ function describeFix(fix: Fix): string {
 }
 
 export function reportFixes(fixes: Fix[]): void {
-  // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
   console.log(cyan('\n🔧 Auto-fix Summary:'));
 
   // Group fixes by file
@@ -41,10 +41,10 @@ export function reportFixes(fixes: Fix[]): void {
 
   // Report fixes by file
   for (const [file, fileFixes] of Object.entries(fixesByFile)) {
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log(`\n   ${file}:`);
     for (const fix of fileFixes) {
-      // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+      // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
       console.log(green(`     ✓ Line ${fix.lineNumber} (${fix.ruleName}): ${describeFix(fix)}`));
     }
   }

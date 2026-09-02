@@ -26,10 +26,10 @@ export async function outputJsonFormat(
 
   if (outputPath && outputPath.length > 0) {
     await fs.writeFile(outputPath, content, 'utf8');
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log(`\n   Wrote JSON report to ${outputPath}`);
   } else {
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log('\n' + content);
   }
 }

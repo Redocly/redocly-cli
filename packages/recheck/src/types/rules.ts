@@ -70,14 +70,19 @@ export interface NormalizedRule {
  * `mergeRule` in config/presets/index.ts). `severity`, `message` and
  * `assertions` are required on the MERGED rule, which the JSON schema
  * enforces at load time.
+ *
+ * The index signature is keyed on a template literal, not `string`: every
+ * rule name contains a `/` (namespace/rule) and no engine-level key does,
+ * so this keeps a rule entry from typing as a bare string or array and
+ * keeps a misspelled engine key from typing as a rule.
  */
-export interface RecheckConfig {
+export type RecheckConfig = {
   extends?: string[];
   excludes?: string[];
   baseline?: string;
   markdoc?: boolean | MarkdocUserConfig;
-  [key: string]: Partial<BaseRule> | string[] | string | boolean | MarkdocUserConfig | undefined;
-}
+  [ruleName: `${string}/${string}`]: Partial<BaseRule>;
+};
 
 /** The rule entries of a config, with the engine-level keys removed. */
 export type RecheckRules = Record<string, BaseRule>;

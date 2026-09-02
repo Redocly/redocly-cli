@@ -35,17 +35,17 @@ export function getBreakdownStats(problems: Problem[]): RuleBreakdown {
  * Display detailed statistics to console
  */
 export function showDetailedStats(fileCount: number, problems: Problem[]): void {
-  // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
   console.log(cyan('\n📊 Summary Statistics:'));
-  // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
   console.log(`   ${fileCount} markdown file(s) scanned`);
-  // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
   console.log(`   ${problems.length} total issue(s) detected`);
 
   const breakdown = getBreakdownStats(problems);
 
   if (Object.keys(breakdown).length > 0) {
-    // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
     console.log('\n   Breakdown by rule:');
 
     // Sort rules by total count (descending)
@@ -61,7 +61,7 @@ export function showDetailedStats(fileCount: number, problems: Problem[]): void 
 
       const statsText = parts.length > 0 ? ` (${parts.join(', ')})` : '';
       const displayName = ruleName.replace('recheck/', '');
-      // oxlint-disable-next-line eslint/no-console -- reporter/config console output predates this relocation; Task 3 removes these entirely (see task-1-report.md), so this is a temporary suppression, not a permanent exception.
+      // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
       console.log(`   ${displayName}: ${stats.total}${statsText}`);
     }
   }
