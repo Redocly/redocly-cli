@@ -314,12 +314,13 @@ jobs:
           cd tests/smoke/basic/
 
           # Run commands
-          docker run --rm redocly/cli:latest --version
-          docker run --rm -v $PWD:/spec redocly/cli:latest lint openapi.yaml
-          docker run --rm -v $PWD:/spec redocly/cli:latest bundle openapi.yaml --ext json
-          docker run --rm -v $PWD:/spec redocly/cli:latest build-docs openapi.yaml
-          docker run --rm -v $PWD:/spec redocly/cli:latest split pets.yaml --outDir output/split/petstore && docker run --rm -v $PWD:/spec redocly/cli:latest split museum.yaml --outDir output/split/museum
-          docker run --rm -v $PWD:/spec redocly/cli:latest respect museum-tickets.arazzo.yaml
+          redocly_docker() { docker run --rm -e REDOCLY_TELEMETRY -v "$PWD":/spec redocly/cli:latest "$@"; }
+          redocly_docker --version
+          redocly_docker lint openapi.yaml
+          redocly_docker bundle openapi.yaml --ext json
+          redocly_docker build-docs openapi.yaml
+          redocly_docker split pets.yaml --outDir output/split/petstore && redocly_docker split museum.yaml --outDir output/split/museum
+          redocly_docker respect museum-tickets.arazzo.yaml
 
           # Check for broken styles when building docs (related issue: https://github.com/Redocly/redocly-cli/issues/1073)
           echo "Checking docs for issues..."

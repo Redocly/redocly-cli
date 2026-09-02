@@ -21,7 +21,7 @@ const result = await build({
   keepNames: false,
   metafile: true,
   define: {
-    'process.env.REDOCLY_CLI_BUILD_ENV': '"production"',
+    'process.env.REDOCLY_CLI_BUILD_ENV': JSON.stringify(process.env.BUILD_ENV ?? 'development'),
   },
   // Avoid errors when external dependencies use CJS syntax.
   banner: {
