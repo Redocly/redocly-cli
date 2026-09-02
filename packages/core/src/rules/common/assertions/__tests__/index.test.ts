@@ -1,3 +1,10 @@
+import { outdent } from 'outdent';
+
+import { parseYamlToDocument, replaceSourceWithRef } from '../../../../../__tests__/utils.js';
+import { createConfig } from '../../../../config/index.js';
+import { lintDocument } from '../../../../lint.js';
+import { colorOptions } from '../../../../logger.js';
+import { BaseResolver } from '../../../../resolve.js';
 import { Assertions } from '../index.js';
 
 const opts = {
@@ -55,6 +62,10 @@ const opts = {
 };
 
 describe('Oas3 assertions', () => {
+  beforeAll(() => {
+    colorOptions.enabled = false;
+  });
+
   it('should return the right visitor structure', () => {
     const visitors = Assertions(opts as any);
     expect(visitors).toMatchInlineSnapshot(`
@@ -124,5 +135,91 @@ describe('Oas3 assertions', () => {
     expect(() => Assertions(rule as any)).toThrow(
       "rule/no-assertions-in-where -> where -> [0]: 'assertions' (Object) is required"
     );
+  });
+
+  it('should report every violation of the schema assertion', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.0.0
+        info:
+          title: Test
+          version: '1.0'
+          x-audit:
+            status: rejected
+            reviewedOn: yesterday
+        paths: {}
+      `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'rule/audit': {
+            subject: { type: 'any', property: 'x-audit' },
+            assertions: {
+              schema: {
+                type: 'object',
+                properties: {
+                  status: { type: 'string', enum: ['draft', 'approved'] },
+                  reviewedBy: { type: 'string' },
+                  reviewedOn: { type: 'string', format: 'date' },
+                },
+                required: ['status', 'reviewedBy'],
+              },
+            },
+          },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "forceSeverity": "error",
+          "location": [
+            {
+              "pointer": "#/info/x-audit",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "rule/audit failed because the any x-audit didn't meet the assertions: must have required property 'reviewedBy'",
+          "ruleId": "rule/audit",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "forceSeverity": "error",
+          "location": [
+            {
+              "pointer": "#/info/x-audit/status",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "rule/audit failed because the any x-audit didn't meet the assertions: \`status\` property must be equal to one of the allowed values "draft", "approved"",
+          "ruleId": "rule/audit",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "forceSeverity": "error",
+          "location": [
+            {
+              "pointer": "#/info/x-audit/reviewedOn",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "rule/audit failed because the any x-audit didn't meet the assertions: \`reviewedOn\` property must match format "date"",
+          "ruleId": "rule/audit",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });

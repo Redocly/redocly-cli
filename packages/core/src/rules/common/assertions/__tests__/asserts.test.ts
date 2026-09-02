@@ -861,6 +861,114 @@ describe('oas3 assertions', () => {
       });
     });
 
+    describe('schema', () => {
+      const auditSchema = {
+        type: 'object',
+        properties: {
+          status: { type: 'string', enum: ['draft', 'approved'] },
+          reviewedBy: { type: 'string' },
+          source: { type: 'object', properties: { url: { type: 'string' } } },
+        },
+        required: ['status', 'reviewedBy'],
+        additionalProperties: false,
+      };
+
+      it('value that matches the schema is valid', () => {
+        expect(
+          asserts.schema(
+            { status: 'approved', reviewedBy: 'reviewer' },
+            auditSchema,
+            assertionProperties
+          )
+        ).toEqual([]);
+      });
+
+      it('reports undeclared properties unless the schema allows them', () => {
+        const openSchema = {
+          type: 'object',
+          properties: { status: { type: 'string' } },
+          additionalProperties: true,
+        };
+        expect(
+          asserts.schema({ status: 'draft', note: 'extra' }, openSchema, assertionProperties)
+        ).toEqual([]);
+
+        expect(
+          asserts.schema(
+            { status: 'draft', note: 'extra' },
+            { type: 'object', properties: { status: { type: 'string' } } },
+            assertionProperties
+          )
+        ).toEqual([
+          {
+            message: 'must NOT have unevaluated properties `note`',
+            location: baseLocation.child(['note']).key(),
+          },
+        ]);
+      });
+
+      it('locates problems in the referenced document when the property is a $ref', () => {
+        const referencedSource = { absoluteRef: 'audit.yaml' } as Source;
+        const rawValue = { $ref: './audit.yaml' };
+
+        expect(
+          asserts.schema({ status: 'rejected' }, auditSchema, {
+            ...assertionProperties,
+            rawValue,
+            resolve: () => ({ location: new Location(referencedSource, '#/'), node: {} }),
+          } as AssertionFnContext)
+        ).toEqual([
+          {
+            message: "must have required property 'reviewedBy'",
+            location: new Location(referencedSource, '#/'),
+          },
+          {
+            message:
+              '`status` property must be equal to one of the allowed values "draft", "approved"',
+            location: new Location(referencedSource, '#/status'),
+          },
+        ]);
+      });
+
+      it('throws when the schema itself is invalid', () => {
+        expect(() => asserts.schema({}, { type: 'strng' }, assertionProperties)).toThrow(
+          "the 'schema' assertion has an invalid schema:"
+        );
+      });
+
+      it('undefined value is not linted', () => {
+        expect(asserts.schema(undefined, auditSchema, assertionProperties)).toEqual([]);
+      });
+
+      it('reports one problem per violation, located at the failing property', () => {
+        expect(
+          asserts.schema(
+            { status: 'rejected', source: { url: 42 }, extra: true },
+            auditSchema,
+            assertionProperties
+          )
+        ).toEqual([
+          {
+            message: "must have required property 'reviewedBy'",
+            location: baseLocation,
+          },
+          {
+            message: 'must NOT have additional properties `extra`',
+            location: baseLocation.child(['extra']).key(),
+          },
+          {
+            message:
+              '`status` property must be equal to one of the allowed values "draft", "approved"',
+            location: baseLocation.child(['status']),
+          },
+          {
+            message: '`url` property type must be string',
+            location: baseLocation.child(['source', 'url']),
+          },
+        ]);
+      });
+    });
+
     describe('function', () => {
       it('node must have at least one property from predefined list', () => {
         const customFn = vi.fn((value: string[], options: any) => {

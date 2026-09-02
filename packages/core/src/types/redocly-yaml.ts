@@ -11,6 +11,7 @@ import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
 import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
+import { Oas3_1Types } from './oas3_1.js';
 
 const builtInOAS2Rules = [
   'info-contact',
@@ -553,14 +554,6 @@ const CustomPreprocessor: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
 };
 
-// TODO: add better type tree for this
-const Schema: NodeType = {
-  properties: {
-    properties: mapOf('Schema'),
-  },
-  additionalProperties: {},
-};
-
 function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
   return {
     properties: {
@@ -717,6 +710,7 @@ const Assertions: NodeType = {
       description: 'Asserts a maximum length (inclusive) of a string or list (array).',
       documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#maxlength-example',
     },
+    schema: 'Schema',
     ref: (value: string | boolean) =>
       typeof value === 'string'
         ? {
@@ -829,7 +823,15 @@ const CoreConfigTypes: Record<string, NodeType> = {
   CustomDecorator,
   BuiltinPreprocessor,
   CustomPreprocessor,
-  Schema,
+  Schema: Oas3_1Types.Schema,
+  SchemaProperties: Oas3_1Types.SchemaProperties,
+  PatternProperties: Oas3_1Types.PatternProperties,
+  NamedSchemas: Oas3_1Types.NamedSchemas,
+  DependentRequired: Oas3_1Types.DependentRequired,
+  Discriminator: Oas3_1Types.Discriminator,
+  DiscriminatorMapping: Oas3_1Types.DiscriminatorMapping,
+  ExternalDocs: Oas3_1Types.ExternalDocs,
+  Xml: Oas3_1Types.Xml,
   Rules,
   Decorators,
   Preprocessors,
