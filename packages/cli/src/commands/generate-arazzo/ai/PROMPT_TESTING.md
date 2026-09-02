@@ -6,8 +6,8 @@ An edit to the instructions or to the prompt layouts in `prompt.ts` can therefor
 
 Run the checks below before merging:
 
-- any change to `prompt.ts` (the single-shot instructions, the scenario selection instructions, or the scenario design instructions),
-- a change to `generate-workflows.ts` that alters what the model sees (`stripProse`, schema pruning, description slicing, the operation index).
+- any change to `prompt.ts` (the single-shot instructions, the scenario selection instructions, the scenario design instructions, or `stripProse`),
+- a change to `two-pass.ts` that alters what the model sees (schema pruning, description slicing, the operation index).
 
 ## Prerequisites
 

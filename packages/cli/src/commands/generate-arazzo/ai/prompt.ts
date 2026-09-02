@@ -1,5 +1,9 @@
 import { isPlainObject, stringifyYaml } from '@redocly/openapi-core';
 
+// The whole prompt must fit the provider's context window with room left for
+// the answer; ~400k characters is roughly 100k tokens.
+export const MAX_PROMPT_CHARS = 400_000;
+
 // CI only exercises a mocked provider, so editing these instructions or the
 // prompt layouts below can change workflow quality without failing any test.
 // Run the manual checks in PROMPT_TESTING.md before merging a change here.
