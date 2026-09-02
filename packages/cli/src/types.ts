@@ -6,7 +6,7 @@ import type { BundleArgv } from './commands/bundle.js';
 import type { DriftArgv } from './commands/drift/index.js';
 import type { EjectGeneratorCommandArgv } from './commands/eject-generator.js';
 import type { EjectArgv } from './commands/eject.js';
-import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
+import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';

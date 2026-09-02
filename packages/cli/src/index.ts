@@ -27,7 +27,7 @@ import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
-} from './commands/generate-arazzo.js';
+} from './commands/generate-arazzo/index.js';
 import {
   handleGenerateClient,
   type GenerateClientCommandArgv,
@@ -858,6 +858,38 @@ yargs(hideBin(process.argv))
             describe: 'Output File name.',
             type: 'string',
             requiresArg: true,
+          },
+          'with-ai': {
+            describe:
+              'Redesign the generated workflows with an AI provider, using the OpenAPI description as context.',
+            type: 'boolean',
+            default: false,
+          },
+          'ai-provider': {
+            describe:
+              'AI provider used with --with-ai; runs the "claude", "codex", or "cursor" CLI in non-interactive mode.',
+            choices: ['claude', 'codex', 'cursor'] as ReadonlyArray<
+              GenerateArazzoCommandArgv['ai-provider']
+            >,
+            default: 'claude' as GenerateArazzoCommandArgv['ai-provider'],
+          },
+          'ai-model': {
+            describe:
+              'Model passed to the selected AI provider (provider-specific default applies).',
+            type: 'string',
+          },
+          'ai-concurrency': {
+            describe:
+              'Number of workflows designed in parallel with --with-ai for large descriptions.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
+          'max-workflows': {
+            describe: 'Most workflows the AI may design with --with-ai.',
+            type: 'number',
+            default: 10,
+            coerce: validatePositiveNumber('max-workflows', true),
           },
         });
     },

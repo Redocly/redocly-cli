@@ -33,7 +33,7 @@ export async function generateArazzoDescription(opts: GenerateArazzoOptions) {
     : undefined;
 
   const testDescription: TestDescription = {
-    arazzo: '1.0.1',
+    arazzo: '1.1.0',
     info: {
       title: info?.title || infoSubstitute.title,
       version: info?.version || infoSubstitute.version,

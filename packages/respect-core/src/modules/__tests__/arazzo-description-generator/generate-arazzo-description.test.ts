@@ -83,7 +83,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: 'Swagger Petstore',
         version: '1.0.0',
@@ -156,7 +156,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: 'Swagger Petstore',
         version: '1.0.0',
@@ -208,7 +208,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: '[REPLACE WITH API title]',
         version: '[REPLACE WITH API version]',
@@ -261,7 +261,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: 'Swagger Petstore',
         version: '1.0.0',
