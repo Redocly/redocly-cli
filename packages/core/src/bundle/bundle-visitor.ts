@@ -364,6 +364,20 @@ export function makeBundleVisitor({
   ): { name: string; prevName: string } {
     const prevName =
       pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    // a target already saved in the group, or authored there as a plain $ref to it,
+    // keeps that entry's name instead of getting a second entry named after the file;
+    // a $ref with sibling keywords stays as authored, so it is not reused
+    for (const existingName of Object.keys(componentsGroup)) {
+      const existingNode = componentsGroup[existingName];
+      if (
+        existingNode === target.node ||
+        (isRef(existingNode) &&
+          Object.keys(existingNode).length === 1 &&
+          isEqualOrEqualRef(existingNode, target, ctx))
+      ) {
+        return { name: existingName, prevName };
+      }
+    }
     let name = prevName;
     for (
       let serialId = 2;

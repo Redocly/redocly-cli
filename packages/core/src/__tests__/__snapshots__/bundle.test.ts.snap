@@ -313,24 +313,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/vendor.schema'
+                $ref: '#/components/schemas/vendor'
 components:
   schemas:
     vendor:
-      $ref: '#/components/schemas/vendor.schema'
-    myvendor:
-      $ref: '#/components/schemas/vendor.schema'
-    simple:
-      type: string
-    A:
-      type: string
-    test:
-      $ref: '#/components/schemas/rename-2'
-    rename:
-      type: string
-    rename-2:
-      type: number
-    vendor.schema:
       title: vendor
       type: object
       description: Vendors
@@ -354,6 +340,18 @@ components:
           type: boolean
           description: One-time use
           default: false
+    myvendor:
+      $ref: '#/components/schemas/vendor'
+    simple:
+      type: string
+    A:
+      type: string
+    test:
+      type: number
+    rename:
+      type: string
+    rename-2:
+      $ref: '#/components/schemas/test'
 
 `;
 
