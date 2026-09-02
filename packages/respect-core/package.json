@@ -45,7 +45,7 @@
     "typescript": "6.0.2"
   },
   "dependencies": {
-    "@faker-js/faker": "^7.6.0",
+    "@faker-js/faker": "^10.6.0",
     "@noble/hashes": "^1.8.0",
     "@redocly/ajv": "^8.18.3",
     "@redocly/openapi-core": "2.51.0",

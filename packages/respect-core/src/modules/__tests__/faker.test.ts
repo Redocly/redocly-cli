@@ -57,8 +57,20 @@ describe('faker', () => {
     });
 
     it('should return a float', () => {
-      // @ts-expect-error
       expect(faker.number.float()).toBeDefined();
+    });
+
+    it('should span min..min + 99999 when only min is given', () => {
+      const integer = faker.number.integer({ min: 100_000 });
+      expect(integer).toBeGreaterThanOrEqual(100_000);
+      expect(integer).toBeLessThanOrEqual(199_999);
+    });
+
+    it('should round a float to two decimals unless precision is given', () => {
+      const twoDecimals = faker.number.float({ min: 1, max: 2 });
+      expect(twoDecimals).toBe(Number(twoDecimals.toFixed(2)));
+
+      expect(faker.number.float({ min: 1, max: 2, precision: 0.5 }) % 0.5).toBe(0);
     });
   });
 
