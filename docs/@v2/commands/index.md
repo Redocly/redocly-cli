@@ -52,6 +52,7 @@ Reunite platform commands:
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to Reunite.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
+- [`recheck`](recheck.md) Lint Markdown prose and structure from the `recheck` block.
 
 Shell setup commands:
 
