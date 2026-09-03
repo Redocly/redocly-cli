@@ -107,7 +107,7 @@ function transpileDeclaration(sourcePath) {
     readFileSync(path.join(packageDir, sourcePath), 'utf-8'),
     { fileName: sourcePath, reportDiagnostics: true }
   );
-  
+
   if (diagnostics.length) {
     throw new Error(ts.formatDiagnostics(diagnostics, ts.createCompilerHost({})));
   }
