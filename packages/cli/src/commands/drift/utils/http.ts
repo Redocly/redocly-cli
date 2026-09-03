@@ -167,14 +167,45 @@ export function compileOpenApiPath(pathTemplate: string): {
         return '';
       }
 
-      const paramMatch = segment.match(/^\{([^}]+)\}$/);
-      if (paramMatch) {
+      // A segment may hold several parameters around literal text, as in
+      // `/instances/{worldId}:{instanceId}`. Matching the whole segment as one
+      // parameter would miss those, and treating it as a literal never matches.
+      const paramMatches = [...segment.matchAll(/\{([^}]+)\}/g)];
+      const paramsBefore = params.length;
+      let compiled = '';
+      let literalLength = 0;
+      let offset = 0;
+
+      for (const [paramIndex, paramMatch] of paramMatches.entries()) {
+        const literal = segment.slice(offset, paramMatch.index);
+
+        compiled += escapeRegex(literal);
+        literalLength += literal.length;
         params.push(paramMatch[1]);
-        return '([^/]+)';
+        offset = paramMatch.index + paramMatch[0].length;
+
+        const nextParamMatch = paramMatches[paramIndex + 1];
+        if (!nextParamMatch) {
+          compiled += '([^/]+)';
+          continue;
+        }
+
+        const separator = segment.slice(offset, nextParamMatch.index);
+        compiled += separator ? `((?:(?!${escapeRegex(separator)})[^/])+)` : '([^/])';
       }
 
-      score += 2;
-      return escapeRegex(segment);
+      const trailing = segment.slice(offset);
+      compiled += escapeRegex(trailing);
+      literalLength += trailing.length;
+
+      if (params.length === paramsBefore) {
+        score += 2;
+      } else if (literalLength > 0) {
+        // More specific than a bare parameter, less so than a whole literal.
+        score += 1;
+      }
+
+      return compiled;
     })
     .join('/');
 
