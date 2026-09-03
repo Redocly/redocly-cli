@@ -2,7 +2,7 @@
 
 The pattern behind every traversal of an API description in this repository.
 In `packages/core`, linting, bundling, decorating, and preprocessing run through the walker.
-In `packages/cli`, the commands that read a description (`stats`, `score`, `node-type`, `drift`) use it too.
+In `packages/cli`, the commands that read a description (`stats`, `score`, `inspect-node-types`, `drift`) use it too.
 Every rule, decorator, and preprocessor is a visitor.
 Write new traversal as a visitor instead of parsing or drilling into documents by hand.
 
@@ -20,7 +20,7 @@ Write new traversal as a visitor instead of parsing or drilling into documents b
 There is no `Reference` node: a `$ref` and its target share the target's type.
 The `ref` visitor key visits the references themselves.
 
-When you write a rule or a decorator (or any visitor), run `redocly node-type <api>` to see the node type tree of the specification you work with.
+When you write a rule or a decorator (or any visitor), run `redocly inspect-node-types <api>` to see the node type tree of the specification you work with.
 The names it prints are the visitor keys, and `--type=<Type> --parents` shows where a type can sit.
 
 ## Hooks

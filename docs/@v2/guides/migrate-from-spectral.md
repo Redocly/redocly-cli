@@ -57,7 +57,7 @@ rules:
     message: Operation summary must not include the word test
 ```
 
-To find the node type for a place a Spectral `given` selector targets, run the [`node-type` command](../commands/node-type.md) with a pointer to that place,
+To find the node type for a place a Spectral `given` selector targets, run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place,
 or hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
 
 It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration/index.md#apis-object) to set per-API rules (or exceptions!).
