@@ -1,15 +1,15 @@
 ---
 name: recheck-config
-description: Use when you create or tune a recheck.yaml for a project — choose presets, set severities from measured counts, add exceptions, adopt a baseline, and validate the result.
+description: Use when you create or tune the recheck block in redocly.yaml for a project — choose presets, set severities from measured counts, add exceptions, adopt a baseline, and validate the result.
 ---
 
-# Write and tune recheck.yaml
+# Configure the recheck block in redocly.yaml
 
 Configure recheck for a project the way its maintainers would: measure first, decide per rule, and record intent.
 
 ## Start a new config
 
-1. Begin with the structural preset and validate:
+1. Begin with the structural preset, and run recheck to validate it:
 
    ```yaml
    extends:
@@ -17,8 +17,10 @@ Configure recheck for a project the way its maintainers would: measure first, de
    ```
 
    ```bash
-   npx recheck --validate-config
+   redocly recheck
    ```
+
+   The command reports config errors before it lints anything.
 
 2. Add prose rules deliberately, not wholesale.
    `recheck/prose` is a small starter; `recheck/google` and `recheck/microsoft` are large style guides that need tuning before they help.
@@ -28,7 +30,7 @@ Configure recheck for a project the way its maintainers would: measure first, de
 1. Run the whole corpus and count findings per rule:
 
    ```bash
-   npx recheck docs --output json --annotations-limit 5000 --output-path findings.json
+   redocly recheck docs --format json --annotations-limit 5000 --output-path findings.json
    ```
 
    Group the findings by `ruleName` and look at real examples of each before deciding anything.
@@ -53,14 +55,20 @@ Configure recheck for a project the way its maintainers would: measure first, de
 When the corpus has too many errors to fix at once, record them and gate only new ones:
 
 ```bash
-npx recheck --generate-baseline
+redocly recheck --generate-baseline
 ```
 
-Commit `recheck-baseline.yaml` and add `baseline: recheck-baseline.yaml` to the config.
+Commit `recheck-baseline.yaml` and add it to the `recheck` block:
+
+```yaml
+recheck:
+  baseline: ./recheck-baseline.yaml
+```
+
 Counts only step down: when findings get fixed, regenerate the baseline and commit the diff.
 
 ## Finish
 
-- `npx recheck --validate-config` must pass.
+- `redocly recheck` must report no config errors.
 - Every `off` and every exception carries a comment with its reason.
 - The config's README section or the project docs say how contributors run recheck locally.
