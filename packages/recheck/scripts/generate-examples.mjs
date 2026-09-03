@@ -119,7 +119,7 @@ async function loadLib() {
   } catch (error) {
     if (error && error.code === 'ERR_MODULE_NOT_FOUND') {
       throw new Error(
-        'examples:generate requires a built package — run `npm run compile` first ' +
+        'generate-examples.mjs requires a built package — run `npm run compile` first ' +
           '(lib/config/validate.js was not found).'
       );
     }

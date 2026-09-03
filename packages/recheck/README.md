@@ -17,7 +17,7 @@ recheck:
 ```
 
 When the command ships, run `npx @redocly/cli recheck`.
-The command documentation lives at https://redocly.com/docs/cli/commands/recheck.
+Its documentation will live at https://redocly.com/docs/cli/commands/recheck.
 
 ## Programmatic use
 
