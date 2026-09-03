@@ -27,7 +27,7 @@ describe('lintEmbeddedInputs', () => {
   it('remaps positions and carries the pointer', async () => {
     const config = await rules();
     const { problems } = await lintEmbeddedInputs(
-      [input(`Intro.\n${'lorem ipsum dolor sit amet '.repeat(6)}\n`)],
+      [input(`Intro.\n${'lorem ipsum dolor sit amet '.repeat(6).trim()}\n`)],
       config.descriptionRules,
       {
         knownRuleNames: new Set(config.rules.map((rule) => rule.name)),

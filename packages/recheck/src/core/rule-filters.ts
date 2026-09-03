@@ -31,7 +31,7 @@ export class UnknownRuleNameError extends Error {
  * exists in `recheck/`, `google/`, and `microsoft/` -- so one bare name would
  * select three different rules at once.
  */
-function matchesRuleName(rule: NormalizedRule, name: string): boolean {
+export function matchesRuleName(rule: NormalizedRule, name: string): boolean {
   return rule.name === name || rule.shortName === name;
 }
 
