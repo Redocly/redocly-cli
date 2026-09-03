@@ -3,8 +3,6 @@
 The Markdown and prose linting engine behind `redocly recheck`.
 
 Use it through Redocly CLI.
-The `redocly recheck` command ships in a later release.
-Until then this package exposes the engine API only.
 Configure it in the `recheck` block of `redocly.yaml`, and name presets in the root `extends`:
 
 ```yaml
@@ -17,8 +15,8 @@ recheck:
   baseline: ./recheck-baseline.yaml
 ```
 
-When the command ships, run `npx @redocly/cli recheck`.
-Its documentation then lives at https://redocly.com/docs/cli/commands/recheck.
+Run it with `npx @redocly/cli recheck`.
+Its documentation lives at https://redocly.com/docs/cli/commands/recheck.
 
 ## Programmatic use
 

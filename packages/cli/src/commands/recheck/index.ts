@@ -66,9 +66,10 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     return;
   }
 
+  // Typed once the @redocly/config pin carries the recheck root key.
   const block = (config.resolvedConfig as { recheck?: unknown }).recheck;
   let presets = config.resolvedConfig.recheckExtends ?? [];
-  if (block === undefined && presets.length === 0) {
+  if (block == null && presets.length === 0) {
     engineLogger.log(`No recheck configuration found; using ${DEFAULT_PRESET}.`);
     presets = [DEFAULT_PRESET];
   }
@@ -86,6 +87,12 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     }
     process.exitCode = 1;
     return;
+  }
+
+  if (argv['output-path'] && argv.format !== 'json' && argv.format !== 'sarif') {
+    engineLogger.warn(
+      '--output-path applies to --format json and sarif; the report goes to stdout.'
+    );
   }
 
   const exitCode = await runAction(selected.action, argv, resolved.config, engineLogger);

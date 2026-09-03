@@ -17,6 +17,10 @@ Docs rendering commands:
 - [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
 - [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
 
+Docs linting commands:
+
+- [`recheck`](recheck.md) Lint Markdown prose and structure from the `recheck` block.
+
 CI and delivery commands:
 
 - [`bundle`](bundle.md) Bundle an API description.
@@ -52,7 +56,6 @@ Reunite platform commands:
 - [`logout`](logout.md) Clear your stored credentials.
 - [`push`](push.md) Push an API description to Reunite.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
-- [`recheck`](recheck.md) Lint Markdown prose and structure from the `recheck` block.
 
 Shell setup commands:
 
