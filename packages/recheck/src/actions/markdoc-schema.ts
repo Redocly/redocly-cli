@@ -39,8 +39,8 @@ async function loadModuleTags(fromArg: string, cwd: string): Promise<RawMarkdocT
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(
-      `could not import "${fromArg}" — TypeScript sources need a loader, e.g.: ` +
-        `pnpm exec tsx node_modules/.bin/recheck --generate-markdoc-schema … (${detail})`
+      `could not import "${fromArg}". Compile it to JavaScript first, or run the CLI ` +
+        `under a TypeScript loader such as tsx. (${detail})`
     );
   }
 
@@ -98,7 +98,7 @@ function renderYaml(
   const header =
     `# Generated file — do not hand-edit.\n` +
     `# Source module(s): ${fromArgs.join(', ')}\n` +
-    `# Regenerate: recheck --generate-markdoc-schema ${fromFlags} --out ${outArg}\n`;
+    `# Regenerate: redocly recheck --generate-markdoc-schema ${fromFlags} --out ${outArg}\n`;
   return header + yaml.dump(merged, { sortKeys: true });
 }
 
@@ -146,8 +146,8 @@ export async function generateMarkdocSchema(
     if (onDisk !== rendered) {
       logger.error(
         onDisk === null
-          ? `${outPath} does not exist — run \`recheck --generate-markdoc-schema\` without --check to create it.`
-          : `${outPath} is stale — run \`recheck --generate-markdoc-schema\` to regenerate it.`
+          ? `${outPath} does not exist — run \`redocly recheck --generate-markdoc-schema\` without --check to create it.`
+          : `${outPath} is stale — run \`redocly recheck --generate-markdoc-schema\` to regenerate it.`
       );
       return 1;
     }

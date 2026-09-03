@@ -72,7 +72,6 @@
   "files": [
     "lib",
     "presets",
-    "skills",
     "examples"
   ]
 }
