@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises';
 
+import type { Logger } from '../../actions/logger.js';
 import type { Problem } from '../../types/index.js';
 
 const SEVERITY_TO_LEVEL: Record<string, 'error' | 'warning' | 'note'> = {
@@ -61,19 +62,21 @@ export function buildSarif(problems: Problem[]): Record<string, unknown> {
 }
 
 /**
- * Output problems in SARIF format to file or stdout
+ * Output problems in SARIF format to file or through the logger
  */
-export async function outputSarifFormat(problems: Problem[], outputPath?: string): Promise<void> {
+export async function outputSarifFormat(
+  problems: Problem[],
+  outputPath: string | undefined,
+  logger: Logger
+): Promise<void> {
   const sarif = buildSarif(problems);
   const content = JSON.stringify(sarif, null, 2);
 
   if (outputPath && outputPath.length > 0) {
     await fs.writeFile(outputPath, content, 'utf8');
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`\n   Wrote SARIF to ${outputPath}`);
+    logger.log(`\n   Wrote SARIF to ${outputPath}`);
   } else {
-    // Print to stdout; note: other logs may be mixed in unless you redirect only this call's output
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log('\n' + content);
+    // Print through the logger; note: other logs may be mixed in unless the caller isolates this channel
+    logger.log('\n' + content);
   }
 }

@@ -1,5 +1,6 @@
 import { cyan, green } from 'colorette';
 
+import type { Logger } from '../actions/logger.js';
 import type { Fix } from '../types/index.js';
 
 /**
@@ -26,9 +27,8 @@ function describeFix(fix: Fix): string {
   return 'applied fix';
 }
 
-export function reportFixes(fixes: Fix[]): void {
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  console.log(cyan('\n🔧 Auto-fix Summary:'));
+export function reportFixes(fixes: Fix[], logger: Logger): void {
+  logger.log(cyan('\n🔧 Auto-fix Summary:'));
 
   // Group fixes by file
   const fixesByFile: Record<string, Fix[]> = {};
@@ -41,11 +41,9 @@ export function reportFixes(fixes: Fix[]): void {
 
   // Report fixes by file
   for (const [file, fileFixes] of Object.entries(fixesByFile)) {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`\n   ${file}:`);
+    logger.log(`\n   ${file}:`);
     for (const fix of fileFixes) {
-      // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-      console.log(green(`     ✓ Line ${fix.lineNumber} (${fix.ruleName}): ${describeFix(fix)}`));
+      logger.log(green(`     ✓ Line ${fix.lineNumber} (${fix.ruleName}): ${describeFix(fix)}`));
     }
   }
 }

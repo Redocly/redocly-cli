@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
 import { runRules } from '../../../core/runner.js';
@@ -385,63 +385,70 @@ describe('metric assertion', () => {
     // so a heading-only document has nothing to score and reports nothing.
     const proseOnly = 'A paragraph with real words to score.\n';
 
-    afterEach(() => {
-      vi.restoreAllMocks();
-    });
-
     it('forces scope summary on a metric rule with no configured scope, without warning', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const result = await validate({
-        'recheck/readability': {
-          severity: 'error',
-          message: 'Too hard.',
-          assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+      const warnings: string[] = [];
+      const result = await validate(
+        {
+          'recheck/readability': {
+            severity: 'error',
+            message: 'Too hard.',
+            assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+          },
         },
-      });
+        { warn: (message) => warnings.push(message) }
+      );
       expect(result.isValid).toBe(true);
       expect(result.rules[0].scope).toBe('summary');
-      expect(warnSpy).not.toHaveBeenCalled();
+      expect(warnings).toEqual([]);
 
       const { problems } = await runRules([{ path: 't.md', content: proseOnly }], result.rules);
       expect(problems.filter((p) => p.ruleName === 'recheck/readability')).toHaveLength(1);
     });
 
     it('warns and still applies summary behavior when a metric rule configures another scope', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const result = await validate({
-        'recheck/readability': {
-          severity: 'error',
-          message: 'Too hard.',
-          scope: 'paragraph',
-          assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+      const warnings: string[] = [];
+      const result = await validate(
+        {
+          'recheck/readability': {
+            severity: 'error',
+            message: 'Too hard.',
+            scope: 'paragraph',
+            assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+          },
         },
-      });
+        { warn: (message) => warnings.push(message) }
+      );
       expect(result.isValid).toBe(true);
       expect(result.rules[0].scope).toBe('summary');
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('metric is always summary-scoped; ignoring configured scope')
-      );
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('paragraph'));
+      expect(
+        warnings.some((message) =>
+          message.includes('metric is always summary-scoped; ignoring configured scope')
+        )
+      ).toBe(true);
+      expect(warnings.some((message) => message.includes('paragraph'))).toBe(true);
 
       const { problems } = await runRules([{ path: 't.md', content: proseOnly }], result.rules);
       expect(problems.filter((p) => p.ruleName === 'recheck/readability')).toHaveLength(1);
     });
 
     it('does not warn when a metric rule explicitly sets scope summary (or its default alias)', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const warnings: string[] = [];
       for (const scope of ['summary', 'default']) {
-        const result = await validate({
-          'recheck/readability': {
-            severity: 'error',
-            message: 'Too hard.',
-            scope,
-            assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+        const result = await validate(
+          {
+            'recheck/readability': {
+              severity: 'error',
+              message: 'Too hard.',
+              scope,
+              assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+            },
           },
-        });
+          { warn: (message) => warnings.push(message) }
+        );
         expect(result.isValid).toBe(true);
         expect(result.rules[0].scope).toBe('summary');
       }
-      expect(warnSpy).not.toHaveBeenCalled();
+      expect(warnings).toEqual([]);
     });
 
     // The schema injects `scope: 'all'` as a structural default (AJV
@@ -450,19 +457,22 @@ describe('metric assertion', () => {
     // normalization captures explicit scopes pre-schema, and an explicit
     // `scope: all` on a metric rule warns like any other non-summary scope.
     it('warns for an explicit scope: all on a metric rule', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      const result = await validate({
-        'recheck/readability': {
-          severity: 'error',
-          message: 'Too hard.',
-          scope: 'all',
-          assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+      const warnings: string[] = [];
+      const result = await validate(
+        {
+          'recheck/readability': {
+            severity: 'error',
+            message: 'Too hard.',
+            scope: 'all',
+            assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+          },
         },
-      });
+        { warn: (message) => warnings.push(message) }
+      );
       expect(result.isValid).toBe(true);
       expect(result.rules[0].scope).toBe('summary');
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('metric is always summary-scoped')
+      expect(warnings.some((message) => message.includes('metric is always summary-scoped'))).toBe(
+        true
       );
     });
   });

@@ -1,29 +1,28 @@
 import { red, green, yellow, cyan } from 'colorette';
 
+import type { Logger } from '../../actions/logger.js';
 import type { Problem } from '../../types/index.js';
 import { showDetailedStats } from '../statistics.js';
 
 /**
- * Output problems in table format to console
+ * Output problems in table format through the logger
  */
 export function outputTableFormat(
   problems: Problem[],
   fileCount: number,
-  showStats?: boolean
+  showStats: boolean | undefined,
+  logger: Logger
 ): void {
   if (problems.length === 0) {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(green('\n🎉 No issues found!'));
+    logger.log(green('\n🎉 No issues found!'));
     if (showStats) {
-      // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-      console.log(`\n📊 Summary: ${fileCount} file(s) scanned, 0 issues found.`);
+      logger.log(`\n📊 Summary: ${fileCount} file(s) scanned, 0 issues found.`);
     }
     return;
   }
 
   // Table format
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  console.log(cyan(`\n📋 Found ${problems.length} issue(s):\n`));
+  logger.log(cyan(`\n📋 Found ${problems.length} issue(s):\n`));
 
   for (const problem of problems) {
     const severityColor =
@@ -33,16 +32,14 @@ export function outputTableFormat(
 
     const fixMark = problem.fixable ? green(' [fixable]') : '';
 
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(
+    logger.log(
       `${severityColor(ruleDisplay.padEnd(25))} ${location.padEnd(40)} ${problem.message}${fixMark}`
     );
   }
 
   const fixableCount = problems.filter((problem) => problem.fixable).length;
   if (fixableCount > 0) {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
+    logger.log(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
   }
 
   // Summary
@@ -50,17 +47,13 @@ export function outputTableFormat(
   const warnCount = problems.filter((h) => h.severity === 'warn').length;
   const infoCount = problems.filter((h) => h.severity === 'info').length;
 
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  console.log('');
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  if (errorCount > 0) console.log(red(`   ${errorCount} error(s)`));
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  if (warnCount > 0) console.log(yellow(`   ${warnCount} warning(s)`));
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  if (infoCount > 0) console.log(cyan(`   ${infoCount} info message(s)`));
+  logger.log('');
+  if (errorCount > 0) logger.log(red(`   ${errorCount} error(s)`));
+  if (warnCount > 0) logger.log(yellow(`   ${warnCount} warning(s)`));
+  if (infoCount > 0) logger.log(cyan(`   ${infoCount} info message(s)`));
 
   // Show detailed statistics if requested
   if (showStats) {
-    showDetailedStats(fileCount, problems);
+    showDetailedStats(fileCount, problems, logger);
   }
 }

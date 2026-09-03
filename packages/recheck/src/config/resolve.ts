@@ -63,6 +63,12 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       ],
     };
   }
+  if ('rules' in block && !isPlainObject(block.rules)) {
+    return {
+      success: false,
+      errors: [{ message: '`recheck.rules` must be an object', path: 'recheck.rules' }],
+    };
+  }
   const validation = await validate(toEngineConfig(block, input.extends), {
     configDir: input.configDir,
     warn: input.warn,
@@ -84,7 +90,7 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
           ? undefined
           : path.resolve(input.configDir, validation.baselinePath),
       apiDescriptionRules: isPlainObject(apiDescriptions?.rules)
-        ? (apiDescriptions.rules as Record<string, unknown>)
+        ? apiDescriptions?.rules
         : undefined,
     },
   };

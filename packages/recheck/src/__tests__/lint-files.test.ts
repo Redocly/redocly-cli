@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 
 import { validate } from '../config/validate.js';
 import { lintFiles } from '../index.js';
@@ -193,23 +193,24 @@ describe('lintFiles', () => {
       },
     };
 
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnings: string[] = [];
     try {
-      const { problems } = await lintFiles([goodPath, unreadablePath], config);
+      const { problems } = await lintFiles([goodPath, unreadablePath], config, {
+        warn: (message) => warnings.push(message),
+      });
 
       expect(problems).toHaveLength(1);
       expect(problems[0].file).toBe(goodPath);
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining(`could not read ${unreadablePath}`)
+      expect(warnings.some((message) => message.includes(`could not read ${unreadablePath}`))).toBe(
+        true
       );
     } finally {
-      warnSpy.mockRestore();
       await fs.chmod(unreadablePath, 0o644);
     }
   });
 
   it('reports unreadable files in skippedFiles so callers can detect incomplete coverage', async () => {
-    // The console.warn alone gives a programmatic caller (e.g. a security
+    // The warn callback alone gives a programmatic caller (e.g. a security
     // review consuming lint results) no signal that a file was silently
     // dropped from coverage — the returned skippedFiles list is that signal.
     const goodPath = path.join(tempDir, 'good.md');
@@ -227,7 +228,6 @@ describe('lintFiles', () => {
       },
     };
 
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
       const { skippedFiles } = await lintFiles([goodPath, unreadablePath], config);
 
@@ -235,7 +235,6 @@ describe('lintFiles', () => {
       expect(skippedFiles[0].path).toBe(unreadablePath);
       expect(skippedFiles[0].reason).toMatch(/permission denied|EACCES/i);
     } finally {
-      warnSpy.mockRestore();
       await fs.chmod(unreadablePath, 0o644);
     }
   });
