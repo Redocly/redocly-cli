@@ -25,7 +25,8 @@
       "@redocly/client-generator/contracts/*": ["./packages/client-generator/src/contracts/*.ts"],
       "@redocly/client-generator/runtime-sources": [
         "./packages/client-generator/src/runtime-sources.ts"
-      ]
+      ],
+      "@redocly/recheck": ["./packages/recheck/src/index.ts"]
     },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
