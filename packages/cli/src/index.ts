@@ -38,6 +38,8 @@ import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
+import { type RecheckFormat } from './commands/recheck/args.js';
+import { handleRecheck } from './commands/recheck/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
@@ -371,6 +373,90 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handlePush)(argv);
+    }
+  )
+  .command(
+    'recheck [paths..]',
+    'Lint Markdown prose and structure from the recheck block in redocly.yaml.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_RECHECK')
+        .positional('paths', {
+          array: true,
+          type: 'string',
+          describe: 'Files or directories to lint. Default: the current directory.',
+        })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['table', 'json', 'sarif', 'github-actions'] as ReadonlyArray<RecheckFormat>,
+            default: 'table' as RecheckFormat,
+          },
+          'output-path': {
+            description: 'Write the report to a file instead of stdout.',
+            type: 'string',
+          },
+          severity: {
+            description: 'Minimum severity to run.',
+            choices: ['off', 'info', 'warn', 'warning', 'error'] as ReadonlyArray<
+              'off' | 'info' | 'warn' | 'warning' | 'error'
+            >,
+            type: 'string',
+          },
+          tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
+          rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
+          'exclude-rule': { description: 'Skip these rules.', array: true, type: 'string' },
+          stats: { description: 'Print rule statistics.', alias: 's', type: 'boolean' },
+          fix: { description: 'Apply fixes to Markdown files.', alias: 'f', type: 'boolean' },
+          'annotations-limit': {
+            description: 'Cap the number of annotations reported.',
+            type: 'number',
+          },
+          summary: {
+            description: 'Print a run summary.',
+            choices: ['json', 'text'] as ReadonlyArray<'json' | 'text'>,
+            type: 'string',
+          },
+          'summary-path': { description: 'Write the summary to a file.', type: 'string' },
+          'changed-only': {
+            description: 'Lint only files listed by --changed-list.',
+            type: 'boolean',
+          },
+          'changed-list': {
+            description: 'Path to a file that lists changed files, one per line.',
+            type: 'string',
+          },
+          readability: {
+            description: 'Report readability scores instead of linting.',
+            type: 'boolean',
+          },
+          'generate-baseline': {
+            description: 'Write the baseline file from the current findings.',
+            type: 'boolean',
+          },
+          'generate-markdoc-schema': {
+            description: 'Generate a Markdoc tag schema from theme modules.',
+            type: 'boolean',
+          },
+          from: {
+            description: 'Module paths to read Markdoc tags from (with --generate-markdoc-schema).',
+            array: true,
+            type: 'string',
+          },
+          out: { description: 'Output file for the generated schema.', type: 'string' },
+          check: {
+            description: 'Fail if the generated schema differs from --out.',
+            type: 'boolean',
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleRecheck)(argv);
     }
   )
   .command(

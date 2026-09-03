@@ -19,6 +19,6 @@ export function outputGitHubActionsFormat(problems: Problem[], logger: Logger): 
     // Escape the message for GitHub Actions format
     const escapedMessage = problem.message.replace(/::/g, '%3A%3A').replace(/\n/g, '%0A');
 
-    logger.log(`::${command} ${properties}::${escapedMessage}`);
+    logger.output(`::${command} ${properties}::${escapedMessage}`);
   }
 }

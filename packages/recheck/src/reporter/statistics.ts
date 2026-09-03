@@ -36,14 +36,14 @@ export function getBreakdownStats(problems: Problem[]): RuleBreakdown {
  * Display detailed statistics through the logger
  */
 export function showDetailedStats(fileCount: number, problems: Problem[], logger: Logger): void {
-  logger.log(cyan('\n📊 Summary Statistics:'));
-  logger.log(`   ${fileCount} markdown file(s) scanned`);
-  logger.log(`   ${problems.length} total issue(s) detected`);
+  logger.output(cyan('\n📊 Summary Statistics:'));
+  logger.output(`   ${fileCount} markdown file(s) scanned`);
+  logger.output(`   ${problems.length} total issue(s) detected`);
 
   const breakdown = getBreakdownStats(problems);
 
   if (Object.keys(breakdown).length > 0) {
-    logger.log('\n   Breakdown by rule:');
+    logger.output('\n   Breakdown by rule:');
 
     // Sort rules by total count (descending)
     const sortedRules = Object.entries(breakdown).sort(([, a], [, b]) => b.total - a.total);
@@ -58,7 +58,7 @@ export function showDetailedStats(fileCount: number, problems: Problem[], logger
 
       const statsText = parts.length > 0 ? ` (${parts.join(', ')})` : '';
       const displayName = ruleName.replace('recheck/', '');
-      logger.log(`   ${displayName}: ${stats.total}${statsText}`);
+      logger.output(`   ${displayName}: ${stats.total}${statsText}`);
     }
   }
 }

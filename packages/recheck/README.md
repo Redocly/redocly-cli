@@ -3,8 +3,6 @@
 The Markdown and prose linting engine behind `redocly recheck`.
 
 Use it through Redocly CLI.
-The `redocly recheck` command ships in a later release.
-Until then this package exposes the engine API only.
 Configure it in the `recheck` block of `redocly.yaml`, and name presets in the root `extends`:
 
 ```yaml
@@ -17,8 +15,8 @@ recheck:
   baseline: ./recheck-baseline.yaml
 ```
 
-When the command ships, run `npx @redocly/cli recheck`.
-Its documentation then lives at https://redocly.com/docs/cli/commands/recheck.
+Run it with `npx @redocly/cli recheck`.
+Its documentation lives at https://redocly.com/docs/cli/commands/recheck.
 
 ## Programmatic use
 
@@ -27,7 +25,7 @@ The package exports the engine for tools that embed it:
 - `resolveRecheckConfig` turns a `recheck` block and a list of preset names into normalized rules.
 - `lintFiles` and `lintContent` run those rules over files or strings.
 - `runLint`, `generateBaseline`, `runReadability`, and `generateMarkdocSchema` are the actions the CLI command calls.
-  Each takes a `Logger`.
+  Each takes a `Logger` with four channels: `log`, `warn`, and `error` carry progress and diagnostics, and `output` carries report payloads.
   `runLint`, `generateBaseline`, and `runReadability` accept one path or a list of paths.
 - `parseMarkdown`, `extractScopes`, and `applyFixesToContent` expose the parser, the scope extractor, and the fixer.
 

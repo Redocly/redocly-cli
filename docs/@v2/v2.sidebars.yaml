@@ -14,6 +14,8 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: recheck
+          page: commands/recheck.md
         - label: drift
           page: commands/drift.md
         - label: eject
@@ -227,6 +229,7 @@
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md
             - page: configuration/reference/preprocessors.md
+            - page: configuration/reference/recheck.md
             - page: configuration/reference/resolve.md
             - page: configuration/reference/rules.md
     - group: Custom plugins

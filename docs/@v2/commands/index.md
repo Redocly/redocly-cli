@@ -25,6 +25,7 @@ Linting commands:
 
 - [`lint`](lint.md) Lint an API description.
 - [`check-config`](check-config.md) Lint the Redocly configuration file.
+- [`recheck`](recheck.md) Lint Markdown prose and structure from the `recheck` block.
 
 Testing commands:
 

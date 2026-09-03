@@ -5,7 +5,7 @@ import { isTruthy } from '../utils/is-truthy.js';
 import { type UserContext } from '../walk.js';
 import { resolvePreset } from './config-resolvers.js';
 import { type Plugin, type RawGovernanceConfig } from './types.js';
-import { mergeExtends } from './utils.js';
+import { isRecheckPreset, mergeExtends } from './utils.js';
 
 export function bundleExtends({
   node,
@@ -22,6 +22,7 @@ export function bundleExtends({
 
   const resolvedExtends = (node.extends || [])
     .filter(isTruthy)
+    .filter((presetItem: string) => !isRecheckPreset(presetItem))
     .map((presetItem: string) => {
       if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem)) {
         return resolvePreset(presetItem, plugins);

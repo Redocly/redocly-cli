@@ -1,0 +1,66 @@
+{
+  "summary": {
+    "filesScanned": 1,
+    "totalIssues": 3,
+    "breakdown": {
+      "recheck/blanks-around-headings": {
+        "errors": 2,
+        "warnings": 0,
+        "info": 0,
+        "total": 2
+      },
+      "recheck/single-h1": {
+        "errors": 1,
+        "warnings": 0,
+        "info": 0,
+        "total": 1
+      }
+    }
+  },
+  "issues": [
+    {
+      "file": "docs/index.md",
+      "line": 1,
+      "column": 1,
+      "text": "# Museum API guide",
+      "match": "# Museum API guide",
+      "ruleName": "recheck/blanks-around-headings",
+      "severity": "error",
+      "message": "Headings should be surrounded by blank lines (Expected: 1; Actual: 0; Below)",
+      "fixable": true
+    },
+    {
+      "file": "docs/index.md",
+      "line": 2,
+      "column": 1,
+      "text": "# Second title",
+      "match": "# Second title",
+      "ruleName": "recheck/blanks-around-headings",
+      "severity": "error",
+      "message": "Headings should be surrounded by blank lines (Expected: 1; Actual: 0; Above)",
+      "fixable": true
+    },
+    {
+      "file": "docs/index.md",
+      "line": 2,
+      "column": 1,
+      "text": "# Second title",
+      "match": "Second title",
+      "ruleName": "recheck/single-h1",
+      "severity": "error",
+      "message": "Multiple top-level headings in the same document",
+      "fixable": false
+    }
+  ]
+}
+
+🏃 Running recheck on: docs
+   Disabled 1 rule(s) (severity: off)
+
+🔧 Running 52 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 3
+
+❌ Found 3 error(s). Exiting with code 1.
+   Completed in <time>
