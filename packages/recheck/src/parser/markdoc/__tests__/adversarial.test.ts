@@ -11,7 +11,7 @@ const ABSOLUTE_CEILING_MS = 2000;
 
 // Wall-clock assertions measure the machine as much as the code. The PR
 // pipeline runs 12 test processes on 8 cores, where these ceilings fail on
-// runner load alone. They run on every local `pnpm test` and, uncontended,
+// runner load alone. They run on every local test run and, uncontended,
 // in the nightly recheck-perf workflow (RECHECK_PERF=1).
 const SKIP_TIMING_IN_CI = Boolean(process.env.CI) && !process.env.RECHECK_PERF;
 

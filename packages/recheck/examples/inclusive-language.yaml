@@ -14,7 +14,7 @@
 #             verification reports; see PROVENANCE.md)
 # Provenance: packages/recheck/presets/inclusive-language/PROVENANCE.md
 #
-# Generated file — do not hand-edit. Regenerate with `pnpm examples:generate`
+# Generated file — do not hand-edit. Regenerate with `node scripts/generate-examples.mjs`
 # after changing src/config/presets/inclusive-language.ts or this file's
 # appendix (examples/appendices/inclusive-language.appendix.yaml).
 
@@ -96,11 +96,11 @@ extends:
 # Full expansion (reference)
 # ------------------------------------------------------------------------------
 # This is what `extends: [recheck/inclusive-language]` resolves to today: all 11 rules,
-# alphabetized by rule id, generated straight from the live preset (`pnpm
-# examples:generate`). You do not need to copy any of it — the extends
-# block above already gives you all of this. Read it to see exactly what
-# you are adopting, or as a starting point if you would rather pin or fork
-# specific rules into your own config instead of extending the preset.
+# alphabetized by rule id, generated straight from the live preset (`node
+# scripts/generate-examples.mjs`). You do not need to copy any of it — the
+# extends block above already gives you all of this. Read it to see exactly
+# what you are adopting, or as a starting point if you would rather pin or
+# fork specific rules into your own config instead of extending the preset.
 #
 # `fix: false` on every rule below means what it says: detection-only, no
 # exceptions — see "How to tune it" above and PROVENANCE.md for why.
@@ -245,7 +245,7 @@ inclusive-language/suffering-victim:
 # Appendix — candidates NOT shipped by recheck/inclusive-language (hand-maintained)
 # ==============================================================================
 # This file is appended verbatim to the generated example above by
-# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# `node scripts/generate-examples.mjs`. Editing it
 # makes examples/inclusive-language.yaml stale until you regenerate — the
 # drift test's failure message says so, so this doesn't read as a generator bug.
 #

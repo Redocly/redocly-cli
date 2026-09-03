@@ -2,7 +2,7 @@
 # Appendix — candidates NOT shipped by recheck/microsoft (hand-maintained)
 # ==============================================================================
 # This file is appended verbatim to the generated example above by
-# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# `node scripts/generate-examples.mjs`. Editing it
 # makes examples/microsoft.yaml stale until you regenerate — the drift
 # test's failure message says so, so this doesn't read as a generator bug.
 #

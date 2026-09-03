@@ -2,7 +2,7 @@
 # Appendix — candidates NOT shipped by recheck/technical-english (hand-maintained)
 # ==============================================================================
 # This file is appended verbatim to the generated example above by
-# `pnpm examples:generate` (see scripts/generate-examples.mjs).
+# `node scripts/generate-examples.mjs`.
 #
 # Full detail and reasons: packages/recheck/presets/technical-english/PROVENANCE.md
 #

@@ -1,12 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-// Regression for FIX 2: `RecheckConfig` and `ValidationError` are both used
-// in public signatures (lintContent/lintFiles take a RecheckConfig;
-// LoadResult contains ValidationError[]) but were previously only
-// re-exported from the internal `../types/index.js` barrel, not from the
-// package root `../index.js` itself — a consumer importing only the public
-// entry point (as `@redocly/recheck` resolves) had no way to name these
-// types. This import must resolve from `../index.js` alone.
+// `RecheckConfig` and `ValidationError` appear in public signatures, so a
+// consumer must be able to name both from the package root `../index.js`
+// alone, without reaching into the internal `../types/index.js` barrel.
 import {
   lintContent,
   parseMarkdown,
@@ -26,10 +22,9 @@ const config: RecheckConfig = {
 
 describe('public API', () => {
   it('exposes ValidationError as a usable type from the package root', () => {
-    // Type-level-only assertion: this must compile. ValidationError is what
-    // LoadResult.errors is typed as (see config/load.ts), so a consumer
-    // handling loadConfig() failures needs to be able to name this type
-    // without reaching into ../types/index.js directly.
+    // Type-level-only assertion: this must compile. A failed
+    // `resolveRecheckConfig` call reports `ValidationError[]`, so a consumer
+    // handling that failure must be able to name the type.
     const error: ValidationError = {
       message: 'Unknown assertion type "foo"',
       path: 'rule.assertions.foo',

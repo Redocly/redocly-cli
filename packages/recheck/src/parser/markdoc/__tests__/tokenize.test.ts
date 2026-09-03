@@ -433,7 +433,7 @@ describe('adversarial performance: thousands of unterminated `{%` stay linear', 
 
   // Even the min-of-runs estimator fails on runner load in the contended PR
   // pipeline (12 test processes on 8 cores). The ratio tests run on every
-  // local `pnpm test` and, uncontended, in the nightly recheck-perf
+  // local test run and, uncontended, in the nightly recheck-perf
   // workflow (RECHECK_PERF=1). The call-stack test below stays gating: it
   // asserts behavior, not time.
   const skipTimingInCI = Boolean(process.env.CI) && !process.env.RECHECK_PERF;
