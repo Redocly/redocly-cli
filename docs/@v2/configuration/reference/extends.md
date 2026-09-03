@@ -9,7 +9,7 @@ Multiple values are supported, and can include:
 - configuration defined in a [custom plugin](../../custom-plugins/index.md)
 - a path or URL to another `redocly.yaml` file
 
-Entries that start with `recheck/` name presets for the `recheck` prose linter.
+Entries that start with `recheck/` name presets for the [`recheck`](recheck.md) prose linter.
 The `lint` command ignores them, and `redocly recheck` composes them.
 
 Extends is useful if you use a common ruleset across multiple projects.

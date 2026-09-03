@@ -42,6 +42,8 @@
           page: commands/push.md
         - label: push-status
           page: commands/push-status.md
+        - label: recheck
+          page: commands/recheck.md
         - label: respect
           page: commands/respect.md
         - label: score
@@ -227,6 +229,7 @@
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md
             - page: configuration/reference/preprocessors.md
+            - page: configuration/reference/recheck.md
             - page: configuration/reference/resolve.md
             - page: configuration/reference/rules.md
     - group: Custom plugins
