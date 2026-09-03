@@ -38,6 +38,7 @@ This clearly is not optimal. Having unique component names prevents these proble
 | parameters    | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
 | responses     | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
 | requestBodies | string | Possible values: `off`, `warn`, `error`. Default: not set.                               |
+| strategy      | string | Possible values: `basename`, `title`. Default: `basename`.                               |
 
 An example configuration:
 
@@ -48,7 +49,25 @@ rules:
     parameters: off
     responses: warn
     requestBodies: warn
+    strategy: basename
 ```
+
+### Component names strategy
+
+The rule predicts the component names that `bundle` produces, so `strategy` must match the
+[`--component-names-strategy`](../../commands/bundle.md#configure-the-component-names-strategy) option you bundle with.
+
+With the default `basename`, a schema pulled in from another file is named after the `$ref` fragment or the file name.
+Two files both called `Order.yaml` therefore collide, and the rule reports them.
+
+With `title`, the same schemas are named after their `title` field instead.
+Two files called `Order.yaml` with the titles `Order model` and `Order request` become `OrderModel` and `OrderRequest`, so the rule no longer reports them.
+Two schemas in differently named files that share a title do collide, and the rule reports those instead.
+
+The `title` strategy applies to every schema that `bundle` renames, which is every schema reached by a `$ref` that crosses a file boundary.
+A referenced schema that has no `title` can't be named under this strategy, and `bundle` fails without producing a file.
+The rule reports those schemas so you find them before bundling.
+For the uniqueness check itself, such a schema still falls back to its file name, so a name collision is reported as well.
 
 ## Examples
 
