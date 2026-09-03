@@ -1,8 +1,8 @@
 import { logger, type Config } from '@redocly/openapi-core';
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { handleRecheck } from '../index.js';
 
@@ -13,8 +13,11 @@ function fakeConfig(recheck: unknown, recheckExtends: string[] | undefined, dir:
   } as unknown as Config;
 }
 
+const createdDirs: string[] = [];
+
 function fixture(): string {
   const dir = mkdtempSync(join(tmpdir(), 'recheck-cmd-'));
+  createdDirs.push(dir);
   mkdirSync(join(dir, 'docs'));
   writeFileSync(join(dir, 'docs', 'clean.md'), '# Title\n\nOne sentence.\n');
   return dir;
@@ -33,6 +36,12 @@ describe('handleRecheck', () => {
     process.exitCode = undefined;
   });
 
+  afterEach(() => {
+    for (const dir of createdDirs.splice(0)) {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   it('lints markdown from the recheck block and presets, table on stdout', async () => {
     const dir = fixture();
     await handleRecheck({
@@ -48,6 +57,15 @@ describe('handleRecheck', () => {
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'table' },
       config: fakeConfig(undefined, undefined, dir),
+    } as never);
+    expect(err.join('')).toContain('No recheck configuration found; using recheck/markdown.');
+  });
+
+  it('falls back to recheck/markdown with a notice when the block is null', async () => {
+    const dir = fixture();
+    await handleRecheck({
+      argv: { paths: [join(dir, 'docs')], format: 'table' },
+      config: fakeConfig(null, undefined, dir),
     } as never);
     expect(err.join('')).toContain('No recheck configuration found; using recheck/markdown.');
   });
@@ -137,5 +155,18 @@ describe('handleRecheck', () => {
     } as never);
     expect(() => JSON.parse(out.join(''))).not.toThrow();
     expect(err.join('')).toContain('Running recheck on');
+  });
+
+  it('warns and skips the file when --output-path is used with a non-json, non-sarif format', async () => {
+    const dir = fixture();
+    const outputPath = join(dir, 'report.txt');
+    await handleRecheck({
+      argv: { paths: [join(dir, 'docs')], format: 'table', 'output-path': outputPath },
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+    } as never);
+    expect(err.join('')).toContain(
+      '--output-path applies to --format json and sarif; the report goes to stdout.'
+    );
+    expect(existsSync(outputPath)).toBe(false);
   });
 });
