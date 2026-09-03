@@ -53,8 +53,8 @@ describe('runReadability', () => {
     expect(exitCode).toBe(0);
     expect(logger.lines.some((line) => line.includes('Scoring 2 markdown file(s)'))).toBe(true);
     // One table, not one per root: a single header line with both files under it.
-    expect(logger.lines.filter((line) => line.includes('FRE     Grade'))).toHaveLength(1);
-    const table = logger.lines.join('\n');
+    expect(logger.outputs.filter((line) => line.includes('FRE     Grade'))).toHaveLength(1);
+    const table = logger.outputs.join('\n');
     expect(table).toContain('guide.md');
     expect(table).toContain('api.md');
   });
