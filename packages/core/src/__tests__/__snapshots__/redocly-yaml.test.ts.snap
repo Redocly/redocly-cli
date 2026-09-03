@@ -637,6 +637,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "preprocessors": "Preprocessors",
       "products": "rootRedoclyConfigSchema.products",
       "rbac": "rootRedoclyConfigSchema.rbac",
+      "recheck": "rootRedoclyConfigSchema.recheck",
       "redirects": "Redirects",
       "removeAttribution": {
         "type": "boolean",
@@ -2096,6 +2097,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "products": "rootRedoclyConfigSchema.products",
       "rbac": "rootRedoclyConfigSchema.rbac",
+      "recheck": "rootRedoclyConfigSchema.recheck",
       "redirects": "Redirects",
       "removeAttribution": {
         "type": "boolean",
@@ -10607,6 +10609,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "products": "rootRedoclyConfigSchema.env_additionalProperties.products",
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.rbac",
+      "recheck": "rootRedoclyConfigSchema.env_additionalProperties.recheck",
       "redirects": "Redirects",
       "removeAttribution": {
         "type": "boolean",
@@ -23462,6 +23465,294 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiDescriptions": "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions",
+      "baseline": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "excludes": {
+        "items": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "markdoc": [Function],
+      "rules": "rootRedoclyConfigSchema.env_additionalProperties.recheck.rules",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "rules": "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions.rules",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions.rules": {
+    "additionalProperties": [Function],
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions.rules_additionalProperties_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "appliesTo": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "assertions": {
+        "type": "object",
+      },
+      "description": {
+        "type": "string",
+      },
+      "exceptions": "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions.rules_additionalProperties_1.exceptions",
+      "excludes": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "fix": {
+        "type": "boolean",
+      },
+      "link": {
+        "type": "string",
+      },
+      "message": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "scope": [Function],
+      "severity": {
+        "enum": [
+          "off",
+          "info",
+          "warn",
+          "error",
+        ],
+        "type": "string",
+      },
+      "tags": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions.rules_additionalProperties_1.exceptions": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "files": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "lines": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "extend": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend",
+      "schema": [Function],
+    },
+    "required": [
+      "schema",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "tags": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags",
+      "tagsFile": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "attributes": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags_additionalProperties.attributes",
+      "selfClosing": {
+        "type": "boolean",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags_additionalProperties.attributes": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags_additionalProperties.attributes_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags_additionalProperties.attributes_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "default": [Function],
+      "dynamic": {
+        "type": "boolean",
+      },
+      "enum": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "required": {
+        "type": "boolean",
+      },
+      "type": {
+        "enum": [
+          "string",
+          "number",
+          "boolean",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "type",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.rules": {
+    "additionalProperties": [Function],
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.rules_additionalProperties_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "appliesTo": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "assertions": {
+        "type": "object",
+      },
+      "description": {
+        "type": "string",
+      },
+      "exceptions": "rootRedoclyConfigSchema.env_additionalProperties.recheck.rules_additionalProperties_1.exceptions",
+      "excludes": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "fix": {
+        "type": "boolean",
+      },
+      "link": {
+        "type": "string",
+      },
+      "message": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "scope": [Function],
+      "severity": {
+        "enum": [
+          "off",
+          "info",
+          "warn",
+          "error",
+        ],
+        "type": "string",
+      },
+      "tags": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.recheck.rules_additionalProperties_1.exceptions": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "files": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "lines": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.responseHeaders": {
@@ -37143,6 +37434,294 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiDescriptions": "rootRedoclyConfigSchema.recheck.apiDescriptions",
+      "baseline": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "excludes": {
+        "items": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "markdoc": [Function],
+      "rules": "rootRedoclyConfigSchema.recheck.rules",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.apiDescriptions": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "rules": "rootRedoclyConfigSchema.recheck.apiDescriptions.rules",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.apiDescriptions.rules": {
+    "additionalProperties": [Function],
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.apiDescriptions.rules_additionalProperties_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "appliesTo": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "assertions": {
+        "type": "object",
+      },
+      "description": {
+        "type": "string",
+      },
+      "exceptions": "rootRedoclyConfigSchema.recheck.apiDescriptions.rules_additionalProperties_1.exceptions",
+      "excludes": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "fix": {
+        "type": "boolean",
+      },
+      "link": {
+        "type": "string",
+      },
+      "message": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "scope": [Function],
+      "severity": {
+        "enum": [
+          "off",
+          "info",
+          "warn",
+          "error",
+        ],
+        "type": "string",
+      },
+      "tags": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.apiDescriptions.rules_additionalProperties_1.exceptions": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "files": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "lines": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.markdoc_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "extend": "rootRedoclyConfigSchema.recheck.markdoc_1.extend",
+      "schema": [Function],
+    },
+    "required": [
+      "schema",
+    ],
+  },
+  "rootRedoclyConfigSchema.recheck.markdoc_1.extend": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "tags": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags",
+      "tagsFile": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags": {
+    "additionalProperties": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "attributes": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags_additionalProperties.attributes",
+      "selfClosing": {
+        "type": "boolean",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags_additionalProperties.attributes": {
+    "additionalProperties": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags_additionalProperties.attributes_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags_additionalProperties.attributes_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "default": [Function],
+      "dynamic": {
+        "type": "boolean",
+      },
+      "enum": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "required": {
+        "type": "boolean",
+      },
+      "type": {
+        "enum": [
+          "string",
+          "number",
+          "boolean",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "type",
+    ],
+  },
+  "rootRedoclyConfigSchema.recheck.rules": {
+    "additionalProperties": [Function],
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.rules_additionalProperties_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "appliesTo": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "assertions": {
+        "type": "object",
+      },
+      "description": {
+        "type": "string",
+      },
+      "exceptions": "rootRedoclyConfigSchema.recheck.rules_additionalProperties_1.exceptions",
+      "excludes": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "fix": {
+        "type": "boolean",
+      },
+      "link": {
+        "type": "string",
+      },
+      "message": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "scope": [Function],
+      "severity": {
+        "enum": [
+          "off",
+          "info",
+          "warn",
+          "error",
+        ],
+        "type": "string",
+      },
+      "tags": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.recheck.rules_additionalProperties_1.exceptions": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "files": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "lines": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.responseHeaders": {
