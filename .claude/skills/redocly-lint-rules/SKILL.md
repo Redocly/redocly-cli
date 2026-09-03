@@ -1,6 +1,6 @@
 ---
 name: redocly-lint-rules
-description: Implement a Redocly CLI lint rule from a description of what to check in an OpenAPI, AsyncAPI, or Arazzo document. Use when the user wants a convention enforced or a lint/validation rule for an API description, or migrates rules from another linter (such as Spectral) to Redocly.
+description: Implement a Redocly CLI lint rule in a user's redocly.yaml or custom plugin for an OpenAPI, AsyncAPI, or Arazzo description. Use when the user wants a convention enforced, asks for a configurable rule or a plugin rule, debugs a rule that never reports or gives false positives, or migrates rules from another linter such as Spectral.
 ---
 
 # Implementing a Redocly CLI lint rule
@@ -439,7 +439,7 @@ message: 'Schemas with type: array must define items.'
 
 Docs: [custom rules](https://redocly.com/docs/cli/custom-plugins/custom-rules).
 Worked examples: [cookbook/custom-plugin-rules](https://github.com/Redocly/redocly-cli/tree/main/cookbook/custom-plugin-rules).
-The full visitor guide is at https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/.claude/skills/rules-system/SKILL.md.
+The full visitor guide is at https://raw.githubusercontent.com/Redocly/redocly-cli/refs/heads/main/.claude/rules/walker-visitors-nodes.md.
 
 A plugin is a module. Its default export is a **function** that returns the plugin object:
 
