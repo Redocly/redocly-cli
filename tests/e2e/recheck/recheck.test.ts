@@ -31,4 +31,16 @@ describe('recheck', () => {
       join(testPath, 'snapshot.txt')
     );
   });
+
+  test('format-sarif keeps stdout machine-readable', async () => {
+    const testPath = join(__dirname, 'format-sarif');
+    const args = getParams(indexEntryPoint, ['recheck', 'docs', '--format=sarif']);
+    const result = getCommandOutput(args, { testPath });
+    const [stdout] = result.split('\n\n');
+    expect(() => JSON.parse(stdout)).not.toThrow();
+    expect(JSON.parse(stdout)).toHaveProperty('version', '2.1.0');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
 });

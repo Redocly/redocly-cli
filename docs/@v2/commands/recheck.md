@@ -8,7 +8,8 @@ Name presets in the root `extends`, for example `recheck/markdown`.
 Without a `recheck` block or a `recheck/*` preset, the command falls back to `recheck/markdown`.
 
 Progress messages go to stderr.
-The report goes to stdout, or to the file you name with `--output-path`.
+The report goes to stdout.
+For `--format json` and `sarif`, use `--output-path` to write the report to a file instead.
 
 A later release adds linting for API descriptions.
 This release skips them and prints a notice for each skipped file.
@@ -26,8 +27,9 @@ redocly recheck --help
 ```
 
 {% admonition type="info" name="One action per run" %}
-Pick one of `--fix`, `--readability`, `--generate-baseline`, or `--generate-markdoc-schema`.
-The command rejects a run that combines them.
+The actions are `--readability`, `--generate-baseline`, and `--generate-markdoc-schema`.
+Pick at most one action per run.
+`--fix` applies to the default lint action only.
 {% /admonition %}
 
 ## Options
@@ -49,7 +51,7 @@ The command rejects a run that combines them.
 | --help                    | boolean  | Show help.                                                                                                                        |
 | --lint-config             | string   | Specify the severity level for the configuration file.<br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
 | --out                     | string   | Output file for the generated schema.                                                                                             |
-| --output-path             | string   | Write the report to a file instead of stdout.                                                                                     |
+| --output-path             | string   | Write the report to a file instead of stdout. Applies to `--format json` and `sarif` only.                                        |
 | --readability             | boolean  | Report readability scores instead of linting.                                                                                     |
 | --rule                    | [string] | Run only these rules. Alias: `-r`.                                                                                                |
 | --severity                | string   | Minimum severity to run.<br />**Possible values:** `off`, `info`, `warn`, `warning`, `error`.                                     |
