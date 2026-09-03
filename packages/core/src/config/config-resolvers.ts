@@ -39,6 +39,7 @@ import {
   deepCloneMapWithJSON,
   isCommonJsPlugin,
   isDeprecatedPluginFormat,
+  isRecheckPreset,
   mergeExtends,
   parsePresetName,
   prefixRules,
@@ -115,12 +116,20 @@ export async function resolveConfig({
     resolvedPlugins = [...plugins, defaultPlugin];
   }
 
+  // Read before bundling: the bundler deletes `extends` from the root node in place.
+  const rootExtends = isPlainObject<RawUniversalConfig>(config) ? (config.extends ?? []) : [];
+  const recheckExtends = rootExtends.filter(isString).filter(isRecheckPreset);
+
   const bundledConfig = bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
     resolvedPlugins,
     skipPluginEval
   );
+
+  if (recheckExtends.length > 0) {
+    bundledConfig.recheckExtends = recheckExtends;
+  }
 
   // The apis merge relies on `extends` being resolved, which requires evaluated plugins.
   if (bundledConfig.apis && !skipPluginEval) {

@@ -12,6 +12,11 @@ import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.j
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
+// `recheck/*` presets belong to the prose engine, not to API rule plugins.
+export function isRecheckPreset(name: string): boolean {
+  return name.startsWith('recheck/');
+}
+
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
     const [pluginId, configName] = presetName.split('/');
