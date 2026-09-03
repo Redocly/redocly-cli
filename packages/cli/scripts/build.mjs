@@ -17,6 +17,8 @@ const result = await build({
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
+  // The engine imports these spell-check packages dynamically; a user installs them on demand.
+  external: ['nspell', 'dictionary-en'],
   minify: true,
   keepNames: false,
   metafile: true,
