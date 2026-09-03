@@ -35,14 +35,13 @@ describe('recheck namespace in extends', () => {
 
   it('carries the raw recheck block through', async () => {
     const config = await load(withRecheck);
-    expect((config.resolvedConfig as Record<string, unknown>).recheck).toEqual({
+    expect(config.resolvedConfig.recheck).toEqual({
       rules: { 'recheck/line-length': 'off' },
       baseline: './recheck-baseline.yaml',
     });
   });
 
-  // Needs the @redocly/config release that carries the recheck root key.
-  it.skip('check-config accepts the block and rejects extends inside it', async () => {
+  it('check-config accepts the block and rejects extends inside it', async () => {
     const accepted = await load(withRecheck);
     const okProblems = await lintConfig({ config: accepted });
     expect(okProblems).toEqual([]);

@@ -66,8 +66,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     return;
   }
 
-  // Typed once the @redocly/config pin carries the recheck root key.
-  const block = (config.resolvedConfig as { recheck?: unknown }).recheck;
+  const block = config.resolvedConfig.recheck;
   let presets = config.resolvedConfig.recheckExtends ?? [];
   if (block == null && presets.length === 0) {
     engineLogger.log(`No recheck configuration found; using ${DEFAULT_PRESET}.`);
