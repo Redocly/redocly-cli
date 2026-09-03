@@ -236,7 +236,9 @@ Token rules are markdownlint-style structural rules (headings, lists, links, tab
    // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
    ```
 
-   Note any additive Recheck-only options or intentional behavior differences from upstream in a doc comment near the option/behavior in question (see `no-duplicate-heading.ts`'s `respectSections`/`caseSensitive`/`ignoreCommonHeadings` for an example) — this is what the `README.md` "Migrating from markdownlint" section and this repo's differential parity harness (the parity harness (archived in the Redocly monorepo)) both rely on staying accurate.
+   Note any additive Recheck-only options or intentional behavior differences from upstream in a doc comment near the option in question.
+   See `no-duplicate-heading.ts` and its `respectSections`, `caseSensitive`, and `ignoreCommonHeadings` options for an example.
+   The `README.md` section on migrating from markdownlint and the parity harness (archived in the Redocly monorepo) rely on those notes staying accurate.
 
 ## Checklist before opening a PR
 
