@@ -17,3 +17,10 @@ paths:
       responses:
         '200':
           description: ok
+  /baz:
+    get:
+      parameters:
+        - $ref: 'parameters/query.yaml#/offset'
+      responses:
+        '200':
+          description: ok

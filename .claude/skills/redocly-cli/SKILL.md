@@ -25,22 +25,28 @@ Point at a different config with `--config <path>`.
 
 Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`.
 
-| Command                                     | Purpose                                                             |
-| ------------------------------------------- | ------------------------------------------------------------------- |
-| `lint`                                      | Validate an API description against the configured rules            |
-| `check-config`                              | Lint `redocly.yaml` itself                                          |
-| `bundle`                                    | Resolve all `$ref`s into a single self-contained file               |
-| `split`                                     | Break a single-file description into a multi-file structure         |
-| `join`                                      | Merge several API descriptions into one                             |
-| `stats`                                     | Count operations, schemas, refs, and other metrics                  |
-| `node-type`                                 | Show the node type at a pointer, or list every node with its type   |
-| `score`                                     | Score an OpenAPI description for AI-agent readiness                 |
-| `build-docs`                                | Render an API description to a zero-dependency HTML page (Redoc)    |
-| `preview`                                   | Local preview of a Redocly project                                  |
-| `respect`                                   | Run API tests described in an Arazzo description against a live API |
-| `generate-arazzo`                           | Scaffold an Arazzo description from an OpenAPI description          |
-| `generate-client`                           | Generate a typed, zero-dependency TypeScript client [experimental]  |
-| `login` / `logout` / `push` / `push-status` | Authenticate and push to the Redocly platform (Reunite)             |
+| Command           | Purpose                                                                               | Group                 |
+| ----------------- | ------------------------------------------------------------------------------------- | --------------------- |
+| `lint`            | Validate an API description against the configured rules                              | API authoring         |
+| `split`           | Break a single-file description into a multi-file structure                           | API authoring         |
+| `build-docs`      | Render an API description to a zero-dependency HTML page (Redoc)                      | Docs rendering        |
+| `preview`         | Local preview of a Redocly project (Realm, Reef, Revel)                               | Docs rendering        |
+| `bundle`          | Resolve all `$ref`s into a single self-contained file and apply decorators            | CI and delivery       |
+| `join`            | Merge several API descriptions into one [experimental]                                | CI and delivery       |
+| `respect`         | Run API tests described in an Arazzo description against a live API                   | API testing and drift |
+| `generate-arazzo` | Scaffold an Arazzo description from an OpenAPI description                            | API testing and drift |
+| `proxy`           | Capture live HTTP traffic into a HAR file, with optional validation [experimental]    | API testing and drift |
+| `drift`           | Report differences between recorded traffic and an OpenAPI description [experimental] | API testing and drift |
+| `generate-spec`   | Infer an OpenAPI description from recorded traffic [experimental]                     | API testing and drift |
+| `stats`           | Count operations, schemas, refs, and other metrics                                    | Quality reports       |
+| `score`           | Score an OpenAPI description for AI-agent readiness [experimental]                    | Quality reports       |
+| `generate-client` | Generate a typed, zero-dependency TypeScript client [experimental]                    | SDK generation        |
+| `eject-generator` | Copy a built-in generator into the repo to edit it [experimental]                     | SDK generation        |
+| `check-config`    | Lint `redocly.yaml` itself                                                            | Redocly configuration |
+| `node-type`       | Show the node type at a pointer, or list every node with its type                     | Redocly configuration |
+| `push`            | Push an API description to Reunite                                                    | Reunite platform      |
+| `push-status`     | Track an in-progress push to Reunite                                                  | Reunite platform      |
+| `completion`      | Generate shell autocomplete commands                                                  | Shell setup           |
 
 Exit codes: `0` success, `1` problems found or execution failed, `2` configuration error.
 

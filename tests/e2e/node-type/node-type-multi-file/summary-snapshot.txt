@@ -1,11 +1,11 @@
 Info           1
-Operation      2
-Parameter      3
-ParameterList  2
-PathItem       2
+Operation      3
+Parameter      2
+ParameterList  3
+PathItem       3
 Paths          1
-Response       2
-Responses      2
+Response       3
+Responses      3
 Root           1
-Schema         1
+Schema         2
 
