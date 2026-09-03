@@ -82,6 +82,19 @@ describe('resolveRecheckConfig', () => {
     expect(result.errors[0].message).toContain('root `extends`');
   });
 
+  it('rejects a non-object `rules` block instead of silently ignoring it', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { rules: 'typo' },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      { message: '`recheck.rules` must be an object', path: 'recheck.rules' },
+    ]);
+  });
+
   it('surfaces engine validation errors', async () => {
     const result = await resolveRecheckConfig({
       block: {
@@ -102,12 +115,19 @@ describe('resolveRecheckConfig', () => {
 
   it('forwards engine warnings to the warn callback', async () => {
     const warnings: string[] = [];
+    // Extending `recheck/markdoc` without turning `markdoc` parsing on is a
+    // real validate() warning (see validate.ts's warnStaleMarkdocPreset) —
+    // this input reliably produces one to forward.
     const result = await resolveRecheckConfig({
-      extends: ['recheck/markdown'],
+      extends: ['recheck/markdoc'],
       configDir,
       warn: (message) => warnings.push(message),
     });
     expect(result.success).toBe(true);
-    expect(Array.isArray(warnings)).toBe(true);
+    expect(
+      warnings.some((message) =>
+        message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
+      )
+    ).toBe(true);
   });
 });

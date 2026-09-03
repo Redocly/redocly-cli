@@ -44,9 +44,22 @@ export type { TextStatistics, ReadabilityFormula } from './metrics/index.js';
 // tooling around the same list, or to diff their project's `vocab`/
 // `exceptions` against what's already covered for free.
 export { TECHNICAL_PROPER_NOUNS } from './data/proper-nouns.js';
+export { runLint } from './actions/lint.js';
+export type { LintOptions } from './actions/lint.js';
+export { generateBaseline } from './actions/baseline.js';
+export { runReadability } from './actions/readability.js';
+export type { ReadabilityOptions } from './actions/readability.js';
+export { generateMarkdocSchema } from './actions/markdoc-schema.js';
+export type { MarkdocSchemaOptions } from './actions/markdoc-schema.js';
+export { silentLogger, collectingLogger } from './actions/logger.js';
+export type { Logger, CollectingLogger } from './actions/logger.js';
 
-async function normalizeConfig(config: RecheckConfig, configDir?: string) {
-  const result = await validate(config, { configDir });
+async function normalizeConfig(
+  config: RecheckConfig,
+  configDir?: string,
+  warn?: (message: string) => void
+) {
+  const result = await validate(config, { configDir, warn });
   if (!result.isValid) {
     const messages = result.errors.map((error) => error.message).join('; ');
     throw new Error(`Invalid recheck configuration: ${messages}`);
@@ -75,15 +88,24 @@ async function normalizeConfig(config: RecheckConfig, configDir?: string) {
  * data themselves. Callers who need those rules to fire must supply the
  * relevant `metadata` up front; `lintFiles` does this automatically since it
  * reads from disk.
+ *
+ * `opts.warn`, when provided, receives config-validation warnings (e.g. a
+ * stale preset `extends`); omitted warnings are dropped, same as `validate()`.
  */
 export async function lintContent(
   content: string,
   config: RecheckConfig,
-  opts?: { filePath?: string; metadata?: FileInput['metadata']; configDir?: string }
+  opts?: {
+    filePath?: string;
+    metadata?: FileInput['metadata'];
+    configDir?: string;
+    warn?: (message: string) => void;
+  }
 ): Promise<Problem[]> {
   const { rules, knownRuleNames, markdoc, markdocSchema } = await normalizeConfig(
     config,
-    opts?.configDir
+    opts?.configDir,
+    opts?.warn
   );
   const { problems } = await runRules(
     [{ path: opts?.filePath ?? 'content.md', content, metadata: opts?.metadata }],
@@ -115,7 +137,7 @@ export interface SkippedFile {
  * file is also reported in the returned `skippedFiles` (path + reason), so
  * callers that must know their coverage was incomplete — a security review
  * consuming lint results, say — get a programmatic signal, not just a
- * console warning. Reads (and any image-metadata loading) run with bounded
+ * warning. Reads (and any image-metadata loading) run with bounded
  * concurrency via `mapLimit`.
  *
  * `opts.root` is the lint root that image-metadata loading is confined to
@@ -129,11 +151,21 @@ export interface SkippedFile {
  * `RunnerOptions.maxProblems`): once a file's lint reaches the cap, later
  * files aren't linted at all and the returned `truncated` flag is true, so
  * memory stays bounded on pathological inputs.
+ *
+ * `opts.warn`, when provided, receives the per-file unreadable-file
+ * diagnostic and (for a `RecheckConfig` `config`) config-validation
+ * warnings; omitted warnings are dropped.
  */
 export async function lintFiles(
   paths: string[],
   config: RecheckConfig | NormalizedRule[],
-  opts?: { fix?: boolean; root?: string; maxProblems?: number; configDir?: string }
+  opts?: {
+    fix?: boolean;
+    root?: string;
+    maxProblems?: number;
+    configDir?: string;
+    warn?: (message: string) => void;
+  }
 ): Promise<{
   problems: Problem[];
   fixedFiles: Map<string, string>;
@@ -152,8 +184,8 @@ export async function lintFiles(
   // disabled for this overload. That is by construction, not an omission: a
   // bare `NormalizedRule[]` has nowhere to carry a `markdoc`/`markdocSchema`
   // pair. A caller that wants Markdoc rules and fix protection should call
-  // `loadConfig()`/`findAndLoadConfig()` and thread the resulting `LoadResult`
-  // through directly, as the CLI's `runCommand` does.
+  // `resolveRecheckConfig()` and thread the resulting `ResolvedRecheckConfig`
+  // through directly, as the `runLint` action does.
   const { rules, knownRuleNames, markdoc, markdocSchema } = Array.isArray(config)
     ? {
         rules: filterEnabledRules(config).enabled,
@@ -161,7 +193,7 @@ export async function lintFiles(
         markdoc: false,
         markdocSchema: null as MarkdocSchema | null,
       }
-    : await normalizeConfig(config, opts?.configDir);
+    : await normalizeConfig(config, opts?.configDir, opts?.warn);
   const loadImageMeta = needsImageMetadata(rules);
 
   const fileResults = await mapLimit(
@@ -173,8 +205,7 @@ export async function lintFiles(
         content = await fs.readFile(filePath, 'utf8');
       } catch (error) {
         const reason = error instanceof Error ? error.message : String(error);
-        // oxlint-disable-next-line eslint/no-console -- immediate diagnostic breadcrumb alongside the returned `skippedFiles` signal; see lint-files.test.ts's dedicated regression test for both.
-        console.warn(`recheck: could not read ${filePath}, skipping (${reason})`);
+        opts?.warn?.(`recheck: could not read ${filePath}, skipping (${reason})`);
         return { skipped: { path: filePath, reason } };
       }
       const metadata = loadImageMeta

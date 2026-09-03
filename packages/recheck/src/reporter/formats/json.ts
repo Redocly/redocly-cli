@@ -1,16 +1,18 @@
 import * as fs from 'fs/promises';
 
+import type { Logger } from '../../actions/logger.js';
 import type { Problem } from '../../types/index.js';
 import { getBreakdownStats } from '../statistics.js';
 
 /**
- * Output problems in JSON format to file or stdout
+ * Output problems in JSON format to file or through the logger
  */
 export async function outputJsonFormat(
   problems: Problem[],
   fileCount: number,
-  outputPath?: string,
-  baseline?: { matched: number; new: number; stale: number }
+  outputPath: string | undefined,
+  baseline: { matched: number; new: number; stale: number } | undefined,
+  logger: Logger
 ): Promise<void> {
   const report = {
     summary: {
@@ -26,10 +28,8 @@ export async function outputJsonFormat(
 
   if (outputPath && outputPath.length > 0) {
     await fs.writeFile(outputPath, content, 'utf8');
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`\n   Wrote JSON report to ${outputPath}`);
+    logger.log(`\n   Wrote JSON report to ${outputPath}`);
   } else {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log('\n' + content);
+    logger.log('\n' + content);
   }
 }

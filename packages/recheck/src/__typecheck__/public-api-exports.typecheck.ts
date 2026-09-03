@@ -10,11 +10,22 @@
 // without reaching into internal `../types/*` barrels.
 import {
   resolveRecheckConfig,
+  runLint,
+  generateBaseline,
+  runReadability,
+  generateMarkdocSchema,
+  silentLogger,
+  collectingLogger,
   type RecheckBlockInput,
   type RecheckConfig,
   type ResolvedRecheckConfig,
   type ResolveResult,
   type ValidationError,
+  type LintOptions,
+  type ReadabilityOptions,
+  type MarkdocSchemaOptions,
+  type Logger,
+  type CollectingLogger,
 } from '../index.js';
 
 export const typedConfig: RecheckConfig = {
@@ -49,3 +60,20 @@ export const typedResolveResult: ResolveResult = {
 };
 
 export const typedResolveRecheckConfig: typeof resolveRecheckConfig = resolveRecheckConfig;
+
+export const typedLogger: Logger = silentLogger;
+export const typedCollectingLogger: CollectingLogger = collectingLogger();
+
+export const typedLintOptions: LintOptions = { format: 'table' };
+export const typedRunLint: typeof runLint = runLint;
+
+export const typedGenerateBaseline: typeof generateBaseline = generateBaseline;
+
+export const typedReadabilityOptions: ReadabilityOptions = { format: 'table' };
+export const typedRunReadability: typeof runReadability = runReadability;
+
+export const typedMarkdocSchemaOptions: MarkdocSchemaOptions = {
+  from: ['./tags.ts'],
+  out: './tags.yaml',
+};
+export const typedGenerateMarkdocSchema: typeof generateMarkdocSchema = generateMarkdocSchema;

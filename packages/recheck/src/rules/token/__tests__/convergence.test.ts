@@ -14,7 +14,7 @@
 // aliases (`single-title`/`first-line-heading`) permanently and
 // warning-free — those are parity surface, not part of this deprecation,
 // and are covered by each rule's own test file, not here.
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
 
@@ -97,12 +97,8 @@ describe('removed "enabled" config key fails validation', () => {
 });
 
 describe('config validate() — stale pattern warning', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('warns when a non-raw/non-all scoped pattern token starts with the literal "^#"', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnings: string[] = [];
     const config = {
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -112,14 +108,14 @@ describe('config validate() — stale pattern warning', () => {
       },
     };
 
-    await validate(config);
+    await validate(config, { warn: (message) => warnings.push(message) });
 
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("starts with '^#'"));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('scope "heading"'));
+    expect(warnings.some((message) => message.includes("starts with '^#'"))).toBe(true);
+    expect(warnings.some((message) => message.includes('scope "heading"'))).toBe(true);
   });
 
   it('does NOT warn for the same token when scope is "raw"', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnings: string[] = [];
     const config = {
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -129,14 +125,14 @@ describe('config validate() — stale pattern warning', () => {
       },
     };
 
-    await validate(config);
+    await validate(config, { warn: (message) => warnings.push(message) });
 
-    const staleWarnings = warnSpy.mock.calls.filter((args) => String(args[0]).includes('^#'));
+    const staleWarnings = warnings.filter((message) => message.includes('^#'));
     expect(staleWarnings).toEqual([]);
   });
 
   it('does NOT warn when scope is "all" (the default)', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnings: string[] = [];
     const config = {
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -145,14 +141,14 @@ describe('config validate() — stale pattern warning', () => {
       },
     };
 
-    await validate(config);
+    await validate(config, { warn: (message) => warnings.push(message) });
 
-    const staleWarnings = warnSpy.mock.calls.filter((args) => String(args[0]).includes('^#'));
+    const staleWarnings = warnings.filter((message) => message.includes('^#'));
     expect(staleWarnings).toEqual([]);
   });
 
   it('does NOT warn for a pattern token that does not start with "^#"', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnings: string[] = [];
     const config = {
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -162,14 +158,14 @@ describe('config validate() — stale pattern warning', () => {
       },
     };
 
-    await validate(config);
+    await validate(config, { warn: (message) => warnings.push(message) });
 
-    const staleWarnings = warnSpy.mock.calls.filter((args) => String(args[0]).includes('^#'));
+    const staleWarnings = warnings.filter((message) => message.includes('^#'));
     expect(staleWarnings).toEqual([]);
   });
 
   it('checks every array entry when scope is an array, warning per offending term', async () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnings: string[] = [];
     const config = {
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -179,8 +175,8 @@ describe('config validate() — stale pattern warning', () => {
       },
     };
 
-    await validate(config);
+    await validate(config, { warn: (message) => warnings.push(message) });
 
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("starts with '^#'"));
+    expect(warnings.some((message) => message.includes("starts with '^#'"))).toBe(true);
   });
 });

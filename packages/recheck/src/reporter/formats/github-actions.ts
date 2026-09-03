@@ -1,9 +1,10 @@
+import type { Logger } from '../../actions/logger.js';
 import type { Problem } from '../../types/index.js';
 
 /**
  * Output problems in GitHub Actions format for inline file annotations
  */
-export function outputGitHubActionsFormat(problems: Problem[]): void {
+export function outputGitHubActionsFormat(problems: Problem[], logger: Logger): void {
   for (const problem of problems) {
     const command = problem.severity === 'error' ? 'error' : 'warning';
     const properties = [
@@ -18,7 +19,6 @@ export function outputGitHubActionsFormat(problems: Problem[]): void {
     // Escape the message for GitHub Actions format
     const escapedMessage = problem.message.replace(/::/g, '%3A%3A').replace(/\n/g, '%0A');
 
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`::${command} ${properties}::${escapedMessage}`);
+    logger.log(`::${command} ${properties}::${escapedMessage}`);
   }
 }

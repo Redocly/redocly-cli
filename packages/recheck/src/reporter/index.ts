@@ -1,3 +1,4 @@
+import type { Logger } from '../actions/logger.js';
 import type { Problem, ReportOptions } from '../types/index.js';
 import { outputGitHubActionsFormat } from './formats/github-actions.js';
 import { outputJsonFormat } from './formats/json.js';
@@ -11,7 +12,8 @@ import { prioritizeProblems } from './prioritize-problems.js';
 export async function generateReport(
   problems: Problem[],
   fileCount: number,
-  options: ReportOptions
+  options: ReportOptions,
+  logger: Logger
 ): Promise<void> {
   const { format, showStats, annotationsLimit, outputPath, baseline } = options;
 
@@ -22,33 +24,31 @@ export async function generateReport(
 
   switch (format) {
     case 'sarif':
-      await outputSarifFormat(prioritized, outputPath);
+      await outputSarifFormat(prioritized, outputPath, logger);
       break;
     case 'github-actions':
-      outputGitHubActionsFormat(prioritized);
+      outputGitHubActionsFormat(prioritized, logger);
       break;
     case 'json':
-      await outputJsonFormat(prioritized, fileCount, outputPath, baseline);
+      await outputJsonFormat(prioritized, fileCount, outputPath, baseline, logger);
       break;
     default:
-      outputTableFormat(problems, fileCount, showStats);
+      outputTableFormat(problems, fileCount, showStats, logger);
       break;
   }
 
   if (prioritized.length > 0) {
     const limitInfoEnd =
       typeof options.annotationsLimit === 'number' ? ` (limit ${options.annotationsLimit})` : '';
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`\n   Annotations prepared: ${prioritized.length}${limitInfoEnd}`);
+    logger.log(`\n   Annotations prepared: ${prioritized.length}${limitInfoEnd}`);
   } else {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`\n   Annotations prepared: 0`);
+    logger.log(`\n   Annotations prepared: 0`);
   }
 }
 
 /**
  * Generate empty report for cases where no files are found
  */
-export async function generateEmptyReport(options: ReportOptions): Promise<void> {
-  await generateReport([], 0, options);
+export async function generateEmptyReport(options: ReportOptions, logger: Logger): Promise<void> {
+  await generateReport([], 0, options, logger);
 }

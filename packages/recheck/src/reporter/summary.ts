@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises';
 
+import type { Logger } from '../actions/logger.js';
 import type { Problem, Summary } from '../types/index.js';
 import { getBreakdownStats } from './statistics.js';
 
@@ -28,12 +29,13 @@ export function buildSummary(
 }
 
 /**
- * Emit summary in requested format to file or stdout
+ * Emit summary in requested format to file or through the logger
  */
 export async function printSummary(
   summary: Summary,
   format: 'json' | 'text',
-  path?: string
+  path: string | undefined,
+  logger: Logger
 ): Promise<void> {
   let content = '';
   if (format === 'json') {
@@ -57,10 +59,8 @@ export async function printSummary(
 
   if (path && path.length > 0) {
     await fs.writeFile(path, content, 'utf8');
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log(`\n   Wrote summary to ${path}`);
+    logger.log(`\n   Wrote summary to ${path}`);
   } else {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log('\n' + content);
+    logger.log('\n' + content);
   }
 }

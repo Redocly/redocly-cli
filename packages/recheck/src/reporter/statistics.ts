@@ -1,5 +1,6 @@
 import { red, yellow, cyan } from 'colorette';
 
+import type { Logger } from '../actions/logger.js';
 import type { Problem, RuleBreakdown } from '../types/index.js';
 
 /**
@@ -32,21 +33,17 @@ export function getBreakdownStats(problems: Problem[]): RuleBreakdown {
 }
 
 /**
- * Display detailed statistics to console
+ * Display detailed statistics through the logger
  */
-export function showDetailedStats(fileCount: number, problems: Problem[]): void {
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  console.log(cyan('\n📊 Summary Statistics:'));
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  console.log(`   ${fileCount} markdown file(s) scanned`);
-  // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-  console.log(`   ${problems.length} total issue(s) detected`);
+export function showDetailedStats(fileCount: number, problems: Problem[], logger: Logger): void {
+  logger.log(cyan('\n📊 Summary Statistics:'));
+  logger.log(`   ${fileCount} markdown file(s) scanned`);
+  logger.log(`   ${problems.length} total issue(s) detected`);
 
   const breakdown = getBreakdownStats(problems);
 
   if (Object.keys(breakdown).length > 0) {
-    // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-    console.log('\n   Breakdown by rule:');
+    logger.log('\n   Breakdown by rule:');
 
     // Sort rules by total count (descending)
     const sortedRules = Object.entries(breakdown).sort(([, a], [, b]) => b.total - a.total);
@@ -61,8 +58,7 @@ export function showDetailedStats(fileCount: number, problems: Problem[]): void 
 
       const statsText = parts.length > 0 ? ` (${parts.join(', ')})` : '';
       const displayName = ruleName.replace('recheck/', '');
-      // oxlint-disable-next-line eslint/no-console -- engine output until the Logger lands
-      console.log(`   ${displayName}: ${stats.total}${statsText}`);
+      logger.log(`   ${displayName}: ${stats.total}${statsText}`);
     }
   }
 }
