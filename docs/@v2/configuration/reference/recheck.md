@@ -3,10 +3,10 @@
 ## Introduction
 
 The `recheck` block configures the [`recheck`](../../commands/recheck.md) command.
-It sets rules and options for Markdown prose and structure linting.
+It adjusts the rules that the Recheck presets provide, and it sets file excludes, a baseline, and Markdoc parsing.
 
 The block does not accept `extends`.
-Name Recheck presets in the root `extends` of `redocly.yaml` instead, for example `recheck/markdown`.
+Add Recheck presets, such as `recheck/markdown`, to the root `extends` of `redocly.yaml`.
 
 ## Options
 
@@ -20,42 +20,36 @@ Name Recheck presets in the root `extends` of `redocly.yaml` instead, for exampl
 
 - rules
 - [Rules object](#rules-object)
-- A map of rule name to a severity, or to a [rule object](#rule-object).
+- Rule names mapped to a severity or to a [rule object](#rule-object).
 
 ---
 
 - excludes
 - [string]
-- File globs to skip for every rule in this block.
-  Recheck merges this list with each rule's own `excludes`.
+- File globs that every rule in this block skips.
+  Recheck adds this list to each rule's own `excludes`.
 
 ---
 
 - baseline
 - string
-- Path to the baseline file, resolved from this file's directory.
-  A run reports only findings missing from the baseline.
+- Path to the baseline file, relative to the directory of `redocly.yaml`.
+  A run reports only errors that the baseline does not list.
 
 ---
 
 - markdoc
 - boolean or [Markdoc object](#markdoc-object)
 - Turn on Markdoc-aware parsing.
-  `true` is shorthand for `{ schema: realm }`.
-
----
-
-- apiDescriptions
-- [API descriptions object](#api-descriptions-object)
-- Rule overrides for descriptions inside API documents.
-  A later release applies this path.
+  `true` is the same as `{ schema: realm }`.
 
 {% /table %}
 
 ### Rules object
 
-A map of rule name to value.
+Each key is a rule name.
 Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule object](#rule-object).
+Use a severity string to change the severity of a preset rule or to turn it off.
 
 ### Rule object
 
@@ -77,21 +71,22 @@ Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule o
 - message
 - string
 - **REQUIRED**.
-  The message this rule reports.
+  The message that the rule reports.
 
 ---
 
 - assertions
 - object
 - **REQUIRED**.
-  Rule-specific assertion settings.
-  Each built-in rule documents its own assertion shape.
+  The checks that the rule runs.
+  Each assertion type has its own options.
 
 ---
 
 - fix
 - boolean
-- Turn on `--fix` support for this rule, where the rule offers a fix.
+- Let `--fix` apply this rule's fix.
+  Only some assertion types offer a fix.
 
 ---
 
@@ -103,7 +98,7 @@ Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule o
 
 - description
 - string
-- A longer note about the rule's intent.
+- A note about the purpose of the rule.
 
 ---
 
@@ -115,26 +110,26 @@ Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule o
 
 - scope
 - string or [string]
-- Where the rule runs, for example `heading`, `sentence`, `paragraph`, `code`, or `all`.
+- Where the rule runs: `all`, `heading`, `sentence`, `paragraph`, `code`, or `raw`.
 
 ---
 
 - appliesTo
 - [string]
-- File globs this rule runs on.
-  Default: every Markdown file.
+- File globs that the rule runs on.
+  Default value is every Markdown file.
 
 ---
 
 - excludes
 - [string]
-- File globs this rule skips.
+- File globs that the rule skips.
 
 ---
 
 - exceptions
 - [Exceptions object](#exceptions-object)
-- Files and lines this rule does not check.
+- Files and lines that the rule does not check.
 
 {% /table %}
 
@@ -150,13 +145,13 @@ Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule o
 
 - files
 - [string]
-- File globs this rule skips.
+- File globs that the rule skips.
 
 ---
 
 - lines
 - [string]
-- Line patterns this rule skips.
+- Line patterns that the rule skips.
 
 {% /table %}
 
@@ -180,7 +175,7 @@ Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule o
 
 - extend
 - [Extend object](#extend-object)
-- Add project tags on top of the chosen schema.
+- Add your own tags on top of the chosen schema.
 
 {% /table %}
 
@@ -196,31 +191,14 @@ Each value is a severity string (`off`, `info`, `warn`, or `error`) or a [rule o
 
 - tags
 - object
-- Tag name to tag schema.
-  Provide `tags`, `tagsFile`, or both.
+- Tag names mapped to tag schemas.
+  Set `tags`, `tagsFile`, or both.
 
 ---
 
 - tagsFile
 - string
 - Path to a YAML file that maps tag names to tag schemas.
-
-{% /table %}
-
-### API descriptions object
-
-{% table %}
-
-- Option
-- Type
-- Description
-
----
-
-- rules
-- [Rules object](#rules-object)
-- Rule overrides for descriptions embedded in API documents.
-  A later release applies these overrides; this release parses and stores them only.
 
 {% /table %}
 
@@ -243,18 +221,15 @@ recheck:
         metric:
           formula: flesch-reading-ease
           min: 30
-  apiDescriptions:
-    rules:
-      recheck/line-length: off
 ```
 
-This config names the `recheck/markdown` preset in the root `extends`.
-The `recheck` block then skips `CHANGELOG.md`, points at a baseline file, turns on Markdoc-aware parsing, and adjusts two rules.
+This config adds the `recheck/markdown` preset in the root `extends`.
+The `recheck` block skips `CHANGELOG.md`, uses a baseline file, turns on Markdoc-aware parsing, turns off one rule, and adds one rule.
 
 ## Related options
 
-- [extends](./extends.md) names Recheck presets at the root of `redocly.yaml`.
-- [rules](./rules.md) covers rule configuration for API linting, a separate rule set from `recheck.rules`.
+- [extends](./extends.md) lists the Recheck presets at the root of `redocly.yaml`.
+- [rules](./rules.md) configures API linting rules, which are separate from `recheck.rules`.
 
 ## Resources
 
