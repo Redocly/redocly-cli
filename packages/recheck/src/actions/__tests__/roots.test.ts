@@ -25,6 +25,7 @@ describe('rootForFile', () => {
   });
 
   it('falls back to the file directory outside every root', () => {
-    expect(rootForFile('/elsewhere/a.md', ['docs'])).toBe('/elsewhere');
+    const outside = path.resolve('/elsewhere/a.md');
+    expect(rootForFile(outside, ['docs'])).toBe(path.dirname(outside));
   });
 });
