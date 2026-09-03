@@ -4,4 +4,6 @@
 
 Added the `@redocly/recheck` engine package to this repository.
 It powers the upcoming `redocly recheck` command.
-The standalone `recheck` binary and `recheck.yaml` are gone; configuration lives in the `recheck` block of `redocly.yaml`.
+
+**Note:** the standalone `recheck` binary and `recheck.yaml` are removed.
+Configuration moves to the `recheck` block of `redocly.yaml`, read by the `redocly recheck` command in a later release.

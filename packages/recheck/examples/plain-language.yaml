@@ -8,7 +8,7 @@
 # Synced:     2026-07-30
 # Provenance: packages/recheck/presets/plain-language/PROVENANCE.md
 #
-# Generated file — do not hand-edit. Regenerate with `pnpm examples:generate`
+# Generated file — do not hand-edit. Regenerate with `node scripts/generate-examples.mjs`
 # after changing src/config/presets/plain-language.ts or this file's
 # appendix (examples/appendices/plain-language.appendix.yaml).
 
@@ -89,11 +89,11 @@ extends:
 # Full expansion (reference)
 # ------------------------------------------------------------------------------
 # This is what `extends: [recheck/plain-language]` resolves to today: all 10 rules,
-# alphabetized by rule id, generated straight from the live preset (`pnpm
-# examples:generate`). You do not need to copy any of it — the extends
-# block above already gives you all of this. Read it to see exactly what
-# you are adopting, or as a starting point if you would rather pin or fork
-# specific rules into your own config instead of extending the preset.
+# alphabetized by rule id, generated straight from the live preset (`node
+# scripts/generate-examples.mjs`). You do not need to copy any of it — the
+# extends block above already gives you all of this. Read it to see exactly
+# what you are adopting, or as a starting point if you would rather pin or
+# fork specific rules into your own config instead of extending the preset.
 #
 # `fix: false` on every rule below means what it says: detection-only, no
 # exceptions — see "How to tune it" above and PROVENANCE.md for why.
@@ -239,7 +239,7 @@ plain-language/redundant-pairs:
 # Appendix — candidates NOT shipped by recheck/plain-language (hand-maintained)
 # ==============================================================================
 # This file is appended verbatim to the generated example above by
-# `pnpm examples:generate` (see scripts/generate-examples.mjs). Editing it
+# `node scripts/generate-examples.mjs`. Editing it
 # makes examples/plain-language.yaml stale until you regenerate — the drift
 # test's failure message says so, so this doesn't read as a generator bug.
 #

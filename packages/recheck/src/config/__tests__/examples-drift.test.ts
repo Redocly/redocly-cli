@@ -38,7 +38,7 @@ describe('example config drift', () => {
       // behavior, not a generator bug.
       expect(
         onDisk,
-        `examples/${name}.yaml is stale — run \`pnpm examples:generate\`. This also fires if you only edited the hand-maintained appendix (examples/appendices/${name}.appendix.yaml) — that's expected: the appendix is appended verbatim, so regenerate to pick it up.`
+        `examples/${name}.yaml is stale — run \`node scripts/generate-examples.mjs\`. This also fires if you only edited the hand-maintained appendix (examples/appendices/${name}.appendix.yaml) — that's expected: the appendix is appended verbatim, so regenerate to pick it up.`
       ).toBe(rendered);
     }
   });
