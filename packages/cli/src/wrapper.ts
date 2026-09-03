@@ -44,6 +44,7 @@ export function commandWrapper<T extends CommandArgv>(
 ) {
   return async (argv: Arguments<T>) => {
     const startedAt = performance.now();
+    process.exitCode = undefined;
     let code: ExitCode = 2;
     let telemetry;
     let specVersion: string = 'unknown';
@@ -116,7 +117,9 @@ export function commandWrapper<T extends CommandArgv>(
       if (typeof commandHandler === 'function') {
         await commandHandler({ argv, config, version, collectSpecData, collectResults });
       }
-      code = 0;
+      // A handler that returns instead of throwing signals its own exit code
+      // through `process.exitCode` (e.g. recheck); default to success.
+      code = process.exitCode === 1 || process.exitCode === 2 ? process.exitCode : 0;
     } catch (err) {
       if (err instanceof AbortFlowError) {
         // do nothing
