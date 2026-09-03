@@ -199,8 +199,9 @@ export async function runWorkflow({
 
   const workflowSteps = workflow.steps.slice(fromStepIndex);
 
-  // clean $steps ctx before running workflow steps
-  ctx.$steps = {};
+  // clean $steps ctx before running workflow steps, unless a goto resumed this
+  // workflow part-way through and the steps it already ran stay addressable
+  if (!fromStepId) ctx.$steps = {};
 
   for (const step of workflowSteps) {
     try {
