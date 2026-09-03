@@ -6,25 +6,26 @@ tocMaxDepth: 2
 
 Documentation commands:
 
-- [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
-- [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
-- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
 - [`build-docs`](build-docs.md) Build an API description into an HTML file.
-
-API management commands:
-
-- [`bundle`](bundle.md) Bundle an API description.
-- [`generate-client`](generate-client.md) Generate a typed TypeScript client from an OpenAPI description [experimental feature].
-- [`eject-generator`](eject-generator.md) Copy a built-in client generator into your repository as an editable file [experimental feature].
-- [`join`](join.md) Join API descriptions [experimental feature].
-- [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
-- [`split`](split.md) Split an API description into a multi-file structure.
-- [`stats`](stats.md) Gather statistics for a document.
+- [`preview`](preview.md) Start a local preview of a Redocly project with one of the product NPM packages.
 
 Linting commands:
 
 - [`lint`](lint.md) Lint an API description.
 - [`check-config`](check-config.md) Lint the Redocly configuration file.
+
+API management commands:
+
+- [`bundle`](bundle.md) Bundle an API description.
+- [`join`](join.md) Join API descriptions [experimental feature].
+- [`score`](score.md) Score an API for integration simplicity and AI agent readiness.
+- [`split`](split.md) Split an API description into a multi-file structure.
+- [`stats`](stats.md) Gather statistics for a document.
+
+SDK commands:
+
+- [`generate-client`](generate-client.md) Generate a typed TypeScript client from an OpenAPI description [experimental feature].
+- [`eject-generator`](eject-generator.md) Copy a built-in client generator into your repository as an editable file [experimental feature].
 
 Testing commands:
 
@@ -44,6 +45,9 @@ Redocly platform commands:
 Supporting commands:
 
 - [`completion`](completion.md) Generate autocomplete commands (includes install instructions).
+- [`node-type`](node-type.md) Show the node type the linter assigns to a location in an API description.
+- [`translate`](translate.md) Generate translation keys for a Redocly Realm, Reef, or Revel project.
+- [`eject`](eject.md) Eject and modify components from the core theme in a Redocly Realm, Reef, or Revel project.
 
 ## Additional options
 

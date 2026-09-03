@@ -34,6 +34,8 @@
           page: commands/login.md
         - label: logout
           page: commands/logout.md
+        - label: node-type
+          page: commands/node-type.md
         - label: preview
           page: commands/preview.md
         - label: proxy

@@ -135,6 +135,7 @@ The full list of practices this repo enforces is in [`.claude/rules/code-quality
 ## Documentation and user-facing output
 
 - Update the docs for every new or changed rule, decorator, option, or command — a feature without docs is incomplete.
+- Update the agent skills under `.claude/skills/` that describe what you changed, for example `redocly-cli` when a command or option changes.
 - Keep user-facing output (CLI messages, warnings, errors) clear, non-technical, and actionable.
 - Don't create explanation, summary, or design files unless asked.
   Put the explanation in the PR description.

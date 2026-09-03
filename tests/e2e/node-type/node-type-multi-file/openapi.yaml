@@ -1,0 +1,19 @@
+openapi: 3.0.0
+info:
+  title: Test
+  version: '1.0'
+paths:
+  /foo:
+    get:
+      parameters:
+        - $ref: parameters/limit.yaml
+      responses:
+        '200':
+          description: ok
+  /bar:
+    get:
+      parameters:
+        - $ref: parameters/limit.yaml
+      responses:
+        '200':
+          description: ok

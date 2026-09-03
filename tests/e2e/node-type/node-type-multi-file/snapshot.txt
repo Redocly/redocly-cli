@@ -1,0 +1,18 @@
+Root           openapi.yaml#/
+Info           openapi.yaml#/info
+Paths          openapi.yaml#/paths
+PathItem       openapi.yaml#/paths/~1foo
+Operation      openapi.yaml#/paths/~1foo/get
+ParameterList  openapi.yaml#/paths/~1foo/get/parameters
+Parameter      openapi.yaml#/paths/~1foo/get/parameters/0 → parameters/limit.yaml
+Parameter      parameters/limit.yaml#/
+Schema         parameters/limit.yaml#/schema
+Responses      openapi.yaml#/paths/~1foo/get/responses
+Response       openapi.yaml#/paths/~1foo/get/responses/200
+PathItem       openapi.yaml#/paths/~1bar
+Operation      openapi.yaml#/paths/~1bar/get
+ParameterList  openapi.yaml#/paths/~1bar/get/parameters
+Parameter      openapi.yaml#/paths/~1bar/get/parameters/0 → parameters/limit.yaml
+Responses      openapi.yaml#/paths/~1bar/get/responses
+Response       openapi.yaml#/paths/~1bar/get/responses/200
+

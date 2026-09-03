@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI usage for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when linting an API description, bundling or splitting multi-file descriptions, joining several APIs into one, transforming a description with decorators, building or previewing API docs, testing a live API with respect to its description, generating a TypeScript client from an OpenAPI description.
+description: Redocly CLI usage for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when linting an API description, bundling or splitting multi-file descriptions, joining several APIs into one, transforming a description with decorators, building or previewing API docs, testing a live API with respect to its description, generating a TypeScript client from an OpenAPI description, finding the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -33,6 +33,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `split`                                     | Break a single-file description into a multi-file structure         |
 | `join`                                      | Merge several API descriptions into one                             |
 | `stats`                                     | Count operations, schemas, refs, and other metrics                  |
+| `node-type`                                 | Show the node type at a pointer, or list every node with its type   |
 | `score`                                     | Score an OpenAPI description for AI-agent readiness                 |
 | `build-docs`                                | Render an API description to a zero-dependency HTML page (Redoc)    |
 | `preview`                                   | Local preview of a Redocly project                                  |
@@ -67,20 +68,8 @@ Rule severities: `error` (fails validation), `warn` (reported, still valid), `of
 
 ### Configurable rules
 
-When a governance requirement has no built-in rule, declare one under `rule/<name>` with a subject node type and assertions:
-
-```yaml
-rules:
-  rule/tag-name-macro-case:
-    subject:
-      type: Tag
-      property: name
-    assertions:
-      defined: true
-      casing: MACRO_CASE
-    severity: warn
-    message: Tag names must be upper case with underscores (_).
-```
+When a governance requirement has no built-in rule, declare one under `rule/<name>` in `redocly.yaml`.
+Use the `redocly-lint-rules` skill for that: it picks the cheapest rung (built-in, configurable rule, or custom plugin), takes node types from `redocly node-type`, and verifies the rule against fixtures.
 
 ## Transform with decorators
 
@@ -110,6 +99,7 @@ export default function myPlugin() {
 }
 ```
 
+Visitor keys are node types: confirm them with `redocly node-type <api>`.
 Register it in `redocly.yaml` (paths relative to the config file) and reference its rules as `<plugin-id>/<rule-name>`:
 
 ```yaml
