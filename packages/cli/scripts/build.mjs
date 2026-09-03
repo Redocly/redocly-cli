@@ -2,6 +2,7 @@ import { build } from 'esbuild';
 import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -9,7 +10,7 @@ rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
 const result = await build({
   absWorkingDir: packageDir,
-  entryPoints: ['src/index.ts'],
+  entryPoints: ['src/index.ts', 'src/api.ts'],
   outdir: 'lib',
   chunkNames: 'chunks/[hash]',
   bundle: true,
@@ -43,6 +44,8 @@ if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'
     'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
   );
 }
+
+writeFileSync(path.join(packageDir, 'lib/api.d.ts'), transpileDeclaration('src/api.ts'));
 
 const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
   Object.keys(chunk.inputs)
@@ -98,6 +101,19 @@ cpSync(
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
 );
+
+function transpileDeclaration(sourcePath) {
+  const { outputText, diagnostics } = ts.transpileDeclaration(
+    readFileSync(path.join(packageDir, sourcePath), 'utf-8'),
+    { fileName: sourcePath, reportDiagnostics: true }
+  );
+  
+  if (diagnostics.length) {
+    throw new Error(ts.formatDiagnostics(diagnostics, ts.createCompilerHost({})));
+  }
+
+  return outputText;
+}
 
 function findLicenseText(pkgRoot) {
   for (const filename of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md']) {
