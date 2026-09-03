@@ -66,7 +66,6 @@ npx skills add https://redocly.com
 - `redocly-cli` — day-to-day usage: lint, bundle, decorate, build docs, test, and generate a client.
 - `redocly-lint-rules` — turn a check written in plain language into a built-in rule, a configurable rule, or a custom plugin.
   It also covers migrating rules from other linters, such as Spectral.
-- `rules-system` — a guide on contributing built-in rules in Redocly CLI.
 
 ## Common tasks
 

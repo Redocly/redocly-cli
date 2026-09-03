@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI usage for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when linting an API description, bundling or splitting multi-file descriptions, joining several APIs into one, transforming a description with decorators, building or previewing API docs, testing a live API with respect to its description, generating a TypeScript client from an OpenAPI description, finding the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, push to Reunite, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage

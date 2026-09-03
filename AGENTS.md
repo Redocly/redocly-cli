@@ -81,9 +81,11 @@ The published CLI package ships from a staged `.publish/` directory (created by 
 
 ## Respect the architecture: Walker, Visitors, Nodes
 
-Linting in `packages/core` rests on three concepts: the **Walker** traverses the parsed API description and resolves `$ref`s, **Visitors** are objects keyed by **Node** type, and the Walker calls each visitor's `enter` / `leave` / `skip` hooks as it reaches a node.
-New rules and decorators follow this pattern instead of parsing documents by hand.
-The full guide, with examples, is in [the `rules-system` skill](./.claude/skills/rules-system/SKILL.md).
+Every traversal of an API description in this repository — linting, bundling, decorating, and the CLI commands that read a description — rests on one pattern: the **Walker** traverses the parsed API description, resolves `$ref`s, and calls **Visitors** — objects keyed by **Node** type — through their `enter` / `leave` / `skip` hooks at every node.
+Every rule, decorator, and preprocessor is a visitor.
+Write new ones as visitors: a visitor already hands you the typed node, so reach for it before a regular expression or manual drilling into the document object.
+A regex belongs only where a visitor cannot get you the value, such as the text inside one string.
+What each `enter` / `leave` / `skip` hook receives and when it runs, the fields of the `ctx` object, and a worked rule are in [`.claude/rules/walker-visitors-nodes.md`](./.claude/rules/walker-visitors-nodes.md).
 
 ## Add or change a built-in rule
 
