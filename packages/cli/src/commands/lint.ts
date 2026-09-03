@@ -141,6 +141,22 @@ export async function handleLint({
   }
 }
 
+// formatProblems only understands these values; other commands' own report
+// formats (e.g. recheck's `table`, `sarif`) are not config-lint formats.
+function isOutputFormat(format: string | undefined): format is OutputFormat {
+  return (
+    format === 'codeframe' ||
+    format === 'stylish' ||
+    format === 'json' ||
+    format === 'checkstyle' ||
+    format === 'codeclimate' ||
+    format === 'summary' ||
+    format === 'github-actions' ||
+    format === 'markdown' ||
+    format === 'junit'
+  );
+}
+
 export async function handleLintConfig(argv: Exact<CommandArgv>, version: string, config: Config) {
   if (argv['lint-config'] === 'off' || config.document === undefined) {
     return;
@@ -161,7 +177,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   const fileTotals = getTotals(problems);
 
   formatProblems(problems, {
-    format: argv.format,
+    format: isOutputFormat(argv.format) ? argv.format : undefined,
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,
