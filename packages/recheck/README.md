@@ -30,9 +30,12 @@ The package exports the engine for tools that embed it:
 
 The standalone `recheck` binary and the `recheck.yaml` file are not part of this package.
 
+## Configuration
+
 ### Opt-in prose assertions
 
-`conditional`, `metric`, and `spelling` have no single right default, so add them explicitly under `recheck.rules`:
+`conditional`, `metric`, and `spelling` have no single right default.
+Add them explicitly under `recheck.rules`:
 
 ```yaml
 extends:

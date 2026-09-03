@@ -8,16 +8,10 @@ import { runRules } from '../../core/runner.js';
 import { DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { resolveRecheckConfig } from '../resolve.js';
 
-// Proves the README's own copy-paste snippet for the three prose assertions
-// NOT shipped in any preset (`conditional`, `metric`, `spelling` — see
-// presets/index.ts's DOCUMENTED_OPT_IN_ASSERTIONS) is a real, working
-// `redocly.yaml` example, not just prose that happens to look like YAML.
-// It resolves the snippet through `resolveRecheckConfig`, the same entry
-// point the `recheck` block goes through at runtime, instead of calling the
-// engine's internal `validate()` on a hand-shaped config — so a snippet that
-// stops matching the real config shape fails here, the same way a broken
-// code sample would fail a doctest. This reads README.md straight off disk
-// (not a hand-duplicated copy in this test file).
+// Proves the README's opt-in prose assertions snippet is a real, working
+// `redocly.yaml` example. It covers the three assertions no preset ships:
+// `conditional`, `metric`, `spelling` (see DOCUMENTED_OPT_IN_ASSERTIONS in
+// presets/index.ts). It reads README.md straight off disk.
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const readmePath = path.join(dir, '../../../README.md');
 const readmeDir = path.dirname(readmePath);
@@ -77,8 +71,8 @@ describe('README "Opt-in prose assertions" snippet', () => {
 
   // Guards the metric snippet's MESSAGE, not just its YAML validity: metric
   // substitutes up to FOUR positional values -- formula name, computed
-  // score, min ('-∞' when unset), max ('∞' when unset), in that order (see
-  // README "Metric Assertions" and rules/scope/metric.ts). An earlier
+  // score, min ('-∞' when unset), max ('∞' when unset), in that order
+  // (see rules/scope/metric.ts). An earlier
   // snippet revision read 'Readability score is %s (expected >= %s).',
   // which rendered the FORMULA NAME where the score belongs ("Readability
   // score is flesch-reading-ease ...") -- valid config, garbage output.
