@@ -22,8 +22,8 @@ npm run format                                      # run oxfmt --write
 ## `scripts/generate-examples.mjs` and `oxfmt` are coupled — don't skip the regenerate step
 
 The repo's pre-commit hook runs `npm run lint` and `oxfmt --write` over every
-staged file, YAML included (see the root `package.json`'s `lint-staged`
-config).
+staged file, YAML included.
+See the `lint-staged` config in the root `package.json`.
 `oxfmt` has its own opinion on quote style that the example
 generator's YAML serializer doesn't match by default, so
 `scripts/generate-examples.mjs` runs `oxfmt` itself on its own output (inside
