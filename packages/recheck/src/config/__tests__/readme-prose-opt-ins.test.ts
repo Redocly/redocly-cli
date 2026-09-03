@@ -6,19 +6,21 @@ import { describe, expect, it } from 'vitest';
 
 import { runRules } from '../../core/runner.js';
 import { DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
-import { validate } from '../validate.js';
+import { resolveRecheckConfig } from '../resolve.js';
 
-// Proves the README's own copy-paste snippets for the three prose
-// assertions NOT shipped in any preset (`conditional`, `metric`, `spelling`
-// — see presets/index.ts's DOCUMENTED_OPT_IN_ASSERTIONS; `occurrence` moved
-// out of this list once `recheck/microsoft` shipped it directly, the same
-// way `length` moved out once `recheck/google` shipped it) are valid,
-// working config -- not just prose that happens to look like YAML. This
-// reads README.md straight off disk (not a hand-duplicated copy in this
-// test file), so an edit that breaks the snippet's YAML or semantics fails
-// CI immediately, the same way a broken code sample would fail a doctest.
+// Proves the README's own copy-paste snippet for the three prose assertions
+// NOT shipped in any preset (`conditional`, `metric`, `spelling` — see
+// presets/index.ts's DOCUMENTED_OPT_IN_ASSERTIONS) is a real, working
+// `redocly.yaml` example, not just prose that happens to look like YAML.
+// It resolves the snippet through `resolveRecheckConfig`, the same entry
+// point the `recheck` block goes through at runtime, instead of calling the
+// engine's internal `validate()` on a hand-shaped config — so a snippet that
+// stops matching the real config shape fails here, the same way a broken
+// code sample would fail a doctest. This reads README.md straight off disk
+// (not a hand-duplicated copy in this test file).
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const readmePath = path.join(dir, '../../../README.md');
+const readmeDir = path.dirname(readmePath);
 const readme = readFileSync(readmePath, 'utf8');
 
 const OPT_IN_HEADING = '### Opt-in prose assertions';
@@ -34,6 +36,15 @@ function extractOptInSnippet(): string {
     throw new Error(`No \`\`\`yaml fence found under "${OPT_IN_HEADING}"`);
   }
   return fenceMatch[1];
+}
+
+// The snippet is a `redocly.yaml` document (root `extends` plus a `recheck`
+// block), so resolving it takes the same two pieces `resolveRecheckConfig`
+// takes at runtime: the `recheck/*` names from `extends`, and the block.
+async function resolveOptInSnippet(snippet: string) {
+  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: unknown };
+  const extendsList = (doc.extends ?? []).filter((name) => name.startsWith('recheck/'));
+  return resolveRecheckConfig({ extends: extendsList, block: doc.recheck, configDir: readmeDir });
 }
 
 describe('README "Opt-in prose assertions" snippet', () => {
@@ -53,15 +64,13 @@ describe('README "Opt-in prose assertions" snippet', () => {
 
   it('validates cleanly as a recheck config (assembled from the README snippet, not hand-copied)', async () => {
     const snippet = extractOptInSnippet();
-    const config = yaml.load(snippet);
+    const result = await resolveOptInSnippet(snippet);
 
-    const result = await validate(config);
-
-    expect(result.errors).toEqual([]);
-    expect(result.isValid).toBe(true);
+    expect(result.success).toBe(true);
+    if (!result.success) return;
 
     for (const assertionId of DOCUMENTED_OPT_IN_ASSERTIONS) {
-      const usesIt = result.rules.some((rule) => assertionId in rule.assertions);
+      const usesIt = result.config.rules.some((rule) => assertionId in rule.assertions);
       expect(usesIt, `expected a rule exercising the "${assertionId}" assertion`).toBe(true);
     }
   });
@@ -74,14 +83,15 @@ describe('README "Opt-in prose assertions" snippet', () => {
   // which rendered the FORMULA NAME where the score belongs ("Readability
   // score is flesch-reading-ease ...") -- valid config, garbage output.
   // Rendering a real problem through runRules is what catches that class of
-  // edit; validate() alone cannot.
+  // edit; resolving the config alone cannot.
   it('renders the metric snippet message in the documented positional order (formula, score, min, max)', async () => {
     const snippet = extractOptInSnippet();
-    const config = yaml.load(snippet);
+    const result = await resolveOptInSnippet(snippet);
 
-    const result = await validate(config);
-    expect(result.isValid).toBe(true);
-    const metricRules = result.rules.filter((rule) => 'metric' in rule.assertions);
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+
+    const metricRules = result.config.rules.filter((rule) => 'metric' in rule.assertions);
     expect(metricRules).toHaveLength(1);
 
     // Dense, polysyllabic prose scoring far below the snippet's `min: 30`

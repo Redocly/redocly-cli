@@ -1,5 +1,8 @@
 # @redocly/recheck
 
+From version 2.x this package lives in the `redocly-cli` repository and releases with Redocly CLI.
+Entries below 2.x come from its previous home.
+
 ## 0.12.0
 
 ### Minor Changes
