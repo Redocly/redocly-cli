@@ -204,10 +204,8 @@ export async function runWorkflow({
   if (!fromStepId) {
     ctx.$steps = {};
   } else {
-    const workflowCtx = ctx.$workflows[workflowId];
     for (const stepToReset of workflowSteps) {
       delete ctx.$steps[stepToReset.stepId];
-      if (workflowCtx?.steps) delete workflowCtx.steps[stepToReset.stepId];
     }
   }
   for (const step of workflowSteps) {
