@@ -145,6 +145,7 @@ export function makeBundleVisitor({
     resolved.chain?.[0] ?? { node: resolved.node, location: resolved.location! };
 
   const firstSchemaLocationByName = new Map<string, Location>();
+  const authoredRefNamesByGroup = new Map<ComponentsGroup, Map<string, string>>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
@@ -357,24 +358,24 @@ export function makeBundleVisitor({
     return { key };
   }
 
-  // the name of an entry that already holds the target or is a plain $ref to it
-  function findExistingComponentName(
-    target: ComponentTarget,
-    componentsGroup: ComponentsGroup,
-    ctx: UserContext
-  ): string | undefined {
-    for (const existingName of Object.keys(componentsGroup)) {
-      const existingNode = componentsGroup[existingName];
-      if (
-        existingNode === target.node ||
-        (isRef(existingNode) &&
-          Object.keys(existingNode).length === 1 &&
-          isEqualOrEqualRef(existingNode, target, ctx))
-      ) {
-        return existingName;
+  // names of entries authored as a plain $ref, indexed by the location they resolve to
+  function getAuthoredRefNames(componentsGroup: ComponentsGroup, ctx: UserContext) {
+    let authoredRefNames = authoredRefNamesByGroup.get(componentsGroup);
+    if (!authoredRefNames) {
+      authoredRefNames = new Map();
+      for (const entryName of Object.keys(componentsGroup)) {
+        const entryNode = componentsGroup[entryName];
+        if (isRef(entryNode) && Object.keys(entryNode).length === 1) {
+          const resolved = ctx.resolve(entryNode, rootLocation.absolutePointer);
+          const location = resolved.location && effectiveTarget(resolved).location;
+          if (location && !authoredRefNames.has(location.absolutePointer)) {
+            authoredRefNames.set(location.absolutePointer, entryName);
+          }
+        }
       }
+      authoredRefNamesByGroup.set(componentsGroup, authoredRefNames);
     }
-    return undefined;
+    return authoredRefNames;
   }
 
   function componentNameFromBasename(
@@ -384,9 +385,13 @@ export function makeBundleVisitor({
   ): { name: string; prevName: string } {
     const prevName =
       pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
-    const existingName = findExistingComponentName(target, componentsGroup, ctx);
-    if (existingName) {
-      return { name: existingName, prevName };
+    // a component authored as a $ref to this target keeps its name
+    // instead of getting a second entry named after the file
+    const authoredName = getAuthoredRefNames(componentsGroup, ctx).get(
+      target.location.absolutePointer
+    );
+    if (authoredName) {
+      return { name: authoredName, prevName };
     }
     let name = prevName;
     for (
