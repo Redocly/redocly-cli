@@ -26,6 +26,11 @@ import { type ComponentNamesStrategy } from './bundle-document.js';
 type ComponentTarget = { node: unknown; location: Location };
 type ComponentsGroup = Record<string, unknown>;
 
+// a $ref with no sibling keywords, so replacing it with the target loses nothing
+function isPlainRef(node: unknown): node is OasRef {
+  return isRef(node) && Object.keys(node).length === 1;
+}
+
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
     case 'oas3':
@@ -360,21 +365,26 @@ export function makeBundleVisitor({
 
   // names of entries authored as a plain $ref, indexed by the location they resolve to
   function getAuthoredRefNames(componentsGroup: ComponentsGroup, ctx: UserContext) {
-    let authoredRefNames = authoredRefNamesByGroup.get(componentsGroup);
-    if (!authoredRefNames) {
-      authoredRefNames = new Map();
-      for (const entryName of Object.keys(componentsGroup)) {
-        const entryNode = componentsGroup[entryName];
-        if (isRef(entryNode) && Object.keys(entryNode).length === 1) {
-          const resolved = ctx.resolve(entryNode, rootLocation.absolutePointer);
-          const location = resolved.location && effectiveTarget(resolved).location;
-          if (location && !authoredRefNames.has(location.absolutePointer)) {
-            authoredRefNames.set(location.absolutePointer, entryName);
-          }
-        }
-      }
-      authoredRefNamesByGroup.set(componentsGroup, authoredRefNames);
+    const cached = authoredRefNamesByGroup.get(componentsGroup);
+    if (cached) {
+      return cached;
     }
+
+    const authoredRefNames = new Map<string, string>();
+    for (const [entryName, entryNode] of Object.entries(componentsGroup)) {
+      if (!isPlainRef(entryNode)) {
+        continue;
+      }
+      const resolved = ctx.resolve(entryNode, rootLocation.absolutePointer);
+      if (!resolved.location) {
+        continue;
+      }
+      const targetPointer = effectiveTarget(resolved).location.absolutePointer;
+      if (!authoredRefNames.has(targetPointer)) {
+        authoredRefNames.set(targetPointer, entryName);
+      }
+    }
+    authoredRefNamesByGroup.set(componentsGroup, authoredRefNames);
     return authoredRefNames;
   }
 
