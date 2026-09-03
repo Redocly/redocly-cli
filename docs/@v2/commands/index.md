@@ -43,7 +43,7 @@ SDK generation commands:
 Redocly configuration commands:
 
 - [`check-config`](check-config.md) Lint the Redocly configuration file.
-- [`node-type`](node-type.md) Show the node type the linter assigns to a location in an API description.
+- [`inspect-node-types`](inspect-node-types.md) Show the node type the linter assigns to a location in an API description [experimental feature].
 
 Reunite platform commands:
 

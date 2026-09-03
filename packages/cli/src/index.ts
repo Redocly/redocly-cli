@@ -33,9 +33,9 @@ import {
   type GenerateClientCommandArgv,
 } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
+import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
-import { handleNodeType } from './commands/node-type.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
@@ -94,8 +94,8 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'node-type <api>',
-    'Show the node types of an API description, for writing configurable rules and custom plugins.',
+    'inspect-node-types <api>',
+    'Show the node types of an API description, for writing configurable rules and custom plugins [experimental].',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_NODE_TYPE')
@@ -139,7 +139,7 @@ yargs(hideBin(process.argv))
         })
         .demandOption('api'),
     (argv) => {
-      commandWrapper(handleNodeType)(argv);
+      commandWrapper(handleInspectNodeTypes)(argv);
     }
   )
   .command(

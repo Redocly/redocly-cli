@@ -21,7 +21,7 @@ import { exitWithError } from '../utils/error.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
-export type NodeTypeArgv = {
+export type InspectNodeTypesArgv = {
   api: string;
   pointer?: string;
   type?: string;
@@ -36,7 +36,11 @@ type FoundNode = {
   resolvesTo?: Location;
 };
 
-export async function handleNodeType({ argv, config, collectSpecData }: CommandArgs<NodeTypeArgv>) {
+export async function handleInspectNodeTypes({
+  argv,
+  config,
+  collectSpecData,
+}: CommandArgs<InspectNodeTypesArgv>) {
   const [{ path }] = await getFallbackApisOrExit([argv.api], config);
   const externalRefResolver = new BaseResolver(config.resolve);
   const document = (await externalRefResolver.resolveDocument(null, path, true)) as Document;
@@ -87,7 +91,7 @@ export async function handleNodeType({ argv, config, collectSpecData }: CommandA
     document,
     rootType: types.Root,
     normalizedVisitors: normalizeVisitors(
-      [{ severity: 'warn', ruleId: 'node-type', visitor }],
+      [{ severity: 'warn', ruleId: 'inspect-node-types', visitor }],
       types
     ),
     resolvedRefMap,

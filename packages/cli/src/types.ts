@@ -7,9 +7,9 @@ import type { DriftArgv } from './commands/drift/index.js';
 import type { EjectGeneratorCommandArgv } from './commands/eject-generator.js';
 import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
+import type { InspectNodeTypesArgv } from './commands/inspect-node-types.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
-import type { NodeTypeArgv } from './commands/node-type.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
 import type { ProxyArgv } from './commands/proxy/index.js';
 import type { RespectArgv } from './commands/respect/index.js';
@@ -36,7 +36,7 @@ export type CommandArgv =
   | SplitArgv
   | JoinArgv
   | LintArgv
-  | NodeTypeArgv
+  | InspectNodeTypesArgv
   | BundleArgv
   | LoginArgv
   | LogoutArgv

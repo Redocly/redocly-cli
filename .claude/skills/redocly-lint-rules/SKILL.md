@@ -11,7 +11,7 @@ Turn a check written in plain language ("every array schema must declare `items`
 
 1. **Built-in rule** — one of the [built-in rules](https://redocly.com/docs/cli/rules/built-in-rules) does the check.
 2. **Configurable rule** — one or more `rule/*` entries in `redocly.yaml` do the check with assertions.
-3. **Custom plugin** — a JavaScript visitor. Use this rung last.
+3. **Custom plugin** — JavaScript code that implements your own rule with the visitor pattern. Use this rung last.
 
 Do the checks one at a time.
 Start each check at rung 1.
@@ -25,7 +25,7 @@ Use modern syntax, such as ESM instead of CommonJS. If the project has its own s
 For each check, write down three things: the node it looks at, what must be true, and what a violation looks like.
 Triage each check on its own. Different checks can land on different rungs.
 
-Get node names from the `node-type` command, not from memory.
+Get node names from the `inspect-node-types` command, not from memory.
 The type tree is different in each specification and each version.
 The names it prints are the `subject.type` of a configurable rule, and the visitor keys of a plugin.
 
@@ -221,7 +221,7 @@ Three dials aim a rule. Resolve them in this order.
   So "this map must hold that key" is one `required` on one subject. Do not search the parent.
 - A check about a **value** targets the node that holds the field, plus `property`.
 - `type: any` with a `property` checks that property everywhere it appears.
-- Confirm the type name with `node-type`, on a document of the spec version that the rule targets.
+- Confirm the type name with `inspect-node-types`, on a document of the spec version that the rule targets.
   A named type can exist in one version and not in another.
   `HeadersMap` is a type in OpenAPI 3. In OpenAPI 2 the response `headers` map is anonymous and has no type name, so a `HeadersMap` subject under `oas2Rules` never reports.
   Redocly warns about an unresolved rule id, but **not** about an unresolved `subject.type`, so a wrong type gives you a rule that never reports and never complains.
@@ -480,7 +480,7 @@ A rule is a factory that returns a visitor object keyed by node type.
 The walker traverses the document, resolves each `$ref`, and calls your hooks.
 Never parse the document yourself, and never walk into it by hand.
 
-Confirm each visitor key with the `node-type` command.
+Confirm each visitor key with the `inspect-node-types` command.
 A key that is wrong or invented is never called, and nothing reports the mistake.
 There is no `Reference` node, because a `$ref` and its target share the type of the target.
 Watch the singular and the plural: the map of component schemas is `NamedSchemas`, and `NamedSchema` matches nothing.

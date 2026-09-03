@@ -1,12 +1,18 @@
-# `node-type`
+# `inspect-node-types`
+
+{% admonition type="warning" name="Experimental" %}
+`inspect-node-types` is an experimental feature.
+Its flags and output can change in any minor release until the feature is stable.
+Send us your feedback while we stabilize the feature.
+{% /admonition %}
 
 ## Introduction
 
-The `node-type` command shows the node type that Redocly CLI assigns to each place in an API description.
+The `inspect-node-types` command shows the node type that Redocly CLI assigns to each place in an API description.
 
 Node types are the vocabulary of [configurable rules](../rules/configurable-rules.md) and [custom plugins](../custom-plugins/index.md):
 a configurable rule targets a node type in its `subject`, and a plugin rule declares a visitor for one.
-Use `node-type` to find the right type name for the part of your description you want to check.
+Use `inspect-node-types` to find the right type name for the part of your description you want to check.
 
 A node has a type only because of the path the linter took to reach it, so the command always walks the whole description from its root.
 Nodes in referenced files appear at their own pointers, in their own files.
@@ -14,10 +20,10 @@ Nodes in referenced files appear at their own pointers, in their own files.
 ## Usage
 
 ```bash
-redocly node-type <api> [--config=<path>]                  # list every node
-redocly node-type <api> --pointer=<pointer> [--parents]    # ask about one location
-redocly node-type <api> --type=<type> [--parents]          # ask about one type
-redocly node-type <api> --summary                          # count the types used
+redocly inspect-node-types <api> [--config=<path>]                  # list every node
+redocly inspect-node-types <api> --pointer=<pointer> [--parents]    # ask about one location
+redocly inspect-node-types <api> --type=<type> [--parents]          # ask about one type
+redocly inspect-node-types <api> --summary                          # count the types used
 ```
 
 The command answers one question at a time, so `--pointer`, `--type`, and `--summary` are mutually
@@ -46,7 +52,7 @@ and on its own it fails with `The --parents option requires --pointer or --type`
 Without `--pointer`, the command prints every node in the description, with its type first:
 
 ```bash
-redocly node-type cafe.yaml
+redocly inspect-node-types cafe.yaml
 ```
 
 ```text
@@ -72,7 +78,7 @@ A `$ref` site shows the pointer it resolves to after the `→` arrow.
 Pass `--type` to see every place one type appears:
 
 ```bash
-redocly node-type cafe.yaml --type=Schema
+redocly inspect-node-types cafe.yaml --type=Schema
 ```
 
 ```text
@@ -84,7 +90,7 @@ Schema  components/parameters/Filter.yaml#/schema
 Pass `--summary` to see which node types the description uses, with the number of nodes of each:
 
 ```bash
-redocly node-type cafe.yaml --summary
+redocly inspect-node-types cafe.yaml --summary
 ```
 
 ```text
@@ -110,7 +116,7 @@ Pass a [JSON pointer](https://datatracker.ietf.org/doc/html/rfc6901) to get a si
 Remember that `/` inside a path or property name is escaped as `~1`:
 
 ```bash
-redocly node-type cafe.yaml --pointer='#/paths/~1orders'
+redocly inspect-node-types cafe.yaml --pointer='#/paths/~1orders'
 ```
 
 ```text
@@ -127,7 +133,7 @@ Add `--parents` to a pointer lookup to get every level above the node.
 The chain is the vocabulary of a configurable rule's `where` list, which names ancestors from the root down:
 
 ```bash
-redocly node-type cafe.yaml --pointer='components/parameters/Filter.yaml#/schema' --parents
+redocly inspect-node-types cafe.yaml --pointer='components/parameters/Filter.yaml#/schema' --parents
 ```
 
 ```text
@@ -143,7 +149,7 @@ Routes that pass through the same types collapse into a single line.
 Add `--parents` to `--type` to get the distinct chains that lead to that type, each ending at the type itself:
 
 ```bash
-redocly node-type cafe.yaml --type=PathItem --parents
+redocly inspect-node-types cafe.yaml --type=PathItem --parents
 ```
 
 ```text
@@ -163,7 +169,7 @@ Prefix the pointer with the file, relative to the directory you run the command 
 The API argument stays the root of the description:
 
 ```bash
-redocly node-type cafe.yaml --pointer='paths/orders.yaml#/get/parameters/0'
+redocly inspect-node-types cafe.yaml --pointer='paths/orders.yaml#/get/parameters/0'
 ```
 
 ```text

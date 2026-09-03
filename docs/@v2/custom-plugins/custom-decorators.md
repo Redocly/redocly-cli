@@ -39,7 +39,7 @@ export default function myLocalPlugin() {
 
 Each decorator or preprocessor is a function that returns an object. The object's keys are the node types in the document, and each of those can contain any or all of the `enter()`, `leave()` and `skip()` functions for that node type. Find more information and examples on the [visitor pattern page](./visitor.md).
 
-To find the exact type of a place in your API description, run the [`node-type` command](../commands/node-type.md) with a pointer to that place, or hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+To find the exact type of a place in your API description, run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place, or hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
 
 ## Decorator example
 
