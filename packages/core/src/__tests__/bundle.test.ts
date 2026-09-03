@@ -188,6 +188,28 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should reuse the component name when the component is a ref to a file named differently', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-component-name-differs-from-filename.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
+  it('should not duplicate the component when bundling with dereference', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-component-name-differs-from-filename.yaml'),
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    const { components } = res.parsed as { components: { schemas: Record<string, unknown> } };
+    expect(Object.keys(components.schemas)).toEqual(['ApiRequest']);
+  });
+
   it('should dereferenced correctly when used with dereference', async () => {
     const { bundle: res, problems } = await bundleDocument({
       externalRefResolver: new BaseResolver(),
