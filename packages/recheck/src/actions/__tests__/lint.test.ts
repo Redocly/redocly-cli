@@ -757,3 +757,28 @@ describe('runLint', () => {
     });
   });
 });
+
+describe('runLint image metadata', () => {
+  it('confines image lookups to the scanned root, not the working directory', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-image-root-'));
+    try {
+      await fs.writeFile(path.join(root, 'big.png'), Buffer.alloc(2048));
+      await fs.writeFile(path.join(root, 'doc.md'), '# Doc\n\n![Big](./big.png)\n');
+      const config = await resolveConfig(root, {
+        rules: {
+          'recheck/max-image-size': {
+            severity: 'error',
+            message: 'Image too large: %s',
+            assertions: { 'max-image-size': { maxSizeKB: 1 } },
+          },
+        },
+      });
+      const logger = collectingLogger();
+      const exitCode = await runLint(root, config, {}, logger);
+      expect(exitCode).toBe(1);
+      expect(logger.lines.some((line) => line.includes('big.png'))).toBe(true);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+});

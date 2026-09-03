@@ -13,7 +13,7 @@ import { generateReport, generateEmptyReport } from '../reporter/index.js';
 import { buildSummary, printSummary } from '../reporter/summary.js';
 import type { NormalizedRule } from '../types/index.js';
 import type { Logger } from './logger.js';
-import { discoverFilesForRoots, toRoots } from './roots.js';
+import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 
 export interface LintOptions {
   format?: 'table' | 'json' | 'sarif' | 'github-actions';
@@ -119,7 +119,9 @@ export async function runLint(
     for (const filePath of files) {
       try {
         const content = await fs.readFile(filePath, 'utf8');
-        const metadata = loadImageMeta ? await loadImageMetadata(filePath, content) : undefined;
+        const metadata = loadImageMeta
+          ? await loadImageMetadata(filePath, content, rootForFile(filePath, roots))
+          : undefined;
         fileInputs.push({ path: filePath, content, metadata });
       } catch {
         logger.log(yellow(`   Warning: Could not read file ${filePath}`));

@@ -26,3 +26,19 @@ export async function discoverFilesForRoots(roots: string[]): Promise<string[]> 
   }
   return files;
 }
+
+/**
+ * The root a discovered file belongs to: the first root that is the file
+ * itself (then its directory) or an ancestor directory of it. A file outside
+ * every root gets its own directory.
+ */
+export function rootForFile(file: string, roots: string[]): string {
+  const absolute = path.resolve(file);
+  for (const root of roots) {
+    const resolvedRoot = path.resolve(root);
+    if (resolvedRoot === absolute) return path.dirname(absolute);
+    const prefix = resolvedRoot.endsWith(path.sep) ? resolvedRoot : resolvedRoot + path.sep;
+    if (absolute.startsWith(prefix)) return resolvedRoot;
+  }
+  return path.dirname(absolute);
+}

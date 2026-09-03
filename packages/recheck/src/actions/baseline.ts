@@ -8,7 +8,7 @@ import { needsImageMetadata, loadImageMetadata } from '../core/files.js';
 import { filterEnabledRules } from '../core/rule-filters.js';
 import { runRules, type FileInput } from '../core/runner.js';
 import type { Logger } from './logger.js';
-import { discoverFilesForRoots, toRoots } from './roots.js';
+import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 
 /**
  * Runs the full configured rule set and writes the baseline file: one count
@@ -34,7 +34,9 @@ export async function generateBaseline(
   for (const filePath of files) {
     try {
       const content = await fs.readFile(filePath, 'utf8');
-      const metadata = loadImageMeta ? await loadImageMetadata(filePath, content) : undefined;
+      const metadata = loadImageMeta
+        ? await loadImageMetadata(filePath, content, rootForFile(filePath, roots))
+        : undefined;
       fileInputs.push({ path: filePath, content, metadata });
     } catch {
       logger.log(yellow(`   Warning: Could not read file ${filePath}`));
