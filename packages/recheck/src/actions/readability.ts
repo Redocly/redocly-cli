@@ -3,9 +3,10 @@ import * as fs from 'fs/promises';
 import * as pathModule from 'path';
 
 import type { ResolvedRecheckConfig } from '../config/resolve.js';
-import { discoverMarkdownFiles, loadChangedFiles } from '../core/files.js';
+import { loadChangedFiles } from '../core/files.js';
 import { computeDocumentReadability, type DocumentReadability } from '../core/readability.js';
 import type { Logger } from './logger.js';
+import { discoverFilesForRoots, toRoots } from './roots.js';
 
 export interface ReadabilityOptions {
   format?: 'table' | 'json';
@@ -28,18 +29,19 @@ function median(values: number[]): number | null {
 
 /** Reports readability scores per file plus medians. Never gates: exits 0 whenever it ran. */
 export async function runReadability(
-  path: string = '.',
+  paths: string | string[] = '.',
   config: ResolvedRecheckConfig,
   options: ReadabilityOptions,
   logger: Logger
 ): Promise<number> {
+  const roots = toRoots(paths);
   const quiet = options.format === 'json' && !options.outputPath;
   const say = (line: string) => {
     if (!quiet) logger.log(line);
   };
-  say(cyan(`📖 Measuring readability of: ${path}`));
+  say(cyan(`📖 Measuring readability of: ${roots.join(', ')}`));
 
-  let files = await discoverMarkdownFiles(path);
+  let files = await discoverFilesForRoots(roots);
   if (options.changedOnly) {
     const changed = await loadChangedFiles(options.changedListPath);
     const changedSet = new Set(

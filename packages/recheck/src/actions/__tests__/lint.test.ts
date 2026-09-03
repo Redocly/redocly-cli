@@ -710,4 +710,50 @@ describe('runLint', () => {
       ).toBe(true);
     });
   });
+
+  // A single run may cover several roots (e.g. `docs` and `reference`), so
+  // both trees must reach one report and one exit code.
+  describe('Several roots', () => {
+    it('lints two directories in one call and exits on the worse of the two', async () => {
+      const guides = path.join(tempDir, 'guides');
+      const reference = path.join(tempDir, 'reference');
+      await fs.mkdir(guides);
+      await fs.mkdir(reference);
+      await fs.writeFile(path.join(guides, 'guide.md'), '# Guide\nThis has a TODO item');
+      await fs.writeFile(path.join(reference, 'api.md'), '# API\nThis has a FIXME item');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/no-todos': {
+            severity: 'warn',
+            message: 'TODO found',
+            assertions: { pattern: { tokens: ['TODO'] } },
+          },
+          'recheck/no-fixmes': {
+            severity: 'error',
+            message: 'FIXME found',
+            assertions: { pattern: { tokens: ['FIXME'] } },
+          },
+        },
+      });
+
+      const outputPath = path.join(tempDir, 'report.json');
+      const logger = collectingLogger();
+      const exitCode = await runLint(
+        [guides, reference],
+        config,
+        { format: 'json', outputPath },
+        logger
+      );
+
+      // The warn-only root cannot mask the error root.
+      expect(exitCode).toBe(1);
+
+      const report = JSON.parse(await fs.readFile(outputPath, 'utf8'));
+      expect(report.summary.filesScanned).toBe(2);
+      const reportedFiles = report.issues.map((issue: any) => issue.file);
+      expect(reportedFiles.some((file: string) => file.includes('guide.md'))).toBe(true);
+      expect(reportedFiles.some((file: string) => file.includes('api.md'))).toBe(true);
+    });
+  });
 });

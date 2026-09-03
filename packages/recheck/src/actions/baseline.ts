@@ -4,10 +4,11 @@ import * as pathModule from 'path';
 
 import type { ResolvedRecheckConfig } from '../config/resolve.js';
 import { buildBaseline, serializeBaseline, baselineKeyMapper } from '../core/baseline.js';
-import { discoverMarkdownFiles, needsImageMetadata, loadImageMetadata } from '../core/files.js';
+import { needsImageMetadata, loadImageMetadata } from '../core/files.js';
 import { filterEnabledRules } from '../core/rule-filters.js';
 import { runRules, type FileInput } from '../core/runner.js';
 import type { Logger } from './logger.js';
+import { discoverFilesForRoots, toRoots } from './roots.js';
 
 /**
  * Runs the full configured rule set and writes the baseline file: one count
@@ -15,16 +16,17 @@ import type { Logger } from './logger.js';
  * core/baseline.ts for the format and the lint gate's semantics.
  */
 export async function generateBaseline(
-  path: string = '.',
+  paths: string | string[] = '.',
   config: ResolvedRecheckConfig,
   logger: Logger
 ): Promise<number> {
-  logger.log(cyan(`📋 Building recheck baseline from: ${path}`));
+  const roots = toRoots(paths);
+  logger.log(cyan(`📋 Building recheck baseline from: ${roots.join(', ')}`));
 
   const configDir = config.configDir;
 
   const { enabled: rulesToRun } = filterEnabledRules(config.rules);
-  const files = await discoverMarkdownFiles(path);
+  const files = await discoverFilesForRoots(roots);
   logger.log(`   Found ${files.length} markdown file(s)`);
 
   const loadImageMeta = needsImageMetadata(rulesToRun);
