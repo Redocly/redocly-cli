@@ -782,3 +782,88 @@ describe('runLint image metadata', () => {
     }
   });
 });
+
+describe('runLint with embedded inputs', () => {
+  // A single unbroken run of characters cannot exceed `recheck/line-length`
+  // (markdownlint's own MD013 stern/strict rule collapses it), so the fixture
+  // repeats separate words instead.
+  const LONG_LINE = 'lorem ipsum dolor sit amet '.repeat(6).trim();
+
+  const embedded = (file: string, content: string) => ({
+    file,
+    pointer: '#/info/description',
+    content,
+    mapPosition: (line: number, column: number) => ({ line: line + 10, column }),
+  });
+
+  it('reports page and description findings in one run', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const logger = collectingLogger();
+    const exitCode = await runLint(
+      dir,
+      config,
+      {
+        format: 'json',
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      },
+      logger
+    );
+    const report = JSON.parse(logger.outputs.join(''));
+    const files = new Set(report.issues.map((issue: { file: string }) => issue.file));
+    expect(files.has(path.join(dir, 'page.md'))).toBe(true);
+    expect(files.has(path.join(dir, 'openapi.yaml'))).toBe(true);
+    expect(
+      report.issues.find((issue: { file: string }) => issue.file.endsWith('openapi.yaml')).line
+    ).toBe(11);
+    expect(exitCode).toBe(1);
+  });
+
+  it('lints embedded inputs with no Markdown roots', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const logger = collectingLogger();
+    const exitCode = await runLint(
+      [],
+      config,
+      { embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')] },
+      logger
+    );
+    expect(exitCode).toBe(0);
+    expect(logger.lines.join('\n')).not.toContain('No markdown files found');
+  });
+
+  it('skips fixes inside descriptions and says so once', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const logger = collectingLogger();
+    await runLint(
+      [],
+      config,
+      { fix: true, embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Trailing.   \n')] },
+      logger
+    );
+    const notices = logger.lines.filter((line) =>
+      line.includes('Fixes do not apply inside API descriptions')
+    );
+    expect(notices).toHaveLength(1);
+  });
+
+  it('drops findings the ignore predicate accepts and reports the count', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const logger = collectingLogger();
+    const exitCode = await runLint(
+      [],
+      config,
+      {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+        isIgnored: (problem) => problem.pointer === '#/info/description',
+      },
+      logger
+    );
+    expect(exitCode).toBe(0);
+    expect(logger.lines.join('\n')).toContain('1 finding(s) suppressed by the ignore file');
+  });
+});

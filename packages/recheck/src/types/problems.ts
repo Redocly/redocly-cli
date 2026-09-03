@@ -10,6 +10,8 @@ export interface Problem {
   severity: RuleSeverity;
   message: string;
   fixable?: boolean;
+  // JSON pointer of the description that holds the finding; unset for pages.
+  pointer?: string;
 }
 
 export interface Fix {

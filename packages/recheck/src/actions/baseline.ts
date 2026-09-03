@@ -7,6 +7,7 @@ import { buildBaseline, serializeBaseline, baselineKeyMapper } from '../core/bas
 import { needsImageMetadata, loadImageMetadata } from '../core/files.js';
 import { filterEnabledRules } from '../core/rule-filters.js';
 import { runRules, type FileInput } from '../core/runner.js';
+import { lintEmbeddedInputs, type EmbeddedInput } from './embedded.js';
 import type { Logger } from './logger.js';
 import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 
@@ -18,10 +19,17 @@ import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 export async function generateBaseline(
   paths: string | string[] = '.',
   config: ResolvedRecheckConfig,
-  logger: Logger
+  logger: Logger,
+  options: { embeddedInputs?: EmbeddedInput[] } = {}
 ): Promise<number> {
-  const roots = toRoots(paths);
-  logger.log(cyan(`📋 Building recheck baseline from: ${roots.join(', ')}`));
+  const embeddedInputs = options.embeddedInputs ?? [];
+  const roots =
+    Array.isArray(paths) && paths.length === 0 && embeddedInputs.length > 0 ? [] : toRoots(paths);
+  const targets = [
+    ...roots,
+    ...(embeddedInputs.length > 0 ? [`${embeddedInputs.length} API description(s)`] : []),
+  ];
+  logger.log(cyan(`📋 Building recheck baseline from: ${targets.join(', ')}`));
 
   const configDir = config.configDir;
 
@@ -48,6 +56,16 @@ export async function generateBaseline(
     markdoc: config.markdoc,
     markdocSchema: config.markdocSchema,
   });
+
+  if (embeddedInputs.length > 0) {
+    const { enabled: descriptionRulesToRun } = filterEnabledRules(config.descriptionRules);
+    const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRulesToRun, {
+      knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
+      markdoc: config.markdoc,
+      markdocSchema: config.markdocSchema,
+    });
+    problems.push(...embedded.problems);
+  }
 
   const errors = problems.filter((problem) => problem.severity === 'error');
   const baseline = buildBaseline(errors, baselineKeyMapper(configDir));

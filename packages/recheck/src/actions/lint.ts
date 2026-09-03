@@ -11,7 +11,8 @@ import { Timer } from '../core/timing.js';
 import { reportFixes } from '../reporter/fixes.js';
 import { generateReport, generateEmptyReport } from '../reporter/index.js';
 import { buildSummary, printSummary } from '../reporter/summary.js';
-import type { NormalizedRule } from '../types/index.js';
+import type { NormalizedRule, Problem } from '../types/index.js';
+import { lintEmbeddedInputs, type EmbeddedInput } from './embedded.js';
 import type { Logger } from './logger.js';
 import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 
@@ -29,6 +30,10 @@ export interface LintOptions {
   changedOnly?: boolean;
   changedListPath?: string;
   outputPath?: string;
+  // Descriptions extracted from API documents; they lint in embedded mode.
+  embeddedInputs?: EmbeddedInput[];
+  // Returns true for a finding the caller's ignore file suppresses.
+  isIgnored?: (problem: Problem) => boolean;
 }
 
 /**
@@ -40,8 +45,14 @@ export async function runLint(
   options: LintOptions,
   logger: Logger
 ): Promise<number> {
-  const roots = toRoots(paths);
-  logger.log(cyan(`🏃 Running recheck on: ${roots.join(', ')}`));
+  const embeddedInputs = options.embeddedInputs ?? [];
+  const roots =
+    Array.isArray(paths) && paths.length === 0 && embeddedInputs.length > 0 ? [] : toRoots(paths);
+  const targets = [
+    ...roots,
+    ...(embeddedInputs.length > 0 ? [`${embeddedInputs.length} API description(s)`] : []),
+  ];
+  logger.log(cyan(`🏃 Running recheck on: ${targets.join(', ')}`));
 
   let rulesToRun: NormalizedRule[];
   let disabledCount: number;
@@ -72,7 +83,7 @@ export async function runLint(
   try {
     let files = await discoverFilesForRoots(roots);
 
-    if (files.length === 0) {
+    if (files.length === 0 && embeddedInputs.length === 0) {
       logger.log(yellow(`⚠️  No markdown files found in: ${roots.join(', ')}`));
       // With an active baseline on an exhaustive walk, fall through with zero
       // files instead of returning: the gate must still judge the walked root
@@ -89,54 +100,58 @@ export async function runLint(
 
     logger.log(`   Found ${files.length} markdown file(s)`);
 
-    // If changed-only, filter to files provided via --changed-list or stdin
-    if (options.changedOnly) {
-      const changedCandidates = await loadChangedFiles(options.changedListPath);
-      if (!changedCandidates || changedCandidates.length === 0) {
+    // No roots to walk and nothing found: an embedded-only run skips
+    // changed-only filtering and file reads and lints no pages.
+    const fileInputs: FileInput[] = [];
+    if (!(files.length === 0 && embeddedInputs.length > 0)) {
+      // If changed-only, filter to files provided via --changed-list or stdin
+      if (options.changedOnly) {
+        const changedCandidates = await loadChangedFiles(options.changedListPath);
+        if (!changedCandidates || changedCandidates.length === 0) {
+          logger.log(
+            yellow(
+              '   Warning: --changed-only set, but no changed files were provided. Nothing to scan.'
+            )
+          );
+          await emitEmptyReport(options, logger);
+          return 0;
+        }
+        const changedSet = new Set(
+          changedCandidates.map((p) => (pathModule.isAbsolute(p) ? p : pathModule.resolve(p)))
+        );
+        const filtered = files.filter((f: string) => changedSet.has(pathModule.resolve(f)));
+        logger.log(`   Filtering to ${filtered.length} changed file(s)`);
+        if (filtered.length === 0) {
+          logger.log(yellow('   Warning: No changed markdown files matched.'));
+          await emitEmptyReport(options, logger);
+          return 0;
+        }
+        files = filtered;
+      }
+
+      const loadImageMeta = needsImageMetadata(rulesToRun);
+      for (const filePath of files) {
+        try {
+          const content = await fs.readFile(filePath, 'utf8');
+          const metadata = loadImageMeta
+            ? await loadImageMetadata(filePath, content, rootForFile(filePath, roots))
+            : undefined;
+          fileInputs.push({ path: filePath, content, metadata });
+        } catch {
+          logger.log(yellow(`   Warning: Could not read file ${filePath}`));
+        }
+      }
+
+      // Stats/file totals below must cover what was actually linted, not what
+      // was requested — unreadable files were warned about and skipped above.
+      const skippedCount = files.length - fileInputs.length;
+      if (skippedCount > 0) {
         logger.log(
           yellow(
-            '   Warning: --changed-only set, but no changed files were provided. Nothing to scan.'
+            `   Warning: Skipped ${skippedCount} unreadable file(s); linting ${fileInputs.length} file(s)`
           )
         );
-        await emitEmptyReport(options, logger);
-        return 0;
       }
-      const changedSet = new Set(
-        changedCandidates.map((p) => (pathModule.isAbsolute(p) ? p : pathModule.resolve(p)))
-      );
-      const filtered = files.filter((f: string) => changedSet.has(pathModule.resolve(f)));
-      logger.log(`   Filtering to ${filtered.length} changed file(s)`);
-      if (filtered.length === 0) {
-        logger.log(yellow('   Warning: No changed markdown files matched.'));
-        await emitEmptyReport(options, logger);
-        return 0;
-      }
-      files = filtered;
-    }
-
-    const loadImageMeta = needsImageMetadata(rulesToRun);
-    const fileInputs: FileInput[] = [];
-    for (const filePath of files) {
-      try {
-        const content = await fs.readFile(filePath, 'utf8');
-        const metadata = loadImageMeta
-          ? await loadImageMetadata(filePath, content, rootForFile(filePath, roots))
-          : undefined;
-        fileInputs.push({ path: filePath, content, metadata });
-      } catch {
-        logger.log(yellow(`   Warning: Could not read file ${filePath}`));
-      }
-    }
-
-    // Stats/file totals below must cover what was actually linted, not what
-    // was requested — unreadable files were warned about and skipped above.
-    const skippedCount = files.length - fileInputs.length;
-    if (skippedCount > 0) {
-      logger.log(
-        yellow(
-          `   Warning: Skipped ${skippedCount} unreadable file(s); linting ${fileInputs.length} file(s)`
-        )
-      );
     }
 
     // Under --fix, loop lint -> apply fixes -> re-lint until a pass produces
@@ -151,7 +166,7 @@ export async function runLint(
       markdocSchema: config.markdocSchema,
     };
     const {
-      problems: allProblems,
+      problems: pageProblems,
       fixedFiles,
       fixes,
       skippedFixes,
@@ -189,11 +204,46 @@ export async function runLint(
       }
     }
 
+    let problems: Problem[] = [...pageProblems];
+    if (embeddedInputs.length > 0) {
+      let descriptionRules: NormalizedRule[];
+      try {
+        ({ filtered: descriptionRules } = applyFilters(config.descriptionRules, {
+          severity: options.severity,
+          tags: options.tags,
+          rules: options.rules,
+          excludeRules: options.excludeRules,
+        }));
+      } catch (error) {
+        if (error instanceof UnknownRuleNameError) {
+          logger.log(red(`❌ ${error.message}`));
+          logger.log(`   Available: ${error.available.join(', ')}`);
+          return 1;
+        }
+        throw error;
+      }
+      const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRules, runnerOptions);
+      problems.push(...embedded.problems);
+      if (options.fix && embedded.fixableCount > 0) {
+        logger.log(
+          yellow(
+            `   Fixes do not apply inside API descriptions; ${embedded.fixableCount} fixable finding(s) skipped.`
+          )
+        );
+      }
+    }
+    if (options.isIgnored) {
+      const before = problems.length;
+      problems = problems.filter((problem) => !options.isIgnored!(problem));
+      const suppressed = before - problems.length;
+      if (suppressed > 0) logger.log(`   ${suppressed} finding(s) suppressed by the ignore file.`);
+    }
+
     // Baseline gate: errors only, scoped to what this run scanned and which
     // rules ran (see core/baseline.ts). Missing file with the key set is an
     // error with the fix in the message; a parse failure lands in the outer
     // catch like any other fatal.
-    let reportProblems = allProblems;
+    let reportProblems = problems;
     let baselineStats: { matched: number; new: number; stale: number } | undefined;
     if (config.baselinePath) {
       let baselineText: string;
@@ -208,7 +258,7 @@ export async function runLint(
       }
       const baseline = parseBaseline(baselineText, config.baselinePath);
       const toKey = baselineKeyMapper(config.configDir);
-      const comparison = compareToBaseline(allProblems, baseline, {
+      const comparison = compareToBaseline(problems, baseline, {
         scannedFiles: fileInputs.map((file) => file.path),
         executedRules: new Set(rulesToRun.map((rule) => rule.name)),
         toKey,
@@ -227,9 +277,12 @@ export async function runLint(
       );
     }
 
+    const scannedFileCount =
+      fileInputs.length + new Set(embeddedInputs.map((input) => input.file)).size;
+
     await generateReport(
       reportProblems,
-      fileInputs.length,
+      scannedFileCount,
       {
         format: options.format || 'table',
         showStats: options.stats,
@@ -241,7 +294,7 @@ export async function runLint(
     );
 
     if (options.summary) {
-      const summary = buildSummary(reportProblems, fileInputs.length, baselineStats);
+      const summary = buildSummary(reportProblems, scannedFileCount, baselineStats);
       await printSummary(summary, options.summary, options.summaryPath, logger);
     }
 
