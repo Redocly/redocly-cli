@@ -199,10 +199,17 @@ export async function runWorkflow({
 
   const workflowSteps = workflow.steps.slice(fromStepIndex);
 
-  // clean $steps ctx before running workflow steps, unless a goto resumed this
-  // workflow part-way through and the steps it already ran stay addressable
-  if (!fromStepId) ctx.$steps = {};
-
+  // Reset $steps before running workflow steps.
+  // On resume (goto/retry by stepId), keep earlier step outputs but clear any steps that will be (re)executed.
+  if (!fromStepId) {
+    ctx.$steps = {};
+  } else {
+    const workflowCtx = ctx.$workflows[workflowId];
+    for (const stepToReset of workflowSteps) {
+      delete ctx.$steps[stepToReset.stepId];
+      if (workflowCtx?.steps) delete workflowCtx.steps[stepToReset.stepId];
+    }
+  }
   for (const step of workflowSteps) {
     try {
       const stepResult = await runStep({
