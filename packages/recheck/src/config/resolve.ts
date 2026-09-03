@@ -80,6 +80,10 @@ function applyDescriptionOverrides(
       continue;
     }
     if (typeof value === 'string') {
+      if (!SEVERITIES.has(value)) {
+        errors.push({ message: `"${name}" has an unknown severity "${value}"`, path });
+        continue;
+      }
       byName.set(name, { ...rule, severity: value as NormalizedRule['severity'] });
       continue;
     }

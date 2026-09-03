@@ -157,4 +157,20 @@ describe('resolveRecheckConfig', () => {
       'recheck.apiDescriptions.rules.recheck/nope',
     ]);
   });
+
+  it('rejects an apiDescriptions severity override with an unknown severity', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: { 'recheck/line-length': 'eror' } } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '"recheck/line-length" has an unknown severity "eror"',
+        path: 'recheck.apiDescriptions.rules.recheck/line-length',
+      },
+    ]);
+  });
 });

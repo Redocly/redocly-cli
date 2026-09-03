@@ -866,4 +866,34 @@ describe('runLint with embedded inputs', () => {
     expect(exitCode).toBe(0);
     expect(logger.lines.join('\n')).toContain('1 finding(s) suppressed by the ignore file');
   });
+
+  it('does not abort the run for a rule that is off for descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      { apiDescriptions: { rules: { 'recheck/line-length': 'off' } } },
+      ['recheck/markdown']
+    );
+    const logger = collectingLogger();
+    const exitCode = await runLint(
+      dir,
+      config,
+      {
+        format: 'json',
+        rules: ['recheck/line-length'],
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      },
+      logger
+    );
+    const report = JSON.parse(logger.outputs.join(''));
+    const lineLengthIssues = report.issues.filter(
+      (issue: { ruleName: string }) => issue.ruleName === 'recheck/line-length'
+    );
+    expect(exitCode).toBe(1);
+    expect(lineLengthIssues).toHaveLength(1);
+    expect(lineLengthIssues[0].file).toBe(path.join(dir, 'page.md'));
+    expect(logger.lines.join('\n')).not.toContain('no rule in this configuration matches');
+    expect(logger.errors.join('\n')).not.toContain('no rule in this configuration matches');
+  });
 });
