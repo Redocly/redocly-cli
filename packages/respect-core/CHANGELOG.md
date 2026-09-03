@@ -1,5 +1,14 @@
 # @redocly/respect-core
 
+## 2.51.1
+
+### Patch Changes
+
+- Fixed an issue where `generate-arazzo` produced a malformed remote description URL in `sourceDescriptions` (`https://` collapsed to `https:/`) when `--output-file` was provided.
+- Fixed an issue where `$faker.string.email()` used without options generated addresses at the `undefined.com` domain.
+- Updated `@faker-js/faker` to the `10.6.0` version to resolve the high severity advisory `GHSA-qxc2-j82w-r537`.
+- Updated @redocly/openapi-core to v2.51.1.
+
 ## 2.51.0
 
 ### Patch Changes
