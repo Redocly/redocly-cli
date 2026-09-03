@@ -35,11 +35,7 @@ export async function runReadability(
   logger: Logger
 ): Promise<number> {
   const roots = toRoots(paths);
-  const quiet = options.format === 'json' && !options.outputPath;
-  const say = (line: string) => {
-    if (!quiet) logger.log(line);
-  };
-  say(cyan(`📖 Measuring readability of: ${roots.join(', ')}`));
+  logger.log(cyan(`📖 Measuring readability of: ${roots.join(', ')}`));
 
   let files = await discoverFilesForRoots(roots);
   if (options.changedOnly) {
@@ -49,7 +45,7 @@ export async function runReadability(
     );
     files = files.filter((file) => changedSet.has(pathModule.resolve(file)));
   }
-  say(`   Scoring ${files.length} markdown file(s)`);
+  logger.log(`   Scoring ${files.length} markdown file(s)`);
 
   const rows: FileReadability[] = [];
   for (const file of files) {
@@ -57,7 +53,7 @@ export async function runReadability(
     try {
       content = await fs.readFile(file, 'utf8');
     } catch {
-      say(yellow(`   Warning: Could not read file ${file}`));
+      logger.log(yellow(`   Warning: Could not read file ${file}`));
       continue;
     }
     rows.push({ file, ...computeDocumentReadability(content, { markdoc: config.markdoc }) });
@@ -79,13 +75,13 @@ export async function runReadability(
     const report = JSON.stringify({ summary, files: rows }, null, 2);
     if (options.outputPath && options.outputPath.length > 0) {
       await fs.writeFile(options.outputPath, report, 'utf8');
-      say(`   Wrote JSON report to ${options.outputPath}`);
+      logger.log(`   Wrote JSON report to ${options.outputPath}`);
     } else {
-      logger.log(report);
+      logger.output(report);
     }
   } else {
-    logger.log('');
-    logger.log('   FRE     Grade     ARI   Words   Sentences  File');
+    logger.output('');
+    logger.output('   FRE     Grade     ARI   Words   Sentences  File');
     for (const row of rows) {
       const fre =
         row.fleschReadingEase === null ? '     —' : row.fleschReadingEase.toFixed(1).padStart(6);
@@ -95,11 +91,11 @@ export async function runReadability(
         row.automatedReadabilityIndex === null
           ? '     —'
           : row.automatedReadabilityIndex.toFixed(1).padStart(6);
-      logger.log(
+      logger.output(
         `${fre}  ${grade}  ${ari}  ${String(row.words).padStart(6)}  ${String(row.sentences).padStart(9)}  ${row.file}`
       );
     }
-    logger.log('');
+    logger.output('');
     logger.log(
       green(
         `   ${summary.scored} of ${summary.files} file(s) scored` +

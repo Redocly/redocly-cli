@@ -27,7 +27,7 @@ The package exports the engine for tools that embed it:
 - `resolveRecheckConfig` turns a `recheck` block and a list of preset names into normalized rules.
 - `lintFiles` and `lintContent` run those rules over files or strings.
 - `runLint`, `generateBaseline`, `runReadability`, and `generateMarkdocSchema` are the actions the CLI command calls.
-  Each takes a `Logger`.
+  Each takes a `Logger` with four channels: `log`, `warn`, and `error` carry progress and diagnostics, and `output` carries report payloads.
   `runLint`, `generateBaseline`, and `runReadability` accept one path or a list of paths.
 - `parseMarkdown`, `extractScopes`, and `applyFixesToContent` expose the parser, the scope extractor, and the fixer.
 

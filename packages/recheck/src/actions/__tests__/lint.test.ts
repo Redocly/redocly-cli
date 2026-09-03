@@ -212,8 +212,8 @@ describe('runLint', () => {
       const exitCode = await runLint(tempDir, config, {}, logger);
 
       expect(exitCode).toBe(0); // directive warnings are warn-severity, not errors
-      expect(logger.lines.some((log) => log.includes('unknown rule "no-such-rule"'))).toBe(true);
-      expect(logger.lines.some((log) => log.includes('unknown rule "muted-rule"'))).toBe(false);
+      expect(logger.outputs.some((log) => log.includes('unknown rule "no-such-rule"'))).toBe(true);
+      expect(logger.outputs.some((log) => log.includes('unknown rule "muted-rule"'))).toBe(false);
     });
   });
 
@@ -406,7 +406,7 @@ describe('runLint', () => {
       const logger = collectingLogger();
       const exitCode = await runLint(tempDir, config, { format: 'json', severity: 'info' }, logger);
       expect(exitCode).toBe(1);
-      const jsonBlock = logger.lines.find((line) => line.trim().startsWith('{'));
+      const jsonBlock = logger.outputs.find((line) => line.trim().startsWith('{'));
       expect(jsonBlock).toBeTruthy();
       const report = JSON.parse(jsonBlock as string);
       expect(report.summary.totalIssues).toBe(3);
@@ -499,7 +499,7 @@ describe('runLint', () => {
       expect(exitCode).toBe(1); // Should find errors
 
       // Extract JSON output
-      const jsonLine = logger.lines.find((log) => log.trim().startsWith('{'));
+      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
       expect(jsonLine).toBeTruthy();
       const report = JSON.parse(jsonLine as string);
 
@@ -540,7 +540,7 @@ describe('runLint', () => {
       expect(exitCode).toBe(1); // Should find errors
 
       // Extract JSON output
-      const jsonLine = logger.lines.find((log) => log.trim().startsWith('{'));
+      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
       expect(jsonLine).toBeTruthy();
       const report = JSON.parse(jsonLine as string);
 
@@ -582,7 +582,7 @@ describe('runLint', () => {
       expect(exitCode).toBe(1); // Should find errors
 
       // Extract JSON output
-      const jsonLine = logger.lines.find((log) => log.trim().startsWith('{'));
+      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
       expect(jsonLine).toBeTruthy();
       const report = JSON.parse(jsonLine as string);
 
@@ -618,7 +618,7 @@ describe('runLint', () => {
       expect(exitCode).toBe(1); // Should find errors
 
       // Extract JSON output
-      const jsonLine = logger.lines.find((log) => log.trim().startsWith('{'));
+      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
       expect(jsonLine).toBeTruthy();
       const report = JSON.parse(jsonLine as string);
 
@@ -692,7 +692,7 @@ describe('runLint', () => {
 
       // An exit code alone cannot distinguish "the flag gated the rules" from
       // "the rules ran and found nothing on this fixture".
-      const jsonLine = logger.lines.find((log) => log.trim().startsWith('{'));
+      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
       expect(jsonLine).toBeTruthy();
       const report = JSON.parse(jsonLine as string);
       expect(
@@ -776,7 +776,7 @@ describe('runLint image metadata', () => {
       const logger = collectingLogger();
       const exitCode = await runLint(root, config, {}, logger);
       expect(exitCode).toBe(1);
-      expect(logger.lines.some((line) => line.includes('big.png'))).toBe(true);
+      expect(logger.outputs.some((line) => line.includes('big.png'))).toBe(true);
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
