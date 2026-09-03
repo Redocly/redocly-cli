@@ -109,7 +109,7 @@ You never decide which parts of a file match the rule's scope — you iterate th
   - Edge cases (empty content, special markdown syntax, etc.).
   - First-line column mapping, if your rule reports columns inside segments.
   - **Note**: Scope filtering is tested at the runner level, so your assertion tests can focus on content processing logic.
-- Run the suite with `pnpm test` from `packages/recheck`.
+- Run the suite with `VITEST_SUITE=unit npx vitest run packages/recheck` from the repository root.
 
 ## Example skeleton
 
@@ -236,7 +236,7 @@ Token rules are markdownlint-style structural rules (headings, lists, links, tab
    // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
    ```
 
-   Note any additive Recheck-only options or intentional behavior differences from upstream in a doc comment near the option/behavior in question (see `no-duplicate-heading.ts`'s `respectSections`/`caseSensitive`/`ignoreCommonHeadings` for an example) — this is what the `README.md` "Migrating from markdownlint" section and this repo's differential parity harness (`pnpm parity`) both rely on staying accurate.
+   Note any additive Recheck-only options or intentional behavior differences from upstream in a doc comment near the option/behavior in question (see `no-duplicate-heading.ts`'s `respectSections`/`caseSensitive`/`ignoreCommonHeadings` for an example) — this is what the `README.md` "Migrating from markdownlint" section and this repo's differential parity harness (the parity harness (archived in the Redocly monorepo)) both rely on staying accurate.
 
 ## Checklist before opening a PR
 

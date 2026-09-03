@@ -1,5 +1,5 @@
 // Generated file -- do not hand-edit. Regenerate with
-// `pnpm markdoc-schema:generate` after packages/theme's or packages/portal's
+// the generator script in the Redocly monorepo after packages/theme's or packages/portal's
 // tag maps, or @markdoc/markdoc's built-in tags, change.
 //
 // The built-in `realm` schema: a statics-only view of the COMPOSED Markdoc

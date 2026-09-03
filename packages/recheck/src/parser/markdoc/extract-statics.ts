@@ -5,7 +5,7 @@
 //     built-in schema (markdoc + portal + theme) for the committed
 //     `src/data/markdoc-realm-schema.ts`, and re-exports these functions
 //     unchanged so its own drift test keeps working.
-//   - `src/commands/markdoc-schema.ts`, the `recheck --generate-markdoc-schema` CLI
+//   - `src/actions/markdoc-schema.ts`, the `redocly recheck --generate-markdoc-schema`
 //     command, which extracts statics from a project's own schema module(s).
 //
 // Lives under `src/` (not `scripts/`) so the built CLI can import it at

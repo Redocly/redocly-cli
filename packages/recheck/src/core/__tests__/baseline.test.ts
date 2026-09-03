@@ -124,7 +124,7 @@ describe('compareToBaseline', () => {
     expect(result.staleEntries).toBe(1);
     expect(result.problems[0].severity).toBe('error');
     expect(result.problems[0].message).toMatch(
-      /stale.*expected 2.*found 0.*recheck --generate-baseline/s
+      /stale.*expected 2.*found 0.*redocly recheck --generate-baseline/s
     );
   });
 
