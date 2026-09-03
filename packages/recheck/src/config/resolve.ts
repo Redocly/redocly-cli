@@ -57,7 +57,7 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       errors: [
         {
           message:
-            'The recheck block has no `extends`. Name Recheck presets in the root `extends` of redocly.yaml, for example `extends: [recommended, recheck/markdown]`.',
+            'The `recheck` block does not accept `extends`. Name Recheck presets in the root `extends` of redocly.yaml, for example `extends: [recommended, recheck/markdown]`.',
           path: 'recheck.extends',
         },
       ],

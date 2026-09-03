@@ -34,7 +34,7 @@ describe('generateMarkdocSchema', () => {
     const content = await readFile(out, 'utf8');
     expect(content).toContain('# Source module(s):');
     expect(content).toContain(fixture('module-a.ts'));
-    expect(content).toContain('# Regenerate: recheck --generate-markdoc-schema --from');
+    expect(content).toContain('# Regenerate: redocly recheck --generate-markdoc-schema --from');
 
     const parsed = yaml.load(content) as Record<string, unknown>;
     expect(parsed['widget']).toEqual({
