@@ -4,12 +4,7 @@ import * as pathModule from 'path';
 
 import type { ResolvedRecheckConfig } from '../config/resolve.js';
 import { parseBaseline, compareToBaseline, baselineKeyMapper } from '../core/baseline.js';
-import {
-  discoverMarkdownFiles,
-  loadChangedFiles,
-  needsImageMetadata,
-  loadImageMetadata,
-} from '../core/files.js';
+import { loadChangedFiles, needsImageMetadata, loadImageMetadata } from '../core/files.js';
 import { applyFilters, UnknownRuleNameError } from '../core/rule-filters.js';
 import { runRules, runRulesUntilStable, type FileInput } from '../core/runner.js';
 import { Timer } from '../core/timing.js';
@@ -18,6 +13,7 @@ import { generateReport, generateEmptyReport } from '../reporter/index.js';
 import { buildSummary, printSummary } from '../reporter/summary.js';
 import type { NormalizedRule } from '../types/index.js';
 import type { Logger } from './logger.js';
+import { discoverFilesForRoots, toRoots } from './roots.js';
 
 export interface LintOptions {
   format?: 'table' | 'json' | 'sarif' | 'github-actions';
@@ -36,15 +32,16 @@ export interface LintOptions {
 }
 
 /**
- * Run recheck on files
+ * Run recheck on files under one or more roots
  */
 export async function runLint(
-  path: string = '.',
+  paths: string | string[] = '.',
   config: ResolvedRecheckConfig,
   options: LintOptions,
   logger: Logger
 ): Promise<number> {
-  logger.log(cyan(`🏃 Running recheck on: ${path}`));
+  const roots = toRoots(paths);
+  logger.log(cyan(`🏃 Running recheck on: ${roots.join(', ')}`));
 
   let rulesToRun: NormalizedRule[];
   let disabledCount: number;
@@ -73,10 +70,10 @@ export async function runLint(
   const timer = new Timer();
 
   try {
-    let files = await discoverMarkdownFiles(path);
+    let files = await discoverFilesForRoots(roots);
 
     if (files.length === 0) {
-      logger.log(yellow(`⚠️  No markdown files found in: ${path}`));
+      logger.log(yellow(`⚠️  No markdown files found in: ${roots.join(', ')}`));
       // With an active baseline on an exhaustive walk, fall through with zero
       // files instead of returning: the gate must still judge the walked root
       // (deleting the last baselined files turns their entries stale), and its
@@ -214,8 +211,8 @@ export async function runLint(
         executedRules: new Set(rulesToRun.map((rule) => rule.name)),
         toKey,
         // A changed-only run walks nothing exhaustively, so a missing file
-        // proves nothing there; a plain run walked `path` in full.
-        scanRoots: options.changedOnly ? undefined : [toKey(path)],
+        // proves nothing there; a plain run walked every root in full.
+        scanRoots: options.changedOnly ? undefined : roots.map(toKey),
       });
       reportProblems = comparison.problems;
       baselineStats = {
