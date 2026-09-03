@@ -16,7 +16,7 @@ recheck:
   baseline: ./recheck-baseline.yaml
 ```
 
-Then run `npx @redocly/cli recheck`.
+When the command ships, run `npx @redocly/cli recheck`.
 The command documentation lives at https://redocly.com/docs/cli/commands/recheck.
 
 ## Programmatic use
