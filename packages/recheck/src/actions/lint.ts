@@ -5,7 +5,7 @@ import * as pathModule from 'path';
 import type { ResolvedRecheckConfig } from '../config/resolve.js';
 import { parseBaseline, compareToBaseline, baselineKeyMapper } from '../core/baseline.js';
 import { loadChangedFiles, needsImageMetadata, loadImageMetadata } from '../core/files.js';
-import { applyFilters, UnknownRuleNameError } from '../core/rule-filters.js';
+import { applyFilters, matchesRuleName, UnknownRuleNameError } from '../core/rule-filters.js';
 import { runRules, runRulesUntilStable, type FileInput } from '../core/runner.js';
 import { Timer } from '../core/timing.js';
 import { reportFixes } from '../reporter/fixes.js';
@@ -103,7 +103,7 @@ export async function runLint(
     // No roots to walk and nothing found: an embedded-only run skips
     // changed-only filtering and file reads and lints no pages.
     const fileInputs: FileInput[] = [];
-    if (!(files.length === 0 && embeddedInputs.length > 0)) {
+    if (files.length > 0 || embeddedInputs.length === 0) {
       // If changed-only, filter to files provided via --changed-list or stdin
       if (options.changedOnly) {
         const changedCandidates = await loadChangedFiles(options.changedListPath);
@@ -206,30 +206,46 @@ export async function runLint(
 
     let problems: Problem[] = [...pageProblems];
     if (embeddedInputs.length > 0) {
-      let descriptionRules: NormalizedRule[];
-      try {
-        ({ filtered: descriptionRules } = applyFilters(config.descriptionRules, {
-          severity: options.severity,
-          tags: options.tags,
-          rules: options.rules,
-          excludeRules: options.excludeRules,
-        }));
-      } catch (error) {
-        if (error instanceof UnknownRuleNameError) {
-          logger.log(red(`❌ ${error.message}`));
-          logger.log(`   Available: ${error.available.join(', ')}`);
-          return 1;
+      const offForDescriptions = config.descriptionRules.filter((rule) => rule.severity === 'off');
+      // `--rule`/`--exclude-rule` names are already validated against the page
+      // rules above. A name whose description rule is off must not reach
+      // `applyFilters` here: that call drops off rules first, so the name
+      // would look unknown for descriptions even though it is a real rule.
+      const keepForDescriptions = (name: string) =>
+        !offForDescriptions.some((rule) => matchesRuleName(rule, name));
+      const descriptionRuleNames = options.rules?.filter(keepForDescriptions);
+      const descriptionExcludeRuleNames = options.excludeRules?.filter(keepForDescriptions);
+      const noRulesLeftForDescriptions =
+        options.rules !== undefined &&
+        options.rules.length > 0 &&
+        descriptionRuleNames?.length === 0;
+
+      if (!noRulesLeftForDescriptions) {
+        let descriptionRules: NormalizedRule[];
+        try {
+          ({ filtered: descriptionRules } = applyFilters(config.descriptionRules, {
+            severity: options.severity,
+            tags: options.tags,
+            rules: descriptionRuleNames,
+            excludeRules: descriptionExcludeRuleNames,
+          }));
+        } catch (error) {
+          if (error instanceof UnknownRuleNameError) {
+            logger.log(red(`❌ ${error.message}`));
+            logger.log(`   Available: ${error.available.join(', ')}`);
+            return 1;
+          }
+          throw error;
         }
-        throw error;
-      }
-      const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRules, runnerOptions);
-      problems.push(...embedded.problems);
-      if (options.fix && embedded.fixableCount > 0) {
-        logger.log(
-          yellow(
-            `   Fixes do not apply inside API descriptions; ${embedded.fixableCount} fixable finding(s) skipped.`
-          )
-        );
+        const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRules, runnerOptions);
+        problems.push(...embedded.problems);
+        if (options.fix && embedded.fixableCount > 0) {
+          logger.log(
+            yellow(
+              `   Fixes do not apply inside API descriptions; ${embedded.fixableCount} fixable finding(s) skipped.`
+            )
+          );
+        }
       }
     }
     if (options.isIgnored) {

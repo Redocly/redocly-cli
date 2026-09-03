@@ -9,6 +9,7 @@ import {
   resolveRecheckConfig,
   type ResolvedRecheckConfig,
 } from '../../config/resolve.js';
+import { baselineKeyMapper } from '../../core/baseline.js';
 import { generateBaseline } from '../baseline.js';
 import { collectingLogger } from '../logger.js';
 
@@ -53,7 +54,7 @@ describe('generateBaseline', () => {
 
     const baselineText = await fs.readFile(path.join(dir, DEFAULT_BASELINE_FILE), 'utf8');
     const baseline = yaml.load(baselineText) as { files: Record<string, Record<string, number>> };
-    const key = path.relative(dir, apiFile).split(path.sep).join('/');
+    const key = baselineKeyMapper(dir)(apiFile);
     expect(baseline.files[key]).toEqual({ 'recheck/line-length': 1 });
   });
 });
