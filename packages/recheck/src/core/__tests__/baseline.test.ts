@@ -191,3 +191,12 @@ describe('deleted files under a scan root', () => {
     expect(result.staleEntries).toBe(0);
   });
 });
+
+describe('buildBaseline keys', () => {
+  it('keeps __proto__ as a plain file and rule key', () => {
+    const baseline = buildBaseline([problem('__proto__', '__proto__')], identity);
+    expect(Object.keys(baseline.files)).toEqual(['__proto__']);
+    expect(Object.keys(baseline.files['__proto__'])).toEqual(['__proto__']);
+    expect(baseline.files['__proto__']['__proto__']).toBe(1);
+  });
+});

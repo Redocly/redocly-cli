@@ -77,19 +77,82 @@ function isOrdinalEnumerator(text: string, dotIndex: number): boolean {
 
 // An inline or reference link/image, including its text and its destination.
 // A period inside one is punctuation in a label or a URL, never a sentence
-// end: `[Step 1. Configure](#step-1)` is one inline unit. The destination
-// admits one level of balanced parens (`/wiki/Foo_(bar)`), matching what
-// CommonMark allows unescaped.
-const LINK_RE = /!?\[(?:[^[\]\\]|\\.)*\](?:\((?:[^()\\]|\\.|\([^()]*\))*\)|\[(?:[^[\]\\]|\\.)*\])/g;
-
+// end: `[Step 1. Configure](#step-1)` is one inline unit. The label holds no
+// bare brackets; the destination admits one level of balanced parens
+// (`/wiki/Foo_(bar)`), matching what CommonMark allows unescaped. A backslash
+// escapes the character after it. Each bare `[` is visited once.
 function linkRanges(text: string): Array<[number, number]> {
-  if (!text.includes('[')) return [];
   const ranges: Array<[number, number]> = [];
-  for (const match of text.matchAll(LINK_RE)) {
-    const start = match.index ?? 0;
-    ranges.push([start, start + match[0].length]);
+  let open = nextBareBracket(text, 0);
+  while (open !== -1) {
+    const end = linkEnd(text, open);
+    if (end === -1) {
+      open = nextBareBracket(text, open + 1);
+      continue;
+    }
+    const start = open > 0 && text[open - 1] === '!' ? open - 1 : open;
+    ranges.push([start, end]);
+    open = nextBareBracket(text, end);
   }
   return ranges;
+}
+
+// Index of the first `[` at or after `from` that no odd run of backslashes
+// escapes; -1 when there is none.
+function nextBareBracket(text: string, from: number): number {
+  let index = text.indexOf('[', from);
+  while (index !== -1 && isEscaped(text, index)) index = text.indexOf('[', index + 1);
+  return index;
+}
+
+function isEscaped(text: string, index: number): boolean {
+  let backslashes = 0;
+  for (let i = index - 1; i >= 0 && text[i] === '\\'; i--) backslashes++;
+  return backslashes % 2 === 1;
+}
+
+// End (exclusive) of the link that opens at `open`, or -1 when the text there
+// is not `[label](destination)` or `[label][reference]`.
+function linkEnd(text: string, open: number): number {
+  const labelClose = scanLabel(text, open + 1);
+  if (labelClose === -1) return -1;
+  const next = text[labelClose + 1];
+  if (next === '(') return scanDestination(text, labelClose + 2);
+  if (next === '[') {
+    const referenceClose = scanLabel(text, labelClose + 2);
+    return referenceClose === -1 ? -1 : referenceClose + 1;
+  }
+  return -1;
+}
+
+// Index of the `]` that closes a label whose content starts at `from`; -1 on
+// a bare `[` or the end of the text.
+function scanLabel(text: string, from: number): number {
+  for (let i = from; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '\\') i++;
+    else if (ch === ']') return i;
+    else if (ch === '[') return -1;
+  }
+  return -1;
+}
+
+// End (exclusive) of a destination whose content starts at `from`; -1 on a
+// second level of parens or the end of the text.
+function scanDestination(text: string, from: number): number {
+  let nested = false;
+  for (let i = from; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '\\') i++;
+    else if (ch === '(') {
+      if (nested) return -1;
+      nested = true;
+    } else if (ch === ')') {
+      if (!nested) return i + 1;
+      nested = false;
+    }
+  }
+  return -1;
 }
 
 // A blank line is a paragraph break, so it always ends a sentence, even

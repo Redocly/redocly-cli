@@ -261,3 +261,35 @@ describe('splitSentences', () => {
     expect(input.slice(second.start, second.end)).toBe('Three four.');
   });
 });
+
+describe('link ranges', () => {
+  it('treats an escaped bracket as text, not a link start', () => {
+    expect(texts('\\[Step one. Step two](#x) here. Next.')).toEqual([
+      '\\[Step one.',
+      'Step two](#x) here.',
+      'Next.',
+    ]);
+  });
+
+  it('keeps a link after an escaped backslash intact', () => {
+    expect(texts('See \\\\[Step 1. Go](#a) now. Then stop.')).toEqual([
+      'See \\\\[Step 1. Go](#a) now.',
+      'Then stop.',
+    ]);
+  });
+
+  it('keeps a reference link intact', () => {
+    expect(texts('See [Step 1. Go][ref] now. Then stop.')).toEqual([
+      'See [Step 1. Go][ref] now.',
+      'Then stop.',
+    ]);
+  });
+
+  it('splits an escape-heavy paragraph in linear time', () => {
+    const text = `[${'\\['.repeat(50_000)} end. Next.`;
+    const started = performance.now();
+    const result = texts(text);
+    expect(performance.now() - started).toBeLessThan(2000);
+    expect(result).toHaveLength(2);
+  });
+});

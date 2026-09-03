@@ -16,6 +16,15 @@ function removeBackslashEscapes(text: string): string {
   return text.replace(backslashEscapeRe, '$1');
 }
 
+// An escape pair, or one bare character to escape; `escapeBare` leaves the
+// pairs as they are.
+const bracketOrEscapeRe = /\\[\s\S]|[[\]]/g;
+const parenOrEscapeRe = /\\[\s\S]|[()]/g;
+
+function escapeBare(match: string): string {
+  return match.length === 2 ? match : `\\${match}`;
+}
+
 const autolinkDisallowedRe = /[ <>]/;
 
 function autolinkAble(destination: string): boolean {
@@ -119,8 +128,8 @@ export const linkImageStyle: TokenRule = {
           if (canInline && (urlInline || !canAutolink)) {
             // Most useful form
             const prefix = image ? '!' : '';
-            const escapedLabel = (label ?? '').replace(/[[\]]/g, '\\$&');
-            const escapedDestination = (destination ?? '').replace(/[()]/g, '\\$&');
+            const escapedLabel = (label ?? '').replace(bracketOrEscapeRe, escapeBare);
+            const escapedDestination = (destination ?? '').replace(parenOrEscapeRe, escapeBare);
             insertText = `${prefix}[${escapedLabel}](${escapedDestination})`;
           } else if (canAutolink) {
             // Simplest form

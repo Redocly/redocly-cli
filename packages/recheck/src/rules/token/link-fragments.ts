@@ -98,6 +98,27 @@ type DetailsSource = {
   unknowable?: boolean;
 };
 
+// Drops `<...>` tag spans and keeps the text between them, the way the
+// runtime reads a summary's textContent.
+function stripTags(html: string): string {
+  let out = '';
+  let index = 0;
+  while (index < html.length) {
+    const open = html.indexOf('<', index);
+    if (open === -1) break;
+    const close = html.indexOf('>', open + 1);
+    if (close === -1) break;
+    if (close === open + 1) {
+      out += html.slice(index, close);
+      index = close;
+      continue;
+    }
+    out += html.slice(index, open);
+    index = close + 1;
+  }
+  return out + html.slice(index);
+}
+
 function collectDetailsAnchors(
   content: string,
   tree: TokenTree,
@@ -128,9 +149,8 @@ function collectDetailsAnchors(
     }
     const closeIndex = content.indexOf('</details>', match.index);
     const scope = content.slice(match.index, closeIndex === -1 ? undefined : closeIndex);
-    const summaryText = /<summary\b[^>]*>([\s\S]*?)<\/summary>/i
-      .exec(scope)?.[1]
-      ?.replace(/<[^>]+>/g, '');
+    const summary = /<summary\b[^>]*>([\s\S]*?)<\/summary>/i.exec(scope)?.[1];
+    const summaryText = summary === undefined ? undefined : stripTags(summary);
     sources.push({ offset: match.index, summaryText });
   }
   const accordionRe = /\{%\s*accordion(?![\w-])([\s\S]*?)%\}/g;

@@ -86,3 +86,13 @@ describe('link-image-style (MD054)', () => {
     expect(await h.lint('Just a paragraph.\n')).toEqual([]);
   });
 });
+
+describe('link-image-style (MD054) fix escaping', () => {
+  it('keeps existing escapes when converting a full reference link to inline form', async () => {
+    const hNoFull = tokenRuleHarness('link-image-style', { full: false });
+    const fixed = await hNoFull.fix('[a \\[b\\] c][ref]\n\n[ref]: https://example.com/x_(y)\n');
+    expect(fixed).toBe(
+      '[a \\[b\\] c](https://example.com/x_\\(y\\))\n\n[ref]: https://example.com/x_(y)\n'
+    );
+  });
+});
