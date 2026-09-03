@@ -1,5 +1,5 @@
 import { logger, type Config } from '@redocly/openapi-core';
-import { mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, writeFileSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
@@ -83,5 +83,59 @@ describe('handleRecheck', () => {
     } as never);
     expect(err.join('')).toContain('Use one of --readability');
     expect(process.exitCode).toBe(1);
+  });
+
+  it('runs readability and writes the JSON report to stdout', async () => {
+    const dir = fixture();
+    await handleRecheck({
+      argv: { paths: [join(dir, 'docs')], format: 'json', readability: true },
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+    } as never);
+    const report = JSON.parse(out.join(''));
+    expect(report).toHaveProperty('summary');
+    expect(report).toHaveProperty('files');
+    expect(process.exitCode ?? 0).toBe(0);
+  });
+
+  it('generates a baseline file next to the config', async () => {
+    const dir = fixture();
+    await handleRecheck({
+      argv: { paths: [join(dir, 'docs')], format: 'table', 'generate-baseline': true },
+      config: fakeConfig(
+        { rules: {}, baseline: './recheck-baseline.yaml' },
+        ['recheck/markdown'],
+        dir
+      ),
+    } as never);
+    expect(existsSync(join(dir, 'recheck-baseline.yaml'))).toBe(true);
+    expect(process.exitCode ?? 0).toBe(0);
+  });
+
+  it('generates a Markdoc schema without resolving the recheck config', async () => {
+    const dir = fixture();
+    await handleRecheck({
+      argv: {
+        paths: [dir],
+        format: 'table',
+        'generate-markdoc-schema': true,
+        from: [join(dir, 'missing-theme.ts')],
+        out: join(dir, 'schema.yaml'),
+      },
+      config: fakeConfig({ extends: ['recheck/markdown'] }, undefined, dir),
+    } as never);
+    expect(err.join('')).not.toContain('The recheck configuration is not valid');
+    expect(err.join('')).toContain('could not import');
+    expect(process.exitCode).toBe(1);
+  });
+
+  it('writes only the JSON report to stdout for --format json', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'docs', 'index.md'), '# Title\n\n# Second title\n');
+    await handleRecheck({
+      argv: { paths: [join(dir, 'docs')], format: 'json' },
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+    } as never);
+    expect(() => JSON.parse(out.join(''))).not.toThrow();
+    expect(err.join('')).toContain('Running recheck on');
   });
 });

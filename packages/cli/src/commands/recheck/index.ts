@@ -57,6 +57,15 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     return;
   }
 
+  if (selected.action === 'markdoc-schema') {
+    const exitCode = await generateMarkdocSchema(
+      { from: argv.from ?? [], out: argv.out ?? '', check: argv.check },
+      engineLogger
+    );
+    if (exitCode !== 0) process.exitCode = exitCode;
+    return;
+  }
+
   const block = (config.resolvedConfig as { recheck?: unknown }).recheck;
   let presets = config.resolvedConfig.recheckExtends ?? [];
   if (block === undefined && presets.length === 0) {
@@ -84,18 +93,11 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
 }
 
 async function runAction(
-  action: RecheckAction,
+  action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
   resolved: ResolvedRecheckConfig,
   engineLogger: ReturnType<typeof createCliLogger>
 ): Promise<number> {
-  if (action === 'markdoc-schema') {
-    return generateMarkdocSchema(
-      { from: argv.from ?? [], out: argv.out ?? '', check: argv.check },
-      engineLogger
-    );
-  }
-
   const requested = argv.paths && argv.paths.length > 0 ? argv.paths : ['.'];
   const roots: string[] = [];
   for (const path of requested) {
