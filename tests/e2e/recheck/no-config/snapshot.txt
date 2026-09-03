@@ -1,0 +1,13 @@
+
+🎉 No issues found!
+
+No recheck configuration found; using recheck/markdown.
+🏃 Running recheck on: docs
+
+🔧 Running 53 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <time>
