@@ -19,10 +19,6 @@
 // attributes, and a non-array `matches` are marked `dynamic: true` rather than
 // guessed at.
 //
-// `admonition.type` carries FIVE `matches`, including an undocumented
-// `default`, because that is what `packages/theme` declares. The docs style
-// guide lists only four; this file mirrors the code, not the guide.
-//
 // The drift test reads whatever `packages/theme/lib/` currently holds, so it
 // cannot catch a STALE theme build -- the generator refuses to run against one
 // instead (see `assertThemeBuildIsFresh`). `packages/portal`'s tags come
@@ -54,7 +50,7 @@ export const MARKDOC_REALM_SCHEMA: MarkdocSchema = {
           type: 'string',
           required: true,
           default: 'info',
-          enum: ['warning', 'info', 'danger', 'success', 'default'],
+          enum: ['warning', 'info', 'danger', 'success', 'idea'],
         },
       },
     },

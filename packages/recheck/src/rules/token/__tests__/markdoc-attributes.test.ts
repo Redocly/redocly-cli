@@ -117,7 +117,7 @@ describe('markdoc-attributes', () => {
       );
       expect(problems).toHaveLength(1);
       expect(problems[0].message).toBe(
-        '"type" must be one of "warning", "info", "danger", "success", "default" — got "information"'
+        '"type" must be one of "warning", "info", "danger", "success", "idea" — got "information"'
       );
     });
   });
