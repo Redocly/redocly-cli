@@ -357,16 +357,12 @@ export function makeBundleVisitor({
     return { key };
   }
 
-  function componentNameFromBasename(
+  // the name of an entry that already holds the target or is a plain $ref to it
+  function findExistingComponentName(
     target: ComponentTarget,
     componentsGroup: ComponentsGroup,
     ctx: UserContext
-  ): { name: string; prevName: string } {
-    const prevName =
-      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
-    // a target already saved in the group, or authored there as a plain $ref to it,
-    // keeps that entry's name instead of getting a second entry named after the file;
-    // a $ref with sibling keywords stays as authored, so it is not reused
+  ): string | undefined {
     for (const existingName of Object.keys(componentsGroup)) {
       const existingNode = componentsGroup[existingName];
       if (
@@ -375,8 +371,22 @@ export function makeBundleVisitor({
           Object.keys(existingNode).length === 1 &&
           isEqualOrEqualRef(existingNode, target, ctx))
       ) {
-        return { name: existingName, prevName };
+        return existingName;
       }
+    }
+    return undefined;
+  }
+
+  function componentNameFromBasename(
+    target: ComponentTarget,
+    componentsGroup: ComponentsGroup,
+    ctx: UserContext
+  ): { name: string; prevName: string } {
+    const prevName =
+      pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    const existingName = findExistingComponentName(target, componentsGroup, ctx);
+    if (existingName) {
+      return { name: existingName, prevName };
     }
     let name = prevName;
     for (

@@ -195,12 +195,7 @@ describe('bundle', () => {
     });
 
     expect(problems).toHaveLength(0);
-    const parsed = res.parsed as any;
-    expect(Object.keys(parsed.components.schemas)).toEqual(['ApiRequest']);
-    expect(parsed.components.schemas.ApiRequest.type).toEqual('object');
-    expect(parsed.paths['/api/test'].post.requestBody.content['application/json'].schema).toEqual({
-      $ref: '#/components/schemas/ApiRequest',
-    });
+    expect(res.parsed).toMatchSnapshot();
   });
 
   it('should not duplicate the component when bundling with dereference', async () => {
@@ -211,8 +206,8 @@ describe('bundle', () => {
     });
 
     expect(problems).toHaveLength(0);
-    const parsed = res.parsed as any;
-    expect(Object.keys(parsed.components.schemas)).toEqual(['ApiRequest']);
+    const { components } = res.parsed as { components: { schemas: Record<string, unknown> } };
+    expect(Object.keys(components.schemas)).toEqual(['ApiRequest']);
   });
 
   it('should dereferenced correctly when used with dereference', async () => {

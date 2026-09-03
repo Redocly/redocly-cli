@@ -395,6 +395,32 @@ components:
 
 `;
 
+exports[`bundle > should reuse the component name when the component is a ref to a file named differently 1`] = `
+openapi: 3.0.3
+info:
+  title: Component name differs from filename
+  version: 1.0.0
+paths:
+  /api/test:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiRequest'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    ApiRequest:
+      type: object
+      properties:
+        jobId:
+          type: string
+
+`;
+
 exports[`bundle async > should bundle async of version 3.1 with a ros2 binding 1`] = `
 asyncapi: 3.1.0
 info:
