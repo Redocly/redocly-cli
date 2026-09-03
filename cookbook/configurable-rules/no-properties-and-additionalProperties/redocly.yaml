@@ -1,0 +1,13 @@
+rules:
+  rule/no-properties-and-additionalProperties:
+    subject:
+      type: Schema
+      property: additionalProperties
+    assertions:
+      const: false
+    where:
+      - subject:
+          type: Schema
+          property: properties
+        assertions:
+          defined: true

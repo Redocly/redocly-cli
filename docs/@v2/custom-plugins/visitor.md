@@ -35,6 +35,8 @@ Keys of the object are one of the following:
 - `any` - visitor is called on every node.
 - `ref` - visitor is called on $ref nodes.
 
+To find the exact type of a place in your API description, run the [`node-type` command](../commands/node-type.md) with a pointer to that place, or hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+
 ## Visitors execution and $ref
 
 Top level **visitor functions** run only once for each node.

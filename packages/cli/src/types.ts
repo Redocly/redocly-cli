@@ -9,6 +9,7 @@ import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
+import type { NodeTypeArgv } from './commands/node-type.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
 import type { ProxyArgv } from './commands/proxy/index.js';
 import type { RespectArgv } from './commands/respect/index.js';
@@ -35,6 +36,7 @@ export type CommandArgv =
   | SplitArgv
   | JoinArgv
   | LintArgv
+  | NodeTypeArgv
   | BundleArgv
   | LoginArgv
   | LogoutArgv
