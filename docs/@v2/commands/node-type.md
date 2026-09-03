@@ -49,18 +49,20 @@ Without `--pointer`, the command prints every node in the description, with its 
 redocly node-type cafe.yaml
 ```
 
-```
-Root                     cafe.yaml#/
-Info                     cafe.yaml#/info
-Contact                  cafe.yaml#/info/contact
-Paths                    cafe.yaml#/paths
-PathItem                 cafe.yaml#/paths/~1orders → paths/orders.yaml
-PathItem                 paths/orders.yaml#/
-Operation                paths/orders.yaml#/get
-ParameterList            paths/orders.yaml#/get/parameters
-Parameter                paths/orders.yaml#/get/parameters/0 → components/parameters/Filter.yaml
-Parameter                components/parameters/Filter.yaml#/
-Schema                   components/parameters/Filter.yaml#/schema
+```text
+Root           cafe.yaml#/
+Info           cafe.yaml#/info
+Contact        cafe.yaml#/info/contact
+Paths          cafe.yaml#/paths
+PathItem       cafe.yaml#/paths/~1orders → paths/orders.yaml
+PathItem       paths/orders.yaml#/
+Operation      paths/orders.yaml#/get
+ParameterList  paths/orders.yaml#/get/parameters
+Parameter      paths/orders.yaml#/get/parameters/0 → components/parameters/Filter.yaml
+Parameter      components/parameters/Filter.yaml#/
+Schema         components/parameters/Filter.yaml#/schema
+WebhooksMap    cafe.yaml#/webhooks
+PathItem       cafe.yaml#/webhooks/orderCreated → paths/orders.yaml
 ```
 
 A `$ref` site shows the pointer it resolves to after the `→` arrow.
@@ -73,7 +75,7 @@ Pass `--type` to see every place one type appears:
 redocly node-type cafe.yaml --type=Schema
 ```
 
-```
+```text
 Schema  components/parameters/Filter.yaml#/schema
 ```
 
@@ -85,17 +87,22 @@ Pass `--summary` to see which node types the description uses, with the number o
 redocly node-type cafe.yaml --summary
 ```
 
-```
+```text
 Contact        1
 Info           1
 Operation      1
-Parameter      2
+Parameter      1
 ParameterList  1
-PathItem       2
+PathItem       1
 Paths          1
 Root           1
 Schema         1
+WebhooksMap    1
 ```
+
+A `$ref` site is a pointer to a node, not a node of its own, so the count is the number of nodes the linter visits.
+The list above shows three `PathItem` lines: two `$ref` sites and the one path item they both reach.
+The summary counts that path item once.
 
 ### Look up one node
 
@@ -106,7 +113,7 @@ Remember that `/` inside a path or property name is escaped as `~1`:
 redocly node-type cafe.yaml --pointer='#/paths/~1orders'
 ```
 
-```
+```text
 PathItem
 ```
 
@@ -123,8 +130,9 @@ The chain is the vocabulary of a configurable rule's `where` list, which names a
 redocly node-type cafe.yaml --pointer='components/parameters/Filter.yaml#/schema' --parents
 ```
 
-```
+```text
 Root → Paths → PathItem → Operation → ParameterList → Parameter → Schema
+Root → WebhooksMap → PathItem → Operation → ParameterList → Parameter → Schema
 ```
 
 A node reached through more than one `$ref` can sit under more than one chain, and the command prints one line per chain.
@@ -138,14 +146,13 @@ Add `--parents` to `--type` to get the distinct chains that lead to that type, e
 redocly node-type cafe.yaml --type=PathItem --parents
 ```
 
-```
+```text
 Root → Paths → PathItem
-Root → Paths → PathItem → Operation → CallbacksMap → Callback → PathItem
 Root → WebhooksMap → PathItem
 ```
 
-Use this before you write a rule for a type: it shows which places a rule targeting that type will reach, so you can add a `where` gate for the ones you mean and exclude the rest.
-In this example a rule about the shape of a URL path needs a `Paths` gate, because the same type also holds webhook names and callback expressions.
+Use this before you write a rule for a type: it shows which places a rule targeting that type reaches, so you can add a `where` gate for the ones you mean and exclude the rest.
+In this example a rule about the shape of a URL path needs a `Paths` gate, because the same type also holds webhook names.
 
 The command reports what this description contains, not everything the specification allows.
 A description with no webhooks shows no webhook chain, so check a description that exercises the areas you care about.
@@ -159,7 +166,7 @@ The API argument stays the root of the description:
 redocly node-type cafe.yaml --pointer='paths/orders.yaml#/get/parameters/0'
 ```
 
-```
+```text
 Parameter
 ```
 

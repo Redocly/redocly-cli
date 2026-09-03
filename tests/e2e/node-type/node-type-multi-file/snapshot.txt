@@ -15,4 +15,12 @@ ParameterList  openapi.yaml#/paths/~1bar/get/parameters
 Parameter      openapi.yaml#/paths/~1bar/get/parameters/0 → parameters/limit.yaml
 Responses      openapi.yaml#/paths/~1bar/get/responses
 Response       openapi.yaml#/paths/~1bar/get/responses/200
+PathItem       openapi.yaml#/paths/~1baz
+Operation      openapi.yaml#/paths/~1baz/get
+ParameterList  openapi.yaml#/paths/~1baz/get/parameters
+Parameter      openapi.yaml#/paths/~1baz/get/parameters/0 → parameters/query.yaml#/offset
+Parameter      parameters/query.yaml#/offset
+Schema         parameters/query.yaml#/offset/schema
+Responses      openapi.yaml#/paths/~1baz/get/responses
+Response       openapi.yaml#/paths/~1baz/get/responses/200
 

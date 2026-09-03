@@ -99,7 +99,7 @@ export async function handleNodeType({ argv, config, collectSpecData }: CommandA
   if (argv.pointer) {
     const node = findNode(nodes, argv.pointer, document.source.absoluteRef);
     if (argv.parents) {
-      printChains(chainsTo(nodes, node));
+      printChains(chainsTo(nodes, node, document.source.absoluteRef));
     } else {
       logger.output(`${node.types.join('\n')}\n`);
     }
@@ -114,7 +114,7 @@ export async function handleNodeType({ argv, config, collectSpecData }: CommandA
       );
     }
     if (argv.parents) {
-      printDistinctChains(nodes, filtered, typeName);
+      printDistinctChains(nodes, filtered, typeName, document.source.absoluteRef);
     } else {
       printTable(filtered);
     }
@@ -124,10 +124,12 @@ export async function handleNodeType({ argv, config, collectSpecData }: CommandA
 }
 
 // Ancestors are the recorded nodes at the shorter pointers on the same path. A chain that
-// reaches the root of a referenced file continues at the $ref sites that point there.
+// starts below the root document continues at the $ref sites that resolve to it or to one
+// of its ancestors, because a $ref can enter a file at any pointer.
 function chainsTo(
   nodes: Map<string, FoundNode>,
   node: FoundNode,
+  rootRef: string,
   visited = new Set<string>()
 ): FoundNode[][] {
   const key = `${node.absoluteRef}${node.pointer}`;
@@ -136,7 +138,7 @@ function chainsTo(
   }
   visited.add(key);
 
-  const ancestorsInFile: FoundNode[] = [];
+  const chain: FoundNode[] = [];
   const segments = node.pointer.split('/');
 
   for (let depth = 1; depth < segments.length; depth++) {
@@ -144,25 +146,32 @@ function chainsTo(
     if (pointer === node.pointer) continue;
     const ancestor = nodes.get(`${node.absoluteRef}${pointer}`);
     if (ancestor) {
-      ancestorsInFile.push(ancestor);
+      chain.push(ancestor);
+    }
+  }
+  chain.push(node);
+
+  const chains: FoundNode[][] = [];
+  if (chain[0].absoluteRef === rootRef && chain[0].pointer === '#/') {
+    chains.push(chain);
+  }
+
+  for (const [depth, target] of chain.entries()) {
+    const refSites = [...nodes.values()].filter(
+      (candidate) =>
+        candidate.resolvesTo?.source.absoluteRef === target.absoluteRef &&
+        candidate.resolvesTo.pointer === target.pointer
+    );
+    // The $ref site has the type of its target, so the target drops out of the tail.
+    const tail = chain.slice(depth + 1);
+    for (const refSite of refSites) {
+      chains.push(
+        ...chainsTo(nodes, refSite, rootRef, visited).map((prefix) => [...prefix, ...tail])
+      );
     }
   }
 
-  const chain = [...ancestorsInFile, node];
-  const refSites = [...nodes.values()].filter(
-    (candidate) =>
-      candidate.resolvesTo?.source.absoluteRef === node.absoluteRef &&
-      candidate.resolvesTo.pointer === '#/'
-  );
-  if (refSites.length === 0) {
-    return [chain];
-  }
-
-  // The $ref site already names the file root, so the root drops out of the tail.
-  const tail = node.pointer === '#/' ? [] : chain.slice(1);
-  return refSites.flatMap((refSite) =>
-    chainsTo(nodes, refSite, visited).map((prefix) => [...prefix, ...tail])
-  );
+  return chains.length ? chains : [chain];
 }
 
 function printChains(chains: FoundNode[][]) {
@@ -177,12 +186,13 @@ function printChains(chains: FoundNode[][]) {
 function printDistinctChains(
   nodes: Map<string, FoundNode>,
   nodesOfType: FoundNode[],
-  typeName: string
+  typeName: string,
+  rootRef: string
 ) {
   const lines = new Set<string>();
 
   for (const node of nodesOfType) {
-    for (const chain of chainsTo(nodes, node)) {
+    for (const chain of chainsTo(nodes, node, rootRef)) {
       lines.add(
         chain
           .map(({ types }) => (types.includes(typeName) ? typeName : types.join(', ')))
@@ -259,7 +269,9 @@ function describeClosestNode(
 
 function printSummary(nodes: FoundNode[]) {
   const counts = new Map<string, number>();
-  for (const { types } of nodes) {
+  // A $ref site points to a node the walker enters anyway, so counting it would count that node twice.
+  for (const { types, resolvesTo } of nodes) {
+    if (resolvesTo) continue;
     for (const typeName of types) {
       counts.set(typeName, (counts.get(typeName) ?? 0) + 1);
     }

@@ -54,7 +54,7 @@ describe('node-type', () => {
   test('node-type should list only the nodes of the given type', () => {
     const args = getParams(indexEntryPoint, ['node-type', 'openapi.yaml', '--type=Schema']);
     expect(getCommandOutput(args, { testPath }).trim()).toBe(
-      'Schema  parameters/limit.yaml#/schema'
+      'Schema  parameters/limit.yaml#/schema\nSchema  parameters/query.yaml#/offset/schema'
     );
   });
 
@@ -76,6 +76,18 @@ describe('node-type', () => {
     );
   });
 
+  test('node-type should show the chain of types down to a node behind a fragment $ref', () => {
+    const args = getParams(indexEntryPoint, [
+      'node-type',
+      'openapi.yaml',
+      '--pointer=parameters/query.yaml#/offset/schema',
+      '--parents',
+    ]);
+    expect(getCommandOutput(args, { testPath }).trim()).toBe(
+      'Root → Paths → PathItem → Operation → ParameterList → Parameter → Schema'
+    );
+  });
+
   test('node-type should list the distinct chains that lead to a type', () => {
     const args = getParams(indexEntryPoint, [
       'node-type',
@@ -84,7 +96,7 @@ describe('node-type', () => {
       '--parents',
     ]);
     expect(getCommandOutput(args, { testPath }).trim()).toBe(
-      'Root → Paths → PathItem → Operation → ParameterList'
+      'Root → Paths → PathItem → Operation → ParameterList → Parameter'
     );
   });
 
