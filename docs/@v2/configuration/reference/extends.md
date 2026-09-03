@@ -11,7 +11,8 @@ Multiple values are supported, and can include:
 
 Entries that start with `recheck/` name presets for the [`recheck`](recheck.md) prose linter.
 The `lint` command ignores them, and `redocly recheck` composes them.
-Only the root `extends` carries recheck presets; the command ignores them under an API's `extends`.
+Only the root `extends` carries recheck presets.
+The command ignores them under an API's `extends`.
 
 Extends is useful if you use a common ruleset across multiple projects.
 Define a ruleset in one location, and each project can `extend` it, with or without modification.
