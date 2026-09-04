@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
 import { baselineKeyMapper } from '../../core/baseline.js';
 import { generateBaseline } from '../baseline.js';
+import { runLint } from '../lint.js';
 import { collectingLogger } from '../logger.js';
 
 /** Builds a resolved config from block/extends data, the same shape a recheck.yaml
@@ -52,5 +53,35 @@ describe('generateBaseline', () => {
     const baseline = yaml.load(baselineText) as { files: Record<string, Record<string, number>> };
     const key = baselineKeyMapper(dir)(apiFile);
     expect(baseline.files[key]).toEqual({ 'recheck/line-length': 1 });
+  });
+  it('leaves out findings the ignore predicate accepts, so no run reports them stale', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-baseline-ignored-'));
+    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
+      'recheck/markdown',
+    ]);
+    const longLine = 'lorem ipsum dolor sit amet '.repeat(6).trim();
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const embeddedInputs = [
+      {
+        file: apiFile,
+        pointer: '#/info/description',
+        content: `${longLine}\n`,
+        mapPosition: (line: number, column: number) => ({ line, column }),
+      },
+    ];
+    const isIgnored = (problem: { pointer?: string }) => problem.pointer === '#/info/description';
+
+    expect(
+      await generateBaseline([], config, collectingLogger(), { embeddedInputs, isIgnored })
+    ).toBe(0);
+
+    const baselineText = await fs.readFile(path.join(dir, 'recheck-baseline.yaml'), 'utf8');
+    const baseline = yaml.load(baselineText) as { files: Record<string, Record<string, number>> };
+    expect(baseline.files[baselineKeyMapper(dir)(apiFile)]).toBeUndefined();
+
+    const logger = collectingLogger();
+    const exitCode = await runLint([], config, { embeddedInputs, isIgnored }, logger);
+    expect(logger.lines.join('\n')).toContain('0 stale');
+    expect(exitCode).toBe(0);
   });
 });

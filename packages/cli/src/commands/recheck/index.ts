@@ -8,6 +8,7 @@ import {
   type EmbeddedInput,
   type LintOptions,
   type Logger,
+  type NormalizedRule,
   type Problem,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
@@ -52,12 +53,13 @@ function lintOptions(argv: RecheckArgv): LintOptions {
 }
 
 // APIs from the `apis` block, resolved against the config directory; remote
-// roots stay out.
+// roots stay out. Two aliases may share one root, which walks once.
 function configuredApiPaths(config: Config, configDir: string): string[] {
-  return Object.values(config.resolvedConfig.apis ?? {})
+  const paths = Object.values(config.resolvedConfig.apis ?? {})
     .map((api) => api.root)
     .filter((root): root is string => typeof root === 'string' && !isAbsoluteUrl(root))
     .map((root) => resolve(configDir, root));
+  return [...new Set(paths)];
 }
 
 async function collectEmbeddedInputs(
@@ -66,6 +68,9 @@ async function collectEmbeddedInputs(
   engineLogger: Logger
 ): Promise<EmbeddedInput[]> {
   const inputs: EmbeddedInput[] = [];
+  // Two APIs may `$ref` the same file, so the descriptions of that file are
+  // deduplicated across every API, not within one.
+  const seen = new Set<string>();
   for (const apiPath of apiPaths) {
     let descriptions;
     try {
@@ -77,6 +82,9 @@ async function collectEmbeddedInputs(
       continue;
     }
     for (const { source, pointer, text } of descriptions) {
+      const key = `${source.absoluteRef}${pointer}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
       inputs.push({
         file: source.absoluteRef,
         pointer,
@@ -88,11 +96,20 @@ async function collectEmbeddedInputs(
   return inputs;
 }
 
-// True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and pointer.
-function ignoredBy(config: Config): (problem: Problem) => boolean {
-  return (problem) =>
-    problem.pointer !== undefined &&
-    config.ignore[problem.file]?.[problem.ruleName]?.has(problem.pointer) === true;
+// True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
+// pointer. The rule key is the full name or the short name the report prints.
+function ignoredBy(config: Config, rules: NormalizedRule[]): (problem: Problem) => boolean {
+  const fullNameByShortName = new Map(rules.map((rule) => [rule.shortName, rule.name]));
+  return (problem) => {
+    const pointer = problem.pointer;
+    if (pointer === undefined) return false;
+    const ignoredRules = config.ignore?.[problem.file];
+    if (ignoredRules === undefined) return false;
+    return Object.entries(ignoredRules).some(
+      ([key, pointers]) =>
+        (fullNameByShortName.get(key) ?? key) === problem.ruleName && pointers.has(pointer)
+    );
+  };
 }
 
 export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>): Promise<void> {
@@ -184,7 +201,10 @@ async function runAction(
         `Readability scores cover Markdown files only; skipped ${apiPaths.length} API description(s).`
       );
     }
-    if (roots.length === 0) return 0;
+    if (roots.length === 0) {
+      engineLogger.log('No Markdown files to score.');
+      return 0;
+    }
     return runReadability(
       roots,
       resolved,
@@ -197,13 +217,13 @@ async function runAction(
   }
 
   const embeddedInputs = await collectEmbeddedInputs(apiPaths, config, engineLogger);
-  if (roots.length === 0 && embeddedInputs.length === 0) return 0;
+  const isIgnored = ignoredBy(config, resolved.rules);
   if (action === 'baseline')
-    return generateBaseline(roots, resolved, engineLogger, { embeddedInputs });
+    return generateBaseline(roots, resolved, engineLogger, { embeddedInputs, isIgnored });
   return runLint(
     roots,
     resolved,
-    { ...lintOptions(argv), embeddedInputs, isIgnored: ignoredBy(config) },
+    { ...lintOptions(argv), embeddedInputs, isIgnored },
     engineLogger
   );
 }

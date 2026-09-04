@@ -37,7 +37,11 @@ export function outputTableFormat(
     );
   }
 
-  const fixableCount = problems.filter((problem) => problem.fixable).length;
+  // A problem with a pointer sits inside an API description, which `--fix`
+  // never rewrites, so it does not count towards what `--fix` would repair.
+  const fixableCount = problems.filter(
+    (problem) => problem.fixable && problem.pointer === undefined
+  ).length;
   if (fixableCount > 0) {
     logger.output(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
   }

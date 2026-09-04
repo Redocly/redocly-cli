@@ -221,7 +221,8 @@ Use a severity string to change the severity of a preset rule or to turn it off.
 - rules
 - [Rules object](#rules-object)
 - Overrides for rules that are in effect.
-  A severity string changes the severity; a rule object changes the fields it lists.
+  A severity string changes the severity.
+  A rule object changes the fields it lists.
   A name that is not in effect is a configuration error.
 
 {% /table %}

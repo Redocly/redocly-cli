@@ -160,6 +160,69 @@ describe('handleRecheck', () => {
     expect(err.join('')).toContain('1 finding(s) suppressed by the ignore file');
   });
 
+  it('reports a description shared by two APIs once', async () => {
+    const dir = fixture();
+    const operation = `openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\npaths:\n  /tickets:\n    get:\n      responses:\n        '200':\n          description: Tickets.\n          content:\n            application/json:\n              schema:\n                $ref: ./common.yaml#/Ticket\n`;
+    writeFileSync(join(dir, 'a.yaml'), operation);
+    writeFileSync(join(dir, 'b.yaml'), operation);
+    writeFileSync(
+      join(dir, 'common.yaml'),
+      `Ticket:\n  type: object\n  description: |\n    ${LONG}\n`
+    );
+    const config = await realConfig(dir, {
+      extends: ['recheck/markdown'],
+      apis: {
+        first: { root: './a.yaml' },
+        second: { root: './b.yaml' },
+        alias: { root: './a.yaml' },
+      },
+    });
+    const cwd = process.cwd();
+    process.chdir(dir);
+    try {
+      await handleRecheck({ argv: { format: 'json' }, config } as never);
+    } finally {
+      process.chdir(cwd);
+    }
+    const report = JSON.parse(out.join(''));
+    const shared = report.issues.filter((issue: { file: string }) =>
+      issue.file.endsWith('common.yaml')
+    );
+    expect(shared).toHaveLength(1);
+  });
+
+  it('writes an empty JSON report for an API with no descriptions', async () => {
+    const dir = fixture();
+    writeFileSync(
+      join(dir, 'openapi.yaml'),
+      'openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\npaths: {}\n'
+    );
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await handleRecheck({
+      argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+      config,
+    } as never);
+    const report = JSON.parse(out.join(''));
+    expect(report.summary.totalIssues).toBe(0);
+    expect(process.exitCode ?? 0).toBe(0);
+  });
+
+  it('suppresses a description finding that the ignore file keys by short rule name', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    config.ignore[join(dir, 'openapi.yaml')] = {
+      'line-length': new Set(['#/info/description']),
+    };
+    await handleRecheck({
+      argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+      config,
+    } as never);
+    const report = JSON.parse(out.join(''));
+    expect(report.issues).toHaveLength(0);
+    expect(process.exitCode ?? 0).toBe(0);
+  });
+
   it('skips API descriptions for readability with one notice', async () => {
     const dir = fixture();
     writeFileSync(join(dir, 'openapi.yaml'), API);
