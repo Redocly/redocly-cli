@@ -1,3 +1,7 @@
+// Bundlers only honor `webpackIgnore` directly inside `import(...)`; TS's
+// `rewriteRelativeImportExtensions` wraps the argument in a helper call that hides it,
+// breaking plugin loading in webpack/rspack consumers. This pins the compiled shape.
+
 import * as fs from 'node:fs';
 import module from 'node:module';
 import path from 'node:path';
@@ -85,11 +89,8 @@ describe('plugins-cache', () => {
     });
   });
 
-  describe('compiled output', () => {
+  describe('loadPluginModule (lib/config/plugins-cache.js)', () => {
     it('should keep webpackIgnore directly inside the dynamic import call', () => {
-      // Bundlers only honor `webpackIgnore` when it sits directly inside `import(...)`.
-      // TS's `rewriteRelativeImportExtensions` wraps the argument in a helper call,
-      // which hides the comment from webpack/rspack and breaks plugin loading in bundled consumers.
       const compiledPath = path.join(__dirname, '../../../lib/config/plugins-cache.js');
       const compiled = fs.readFileSync(compiledPath, 'utf-8');
 

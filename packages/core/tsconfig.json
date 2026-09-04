@@ -3,9 +3,6 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    // Off: it wraps loadPluginModule's dynamic import() in a runtime helper that hides
-    // the webpackIgnore comment from bundlers and breaks plugin loading. Every relative
-    // import here already carries its own .js extension, so it rewrites nothing anyway.
     "rewriteRelativeImportExtensions": false
   },
   "include": ["src/**/*.ts"],
