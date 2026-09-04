@@ -1,0 +1,17 @@
+
+📋 Found 1 issue(s):
+
+line-length               ./tests/e2e/recheck/api-descriptions/openapi.yaml:7:85 Line length (Expected: 80; Actual: 134)
+
+   1 error(s)
+
+🏃 Running recheck on: ., 5 API description(s)
+
+🔧 Running 53 rule(s)...
+   Found 0 markdown file(s)
+   1 finding(s) suppressed by the ignore file.
+
+   Annotations prepared: 1
+
+❌ Found 1 error(s). Exiting with code 1.
+   Completed in <time>
