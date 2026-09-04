@@ -3,7 +3,6 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { type MockInstance } from 'vitest';
 
-import { version } from '../../../utils/package.js';
 import { ReuniteApi, ReuniteApiError } from '../../api/index.js';
 import { handlePush } from '../push.js';
 
@@ -65,7 +64,6 @@ describe('handlePush()', () => {
   });
 
   it('should upload files', async () => {
-    const mockConfig = { apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     fsStatSyncSpy.mockReturnValueOnce({
@@ -96,8 +94,6 @@ describe('handlePush()', () => {
         files: ['test-file'],
         'max-execution-time': 10,
       },
-      config: mockConfig,
-      version,
     });
 
     expect(remotes.getDefaultBranch).toHaveBeenCalledWith('test-org', 'test-project');
@@ -135,7 +131,6 @@ describe('handlePush()', () => {
   });
 
   it('should return push id', async () => {
-    const mockConfig = { apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     fsStatSyncSpy.mockReturnValueOnce({
@@ -166,15 +161,12 @@ describe('handlePush()', () => {
         files: ['test-file'],
         'max-execution-time': 10,
       },
-      config: mockConfig,
-      version,
     });
 
     expect(result).toEqual({ pushId: 'test-id' });
   });
 
   it('should collect files from directory and preserve file structure', async () => {
-    const mockConfig = { apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     /*
@@ -218,8 +210,6 @@ describe('handlePush()', () => {
         files: ['test-folder'],
         'max-execution-time': 10,
       },
-      config: mockConfig,
-      version,
     });
 
     expect(remotes.push).toHaveBeenCalledWith(
@@ -245,7 +235,6 @@ describe('handlePush()', () => {
   });
 
   it('should not upload files if no files passed', async () => {
-    const mockConfig = { apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     await handlePush({
@@ -261,8 +250,6 @@ describe('handlePush()', () => {
         files: [],
         'max-execution-time': 10,
       },
-      config: mockConfig,
-      version,
     });
 
     expect(remotes.getDefaultBranch).not.toHaveBeenCalled();
@@ -271,7 +258,6 @@ describe('handlePush()', () => {
   });
 
   it('should get domain from env if not passed', async () => {
-    const mockConfig = { organization: 'test-org-from-config', apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
     process.env.REDOCLY_DOMAIN = 'test-domain-from-env';
 
@@ -297,8 +283,6 @@ describe('handlePush()', () => {
         'max-execution-time': 10,
         organization: 'redocly-test',
       },
-      config: mockConfig,
-      version,
     });
 
     expect(ReuniteApi).toBeCalledWith({
@@ -309,7 +293,6 @@ describe('handlePush()', () => {
   });
 
   it('should print error message', async () => {
-    const mockConfig = { apis: {} } as any;
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
 
     remotes.push.mockRestore();
@@ -344,8 +327,6 @@ describe('handlePush()', () => {
           files: ['test-file'],
           'max-execution-time': 10,
         },
-        config: mockConfig,
-        version,
       })
     ).rejects.toThrow('✗ File upload failed. Reason: Deprecated.');
   });

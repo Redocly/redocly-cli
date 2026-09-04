@@ -1,6 +1,6 @@
+import { type PushResponse } from '../../../api.js';
 import * as errorHandling from '../../../utils/error.js';
 import { ReuniteApi } from '../../api/index.js';
-import { type PushResponse } from '../../api/types.js';
 import { handlePushStatus } from '../push-status.js';
 
 vi.mock('colorette', async () => {
@@ -23,8 +23,6 @@ const remotes = {
 };
 
 describe('handlePushStatus()', () => {
-  const mockConfig = { apis: {} } as any;
-
   const commitStub: PushResponse['commit'] = {
     message: 'test-commit-message',
     branchName: 'test-branch-name',
@@ -110,8 +108,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
       },
-      config: mockConfig,
-      version: 'cli-version',
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -130,8 +126,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
       },
-      config: mockConfig,
-      version: 'cli-version',
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(2);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -163,8 +157,6 @@ describe('handlePushStatus()', () => {
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        config: mockConfig,
-        version: 'cli-version',
       })
     ).rejects.toThrowErrorMatchingInlineSnapshot(`
       [Error: ❌ Preview deploy fail.
@@ -204,8 +196,6 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
       },
-      config: mockConfig,
-      version: 'cli-version',
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(4);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -241,8 +231,6 @@ describe('handlePushStatus()', () => {
         pushId: 'test-push-id',
         wait: true,
       },
-      config: mockConfig,
-      version: 'cli-version',
     });
 
     expect(process.stderr.write).toHaveBeenCalledWith(
@@ -262,8 +250,6 @@ describe('handlePushStatus()', () => {
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        config: mockConfig,
-        version: 'cli-version',
       });
 
       expect(result).toEqual({
@@ -290,8 +276,6 @@ describe('handlePushStatus()', () => {
           project: 'test-project',
           pushId: 'test-push-id',
         },
-        config: mockConfig,
-        version: 'cli-version',
       });
 
       expect(result).toEqual({
@@ -357,8 +341,6 @@ describe('handlePushStatus()', () => {
           'retry-interval': 0.5, // 500 ms
           wait: true,
         },
-        config: mockConfig,
-        version: 'cli-version',
       });
 
       expect(result).toEqual({
@@ -431,8 +413,6 @@ describe('handlePushStatus()', () => {
           'retry-interval': 0.5, // 500 ms
           wait: true,
         },
-        config: mockConfig,
-        version: 'cli-version',
       });
 
       expect(result).toEqual({
@@ -472,8 +452,6 @@ describe('handlePushStatus()', () => {
             pushId: 'test-push-id',
             'continue-on-deploy-failures': false,
           },
-          config: mockConfig,
-          version: 'cli-version',
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [Error: ❌ Preview deploy fail.
@@ -503,8 +481,6 @@ describe('handlePushStatus()', () => {
             pushId: 'test-push-id',
             'continue-on-deploy-failures': true,
           },
-          config: mockConfig,
-          version: 'cli-version',
         })
       ).resolves.toStrictEqual({
         preview: {
@@ -563,8 +539,6 @@ describe('handlePushStatus()', () => {
           'retry-interval': 0.5, // 500 ms
           onRetry: onRetrySpy,
         },
-        config: mockConfig,
-        version: 'cli-version',
       });
 
       expect(onRetrySpy).toBeCalledTimes(2);
@@ -636,8 +610,6 @@ describe('handlePushStatus()', () => {
             'max-execution-time': 1, // seconds
             wait: true,
           },
-          config: mockConfig,
-          version: 'cli-version',
         })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`
         [Error: ✗ Failed to get push status. Reason: Timeout exceeded.
