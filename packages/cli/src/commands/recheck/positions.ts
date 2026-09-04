@@ -37,7 +37,11 @@ export function createPositionMapper(source: Source, pointer: string): PositionM
   const valueColumn = quoted ? start.col + 1 : start.col;
   const raw = lines
     .slice(start.line - 1, end.line)
-    .map((line, index) => (index === 0 ? line.slice(start.col - 1) : line))
+    .map((line, index, valueLines) => {
+      const from = index === 0 ? start.col - 1 : 0;
+      const to = index === valueLines.length - 1 ? end.col - 1 : line.length;
+      return line.slice(from, to);
+    })
     .join('\n');
   const escaped =
     (style === '"' && raw.includes('\\')) || (style === "'" && raw.slice(1, -1).includes("''"));

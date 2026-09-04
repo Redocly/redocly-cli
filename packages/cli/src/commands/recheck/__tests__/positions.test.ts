@@ -65,6 +65,18 @@ describe('createPositionMapper', () => {
     expect(mapper(1, 4)).toEqual({ line: 2, column: 17 });
   });
 
+  it('ignores a trailing comment when it checks a quoted scalar for escapes', () => {
+    const body = 'info:\n  description: "Buy a ticket first." # see \\d note\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(1, 5)).toEqual({ line: 2, column: 21 });
+  });
+
+  it('honours an explicit indentation indicator on a literal block', () => {
+    const body = 'info:\n  description: |2\n      One.\n      Two.\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(1, 1)).toEqual({ line: 3, column: 5 });
+  });
+
   it('treats a JSON description as a quoted scalar', () => {
     const body = '{\n  "info": {\n    "description": "Json intro here."\n  }\n}\n';
     const mapper = createPositionMapper(
