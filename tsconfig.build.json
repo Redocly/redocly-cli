@@ -3,6 +3,7 @@
   "references": [
     { "path": "packages/core" },
     { "path": "packages/respect-core" },
-    { "path": "packages/client-generator" }
+    { "path": "packages/client-generator" },
+    { "path": "packages/recheck" }
   ]
 }

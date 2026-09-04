@@ -1,0 +1,53 @@
+{
+  "provenance": {
+    "attemptedSource": "https://github.com/Rebilly/lexi (Rebilly's Lexi, a readability tool for docs -- vendored here since it is NOT on npm; the npm package literally named 'lexi' is an unrelated project and must not be depended on)",
+    "accessedCommit": "963486e671c11353b0a31c0a132b28a4c129ddbc",
+    "finding": "Lexi's own repo does NOT contain any hand-verifiable, real numeric readability scores to vendor. Its only formula math lives in src/readability.ts's scoreText(), which delegates every one of its five scores (fleschReadingEase, gunningFog, automatedReadabilityIndex, daleChallReadabilityScore, colemanLiauIndex -- note: no flesch-kincaid-grade or smog at all, and dale-chall is not one of the six formulas this task requires) to the separate npm package 'text-readability'. Lexi's own unit tests (src/readability.test.ts) mock 'text-readability' out completely (vi.mock, fixed return values like 0/11/19/22), so no real formula output is ever asserted there. Its one integration test that unmocks the library (src/readability-integration.test.ts) only asserts that two semantically-identical inputs score within toBeCloseTo of EACH OTHER -- it never asserts an absolute expected number either. There is therefore no genuine 'Lexi-derived expected value' for any of our six formulas to vendor -- fabricating one would misrepresent Lexi as an oracle it never was for this data.",
+    "fallback": "Per the task brief's explicit fallback clause, expected stats/scores below are HAND-COMPUTED from the published formula definitions (cited per-formula in ../../formulas.ts) and from this task's own documented syllable heuristic (see ../../statistics.ts), using a standalone oracle script written independently of src/metrics (not by calling computeTextStatistics/computeReadability). The script is committed at ../tools/derive-expected.mjs (header comment covers provenance and how to run; its output reproduces every value below) -- see task-7-report.md for the original derivation and cross-checks (word counts cross-validated with `wc -w`/python re, character counts cross-validated with a second regex pass).",
+    "fixtureTextProvenance": {
+      "wikipedia-non-euclidean.txt": "Body paragraph vendored verbatim from https://github.com/Rebilly/lexi/blob/963486e671c11353b0a31c0a132b28a4c129ddbc/test-data/new/test-document.md (Lexi repo, MIT license). That paragraph is itself a quoted excerpt from the Simple English Wikipedia article 'Non-Euclidean geometry' (https://simple.wikipedia.org/wiki/Non-Euclidean_geometry, CC BY-SA) -- Lexi vendors it as sample prose for its own CLI demo/report tooling (src/cli, readability-files.ts), not as a scored test fixture. Markdown heading/link syntax from the source file was stripped since this module's input is plain prose (Task 8 does markdown extraction); the paragraph's own words are unchanged.",
+      "committee-proposals.txt": "Written for this task (not vendored from anywhere), to add a fixture with a different sentence/word profile and a non-trivial complexWords count."
+    },
+    "toleranceNote": "Scores are asserted with a tolerance of +/-0.1 per the brief, even though the hand-computed values here are exact (to floating-point rounding) for the stated stats -- the tolerance exists for the *scores*, not to paper over any known stats mismatch. No deliberate divergence was needed for these two fixtures."
+  },
+  "fixtures": [
+    {
+      "id": "wikipedia-non-euclidean",
+      "file": "wikipedia-non-euclidean.txt",
+      "stats": {
+        "words": 46,
+        "sentences": 4,
+        "syllables": 99,
+        "characters": 265,
+        "complexWords": 18
+      },
+      "scores": {
+        "flesch-reading-ease": 13.09,
+        "flesch-kincaid-grade": 14.29,
+        "gunning-fog": 20.25,
+        "smog": 15.25,
+        "coleman-liau": 15.5,
+        "automated-readability": 11.45
+      }
+    },
+    {
+      "id": "committee-proposals",
+      "file": "committee-proposals.txt",
+      "stats": {
+        "words": 32,
+        "sentences": 4,
+        "syllables": 84,
+        "characters": 234,
+        "complexWords": 17
+      },
+      "scores": {
+        "flesch-reading-ease": -23.36,
+        "flesch-kincaid-grade": 18.51,
+        "gunning-fog": 24.45,
+        "smog": 14.91,
+        "coleman-liau": 23.5,
+        "automated-readability": 17.01
+      }
+    }
+  ]
+}

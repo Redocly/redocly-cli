@@ -91,7 +91,8 @@
         "packages/cli/src/commands/score/**",
         "packages/cli/src/commands/generate-spec/**",
         "packages/cli/src/commands/drift/**",
-        "packages/client-generator/**"
+        "packages/client-generator/**",
+        "packages/recheck/**"
       ],
       "rules": {
         "sonarjs/cognitive-complexity": ["error", 82]
