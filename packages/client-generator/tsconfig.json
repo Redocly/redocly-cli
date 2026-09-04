@@ -3,9 +3,10 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "strict": true
+    "strict": true,
+    "rewriteRelativeImportExtensions": true
   },
   "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"],
-  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
+  "exclude": ["lib/*", "**/__tests__", "**/*.test.ts", "eject-assets/*"]
 }
