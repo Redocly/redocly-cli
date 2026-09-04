@@ -84,4 +84,16 @@ describe('plugins-cache', () => {
       expect(getPluginCacheVersion()).toBe(before + 2);
     });
   });
+
+  describe('compiled output', () => {
+    it('should keep webpackIgnore directly inside the dynamic import call', () => {
+      // Bundlers only honor `webpackIgnore` when it sits directly inside `import(...)`.
+      // TS's `rewriteRelativeImportExtensions` wraps the argument in a helper call,
+      // which hides the comment from webpack/rspack and breaks plugin loading in bundled consumers.
+      const compiledPath = path.join(__dirname, '../../../lib/config/plugins-cache.js');
+      const compiled = fs.readFileSync(compiledPath, 'utf-8');
+
+      expect(compiled).toContain('import(/* webpackIgnore: true */ pluginUrl.href)');
+    });
+  });
 });
