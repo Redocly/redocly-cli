@@ -11,7 +11,6 @@ import type {
 import type { VerifyConfigOptions } from '../../types.js';
 import { printExecutionTime, capitalize } from '../../utils/miscellaneous.js';
 import { Spinner } from '../../utils/spinner.js';
-import type { CommandArgs } from '../../wrapper.js';
 import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
 import { DeploymentError } from '../utils.js';
 import { handleReuniteError, retryUntilConditionMet } from './utils.js';
@@ -22,24 +21,24 @@ export type PushStatusArgv = PushStatusOptions & {
   format?: Extract<OutputFormat, 'stylish'>;
 } & VerifyConfigOptions;
 
-export function handlePushStatus({ argv }: CommandArgs<PushStatusArgv>) {
-  return pushStatus(argv);
-}
-
-export async function pushStatus(options: PushStatusOptions): Promise<PushStatusSummary> {
+export async function handlePushStatus({
+  argv,
+}: {
+  argv: PushStatusArgv;
+}): Promise<PushStatusSummary> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 
-  const { organization, project: projectId, pushId, wait } = options;
+  const { organization, project: projectId, pushId, wait } = argv;
 
-  const domain = options.domain || getDomain();
-  const maxExecutionTime = options['max-execution-time'] || 1200; // 20 min
-  const retryIntervalMs = options['retry-interval']
-    ? options['retry-interval'] * 1000
+  const domain = argv.domain || getDomain();
+  const maxExecutionTime = argv['max-execution-time'] || 1200; // 20 min
+  const retryIntervalMs = argv['retry-interval']
+    ? argv['retry-interval'] * 1000
     : RETRY_INTERVAL_MS;
-  const startTime = options['start-time'] || Date.now();
+  const startTime = argv['start-time'] || Date.now();
   const retryTimeoutMs = maxExecutionTime * 1000;
-  const continueOnDeployFailures = options['continue-on-deploy-failures'] || false;
+  const continueOnDeployFailures = argv['continue-on-deploy-failures'] || false;
 
   try {
     const apiKey = getApiKeys();
@@ -69,8 +68,8 @@ export async function pushStatus(options: PushStatusOptions): Promise<PushStatus
         });
       },
       onRetry: (lastResult) => {
-        if (options.onRetry) {
-          options.onRetry({
+        if (argv.onRetry) {
+          argv.onRetry({
             preview: lastResult.status.preview,
             production: lastResult.isMainBranch ? lastResult.status.production : null,
             commit: lastResult.commit,
@@ -118,8 +117,8 @@ export async function pushStatus(options: PushStatusOptions): Promise<PushStatus
           });
         },
         onRetry: (lastResult) => {
-          if (options.onRetry) {
-            options.onRetry({
+          if (argv.onRetry) {
+            argv.onRetry({
               preview: lastResult.status.preview,
               production: lastResult.isMainBranch ? lastResult.status.production : null,
               commit: lastResult.commit,

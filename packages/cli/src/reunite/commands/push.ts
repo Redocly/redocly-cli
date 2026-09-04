@@ -7,9 +7,8 @@ import type { PushOptions, PushResult } from '../../api.js';
 import type { VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import { printExecutionTime } from '../../utils/miscellaneous.js';
-import type { CommandArgs } from '../../wrapper.js';
 import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
-import { pushStatus } from './push-status.js';
+import { handlePushStatus } from './push-status.js';
 import { handleReuniteError } from './utils.js';
 
 export type PushArgv = PushOptions & {
@@ -18,17 +17,13 @@ export type PushArgv = PushOptions & {
 
 type FileToUpload = { name: string; path: string };
 
-export function handlePush({ argv }: CommandArgs<PushArgv>) {
-  return push(argv);
-}
-
-export async function push(options: PushOptions): Promise<PushResult | undefined> {
+export async function handlePush({ argv }: { argv: PushArgv }): Promise<PushResult | undefined> {
   const startedAt = performance.now(); // for printing execution time
   const startTime = Date.now(); // for push-status command
 
-  const { organization, project: projectId, 'mount-path': mountPath, verbose } = options;
+  const { organization, project: projectId, 'mount-path': mountPath, verbose } = argv;
 
-  const domain = options.domain || getDomain();
+  const domain = argv.domain || getDomain();
 
   if (!domain) {
     return exitWithError(
@@ -43,10 +38,10 @@ export async function push(options: PushOptions): Promise<PushResult | undefined
       'default-branch': defaultBranch,
       'wait-for-deployment': waitForDeployment,
       'max-execution-time': maxExecutionTime,
-    } = options;
-    const author = parseCommitAuthor(options.author);
+    } = argv;
+    const author = parseCommitAuthor(argv.author);
     const apiKey = getApiKeys();
-    const filesToUpload = collectFilesToPush(options.files);
+    const filesToUpload = collectFilesToPush(argv.files);
     const commandName = 'push' as const;
 
     if (!filesToUpload.length) {
@@ -74,16 +69,16 @@ export async function push(options: PushOptions): Promise<PushResult | undefined
       {
         remoteId: remote.id,
         commit: {
-          message: options.message,
-          branchName: options.branch,
+          message: argv.message,
+          branchName: argv.branch,
           sha: commitSha,
           url: commitUrl,
-          createdAt: options['created-at'],
-          namespace: options.namespace,
-          repository: options.repository,
+          createdAt: argv['created-at'],
+          namespace: argv.namespace,
+          repository: argv.repository,
           author,
         },
-        isMainBranch: defaultBranch === options.branch,
+        isMainBranch: defaultBranch === argv.branch,
       },
       filesToUpload.map((f) => ({ path: slash(f.name), stream: fs.createReadStream(f.path) }))
     );
@@ -98,15 +93,17 @@ export async function push(options: PushOptions): Promise<PushResult | undefined
     if (waitForDeployment) {
       logger.info('\n');
 
-      await pushStatus({
-        organization,
-        project: projectId,
-        pushId: id,
-        wait: true,
-        domain,
-        'max-execution-time': maxExecutionTime,
-        'start-time': startTime,
-        'continue-on-deploy-failures': options['continue-on-deploy-failures'],
+      await handlePushStatus({
+        argv: {
+          organization,
+          project: projectId,
+          pushId: id,
+          wait: true,
+          domain,
+          'max-execution-time': maxExecutionTime,
+          'start-time': startTime,
+          'continue-on-deploy-failures': argv['continue-on-deploy-failures'],
+        },
       });
     }
     if (verbose) {

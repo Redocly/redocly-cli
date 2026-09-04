@@ -1,5 +1,5 @@
-import * as pushStatusCommand from './reunite/commands/push-status.js';
-import * as pushCommand from './reunite/commands/push.js';
+import { handlePushStatus } from './reunite/commands/push-status.js';
+import { handlePush } from './reunite/commands/push.js';
 
 // The declaration file for this entry is generated from this file alone (see scripts/build.mjs),
 // so every public type is declared here and the functions are declared instead of re-exported.
@@ -109,9 +109,9 @@ export type PushStatusSummary = {
 };
 
 export function push(options: PushOptions): Promise<PushResult | undefined> {
-  return pushCommand.push(options);
+  return handlePush({ argv: options });
 }
 
 export function pushStatus(options: PushStatusOptions): Promise<PushStatusSummary> {
-  return pushStatusCommand.pushStatus(options);
+  return handlePushStatus({ argv: options });
 }
