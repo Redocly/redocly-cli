@@ -11,6 +11,7 @@ import type {
 import type { VerifyConfigOptions } from '../../types.js';
 import { printExecutionTime, capitalize } from '../../utils/miscellaneous.js';
 import { Spinner } from '../../utils/spinner.js';
+import type { CommandArgs } from '../../wrapper.js';
 import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
 import { DeploymentError } from '../utils.js';
 import { handleReuniteError, retryUntilConditionMet } from './utils.js';
@@ -23,9 +24,7 @@ export type PushStatusArgv = PushStatusOptions & {
 
 export async function handlePushStatus({
   argv,
-}: {
-  argv: PushStatusArgv;
-}): Promise<PushStatusSummary> {
+}: Pick<CommandArgs<PushStatusArgv>, 'argv'>): Promise<PushStatusSummary> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 

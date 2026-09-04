@@ -7,6 +7,7 @@ import type { PushOptions, PushResult } from '../../api.js';
 import type { VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import { printExecutionTime } from '../../utils/miscellaneous.js';
+import type { CommandArgs } from '../../wrapper.js';
 import { ReuniteApi, getDomain, getApiKeys } from '../api/index.js';
 import { handlePushStatus } from './push-status.js';
 import { handleReuniteError } from './utils.js';
@@ -17,7 +18,9 @@ export type PushArgv = PushOptions & {
 
 type FileToUpload = { name: string; path: string };
 
-export async function handlePush({ argv }: { argv: PushArgv }): Promise<PushResult | undefined> {
+export async function handlePush({
+  argv,
+}: Pick<CommandArgs<PushArgv>, 'argv'>): Promise<PushResult | undefined> {
   const startedAt = performance.now(); // for printing execution time
   const startTime = Date.now(); // for push-status command
 
