@@ -16,8 +16,8 @@ import {
 } from '@redocly/client-generator';
 import { PhpPrinter } from '@redocly/client-generator/printers/php';
 
-import { className, PHP, phpString, propertyName } from './naming.ts';
-import { classify, isDateFormat, phpNullable, phpType } from './types.ts';
+import { className, PHP, phpString, propertyName } from './naming.js';
+import { classify, isDateFormat, phpNullable, phpType } from './types.js';
 
 /** True when the named schema renders as an `unmarshalX` union dispatcher. */
 function isDiscriminatedUnion(name: string, model: ApiModel): boolean {

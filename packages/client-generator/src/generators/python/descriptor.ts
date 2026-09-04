@@ -9,7 +9,7 @@ import {
   type OperationModel,
 } from '@redocly/client-generator';
 
-import { naming, PY } from './naming.ts';
+import { naming, PY } from './naming.js';
 
 /** JSON → Python literal (dicts/lists/strings/numbers/bools/None). */
 export function pythonLiteral(value: unknown): string {

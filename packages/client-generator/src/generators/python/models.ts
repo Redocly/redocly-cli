@@ -11,8 +11,8 @@ import {
 } from '@redocly/client-generator';
 import { PythonPrinter } from '@redocly/client-generator/printers/python';
 
-import { className, fieldName, naming } from './naming.ts';
-import { pythonType } from './types.ts';
+import { className, fieldName, naming } from './naming.js';
+import { pythonType } from './types.js';
 
 /** The model style the generator emits: plain dataclasses, or pydantic `BaseModel`s. */
 export type PythonModels = 'dataclass' | 'pydantic';

@@ -9,9 +9,9 @@ import {
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
-import { phpString } from './naming.ts';
-import { methodArgs } from './operations.ts';
-import { phpType } from './types.ts';
+import { phpString } from './naming.js';
+import { methodArgs } from './operations.js';
+import { phpType } from './types.js';
 
 /** `<op>Pages()` / `<op>Items()` generators over the runtime's iterPages. */
 export function writePhpPaginationWrappers(

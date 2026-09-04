@@ -12,10 +12,10 @@ import {
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
-import { envelopeHeaderSpecs } from './descriptor.ts';
-import { hydration, serialization } from './models.ts';
-import { PHP, phpString } from './naming.ts';
-import { phpElementType, phpNullable, phpType } from './types.ts';
+import { envelopeHeaderSpecs } from './descriptor.js';
+import { hydration, serialization } from './models.js';
+import { PHP, phpString } from './naming.js';
+import { phpElementType, phpNullable, phpType } from './types.js';
 
 const MUTATING = new Set(['post', 'put', 'patch']);
 

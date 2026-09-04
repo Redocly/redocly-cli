@@ -7,8 +7,8 @@ import {
 } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client.ts';
-import { packageIdents } from './descriptor.ts';
+import { emitClientSingleFile, emitClientSplit, emitRuntimeFiles } from './client.js';
+import { packageIdents } from './descriptor.js';
 
 /**
  * The default generator: the full typed client (model types + runtime + endpoints).

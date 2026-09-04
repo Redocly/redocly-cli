@@ -9,8 +9,8 @@ import {
 } from '@redocly/client-generator';
 import type { PythonPrinter } from '@redocly/client-generator/printers/python';
 
-import { METHOD_ARG_SLOTS, naming, PY } from './naming.ts';
-import { pythonType } from './types.ts';
+import { METHOD_ARG_SLOTS, naming, PY } from './naming.js';
+import { pythonType } from './types.js';
 
 /** `<ident>_pages` / `<ident>_items` iterator methods for a paginated operation. */
 export function writePaginationWrappers(

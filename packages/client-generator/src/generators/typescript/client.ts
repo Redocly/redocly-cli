@@ -14,22 +14,22 @@ import {
 } from '@redocly/client-generator';
 import { codeString } from '@redocly/client-generator/printers/typescript';
 
-import { banner, HEADER, renderTitleComment } from './banner.ts';
-import { packageIdents, renderDescriptors } from './descriptor.ts';
+import { banner, HEADER, renderTitleComment } from './banner.js';
+import { packageIdents, renderDescriptors } from './descriptor.js';
 import {
   assembleInlineRuntime,
   type InlineRuntimeNeeds,
   runtimeModuleFiles,
-} from './inline-runtime.ts';
-import { isTypedMultipart } from './operation-types.ts';
+} from './inline-runtime.js';
+import { isTypedMultipart } from './operation-types.js';
 import {
   collectEntrySchemaRefs,
   type EmitContext,
   renderAliases,
   renderOpsType,
-} from './operations.ts';
-import { renderTypeGuards } from './type-guards.ts';
-import { renderTypeAliases } from './types.ts';
+} from './operations.js';
+import { renderTypeGuards } from './type-guards.js';
+import { renderTypeAliases } from './types.js';
 
 export function emitClientSingleFile(model: ApiModel, options: EmitOptions = {}): string {
   return emitClient(model, options).entry;

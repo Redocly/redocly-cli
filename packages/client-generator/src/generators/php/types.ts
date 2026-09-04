@@ -12,7 +12,7 @@ import {
   unwrapNullable,
 } from '@redocly/client-generator';
 
-import { className } from './naming.ts';
+import { className } from './naming.js';
 
 /** What a named schema renders as: a class, a native enum, or nothing (alias). */
 export function classify(name: string, model: ApiModel): 'class' | 'enum' | 'other' {

@@ -3,9 +3,9 @@
 import { type DateType, type OperationModel } from '@redocly/client-generator';
 import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
 
-import { naming } from './naming.ts';
-import { goQueryFormat, pathArguments } from './operations.ts';
-import { goType } from './types.ts';
+import { naming } from './naming.js';
+import { goQueryFormat, pathArguments } from './operations.js';
+import { goType } from './types.js';
 
 /** `<Op>Pages` / `<Op>Items` iterators over the runtime's `iterPages`, hydrated via `reencode`. */
 export function writeGoPaginationWrappers(

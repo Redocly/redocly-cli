@@ -18,7 +18,7 @@ import {
 import { flatInputShape } from '@redocly/client-generator/contracts/typescript';
 import { logger } from '@redocly/openapi-core';
 
-import { embedCliRuntime } from './engine-source.ts';
+import { embedCliRuntime } from './engine-source.js';
 
 // The generated-by banner every emitted module carries (same lines as the pipeline's
 // `input.banner`, rendered in `//` syntax).

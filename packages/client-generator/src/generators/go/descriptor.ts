@@ -8,7 +8,7 @@ import {
   securityRequirements,
 } from '@redocly/client-generator';
 
-import { naming } from './naming.ts';
+import { naming } from './naming.js';
 
 /** Go composite literal for one operation's security OR-alternatives. */
 export function goSecurityLiteral(op: OperationModel, model: ApiModel): string | undefined {

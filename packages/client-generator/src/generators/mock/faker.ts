@@ -18,8 +18,8 @@ import {
 } from '@redocly/client-generator';
 import { codeLiteral } from '@redocly/client-generator/printers/typescript';
 
-import { splitIntersection } from './sample.ts';
-import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.ts';
+import { splitIntersection } from './sample.js';
+import { expr, isObjectValue, type MockEntry, type MockValue, objectValue } from './values.js';
 
 /** The faker-call value for an IR schema. Refs resolve against `schemas`;
  *  recursion is cut with a visited-set (`null` at the cycle). `dateType` mirrors

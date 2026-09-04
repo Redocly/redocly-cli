@@ -1,7 +1,7 @@
 import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderTransformersModule } from './render.ts';
+import { renderTransformersModule } from './render.js';
 
 /**
  * The transformers generator: a standalone `<stem>.transformers.ts` module of

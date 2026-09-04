@@ -8,7 +8,7 @@ import {
 } from '@redocly/client-generator';
 import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
 
-import { GO, naming } from './naming.ts';
+import { GO, naming } from './naming.js';
 
 /** The server URL as a Go expression: literals concatenated with declared-variable args. */
 function serverUrlExpression(server: ServerModel): string {

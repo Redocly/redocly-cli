@@ -57,7 +57,7 @@ describe.each(GENERATORS)('$name folder dogfooding invariant', ({ name, printer,
       const violations = specifiers.filter(
         (specifier) =>
           !allowed.has(specifier) &&
-          !/^\.\/[a-z-]+\.ts$/.test(specifier) &&
+          !/^\.\/[a-z-]+\.js$/.test(specifier) &&
           !specifier.startsWith('node:')
       );
       expect(violations, `${name}/${file}`).toEqual([]);
