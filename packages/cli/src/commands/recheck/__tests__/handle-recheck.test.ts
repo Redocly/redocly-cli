@@ -1,4 +1,4 @@
-import { logger, type Config } from '@redocly/openapi-core';
+import { createConfig, logger, type Config } from '@redocly/openapi-core';
 import { existsSync, mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -80,17 +80,82 @@ describe('handleRecheck', () => {
     expect(process.exitCode).toBe(1);
   });
 
-  it('skips an API description with a notice', async () => {
+  // A single unbroken word never trips `recheck/line-length` (the rule collapses a
+  // line's trailing non-whitespace run before measuring length); use wrappable
+  // multi-word content instead, matching packages/recheck's own embedded-lint tests.
+  const LONG = 'lorem ipsum dolor sit amet '.repeat(6).trim();
+  const API = `openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\n  description: |\n    Intro.\n    ${LONG}\npaths: {}\n`;
+
+  async function realConfig(dir: string, raw: Record<string, unknown>) {
+    return createConfig(raw, { configPath: join(dir, 'redocly.yaml') });
+  }
+
+  it('lints an explicit API description path at its source position', async () => {
     const dir = fixture();
-    writeFileSync(
-      join(dir, 'openapi.yaml'),
-      'openapi: 3.1.0\ninfo:\n  title: t\n  version: 1\npaths: {}\n'
-    );
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
     await handleRecheck({
-      argv: { paths: [join(dir, 'openapi.yaml'), join(dir, 'docs')], format: 'table' },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+      config,
     } as never);
-    expect(err.join('')).toContain('API descriptions are linted from the next release; skipped');
+    const report = JSON.parse(out.join(''));
+    const finding = report.issues.find(
+      (issue: { ruleName: string }) => issue.ruleName === 'recheck/line-length'
+    );
+    expect(finding.file).toBe(join(dir, 'openapi.yaml'));
+    expect(finding.line).toBe(7);
+    expect(finding.pointer).toBe('#/info/description');
+    expect(process.exitCode).toBe(1);
+  });
+
+  it('lints every API in apis when no paths are given', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, {
+      extends: ['recheck/markdown'],
+      apis: { main: { root: './openapi.yaml' } },
+    });
+    const cwd = process.cwd();
+    process.chdir(dir);
+    try {
+      await handleRecheck({ argv: { format: 'json' }, config } as never);
+    } finally {
+      process.chdir(cwd);
+    }
+    const report = JSON.parse(out.join(''));
+    expect(
+      report.issues.some((issue: { file: string }) => issue.file.endsWith('openapi.yaml'))
+    ).toBe(true);
+  });
+
+  it('suppresses a description finding listed in the ignore file', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    config.ignore[join(dir, 'openapi.yaml')] = {
+      'recheck/line-length': new Set(['#/info/description']),
+    };
+    await handleRecheck({
+      argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+      config,
+    } as never);
+    const report = JSON.parse(out.join(''));
+    expect(report.issues).toHaveLength(0);
+    expect(err.join('')).toContain('1 finding(s) suppressed by the ignore file');
+    expect(process.exitCode ?? 0).toBe(0);
+  });
+
+  it('skips API descriptions for readability with one notice', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await handleRecheck({
+      argv: { paths: [join(dir, 'openapi.yaml')], format: 'table', readability: true },
+      config,
+    } as never);
+    expect(err.join('')).toContain(
+      'Readability scores cover Markdown files only; skipped 1 API description(s).'
+    );
   });
 
   it('rejects conflicting action flags', async () => {
