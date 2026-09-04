@@ -6,9 +6,11 @@ Authors:
 
 ## What this does and why
 
-Albeit JSON Schema allows defining an object schema with both `properties` and `additionalProperties` (or `unevaluatedProperties` if you're an advanced user), it is often considered a bad practice to mix objects and records (in other words -- closed and open shapes).
+JSON Schema allows users to define an object schema with both `properties` and `additionalProperties` or `unevaluatedProperties`.
+However, it is often considered a bad practice to mix objects and records (in other words -- closed and open shapes).
 To enforce a more sound schemas design, this rule flags any object schema that has both `properties` and `additionalProperties` defined.
-It is worth mentioning that the absence of `additionalProperties` technically means that the schema is open, but Redocly's linter warns you about the extra properties anyway, and it at least means that you don't want to mix object and records explicitly.
+It is worth mentioning that the absence of `additionalProperties` technically means that the schema is open, but Redocly's linter warns you about the extra properties anyway.
+Bottom line, it means that you aren't mixing object and records explicitly.
 
 ## Code
 
@@ -26,7 +28,8 @@ rules:
     message: Schemas should not have both 'properties' and 'additionalProperties' defined.
 ```
 
-This reads simple, however, the rule omits one important case: you may want to deliberately close your schemas with `additionalProperties: false` which is a bit unusual but even more valid then the absence of the field.
+This reads simple, however, the rule omits one important case: you may want to deliberately close your schemas with `additionalProperties: false`.
+This approach is a bit less common but even more valid than the absence of the field.
 To account for this, we can add a `where` clause to the rule:
 
 ```yaml
