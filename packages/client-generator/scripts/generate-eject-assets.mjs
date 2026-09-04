@@ -155,11 +155,16 @@ for (const { name, run, sample, docs } of GENERATORS) {
   const assetDir = join(outDir, name);
   mkdirSync(assetDir, { recursive: true });
   for (const file of readdirSync(sourceDir).filter((entry) => entry.endsWith('.ts'))) {
-    // The source is the asset: it already imports the public package entries and its
-    // sibling stages by `.ts` extension, so the copy runs under Node's type stripping.
-    // Every file carries the provenance header — `--update` merges per file and reads
-    // the version from the file it is merging.
-    const source = readFileSync(join(sourceDir, file), 'utf-8');
+    // The source is the asset: it already imports the public package entries. Sibling
+    // stages are imported by `.js` extension so `tsc` emits a working `lib/`; the copy
+    // runs under Node's type stripping, which resolves specifiers literally, so those
+    // specifiers are rewritten back to `.ts` here. Every file carries the provenance
+    // header — `--update` merges per file and reads the version from the file it is
+    // merging.
+    const source = readFileSync(join(sourceDir, file), 'utf-8').replace(
+      /(from '\.\/[a-z-]+)\.js'/g,
+      "$1.ts'"
+    );
     const content =
       provenanceHeader(name) +
       source +
