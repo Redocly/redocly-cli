@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.51.2
+
+### Patch Changes
+
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+
 ## 2.51.1
 
 ## 2.51.0
