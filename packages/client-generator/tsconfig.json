@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "lib",
-    "strict": true
+    "strict": true,
+    "rewriteRelativeImportExtensions": true
   },
   "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"],

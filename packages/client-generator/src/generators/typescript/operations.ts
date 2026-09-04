@@ -17,10 +17,10 @@ import {
 // import list — all derived from the IR and the shared `EmitContext`.
 import { pascalCase, safeIdent } from '@redocly/client-generator/printers/typescript';
 
-import { operationSignature, templatePathParams } from './operation-signature.js';
-import { isTypedMultipart } from './operation-types.js';
-import { responseHeadersTypeText } from './response-headers.js';
-import { tsJsdoc, tsType } from './types.js';
+import { operationSignature, templatePathParams } from './operation-signature.ts';
+import { isTypedMultipart } from './operation-types.ts';
+import { responseHeadersTypeText } from './response-headers.ts';
+import { tsJsdoc, tsType } from './types.ts';
 
 /**
  * The emit configuration every operation shares. Bundling it into one value keeps

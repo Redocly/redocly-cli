@@ -7,9 +7,9 @@ import {
 } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderCliDocs } from './docs.js';
-import { cliRuntimeSource } from './engine-source.js';
-import { cliAuthSchemes, commandData, renderCliModule } from './render.js';
+import { renderCliDocs } from './docs.ts';
+import { cliRuntimeSource } from './engine-source.ts';
+import { cliAuthSchemes, commandData, renderCliModule } from './render.ts';
 
 /**
  * The cli generator: a bin-ready `<stem>.cli.ts` — a zero-dependency, typed

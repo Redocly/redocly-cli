@@ -17,18 +17,18 @@ import {
 import { PythonPrinter } from '@redocly/client-generator/printers/python';
 import { PYTHON_RUNTIME_SOURCES } from '@redocly/client-generator/runtime-sources';
 
-import { writeClientClass, writePythonServers } from './client.js';
-import { paginationSpec, pythonLiteral } from './descriptor.js';
+import { writeClientClass, writePythonServers } from './client.ts';
+import { paginationSpec, pythonLiteral } from './descriptor.ts';
 import {
   discriminatorRegistrations,
   pydanticDiscriminators,
   renderPythonModels,
   type PythonModels,
-} from './models.js';
-import { operationIdents, PY } from './naming.js';
+} from './models.ts';
+import { operationIdents, PY } from './naming.ts';
 
-export { renderPythonModels, type PythonModels } from './models.js';
-export { pythonType } from './types.js';
+export { renderPythonModels, type PythonModels } from './models.ts';
+export { pythonType } from './types.ts';
 
 export const pythonOptions: GeneratorOptionsSchema = {
   type: 'object',

@@ -1,7 +1,7 @@
 import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderZodModule } from './schemas.js';
+import { renderZodModule } from './schemas.ts';
 
 /**
  * The zod generator: a standalone `<stem>.zod.ts` module of Zod schemas (one

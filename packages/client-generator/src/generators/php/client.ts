@@ -9,7 +9,7 @@ import {
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
-import { PHP, phpString, propertyName } from './naming.js';
+import { PHP, phpString, propertyName } from './naming.ts';
 
 /** The server URL as a PHP expression: literals concatenated with declared-variable args. */
 function serverUrlExpression(server: ServerModel): string {

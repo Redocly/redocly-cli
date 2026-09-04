@@ -21,8 +21,8 @@ import {
 } from '@redocly/client-generator/printers/typescript';
 import { isPlainObject } from '@redocly/openapi-core';
 
-import { fakerExpression } from './faker.js';
-import { sampleValue, SampleExpression } from './sample.js';
+import { fakerExpression } from './faker.ts';
+import { sampleValue, SampleExpression } from './sample.ts';
 import {
   expr,
   isObjectValue,
@@ -30,7 +30,7 @@ import {
   objectValue,
   renderMockValue,
   spreadInto,
-} from './values.js';
+} from './values.ts';
 
 const INDENT = '    ';
 

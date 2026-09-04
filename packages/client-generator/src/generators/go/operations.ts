@@ -14,8 +14,8 @@ import {
 } from '@redocly/client-generator';
 import { exported, type GoPrinter } from '@redocly/client-generator/printers/go';
 
-import { GO, naming } from './naming.js';
-import { goType } from './types.js';
+import { GO, naming } from './naming.ts';
+import { goType } from './types.ts';
 
 /** A query-value expression formatted to string for url.Values. */
 export function goQueryFormat(expr: string, type: string): string {

@@ -20,16 +20,16 @@ import {
 import { PhpPrinter } from '@redocly/client-generator/printers/php';
 import { PHP_RUNTIME_SOURCE } from '@redocly/client-generator/runtime-sources';
 
-import { writeServers } from './client.js';
-import { phpPaginationLiteral, phpSecurityLiteral } from './descriptor.js';
-import { hydration, renderPhpModels } from './models.js';
-import { methodIdents, methodName, PHP, phpString, propertyName } from './naming.js';
-import { writePhpMethod } from './operations.js';
-import { writePhpPaginationWrappers } from './pagination.js';
-import { phpType } from './types.js';
+import { writeServers } from './client.ts';
+import { phpPaginationLiteral, phpSecurityLiteral } from './descriptor.ts';
+import { hydration, renderPhpModels } from './models.ts';
+import { methodIdents, methodName, PHP, phpString, propertyName } from './naming.ts';
+import { writePhpMethod } from './operations.ts';
+import { writePhpPaginationWrappers } from './pagination.ts';
+import { phpType } from './types.ts';
 
-export { renderPhpModels } from './models.js';
-export { phpType } from './types.js';
+export { renderPhpModels } from './models.ts';
+export { phpType } from './types.ts';
 
 /** Drop the standalone header (<?php, declare, namespace, leading comments) for stitching. */
 function stripPhpHeader(source: string): string {

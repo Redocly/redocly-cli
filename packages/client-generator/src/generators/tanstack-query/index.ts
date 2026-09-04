@@ -1,7 +1,7 @@
 import type { Generator } from '@redocly/client-generator';
 import { join } from 'node:path';
 
-import { renderTanstackModule } from './render.js';
+import { renderTanstackModule } from './render.ts';
 
 /**
  * The tanstack-query generator: a standalone `<stem>.tanstack.ts` module of

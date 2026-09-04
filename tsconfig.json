@@ -23,10 +23,5 @@
     "moduleResolution": "nodenext",
     "esModuleInterop": true
   },
-  "exclude": [
-    "packages/*/lib",
-    "packages/client-generator/eject-assets",
-    "tests/e2e/generate-client/examples",
-    "tests/e2e/generate-client/*-consumer"
-  ]
+  "exclude": ["tests/e2e/generate-client/examples", "tests/e2e/generate-client/*-consumer"]
 }

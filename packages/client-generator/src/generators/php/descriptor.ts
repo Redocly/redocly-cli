@@ -10,7 +10,7 @@ import {
   securityRequirements,
 } from '@redocly/client-generator';
 
-import { PHP, phpString } from './naming.js';
+import { PHP, phpString } from './naming.ts';
 
 /** Security literal for the operations table, denormalized from the model's schemes. */
 export function phpSecurityLiteral(op: OperationModel, model: ApiModel): string | undefined {
