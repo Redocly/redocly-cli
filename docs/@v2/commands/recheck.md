@@ -4,10 +4,14 @@
 
 The `recheck` command lints Markdown files for prose and structure problems.
 It checks headings, sentences, links, images, and Markdoc tags against a set of rules.
+It also lints the `description` fields of API descriptions.
+Each finding reports the file, line, and column of the description in the source.
 
 Rules come from presets, such as `recheck/markdown`, that you add to the root `extends` in `redocly.yaml`.
 The [`recheck` block](../configuration/reference/recheck.md) adjusts those rules.
 If `redocly.yaml` has neither, the command uses `recheck/markdown`.
+With no paths, the command lints the Markdown files under the project root and every API in `apis`.
+With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
 
 ## Usage
 
@@ -130,6 +134,26 @@ recheck:
 ```
 
 After you fix errors, generate the baseline again and commit the smaller file.
+
+### Lint API descriptions
+
+```bash
+redocly recheck openapi.yaml
+```
+
+The command lints every `description` in `openapi.yaml` and in the files it references.
+Rules that need a whole document, such as the single-title rule, do not run on descriptions.
+`--fix` does not change API files; it reports how many fixable findings it skipped.
+
+To suppress one finding without a change to the API file, list it in `.redocly.lint-ignore.yaml` by file, rule, and pointer:
+
+```yaml
+openapi.yaml:
+  recheck/line-length:
+    - '#/info/description'
+```
+
+To adjust rules for descriptions only, set `apiDescriptions.rules` in the `recheck` block.
 
 ### Check readability
 
