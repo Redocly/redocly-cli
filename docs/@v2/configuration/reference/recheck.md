@@ -43,6 +43,12 @@ Add Recheck presets, such as `recheck/markdown`, to the root `extends` of `redoc
 - Turn on Markdoc-aware parsing.
   `true` is the same as `{ schema: realm }`.
 
+---
+
+- apiDescriptions
+- [API descriptions object](#api-descriptions-object)
+- Rule overrides that apply only to descriptions inside API documents.
+
 {% /table %}
 
 ### Rules object
@@ -202,6 +208,24 @@ Use a severity string to change the severity of a preset rule or to turn it off.
 
 {% /table %}
 
+### API descriptions object
+
+{% table %}
+
+- Option
+- Type
+- Description
+
+---
+
+- rules
+- [Rules object](#rules-object)
+- Overrides for rules that are in effect.
+  A severity string changes the severity; a rule object changes the fields it lists.
+  A name that is not in effect is a configuration error.
+
+{% /table %}
+
 ## Example
 
 ```yaml
@@ -221,10 +245,14 @@ recheck:
         metric:
           formula: flesch-reading-ease
           min: 30
+  apiDescriptions:
+    rules:
+      recheck/line-length: off
 ```
 
 This config adds the `recheck/markdown` preset in the root `extends`.
-The `recheck` block skips `CHANGELOG.md`, uses a baseline file, turns on Markdoc-aware parsing, turns off one rule, and adds one rule.
+The `recheck` block skips `CHANGELOG.md`, uses a baseline file, and turns on Markdoc-aware parsing.
+It turns off one rule, adds one rule, and turns off line-length checks inside API descriptions.
 
 ## Related options
 
