@@ -85,7 +85,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !regex?.test(_val) && {
-            message: `"${_val}" should match a regex ${condition}`,
+            message: `${JSON.stringify(_val)} should match a regex ${condition}`,
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
@@ -108,7 +108,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           regex?.test(_val) && {
-            message: `"${_val}" should not match a regex ${condition}`,
+            message: `${JSON.stringify(_val)} should not match a regex ${condition}`,
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
@@ -125,7 +125,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !condition.includes(_val) && {
-            message: `"${_val}" should be one of the predefined values`,
+            message: `${JSON.stringify(_val)} should be one of the predefined values`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -182,7 +182,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           condition.includes(_val) && {
-            message: `"${_val}" is disallowed`,
+            message: `${JSON.stringify(_val)} is disallowed`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -200,7 +200,7 @@ export const asserts: Asserts = {
         .map(
           (_val) =>
             condition !== _val && {
-              message: `"${_val}" should be equal ${condition} `,
+              message: `${JSON.stringify(_val)} should be equal ${condition} `,
               location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
             }
         )
@@ -209,7 +209,7 @@ export const asserts: Asserts = {
       return value !== condition
         ? [
             {
-              message: `${value} should be equal ${condition}`,
+              message: `${JSON.stringify(value)} should be equal ${condition}`,
               location: baseLocation,
             },
           ]
@@ -270,7 +270,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !_val.match(casingRegexes[condition]) && {
-            message: `"${_val}" should use ${condition}`,
+            message: `${JSON.stringify(_val)} should use ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )

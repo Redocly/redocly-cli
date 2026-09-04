@@ -5,6 +5,10 @@ Nodes that don't have the `property` defined are not impacted.
 
 Applies to any node type defined by the `applyTo` option.
 If `applyTo` is not set, applies to all nodes where the `property` is declared.
+To find the exact type of a place in your API description, either:
+
+- Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
+- Hover over over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
 
 ## API design principles
 

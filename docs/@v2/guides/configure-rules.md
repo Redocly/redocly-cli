@@ -109,6 +109,11 @@ rules:
 ```
 
 The `subject` is the `version` property of the `info` object; Info is a [recognized node type](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
+To find the exact type of a place in your API description, either:
+
+- Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
+- Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+
 Using the `pattern` assertion, describe what's allowed with [regular expression syntax](https://en.wikipedia.org/wiki/Regular_expression).
 Finally, adding the `message` ensures clear information is conveyed if the rule isn't satisfied.
 

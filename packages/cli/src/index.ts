@@ -33,6 +33,7 @@ import {
   type GenerateClientCommandArgv,
 } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
+import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -90,6 +91,55 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'inspect-node-types <api>',
+    'Show the node types of an API description, for writing configurable rules and custom plugins [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_INSPECT_NODE_TYPES')
+        .positional('api', {
+          description: 'API description file to inspect.',
+          type: 'string',
+        })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          pointer: {
+            description:
+              'JSON pointer to a node, optionally prefixed with a file: `#/paths` or `schemas.yaml#/User`.',
+            type: 'string',
+            alias: 'p',
+          },
+          type: {
+            description: 'List only the nodes of this type.',
+            type: 'string',
+          },
+          summary: {
+            description: 'List the node types used in the description, with counts.',
+            type: 'boolean',
+          },
+          parents: {
+            description:
+              'Show the chain of node types leading to the node: down to the node with --pointer, or the distinct chains that reach the type with --type.',
+            type: 'boolean',
+          },
+        })
+        .conflicts({ pointer: ['type', 'summary'], type: ['summary'], summary: ['parents'] })
+        .check((argv) => {
+          if (argv.parents && !argv.pointer && !argv.type) {
+            throw new Error('The --parents option requires --pointer or --type.');
+          }
+          return true;
+        })
+        .demandOption('api'),
+    (argv) => {
+      commandWrapper(handleInspectNodeTypes)(argv);
     }
   )
   .command(

@@ -57,12 +57,16 @@ rules:
     message: Operation summary must not include the word test
 ```
 
+To find the node type for a place a Spectral `given` selector targets, run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place,
+or hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+
 It is also possible to configure additional rules for specific APIs using the [APIs object](../configuration/index.md#apis-object) to set per-API rules (or exceptions!).
 
 ### Redocly rules and Spectral equivalents
 
 Included here is an attempt to map the similar-but-not-identical naming of rules between the tools. If you spot anything that needs adding or updating, please [tell us](https://github.com/redocly/redocly-cli/issues)?
-Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent exists, it is the same Redocly rule as for OpenAPI 3.x (for example, `oas2-operation-security-defined` maps to `security-defined`).
+Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent exists, it is the same Redocly rule as for OpenAPI 3.x (for example, `oas2-valid-schema-example` maps to `no-invalid-schema-examples`, the same rule as `oas3-valid-schema-example`).
+Check that the Redocly rule supports the specification version you lint: `no-invalid-media-type-examples`, for one, applies to OpenAPI 3.x only.
 
 | Spectral rules                         | Redocly rules                                                    |
 | -------------------------------------- | ---------------------------------------------------------------- |
@@ -73,13 +77,13 @@ Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent ex
 | `info-description`                     |                                                                  |
 | `info-license`                         | `info-license`                                                   |
 | `license-url`                          | `info-license-strict`                                            |
-| `no-$ref-siblings`                     |                                                                  |
+| `no-$ref-siblings`                     | `spec-ref-siblings`                                              |
 | `no-eval-in-markdown`                  |                                                                  |
 | `no-script-tags-in-markdown`           | `no-unsafe-markdown`                                             |
 | `oas3-api-servers`                     | `no-empty-servers`                                               |
 | `oas3-callbacks-in-callbacks`          |                                                                  |
 | `oas3-examples-value-or-externalValue` | `no-example-value-and-externalValue`                             |
-| `oas3-operation-security-defined`      | `security-defined`                                               |
+| `oas3-operation-security-defined`      | `security-defined`, `security-scopes-defined`                    |
 | `oas3-parameter-description`           | `parameter-description`                                          |
 | `oas3-schema`                          | `struct`                                                         |
 | `oas3-server-not-example.com`          | `no-server-example.com`                                          |
@@ -144,7 +148,7 @@ Spectral's `oas2-*` rules for OpenAPI 2.0 are not listed; where an equivalent ex
 
 {% admonition type="info" name="Missing a rule you rely on?" %}
 Missing a rule? [Request one](https://github.com/Redocly/redocly-cli/issues/new?template=feature_request.md&title=Rule%20request%3A%20) — include the Spectral rule name and what it should check.
-Meanwhile, configurable rules can often cover the gap today.
+Meanwhile, all of the missing rules can be covered with [configurable rules](../rules/configurable-rules.md) — see [`array-items`](https://github.com/Redocly/redocly-cli/tree/main/cookbook/configurable-rules/required-items-for-array-schemas) and other examples in the cookbook for inspiration.
 {% /admonition %}
 
 ### Configurable and extensible rules

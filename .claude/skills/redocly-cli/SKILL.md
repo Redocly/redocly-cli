@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI usage for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when linting an API description, bundling or splitting multi-file descriptions, joining several APIs into one, transforming a description with decorators, building or previewing API docs, testing a live API with respect to its description, generating a TypeScript client from an OpenAPI description.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, push to Reunite, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -25,21 +25,28 @@ Point at a different config with `--config <path>`.
 
 Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/cli@latest <command>`. Docker image: `redocly/cli`.
 
-| Command                                     | Purpose                                                             |
-| ------------------------------------------- | ------------------------------------------------------------------- |
-| `lint`                                      | Validate an API description against the configured rules            |
-| `check-config`                              | Lint `redocly.yaml` itself                                          |
-| `bundle`                                    | Resolve all `$ref`s into a single self-contained file               |
-| `split`                                     | Break a single-file description into a multi-file structure         |
-| `join`                                      | Merge several API descriptions into one                             |
-| `stats`                                     | Count operations, schemas, refs, and other metrics                  |
-| `score`                                     | Score an OpenAPI description for AI-agent readiness                 |
-| `build-docs`                                | Render an API description to a zero-dependency HTML page (Redoc)    |
-| `preview`                                   | Local preview of a Redocly project                                  |
-| `respect`                                   | Run API tests described in an Arazzo description against a live API |
-| `generate-arazzo`                           | Scaffold an Arazzo description from an OpenAPI description          |
-| `generate-client`                           | Generate a typed, zero-dependency TypeScript client [experimental]  |
-| `login` / `logout` / `push` / `push-status` | Authenticate and push to the Redocly platform (Reunite)             |
+| Command              | Purpose                                                                               | Group                 |
+| -------------------- | ------------------------------------------------------------------------------------- | --------------------- |
+| `lint`               | Validate an API description against the configured rules                              | API authoring         |
+| `split`              | Break a single-file description into a multi-file structure                           | API authoring         |
+| `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                      | Docs rendering        |
+| `preview`            | Local preview of a Redocly project (Realm, Reef, Revel)                               | Docs rendering        |
+| `bundle`             | Resolve all `$ref`s into a single self-contained file and apply decorators            | CI and delivery       |
+| `join`               | Merge several API descriptions into one [experimental]                                | CI and delivery       |
+| `respect`            | Run API tests described in an Arazzo description against a live API                   | API testing and drift |
+| `generate-arazzo`    | Scaffold an Arazzo description from an OpenAPI description                            | API testing and drift |
+| `proxy`              | Capture live HTTP traffic into a HAR file, with optional validation [experimental]    | API testing and drift |
+| `drift`              | Report differences between recorded traffic and an OpenAPI description [experimental] | API testing and drift |
+| `generate-spec`      | Infer an OpenAPI description from recorded traffic [experimental]                     | API testing and drift |
+| `stats`              | Count operations, schemas, refs, and other metrics                                    | Quality reports       |
+| `score`              | Score an OpenAPI description for AI-agent readiness [experimental]                    | Quality reports       |
+| `generate-client`    | Generate a typed, zero-dependency TypeScript client [experimental]                    | SDK generation        |
+| `eject-generator`    | Copy a built-in generator into the repo to edit it [experimental]                     | SDK generation        |
+| `check-config`       | Lint `redocly.yaml` itself                                                            | Redocly configuration |
+| `inspect-node-types` | Show the node type at a pointer, or list every node with its type [experimental]      | Redocly configuration |
+| `push`               | Push an API description to Reunite                                                    | Reunite platform      |
+| `push-status`        | Track an in-progress push to Reunite                                                  | Reunite platform      |
+| `completion`         | Generate shell autocomplete commands                                                  | Shell setup           |
 
 Exit codes: `0` success, `1` problems found or execution failed, `2` configuration error.
 
@@ -67,20 +74,8 @@ Rule severities: `error` (fails validation), `warn` (reported, still valid), `of
 
 ### Configurable rules
 
-When a governance requirement has no built-in rule, declare one under `rule/<name>` with a subject node type and assertions:
-
-```yaml
-rules:
-  rule/tag-name-macro-case:
-    subject:
-      type: Tag
-      property: name
-    assertions:
-      defined: true
-      casing: MACRO_CASE
-    severity: warn
-    message: Tag names must be upper case with underscores (_).
-```
+When a governance requirement has no built-in rule, declare one under `rule/<name>` in `redocly.yaml`.
+Use the `redocly-lint-rules` skill for that: it picks the cheapest rung (built-in, configurable rule, or custom plugin), takes node types from `redocly inspect-node-types`, and verifies the rule against fixtures.
 
 ## Transform with decorators
 
@@ -110,6 +105,7 @@ export default function myPlugin() {
 }
 ```
 
+Visitor keys are node types: confirm them with `redocly inspect-node-types <api>`.
 Register it in `redocly.yaml` (paths relative to the config file) and reference its rules as `<plugin-id>/<rule-name>`:
 
 ```yaml
