@@ -22,6 +22,9 @@ If it doesn't, what is the purpose of the operation?
 Even if there is no response content (204), it can still return a successful response with no content.
 You can greatly improve the developer and user experience of your APIs by making it a standard to provide this information.
 
+An operation with only a `101 Switching Protocols` response fails this rule because 101 is an informational response, not a successful response.
+WebSocket APIs are not supported by OpenAPI; use AsyncAPI to describe them instead.
+
 ## Configuration
 
 | Option           | Type    | Description                                                                               |
