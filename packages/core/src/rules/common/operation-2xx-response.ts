@@ -2,7 +2,10 @@ import type { Oas3Rule, Oas2Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 import { validateResponseCodes } from '../utils.js';
 
-export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) => {
+export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({
+  validateWebhooks,
+  allowDefault = true,
+}) => {
   return {
     Paths: {
       Responses(responses: Record<string, object>, { report }: UserContext) {
@@ -13,6 +16,7 @@ export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) 
           codeRange: '2XX',
           report: report as UserContext['report'],
           reference: 'https://redocly.com/docs/cli/rules/oas/operation-2xx-response',
+          allowDefault,
         });
       },
     },
@@ -27,6 +31,7 @@ export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({ validateWebhooks }) 
           codeRange: '2XX',
           report: report as UserContext['report'],
           reference: 'https://redocly.com/docs/cli/rules/oas/operation-2xx-response',
+          allowDefault,
         });
       },
     },
