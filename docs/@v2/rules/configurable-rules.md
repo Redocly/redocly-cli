@@ -669,8 +669,10 @@ OpenAPI 3.0, 3.1, and 3.2 mostly share a type tree.
 
 Learn more about the [OpenAPI node types](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
 
-To find the exact type of a place in your API description, run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place,
-or hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+To find the exact type of a place in your API description, either:
+
+- Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
+- Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
 
 ### `any` example
 

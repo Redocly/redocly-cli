@@ -11,7 +11,10 @@ Send us your feedback while we stabilize the feature.
 The `inspect-node-types` command shows the node type that Redocly CLI assigns to each place in an API description.
 
 Node types are the vocabulary of [configurable rules](../rules/configurable-rules.md) and [custom plugins](../custom-plugins/index.md):
-a configurable rule targets a node type in its `subject`, and a plugin rule declares a visitor for one.
+
+- a configurable rule targets a node type in its `subject`
+- a plugin rule declares a visitor for a node type
+
 Use `inspect-node-types` to find the right type name for the part of your description you want to check.
 
 A node has a type only because of the path the linter took to reach it, so the command always walks the whole description from its root.
@@ -26,10 +29,10 @@ redocly inspect-node-types <api> --type=<type> [--parents]          # ask about 
 redocly inspect-node-types <api> --summary                          # count the types used
 ```
 
-The command answers one question at a time, so `--pointer`, `--type`, and `--summary` are mutually
-exclusive — passing two of them fails with `Arguments pointer and type are mutually exclusive`.
-`--parents` is not a question of its own: it changes the answer that `--pointer` or `--type` gives,
-and on its own it fails with `The --parents option requires --pointer or --type`.
+The command answers one question at a time, so `--pointer`, `--type`, and `--summary` are mutually exclusive.
+Passing two questions fails with `Arguments pointer and type are mutually exclusive`.
+`--parents` is not a question of its own.
+It changes the answer that `--pointer` or `--type` gives, and on its own it fails with `The --parents option requires --pointer or --type`.
 
 ## Options
 
@@ -37,13 +40,13 @@ and on its own it fails with `The --parents option requires --pointer or --type`
 | ------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api           | string  | **REQUIRED.** Path to the root API description filename or alias. The whole description is walked from this file.                                                               |
 | --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                            |
-| --help        | boolean | Show help.                                                                                                                                                                      |
-| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                              |
-| --parents     | boolean | Modifies `--pointer` or `--type`: show the chain of node types leading to the node, or the distinct chains that reach the type. Requires one of them.                           |
+| --help        | boolean | Display help.                                                                                                                                                                   |
+| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default: `warn`.                                                      |
+| --parents     | boolean | Modifies `--pointer` or `--type`: display the chain of node types leading to the node, or the distinct chains that reach the type. Requires one of them.                        |
 | --pointer     | string  | Look up a single node instead of listing all of them. A JSON pointer, optionally prefixed with a file: `#/paths` or `paths/orders.yaml#/get`. Not with `--type` or `--summary`. |
 | --summary     | boolean | List the node types used in the description, with the number of nodes of each type. Not with `--pointer` or `--type`.                                                           |
 | --type        | string  | List only the nodes of the given type, for example `--type=Schema`. Not with `--pointer` or `--summary`.                                                                        |
-| --version     | boolean | Show version number.                                                                                                                                                            |
+| --version     | boolean | Display version number.                                                                                                                                                         |
 
 ## Examples
 
@@ -106,7 +109,8 @@ Schema         1
 WebhooksMap    1
 ```
 
-A `$ref` site is a pointer to a node, not a node of its own, so the count is the number of nodes the linter visits.
+A `$ref` site is a pointer to a node, not a node of its own.
+The count is the number of nodes the linter visits.
 The list above shows three `PathItem` lines: two `$ref` sites and the one path item they both reach.
 The summary counts that path item once.
 
@@ -157,11 +161,13 @@ Root → Paths → PathItem
 Root → WebhooksMap → PathItem
 ```
 
-Use this before you write a rule for a type: it shows which places a rule targeting that type reaches, so you can add a `where` gate for the ones you mean and exclude the rest.
+Inspect this before you write a rule for a type: it shows which places a rule targeting that type reaches.
+This way, you can add a `where` gate for the ones you mean and exclude the rest.
 In this example a rule about the shape of a URL path needs a `Paths` gate, because the same type also holds webhook names.
 
 The command reports what this description contains, not everything the specification allows.
-A description with no webhooks shows no webhook chain, so check a description that exercises the areas you care about.
+A description with no webhooks shows no webhook chain.
+Check a description that exercises the areas you care about.
 
 ### Look up a node in a referenced file
 
