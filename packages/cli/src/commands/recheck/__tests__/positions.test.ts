@@ -35,6 +35,12 @@ describe('createPositionMapper', () => {
     expect(mapper(1, 20)).toEqual({ line: 3, column: 5 });
   });
 
+  it('anchors a folded block that starts with a blank line to its first content line', () => {
+    const body = 'info:\n  description: >\n\n    Folded text\n    continues here.\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(2, 8)).toEqual({ line: 4, column: 5 });
+  });
+
   it('maps a single-line plain scalar exactly', () => {
     const body = 'info:\n  description: Buy a ticket first.\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');

@@ -25,11 +25,19 @@ export function createPositionMapper(source: Source, pointer: string): PositionM
   if (style === '|' || style === '>') {
     const header = BLOCK_HEADER.exec(head);
     const explicit = header?.[1] ?? header?.[2];
-    const firstContent = lines.slice(start.line).find((line) => line.trim().length > 0) ?? '';
+    const contentIndex = lines.findIndex(
+      (line, index) => index >= start.line && line.trim().length > 0
+    );
+    const firstContent = contentIndex === -1 ? '' : lines[contentIndex];
     const indent = explicit
       ? leadingSpaces(headLine) + Number(explicit)
       : leadingSpaces(firstContent);
-    if (style === '>') return () => ({ line: start.line + 1, column: indent + 1 });
+    // A folded block anchors to the line whose indentation set the block
+    // indent, which a blank line after the indicator pushes down.
+    if (style === '>') {
+      const contentLine = contentIndex === -1 ? start.line + 1 : contentIndex + 1;
+      return () => ({ line: contentLine, column: indent + 1 });
+    }
     return (line, column) => ({ line: start.line + line, column: indent + column });
   }
 
