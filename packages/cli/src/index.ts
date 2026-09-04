@@ -98,7 +98,7 @@ yargs(hideBin(process.argv))
     'Show the node types of an API description, for writing configurable rules and custom plugins [experimental].',
     (yargs) =>
       yargs
-        .env('REDOCLY_CLI_NODE_TYPE')
+        .env('REDOCLY_CLI_INSPECT_NODE_TYPES')
         .positional('api', {
           description: 'API description file to inspect.',
           type: 'string',
