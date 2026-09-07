@@ -5,36 +5,44 @@
 The `build-docs` command builds Redoc into an HTML file that contains your API documentation.
 The standalone HTML file can be easily shared or hosted on a platform of your choice.
 
-{% admonition type="warning" name="OpenAPI only" %}
-The `build-docs` command currently supports only Swagger 2.0 and OpenAPI 3.0/3.1 descriptions.
-Support for OpenAPI 3.2 is coming soon.
-{% /admonition %}
+The command supports Swagger 2.0, OpenAPI 3.0/3.1/3.2, AsyncAPI 2.x/3.x, and GraphQL schemas (`.graphql` or `.gql` files).
+
+The page is rendered with Redoc 3 and loads the Redoc scripts from the Redocly CDN.
+Pass `--inlineBundle` to embed them, so the page works offline and when opened directly from the filesystem.
 
 ## Usage
 
 ```bash
 redocly build-docs <api>
 redocly build-docs <api> --output=custom.html
-redocly build-docs <api> --theme.openapi.disableSearch
+redocly build-docs <api> --inlineBundle
+redocly build-docs <api> --openapi.disableSearch
 redocly build-docs <api> --template custom.hbs
 redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page meta description"
 ```
 
 ## Options
 
-| Option              | Type    | Description                                                                                                                                                                                                                        |
-| ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api                 | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                                                                                  |
-| --config            | string  | Path to the [configuration file](#use-an-alternative-configuration-file). Defaults to `redocly.yaml` in the local folder.                                                                                                          |
-| --disableGoogleFont | boolean | Disable Google fonts. The default value is `false`.                                                                                                                                                                                |
-| --help              | boolean | Show help.                                                                                                                                                                                                                         |
-| --lint-config       | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                                                                                           |
-| --output, -o        | string  | Set the path and name of the output file. The default value is `redoc-static.html`.                                                                                                                                                |
-| --template, -t      | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your OpenAPI description.                                                                                                                                   |
-| --templateOptions   | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                        |
-| --theme.openapi     | string  | Customize your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/). |
-| --title             | string  | Set the page title.                                                                                                                                                                                                                |
-| --version           | boolean | Show version number.                                                                                                                                                                                                               |
+| Option              | Type    | Description                                                                                                                                                       |
+| ------------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                 | string  | Path to the API description filename or alias that you want to generate the build for. Refer to [the API section](#specify-api) for more details.                 |
+| --config            | string  | Path to the [configuration file](#use-an-alternative-configuration-file). Defaults to `redocly.yaml` in the local folder.                                         |
+| --disableGoogleFont | boolean | Disable Google fonts in custom templates. The default value is `false`.                                                                                           |
+| --help              | boolean | Show help.                                                                                                                                                        |
+| --inlineBundle      | boolean | Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN. The default value is `false`.                                          |
+| --lint-config       | string  | Specify the severity level for the configuration file. Possible values: `warn`, `error`, `off`. Default value is `warn`.                                          |
+| --openapi           | string  | Customize your output with [Redoc configuration options](https://redocly.com/docs/realm/config/openapi). Use dot notation, for example `--openapi.disableSearch`. |
+| --output, -o        | string  | Set the path and name of the output file. The default value is `redoc-static.html`.                                                                               |
+| --telemetry         | boolean | Enable Redoc telemetry in the generated page. The default value is `false`.                                                                                       |
+| --template, -t      | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your API description.                                                                      |
+| --templateOptions   | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                       |
+| --theme.openapi     | string  | **Deprecated**, use `--openapi` instead.                                                                                                                          |
+| --title             | string  | Set the page title.                                                                                                                                               |
+| --version           | boolean | Show version number.                                                                                                                                              |
+
+{% admonition type="warning" name="Upgrading from Redoc 2" %}
+Redoc 3 renamed or removed some Redoc 2 configuration options, so review the [Redoc configuration options](https://redocly.com/docs/realm/config/openapi) when upgrading.
+{% /admonition %}
 
 ## Examples
 
@@ -83,10 +91,10 @@ redocly build-docs --config=./another/directory/config.yaml
 
 ### Hide search
 
-The following command uses the optional `--theme.openapi` argument to build docs with the search box hidden:
+The following command uses the optional `--openapi` argument to build docs with the search box hidden:
 
 ```bash
-redocly build-docs openapi.yaml --theme.openapi.disableSearch
+redocly build-docs openapi.yaml --openapi.disableSearch
 ```
 
 ### Use a custom template

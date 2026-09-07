@@ -1,5 +1,6 @@
 import { build } from 'esbuild';
 import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -97,6 +98,12 @@ cpSync(
   path.join(packageDir, '..', 'client-generator', 'eject-assets'),
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
+);
+
+const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
+cpSync(
+  path.join(path.dirname(redocPackageJsonPath), 'bundle', 'redoc.standalone.js'),
+  path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
 );
 
 function findLicenseText(pkgRoot) {

@@ -1,4 +1,4 @@
-import { existsSync, statSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,6 +10,26 @@ const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 describe('build-docs', () => {
   const folderPath = __dirname;
 
+  test('build docs for an AsyncAPI description', async () => {
+    const testPath = join(folderPath, 'asyncapi-build-docs');
+    const args = getParams(indexEntryPoint, ['build-docs', 'asyncapi.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    await expect(output).toMatchFileSnapshot(join(testPath, 'redoc-static.snapshot.html'));
+  });
+
+  test('build docs for a GraphQL schema', async () => {
+    const testPath = join(folderPath, 'graphql-build-docs');
+    const args = getParams(indexEntryPoint, ['build-docs', 'schema.graphql']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    await expect(output).toMatchFileSnapshot(join(testPath, 'redoc-static.snapshot.html'));
+  });
+
   test('simple build-docs', async () => {
     const testPath = join(folderPath, 'simple-build-docs');
     const args = getParams(indexEntryPoint, ['build-docs', 'pets.yaml']);
@@ -17,6 +37,21 @@ describe('build-docs', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
     expect(existsSync(join(testPath, 'redoc-static.html'))).toEqual(true);
+  });
+
+  test('build docs with the inlined Redoc bundle', async () => {
+    const testPath = join(folderPath, 'simple-build-docs');
+    const args = getParams(indexEntryPoint, ['build-docs', 'pets.yaml', '--inlineBundle']);
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(
+      join(testPath, 'inline-bundle-snapshot.txt')
+    );
+
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    expect(output).toContain(
+      "hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'))"
+    );
+    expect(output).not.toContain('import { hydrate }');
   });
 
   test('build docs with config option', async () => {
@@ -33,12 +68,11 @@ describe('build-docs', () => {
       Found nested/redocly.yaml and using 'openapi' options
       Prerendering docs
 
-      🎉 bundled successfully in: nested/redoc-static.html (36 KiB) [⏱ <test>ms].
+      🎉 bundled successfully in: nested/redoc-static.html (234 KiB) [⏱ <test>ms].
       "
     `);
 
     expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-    expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36483);
     const output = readFileSync(join(testPath, 'nested/redoc-static.html'), 'utf8');
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
@@ -49,7 +83,7 @@ describe('build-docs', () => {
       const args = getParams(indexEntryPoint, [
         'build-docs',
         'openapi.yaml',
-        '--theme.openapi.disableSearch',
+        '--openapi.disableSearch',
       ]);
 
       const result = getCommandOutput(args, { testPath });
@@ -57,7 +91,7 @@ describe('build-docs', () => {
         "
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (239 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -78,7 +112,7 @@ describe('build-docs', () => {
         Found config.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (239 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -98,7 +132,7 @@ describe('build-docs', () => {
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (239 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -118,7 +152,7 @@ describe('build-docs', () => {
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (239 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
@@ -138,7 +172,7 @@ describe('build-docs', () => {
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
         Prerendering docs
 
-        🎉 bundled successfully in: redoc-static.html (34 KiB) [⏱ <test>ms].
+        🎉 bundled successfully in: redoc-static.html (239 KiB) [⏱ <test>ms].
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');

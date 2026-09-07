@@ -1,14 +1,13 @@
-import { isAbsoluteUrl, logger, type Config } from '@redocly/openapi-core';
+import { logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import { createElement } from 'react';
+import { fileURLToPath } from 'node:url';
 import { renderToString } from 'react-dom/server';
-import { default as redoc } from 'redoc';
-import { ServerStyleSheet } from 'styled-components';
+import { createStandaloneServerApp, ServerStyleSheet } from 'redoc/bundle/redoc.server.js';
 
 import { exitWithError } from '../../utils/error.js';
-import { redocStandaloneSri } from '../../utils/package.js';
 import type { BuildDocsOptions } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
@@ -26,7 +25,6 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
     }
   </style>
   {{{redocHead}}}
-  {{#unless disableGoogleFont}}<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">{{/unless}}
 </head>
 
 <body>
@@ -37,7 +35,7 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 `;
 
 export function getObjectOrJSON(
-  openapiOptions: string | Record<string, unknown>,
+  openapiOptions: string | Record<string, unknown> | undefined,
   config: Config
 ): JSON | Record<string, unknown> | Config {
   switch (typeof openapiOptions) {
@@ -69,8 +67,7 @@ export function getObjectOrJSON(
 }
 
 export async function getPageHTML(
-  api: any,
-  pathToApi: string,
+  definition: Record<string, unknown> | string,
   {
     title,
     disableGoogleFont,
@@ -78,17 +75,23 @@ export async function getPageHTML(
     templateOptions,
     redocOptions = {},
     redocVersion,
+    telemetry,
+    inlineBundle,
+    specType,
   }: BuildDocsOptions,
   configPath?: string
 ) {
   logger.info('Prerendering docs\n');
 
-  const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
-  const store = await redoc.createStore(api, apiUrl, redocOptions);
+  const pageOptions = { ...redocOptions, skipBundle: true, specType };
+  const app = await createStandaloneServerApp({
+    definition,
+    specType,
+    options: pageOptions,
+    telemetryConfig: { typeOfUsage: 'cli', disabled: !telemetry },
+  });
   const sheet = new ServerStyleSheet();
-
-  const html = renderToString(sheet.collectStyles(createElement(redoc.Redoc, { store })));
-  const state = await store.toJS();
+  const html = renderToString(sheet.collectStyles(app));
   const css = sheet.getStyleTags();
 
   const customTemplate =
@@ -101,23 +104,46 @@ export async function getPageHTML(
     ? readFileSync(customTemplate, 'utf-8')
     : DEFAULT_TEMPLATE_SOURCE;
   const template = handlebars.compile(templateSource);
+
+  const redocScript = inlineBundle
+    ? escapeClosingScriptTag(getRedocStandaloneSource())
+    : `import { hydrate } from "https://cdn.redocly.com/redoc/v${redocVersion}/redoc.standalone.js";`;
+
+  const definitionTitle =
+    typeof definition === 'string'
+      ? undefined
+      : (definition.info as { title?: string } | undefined)?.title;
+
   return template({
     redocHTML: `
-      <div id="redoc">${html || ''}</div>
-      <script>
-      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};`}
+      <div id="redoc">${html}</div>
+      <script type="module">
+      ${redocScript}
 
-      var container = document.getElementById('redoc');
-      Redoc.${'hydrate(__redoc_state, container)'};
+      const __redoc_definition = ${sanitizeJSONString(JSON.stringify(definition))};
+      const __redoc_options = ${sanitizeJSONString(
+        JSON.stringify({ ...pageOptions, disableTelemetry: !telemetry })
+      )};
 
+      hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));
       </script>`,
-    redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js" integrity="${redocStandaloneSri}" crossorigin="anonymous"></script>` +
-      css,
-    title: title || api.info.title || 'ReDoc documentation',
+    redocHead: css,
+    title: title || definitionTitle || 'ReDoc documentation',
     disableGoogleFont,
     templateOptions,
   });
+}
+
+function getRedocStandaloneSource(): string {
+  const bundledCopy = fileURLToPath(new URL('./redoc.standalone.js', import.meta.url));
+  if (existsSync(bundledCopy)) {
+    return readFileSync(bundledCopy, 'utf-8');
+  }
+  const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
+  return readFileSync(
+    path.join(path.dirname(redocPackageJsonPath), 'bundle', 'redoc.standalone.js'),
+    'utf-8'
+  );
 }
 
 export function sanitizeJSONString(str: string): string {
