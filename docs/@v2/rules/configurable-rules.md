@@ -669,18 +669,10 @@ OpenAPI 3.0, 3.1, and 3.2 mostly share a type tree.
 
 Learn more about the [OpenAPI node types](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
 
-The `OneOf`, `AnyOf`, and `AllOf` node types each match the list of schemas under the keyword of the same name.
-Use them to assert on one composition keyword without matching the other two.
+To find the exact type of a place in your API description, either:
 
-```yaml
-rules:
-  rule/oneof-needs-two-schemas:
-    subject:
-      type: OneOf
-    message: Use at least two schemas in oneOf
-    assertions:
-      minLength: 2
-```
+- Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
+- Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
 
 ### `any` example
 
