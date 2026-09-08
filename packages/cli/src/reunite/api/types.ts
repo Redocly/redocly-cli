@@ -1,50 +1,3 @@
-export type ProjectSourceResponse = {
-  branchName: string;
-  contentPath: string;
-  isInternal: boolean;
-};
-
-export type UpsertRemoteResponse = {
-  id: string;
-  type: 'CICD';
-  mountPath: string;
-  mountBranchName: string;
-  organizationId: string;
-  projectId: string;
-};
-
-export type ListRemotesResponse = {
-  object: 'list';
-  page: {
-    endCursor: string;
-    startCursor: string;
-    haxNextPage: boolean;
-    hasPrevPage: boolean;
-    limit: number;
-    total: number;
-  };
-  items: Remote[];
-};
-
-export type Remote = {
-  mountPath: string;
-  type: string;
-  autoSync: boolean;
-  autoMerge: boolean;
-  createdAt: string;
-  updatedAt: string;
-  providerType: string;
-  namespaceId: string;
-  repositoryId: string;
-  projectId: string;
-  mountBranchName: string;
-  contentPath: string;
-  credentialId: string;
-  branchName: string;
-  contentType: string;
-  id: string;
-};
-
 export type PushResponse = {
   id: string;
   remoteId: string;
@@ -67,12 +20,7 @@ export type PushResponse = {
       email: string;
       image: string | null;
     };
-    statuses: Array<{
-      name: string;
-      description: string;
-      status: 'pending' | 'running' | 'success' | 'failed';
-      url: string | null;
-    }>;
+    statuses: CommitStatus[];
   };
   remote: {
     commits: {
@@ -91,7 +39,7 @@ export type DeploymentStatusResponse = {
   scorecard: ScorecardItem[];
 };
 
-export type PushStatusResponse = {
+type PushStatusResponse = {
   preview: DeploymentStatusResponse;
   production: DeploymentStatusResponse;
 };
@@ -106,3 +54,52 @@ export type ScorecardItem = {
 export type PushStatusBase = 'pending' | 'success' | 'running' | 'failed';
 
 export type DeploymentStatus = 'skipped' | PushStatusBase;
+
+export type CommitStatus = {
+  name: string;
+  description: string;
+  status: PushStatusBase;
+  url: string | null;
+};
+
+export type PushOptions = {
+  files: string[];
+  organization: string;
+  project: string;
+  'mount-path': string;
+  branch: string;
+  author: string;
+  message: string;
+  'commit-sha'?: string;
+  'commit-url'?: string;
+  namespace?: string;
+  repository?: string;
+  'created-at'?: string;
+  'default-branch': string;
+  domain?: string;
+  'wait-for-deployment'?: boolean;
+  'max-execution-time'?: number; // in seconds
+  'continue-on-deploy-failures'?: boolean;
+  verbose?: boolean;
+};
+
+export type PushResult = { pushId: string };
+
+export type PushStatusOptions = {
+  organization: string;
+  project: string;
+  pushId: string;
+  domain?: string;
+  wait?: boolean;
+  'max-execution-time'?: number; // in seconds
+  'retry-interval'?: number; // in seconds
+  'start-time'?: number; // in milliseconds
+  'continue-on-deploy-failures'?: boolean;
+  onRetry?: (lastSummary: PushStatusSummary) => void;
+};
+
+export type PushStatusSummary = {
+  preview: DeploymentStatusResponse;
+  production: DeploymentStatusResponse | null;
+  commit: PushResponse['commit'];
+};
