@@ -16,6 +16,12 @@ export function isRecheckPreset(name: string): boolean {
   return name.startsWith('recheck/');
 }
 
+export const RESERVED_PLUGIN_IDS = ['recheck', 'redocly', 'redoc', 'realm', 'reunite'] as const;
+
+export function isReservedPluginId(id: string): boolean {
+  return (RESERVED_PLUGIN_IDS as readonly string[]).includes(id);
+}
+
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
     const [pluginId, configName] = presetName.split('/');

@@ -210,7 +210,7 @@ extends:
 recheck:
   excludes:
     - CHANGELOG.md
-  baseline: ./recheck-baseline.yaml
+  baseline: ./.recheck-baseline.yaml
   markdoc: true
   rules:
     recheck/line-length: off

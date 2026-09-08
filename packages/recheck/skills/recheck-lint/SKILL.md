@@ -10,7 +10,7 @@ Your markdown must pass it, the same as code must pass its tests.
 
 ## When this applies
 
-Look for a `redocly.yaml` (or `redocly.yml`) in the project root or above the files you touched.
+Look for a `redocly.yaml` in the project root or above the files you touched.
 This skill applies when that file has a `recheck` block, or a `recheck/*` preset in its root `extends`.
 If neither exists, skip this skill.
 

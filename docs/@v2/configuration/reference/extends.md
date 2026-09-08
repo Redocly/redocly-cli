@@ -13,6 +13,8 @@ Entries that start with `recheck/`, such as `recheck/markdown`, are presets for 
 The `lint` command ignores them.
 Add them to the root `extends` only.
 `recheck` does not read them from an API's `extends`.
+Redocly reserves the plugin ids `recheck`, `redocly`, `redoc`, `realm`, and `reunite`.
+A plugin that declares one of them fails to load.
 
 Extends is useful if you use a common ruleset across multiple projects.
 Define a ruleset in one location, and each project can `extend` it, with or without modification.

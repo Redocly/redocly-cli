@@ -657,11 +657,11 @@ describe('top-level baseline key', () => {
 
   it('accepts a path, returns it, and keeps it out of rule iteration', async () => {
     const result = await validate({
-      baseline: './recheck-baseline.yaml',
+      baseline: './.recheck-baseline.yaml',
       'test/a': { ...rule },
     } as never);
     expect(result.isValid).toBe(true);
-    expect(result.baselinePath).toBe('./recheck-baseline.yaml');
+    expect(result.baselinePath).toBe('./.recheck-baseline.yaml');
     expect(result.rules.map((r) => r.name)).toEqual(['test/a']);
   });
 

@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import { lintConfig } from '../../lint.js';
 import { createConfig } from '../load.js';
-import { isRecheckPreset } from '../utils.js';
+import { isRecheckPreset, isReservedPluginId } from '../utils.js';
 
 const withRecheck = outdent`
   extends:
@@ -50,5 +50,16 @@ describe('recheck namespace in extends', () => {
     expect(problems.map((p) => p.message)).toEqual([
       expect.stringContaining('Property `extends` is not expected here'),
     ]);
+  });
+});
+
+describe('reserved plugin ids', () => {
+  it('recognizes reserved ids', () => {
+    expect(isReservedPluginId('recheck')).toBe(true);
+    expect(isReservedPluginId('my-plugin')).toBe(false);
+  });
+
+  it('rejects a plugin whose id is reserved', async () => {
+    await expect(createConfig({ plugins: [{ id: 'redocly' }] })).rejects.toThrow('is reserved');
   });
 });
