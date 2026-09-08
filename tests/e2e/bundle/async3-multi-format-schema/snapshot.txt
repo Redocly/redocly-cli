@@ -1,0 +1,69 @@
+asyncapi: 3.0.0
+info:
+  title: Account Service
+  version: 1.0.0
+  description: This service is in charge of processing user signups
+channels:
+  userSignedup:
+    address: user/signedup
+    messages:
+      UserSignedUpMultiFormat:
+        title: Multi-format headers and payload
+        headers:
+          schemaFormat: application/vnd.aai.asyncapi+yaml;version=3.0.0
+          schema:
+            $ref: '#/components/schemas/MessageHeaders'
+        payload:
+          schemaFormat: application/vnd.aai.asyncapi+yaml;version=3.0.0
+          schema:
+            $ref: '#/components/schemas/UserSignedUp'
+        traits:
+          - headers:
+              schemaFormat: application/vnd.aai.asyncapi+yaml;version=3.0.0
+              schema:
+                $ref: '#/components/schemas/MessageHeaders'
+      UserSignedUpWithoutSchemaFormat:
+        title: Multi-format payload relying on the default schemaFormat
+        payload:
+          schema:
+            $ref: '#/components/schemas/UserSignedUp'
+      UserSignedUpPlain:
+        title: Plain Schema Object headers and payload
+        headers:
+          $ref: '#/components/schemas/MessageHeaders'
+        payload:
+          $ref: '#/components/schemas/UserSignedUp'
+operations:
+  sendUserSignedup:
+    action: send
+    channel:
+      $ref: '#/channels/userSignedup'
+    messages:
+      - $ref: '#/channels/userSignedup/messages/UserSignedUpMultiFormat'
+      - $ref: '#/channels/userSignedup/messages/UserSignedUpWithoutSchemaFormat'
+      - $ref: '#/channels/userSignedup/messages/UserSignedUpPlain'
+components:
+  schemas:
+    ReusableMultiFormat:
+      schemaFormat: application/vnd.aai.asyncapi+yaml;version=3.0.0
+      schema:
+        $ref: '#/components/schemas/UserSignedUp'
+    MessageHeaders:
+      type: object
+      properties:
+        correlationId:
+          type: string
+          description: Correlation ID set by the producer
+    UserSignedUp:
+      type: object
+      properties:
+        displayName:
+          type: string
+          description: Name of the user
+        email:
+          type: string
+          format: email
+          description: Email of the user
+
+bundling asyncapi.yaml using configuration for api 'main'...
+📦 Created a bundle for asyncapi.yaml at stdout <test>ms.

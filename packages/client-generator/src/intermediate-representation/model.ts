@@ -223,10 +223,24 @@ export type OperationModel = {
    */
   security: string[][];
   /**
-   * The operation's `x-redocly-pagination` extension value, captured VERBATIM (spec
+   * The operation's `x-redoclyPagination` extension value, captured VERBATIM (spec
    * extensions are untyped). Validated by the pagination emitter, not the IR.
    */
   paginationExtension?: unknown;
+  /**
+   * Present exactly when the operation streams Server-Sent Events (a `text/event-stream`
+   * success response). Computed once by the IR builder so no generator re-derives it:
+   * the per-event schema (OpenAPI 3.2 `itemSchema` over the response `schema`; absent
+   * when typeless — the payload types as a string) and whether the runtime should
+   * `JSON.parse` each `data:` payload.
+   */
+  sse?: SseModel;
+};
+
+/** An SSE operation's streaming facts (see `OperationModel.sse`). */
+export type SseModel = {
+  eventSchema?: SchemaModel;
+  dataKind: 'json' | 'text';
 };
 
 export type ServiceModel = {
@@ -240,11 +254,25 @@ export type NamedSchemaModel = {
   description?: string;
 };
 
+export type ServerVariableModel = {
+  name: string;
+  default: string;
+  description?: string;
+};
+
+/** One declared server, URL kept TEMPLATED — `serverUrl` carries the substituted default. */
+export type ServerModel = {
+  url: string;
+  description?: string;
+  variables: ServerVariableModel[];
+};
+
 export type ApiModel = {
   title: string;
   version: string;
   description?: string;
   serverUrl: string;
+  servers?: ServerModel[];
   services: ServiceModel[];
   schemas: NamedSchemaModel[];
   securitySchemes: SecuritySchemeModel[];

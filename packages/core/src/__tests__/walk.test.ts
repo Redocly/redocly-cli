@@ -731,6 +731,129 @@ describe('walk order', () => {
     `);
   });
 
+  it('should not visit a nested rule when another rule re-enters a shared $ref-ed node', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      nested: () => ({
+        PathItem: {
+          Operation: {
+            Parameter(param: any, _ctx: any, parents: any) {
+              calls.push(`param ${param.name} > op ${parents.Operation.operationId}`);
+            },
+          },
+        },
+      }),
+      callbacks: () => ({
+        PathItem: {
+          Operation: {
+            Callback: {
+              PathItem: {
+                Operation(op: any) {
+                  calls.push(`callback op ${op.operationId}`);
+                },
+              },
+            },
+          },
+        },
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths:
+          /sample:
+            get:
+              operationId: get
+              callbacks:
+                first:
+                  'uri-1':
+                    $ref: '#/components/pathItems/shared'
+                second:
+                  'uri-2':
+                    $ref: '#/components/pathItems/shared'
+        components:
+          pathItems:
+            shared:
+              post:
+                operationId: notify
+                parameters:
+                  - name: x-shared
+                    in: header
+      `,
+      ''
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: {
+          'test/nested': 'error',
+          'test/callbacks': 'error',
+        },
+      }),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      [
+        "callback op notify",
+        "param x-shared > op notify",
+        "callback op notify",
+      ]
+    `);
+  });
+
+  it('should visit nested rules for keys written next to a $ref', async () => {
+    const calls: string[] = [];
+
+    const testRuleSet: Oas3RuleSet = {
+      test: () => ({
+        NamedSchemas: {
+          Schema: {
+            Schema(_schema: any, ctx: any) {
+              calls.push(ctx.location.pointer);
+            },
+          },
+        },
+      }),
+    };
+
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        paths: {}
+        components:
+          schemas:
+            Base:
+              type: object
+            WithSiblings:
+              $ref: '#/components/schemas/Base'
+              properties:
+                sibling:
+                  type: string
+      `,
+      ''
+    );
+
+    await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        plugins: [{ id: 'test', rules: { oas3: testRuleSet } }],
+        rules: { 'test/test': 'error' },
+      }),
+    });
+
+    expect(calls).toMatchInlineSnapshot(`
+      [
+        "#/components/schemas/WithSiblings/properties/sibling",
+      ]
+    `);
+  });
+
   it('should visit and do not recurse for circular refs top-level', async () => {
     const calls: string[] = [];
 

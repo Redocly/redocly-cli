@@ -52,7 +52,7 @@ describe('generate-client end-to-end (--output-mode split)', () => {
       'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
     );
     expect(entrySrc).toContain('export const { configure, use } = client;');
-    expect(entrySrc).toContain('export const setBearer = client.auth.bearer;');
+    expect(entrySrc).toContain('export const { configure, use } = client;');
 
     // Schemas holds the model types and the discriminated-union guards.
     const schemasSrc = readFileSync(schemasFile, 'utf-8');

@@ -7,6 +7,98 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.51.2 (2026-09-04)
+
+### Patch Changes
+
+- Updated `fast-uri` to the `3.1.7` version to resolve `CVE-2026-75931`, `CVE-2026-75975`, `CVE-2026-75899`, and `CVE-2026-76172`.
+- Fixed `drift` and `coverage` failing to match a path template whose segment mixes literal text with parameters, such as `/instances/{worldId}:{instanceId}`.
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+- Updated @redocly/openapi-core to v2.51.2.
+
+## 2.51.1 (2026-09-02)
+
+### Patch Changes
+
+- Fixed an issue where `generate-arazzo` produced a malformed remote description URL in `sourceDescriptions` (`https://` collapsed to `https:/`) when `--output-file` was provided.
+- Fixed an issue where `$faker.string.email()` used without options generated addresses at the `undefined.com` domain.
+- Updated @redocly/respect-core to v2.51.1.
+- Updated `@faker-js/faker` to the `10.6.0` version to resolve the high severity advisory `GHSA-qxc2-j82w-r537`.
+
+## 2.51.0 (2026-09-02)
+
+### Minor Changes
+
+- Enhanced the `generate-arazzo` command to print a ready-to-run `respect` command after generation, including an `--input` placeholder for every workflow input.
+- Added `--with-ai`, `--ai-provider`, `--ai-model`, `--ai-concurrency`, and `--max-workflows` options to the `generate-arazzo` command.
+  `--with-ai` uses a local AI CLI (`claude`, `codex`, or `cursor`) and OpenAPI descriptions to redesign the generated one-workflow-per-operation skeleton into multi-step workflows.
+  The AI designs at most `--max-workflows` workflows (default 10), and the generated file is marked as AI-inferred.
+  For descriptions that don't fit a single prompt, the AI first selects scenarios from a compact operation index, then it designs each workflow separately.
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+- Updated @redocly/openapi-core to v2.51.0.
+- Updated @redocly/respect-core to v2.51.0.
+
+## 2.50.0 (2026-09-01)
+
+### Minor Changes
+
+- Added a new `schema` assertion for configurable rules.
+  The assertion validates a property value against a JSON Schema.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.50.0.
+
+## 2.49.1 (2026-09-01)
+
+### Patch Changes
+
+- Fixed an issue where rule incorrectly reported a duplicate parameter when two or more `$ref`s pointed to the same path item.
+- Updated @redocly/openapi-core to v2.49.1.
+
+## 2.49.0 (2026-08-27)
+
+### Minor Changes
+
+- Added the `no-illogical-composition-keywords` rule.
+
+  **Note**: the rule is set to `warn` in the `recommended` ruleset and to `error` in `recommended-strict`. Existing API descriptions may report new problems.
+
+### Patch Changes
+
+- Fixed an issue where telemetry silently failed to send when `npm` was not available.
+- Updated @redocly/openapi-core to v2.49.0.
+
+## 2.48.0 (2026-08-25)
+
+### Minor Changes
+
+- Added agent-friendly client generation: `python`, `go`, `php`, and `cli` generators beside the TypeScript client, each self-documenting with `--docs`, configurable per generator, and available as source in your own repository through `eject-generator`.
+
+### Patch Changes
+
+- Fixed an issue where the `bundle` command didn't resolve `$ref`s inside an AsyncAPI 3 Multi Format Schema Object.
+- Fixed an issue where `respect --har-output` recorded an empty `postData` for every request.
+  Request bodies are written to the HAR.
+  Captures replayed through `drift` can have their request bodies validated instead of silently passing.
+- Updated @redocly/client-generator to v0.4.0.
+- Updated @redocly/openapi-core to v2.48.0.
+
+## 2.47.0 (2026-08-21)
+
+### Minor Changes
+
+- Added a Vendor Extensions metric to the `stats` command that reports how many distinct `x-` extensions a description file uses and how often each one occurs.
+
+### Patch Changes
+
+- Fixed the `stats` command reporting wrong parameter count for AsyncAPI descriptions.
+- Updated @redocly/openapi-core to v2.47.0.
+
 ## 2.46.2 (2026-08-19)
 
 ### Patch Changes

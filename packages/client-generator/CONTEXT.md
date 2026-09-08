@@ -39,10 +39,10 @@ _Avoid_: streamSchema, eventSchema (in code identifiers — `itemSchema` mirrors
 ### Emission
 
 **Emitter**:
-Builds a TypeScript **AST** (`ts.factory` nodes) from the IR.
+Renders TypeScript source TEXT from the IR, through `Printer`.
 Lives in `emitters/`.
-Each emitter is deep — one narrow entry point over hidden node-building bulk — and owns a single concern: `types.ts` (`typesStatements`/`schemaToTypeNode`), `type-guards.ts` (`typeGuardStatements`), `descriptor.ts` (the `OPERATIONS` descriptor map + the `Ops` type), `operation-aliases.ts`/`operation-types.ts` (the `<Op>*` aliases and their type builders), `sse.ts` (the **SSE** detection seam: `isSseOp`/`partitionOps`/`sseEventType`/`sseDataKind`), and `inline-runtime.ts` (the **inline assembler**).
-The foundation module `ts.ts` owns the shared printer and ergonomics: `printNodes` (nodes → source), `parseStatements` (parse hand-authored source into nodes), and `jsdoc` (attach a block comment).
+Each emitter is deep — one narrow entry point over hidden rendering bulk — and owns a single concern: `types.ts`, `type-guards.ts`, `descriptor.ts` (the `OPERATIONS` descriptor map + the `Ops` type), `operation-aliases.ts`/`operation-types.ts` (the `<Op>*` aliases), `ts-type.ts` (`tsType`, the schema→type renderer), `sse.ts` (the **SSE** detection seam: `isSseOp`/`partitionOps`/`sseEventType`/`sseDataKind`), and `inline-runtime.ts` (the **inline assembler**).
+`setup-bake.ts` is the only module that parses TypeScript (a publisher `--setup` module), which is why `typescript` is an optional peer dependency loaded lazily.
 `package-client.ts` is the shared _wiring_ emitter: it assembles each file's content — identical for both runtimes except the runtime block (import vs embed) — and prints **once**, exposing `emitClientSingleFile` / `emitClientSplit`.
 Low-level text helpers (`pascalCase`, `splitLines`, `joinSections`) stay private in `support.ts`, and the JSDoc-body builder in `jsdoc.ts` — consumed only by the deep emitters, never by writers.
 _Avoid_: renderer, codegen.
@@ -51,17 +51,18 @@ _Avoid_: renderer, codegen.
 Chooses the _file layout_ from the IR and emit options, then fills each file by calling the emitter.
 Lives in `writers/`.
 One **Writer** per **output mode**, selected by `getWriter`.
-A Writer is an implementation detail of the `sdk` **Generator**.
+A Writer is an implementation detail of the `typescript` **Generator**.
 _Avoid_: formatter, builder.
 
 **Generator**:
-A deep module that turns the IR into a set of files for one concern, selected by name through `getGenerator(name)` (mirrors the `getWriter(outputMode)` seam).
-Lives in `generators/`.
-The `sdk` generator is the typed client (it delegates to the output-mode **Writer**).
+A deep module that turns the IR into a set of files for one concern, selected by name through the registry seam.
+Each one lives in its OWN FOLDER under `generators/` — `index.ts` plus an `AGENTS.md` design skill that the code must match (change the skill first).
+The `python`, `go`, and `php` generators are self-contained single files, which is what makes them ejectable; the TypeScript-emitting ones are thin entries over the shared emitters.
+The `typescript` generator is the typed client (it delegates to the output-mode **Writer**).
 The `zod` generator emits a standalone `<stem>.zod.ts` **schema module** (one `export const <Name>Schema` per IR named schema) beside the client.
-The `tanstack-query` generator emits a TanStack Query v5 (React) module (`<stem>.tanstack.ts`) wrapping the sdk — per query op a `<op>QueryKey`/`<op>Options` (`queryOptions`) factory + query key, per mutation a `<op>Mutation` (`mutationKey`/`mutationFn`) factory (requires the `sdk` generator; the consumer installs `@tanstack/react-query`).
+The `tanstack-query` generator emits a TanStack Query v5 (React) module (`<stem>.tanstack.ts`) wrapping the sdk — per query op a `<op>QueryKey`/`<op>Options` (`queryOptions`) factory + query key, per mutation a `<op>Mutation` (`mutationKey`/`mutationFn`) factory (requires the `typescript` generator; the consumer installs `@tanstack/react-query`).
 The `transformers` generator emits a standalone `<stem>.transformers.ts` of `transform<Name>(data: <Name>): <Name>` functions — one per IR named schema that (recursively) carries a `date-time`/`date` field — that walk the value and rewrite wire ISO strings to `new Date(...)` in place, composing across refs (`transformPet` calls `transformOwner`); pair it with the **dateType** knob (`--date-type Date`) so the parsed value matches the type (it imports only the schema TYPES, so the client stays zero-dep).
-`generateClient` runs the configured generators (default `['sdk']`, selected via `--generator sdk --generator zod`) and merges their files.
+`generateClient` runs the configured generators (default `['typescript']`, selected via `--generator typescript --generator zod`) and merges their files.
 Custom generators are authored with `defineGenerator` and selected inline or by import specifier (the experimental **plugin** API, ADR-0012).
 _Avoid_: middleware (that's a runtime concept).
 
@@ -126,7 +127,7 @@ _Avoid_: throwOnError, errorHandling, result shape (in code identifiers).
 **dateType**:
 How `format: date-time`/`date` string fields are typed: `string` (default — byte-identical to the ISO wire shape) or `Date`.
 Selected by `--date-type`.
-Under `Date` the sdk emits `Date` for those scalar `string` schemas; the runtime conversion is opt-in and separate — pair it with the **`transformers` generator** (`--generator sdk --generator transformers`) so the parsed value matches the type.
+Under `Date` the sdk emits `Date` for those scalar `string` schemas; the runtime conversion is opt-in and separate — pair it with the **`transformers` generator** (`--generator typescript --generator transformers`) so the parsed value matches the type.
 `int64` → `bigint` is deferred to a follow-up.
 _Avoid_: dateMode, parseDates (in code identifiers).
 

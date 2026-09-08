@@ -12,7 +12,7 @@ async function main(): Promise<void> {
   let error: string | null = null;
 
   try {
-    for await (const ev of streamAbort({ signal: controller.signal })) {
+    for await (const ev of streamAbort({}, { signal: controller.signal })) {
       void ev;
       received++;
       // Abort mid-stream, after the first event, while the server holds open.

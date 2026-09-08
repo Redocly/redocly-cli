@@ -76,7 +76,7 @@ exports[`should replace values in the request body 1`] = `
       } 
  
     ✓ success criteria check - $statusCode == 400
-    ✓ status code check - $statusCode in [201, 400, 401, 500]
+    ✓ status code check - $statusCode in [201, 400, 500]
     ✓ content-type check
     ✓ schema check
  

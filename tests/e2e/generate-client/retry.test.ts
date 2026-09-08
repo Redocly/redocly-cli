@@ -109,13 +109,13 @@ describe('retry behavior', () => {
         // default predicate: POST is not idempotent → no retry.
         calls = 0;
         configure({ fetch: failing, retry: { retries: 3, retryDelay: 1 } });
-        try { await createPet({ name: 'x' } as any); } catch {}
+        try { await createPet({ body: { name: 'x' } } as any); } catch {}
         const defaultCalls = calls;
 
         // retryOn: () => true → POST retried.
         calls = 0;
         configure({ fetch: failing, retry: { retries: 3, retryDelay: 1, retryOn: () => true } });
-        try { await createPet({ name: 'x' } as any); } catch {}
+        try { await createPet({ body: { name: 'x' } } as any); } catch {}
         const optInCalls = calls;
 
         console.log(JSON.stringify({ defaultCalls, optInCalls }));

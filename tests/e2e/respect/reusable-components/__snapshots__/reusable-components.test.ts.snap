@@ -187,7 +187,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       } 
  
     ✓ success criteria check - $statusCode == 400
-    ✓ status code check - $statusCode in [201, 400, 401, 500]
+    ✓ status code check - $statusCode in [201, 400, 500]
     ✓ content-type check
     ✓ schema check
  

@@ -87,6 +87,7 @@ The rules list is split into sections.
 - [no-duplicated-enum-values](./common/no-duplicated-enum-values.md): All values in an `enum` must be unique
 - [no-enum-type-mismatch](./common/no-enum-type-mismatch.md): Enum options must match the data type declared in the schema
 - [no-example-value-and-externalValue](./oas/no-example-value-and-externalValue.md): Either the `value` or `externalValue` may be present, but not both
+- [no-illogical-composition-keywords](./oas/no-illogical-composition-keywords.md): `oneOf`, `anyOf`, and `allOf` must combine schemas a value can actually match
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md): Example request bodies must match the declared schema
 - [no-mixed-number-range-constraints](./common/no-mixed-number-range-constraints.md): Ensures that schemas do not use both `maximum` and `exclusiveMaximum` (or both `minimum` and `exclusiveMinimum`) at the same time.
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md): Schema examples must match declared types

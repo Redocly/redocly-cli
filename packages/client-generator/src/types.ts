@@ -1,8 +1,7 @@
 import type { Config as RedoclyConfig, Oas3Definition, detectSpec } from '@redocly/openapi-core';
 
-import type { ArgsStyle } from './emitters/emit-options.js';
-import type { PaginationConfig } from './emitters/pagination.js';
-import type { CustomGenerator, OutputMode } from './generators/types.js';
+import type { ArgsStyle, CustomGenerator, OutputMode } from './generators/types.js';
+import type { PaginationConfig } from './pagination.js';
 
 export type GenerateClientOptions = {
   /** Path or URL to the OpenAPI description (or an `apis:` alias from `redocly.yaml`). */
@@ -59,8 +58,8 @@ export type GenerateClientOptions = {
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
   /**
-   * Generators to run, in order. Defaults to `['sdk']`. Each entry is a built-in name
-   * (`sdk`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline
+   * Generators to run, in order. Defaults to `['typescript']`. Each entry is a built-in name
+   * (`typescript`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline
    * `customGenerators` entry, or an import specifier (a path or package) for a custom generator.
    */
   generators?: string[];
@@ -82,16 +81,47 @@ export type GenerateClientOptions = {
    * across all output modes.
    */
   setup?: string;
-  /** Runtime distribution: 'inline' (default, self-contained) | 'package' (imports @redocly/client-generator). */
-  runtime?: 'inline' | 'package';
+  /** Runtime distribution: `'inline'` (default) embeds the runtime in the generated
+   * file; `'module'` writes it as real files in a `runtime/` folder beside the client. */
+  runtime?: 'inline' | 'module';
   /** Extension in generated relative imports. `'js'` (default) suits tsc and bundlers;
    * `'ts'` suits runtimes that resolve specifiers literally, like Node's built-in
    * type stripping (`node client.ts`). */
   importExt?: 'js' | 'ts';
+  /** Package clause of the `go` generator's output. Defaults to `client`. */
+  goPackage?: string;
+  /**
+   * Path of a COMPOSED cli entry spanning every api that selects the `cli` generator —
+   * one binary, each api behind its alias as a namespace. Read by the `redocly` CLI
+   * across apis (top-level `client` block only); `generateClient(...)` itself ignores it.
+   */
+  cliOutput?: string;
+  /**
+   * Per-generator options, keyed by generator name — validated against the schema the
+   * generator declares (`GeneratorOptionsSchema`) before it runs. Config-only, like
+   * `pagination`: a generator's option set is its own vocabulary, not a CLI flag.
+   */
+  options?: Record<string, Record<string, unknown>>;
+  /**
+   * Emit `<output stem>.code-samples.yaml` — an OpenAPI Overlay adding per-operation
+   * `x-codeSamples` collected from every selected generator that implements `sample()`.
+   * Config-only (`client.codeSamples`), like `pagination`.
+   */
+  codeSamples?: boolean;
+  /**
+   * Also write reference documentation for what this run generates: one Markdown page per
+   * selected generator that implements the `docs` hook (`<stem>.cli.md` for the CLI,
+   * `<stem>.python.md` for the Python SDK, and so on). One switch for every language, so a
+   * newly documented generator needs no new flag. The `--docs` flag sets it too.
+   */
+  docs?: boolean;
+  /** Emit YAML front matter carrying the title above each documentation page, for docs
+   * sites that expect it. Config-only. */
+  docsFrontmatter?: boolean;
   /**
    * Auto-pagination rules: a convention rule (applied to every operation it
    * structurally fits), per-operation overrides, and `exclude`d operationIds —
-   * resolved together with each operation's `x-redocly-pagination` extension (per-op config >
+   * resolved together with each operation's `x-redoclyPagination` extension (per-op config >
    * extension > convention). Paginated operations gain typed `.pages()`/`.items()`
    * iterators. Verified statically: an explicit rule that doesn't fit its operation
    * fails generation.

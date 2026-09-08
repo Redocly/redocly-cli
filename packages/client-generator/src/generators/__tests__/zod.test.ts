@@ -1,5 +1,10 @@
-import { apiModel, namedSchema } from '../../emitters/__tests__/fixtures.js';
-import { zodGenerator } from '../zod.js';
+import { apiModel, namedSchema } from '../../__tests__/fixtures.js';
+import { zodGenerator as zodGeneratorEntry } from '../zod/index.js';
+import { generatorInput } from './fixtures/generator-input.js';
+
+// The pipeline parses the output anchor; `generatorInput` mirrors it for direct calls.
+const zodGenerator = (input: Parameters<typeof generatorInput>[0]) =>
+  zodGeneratorEntry(generatorInput(input));
 
 const PET = namedSchema('Pet', {
   kind: 'object',

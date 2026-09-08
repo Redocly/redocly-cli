@@ -113,6 +113,44 @@ describe('Arazzo x-security-scheme-required-values', () => {
     `);
   });
 
+  it('should accept an HTTP scheme regardless of its casing', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.0.1'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            steps:
+              - stepId: step-with-openapi-operation
+                operationId: museum-api.getMuseumHours
+                x-security:
+                  - scheme:
+                      type: http
+                      scheme: Basic
+                    values:
+                      username: todd@example.com
+                      password: 123456
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: { 'x-security-scheme-required-values': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should report when required values are missing for Bearer Auth x-security schema', async () => {
     const document = parseYamlToDocument(
       outdent`

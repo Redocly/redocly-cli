@@ -38,7 +38,7 @@ describe('generate-client error mode', () => {
     expect(existsSync(out)).toBe(true);
 
     const generated = readFileSync(out, 'utf-8');
-    expect(generated).toContain('export const getThing = (');
+    expect(generated).toContain('export const { getThing } = client;');
     expect(generated).toContain('result: Result<GetThingResult, GetThingError>;');
     expect(generated).toContain('export type GetThingError = ProblemDetails;');
     // The mode is baked into the client instance config (configure() cannot flip it).

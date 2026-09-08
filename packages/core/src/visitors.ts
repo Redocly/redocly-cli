@@ -215,6 +215,9 @@ type Oas3FlatVisitor = {
   Response?: VisitFunctionOrObject<Oas3Response<Oas3Schema | Oas3_1Schema>>;
   Link?: VisitFunctionOrObject<Oas3Link>;
   Schema?: VisitFunctionOrObject<Oas3Schema | Oas3_1Schema>;
+  AllOf?: VisitFunctionOrObject<Array<Oas3Schema | Oas3_1Schema>>;
+  AnyOf?: VisitFunctionOrObject<Array<Oas3Schema | Oas3_1Schema>>;
+  OneOf?: VisitFunctionOrObject<Array<Oas3Schema | Oas3_1Schema>>;
   Xml?: VisitFunctionOrObject<Oas3Xml>;
   SchemaProperties?: VisitFunctionOrObject<Record<string, Oas3Schema | Oas3_1Schema>>;
   DiscriminatorMapping?: VisitFunctionOrObject<Record<string, string>>;

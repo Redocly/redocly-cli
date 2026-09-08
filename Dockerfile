@@ -1,5 +1,7 @@
 FROM node:24-alpine
 
+ARG BUILD_ENV
+
 WORKDIR /build
 COPY . .
 RUN apk add --no-cache jq git && \

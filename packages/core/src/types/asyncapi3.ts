@@ -182,19 +182,11 @@ const Parameter: NodeType = {
 const Message: NodeType = {
   extensionsPrefix: 'x-',
   properties: {
-    headers: 'Schema',
-    payload: (value: Record<string, unknown>) => {
-      if (!!value && value?.['schemaFormat']) {
-        return {
-          properties: {
-            schema: 'Schema',
-            schemaFormat: { type: 'string' },
-          },
-          required: ['schema', 'schemaFormat'],
-        };
-      } else {
-        return 'Schema';
-      }
+    headers: (value: unknown) => {
+      return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
+    },
+    payload: (value: unknown) => {
+      return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
     },
     correlationId: 'CorrelationId',
 
@@ -259,16 +251,7 @@ const MessageTrait: NodeType = {
   extensionsPrefix: 'x-',
   properties: {
     headers: (value: unknown) => {
-      if (typeof value === 'function' || isPlainObject(value)) {
-        return {
-          properties: {
-            schema: 'Schema',
-            schemaFormat: { type: 'string' },
-          },
-        };
-      } else {
-        return 'Schema';
-      }
+      return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
     },
     correlationId: 'CorrelationId',
 
@@ -564,6 +547,23 @@ const MessageBindings: NodeType = {
   },
 };
 
+const MultiFormatSchema: NodeType = {
+  extensionsPrefix: 'x-',
+  properties: {
+    schema: 'Schema',
+    schemaFormat: { type: 'string' },
+  },
+  description:
+    'Represents a schema definition. Unlike the Schema Object, it supports multiple schema formats or languages.',
+};
+
+const NamedSchemas: NodeType = {
+  properties: {},
+  additionalProperties: (value: unknown) => {
+    return isPlainObject(value) && 'schema' in value ? 'MultiFormatSchema' : 'Schema';
+  },
+};
+
 export const AsyncApi3Types: Record<string, NodeType> = {
   ...AsyncApiBindings,
   ...Ros2Bindings,
@@ -580,6 +580,7 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   Tag,
   Dependencies,
   Schema,
+  MultiFormatSchema,
   Discriminator,
   DiscriminatorMapping,
   SchemaProperties,
@@ -610,7 +611,7 @@ export const AsyncApi3Types: Record<string, NodeType> = {
   NamedOperations: mapOf('Operation'),
   NamedOperationReplies: mapOf('OperationReply'),
   NamedOperationRelyAddresses: mapOf('OperationReplyAddress'),
-  NamedSchemas: mapOf('Schema'),
+  NamedSchemas,
   NamedMessages: mapOf('Message'),
   NamedMessageTraits: mapOf('MessageTrait'),
   NamedOperationTraits: mapOf('OperationTrait'),

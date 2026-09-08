@@ -93,20 +93,16 @@ describe('non-identifier path parameters', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('emits safe argument names routed back under the wire name', () => {
+  test('keys the path layer by the wire name, quoting what needs it', () => {
     const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
-    // `widget-id` → safe `widget_id` argument, routed under the quoted wire key.
-    expect(client).toContain(
-      'export const getWidget = <I extends RequestOptions | undefined = undefined>(widget_id: string, init?: I)'
-    );
-    expect(client).toContain('client.getWidget({ "widget-id": widget_id }, init)');
+    // The wire name IS the key, so no binding identifier is derived and nothing to remap.
+    expect(client).toContain('export type GetWidgetPath = {\n    "widget-id": string;\n};');
     // The descriptor keeps the WIRE name for URL substitution.
     expect(client).toContain('params: [{ name: "widget-id", in: "path" }]');
-    // reserved word `new` → `_new` argument, routed under the `new` key.
-    expect(client).toContain(
-      'export const getItem = <I extends RequestOptions | undefined = undefined>(_new: string, init?: I)'
-    );
-    expect(client).toContain('client.getItem({ new: _new }, init)');
+    // A reserved word is a fine object key, quoted or not.
+    // A reserved word is quoted as a key, which is what makes it usable as one.
+    expect(client).toContain('export type GetItemPath = {\n    "new": string;\n};');
+    expect(client).not.toContain('_new');
   });
 
   test('the generated client type-checks under strict mode', () => {
@@ -130,8 +126,8 @@ describe('non-identifier path parameters', () => {
         }) as unknown as typeof fetch,
       });
 
-      await getWidget('abc');
-      await getItem('xyz');
+      await getWidget({ path: { 'widget-id': 'abc' } });
+      await getItem({ path: { new: 'xyz' } });
       console.log(JSON.stringify(urls));
     `;
     const urls = runConsumer(dir, consumer) as string[];

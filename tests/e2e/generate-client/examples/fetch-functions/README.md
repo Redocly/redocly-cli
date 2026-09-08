@@ -1,7 +1,6 @@
 # fetch-functions example
 
-Generated TypeScript client (`generators: ['sdk']`), consumed as free
-functions (`configure()`, `listMenuItems()`), with `ApiError` handling.
+Generated TypeScript client (`generators: ['typescript']`), consumed as free functions (`configure()`, `listMenuItems()`), with `ApiError` handling.
 
 ## Run
 

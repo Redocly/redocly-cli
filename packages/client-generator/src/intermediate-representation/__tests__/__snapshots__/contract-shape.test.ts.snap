@@ -1,0 +1,201 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`IR contract shape > pins the full ApiModel a generator receives for a representative document 1`] = `
+{
+  "schemas": [
+    {
+      "name": "Order",
+      "schema": {
+        "kind": "object",
+        "properties": [
+          {
+            "name": "id",
+            "readOnly": true,
+            "required": true,
+            "schema": {
+              "kind": "scalar",
+              "scalar": "string",
+            },
+          },
+          {
+            "name": "status",
+            "required": false,
+            "schema": {
+              "kind": "ref",
+              "name": "Status",
+            },
+          },
+        ],
+      },
+    },
+    {
+      "name": "Status",
+      "schema": {
+        "kind": "enum",
+        "scalar": "string",
+        "values": [
+          "open",
+          "shipped",
+        ],
+      },
+    },
+    {
+      "name": "Pet",
+      "schema": {
+        "discriminator": {
+          "mapping": [
+            {
+              "schemaName": "Order",
+              "value": "order",
+            },
+          ],
+          "propertyName": "kind",
+        },
+        "kind": "union",
+        "members": [
+          {
+            "kind": "ref",
+            "name": "Order",
+          },
+        ],
+      },
+    },
+  ],
+  "securitySchemes": [
+    {
+      "key": "BearerAuth",
+      "kind": "bearer",
+    },
+  ],
+  "serverUrl": "https://api.example.com/us",
+  "servers": [
+    {
+      "description": "Live server",
+      "url": "https://api.example.com/{region}",
+      "variables": [
+        {
+          "default": "us",
+          "name": "region",
+        },
+      ],
+    },
+  ],
+  "services": [
+    {
+      "name": "Default",
+      "operations": [
+        {
+          "cookieParams": [],
+          "errorResponses": [
+            {
+              "contentType": "application/json",
+              "schema": {
+                "kind": "record",
+                "value": {
+                  "kind": "unknown",
+                },
+              },
+              "status": 404,
+            },
+          ],
+          "headerParams": [
+            {
+              "in": "header",
+              "name": "X-Trace",
+              "required": false,
+              "schema": {
+                "kind": "scalar",
+                "scalar": "string",
+              },
+            },
+          ],
+          "method": "get",
+          "name": "listOrders",
+          "path": "/orders",
+          "pathParams": [],
+          "queryParams": [
+            {
+              "in": "query",
+              "name": "limit",
+              "required": false,
+              "schema": {
+                "kind": "scalar",
+                "metadata": {
+                  "minimum": 1,
+                },
+                "scalar": "integer",
+              },
+            },
+          ],
+          "security": [
+            [
+              "BearerAuth",
+            ],
+          ],
+          "successResponseHeaders": [
+            {
+              "name": "pagination-total",
+              "required": true,
+              "schema": {
+                "kind": "scalar",
+                "scalar": "integer",
+              },
+            },
+          ],
+          "successResponses": [
+            {
+              "contentType": "application/json",
+              "schema": {
+                "items": {
+                  "kind": "ref",
+                  "name": "Order",
+                },
+                "kind": "array",
+              },
+              "status": 200,
+            },
+          ],
+          "tags": [
+            "Orders",
+          ],
+        },
+        {
+          "cookieParams": [],
+          "errorResponses": [],
+          "headerParams": [],
+          "method": "post",
+          "name": "createOrder",
+          "path": "/orders",
+          "pathParams": [],
+          "queryParams": [],
+          "requestBody": {
+            "contentType": "application/json",
+            "required": true,
+            "schema": {
+              "base": "Order",
+              "keys": [
+                "id",
+              ],
+              "kind": "omit",
+            },
+          },
+          "security": [],
+          "successResponses": [
+            {
+              "contentType": "application/json",
+              "schema": {
+                "kind": "ref",
+                "name": "Order",
+              },
+              "status": 201,
+            },
+          ],
+          "tags": [],
+        },
+      ],
+    },
+  ],
+  "title": "Contract Probe",
+  "version": "1.0.0",
+}
+`;

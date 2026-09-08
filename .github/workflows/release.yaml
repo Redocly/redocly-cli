@@ -12,6 +12,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  REDOCLY_TELEMETRY: 'off'
+
 jobs:
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -57,6 +60,7 @@ jobs:
             node scripts/post-changeset.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_ENV: production
 
   dockerhub:
     needs: [release]
@@ -113,6 +117,7 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
+          build-args: BUILD_ENV=production
 
   post-release-smoke-checks:
     needs:
@@ -144,16 +149,18 @@ jobs:
       - name: Test docker image
         continue-on-error: true
         run: |
+          redocly_docker() { docker run --rm -e REDOCLY_TELEMETRY redocly/cli "$@"; }
+
           expected_version="$(cat packages/cli/package.json | jq -r '.version')"
-          actual_version="$(docker run --rm redocly/cli --version)"
+          actual_version="$(redocly_docker --version)"
           if [[ $expected_version == $actual_version  ]]; then
             echo "The version is correct. Actual version: $actual_version"
           else
             echo "The version is incorrect. Expected: $expected_version, actual: $actual_version"
           fi
-          docker run --rm redocly/cli lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
-          docker run --rm redocly/cli bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml --output=bundled.yaml
-          docker run --rm redocly/cli build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          redocly_docker lint https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
+          redocly_docker bundle https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml --output=bundled.yaml
+          redocly_docker build-docs https://raw.githubusercontent.com/Rebilly/api-definitions/main/openapi/openapi.yaml
 
   notify:
     needs:

@@ -7,5 +7,5 @@ apis:
     clientOutput: ./src/api/client.ts
     client:
       generators:
-        - sdk
+        - typescript
         - tanstack-query

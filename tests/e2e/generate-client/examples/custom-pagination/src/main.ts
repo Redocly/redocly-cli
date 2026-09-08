@@ -38,6 +38,8 @@ async function* paginate<Item>(
   }
 }
 
-for await (const order of paginate((cursor) => searchOrders({ status: 'ready', cursor }))) {
+for await (const order of paginate((cursor) =>
+  searchOrders({ body: { status: 'ready', cursor } })
+)) {
   console.log(`search hit ${order.id}: ${order.drink}`); // `order` is `Order` — typed end to end
 }

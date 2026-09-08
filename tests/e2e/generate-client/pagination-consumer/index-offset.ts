@@ -5,17 +5,17 @@ import { listMenuItems, OPERATIONS } from './api-offset.js';
 // each page's item count until an empty page arrives.
 async function main(): Promise<void> {
   const names: string[] = [];
-  for await (const item of listMenuItems.items({ params: { limit: 2 } })) {
+  for await (const item of listMenuItems.items({ query: { limit: 2 } })) {
     names.push(item.name); // compile-time: `item` is `MenuItem`
   }
 
   // The trailing empty page IS yielded (every page arrives before the stop check).
   const pageSizes: number[] = [];
-  for await (const page of listMenuItems.pages({ params: { limit: 2 } })) {
+  for await (const page of listMenuItems.pages({ query: { limit: 2 } })) {
     pageSizes.push(page.items.length);
   }
 
-  // Precedence, pinned at compile time: the spec's `x-redocly-pagination` (cursor) beats the
+  // Precedence, pinned at compile time: the spec's `x-redoclyPagination` (cursor) beats the
   // offset convention on `listOrders` — its descriptor keeps the extension's rule.
   const listOrdersStyle: 'cursor' = OPERATIONS.listOrders.pagination.style;
 

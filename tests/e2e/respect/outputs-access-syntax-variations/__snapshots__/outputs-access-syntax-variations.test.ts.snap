@@ -142,7 +142,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
  
     ✓ success criteria check - $statusCode == 400
     ✓ success criteria check - $workflows.get-menu-items.outputs.itemsCount == 0
-    ✓ status code check - $statusCode in [201, 400, 401, 500]
+    ✓ status code check - $statusCode in [201, 400, 500]
     ✓ content-type check
     ✓ schema check
  

@@ -9,5 +9,5 @@ apis:
     clientOutput: ./src/api/client.ts
     client:
       generators:
-        - sdk
+        - typescript
         - ./nested-facade-generator.mjs

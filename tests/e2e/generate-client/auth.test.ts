@@ -30,18 +30,15 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     expect(generated).toContain('async function resolveAuth(');
     expect(generated).toContain('async function resolveToken(');
 
-    // One setter per scheme kind, as instance-bound sugar. Three apiKey schemes (none sole) → keyed names.
-    expect(generated).toContain('export const setBearer = client.auth.bearer;');
-    expect(generated).toContain('export const setBasicAuth = client.auth.basic;');
-    expect(generated).toContain(
-      'export const setApiKeyQueryKey = (value: TokenProvider) => client.auth.apiKey("QueryKey", value);'
-    );
-    expect(generated).toContain(
-      'export const setApiKeyHeaderKey = (value: TokenProvider) => client.auth.apiKey("HeaderKey", value);'
-    );
-    expect(generated).toContain(
-      'export const setApiKeyCookieKey = (value: TokenProvider) => client.auth.apiKey("CookieKey", value);'
-    );
+    // Credentials go through `configure({ auth })` or `client.auth.*`; the module exports
+    // no per-scheme setter, so a scheme's key never becomes a reserved export name.
+    expect(generated).toContain('export const { configure, use } = client;');
+    expect(generated).not.toContain('export const setBearer');
+    expect(generated).not.toContain('export const setBasicAuth');
+    expect(generated).not.toContain('export const setApiKey');
+    // Each scheme still reaches the runtime through the descriptor that requires it.
+    expect(generated).toContain('scheme: "QueryKey"');
+    expect(generated).toContain('scheme: "CookieKey"');
 
     // Per-kind injection inside resolveAuth, driven by the descriptors' security specs.
     expect(generated).toContain('headers.Authorization = `Bearer ${await resolveToken(provider)}`');
@@ -83,10 +80,10 @@ describe('generate-client auth breadth (auth.yaml)', () => {
 
   // Behavioral check on a real wire. The cafe mock-server harness is bound to
   // cafe.yaml and heavy to clone, so we drive the generated client against a tiny
-  // throwaway http server instead — enough to prove (a) an async `setBearer`
+  // throwaway http server instead — enough to prove (a) an async bearer provider
   // token function resolves through the runtime's auth capability onto the
   // `Authorization` header and (b) a query-key scheme lands `api_key=` in the URL.
-  it('async setBearer resolves onto Authorization and query-key lands in the URL', () => {
+  it('an async bearer provider resolves onto Authorization and a query key lands in the URL', () => {
     // The driver owns its own throwaway http server (and points the client at it
     // via configure({ serverUrl })), so a single `runConsumer` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
@@ -98,7 +95,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
       dir,
       outdent`
         import * as http from 'node:http';
-        import { configure, getBearer, getQuery, setBearer, setApiKeyQueryKey } from './client.js';
+        import { client, configure, getBearer, getQuery } from './client.js';
 
         const captured: Array<{ url: string; auth?: string }> = [];
         const server = http.createServer((req, res) => {
@@ -111,10 +108,10 @@ describe('generate-client auth breadth (auth.yaml)', () => {
           await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
           const port = (server.address() as { port: number }).port;
           configure({ serverUrl: 'http://127.0.0.1:' + port });
-          setBearer(async () => 'tok');
+          client.auth.bearer(async () => 'tok');
           await getBearer();
-          setApiKeyQueryKey('secret-key');
-          await getQuery({ limit: 5 });
+          client.auth.apiKey('QueryKey', 'secret-key');
+          await getQuery({ query: { limit: 5 } });
           await new Promise<void>((r) => server.close(() => r()));
           process.stdout.write(JSON.stringify(captured));
         }

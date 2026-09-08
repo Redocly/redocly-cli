@@ -1,7 +1,6 @@
 # mock example
 
-Generated TypeScript client plus **MSW** mocks (`generators: ['sdk', 'mock']`), shown two ways from the
-same generated `src/api/` and the same `handlers`:
+Generated TypeScript client plus **MSW** mocks (`generators: ['typescript', 'mock']`), shown two ways from the same generated `src/api/` and the same `handlers`:
 
 - **Browser** (`src/main.ts`) — starts an MSW browser worker with `setupWorker` and renders the result.
 - **Node** (`src/node.ts`) — starts a server with `msw/node`'s `setupServer` and exports `loadMockedMenu()`.

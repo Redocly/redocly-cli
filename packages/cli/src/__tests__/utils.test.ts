@@ -825,6 +825,63 @@ describe('cleanArgs', () => {
       })
     );
   });
+
+  it('should not mangle the raw CLI input when a cleaned argument is an empty string', () => {
+    const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '--output='];
+    const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: '', o: '' };
+
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly bundle file-yaml --output=');
+    expect(result.arguments).toEqual(JSON.stringify({ apis: ['file-yaml'], output: '', o: '***' }));
+  });
+
+  it('should not mangle the raw CLI input when a cleaned argument is a single character', () => {
+    const rawInput = ['redocly', 'bundle', './fixtures/openapi.yaml', '-o', '-'];
+    const parsedArgs = { apis: ['./fixtures/openapi.yaml'], output: '-', o: '-' };
+
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly bundle file-yaml -o -');
+    expect(result.arguments).toEqual(
+      JSON.stringify({ apis: ['file-yaml'], output: '-', o: '***' })
+    );
+  });
+
+  it('should remove the commit author from parsed args and raw CLI input', () => {
+    const author = 'Jane Doe <jane.doe@example.com>';
+    const rawInput = ['redocly', 'push', './fixtures/openapi.yaml', '--author', author];
+    const parsedArgs = {
+      files: ['./fixtures/openapi.yaml'],
+      organization: 'my-org',
+      o: 'my-org',
+      project: 'my-project',
+      'mount-path': '/docs',
+      branch: 'main',
+      'default-branch': 'main',
+      author,
+      a: author,
+      message: 'Update the docs',
+    };
+
+    const result = cleanArgs(parsedArgs, rawInput);
+
+    expect(result.raw_input).toEqual('redocly push file-yaml --author ***');
+    expect(result.arguments).toEqual(
+      JSON.stringify({
+        files: ['file-yaml'],
+        organization: '***',
+        o: '***',
+        project: 'my-project',
+        'mount-path': '/docs',
+        branch: 'main',
+        'default-branch': 'main',
+        author: '***',
+        a: '***',
+        message: 'Update the docs',
+      })
+    );
+  });
 });
 
 describe('validateFileExtension', () => {

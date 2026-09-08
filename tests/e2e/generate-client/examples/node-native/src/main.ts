@@ -5,7 +5,7 @@
 // The import below uses a `.ts` extension for the same reason.
 import { listMenuItems } from './api/client.ts';
 
-const menu = await listMenuItems({ limit: 3 });
+const menu = await listMenuItems({ query: { limit: 3 } });
 for (const item of menu.items) {
   console.log(`${item.name} — $${(item.price / 100).toFixed(2)}`);
 }

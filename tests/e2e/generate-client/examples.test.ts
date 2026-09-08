@@ -83,3 +83,34 @@ describe('examples generate with the current generator', () => {
     }, 60_000);
   }
 });
+
+describe('the ejected example carries the current skills', () => {
+  // The example commits what `redocly eject-generator` drops, so a browser sees the
+  // whole story; these pin the committed copies to the shipped assets.
+  const shippedSkill = (skill: string) =>
+    readFileSync(
+      join(repoRoot, 'packages/client-generator/eject-assets/skills', skill, 'SKILL.md'),
+      'utf-8'
+    );
+  const exampleDir = join(examplesDir, 'ejected-generator');
+
+  it.each(['client-generators', 'php-generator'])(
+    '%s/SKILL.md matches the shipped skill',
+    (skill) => {
+      const committed = readFileSync(
+        join(exampleDir, '.claude/skills', skill, 'SKILL.md'),
+        'utf-8'
+      );
+      expect(committed, 'stale — re-run `redocly eject-generator` in the example').toBe(
+        shippedSkill(skill)
+      );
+    }
+  );
+
+  it('generators/AGENTS.md points at both skills', () => {
+    const pointer = readFileSync(join(exampleDir, 'generators/AGENTS.md'), 'utf-8');
+    expect(pointer).toContain('redocly-generators:begin');
+    expect(pointer).toContain('.claude/skills/client-generators/SKILL.md');
+    expect(pointer).toContain('.claude/skills/php-generator/SKILL.md');
+  });
+});

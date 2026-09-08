@@ -68,6 +68,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'warn',
     'no-invalid-media-type-examples': {
       severity: 'warn',
       allowAdditionalProperties: false,
@@ -133,6 +134,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-example-value-and-externalValue': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'warn',
     'no-invalid-media-type-examples': 'warn',
     'no-invalid-parameter-examples': 'warn',
     'no-invalid-schema-examples': 'warn',
@@ -194,6 +196,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
     'no-enum-type-mismatch': 'error',
     'no-http-verbs-in-paths': 'off',
     'no-identical-paths': 'error',
+    'no-illogical-composition-keywords': 'warn',
     'no-invalid-media-type-examples': 'warn',
     'no-invalid-parameter-examples': 'warn',
     'no-invalid-schema-examples': 'warn',

@@ -180,6 +180,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         },
         "type": "array",
       },
+      "schema": "Schema",
     },
   },
   "BuiltinDecorator": {
@@ -219,11 +220,23 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "grouped",
         ],
       },
+      "cliOutput": {
+        "type": "string",
+      },
+      "codeSamples": {
+        "type": "boolean",
+      },
       "dateType": {
         "enum": [
           "string",
           "Date",
         ],
+      },
+      "docs": {
+        "type": "boolean",
+      },
+      "docsFrontmatter": {
+        "type": "boolean",
       },
       "errorMode": {
         "enum": [
@@ -236,6 +249,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "type": "string",
         },
         "type": "array",
+      },
+      "goPackage": {
+        "type": "string",
       },
       "importExt": {
         "enum": [
@@ -252,6 +268,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "mockSeed": {
         "type": "number",
       },
+      "options": {
+        "additionalProperties": [Function],
+        "name": "ClientGeneratorOptionsMap",
+        "properties": {},
+      },
       "outputMode": {
         "enum": [
           "single",
@@ -265,7 +286,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "runtime": {
         "enum": [
           "inline",
-          "package",
+          "module",
         ],
       },
       "serverUrl": {
@@ -275,6 +296,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
     },
+  },
+  "ClientGeneratorOptions": {
+    "additionalProperties": {},
+    "properties": {},
   },
   "ClientPagination": {
     "properties": {
@@ -726,6 +751,53 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/decorators",
     "properties": {},
   },
+  "DependentRequired": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "properties": {},
+  },
+  "Discriminator": {
+    "description": "When request bodies or response payloads may be one of a number of different schemas, a discriminator object can be used to aid in serialization, deserialization, and validation. The discriminator is a specific object in a schema which is used to inform the consumer of the document of an alternative schema based on the value associated with it.",
+    "documentationLink": "https://redocly.com/learn/openapi/openapi-visual-reference/discriminator#discriminator-object",
+    "extensionsPrefix": "x-",
+    "properties": {
+      "mapping": "DiscriminatorMapping",
+      "propertyName": {
+        "description": "REQUIRED. The name of the property in the payload that will hold the discriminator value.",
+        "type": "string",
+      },
+    },
+    "required": [
+      "propertyName",
+    ],
+  },
+  "DiscriminatorMapping": {
+    "additionalProperties": [Function],
+    "documentationLink": "https://redocly.com/learn/openapi/openapi-visual-reference/discriminator#types",
+    "properties": {},
+  },
+  "ExternalDocs": {
+    "description": "Additional external documentation for this operation.",
+    "documentationLink": "https://redocly.com/learn/openapi/openapi-visual-reference/external-docs",
+    "extensionsPrefix": "x-",
+    "properties": {
+      "description": {
+        "description": "A description of the target documentation. Used as the link anchor text in Redocly. If not provided, the url is used as the link anchor text.",
+        "type": "string",
+      },
+      "url": {
+        "description": "REQUIRED. The URL for the target documentation.",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
   "GRAVITEE": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -782,6 +854,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "idp",
     ],
+  },
+  "NamedSchemas": {
+    "additionalProperties": [Function],
+    "name": "SchemaMap",
+    "properties": {},
   },
   "OAUTH2": {
     "additionalProperties": undefined,
@@ -925,6 +1002,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "PatternProperties": {
+    "additionalProperties": [Function],
+    "properties": {},
+  },
   "Preprocessors": {
     "additionalProperties": [Function],
     "description": "Preprocessors define transformations that can be applied to the API document before bundling.",
@@ -1037,14 +1118,186 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     ],
   },
   "Schema": {
-    "additionalProperties": {},
+    "extensionsPrefix": "x-",
     "properties": {
-      "properties": {
+      "$anchor": {
+        "type": "string",
+      },
+      "$comment": {
+        "type": "string",
+      },
+      "$defs": "NamedSchemas",
+      "$dynamicAnchor": {
+        "type": "string",
+      },
+      "$dynamicRef": {
+        "type": "string",
+      },
+      "$id": {
+        "type": "string",
+      },
+      "$schema": {
+        "type": "string",
+      },
+      "$vocabulary": {
+        "type": "string",
+      },
+      "additionalProperties": [Function],
+      "allOf": {
+        "items": "Schema",
+        "name": "AllOf",
+        "properties": {},
+      },
+      "anyOf": {
+        "items": "Schema",
+        "name": "AnyOf",
+        "properties": {},
+      },
+      "const": null,
+      "contains": "Schema",
+      "contentEncoding": {
+        "type": "string",
+      },
+      "contentMediaType": {
+        "type": "string",
+      },
+      "contentSchema": "Schema",
+      "default": null,
+      "definitions": "NamedSchemas",
+      "dependentRequired": "DependentRequired",
+      "dependentSchemas": {
         "additionalProperties": [Function],
         "name": "SchemaMap",
         "properties": {},
       },
+      "deprecated": {
+        "type": "boolean",
+      },
+      "description": {
+        "type": "string",
+      },
+      "discriminator": "Discriminator",
+      "else": "Schema",
+      "enum": {
+        "type": "array",
+      },
+      "example": {
+        "isExample": true,
+      },
+      "examples": {
+        "type": "array",
+      },
+      "exclusiveMaximum": {
+        "type": "number",
+      },
+      "exclusiveMinimum": {
+        "type": "number",
+      },
+      "externalDocs": "ExternalDocs",
+      "format": {
+        "type": "string",
+      },
+      "id": {
+        "type": "string",
+      },
+      "if": "Schema",
+      "items": [Function],
+      "maxContains": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "maxItems": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "maxLength": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "maxProperties": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "maximum": {
+        "type": "number",
+      },
+      "minContains": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "minItems": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "minLength": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "minProperties": {
+        "minimum": 0,
+        "type": "integer",
+      },
+      "minimum": {
+        "type": "number",
+      },
+      "multipleOf": {
+        "minimum": 0,
+        "type": "number",
+      },
+      "not": "Schema",
+      "oneOf": {
+        "items": "Schema",
+        "name": "OneOf",
+        "properties": {},
+      },
+      "pattern": {
+        "type": "string",
+      },
+      "patternProperties": "PatternProperties",
+      "prefixItems": {
+        "items": "Schema",
+        "name": "SchemaList",
+        "properties": {},
+      },
+      "properties": "SchemaProperties",
+      "propertyNames": "Schema",
+      "readOnly": {
+        "type": "boolean",
+      },
+      "required": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "summary": {
+        "type": "string",
+      },
+      "then": "Schema",
+      "title": {
+        "type": "string",
+      },
+      "type": [Function],
+      "unevaluatedItems": [Function],
+      "unevaluatedProperties": [Function],
+      "uniqueItems": {
+        "type": "boolean",
+      },
+      "writeOnly": {
+        "type": "boolean",
+      },
+      "x-tags": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "xml": "Xml",
     },
+  },
+  "SchemaProperties": {
+    "additionalProperties": [Function],
+    "properties": {},
   },
   "ScorecardClassic": {
     "additionalProperties": {},
@@ -1384,6 +1637,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "EncodingMap",
           "HeadersMap",
           "Link",
+          "AllOf",
+          "AnyOf",
+          "OneOf",
           "DiscriminatorMapping",
           "Discriminator",
           "Components",
@@ -1524,6 +1780,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "Ros2OperationBinding",
           "Ros2QosPolicies",
           "Ros2MessageBinding",
+          "MultiFormatSchema",
           "OperationReply",
           "OperationReplyAddress",
           "NamedTags",
@@ -1647,6 +1904,27 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "subject",
       "assertions",
     ],
+  },
+  "Xml": {
+    "description": "This MAY be used only on properties schemas. It has no effect on root schemas. Adds additional metadata to describe the XML representation of this property.",
+    "extensionsPrefix": "x-",
+    "properties": {
+      "attribute": {
+        "type": "boolean",
+      },
+      "name": {
+        "type": "string",
+      },
+      "namespace": {
+        "type": "string",
+      },
+      "prefix": {
+        "type": "string",
+      },
+      "wrapped": {
+        "type": "boolean",
+      },
+    },
   },
   "rootRedoclyConfigSchema": {
     "additionalProperties": undefined,
@@ -2832,7 +3110,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -3409,18 +3686,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.apis_additionalProperties.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.apis_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -3569,9 +3834,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -5762,7 +6024,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -6339,18 +6600,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -6459,9 +6708,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -11376,7 +11622,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -11953,18 +12198,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -12113,9 +12346,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -14306,7 +14536,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -14883,18 +15112,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -15003,9 +15220,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -19322,7 +19536,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -19899,18 +20112,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.env_additionalProperties.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.env_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -20210,6 +20411,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
+      },
+      "publicEndpoint": {
+        "type": "boolean",
       },
     },
     "required": undefined,
@@ -20705,9 +20909,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -27756,7 +27957,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -28329,18 +28529,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "apiId": {
         "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
       },
     },
     "required": undefined,
@@ -28945,9 +29133,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {
@@ -33032,7 +33217,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "showBuiltInScalars": {
         "type": "boolean",
       },
-      "sidebar": "rootRedoclyConfigSchema.graphql.sidebar",
     },
     "required": undefined,
   },
@@ -33609,18 +33793,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
-  "rootRedoclyConfigSchema.graphql.sidebar": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "hide": {
-        "type": "boolean",
-      },
-    },
-    "required": undefined,
-  },
   "rootRedoclyConfigSchema.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -33920,6 +34092,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "name": {
         "type": "string",
+      },
+      "publicEndpoint": {
+        "type": "boolean",
       },
     },
     "required": undefined,
@@ -34415,9 +34590,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "hideSecuritySection": {
-        "type": "boolean",
-      },
-      "hideSidebar": {
         "type": "boolean",
       },
       "hideSingleRequestSampleTab": {

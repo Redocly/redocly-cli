@@ -51,6 +51,7 @@ Warnings:
 - [no-ambiguous-paths](./oas/no-ambiguous-paths.md)
 - [no-duplicated-enum-values](./common/no-duplicated-enum-values.md)
 - [no-duplicated-tag-names](./oas/no-duplicated-tag-names.md)
+- [no-illogical-composition-keywords](./oas/no-illogical-composition-keywords.md)
 - [no-invalid-media-type-examples](./oas/no-invalid-media-type-examples.md)
 - [no-invalid-parameter-examples](./oas/no-invalid-parameter-examples.md)
 - [no-invalid-schema-examples](./oas/no-invalid-schema-examples.md)

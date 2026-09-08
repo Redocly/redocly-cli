@@ -9,7 +9,7 @@ from the hand-written `src/main.ts`, so it survives regeneration
 - `use()` middleware targeting `ctx.operation.id` / `ctx.operation.tags` (typed literal
   unions — typos fail the build), mutating the request body (`ctx.body` edits are sent),
   and observing each attempt's raw `Response`.
-- The generated `setApiKey()` auth setter.
+- Setting a credential for one scheme with `client.auth.apiKey()`.
 - A per-call header via the trailing `RequestOptions` argument.
 - `ApiError` handling with the spec's problem document on `error.body`.
 

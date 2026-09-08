@@ -5,7 +5,7 @@
 // yield the array under `/orders`. The generator applies it only where it
 // STRUCTURALLY FITS — `listOrders` has the param and the pointers resolve, so it keeps
 // its one-shot call and gains `.pages()` / `.items()`; `getOrder` has no `cursor`
-// param, so it stays a plain call. (Explicit declarations — `x-redocly-pagination` in the spec
+// param, so it stays a plain call. (Explicit declarations — `x-redoclyPagination` in the spec
 // or per-operation config — that don't fit fail generation instead of being skipped.)
 import { configure, listOrders } from './api/client.js';
 
@@ -34,12 +34,12 @@ configure({ fetch: canned });
 
 // `.items()` walks every order across every page — the cursor plumbing is invisible,
 // and each `order` is the statically computed element type (`Order`).
-for await (const order of listOrders.items({ params: { limit: 20 } })) {
+for await (const order of listOrders.items({ query: { limit: 20 } })) {
   console.log(`${order.id}: ${order.drink} (${order.status})`);
 }
 
 // `.pages()` when you need page-level access (progress reporting, batch writes).
 let pageNumber = 0;
-for await (const page of listOrders.pages({ params: { limit: 20 } })) {
+for await (const page of listOrders.pages({ query: { limit: 20 } })) {
   console.log(`page ${++pageNumber}: ${page.orders.length} orders`);
 }

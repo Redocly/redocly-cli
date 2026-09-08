@@ -69,7 +69,7 @@ describe('middleware — flat surface (use)', () => {
           { onError: (e) => new Error('second:' + e.message) },
         );
         try {
-          await getPetById(1);
+          await getPetById({ path: { id: 1 } });
           console.log(JSON.stringify({ threw: false }));
         } catch (e) {
           console.log(JSON.stringify({ threw: true, message: (e as Error).message }));
@@ -128,7 +128,7 @@ describe('middleware — flat surface (use)', () => {
         let op: unknown;
         configure({ fetch: (async () => ${OK}) as unknown as typeof fetch });
         use({ onRequest: (ctx) => { op = ctx.operation; } });
-        await createPet({ name: 'Rex' });
+        await createPet({ body: { name: 'Rex' } });
         console.log(JSON.stringify({ op }));
       `
     ) as { op: { id: string; path: string; tags: string[] } };
@@ -149,7 +149,7 @@ describe('middleware — flat surface (use)', () => {
           fetch: (async (_url: string, init: RequestInit) => { sent = init.body as string; return ${OK}; }) as unknown as typeof fetch,
         });
         use({ onRequest: (ctx) => { (ctx.body as { name: string }).name = 'Mutated'; } });
-        await createPet({ name: 'Rex' });
+        await createPet({ body: { name: 'Rex' } });
         console.log(JSON.stringify({ sent }));
       `
     ) as { sent: string };
@@ -210,7 +210,7 @@ describe('middleware — result error mode', () => {
           onResponse: () => { ran.push('res'); },
           onError: () => { ran.push('err'); return new Error('should-not-run'); },
         });
-        const r = await getPetById(1) as { error: unknown; data: unknown };
+        const r = await getPetById({ path: { id: 1 } }) as { error: unknown; data: unknown };
         console.log(JSON.stringify({ ran, hasError: r.error !== undefined, hasData: r.data !== undefined }));
       `
     ) as { ran: string[]; hasError: boolean; hasData: boolean };

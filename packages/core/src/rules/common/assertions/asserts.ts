@@ -1,11 +1,14 @@
 import type { AssertionContext, AssertResult, CustomFunction } from '../../../config/types.js';
-import type { Location } from '../../../ref-utils.js';
+import { isRef, joinPointer, Location } from '../../../ref-utils.js';
+import { Source } from '../../../resolve.js';
+import type { Oas3_1Schema } from '../../../typings/openapi.js';
 import { getIntersectionLength } from '../../../utils/get-intersection-length.js';
 import { isOrdered, type OrderOptions, type OrderDirection } from '../../../utils/is-ordered.js';
 import { isPlainObject } from '../../../utils/is-plain-object.js';
 import { isString as runOnValue } from '../../../utils/is-string.js';
 import { isTruthy } from '../../../utils/is-truthy.js';
 import { regexFromString } from '../../../utils/regex-from-string.js';
+import { AjvValidator } from '../../ajv.js';
 
 export type AssertionFnContext = AssertionContext & { baseLocation: Location; rawValue?: any };
 
@@ -29,6 +32,7 @@ export type Asserts = {
   ref: AssertionFn;
   const: AssertionFn;
   contains: AssertionFn;
+  schema: AssertionFn;
 };
 
 export const runOnKeysSet = new Set<keyof Asserts>([
@@ -61,7 +65,11 @@ export const runOnValuesSet = new Set<keyof Asserts>([
   'ref',
   'const',
   'contains',
+  'schema',
 ]);
+
+const schemaValidators = new WeakMap<object, AjvValidator>();
+const assertionSchemaLocation = new Location(new Source('assertion', ''), '#/schema');
 
 export const asserts: Asserts = {
   pattern: (
@@ -77,7 +85,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !regex?.test(_val) && {
-            message: `"${_val}" should match a regex ${condition}`,
+            message: `${JSON.stringify(_val)} should match a regex ${condition}`,
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
@@ -100,7 +108,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           regex?.test(_val) && {
-            message: `"${_val}" should not match a regex ${condition}`,
+            message: `${JSON.stringify(_val)} should not match a regex ${condition}`,
             location: runOnValue(value)
               ? baseLocation
               : isPlainObject(rawValue)
@@ -117,7 +125,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !condition.includes(_val) && {
-            message: `"${_val}" should be one of the predefined values`,
+            message: `${JSON.stringify(_val)} should be one of the predefined values`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -174,7 +182,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           condition.includes(_val) && {
-            message: `"${_val}" is disallowed`,
+            message: `${JSON.stringify(_val)} is disallowed`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -192,7 +200,7 @@ export const asserts: Asserts = {
         .map(
           (_val) =>
             condition !== _val && {
-              message: `"${_val}" should be equal ${condition} `,
+              message: `${JSON.stringify(_val)} should be equal ${JSON.stringify(condition)}`,
               location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
             }
         )
@@ -201,7 +209,7 @@ export const asserts: Asserts = {
       return value !== condition
         ? [
             {
-              message: `${value} should be equal ${condition}`,
+              message: `${JSON.stringify(value)} should be equal ${JSON.stringify(condition)}`,
               location: baseLocation,
             },
           ]
@@ -262,7 +270,7 @@ export const asserts: Asserts = {
       .map(
         (_val) =>
           !_val.match(casingRegexes[condition]) && {
-            message: `"${_val}" should use ${condition}`,
+            message: `${JSON.stringify(_val)} should use ${condition}`,
             location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
           }
       )
@@ -363,6 +371,49 @@ export const asserts: Asserts = {
             location: hasRef ? baseLocation : baseLocation.key(),
           },
         ];
+  },
+  schema: (
+    value: unknown,
+    schema: Oas3_1Schema | boolean,
+    { baseLocation, rawValue, resolve }: AssertionFnContext
+  ) => {
+    if (typeof value === 'undefined') return [];
+
+    if (typeof schema === 'boolean') {
+      return schema ? [] : [{ message: 'boolean schema is false', location: baseLocation }];
+    }
+
+    let validator = schemaValidators.get(schema);
+    if (!validator) {
+      validator = new AjvValidator();
+      schemaValidators.set(schema, validator);
+    }
+
+    const valueLocation = (isRef(rawValue) && resolve(rawValue)?.location) || baseLocation;
+
+    let errors;
+    try {
+      ({ errors } = validator.validate(value, schema, {
+        schemaLoc: assertionSchemaLocation,
+        instancePath: '',
+        resolve,
+        allowAdditionalProperties: false,
+        specVersion: 'oas3_1',
+      }));
+    } catch (error) {
+      throw new Error(`the 'schema' assertion has an invalid schema: ${error.message}`);
+    }
+
+    return errors.map((error) => {
+      const pointer = error.instancePath
+        ? joinPointer(valueLocation.pointer, error.instancePath.slice(1))
+        : valueLocation.pointer;
+      const location = new Location(valueLocation.source, pointer);
+      const reportOnKey =
+        error.keyword === 'additionalProperties' || error.keyword === 'unevaluatedProperties';
+
+      return { message: error.message, location: reportOnKey ? location.key() : location };
+    });
   },
 };
 

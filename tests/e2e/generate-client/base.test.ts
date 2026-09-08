@@ -3,7 +3,7 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, repoRoot, startServer } from './helpers.js';
+import { generate, killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -46,13 +46,13 @@ describe('generate-client base consumer (single-file output)', () => {
     const generated = readFileSync(generatedFile, 'utf-8');
     expect(generated).toContain('export type Pet');
     expect(generated).toContain('export class ApiError');
-    // The descriptor wiring with the embedded runtime, plus flat call sugar per operation.
+    // The descriptor wiring with the embedded runtime, plus one binding per operation.
     expect(generated).toContain('// ─── Embedded runtime');
     expect(generated).toContain('as const satisfies Record<string, OperationDescriptor>');
     expect(generated).toContain('export const { configure, use } = client;');
-    expect(generated).toContain('export const getPetById = <I extends RequestOptions');
-    expect(generated).toContain('export const getSlowPet = <I extends RequestOptions');
-    expect(generated).toContain('export const listPets = <I extends RequestOptions');
+    expect(generated).toContain(
+      'export const { getPetById, listPets, createPet, getSlowPet, search, bulkUpsertPets, getStatus } = client;'
+    );
     // The spec's server URL is baked into the client instance.
     expect(generated).toContain(
       'export const client = createClient<Ops, OperationId, OperationPath, string>(OPERATIONS, { serverUrl: "http://localhost:3102", clientHeader: "redocly-client-generator" });'
@@ -110,8 +110,7 @@ describe('generate-client base consumer (single-file output)', () => {
     // Bucket C round-trip: createPet ran with a body that omits the readOnly `id`.
     expect(typeof parsed.created.name).toBe('string');
 
-    const logResponse = await fetch(`${SERVER_BASE}/__test__/log`);
-    const log = (await logResponse.json()) as Array<{ method: string; url: string }>;
+    const log = await serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
     expect(log).toContainEqual({ method: 'GET', url: '/pets/1' });
     expect(log).toContainEqual({ method: 'POST', url: '/pets' });
     expect(

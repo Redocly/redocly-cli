@@ -87,11 +87,11 @@ function isApiKeyAuth(
 function isBasicAuth(
   security: ResolvedSecurity
 ): security is Extract<ResolvedSecurity, { scheme: BasicAuth }> {
-  return security.scheme.type === 'http' && security.scheme.scheme === 'basic';
+  return security.scheme.type === 'http' && security.scheme.scheme?.toLowerCase() === 'basic';
 }
 
 function isBearerAuth(
   security: ResolvedSecurity
 ): security is Extract<ResolvedSecurity, { scheme: BearerAuth }> {
-  return security.scheme.type === 'http' && security.scheme.scheme === 'bearer';
+  return security.scheme.type === 'http' && security.scheme.scheme?.toLowerCase() === 'bearer';
 }

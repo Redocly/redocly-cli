@@ -11,6 +11,7 @@ import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
 import { omit } from '../utils/omit.js';
 import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
+import { Oas3_1Types } from './oas3_1.js';
 
 const builtInOAS2Rules = [
   'info-contact',
@@ -107,6 +108,7 @@ const builtInOAS3Rules = [
   'component-name-unique',
   'no-empty-servers',
   'no-example-value-and-externalValue',
+  'no-illogical-composition-keywords',
   'no-invalid-media-type-examples',
   'no-server-example.com',
   'no-server-trailing-slash',
@@ -377,16 +379,29 @@ const Client: NodeType = {
     argsStyle: { enum: ['flat', 'grouped'] },
     serverUrl: { type: 'string' },
     outputMode: { enum: ['single', 'split'] },
-    runtime: { enum: ['inline', 'package'] },
+    runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
+    goPackage: { type: 'string' },
+    cliOutput: { type: 'string' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    codeSamples: { type: 'boolean' },
+    docs: { type: 'boolean' },
+    docsFrontmatter: { type: 'boolean' },
     setup: { type: 'string' },
+    options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
+};
+
+// Options a generator declares itself, so the vocabulary is the generator's, not ours;
+// `generate-client` validates each block against the schema its generator declares.
+const ClientGeneratorOptions: NodeType = {
+  properties: {},
+  additionalProperties: {},
 };
 const ClientPaginationRule: NodeType = {
   properties: {
@@ -537,14 +552,6 @@ const CustomPreprocessor: NodeType = {
   description:
     'Custom preprocessors are defined by users via plugins. The available options are the same for decorators and preprocessors.',
   documentationLink: 'https://redocly.com/docs/cli/custom-plugins/custom-decorators',
-};
-
-// TODO: add better type tree for this
-const Schema: NodeType = {
-  properties: {
-    properties: mapOf('Schema'),
-  },
-  additionalProperties: {},
 };
 
 function createAssertionDefinitionSubject(nodeNames: string[]): NodeType {
@@ -703,6 +710,7 @@ const Assertions: NodeType = {
       description: 'Asserts a maximum length (inclusive) of a string or list (array).',
       documentationLink: 'https://redocly.com/docs/cli/rules/configurable-rules#maxlength-example',
     },
+    schema: 'Schema',
     ref: (value: string | boolean) =>
       typeof value === 'string'
         ? {
@@ -805,6 +813,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ConfigGovernance,
   ConfigHTTP,
   Client,
+  ClientGeneratorOptions,
   ClientPagination,
   ClientPaginationRule,
   Where,
@@ -814,7 +823,15 @@ const CoreConfigTypes: Record<string, NodeType> = {
   CustomDecorator,
   BuiltinPreprocessor,
   CustomPreprocessor,
-  Schema,
+  Schema: Oas3_1Types.Schema,
+  SchemaProperties: Oas3_1Types.SchemaProperties,
+  PatternProperties: Oas3_1Types.PatternProperties,
+  NamedSchemas: Oas3_1Types.NamedSchemas,
+  DependentRequired: Oas3_1Types.DependentRequired,
+  Discriminator: Oas3_1Types.Discriminator,
+  DiscriminatorMapping: Oas3_1Types.DiscriminatorMapping,
+  ExternalDocs: Oas3_1Types.ExternalDocs,
+  Xml: Oas3_1Types.Xml,
   Rules,
   Decorators,
   Preprocessors,

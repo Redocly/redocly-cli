@@ -26,3 +26,4 @@ __changesets__.json
 **/.claude/agent-memory-local
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
+__pycache__/

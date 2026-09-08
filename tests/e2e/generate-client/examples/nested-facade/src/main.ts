@@ -1,7 +1,7 @@
 import { api } from './api/client.facade.js';
 // nested-facade — a resource-grouped client shape, generated from the spec's tags.
 //
-// The generated sdk exposes flat functions and the `client` instance; some teams
+// The generated client exposes flat functions and the `client` instance; some teams
 // prefer `api.<resource>.<operation>(…)`. Instead of hand-maintaining that facade,
 // the custom generator in ./nested-facade-generator.mjs derives it from the spec's
 // tags — every regeneration keeps it in sync, and everything stays fully typed.

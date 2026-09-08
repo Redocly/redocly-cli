@@ -1,5 +1,57 @@
 # @redocly/client-generator
 
+## 0.4.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.2.
+
+## 0.4.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.1.
+
+## 0.4.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.0.
+
+## 0.4.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.50.0.
+
+## 0.4.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.49.1.
+
+## 0.4.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.49.0.
+
+## 0.4.0
+
+### Minor Changes
+
+- Added agent-friendly client generation: `python`, `go`, `php`, and `cli` generators beside the TypeScript client, each self-documenting with `--docs`, configurable per generator, and available as source in your own repository through `eject-generator`.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.48.0.
+
+## 0.3.8
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.47.0.
+
 ## 0.3.7
 
 ### Patch Changes

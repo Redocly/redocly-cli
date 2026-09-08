@@ -1,5 +1,59 @@
 # @redocly/openapi-core
 
+## 2.51.2
+
+### Patch Changes
+
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+
+## 2.51.1
+
+## 2.51.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+
+## 2.50.0
+
+### Minor Changes
+
+- Added a new `schema` assertion for configurable rules.
+  The assertion validates a property value against a JSON Schema.
+
+## 2.49.1
+
+### Patch Changes
+
+- Updated @redocly/config to v0.55.0.
+- Fixed an issue where rule incorrectly reported a duplicate parameter when two or more `$ref`s pointed to the same path item.
+- Updated @redocly/config to v0.54.0.
+
+## 2.49.0
+
+### Minor Changes
+
+- Added the `no-illogical-composition-keywords` rule.
+
+  **Note**: the rule is set to `warn` in the `recommended` ruleset and to `error` in `recommended-strict`. Existing API descriptions may report new problems.
+
+## 2.48.0
+
+### Patch Changes
+
+- Fixed an issue where the `bundle` command didn't resolve `$ref`s inside an AsyncAPI 3 Multi Format Schema Object.
+
+## 2.47.0
+
+### Minor Changes
+
+- Added a Vendor Extensions metric to the `stats` command that reports how many distinct `x-` extensions a description file uses and how often each one occurs.
+
+### Patch Changes
+
+- Fixed the `stats` command reporting wrong parameter count for AsyncAPI descriptions.
+
 ## 2.46.2
 
 ### Patch Changes

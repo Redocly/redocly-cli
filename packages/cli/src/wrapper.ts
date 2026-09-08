@@ -15,6 +15,10 @@ import {
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv } from './types.js';
+import {
+  ejectGeneratorTelemetry,
+  generateClientTelemetry,
+} from './utils/client-generator-telemetry.js';
 import { AbortFlowError, exitWithError } from './utils/error.js';
 import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
@@ -91,18 +95,14 @@ export function commandWrapper<T extends CommandArgv>(
     const lintRulesWithWarnings = new Set<string>();
     const lintRulesWithIgnoredProblems = new Set<string>();
     const collectResults: CollectResults = (results) => {
-      try {
-        for (const problem of results) {
-          if (problem.ignored) {
-            lintRulesWithIgnoredProblems.add(problem.ruleId);
-          } else if (problem.severity === 'error') {
-            lintRulesWithErrors.add(problem.ruleId);
-          } else if (problem.severity === 'warn') {
-            lintRulesWithWarnings.add(problem.ruleId);
-          }
+      for (const problem of results) {
+        if (problem.ignored) {
+          lintRulesWithIgnoredProblems.add(problem.ruleId);
+        } else if (problem.severity === 'error') {
+          lintRulesWithErrors.add(problem.ruleId);
+        } else if (problem.severity === 'warn') {
+          lintRulesWithWarnings.add(problem.ruleId);
         }
-      } catch (err) {
-        // Do nothing.
       }
     };
 
@@ -146,6 +146,8 @@ export function commandWrapper<T extends CommandArgv>(
           lint_rules_with_errors: [...lintRulesWithErrors],
           lint_rules_with_warnings: [...lintRulesWithWarnings],
           lint_rules_with_ignored_problems: [...lintRulesWithIgnoredProblems],
+          generate_client: generateClientTelemetry,
+          eject_generator: ejectGeneratorTelemetry,
         });
       }
       process.once('beforeExit', () => {

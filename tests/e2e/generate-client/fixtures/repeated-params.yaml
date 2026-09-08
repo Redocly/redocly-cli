@@ -1,0 +1,74 @@
+openapi: 3.1.0
+info:
+  title: Repeated Params API
+  version: 1.0.0
+  description: >-
+    Parameter names an SDK cannot take literally: the same name in two locations (which
+    OpenAPI permits), and names that clash with the arguments a generated method declares
+    itself (`body`, `headers`, `timeout`, `params`, `ctx`). Every generator must still emit
+    a module that parses, with the wire names untouched.
+servers:
+  - url: https://api.example.com
+paths:
+  /things/{id}:
+    get:
+      operationId: getThing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: id
+          in: query
+          required: false
+          description: A filter that happens to share the path parameter's name.
+          schema: { type: integer }
+      responses:
+        '200':
+          description: One thing.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+  /things/{body}/{ctx}:
+    post:
+      operationId: makeThing
+      parameters:
+        - name: body
+          in: path
+          required: true
+          schema: { type: string }
+        - name: ctx
+          in: path
+          required: true
+          schema: { type: string }
+        - name: timeout
+          in: query
+          required: false
+          schema: { type: string }
+        - name: headers
+          in: query
+          required: false
+          schema: { type: string }
+        - name: params
+          in: query
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Thing' }
+      responses:
+        '200':
+          description: The created thing.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Thing' }
+components:
+  schemas:
+    Thing:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        name: { type: string }

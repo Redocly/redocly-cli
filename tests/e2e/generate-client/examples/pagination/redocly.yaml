@@ -10,7 +10,7 @@ apis:
     clientOutput: ./src/api/client.ts
     client:
       generators:
-        - sdk
+        - typescript
       pagination:
         style: cursor
         cursorParam: cursor

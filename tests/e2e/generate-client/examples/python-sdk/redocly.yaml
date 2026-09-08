@@ -1,0 +1,10 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+apis:
+  python-sdk:
+    root: ../_shared/cafe.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - python
+      # One switch documents whatever the run generates: `src/api/client.python.md`.
+      docs: true

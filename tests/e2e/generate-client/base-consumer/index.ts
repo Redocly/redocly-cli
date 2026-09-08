@@ -1,14 +1,14 @@
 import { createPet, getPetById, listPets } from './api.js';
 
 async function main(): Promise<void> {
-  const pet = await getPetById(1);
+  const pet = await getPetById({ path: { id: 1 } });
 
   // deepObject query param: the object is serialized as filter[name]=…&filter[status]=…
-  const filtered = await listPets({ filter: { name: 'rex', status: 'available' } });
+  const filtered = await listPets({ query: { filter: { name: 'rex', status: 'available' } } });
 
   // Bucket C: the create body is `Omit<Pet, "id">`, so the readOnly server-assigned
   // `id` is neither required nor accepted — this call compiles without it.
-  const created = await createPet({ name: 'rex', status: 'available' });
+  const created = await createPet({ body: { name: 'rex', status: 'available' } });
 
   // Bucket B: `metadata` is a free-form record (`{ [key: string]: unknown }`), so an
   // arbitrary key is accessible. Were it emitted as `{}`, this line would not compile.

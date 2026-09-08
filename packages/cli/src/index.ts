@@ -18,16 +18,22 @@ import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
+import {
+  EJECTABLE,
+  handleEjectGenerator,
+  type EjectGeneratorCommandArgv,
+} from './commands/eject-generator.js';
 import { handleEject, type EjectArgv } from './commands/eject.js';
 import {
   handleGenerateArazzo,
   type GenerateArazzoCommandArgv,
-} from './commands/generate-arazzo.js';
+} from './commands/generate-arazzo/index.js';
 import {
   handleGenerateClient,
   type GenerateClientCommandArgv,
 } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
+import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -85,6 +91,55 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleStats)(argv);
+    }
+  )
+  .command(
+    'inspect-node-types <api>',
+    'Show the node types of an API description, for writing configurable rules and custom plugins [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_INSPECT_NODE_TYPES')
+        .positional('api', {
+          description: 'API description file to inspect.',
+          type: 'string',
+          demandOption: true,
+        })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          pointer: {
+            description:
+              'JSON pointer to a node, optionally prefixed with a file: `#/paths` or `schemas.yaml#/User`.',
+            type: 'string',
+            alias: 'p',
+          },
+          type: {
+            description: 'List only the nodes of this type.',
+            type: 'string',
+          },
+          summary: {
+            description: 'List the node types used in the description, with counts.',
+            type: 'boolean',
+          },
+          parents: {
+            description:
+              'Show the chain of node types leading to the node: down to the node with --pointer, or the distinct chains that reach the type with --type.',
+            type: 'boolean',
+          },
+        })
+        .conflicts({ pointer: ['type', 'summary'], type: ['summary'], summary: ['parents'] })
+        .check((argv) => {
+          if (argv.parents && !argv.pointer && !argv.type) {
+            throw new Error('The --parents option requires --pointer or --type.');
+          }
+          return true;
+        }),
+    (argv) => {
+      commandWrapper(handleInspectNodeTypes)(argv);
     }
   )
   .command(
@@ -854,6 +909,38 @@ yargs(hideBin(process.argv))
             type: 'string',
             requiresArg: true,
           },
+          'with-ai': {
+            describe:
+              'Redesign the generated workflows with an AI provider, using the OpenAPI description as context.',
+            type: 'boolean',
+            default: false,
+          },
+          'ai-provider': {
+            describe:
+              'AI provider used with --with-ai; runs the "claude", "codex", or "cursor" CLI in non-interactive mode.',
+            choices: ['claude', 'codex', 'cursor'] as ReadonlyArray<
+              GenerateArazzoCommandArgv['ai-provider']
+            >,
+            default: 'claude' as GenerateArazzoCommandArgv['ai-provider'],
+          },
+          'ai-model': {
+            describe:
+              'Model passed to the selected AI provider (provider-specific default applies).',
+            type: 'string',
+          },
+          'ai-concurrency': {
+            describe:
+              'Number of workflows designed in parallel with --with-ai for large descriptions.',
+            type: 'number',
+            default: 4,
+            coerce: validatePositiveNumber('ai-concurrency', true),
+          },
+          'max-workflows': {
+            describe: 'Most workflows the AI may design with --with-ai.',
+            type: 'number',
+            default: 10,
+            coerce: validatePositiveNumber('max-workflows', true),
+          },
         });
     },
     async (argv) => {
@@ -891,8 +978,19 @@ yargs(hideBin(process.argv))
           },
           runtime: {
             describe:
-              "Runtime distribution: 'inline' (default) embeds the runtime in the generated file; 'package' imports it from @redocly/client-generator.",
-            choices: ['inline', 'package'] as const,
+              "Runtime distribution: 'inline' (default) embeds the runtime in the generated file; 'module' writes it as real files in a runtime/ folder beside the client.",
+            choices: ['inline', 'module'] as const,
+            requiresArg: true,
+          },
+          docs: {
+            description:
+              'Also write reference documentation for what this run generates: one Markdown page per selected generator that documents itself (the CLI, and each SDK).',
+            type: 'boolean',
+          },
+          'go-package': {
+            description:
+              "Package clause of the `go` generator's output (a valid Go package name). Defaults to `client`.",
+            type: 'string',
             requiresArg: true,
           },
           'import-ext': {
@@ -939,7 +1037,7 @@ yargs(hideBin(process.argv))
           },
           generator: {
             describe:
-              'Generator to run; repeat the flag to run several (default: sdk). A built-in name (sdk, zod, tanstack-query, swr, transformers, mock) or a custom-generator path/package specifier. Example: --generator sdk --generator zod',
+              'Generator to run; repeat the flag to run several (default: typescript). Built-in: typescript, zod, tanstack-query, tanstack-query-vue, tanstack-query-svelte, tanstack-query-solid, swr, mock, transformers, cli, python, go, php — or a path/package specifier for a custom generator. What each one emits is in the "Use the generated client" guide. Example: --generator typescript --generator zod',
             type: 'string',
             array: true,
             requiresArg: true,
@@ -953,6 +1051,38 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
+    }
+  )
+  .command(
+    'eject-generator [generator]',
+    'Vendor a built-in client generator into your repo as an editable file [experimental].',
+    (yargs) =>
+      yargs
+        .positional('generator', {
+          describe: `Built-in generator to eject (${[...EJECTABLE].join(', ')}).`,
+          type: 'string',
+        })
+        .options({
+          config: { description: 'Path to the config file.', type: 'string' },
+          dir: {
+            describe: 'Directory to eject into (default: ./generators).',
+            type: 'string',
+            requiresArg: true,
+          },
+          force: {
+            describe: 'Overwrite an existing ejected file (discards local edits).',
+            type: 'boolean',
+            default: false,
+          },
+          update: {
+            describe:
+              'Three-way merge a newer generator version into your customized copy (pristine × new × yours).',
+            type: 'boolean',
+            default: false,
+          },
+        }),
+    async (argv) => {
+      commandWrapper(handleEjectGenerator)(argv as Arguments<EjectGeneratorCommandArgv>);
     }
   )
   .command(

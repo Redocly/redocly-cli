@@ -1,0 +1,29 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`codeLiteral > array 1`] = `"["a", 1, false]"`;
+
+exports[`codeLiteral > booleans 1`] = `"true"`;
+
+exports[`codeLiteral > empty array 1`] = `"[]"`;
+
+exports[`codeLiteral > empty object 1`] = `"{}"`;
+
+exports[`codeLiteral > flat object 1`] = `"{ id: "getPet", method: "GET", count: 2 }"`;
+
+exports[`codeLiteral > negative number 1`] = `"-3.5"`;
+
+exports[`codeLiteral > nested descriptor-like shape 1`] = `"{ id: "listOrders", path: "/orders/{id}", params: [{ name: "id", in: "path" }, { name: "page-size", in: "query", explode: false }], security: [[{ scheme: "Bearer", kind: "bearer" }]], pagination: { style: "cursor", cursorParam: "after", items: "/items" } }"`;
+
+exports[`codeLiteral > non-identifier key is quoted 1`] = `"{ "X-Request-Id": "header", "a-b": 1 }"`;
+
+exports[`codeLiteral > null 1`] = `"null"`;
+
+exports[`codeLiteral > number 1`] = `"42"`;
+
+exports[`codeLiteral > reserved-word key stays bare 1`] = `"{ in: "query", name: "limit" }"`;
+
+exports[`codeLiteral > string 1`] = `""plain""`;
+
+exports[`codeLiteral > string with newline 1`] = `""a\\nb""`;
+
+exports[`codeLiteral > string with quotes and backslashes 1`] = `""say \\"hi\\" \\\\ done""`;

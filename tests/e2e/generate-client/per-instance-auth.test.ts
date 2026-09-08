@@ -30,8 +30,7 @@ const SPEC = outdent`
 `;
 
 const DRIVER = outdent`
-  import { createClient } from '@redocly/client-generator';
-  import { OPERATIONS, type Ops } from './client.js';
+  import { createClient, OPERATIONS, type Ops } from './client.js';
 
   const calls: (string | null)[] = [];
   const fakeFetch = (async (_url: string, init?: RequestInit) => {
@@ -55,12 +54,10 @@ const DRIVER = outdent`
 
 describe('per-instance auth (createClient config.auth)', () => {
   it('two instances send different credentials; a no-auth instance sends none', () => {
-    // The temp dir lives INSIDE the repo so the driver's import of
-    // `@redocly/client-generator` resolves through the workspace node_modules symlink.
     const dir = mkdtempSync(join(__dirname, '.tmp-perinstance-'));
     try {
       writeFileSync(join(dir, 'openapi.yaml'), SPEC, 'utf-8');
-      generateInto(dir, join(dir, 'openapi.yaml'), ['--runtime', 'package']);
+      generateInto(dir, join(dir, 'openapi.yaml'));
 
       writeFileSync(join(dir, 'driver.ts'), DRIVER, 'utf-8');
       const run = spawnSync(tsxBin, [join(dir, 'driver.ts')], { encoding: 'utf-8', cwd: dir });

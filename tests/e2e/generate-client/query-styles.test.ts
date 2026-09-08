@@ -69,7 +69,7 @@ describe('generate-client query serialization styles', () => {
         `    return new Response('{"results":[]}', { status: 200, headers: { 'content-type': 'application/json' } });`,
         `  },`,
         `});`,
-        `await search({ tags: ['a', 'b'], q: ['x', 'y'], ids: ['1', '2'], filter: 'a/b', limit: 5 });`,
+        `await search({ query: { tags: ['a', 'b'], q: ['x', 'y'], ids: ['1', '2'], filter: 'a/b', limit: 5 } });`,
         `process.stdout.write(captured);`,
         ``,
       ].join('\n'),

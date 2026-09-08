@@ -52,7 +52,7 @@ exports[`should pass inputs to step target workflow with additional input parame
  
     ✓ success criteria check - $statusCode == 400
     ✓ success criteria check - $[?@.title == 'Validation failed']
-    ✓ status code check - $statusCode in [201, 400, 401, 500]
+    ✓ status code check - $statusCode in [201, 400, 500]
     ✓ content-type check
     ✓ schema check
  

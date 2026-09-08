@@ -1,25 +1,17 @@
-import {
-  operationSignature,
-  pascalCase,
-  printStatements,
-  safeIdent,
-  schemaToTypeNode,
-  ts,
-} from '../generate.js';
+import { codeLiteral, operationSignature, pascalCase, safeIdent, tsType } from '../generate.js';
 import { type CustomGenerator, defineGenerator } from '../plugin.js';
 
 describe('plugin entry', () => {
   it('defineGenerator returns its argument unchanged', () => {
-    const gen: CustomGenerator = { name: 'route-map', requires: ['sdk'], run: () => [] };
+    const gen: CustomGenerator = { name: 'route-map', requires: ['typescript'], run: () => [] };
     expect(defineGenerator(gen)).toBe(gen);
   });
 
-  it('re-exports the emit toolkit the built-in generators use', () => {
+  it('re-exports the text toolkit the built-in generators use', () => {
     // Value re-exports are reachable and usable from the public entry.
-    expect(typeof ts.factory).toBe('object');
-    expect(typeof printStatements).toBe('function');
+    expect(tsType({ kind: 'scalar', scalar: 'string' })).toBe('string');
+    expect(codeLiteral({ id: 'x' })).toBe('{ id: "x" }');
     expect(typeof operationSignature).toBe('function');
-    expect(typeof schemaToTypeNode).toBe('function');
     expect(pascalCase('pet')).toBe('Pet');
     expect(safeIdent('123')).not.toBe('123');
   });

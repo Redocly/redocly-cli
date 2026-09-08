@@ -1,0 +1,382 @@
+import { items, itemsByLink, linkNext, pages, pagesByLink, resolvePointer } from '../paginate.js';
+import type { PaginationSpec, RequestOptions } from '../types.js';
+
+const CURSOR: PaginationSpec = {
+  style: 'cursor',
+  param: 'cursor',
+  nextCursor: '/nextCursor',
+  items: '/orders',
+};
+const OFFSET: PaginationSpec = { style: 'offset', param: 'offset', items: '/orders' };
+const PAGE: PaginationSpec = { style: 'page', param: 'page', items: '/orders' };
+
+/** A fetch-free call stub: replies from `data` by call index, recording every args/init. */
+function stub(data: unknown[]) {
+  const calls: Array<{ args?: Record<string, unknown>; init?: RequestOptions }> = [];
+  const call = async (args?: Record<string, unknown>, init?: RequestOptions) => {
+    calls.push({ args, init });
+    return data[calls.length - 1];
+  };
+  const sentParams = (name: string) =>
+    calls.map((c) => (c.args?.query as Record<string, unknown> | undefined)?.[name]);
+  return { calls, call, sentParams };
+}
+
+async function collect<T>(gen: AsyncGenerator<T>): Promise<T[]> {
+  const out: T[] = [];
+  for await (const value of gen) out.push(value);
+  return out;
+}
+
+describe('resolvePointer', () => {
+  const doc = {
+    'menu/items': { 'size~tall': 'latte' },
+    orders: [{ id: 'o1' }, { id: 'o2' }],
+  };
+
+  it('walks objects and arrays, unescaping ~1 then ~0', () => {
+    expect(resolvePointer(doc, '/menu~1items/size~0tall')).toBe('latte');
+    expect(resolvePointer(doc, '/orders/1/id')).toBe('o2');
+  });
+
+  it('returns the whole document for the empty pointer', () => {
+    expect(resolvePointer(doc, '')).toBe(doc);
+  });
+
+  it('requires a leading slash', () => {
+    expect(resolvePointer(doc, 'orders')).toBeUndefined();
+  });
+
+  it('returns undefined on any miss instead of throwing', () => {
+    expect(resolvePointer(doc, '/missing')).toBeUndefined();
+    expect(resolvePointer(doc, '/orders/9/id')).toBeUndefined();
+    // Array tokens must be canonical indices: no leading zeros, no '-', no words.
+    expect(resolvePointer(doc, '/orders/01')).toBeUndefined();
+    expect(resolvePointer(doc, '/orders/-')).toBeUndefined();
+    expect(resolvePointer(doc, '/orders/first')).toBeUndefined();
+  });
+
+  it('returns undefined when traversing into a non-object', () => {
+    expect(resolvePointer('espresso', '/length')).toBeUndefined();
+    expect(resolvePointer(null, '/orders')).toBeUndefined();
+    expect(resolvePointer({ total: 42 }, '/total/amount')).toBeUndefined();
+  });
+});
+
+describe('pages — cursor style', () => {
+  it('follows nextCursor across pages and always yields the last page', async () => {
+    const data = [
+      { orders: [{ id: 'o1' }, { id: 'o2' }], nextCursor: 'c2' },
+      { orders: [{ id: 'o3' }], nextCursor: 'c3' },
+      { orders: [{ id: 'o4' }] }, // no nextCursor — final page, still yielded
+    ];
+    const { call, sentParams } = stub(data);
+    expect(await collect(pages(call, CURSOR))).toEqual(data);
+    expect(sentParams('cursor')).toEqual([undefined, 'c2', 'c3']);
+  });
+
+  it.each([null, ''])('stops when the next cursor resolves to %j', async (last) => {
+    const data = [
+      { orders: [{ id: 'o1' }], nextCursor: 'c2' },
+      { orders: [{ id: 'o2' }], nextCursor: last },
+    ];
+    const { call, calls } = stub(data);
+    expect(await collect(pages(call, CURSOR))).toEqual(data);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('stops on a false hasMore flag without the extra empty request, ignoring a non-null cursor', async () => {
+    const spec: PaginationSpec = { ...CURSOR, hasMore: '/pageInfo/hasNextPage' };
+    const data = [
+      { orders: [{ id: 'o1' }], nextCursor: 'c2', pageInfo: { hasNextPage: true } },
+      // Connection-style last page: the cursor is still non-null, only the flag says stop.
+      { orders: [{ id: 'o2' }], nextCursor: 'c3', pageInfo: { hasNextPage: false } },
+    ];
+    const { call, calls } = stub(data);
+    expect(await collect(pages(call, spec))).toEqual(data);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('falls back to the cursor stop rule when the hasMore pointer misses', async () => {
+    const spec: PaginationSpec = { ...CURSOR, hasMore: '/pageInfo/hasNextPage' };
+    const data = [{ orders: [{ id: 'o1' }], nextCursor: 'c2' }, { orders: [{ id: 'o2' }] }];
+    const { call, calls } = stub(data);
+    expect(await collect(pages(call, spec))).toEqual(data);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('resumes from a caller-provided cursor, preserving the other query values', async () => {
+    const data = [{ orders: [{ id: 'o3' }] }];
+    const { call, calls } = stub(data);
+    await collect(pages(call, CURSOR, { query: { cursor: 'c2', limit: 5 } }));
+    expect(calls[0].args?.query).toEqual({ cursor: 'c2', limit: 5 });
+  });
+
+  it('advances through numeric cursors end-to-end', async () => {
+    const data = [
+      { orders: [{ id: 'o1' }], nextCursor: 2 },
+      { orders: [{ id: 'o2' }], nextCursor: 3 },
+      { orders: [{ id: 'o3' }] },
+    ];
+    const { call, sentParams } = stub(data);
+    expect(await collect(pages(call, CURSOR))).toEqual(data);
+    expect(sentParams('cursor')).toEqual([undefined, 2, 3]);
+  });
+
+  it('throws when the next cursor is neither a string nor a number (hostile server)', async () => {
+    // A fresh object every page would never compare equal — without this guard the
+    // did-not-advance check could not catch the infinite loop.
+    const data = [{ orders: [{ id: 'o1' }], nextCursor: { token: 'c2' } }];
+    const { call } = stub(data);
+    await expect(collect(pages(call, CURSOR))).rejects.toThrow(
+      'Pagination cursor at /nextCursor is not a string or number'
+    );
+  });
+
+  it('throws when the operation returns the same cursor twice in a row', async () => {
+    const data = [
+      { orders: [{ id: 'o1' }], nextCursor: 'c2' },
+      { orders: [{ id: 'o1' }], nextCursor: 'c2' },
+    ];
+    const { call } = stub(data);
+    await expect(collect(pages(call, CURSOR))).rejects.toThrow(
+      'Pagination did not advance: operation returned the same cursor twice'
+    );
+  });
+
+  it('never mutates the caller args; each request gets a fresh query bag', async () => {
+    const data = [{ orders: [{ id: 'o1' }], nextCursor: 'c2' }, { orders: [] }];
+    const args = { query: { limit: 2 }, headers: { 'X-Trace': '1' } };
+    const snapshot = structuredClone(args);
+    const { call, calls } = stub(data);
+    await collect(pages(call, CURSOR, args));
+    expect(args).toEqual(snapshot);
+    expect(calls[0].args?.query).not.toBe(args.query);
+    expect(calls[1].args?.query).not.toBe(calls[0].args?.query);
+  });
+
+  it('forwards the same init (incl. AbortSignal) to every call', async () => {
+    const data = [{ orders: [], nextCursor: 'c2' }, { orders: [] }];
+    const init: RequestOptions = { signal: new AbortController().signal };
+    const { call, calls } = stub(data);
+    await collect(pages(call, CURSOR, {}, init));
+    expect(calls).toHaveLength(2);
+    for (const c of calls) expect(c.init).toBe(init);
+  });
+});
+
+describe('pages — offset style', () => {
+  it('starts at 0 and advances by each page item count; an empty page stops after being yielded', async () => {
+    const data = [
+      { orders: ['a', 'b'] },
+      { orders: ['c', 'd'] },
+      { orders: ['e'] },
+      { orders: [] },
+    ];
+    const { call, sentParams } = stub(data);
+    expect(await collect(pages(call, OFFSET))).toEqual(data);
+    expect(sentParams('offset')).toEqual([0, 2, 4, 5]);
+  });
+
+  it('throws when the server clamps past-the-end requests to the same page (infinite-loop guard)', async () => {
+    // A common API pattern: an out-of-range offset/page returns the LAST page again
+    // instead of an empty one — without a guard the iterator never terminates.
+    const lastPage = { orders: [{ id: 1 }, { id: 2 }] };
+    const { call } = stub([lastPage, lastPage, lastPage]);
+    await expect(collect(pages(call, OFFSET))).rejects.toThrow(/did not advance/);
+  });
+
+  it('starts at the caller offset when provided', async () => {
+    const data = [{ orders: ['k'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    await collect(pages(call, OFFSET, { query: { offset: 10 } }));
+    expect(sentParams('offset')).toEqual([10, 11]);
+  });
+
+  it('treats a null or empty starting position like an absent one (page falls back to 1)', async () => {
+    // `QueryValue` allows null, and `Number(null)`/`Number('')` are 0 — a one-shot call
+    // omits the param for those values, so the iterator must not start at page 0.
+    const data = [{ orders: ['k'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    await collect(pages(call, PAGE, { query: { page: null } }));
+    expect(sentParams('page')).toEqual([1, 2]);
+  });
+
+  it('coerces a string offset to a number so advancing adds instead of concatenating', async () => {
+    const data = [{ orders: ['k', 'm'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    // A string offset (common from URL/form input): `'10' + 2` would be `'102'` without coercion.
+    await collect(pages(call, OFFSET, { query: { offset: '10' } }));
+    expect(sentParams('offset')).toEqual([10, 12]);
+  });
+
+  it('falls back to the default start when the offset param is not a number', async () => {
+    const data = [{ orders: ['k'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    await collect(pages(call, OFFSET, { query: { offset: 'not-a-number' } }));
+    expect(sentParams('offset')).toEqual([0, 1]);
+  });
+
+  it('stops when the items pointer misses', async () => {
+    const data = [{ total: 0 }];
+    const { call, calls } = stub(data);
+    expect(await collect(pages(call, OFFSET))).toEqual(data);
+    expect(calls).toHaveLength(1);
+  });
+});
+
+describe('pages — page style', () => {
+  it('starts at 1 and increments by 1 until an empty page', async () => {
+    const data = [{ orders: ['a', 'b'] }, { orders: ['c'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    expect(await collect(pages(call, PAGE))).toEqual(data);
+    expect(sentParams('page')).toEqual([1, 2, 3]);
+  });
+
+  it('starts at the caller page number when provided', async () => {
+    const data = [{ orders: ['x'] }, { orders: [] }];
+    const { call, sentParams } = stub(data);
+    await collect(pages(call, PAGE, { query: { page: 5 } }));
+    expect(sentParams('page')).toEqual([5, 6]);
+  });
+});
+
+describe('items', () => {
+  it('flattens each page through the items pointer', async () => {
+    const data = [
+      { orders: [{ id: 'o1' }, { id: 'o2' }], nextCursor: 'c2' },
+      { orders: [{ id: 'o3' }] },
+    ];
+    const { call } = stub(data);
+    expect(await collect(items(call, CURSOR))).toEqual([{ id: 'o1' }, { id: 'o2' }, { id: 'o3' }]);
+  });
+
+  it('cursor style: a page whose items pointer misses yields nothing but pagination continues', async () => {
+    const data = [
+      { orders: [{ id: 'o1' }], nextCursor: 'c2' },
+      { nextCursor: 'c3' }, // no items array — skipped, cursor keeps advancing
+      { orders: [{ id: 'o2' }] },
+    ];
+    const { call, calls } = stub(data);
+    expect(await collect(items(call, CURSOR))).toEqual([{ id: 'o1' }, { id: 'o2' }]);
+    expect(calls).toHaveLength(3);
+  });
+
+  it('offset style: a missing items pointer stops the iteration', async () => {
+    const data = [{ orders: ['a'] }, { note: 'sold out' }];
+    const { call, calls } = stub(data);
+    expect(await collect(items(call, OFFSET))).toEqual(['a']);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('forwards args and init to the underlying pages', async () => {
+    const data = [{ orders: ['a'] }, { orders: [] }];
+    const init: RequestOptions = { headers: { 'X-Trace': '1' } };
+    const { call, calls, sentParams } = stub(data);
+    await collect(items(call, PAGE, { query: { limit: 1 } }, init));
+    expect(sentParams('limit')).toEqual([1, 1]);
+    for (const c of calls) expect(c.init).toBe(init);
+  });
+});
+
+describe('linkNext', () => {
+  it('extracts the rel="next" target among multiple entries', () => {
+    expect(
+      linkNext('<https://x/orders?page=3>; rel="prev", <https://x/orders?page=5>; rel="next"')
+    ).toBe('https://x/orders?page=5');
+  });
+
+  it('handles unquoted rel, multi-type rel lists, and case-insensitive REL', () => {
+    expect(linkNext('<https://x/o?page=2>; rel=next')).toBe('https://x/o?page=2');
+    expect(linkNext('<https://x/o?page=2>; REL="next last"')).toBe('https://x/o?page=2');
+  });
+
+  it('returns undefined without a header or a next relation', () => {
+    expect(linkNext(null)).toBeUndefined();
+    expect(linkNext('<https://x/o?page=1>; rel="prev"')).toBeUndefined();
+  });
+});
+
+describe('pagesByLink / itemsByLink (link style)', () => {
+  const LINK: PaginationSpec = { style: 'link', items: '' };
+
+  /** A link-call stub replying page bodies + Link headers by call index. */
+  function linkStub(replies: Array<{ page: unknown; linkHeader: string | null }>) {
+    const calls: Array<{ args?: Record<string, unknown> }> = [];
+    const call = async (args?: Record<string, unknown>) => {
+      calls.push({ args });
+      const reply = replies[calls.length - 1];
+      return { ...reply, url: `https://x/orders?call=${calls.length}` };
+    };
+    return { call, calls };
+  }
+
+  it('follows rel="next" by merging its query query into the next call, then stops', async () => {
+    const { call, calls } = linkStub([
+      { page: ['a'], linkHeader: '<https://x/orders?page=2&per_page=5>; rel="next"' },
+      { page: ['b'], linkHeader: null },
+    ]);
+    const seen = await collect(pagesByLink(call, { query: { per_page: 5 } }));
+    expect(seen).toEqual([['a'], ['b']]);
+    expect(calls[0].args?.query).toEqual({ per_page: 5 });
+    expect(calls[1].args?.query).toEqual({ per_page: '5', page: '2' });
+  });
+
+  it('keeps every value of a repeated query param in the next target', async () => {
+    const { call, calls } = linkStub([
+      { page: ['a'], linkHeader: '<https://x/orders?tag=dogs&tag=cats&page=2>; rel="next"' },
+      { page: ['b'], linkHeader: null },
+    ]);
+    await collect(pagesByLink(call, {}));
+    expect(calls[1].args?.query).toEqual({ tag: ['dogs', 'cats'], page: '2' });
+  });
+
+  it('resolves a relative next target against the page URL', async () => {
+    const { call, calls } = linkStub([
+      { page: [1], linkHeader: '</orders?cursor=abc>; rel="next"' },
+      { page: [2], linkHeader: null },
+    ]);
+    await collect(pagesByLink(call));
+    expect(calls[1].args?.query).toEqual({ cursor: 'abc' });
+  });
+
+  it('follows links when the page URL itself is relative (relative serverUrl, mocked fetch)', async () => {
+    // `response.url` is empty under mocks and constructed Responses, so the fallback page
+    // URL can be relative (`serverUrl: '/api'`) — resolution must not require an absolute base.
+    const calls: Array<{ args?: Record<string, unknown> }> = [];
+    const replies = [
+      { page: ['a'], linkHeader: '</orders?page=2>; rel="next"' },
+      { page: ['b'], linkHeader: null },
+    ];
+    const call = async (args?: Record<string, unknown>) => {
+      calls.push({ args });
+      return { ...replies[calls.length - 1], url: `/orders?call=${calls.length}` };
+    };
+    const seen = await collect(pagesByLink(call));
+    expect(seen).toEqual([['a'], ['b']]);
+    expect(calls[1].args?.query).toEqual({ page: '2' });
+  });
+
+  it('throws when the next target repeats (infinite-loop guard)', async () => {
+    const { call } = linkStub([
+      { page: [1], linkHeader: '<https://x/orders?page=2>; rel="next"' },
+      { page: [2], linkHeader: '<https://x/orders?page=2>; rel="next"' },
+      { page: [3], linkHeader: '<https://x/orders?page=2>; rel="next"' },
+    ]);
+    await expect(collect(pagesByLink(call))).rejects.toThrow(/did not advance/);
+  });
+
+  it('itemsByLink flattens each page through the items pointer', async () => {
+    const deep: PaginationSpec = { style: 'link', items: '/orders' };
+    const { call } = linkStub([
+      { page: { orders: ['a', 'b'] }, linkHeader: '<https://x/orders?page=2>; rel="next"' },
+      { page: { orders: ['c'] }, linkHeader: null },
+    ]);
+    expect(await collect(itemsByLink(call, deep))).toEqual(['a', 'b', 'c']);
+  });
+
+  it('pages() rejects a link spec (those operations wire through pagesByLink)', async () => {
+    const iterate = pages(async () => ({}), LINK);
+    await expect(iterate.next()).rejects.toThrow(/pagesByLink/);
+  });
+});

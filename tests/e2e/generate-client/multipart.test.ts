@@ -66,7 +66,7 @@ describe('generate-client typed multipart body (#5)', () => {
         });
 
         const file = new Blob(['hello'], { type: 'text/plain' });
-        await upload({ file, orgId: 'org_1', tags: ['a', 'b'], meta: { k: 'v' } });
+        await upload({ body: { file, orgId: 'org_1', tags: ['a', 'b'], meta: { k: 'v' } } });
 
         const fd = body as FormData;
         console.log(JSON.stringify({
@@ -112,7 +112,7 @@ describe('generate-client typed multipart body (#5)', () => {
         use({ onRequest: (ctx) => { (ctx.body as { orgId: string }).orgId = 'mutated'; } });
 
         const file = new Blob(['hi'], { type: 'text/plain' });
-        await upload({ file, orgId: 'org_1' });
+        await upload({ body: { file, orgId: 'org_1' } });
 
         const fd = body as FormData;
         console.log(JSON.stringify({ isFormData: fd instanceof FormData, orgId: fd.get('orgId') }));

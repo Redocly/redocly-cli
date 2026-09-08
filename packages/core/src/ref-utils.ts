@@ -40,7 +40,8 @@ export class Location {
   }
 
   key() {
-    return { ...this, reportOnKey: true };
+    // Preserving absolute pointer for getter
+    return Object.assign(Object.create(Location.prototype), this, { reportOnKey: true });
   }
 
   get absolutePointer() {

@@ -1,10 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 
-import { authSetterNames } from '../emitters/auth.js';
-import { isSafeIdentifier, sanitizeIdentifier } from '../emitters/identifier.js';
-import { reservedModuleNames } from '../emitters/reserved-names.js';
-import { pascalCase } from '../emitters/support.js';
-import { NotSupportedError } from '../errors.js';
+import { isSafeIdentifier, pascalCase, sanitizeIdentifier } from '../printers/typescript.js';
+import { reservedModuleNames } from '../reserved-names.js';
 import type { ApiModel, OperationModel, SchemaModel } from './model.js';
 
 /**
@@ -36,27 +33,24 @@ export function sanitizeIdentifiers(model: ApiModel): void {
     const safe = uniquePascalIdent(scheme.key, schemeKeys, schemePascals);
     if (safe !== scheme.key) {
       renamedKeys.set(scheme.key, safe);
-      warnRename('security scheme', scheme.key, safe);
+      warnRename('security scheme', scheme.key, safe, causeFor(scheme.key, schemeKeys));
       scheme.key = safe;
     }
   }
 
   // Schema types land in the same module scope as everything the generator emits and
   // embeds, so a schema may not reuse a reserved name (the runtime's `ApiError` class,
-  // a satellite import like msw's `http`, the `client` const, an auth setter, …). The
-  // rename is mode-independent — a `--runtime` flip must not change the generated
-  // type names.
-  const schemaNames = new Set<string>([
-    ...reservedModuleNames(),
-    ...authSetterNames(model.securitySchemes),
-  ]);
+  // a satellite import like msw's `http`, the `client` const, …). The rename is
+  // mode-independent — a `--runtime` flip must not change the generated type names.
+  const reservedNames = new Set<string>(reservedModuleNames());
+  const schemaNames = new Set<string>(reservedNames);
   const schemaPascals = new Set<string>();
   const renamed = new Map<string, string>();
   for (const schema of model.schemas) {
     const safe = uniquePascalIdent(schema.name, schemaNames, schemaPascals);
     if (safe !== schema.name) {
       renamed.set(schema.name, safe);
-      warnRename('schema', schema.name, safe);
+      warnRename('schema', schema.name, safe, causeFor(schema.name, reservedNames));
       schema.name = safe;
     }
   }
@@ -73,11 +67,24 @@ export function sanitizeIdentifiers(model: ApiModel): void {
   // shadowed type. Seeding with the schema names renames a colliding operation.
   const operationNames = new Set<string>(schemaNames);
   const operationPascals = new Set<string>();
+  const seenOperationIds = new Set<string>();
   for (const service of model.services) {
     for (const op of service.operations) {
+      // Recorded for EVERY operation, renamed or not: the second occurrence of an
+      // operationId is what identifies a duplicate in the description.
+      const duplicate = seenOperationIds.has(op.name);
+      seenOperationIds.add(op.name);
+      const original = op.name;
       const safe = uniquePascalIdent(op.name, operationNames, operationPascals);
       if (safe !== op.name) {
-        warnRename('operation', op.name, safe);
+        const cause: RenameCause = duplicate
+          ? { kind: 'duplicate-operation-id' }
+          : reservedNames.has(original)
+            ? { kind: 'reserved' }
+            : schemaNames.has(original)
+              ? { kind: 'schema-collision' }
+              : { kind: 'unusable' };
+        warnRename('operation', original, safe, cause);
         op.specName = op.name;
         op.name = safe;
       }
@@ -105,31 +112,6 @@ function uniquePascalIdent(name: string, used: Set<string>, usedPascals: Set<str
 }
 
 /** The request-args slot keys a path parameter's wire name may not reuse. */
-const ARG_SLOT_NAMES = ['params', 'body', 'headers', 'cookies'];
-
-/**
- * Reject path parameters named after a request-args slot. The runtime routes path
- * values as `args[param.name]` at the TOP level of the args object, next to the
- * `params`/`body`/`headers`/`cookies` slots — a path parameter of the same name is
- * irreducibly ambiguous there (the wire name is the routing key, so no rename can
- * help), which silently misroutes the value. Failing generation with a spec-side fix
- * beats emitting a client that drops it. `init` is fine: it is only a flat-sugar
- * binding, and the signature emitter moves that binding aside.
- */
-export function assertPathParamsAvoidArgSlots(model: ApiModel): void {
-  for (const service of model.services) {
-    for (const op of service.operations) {
-      for (const param of op.pathParams) {
-        if (ARG_SLOT_NAMES.includes(param.name)) {
-          throw new NotSupportedError(
-            `Operation "${op.specName ?? op.name}": path parameter "${param.name}" collides with the "${param.name}" request-argument slot; rename the parameter in the API description.`
-          );
-        }
-      }
-    }
-  }
-}
-
 /**
  * Throw if any declaration name is still not a safe identifier — a generator bug, not
  * bad input.
@@ -167,10 +149,37 @@ function sanitizeRef(name: string): string {
   return sanitizeIdentifier(name);
 }
 
-function warnRename(kind: string, from: string, to: string): void {
-  logger.warn(
-    `generate-client: ${kind} name ${JSON.stringify(from)} collides with another name or is not a valid TypeScript identifier; using ${JSON.stringify(to)}.\n`
-  );
+/**
+ * Why a name had to change, so the publisher can act: a rename becomes part of the
+ * generated SDK's public API, and "collides or is invalid" tells them nothing.
+ */
+type RenameCause =
+  /** Two operations in the description share one operationId — fixable only there. */
+  | { kind: 'duplicate-operation-id' }
+  /** The name is already declared by the generated module (runtime, wiring, imports). */
+  | { kind: 'reserved' }
+  /** An operation and a schema in the same description want the same emitted name. */
+  | { kind: 'schema-collision' }
+  /** The name isn't a usable identifier in the target language. */
+  | { kind: 'unusable' };
+
+function warnRename(what: string, from: string, to: string, cause: RenameCause): void {
+  const name = JSON.stringify(from);
+  const renamed = JSON.stringify(to);
+  const explanation =
+    cause.kind === 'duplicate-operation-id'
+      ? `two operations share the operationId ${name}; the second is emitted as ${renamed} — give each operation a unique operationId to control its method name`
+      : cause.kind === 'schema-collision'
+        ? `${what} ${name} collides with the schema of the same name, so it is emitted as ${renamed} — rename the operation or the schema in the description to control its name`
+        : cause.kind === 'reserved'
+          ? `${what} ${name} is a name a generated client already declares, so it is emitted as ${renamed} — the reserved set spans every target language, so one schema keeps one name across the SDKs you generate`
+          : `${what} ${name} is not a usable identifier, so it is emitted as ${renamed}`;
+  logger.warn(`generate-client: ${explanation}.\n`);
+}
+
+/** Whether a name changed only because something else already claimed it. */
+function causeFor(from: string, taken: ReadonlySet<string>): RenameCause {
+  return taken.has(from) ? { kind: 'reserved' } : { kind: 'unusable' };
 }
 
 /** Rewrite `ref`/`omit`/discriminator targets in a schema subtree via `fixRef` (mutates). */
