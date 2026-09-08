@@ -24,16 +24,33 @@ import { createPositionMapper } from './positions.js';
 const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
-// An API description is a YAML or JSON file whose root parses as a known spec.
-function isApiDescription(path: string): boolean {
-  if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return false;
+// A requested path is an API description ('api'), a same-extension file that
+// failed to parse as YAML/JSON ('unreadable-api'), or neither ('not-api').
+// A parse failure stays an API description, not a Markdown page: the caller
+// must fail the run instead of silently linting it as a page.
+type ApiPathClassification = 'api' | 'unreadable-api' | 'not-api';
+
+function classifyApiPath(path: string): ApiPathClassification {
+  if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return 'not-api';
+  let isFile: boolean;
   try {
-    if (!statSync(path).isFile()) return false;
-    detectSpec(parseYaml(readFileSync(path, 'utf8')));
-    return true;
+    isFile = statSync(path).isFile();
   } catch {
-    return false;
+    return 'not-api';
   }
+  if (!isFile) return 'not-api';
+  let parsed: unknown;
+  try {
+    parsed = parseYaml(readFileSync(path, 'utf8'));
+  } catch {
+    return 'unreadable-api';
+  }
+  try {
+    detectSpec(parsed);
+  } catch {
+    return 'not-api';
+  }
+  return 'api';
 }
 
 function lintOptions(argv: RecheckArgv): LintOptions {
@@ -66,8 +83,9 @@ async function collectEmbeddedInputs(
   apiPaths: string[],
   config: Config,
   engineLogger: Logger
-): Promise<EmbeddedInput[]> {
+): Promise<{ inputs: EmbeddedInput[]; failureCount: number }> {
   const inputs: EmbeddedInput[] = [];
+  let failureCount = 0;
   // Two APIs may `$ref` the same file, so the descriptions of that file are
   // deduplicated across every API, not within one.
   const seen = new Set<string>();
@@ -76,9 +94,10 @@ async function collectEmbeddedInputs(
     try {
       descriptions = await collectDescriptions(apiPath, config);
     } catch (error) {
-      engineLogger.warn(
+      engineLogger.error(
         `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}`
       );
+      failureCount++;
       continue;
     }
     for (const { source, pointer, text } of descriptions) {
@@ -93,7 +112,7 @@ async function collectEmbeddedInputs(
       });
     }
   }
-  return inputs;
+  return { inputs, failureCount };
 }
 
 // True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
@@ -191,7 +210,8 @@ async function runAction(
   const roots: string[] = [];
   const apiPaths: string[] = [];
   for (const requestedPath of requested) {
-    (isApiDescription(requestedPath) ? apiPaths : roots).push(requestedPath);
+    const classification = classifyApiPath(requestedPath);
+    (classification === 'not-api' ? roots : apiPaths).push(requestedPath);
   }
   if (!explicit) apiPaths.push(...configuredApiPaths(config, configDir));
 
@@ -216,14 +236,22 @@ async function runAction(
     );
   }
 
-  const embeddedInputs = await collectEmbeddedInputs(apiPaths, config, engineLogger);
-  const isIgnored = ignoredBy(config, resolved.rules);
-  if (action === 'baseline')
-    return generateBaseline(roots, resolved, engineLogger, { embeddedInputs, isIgnored });
-  return runLint(
-    roots,
-    resolved,
-    { ...lintOptions(argv), embeddedInputs, isIgnored },
+  const { inputs: embeddedInputs, failureCount } = await collectEmbeddedInputs(
+    apiPaths,
+    config,
     engineLogger
   );
+  const isIgnored = ignoredBy(config, resolved.rules);
+  const exitCode =
+    action === 'baseline'
+      ? await generateBaseline(roots, resolved, engineLogger, { embeddedInputs, isIgnored })
+      : await runLint(
+          roots,
+          resolved,
+          { ...lintOptions(argv), embeddedInputs, isIgnored },
+          engineLogger
+        );
+  // An API description that failed to parse fails the gate even when the
+  // lint or baseline action otherwise found nothing to report.
+  return failureCount > 0 && exitCode === 0 ? 1 : exitCode;
 }

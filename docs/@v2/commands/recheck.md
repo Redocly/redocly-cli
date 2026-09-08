@@ -11,7 +11,7 @@ Rules come from presets, such as `recheck/markdown`, that you add to the root `e
 The [`recheck` block](../configuration/reference/recheck.md) adjusts those rules.
 With no `redocly.yaml`, the command uses `recheck/markdown`.
 With a `redocly.yaml` that has neither, the command checks nothing and says so.
-With no paths, the command lints the Markdown files under the current directory and every API in `apis`.
+With no paths, the command lints the Markdown files under the current directory and every local API in `apis`.
 With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
 
 ## Usage
@@ -144,6 +144,7 @@ The command lints every `description` in `openapi.yaml` and in the files it refe
 Rules that need a whole document, such as `recheck/single-h1`, do not run on descriptions.
 `--fix` does not change API files.
 It reports how many fixable findings it skipped.
+An API description that does not parse is an error and fails the run.
 
 To suppress one finding without a change to the API file, list it in `.redocly.lint-ignore.yaml` by file, rule, and pointer:
 

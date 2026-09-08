@@ -120,6 +120,32 @@ describe('handleRecheck', () => {
     expect(finding.pointer).toBe('#/info/description');
   });
 
+  it('fails the run when an explicit API path does not parse as YAML', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'broken.yaml'), 'title: [t');
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await handleRecheck({
+      argv: { paths: [join(dir, 'broken.yaml')], format: 'json' },
+      config,
+    } as never);
+    expect(err.join('')).toContain('Could not read API description');
+    const report = JSON.parse(out.join(''));
+    expect(report.issues).toHaveLength(0);
+    expect(process.exitCode).toBe(1);
+  });
+
+  it('lints a valid yaml file that is not an API description as a page', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'notes.yaml'), 'foo: bar\n');
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await handleRecheck({
+      argv: { paths: [join(dir, 'notes.yaml')], format: 'json' },
+      config,
+    } as never);
+    expect(() => JSON.parse(out.join(''))).not.toThrow();
+    expect(err.join('')).not.toContain('Could not read API description');
+  });
+
   it('lints every API in apis when no paths are given', async () => {
     const dir = fixture();
     writeFileSync(join(dir, 'openapi.yaml'), API);
@@ -205,6 +231,7 @@ describe('handleRecheck', () => {
     const report = JSON.parse(out.join(''));
     expect(report.summary.totalIssues).toBe(0);
     expect(process.exitCode ?? 0).toBe(0);
+    expect(err.join('')).toContain('Running recheck on: nothing to check');
   });
 
   it('suppresses a description finding that the ignore file keys by short rule name', async () => {

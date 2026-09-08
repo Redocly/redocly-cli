@@ -53,7 +53,9 @@ export async function runLint(
     ...roots,
     ...(embeddedInputs.length > 0 ? [`${embeddedInputs.length} API description(s)`] : []),
   ];
-  logger.log(cyan(`🏃 Running recheck on: ${targets.join(', ')}`));
+  logger.log(
+    cyan(`🏃 Running recheck on: ${targets.length > 0 ? targets.join(', ') : 'nothing to check'}`)
+  );
 
   let rulesToRun: NormalizedRule[];
   let disabledCount: number;
@@ -85,7 +87,11 @@ export async function runLint(
     let files = await discoverFilesForRoots(roots);
 
     if (files.length === 0 && embeddedInputs.length === 0) {
-      logger.log(yellow(`⚠️  No markdown files found in: ${roots.join(', ')}`));
+      // An empty target list has nothing to name here; the top-of-run
+      // message already said so.
+      if (roots.length > 0) {
+        logger.log(yellow(`⚠️  No markdown files found in: ${roots.join(', ')}`));
+      }
       // With an active baseline on an exhaustive walk, fall through with zero
       // files instead of returning: the gate must still judge the walked root
       // (deleting the last baselined files turns their entries stale), and its
@@ -212,7 +218,7 @@ export async function runLint(
     const executedDescriptionRules = new Set<string>();
     if (embeddedInputs.length > 0) {
       const offForDescriptions = config.descriptionRules.filter((rule) => rule.severity === 'off');
-      // `--rule`/`--exclude-rule` names are already validated against the page
+      // The rule selection options are already validated against the page
       // rules above. A name whose description rule is off must not reach
       // `applyFilters` here: that call drops off rules first, so the name
       // would look unknown for descriptions even though it is a real rule.
