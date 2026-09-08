@@ -30,7 +30,8 @@ export function outputTableFormat(
     const location = `${problem.file}:${problem.line}:${problem.column}`;
     const ruleDisplay = problem.ruleName.replace('recheck/', '');
 
-    const fixMark = problem.fixable ? green(' [fixable]') : '';
+    // `--fix` never rewrites a description, so a pointer problem has no marker.
+    const fixMark = problem.fixable && problem.pointer === undefined ? green(' [fixable]') : '';
 
     logger.output(
       `${severityColor(ruleDisplay.padEnd(25))} ${location.padEnd(40)} ${problem.message}${fixMark}`

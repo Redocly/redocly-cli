@@ -156,6 +156,7 @@ openapi.yaml:
 
 Key the rule by its full name, such as `recheck/line-length`, or by its short name.
 A local API that references a remote `$ref` makes the command fetch it, the same as `redocly lint`.
+The command lints only descriptions in local files.
 
 To adjust rules for descriptions only, set `apiDescriptions.rules` in the `recheck` block.
 

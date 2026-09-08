@@ -49,7 +49,7 @@ describe('generateBaseline', () => {
     });
     expect(exitCode).toBe(0);
 
-    const baselineText = await fs.readFile(path.join(dir, 'recheck-baseline.yaml'), 'utf8');
+    const baselineText = await fs.readFile(path.join(dir, '.recheck-baseline.yaml'), 'utf8');
     const baseline = yaml.load(baselineText) as { files: Record<string, Record<string, number>> };
     const key = baselineKeyMapper(dir)(apiFile);
     expect(baseline.files[key]).toEqual({ 'recheck/line-length': 1 });

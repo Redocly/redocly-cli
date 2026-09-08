@@ -18,7 +18,7 @@ import { dirname, extname, resolve } from 'node:path';
 import { AbortFlowError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { selectAction, type RecheckAction, type RecheckArgv } from './args.js';
-import { collectDescriptions } from './descriptions.js';
+import { collectDescriptions, type CollectedDescription } from './descriptions.js';
 import { createPositionMapper } from './positions.js';
 
 const DEFAULT_PRESET = 'recheck/markdown';
@@ -79,20 +79,44 @@ function configuredApiPaths(config: Config, configDir: string): string[] {
   return [...new Set(paths)];
 }
 
+// A description reached through a remote `$ref` has a URL as its
+// `source.absoluteRef`. Baseline keys and the changed-file filter need a
+// local path, so such a description is counted and skipped.
+export function toEmbeddedInputs(descriptions: CollectedDescription[]): {
+  inputs: EmbeddedInput[];
+  remoteSkipped: number;
+} {
+  const inputs: EmbeddedInput[] = [];
+  let remoteSkipped = 0;
+  for (const { source, pointer, text } of descriptions) {
+    if (isAbsoluteUrl(source.absoluteRef)) {
+      remoteSkipped++;
+      continue;
+    }
+    inputs.push({
+      file: source.absoluteRef,
+      pointer,
+      content: text,
+      mapPosition: createPositionMapper(source, pointer),
+    });
+  }
+  return { inputs, remoteSkipped };
+}
+
 async function collectEmbeddedInputs(
   apiPaths: string[],
   config: Config,
   engineLogger: Logger
 ): Promise<{ inputs: EmbeddedInput[]; failureCount: number }> {
-  const inputs: EmbeddedInput[] = [];
+  const descriptions: CollectedDescription[] = [];
   let failureCount = 0;
   // Two APIs may `$ref` the same file, so the descriptions of that file are
   // deduplicated across every API, not within one.
   const seen = new Set<string>();
   for (const apiPath of apiPaths) {
-    let descriptions;
+    let collected;
     try {
-      descriptions = await collectDescriptions(apiPath, config);
+      collected = await collectDescriptions(apiPath, config);
     } catch (error) {
       engineLogger.error(
         `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}`
@@ -100,17 +124,18 @@ async function collectEmbeddedInputs(
       failureCount++;
       continue;
     }
-    for (const { source, pointer, text } of descriptions) {
-      const key = `${source.absoluteRef}${pointer}`;
+    for (const description of collected) {
+      const key = `${description.source.absoluteRef}${description.pointer}`;
       if (seen.has(key)) continue;
       seen.add(key);
-      inputs.push({
-        file: source.absoluteRef,
-        pointer,
-        content: text,
-        mapPosition: createPositionMapper(source, pointer),
-      });
+      descriptions.push(description);
     }
+  }
+  const { inputs, remoteSkipped } = toEmbeddedInputs(descriptions);
+  if (remoteSkipped > 0) {
+    engineLogger.log(
+      `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.`
+    );
   }
   return { inputs, failureCount };
 }

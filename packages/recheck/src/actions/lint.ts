@@ -217,37 +217,30 @@ export async function runLint(
     let problems: Problem[] = [...pageProblems];
     const executedDescriptionRules = new Set<string>();
     if (embeddedInputs.length > 0) {
-      const offForDescriptions = config.descriptionRules.filter((rule) => rule.severity === 'off');
-      // The rule selection options are already validated against the page
-      // rules above. A name whose description rule is off must not reach
-      // `applyFilters` here: that call drops off rules first, so the name
-      // would look unknown for descriptions even though it is a real rule.
-      const keepForDescriptions = (name: string) =>
-        !offForDescriptions.some((rule) => matchesRuleName(rule, name));
-      const descriptionRuleNames = options.rules?.filter(keepForDescriptions);
-      const descriptionExcludeRuleNames = options.excludeRules?.filter(keepForDescriptions);
+      // The page side already validated the rule names. Description rules go
+      // through `applyFilters` for severity and tags only; a name filter there
+      // would treat a rule that severity or tags dropped as unknown and throw.
+      const { filtered: severityAndTagsFiltered } = applyFilters(config.descriptionRules, {
+        severity: options.severity,
+        tags: options.tags,
+      });
+      let descriptionRules = severityAndTagsFiltered;
+      if (options.rules !== undefined && options.rules.length > 0) {
+        const ruleNames = options.rules;
+        descriptionRules = descriptionRules.filter((rule) =>
+          ruleNames.some((name) => matchesRuleName(rule, name))
+        );
+      }
+      if (options.excludeRules !== undefined && options.excludeRules.length > 0) {
+        const excludeRuleNames = options.excludeRules;
+        descriptionRules = descriptionRules.filter(
+          (rule) => !excludeRuleNames.some((name) => matchesRuleName(rule, name))
+        );
+      }
       const noRulesLeftForDescriptions =
-        options.rules !== undefined &&
-        options.rules.length > 0 &&
-        descriptionRuleNames?.length === 0;
+        options.rules !== undefined && options.rules.length > 0 && descriptionRules.length === 0;
 
       if (!noRulesLeftForDescriptions) {
-        let descriptionRules: NormalizedRule[];
-        try {
-          ({ filtered: descriptionRules } = applyFilters(config.descriptionRules, {
-            severity: options.severity,
-            tags: options.tags,
-            rules: descriptionRuleNames,
-            excludeRules: descriptionExcludeRuleNames,
-          }));
-        } catch (error) {
-          if (error instanceof UnknownRuleNameError) {
-            logger.log(red(`❌ ${error.message}`));
-            logger.log(`   Available: ${error.available.join(', ')}`);
-            return 1;
-          }
-          throw error;
-        }
         for (const rule of descriptionRules) executedDescriptionRules.add(rule.name);
         const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRules, runnerOptions);
         problems.push(...embedded.problems);
