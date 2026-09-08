@@ -5,6 +5,7 @@ import {
   replaceRef,
   isExternalValue,
   isRef,
+  isRefWithSiblings,
   parseRef,
   pointerBaseName,
   refBaseName,
@@ -25,11 +26,6 @@ import { type ComponentNamesStrategy } from './bundle-document.js';
 
 type ComponentTarget = { node: unknown; location: Location };
 type ComponentsGroup = Record<string, unknown>;
-
-// a $ref with no sibling keywords, so replacing it with the target loses nothing
-function isPlainRef(node: unknown): node is OasRef {
-  return isRef(node) && Object.keys(node).length === 1;
-}
 
 export function mapTypeToComponent(typeName: string, version: SpecMajorVersion) {
   switch (version) {
@@ -372,7 +368,8 @@ export function makeBundleVisitor({
 
     const authoredRefNames = new Map<string, string>();
     for (const [entryName, entryNode] of Object.entries(componentsGroup)) {
-      if (!isPlainRef(entryNode)) {
+      // a $ref with sibling keywords stays as authored, so its name is not reusable
+      if (!isRef(entryNode) || isRefWithSiblings(entryNode)) {
         continue;
       }
       const resolved = ctx.resolve(entryNode, rootLocation.absolutePointer);
