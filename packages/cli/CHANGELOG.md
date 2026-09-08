@@ -1,5 +1,14 @@
 # @redocly/cli
 
+## 2.51.2
+
+### Patch Changes
+
+- Updated `fast-uri` to the `3.1.7` version to resolve `CVE-2026-75931`, `CVE-2026-75975`, `CVE-2026-75899`, and `CVE-2026-76172`.
+- Fixed `drift` and `coverage` failing to match a path template whose segment mixes literal text with parameters, such as `/instances/{worldId}:{instanceId}`.
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+- Updated @redocly/openapi-core to v2.51.2.
+
 ## 2.51.1
 
 ### Patch Changes
