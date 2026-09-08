@@ -7,7 +7,8 @@ It checks headings, sentences, links, images, and Markdoc tags against a set of 
 
 Rules come from presets, such as `recheck/markdown`, that you add to the root `extends` in `redocly.yaml`.
 The [`recheck` block](../configuration/reference/recheck.md) adjusts those rules.
-If `redocly.yaml` has neither, the command uses `recheck/markdown`.
+With no `redocly.yaml`, the command uses `recheck/markdown`.
+With a `redocly.yaml` that has neither, the command checks nothing and says so.
 
 ## Usage
 
@@ -32,12 +33,8 @@ Use at most one of them in a run.
 | Option                    | Type     | Description                                                                                                                       |
 | ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | paths                     | [string] | Files or directories to lint. Default value is the current directory.                                                             |
-| --annotations-limit       | number   | Maximum number of annotations in the report.                                                                                      |
-| --changed-list            | string   | Path to a file that lists changed files, one per line.                                                                            |
-| --changed-only            | boolean  | Lint only the files listed in `--changed-list`.                                                                                   |
 | --check                   | boolean  | Fail when the generated schema differs from the file in `--out`. Use with `--generate-markdoc-schema`.                            |
 | --config                  | string   | Path to the [configuration file](../configuration/index.md).                                                                      |
-| --exclude-rule            | [string] | Skip these rules.                                                                                                                 |
 | --fix                     | boolean  | Apply fixes to the Markdown files. Alias: `-f`.                                                                                   |
 | --format                  | string   | Format for the report.<br />**Possible values:** `table`, `json`, `sarif`, `github-actions`. Default value is `table`.            |
 | --from                    | [string] | Module paths to read Markdoc tags from. Use with `--generate-markdoc-schema`.                                                     |
@@ -45,11 +42,13 @@ Use at most one of them in a run.
 | --generate-markdoc-schema | boolean  | Generate a Markdoc tag schema from theme modules. Needs `--from` and `--out`.                                                     |
 | --help                    | boolean  | Show help.                                                                                                                        |
 | --lint-config             | string   | Specify the severity level for the configuration file.<br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
+| --max-problems            | number   | Maximum number of annotations in the report.                                                                                      |
 | --out                     | string   | Output file for the generated schema.                                                                                             |
 | --output-path             | string   | Write the report to this file instead of stdout. Applies to `--format json` and `sarif`.                                          |
 | --readability             | boolean  | Report readability scores instead of lint findings.                                                                               |
 | --rule                    | [string] | Run only these rules. Alias: `-r`.                                                                                                |
-| --severity                | string   | Run only rules at this severity or higher.<br />**Possible values:** `info`, `warn`, `error`.                                     |
+| --severity                | string   | Run only rules at this severity or higher.<br />**Possible values:** `warn`, `error`.                                             |
+| --skip-rule               | [string] | Skip these rules.                                                                                                                 |
 | --stats                   | boolean  | Print statistics per rule. Alias: `-s`.                                                                                           |
 | --summary                 | string   | Print a summary of the run.<br />**Possible values:** `json`, `text`.                                                             |
 | --summary-path            | string   | Write the summary to this file.                                                                                                   |

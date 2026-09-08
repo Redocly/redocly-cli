@@ -1,7 +1,7 @@
 
 🎉 No issues found!
 
-No recheck configuration found; using recheck/markdown.
+No redocly.yaml found; using recheck/markdown.
 🏃 Running recheck on: docs
 
 🔧 Running 53 rule(s)...

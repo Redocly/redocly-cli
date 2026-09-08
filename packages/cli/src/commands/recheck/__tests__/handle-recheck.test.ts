@@ -6,9 +6,13 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { handleRecheck } from '../index.js';
 
-function fakeConfig(recheck: unknown, recheckExtends: string[] | undefined, dir: string): Config {
+function fakeConfig(
+  recheck: unknown,
+  recheckExtends: string[] | undefined,
+  configPath: string | undefined
+): Config {
   return {
-    configPath: join(dir, 'redocly.yaml'),
+    configPath,
     resolvedConfig: { recheck, recheckExtends },
   } as unknown as Config;
 }
@@ -46,35 +50,39 @@ describe('handleRecheck', () => {
     const dir = fixture();
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'table' },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
     } as never);
     expect(out.join('')).toContain('No issues found');
     expect(process.exitCode ?? 0).toBe(0);
   });
 
-  it('falls back to recheck/markdown with a notice when nothing is configured', async () => {
+  it('falls back to recheck/markdown with a notice when there is no redocly.yaml', async () => {
     const dir = fixture();
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'table' },
-      config: fakeConfig(undefined, undefined, dir),
+      config: fakeConfig(undefined, undefined, undefined),
     } as never);
-    expect(err.join('')).toContain('No recheck configuration found; using recheck/markdown.');
+    expect(err.join('')).toContain('No redocly.yaml found; using recheck/markdown.');
+    expect(out.join('')).toContain('No issues found');
   });
 
-  it('falls back to recheck/markdown with a notice when the block is null', async () => {
+  it('reports nothing to check when redocly.yaml has no recheck configuration', async () => {
     const dir = fixture();
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'table' },
-      config: fakeConfig(null, undefined, dir),
+      config: fakeConfig(undefined, undefined, join(dir, 'redocly.yaml')),
     } as never);
-    expect(err.join('')).toContain('No recheck configuration found; using recheck/markdown.');
+    expect(err.join('')).toContain(
+      'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.'
+    );
+    expect(process.exitCode ?? 0).toBe(0);
   });
 
   it('reports config errors on stderr and exits 1', async () => {
     const dir = fixture();
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'table' },
-      config: fakeConfig({ extends: ['recheck/markdown'] }, undefined, dir),
+      config: fakeConfig({ extends: ['recheck/markdown'] }, undefined, join(dir, 'redocly.yaml')),
     } as never);
     expect(err.join('')).toContain('root `extends`');
     expect(process.exitCode).toBe(1);
@@ -88,7 +96,7 @@ describe('handleRecheck', () => {
     );
     await handleRecheck({
       argv: { paths: [join(dir, 'openapi.yaml'), join(dir, 'docs')], format: 'table' },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
     } as never);
     expect(err.join('')).toContain('API descriptions are linted from the next release; skipped');
   });
@@ -97,7 +105,7 @@ describe('handleRecheck', () => {
     const dir = fixture();
     await handleRecheck({
       argv: { paths: [dir], format: 'table', readability: true, 'generate-baseline': true },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
     } as never);
     expect(err.join('')).toContain('Use one of --readability');
     expect(process.exitCode).toBe(1);
@@ -107,7 +115,7 @@ describe('handleRecheck', () => {
     const dir = fixture();
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'json', readability: true },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
     } as never);
     const report = JSON.parse(out.join(''));
     expect(report).toHaveProperty('summary');
@@ -122,7 +130,7 @@ describe('handleRecheck', () => {
       config: fakeConfig(
         { rules: {}, baseline: './recheck-baseline.yaml' },
         ['recheck/markdown'],
-        dir
+        join(dir, 'redocly.yaml')
       ),
     } as never);
     expect(existsSync(join(dir, 'recheck-baseline.yaml'))).toBe(true);
@@ -139,7 +147,7 @@ describe('handleRecheck', () => {
         from: [join(dir, 'missing-theme.ts')],
         out: join(dir, 'schema.yaml'),
       },
-      config: fakeConfig({ extends: ['recheck/markdown'] }, undefined, dir),
+      config: fakeConfig({ extends: ['recheck/markdown'] }, undefined, join(dir, 'redocly.yaml')),
     } as never);
     expect(err.join('')).not.toContain('The recheck configuration is not valid');
     expect(err.join('')).toContain('could not import');
@@ -151,7 +159,7 @@ describe('handleRecheck', () => {
     writeFileSync(join(dir, 'docs', 'index.md'), '# Title\n\n# Second title\n');
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'json' },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
     } as never);
     expect(() => JSON.parse(out.join(''))).not.toThrow();
     expect(err.join('')).toContain('Running recheck on');
@@ -162,7 +170,7 @@ describe('handleRecheck', () => {
     const outputPath = join(dir, 'report.txt');
     await handleRecheck({
       argv: { paths: [join(dir, 'docs')], format: 'table', 'output-path': outputPath },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], dir),
+      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
     } as never);
     expect(err.join('')).toContain(
       '--output-path applies to --format json and sarif; the report goes to stdout.'

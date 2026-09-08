@@ -127,15 +127,14 @@ export async function resolveConfig({
     skipPluginEval
   );
 
-  if (recheckExtends.length > 0) {
-    bundledConfig.recheckExtends = recheckExtends;
-  }
+  const resolvedWithRecheck =
+    recheckExtends.length > 0 ? { ...bundledConfig, recheckExtends } : bundledConfig;
 
   // The apis merge relies on `extends` being resolved, which requires evaluated plugins.
-  if (bundledConfig.apis && !skipPluginEval) {
-    bundledConfig.apis = Object.fromEntries(
-      Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
-        const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
+  if (resolvedWithRecheck.apis && !skipPluginEval) {
+    resolvedWithRecheck.apis = Object.fromEntries(
+      Object.entries(resolvedWithRecheck.apis).map(([key, apiConfig]) => {
+        const mergedConfig = mergeExtends([resolvedWithRecheck, apiConfig]);
         return [key, { ...apiConfig, ...mergedConfig }];
       })
     );
@@ -153,7 +152,7 @@ export async function resolveConfig({
 
   return {
     resolvedConfig: {
-      ...bundledConfig,
+      ...resolvedWithRecheck,
       plugins: pluginPaths,
     },
     resolvedRefMap,

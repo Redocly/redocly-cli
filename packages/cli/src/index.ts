@@ -454,18 +454,16 @@ yargs(hideBin(process.argv))
             type: 'string',
           },
           severity: {
-            description: 'Minimum severity to run.',
-            choices: ['off', 'info', 'warn', 'warning', 'error'] as ReadonlyArray<
-              'off' | 'info' | 'warn' | 'warning' | 'error'
-            >,
+            description: 'Run only rules at this severity or higher.',
+            choices: ['warn', 'error'] as ReadonlyArray<'warn' | 'error'>,
             type: 'string',
           },
           tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
           rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
-          'exclude-rule': { description: 'Skip these rules.', array: true, type: 'string' },
+          'skip-rule': { description: 'Skip these rules.', array: true, type: 'string' },
           stats: { description: 'Print rule statistics.', alias: 's', type: 'boolean' },
           fix: { description: 'Apply fixes to Markdown files.', alias: 'f', type: 'boolean' },
-          'annotations-limit': {
+          'max-problems': {
             description: 'Cap the number of annotations reported.',
             type: 'number',
           },
@@ -475,14 +473,6 @@ yargs(hideBin(process.argv))
             type: 'string',
           },
           'summary-path': { description: 'Write the summary to a file.', type: 'string' },
-          'changed-only': {
-            description: 'Lint only files listed by --changed-list.',
-            type: 'boolean',
-          },
-          'changed-list': {
-            description: 'Path to a file that lists changed files, one per line.',
-            type: 'string',
-          },
           readability: {
             description: 'Report readability scores instead of linting.',
             type: 'boolean',

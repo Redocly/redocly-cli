@@ -141,8 +141,6 @@ export async function handleLint({
   }
 }
 
-// formatProblems only understands these values; other commands' own report
-// formats (e.g. recheck's `table`, `sarif`) are not config-lint formats.
 function isOutputFormat(format: string | undefined): format is OutputFormat {
   return (
     format === 'codeframe' ||
