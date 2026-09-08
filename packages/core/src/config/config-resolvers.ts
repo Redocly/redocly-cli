@@ -40,9 +40,11 @@ import {
   isCommonJsPlugin,
   isDeprecatedPluginFormat,
   isRecheckPreset,
+  isReservedPluginId,
   mergeExtends,
   parsePresetName,
   prefixRules,
+  RESERVED_PLUGIN_IDS,
 } from './utils.js';
 
 export type PluginResolveInfo = {
@@ -344,6 +346,11 @@ export async function resolvePlugins(
                 colorize.red(
                   `Plugin must define \`id\` property in ${colorize.blue(p.toString())}.`
                 )
+              );
+            }
+            if (isReservedPluginId(id)) {
+              throw new Error(
+                `Plugin id "${id}" is reserved. Reserved ids: ${RESERVED_PLUGIN_IDS.join(', ')}.`
               );
             }
             const pluginPath = pluginInstance.absolutePath ?? p.toString();

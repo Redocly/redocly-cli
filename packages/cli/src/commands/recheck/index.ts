@@ -12,6 +12,7 @@ import {
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname } from 'node:path';
 
+import { AbortFlowError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { selectAction, type RecheckAction, type RecheckArgv } from './args.js';
 
@@ -56,8 +57,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   const selected = selectAction(argv);
   if ('error' in selected) {
     engineLogger.error(selected.error);
-    process.exitCode = 1;
-    return;
+    throw new AbortFlowError('Recheck failed.');
   }
 
   if (selected.action === 'markdoc-schema') {
@@ -65,7 +65,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
       { from: argv.from ?? [], out: argv.out ?? '', check: argv.check },
       engineLogger
     );
-    if (exitCode !== 0) process.exitCode = exitCode;
+    if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
     return;
   }
 
@@ -93,8 +93,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     for (const error of resolved.errors) {
       engineLogger.error(`  ${error.path ? `${error.path}: ` : ''}${error.message}`);
     }
-    process.exitCode = 1;
-    return;
+    throw new AbortFlowError('Recheck failed.');
   }
 
   if (argv['output-path'] && argv.format !== 'json' && argv.format !== 'sarif') {
@@ -104,7 +103,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   }
 
   const exitCode = await runAction(selected.action, argv, resolved.config, engineLogger);
-  if (exitCode !== 0) process.exitCode = exitCode;
+  if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
 }
 
 async function runAction(
