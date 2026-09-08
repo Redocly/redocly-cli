@@ -29,6 +29,8 @@ export type InspectNodeTypesArgv = {
   parents?: boolean;
 } & VerifyConfigOptions;
 
+const MAX_SUGGESTIONS = 20;
+
 type FoundNode = {
   absoluteRef: string;
   pointer: string;
@@ -49,22 +51,25 @@ export async function handleInspectNodeTypes({
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
 
-  // Not bundled: bundling rewrites the pointers of $ref-ed files.
   const nodes = new Map<string, FoundNode>();
   const recordNode = ({ source, pointer }: Location, typeName: string, resolvesTo?: Location) => {
     const key = `${source.absoluteRef}${pointer}`;
     const node = nodes.get(key);
     if (!node) {
       nodes.set(key, { absoluteRef: source.absoluteRef, pointer, types: [typeName], resolvesTo });
-    } else if (!node.types.includes(typeName)) {
+      return;
+    }
+    if (!node.types.includes(typeName)) {
       node.types.push(typeName);
+    }
+    if (!node.resolvesTo) {
+      node.resolvesTo = resolvesTo;
     }
   };
 
   const visitor = {
     any: {
-      enter(_node: unknown, { location, rawLocation, type }: UserContext) {
-        recordNode(rawLocation, type.name);
+      enter(_node: unknown, { location, type }: UserContext) {
         recordNode(location, type.name);
       },
     },
@@ -81,6 +86,7 @@ export async function handleInspectNodeTypes({
     visitorsData: {},
   };
 
+  // Not bundled: bundling rewrites the pointers of $ref-ed files.
   const resolvedRefMap = await resolveDocument({
     rootDocument: document,
     rootType: types.Root,
@@ -98,8 +104,6 @@ export async function handleInspectNodeTypes({
     ctx,
   });
 
-  const allNodes = [...nodes.values()];
-
   if (argv.pointer) {
     const node = findNode(nodes, argv.pointer, document.source.absoluteRef);
     if (argv.parents) {
@@ -107,7 +111,12 @@ export async function handleInspectNodeTypes({
     } else {
       logger.output(`${node.types.join('\n')}\n`);
     }
-  } else if (argv.summary) {
+    return;
+  }
+
+  const allNodes = [...nodes.values()];
+
+  if (argv.summary) {
     printSummary(allNodes);
   } else if (argv.type) {
     const typeName = argv.type;
@@ -118,7 +127,10 @@ export async function handleInspectNodeTypes({
       );
     }
     if (argv.parents) {
-      printDistinctChains(nodes, filtered, typeName, document.source.absoluteRef);
+      printChains(
+        filtered.flatMap((node) => chainsTo(nodes, node, document.source.absoluteRef)),
+        typeName
+      );
     } else {
       printTable(filtered);
     }
@@ -178,33 +190,16 @@ function chainsTo(
   return chains.length ? chains : [chain];
 }
 
-function printChains(chains: FoundNode[][]) {
+function printChains(chains: FoundNode[][], collapseType?: string) {
   const lines = new Set(
-    chains.map((chain) => chain.map(({ types }) => types.join(', ')).join(' → '))
+    chains.map((chain) =>
+      chain
+        .map(({ types }) =>
+          collapseType && types.includes(collapseType) ? collapseType : types.join(', ')
+        )
+        .join(' → ')
+    )
   );
-  for (const line of lines) {
-    logger.output(`${line}\n`);
-  }
-}
-
-function printDistinctChains(
-  nodes: Map<string, FoundNode>,
-  nodesOfType: FoundNode[],
-  typeName: string,
-  rootRef: string
-) {
-  const lines = new Set<string>();
-
-  for (const node of nodesOfType) {
-    for (const chain of chainsTo(nodes, node, rootRef)) {
-      lines.add(
-        chain
-          .map(({ types }) => (types.includes(typeName) ? typeName : types.join(', ')))
-          .join(' → ')
-      );
-    }
-  }
-
   for (const line of lines) {
     logger.output(`${line}\n`);
   }
@@ -212,7 +207,7 @@ function printDistinctChains(
 
 function findNode(nodes: Map<string, FoundNode>, pointer: string, rootRef: string): FoundNode {
   const [file, fragment] = pointer.split('#');
-  const absoluteRef = file ? toAbsoluteRef(file) : rootRef;
+  const absoluteRef = !file ? rootRef : isAbsoluteUrl(file) ? file : resolve(process.cwd(), file);
   const node = nodes.get(`${absoluteRef}#${fragment || '/'}`);
 
   if (!node) {
@@ -254,9 +249,9 @@ function describeClosestNode(
     const suggestions = (matching.length ? matching : children).map(
       (child) => `  ${filePrefix}${child.pointer}`
     );
-    const hiddenCount = suggestions.length - 20;
+    const hiddenCount = suggestions.length - MAX_SUGGESTIONS;
     if (hiddenCount > 0) {
-      suggestions.length = 20;
+      suggestions.length = MAX_SUGGESTIONS;
       suggestions.push(`  …and ${hiddenCount} more`);
     }
 
@@ -286,10 +281,6 @@ function printSummary(nodes: FoundNode[]) {
   for (const typeName of typeNames) {
     logger.output(`${typeName.padEnd(columnWidth)}${counts.get(typeName)}\n`);
   }
-}
-
-function toAbsoluteRef(file: string) {
-  return isAbsoluteUrl(file) ? file : resolve(process.cwd(), file);
 }
 
 function formatRef(absoluteRef: string) {

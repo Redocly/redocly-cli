@@ -471,8 +471,7 @@ rules:
 
 The config name of the rule is `<plugin id>/<rule name>`.
 **Both halves are required.**
-A plugin under `plugins:` runs nothing when its rules are absent from `rules:`, and Redocly gives no warning.
-The rules are then delivered and dead.
+A plugin whose rules are absent from `rules:` is delivered and dead.
 
 ### The visitor pattern
 
@@ -498,7 +497,7 @@ function SchemaTitleDefined() {
         if (schema.type === 'object' && !schema.title) {
           ctx.report({
             message: 'Object schemas must define a title.',
-            location: ctx.location.child(['type']),
+            location: ctx.location.key(),
           });
         }
       },

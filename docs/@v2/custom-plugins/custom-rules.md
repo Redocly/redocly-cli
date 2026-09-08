@@ -15,7 +15,7 @@ Each rule is a function that returns an object with methods that Redocly CLI cal
 To find the exact type of a place in your API description, either:
 
 - Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
-- Hover over over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+- Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
 
 To keep the plugin code manageable, each rule can go in its own file. This example is in `plugins/rules/opid-not-test.js`:
 

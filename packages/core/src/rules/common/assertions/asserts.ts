@@ -200,7 +200,7 @@ export const asserts: Asserts = {
         .map(
           (_val) =>
             condition !== _val && {
-              message: `${JSON.stringify(_val)} should be equal ${condition} `,
+              message: `${JSON.stringify(_val)} should be equal ${JSON.stringify(condition)}`,
               location: runOnValue(value) ? baseLocation : baseLocation.child(_val).key(),
             }
         )
@@ -209,7 +209,7 @@ export const asserts: Asserts = {
       return value !== condition
         ? [
             {
-              message: `${JSON.stringify(value)} should be equal ${condition}`,
+              message: `${JSON.stringify(value)} should be equal ${JSON.stringify(condition)}`,
               location: baseLocation,
             },
           ]

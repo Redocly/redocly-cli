@@ -102,6 +102,7 @@ yargs(hideBin(process.argv))
         .positional('api', {
           description: 'API description file to inspect.',
           type: 'string',
+          demandOption: true,
         })
         .option({
           config: { description: 'Path to the config file.', type: 'string' },
@@ -136,8 +137,7 @@ yargs(hideBin(process.argv))
             throw new Error('The --parents option requires --pointer or --type.');
           }
           return true;
-        })
-        .demandOption('api'),
+        }),
     (argv) => {
       commandWrapper(handleInspectNodeTypes)(argv);
     }
