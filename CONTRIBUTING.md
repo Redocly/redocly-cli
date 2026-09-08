@@ -458,3 +458,7 @@ The released version can be installed with `npm install @redocly/cli@snapshot`.
 Redocly CLI v1 is currently in archive mode, but still can receive bug fixes.
 
 To release a new version, switch to the `v1` branch and follow the steps described in the Contribution guide (the `CONTRIBUTING.md` file).
+
+### Handle a broken release
+
+If a release pipeline failed or didn't start after the release PR was merged into main (for example, if GitHub Actions was down), the new package version will be published to the NPM registry with the next successful merge into main. However, that merge should not be another release PR, otherwise it would swallow the original version.

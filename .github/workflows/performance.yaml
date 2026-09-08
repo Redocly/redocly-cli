@@ -37,7 +37,7 @@ jobs:
         if: github.head_ref == 'changeset-release/main'
         run: |
           cd tests/performance/
-          cat package.json | jq ".dependencies = $(cat package.json | jq ._enhancedDependencies)" > package.json
+          cat package.json | jq ".dependencies = $(cat package.json | jq ._historicalVersions)" > package.json
           cat package.json
 
       - name: Prepare
