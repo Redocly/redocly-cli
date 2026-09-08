@@ -1,5 +1,5 @@
 import { createConfig, logger, Source, type Config } from '@redocly/openapi-core';
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
@@ -307,6 +307,29 @@ describe('handleRecheck', () => {
       } as never)
     ).resolves.toBeUndefined();
     expect(existsSync(join(dir, '.recheck-baseline.yaml'))).toBe(true);
+  });
+
+  it('keeps the existing baseline when an API description does not parse', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'broken.yaml'), 'title: [t');
+    const existing = 'version: 1\nfiles: {}\n';
+    writeFileSync(join(dir, '.recheck-baseline.yaml'), existing);
+    const config = await realConfig(dir, {
+      extends: ['recheck/markdown'],
+      recheck: { baseline: './.recheck-baseline.yaml' },
+    });
+    await expect(
+      handleRecheck({
+        argv: {
+          paths: [join(dir, 'docs'), join(dir, 'broken.yaml')],
+          format: 'table',
+          'generate-baseline': true,
+        },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
+    expect(err.join('')).toContain('Baseline not written');
+    expect(readFileSync(join(dir, '.recheck-baseline.yaml'), 'utf8')).toBe(existing);
   });
 
   it('generates a Markdoc schema without resolving the recheck config', async () => {

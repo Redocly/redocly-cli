@@ -266,6 +266,13 @@ async function runAction(
     config,
     engineLogger
   );
+  // A baseline built from a partial set of descriptions would hide findings.
+  if (action === 'baseline' && failureCount > 0) {
+    engineLogger.error(
+      `Baseline not written: the run could not read ${failureCount} API description(s).`
+    );
+    return 1;
+  }
   const isIgnored = ignoredBy(config, resolved.rules);
   const exitCode =
     action === 'baseline'

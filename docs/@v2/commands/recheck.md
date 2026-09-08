@@ -133,6 +133,7 @@ recheck:
 ```
 
 After you fix errors, generate the baseline again and commit the smaller file.
+When an API description does not parse, the command writes no baseline and fails.
 
 ### Lint API descriptions
 
