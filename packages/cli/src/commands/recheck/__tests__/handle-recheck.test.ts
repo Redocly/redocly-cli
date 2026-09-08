@@ -1,11 +1,11 @@
-import { createConfig, logger, type Config } from '@redocly/openapi-core';
+import { createConfig, logger, Source, type Config } from '@redocly/openapi-core';
 import { existsSync, mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { AbortFlowError } from '../../../utils/error.js';
-import { handleRecheck } from '../index.js';
+import { handleRecheck, toEmbeddedInputs } from '../index.js';
 
 function fakeConfig(
   recheck: unknown,
@@ -124,24 +124,27 @@ describe('handleRecheck', () => {
     const dir = fixture();
     writeFileSync(join(dir, 'broken.yaml'), 'title: [t');
     const config = await realConfig(dir, { extends: ['recheck/markdown'] });
-    await handleRecheck({
-      argv: { paths: [join(dir, 'broken.yaml')], format: 'json' },
-      config,
-    } as never);
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'broken.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
     expect(err.join('')).toContain('Could not read API description');
     const report = JSON.parse(out.join(''));
     expect(report.issues).toHaveLength(0);
-    expect(process.exitCode).toBe(1);
   });
 
   it('lints a valid yaml file that is not an API description as a page', async () => {
     const dir = fixture();
     writeFileSync(join(dir, 'notes.yaml'), 'foo: bar\n');
     const config = await realConfig(dir, { extends: ['recheck/markdown'] });
-    await handleRecheck({
-      argv: { paths: [join(dir, 'notes.yaml')], format: 'json' },
-      config,
-    } as never);
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'notes.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
     expect(() => JSON.parse(out.join(''))).not.toThrow();
     expect(err.join('')).not.toContain('Could not read API description');
   });
@@ -206,7 +209,9 @@ describe('handleRecheck', () => {
     const cwd = process.cwd();
     process.chdir(dir);
     try {
-      await handleRecheck({ argv: { format: 'json' }, config } as never);
+      await expect(handleRecheck({ argv: { format: 'json' }, config } as never)).rejects.toThrow(
+        AbortFlowError
+      );
     } finally {
       process.chdir(cwd);
     }
@@ -224,13 +229,14 @@ describe('handleRecheck', () => {
       'openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\npaths: {}\n'
     );
     const config = await realConfig(dir, { extends: ['recheck/markdown'] });
-    await handleRecheck({
-      argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
-      config,
-    } as never);
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).resolves.toBeUndefined();
     const report = JSON.parse(out.join(''));
     expect(report.summary.totalIssues).toBe(0);
-    expect(process.exitCode ?? 0).toBe(0);
     expect(err.join('')).toContain('Running recheck on: nothing to check');
   });
 
@@ -241,13 +247,14 @@ describe('handleRecheck', () => {
     config.ignore[join(dir, 'openapi.yaml')] = {
       'line-length': new Set(['#/info/description']),
     };
-    await handleRecheck({
-      argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
-      config,
-    } as never);
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).resolves.toBeUndefined();
     const report = JSON.parse(out.join(''));
     expect(report.issues).toHaveLength(0);
-    expect(process.exitCode ?? 0).toBe(0);
   });
 
   it('skips API descriptions for readability with one notice', async () => {
@@ -344,5 +351,26 @@ describe('handleRecheck', () => {
       '--output-path applies to --format json and sarif; the report goes to stdout.'
     );
     expect(existsSync(outputPath)).toBe(false);
+  });
+});
+
+describe('toEmbeddedInputs', () => {
+  it('skips a description reached through a remote $ref and counts it', () => {
+    const remote = {
+      source: new Source('https://example.com/schemas.yaml', 'description: text\n'),
+      pointer: '#/description',
+      text: 'text',
+    };
+    const local = {
+      source: new Source(join(tmpdir(), 'schemas.yaml'), 'description: text\n'),
+      pointer: '#/description',
+      text: 'text',
+    };
+
+    const { inputs, remoteSkipped } = toEmbeddedInputs([remote, local]);
+
+    expect(inputs).toHaveLength(1);
+    expect(remoteSkipped).toBe(1);
+    expect(inputs[0].file).toBe(local.source.absoluteRef);
   });
 });
