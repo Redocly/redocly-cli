@@ -1,5 +1,5 @@
 ---
-'@redocly/cli': patch
+'@redocly/cli': minor
 ---
 
 Added agent skills for AI coding assistants: `redocly-cli` for everyday CLI usage, `redocly-lint-rules` for writing configurable rules and custom plugins.
