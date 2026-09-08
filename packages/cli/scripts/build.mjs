@@ -122,24 +122,22 @@ function emitDeclarations(sourcePaths) {
   for (const sourcePath of sourcePaths) {
     const { diagnostics } = program.emit(
       program.getSourceFile(path.join(packageDir, sourcePath)),
-      writeDeclaration
+      (outputPath, text) => {
+        const packageImport = text.match(/from ['"](?!\.)([^'"]+)['"]/);
+        if (packageImport) {
+          throw new Error(
+            `${outputPath} imports '${packageImport[1]}' — the published package ships no dependencies, so a public type cannot come from one`
+          );
+        }
+
+        ts.sys.writeFile(outputPath, text);
+      }
     );
 
     if (diagnostics.length) {
       throw new Error(ts.formatDiagnostics(diagnostics, ts.createCompilerHost({})));
     }
   }
-}
-
-function writeDeclaration(outputPath, text) {
-  const packageImport = text.match(/from ['"](?!\.)([^'"]+)['"]/);
-  if (packageImport) {
-    throw new Error(
-      `${outputPath} imports '${packageImport[1]}' — the published package ships no dependencies, so a public type cannot come from one`
-    );
-  }
-
-  ts.sys.writeFile(outputPath, text);
 }
 
 function findLicenseText(pkgRoot) {
