@@ -15,10 +15,6 @@ const withRecheck = outdent`
     baseline: ./recheck-baseline.yaml
 `;
 
-async function load(yaml: string) {
-  return createConfig(yaml);
-}
-
 describe('recheck namespace in extends', () => {
   it('recognizes the prefix', () => {
     expect(isRecheckPreset('recheck/markdown')).toBe(true);
@@ -27,14 +23,14 @@ describe('recheck namespace in extends', () => {
   });
 
   it('sets recheck/* entries aside and still resolves API presets', async () => {
-    const config = await load(withRecheck);
+    const config = await createConfig(withRecheck);
     expect(config.resolvedConfig.recheckExtends).toEqual(['recheck/markdown']);
     // `recommended` still applied: a rule it enables is present.
     expect(config.resolvedConfig.rules?.['no-unresolved-refs']).toBeDefined();
   });
 
   it('carries the raw recheck block through', async () => {
-    const config = await load(withRecheck);
+    const config = await createConfig(withRecheck);
     expect(config.resolvedConfig.recheck).toEqual({
       rules: { 'recheck/line-length': 'off' },
       baseline: './recheck-baseline.yaml',
@@ -42,11 +38,11 @@ describe('recheck namespace in extends', () => {
   });
 
   it('check-config accepts the block and rejects extends inside it', async () => {
-    const accepted = await load(withRecheck);
+    const accepted = await createConfig(withRecheck);
     const okProblems = await lintConfig({ config: accepted });
     expect(okProblems).toEqual([]);
 
-    const rejected = await load(outdent`
+    const rejected = await createConfig(outdent`
       recheck:
         extends: [recheck/markdown]
     `);

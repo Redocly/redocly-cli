@@ -1,4 +1,4 @@
-import { detectSpec, parseYaml } from '@redocly/openapi-core';
+import { detectSpec, logger, parseYaml } from '@redocly/openapi-core';
 import {
   generateBaseline,
   generateMarkdocSchema,
@@ -6,6 +6,7 @@ import {
   runLint,
   runReadability,
   type LintOptions,
+  type Logger,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { readFileSync, statSync } from 'node:fs';
@@ -13,7 +14,6 @@ import { dirname, extname } from 'node:path';
 
 import type { CommandArgs } from '../../wrapper.js';
 import { selectAction, type RecheckAction, type RecheckArgv } from './args.js';
-import { createCliLogger } from './cli-logger.js';
 
 const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
@@ -37,19 +37,22 @@ function lintOptions(argv: RecheckArgv): LintOptions {
     severity: argv.severity,
     tags: argv.tags,
     rules: argv.rule,
-    excludeRules: argv['exclude-rule'],
+    excludeRules: argv['skip-rule'],
     stats: argv.stats,
     fix: argv.fix,
-    annotationsLimit: argv['annotations-limit'],
+    annotationsLimit: argv['max-problems'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
-    changedOnly: argv['changed-only'],
-    changedListPath: argv['changed-list'],
   };
 }
 
 export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>): Promise<void> {
-  const engineLogger = createCliLogger();
+  const engineLogger: Logger = {
+    log: (line) => void logger.info(`${line}\n`),
+    warn: (line) => void logger.warn(`${line}\n`),
+    error: (line) => void logger.error(`${line}\n`),
+    output: (line) => void logger.output(`${line}\n`),
+  };
   const selected = selectAction(argv);
   if ('error' in selected) {
     engineLogger.error(selected.error);
@@ -69,7 +72,13 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   const block = config.resolvedConfig.recheck;
   let presets = config.resolvedConfig.recheckExtends ?? [];
   if (block == null && presets.length === 0) {
-    engineLogger.log(`No recheck configuration found; using ${DEFAULT_PRESET}.`);
+    if (config.configPath) {
+      engineLogger.log(
+        'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.'
+      );
+      return;
+    }
+    engineLogger.log(`No redocly.yaml found; using ${DEFAULT_PRESET}.`);
     presets = [DEFAULT_PRESET];
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
@@ -102,7 +111,7 @@ async function runAction(
   action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
   resolved: ResolvedRecheckConfig,
-  engineLogger: ReturnType<typeof createCliLogger>
+  engineLogger: Logger
 ): Promise<number> {
   const requested = argv.paths && argv.paths.length > 0 ? argv.paths : ['.'];
   const roots: string[] = [];
@@ -122,8 +131,6 @@ async function runAction(
       {
         format: argv.format === 'json' ? 'json' : 'table',
         outputPath: argv['output-path'],
-        changedOnly: argv['changed-only'],
-        changedListPath: argv['changed-list'],
       },
       engineLogger
     );
