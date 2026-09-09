@@ -8,13 +8,9 @@ const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '.
 
 rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
-const result = await build({
+const sharedOptions = {
   absWorkingDir: packageDir,
-  entryPoints: ['src/index.ts', 'src/api.ts'],
-  outdir: 'lib',
-  chunkNames: 'chunks/[hash]',
   bundle: true,
-  splitting: true,
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
@@ -36,19 +32,41 @@ const result = await build({
     ].join('\n'),
   },
   logLevel: 'info',
+};
+
+const cliBuild = await build({
+  ...sharedOptions,
+  entryPoints: ['src/index.ts'],
+  outdir: 'lib',
+  chunkNames: 'chunks/[hash]',
+  splitting: true,
 });
 
-const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
-if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
-  throw new Error(
-    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
-  );
+// The `@redocly/cli/api` entry is bundled on its own. Sharing chunks with the CLI splits
+// its startup graph into more files, which costs a few milliseconds on every command.
+const apiBuild = await build({
+  ...sharedOptions,
+  entryPoints: ['src/api.ts'],
+  outfile: 'lib/api.js',
+  splitting: false,
+});
+
+for (const [entryPath, metafile] of [
+  ['lib/index.js', cliBuild.metafile],
+  ['lib/api.js', apiBuild.metafile],
+]) {
+  const entryInputs = Object.keys(metafile.outputs[entryPath]?.inputs ?? {});
+  if (entryInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
+    throw new Error(
+      `redoc leaked into ${entryPath} — check for stray static imports in build-docs commands`
+    );
+  }
 }
 
 emitDeclarations(['src/api.ts', 'src/reunite/api/types.ts']);
 
-const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
-  Object.keys(chunk.inputs)
+const allInputs = [cliBuild, apiBuild].flatMap((buildResult) =>
+  Object.values(buildResult.metafile.outputs).flatMap((chunk) => Object.keys(chunk.inputs))
 );
 
 const seenPkgRoots = new Set();
