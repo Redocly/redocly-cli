@@ -1,5 +1,5 @@
 import { trace } from '@opentelemetry/api';
-import { Resource as OtelResource } from '@opentelemetry/resources';
+import { resourceFromAttributes } from '@opentelemetry/resources';
 import { NodeTracerProvider, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
@@ -17,21 +17,20 @@ const OTEL_TRACES_URL = process.env.OTEL_TRACES_URL || 'https://otel.cloud.redoc
 export class OtelServerTelemetry {
   init() {
     const nodeTracerProvider = new NodeTracerProvider({
-      resource: new OtelResource({
+      resource: resourceFromAttributes({
         [ATTR_SERVICE_NAME]: `redocly-cli`,
         [ATTR_SERVICE_VERSION]: `@redocly/cli@${version}`,
       }),
+      spanProcessors: [
+        new SimpleSpanProcessor(
+          new OTLPTraceExporter({
+            url: OTEL_TRACES_URL,
+            headers: {},
+            timeoutMillis: DEFAULT_FETCH_TIMEOUT,
+          })
+        ),
+      ],
     });
-
-    nodeTracerProvider.addSpanProcessor(
-      new SimpleSpanProcessor(
-        new OTLPTraceExporter({
-          url: OTEL_TRACES_URL,
-          headers: {},
-          timeoutMillis: DEFAULT_FETCH_TIMEOUT,
-        })
-      )
-    );
 
     nodeTracerProvider.register();
   }
