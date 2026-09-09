@@ -1161,17 +1161,23 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'introspect-mcp <server-url>',
+    'introspect-mcp [server-url]',
     'Introspect a running MCP server and record its capabilities in the x-mcp extension of an OpenAPI description [experimental].',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_INTROSPECT_MCP')
         .positional('server-url', {
-          describe: 'URL of the MCP server (Streamable HTTP endpoint).',
+          describe:
+            'URL of the MCP server (Streamable HTTP, with a fallback to the legacy HTTP+SSE transport). Alternative to --command.',
           type: 'string',
-          demandOption: true,
         })
         .option({
+          command: {
+            describe:
+              'Command that starts a local MCP server to introspect over stdio, for example "npx -y my-mcp-server". Alternative to a server URL.',
+            type: 'string',
+            requiresArg: true,
+          },
           output: {
             alias: 'o',
             describe: 'OpenAPI description file to create or update.',
@@ -1185,7 +1191,22 @@ yargs(hideBin(process.argv))
             array: true,
             type: 'string',
           },
+          check: {
+            describe:
+              'Verify the description is up to date with the MCP server instead of writing: report the differences and exit with an error when it is not.',
+            type: 'boolean',
+            default: false,
+          },
           config: { describe: 'Path to the config file.', type: 'string' },
+        })
+        .check((argv) => {
+          if (Boolean(argv['server-url']) === Boolean(argv.command)) {
+            throw new Error('Provide either an MCP server URL or --command, not both.');
+          }
+          if (argv.command && argv.header) {
+            throw new Error('The --header option only applies to an MCP server URL.');
+          }
+          return true;
         }),
     async (argv) => {
       const { handleIntrospectMcp } = await import('./commands/introspect-mcp/index.js');

@@ -2,15 +2,18 @@ import { isPlainObject, logger, parseYaml, stringifyYaml } from '@redocly/openap
 import { blue, gray, yellow } from 'colorette';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
-import { exitWithError } from '../../utils/error.js';
+import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { type CommandArgs } from '../../wrapper.js';
-import { introspectMcpServer } from './introspect.js';
+import { describeXMcpChanges } from './check.js';
+import { introspectMcpServer, type McpTarget } from './introspect.js';
 import { updateDescription } from './update-description.js';
 
 export type IntrospectMcpCommandArgv = {
-  'server-url': string;
+  'server-url'?: string;
+  command?: string;
   output: string;
   header?: string[];
+  check: boolean;
   config?: string;
 };
 
@@ -31,21 +34,38 @@ function parseHeaders(rawHeaders: string[] = []): Record<string, string> {
   return headers;
 }
 
+function resolveTarget(argv: IntrospectMcpCommandArgv): McpTarget {
+  if (argv.command) {
+    const [command, ...args] = argv.command.trim().split(/\s+/);
+    if (!command) {
+      exitWithError('The --command option cannot be empty.');
+    }
+    return { kind: 'stdio', command, args };
+  }
+  let url: URL;
+  try {
+    url = new URL(argv['server-url'] ?? '');
+  } catch {
+    exitWithError(`Invalid MCP server URL: ${argv['server-url']}.`);
+  }
+  return { kind: 'http', url, headers: parseHeaders(argv.header) };
+}
+
 export async function handleIntrospectMcp({
   argv,
   version,
 }: CommandArgs<IntrospectMcpCommandArgv>) {
-  let serverUrl: URL;
-  try {
-    serverUrl = new URL(argv['server-url']);
-  } catch {
-    exitWithError(`Invalid MCP server URL: ${argv['server-url']}.`);
-  }
-  const headers = parseHeaders(argv.header);
+  const target = resolveTarget(argv);
   const outputFile = argv.output;
 
-  logger.info(gray(`\n  Connecting to the MCP server at ${serverUrl.href}... \n`));
-  const snapshot = await introspectMcpServer({ serverUrl, headers, version });
+  logger.info(
+    gray(
+      `\n  Connecting to the MCP server at ${
+        target.kind === 'http' ? target.url.href : argv.command
+      }... \n`
+    )
+  );
+  const snapshot = await introspectMcpServer(target, version);
 
   const isNewDocument = !existsSync(outputFile);
   let existingDocument: Record<string, unknown> | undefined;
@@ -64,7 +84,33 @@ export async function handleIntrospectMcp({
     existingDocument = document;
   }
 
-  const openapiDocument = updateDescription(existingDocument, snapshot, argv['server-url']);
+  const serverUrl = target.kind === 'http' ? argv['server-url'] : undefined;
+
+  if (argv.check) {
+    if (!existingDocument) {
+      exitWithError(
+        `Cannot check ${outputFile} - the file does not exist. Run the command without --check to create it.`
+      );
+    }
+    const updatedDocument = updateDescription(
+      structuredClone(existingDocument),
+      snapshot,
+      serverUrl
+    );
+    const changes = describeXMcpChanges(existingDocument, updatedDocument);
+    if (changes.length === 0) {
+      logger.info('\n' + blue(`${yellow(outputFile)} is up to date with the MCP server.`) + '\n');
+      return;
+    }
+    logger.error(`\n${outputFile} is out of date with the MCP server:\n`);
+    for (const change of changes) {
+      logger.error(`  - ${change}\n`);
+    }
+    logger.error('\nRun the command without --check to update it.\n');
+    throw new AbortFlowError();
+  }
+
+  const openapiDocument = updateDescription(existingDocument, snapshot, serverUrl);
 
   const content = outputFile.endsWith('.json')
     ? JSON.stringify(openapiDocument, null, 2) + '\n'

@@ -3,7 +3,7 @@ import { isPlainObject } from '@redocly/openapi-core';
 
 import type { McpServerSnapshot } from './introspect.js';
 
-function entriesByName(entries: unknown): Map<unknown, Record<string, unknown>> {
+export function entriesByName(entries: unknown): Map<unknown, Record<string, unknown>> {
   const byName = new Map<unknown, Record<string, unknown>>();
   for (const entry of Array.isArray(entries) ? entries : []) {
     if (isPlainObject(entry)) {
@@ -58,7 +58,7 @@ function mergePrompts(freshPrompts: Prompt[], existingPrompts: unknown) {
 export function updateDescription(
   existingDocument: Record<string, unknown> | undefined,
   snapshot: McpServerSnapshot,
-  serverUrl: string
+  serverUrl: string | undefined
 ): Record<string, unknown> {
   const document: Record<string, unknown> = existingDocument ?? {
     openapi: '3.1.0',
@@ -70,11 +70,14 @@ export function updateDescription(
     paths: {},
   };
 
-  const servers = Array.isArray(document.servers) ? document.servers : [];
-  if (!servers.some((server) => isPlainObject(server) && server.url === serverUrl)) {
-    servers.push({ url: serverUrl });
+  // A stdio server has no URL to record, so `servers` stays untouched.
+  if (serverUrl) {
+    const servers = Array.isArray(document.servers) ? document.servers : [];
+    if (!servers.some((server) => isPlainObject(server) && server.url === serverUrl)) {
+      servers.push({ url: serverUrl });
+    }
+    document.servers = servers;
   }
-  document.servers = servers;
 
   const existingXMcp: Record<string, unknown> = isPlainObject(document['x-mcp'])
     ? document['x-mcp']
