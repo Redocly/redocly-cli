@@ -4,7 +4,7 @@
 
 The `recheck` command lints Markdown files for prose and structure problems.
 It checks headings, sentences, links, images, and Markdoc tags against a set of rules.
-It also lints the `description` fields of API descriptions.
+`recheck` also lints the `description` fields of API descriptions.
 Each finding reports the file, line, and column of the description in the source.
 
 Rules come from presets, such as `recheck/markdown`, that you add to the root `extends` in `redocly.yaml`.
