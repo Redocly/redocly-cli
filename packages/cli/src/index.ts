@@ -34,6 +34,7 @@ import {
 } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
+import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
@@ -1157,6 +1158,38 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handleGenerateSpec } = await import('./commands/generate-spec/index.js');
       commandWrapper(handleGenerateSpec)(argv as Arguments<GenerateSpecArgv>);
+    }
+  )
+  .command(
+    'introspect-mcp <server-url>',
+    'Introspect a running MCP server and record its capabilities in the x-mcp extension of an OpenAPI description [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_INTROSPECT_MCP')
+        .positional('server-url', {
+          describe: 'URL of the MCP server (Streamable HTTP endpoint).',
+          type: 'string',
+          demandOption: true,
+        })
+        .option({
+          output: {
+            alias: 'o',
+            describe: 'OpenAPI description file to create or update.',
+            type: 'string',
+            default: 'openapi.yaml',
+          },
+          header: {
+            alias: 'H',
+            describe:
+              'Header sent with every request to the MCP server, in "Name: value" format. Repeat the option for multiple headers.',
+            array: true,
+            type: 'string',
+          },
+          config: { describe: 'Path to the config file.', type: 'string' },
+        }),
+    async (argv) => {
+      const { handleIntrospectMcp } = await import('./commands/introspect-mcp/index.js');
+      commandWrapper(handleIntrospectMcp)(argv as Arguments<IntrospectMcpCommandArgv>);
     }
   )
   .command(

@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, push to Reunite, or find the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -29,6 +29,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | -------------------- | ------------------------------------------------------------------------------------- | --------------------- |
 | `lint`               | Validate an API description against the configured rules                              | API authoring         |
 | `split`              | Break a single-file description into a multi-file structure                           | API authoring         |
+| `introspect-mcp`     | Record a live MCP server's tools, prompts, and resources in `x-mcp` [experimental]    | API authoring         |
 | `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                      | Docs rendering        |
 | `preview`            | Local preview of a Redocly project (Realm, Reef, Revel)                               | Docs rendering        |
 | `bundle`             | Resolve all `$ref`s into a single self-contained file and apply decorators            | CI and delivery       |

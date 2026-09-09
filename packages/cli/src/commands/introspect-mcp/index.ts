@@ -1,0 +1,87 @@
+import { isPlainObject, logger, parseYaml, stringifyYaml } from '@redocly/openapi-core';
+import { blue, gray, yellow } from 'colorette';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+
+import { exitWithError } from '../../utils/error.js';
+import { type CommandArgs } from '../../wrapper.js';
+import { introspectMcpServer } from './introspect.js';
+import { updateDescription } from './update-description.js';
+
+export type IntrospectMcpCommandArgv = {
+  'server-url': string;
+  output: string;
+  header?: string[];
+  config?: string;
+};
+
+function parseHeaders(rawHeaders: string[] = []): Record<string, string> {
+  const headers: Record<string, string> = {};
+  for (const rawHeader of rawHeaders) {
+    const separatorIndex = rawHeader.indexOf(':');
+    if (separatorIndex === -1) {
+      exitWithError(`Invalid header "${rawHeader}". Use the "Name: value" format.`);
+    }
+    const name = rawHeader.slice(0, separatorIndex).trim();
+    const value = rawHeader.slice(separatorIndex + 1).trim();
+    if (!name || !value) {
+      exitWithError(`Invalid header "${rawHeader}". Use the "Name: value" format.`);
+    }
+    headers[name] = value;
+  }
+  return headers;
+}
+
+export async function handleIntrospectMcp({
+  argv,
+  version,
+}: CommandArgs<IntrospectMcpCommandArgv>) {
+  let serverUrl: URL;
+  try {
+    serverUrl = new URL(argv['server-url']);
+  } catch {
+    exitWithError(`Invalid MCP server URL: ${argv['server-url']}.`);
+  }
+  const headers = parseHeaders(argv.header);
+  const outputFile = argv.output;
+
+  logger.info(gray(`\n  Connecting to the MCP server at ${serverUrl.href}... \n`));
+  const snapshot = await introspectMcpServer({ serverUrl, headers, version });
+
+  const isNewDocument = !existsSync(outputFile);
+  let existingDocument: Record<string, unknown> | undefined;
+  if (!isNewDocument) {
+    let document: unknown;
+    try {
+      document = parseYaml(readFileSync(outputFile, 'utf-8'));
+    } catch (error) {
+      exitWithError(
+        `Failed to parse ${outputFile}: ${error instanceof Error ? error.message : String(error)}`
+      );
+    }
+    if (!isPlainObject(document)) {
+      exitWithError(`Expected ${outputFile} to contain an OpenAPI description object.`);
+    }
+    existingDocument = document;
+  }
+
+  const openapiDocument = updateDescription(existingDocument, snapshot, argv['server-url']);
+
+  const content = outputFile.endsWith('.json')
+    ? JSON.stringify(openapiDocument, null, 2) + '\n'
+    : stringifyYaml(openapiDocument);
+  writeFileSync(outputFile, content);
+
+  logger.info(
+    `Recorded ${snapshot.tools.length} tool(s), ${snapshot.prompts.length} prompt(s), and ${snapshot.resources.length} resource(s).\n`
+  );
+  logger.info(
+    '\n' +
+      blue(
+        `${isNewDocument ? 'Created' : 'Updated'} ${yellow(outputFile)} with the MCP server capabilities in the x-mcp extension.`
+      ) +
+      '\n'
+  );
+  if (isNewDocument) {
+    logger.warn(`The info section of ${outputFile} is scaffolded - review and complete it.\n`);
+  }
+}
