@@ -11,6 +11,7 @@ import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 vi.mock('redoc', () => ({
   convertSwagger2OpenAPI: vi.fn(async (spec: Record<string, unknown>) => spec),
   prepareApiDocs: vi.fn(async () => ({ items: [], store: {}, options: {} })),
+  logoFromDefinition: vi.fn(),
   RedoclyApiDocsStandalone: () => null,
   ServerStyleSheet: class {
     collectStyles(app: unknown) {

@@ -6,7 +6,12 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
+import {
+  logoFromDefinition,
+  prepareApiDocs,
+  RedoclyApiDocsStandalone,
+  ServerStyleSheet,
+} from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions } from './types.js';
@@ -91,6 +96,7 @@ export async function getPageHTML(
     store: prepared.store,
     basePath: '/',
     options: prepared.options,
+    logo: logoFromDefinition(prepared.document),
     telemetryConfig: { typeOfUsage: 'cli', disabled: !telemetry },
     definition: prepared.document,
   });
