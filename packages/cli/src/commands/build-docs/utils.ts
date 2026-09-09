@@ -116,7 +116,7 @@ export async function getPageHTML(
 
   return template({
     redocHTML: `
-      <div id="redoc">${html}</div>
+      <div id="redoc" style="--navbar-height:0px">${html}</div>
       <script type="module">
       ${redocScript}
 
