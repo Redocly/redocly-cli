@@ -9,7 +9,7 @@ import {
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { convertSwagger2OpenAPI } from 'redoc/bundle/redoc.server.js';
+import { convertSwagger2OpenAPI } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';

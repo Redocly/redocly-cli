@@ -4,8 +4,9 @@ import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { createStandaloneServerApp, ServerStyleSheet } from 'redoc/bundle/redoc.server.js';
+import { prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions } from './types.js';
@@ -84,11 +85,14 @@ export async function getPageHTML(
   logger.info('Prerendering docs\n');
 
   const pageOptions = { ...redocOptions, skipBundle: true, specType };
-  const app = await createStandaloneServerApp({
-    definition,
-    specType,
-    options: pageOptions,
+  const prepared = await prepareApiDocs({ definition, specType, options: pageOptions });
+  const app = createElement(RedoclyApiDocsStandalone, {
+    items: prepared.items,
+    store: prepared.store,
+    basePath: '/',
+    options: prepared.options,
     telemetryConfig: { typeOfUsage: 'cli', disabled: !telemetry },
+    definition: prepared.document,
   });
   const sheet = new ServerStyleSheet();
   const html = renderToString(sheet.collectStyles(app));

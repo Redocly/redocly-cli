@@ -1,16 +1,17 @@
 import { bundle, createConfig } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
-import { createStandaloneServerApp } from 'redoc/bundle/redoc.server.js';
+import { prepareApiDocs } from 'redoc';
 
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
 import { getPageHTML } from '../../commands/build-docs/utils.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
-vi.mock('redoc/bundle/redoc.server.js', () => ({
+vi.mock('redoc', () => ({
   convertSwagger2OpenAPI: vi.fn(async (spec: Record<string, unknown>) => spec),
-  createStandaloneServerApp: vi.fn(async () => 'app'),
+  prepareApiDocs: vi.fn(async () => ({ items: [], store: {}, options: {} })),
+  RedoclyApiDocsStandalone: () => null,
   ServerStyleSheet: class {
     collectStyles(app: unknown) {
       return app;
@@ -68,7 +69,7 @@ describe('build-docs', () => {
       }
     );
     expect(renderToString).toHaveBeenCalledTimes(1);
-    expect(createStandaloneServerApp).toHaveBeenCalledTimes(1);
+    expect(prepareApiDocs).toHaveBeenCalledTimes(1);
     expect(result).toBe('<html></html>');
   });
 
@@ -111,7 +112,7 @@ describe('build-docs', () => {
       version: 'cli-version',
     });
     expect(bundle).not.toHaveBeenCalled();
-    expect(createStandaloneServerApp).toHaveBeenCalledWith(
+    expect(prepareApiDocs).toHaveBeenCalledWith(
       expect.objectContaining({ definition: schema, specType: 'graphql' })
     );
     expect(processExitMock).toBeCalledTimes(0);
