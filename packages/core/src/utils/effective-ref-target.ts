@@ -3,6 +3,7 @@ import { type ResolvedRefChainHop } from '../resolve.js';
 
 export type RefTarget = { node: unknown; location: Location };
 
+// a composed $ref in the chain is the effective target, so the composition survives bundling
 export function effectiveRefTarget(resolved: {
   node: unknown;
   location: Location;

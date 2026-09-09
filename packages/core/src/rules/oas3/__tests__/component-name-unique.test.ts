@@ -1678,6 +1678,62 @@ describe('Oas3 component-name-unique', () => {
       `);
     });
 
+    it('should use the schemas severity for a missing title report', async () => {
+      const document = parseYamlToDocument(
+        outdent`
+          openapi: 3.0.0
+          paths:
+            /carts:
+              get:
+                responses:
+                  '200':
+                    description: ok
+                    content:
+                      application/json:
+                        schema:
+                          $ref: '/Cart.yaml'
+        `,
+        '/foobar.yaml'
+      );
+      const additionalDocuments = [
+        {
+          absoluteRef: '/Cart.yaml',
+          body: outdent`
+            type: object
+            properties:
+              total:
+                type: number
+          `,
+        },
+      ];
+
+      const results = await lintDocumentForTest(
+        { 'component-name-unique': { severity: 'error', schemas: 'warn', strategy: 'title' } },
+        document,
+        additionalDocuments
+      );
+
+      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+        [
+          {
+            "forceSeverity": "warn",
+            "location": [
+              {
+                "pointer": "#/",
+                "reportOnKey": false,
+                "source": "/Cart.yaml",
+              },
+            ],
+            "message": "Schema must define a \`title\` when using \`strategy: title\`. Bundling fails without it.",
+            "reference": "https://redocly.com/docs/cli/rules/oas/component-name-unique",
+            "ruleId": "component-name-unique",
+            "severity": "warn",
+            "suggest": [],
+          },
+        ]
+      `);
+    });
+
     it('should fall back to the filename when a schema has no title', async () => {
       const document = parseYamlToDocument(
         outdent`
