@@ -46,6 +46,7 @@ We hope the list here inspires you to share more of your own!
 - [`DELETE` SHOULD NOT define `requestBody` schema](./configurable-rules/operation-delete-should-not-define-requestBody/)
 - [Info section must have a description](./configurable-rules/info-description/)
 - [No `<script>` tags in descriptions](./configurable-rules/no-script/)
+- [No `properties` and `additionalProperties` in one schema](./configurable-rules/no-properties-and-additionalProperties/)
 - [Paths should not match a pattern](./configurable-rules/path-excludes-pattern/)
 - [API health check rules](./configurable-rules/api-health/) - check the `/health` endpoint, its media type, and its `status` property.
 - [String schemas length defined](./configurable-rules/string-schemas-length-defined/) - require `minLength` and `maxLength` on string schemas.
