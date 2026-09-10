@@ -1,5 +1,7 @@
 import type { VerifyConfigOptions } from '../../types.js';
 
+export type SpecType = 'openapi' | 'asyncapi' | 'graphql';
+
 export type BuildDocsOptions = {
   output: string;
   title?: string;
@@ -8,9 +10,9 @@ export type BuildDocsOptions = {
   templateOptions?: Record<string, unknown>;
   redocOptions?: any;
   redocVersion: string;
-  telemetry?: boolean;
+  disableTelemetry?: boolean;
   inlineBundle?: boolean;
-  specType?: 'openapi' | 'asyncapi' | 'graphql';
+  specType: SpecType;
 };
 
 export type BuildDocsArgv = {
@@ -24,6 +26,8 @@ export type BuildDocsArgv = {
     openapi: string | Record<string, unknown>;
   };
   openapi?: string | Record<string, unknown>;
-  telemetry: boolean;
+  asyncapi?: string | Record<string, unknown>;
+  graphql?: string | Record<string, unknown>;
+  disableTelemetry?: boolean;
   inlineBundle: boolean;
 } & VerifyConfigOptions;

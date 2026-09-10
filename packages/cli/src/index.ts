@@ -659,15 +659,20 @@ yargs(hideBin(process.argv))
           openapi: {
             describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
           },
+          asyncapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+          },
+          graphql: {
+            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+          },
           theme: {
             describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.disableSearch',
+              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.hideDownloadButtons',
             deprecated: 'use --openapi instead',
           },
-          telemetry: {
-            describe: 'Enable Redoc telemetry in the generated page.',
+          disableTelemetry: {
+            describe: 'Disable Redoc telemetry in the generated page. The default value is true.',
             type: 'boolean',
-            default: false,
           },
           inlineBundle: {
             describe:

@@ -14,7 +14,7 @@ import {
 } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
-import type { BuildDocsOptions } from './types.js';
+import type { BuildDocsOptions, SpecType } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 <html>
@@ -41,30 +41,34 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 `;
 
 export function getObjectOrJSON(
-  openapiOptions: string | Record<string, unknown> | undefined,
-  config: Config
-): JSON | Record<string, unknown> | Config {
-  switch (typeof openapiOptions) {
+  specOptions: string | Record<string, unknown> | undefined,
+  config: Config,
+  specType: SpecType
+): Record<string, unknown> {
+  switch (typeof specOptions) {
     case 'object':
-      return openapiOptions;
+      return specOptions;
     case 'string':
       try {
-        if (existsSync(openapiOptions) && lstatSync(openapiOptions).isFile()) {
-          return JSON.parse(readFileSync(openapiOptions, 'utf-8'));
+        if (existsSync(specOptions) && lstatSync(specOptions).isFile()) {
+          return JSON.parse(readFileSync(specOptions, 'utf-8'));
         } else {
-          return JSON.parse(openapiOptions);
+          return JSON.parse(specOptions);
         }
       } catch (e) {
         logger.error(
-          `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
+          `Encountered error:\n\n${specOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
         );
         exitWithError(e);
       }
       break;
     default: {
       if (config?.configPath) {
-        logger.info(`Found ${config.configPath} and using 'openapi' options\n`);
-        return config.resolvedConfig?.openapi ?? {};
+        logger.info(`Found ${config.configPath} and using '${specType}' options\n`);
+        const specConfigs = config.resolvedConfig as Partial<
+          Record<SpecType, Record<string, unknown>>
+        >;
+        return specConfigs?.[specType] ?? {};
       }
       return {};
     }
@@ -81,7 +85,7 @@ export async function getPageHTML(
     templateOptions,
     redocOptions = {},
     redocVersion,
-    telemetry,
+    disableTelemetry,
     inlineBundle,
     specType,
   }: BuildDocsOptions,
@@ -90,14 +94,14 @@ export async function getPageHTML(
   logger.info('Prerendering docs\n');
 
   const pageOptions = { ...redocOptions, skipBundle: true, specType };
-  const prepared = await prepareApiDocs({ definition, specType, options: pageOptions });
+  const prepared = await prepareApiDocs({ spec: definition, specType, options: pageOptions });
   const app = createElement(RedoclyApiDocsStandalone, {
     items: prepared.items,
     store: prepared.store,
     basePath: '/',
     options: prepared.options,
     logo: logoFromDefinition(prepared.document),
-    telemetryConfig: { typeOfUsage: 'cli', disabled: !telemetry },
+    telemetryConfig: { typeOfUsage: 'cli', disabled: disableTelemetry },
     definition: prepared.document,
   });
   const sheet = new ServerStyleSheet();
@@ -132,7 +136,7 @@ export async function getPageHTML(
 
       const __redoc_definition = ${sanitizeJSONString(JSON.stringify(definition))};
       const __redoc_options = ${sanitizeJSONString(
-        JSON.stringify({ ...pageOptions, disableTelemetry: !telemetry })
+        JSON.stringify({ ...pageOptions, disableTelemetry })
       )};
 
       hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));

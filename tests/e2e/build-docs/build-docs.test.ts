@@ -20,6 +20,21 @@ describe('build-docs', () => {
     await expect(output).toMatchFileSnapshot(join(testPath, 'redoc-static.snapshot.html'));
   });
 
+  test('build docs for an AsyncAPI description using the asyncapi config options', async () => {
+    const testPath = join(folderPath, 'asyncapi-build-docs');
+    const args = getParams(indexEntryPoint, [
+      'build-docs',
+      'asyncapi.yaml',
+      '--config=config.yaml',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    expect(cleanupOutput(result)).toContain("using 'asyncapi' options");
+
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    expect(output).toContain('"jsonSamplesDepth":4');
+    expect(output).not.toContain('hideDownloadButtons');
+  });
+
   test('build docs for a GraphQL schema', async () => {
     const testPath = join(folderPath, 'graphql-build-docs');
     const args = getParams(indexEntryPoint, ['build-docs', 'schema.graphql']);
@@ -77,13 +92,13 @@ describe('build-docs', () => {
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  describe('build docs with disableSearch', () => {
+  describe('build docs with openapi options', () => {
     test('build docs using an argv option', async () => {
-      const testPath = join(folderPath, 'build-docs-with-disabled-search');
+      const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
         'build-docs',
         'openapi.yaml',
-        '--openapi.disableSearch',
+        '--openapi.hideDownloadButtons',
       ]);
 
       const result = getCommandOutput(args, { testPath });
@@ -99,7 +114,7 @@ describe('build-docs', () => {
     });
 
     test('build docs using a config', async () => {
-      const testPath = join(folderPath, 'build-docs-with-disabled-search');
+      const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
         'build-docs',
         'openapi.yaml',
@@ -120,7 +135,7 @@ describe('build-docs', () => {
     });
 
     test('build docs using an alias', async () => {
-      const testPath = join(folderPath, 'build-docs-with-disabled-search');
+      const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
         'build-docs',
         'alias',
@@ -140,7 +155,7 @@ describe('build-docs', () => {
     });
 
     test('build docs using the file name (should use the alias config options)', async () => {
-      const testPath = join(folderPath, 'build-docs-with-disabled-search');
+      const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
         'build-docs',
         'openapi.yaml',
@@ -160,7 +175,7 @@ describe('build-docs', () => {
     });
 
     test('build docs using a config with apis and a root option', async () => {
-      const testPath = join(folderPath, 'build-docs-with-disabled-search');
+      const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
         'build-docs',
         'openapi.yaml',

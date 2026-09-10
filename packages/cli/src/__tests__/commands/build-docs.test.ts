@@ -48,8 +48,9 @@ const config = {
   templateFileName: '',
   templateOptions: {},
   redocOptions: {},
-  telemetry: false,
+  disableTelemetry: true,
   inlineBundle: false,
+  specType: 'openapi' as const,
 };
 
 describe('build-docs', () => {
@@ -84,7 +85,6 @@ describe('build-docs', () => {
         template: '',
         templateOptions: {},
         theme: { openapi: {} },
-        telemetry: false,
         inlineBundle: false,
         api: '../some-path/openapi.yaml',
       } as BuildDocsArgv,
@@ -105,7 +105,6 @@ describe('build-docs', () => {
         o: '',
         template: '',
         templateOptions: {},
-        telemetry: false,
         inlineBundle: false,
         api: '../some-path/schema.graphql',
       } as BuildDocsArgv,

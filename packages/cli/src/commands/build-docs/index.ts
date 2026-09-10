@@ -15,7 +15,7 @@ import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
-import type { BuildDocsArgv, BuildDocsOptions } from './types.js';
+import type { BuildDocsArgv, SpecType } from './types.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
 
 export const handlerBuildCommand = async ({
@@ -32,21 +32,10 @@ export const handlerBuildCommand = async ({
     logger.warn('Option --theme.openapi is deprecated. Use --openapi instead.\n');
   }
 
-  const options = {
-    output: argv.o,
-    title: argv.title,
-    disableGoogleFont: argv.disableGoogleFont,
-    templateFileName: argv.template,
-    templateOptions: argv.templateOptions || {},
-    redocOptions: getObjectOrJSON(argv.openapi ?? argv.theme?.openapi, config.forAlias(alias)),
-    telemetry: argv.telemetry,
-    inlineBundle: argv.inlineBundle,
-  };
-
   try {
     const apiRef = isAbsoluteUrl(pathToApi) ? pathToApi : resolve(pathToApi);
     let definition: Record<string, unknown> | string;
-    let specType: BuildDocsOptions['specType'];
+    let specType: SpecType;
 
     if (isGraphqlRef(apiRef)) {
       definition = readFileSync(apiRef, 'utf-8');
@@ -59,14 +48,31 @@ export const handlerBuildCommand = async ({
         collectSpecData,
       });
       const parsed = bundleResult.parsed as Record<string, unknown>;
-      definition = detectSpec(parsed) === 'oas2' ? await convertSwagger2OpenAPI(parsed) : parsed;
+      const spec = detectSpec(parsed);
+      definition = spec === 'oas2' ? await convertSwagger2OpenAPI(parsed) : parsed;
+      specType = spec.startsWith('async') ? 'asyncapi' : 'openapi';
     }
 
-    const pageHTML = await getPageHTML(
-      definition,
-      { ...options, redocVersion, specType },
-      argv.config
+    const redocOptions = getObjectOrJSON(
+      argv[specType] ?? argv.theme?.openapi,
+      config.forAlias(alias),
+      specType
     );
+
+    const options = {
+      output: argv.o,
+      title: argv.title,
+      disableGoogleFont: argv.disableGoogleFont,
+      templateFileName: argv.template,
+      templateOptions: argv.templateOptions || {},
+      redocOptions,
+      redocVersion,
+      specType,
+      disableTelemetry: argv.disableTelemetry ?? redocOptions.disableTelemetry !== false,
+      inlineBundle: argv.inlineBundle,
+    };
+
+    const pageHTML = await getPageHTML(definition, options, argv.config);
 
     mkdirSync(dirname(options.output), { recursive: true });
     writeFileSync(options.output, pageHTML);
