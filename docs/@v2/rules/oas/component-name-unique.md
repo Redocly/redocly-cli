@@ -63,10 +63,11 @@ With `title`, the same schemas are named after their `title` field instead.
 Two files called `Order.yaml` with the titles `Order model` and `Order request` become `OrderModel` and `OrderRequest`, so the rule no longer reports them.
 Two schemas in differently named files that share a title do collide, and the rule reports those instead.
 
-The `title` strategy applies to every schema that `bundle` renames — every `$ref` except those fully inside the root document.
+The `title` strategy applies to every schema that `bundle` renames.
+Every `$ref` except those fully inside the root document.
 A referenced schema that has no `title` can't be named under this strategy, and `bundle` fails without producing a file.
-The rule reports those schemas so you find them before bundling.
-For the uniqueness check itself, such a schema still falls back to its file name, so a name collision is reported as well.
+The rule reports these schemas, so you find them before bundling.
+For the uniqueness check itself, such schemas still fall back to their file names, so a name collision is reported as well.
 
 ## Examples
 
