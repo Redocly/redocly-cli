@@ -23,6 +23,13 @@ export type RemoteScorecardAndPlugins = {
 
 export type Project = {
   id: `prj_${string}`;
+  organizationId: `org_${string}`;
   slug: string;
-  config: ResolvedConfig & { pluginsUrl?: string; scorecardClassic?: ScorecardConfig };
+};
+
+export type ProjectConfig = {
+  id: `prj_${string}`;
+  projectId: `prj_${string}`;
+  organizationId: `org_${string}`;
+  config: (ResolvedConfig & { pluginsUrl?: string; scorecardClassic?: ScorecardConfig }) | null;
 };
