@@ -8,6 +8,7 @@ API authoring commands:
 
 - [`lint`](lint.md) Lint an API description.
 - [`split`](split.md) Split an API description into a multi-file structure.
+- [`introspect-mcp`](introspect-mcp.md) Introspect an MCP server and record its capabilities in the `x-mcp` extension of an OpenAPI description [experimental feature].
 
 Docs rendering commands:
 
