@@ -84,9 +84,6 @@
     "vitest": "^4.1.11",
     "zod": "^4.0.0"
   },
-  "overrides": {
-    "js-yaml@4": "4.3.2"
-  },
   "lint-staged": {
     "**/*.{ts,js,yaml,yml,json,md}": [
       "npm run lint",

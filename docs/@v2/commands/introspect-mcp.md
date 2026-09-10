@@ -25,8 +25,8 @@ If the output file doesn't exist, the command creates a minimal OpenAPI 3.1 desc
 Review and complete the `info` section afterward.
 If the file exists, the command updates it in place:
 
-- The server URL is appended to `servers` unless it's already listed.
-  Stdio servers have no URL, so `servers` stays untouched.
+- The MCP server URL is appended to `x-mcp.servers` unless it's already listed.
+  The root `servers` list (the API's base URLs) stays untouched, and stdio servers have no URL to record.
 - The `x-mcp` lists are replaced with what the server reports.
   Renamed or removed entries don't linger.
 - Documentation-only annotations that the MCP protocol doesn't carry are preserved by entry name: `tags` and `security` on tools, prompts, and resources, and `example` on prompt arguments.

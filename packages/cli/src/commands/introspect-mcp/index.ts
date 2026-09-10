@@ -1,6 +1,7 @@
 import { isPlainObject, logger, parseYaml, stringifyYaml } from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
 
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { type CommandArgs } from '../../wrapper.js';
@@ -115,6 +116,7 @@ export async function handleIntrospectMcp({
   const content = outputFile.endsWith('.json')
     ? JSON.stringify(openapiDocument, null, 2) + '\n'
     : stringifyYaml(openapiDocument);
+  mkdirSync(dirname(outputFile), { recursive: true });
   writeFileSync(outputFile, content);
 
   logger.info(

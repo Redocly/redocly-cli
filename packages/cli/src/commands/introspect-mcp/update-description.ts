@@ -52,8 +52,8 @@ function mergePrompts(freshPrompts: Prompt[], existingPrompts: unknown) {
 }
 
 /**
- * Record the snapshot in the document's `x-mcp` extension and `servers`, scaffolding a
- * minimal OpenAPI description from the server info when there is no existing document.
+ * Record the snapshot in the document's `x-mcp` extension, scaffolding a minimal OpenAPI
+ * description from the server info when there is no existing document.
  */
 export function updateDescription(
   existingDocument: Record<string, unknown> | undefined,
@@ -70,15 +70,6 @@ export function updateDescription(
     paths: {},
   };
 
-  // A stdio server has no URL to record, so `servers` stays untouched.
-  if (serverUrl) {
-    const servers = Array.isArray(document.servers) ? document.servers : [];
-    if (!servers.some((server) => isPlainObject(server) && server.url === serverUrl)) {
-      servers.push({ url: serverUrl });
-    }
-    document.servers = servers;
-  }
-
   const existingXMcp: Record<string, unknown> = isPlainObject(document['x-mcp'])
     ? document['x-mcp']
     : {};
@@ -86,20 +77,37 @@ export function updateDescription(
   if (snapshot.protocolVersion) {
     xMcp.protocolVersion = snapshot.protocolVersion;
   }
+  // The MCP endpoint belongs in `x-mcp.servers` - the root `servers` list the REST base URLs.
+  // A stdio server has no URL to record.
+  if (serverUrl) {
+    const mcpServers = Array.isArray(xMcp.servers) ? xMcp.servers : [];
+    if (!mcpServers.some((server) => isPlainObject(server) && server.url === serverUrl)) {
+      mcpServers.push({ url: serverUrl });
+    }
+    xMcp.servers = mcpServers;
+  }
   if (snapshot.capabilities) {
     xMcp.capabilities = snapshot.capabilities;
   }
-  if (snapshot.tools.length > 0) {
+  // Each list mirrors the server: a declared capability is recorded even when its list is
+  // empty, and the list of an undeclared capability is dropped, so stale entries don't linger.
+  if (snapshot.capabilities?.tools) {
     xMcp.tools = preserveDocFields(snapshot.tools, existingXMcp.tools, ['tags', 'security']);
+  } else {
+    delete xMcp.tools;
   }
-  if (snapshot.prompts.length > 0) {
+  if (snapshot.capabilities?.prompts) {
     xMcp.prompts = mergePrompts(snapshot.prompts, existingXMcp.prompts);
+  } else {
+    delete xMcp.prompts;
   }
-  if (snapshot.resources.length > 0) {
+  if (snapshot.capabilities?.resources) {
     xMcp.resources = preserveDocFields(snapshot.resources, existingXMcp.resources, [
       'tags',
       'security',
     ]);
+  } else {
+    delete xMcp.resources;
   }
   document['x-mcp'] = xMcp;
 

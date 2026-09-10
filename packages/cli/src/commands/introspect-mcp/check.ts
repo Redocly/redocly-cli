@@ -63,7 +63,7 @@ export function describeXMcpChanges(
   if (!isDeepStrictEqual(existingXMcp.capabilities, updatedXMcp.capabilities)) {
     changes.push('capabilities changed');
   }
-  if (!isDeepStrictEqual(existingDocument.servers, updatedDocument.servers)) {
+  if (!isDeepStrictEqual(existingXMcp.servers, updatedXMcp.servers)) {
     changes.push('servers - the MCP server URL is not listed');
   }
   if (changes.length === 0) {

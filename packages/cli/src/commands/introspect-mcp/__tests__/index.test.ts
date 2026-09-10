@@ -126,10 +126,10 @@ describe('handleIntrospectMcp', () => {
           description: Manage the cafe menu and orders.
           version: 3.2.1
         paths: {}
-        servers:
-          - url: <server-url>
         x-mcp:
           protocolVersion: '2025-11-25'
+          servers:
+            - url: <server-url>
           capabilities:
             prompts: {}
             resources: {}
@@ -211,7 +211,6 @@ describe('handleIntrospectMcp', () => {
           version: 2.0.0
         servers:
           - url: https://api.cafe.example.com
-          - url: <server-url>
         paths: {}
         x-mcp:
           protocolVersion: '2025-11-25'
@@ -242,6 +241,8 @@ describe('handleIntrospectMcp', () => {
                   description: Menu category.
                   required: true
                   example: beverage
+          servers:
+            - url: <server-url>
           capabilities:
             prompts: {}
             resources: {}
@@ -265,7 +266,8 @@ describe('handleIntrospectMcp', () => {
       'stdio-mcp-server.mjs'
     );
     const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
-    const outputFile = join(outputDir, 'openapi.yaml');
+    // The `generated` folder doesn't exist yet - the command creates it.
+    const outputFile = join(outputDir, 'generated', 'openapi.yaml');
     try {
       await runIntrospectMcp({ command: `node ${fixturePath}`, output: outputFile });
 
@@ -313,6 +315,82 @@ describe('handleIntrospectMcp', () => {
     }
   });
 
+  it('clears lists the server no longer reports, and --check flags them as stale', async () => {
+    const emptyToolsServer = createServer(async (request, response) => {
+      const mcpServer = new McpServer(
+        { name: 'cafe-mcp', version: '3.2.1' },
+        { capabilities: { tools: {} } }
+      );
+      mcpServer.setRequestHandler(ListToolsRequestSchema, () => ({ tools: [] }));
+      const transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined,
+        enableJsonResponse: true,
+      });
+      response.on('close', () => {
+        transport.close();
+        mcpServer.close();
+      });
+      await mcpServer.connect(transport);
+      await transport.handleRequest(request, response);
+    });
+    await new Promise<void>((resolve) => emptyToolsServer.listen(0, '127.0.0.1', resolve));
+    const emptyToolsServerUrl = `http://127.0.0.1:${
+      (emptyToolsServer.address() as AddressInfo).port
+    }/mcp`;
+    const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    const outputFile = join(outputDir, 'openapi.yaml');
+    writeFileSync(
+      outputFile,
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Cafe API
+          version: 2.0.0
+        servers:
+          - url: ${emptyToolsServerUrl}
+        paths: {}
+        x-mcp:
+          tools:
+            - name: removed/tool
+              description: No longer reported by the server.
+          prompts:
+            - name: removed-prompt
+      ` + '\n',
+      'utf-8'
+    );
+    try {
+      await expect(
+        runIntrospectMcp({ 'server-url': emptyToolsServerUrl, output: outputFile, check: true })
+      ).rejects.toThrow(AbortFlowError);
+
+      await runIntrospectMcp({ 'server-url': emptyToolsServerUrl, output: outputFile });
+      const written = readFileSync(outputFile, 'utf-8').replaceAll(
+        emptyToolsServerUrl,
+        '<server-url>'
+      );
+      expect(written).toMatchInlineSnapshot(`
+        "openapi: 3.1.0
+        info:
+          title: Cafe API
+          version: 2.0.0
+        servers:
+          - url: <server-url>
+        paths: {}
+        x-mcp:
+          tools: []
+          protocolVersion: '2025-11-25'
+          servers:
+            - url: <server-url>
+          capabilities:
+            tools: {}
+        "
+      `);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+      await new Promise((resolve) => emptyToolsServer.close(resolve));
+    }
+  });
+
   it('falls back to the legacy HTTP+SSE transport when streamable HTTP is not supported', async () => {
     const sseTransports = new Map<string, SSEServerTransport>();
     const sseHttpServer = createServer(async (request, response) => {
@@ -336,7 +414,8 @@ describe('handleIntrospectMcp', () => {
       await runIntrospectMcp({ 'server-url': sseServerUrl, output: outputFile });
 
       const document = parseYaml(readFileSync(outputFile, 'utf-8')) as Record<string, any>;
-      expect(document.servers).toEqual([{ url: sseServerUrl }]);
+      expect(document['x-mcp'].servers).toEqual([{ url: sseServerUrl }]);
+      expect(document.servers).toBeUndefined();
       expect(document['x-mcp'].tools.map((tool: { name: string }) => tool.name)).toEqual([
         'orders/create',
         'menu/list',
