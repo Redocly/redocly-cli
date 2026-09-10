@@ -67,7 +67,8 @@ export const NoRequiredSchemaPropertiesUndefined:
           return !!(
             parent.allOf?.some(matchesChild) ||
             parent.anyOf?.some(matchesChild) ||
-            parent.oneOf?.some(matchesChild)
+            parent.oneOf?.some(matchesChild) ||
+            (parent.not && matchesChild(parent.not))
           );
         };
 

@@ -25,7 +25,7 @@ import { type AjvValidator } from './ajv.js';
 export type AnySchema =
   | Oas3Schema
   | Oas3_1Schema
-  | (Oas2Schema & { anyOf?: undefined; oneOf?: undefined });
+  | (Oas2Schema & { anyOf?: undefined; oneOf?: undefined; not?: undefined });
 
 export const resolveSchema = <T extends NonUndefined>(
   schemaOrRef: Referenced<T> | undefined,
