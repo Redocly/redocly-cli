@@ -3,6 +3,7 @@
 The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
 The command connects to the server, lists its tools, prompts, and resources together with the server capabilities and the negotiated protocol version.
 Then the command writes this information into the description file.
+[Redocly Realm](https://redocly.com/docs/realm) renders the `x-mcp` extension as MCP documentation alongside the rest of the API reference, so the recorded tools, prompts, and resources become reader-facing docs.
 
 {% admonition type="warning" name="Experimental" %}
 This is an experimental feature.
@@ -100,4 +101,5 @@ Run the command without --check to update it.
 
 ## Resources
 
-- [The `x-mcp` extension reference](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes.
+- [The `x-mcp` extension reference](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes and shows how the rendered MCP docs look.
+- [Redocly Realm](https://redocly.com/docs/realm) renders an OpenAPI description with `x-mcp` as MCP documentation - use the [`preview`](./preview.md) command to see it locally.
