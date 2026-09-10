@@ -93,7 +93,6 @@ redocly introspect-mcp https://example.com/mcp --output api/openapi.yaml --check
 
 ```text
 api/openapi.yaml is out of date with the MCP server:
-
   - tools - added: orders/cancel; changed: orders/create
   - protocolVersion - 2024-11-05 -> 2025-11-25
 
