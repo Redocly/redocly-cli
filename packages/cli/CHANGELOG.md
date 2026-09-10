@@ -1,5 +1,21 @@
 # @redocly/cli
 
+## 2.52.0
+
+### Minor Changes
+
+- Added agent skills for AI coding assistants: `redocly-cli` for everyday CLI usage, `redocly-lint-rules` for writing configurable rules and custom plugins.
+  Install them with `npx skills add https://redocly.com`.
+- Added an experimental `inspect-node-types` command to navigate the Redocly's node type tree of an API description.
+  `inspect-node-types` helps pick the correct `subject` types for a configurable rule or the correct visitor for a custom plugin.
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+- Added an experimental `introspect-mcp` command that analyzes a running MCP server and records its tools, prompts, resources, and capabilities.
+  `introspect-mcp` records its findings in the `x-mcp` extension of an OpenAPI description.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.0.
+
 ## 2.51.2
 
 ### Patch Changes
