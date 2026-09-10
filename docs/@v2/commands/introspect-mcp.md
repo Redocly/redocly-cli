@@ -31,7 +31,9 @@ If the file exists, the command updates it in place:
 Everything else in the description stays untouched.
 You can keep documenting the API around the generated `x-mcp` section.
 
-With `--check`, the command writes nothing: it compares the file with what an introspection run would produce, reports the added, removed, and changed entries, and exits with code `1` when the file is out of date — made for CI.
+With `--check`, the command only compares the file with what an introspection run would produce without writing anything.
+It reports the added, removed, and changed entries, and exits with code `1` when the file is out of date.
+This flag is useful for CI.
 
 ## Usage
 
