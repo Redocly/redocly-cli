@@ -1,6 +1,6 @@
 # `introspect-mcp`
 
-The `introspect-mcp` command introspects a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
+The `introspect-mcp` command analyzes a running MCP (Model Context Protocol) server and records what it found in the [`x-mcp` extension](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) of an OpenAPI description.
 The command connects to the server, lists its tools, prompts, and resources together with the server capabilities and the negotiated protocol version.
 Then the command writes this information into the description file.
 
