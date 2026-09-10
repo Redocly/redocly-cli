@@ -69,6 +69,8 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
               return;
             }
             schemasWithoutTitle.set(target.location.absolutePointer.toString(), target.location);
+            addComponentFromAbsoluteLocation(typeName, target.location);
+            return;
           }
 
           addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
