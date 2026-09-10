@@ -1,5 +1,15 @@
 # @redocly/openapi-core
 
+## 2.52.0
+
+### Minor Changes
+
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.56.0.
+
 ## 2.51.2
 
 ### Patch Changes
