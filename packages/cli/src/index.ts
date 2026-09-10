@@ -1174,7 +1174,7 @@ yargs(hideBin(process.argv))
         .option({
           command: {
             describe:
-              'Command that starts a local MCP server to introspect over stdio, for example "npx -y my-mcp-server". Alternative to a server URL.',
+              'Command that starts a local MCP server to introspect over stdio, for example "npx -y my-mcp-server". Quote arguments that contain spaces. Alternative to a server URL.',
             type: 'string',
             requiresArg: true,
           },

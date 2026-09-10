@@ -7,12 +7,12 @@ import {
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
 import { parseYaml } from '@redocly/openapi-core';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, type Server as HttpServer } from 'node:http';
 import { type AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
 import { AbortFlowError } from '../../../utils/error.js';
@@ -266,10 +266,16 @@ describe('handleIntrospectMcp', () => {
       'stdio-mcp-server.mjs'
     );
     const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
+    // Launching through a wrapper under a path with a space proves that quoted
+    // --command arguments stay together.
+    const wrapperDir = join(outputDir, 'server files');
+    mkdirSync(wrapperDir);
+    const wrapperPath = join(wrapperDir, 'start-server.mjs');
+    writeFileSync(wrapperPath, `import ${JSON.stringify(pathToFileURL(fixturePath).href)};\n`);
     // The `generated` folder doesn't exist yet - the command creates it.
     const outputFile = join(outputDir, 'generated', 'openapi.yaml');
     try {
-      await runIntrospectMcp({ command: `node ${fixturePath}`, output: outputFile });
+      await runIntrospectMcp({ command: `node "${wrapperPath}"`, output: outputFile });
 
       expect(readFileSync(outputFile, 'utf-8')).toMatchInlineSnapshot(`
         "openapi: 3.1.0

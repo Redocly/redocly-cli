@@ -35,9 +35,45 @@ function parseHeaders(rawHeaders: string[] = []): Record<string, string> {
   return headers;
 }
 
+// Split a command line on whitespace, keeping segments in single or double quotes together,
+// so paths and arguments with spaces survive. The command is spawned directly - no shell.
+function splitCommand(rawCommand: string): string[] {
+  const commandParts: string[] = [];
+  let currentPart = '';
+  let openQuote: '"' | "'" | undefined;
+  let partStarted = false;
+  for (const character of rawCommand) {
+    if (openQuote) {
+      if (character === openQuote) {
+        openQuote = undefined;
+      } else {
+        currentPart += character;
+      }
+    } else if (character === '"' || character === "'") {
+      openQuote = character;
+      partStarted = true;
+    } else if (/\s/.test(character)) {
+      if (partStarted || currentPart) {
+        commandParts.push(currentPart);
+        currentPart = '';
+        partStarted = false;
+      }
+    } else {
+      currentPart += character;
+    }
+  }
+  if (openQuote) {
+    exitWithError(`Unclosed ${openQuote} quote in --command.`);
+  }
+  if (partStarted || currentPart) {
+    commandParts.push(currentPart);
+  }
+  return commandParts;
+}
+
 function resolveTarget(argv: IntrospectMcpCommandArgv): McpTarget {
   if (argv.command) {
-    const [command, ...args] = argv.command.trim().split(/\s+/);
+    const [command, ...args] = splitCommand(argv.command);
     if (!command) {
       exitWithError('The --command option cannot be empty.');
     }

@@ -50,16 +50,16 @@ redocly introspect-mcp <server-url> --output <file> --check
 
 ## Options
 
-| Option       | Type     | Description                                                                                                                                        |
-| ------------ | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| server-url   | string   | URL of the MCP server (Streamable HTTP, with a fallback to the legacy HTTP+SSE transport). Provide either a server URL or `--command`.             |
-| --command    | string   | Command that starts a local MCP server to introspect over stdio, for example `"npx -y my-mcp-server"`. Provide either a server URL or this option. |
-| --output, -o | string   | OpenAPI description file to create or update. Default value is `openapi.yaml`. A `.json` file is written as JSON.                                  |
-| --header, -H | [string] | Header sent with every request to the MCP server, in `"Name: value"` format. Repeat the option for multiple headers. Only applies to a server URL. |
-| --check      | boolean  | Verify the description is up to date with the MCP server instead of writing: report the differences and exit with code `1` when it is not.         |
-| --config     | string   | Specify path to the [configuration file](../configuration/index.md).                                                                               |
-| --help       | boolean  | Display help.                                                                                                                                      |
-| --version    | boolean  | Display version number.                                                                                                                            |
+| Option       | Type     | Description                                                                                                                                                                             |
+| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| server-url   | string   | URL of the MCP server (Streamable HTTP, with a fallback to the legacy HTTP+SSE transport). Provide either a server URL or `--command`.                                                  |
+| --command    | string   | Command that starts a local MCP server to introspect over stdio, for example `"npx -y my-mcp-server"`. Quote arguments that contain spaces. Provide either a server URL or this option. |
+| --output, -o | string   | OpenAPI description file to create or update. Default value is `openapi.yaml`. A `.json` file is written as JSON.                                                                       |
+| --header, -H | [string] | Header sent with every request to the MCP server, in `"Name: value"` format. Repeat the option for multiple headers. Only applies to a server URL.                                      |
+| --check      | boolean  | Verify the description is up to date with the MCP server instead of writing: report the differences and exit with code `1` when it is not.                                              |
+| --config     | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                    |
+| --help       | boolean  | Display help.                                                                                                                                                                           |
+| --version    | boolean  | Display version number.                                                                                                                                                                 |
 
 ## Examples
 
