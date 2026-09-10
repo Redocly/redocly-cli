@@ -151,6 +151,9 @@ The SRI value also appears in [e2e test snapshots](#e2e-tests) — update those 
 
 There are three ways of providing arguments to the CLI: environment variables, command line arguments, and a Redocly configuration file.
 
+Boolean arguments and options default to `false`, so a missing value and an explicit `false` behave the same.
+Name each of them according to what makes `true`, so that adding them never alters the existing behavior.
+
 #### Environment variables
 
 Environment variables should be used to provide some arguments that are common for all the commands.
