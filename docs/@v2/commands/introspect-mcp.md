@@ -12,17 +12,24 @@ Its behavior, command, flags, and output may change in future releases.
 
 The command reaches the MCP server in one of two ways:
 
-- **A server URL** connects over Streamable HTTP, and automatically falls back to the legacy HTTP+SSE transport when the server doesn't support Streamable HTTP.
-- **`--command`** starts a local MCP server process and talks to it over stdio — the way most published MCP servers run, for example `npx -y my-mcp-server`. The process inherits your environment, so servers that read API keys from environment variables work as they do in your shell.
+- A server URL connects over Streamable HTTP, and automatically falls back to the legacy HTTP+SSE transport when the server doesn't support Streamable HTTP.
+- `--command` starts a local MCP server process and talks to it over stdio.
+  Most published MCP servers run this way, for example `npx -y my-mcp-server`.
+  The process inherits your environment.
+  Servers that read API keys from environment variables work as they do in your shell.
 
-If the output file doesn't exist, the command creates a minimal OpenAPI 3.1 description scaffolded from the server's implementation info and instructions — review and complete the `info` section afterward.
+If the output file doesn't exist, the command creates a minimal OpenAPI 3.1 description scaffolded from the server's implementation info and instructions.
+Review and complete the `info` section afterward.
 If the file exists, the command updates it in place:
 
-- The server URL is appended to `servers` unless it's already listed (stdio servers have no URL, so `servers` stays untouched).
-- The `x-mcp` lists are replaced with what the server reports now, so renamed or removed entries don't linger.
+- The server URL is appended to `servers` unless it's already listed.
+  Stdio servers have no URL, so `servers` stays untouched.
+- The `x-mcp` lists are replaced with what the server reports.
+  Renamed or removed entries don't linger.
 - Documentation-only annotations that the MCP protocol doesn't carry are preserved by entry name: `tags` and `security` on tools, prompts, and resources, and `example` on prompt arguments.
 
-Everything else in the description stays untouched, so you can keep documenting the API around the generated `x-mcp` section.
+Everything else in the description stays untouched.
+You can keep documenting the API around the generated `x-mcp` section.
 
 With `--check`, the command writes nothing: it compares the file with what an introspection run would produce, reports the added, removed, and changed entries, and exits with code `1` when the file is out of date — made for CI.
 
@@ -53,8 +60,7 @@ redocly introspect-mcp <server-url> --output <file> --check
 
 ### Document an MCP server in an OpenAPI description
 
-The same command creates the file on the first run and refreshes it afterward,
-keeping the `tags`, `security`, and prompt argument `example` annotations you added by hand:
+The same command creates the file on the first run and refreshes it afterward, keeping the `tags`, `security`, and prompt argument `example` annotations you added by hand:
 
 ```bash
 redocly introspect-mcp https://example.com/mcp --output api/openapi.yaml
@@ -89,6 +95,6 @@ api/openapi.yaml is out of date with the MCP server:
 Run the command without --check to update it.
 ```
 
-## Related resources
+## Resources
 
 - [The `x-mcp` extension reference](https://redocly.com/docs/realm/content/api-docs/openapi-extensions/x-mcp) describes every field the command writes.
