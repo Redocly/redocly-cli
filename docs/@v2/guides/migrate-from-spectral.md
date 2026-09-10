@@ -165,6 +165,13 @@ Build up the rulesets that work for your organization's API standards. These can
 
 For some advanced use cases, the configurable rules can't cover all possibilities. If that happens, Redocly supports [adding rules in custom plugins](../custom-plugins/custom-rules.md) so that you can use JavaScript to express any specialist rules you need.
 
+If you work with an AI coding assistant, install the `redocly-lint-rules` agent skill.
+It turns a Spectral rule into a Redocly one, and it verifies the result against your API description.
+
+```bash
+npx skills add https://redocly.com
+```
+
 ## Explore tool functionality
 
 Redocly CLI supports multiple Redocly products and functions, so go ahead and [read more about Redocly CLI](../index.md).
