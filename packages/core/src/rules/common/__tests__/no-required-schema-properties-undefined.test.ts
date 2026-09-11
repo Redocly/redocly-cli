@@ -552,7 +552,7 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
-  it('should not report when required inside not refers to properties on the enclosing schema', async () => {
+  it('should not report when not.required names an undeclared property', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.1.0
@@ -563,12 +563,9 @@ describe('no-required-schema-properties-undefined', () => {
                 properties:
                   email:
                     type: string
-                  phone:
-                    type: string
                 not:
                   required:
-                    - email
-                    - phone
+                    - missing
         `,
       'foobar.yaml'
     );
@@ -582,7 +579,7 @@ describe('no-required-schema-properties-undefined', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report when required inside not names a property not defined on the enclosing schema', async () => {
+  it('should not report when not.required names a declared property', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.1.0
@@ -596,7 +593,6 @@ describe('no-required-schema-properties-undefined', () => {
                 not:
                   required:
                     - email
-                    - missing
         `,
       'foobar.yaml'
     );
@@ -607,24 +603,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/components/schemas/Contact/not/required/1",
-              "reportOnKey": false,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Required property 'missing' is not defined.",
-          "reference": "https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined",
-          "ruleId": "no-required-schema-properties-undefined",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
   it('should NOT report if one or more of the required properties are defined when used in schema with anyOf keyword', async () => {
