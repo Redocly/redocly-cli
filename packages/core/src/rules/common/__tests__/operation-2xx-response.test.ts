@@ -92,7 +92,7 @@ describe('Oas3 operation-2xx-response', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 
-  it('should report for present default when allowDefault is false', async () => {
+  it('should report for present default when disallowDefault is true', async () => {
     const document = parseYamlToDocument(
       outdent`
           openapi: 3.0.0
@@ -111,7 +111,7 @@ describe('Oas3 operation-2xx-response', () => {
       document,
       config: await createConfig({
         rules: {
-          'operation-2xx-response': { severity: 'error', allowDefault: false },
+          'operation-2xx-response': { severity: 'error', disallowDefault: true },
         },
       }),
     });

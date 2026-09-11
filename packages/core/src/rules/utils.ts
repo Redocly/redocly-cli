@@ -390,19 +390,19 @@ export function validateResponseCodes({
   codeRange,
   report,
   reference,
-  allowDefault = true,
+  disallowDefault = false,
 }: {
   responseCodes: string[];
   codeRange: string;
   report: UserContext['report'];
   reference?: string;
-  allowDefault?: boolean;
+  disallowDefault?: boolean;
 }) {
   const responseCodeRegexp = new RegExp(`^${codeRange[0]}[0-9Xx]{2}$`);
 
   const containsNeededCode = responseCodes.some(
     (code) =>
-      (allowDefault && codeRange === '2XX' && code === 'default') || // It's OK to replace 2xx codes with the default
+      (!disallowDefault && codeRange === '2XX' && code === 'default') || // It's OK to replace 2xx codes with the default
       responseCodeRegexp.test(code)
   );
 

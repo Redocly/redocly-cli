@@ -24,11 +24,11 @@ You can greatly improve the developer and user experience of your APIs by making
 
 ## Configuration
 
-| Option           | Type    | Description                                                                               |
-| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
-| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
-| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                   |
-| allowDefault     | boolean | Determines if a `default` response satisfies the rule. Default `true`.                    |
+| Option           | Type    | Description                                                                                 |
+| ---------------- | ------- | ------------------------------------------------------------------------------------------- |
+| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration).   |
+| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                     |
+| disallowDefault  | boolean | Determines if a `default` response is disallowed from satisfying the rule. Default `false`. |
 
 An example configuration:
 
@@ -47,16 +47,16 @@ rules:
 ```
 
 By default, a `default` response counts as a successful response.
-Set `allowDefault: false` to require an explicit 2xx status code:
+Set `disallowDefault: true` to require an explicit 2xx status code:
 
 ```yaml
 rules:
   operation-2xx-response:
     severity: error
-    allowDefault: false
+    disallowDefault: true
 ```
 
-With `allowDefault: false`, the following operation is reported, because `default` describes the responses the operation does not list rather than what a successful call returns:
+With `disallowDefault: true`, the following operation is reported, because `default` describes the responses the operation does not list rather than what a successful call returns:
 
 ```yaml
 post:

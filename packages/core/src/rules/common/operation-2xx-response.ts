@@ -4,7 +4,7 @@ import { validateResponseCodes } from '../utils.js';
 
 export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({
   validateWebhooks,
-  allowDefault = true,
+  disallowDefault = false,
 }) => {
   return {
     Paths: {
@@ -16,7 +16,7 @@ export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({
           codeRange: '2XX',
           report: report as UserContext['report'],
           reference: 'https://redocly.com/docs/cli/rules/oas/operation-2xx-response',
-          allowDefault,
+          disallowDefault,
         });
       },
     },
@@ -31,7 +31,7 @@ export const Operation2xxResponse: Oas3Rule | Oas2Rule = ({
           codeRange: '2XX',
           report: report as UserContext['report'],
           reference: 'https://redocly.com/docs/cli/rules/oas/operation-2xx-response',
-          allowDefault,
+          disallowDefault,
         });
       },
     },
