@@ -129,7 +129,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 ### Configurable and extensible rules
 
 If the built-in rules don't meet your requirements, don't worry!
-With Redocly you can use [configurable rules](../rules/configurable-rules.md) to build any rule to suit your needs. 
+With Redocly you can use [configurable rules](../rules/configurable-rules.md) to build any rule to suit your needs.
 Declare which elements of the OpenAPI description should comply with the rule, and then define the criteria that it should be checked against.
 
 Build up the rulesets that work for your organization's API standards.
