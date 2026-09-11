@@ -31,7 +31,7 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --asyncapi          | string  | Customize your output with [Redoc AsyncAPI options](https://redocly.com/docs/realm/config/asyncapi). Use dot notation, for example `--asyncapi.jsonSamplesDepth 4`. |
 | --config            | string  | Path to the [configuration file](#use-an-alternative-configuration-file). Defaults to `redocly.yaml` in the local folder.                                           |
 | --disableGoogleFont | boolean | Disable Google fonts in custom templates. The default value is `false`.                                                                                             |
-| --disableTelemetry  | boolean | Disable Redoc telemetry in the generated page. The default value is `true`.                                                                                         |
+| --disableTelemetry  | boolean | Disable Redoc telemetry in the generated page. The default value is `false`.                                                                                        |
 | --graphql           | string  | Customize your output with [Redoc GraphQL options](https://redocly.com/docs/realm/config/graphql). Use dot notation, for example `--graphql.showBuiltInScalars`.    |
 | --help              | boolean | Show help.                                                                                                                                                          |
 | --inlineBundle      | boolean | Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN. The default value is `false`.                                            |

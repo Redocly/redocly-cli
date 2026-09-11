@@ -408,7 +408,7 @@ data-styled.g671[id="sc-fwPrur"]{content:"dnbQYz,"}/*!sc*/
       import { hydrate } from "https://cdn.redoc.ly/redoc/v3.0.0-beta.0/bundle/redoc.standalone.js";
 
       const __redoc_definition = {"openapi":"3.1.0","servers":[{"url":"http://redocly-example.com"}],"info":{"title":"Sample API","version":"1.0.0"},"paths":{"/hello":{"get":{"operationId":"getMessage","security":[],"summary":"Get a greeting message","responses":{"200":{"description":"OK","content":{"application/json":{"schema":{"$ref":"#/components/schemas/message-schema"}}}},"400":{"$ref":"#/components/responses/BadRequest"}}}}},"components":{"schemas":{"message-schema":{"type":"object","properties":{"message":{"type":"string"}}},"Error":{"type":"object","properties":{"type":{"type":"string","example":"object"},"title":{"type":"string","example":"Validation failed"}}}},"responses":{"BadRequest":{"description":"Bad request.","content":{"application/problem+json":{"schema":{"$ref":"#/components/schemas/Error"}}}}}}};
-      const __redoc_options = {"skipBundle":true,"specType":"openapi","disableTelemetry":true};
+      const __redoc_options = {"skipBundle":true,"specType":"openapi","disableTelemetry":false};
 
       hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));
       </script>

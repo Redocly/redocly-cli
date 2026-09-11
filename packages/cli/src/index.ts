@@ -722,7 +722,7 @@ yargs(hideBin(process.argv))
             deprecated: 'use --openapi instead',
           },
           disableTelemetry: {
-            describe: 'Disable Redoc telemetry in the generated page. The default value is true.',
+            describe: 'Disable Redoc telemetry in the generated page. The default value is false.',
             type: 'boolean',
           },
           inlineBundle: {
