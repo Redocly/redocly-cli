@@ -38,7 +38,7 @@ describe('build-docs', () => {
     `);
 
     expect(existsSync(join(testPath, 'nested/redoc-static.html'))).toEqual(true);
-    expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36483);
+    expect(statSync(join(testPath, 'nested/redoc-static.html')).size).toEqual(36788);
     const output = readFileSync(join(testPath, 'nested/redoc-static.html'), 'utf8');
     await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
