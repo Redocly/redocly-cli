@@ -552,6 +552,60 @@ describe('no-required-schema-properties-undefined', () => {
     `);
   });
 
+  it('should not report when not.required names an undeclared property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+                not:
+                  required:
+                    - missing
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report when not.required names a declared property', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          components:
+            schemas:
+              Contact:
+                type: object
+                properties:
+                  email:
+                    type: string
+                not:
+                  required:
+                    - email
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
   it('should NOT report if one or more of the required properties are defined when used in schema with anyOf keyword', async () => {
     const document = parseYamlToDocument(
       outdent`
