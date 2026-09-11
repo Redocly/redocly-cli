@@ -10,4 +10,4 @@ export const redocVersion = packageJson.devDependencies.redoc;
  * The smoke-test snapshot (tests/smoke/basic/pre-built/redoc.html) flags the resulting output change.
  */
 export const redocStandaloneSri =
-  'sha384-xiEssMQFSpSfLbzRZCGfxxIM5QDb2DTrU6vyoZdp2sV1L6pmOMy6MpTtUoLbpC96';
+  'sha384-w447zOpYfw/1Tv/5AK9NfHTlQIqE3RVR6KY62jCyy9zNDgO64cMwGGP1Fj0zJVf5';
