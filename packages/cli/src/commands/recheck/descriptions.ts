@@ -2,6 +2,7 @@ import {
   BaseResolver,
   detectSpec,
   getTypes,
+  isAbsoluteUrl,
   isPlainObject,
   normalizeTypes,
   normalizeVisitors,
@@ -19,12 +20,18 @@ export interface CollectedDescription {
   text: string;
 }
 
+export interface CollectedDescriptions {
+  descriptions: CollectedDescription[];
+  // Absolute paths of the root document and every local $ref source it resolved.
+  files: string[];
+}
+
 // Walks one API document, external $ref files included, and returns every
 // string `description` with the file that owns it. `summary` stays out.
 export async function collectDescriptions(
   apiPath: string,
   config: Config
-): Promise<CollectedDescription[]> {
+): Promise<CollectedDescriptions> {
   const resolver = new BaseResolver(config.resolve);
   const loaded = await resolver.resolveDocument(null, apiPath, true);
   if (loaded instanceof Error) throw loaded;
@@ -64,5 +71,14 @@ export async function collectDescriptions(
     resolvedRefMap,
     ctx: { problems: [], specVersion, visitorsData: {} },
   });
-  return collected;
+
+  const files = new Set<string>();
+  for (const absoluteRef of [
+    document.source.absoluteRef,
+    ...[...resolvedRefMap.values()].map((resolvedRef) => resolvedRef.document?.source.absoluteRef),
+  ]) {
+    if (absoluteRef !== undefined && !isAbsoluteUrl(absoluteRef)) files.add(absoluteRef);
+  }
+
+  return { descriptions: collected, files: [...files] };
 }
