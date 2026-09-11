@@ -1,0 +1,59 @@
+
+  Scores
+
+  Agent Readiness:  88.2/100
+
+  Subscores
+
+  Parameter Simplicity     [█████████████████░░░] 86%
+  Schema Simplicity        [████████████████░░░░] 80%
+  Documentation Quality    [██████████████████░░] 90%
+  Constraint Clarity       [███████████░░░░░░░░░] 56%
+  Example Coverage         [██████████████████░░] 88%
+  Error Clarity            [████████████████████] 100%
+  Dependency Clarity       [███████████████░░░░░] 73%
+  Identifier Clarity       [████████████████████] 100%
+  Polymorphism Clarity     [████████████████████] 100%
+  Discoverability          [████████████████████] 99%
+
+  Raw Metrics Summary
+
+  Total operations: 8
+  Parameters/operation:      avg    1.4  median    1.0  min     0  max     4
+  Schema depth:              avg    1.6  median    2.0  min     0  max     3
+  Polymorphism/operation:    avg    0.0  median    0.0  min     0  max     0
+  Properties/operation:      avg    4.4  median    6.0  min     0  max     6
+  Operations with request examples: 3/8 (38%)
+  Operations with response examples: 7/8 (88%)
+  Operations with description: 8/8 (100%)
+
+  Top 1 Hotspot Operations
+
+  GET /tickets/{ticketId}/qr (getTicketCode)
+    Agent Readiness: 81.0
+    - Missing response examples
+
+
+  Agent prompts (copy/paste)
+
+```
+You are helping improve an OpenAPI 3.x description for developer and AI-agent usability (clarity, examples, and schema structure).
+
+Document file: museum.yaml
+Target operation: GET /tickets/{ticketId}/qr (operationId: getTicketCode)
+Current agent-readiness score for this operation (from Redocly CLI `score`, higher is better): 81.0/100
+
+Issues detected:
+- Missing response examples
+
+Please edit the OpenAPI in place to address these issues. Prioritize:
+- Add `example` or `examples` under success (and key error) response media types.
+
+Keep changes coherent with the rest of the spec; preserve existing behavior contracts unless you are clearly fixing documentation or examples.
+```
+
+
+Document: museum.yaml score:
+
+museum.yaml: score processed in <test>ms
+
