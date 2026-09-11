@@ -58,7 +58,7 @@ export async function retryUntilConditionMet<T>({
 export function handleReuniteError(
   message: string,
   error: ReuniteApiError | DeploymentError | Error
-) {
+): never {
   if (error instanceof DeploymentError) {
     return exitWithError(error.message);
   }

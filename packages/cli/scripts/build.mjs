@@ -2,18 +2,15 @@ import { build } from 'esbuild';
 import { cpSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
 const packageDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 rmSync(path.join(packageDir, 'lib'), { recursive: true, force: true });
 
-const result = await build({
+const sharedOptions = {
   absWorkingDir: packageDir,
-  entryPoints: ['src/index.ts'],
-  outdir: 'lib',
-  chunkNames: 'chunks/[hash]',
   bundle: true,
-  splitting: true,
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
@@ -26,26 +23,50 @@ const result = await build({
   // Avoid errors when external dependencies use CJS syntax.
   banner: {
     js: [
-      "import { createRequire as __createRequire } from 'node:module';",
-      "import { fileURLToPath as __fileURLToPath } from 'node:url';",
-      "import { dirname as __pathDirname } from 'node:path';",
-      'const require = __createRequire(import.meta.url);',
-      'var __filename = __fileURLToPath(import.meta.url);',
-      'var __dirname = __pathDirname(__filename);',
+      "import { createRequire as __redoclyCliCreateRequire } from 'node:module';",
+      "import { fileURLToPath as __redoclyCliFileURLToPath } from 'node:url';",
+      "import { dirname as __redoclyCliPathDirname } from 'node:path';",
+      'const require = __redoclyCliCreateRequire(import.meta.url);',
+      'var __filename = __redoclyCliFileURLToPath(import.meta.url);',
+      'var __dirname = __redoclyCliPathDirname(__filename);',
     ].join('\n'),
   },
   logLevel: 'info',
+};
+
+const cliBuild = await build({
+  ...sharedOptions,
+  entryPoints: ['src/index.ts'],
+  outdir: 'lib',
+  chunkNames: 'chunks/[hash]',
+  splitting: true,
 });
 
-const entryChunkInputs = Object.keys(result.metafile.outputs['lib/index.js']?.inputs ?? {});
-if (entryChunkInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
-  throw new Error(
-    'redoc leaked into lib/index.js — check for stray static imports in build-docs commands'
-  );
+// The `@redocly/cli/api` entry is bundled on its own. Sharing chunks with the CLI splits
+// its startup graph into more files, which costs a few milliseconds on every command.
+const apiBuild = await build({
+  ...sharedOptions,
+  entryPoints: ['src/api.ts'],
+  outfile: 'lib/api.js',
+  splitting: false,
+});
+
+for (const [entryPath, metafile] of [
+  ['lib/index.js', cliBuild.metafile],
+  ['lib/api.js', apiBuild.metafile],
+]) {
+  const entryInputs = Object.keys(metafile.outputs[entryPath]?.inputs ?? {});
+  if (entryInputs.some((inputPath) => inputPath.includes('node_modules/redoc'))) {
+    throw new Error(
+      `redoc leaked into ${entryPath} — check for stray static imports in build-docs commands`
+    );
+  }
 }
 
-const allInputs = Object.values(result.metafile.outputs).flatMap((chunk) =>
-  Object.keys(chunk.inputs)
+emitDeclarations(['src/api.ts', 'src/reunite/api/types.ts']);
+
+const allInputs = [cliBuild, apiBuild].flatMap((buildResult) =>
+  Object.values(buildResult.metafile.outputs).flatMap((chunk) => Object.keys(chunk.inputs))
 );
 
 const seenPkgRoots = new Set();
@@ -98,6 +119,44 @@ cpSync(
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
 );
+
+// Emits the declarations for the public `@redocly/cli/api` entry. `rootDir` and `outDir`
+// from the package tsconfig map each source path to its output path.
+function emitDeclarations(sourcePaths) {
+  const configPath = path.join(packageDir, 'tsconfig.json');
+  const config = ts.getParsedCommandLineOfConfigFile(configPath, {}, ts.sys);
+  const program = ts.createProgram({
+    rootNames: sourcePaths.map((sourcePath) => path.join(packageDir, sourcePath)),
+    options: {
+      ...config.options,
+      declaration: true,
+      emitDeclarationOnly: true,
+      declarationMap: false,
+      composite: false,
+      incremental: false,
+    },
+  });
+
+  for (const sourcePath of sourcePaths) {
+    const { diagnostics } = program.emit(
+      program.getSourceFile(path.join(packageDir, sourcePath)),
+      (outputPath, text) => {
+        const packageImport = text.match(/from ['"](?!\.)([^'"]+)['"]/);
+        if (packageImport) {
+          throw new Error(
+            `${outputPath} imports '${packageImport[1]}' — the published package ships no dependencies, so a public type cannot come from one`
+          );
+        }
+
+        ts.sys.writeFile(outputPath, text);
+      }
+    );
+
+    if (diagnostics.length) {
+      throw new Error(ts.formatDiagnostics(diagnostics, ts.createCompilerHost({})));
+    }
+  }
+}
 
 function findLicenseText(pkgRoot) {
   for (const filename of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md']) {
