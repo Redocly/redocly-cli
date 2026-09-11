@@ -11,10 +11,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 //
 // `vi.doMock` (not the hoisted `vi.mock`) is the right tool here: every
 // import this suite cares about is a runtime DYNAMIC `import('nspell')` /
-// `import('dictionary-en')` (see spelling.ts's `loadSpeller` and
-// validate.ts's peer-availability check) — never a static top-of-file
-// import — so registering the mock at the START of each test (before the
-// dynamic import executes) is sufficient; nothing needs hoisting.
+// `import('dictionary-en')` (see spelling.ts's `loadSpeller`) — never a
+// static top-of-file import — so registering the mock at the START of each
+// test (before the dynamic import executes) is sufficient; nothing needs
+// hoisting.
 // `vi.resetModules()` before AND after each test clears the module
 // registry so a fresh `import('../validate.js')` always re-resolves
 // 'nspell'/'dictionary-en' through the CURRENT mock (or lack of one),
@@ -107,112 +107,21 @@ describe('spelling: lazy-load proof', () => {
   });
 });
 
-describe('spelling: MISSING-PEER validation', () => {
-  it('reports an actionable "npm i nspell dictionary-en" error when nspell fails to import', async () => {
-    vi.doMock('nspell', () => {
-      throw new Error("Cannot find module 'nspell'");
-    });
+describe('spelling: custom dictionary FILE-EXISTENCE validation', () => {
+  it('reports an actionable error naming the resolved .aff/.dic paths when they do not exist', async () => {
+    const dir = await makeTmpDir();
+    const base = path.join(dir, 'missing-custom');
 
     const validate = await freshValidate();
-    const result = await validate(spellingConfig());
+    const result = await validate(spellingConfig({ dictionary: base }));
 
     expect(result.isValid).toBe(false);
-    expect(
-      result.errors.some(
-        (error) =>
-          error.message.includes('npm i nspell dictionary-en') && error.message.includes('spelling')
-      )
-    ).toBe(true);
-    // Never a bare module-not-found bubbling up as the whole story.
-    expect(result.errors.some((error) => /cannot find module/i.test(error.message))).toBe(false);
+    const messages = result.errors.map((error) => error.message).join('\n');
+    expect(messages).toContain(`${base}.aff`);
+    expect(messages).toContain(`${base}.dic`);
   });
 
-  it('reports an actionable "npm i dictionary-en" install-command error when only dictionary-en fails to import', async () => {
-    vi.doMock('dictionary-en', () => {
-      throw new Error("Cannot find module 'dictionary-en'");
-    });
-
-    const validate = await freshValidate();
-    const result = await validate(spellingConfig());
-
-    expect(result.isValid).toBe(false);
-    expect(
-      result.errors.some((error) => error.message.includes('npm i nspell dictionary-en'))
-    ).toBe(true);
-  });
-
-  it('when a custom `dictionary` path is set, the install command is just "npm i nspell" (dictionary-en is never attempted)', async () => {
-    const dictionaryEnFactory = vi.fn(() => {
-      throw new Error('dictionary-en must not be imported when a custom dictionary path is set');
-    });
-    vi.doMock('nspell', () => {
-      throw new Error("Cannot find module 'nspell'");
-    });
-    vi.doMock('dictionary-en', dictionaryEnFactory);
-
-    const validate = await freshValidate();
-    const result = await validate(spellingConfig({ dictionary: '/tmp/some/custom' }));
-
-    expect(result.isValid).toBe(false);
-    const message = result.errors.find((error) => error.message.includes('nspell'))?.message ?? '';
-    expect(message).toContain('npm i nspell');
-    expect(message).not.toContain('dictionary-en');
-    expect(dictionaryEnFactory).not.toHaveBeenCalled();
-  });
-
-  it('passes validation when both peers import successfully', async () => {
-    vi.doMock('nspell', () => ({ default: () => ({ correct: () => true, suggest: () => [] }) }));
-    vi.doMock('dictionary-en', () => ({
-      default: { aff: new Uint8Array(), dic: new Uint8Array() },
-    }));
-
-    const validate = await freshValidate();
-    const result = await validate(spellingConfig());
-
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  // Item 14 (pre-PR cleanup): a config with SEVERAL spelling rules missing
-  // the same peers used to report one identical peer-missing error per
-  // rule — pure noise, since the fix (one install command) is the same for
-  // all of them. Each DISTINCT message is reported exactly once; a mixed
-  // config (default-dictionary rule + custom-dictionary rule) still gets
-  // both distinct install commands.
-  it('reports one deduped error when several spelling rules are missing the same peers', async () => {
-    vi.doMock('nspell', () => {
-      throw new Error("Cannot find module 'nspell'");
-    });
-
-    const validate = await freshValidate();
-    const result = await validate({
-      'recheck/spelling-one': {
-        severity: 'error' as const,
-        message: 'Unknown word "%s"%s',
-        assertions: { spelling: {} },
-      },
-      'recheck/spelling-two': {
-        severity: 'error' as const,
-        message: 'Unknown word "%s"%s',
-        assertions: { spelling: {} },
-      },
-    });
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toHaveLength(1);
-    expect(result.errors[0].message).toContain('npm i nspell dictionary-en');
-  });
-
-  it('a mixed default-dictionary + custom-dictionary config still reports both distinct install commands', async () => {
-    vi.doMock('nspell', () => {
-      throw new Error("Cannot find module 'nspell'");
-    });
-
-    // The custom dictionary's files must actually EXIST here: this test is
-    // about the peer-dependency install-command messages, not the (separate)
-    // dictionary-file-existence check added alongside it -- a bogus,
-    // nonexistent path would add a third, unrelated error and break the
-    // `toHaveLength(2)` assertion below.
+  it('passes when the custom dictionary files exist and are readable', async () => {
     const dictionaryEn = (await import('dictionary-en')).default;
     const dir = await makeTmpDir();
     const base = path.join(dir, 'custom');
@@ -220,63 +129,10 @@ describe('spelling: MISSING-PEER validation', () => {
     await fs.writeFile(`${base}.dic`, dictionaryEn.dic);
 
     const validate = await freshValidate();
-    const result = await validate({
-      'recheck/spelling-default': {
-        severity: 'error' as const,
-        message: 'Unknown word "%s"%s',
-        assertions: { spelling: {} },
-      },
-      'recheck/spelling-custom': {
-        severity: 'error' as const,
-        message: 'Unknown word "%s"%s',
-        assertions: { spelling: { dictionary: base } },
-      },
-    });
+    const result = await validate(spellingConfig({ dictionary: base }));
 
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toHaveLength(2);
-    const messages = result.errors.map((error) => error.message);
-    expect(messages.some((m) => m.includes('npm i nspell dictionary-en'))).toBe(true);
-    expect(messages.some((m) => m.includes('npm i nspell') && !m.includes('dictionary-en'))).toBe(
-      true
-    );
-  });
-
-  // Bugbot finding, layer 2: the custom-dictionary install-command test above
-  // deliberately keeps a bogus path (nspell itself is mocked missing there,
-  // so the file-existence check is irrelevant to it); THIS describe block is
-  // dedicated to the new file-existence check itself.
-  describe('spelling: custom dictionary FILE-EXISTENCE validation', () => {
-    it('reports an actionable error naming the resolved .aff/.dic paths when they do not exist', async () => {
-      vi.doMock('nspell', () => ({ default: () => ({ correct: () => true, suggest: () => [] }) }));
-
-      const dir = await makeTmpDir();
-      const base = path.join(dir, 'missing-custom');
-
-      const validate = await freshValidate();
-      const result = await validate(spellingConfig({ dictionary: base }));
-
-      expect(result.isValid).toBe(false);
-      const messages = result.errors.map((error) => error.message).join('\n');
-      expect(messages).toContain(`${base}.aff`);
-      expect(messages).toContain(`${base}.dic`);
-    });
-
-    it('passes when the custom dictionary files exist and are readable', async () => {
-      vi.doMock('nspell', () => ({ default: () => ({ correct: () => true, suggest: () => [] }) }));
-
-      const dictionaryEn = (await import('dictionary-en')).default;
-      const dir = await makeTmpDir();
-      const base = path.join(dir, 'custom');
-      await fs.writeFile(`${base}.aff`, dictionaryEn.aff);
-      await fs.writeFile(`${base}.dic`, dictionaryEn.dic);
-
-      const validate = await freshValidate();
-      const result = await validate(spellingConfig({ dictionary: base }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
+    expect(result.isValid).toBe(true);
+    expect(result.errors).toEqual([]);
   });
 });
 

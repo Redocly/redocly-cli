@@ -133,9 +133,8 @@ export interface MetricAssertion {
 // Vale-parity `spelling` check (detection-only): tokenizes each scoped
 // segment's text into words and flags any word an nspell/Hunspell speller
 // doesn't recognize, with up to three suggested corrections. `nspell` and
-// its default dictionary (`dictionary-en`) are OPTIONAL peer dependencies,
-// loaded lazily only when a `spelling` assertion actually runs; config
-// validation reports an actionable install command when they're missing.
+// its default dictionary (`dictionary-en`) are loaded lazily, only when a
+// `spelling` assertion actually runs.
 // Code blocks are never spell-checked when the rule is scoped to prose
 // (they're their own `scope: 'code'` segment); inline code spans are
 // masked out before tokenizing. See rules/scope/spelling.ts.

@@ -10,19 +10,15 @@ import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
 import { isAllCapsWord } from './title-case.js';
 
-// -- Optional peers -------------------------------------------------------
+// -- Lazy speller ---------------------------------------------------------
 //
-// `nspell` and its default dictionary (`dictionary-en`) are OPTIONAL peer
-// dependencies (see package.json's `peerDependenciesMeta`), referenced only
-// via dynamic `import()` and only reached when a config actually enables
-// `spelling` — never merely by this module being imported. Config
-// validation attempts the same imports up front, so a missing peer fails
-// with an actionable install command at config-load time (see
-// `checkSpellingPeerDependencies` in ../../config/validate.ts).
+// `nspell` and its default dictionary (`dictionary-en`) are referenced only
+// via dynamic `import()`, reached when a config actually enables `spelling`
+// — never merely by this module being imported. Loading the 500+KB English
+// dictionary is the cost that laziness avoids for every spelling-free run.
 //
 // Minimal structural types for what's actually used from each package —
-// deliberately NOT `import type` of the real packages' own types, which
-// would force TypeScript to resolve them at typecheck/build time.
+// `nspell` ships no types (see ../../types/nspell.d.ts).
 interface Speller {
   correct(word: string): boolean;
   suggest(word: string): string[];

@@ -17,8 +17,6 @@ const result = await build({
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
-  // The engine imports these spell-check packages dynamically; a user installs them on demand.
-  external: ['nspell', 'dictionary-en'],
   minify: true,
   keepNames: false,
   metafile: true,
@@ -100,6 +98,13 @@ cpSync(
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
 );
+
+// dictionary-en reads its .aff and .dic files relative to import.meta.url,
+// so they must sit next to the chunk that esbuild inlined the package into.
+const dictionaryDir = path.dirname(fileURLToPath(import.meta.resolve('dictionary-en')));
+for (const fileName of ['index.aff', 'index.dic']) {
+  cpSync(path.join(dictionaryDir, fileName), path.join(packageDir, 'lib', 'chunks', fileName));
+}
 
 function findLicenseText(pkgRoot) {
   for (const filename of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md']) {
