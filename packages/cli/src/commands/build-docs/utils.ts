@@ -12,7 +12,7 @@ import { redocStandaloneSri } from '../../utils/package.js';
 import type { BuildDocsOptions } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf8" />
