@@ -1058,4 +1058,24 @@ describe('runLint with embedded inputs', () => {
     expect(logger.lines.join('\n')).not.toContain('no rule in this configuration matches');
     expect(logger.errors.join('\n')).not.toContain('no rule in this configuration matches');
   });
+
+  it('counts a parsed API file with no descriptions as scanned, so its baseline entry goes stale', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(
+      path.join(dir, 'recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
+      'recheck/markdown',
+    ]);
+    const apiFile = path.join(dir, 'openapi.yaml');
+
+    const withApiFiles = collectingLogger();
+    await runLint([], config, { embeddedInputs: [], apiFiles: [apiFile] }, withApiFiles);
+    expect(withApiFiles.lines.join('\n')).toContain('1 stale');
+
+    const withoutApiFiles = collectingLogger();
+    await runLint([], config, { embeddedInputs: [] }, withoutApiFiles);
+    expect(withoutApiFiles.lines.join('\n')).toContain('0 stale');
+  });
 });

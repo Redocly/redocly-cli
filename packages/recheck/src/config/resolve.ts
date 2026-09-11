@@ -96,6 +96,16 @@ function applyDescriptionOverrides(
       errors.push({ message: `"${name}" has unknown keys: ${unknown.join(', ')}`, path });
       continue;
     }
+    if (
+      'severity' in value &&
+      !(typeof value.severity === 'string' && SEVERITIES.has(value.severity))
+    ) {
+      errors.push({
+        message: `"${name}" has an unknown severity "${String(value.severity)}"`,
+        path,
+      });
+      continue;
+    }
     byName.set(name, { ...rule, ...(value as Partial<NormalizedRule>) });
   }
   return { rules: [...byName.values()], errors };

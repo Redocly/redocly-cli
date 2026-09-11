@@ -173,4 +173,39 @@ describe('resolveRecheckConfig', () => {
       },
     ]);
   });
+
+  it('rejects an apiDescriptions rule-object override with an unknown severity', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: { 'recheck/line-length': { severity: 'loud' } } } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '"recheck/line-length" has an unknown severity "loud"',
+        path: 'recheck.apiDescriptions.rules.recheck/line-length',
+      },
+    ]);
+  });
+
+  it('applies an apiDescriptions rule-object override with a valid severity', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: {
+        apiDescriptions: {
+          rules: { 'recheck/line-length': { severity: 'warn', message: 'Shorter.' } },
+        },
+      },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const descriptions = new Map(result.config.descriptionRules.map((rule) => [rule.name, rule]));
+    expect(descriptions.get('recheck/line-length')).toMatchObject({
+      severity: 'warn',
+      message: 'Shorter.',
+    });
+  });
 });

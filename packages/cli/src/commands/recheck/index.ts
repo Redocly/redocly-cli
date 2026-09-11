@@ -107,8 +107,9 @@ async function collectEmbeddedInputs(
   apiPaths: string[],
   config: Config,
   engineLogger: Logger
-): Promise<{ inputs: EmbeddedInput[]; failureCount: number }> {
+): Promise<{ inputs: EmbeddedInput[]; failureCount: number; apiFiles: string[] }> {
   const descriptions: CollectedDescription[] = [];
+  const apiFiles = new Set<string>();
   let failureCount = 0;
   // Two APIs may `$ref` the same file, so the descriptions of that file are
   // deduplicated across every API, not within one.
@@ -124,7 +125,8 @@ async function collectEmbeddedInputs(
       failureCount++;
       continue;
     }
-    for (const description of collected) {
+    for (const file of collected.files) apiFiles.add(file);
+    for (const description of collected.descriptions) {
       const key = `${description.source.absoluteRef}${description.pointer}`;
       if (seen.has(key)) continue;
       seen.add(key);
@@ -137,7 +139,7 @@ async function collectEmbeddedInputs(
       `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.`
     );
   }
-  return { inputs, failureCount };
+  return { inputs, failureCount, apiFiles: [...apiFiles] };
 }
 
 // True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
@@ -261,11 +263,11 @@ async function runAction(
     );
   }
 
-  const { inputs: embeddedInputs, failureCount } = await collectEmbeddedInputs(
-    apiPaths,
-    config,
-    engineLogger
-  );
+  const {
+    inputs: embeddedInputs,
+    failureCount,
+    apiFiles,
+  } = await collectEmbeddedInputs(apiPaths, config, engineLogger);
   // A baseline built from a partial set of descriptions would hide findings.
   if (action === 'baseline' && failureCount > 0) {
     engineLogger.error(
@@ -280,7 +282,7 @@ async function runAction(
       : await runLint(
           roots,
           resolved,
-          { ...lintOptions(argv), embeddedInputs, isIgnored },
+          { ...lintOptions(argv), embeddedInputs, apiFiles, isIgnored },
           engineLogger
         );
   // An API description that failed to parse fails the gate even when the

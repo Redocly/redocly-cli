@@ -60,9 +60,9 @@ describe('collectDescriptions', () => {
   it('collects every string description with its pointer and owning source', async () => {
     const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
     const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const collected = await collectDescriptions(join(dir, 'openapi.yaml'), config);
+    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
     const byPointer = new Map(
-      collected.map((entry) => [`${entry.source.absoluteRef}${entry.pointer}`, entry.text])
+      descriptions.map((entry) => [`${entry.source.absoluteRef}${entry.pointer}`, entry.text])
     );
     expect(byPointer.get(`${join(dir, 'openapi.yaml')}#/info/description`)).toBe(
       'Welcome to the museum.\nBuy a ticket first.\n'
@@ -81,16 +81,16 @@ describe('collectDescriptions', () => {
   it('collects a $ref target once, however many refs point at it', async () => {
     const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
     const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const collected = await collectDescriptions(join(dir, 'openapi.yaml'), config);
-    const ticket = collected.filter((entry) => entry.pointer === '#/Ticket/description');
+    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
+    const ticket = descriptions.filter((entry) => entry.pointer === '#/Ticket/description');
     expect(ticket).toHaveLength(1);
   });
 
   it('leaves summary out', async () => {
     const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
     const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const collected = await collectDescriptions(join(dir, 'openapi.yaml'), config);
-    expect(collected.some((entry) => entry.pointer.endsWith('/summary'))).toBe(false);
+    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
+    expect(descriptions.some((entry) => entry.pointer.endsWith('/summary'))).toBe(false);
   });
 
   it('reads JSON documents', async () => {
@@ -102,7 +102,15 @@ describe('collectDescriptions', () => {
       }),
     });
     const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const collected = await collectDescriptions(join(dir, 'openapi.json'), config);
-    expect(collected.map((entry) => entry.text)).toContain('Json intro.');
+    const { descriptions } = await collectDescriptions(join(dir, 'openapi.json'), config);
+    expect(descriptions.map((entry) => entry.text)).toContain('Json intro.');
+  });
+
+  it('returns the root document and every local $ref source as scanned files', async () => {
+    const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
+    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
+    const { files } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
+    expect(files).toContain(join(dir, 'openapi.yaml'));
+    expect(files).toContain(join(dir, 'schemas.yaml'));
   });
 });

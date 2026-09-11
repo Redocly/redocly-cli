@@ -32,6 +32,8 @@ export interface LintOptions {
   outputPath?: string;
   // Descriptions extracted from API documents; they lint in embedded mode.
   embeddedInputs?: EmbeddedInput[];
+  // Local API files that were read for descriptions; a parsed file with none still counts as scanned.
+  apiFiles?: string[];
   // Returns true for a finding the caller's ignore file suppresses.
   isIgnored?: (problem: Problem) => boolean;
 }
@@ -46,6 +48,7 @@ export async function runLint(
   logger: Logger
 ): Promise<number> {
   let embeddedInputs = options.embeddedInputs ?? [];
+  let apiFiles = options.apiFiles ?? [];
   // An explicitly empty path list means "no page discovery"; the default
   // parameter still covers the call that passes no paths at all.
   const roots = Array.isArray(paths) && paths.length === 0 ? [] : toRoots(paths);
@@ -137,6 +140,7 @@ export async function runLint(
       }
       files = changedFiles;
       embeddedInputs = changedEmbeddedInputs;
+      apiFiles = apiFiles.filter((file) => changedSet.has(pathModule.resolve(file)));
     }
 
     const fileInputs: FileInput[] = [];
@@ -216,7 +220,9 @@ export async function runLint(
 
     let problems: Problem[] = [...pageProblems];
     const executedDescriptionRules = new Set<string>();
-    if (embeddedInputs.length > 0) {
+    // A scanned API file with zero descriptions still needs the description
+    // rules recorded as executed, so a leftover baseline entry for it goes stale.
+    if (embeddedInputs.length > 0 || apiFiles.length > 0) {
       // The page side already validated the rule names. Description rules go
       // through `applyFilters` for severity and tags only; a name filter there
       // would treat a rule that severity or tags dropped as unknown and throw.
@@ -266,7 +272,11 @@ export async function runLint(
     // catch like any other fatal.
     let reportProblems = problems;
     let baselineStats: { matched: number; new: number; stale: number } | undefined;
-    const embeddedFiles = [...new Set(embeddedInputs.map((input) => input.file))];
+    // Union with `apiFiles`: a parsed API file with no local descriptions has
+    // no entry in `embeddedInputs`, but it was still scanned.
+    const scannedDescriptionFiles = [
+      ...new Set([...embeddedInputs.map((input) => input.file), ...apiFiles]),
+    ];
     if (config.baselinePath) {
       let baselineText: string;
       try {
@@ -281,9 +291,10 @@ export async function runLint(
       const baseline = parseBaseline(baselineText, config.baselinePath);
       const toKey = baselineKeyMapper(config.configDir);
       const comparison = compareToBaseline(problems, baseline, {
-        scannedFiles: [...fileInputs.map((file) => file.path), ...embeddedFiles],
+        scannedFiles: [...fileInputs.map((file) => file.path), ...scannedDescriptionFiles],
         // Page rules run over the walked roots, so a run with no root ran
-        // none of them; description rules run only over embedded inputs.
+        // none of them; description rules run over embedded inputs and
+        // any parsed API file.
         executedRules: new Set([
           ...(roots.length > 0 ? rulesToRun.map((rule) => rule.name) : []),
           ...executedDescriptionRules,
@@ -304,7 +315,7 @@ export async function runLint(
       );
     }
 
-    const scannedFileCount = fileInputs.length + embeddedFiles.length;
+    const scannedFileCount = fileInputs.length + scannedDescriptionFiles.length;
 
     await generateReport(
       reportProblems,
