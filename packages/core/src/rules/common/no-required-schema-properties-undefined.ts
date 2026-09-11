@@ -62,13 +62,23 @@ export const NoRequiredSchemaPropertiesUndefined:
         parents.push(currentSchema);
         if (!isNotEmptyArray<string>(currentSchema.required)) return;
 
+        for (let i = 1; i < parents.length; i++) {
+          const parent = parents[i - 1];
+          if (
+            'not' in parent &&
+            parent.not != null &&
+            resolveSchema(parent.not, ctx).schema === parents[i]
+          ) {
+            return;
+          }
+        }
+
         const isCompositionChild = (parent: AnySchema, child: AnySchema): boolean => {
           const matchesChild = (s: AnySchema) => resolveSchema(s, ctx).schema === child;
           return !!(
             parent.allOf?.some(matchesChild) ||
             parent.anyOf?.some(matchesChild) ||
-            parent.oneOf?.some(matchesChild) ||
-            ('not' in parent && parent.not != null && matchesChild(parent.not))
+            parent.oneOf?.some(matchesChild)
           );
         };
 

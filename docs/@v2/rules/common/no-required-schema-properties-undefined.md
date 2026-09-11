@@ -128,8 +128,8 @@ schemas:
         example: doggie
 ```
 
-`required` inside `not` is also **correct** when the properties are defined on the enclosing schema.
-This is the usual way to assert that two properties are mutually exclusive:
+The rule does not check `required` inside `not`.
+Those names assert that a property must be absent, not that it must be declared in `properties`.
 
 ```yaml
 schemas:
