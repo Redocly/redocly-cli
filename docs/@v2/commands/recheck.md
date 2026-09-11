@@ -4,11 +4,15 @@
 
 The `recheck` command lints Markdown files for prose and structure problems.
 It checks headings, sentences, links, images, and Markdoc tags against a set of rules.
+`recheck` also lints the `description` fields of API descriptions.
+Each finding reports the file, line, and column of the description in the source.
 
 Rules come from presets, such as `recheck/markdown`, that you add to the root `extends` in `redocly.yaml`.
 The [`recheck` block](../configuration/reference/recheck.md) adjusts those rules.
 With no `redocly.yaml`, the command uses `recheck/markdown`.
 With a `redocly.yaml` that has neither, the command checks nothing and says so.
+With no paths, the command lints the Markdown files under the current directory and every local API in `apis`.
+With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
 
 ## Usage
 
@@ -129,6 +133,33 @@ recheck:
 ```
 
 After you fix errors, generate the baseline again and commit the smaller file.
+When an API description does not parse, the command writes no baseline and fails.
+
+### Lint API descriptions
+
+```bash
+redocly recheck openapi.yaml
+```
+
+The command lints every `description` in `openapi.yaml` and in the files it references.
+Rules that need a whole document, such as `recheck/single-h1`, do not run on descriptions.
+`--fix` does not change API files.
+It reports how many fixable findings it skipped.
+An API description that does not parse is an error and fails the run.
+
+To suppress one finding without a change to the API file, list it in `.redocly.lint-ignore.yaml` by file, rule, and pointer:
+
+```yaml
+openapi.yaml:
+  recheck/line-length:
+    - '#/info/description'
+```
+
+Key the rule by its full name, such as `recheck/line-length`, or by its short name.
+A local API that references a remote `$ref` makes the command fetch it, the same as `redocly lint`.
+The command lints only descriptions in local files.
+
+To adjust rules for descriptions only, set `apiDescriptions.rules` in the `recheck` block.
 
 ### Check readability
 

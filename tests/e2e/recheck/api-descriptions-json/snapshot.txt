@@ -1,0 +1,38 @@
+{
+  "summary": {
+    "filesScanned": 1,
+    "totalIssues": 1,
+    "breakdown": {
+      "recheck/line-length": {
+        "errors": 1,
+        "warnings": 0,
+        "info": 0,
+        "total": 1
+      }
+    }
+  },
+  "issues": [
+    {
+      "file": "./tests/e2e/recheck/api-descriptions-json/openapi.json",
+      "line": 6,
+      "column": 101,
+      "text": "This description is far too long for the line-length rule because it keeps going without a break until the limit is well behind it.",
+      "match": "",
+      "ruleName": "recheck/line-length",
+      "severity": "error",
+      "message": "Line length (Expected: 80; Actual: 131)",
+      "fixable": false,
+      "pointer": "#/info/description"
+    }
+  ]
+}
+
+🏃 Running recheck on: 1 API description(s)
+
+🔧 Running 53 rule(s)...
+   Found 0 markdown file(s)
+
+   Annotations prepared: 1
+
+❌ Found 1 error(s). Exiting with code 1.
+   Completed in <time>

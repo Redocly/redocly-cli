@@ -1,11 +1,11 @@
-import { logger, type Config } from '@redocly/openapi-core';
-import { existsSync, mkdtempSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { createConfig, logger, Source, type Config } from '@redocly/openapi-core';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
 import { AbortFlowError } from '../../../utils/error.js';
-import { handleRecheck } from '../index.js';
+import { handleRecheck, toEmbeddedInputs } from '../index.js';
 
 function fakeConfig(
   recheck: unknown,
@@ -91,17 +91,183 @@ describe('handleRecheck', () => {
     expect(err.join('')).toContain('root `extends`');
   });
 
-  it('skips an API description with a notice', async () => {
+  // A single unbroken word never trips `recheck/line-length` (the rule collapses a
+  // line's trailing non-whitespace run before measuring length); use wrappable
+  // multi-word content instead, matching packages/recheck's own embedded-lint tests.
+  const LONG = 'lorem ipsum dolor sit amet '.repeat(6).trim();
+  const API = `openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\n  description: |\n    Intro.\n    ${LONG}\npaths: {}\n`;
+
+  async function realConfig(dir: string, raw: Record<string, unknown>) {
+    return createConfig(raw, { configPath: join(dir, 'redocly.yaml') });
+  }
+
+  it('lints an explicit API description path at its source position', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
+    const report = JSON.parse(out.join(''));
+    const finding = report.issues.find(
+      (issue: { ruleName: string }) => issue.ruleName === 'recheck/line-length'
+    );
+    expect(finding.file).toBe(join(dir, 'openapi.yaml'));
+    expect(finding.line).toBe(7);
+    expect(finding.pointer).toBe('#/info/description');
+  });
+
+  it('fails the run when an explicit API path does not parse as YAML', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'broken.yaml'), 'title: [t');
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'broken.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
+    expect(err.join('')).toContain('Could not read API description');
+    const report = JSON.parse(out.join(''));
+    expect(report.issues).toHaveLength(0);
+  });
+
+  it('lints a valid yaml file that is not an API description as a page', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'notes.yaml'), 'foo: bar\n');
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'notes.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
+    expect(() => JSON.parse(out.join(''))).not.toThrow();
+    expect(err.join('')).not.toContain('Could not read API description');
+  });
+
+  it('lints every API in apis when no paths are given', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, {
+      extends: ['recheck/markdown'],
+      apis: { main: { root: './openapi.yaml' } },
+    });
+    const cwd = process.cwd();
+    process.chdir(dir);
+    try {
+      await expect(handleRecheck({ argv: { format: 'json' }, config } as never)).rejects.toThrow(
+        AbortFlowError
+      );
+    } finally {
+      process.chdir(cwd);
+    }
+    const report = JSON.parse(out.join(''));
+    expect(
+      report.issues.some((issue: { file: string }) => issue.file.endsWith('openapi.yaml'))
+    ).toBe(true);
+  });
+
+  it('suppresses a description finding listed in the ignore file', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    config.ignore[join(dir, 'openapi.yaml')] = {
+      'recheck/line-length': new Set(['#/info/description']),
+    };
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).resolves.toBeUndefined();
+    const report = JSON.parse(out.join(''));
+    expect(report.issues).toHaveLength(0);
+    expect(err.join('')).toContain('1 finding(s) suppressed by the ignore file');
+  });
+
+  it('reports a description shared by two APIs once', async () => {
+    const dir = fixture();
+    const operation = `openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\npaths:\n  /tickets:\n    get:\n      responses:\n        '200':\n          description: Tickets.\n          content:\n            application/json:\n              schema:\n                $ref: ./common.yaml#/Ticket\n`;
+    writeFileSync(join(dir, 'a.yaml'), operation);
+    writeFileSync(join(dir, 'b.yaml'), operation);
+    writeFileSync(
+      join(dir, 'common.yaml'),
+      `Ticket:\n  type: object\n  description: |\n    ${LONG}\n`
+    );
+    const config = await realConfig(dir, {
+      extends: ['recheck/markdown'],
+      apis: {
+        first: { root: './a.yaml' },
+        second: { root: './b.yaml' },
+        alias: { root: './a.yaml' },
+      },
+    });
+    const cwd = process.cwd();
+    process.chdir(dir);
+    try {
+      await expect(handleRecheck({ argv: { format: 'json' }, config } as never)).rejects.toThrow(
+        AbortFlowError
+      );
+    } finally {
+      process.chdir(cwd);
+    }
+    const report = JSON.parse(out.join(''));
+    const shared = report.issues.filter((issue: { file: string }) =>
+      issue.file.endsWith('common.yaml')
+    );
+    expect(shared).toHaveLength(1);
+  });
+
+  it('writes an empty JSON report for an API with no descriptions', async () => {
     const dir = fixture();
     writeFileSync(
       join(dir, 'openapi.yaml'),
-      'openapi: 3.1.0\ninfo:\n  title: t\n  version: 1\npaths: {}\n'
+      'openapi: 3.1.0\ninfo:\n  title: t\n  version: "1"\npaths: {}\n'
     );
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).resolves.toBeUndefined();
+    const report = JSON.parse(out.join(''));
+    expect(report.summary.totalIssues).toBe(0);
+    expect(err.join('')).toContain('Running recheck on: nothing to check');
+  });
+
+  it('suppresses a description finding that the ignore file keys by short rule name', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
+    config.ignore[join(dir, 'openapi.yaml')] = {
+      'line-length': new Set(['#/info/description']),
+    };
+    await expect(
+      handleRecheck({
+        argv: { paths: [join(dir, 'openapi.yaml')], format: 'json' },
+        config,
+      } as never)
+    ).resolves.toBeUndefined();
+    const report = JSON.parse(out.join(''));
+    expect(report.issues).toHaveLength(0);
+  });
+
+  it('skips API descriptions for readability with one notice', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'openapi.yaml'), API);
+    const config = await realConfig(dir, { extends: ['recheck/markdown'] });
     await handleRecheck({
-      argv: { paths: [join(dir, 'openapi.yaml'), join(dir, 'docs')], format: 'table' },
-      config: fakeConfig({ rules: {} }, ['recheck/markdown'], join(dir, 'redocly.yaml')),
+      argv: { paths: [join(dir, 'openapi.yaml')], format: 'table', readability: true },
+      config,
     } as never);
-    expect(err.join('')).toContain('API descriptions are linted from the next release; skipped');
+    expect(err.join('')).toContain(
+      'Readability scores cover Markdown files only; skipped 1 API description(s).'
+    );
   });
 
   it('rejects conflicting action flags', async () => {
@@ -141,6 +307,29 @@ describe('handleRecheck', () => {
       } as never)
     ).resolves.toBeUndefined();
     expect(existsSync(join(dir, '.recheck-baseline.yaml'))).toBe(true);
+  });
+
+  it('keeps the existing baseline when an API description does not parse', async () => {
+    const dir = fixture();
+    writeFileSync(join(dir, 'broken.yaml'), 'title: [t');
+    const existing = 'version: 1\nfiles: {}\n';
+    writeFileSync(join(dir, '.recheck-baseline.yaml'), existing);
+    const config = await realConfig(dir, {
+      extends: ['recheck/markdown'],
+      recheck: { baseline: './.recheck-baseline.yaml' },
+    });
+    await expect(
+      handleRecheck({
+        argv: {
+          paths: [join(dir, 'docs'), join(dir, 'broken.yaml')],
+          format: 'table',
+          'generate-baseline': true,
+        },
+        config,
+      } as never)
+    ).rejects.toThrow(AbortFlowError);
+    expect(err.join('')).toContain('Baseline not written');
+    expect(readFileSync(join(dir, '.recheck-baseline.yaml'), 'utf8')).toBe(existing);
   });
 
   it('generates a Markdoc schema without resolving the recheck config', async () => {
@@ -185,5 +374,26 @@ describe('handleRecheck', () => {
       '--output-path applies to --format json and sarif; the report goes to stdout.'
     );
     expect(existsSync(outputPath)).toBe(false);
+  });
+});
+
+describe('toEmbeddedInputs', () => {
+  it('skips a description reached through a remote $ref and counts it', () => {
+    const remote = {
+      source: new Source('https://example.com/schemas.yaml', 'description: text\n'),
+      pointer: '#/description',
+      text: 'text',
+    };
+    const local = {
+      source: new Source(join(tmpdir(), 'schemas.yaml'), 'description: text\n'),
+      pointer: '#/description',
+      text: 'text',
+    };
+
+    const { inputs, remoteSkipped } = toEmbeddedInputs([remote, local]);
+
+    expect(inputs).toHaveLength(1);
+    expect(remoteSkipped).toBe(1);
+    expect(inputs[0].file).toBe(local.source.absoluteRef);
   });
 });

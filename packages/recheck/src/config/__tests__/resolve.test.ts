@@ -61,17 +61,6 @@ describe('resolveRecheckConfig', () => {
     expect(result.config.markdocSchema).not.toBeNull();
   });
 
-  it('keeps apiDescriptions rules raw for the API path', async () => {
-    const result = await resolveRecheckConfig({
-      extends: ['recheck/markdown'],
-      block: { apiDescriptions: { rules: { 'recheck/line-length': 'off' } } },
-      configDir,
-    });
-    expect(result.success).toBe(true);
-    if (!result.success) return;
-    expect(result.config.apiDescriptionRules).toEqual({ 'recheck/line-length': 'off' });
-  });
-
   it('rejects extends inside the block with a pointer to the root', async () => {
     const result = await resolveRecheckConfig({
       block: { extends: ['recheck/markdown'] },
@@ -129,5 +118,94 @@ describe('resolveRecheckConfig', () => {
         message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
       )
     ).toBe(true);
+  });
+
+  it('applies apiDescriptions.rules onto the effective rules for descriptions', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: {
+        apiDescriptions: {
+          rules: {
+            'recheck/line-length': 'off',
+            'recheck/no-trailing-spaces': { severity: 'warn' },
+          },
+        },
+      },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const pages = new Map(result.config.rules.map((rule) => [rule.name, rule.severity]));
+    const descriptions = new Map(
+      result.config.descriptionRules.map((rule) => [rule.name, rule.severity])
+    );
+    expect(pages.get('recheck/line-length')).not.toBe('off');
+    expect(descriptions.get('recheck/line-length')).toBe('off');
+    expect(descriptions.get('recheck/no-trailing-spaces')).toBe('warn');
+    expect(result.config.descriptionRules).toHaveLength(result.config.rules.length);
+  });
+
+  it('rejects an apiDescriptions override for a rule that is not in effect', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: { 'recheck/nope': 'off' } } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors.map((error) => error.path)).toEqual([
+      'recheck.apiDescriptions.rules.recheck/nope',
+    ]);
+  });
+
+  it('rejects an apiDescriptions severity override with an unknown severity', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: { 'recheck/line-length': 'eror' } } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '"recheck/line-length" has an unknown severity "eror"',
+        path: 'recheck.apiDescriptions.rules.recheck/line-length',
+      },
+    ]);
+  });
+
+  it('rejects an apiDescriptions rule-object override with an unknown severity', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: { 'recheck/line-length': { severity: 'loud' } } } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '"recheck/line-length" has an unknown severity "loud"',
+        path: 'recheck.apiDescriptions.rules.recheck/line-length',
+      },
+    ]);
+  });
+
+  it('applies an apiDescriptions rule-object override with a valid severity', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: {
+        apiDescriptions: {
+          rules: { 'recheck/line-length': { severity: 'warn', message: 'Shorter.' } },
+        },
+      },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const descriptions = new Map(result.config.descriptionRules.map((rule) => [rule.name, rule]));
+    expect(descriptions.get('recheck/line-length')).toMatchObject({
+      severity: 'warn',
+      message: 'Shorter.',
+    });
   });
 });

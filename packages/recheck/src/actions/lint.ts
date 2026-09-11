@@ -5,13 +5,14 @@ import * as pathModule from 'path';
 import type { ResolvedRecheckConfig } from '../config/resolve.js';
 import { parseBaseline, compareToBaseline, baselineKeyMapper } from '../core/baseline.js';
 import { loadChangedFiles, needsImageMetadata, loadImageMetadata } from '../core/files.js';
-import { applyFilters, UnknownRuleNameError } from '../core/rule-filters.js';
+import { applyFilters, matchesRuleName, UnknownRuleNameError } from '../core/rule-filters.js';
 import { runRules, runRulesUntilStable, type FileInput } from '../core/runner.js';
 import { Timer } from '../core/timing.js';
 import { reportFixes } from '../reporter/fixes.js';
 import { generateReport, generateEmptyReport } from '../reporter/index.js';
 import { buildSummary, printSummary } from '../reporter/summary.js';
-import type { NormalizedRule } from '../types/index.js';
+import type { NormalizedRule, Problem } from '../types/index.js';
+import { lintEmbeddedInputs, type EmbeddedInput } from './embedded.js';
 import type { Logger } from './logger.js';
 import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 
@@ -29,6 +30,12 @@ export interface LintOptions {
   changedOnly?: boolean;
   changedListPath?: string;
   outputPath?: string;
+  // Descriptions extracted from API documents; they lint in embedded mode.
+  embeddedInputs?: EmbeddedInput[];
+  // Local API files that were read for descriptions; a parsed file with none still counts as scanned.
+  apiFiles?: string[];
+  // Returns true for a finding the caller's ignore file suppresses.
+  isIgnored?: (problem: Problem) => boolean;
 }
 
 /**
@@ -40,8 +47,18 @@ export async function runLint(
   options: LintOptions,
   logger: Logger
 ): Promise<number> {
-  const roots = toRoots(paths);
-  logger.log(cyan(`🏃 Running recheck on: ${roots.join(', ')}`));
+  let embeddedInputs = options.embeddedInputs ?? [];
+  let apiFiles = options.apiFiles ?? [];
+  // An explicitly empty path list means "no page discovery"; the default
+  // parameter still covers the call that passes no paths at all.
+  const roots = Array.isArray(paths) && paths.length === 0 ? [] : toRoots(paths);
+  const targets = [
+    ...roots,
+    ...(embeddedInputs.length > 0 ? [`${embeddedInputs.length} API description(s)`] : []),
+  ];
+  logger.log(
+    cyan(`🏃 Running recheck on: ${targets.length > 0 ? targets.join(', ') : 'nothing to check'}`)
+  );
 
   let rulesToRun: NormalizedRule[];
   let disabledCount: number;
@@ -72,8 +89,12 @@ export async function runLint(
   try {
     let files = await discoverFilesForRoots(roots);
 
-    if (files.length === 0) {
-      logger.log(yellow(`⚠️  No markdown files found in: ${roots.join(', ')}`));
+    if (files.length === 0 && embeddedInputs.length === 0) {
+      // An empty target list has nothing to name here; the top-of-run
+      // message already said so.
+      if (roots.length > 0) {
+        logger.log(yellow(`⚠️  No markdown files found in: ${roots.join(', ')}`));
+      }
       // With an active baseline on an exhaustive walk, fall through with zero
       // files instead of returning: the gate must still judge the walked root
       // (deleting the last baselined files turns their entries stale), and its
@@ -89,7 +110,8 @@ export async function runLint(
 
     logger.log(`   Found ${files.length} markdown file(s)`);
 
-    // If changed-only, filter to files provided via --changed-list or stdin
+    // If changed-only, filter to the files provided via --changed-list or
+    // stdin. The filter covers pages and API descriptions alike.
     if (options.changedOnly) {
       const changedCandidates = await loadChangedFiles(options.changedListPath);
       if (!changedCandidates || changedCandidates.length === 0) {
@@ -102,20 +124,27 @@ export async function runLint(
         return 0;
       }
       const changedSet = new Set(
-        changedCandidates.map((p) => (pathModule.isAbsolute(p) ? p : pathModule.resolve(p)))
+        changedCandidates.map((candidate) =>
+          pathModule.isAbsolute(candidate) ? candidate : pathModule.resolve(candidate)
+        )
       );
-      const filtered = files.filter((f: string) => changedSet.has(pathModule.resolve(f)));
-      logger.log(`   Filtering to ${filtered.length} changed file(s)`);
-      if (filtered.length === 0) {
+      const changedFiles = files.filter((file: string) => changedSet.has(pathModule.resolve(file)));
+      const changedEmbeddedInputs = embeddedInputs.filter((input) =>
+        changedSet.has(pathModule.resolve(input.file))
+      );
+      logger.log(`   Filtering to ${changedFiles.length} changed file(s)`);
+      if (changedFiles.length === 0 && changedEmbeddedInputs.length === 0) {
         logger.log(yellow('   Warning: No changed markdown files matched.'));
         await emitEmptyReport(options, logger);
         return 0;
       }
-      files = filtered;
+      files = changedFiles;
+      embeddedInputs = changedEmbeddedInputs;
+      apiFiles = apiFiles.filter((file) => changedSet.has(pathModule.resolve(file)));
     }
 
-    const loadImageMeta = needsImageMetadata(rulesToRun);
     const fileInputs: FileInput[] = [];
+    const loadImageMeta = needsImageMetadata(rulesToRun);
     for (const filePath of files) {
       try {
         const content = await fs.readFile(filePath, 'utf8');
@@ -151,7 +180,7 @@ export async function runLint(
       markdocSchema: config.markdocSchema,
     };
     const {
-      problems: allProblems,
+      problems: pageProblems,
       fixedFiles,
       fixes,
       skippedFixes,
@@ -189,12 +218,65 @@ export async function runLint(
       }
     }
 
+    let problems: Problem[] = [...pageProblems];
+    const executedDescriptionRules = new Set<string>();
+    // A scanned API file with zero descriptions still needs the description
+    // rules recorded as executed, so a leftover baseline entry for it goes stale.
+    if (embeddedInputs.length > 0 || apiFiles.length > 0) {
+      // The page side already validated the rule names. Description rules go
+      // through `applyFilters` for severity and tags only; a name filter there
+      // would treat a rule that severity or tags dropped as unknown and throw.
+      const { filtered: severityAndTagsFiltered } = applyFilters(config.descriptionRules, {
+        severity: options.severity,
+        tags: options.tags,
+      });
+      let descriptionRules = severityAndTagsFiltered;
+      if (options.rules !== undefined && options.rules.length > 0) {
+        const ruleNames = options.rules;
+        descriptionRules = descriptionRules.filter((rule) =>
+          ruleNames.some((name) => matchesRuleName(rule, name))
+        );
+      }
+      if (options.excludeRules !== undefined && options.excludeRules.length > 0) {
+        const excludeRuleNames = options.excludeRules;
+        descriptionRules = descriptionRules.filter(
+          (rule) => !excludeRuleNames.some((name) => matchesRuleName(rule, name))
+        );
+      }
+      const noRulesLeftForDescriptions =
+        options.rules !== undefined && options.rules.length > 0 && descriptionRules.length === 0;
+
+      if (!noRulesLeftForDescriptions) {
+        for (const rule of descriptionRules) executedDescriptionRules.add(rule.name);
+        const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRules, runnerOptions);
+        problems.push(...embedded.problems);
+        if (options.fix && embedded.fixableCount > 0) {
+          logger.log(
+            yellow(
+              `   Fixes do not apply inside API descriptions; ${embedded.fixableCount} fixable finding(s) skipped.`
+            )
+          );
+        }
+      }
+    }
+    if (options.isIgnored) {
+      const before = problems.length;
+      problems = problems.filter((problem) => !options.isIgnored!(problem));
+      const suppressed = before - problems.length;
+      if (suppressed > 0) logger.log(`   ${suppressed} finding(s) suppressed by the ignore file.`);
+    }
+
     // Baseline gate: errors only, scoped to what this run scanned and which
     // rules ran (see core/baseline.ts). Missing file with the key set is an
     // error with the fix in the message; a parse failure lands in the outer
     // catch like any other fatal.
-    let reportProblems = allProblems;
+    let reportProblems = problems;
     let baselineStats: { matched: number; new: number; stale: number } | undefined;
+    // Union with `apiFiles`: a parsed API file with no local descriptions has
+    // no entry in `embeddedInputs`, but it was still scanned.
+    const scannedDescriptionFiles = [
+      ...new Set([...embeddedInputs.map((input) => input.file), ...apiFiles]),
+    ];
     if (config.baselinePath) {
       let baselineText: string;
       try {
@@ -208,9 +290,15 @@ export async function runLint(
       }
       const baseline = parseBaseline(baselineText, config.baselinePath);
       const toKey = baselineKeyMapper(config.configDir);
-      const comparison = compareToBaseline(allProblems, baseline, {
-        scannedFiles: fileInputs.map((file) => file.path),
-        executedRules: new Set(rulesToRun.map((rule) => rule.name)),
+      const comparison = compareToBaseline(problems, baseline, {
+        scannedFiles: [...fileInputs.map((file) => file.path), ...scannedDescriptionFiles],
+        // Page rules run over the walked roots, so a run with no root ran
+        // none of them; description rules run over embedded inputs and
+        // any parsed API file.
+        executedRules: new Set([
+          ...(roots.length > 0 ? rulesToRun.map((rule) => rule.name) : []),
+          ...executedDescriptionRules,
+        ]),
         toKey,
         // A changed-only run walks nothing exhaustively, so a missing file
         // proves nothing there; a plain run walked every root in full.
@@ -227,9 +315,11 @@ export async function runLint(
       );
     }
 
+    const scannedFileCount = fileInputs.length + scannedDescriptionFiles.length;
+
     await generateReport(
       reportProblems,
-      fileInputs.length,
+      scannedFileCount,
       {
         format: options.format || 'table',
         showStats: options.stats,
@@ -241,7 +331,7 @@ export async function runLint(
     );
 
     if (options.summary) {
-      const summary = buildSummary(reportProblems, fileInputs.length, baselineStats);
+      const summary = buildSummary(reportProblems, scannedFileCount, baselineStats);
       await printSummary(summary, options.summary, options.summaryPath, logger);
     }
 

@@ -1,0 +1,5 @@
+extends:
+  - recheck/markdown
+apis:
+  museum:
+    root: ./openapi.json
