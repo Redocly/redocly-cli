@@ -40,7 +40,14 @@ export const MARKDOC_REALM_SCHEMA: MarkdocSchema = {
         },
       },
     },
-    'accordion-group': {},
+    'accordion-group': {
+      attributes: {
+        singleExpanded: {
+          type: 'boolean',
+          default: false,
+        },
+      },
+    },
     admonition: {
       attributes: {
         name: {

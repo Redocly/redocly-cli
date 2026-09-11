@@ -45,6 +45,15 @@ const realm = tokenRuleHarness(
 );
 
 describe('markdoc-attributes', () => {
+  it('accepts singleExpanded on accordion-group in the Realm schema', async () => {
+    expect(
+      await realm.lint('{% accordion-group singleExpanded=true %}\n{% /accordion-group %}\n')
+    ).toEqual([]);
+    expect(
+      await realm.lint('{% accordion-group expanded=true %}\n{% /accordion-group %}\n')
+    ).toHaveLength(1);
+  });
+
   it('no-ops cleanly when the markdoc flag is off (ctx.markdoc absent)', async () => {
     const off = tokenRuleHarness('markdoc-attributes');
     expect(await off.lint('{% t req="x" /%}\n')).toEqual([]);
