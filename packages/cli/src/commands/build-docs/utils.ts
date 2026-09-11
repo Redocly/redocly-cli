@@ -1,15 +1,15 @@
-import { isAbsoluteUrl, logger, type Config } from '@redocly/openapi-core';
+import { logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import { default as redoc } from 'redoc';
-import { ServerStyleSheet } from 'styled-components';
+import { logoFromSpec, prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
-import { redocStandaloneSri } from '../../utils/package.js';
-import type { BuildDocsOptions } from './types.js';
+import type { BuildDocsOptions, SpecType } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 <html lang="en">
@@ -26,7 +26,6 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
     }
   </style>
   {{{redocHead}}}
-  {{#unless disableGoogleFont}}<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">{{/unless}}
 </head>
 
 <body>
@@ -37,30 +36,34 @@ const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
 `;
 
 export function getObjectOrJSON(
-  openapiOptions: string | Record<string, unknown>,
-  config: Config
-): JSON | Record<string, unknown> | Config {
-  switch (typeof openapiOptions) {
+  specOptions: string | Record<string, unknown> | undefined,
+  config: Config,
+  specType: SpecType
+): Record<string, unknown> {
+  switch (typeof specOptions) {
     case 'object':
-      return openapiOptions;
+      return specOptions;
     case 'string':
       try {
-        if (existsSync(openapiOptions) && lstatSync(openapiOptions).isFile()) {
-          return JSON.parse(readFileSync(openapiOptions, 'utf-8'));
+        if (existsSync(specOptions) && lstatSync(specOptions).isFile()) {
+          return JSON.parse(readFileSync(specOptions, 'utf-8'));
         } else {
-          return JSON.parse(openapiOptions);
+          return JSON.parse(specOptions);
         }
       } catch (e) {
         logger.error(
-          `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
+          `Encountered error:\n\n${specOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
         );
         exitWithError(e);
       }
       break;
     default: {
       if (config?.configPath) {
-        logger.info(`Found ${config.configPath} and using 'openapi' options\n`);
-        return config.resolvedConfig?.openapi ?? {};
+        logger.info(`Found ${config.configPath} and using '${specType}' options\n`);
+        const specConfigs = config.resolvedConfig as Partial<
+          Record<SpecType, Record<string, unknown>>
+        >;
+        return specConfigs?.[specType] ?? {};
       }
       return {};
     }
@@ -69,8 +72,7 @@ export function getObjectOrJSON(
 }
 
 export async function getPageHTML(
-  api: any,
-  pathToApi: string,
+  definition: Record<string, unknown> | string,
   {
     title,
     disableGoogleFont,
@@ -78,17 +80,27 @@ export async function getPageHTML(
     templateOptions,
     redocOptions = {},
     redocVersion,
+    disableTelemetry,
+    inlineBundle,
+    specType,
   }: BuildDocsOptions,
   configPath?: string
 ) {
   logger.info('Prerendering docs\n');
 
-  const apiUrl = redocOptions.specUrl || (isAbsoluteUrl(pathToApi) ? pathToApi : undefined);
-  const store = await redoc.createStore(api, apiUrl, redocOptions);
+  const pageOptions = { ...redocOptions, skipBundle: true, specType };
+  const prepared = await prepareApiDocs({ spec: definition, specType, options: pageOptions });
+  const app = createElement(RedoclyApiDocsStandalone, {
+    items: prepared.items,
+    store: prepared.store,
+    basePath: '/',
+    options: prepared.options,
+    logo: logoFromSpec(prepared.document),
+    telemetryConfig: { typeOfUsage: 'cli', disabled: disableTelemetry },
+    spec: prepared.document,
+  });
   const sheet = new ServerStyleSheet();
-
-  const html = renderToString(sheet.collectStyles(createElement(redoc.Redoc, { store })));
-  const state = await store.toJS();
+  const html = renderToString(sheet.collectStyles(app));
   const css = sheet.getStyleTags();
 
   const customTemplate =
@@ -101,23 +113,46 @@ export async function getPageHTML(
     ? readFileSync(customTemplate, 'utf-8')
     : DEFAULT_TEMPLATE_SOURCE;
   const template = handlebars.compile(templateSource);
+
+  const redocScript = inlineBundle
+    ? escapeClosingScriptTag(getRedocStandaloneSource())
+    : `import { hydrate } from "https://cdn.redoc.ly/redoc/v${redocVersion}/bundle/redoc.standalone.js";`;
+
+  const definitionTitle =
+    typeof definition === 'string'
+      ? undefined
+      : (definition.info as { title?: string } | undefined)?.title;
+
   return template({
     redocHTML: `
-      <div id="redoc">${html || ''}</div>
-      <script>
-      ${`const __redoc_state = ${sanitizeJSONString(JSON.stringify(state))};`}
+      <div id="redoc" style="--navbar-height:0px">${html}</div>
+      <script type="module">
+      ${redocScript}
 
-      var container = document.getElementById('redoc');
-      Redoc.${'hydrate(__redoc_state, container)'};
+      const __redoc_definition = ${sanitizeJSONString(JSON.stringify(definition))};
+      const __redoc_options = ${sanitizeJSONString(
+        JSON.stringify({ ...pageOptions, disableTelemetry })
+      )};
 
+      hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));
       </script>`,
-    redocHead:
-      `<script src="https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js" integrity="${redocStandaloneSri}" crossorigin="anonymous"></script>` +
-      css,
-    title: title || api.info.title || 'ReDoc documentation',
+    redocHead: css,
+    title: title || definitionTitle || 'ReDoc documentation',
     disableGoogleFont,
     templateOptions,
   });
+}
+
+function getRedocStandaloneSource(): string {
+  const bundledCopy = fileURLToPath(new URL('./redoc.standalone.js', import.meta.url));
+  if (existsSync(bundledCopy)) {
+    return readFileSync(bundledCopy, 'utf-8');
+  }
+  const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
+  return readFileSync(
+    path.join(path.dirname(redocPackageJsonPath), 'bundle', 'redoc.standalone.js'),
+    'utf-8'
+  );
 }
 
 export function sanitizeJSONString(str: string): string {

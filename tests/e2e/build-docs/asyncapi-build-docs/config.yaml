@@ -1,0 +1,4 @@
+openapi:
+  hideDownloadButtons: true
+asyncapi:
+  jsonSamplesDepth: 4
