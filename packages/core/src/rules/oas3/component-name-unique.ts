@@ -10,6 +10,8 @@ import type {
   Oas3_1Schema,
   OasRef,
 } from '../../typings/openapi.js';
+import { componentNameFromTitle } from '../../utils/component-name-from-title.js';
+import { effectiveRefTarget } from '../../utils/effective-ref-target.js';
 import { isSupportedExtension } from '../../utils/is-supported-extension.js';
 import type { Oas2Rule, Oas3Rule, Oas3Visitor } from '../../visitors.js';
 import type { Problem, UserContext } from '../../walk.js';
@@ -28,10 +30,13 @@ const TYPE_NAME_TO_OPTION_COMPONENT_NAME: { [key: string]: string } = {
   [TYPE_NAME_REQUEST_BODY]: 'requestBodies',
 };
 
-type ComponentsMapValue = { absolutePointers: Set<string>; locations: Location[] };
+type ComponentsMapValue = Map<string, Location>;
 
 export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   const components = new Map<string, ComponentsMapValue>();
+  const schemasWithoutTitle = new Map<string, Location>();
+  const useTitleStrategy = options.strategy === 'title';
+  let rootSourceRef: string;
 
   const typeNames: string[] = [];
   if (options.schemas !== 'off') {
@@ -49,26 +54,42 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
 
   const rule: Oas3Visitor = {
     ref: {
-      leave(ref: OasRef, { type, resolve }: UserContext) {
+      leave(ref: OasRef, { type, resolve, location }: UserContext) {
         const typeName = type.name;
         if (typeNames.includes(typeName)) {
           const resolvedRef = resolve(ref);
           if (!resolvedRef.location) return;
+
+          const target = effectiveRefTarget(resolvedRef);
+
+          if (usesTitleStrategy(typeName, target.location, location)) {
+            const { title, name } = componentNameFromTitle(target.node);
+            if (title) {
+              addFoundComponent(typeName, name, target.location, target.location.child('title'));
+              return;
+            }
+            schemasWithoutTitle.set(target.location.absolutePointer.toString(), target.location);
+            addComponentFromAbsoluteLocation(typeName, target.location);
+            return;
+          }
 
           addComponentFromAbsoluteLocation(typeName, resolvedRef.location);
         }
       },
     },
     Root: {
+      enter(_: AnyOas3Definition, { location }: UserContext) {
+        rootSourceRef = location.source.absoluteRef;
+      },
       leave(root: AnyOas3Definition, ctx: UserContext) {
-        components.forEach((value, key, _) => {
-          if (value.absolutePointers.size > 1) {
+        components.forEach((entry, key, _) => {
+          if (entry.size > 1) {
             const component = getComponentFromKey(key);
             const optionComponentName = getOptionComponentNameForTypeName(component.typeName);
             const componentSeverity = optionComponentName ? options[optionComponentName] : null;
-            for (const location of value.locations) {
-              const definitions = Array.from(value.absolutePointers)
-                .filter((v) => v !== location.absolutePointer.toString())
+            for (const [absolutePointer, location] of entry) {
+              const definitions = Array.from(entry.keys())
+                .filter((v) => v !== absolutePointer)
                 .map((v) => `- ${v}`)
                 .join('\n');
               const problem: Problem = {
@@ -83,13 +104,30 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
             }
           }
         });
+
+        for (const location of schemasWithoutTitle.values()) {
+          const problem: Problem = {
+            message:
+              'Schema must define a `title` when using `strategy: title`. Bundling fails without it.',
+            location,
+            reference: 'https://redocly.com/docs/cli/rules/oas/component-name-unique',
+          };
+          if (options.schemas) {
+            problem.forceSeverity = options.schemas;
+          }
+          ctx.report(problem);
+        }
       },
     },
   };
 
   if (options.schemas != 'off') {
     rule.NamedSchemas = {
-      Schema(_: Oas3Schema | Oas3_1Schema, { location }: UserContext) {
+      Schema(_: Oas3Schema | Oas3_1Schema, { location, key, parentLocations }: UserContext) {
+        if (usesTitleStrategy(TYPE_NAME_SCHEMA, location)) {
+          addFoundComponent(TYPE_NAME_SCHEMA, String(key), parentLocations.NamedSchemas.child(key));
+          return;
+        }
         addComponentFromAbsoluteLocation(TYPE_NAME_SCHEMA, location);
       },
     };
@@ -129,16 +167,17 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
     return componentName;
   }
 
-  function addFoundComponent(typeName: string, componentName: string, location: Location): void {
+  function addFoundComponent(
+    typeName: string,
+    componentName: string,
+    location: Location,
+    reportLocation: Location = location
+  ): void {
     const key = getKeyForComponent(typeName, componentName);
-    const entry: ComponentsMapValue = components.get(key) ?? {
-      absolutePointers: new Set(),
-      locations: [],
-    };
+    const entry: ComponentsMapValue = components.get(key) ?? new Map();
     const absoluteLocation = location.absolutePointer.toString();
-    if (!entry.absolutePointers.has(absoluteLocation)) {
-      entry.absolutePointers.add(absoluteLocation);
-      entry.locations.push(location);
+    if (!entry.has(absoluteLocation)) {
+      entry.set(absoluteLocation, reportLocation);
     }
     components.set(key, entry);
   }
@@ -146,6 +185,19 @@ export const ComponentNameUnique: Oas3Rule | Oas2Rule = (options) => {
   function addComponentFromAbsoluteLocation(typeName: string, location: Location): void {
     const componentName = getComponentNameFromAbsoluteLocation(location.absolutePointer.toString());
     addFoundComponent(typeName, componentName, location);
+  }
+
+  function usesTitleStrategy(
+    typeName: string,
+    targetLocation: Location,
+    refLocation: Location = targetLocation
+  ): boolean {
+    return (
+      useTitleStrategy &&
+      typeName === TYPE_NAME_SCHEMA &&
+      (targetLocation.source.absoluteRef !== rootSourceRef ||
+        refLocation.source.absoluteRef !== rootSourceRef)
+    );
   }
 };
 

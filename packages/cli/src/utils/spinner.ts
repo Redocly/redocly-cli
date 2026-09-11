@@ -49,3 +49,27 @@ export class Spinner {
     this.message = '';
   }
 }
+
+export function finishProgress(spinner: Spinner): void {
+  spinner.stop();
+  if (process.stderr.isTTY) {
+    // Erase the leftover spinner frame so the result line prints clean.
+    logger.info('\x1b[2K');
+  }
+}
+
+/**
+ * Render one spinner line for concurrent workers: the first in-flight label,
+ * how many more run alongside it, and the position in the total.
+ */
+export function showConcurrentProgress(
+  spinner: Spinner,
+  options: { action: string; inFlight: Set<string>; position: number; total: number }
+): void {
+  const [firstLabel] = options.inFlight;
+  if (!firstLabel) {
+    return;
+  }
+  const others = options.inFlight.size > 1 ? ` (+${options.inFlight.size - 1} more)` : '';
+  spinner.start(`[${options.position}/${options.total}] ${options.action} ${firstLabel}${others}`);
+}

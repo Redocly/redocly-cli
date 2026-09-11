@@ -2,18 +2,16 @@ import {
   type Config,
   createConfig,
   isPlainObject,
-  lintFromString,
-  logger,
   parseYaml,
   stringifyYaml,
 } from '@redocly/openapi-core';
-import * as process from 'node:process';
 
-import { Spinner } from '../../../utils/spinner.js';
+import { lintDocumentSource, stripCodeFences } from '../../../utils/ai/output.js';
+import { type AiProvider, runProvider } from '../../../utils/ai/providers.js';
+import { runWorkerPool } from '../../../utils/ai/worker-pool.js';
 import type { GeneratedDocument, GeneratedOperation } from '../generator.js';
 import { operationSampleKey, type TrafficSample } from '../samples.js';
 import { buildOperationPrompt } from './prompt.js';
-import { type AiProvider, CliNotFoundError, runProvider } from './providers.js';
 
 export interface RefineOptions {
   provider: AiProvider;
@@ -45,13 +43,6 @@ export interface RefineResult {
 interface OperationFragment {
   operation: Record<string, unknown>;
   components: Record<string, unknown>;
-}
-
-/** Strip Markdown code fences the model may have added despite instructions. */
-function stripCodeFences(text: string): string {
-  const trimmed = text.trim();
-  const fenceMatch = trimmed.match(/^```(?:ya?ml|json)?\s*\n([\s\S]*?)\n```$/);
-  return fenceMatch ? fenceMatch[1] : trimmed;
 }
 
 const COMPONENT_REF_RE = /^#\/components\/schemas\/(.+)$/;
@@ -165,18 +156,6 @@ function missingStatuses(
   return Object.keys(baselineOperation.responses).filter((status) => !(status in responses));
 }
 
-async function lintDocumentSource(source: string, config: Config): Promise<void> {
-  const problems = await lintFromString({ source, config });
-  const errors = problems.filter((problem) => problem.severity === 'error');
-  if (errors.length > 0) {
-    const summary = errors
-      .slice(0, 5)
-      .map((problem) => `${problem.ruleId}: ${problem.message}`)
-      .join('; ');
-    throw new Error(`the result has ${errors.length} validation problem(s): ${summary}`);
-  }
-}
-
 interface RefineOperationOptions {
   provider: AiProvider;
   model?: string;
@@ -252,14 +231,6 @@ function applyFragment(
   }
 }
 
-function finishProgress(spinner: Spinner): void {
-  spinner.stop();
-  if (process.stderr.isTTY) {
-    // Erase the leftover spinner frame so the result line prints clean.
-    logger.info('\x1b[2K');
-  }
-}
-
 /**
  * Refine the baseline one operation per prompt: each prompt carries only that
  * operation, the components it references, and its own traffic samples, so
@@ -282,77 +253,29 @@ export async function refineSpecWithAi(options: RefineOptions): Promise<RefineRe
     }
   }
 
-  const spinner = new Spinner();
-  const inFlight = new Set<string>();
-  let completed = 0;
-  let refined = 0;
-
-  const updateSpinner = () => {
-    const [firstLabel] = inFlight;
-    if (!firstLabel) {
-      return;
-    }
-    const others = inFlight.size > 1 ? ` (+${inFlight.size - 1} more)` : '';
-    spinner.start(`[${completed + 1}/${operations.length}] Refining ${firstLabel}${others}`);
-  };
-
-  let nextIndex = 0;
-  let aborted = false;
-  const worker = async () => {
-    while (!aborted && nextIndex < operations.length) {
-      const { path, method, operation } = operations[nextIndex++];
-      const label = `${method.toUpperCase()} ${path}`;
-      const startedAt = Date.now();
-      inFlight.add(label);
-      updateSpinner();
-      try {
-        const fragment = await refineOperation({
-          provider: options.provider,
-          model: options.model,
-          document,
-          path,
-          method,
-          operation,
-          samples: options.samplesByOperation.get(operationSampleKey(method, path)) ?? [],
-          config,
-        });
-        applyFragment(document, path, method, fragment);
-        refined += 1;
-        completed += 1;
-        inFlight.delete(label);
-        finishProgress(spinner);
-        logger.info(
-          `[${completed}/${operations.length}] ${label} — refined (${Math.round(
-            (Date.now() - startedAt) / 1000
-          )}s)\n`
-        );
-      } catch (error) {
-        completed += 1;
-        inFlight.delete(label);
-        finishProgress(spinner);
-        if (error instanceof CliNotFoundError) {
-          aborted = true;
-          throw error;
-        }
-        logger.warn(
-          `[${completed}/${operations.length}] ${label} — kept the baseline: ${
-            error instanceof Error ? error.message : String(error)
-          }\n`
-        );
-      }
-      updateSpinner();
-    }
-  };
-
-  const workers = Math.max(1, Math.min(options.concurrency ?? 1, operations.length));
-  // allSettled instead of all: when one worker aborts, the others finish the
-  // operation they are refining before the error propagates, so no worker is
-  // still logging progress after the command has fallen back to the baseline.
-  for (const result of await Promise.allSettled(Array.from({ length: workers }, worker))) {
-    if (result.status === 'rejected') {
-      throw result.reason;
-    }
-  }
+  const fragments = await runWorkerPool({
+    items: operations,
+    concurrency: options.concurrency ?? 1,
+    action: 'Refining',
+    successNote: 'refined',
+    failureNote: 'kept the baseline',
+    label: ({ path, method }) => `${method.toUpperCase()} ${path}`,
+    run: async ({ path, method, operation }) => {
+      const fragment = await refineOperation({
+        provider: options.provider,
+        model: options.model,
+        document,
+        path,
+        method,
+        operation,
+        samples: options.samplesByOperation.get(operationSampleKey(method, path)) ?? [],
+        config,
+      });
+      applyFragment(document, path, method, fragment);
+      return fragment;
+    },
+  });
+  const refined = fragments.filter((fragment) => fragment !== null).length;
 
   if (refined === 0) {
     throw new Error(

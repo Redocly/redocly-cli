@@ -27,6 +27,14 @@ describe('validateXSecurityParameters', () => {
     expect(result).toEqual({ scheme, values });
   });
 
+  it('should validate an HTTP scheme regardless of its casing', () => {
+    const scheme = { type: 'http', scheme: 'Basic' } as Oas3SecurityScheme;
+    const values = { username: 'user', password: 'password' };
+
+    const result = validateXSecurityParameters({ scheme, values });
+    expect(result).toEqual({ scheme, values });
+  });
+
   it('should throw for missing username in basic scheme', () => {
     const scheme: BasicAuth = { type: 'http', scheme: 'basic' };
     const values = { username: 'user' };

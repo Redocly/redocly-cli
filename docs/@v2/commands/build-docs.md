@@ -123,7 +123,7 @@ redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescri
 Sample custom Handlebars template:
 
 ```handlebars
-<html>
+<html lang='en'>
   <head>
     <meta charset='utf8' />
     <title>{{title}}</title>

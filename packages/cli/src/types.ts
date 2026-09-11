@@ -6,7 +6,9 @@ import type { BundleArgv } from './commands/bundle.js';
 import type { DriftArgv } from './commands/drift/index.js';
 import type { EjectGeneratorCommandArgv } from './commands/eject-generator.js';
 import type { EjectArgv } from './commands/eject.js';
-import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo.js';
+import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
+import type { InspectNodeTypesArgv } from './commands/inspect-node-types.js';
+import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
@@ -35,6 +37,7 @@ export type CommandArgv =
   | SplitArgv
   | JoinArgv
   | LintArgv
+  | InspectNodeTypesArgv
   | BundleArgv
   | LoginArgv
   | LogoutArgv
@@ -48,7 +51,8 @@ export type CommandArgv =
   | DriftArgv
   | ProxyArgv
   | GenerateArazzoCommandArgv
-  | EjectGeneratorCommandArgv;
+  | EjectGeneratorCommandArgv
+  | IntrospectMcpCommandArgv;
 
 export type VerifyConfigOptions = {
   config?: string;

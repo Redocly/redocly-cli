@@ -1,5 +1,30 @@
 # @redocly/openapi-core
 
+## 2.52.0
+
+### Minor Changes
+
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.56.0.
+
+## 2.51.2
+
+### Patch Changes
+
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+
+## 2.51.1
+
+## 2.51.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+
 ## 2.50.0
 
 ### Minor Changes

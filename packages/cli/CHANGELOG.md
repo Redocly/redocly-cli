@@ -1,5 +1,56 @@
 # @redocly/cli
 
+## 2.52.0
+
+### Minor Changes
+
+- Added agent skills for AI coding assistants: `redocly-cli` for everyday CLI usage, `redocly-lint-rules` for writing configurable rules and custom plugins.
+  Install them with `npx skills add https://redocly.com`.
+- Added an experimental `inspect-node-types` command to navigate the Redocly's node type tree of an API description.
+  `inspect-node-types` helps pick the correct `subject` types for a configurable rule or the correct visitor for a custom plugin.
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+- Added an experimental `introspect-mcp` command that analyzes a running MCP server and records its tools, prompts, resources, and capabilities.
+  `introspect-mcp` records its findings in the `x-mcp` extension of an OpenAPI description.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.0.
+
+## 2.51.2
+
+### Patch Changes
+
+- Updated `fast-uri` to the `3.1.7` version to resolve `CVE-2026-75931`, `CVE-2026-75975`, `CVE-2026-75899`, and `CVE-2026-76172`.
+- Fixed `drift` and `coverage` failing to match a path template whose segment mixes literal text with parameters, such as `/instances/{worldId}:{instanceId}`.
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+- Updated @redocly/openapi-core to v2.51.2.
+
+## 2.51.1
+
+### Patch Changes
+
+- Fixed an issue where `generate-arazzo` produced a malformed remote description URL in `sourceDescriptions` (`https://` collapsed to `https:/`) when `--output-file` was provided.
+- Fixed an issue where `$faker.string.email()` used without options generated addresses at the `undefined.com` domain.
+- Updated @redocly/respect-core to v2.51.1.
+- Updated `@faker-js/faker` to the `10.6.0` version to resolve the high severity advisory `GHSA-qxc2-j82w-r537`.
+
+## 2.51.0
+
+### Minor Changes
+
+- Enhanced the `generate-arazzo` command to print a ready-to-run `respect` command after generation, including an `--input` placeholder for every workflow input.
+- Added `--with-ai`, `--ai-provider`, `--ai-model`, `--ai-concurrency`, and `--max-workflows` options to the `generate-arazzo` command.
+  `--with-ai` uses a local AI CLI (`claude`, `codex`, or `cursor`) and OpenAPI descriptions to redesign the generated one-workflow-per-operation skeleton into multi-step workflows.
+  The AI designs at most `--max-workflows` workflows (default 10), and the generated file is marked as AI-inferred.
+  For descriptions that don't fit a single prompt, the AI first selects scenarios from a compact operation index, then it designs each workflow separately.
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+- Updated @redocly/openapi-core to v2.51.0.
+- Updated @redocly/respect-core to v2.51.0.
+
 ## 2.50.0
 
 ### Minor Changes

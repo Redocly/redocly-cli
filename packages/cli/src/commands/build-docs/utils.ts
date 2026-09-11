@@ -12,7 +12,7 @@ import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions, SpecType } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
   <meta charset="utf8" />

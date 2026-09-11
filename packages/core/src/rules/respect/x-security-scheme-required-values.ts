@@ -32,6 +32,9 @@ function validateSecuritySchemas(
     const { scheme, values } = securitySchema;
     // TODO: Struct rule does not check before this point, so we need to check it here. Investigate if we can move this check to the Struct rule.
     const authType = scheme?.type === 'http' ? scheme.scheme : scheme?.type;
+    // RFC 7235 HTTP authentication scheme names are case-insensitive; the
+    // reported messages keep the scheme as written.
+    const normalizedAuthType = scheme?.type === 'http' ? authType?.toLowerCase() : authType;
 
     if (authType === 'mutualTLS') {
       logger.warn(
@@ -40,7 +43,7 @@ function validateSecuritySchemas(
       continue;
     }
 
-    const requiredValues = REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType];
+    const requiredValues = REQUIRED_VALUES_BY_AUTH_TYPE[normalizedAuthType as AuthType];
 
     if (requiredValues) {
       for (const requiredValue of requiredValues) {
