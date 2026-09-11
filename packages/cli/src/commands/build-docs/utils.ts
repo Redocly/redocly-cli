@@ -6,12 +6,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
-import {
-  logoFromDefinition,
-  prepareApiDocs,
-  RedoclyApiDocsStandalone,
-  ServerStyleSheet,
-} from 'redoc';
+import { logoFromSpec, prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
 
 import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions, SpecType } from './types.js';
@@ -100,9 +95,9 @@ export async function getPageHTML(
     store: prepared.store,
     basePath: '/',
     options: prepared.options,
-    logo: logoFromDefinition(prepared.document),
+    logo: logoFromSpec(prepared.document),
     telemetryConfig: { typeOfUsage: 'cli', disabled: disableTelemetry },
-    definition: prepared.document,
+    spec: prepared.document,
   });
   const sheet = new ServerStyleSheet();
   const html = renderToString(sheet.collectStyles(app));
@@ -121,7 +116,7 @@ export async function getPageHTML(
 
   const redocScript = inlineBundle
     ? escapeClosingScriptTag(getRedocStandaloneSource())
-    : `import { hydrate } from "https://cdn.redocly.com/redoc/v${redocVersion}/redoc.standalone.js";`;
+    : `import { hydrate } from "https://cdn.redocly.com/redoc/${redocVersion}/bundle/redoc.standalone.js";`;
 
   const definitionTitle =
     typeof definition === 'string'

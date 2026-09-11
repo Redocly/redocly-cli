@@ -16,6 +16,7 @@ const result = await build({
   bundle: true,
   splitting: true,
   platform: 'node',
+  alias: { 'styled-components': 'styled-components/dist/styled-components.esm.js' },
   format: 'esm',
   target: 'node20.19',
   minify: true,
