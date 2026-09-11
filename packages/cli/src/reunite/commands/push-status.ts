@@ -1,45 +1,30 @@
 import { logger, type OutputFormat } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 
+import type {
+  DeploymentStatus,
+  PushResponse,
+  PushStatusOptions,
+  PushStatusSummary,
+  ScorecardItem,
+} from '../../api.js';
 import type { VerifyConfigOptions } from '../../types.js';
 import { printExecutionTime, capitalize } from '../../utils/miscellaneous.js';
 import { Spinner } from '../../utils/spinner.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
-import type {
-  DeploymentStatus,
-  DeploymentStatusResponse,
-  PushResponse,
-  ScorecardItem,
-} from '../api/types.js';
 import { DeploymentError } from '../utils.js';
 import { handleReuniteError, retryUntilConditionMet } from './utils.js';
 
 const RETRY_INTERVAL_MS = 5000; // 5 sec
 
-export type PushStatusArgv = {
-  organization: string;
-  project: string;
-  pushId: string;
-  domain?: string;
+export type PushStatusArgv = PushStatusOptions & {
   format?: Extract<OutputFormat, 'stylish'>;
-  wait?: boolean;
-  'max-execution-time'?: number; // in seconds
-  'retry-interval'?: number; // in seconds
-  'start-time'?: number; // in milliseconds
-  'continue-on-deploy-failures'?: boolean;
-  onRetry?: (lasSummary: PushStatusSummary) => void;
 } & VerifyConfigOptions;
-
-export interface PushStatusSummary {
-  preview: DeploymentStatusResponse;
-  production: DeploymentStatusResponse | null;
-  commit: PushResponse['commit'];
-}
 
 export async function handlePushStatus({
   argv,
-}: CommandArgs<PushStatusArgv>): Promise<PushStatusSummary | void> {
+}: Pick<CommandArgs<PushStatusArgv>, 'argv'>): Promise<PushStatusSummary> {
   const startedAt = performance.now();
   const spinner = new Spinner();
 
@@ -169,7 +154,7 @@ export async function handlePushStatus({
   } catch (err) {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
 
-    handleReuniteError('✗ Failed to get push status.', err);
+    return handleReuniteError('✗ Failed to get push status.', err);
   } finally {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
   }

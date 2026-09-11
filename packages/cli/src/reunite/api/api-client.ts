@@ -2,20 +2,63 @@ import { logger } from '@redocly/openapi-core';
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
 
+import type { PushResponse } from '../../api.js';
 import { DEFAULT_FETCH_TIMEOUT } from '../../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../../utils/fetch-with-timeout.js';
 import { version } from '../../utils/package.js';
-import type {
-  ListRemotesResponse,
-  ProjectSourceResponse,
-  PushResponse,
-  UpsertRemoteResponse,
-} from './types.js';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
 }
 type CommandOption = 'push' | 'push-status';
+
+type ProjectSourceResponse = {
+  branchName: string;
+  contentPath: string;
+  isInternal: boolean;
+};
+
+type UpsertRemoteResponse = {
+  id: string;
+  type: 'CICD';
+  mountPath: string;
+  mountBranchName: string;
+  organizationId: string;
+  projectId: string;
+};
+
+type ListRemotesResponse = {
+  object: 'list';
+  page: {
+    endCursor: string;
+    startCursor: string;
+    haxNextPage: boolean;
+    hasPrevPage: boolean;
+    limit: number;
+    total: number;
+  };
+  items: Remote[];
+};
+
+type Remote = {
+  mountPath: string;
+  type: string;
+  autoSync: boolean;
+  autoMerge: boolean;
+  createdAt: string;
+  updatedAt: string;
+  providerType: string;
+  namespaceId: string;
+  repositoryId: string;
+  projectId: string;
+  mountBranchName: string;
+  contentPath: string;
+  credentialId: string;
+  branchName: string;
+  contentType: string;
+  id: string;
+};
+
 export type SunsetWarning = { sunsetDate: Date; isSunsetExpired: boolean };
 export type SunsetWarningsBuffer = SunsetWarning[];
 

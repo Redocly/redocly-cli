@@ -36,6 +36,7 @@ const publishPackageJson = {
   license: packageJson.license,
   type: packageJson.type,
   bin: packageJson.bin,
+  exports: packageJson.exports,
   repository: packageJson.repository,
   homepage: packageJson.homepage,
   keywords: packageJson.keywords,
