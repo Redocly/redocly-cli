@@ -957,29 +957,18 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
 }
 
 /**
- * Missing-peer validation for `spelling`: `nspell` and `dictionary-en` are
- * OPTIONAL peer dependencies, so a config that enables `spelling` without
- * them installed must fail here with an actionable install command rather
- * than as a bare "Cannot find module" the first time a file is linted.
- * Runs per spelling rule so a mix of default-dictionary and
- * custom-dictionary rules gets the right install command for each; a
- * config with no `spelling` assertion never reaches an `import()` call at
- * all, keeping validate() lazy about the peers.
- *
- * ALSO validates that a custom `dictionary`
- * path actually names a readable `.aff`/`.dic` pair: the check above only
- * ever checked whether `nspell` itself imports, never whether the FILES a
- * `dictionary` option points at exist — so a missing/unreadable custom
- * dictionary used to pass validation cleanly and only fail (silently: see
- * spelling.ts's `loadSpeller`/`spellerCache`) the first time a file was
- * linted, disabling spelling for the rest of the process. Resolved via
- * `resolveDictionaryPaths`, SHARED with spelling.ts's own
- * `readCustomDictionary`, so validate() and the runtime can never disagree
- * about which files a `dictionary` path names.
+ * Validates that a custom `dictionary` path names a readable `.aff`/`.dic`
+ * pair. Without this, a missing/unreadable custom dictionary would pass
+ * validation cleanly and only fail (silently: see spelling.ts's
+ * `loadSpeller`/`spellerCache`) the first time a file was linted, disabling
+ * spelling for the rest of the process. Resolved via `resolveDictionaryPaths`,
+ * SHARED with spelling.ts's own `readCustomDictionary`, so validate() and the
+ * runtime can never disagree about which files a `dictionary` path names.
+ * Dedupes by the raw dictionary path string so several rules sharing one bad
+ * path only report once.
  */
-async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<ValidationError[]> {
+async function checkSpellingDictionaries(rules: NormalizedRule[]): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
-  const reportedMessages = new Set<string>();
   const reportedDictionaryPaths = new Set<string>();
 
   for (const rule of rules) {
@@ -988,61 +977,25 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
 
     const dictionaryPath = (spellingConfig as { dictionary?: unknown }).dictionary;
     const hasCustomDictionary = typeof dictionaryPath === 'string' && dictionaryPath.length > 0;
+    if (!hasCustomDictionary || reportedDictionaryPaths.has(dictionaryPath)) continue;
 
-    let missingPeer = false;
-    try {
-      await import('nspell');
-    } catch {
-      missingPeer = true;
-    }
-
-    // A custom-dictionary rule never touches `dictionary-en` (see
-    // spelling.ts's loadDictionary), so its absence must not fail it.
-    if (!hasCustomDictionary) {
+    reportedDictionaryPaths.add(dictionaryPath);
+    const { aff, dic } = resolveDictionaryPaths(dictionaryPath);
+    const unreadable: string[] = [];
+    for (const filePath of [aff, dic]) {
       try {
-        await import('dictionary-en');
+        await fs.access(filePath, fs.constants.R_OK);
       } catch {
-        missingPeer = true;
+        unreadable.push(filePath);
       }
     }
-
-    if (missingPeer) {
-      const installCommand = hasCustomDictionary ? 'npm i nspell' : 'npm i nspell dictionary-en';
-      const peerNames = hasCustomDictionary ? '"nspell"' : '"nspell" and "dictionary-en"';
-      const message =
-        `The spelling assertion requires the optional peer dependenc${hasCustomDictionary ? 'y' : 'ies'} ` +
-        `${peerNames} — run \`${installCommand}\` to enable it.`;
-      // Each distinct message is reported once, at the first offending
-      // rule's path; a mixed config still reports both install commands.
-      if (!reportedMessages.has(message)) {
-        reportedMessages.add(message);
-        errors.push({ message, path: `${rule.name}.assertions.spelling` });
-      }
-    }
-
-    // Independent of the peer-import check above: even when `nspell`
-    // imports fine, a custom `dictionary` option may still name files that
-    // don't exist or aren't readable. Dedupe by the raw dictionary path
-    // string so several rules sharing one bad path only report once.
-    if (hasCustomDictionary && !reportedDictionaryPaths.has(dictionaryPath)) {
-      reportedDictionaryPaths.add(dictionaryPath);
-      const { aff, dic } = resolveDictionaryPaths(dictionaryPath);
-      const unreadable: string[] = [];
-      for (const filePath of [aff, dic]) {
-        try {
-          await fs.access(filePath, fs.constants.R_OK);
-        } catch {
-          unreadable.push(filePath);
-        }
-      }
-      if (unreadable.length > 0) {
-        errors.push({
-          message:
-            `Rule "${rule.name}": spelling dictionary file${unreadable.length > 1 ? 's' : ''} ` +
-            `not found or not readable: ${unreadable.join(', ')}`,
-          path: `${rule.name}.assertions.spelling.dictionary`,
-        });
-      }
+    if (unreadable.length > 0) {
+      errors.push({
+        message:
+          `Rule "${rule.name}": spelling dictionary file${unreadable.length > 1 ? 's' : ''} ` +
+          `not found or not readable: ${unreadable.join(', ')}`,
+        path: `${rule.name}.assertions.spelling.dictionary`,
+      });
     }
   }
 
@@ -1551,9 +1504,9 @@ export async function validate(
       }))
     : validatedRules;
 
-  const peerErrors = await checkSpellingPeerDependencies(rules);
+  const dictionaryErrors = await checkSpellingDictionaries(rules);
 
-  const errors = [...extendsErrors, ...semanticErrors, ...peerErrors, ...tagsFileErrors];
+  const errors = [...extendsErrors, ...semanticErrors, ...dictionaryErrors, ...tagsFileErrors];
   return {
     isValid: errors.length === 0,
     errors,

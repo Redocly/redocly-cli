@@ -36,6 +36,7 @@
     "@redocly/ajv": "^8.18.3",
     "ajv-formats": "^3.0.1",
     "colorette": "^2.0.20",
+    "dictionary-en": "^4.0.0",
     "js-yaml": "^4.3.1",
     "micromark": "^4.0.2",
     "micromark-extension-directive": "^4.0.0",
@@ -45,28 +46,15 @@
     "micromark-extension-gfm-table": "^2.1.1",
     "micromark-extension-math": "^3.1.0",
     "micromark-util-symbol": "^2.0.0",
+    "nspell": "^2.1.5",
     "picomatch": "^4.0.4",
     "string-width": "^8.2.1"
-  },
-  "peerDependencies": {
-    "dictionary-en": "^4.0.0",
-    "nspell": "^2.1.5"
-  },
-  "peerDependenciesMeta": {
-    "dictionary-en": {
-      "optional": true
-    },
-    "nspell": {
-      "optional": true
-    }
   },
   "devDependencies": {
     "@markdoc/markdoc": "^0.5.2",
     "@types/js-yaml": "^4.0.9",
     "@types/picomatch": "^2.3.4",
-    "dictionary-en": "^4.0.0",
     "micromark-util-types": "^2.0.2",
-    "nspell": "^2.1.5",
     "typescript": "6.0.2"
   },
   "files": [
