@@ -128,6 +128,24 @@ schemas:
         example: doggie
 ```
 
+`required` inside `not` is also **correct** when the properties are defined on the enclosing schema.
+This is the usual way to assert that two properties are mutually exclusive:
+
+```yaml
+schemas:
+  Contact:
+    type: object
+    properties:
+      email:
+        type: string
+      phone:
+        type: string
+    not:
+      required:
+        - email
+        - phone
+```
+
 ## Related rules
 
 - [no-schema-type-mismatch](./no-schema-type-mismatch.md)
