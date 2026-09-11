@@ -79,7 +79,6 @@ export async function getPageHTML(
     templateFileName,
     templateOptions,
     redocOptions = {},
-    redocVersion,
     disableTelemetry,
     inlineBundle,
     specType,
@@ -116,7 +115,7 @@ export async function getPageHTML(
 
   const redocScript = inlineBundle
     ? escapeClosingScriptTag(getRedocStandaloneSource())
-    : `import { hydrate } from "https://cdn.redocly.com/redoc/${redocVersion}/bundle/redoc.standalone.js";`;
+    : `import { hydrate } from "https://cdn.redoc.ly/redoc/v3.0.0-beta.0/bundle/redoc.standalone.js";`;
 
   const definitionTitle =
     typeof definition === 'string'

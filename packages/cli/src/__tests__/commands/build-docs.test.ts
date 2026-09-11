@@ -11,7 +11,7 @@ import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 vi.mock('redoc', () => ({
   convertSwagger2OpenAPI: vi.fn(async (spec: Record<string, unknown>) => spec),
   prepareApiDocs: vi.fn(async () => ({ items: [], store: {}, options: {} })),
-  logoFromDefinition: vi.fn(),
+  logoFromSpec: vi.fn(),
   RedoclyApiDocsStandalone: () => null,
   ServerStyleSheet: class {
     collectStyles(app: unknown) {
@@ -113,7 +113,7 @@ describe('build-docs', () => {
     });
     expect(bundle).not.toHaveBeenCalled();
     expect(prepareApiDocs).toHaveBeenCalledWith(
-      expect.objectContaining({ definition: schema, specType: 'graphql' })
+      expect.objectContaining({ spec: schema, specType: 'graphql' })
     );
     expect(processExitMock).toBeCalledTimes(0);
   });
