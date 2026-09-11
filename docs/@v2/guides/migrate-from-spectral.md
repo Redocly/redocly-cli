@@ -1,6 +1,6 @@
 # Migrate to Redocly from Spectral
 
-[Spectral](https://stoplight.io/open-source/spectral) offers similar linting capabilities to Redocly CLI and the rest of the Redocly tools. This guide lays out the differences so you can switch tools if you want to.
+Redocly CLI and the rest of the Redocly toolchain cover the same linting ground as [Spectral](https://stoplight.io/open-source/spectral) — and go further. This guide compares both tools so you can decide whether switching makes sense for your team.
 
 The first step is to [install Redocly CLI](../installation.md).
 

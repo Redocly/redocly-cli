@@ -1,7 +1,8 @@
 # Migrate to Redocly from Spectral
 
 [Spectral](https://stoplight.io/open-source/spectral) offers similar linting capabilities to Redocly CLI and the rest of the Redocly tools.
-This guide lays out the differences so you can switch tools if you want to.
+Redocly CLI and the rest of the Redocly toolchain cover the same linting ground as [Spectral](https://stoplight.io/open-source/spectral), and go further.
+This guide compares both tools so you can decide whether switching makes sense for your team.
 
 The first step is to [install Redocly CLI](../installation.md).
 
@@ -128,7 +129,7 @@ Included here is an attempt to map the simliar-but-not-identical naming of rules
 ### Configurable and extensible rules
 
 If the built-in rules don't meet your requirements, don't worry!
-Redocly allows you to build any rule to meet your needs, using [configurable rules](../rules/configurable-rules.md).
+With Redocly you can use [configurable rules](../rules/configurable-rules.md) to build any rule to suit your needs. 
 Declare which elements of the OpenAPI description should comply with the rule, and then define the criteria that it should be checked against.
 
 Build up the rulesets that work for your organization's API standards.
