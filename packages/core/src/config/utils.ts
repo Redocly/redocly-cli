@@ -12,6 +12,16 @@ import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.j
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
+export function isRecheckPreset(name: string): boolean {
+  return name.startsWith('recheck/');
+}
+
+export const RESERVED_PLUGIN_IDS = ['recheck', 'redocly', 'redoc', 'realm', 'reunite'] as const;
+
+export function isReservedPluginId(id: string): boolean {
+  return (RESERVED_PLUGIN_IDS as readonly string[]).includes(id);
+}
+
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
     const [pluginId, configName] = presetName.split('/');

@@ -20,4 +20,12 @@ describe('logger', () => {
       silentLogger.error('c');
     }).not.toThrow();
   });
+
+  it('collects output lines separately from progress lines', () => {
+    const logger = collectingLogger();
+    logger.log('progress');
+    logger.output('{"report":true}');
+    expect(logger.lines).toEqual(['progress']);
+    expect(logger.outputs).toEqual(['{"report":true}']);
+  });
 });

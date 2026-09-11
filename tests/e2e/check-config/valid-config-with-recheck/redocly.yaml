@@ -1,0 +1,7 @@
+extends:
+  - recommended
+  - recheck/markdown
+recheck:
+  rules:
+    recheck/line-length: off
+  baseline: ./recheck-baseline.yaml

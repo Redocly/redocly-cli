@@ -304,6 +304,8 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     plugins?: string[];
     /** Per-api key, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
+    /** `recheck/*` entries from the root `extends`, in order; the prose engine composes them. */
+    recheckExtends?: string[];
   };
 
 export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

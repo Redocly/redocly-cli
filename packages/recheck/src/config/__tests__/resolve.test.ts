@@ -41,12 +41,12 @@ describe('resolveRecheckConfig', () => {
   it('resolves the baseline path against the config directory', async () => {
     const result = await resolveRecheckConfig({
       extends: ['recheck/markdown'],
-      block: { baseline: './recheck-baseline.yaml' },
+      block: { baseline: './.recheck-baseline.yaml' },
       configDir,
     });
     expect(result.success).toBe(true);
     if (!result.success) return;
-    expect(result.config.baselinePath).toBe(path.resolve(configDir, 'recheck-baseline.yaml'));
+    expect(result.config.baselinePath).toBe(path.resolve(configDir, '.recheck-baseline.yaml'));
   });
 
   it('enables markdoc with the built-in realm schema for `markdoc: true`', async () => {

@@ -51,7 +51,7 @@ export async function generateBaseline(
 
   const errors = problems.filter((problem) => problem.severity === 'error');
   const baseline = buildBaseline(errors, baselineKeyMapper(configDir));
-  const outPath = config.baselinePath ?? pathModule.resolve(configDir, 'recheck-baseline.yaml');
+  const outPath = config.baselinePath ?? pathModule.resolve(configDir, '.recheck-baseline.yaml');
   await fs.writeFile(outPath, serializeBaseline(baseline), 'utf8');
 
   const fileCount = Object.keys(baseline.files).length;
@@ -60,7 +60,7 @@ export async function generateBaseline(
   if (config.baselinePath === undefined) {
     logger.warn('   The recheck block has no `baseline` key, so runs ignore this file.');
     logger.warn(
-      '   Add `baseline: ./recheck-baseline.yaml` to the recheck block in redocly.yaml to activate it.'
+      '   Add `baseline: ./.recheck-baseline.yaml` to the recheck block in redocly.yaml to activate it.'
     );
   }
   return 0;
