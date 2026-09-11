@@ -5,6 +5,7 @@ import {
   replaceRef,
   isExternalValue,
   isRef,
+  isRefWithSiblings,
   parseRef,
   pointerBaseName,
   refBaseName,
@@ -140,6 +141,7 @@ export function makeBundleVisitor({
   let rootLocation: Location;
 
   const firstSchemaLocationByName = new Map<string, Location>();
+  const authoredRefNamesByGroup = new Map<ComponentsGroup, Map<string, string>>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version)!;
 
@@ -350,6 +352,32 @@ export function makeBundleVisitor({
     return { key };
   }
 
+  // names of entries authored as a plain $ref, indexed by the location they resolve to
+  function getAuthoredRefNames(componentsGroup: ComponentsGroup, ctx: UserContext) {
+    const cached = authoredRefNamesByGroup.get(componentsGroup);
+    if (cached) {
+      return cached;
+    }
+
+    const authoredRefNames = new Map<string, string>();
+    for (const [entryName, entryNode] of Object.entries(componentsGroup)) {
+      // a $ref with sibling keywords stays as authored, so its name is not reusable
+      if (!isRef(entryNode) || isRefWithSiblings(entryNode)) {
+        continue;
+      }
+      const resolved = ctx.resolve(entryNode, rootLocation.absolutePointer);
+      if (!resolved.location) {
+        continue;
+      }
+      const targetPointer = effectiveTarget(resolved).location.absolutePointer;
+      if (!authoredRefNames.has(targetPointer)) {
+        authoredRefNames.set(targetPointer, entryName);
+      }
+    }
+    authoredRefNamesByGroup.set(componentsGroup, authoredRefNames);
+    return authoredRefNames;
+  }
+
   function componentNameFromBasename(
     target: ComponentTarget,
     componentsGroup: ComponentsGroup,
@@ -357,6 +385,14 @@ export function makeBundleVisitor({
   ): { name: string; prevName: string } {
     const prevName =
       pointerBaseName(target.location.pointer) || refBaseName(target.location.source.absoluteRef);
+    // a component authored as a $ref to this target keeps its name
+    // instead of getting a second entry named after the file
+    const authoredName = getAuthoredRefNames(componentsGroup, ctx).get(
+      target.location.absolutePointer
+    );
+    if (authoredName) {
+      return { name: authoredName, prevName };
+    }
     let name = prevName;
     for (
       let serialId = 2;
