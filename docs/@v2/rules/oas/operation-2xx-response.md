@@ -24,8 +24,8 @@ You can greatly improve the developer and user experience of your APIs by making
 
 ## Configuration
 
-| Option           | Type    | Description                                                                                 |
-| ---------------- | ------- | ------------------------------------------------------------------------------------------- |
+| Option           | Type    | Description                                                                                  |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------- |
 | severity         | string  | Possible values: `off`, `warn`, `error`. Default: `warn` (in `recommended` configuration).   |
 | validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default: `false`.                     |
 | disallowDefault  | boolean | Determines if a `default` response is disallowed from satisfying the rule. Default: `false`. |
