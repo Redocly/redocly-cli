@@ -8,7 +8,7 @@ import * as process from 'node:process';
 
 import { handleLint } from '../commands/lint.js';
 import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
-import { sendTelemetry } from '../utils/telemetry.js';
+import { sendTelemetryInBackground } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 
 const originalFetch = global.fetch;
@@ -47,8 +47,8 @@ describe('commandWrapper', () => {
     const wrappedHandler = commandWrapper(handleLint);
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith(
+    expect(sendTelemetryInBackground).toHaveBeenCalledTimes(1);
+    expect(sendTelemetryInBackground).toHaveBeenCalledWith(
       expect.objectContaining({
         config: {
           resolvedConfig: {
@@ -80,8 +80,8 @@ describe('commandWrapper', () => {
     const wrappedHandler = commandWrapper(handleLint);
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledTimes(1);
-    expect(sendTelemetry).toHaveBeenCalledWith(
+    expect(sendTelemetryInBackground).toHaveBeenCalledTimes(1);
+    expect(sendTelemetryInBackground).toHaveBeenCalledWith(
       expect.objectContaining({
         config: {
           resolvedConfig: {
@@ -112,7 +112,7 @@ describe('commandWrapper', () => {
 
     const wrappedHandler = commandWrapper(handleLint);
     await wrappedHandler({} as any);
-    expect(sendTelemetry).toHaveBeenCalledWith(
+    expect(sendTelemetryInBackground).toHaveBeenCalledWith(
       expect.objectContaining({
         spec_version: 'graphql',
         spec_keyword: undefined,
@@ -136,7 +136,7 @@ describe('commandWrapper', () => {
 
     const wrappedHandler = commandWrapper(handleLint);
     await wrappedHandler({} as any);
-    expect(sendTelemetry).toHaveBeenCalledWith(
+    expect(sendTelemetryInBackground).toHaveBeenCalledWith(
       expect.objectContaining({
         spec_version: 'graphql',
         spec_keyword: undefined,
@@ -160,7 +160,7 @@ describe('commandWrapper', () => {
 
     const wrappedHandler = commandWrapper(handleLint);
     await wrappedHandler({} as any);
-    expect(sendTelemetry).toHaveBeenCalledWith(
+    expect(sendTelemetryInBackground).toHaveBeenCalledWith(
       expect.objectContaining({
         lint_rules_with_errors: ['no-unused-components'],
         lint_rules_with_warnings: ['info-license'],
@@ -179,6 +179,6 @@ describe('commandWrapper', () => {
     await wrappedHandler({} as any);
     expect(handleLint).toHaveBeenCalledTimes(1);
 
-    expect(sendTelemetry).toHaveBeenCalledTimes(0);
+    expect(sendTelemetryInBackground).toHaveBeenCalledTimes(0);
   });
 });

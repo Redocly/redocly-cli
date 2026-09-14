@@ -1,4 +1,4 @@
-import { Agent, ProxyAgent } from 'undici';
+import type { Agent, ProxyAgent } from 'undici';
 
 import { getProxyUrl, shouldBypassProxy } from './proxy-agent.js';
 
@@ -14,11 +14,13 @@ export default async (url: string, { timeout, ...options }: FetchWithTimeoutOpti
   const connectOptions = timeout ? { connect: { timeout } } : {};
 
   if (useProxy) {
+    const { ProxyAgent } = await import('undici');
     dispatcher = new ProxyAgent({
       uri: proxyUrl,
       ...connectOptions,
     });
   } else if (timeout) {
+    const { Agent } = await import('undici');
     dispatcher = new Agent(connectOptions);
   }
 

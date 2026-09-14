@@ -12,9 +12,7 @@ import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -23,37 +21,21 @@ import {
   handleEjectGenerator,
   type EjectGeneratorCommandArgv,
 } from './commands/eject-generator.js';
-import { handleEject, type EjectArgv } from './commands/eject.js';
-import {
-  handleGenerateArazzo,
-  type GenerateArazzoCommandArgv,
-} from './commands/generate-arazzo/index.js';
-import {
-  handleGenerateClient,
-  type GenerateClientCommandArgv,
-} from './commands/generate-client.js';
+import type { EjectArgv } from './commands/eject.js';
+import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
+import type { GenerateClientCommandArgv } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
-import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
-import { handleJoin } from './commands/join/index.js';
-import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
-import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
-import { handleRespect, type RespectArgv } from './commands/respect/index.js';
+import type { RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
-import { handleScore } from './commands/score/index.js';
-import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
-import { handleSplit } from './commands/split/index.js';
-import { handleStats } from './commands/stats/index.js';
-import { handleTranslations } from './commands/translations.js';
-import { handlePushStatus } from './reunite/commands/push-status.js';
-import { handlePush } from './reunite/commands/push.js';
 import { outputExtensions } from './types.js';
+import { SEND_TELEMETRY_COMMAND } from './utils/constants.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
@@ -90,7 +72,8 @@ yargs(hideBin(process.argv))
             default: 'stylish' as OutputFormat,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleStats } = await import('./commands/stats/index.js');
       commandWrapper(handleStats)(argv);
     }
   )
@@ -139,7 +122,8 @@ yargs(hideBin(process.argv))
           }
           return true;
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleInspectNodeTypes } = await import('./commands/inspect-node-types.js');
       commandWrapper(handleInspectNodeTypes)(argv);
     }
   )
@@ -172,7 +156,8 @@ yargs(hideBin(process.argv))
             type: 'string' as const,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleScore } = await import('./commands/score/index.js');
       commandWrapper(handleScore)(argv);
     }
   )
@@ -210,7 +195,8 @@ yargs(hideBin(process.argv))
           },
         })
         .demandOption('api'),
-    (argv) => {
+    async (argv) => {
+      const { handleSplit } = await import('./commands/split/index.js');
       commandWrapper(handleSplit)(argv);
     }
   )
@@ -261,7 +247,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleJoin } = await import('./commands/join/index.js');
       commandWrapper(handleJoin)(argv);
     }
   )
@@ -311,7 +298,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handlePushStatus } = await import('./reunite/commands/push-status.js');
       commandWrapper(handlePushStatus)(argv);
     }
   )
@@ -420,7 +408,8 @@ yargs(hideBin(process.argv))
             default: false,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handlePush } = await import('./reunite/commands/push.js');
       commandWrapper(handlePush)(argv);
     }
   )
@@ -484,7 +473,8 @@ yargs(hideBin(process.argv))
             type: 'string',
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleLint } = await import('./commands/lint.js');
       commandWrapper(handleLint)(argv);
     }
   )
@@ -574,7 +564,8 @@ yargs(hideBin(process.argv))
           }
           return true;
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleBundle } = await import('./commands/bundle.js');
       commandWrapper(handleBundle)(argv);
     }
   )
@@ -618,7 +609,8 @@ yargs(hideBin(process.argv))
           type: 'boolean',
         },
       }),
-    (argv) => {
+    async (argv) => {
+      const { handleLogin } = await import('./commands/auth.js');
       commandWrapper(handleLogin)(argv);
     }
   )
@@ -626,7 +618,8 @@ yargs(hideBin(process.argv))
     'logout',
     'Clear your stored credentials.',
     (yargs) => yargs,
-    (argv) => {
+    async (argv) => {
+      const { handleLogout } = await import('./commands/auth.js');
       commandWrapper(handleLogout)(argv);
     }
   )
@@ -666,12 +659,13 @@ yargs(hideBin(process.argv))
           default: 'warn' as RuleSeverity,
         },
       }),
-    (argv) => {
+    async (argv) => {
       if (process.argv.some((arg) => arg.startsWith('--source-dir'))) {
         logger.error(
           'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
         );
       }
+      const { previewProject } = await import('./commands/preview-project/index.js');
       commandWrapper(previewProject)(argv);
     }
   )
@@ -757,7 +751,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleTranslations } = await import('./commands/translations.js');
       commandWrapper(handleTranslations)(argv);
     }
   )
@@ -797,7 +792,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleEject } = await import('./commands/eject.js');
       commandWrapper(handleEject)(argv as Arguments<EjectArgv>);
     }
   )
@@ -890,6 +886,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
+      const { handleRespect } = await import('./commands/respect/index.js');
       commandWrapper(handleRespect)(argv as Arguments<RespectArgv>);
     }
   )
@@ -945,6 +942,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
+      const { handleGenerateArazzo } = await import('./commands/generate-arazzo/index.js');
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
     }
   )
@@ -1051,6 +1049,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
+      const { handleGenerateClient } = await import('./commands/generate-client.js');
       commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
     }
   )
@@ -1248,6 +1247,7 @@ yargs(hideBin(process.argv))
       });
     },
     async (argv) => {
+      const { handleScorecardClassic } = await import('./commands/scorecard-classic/index.js');
       commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
     }
   )
@@ -1410,6 +1410,10 @@ yargs(hideBin(process.argv))
       commandWrapper(handleProxy)(argv as Arguments<ProxyArgv>);
     }
   )
+  .command(SEND_TELEMETRY_COMMAND, false, {}, async () => {
+    const { sendTelemetryFromStdin } = await import('./utils/telemetry.js');
+    await sendTelemetryFromStdin();
+  })
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
   .middleware([notifyUpdateCliVersion])

@@ -8,26 +8,26 @@ import {
   type Config,
   type Exact,
 } from '@redocly/openapi-core';
-import { execSync } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { text } from 'node:stream/consumers';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
-import { getReuniteUrl } from '../reunite/api/index.js';
+import { getReuniteUrl } from '../reunite/api/domains.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
   GenerateClientTelemetry,
 } from './client-generator-telemetry.js';
-import { ANONYMOUS_ID_CACHE_FILE } from './constants.js';
+import { ANONYMOUS_ID_CACHE_FILE, SEND_TELEMETRY_COMMAND } from './constants.js';
 import type { ExitCode } from './miscellaneous.js';
-import { respondWithinMs } from './network-check.js';
 import { version } from './package.js';
 
 type ArazzoWorkflow = NonNullable<ArazzoDefinition['workflows']>[number];
@@ -36,25 +36,7 @@ type ArazzoFailureAction = NonNullable<ArazzoWorkflow['failureActions']>[number]
 
 const SECRET_REPLACEMENT = '***';
 
-export async function sendTelemetry({
-  config,
-  argv,
-  exit_code,
-  execution_time,
-  spec_version,
-  spec_keyword,
-  spec_full_version,
-  respect_x_security_auth_types,
-  respect_source_description_types,
-  respect_criterion_object_types,
-  lint_rules_with_errors,
-  lint_rules_with_warnings,
-  lint_rules_with_ignored_problems,
-  generate_client,
-  eject_generator,
-}: {
-  config: Config | undefined;
-  argv: Arguments<CommandArgv> | undefined;
+type CommandTelemetry = {
   exit_code: ExitCode;
   execution_time: number;
   spec_version: string | undefined;
@@ -68,17 +50,79 @@ export async function sendTelemetry({
   lint_rules_with_ignored_problems: string[] | undefined;
   generate_client?: GenerateClientTelemetry;
   eject_generator?: EjectGeneratorTelemetry;
-}): Promise<void> {
+};
+
+export type TelemetryPayload = CommandTelemetry & {
+  argv: Arguments<CommandArgv>;
+  raw_argv: string[];
+  reunite_url: string;
+  has_config: 'yes' | 'no';
+};
+
+// A detached process sends the event, so the command does not wait for the network before it exits.
+export async function sendTelemetryInBackground({
+  config,
+  argv,
+  ...commandTelemetry
+}: CommandTelemetry & { config: Config | undefined; argv: Arguments<CommandArgv> }): Promise<void> {
   try {
-    if (!argv) {
+    const { residency } = argv as Exact<Arguments<CommandArgv>>;
+    const payload: TelemetryPayload = {
+      ...commandTelemetry,
+      argv,
+      raw_argv: process.argv.slice(2),
+      reunite_url: getReuniteUrl(config, residency),
+      has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
+    };
+    if (process.pid === 1) {
+      // The CLI is the container entrypoint, so the container would kill a detached process on exit.
+      await sendTelemetry(payload);
       return;
     }
+    const worker = spawn(process.execPath, [process.argv[1], SEND_TELEMETRY_COMMAND], {
+      detached: true,
+      stdio: ['pipe', 'ignore', 'ignore'],
+      windowsHide: true,
+    });
+    // A failed spawn and a closed pipe both emit errors that would otherwise stop the command.
+    worker.on('error', () => {});
+    worker.stdin.on('error', () => {});
+    worker.stdin.end(JSON.stringify(payload));
+    worker.unref();
+  } catch {
+    // Do nothing.
+  }
+}
 
-    const hasInternet = await respondWithinMs(1000);
-    if (!hasInternet) {
-      return;
-    }
+export async function sendTelemetryFromStdin(): Promise<void> {
+  try {
+    const payload: TelemetryPayload = JSON.parse(await text(process.stdin));
+    await sendTelemetry(payload);
+  } catch {
+    // Do nothing.
+  }
+}
 
+export async function sendTelemetry({
+  argv,
+  raw_argv,
+  reunite_url,
+  has_config,
+  exit_code,
+  execution_time,
+  spec_version,
+  spec_keyword,
+  spec_full_version,
+  respect_x_security_auth_types,
+  respect_source_description_types,
+  respect_criterion_object_types,
+  lint_rules_with_errors,
+  lint_rules_with_warnings,
+  lint_rules_with_ignored_problems,
+  generate_client,
+  eject_generator,
+}: TelemetryPayload): Promise<void> {
+  try {
     const {
       _: [command],
       $0: _,
@@ -86,8 +130,7 @@ export async function sendTelemetry({
     } = argv as Exact<Arguments<CommandArgv>>;
     const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
     const oauthClient = new RedoclyOAuthClient();
-    const reuniteUrl = getReuniteUrl(config, args.residency);
-    const logged_in = await oauthClient.isAuthorized(reuniteUrl);
+    const logged_in = await oauthClient.isAuthorized(reunite_url);
     let anonymous_id = getCachedAnonymousId();
     if (!anonymous_id) {
       anonymous_id = `ann_${ulid()}`;
@@ -102,7 +145,7 @@ export async function sendTelemetry({
         uri: `urn:redocly:cli:command:${command}`,
         logged_in: logged_in ? 'yes' : 'no',
         command,
-        ...cleanArgs(args, process.argv.slice(2)),
+        ...cleanArgs(args, raw_argv),
         node_version: process.version,
         npm_version: getNpmVersion(),
         version,
@@ -111,7 +154,7 @@ export async function sendTelemetry({
         metadata: process.env.REDOCLY_CLI_TELEMETRY_METADATA,
         environment_ci: process.env.CI,
         environment: process.env.REDOCLY_ENVIRONMENT,
-        has_config: typeof config?.document?.parsed === 'undefined' ? 'no' : 'yes',
+        has_config,
         spec_version,
         spec_keyword,
         spec_full_version,

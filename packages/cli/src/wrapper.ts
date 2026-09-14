@@ -23,7 +23,7 @@ import { AbortFlowError, exitWithError } from './utils/error.js';
 import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
-  sendTelemetry,
+  sendTelemetryInBackground,
   collectXSecurityAuthTypes,
   collectSourceDescriptionTypes,
   collectCriterionObjectTypes,
@@ -132,7 +132,7 @@ export function commandWrapper<T extends CommandArgv>(
     } finally {
       if (process.env.REDOCLY_TELEMETRY !== 'off' && telemetry !== 'off') {
         const executionTime = Math.round(performance.now() - startedAt);
-        await sendTelemetry({
+        await sendTelemetryInBackground({
           config,
           argv,
           exit_code: code,
