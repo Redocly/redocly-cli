@@ -8,6 +8,7 @@ import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
+import { printDeprecationNotice } from './deprecation-notice.js';
 import type { BuildDocsArgv } from './types.js';
 import { getObjectOrJSON, getPageHTML } from './utils.js';
 
@@ -16,6 +17,8 @@ export const handlerBuildCommand = async ({
   config,
   collectSpecData,
 }: CommandArgs<BuildDocsArgv>) => {
+  printDeprecationNotice();
+
   const startedAt = performance.now();
 
   const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
