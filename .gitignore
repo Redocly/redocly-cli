@@ -2,7 +2,7 @@
 .idea
 node_modules/
 nodejs/
-coverage/
+/coverage/
 .vscode/
 yarn.lock
 lib/

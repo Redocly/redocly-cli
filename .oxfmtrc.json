@@ -4,7 +4,7 @@
   "singleQuote": true,
   "experimentalSortPackageJson": false,
   "ignorePatterns": [
-    "coverage/",
+    "/coverage/",
     "lib/",
     "output/",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
