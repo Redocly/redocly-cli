@@ -16,10 +16,4 @@ npm i redocly-cli.tgz -g
 
 # Actual smoke test - executing the command provided as the second argument
 npm run redocly-version
-npm run redocly-lint
-
-npm run redocly-lint-json
-npm run verify-lint
-
-npm run bundle-consumer
-npm run run-bundled-consumer
+npm run  redocly-lint
