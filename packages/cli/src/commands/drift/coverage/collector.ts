@@ -1,5 +1,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
+import { isPropertyExcludedFromTarget } from '../engine/schema-validator.js';
 import { getActualParameterValue, parseCookies } from '../rules/builtins/schema.js';
 import type {
   CoverageCount,
@@ -64,18 +65,6 @@ function markEntry(entries: Map<string, CoverageEntry>, item: CoverageItem, acce
   }
 }
 
-function isPropertyHiddenFromTarget(
-  propertySchema: unknown,
-  target: 'request' | 'response'
-): boolean {
-  if (!isPlainObject(propertySchema)) {
-    return false;
-  }
-  return target === 'request'
-    ? propertySchema.readOnly === true
-    : propertySchema.writeOnly === true;
-}
-
 function propertyPath(parentPath: string, name: string): string {
   return parentPath ? `${parentPath}.${name}` : name;
 }
@@ -113,7 +102,7 @@ function collectPropertySites(
 
   if (isPlainObject(schema.properties)) {
     for (const [name, propertySchema] of Object.entries(schema.properties)) {
-      if (isPropertyHiddenFromTarget(propertySchema, site.target)) {
+      if (isPropertyExcludedFromTarget(propertySchema, site.target)) {
         continue;
       }
       const childPath = propertyPath(path, name);

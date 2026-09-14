@@ -34,6 +34,10 @@ type HttpMethod = (typeof HTTP_METHODS)[number];
 
 const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
 
+// Response keys are status codes, status ranges such as `2XX`, or `default`;
+// anything else in the responses map is a specification extension.
+const RESPONSE_STATUS_KEY = /^(default|[1-5](\d{2}|xx))$/i;
+
 function isHttpMethod(value: string): value is HttpMethod {
   return (HTTP_METHODS as readonly string[]).includes(value);
 }
@@ -264,7 +268,7 @@ function createIndexVisitor(
               requestBodyContent: extractRequestBodyContent(requestBody),
               requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
               responseStatuses: isPlainObject(operation.responses)
-                ? Object.keys(operation.responses)
+                ? Object.keys(operation.responses).filter((key) => RESPONSE_STATUS_KEY.test(key))
                 : [],
               responseBodyContent: extractResponseBodyContent(operation.responses),
               security: normalizeSecurity(operation.security) ?? normalizeSecurity(rootSecurity),

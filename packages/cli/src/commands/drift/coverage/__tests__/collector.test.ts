@@ -6,6 +6,7 @@ const itemSchema = {
   type: 'object',
   properties: {
     id: { type: 'string', readOnly: true },
+    createdAt: { allOf: [{ type: 'string' }, { readOnly: true }] },
     name: { type: 'string' },
     price: {
       type: 'object',
@@ -245,6 +246,12 @@ describe('CoverageCollector', () => {
               },
               {
                 "kind": "property",
+                "path": "createdAt",
+                "status": "201",
+                "target": "response",
+              },
+              {
+                "kind": "property",
                 "path": "price.currency",
                 "status": "201",
                 "target": "response",
@@ -287,8 +294,8 @@ describe('CoverageCollector', () => {
           },
           "overall": {
             "covered": 16,
-            "pct": 67,
-            "total": 24,
+            "pct": 64,
+            "total": 25,
           },
           "parameters": {
             "covered": 0,
@@ -297,7 +304,7 @@ describe('CoverageCollector', () => {
           "properties": {
             "covered": 13,
             "coveredOnAccepted": 11,
-            "total": 17,
+            "total": 18,
           },
           "responses": {
             "covered": 2,

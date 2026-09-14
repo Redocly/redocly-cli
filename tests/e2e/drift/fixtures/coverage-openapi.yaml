@@ -8,16 +8,8 @@ paths:
   /items:
     get:
       operationId: listItems
-      parameters:
-        - name: category
-          in: query
-          schema:
-            type: string
-        - name: limit
-          in: query
-          schema:
-            type: integer
       responses:
+        x-internal-note: Extension keys are not response codes.
         '200':
           description: Items.
           content:
@@ -28,6 +20,15 @@ paths:
                   $ref: '#/components/schemas/Item'
         '400':
           description: Bad request.
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
     post:
       operationId: createItem
       requestBody:
