@@ -2644,6 +2644,28 @@ describe('loadConfig', () => {
       },
     });
   });
+
+  it('should resolve file paths written in a referenced config file against that file', async () => {
+    const { resolvedConfig } = await loadConfig({
+      configPath: path.join(
+        __dirname,
+        './fixtures/resolve-refs-in-config/config-with-file-path-refs.yaml'
+      ),
+    });
+
+    expect(resolvedConfig.apis).toMatchObject({
+      main: {
+        root: 'nested/openapi.yaml',
+        output: 'nested/dist/openapi.yaml',
+        clientOutput: 'nested/client.ts',
+      },
+      local: { root: './openapi.yaml' },
+    });
+    expect(resolvedConfig.client).toEqual({
+      setup: 'nested/setup.mjs',
+      cliOutput: 'nested/cli/index.ts',
+    });
+  });
 });
 
 describe('findConfig', () => {

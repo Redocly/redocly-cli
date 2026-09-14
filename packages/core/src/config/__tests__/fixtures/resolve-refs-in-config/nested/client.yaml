@@ -1,0 +1,2 @@
+setup: ./setup.mjs
+cliOutput: ./cli/index.ts

@@ -116,6 +116,15 @@ export function resolvePath(base: string, relative: string): string {
   return path.resolve(base, relative);
 }
 
+// `./api.yaml` written in `docs/redocly.yaml` becomes `docs/api.yaml` for `redocly.yaml`.
+export function rebaseFilePath(filePath: string, fromRef: string, toRef: string): string {
+  if (isAbsoluteUrl(filePath) || path.isAbsolute(filePath)) {
+    return filePath;
+  }
+  const absolutePath = resolvePath(getDir(fromRef), filePath);
+  return isAbsoluteUrl(absolutePath) ? absolutePath : path.relative(getDir(toRef), absolutePath);
+}
+
 export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
   return (

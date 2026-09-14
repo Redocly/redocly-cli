@@ -1,0 +1,9 @@
+openapi: 3.1.0
+info:
+  title: Referenced config
+  version: 1.0.0
+  license:
+    name: MIT
+servers:
+  - url: https://example.com
+paths: {}

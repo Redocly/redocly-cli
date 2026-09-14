@@ -12,6 +12,7 @@ import {
   isMappingRef,
   getDir,
   resolvePath,
+  rebaseFilePath,
 } from '../ref-utils.js';
 import { BaseResolver } from '../resolve.js';
 
@@ -257,6 +258,37 @@ describe('ref-utils', () => {
 
     it('should resolve relative paths for file system paths', () => {
       expect(resolvePath('/Users/test/config', 'file.yaml')).toMatch(/file\.yaml$/);
+    });
+  });
+
+  describe('rebaseFilePath', () => {
+    it('should rewrite a relative path so it resolves to the same file from another config', () => {
+      expect(
+        rebaseFilePath('./api.yaml', '/project/docs/redocly.yaml', '/project/redocly.yaml')
+      ).toEqual('docs/api.yaml');
+      expect(
+        rebaseFilePath('../specs/api.yaml', '/project/config/apis.yaml', '/project/redocly.yaml')
+      ).toEqual('specs/api.yaml');
+      expect(
+        rebaseFilePath(
+          './api.yaml',
+          'https://example.com/config/apis.yaml',
+          '/project/redocly.yaml'
+        )
+      ).toEqual('https://example.com/config/api.yaml');
+    });
+
+    it('should leave absolute paths and URLs as they are', () => {
+      expect(
+        rebaseFilePath('/abs/api.yaml', '/project/docs/redocly.yaml', '/project/redocly.yaml')
+      ).toEqual('/abs/api.yaml');
+      expect(
+        rebaseFilePath(
+          'https://example.com/api.yaml',
+          '/project/docs/redocly.yaml',
+          '/project/redocly.yaml'
+        )
+      ).toEqual('https://example.com/api.yaml');
     });
   });
 });
