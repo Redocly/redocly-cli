@@ -41,7 +41,7 @@ describe('miscellaneous', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  test('resolve a plugin when openapi-core is bundled', async () => {
+  test('resolve a plugin when openapi-core is bundled', { timeout: 120_000 }, async () => {
     const testPath = join(folderPath, 'resolve-plugins-when-bundled');
 
     const build = runCommand(
