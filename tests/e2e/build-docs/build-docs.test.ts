@@ -37,8 +37,8 @@ describe('build-docs', () => {
           ║                                                                    ║
           ║  An upcoming Redocly CLI release will render docs with Redoc 3:    ║
           ║  faster on large APIs, built-in dark mode, CSS-based theming, and  ║
-          ║  OpenAPI 3.2 support. Redoc 2 theme options and custom templates   ║
-          ║  may need updates.                                                 ║
+          ║  support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.              ║
+          ║  Redoc 2 theme options and custom templates may need updates.      ║
           ║                                                                    ║
           ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
           ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
@@ -79,8 +79,8 @@ describe('build-docs', () => {
             ║                                                                    ║
             ║  An upcoming Redocly CLI release will render docs with Redoc 3:    ║
             ║  faster on large APIs, built-in dark mode, CSS-based theming, and  ║
-            ║  OpenAPI 3.2 support. Redoc 2 theme options and custom templates   ║
-            ║  may need updates.                                                 ║
+            ║  support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.              ║
+            ║  Redoc 2 theme options and custom templates may need updates.      ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
             ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
@@ -116,8 +116,8 @@ describe('build-docs', () => {
             ║                                                                    ║
             ║  An upcoming Redocly CLI release will render docs with Redoc 3:    ║
             ║  faster on large APIs, built-in dark mode, CSS-based theming, and  ║
-            ║  OpenAPI 3.2 support. Redoc 2 theme options and custom templates   ║
-            ║  may need updates.                                                 ║
+            ║  support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.              ║
+            ║  Redoc 2 theme options and custom templates may need updates.      ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
             ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
@@ -153,8 +153,8 @@ describe('build-docs', () => {
             ║                                                                    ║
             ║  An upcoming Redocly CLI release will render docs with Redoc 3:    ║
             ║  faster on large APIs, built-in dark mode, CSS-based theming, and  ║
-            ║  OpenAPI 3.2 support. Redoc 2 theme options and custom templates   ║
-            ║  may need updates.                                                 ║
+            ║  support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.              ║
+            ║  Redoc 2 theme options and custom templates may need updates.      ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
             ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
@@ -190,8 +190,8 @@ describe('build-docs', () => {
             ║                                                                    ║
             ║  An upcoming Redocly CLI release will render docs with Redoc 3:    ║
             ║  faster on large APIs, built-in dark mode, CSS-based theming, and  ║
-            ║  OpenAPI 3.2 support. Redoc 2 theme options and custom templates   ║
-            ║  may need updates.                                                 ║
+            ║  support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.              ║
+            ║  Redoc 2 theme options and custom templates may need updates.      ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
             ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
@@ -227,8 +227,8 @@ describe('build-docs', () => {
             ║                                                                    ║
             ║  An upcoming Redocly CLI release will render docs with Redoc 3:    ║
             ║  faster on large APIs, built-in dark mode, CSS-based theming, and  ║
-            ║  OpenAPI 3.2 support. Redoc 2 theme options and custom templates   ║
-            ║  may need updates.                                                 ║
+            ║  support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.              ║
+            ║  Redoc 2 theme options and custom templates may need updates.      ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
             ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
