@@ -28,7 +28,7 @@ export const handlerBuildCommand = async ({
       'may need updates.',
       '',
       'To keep the current Redoc 2 output, use Redocly CLI v1:',
-      `  ${cyan('npx @redocly/cli@1 build-docs <api>')}`,
+      `  ${cyan('npx @redocly/cli@v1-archive build-docs <api>')}`,
       '',
       `Learn more: ${cyan('https://redocly.com/blog/redoc-3-whats-new')}`,
     ])

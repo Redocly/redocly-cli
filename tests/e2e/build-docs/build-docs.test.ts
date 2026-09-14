@@ -41,7 +41,7 @@ describe('build-docs', () => {
           ║  may need updates.                                                 ║
           ║                                                                    ║
           ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
-          ║    npx @redocly/cli@1 build-docs <api>                             ║
+          ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
           ║                                                                    ║
           ║  Learn more: https://redocly.com/blog/redoc-3-whats-new            ║
           ║                                                                    ║
@@ -83,7 +83,7 @@ describe('build-docs', () => {
             ║  may need updates.                                                 ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
-            ║    npx @redocly/cli@1 build-docs <api>                             ║
+            ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
             ║                                                                    ║
             ║  Learn more: https://redocly.com/blog/redoc-3-whats-new            ║
             ║                                                                    ║
@@ -120,7 +120,7 @@ describe('build-docs', () => {
             ║  may need updates.                                                 ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
-            ║    npx @redocly/cli@1 build-docs <api>                             ║
+            ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
             ║                                                                    ║
             ║  Learn more: https://redocly.com/blog/redoc-3-whats-new            ║
             ║                                                                    ║
@@ -157,7 +157,7 @@ describe('build-docs', () => {
             ║  may need updates.                                                 ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
-            ║    npx @redocly/cli@1 build-docs <api>                             ║
+            ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
             ║                                                                    ║
             ║  Learn more: https://redocly.com/blog/redoc-3-whats-new            ║
             ║                                                                    ║
@@ -194,7 +194,7 @@ describe('build-docs', () => {
             ║  may need updates.                                                 ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
-            ║    npx @redocly/cli@1 build-docs <api>                             ║
+            ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
             ║                                                                    ║
             ║  Learn more: https://redocly.com/blog/redoc-3-whats-new            ║
             ║                                                                    ║
@@ -231,7 +231,7 @@ describe('build-docs', () => {
             ║  may need updates.                                                 ║
             ║                                                                    ║
             ║  To keep the current Redoc 2 output, use Redocly CLI v1:           ║
-            ║    npx @redocly/cli@1 build-docs <api>                             ║
+            ║    npx @redocly/cli@v1-archive build-docs <api>                    ║
             ║                                                                    ║
             ║  Learn more: https://redocly.com/blog/redoc-3-whats-new            ║
             ║                                                                    ║
