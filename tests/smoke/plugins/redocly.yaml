@@ -1,17 +1,5 @@
 extends:
   - recommended
 plugins:
-  - plugins/cjs-plugin.cjs
-  - plugins/esm-plugin.mjs
-  - plugins/js-plugin.js
-  - plugins/multi-plugin.mjs
-  - plugins/nested-import-plugin.mjs
   - '@redocly/portal-plugin-async-api'
-rules:
-  cjs-plugin/marker: warn
-  esm-plugin/marker: warn
-  js-plugin/marker: warn
-  multi-plugin-first/marker: warn
-  multi-plugin-second/marker: warn
-  nested-import-plugin/marker: warn
-  theme-plugin/marker: warn
+  - local-plugin.js

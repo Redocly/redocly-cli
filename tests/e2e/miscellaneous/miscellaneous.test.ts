@@ -1,7 +1,7 @@
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { getCommandOutput, getParams, cleanupOutput } from '../helpers.js';
+import { getCommandOutput, getParams, cleanupOutput, runCommand } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
@@ -39,6 +39,23 @@ describe('miscellaneous', () => {
     ]);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('resolve a plugin when openapi-core is bundled', async () => {
+    const testPath = join(folderPath, 'resolve-plugins-when-bundled');
+
+    const build = runCommand(
+      'npx',
+      ['--yes', '@rspack/cli@2.2.3', 'build', '--config=rspack.config.cjs'],
+      { testPath }
+    );
+
+    const result = getCommandOutput(getParams(join(testPath, 'output', 'consumer.cjs')), {
+      testPath,
+    });
+
+    expect(build).not.toContain('Critical dependency');
+    expect(result).toContain('Loaded plugins: test-plugin');
   });
 
   test('decorate with a decorator from a plugin', async () => {

@@ -72,9 +72,13 @@
       }
     },
     {
+      "files": ["packages/core/src/logger.ts"],
+      "rules": {
+        "eslint/no-console": "allow"
+      }
+    },
+    {
       "files": [
-        "packages/core/src/logger.ts",
-        "tests/smoke/**",
         "tests/e2e/generate-client/examples/*/src/**",
         "tests/e2e/generate-client/examples/*/worker.ts"
       ],
