@@ -228,8 +228,6 @@ mockServer:
   $ref: ./mockserver.yaml
 ```
 
-Relative paths in a referenced file are resolved from the location of that file.
-
 {% admonition type="info" %}
 When using the `push` command with a config file that includes `$ref`s, all referenced files are explicitly uploaded using the `--files` option.
 {% /admonition %}

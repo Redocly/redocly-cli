@@ -278,7 +278,19 @@ describe('ref-utils', () => {
       ).toEqual('https://example.com/config/api.yaml');
     });
 
-    it('should leave absolute paths and URLs as they are', () => {
+    it('should return an absolute path when there is no root config file', () => {
+      expect(rebaseFilePath('./api.yaml', '/project/docs/apis.yaml', '')).toEqual(
+        '/project/docs/api.yaml'
+      );
+    });
+
+    it('should resolve the root config against its parent directory even without an extension', () => {
+      expect(rebaseFilePath('./api.yaml', '/project/docs/apis.yaml', '/project/myconfig')).toEqual(
+        'docs/api.yaml'
+      );
+    });
+
+    it('should leave absolute paths, URLs, and empty values as they are', () => {
       expect(
         rebaseFilePath('/abs/api.yaml', '/project/docs/redocly.yaml', '/project/redocly.yaml')
       ).toEqual('/abs/api.yaml');
@@ -289,6 +301,7 @@ describe('ref-utils', () => {
           '/project/redocly.yaml'
         )
       ).toEqual('https://example.com/api.yaml');
+      expect(rebaseFilePath('', '/project/docs/apis.yaml', '/project/redocly.yaml')).toEqual('');
     });
   });
 });

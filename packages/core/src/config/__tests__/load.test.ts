@@ -2659,6 +2659,8 @@ describe('loadConfig', () => {
         output: 'nested/dist/openapi.yaml',
         clientOutput: 'nested/client.ts',
       },
+      // the same file behind a second `$ref` is rebased once, not twice
+      second: { root: 'nested/openapi.yaml' },
       local: { root: './openapi.yaml' },
     });
     expect(resolvedConfig.client).toEqual({

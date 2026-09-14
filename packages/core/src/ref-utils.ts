@@ -116,13 +116,22 @@ export function resolvePath(base: string, relative: string): string {
   return path.resolve(base, relative);
 }
 
+// `getDir` keeps an extensionless path as is; config paths always resolve against the parent directory.
+function parentDir(ref: string): string {
+  return isAbsoluteUrl(ref) ? getDir(ref) : path.dirname(ref);
+}
+
 // `./api.yaml` written in `docs/redocly.yaml` becomes `docs/api.yaml` for `redocly.yaml`.
 export function rebaseFilePath(filePath: string, fromRef: string, toRef: string): string {
-  if (isAbsoluteUrl(filePath) || path.isAbsolute(filePath)) {
+  if (!filePath || isAbsoluteUrl(filePath) || path.isAbsolute(filePath)) {
     return filePath;
   }
-  const absolutePath = resolvePath(getDir(fromRef), filePath);
-  return isAbsoluteUrl(absolutePath) ? absolutePath : path.relative(getDir(toRef), absolutePath);
+  const absolutePath = resolvePath(parentDir(fromRef), filePath);
+  // Without a root config file there is nothing to be relative to, and an absolute path resolves the same anywhere.
+  if (isAbsoluteUrl(absolutePath) || !toRef) {
+    return absolutePath;
+  }
+  return path.relative(parentDir(toRef), absolutePath);
 }
 
 export function isMappingRef(mapping: string) {

@@ -4,6 +4,5 @@ info:
   version: 1.0.0
   license:
     name: MIT
-servers:
-  - url: https://example.com
+servers: []
 paths: {}

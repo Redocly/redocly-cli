@@ -85,6 +85,7 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+// `schema` is a union here, so the narrowing has to happen through a guard.
 function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
   return isPlainObject(schema) && schema.isFilePath === true;
 }
@@ -97,8 +98,11 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     return;
   }
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    if (!isFilePathSchema(schema)) {
+      continue;
+    }
     const value = node[field];
-    if (isFilePathSchema(schema) && isString(value)) {
+    if (isString(value)) {
       node[field] = rebaseFilePath(value, sourceRef, rootDocumentRef);
     }
   }
