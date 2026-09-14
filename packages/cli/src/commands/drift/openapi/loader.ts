@@ -263,6 +263,9 @@ function createIndexVisitor(
               requestParameters: mergedParameters,
               requestBodyContent: extractRequestBodyContent(requestBody),
               requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
+              responseStatuses: isPlainObject(operation.responses)
+                ? Object.keys(operation.responses)
+                : [],
               responseBodyContent: extractResponseBodyContent(operation.responses),
               security: normalizeSecurity(operation.security) ?? normalizeSecurity(rootSecurity),
               securitySchemes,

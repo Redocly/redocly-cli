@@ -20,6 +20,7 @@ function createMatchedOperation(requestParameters?: OpenApiParameter[]): Matched
       requestParameters: requestParameters ?? [{ name: 'filter', in: 'query', required: true }],
       requestBodyContent: {},
       requestBodyRequired: false,
+      responseStatuses: [],
       responseBodyContent: {},
       security: undefined,
       securitySchemes: {},

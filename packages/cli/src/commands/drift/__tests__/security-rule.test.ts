@@ -14,6 +14,7 @@ function createMatchedOperation(): MatchedOperation {
       requestParameters: [],
       requestBodyContent: {},
       requestBodyRequired: false,
+      responseStatuses: [],
       responseBodyContent: {},
       security: undefined,
       securitySchemes: {},

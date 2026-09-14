@@ -1,0 +1,359 @@
+{
+  "version": 1,
+  "meta": {
+    "spec": "./tests/e2e/drift/fixtures/coverage-openapi.yaml",
+    "traffic": "./tests/e2e/drift/fixtures/traffic-coverage.ndjson",
+    "matchMode": "strict-host",
+    "exchanges": {
+      "total": 4,
+      "matched": 4,
+      "withBody": 4
+    }
+  },
+  "totals": {
+    "overall": {
+      "covered": 25,
+      "total": 54,
+      "pct": 46
+    },
+    "operations": {
+      "covered": 3,
+      "total": 4
+    },
+    "parameters": {
+      "covered": 2,
+      "total": 4
+    },
+    "properties": {
+      "covered": 16,
+      "total": 39,
+      "coveredOnAccepted": 15
+    },
+    "responses": {
+      "covered": 4,
+      "total": 7
+    }
+  },
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/items",
+      "operationId": "listItems",
+      "missing": [
+        {
+          "kind": "parameter",
+          "name": "limit",
+          "in": "query"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].tags"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].details.duration"
+        },
+        {
+          "kind": "response",
+          "status": "400"
+        }
+      ],
+      "covered": [
+        {
+          "kind": "operation"
+        },
+        {
+          "kind": "parameter",
+          "name": "category",
+          "in": "query"
+        },
+        {
+          "kind": "response",
+          "status": "200"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].id"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].name"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].price"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].price.amount"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].price.currency"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].details"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].details.kind"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "[].details.pages"
+        }
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/items",
+      "operationId": "createItem",
+      "missing": [
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "price.currency"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "details"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "details.kind"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "details.pages"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "details.duration"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "price.currency"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "tags"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "details"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "details.kind"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "details.pages"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "details.duration"
+        }
+      ],
+      "covered": [
+        {
+          "kind": "operation"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "name"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "price"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "price.amount"
+        },
+        {
+          "kind": "property",
+          "target": "request",
+          "path": "tags"
+        },
+        {
+          "kind": "response",
+          "status": "201"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "id"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "name"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "price"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "201",
+          "path": "price.amount"
+        },
+        {
+          "kind": "response",
+          "status": "400"
+        }
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/items/{id}",
+      "operationId": "deleteItem",
+      "missing": [
+        {
+          "kind": "operation"
+        },
+        {
+          "kind": "parameter",
+          "name": "id",
+          "in": "path"
+        },
+        {
+          "kind": "response",
+          "status": "204"
+        }
+      ],
+      "covered": []
+    },
+    {
+      "method": "GET",
+      "path": "/items/{id}",
+      "operationId": "getItem",
+      "missing": [
+        {
+          "kind": "response",
+          "status": "200"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "id"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "name"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "price"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "price.amount"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "price.currency"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "tags"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "details"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "details.kind"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "details.pages"
+        },
+        {
+          "kind": "property",
+          "target": "response",
+          "status": "200",
+          "path": "details.duration"
+        }
+      ],
+      "covered": [
+        {
+          "kind": "operation"
+        },
+        {
+          "kind": "parameter",
+          "name": "id",
+          "in": "path"
+        },
+        {
+          "kind": "response",
+          "status": "404"
+        }
+      ]
+    }
+  ]
+}

@@ -108,6 +108,8 @@ export interface OpenApiOperation {
   requestParameters: OpenApiParameter[];
   requestBodyContent: Record<string, unknown>;
   requestBodyRequired: boolean;
+  /** Every documented response key, including responses without content. */
+  responseStatuses: string[];
   responseBodyContent: Record<string, Record<string, unknown>>;
   security: Record<string, string[]>[] | undefined;
   securitySchemes: Record<string, unknown>;
@@ -183,6 +185,45 @@ export interface RunnerOptions {
   openApiIndex: OpenApiIndex;
   server?: string;
   minSeverity?: FindingSeverity;
+  /** Track which documented operations, parameters, properties, and responses the traffic exercised. */
+  coverage?: boolean;
+}
+
+export type CoverageItem =
+  | { kind: 'operation' }
+  | { kind: 'parameter'; name: string; in: OpenApiParameter['in'] }
+  | { kind: 'response'; status: string }
+  | { kind: 'property'; target: 'request' | 'response'; status?: string; path: string };
+
+export interface CoverageCount {
+  covered: number;
+  total: number;
+}
+
+export interface CoverageOperationReport {
+  method: string;
+  path: string;
+  operationId: string;
+  missing: CoverageItem[];
+  covered: CoverageItem[];
+}
+
+export interface CoverageSummary {
+  exchanges: {
+    total: number;
+    matched: number;
+    /** Matched exchanges that carried a JSON request or response body. */
+    withBody: number;
+  };
+  totals: {
+    overall: CoverageCount & { pct: number };
+    operations: CoverageCount;
+    parameters: CoverageCount;
+    /** `coveredOnAccepted` counts only properties seen in exchanges the server accepted (status below 400). */
+    properties: CoverageCount & { coveredOnAccepted: number };
+    responses: CoverageCount;
+  };
+  operations: CoverageOperationReport[];
 }
 
 /**

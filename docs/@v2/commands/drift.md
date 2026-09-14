@@ -42,28 +42,31 @@ redocly drift <traffic> --api <api> [--traffic-format=<option>]
 redocly drift <traffic> --api <api> [--format=<option>] [--output=<file>]
 redocly drift <traffic> --api <api> [--server=<url>]
 redocly drift <traffic> --api <api> [--match-mode=<option>]
+redocly drift <traffic> --api <api> [--coverage] [--coverage-output=<file>]
 ```
 
 ## Options
 
-| Option           | Type    | Description                                                                                                                                                                                                                                                                       |
-| ---------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| traffic          | string  | **REQUIRED.** Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).                                                                                                                                                                                        |
-| --api            | string  | **REQUIRED.** OpenAPI description file or folder to validate against.                                                                                                                                                                                                             |
-| --traffic-format | string  | Traffic input format.<br/>**Possible values:** `auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`. Default value is `auto`.                                                                                                                                             |
-| --format         | string  | Output format.<br/>**Possible values:** `pretty`, `json`, `csv`, `sarif`. Default value is `pretty`.                                                                                                                                                                              |
-| --match-mode     | string  | How requests are located via the description `servers`. `strict-host` also requires the host to match; `basepath` matches only the base path.<br/>**Possible values:** `strict-host`, `basepath`. Default value is `strict-host`. Mutually exclusive with `--server`.             |
-| --server         | string  | Server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`). Only requests under it are considered, and the rest of their URL is treated as the API path. Replaces the description `servers`. Mutually exclusive with `--match-mode`. |
-| --ignore-cookies | boolean | Ignore cookie-based checks (useful for logs exported without cookies). Default value is `false`.                                                                                                                                                                                  |
-| --ignore-headers | string  | Comma-separated header names to skip in undocumented-header checks. A trailing `*` matches by prefix, for example `x-consumer-*`. Useful for headers a gateway or proxy adds that are not part of the API contract.                                                               |
-| --max-findings   | number  | Maximum findings shown in pretty output. Default value is `10`.                                                                                                                                                                                                                   |
-| --min-severity   | string  | Discard findings below this severity from the report (all formats).<br/>**Possible values:** `info`, `warning`, `error`. Default value is `info`.                                                                                                                                 |
-| --rules          | string  | Comma-separated subset of builtin rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.                                                                                                                                            |
-| --output, -o     | string  | Write the drift report (in the format selected with `--format`) to this file instead of stdout.                                                                                                                                                                                   |
-| --config         | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                                              |
-| --lint-config    | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                  |
-| --help           | boolean | Display help.                                                                                                                                                                                                                                                                     |
-| --version        | boolean | Display version number.                                                                                                                                                                                                                                                           |
+| Option            | Type    | Description                                                                                                                                                                                                                                                                       |
+| ----------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| traffic           | string  | **REQUIRED.** Path to a traffic log file or folder (HAR, Kong, Nginx/Apache JSON, NDJSON).                                                                                                                                                                                        |
+| --api             | string  | **REQUIRED.** OpenAPI description file or folder to validate against.                                                                                                                                                                                                             |
+| --traffic-format  | string  | Traffic input format.<br/>**Possible values:** `auto`, `har`, `kong`, `nginx-json`, `apache-json`, `ndjson`. Default value is `auto`.                                                                                                                                             |
+| --format          | string  | Output format.<br/>**Possible values:** `pretty`, `json`, `csv`, `sarif`. Default value is `pretty`.                                                                                                                                                                              |
+| --match-mode      | string  | How requests are located via the description `servers`. `strict-host` also requires the host to match; `basepath` matches only the base path.<br/>**Possible values:** `strict-host`, `basepath`. Default value is `strict-host`. Mutually exclusive with `--server`.             |
+| --server          | string  | Server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`). Only requests under it are considered, and the rest of their URL is treated as the API path. Replaces the description `servers`. Mutually exclusive with `--match-mode`. |
+| --ignore-cookies  | boolean | Ignore cookie-based checks (useful for logs exported without cookies). Default value is `false`.                                                                                                                                                                                  |
+| --ignore-headers  | string  | Comma-separated header names to skip in undocumented-header checks. A trailing `*` matches by prefix, for example `x-consumer-*`. Useful for headers a gateway or proxy adds that are not part of the API contract.                                                               |
+| --max-findings    | number  | Maximum findings shown in pretty output. Default value is `10`.                                                                                                                                                                                                                   |
+| --min-severity    | string  | Discard findings below this severity from the report (all formats).<br/>**Possible values:** `info`, `warning`, `error`. Default value is `info`.                                                                                                                                 |
+| --rules           | string  | Comma-separated subset of builtin rules to run: `undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`.                                                                                                                                            |
+| --output, -o      | string  | Write the drift report (in the format selected with `--format`) to this file instead of stdout.                                                                                                                                                                                   |
+| --coverage        | boolean | Print an [API coverage](#api-coverage) overview after the report: how many documented operations, parameters, schema properties, and response codes the traffic exercised. Default value is `false`.                                                                              |
+| --coverage-output | string  | Write a detailed JSON [API coverage](#api-coverage) report to this file. Lists the covered and missing items of every operation.                                                                                                                                                  |
+| --config          | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                                              |
+| --lint-config     | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                                                                  |
+| --help            | boolean | Display help.                                                                                                                                                                                                                                                                     |
+| --version         | boolean | Display version number.                                                                                                                                                                                                                                                           |
 
 The `owasp-api-top10` rule is opt-in and only runs when included in `--rules`.
 
@@ -105,6 +108,89 @@ redocly drift ./traffic.har --api ./openapi.yaml --ignore-headers "x-caddy-auth-
 ```bash
 redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report.json
 ```
+
+### Measure API coverage
+
+```bash
+redocly drift ./traffic.har --api ./openapi.yaml --coverage --coverage-output ./coverage.json
+```
+
+## API coverage
+
+Drift tells you where the traffic disagrees with the description.
+Coverage tells you how much of the description the traffic exercised at all, so you know how far the drift findings can be trusted.
+Coverage is measured the same way test runners measure code coverage: each documented item is either covered by at least one exchange or missing.
+
+With `--coverage`, the command prints an overview after the drift report:
+
+```bash
+API coverage: 46%
+  operations         ███████████████░░░░░   75%      3/4
+  parameters         ██████████░░░░░░░░░░   50%      2/4
+  schema properties  ████████░░░░░░░░░░░░   41%    16/39
+  response codes     ███████████░░░░░░░░░   57%      4/7
+```
+
+| Category          | Documented items                                                          | Covered when                                                                                     |
+| ----------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| operations        | Every operation of the loaded descriptions.                               | At least one exchange matched the operation.                                                     |
+| parameters        | Every path, query, header, and cookie parameter of an operation.          | A matched exchange carried the parameter. Cookie parameters are skipped with `--ignore-cookies`. |
+| schema properties | Every property reachable from the JSON request and response body schemas. | A matched exchange carried the property in its JSON body.                                        |
+| response codes    | Every response of an operation, including responses without content.      | A matched exchange returned the status. Status ranges such as `2XX` and `default` count as well. |
+
+Schema properties are collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
+Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
+For `oneOf` and `anyOf`, a body only covers the properties of the branches it satisfies.
+The overall percentage is the covered share of all items across the four categories.
+
+If the report on stdout is machine-readable (`--format json`, `csv`, or `sarif` without `--output`), the overview is printed to stderr so the report stays parseable.
+
+With `--coverage-output`, the command writes a JSON report that lists, for every operation, the items the traffic covered and the items it never exercised:
+
+```json
+{
+  "version": 1,
+  "meta": {
+    "spec": "./openapi.yaml",
+    "traffic": "./traffic.har",
+    "matchMode": "strict-host",
+    "exchanges": { "total": 4, "matched": 4, "withBody": 4 }
+  },
+  "totals": {
+    "overall": { "covered": 25, "total": 54, "pct": 46 },
+    "operations": { "covered": 3, "total": 4 },
+    "parameters": { "covered": 2, "total": 4 },
+    "properties": { "covered": 16, "total": 39, "coveredOnAccepted": 15 },
+    "responses": { "covered": 4, "total": 7 }
+  },
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/items",
+      "operationId": "listItems",
+      "missing": [
+        { "kind": "parameter", "name": "limit", "in": "query" },
+        { "kind": "property", "target": "response", "status": "200", "path": "[].tags" },
+        { "kind": "response", "status": "400" }
+      ],
+      "covered": [
+        { "kind": "operation" },
+        { "kind": "parameter", "name": "category", "in": "query" },
+        { "kind": "response", "status": "200" },
+        { "kind": "property", "target": "response", "status": "200", "path": "[].name" }
+      ]
+    }
+  ]
+}
+```
+
+- `meta.exchanges.withBody` counts the matched exchanges that carried a JSON request or response body.
+- `totals.properties.coveredOnAccepted` counts only the properties seen in exchanges the server accepted (status below `400`).
+  A property that only ever appeared in rejected requests is covered, but not covered on accepted exchanges.
+- A property `path` is relative to the body: `[]` marks array items, so `[].price.amount` is the `amount` of the `price` of each element.
+
+The coverage output is experimental and its shape may change.
+Coverage does not affect the exit code.
 
 ## Exit codes
 

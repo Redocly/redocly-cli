@@ -1,9 +1,11 @@
 import { isPlainObject, logger } from '@redocly/openapi-core';
 import { randomUUID } from 'node:crypto';
 
+import { CoverageCollector } from '../coverage/collector.js';
 import { matchOperation } from '../openapi/matcher.js';
 import { loadRules } from '../rules/registry.js';
 import type {
+  CoverageSummary,
   Finding,
   FindingPreview,
   FindingRecord,
@@ -165,6 +167,7 @@ export interface RunnerResult {
   runId: string;
   summary: RunSummary;
   findings: FindingRecord[];
+  coverage?: CoverageSummary;
 }
 
 export interface ValidationSessionOptions {
@@ -183,6 +186,8 @@ export interface ValidationSessionOptions {
   server?: string;
   /** Findings below this severity are discarded. */
   minSeverity?: FindingSeverity;
+  /** Track which documented operations, parameters, properties, and responses the traffic exercised. */
+  coverage?: boolean;
 }
 
 /**
@@ -199,6 +204,7 @@ export class ValidationSession {
   private readonly schemaValidator = new SchemaValidator();
   private readonly coercingSchemaValidator = new SchemaValidator({ coerceTypes: true });
   private readonly options: ValidationSessionOptions;
+  private readonly coverage: CoverageCollector | undefined;
 
   private readonly counters = createInitialCounters();
   private readonly findings: FindingRecord[] = [];
@@ -231,6 +237,14 @@ export class ValidationSession {
       options.previewFindingsLimit && options.previewFindingsLimit > 0
         ? options.previewFindingsLimit
         : DEFAULT_FINDINGS_PREVIEW_LIMIT;
+    this.coverage = options.coverage
+      ? new CoverageCollector({
+          openApiIndex: options.openApiIndex,
+          ignoreCookies: options.ignoreCookies,
+          validateSchema: (schema, value, validateOptions) =>
+            this.schemaValidator.validate(schema, value, validateOptions?.target),
+        })
+      : undefined;
   }
 
   static create(options: ValidationSessionOptions): ValidationSession {
@@ -273,6 +287,7 @@ export class ValidationSession {
     } else {
       this.counters.undocumentedExchanges += 1;
     }
+    this.coverage?.record(exchange, matchedOperation);
 
     const exchangeFindings = await executeRules(this.rules, {
       exchange,
@@ -362,6 +377,11 @@ export class ValidationSession {
       previewTruncated: this.totalProblemGroups > this.previewFindings.length,
     };
 
-    return { runId: this.runId, summary, findings: this.findings };
+    return {
+      runId: this.runId,
+      summary,
+      findings: this.findings,
+      coverage: this.coverage?.finalize(),
+    };
   }
 }

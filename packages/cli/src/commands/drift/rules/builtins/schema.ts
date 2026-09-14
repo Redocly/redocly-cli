@@ -3,6 +3,7 @@ import { isPlainObject } from '@redocly/openapi-core';
 import type {
   Finding,
   MatchedOperation,
+  NormalizedRequest,
   OpenApiParameter,
   RuleContext,
   TrafficRule,
@@ -20,7 +21,7 @@ function hasBodyContent(bodyText: string | undefined): boolean {
   return bodyText !== undefined && bodyText !== '';
 }
 
-function parseCookies(headerValue: string | undefined): Record<string, string> {
+export function parseCookies(headerValue: string | undefined): Record<string, string> {
   if (!headerValue) {
     return {};
   }
@@ -291,19 +292,20 @@ function getDeepObjectParameterValue(
   return objectValue;
 }
 
-function getActualParameterValue(
+export function getActualParameterValue(
   parameter: OpenApiParameter,
-  context: RuleContext,
+  request: NormalizedRequest,
+  pathParams: Record<string, string>,
   cookies: Record<string, string>
 ): unknown {
   switch (parameter.in) {
     case 'path':
-      return context.matchedOperation?.pathParams[parameter.name];
+      return pathParams[parameter.name];
     case 'query': {
       if (parameter.style === 'deepObject') {
-        return getDeepObjectParameterValue(parameter.name, context.exchange.request.query);
+        return getDeepObjectParameterValue(parameter.name, request.query);
       }
-      const values = context.exchange.request.query.getAll(parameter.name);
+      const values = request.query.getAll(parameter.name);
       if (values.length === 0) {
         return undefined;
       }
@@ -314,7 +316,7 @@ function getActualParameterValue(
       return values[0];
     }
     case 'header':
-      return context.exchange.request.headers[parameter.name.toLowerCase()];
+      return request.headers[parameter.name.toLowerCase()];
     case 'cookie':
       return cookies[parameter.name];
     default:
@@ -477,7 +479,12 @@ export class SchemaConsistencyRule implements TrafficRule {
           continue;
         }
 
-        const actualValue = getActualParameterValue(parameter, context, cookies);
+        const actualValue = getActualParameterValue(
+          parameter,
+          context.exchange.request,
+          matchedOperation.pathParams,
+          cookies
+        );
 
         if (parameter.required && (actualValue === undefined || actualValue === null)) {
           findings.push({
