@@ -707,9 +707,29 @@ yargs(hideBin(process.argv))
             describe:
               'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
           },
+          openapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
+          },
+          asyncapi: {
+            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+          },
+          graphql: {
+            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+          },
           theme: {
             describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.nativeScrollbars',
+              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.hideDownloadButtons',
+            deprecated: 'use --openapi instead',
+          },
+          disableTelemetry: {
+            describe: 'Disable Redoc telemetry in the generated page. The default value is false.',
+            type: 'boolean',
+          },
+          inlineBundle: {
+            describe:
+              'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
+            type: 'boolean',
+            default: false,
           },
           config: {
             describe: 'Path to the config file.',

@@ -1,15 +1,18 @@
 import type { VerifyConfigOptions } from '../../types.js';
 
+export type SpecType = 'openapi' | 'asyncapi' | 'graphql';
+
 export type BuildDocsOptions = {
-  watch?: boolean;
-  output?: string;
+  output: string;
   title?: string;
   disableGoogleFont?: boolean;
-  port?: number;
   templateFileName?: string;
-  templateOptions?: any;
+  templateOptions?: Record<string, unknown>;
   redocOptions?: any;
   redocVersion: string;
+  disableTelemetry?: boolean;
+  inlineBundle?: boolean;
+  specType: SpecType;
 };
 
 export type BuildDocsArgv = {
@@ -19,7 +22,12 @@ export type BuildDocsArgv = {
   disableGoogleFont?: boolean;
   template?: string;
   templateOptions: Record<string, any>;
-  theme: {
+  theme?: {
     openapi: string | Record<string, unknown>;
   };
+  openapi?: string | Record<string, unknown>;
+  asyncapi?: string | Record<string, unknown>;
+  graphql?: string | Record<string, unknown>;
+  disableTelemetry?: boolean;
+  inlineBundle: boolean;
 } & VerifyConfigOptions;
