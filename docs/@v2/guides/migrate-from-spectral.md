@@ -1,6 +1,6 @@
 # Migrate to Redocly from Spectral
 
-[Spectral](https://stoplight.io/open-source/spectral) offers similar linting capabilities to Redocly CLI and the rest of the Redocly tools. This guide lays out the differences so you can switch tools if you want to.
+Redocly CLI and the rest of the Redocly toolchain cover the same linting ground as [Spectral](https://stoplight.io/open-source/spectral) — and go further. This guide compares both tools so you can decide whether switching makes sense for your team.
 
 The first step is to [install Redocly CLI](../installation.md).
 
@@ -164,6 +164,13 @@ Build up the rulesets that work for your organization's API standards. These can
 - using an ignore file to overlook existing/historic incompatibilities while still enforcing rules for changed elements
 
 For some advanced use cases, the configurable rules can't cover all possibilities. If that happens, Redocly supports [adding rules in custom plugins](../custom-plugins/custom-rules.md) so that you can use JavaScript to express any specialist rules you need.
+
+If you work with an AI coding assistant, install the `redocly-lint-rules` agent skill.
+It turns a Spectral rule into a Redocly one, and it verifies the result against your API description.
+
+```bash
+npx skills add https://redocly.com
+```
 
 ## Explore tool functionality
 

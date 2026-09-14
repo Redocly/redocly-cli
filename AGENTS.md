@@ -101,6 +101,8 @@ Naming and reuse:
 
 - If the rule enforces a specification requirement, prefix its name with `spec-` and add it to the spec ruleset in `packages/core/src/config/spec.ts`.
 - If the same concept already exists for another spec flavor, reuse that rule name so it stays discoverable across specs.
+- Boolean options default to `false`.
+  Name each of them according to what makes `true`, so that adding them never alters the existing behavior.
 - Prefer real rule code over assertion-based (`redocly.yaml`) rules when contributing to the core rule set.
 
 ## Testing
