@@ -3,9 +3,17 @@
   "private": true,
   "scripts": {
     "redocly-version": "redocly --version",
-    "redocly-lint": "redocly lint openapi.yaml"
+    "redocly-lint": "redocly lint openapi.yaml",
+    "redocly-lint-json": "redocly lint openapi.yaml --format=json > verify/lint-report.json",
+    "verify-lint": "node verify/lint.mjs",
+    "bundle-consumer": "node verify/bundle.cjs",
+    "run-bundled-consumer": "node verify/dist/consumer.cjs"
   },
   "dependencies": {
+    "@redocly/openapi-core": "file:./openapi-core.tgz",
     "@redocly/portal-plugin-async-api": "1.0.273"
+  },
+  "devDependencies": {
+    "@rspack/core": "2.2.3"
   }
 }
