@@ -1,7 +1,6 @@
 import { isPlainObject, logger } from '@redocly/openapi-core';
 import { randomUUID } from 'node:crypto';
 
-import { CoverageCollector } from '../coverage/collector.js';
 import { matchOperation } from '../openapi/matcher.js';
 import { loadRules } from '../rules/registry.js';
 import type {
@@ -20,6 +19,7 @@ import type {
 import { createProblemKey } from '../utils/finding-groups.js';
 import { parseHeaderIgnoreList, type HeaderIgnoreList } from '../utils/http.js';
 import { normalizeServerPrefix, resolvePathForServer } from '../utils/server.js';
+import { CoverageCollector } from './coverage-collector.js';
 import { SchemaValidator } from './schema-validator.js';
 
 const DEFAULT_FINDINGS_PREVIEW_LIMIT = 10;
@@ -267,6 +267,7 @@ export class ValidationSession {
       relativePathOverride = resolvePathForServer(exchange.request, this.server);
       if (relativePathOverride === undefined) {
         this.counters.skippedExchanges += 1;
+        this.coverage?.record(exchange, null);
         return [];
       }
     }

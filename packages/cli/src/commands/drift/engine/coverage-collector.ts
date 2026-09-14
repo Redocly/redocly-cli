@@ -1,7 +1,5 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import { isPropertyExcludedFromTarget } from '../engine/schema-validator.js';
-import { getActualParameterValue, parseCookies } from '../rules/builtins/schema.js';
 import type {
   CoverageCount,
   CoverageItem,
@@ -14,6 +12,9 @@ import type {
   RuleContext,
 } from '../types/index.js';
 import { isJsonMime, pickSchemaByMime } from '../utils/http.js';
+import { resolveResponseKey } from '../utils/openapi.js';
+import { getActualParameterValue, parseCookies } from '../utils/parameters.js';
+import { isPropertyExcludedFromTarget } from './schema-validator.js';
 
 type ValidateSchema = RuleContext['validateSchema'];
 
@@ -225,14 +226,6 @@ function createOperationState(
   return { operation, entries };
 }
 
-/** Pick the documented response key the way `schema-consistency` does: exact status, then class, then `default`. */
-function resolveResponseStatus(operation: OpenApiOperation, status: number): string | undefined {
-  const statusClass = `${Math.floor(status / 100)}XX`;
-  return [String(status), statusClass, statusClass.toLowerCase(), 'default'].find((candidate) =>
-    operation.responseStatuses.includes(candidate)
-  );
-}
-
 function hasJsonBody(exchange: NormalizedExchange): boolean {
   return exchange.request.bodyJson !== undefined || exchange.response?.bodyJson !== undefined;
 }
@@ -316,7 +309,7 @@ export class CoverageCollector {
       }
     }
 
-    if (exchange.request.bodyJson !== undefined && isJsonMime(exchange.request.contentType)) {
+    if (exchange.request.bodyJson !== undefined) {
       const requestSchema = pickSchemaByMime(
         operation.requestBodyContent,
         exchange.request.contentType
@@ -337,13 +330,13 @@ export class CoverageCollector {
       return;
     }
 
-    const status = resolveResponseStatus(operation, response.status);
+    const status = resolveResponseKey(response.status, operation.responseStatuses);
     if (status === undefined) {
       return;
     }
     markEntry(entries, { kind: 'response', status }, accepted);
 
-    if (response.bodyJson !== undefined && isJsonMime(response.contentType)) {
+    if (response.bodyJson !== undefined) {
       const responseSchema = pickSchemaByMime(
         operation.responseBodyContent[status] ?? {},
         response.contentType

@@ -64,7 +64,7 @@ Coverage does not affect the exit code.
 ## Coverage
 
 `--coverage` and `--coverage-output` measure how much of the description the traffic exercised.
-The collector (`coverage/collector.ts`) is fed by `ValidationSession` with every exchange and its matched operation.
+The collector (`engine/coverage-collector.ts`) is fed by `ValidationSession` with every exchange and its matched operation.
 Every documented item is an entry that is either covered or missing:
 
 - `operation`: matched by at least one exchange

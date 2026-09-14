@@ -5,7 +5,7 @@ import path from 'node:path';
 import type { VerifyConfigOptions } from '../../types.js';
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { renderCoverageJson, renderCoverageOverview } from './coverage/reporter.js';
+import { renderCoverageJson, renderCoverageOverview } from './engine/coverage-reporter.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
 import { runTrafficValidation } from './engine/runner.js';
 import { loadOpenApiIndex } from './openapi/loader.js';

@@ -1,6 +1,6 @@
-import { SchemaValidator } from '../../engine/schema-validator.js';
 import type { NormalizedExchange, OpenApiIndex, OpenApiOperation } from '../../types/index.js';
-import { CoverageCollector } from '../collector.js';
+import { CoverageCollector } from '../coverage-collector.js';
+import { SchemaValidator } from '../schema-validator.js';
 
 const itemSchema = {
   type: 'object',

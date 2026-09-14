@@ -38,3 +38,11 @@ export function ensureLeadingSlash(value: string): string {
   }
   return value.startsWith('/') ? value : `/${value}`;
 }
+
+/** Pick the documented response key for a status: exact code, then its class (`2XX`), then `default`. */
+export function resolveResponseKey(status: number, documentedKeys: string[]): string | undefined {
+  const statusClass = `${Math.floor(status / 100)}XX`;
+  return [String(status), statusClass, statusClass.toLowerCase(), 'default'].find((candidate) =>
+    documentedKeys.includes(candidate)
+  );
+}
