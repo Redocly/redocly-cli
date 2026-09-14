@@ -11,7 +11,7 @@ Support for OpenAPI 3.2 is coming soon.
 {% /admonition %}
 
 {% admonition type="warning" name="Redoc 3 migration" %}
-An upcoming Redocly CLI v2 release switches `build-docs` to Redoc 3, and the command prints a notice about it on every run.
+An upcoming Redocly CLI release switches `build-docs` to Redoc 3, and the command prints a notice about it on every run.
 Redoc 3 is faster on large APIs, adds built-in dark mode and OpenAPI 3.2 support, and is themed with CSS custom properties instead of the Redoc 2 theme object.
 Redoc 2 theme options and custom templates may need updates after the switch.
 To keep the current Redoc 2 output, use Redocly CLI v1: `npx @redocly/cli@1 build-docs <api>`.

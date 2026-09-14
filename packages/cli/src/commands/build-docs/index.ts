@@ -22,7 +22,7 @@ export const handlerBuildCommand = async ({
     renderBanner([
       bold(yellow('Deprecation warning: build-docs is moving to Redoc 3')),
       '',
-      'An upcoming Redocly CLI v2 release will render docs with Redoc 3:',
+      'An upcoming Redocly CLI release will render docs with Redoc 3:',
       'faster on large APIs, built-in dark mode, CSS-based theming, and',
       'OpenAPI 3.2 support. Redoc 2 theme options and custom templates',
       'may need updates.',
