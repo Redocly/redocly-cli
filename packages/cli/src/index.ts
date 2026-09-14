@@ -35,7 +35,6 @@ import type {
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
 import { outputExtensions } from './types.js';
-import { SEND_TELEMETRY_COMMAND } from './utils/constants.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
 import { validateMountPath } from './utils/validate-mount-path.js';
@@ -1410,10 +1409,6 @@ yargs(hideBin(process.argv))
       commandWrapper(handleProxy)(argv as Arguments<ProxyArgv>);
     }
   )
-  .command(SEND_TELEMETRY_COMMAND, false, {}, async () => {
-    const { sendTelemetryFromStdin } = await import('./utils/telemetry.js');
-    await sendTelemetryFromStdin();
-  })
   .completion('completion', 'Generate autocomplete script for `redocly` command.')
   .demandCommand(1)
   .middleware([notifyUpdateCliVersion])
