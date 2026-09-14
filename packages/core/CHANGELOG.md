@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.53.0
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
 ## 2.52.1
 
 ## 2.52.0
