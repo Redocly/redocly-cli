@@ -71,7 +71,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / client-registration 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / order-attempt 
  
   ✓ GET /menu - step list-menu-items 
 
@@ -102,60 +102,54 @@ exports[`should resolve outputs access syntax variations 1`] = `
     ✓ content-type check
     ✓ schema check
  
-  ✓ POST /oauth2/register - step create-client 
+  ✓ POST /orders - step create-order 
 
-    Request URL: https://api.cafe.redocly.com/oauth2/register
+    Request URL: https://api.cafe.redocly.com/orders
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
     Request Body:
       {
         "listObject": 10,
-        "listTotal": 0
+        "listTotal": 0,
+        "orderItems": [
+          {
+            "menuItemId": "prd_0000000000seedtrams0000000",
+            "quantity": 2,
+            "comment": "mermaid-treasure-latte"
+          }
+        ]
       } 
  
 
-    Response status code: 400
+    Response status code: 401
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
         "type": "about:blank",
-        "title": "Validation failed",
-        "status": 400,
-        "instance": "/oauth2/register",
-        "details": {
-          "errors": [
-            {
-              "code": "invalid_type",
-              "expected": "string",
-              "received": "undefined",
-              "path": [
-                "name"
-              ],
-              "message": "Required"
-            }
-          ]
-        }
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
       } 
  
-    ✓ success criteria check - $statusCode == 400
+    ✓ success criteria check - $statusCode == 401
     ✓ success criteria check - $workflows.get-menu-items.outputs.itemsCount == 0
-    ✓ status code check - $statusCode in [201, 400, 500]
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
     ✓ content-type check
     ✓ schema check
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-menu-items-by-error-field 
+  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-menu-items-by-submitted-order 
  
-  ✓ GET /menu - step get-menu-items-by-error-field 
+  ✓ GET /menu - step get-menu-items-by-submitted-order 
 
-    Request URL: https://api.cafe.redocly.com/menu?search=name
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
       accept: application/json, application/problem+json
-      x-original-message: Required 
+      x-original-quantity: 2 
  
 
     Response status code: 200
@@ -176,7 +170,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
         "items": []
       } 
  
-    ✓ success criteria check - $workflows.client-registration.outputs.createdClie...
+    ✓ success criteria check - $workflows.order-attempt.outputs.orderError#/statu...
     ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
