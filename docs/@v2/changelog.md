@@ -7,6 +7,12 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.53.1 (2026-09-15)
+
+### Patch Changes
+
+- Added a deprecation warning to the `build-docs` command about the upcoming switch to Redoc 3.
+
 ## 2.53.0 (2026-09-14)
 
 ### Minor Changes
