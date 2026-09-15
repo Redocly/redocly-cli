@@ -6,7 +6,6 @@ seo:
 # Usage data and product metrics
 
 Redocly CLI sends a small set of anonymized data to help us understand how the tool is used and improve it.
-A short-lived background process sends the data after the command finishes, so the command does not wait for the network.
 
 ## What data is collected
 
