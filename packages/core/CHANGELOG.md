@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.53.2
+
+### Patch Changes
+
+- Added `start` and `end` line and column positions to each problem location in the `--format=json` lint output.
+
 ## 2.53.1
 
 ## 2.53.0
