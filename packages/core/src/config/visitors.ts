@@ -85,7 +85,6 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-// `schema` is a union here, so the narrowing has to happen through a guard.
 function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
   return isPlainObject(schema) && schema.isFilePath === true;
 }

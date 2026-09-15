@@ -352,7 +352,6 @@ const ConfigApis: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
-// Fields the schema doesn't declare stay out, so configs linted against external types keep reporting them.
 function asFilePaths(properties: NodeType['properties'] | undefined, fields: string[]) {
   const marked: NodeType['properties'] = {};
   for (const field of fields) {
