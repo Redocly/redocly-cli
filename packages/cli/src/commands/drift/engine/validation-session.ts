@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { matchOperation } from '../openapi/matcher.js';
 import { loadRules } from '../rules/registry.js';
 import type {
+  CoverageSummary,
   Finding,
   FindingPreview,
   FindingRecord,
@@ -17,7 +18,9 @@ import type {
 } from '../types/index.js';
 import { createProblemKey } from '../utils/finding-groups.js';
 import { parseHeaderIgnoreList, type HeaderIgnoreList } from '../utils/http.js';
+import { parseCookies } from '../utils/parameters.js';
 import { normalizeServerPrefix, resolvePathForServer } from '../utils/server.js';
+import { CoverageCollector } from './coverage-collector.js';
 import { SchemaValidator } from './schema-validator.js';
 
 const DEFAULT_FINDINGS_PREVIEW_LIMIT = 10;
@@ -165,6 +168,7 @@ export interface RunnerResult {
   runId: string;
   summary: RunSummary;
   findings: FindingRecord[];
+  coverage?: CoverageSummary;
 }
 
 export interface ValidationSessionOptions {
@@ -183,6 +187,8 @@ export interface ValidationSessionOptions {
   server?: string;
   /** Findings below this severity are discarded. */
   minSeverity?: FindingSeverity;
+  /** Track which documented operations, parameters, properties, and responses the traffic exercised. */
+  coverage?: boolean;
 }
 
 /**
@@ -199,6 +205,7 @@ export class ValidationSession {
   private readonly schemaValidator = new SchemaValidator();
   private readonly coercingSchemaValidator = new SchemaValidator({ coerceTypes: true });
   private readonly options: ValidationSessionOptions;
+  private readonly coverage: CoverageCollector | undefined;
 
   private readonly counters = createInitialCounters();
   private readonly findings: FindingRecord[] = [];
@@ -231,6 +238,14 @@ export class ValidationSession {
       options.previewFindingsLimit && options.previewFindingsLimit > 0
         ? options.previewFindingsLimit
         : DEFAULT_FINDINGS_PREVIEW_LIMIT;
+    this.coverage = options.coverage
+      ? new CoverageCollector({
+          openApiIndex: options.openApiIndex,
+          ignoreCookies: options.ignoreCookies,
+          validateSchema: (schema, value, validateOptions) =>
+            this.schemaValidator.validate(schema, value, validateOptions?.target),
+        })
+      : undefined;
   }
 
   static create(options: ValidationSessionOptions): ValidationSession {
@@ -247,12 +262,14 @@ export class ValidationSession {
    */
   async process(exchange: NormalizedExchange): Promise<FindingRecord[]> {
     this.counters.totalExchanges += 1;
+    const cookies = parseCookies(exchange.request.headers.cookie);
 
     let relativePathOverride: string | undefined;
     if (this.server !== undefined) {
       relativePathOverride = resolvePathForServer(exchange.request, this.server);
       if (relativePathOverride === undefined) {
         this.counters.skippedExchanges += 1;
+        this.coverage?.record(exchange, null, cookies);
         return [];
       }
     }
@@ -273,6 +290,7 @@ export class ValidationSession {
     } else {
       this.counters.undocumentedExchanges += 1;
     }
+    this.coverage?.record(exchange, matchedOperation, cookies);
 
     const exchangeFindings = await executeRules(this.rules, {
       exchange,
@@ -281,6 +299,7 @@ export class ValidationSession {
       hostCompatibleWithSpecServers: relativePathOverride !== undefined || hostCompatible,
       ignoreCookies: this.options.ignoreCookies ?? false,
       ignoreHeaders: this.ignoreHeaders,
+      cookies,
       validateSchema: (schema, value, options) =>
         options?.coerce
           ? this.coercingSchemaValidator.validate(schema, value, options?.target)
@@ -362,6 +381,11 @@ export class ValidationSession {
       previewTruncated: this.totalProblemGroups > this.previewFindings.length,
     };
 
-    return { runId: this.runId, summary, findings: this.findings };
+    return {
+      runId: this.runId,
+      summary,
+      findings: this.findings,
+      coverage: this.coverage?.finalize(),
+    };
   }
 }

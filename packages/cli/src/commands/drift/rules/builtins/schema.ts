@@ -13,30 +13,13 @@ import {
   shouldIgnoreHeaderAsUndocumented,
   isJsonMime,
 } from '../../utils/http.js';
+import { resolveResponseKey } from '../../utils/openapi.js';
+import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
 function hasBodyContent(bodyText: string | undefined): boolean {
   return bodyText !== undefined && bodyText !== '';
-}
-
-function parseCookies(headerValue: string | undefined): Record<string, string> {
-  if (!headerValue) {
-    return {};
-  }
-
-  const cookies: Record<string, string> = {};
-  for (const pair of headerValue.split(';')) {
-    const [rawName, ...rawValueParts] = pair.trim().split('=');
-    if (!rawName) {
-      continue;
-    }
-
-    const value = rawValueParts.join('=').trim();
-    cookies[rawName] = value;
-  }
-
-  return cookies;
 }
 
 function decodeJsonPointerSegment(segment: string): string {
@@ -265,63 +248,6 @@ function validateParameter(
   }
 }
 
-// deepObject-style query parameters serialize object properties as "name[property]=value".
-const DEEP_OBJECT_QUERY_KEY_REGEX = /^([^[\]]+)\[([^[\]]+)\]$/;
-
-function parseDeepObjectQueryKey(
-  key: string
-): { parameterName: string; property: string } | undefined {
-  const keyMatch = key.match(DEEP_OBJECT_QUERY_KEY_REGEX);
-  return keyMatch ? { parameterName: keyMatch[1], property: keyMatch[2] } : undefined;
-}
-
-function getDeepObjectParameterValue(
-  parameterName: string,
-  query: URLSearchParams
-): Record<string, string> | undefined {
-  let objectValue: Record<string, string> | undefined;
-  for (const [key, value] of query) {
-    const deepObjectKey = parseDeepObjectQueryKey(key);
-    if (deepObjectKey?.parameterName === parameterName) {
-      objectValue ??= {};
-      objectValue[deepObjectKey.property] = value;
-    }
-  }
-
-  return objectValue;
-}
-
-function getActualParameterValue(
-  parameter: OpenApiParameter,
-  context: RuleContext,
-  cookies: Record<string, string>
-): unknown {
-  switch (parameter.in) {
-    case 'path':
-      return context.matchedOperation?.pathParams[parameter.name];
-    case 'query': {
-      if (parameter.style === 'deepObject') {
-        return getDeepObjectParameterValue(parameter.name, context.exchange.request.query);
-      }
-      const values = context.exchange.request.query.getAll(parameter.name);
-      if (values.length === 0) {
-        return undefined;
-      }
-      const schemaType = isPlainObject(parameter.schema) ? parameter.schema.type : undefined;
-      if (schemaType === 'array' || values.length > 1) {
-        return values;
-      }
-      return values[0];
-    }
-    case 'header':
-      return context.exchange.request.headers[parameter.name.toLowerCase()];
-    case 'cookie':
-      return cookies[parameter.name];
-    default:
-      return undefined;
-  }
-}
-
 function createUndocumentedParameterFindings(
   context: RuleContext,
   matchedOperation: MatchedOperation
@@ -403,19 +329,13 @@ function pickResponseSchema(
     return undefined;
   }
 
-  const statusCode = String(response.status);
-  const statusClass = `${Math.floor(response.status / 100)}XX`;
-  const responseContentMap =
-    matchedOperation.operation.responseBodyContent[statusCode] ??
-    matchedOperation.operation.responseBodyContent[statusClass] ??
-    matchedOperation.operation.responseBodyContent[statusClass.toLowerCase()] ??
-    matchedOperation.operation.responseBodyContent.default;
-
-  if (!responseContentMap) {
+  const { responseBodyContent } = matchedOperation.operation;
+  const responseKey = resolveResponseKey(response.status, Object.keys(responseBodyContent));
+  if (responseKey === undefined) {
     return undefined;
   }
 
-  return pickSchemaByMime(responseContentMap, response.contentType);
+  return pickSchemaByMime(responseBodyContent[responseKey], response.contentType);
 }
 
 function validateSchemaResult(
@@ -460,7 +380,6 @@ export class SchemaConsistencyRule implements TrafficRule {
     }
 
     const findings: Finding[] = [];
-    const cookies = parseCookies(context.exchange.request.headers.cookie);
 
     // Undocumented query parameters and headers are a documentation gap that holds
     // regardless of whether the server accepted the request, so report them even
@@ -477,7 +396,12 @@ export class SchemaConsistencyRule implements TrafficRule {
           continue;
         }
 
-        const actualValue = getActualParameterValue(parameter, context, cookies);
+        const actualValue = getActualParameterValue(
+          parameter,
+          context.exchange.request,
+          matchedOperation.pathParams,
+          context.cookies
+        );
 
         if (parameter.required && (actualValue === undefined || actualValue === null)) {
           findings.push({
