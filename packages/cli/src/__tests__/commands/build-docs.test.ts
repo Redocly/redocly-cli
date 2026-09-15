@@ -54,6 +54,10 @@ const config = {
 };
 
 describe('build-docs', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   beforeEach(() => {
     vi.mocked(fs.readFileSync).mockImplementation(() => '');
 
@@ -116,5 +120,31 @@ describe('build-docs', () => {
       expect.objectContaining({ spec: schema, specType: 'graphql' })
     );
     expect(processExitMock).toBeCalledTimes(0);
+  });
+
+  it('keeps Redoc telemetry off in the page when CLI usage data is off', async () => {
+    vi.stubEnv('REDOCLY_TELEMETRY', 'off');
+    vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
+    const argv = {
+      o: '',
+      template: '',
+      templateOptions: {},
+      inlineBundle: false,
+      api: '../some-path/openapi.yaml',
+    } as BuildDocsArgv;
+
+    await handlerBuildCommand({ argv, config: await createConfig({}), version: 'cli-version' });
+    expect(vi.mocked(renderToString).mock.lastCall?.[0]).toMatchObject({
+      props: { telemetryConfig: { disabled: true } },
+    });
+
+    await handlerBuildCommand({
+      argv: { ...argv, openapi: { disableTelemetry: false } },
+      config: await createConfig({}),
+      version: 'cli-version',
+    });
+    expect(vi.mocked(renderToString).mock.lastCall?.[0]).toMatchObject({
+      props: { telemetryConfig: { disabled: false } },
+    });
   });
 });

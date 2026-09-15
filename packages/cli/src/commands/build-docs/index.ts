@@ -68,7 +68,11 @@ export const handlerBuildCommand = async ({
       redocOptions,
       redocVersion,
       specType,
-      disableTelemetry: argv.disableTelemetry ?? redocOptions.disableTelemetry === true,
+      disableTelemetry:
+        argv.disableTelemetry ??
+        (redocOptions.disableTelemetry === undefined
+          ? process.env.REDOCLY_TELEMETRY === 'off' || config.resolvedConfig.telemetry === 'off'
+          : String(redocOptions.disableTelemetry) === 'true'),
       inlineBundle: argv.inlineBundle,
     };
 

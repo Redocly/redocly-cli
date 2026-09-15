@@ -19,6 +19,7 @@ export function getCommandOutput(
       ...process.env,
       NODE_ENV: 'test',
       NO_COLOR: 'TRUE',
+      REDOCLY_TELEMETRY: 'off',
       FORCE_COLOR: '0',
       ...options?.env,
     },
