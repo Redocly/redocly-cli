@@ -9,6 +9,7 @@
     "output/",
     "packages/respect-core/src/modules/runtime-expressions/abnf-parser.js",
     "packages/core/src/rules/common/__tests__/fixtures/invalid-yaml.yaml",
+    "packages/recheck/src/config/__tests__/fixtures/",
     "tests/performance/api-definitions/",
     "tests/e2e/generate-client/examples/*/src/api/",
     "tests/e2e/generate-client/examples/*/generators/",
