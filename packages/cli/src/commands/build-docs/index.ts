@@ -1,4 +1,4 @@
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import { isAbsoluteUrl, logger, HandledError } from '@redocly/openapi-core';
 import { bold, cyan, yellow } from 'colorette';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -63,6 +63,6 @@ export const handlerBuildCommand = async ({
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (e) {
-    exitWithError(e);
+    throw new HandledError(e);
   }
 };
