@@ -7,11 +7,15 @@ import { type OpenAPISpec } from 'redoc/typings/types/index.js';
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
 import { getPageHTML } from '../../commands/build-docs/utils.js';
+import type * as miscellaneous from '../../utils/miscellaneous.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
 vi.mock('redoc');
 vi.mock('node:fs');
-vi.mock('../../utils/miscellaneous.js');
+vi.mock('../../utils/miscellaneous.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof miscellaneous>()),
+  getFallbackApisOrExit: vi.fn(),
+}));
 vi.mock('react-dom/server', () => ({
   renderToString: vi.fn(),
 }));
