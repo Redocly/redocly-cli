@@ -1,9 +1,7 @@
-import { logger } from '@redocly/openapi-core';
+import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import type { VerifyConfigOptions } from '../../types.js';
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
 import { runTrafficValidation } from './engine/runner.js';
@@ -31,7 +29,7 @@ export type DriftArgv = {
   output?: string;
   server?: string;
   'min-severity': FindingSeverity;
-} & VerifyConfigOptions;
+};
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
 
@@ -93,7 +91,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
 
   const server = argv.server;
   if (server && argv['match-mode']) {
-    return exitWithError(
+    throw new HandledError(
       'The --server and --match-mode options are mutually exclusive: --match-mode controls how requests are located via the description servers, while --server replaces the description servers with the one the traffic was captured against.'
     );
   }
@@ -102,7 +100,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   const specPath = normalizeFsPath(argv.api);
   const openApiIndex = await loadOpenApiIndex(specPath, config);
   if (openApiIndex.loadedOperations === 0) {
-    return exitWithError(`No OpenAPI operations were loaded from: ${specPath}`);
+    throw new HandledError(`No OpenAPI operations were loaded from: ${specPath}`);
   }
 
   const { runId, summary, findings } = await runTrafficValidation({
