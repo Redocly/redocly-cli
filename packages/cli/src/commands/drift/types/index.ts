@@ -135,6 +135,8 @@ export interface RuleContext {
   hostCompatibleWithSpecServers: boolean;
   ignoreCookies?: boolean;
   ignoreHeaders?: HeaderIgnoreList;
+  /** Request cookies parsed from the `cookie` header, keyed by name. */
+  cookies: Record<string, string>;
   validateSchema: (
     schema: unknown,
     value: unknown,
@@ -216,11 +218,10 @@ export interface CoverageSummary {
     withBody: number;
   };
   totals: {
-    overall: CoverageCount & { pct: number };
+    overall: CoverageCount;
     operations: CoverageCount;
     parameters: CoverageCount;
-    /** `coveredOnAccepted` counts only properties seen in exchanges the server accepted (status below 400). */
-    properties: CoverageCount & { coveredOnAccepted: number };
+    properties: CoverageCount;
     responses: CoverageCount;
   };
   operations: CoverageOperationReport[];

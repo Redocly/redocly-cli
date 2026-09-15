@@ -68,6 +68,7 @@ function createContext(
     matchMode: 'strict-host',
     hostCompatibleWithSpecServers: true,
     ignoreHeaders: options.ignoreHeaders ? parseHeaderIgnoreList(options.ignoreHeaders) : undefined,
+    cookies: {},
     validateSchema: () => ({ valid: true, errors: [] }),
   };
 }

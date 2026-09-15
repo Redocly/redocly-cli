@@ -13,7 +13,7 @@ import type {
 } from '../types/index.js';
 import { isJsonMime, pickSchemaByMime } from '../utils/http.js';
 import { resolveResponseKey } from '../utils/openapi.js';
-import { getActualParameterValue, parseCookies } from '../utils/parameters.js';
+import { getActualParameterValue } from '../utils/parameters.js';
 import { isPropertyExcludedFromTarget } from './schema-validator.js';
 
 type ValidateSchema = RuleContext['validateSchema'];
@@ -21,7 +21,6 @@ type ValidateSchema = RuleContext['validateSchema'];
 interface CoverageEntry {
   item: CoverageItem;
   covered: boolean;
-  coveredOnAccepted: boolean;
 }
 
 interface OperationCoverageState {
@@ -29,7 +28,7 @@ interface OperationCoverageState {
   entries: Map<string, CoverageEntry>;
 }
 
-export interface CoverageCollectorOptions {
+interface CoverageCollectorOptions {
   openApiIndex: OpenApiIndex;
   ignoreCookies?: boolean;
   validateSchema: ValidateSchema;
@@ -51,18 +50,14 @@ function entryKey(item: CoverageItem): string {
 function addEntry(entries: Map<string, CoverageEntry>, item: CoverageItem): void {
   const key = entryKey(item);
   if (!entries.has(key)) {
-    entries.set(key, { item, covered: false, coveredOnAccepted: false });
+    entries.set(key, { item, covered: false });
   }
 }
 
-function markEntry(entries: Map<string, CoverageEntry>, item: CoverageItem, accepted: boolean) {
+function markEntry(entries: Map<string, CoverageEntry>, item: CoverageItem): void {
   const entry = entries.get(entryKey(item));
-  if (!entry) {
-    return;
-  }
-  entry.covered = true;
-  if (accepted) {
-    entry.coveredOnAccepted = true;
+  if (entry) {
+    entry.covered = true;
   }
 }
 
@@ -130,7 +125,6 @@ function observeProperties(
   site: PropertySite,
   path: string,
   entries: Map<string, CoverageEntry>,
-  accepted: boolean,
   validateSchema: ValidateSchema,
   ancestors: Set<object>
 ): void {
@@ -140,7 +134,7 @@ function observeProperties(
   ancestors.add(schema);
 
   const observeBranch = (branch: unknown) =>
-    observeProperties(value, branch, site, path, entries, accepted, validateSchema, ancestors);
+    observeProperties(value, branch, site, path, entries, validateSchema, ancestors);
 
   if (Array.isArray(schema.allOf)) {
     schema.allOf.forEach(observeBranch);
@@ -162,14 +156,13 @@ function observeProperties(
         continue;
       }
       const childPath = propertyPath(path, name);
-      markEntry(entries, { kind: 'property', ...site, path: childPath }, accepted);
+      markEntry(entries, { kind: 'property', ...site, path: childPath });
       observeProperties(
         value[name],
         propertySchema,
         site,
         childPath,
         entries,
-        accepted,
         validateSchema,
         ancestors
       );
@@ -184,7 +177,6 @@ function observeProperties(
         site,
         `${path}[]`,
         entries,
-        accepted,
         validateSchema,
         ancestors
       );
@@ -230,11 +222,8 @@ function hasJsonBody(exchange: NormalizedExchange): boolean {
   return exchange.request.bodyJson !== undefined || exchange.response?.bodyJson !== undefined;
 }
 
-function countByKind(
-  states: OperationCoverageState[],
-  kind: CoverageItem['kind']
-): CoverageCount & { coveredOnAccepted: number } {
-  const count = { covered: 0, total: 0, coveredOnAccepted: 0 };
+function countByKind(states: OperationCoverageState[], kind: CoverageItem['kind']): CoverageCount {
+  const count = { covered: 0, total: 0 };
   for (const state of states) {
     for (const entry of state.entries.values()) {
       if (entry.item.kind !== kind) {
@@ -244,12 +233,16 @@ function countByKind(
       if (entry.covered) {
         count.covered += 1;
       }
-      if (entry.coveredOnAccepted) {
-        count.coveredOnAccepted += 1;
-      }
     }
   }
   return count;
+}
+
+function sumCounts(counts: CoverageCount[]): CoverageCount {
+  return counts.reduce(
+    (sum, count) => ({ covered: sum.covered + count.covered, total: sum.total + count.total }),
+    { covered: 0, total: 0 }
+  );
 }
 
 function toOperationReport(state: OperationCoverageState): CoverageOperationReport {
@@ -284,9 +277,17 @@ export class CoverageCollector {
     }
   }
 
-  record(exchange: NormalizedExchange, matchedOperation: MatchedOperation | null): void {
+  record(
+    exchange: NormalizedExchange,
+    matchedOperation: MatchedOperation | null,
+    cookies: Record<string, string>
+  ): void {
     this.exchanges.total += 1;
     if (!matchedOperation) {
+      return;
+    }
+    const state = this.states.get(matchedOperation.operation);
+    if (!state) {
       return;
     }
     this.exchanges.matched += 1;
@@ -295,17 +296,14 @@ export class CoverageCollector {
     }
 
     const { operation, pathParams } = matchedOperation;
-    const { entries } = this.states.get(operation)!;
-    const response = exchange.response;
-    const accepted = response !== undefined && response.status < 400;
+    const { entries } = state;
 
-    markEntry(entries, { kind: 'operation' }, accepted);
+    markEntry(entries, { kind: 'operation' });
 
-    const cookies = parseCookies(exchange.request.headers.cookie);
     for (const parameter of operation.requestParameters) {
       const actualValue = getActualParameterValue(parameter, exchange.request, pathParams, cookies);
       if (actualValue !== undefined && actualValue !== null) {
-        markEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in }, accepted);
+        markEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in });
       }
     }
 
@@ -320,12 +318,12 @@ export class CoverageCollector {
         { target: 'request' },
         '',
         entries,
-        accepted,
         this.validateSchema,
         new Set()
       );
     }
 
+    const response = exchange.response;
     if (!response) {
       return;
     }
@@ -334,7 +332,7 @@ export class CoverageCollector {
     if (status === undefined) {
       return;
     }
-    markEntry(entries, { kind: 'response', status }, accepted);
+    markEntry(entries, { kind: 'response', status });
 
     if (response.bodyJson !== undefined) {
       const responseSchema = pickSchemaByMime(
@@ -347,7 +345,6 @@ export class CoverageCollector {
         { target: 'response', status },
         '',
         entries,
-        accepted,
         this.validateSchema,
         new Set()
       );
@@ -365,18 +362,15 @@ export class CoverageCollector {
     const parameters = countByKind(states, 'parameter');
     const properties = countByKind(states, 'property');
     const responses = countByKind(states, 'response');
-    const covered =
-      operations.covered + parameters.covered + properties.covered + responses.covered;
-    const total = operations.total + parameters.total + properties.total + responses.total;
 
     return {
       exchanges: this.exchanges,
       totals: {
-        overall: { covered, total, pct: total === 0 ? 0 : Math.round((covered / total) * 100) },
-        operations: { covered: operations.covered, total: operations.total },
-        parameters: { covered: parameters.covered, total: parameters.total },
+        overall: sumCounts([operations, parameters, properties, responses]),
+        operations,
+        parameters,
         properties,
-        responses: { covered: responses.covered, total: responses.total },
+        responses,
       },
       operations: states.map(toOperationReport),
     };

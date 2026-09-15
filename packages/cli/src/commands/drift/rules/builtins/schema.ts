@@ -14,11 +14,7 @@ import {
   isJsonMime,
 } from '../../utils/http.js';
 import { resolveResponseKey } from '../../utils/openapi.js';
-import {
-  getActualParameterValue,
-  parseCookies,
-  parseDeepObjectQueryKey,
-} from '../../utils/parameters.js';
+import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
@@ -384,7 +380,6 @@ export class SchemaConsistencyRule implements TrafficRule {
     }
 
     const findings: Finding[] = [];
-    const cookies = parseCookies(context.exchange.request.headers.cookie);
 
     // Undocumented query parameters and headers are a documentation gap that holds
     // regardless of whether the server accepted the request, so report them even
@@ -405,7 +400,7 @@ export class SchemaConsistencyRule implements TrafficRule {
           parameter,
           context.exchange.request,
           matchedOperation.pathParams,
-          cookies
+          context.cookies
         );
 
         if (parameter.required && (actualValue === undefined || actualValue === null)) {

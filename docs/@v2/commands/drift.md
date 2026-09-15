@@ -157,10 +157,10 @@ With `--coverage-output`, the command writes a JSON report that lists, for every
     "exchanges": { "total": 4, "matched": 4, "withBody": 4 }
   },
   "totals": {
-    "overall": { "covered": 25, "total": 54, "pct": 46 },
+    "overall": { "covered": 25, "total": 54 },
     "operations": { "covered": 3, "total": 4 },
     "parameters": { "covered": 2, "total": 4 },
-    "properties": { "covered": 16, "total": 39, "coveredOnAccepted": 15 },
+    "properties": { "covered": 16, "total": 39 },
     "responses": { "covered": 4, "total": 7 }
   },
   "operations": [
@@ -185,8 +185,6 @@ With `--coverage-output`, the command writes a JSON report that lists, for every
 ```
 
 - `meta.exchanges.withBody` counts the matched exchanges that carried a JSON request or response body.
-- `totals.properties.coveredOnAccepted` counts only the properties seen in exchanges the server accepted (status below `400`).
-  A property that only ever appeared in rejected requests is covered, but not covered on accepted exchanges.
 - A property `path` is relative to the body: `[]` marks array items, so `[].price.amount` is the `amount` of the `price` of each element.
 
 The coverage output is experimental and its shape may change.

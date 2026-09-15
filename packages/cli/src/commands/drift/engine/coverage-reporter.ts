@@ -4,7 +4,7 @@ import type { CoverageCount, CoverageSummary, MatchMode } from '../types/index.j
 
 const BAR_WIDTH = 20;
 
-export interface CoverageReportMeta {
+interface CoverageReportMeta {
   spec: string;
   traffic: string;
   matchMode: MatchMode;
@@ -13,6 +13,10 @@ export interface CoverageReportMeta {
 
 function percent(count: CoverageCount): number | undefined {
   return count.total === 0 ? undefined : Math.round((count.covered / count.total) * 100);
+}
+
+function percentLabel(pct: number | undefined): string {
+  return pct === undefined ? 'n/a' : `${pct}%`;
 }
 
 function renderBar(pct: number | undefined, color: boolean): string {
@@ -34,13 +38,12 @@ export function renderCoverageOverview(summary: CoverageSummary, color: boolean)
   ];
   const ratioWidth = Math.max(...rows.map(([, count]) => `${count.covered}/${count.total}`.length));
 
-  const heading = `API coverage: ${summary.totals.overall.pct}%`;
+  const heading = `API coverage: ${percentLabel(percent(summary.totals.overall))}`;
   const lines = [color ? bold(cyan(heading)) : heading];
   for (const [label, count] of rows) {
     const pct = percent(count);
-    const pctLabel = pct === undefined ? 'n/a' : `${pct}%`;
     lines.push(
-      `  ${label.padEnd(18)} ${renderBar(pct, color)} ${pctLabel.padStart(5)} ${`${count.covered}/${count.total}`.padStart(ratioWidth + 3)}`
+      `  ${label.padEnd(18)} ${renderBar(pct, color)} ${percentLabel(pct).padStart(5)} ${`${count.covered}/${count.total}`.padStart(ratioWidth + 3)}`
     );
   }
   return `${lines.join('\n')}\n`;

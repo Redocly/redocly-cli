@@ -18,6 +18,7 @@ import type {
 } from '../types/index.js';
 import { createProblemKey } from '../utils/finding-groups.js';
 import { parseHeaderIgnoreList, type HeaderIgnoreList } from '../utils/http.js';
+import { parseCookies } from '../utils/parameters.js';
 import { normalizeServerPrefix, resolvePathForServer } from '../utils/server.js';
 import { CoverageCollector } from './coverage-collector.js';
 import { SchemaValidator } from './schema-validator.js';
@@ -261,13 +262,14 @@ export class ValidationSession {
    */
   async process(exchange: NormalizedExchange): Promise<FindingRecord[]> {
     this.counters.totalExchanges += 1;
+    const cookies = parseCookies(exchange.request.headers.cookie);
 
     let relativePathOverride: string | undefined;
     if (this.server !== undefined) {
       relativePathOverride = resolvePathForServer(exchange.request, this.server);
       if (relativePathOverride === undefined) {
         this.counters.skippedExchanges += 1;
-        this.coverage?.record(exchange, null);
+        this.coverage?.record(exchange, null, cookies);
         return [];
       }
     }
@@ -288,7 +290,7 @@ export class ValidationSession {
     } else {
       this.counters.undocumentedExchanges += 1;
     }
-    this.coverage?.record(exchange, matchedOperation);
+    this.coverage?.record(exchange, matchedOperation, cookies);
 
     const exchangeFindings = await executeRules(this.rules, {
       exchange,
@@ -297,6 +299,7 @@ export class ValidationSession {
       hostCompatibleWithSpecServers: relativePathOverride !== undefined || hostCompatible,
       ignoreCookies: this.options.ignoreCookies ?? false,
       ignoreHeaders: this.ignoreHeaders,
+      cookies,
       validateSchema: (schema, value, options) =>
         options?.coerce
           ? this.coercingSchemaValidator.validate(schema, value, options?.target)

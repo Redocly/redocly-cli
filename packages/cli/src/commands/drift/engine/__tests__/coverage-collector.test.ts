@@ -123,15 +123,17 @@ describe('CoverageCollector', () => {
         price: { amount: 9 },
         details: { kind: 'book', pages: 412 },
       }),
-      { operation: createItem, pathParams: {} }
+      { operation: createItem, pathParams: {} },
+      {}
     );
     collector.record(
       createExchange(1, { name: 'Broken', price: { currency: 'USD' } }, 400, {
         message: 'amount is required',
       }),
-      { operation: createItem, pathParams: {} }
+      { operation: createItem, pathParams: {} },
+      {}
     );
-    collector.record(createExchange(2, undefined, 404, undefined), null);
+    collector.record(createExchange(2, undefined, 404, undefined), null, {});
 
     expect(collector.finalize()).toMatchInlineSnapshot(`
       {
@@ -294,7 +296,6 @@ describe('CoverageCollector', () => {
           },
           "overall": {
             "covered": 16,
-            "pct": 64,
             "total": 25,
           },
           "parameters": {
@@ -303,7 +304,6 @@ describe('CoverageCollector', () => {
           },
           "properties": {
             "covered": 13,
-            "coveredOnAccepted": 11,
             "total": 18,
           },
           "responses": {

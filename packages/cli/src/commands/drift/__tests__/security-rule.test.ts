@@ -56,6 +56,7 @@ function createContext(
     matchedOperation: createMatchedOperation(),
     matchMode: 'strict-host',
     hostCompatibleWithSpecServers: true,
+    cookies: {},
     validateSchema: () => ({ valid: true, errors: [] }),
   };
 }

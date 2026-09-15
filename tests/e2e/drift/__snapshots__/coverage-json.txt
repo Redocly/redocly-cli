@@ -13,8 +13,7 @@
   "totals": {
     "overall": {
       "covered": 25,
-      "total": 54,
-      "pct": 46
+      "total": 54
     },
     "operations": {
       "covered": 3,
@@ -26,8 +25,7 @@
     },
     "properties": {
       "covered": 16,
-      "total": 39,
-      "coveredOnAccepted": 15
+      "total": 39
     },
     "responses": {
       "covered": 4,
