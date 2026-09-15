@@ -1,0 +1,8 @@
+extends:
+  - ./api-rules.yaml
+root: ./openapi.yaml
+output: dist/openapi.yaml
+clientOutput: ./client.ts
+client:
+  setup: ./setup.mjs
+  cliOutput: ./cli/index.ts

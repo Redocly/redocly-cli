@@ -221,6 +221,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
       },
       "cliOutput": {
+        "isFilePath": true,
         "type": "string",
       },
       "codeSamples": {
@@ -293,6 +294,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "setup": {
+        "isFilePath": true,
         "type": "string",
       },
     },
@@ -398,6 +400,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Rules": "Rules",
       "client": "Client",
       "clientOutput": {
+        "isFilePath": true,
         "type": "string",
       },
       "decorators": "Decorators",
@@ -430,6 +433,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "openrpc1Preprocessors": "Preprocessors",
       "openrpc1Rules": "Rules",
       "output": {
+        "isFilePath": true,
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -439,6 +443,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
+        "isFilePath": true,
         "type": "string",
       },
       "rules": "Rules",
