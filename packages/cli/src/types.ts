@@ -1,5 +1,4 @@
 import type { RuleSeverity } from '@redocly/openapi-core';
-import type { LoginArgv, PushArgv, PushStatusArgv } from '@redocly/reunite-integration';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import type { BundleArgv } from './commands/bundle.js';
@@ -11,10 +10,13 @@ import type { InspectNodeTypesArgv } from './commands/inspect-node-types.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
 import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
+import type { LoginArgv } from './commands/login.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
 import type { ProxyArgv } from './commands/proxy/index.js';
+import type { PushStatusArgv } from './commands/push-status.js';
+import type { PushArgv } from './commands/push.js';
 import type { RespectArgv } from './commands/respect/index.js';
-import type { ScorecardClassicCommandArgv } from './commands/scorecard-classic.js';
+import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
 import type { SplitArgv } from './commands/split/types.js';
 import type { StatsArgv } from './commands/stats/index.js';
 import type { TranslationsArgv } from './commands/translations.js';
@@ -51,7 +53,7 @@ export type CommandArgv = (
   | GenerateArazzoCommandArgv
   | EjectGeneratorCommandArgv
   | IntrospectMcpCommandArgv
-  | ScorecardClassicCommandArgv
+  | ScorecardClassicArgv
 ) &
   VerifyConfigOptions;
 

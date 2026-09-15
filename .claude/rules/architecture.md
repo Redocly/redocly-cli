@@ -39,15 +39,18 @@ Validates real API responses against OpenAPI/Arazzo specs.
 ## `packages/reunite-integration` (@redocly/reunite-integration)
 
 Everything that talks to the Redocly platform (Reunite): the API client, authentication, and the
-handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+functions behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 Keep Reunite API calls and credential handling here, not in `packages/cli`.
-The CLI registers the commands and calls these handlers; the package is also published so other
-programs, such as GitHub actions, can call them.
+The package is also published so other programs, such as GitHub actions, can call it, so its
+functions take plain options and return data: no `argv`, no spinner, no printed output, and no
+`HandledError`. The CLI command handler in `packages/cli/src/commands/` maps `argv` to those
+options, renders the result, and maps errors to `HandledError`.
 
 - `src/api/` — the Reunite API client, residency and domain resolution, and the wire types.
 - `src/auth/` — the OAuth device flow and the encrypted credentials store.
-- `src/commands/` — one file per command handler, plus `scorecard-classic/`.
-- Handlers take the caller's `version` and report failures by throwing, never by exiting.
+- `src/push.ts`, `src/push-status.ts` — `pushFiles`, `getPushStatus`, and `waitForDeployment`.
+- `src/scorecard-classic/` — fetching a project's scorecard and plugins, target matching, plugin
+  evaluation, and `validateScorecard`.
 
 ## `packages/client-generator` (@redocly/client-generator)
 
