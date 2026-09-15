@@ -26,20 +26,33 @@ export type {
 } from './api/types.js';
 export { RedoclyOAuthClient } from './auth/oauth-client.js';
 export { RedoclyOAuthDeviceFlow, type Credentials } from './auth/device-flow.js';
-export { handleLogin, type LoginArgv } from './commands/login.js';
-export { handleLogout } from './commands/logout.js';
-export { handlePush, type PushArgv } from './commands/push.js';
 export {
-  handlePushStatus,
-  type PushStatusArgv,
-  type PushStatusSummary,
-} from './commands/push-status.js';
-export { handleScorecardClassic } from './commands/scorecard-classic/index.js';
-export type {
-  ScorecardClassicArgs,
-  ScorecardClassicArgv,
-  ScorecardClassicOutputFormat,
-  ScorecardProblem,
-} from './commands/scorecard-classic/types.js';
-export type { ReuniteCommandArgs } from './types.js';
-export { DeploymentError } from './utils/errors.js';
+  collectFilesToPush,
+  pushFiles,
+  type FileToUpload,
+  type PushOptions,
+  type PushResult,
+} from './push.js';
+export {
+  getPushStatus,
+  waitForDeployment,
+  type BuildType,
+  type PushStatusOptions,
+  type WaitForDeploymentOptions,
+} from './push-status.js';
+export {
+  fetchRemoteScorecardAndPlugins,
+  type FetchRemoteScorecardAndPluginsParams,
+} from './scorecard-classic/remote/fetch-scorecard.js';
+export {
+  getTarget,
+  resolveConfigForTarget,
+} from './scorecard-classic/targets-handler/targets-handler.js';
+export type { RemoteScorecardAndPlugins, ScorecardProblem } from './scorecard-classic/types.js';
+export { evaluatePluginsFromCode } from './scorecard-classic/validation/plugin-evaluator.js';
+export { isAllowedScorecardProjectUrl } from './scorecard-classic/validation/project-url.js';
+export {
+  validateScorecard,
+  type ScorecardValidationResult,
+  type ValidateScorecardParams,
+} from './scorecard-classic/validation/validate-scorecard.js';
