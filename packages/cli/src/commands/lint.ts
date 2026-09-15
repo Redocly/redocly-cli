@@ -9,13 +9,13 @@ import {
   type Config,
   type Exact,
   type OutputFormat,
+  AbortFlowError,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv, Totals } from '../types.js';
-import { AbortFlowError } from '../utils/error.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,

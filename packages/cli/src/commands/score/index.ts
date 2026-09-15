@@ -8,11 +8,11 @@ import {
   bundle,
   logger,
   type OutputFormat,
+  HandledError,
 } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
-import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { collectMetrics } from './collect-metrics.js';
@@ -43,7 +43,7 @@ export async function handleScore({ argv, config, collectSpecData }: CommandArgs
 
   const specVersion = detectSpec(document.parsed);
   if (getMajorSpecVersion(specVersion) !== 'oas3') {
-    return exitWithError(
+    throw new HandledError(
       `The score command currently supports only OpenAPI 3.x. Detected: ${specVersion}`
     );
   }

@@ -51,18 +51,21 @@ export class RedoclyOAuthDeviceFlow {
   }
 
   private openBrowser(url: string) {
-    try {
-      const cmd =
-        process.platform === 'win32'
-          ? `start ${url}`
-          : process.platform === 'darwin'
-            ? `open ${url}`
-            : `xdg-open ${url}`;
-
-      childProcess.execSync(cmd);
-    } catch {
-      // silently fail if browser cannot be opened
+    if (!/^https?:\/\//.test(url)) {
+      return;
     }
+
+    // The residency URL is configurable, so the response is untrusted: pass the URL as an argument, never through a shell.
+    const [command, args] =
+      process.platform === 'win32'
+        ? ['rundll32', ['url.dll,FileProtocolHandler', url]]
+        : process.platform === 'darwin'
+          ? ['open', [url]]
+          : ['xdg-open', [url]];
+
+    childProcess.spawn(command, args, { stdio: 'ignore' }).on('error', () => {
+      // silently fail if browser cannot be opened
+    });
   }
 
   async verifyToken(accessToken: string): Promise<boolean> {

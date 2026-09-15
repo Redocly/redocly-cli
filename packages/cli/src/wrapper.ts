@@ -11,6 +11,7 @@ import {
   type Exact,
   type NormalizedProblem,
   type SpecVersion,
+  AbortFlowError,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
@@ -19,7 +20,6 @@ import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
 } from './utils/client-generator-telemetry.js';
-import { AbortFlowError, exitWithError } from './utils/error.js';
 import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
@@ -108,7 +108,7 @@ export function commandWrapper<T extends CommandArgv>(
 
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
-        exitWithError('Please provide a valid path to the configuration file.');
+        throw new HandledError('Please provide a valid path to the configuration file.');
       }
       config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
       telemetry = config.resolvedConfig.telemetry;

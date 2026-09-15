@@ -19,10 +19,6 @@ export type ScorecardClassicArgv = {
   verbose?: boolean;
 };
 
-/**
- * The caller resolves `api` from its own arguments and configuration,
- * then hands the scorecard the path to read and the alias it matched.
- */
 export type ScorecardClassicArgs = ReuniteCommandArgs<ScorecardClassicArgv> & {
   api: { path: string; alias?: string };
   collectSpecData?: CollectSpecData;

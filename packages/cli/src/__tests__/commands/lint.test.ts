@@ -16,7 +16,6 @@ import { type Arguments } from 'yargs';
 
 import { handleLint, handleLintConfig, type LintArgv } from '../../commands/lint.js';
 import type { VerifyConfigOptions } from '../../types.js';
-import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   getExecutionTime,
@@ -68,7 +67,6 @@ describe('handleLint', () => {
     });
 
     vi.mock('../../utils/miscellaneous.js');
-    vi.mock('../../utils/error.js');
     vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
@@ -82,8 +80,8 @@ describe('handleLint', () => {
   describe('loadConfig and getEntrypoints stage', () => {
     it('should fail if config file does not exist', async () => {
       await commandWrapper(handleLint)({ ...argvMock, config: 'config.yaml' });
-      expect(exitWithError).toHaveBeenCalledWith(
-        'Please provide a valid path to the configuration file.'
+      expect(logger.error).toHaveBeenCalledWith(
+        'Please provide a valid path to the configuration file.\n\n'
       );
     });
 

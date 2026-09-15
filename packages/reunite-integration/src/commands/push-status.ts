@@ -1,4 +1,4 @@
-import { logger, type OutputFormat } from '@redocly/openapi-core';
+import { capitalize, logger, type OutputFormat } from '@redocly/openapi-core';
 import * as colors from 'colorette';
 
 import { ReuniteApi, getApiKeys, getDomain } from '../api/index.js';
@@ -11,7 +11,6 @@ import type {
 import type { ReuniteCommandArgs } from '../types.js';
 import { DeploymentError } from '../utils/errors.js';
 import { printExecutionTime } from '../utils/execution-time.js';
-import { capitalize } from '../utils/format.js';
 import { Spinner } from '../utils/spinner.js';
 import { handleReuniteError, retryUntilConditionMet } from './utils.js';
 
