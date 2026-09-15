@@ -63,7 +63,7 @@ workflows:
           menu: $response.body
         onFailure:
           - reference: $components.failureActions.retryFailureAction
-  - workflowId: client-registration
+  - workflowId: order-attempt
     inputs:
       $ref: '#/components/inputs/buy_available_pet_input'
     parameters:
@@ -84,15 +84,15 @@ workflows:
         operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
         outputs:
           menuItems: $response.body
-      - stepId: create-client
-        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
+      - stepId: create-order
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders/post'
         requestBody:
           payload:
             reusable: $workflows.get-menu-items.outputs.reusable-test
             store_id: $inputs.store_id
             my_pet_tags: $inputs.my_pet_tags
         successCriteria:
-          - condition: $statusCode == 400
+          - condition: $statusCode == 401
   - workflowId: final-workflow
     inputs:
       $ref: '#/components/inputs/reusable-test'

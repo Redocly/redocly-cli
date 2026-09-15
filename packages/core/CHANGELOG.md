@@ -1,5 +1,26 @@
 # @redocly/openapi-core
 
+## 2.53.1
+
+## 2.53.0
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
+## 2.52.1
+
+## 2.52.0
+
+### Minor Changes
+
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.56.0.
+
 ## 2.51.2
 
 ### Patch Changes
