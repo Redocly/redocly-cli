@@ -372,6 +372,10 @@ export function makeBundleVisitor({
       if (!isRef(entryNode) || isRefWithSiblings(entryNode)) {
         continue;
       }
+      // an internal alias hoists nothing, so it cannot claim the target name
+      if (parseRef(entryNode.$ref).uri === null) {
+        continue;
+      }
       const resolved = ctx.resolve(entryNode, rootLocation.absolutePointer);
       if (!resolved.location) {
         continue;

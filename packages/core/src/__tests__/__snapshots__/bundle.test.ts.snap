@@ -192,6 +192,34 @@ components:
 
 `;
 
+exports[`bundle > should keep the file-referenced component name when an alias is declared before it 1`] = `
+openapi: 3.0.3
+info:
+  title: Component alias before file ref
+  version: 1.0.0
+paths:
+  /api/test:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiRequest'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    LegacyApiRequest:
+      $ref: '#/components/schemas/ApiRequest'
+    ApiRequest:
+      type: object
+      properties:
+        jobId:
+          type: string
+
+`;
+
 exports[`bundle > should normalize self-file explicit $ref in nested referenced file 1`] = `
 openapi: 3.0.0
 info:

@@ -198,6 +198,16 @@ describe('bundle', () => {
     expect(res.parsed).toMatchSnapshot();
   });
 
+  it('should keep the file-referenced component name when an alias is declared before it', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/refs/openapi-component-alias-before-file-ref.yaml'),
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(res.parsed).toMatchSnapshot();
+  });
+
   it('should not duplicate the component when bundling with dereference', async () => {
     const { bundle: res, problems } = await bundle({
       config: await createConfig({}),
