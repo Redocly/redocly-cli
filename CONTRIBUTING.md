@@ -46,7 +46,7 @@ Before submitting a pull request, please make sure the following is done:
 1. Ensure the test suite and lint checks pass (`npm run test` and `npm run lint`).
 1. It's your responsibility to ensure your contribution does not violate copyright laws.
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`).
-   If your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
+   If your changes are scoped to `packages/core`, `packages/respect-core`, or other packages, but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
    Describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
    This creates a file in the `.changeset` folder.
    Commit this file with your changes.
@@ -407,7 +407,7 @@ To add an entry:
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of five packages - CLI, core, respect-core, reunite-integration, and client-generator. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
@@ -423,6 +423,10 @@ To add an entry:
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
   - **`packages/respect-core`**: contains the Respect core package.
+
+  - **`packages/reunite-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+
+  - **`packages/client-generator`**: contains the client and SDK generators.
 
 - **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
 

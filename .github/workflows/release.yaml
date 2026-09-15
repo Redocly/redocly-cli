@@ -234,10 +234,14 @@ jobs:
           jq ".version = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
           jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/client-generator/package.json > tmp.json && mv tmp.json packages/client-generator/package.json
 
+          # Update Reunite Integration package version and dependencies
+          jq ".version = \"$VERSION\"" packages/reunite-integration/package.json > tmp.json && mv tmp.json packages/reunite-integration/package.json
+          jq ".dependencies[\"@redocly/openapi-core\"] = \"$VERSION\"" packages/reunite-integration/package.json > tmp.json && mv tmp.json packages/reunite-integration/package.json
+
           # Update CLI package version and dependencies, so npm links the local
           # workspace packages instead of installing the published versions
           jq ".version = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
-          jq ".devDependencies[\"@redocly/openapi-core\"] = \"$VERSION\" | .devDependencies[\"@redocly/respect-core\"] = \"$VERSION\" | .devDependencies[\"@redocly/client-generator\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
+          jq ".devDependencies[\"@redocly/openapi-core\"] = \"$VERSION\" | .devDependencies[\"@redocly/respect-core\"] = \"$VERSION\" | .devDependencies[\"@redocly/client-generator\"] = \"$VERSION\" | .devDependencies[\"@redocly/reunite-integration\"] = \"$VERSION\"" packages/cli/package.json > tmp.json && mv tmp.json packages/cli/package.json
 
           # Add comment with installation instructions
           COMMENT="📦 A new experimental 🧪 version **v$VERSION** of Redocly CLI has been published for testing.
@@ -266,6 +270,10 @@ jobs:
           sleep 10
 
           cd ../respect-core
+          npm publish --tag snapshot
+          sleep 10
+
+          cd ../reunite-integration
           npm publish --tag snapshot
           sleep 10
 

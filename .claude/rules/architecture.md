@@ -2,7 +2,7 @@
 
 Where things live, so a change lands in the right package.
 
-This is a TypeScript monorepo with npm workspaces containing four packages:
+This is a TypeScript monorepo with npm workspaces containing five packages:
 
 ## `packages/core` (@redocly/openapi-core)
 
@@ -35,6 +35,19 @@ Validates real API responses against OpenAPI/Arazzo specs.
 
 - `src/run.ts` — Test execution logic.
 - `src/modules/` — Core testing modules, including runtime expression evaluation.
+
+## `packages/reunite-integration` (@redocly/reunite-integration)
+
+Everything that talks to the Redocly platform (Reunite): the API client, authentication, and the
+handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+Keep Reunite API calls and credential handling here, not in `packages/cli`.
+The CLI registers the commands and calls these handlers; the package is also published so other
+programs, such as GitHub actions, can call them.
+
+- `src/api/` — the Reunite API client, residency and domain resolution, and the wire types.
+- `src/auth/` — the OAuth device flow and the encrypted credentials store.
+- `src/commands/` — one file per command handler, plus `scorecard-classic/`.
+- Handlers take the caller's `version` and report failures by throwing, never by exiting.
 
 ## `packages/client-generator` (@redocly/client-generator)
 

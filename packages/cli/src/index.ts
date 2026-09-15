@@ -7,12 +7,18 @@ import {
   type RuleSeverity,
   type ComponentNamesStrategy,
 } from '@redocly/openapi-core';
+import {
+  handleLogin,
+  handleLogout,
+  handlePush,
+  handlePushStatus,
+  type ScorecardClassicOutputFormat,
+} from '@redocly/reunite-integration';
 import * as dotenv from 'dotenv';
 import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
@@ -43,16 +49,13 @@ import { type ProxyArgv } from './commands/proxy/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
-import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
-import type {
-  ScorecardClassicArgv,
-  ScorecardClassicOutputFormat,
-} from './commands/scorecard-classic/types.js';
+import {
+  handleScorecardClassic,
+  type ScorecardClassicCommandArgv,
+} from './commands/scorecard-classic.js';
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
-import { handlePushStatus } from './reunite/commands/push-status.js';
-import { handlePush } from './reunite/commands/push.js';
 import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
@@ -1248,7 +1251,7 @@ yargs(hideBin(process.argv))
       });
     },
     async (argv) => {
-      commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
+      commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicCommandArgv>);
     }
   )
   .command(
