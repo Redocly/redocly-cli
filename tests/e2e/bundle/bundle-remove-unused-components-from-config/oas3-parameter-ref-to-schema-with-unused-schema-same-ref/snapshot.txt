@@ -17,7 +17,7 @@ paths:
               schema: {}
 components:
   schemas:
-    Schema:
+    User:
       type: string
   parameters:
     Param:
@@ -25,8 +25,7 @@ components:
       in: query
       required: true
       schema:
-        $ref: '#/components/schemas/Schema'
+        $ref: '#/components/schemas/User'
 
 bundling openapi.yaml using configuration for api 'test-api'...
 📦 Created a bundle for openapi.yaml at stdout <test>ms.
-🧹 Removed 1 unused components.

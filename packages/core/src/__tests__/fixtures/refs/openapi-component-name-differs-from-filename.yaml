@@ -1,0 +1,19 @@
+openapi: 3.0.3
+info:
+  title: Component name differs from filename
+  version: 1.0.0
+paths:
+  /api/test:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiRequest'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    ApiRequest:
+      $ref: ./apiRequest.yaml
