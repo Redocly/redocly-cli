@@ -1,3 +1,0 @@
-root: ./openapi.yaml
-output: ./dist/openapi.yaml
-clientOutput: ./client.ts

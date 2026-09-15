@@ -1,9 +1,0 @@
-apis:
-  main:
-    $ref: nested/main-api.yaml
-  second:
-    $ref: nested/main-api.yaml
-  local:
-    root: ./openapi.yaml
-client:
-  $ref: nested/client.yaml

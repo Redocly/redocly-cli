@@ -1,0 +1,2 @@
+root: ../../specs/openapi.yaml
+output: ../dist/out.yaml

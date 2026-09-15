@@ -1,0 +1,20 @@
+extends:
+  - ./governance/rules.yaml
+plugins:
+  - ./governance/plugin.cjs
+apis:
+  inline:
+    root: ./openapi.yaml
+    output: ./dist/inline.yaml
+  one-level:
+    $ref: nested/api.yaml
+  chained:
+    $ref: nested/chain.yaml
+  reused:
+    $ref: nested/api.yaml
+  untouched:
+    $ref: nested/untouched.yaml
+  parent-dir:
+    $ref: nested/deep/parent.yaml
+client:
+  $ref: nested/client.yaml
