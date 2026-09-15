@@ -1,5 +1,6 @@
 import { red, yellow } from 'colorette';
 
+import packageJson from '../../../package.json' with { type: 'json' };
 import { ReuniteApi, type PushPayload, ReuniteApiError } from '../api-client.js';
 
 const originalFetch = global.fetch;
@@ -27,7 +28,8 @@ describe('ApiClient', () => {
   const version = '1.2.3';
   const expectedUserAgent = `redocly-cli/${version} ${command}`;
 
-  it('should send the CLI major version when the caller passes none', async () => {
+  it('should send the current CLI major version when the caller passes none', async () => {
+    const [cliMajor] = packageJson.version.split('.');
     mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
     const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command });
 
@@ -37,7 +39,7 @@ describe('ApiClient', () => {
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
-          'user-agent': `redocly-cli/2.0 ${command}`,
+          'user-agent': `redocly-cli/${cliMajor}.0 ${command}`,
         }),
       })
     );

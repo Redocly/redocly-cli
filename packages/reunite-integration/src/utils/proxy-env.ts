@@ -1,3 +1,4 @@
+// Copied from @redocly/cli.
 export function getProxyUrl(): string | undefined {
   return (
     process.env.HTTPS_PROXY ||

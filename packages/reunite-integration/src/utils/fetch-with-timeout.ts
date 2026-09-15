@@ -1,3 +1,4 @@
+// Copied from @redocly/cli.
 import { Agent, ProxyAgent } from 'undici';
 
 import { getProxyUrl, shouldBypassProxy } from './proxy-env.js';

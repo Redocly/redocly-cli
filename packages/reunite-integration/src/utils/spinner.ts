@@ -1,3 +1,4 @@
+// Copied from @redocly/cli.
 import { logger } from '@redocly/openapi-core';
 import * as process from 'node:process';
 
