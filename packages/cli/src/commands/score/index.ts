@@ -12,7 +12,6 @@ import {
 import * as colors from 'colorette';
 import { performance } from 'perf_hooks';
 
-import type { VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -34,7 +33,7 @@ export type ScoreArgv = {
   format: OutputFormat;
   'operation-details'?: boolean;
   'debug-operation-id'?: string;
-} & VerifyConfigOptions;
+};
 
 export async function handleScore({ argv, config, collectSpecData }: CommandArgs<ScoreArgv>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);

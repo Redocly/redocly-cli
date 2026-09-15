@@ -14,7 +14,7 @@ import {
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
-import type { CommandArgv } from './types.js';
+import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
@@ -32,7 +32,7 @@ import {
 export type CollectResults = (results: NormalizedProblem[]) => void;
 
 export type CommandArgs<T extends CommandArgv> = {
-  argv: T;
+  argv: T & VerifyConfigOptions;
   config: Config;
   version: string;
   collectSpecData?: CollectSpecData;

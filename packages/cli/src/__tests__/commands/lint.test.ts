@@ -15,6 +15,7 @@ import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
 import { handleLint, handleLintConfig, type LintArgv } from '../../commands/lint.js';
+import type { VerifyConfigOptions } from '../../types.js';
 import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
@@ -31,7 +32,7 @@ const argvMock = {
   apis: ['openapi.yaml'],
   'lint-config': 'off',
   format: 'codeframe',
-} as Arguments<LintArgv>;
+} as Arguments<LintArgv & VerifyConfigOptions>;
 
 describe('handleLint', () => {
   let processExitMock: MockInstance;

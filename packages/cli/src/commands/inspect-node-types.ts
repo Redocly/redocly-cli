@@ -16,7 +16,6 @@ import {
 } from '@redocly/openapi-core';
 import { relative, resolve } from 'node:path';
 
-import type { VerifyConfigOptions } from '../types.js';
 import { exitWithError } from '../utils/error.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
@@ -27,7 +26,7 @@ export type InspectNodeTypesArgv = {
   type?: string;
   summary?: boolean;
   parents?: boolean;
-} & VerifyConfigOptions;
+};
 
 const MAX_SUGGESTIONS = 20;
 
