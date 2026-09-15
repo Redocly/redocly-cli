@@ -69,7 +69,6 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
-  rootDocumentRef: string;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -91,7 +90,7 @@ function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
 
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
-  const { rootDocumentRef } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const rootDocumentRef = ctx.rootDocument.source.absoluteRef;
   const sourceRef = ctx.location.source.absoluteRef;
   if (!isPlainObject(node) || sourceRef === rootDocumentRef) {
     return;

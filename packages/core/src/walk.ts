@@ -66,6 +66,7 @@ export type UserContext = {
   parent: any;
   specVersion: ExtendedSpecVersion;
   config?: Config;
+  rootDocument: Document;
   getVisitorData: () => Record<string, unknown>;
 };
 
@@ -234,6 +235,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
             parentLocations: {},
             specVersion: ctx.specVersion,
             config: ctx.config,
+            rootDocument: document,
             getVisitorData: () => getVisitorDataFn(ruleId),
           },
           { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
@@ -473,6 +475,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
               parentLocations: {},
               specVersion: ctx.specVersion,
               config: ctx.config,
+              rootDocument: document,
               getVisitorData: () => getVisitorDataFn(ruleId),
             },
             { node: resolvedNode, location: resolvedLocation, error, chain: resolvedChain }
@@ -506,6 +509,7 @@ export function walkDocument<T extends BaseVisitor>(opts: {
           parentLocations: collectParentsLocations(context),
           specVersion: ctx.specVersion,
           config: ctx.config,
+          rootDocument: document,
           ignoreNextVisitorsOnNode: () => {
             ignoredNodes.add(`${currentLocation.absolutePointer}${currentLocation.pointer}`);
           },
