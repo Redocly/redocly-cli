@@ -1,5 +1,6 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 
+import { isBrowser } from '../env.js';
 import { replaceRef } from '../ref-utils.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -9,7 +10,8 @@ import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
 import { preResolvePluginPath, type PluginResolveInfo } from './config-resolvers.js';
 import { CONFIG_BUNDLER_VISITOR_ID, PLUGINS_COLLECTOR_VISITOR_ID } from './constants.js';
-import type { Plugin } from './types.js';
+import { skipUnloadedPluginReferences } from './skip-unloaded-plugins.js';
+import type { Plugin, RawGovernanceConfig } from './types.js';
 
 export type PluginsCollectorVisitorData = {
   plugins: (PluginResolveInfo | Plugin)[];
@@ -70,8 +72,16 @@ export type ConfigBundlerVisitorData = {
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
-  if (isPlainObject(node) && node.extends) {
-    const { plugins, skipPluginEval } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  if (!isPlainObject(node)) {
+    return;
+  }
+  const { plugins, skipPluginEval } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+
+  if (isBrowser) {
+    Object.assign(node, skipUnloadedPluginReferences(node as RawGovernanceConfig, plugins));
+  }
+
+  if (node.extends) {
     if (skipPluginEval) {
       // `extends` may reference plugin presets, which are unknown when plugin code is not evaluated.
       return;

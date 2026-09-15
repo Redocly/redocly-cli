@@ -1,9 +1,11 @@
 import path from 'node:path';
 
+import { isBrowser } from '../env.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { isTruthy } from '../utils/is-truthy.js';
 import { type UserContext } from '../walk.js';
 import { resolvePreset } from './config-resolvers.js';
+import { skipUnloadedPluginReferences } from './skip-unloaded-plugins.js';
 import { type Plugin, type RawGovernanceConfig } from './types.js';
 import { mergeExtends } from './utils.js';
 
@@ -29,7 +31,8 @@ export function bundleExtends({
 
       const resolvedRef = ctx.resolve({ $ref: presetItem });
       if (resolvedRef.location && resolvedRef.node !== undefined) {
-        return resolvedRef.node as RawGovernanceConfig;
+        const resolvedConfig = resolvedRef.node as RawGovernanceConfig;
+        return isBrowser ? skipUnloadedPluginReferences(resolvedConfig, plugins) : resolvedConfig;
       }
       return null;
     })
