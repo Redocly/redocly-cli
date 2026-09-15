@@ -12,7 +12,6 @@ export type BuildDocsOptions = {
   redocVersion: string;
   disableTelemetry?: boolean;
   inlineBundle?: boolean;
-  specType: SpecType;
 };
 
 export type BuildDocsArgv = {

@@ -67,7 +67,6 @@ export const handlerBuildCommand = async ({
       templateOptions: argv.templateOptions || {},
       redocOptions,
       redocVersion,
-      specType,
       disableTelemetry:
         argv.disableTelemetry ??
         (redocOptions.disableTelemetry === undefined

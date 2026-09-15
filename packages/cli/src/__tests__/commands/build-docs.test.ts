@@ -50,7 +50,6 @@ const config = {
   redocOptions: {},
   disableTelemetry: true,
   inlineBundle: false,
-  specType: 'openapi' as const,
 };
 
 describe('build-docs', () => {
@@ -116,9 +115,8 @@ describe('build-docs', () => {
       version: 'cli-version',
     });
     expect(bundle).not.toHaveBeenCalled();
-    expect(prepareApiDocs).toHaveBeenCalledWith(
-      expect.objectContaining({ spec: schema, specType: 'graphql' })
-    );
+    expect(prepareApiDocs).toHaveBeenCalledWith(expect.objectContaining({ spec: schema }));
+    expect(vi.mocked(prepareApiDocs).mock.lastCall?.[0]).not.toHaveProperty('specType');
     expect(processExitMock).toBeCalledTimes(0);
   });
 

@@ -82,14 +82,13 @@ export async function getPageHTML(
     redocVersion,
     disableTelemetry,
     inlineBundle,
-    specType,
   }: BuildDocsOptions,
   configPath?: string
 ) {
   logger.info('Prerendering docs\n');
 
-  const pageOptions = { ...redocOptions, skipBundle: true, specType };
-  const prepared = await prepareApiDocs({ spec: definition, specType, options: pageOptions });
+  const pageOptions = { ...redocOptions, skipBundle: true };
+  const prepared = await prepareApiDocs({ spec: definition, options: pageOptions });
   const app = createElement(RedoclyApiDocsStandalone, {
     items: prepared.items,
     store: prepared.store,
