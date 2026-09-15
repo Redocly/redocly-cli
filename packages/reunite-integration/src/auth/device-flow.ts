@@ -63,9 +63,12 @@ export class RedoclyOAuthDeviceFlow {
           ? ['open', [url]]
           : ['xdg-open', [url]];
 
-    childProcess.spawn(command, args, { stdio: 'ignore' }).on('error', () => {
-      // silently fail if browser cannot be opened
-    });
+    childProcess
+      .spawn(command, args, { stdio: 'ignore', detached: true })
+      .on('error', () => {
+        // silently fail if browser cannot be opened
+      })
+      .unref();
   }
 
   async verifyToken(accessToken: string): Promise<boolean> {

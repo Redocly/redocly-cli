@@ -1,4 +1,11 @@
+import * as childProcess from 'node:child_process';
+
 import { RedoclyOAuthDeviceFlow } from '../device-flow.js';
+
+vi.mock('node:child_process', async (importOriginal) => {
+  const actual = await importOriginal<typeof childProcess>();
+  return { ...actual, spawn: vi.fn() };
+});
 
 describe('RedoclyOAuthDeviceFlow', () => {
   const mockBaseUrl = 'https://test.redocly.com';
@@ -66,6 +73,32 @@ describe('RedoclyOAuthDeviceFlow', () => {
       } as Response);
 
       await expect(flow.refreshToken('invalid-refresh')).rejects.toThrow('Failed to refresh token');
+    });
+  });
+
+  describe('openBrowser', () => {
+    const url = 'https://test.redocly.com/device?user_code=ABCD';
+
+    it('detaches the browser launcher so the CLI does not wait for it to exit', () => {
+      const launcher = { on: vi.fn().mockReturnThis(), unref: vi.fn() };
+      vi.mocked(childProcess.spawn).mockReturnValue(
+        launcher as unknown as childProcess.ChildProcess
+      );
+
+      flow['openBrowser'](url);
+
+      expect(childProcess.spawn).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.arrayContaining([url]),
+        { stdio: 'ignore', detached: true }
+      );
+      expect(launcher.unref).toHaveBeenCalled();
+    });
+
+    it('does not launch anything for a URL that is not http(s)', () => {
+      flow['openBrowser']('file:///tmp/page.html');
+
+      expect(childProcess.spawn).not.toHaveBeenCalled();
     });
   });
 });
