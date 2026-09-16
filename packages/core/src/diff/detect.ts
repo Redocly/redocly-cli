@@ -3,14 +3,18 @@ import type { NodeEntry } from '../node-map/types.js';
 import type { SpecVersion } from '../oas-types.js';
 import { getAsync3Direction, getOas3Direction, type DirectionResolver } from './direction.js';
 import { async3Rules } from './rules/async3.js';
+import type { DiffRuleMap } from './rules/index.js';
 import { oas3Rules } from './rules/oas3.js';
 import {
   displaySide,
+  highestImpact,
+  impactRank,
   type Change,
   type DiffReport,
   type DiffRule,
   type DiffVisitor,
   type Direction,
+  type Impact,
   type JudgedChange,
   type RuleVerdict,
 } from './types.js';
@@ -18,11 +22,23 @@ import type { UsageIndex } from './usage.js';
 
 export interface InitializedDiffRule {
   id: string;
+  impact: Impact;
   visitor: DiffVisitor;
 }
 
-export function initDiffRules(rules: Record<string, DiffRule>): InitializedDiffRule[] {
-  return Object.entries(rules).map(([id, rule]) => ({ id, visitor: rule() }));
+export function initDiffRules(
+  rules: Record<string, DiffRule>,
+  ruleMap: Partial<Record<string, Impact | 'off'>>
+): InitializedDiffRule[] {
+  return Object.entries(rules).flatMap(([id, rule]) => {
+    const impact = ruleMap[id] ?? 'off';
+    return impact === 'off' ? [] : [{ id, impact, visitor: rule() }];
+  });
+}
+
+// What a change means when no rule spoke: something new is a minor, everything else a patch.
+function unjudgedImpact(kind: Change['kind']): Impact {
+  return kind === 'added' ? 'minor' : 'patch';
 }
 
 /**
@@ -49,33 +65,40 @@ export function detectBreakingChanges(opts: {
   base: Map<string, NodeEntry>;
   revision: Map<string, NodeEntry>;
   usage: UsageIndex;
+  ruleMap: DiffRuleMap;
 }): JudgedChange[] {
-  const { changes, specVersion, base, revision, usage } = opts;
+  const { changes, specVersion, base, revision, usage, ruleMap } = opts;
   const spec = SPECS[specVersion];
   if (!spec) {
     // Structural comparison works for every specification; only these families are
     // judged, so elsewhere no rule runs and nothing is called breaking.
-    return changes.map((change) => ({ ...change, compat: 'non-breaking' as const, verdicts: [] }));
+    return changes.map((change) => ({
+      ...change,
+      impact: unjudgedImpact(change.kind),
+      direction: 'neutral' as const,
+      verdicts: [],
+    }));
   }
 
-  const rules = initDiffRules(spec.rules);
+  const rules = initDiffRules(spec.rules, ruleMap);
   // A removed node only exists in the base, an added one only in the revision.
   const nodeAt: NodeLookup = (key) => revision.get(key) ?? base.get(key);
 
   return changes.map((change) => {
     const verdicts: RuleVerdict[] = [];
+    const direction = spec.directionOf(change.key, usage, nodeAt);
 
-    for (const direction of expandDirection(spec.directionOf(change.key, usage, nodeAt))) {
-      for (const { id, visitor } of rules) {
+    for (const expandedDirection of expandDirection(direction)) {
+      for (const { id, impact, visitor } of rules) {
         const report = ({ message, location = displaySide(change).location }: DiffReport) => {
           // a node used both ways is visited twice; the same finding is kept once
           if (!verdicts.some((verdict) => verdict.ruleId === id && verdict.message === message)) {
-            verdicts.push({ ruleId: id, message, location });
+            verdicts.push({ ruleId: id, impact, message, location });
           }
         };
         const context = {
           report,
-          direction,
+          direction: expandedDirection,
           specVersion,
           base: (key: string) => base.get(key),
           revision: (key: string) => revision.get(key),
@@ -86,8 +109,18 @@ export function detectBreakingChanges(opts: {
       }
     }
 
-    verdicts.sort((left, right) => left.ruleId.localeCompare(right.ruleId));
+    verdicts.sort(
+      (left, right) =>
+        impactRank(right.impact) - impactRank(left.impact) ||
+        left.ruleId.localeCompare(right.ruleId)
+    );
 
-    return { ...change, compat: verdicts.length ? 'breaking' : 'non-breaking', verdicts };
+    return {
+      ...change,
+      impact:
+        highestImpact(verdicts.map((verdict) => verdict.impact)) ?? unjudgedImpact(change.kind),
+      direction,
+      verdicts,
+    };
   });
 }
