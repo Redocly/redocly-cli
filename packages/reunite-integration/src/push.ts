@@ -3,6 +3,7 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { ReuniteApi } from './api/index.js';
+import type { UpsertRemoteResponse } from './api/types.js';
 
 export type FileToUpload = { name: string; path: string };
 
@@ -25,11 +26,12 @@ export type PushOptions = {
     repository?: string;
   };
   version?: string;
+  // Called once the remote exists, right before the files are uploaded to it.
+  onUploadStart?: (remote: UpsertRemoteResponse) => void;
 };
 
 export type PushResult = {
   pushId: string;
-  mountPath: string;
 };
 
 export async function pushFiles({
@@ -42,6 +44,7 @@ export async function pushFiles({
   defaultBranch,
   commit,
   version,
+  onUploadStart,
 }: PushOptions): Promise<PushResult> {
   const client = new ReuniteApi({ domain, apiKey, command: 'push', version });
   const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, project);
@@ -49,6 +52,8 @@ export async function pushFiles({
     mountBranchName: projectDefaultBranch,
     mountPath,
   });
+
+  onUploadStart?.(remote);
 
   const { id } = await client.remotes.push(
     organization,
@@ -63,7 +68,7 @@ export async function pushFiles({
 
   client.reportSunsetWarnings();
 
-  return { pushId: id, mountPath: remote.mountPath };
+  return { pushId: id };
 }
 
 export function collectFilesToPush(files: string[]): FileToUpload[] {

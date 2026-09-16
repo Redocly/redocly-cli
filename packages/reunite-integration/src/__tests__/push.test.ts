@@ -58,8 +58,10 @@ describe('pushFiles()', () => {
     vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
   });
 
-  it('upserts the remote and pushes the files to it', async () => {
-    const result = await pushFiles(options);
+  it('upserts the remote, reports it, and pushes the files to it', async () => {
+    const onUploadStart = vi.fn();
+
+    const result = await pushFiles({ ...options, onUploadStart });
 
     expect(ReuniteApi).toHaveBeenCalledWith({
       domain: 'test-domain',
@@ -78,7 +80,14 @@ describe('pushFiles()', () => {
       { remoteId: 'test-remote-id', commit: options.commit, isMainBranch: true },
       [{ path: 'test-file', stream: 'stream' }]
     );
-    expect(result).toEqual({ pushId: 'test-id', mountPath: 'remote-mount-path' });
+    expect(onUploadStart).toHaveBeenCalledWith({
+      id: 'test-remote-id',
+      mountPath: 'remote-mount-path',
+    });
+    expect(onUploadStart.mock.invocationCallOrder[0]).toBeLessThan(
+      remotes.push.mock.invocationCallOrder[0]
+    );
+    expect(result).toEqual({ pushId: 'test-id' });
   });
 
   it('marks the push as not on the main branch when the branch differs from the default', async () => {

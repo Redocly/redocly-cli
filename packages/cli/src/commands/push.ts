@@ -47,7 +47,7 @@ export async function handlePush({
       return printExecutionTime('push', startedAt, `No files to upload`);
     }
 
-    const { pushId, mountPath: remoteMountPath } = await pushFiles({
+    const { pushId } = await pushFiles({
       domain,
       apiKey,
       organization,
@@ -66,11 +66,12 @@ export async function handlePush({
         author: parseCommitAuthor(argv.author),
       },
       version,
+      onUploadStart: (remote) => {
+        logger.info(
+          `Uploading to ${remote.mountPath} ${files.length} ${pluralize('file', files.length)}:\n`
+        );
+      },
     });
-
-    logger.info(
-      `Uploading to ${remoteMountPath} ${files.length} ${pluralize('file', files.length)}:\n`
-    );
     for (const file of files) {
       logger.info(green(`✓ ${file.name}\n`));
     }

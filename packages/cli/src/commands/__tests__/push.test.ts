@@ -4,6 +4,7 @@ import {
   ReuniteApiError,
   waitForDeployment,
   type PushResponse,
+  type UpsertRemoteResponse,
 } from '@redocly/reunite-integration';
 
 import { handlePush, type PushArgv } from '../push.js';
@@ -38,7 +39,10 @@ describe('handlePush()', () => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.mocked(collectFilesToPush).mockReturnValue([{ name: 'test-file', path: '/abs/test-file' }]);
-    vi.mocked(pushFiles).mockResolvedValue({ pushId: 'test-id', mountPath: 'remote-mount-path' });
+    vi.mocked(pushFiles).mockImplementation(async ({ onUploadStart }) => {
+      onUploadStart?.({ mountPath: 'remote-mount-path' } as UpsertRemoteResponse);
+      return { pushId: 'test-id' };
+    });
   });
 
   afterEach(() => {
@@ -68,6 +72,7 @@ describe('handlePush()', () => {
         author: { name: 'TestAuthor', email: 'test-author@mail.com' },
       },
       version,
+      onUploadStart: expect.any(Function),
     });
     expect(process.stderr.write).toHaveBeenCalledWith('Uploading to remote-mount-path 1 file:\n');
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
