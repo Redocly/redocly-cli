@@ -1,52 +1,27 @@
 import {
-  breakingChangesToProblems,
   bundle,
   DiffError,
   diffDocuments,
   diffReportFormats,
+  diffToProblems,
   formatProblems,
   getTotals,
   logger,
-  type DiffReportFormat,
   type DiffResult,
-  type OutputFormat,
 } from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
 
-import type { VerifyConfigOptions } from '../../types.js';
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { getDiffFailure, type DiffFailOn } from './fail-on.js';
-
-/**
- * Formats delegated to core's lint formatters. They describe breaking changes
- * only, because a lint problem always carries a severity (see core diff/format/problems.ts).
- */
-export type DiffProblemFormat = Extract<
-  OutputFormat,
-  'codeframe' | 'checkstyle' | 'codeclimate' | 'summary' | 'github-actions' | 'junit'
->;
-
-export type DiffOutputFormat = DiffReportFormat | DiffProblemFormat;
-export type { DiffFailOn };
-
-export type DiffArgv = {
-  base: string;
-  revision: string;
-  format: DiffOutputFormat;
-  output?: string;
-  'fail-on': DiffFailOn;
-} & VerifyConfigOptions;
-
-function isReportFormat(format: DiffOutputFormat): format is DiffReportFormat {
-  return format in diffReportFormats;
-}
+import { checkVersion, getDeclaredVersion } from './check-version.js';
+import { getDiffFailure } from './fail-on.js';
+import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
-  if (argv.output && !isReportFormat(argv.format)) {
+  if (argv.output && argv.format === 'github-actions') {
     return exitWithError(
-      `The ${argv.format} format prints to stdout only. To write a report to a file, use one of these formats: ${Object.keys(diffReportFormats).join(', ')}.`
+      `The github-actions format prints to stdout only. To write a report to a file, use one of these formats: ${Object.keys(diffReportFormats).join(', ')}.`
     );
   }
 
@@ -68,7 +43,14 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     throw error;
   }
 
-  if (isReportFormat(argv.format)) {
+  if (argv.format === 'github-actions') {
+    const problems = diffToProblems(result);
+    formatProblems(problems, {
+      format: 'github-actions',
+      totals: getTotals(problems),
+      maxProblems: problems.length,
+    });
+  } else {
     const output = diffReportFormats[argv.format](result);
     if (argv.output) {
       writeFileSync(argv.output, output);
@@ -76,20 +58,26 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     } else {
       logger.output(output + '\n');
     }
-  } else {
-    const problems = breakingChangesToProblems(result);
-    formatProblems(problems, {
-      format: argv.format,
-      totals: getTotals(problems),
-      maxProblems: problems.length,
-    });
   }
 
   printExecutionTime('diff', startedAt, `${basePath} vs ${revisionPath}`);
 
-  const failure = getDiffFailure(result.summary, argv['fail-on']);
-  if (failure) {
-    logger.error(`${failure}\n`);
+  const failures: string[] = [];
+  const thresholdFailure = getDiffFailure(result.summary, argv['fail-on']);
+  if (thresholdFailure) failures.push(thresholdFailure);
+
+  if (argv['check-version']) {
+    const versionCheck = checkVersion({
+      base: getDeclaredVersion(baseDocument),
+      revision: getDeclaredVersion(revisionDocument),
+      required: result.bump,
+    });
+    if (versionCheck.status === 'skipped') logger.warn(`${versionCheck.message}\n`);
+    if (versionCheck.status === 'failed') failures.push(versionCheck.message);
+  }
+
+  if (failures.length) {
+    for (const failure of failures) logger.error(`${failure}\n`);
     throw new AbortFlowError('Diff failed.');
   }
 }

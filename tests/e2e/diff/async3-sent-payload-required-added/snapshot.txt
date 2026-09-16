@@ -1,8 +1,8 @@
 channels
-  ✔ non-breaking  modified  channels/userSignedUp/messages/signup/payload · required
+  · patch  modified  channels/userSignedUp/messages/signup/payload · required
       at revision.yaml:14:13
 
-0 breaking, 1 non-breaking.
+0 major, 0 minor, 1 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
