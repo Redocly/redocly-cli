@@ -1,162 +1,87 @@
 import type { NodeEntry } from '../../node-map/types.js';
+import { Location } from '../../ref-utils.js';
+import { Source } from '../../resolve.js';
 import { compareMaps } from '../compare.js';
 
-function entry(partial: Partial<NodeEntry> & { pointer: string }): NodeEntry {
+const source = new Source('api.yaml', '');
+
+function entry(partial: Partial<NodeEntry> & { key: string }): NodeEntry {
   return {
-    realPointer: partial.pointer,
-    parentPointer: null,
-    keyInParent: '',
+    parentKey: null,
+    location: new Location(source, partial.key),
     typeName: 'Schema',
-    scalars: {},
-    refs: {},
-    raw: {},
+    properties: partial.properties ?? {},
+    raw: partial.raw ?? partial.properties ?? {},
     ...partial,
   };
 }
 
 function toMap(entries: NodeEntry[]): Map<string, NodeEntry> {
-  return new Map(entries.map((entry) => [entry.pointer, entry]));
+  return new Map(entries.map((item) => [item.key, item]));
+}
+
+/** `kind key · property  base-pointer → revision-pointer` per change. */
+function summarize(changes: ReturnType<typeof compareMaps>): string[] {
+  return changes.map((change) => {
+    const property = change.kind === 'modified' ? ` · ${change.property}` : '';
+    const base = change.kind === 'added' ? '-' : change.base.location.pointer;
+    const revision = change.kind === 'removed' ? '-' : change.revision.location.pointer;
+    return `${change.kind} ${change.key}${property}  ${base} → ${revision}`;
+  });
 }
 
 describe('compareMaps', () => {
-  it('emits one change per differing property, in pointer order', () => {
-    const base = toMap([entry({ pointer: '#/a', scalars: { type: 'integer', description: 'x' } })]);
-    const revision = toMap([
-      entry({ pointer: '#/a', scalars: { type: 'number', description: 'x', format: 'float' } }),
-    ]);
+  it('emits one modified change per differing property, located at the escaped property pointer', () => {
+    const base = toMap([entry({ key: '#/a', properties: { type: 'integer', 'x/y': 1 } })]);
+    const revision = toMap([entry({ key: '#/a', properties: { type: 'number', 'x/y': 2 } })]);
 
-    expect(compareMaps(base, revision)).toMatchInlineSnapshot(`
-      [
-        {
-          "base": {
-            "pointer": "#/a/format",
-            "value": undefined,
-          },
-          "kind": "changed",
-          "pointer": "#/a",
-          "property": "format",
-          "revision": {
-            "pointer": "#/a/format",
-            "value": "float",
-          },
-          "typeName": "Schema",
-        },
-        {
-          "base": {
-            "pointer": "#/a/type",
-            "value": "integer",
-          },
-          "kind": "changed",
-          "pointer": "#/a",
-          "property": "type",
-          "revision": {
-            "pointer": "#/a/type",
-            "value": "number",
-          },
-          "typeName": "Schema",
-        },
-      ]
-    `);
+    expect(summarize(compareMaps(base, revision))).toEqual([
+      'modified #/a · type  #/a/type → #/a/type',
+      'modified #/a · x/y  #/a/x~1y → #/a/x~1y',
+    ]);
   });
 
-  it('collapses a removed subtree into one change at its root', () => {
-    const shared = entry({ pointer: '#/paths', typeName: 'PathsMap' });
+  it('collapses a removed subtree into one change at its root, carrying the raw node', () => {
     const base = toMap([
-      shared,
-      entry({
-        pointer: '#/paths/~1pets',
-        parentPointer: '#/paths',
-        typeName: 'PathItem',
-        raw: { get: {} },
-      }),
-      entry({
-        pointer: '#/paths/~1pets/get',
-        parentPointer: '#/paths/~1pets',
-        typeName: 'Operation',
-      }),
+      entry({ key: '#/a', raw: { b: { c: 1 } } }),
+      entry({ key: '#/a/b', parentKey: '#/a', raw: { c: 1 } }),
     ]);
 
-    expect(compareMaps(base, toMap([shared]))).toMatchInlineSnapshot(`
-      [
-        {
-          "base": {
-            "pointer": "#/paths/~1pets",
-            "value": {
-              "get": {},
-            },
-          },
-          "kind": "removed",
-          "pointer": "#/paths/~1pets",
-          "typeName": "PathItem",
-        },
-      ]
-    `);
+    const [change] = compareMaps(base, new Map());
+
+    expect(summarize([change])).toEqual(['removed #/a  #/a → -']);
+    expect(change.kind === 'removed' && change.base.value).toEqual({ b: { c: 1 } });
+    expect(compareMaps(base, new Map())).toHaveLength(1);
   });
 
-  it('treats a node whose type changed as a removed+added pair and suppresses its subtree', () => {
+  it('treats a node whose type changed as a removed+added pair and skips its subtree', () => {
     const base = toMap([
-      entry({ pointer: '#/x', typeName: 'Schema', raw: { type: 'object' } }),
-      entry({ pointer: '#/x/properties/a', parentPointer: '#/x', scalars: { type: 'string' } }),
+      entry({ key: '#/a', typeName: 'Schema' }),
+      entry({ key: '#/a/b', parentKey: '#/a' }),
     ]);
     const revision = toMap([
-      entry({ pointer: '#/x', typeName: 'Example', raw: { value: 1 } }),
-      entry({ pointer: '#/x/properties/a', parentPointer: '#/x', scalars: { type: 'number' } }),
+      entry({ key: '#/a', typeName: 'Parameter' }),
+      entry({ key: '#/a/b', parentKey: '#/a' }),
     ]);
 
-    expect(compareMaps(base, revision)).toMatchInlineSnapshot(`
-      [
-        {
-          "base": {
-            "pointer": "#/x",
-            "value": {
-              "type": "object",
-            },
-          },
-          "kind": "removed",
-          "pointer": "#/x",
-          "typeName": "Schema",
-        },
-        {
-          "kind": "added",
-          "pointer": "#/x",
-          "revision": {
-            "pointer": "#/x",
-            "value": {
-              "value": 1,
-            },
-          },
-          "typeName": "Example",
-        },
-      ]
-    `);
+    expect(summarize(compareMaps(base, revision))).toEqual([
+      'removed #/a  #/a → -',
+      'added #/a  - → #/a',
+    ]);
   });
 
   it('compares a $ref the way it compares a scalar', () => {
-    const base = toMap([entry({ pointer: '#/m', refs: { schema: '#/components/schemas/A' } })]);
-    const revision = toMap([entry({ pointer: '#/m', refs: { schema: '#/components/schemas/B' } })]);
+    const base = toMap([entry({ key: '#/a', properties: { schema: { $ref: '#/A' } } })]);
+    const revision = toMap([entry({ key: '#/a', properties: { schema: { $ref: '#/B' } } })]);
 
-    expect(compareMaps(base, revision)).toMatchInlineSnapshot(`
-      [
-        {
-          "base": {
-            "pointer": "#/m/schema",
-            "value": "#/components/schemas/A",
-          },
-          "kind": "changed",
-          "pointer": "#/m",
-          "property": "schema",
-          "revision": {
-            "pointer": "#/m/schema",
-            "value": "#/components/schemas/B",
-          },
-          "typeName": "Schema",
-        },
-      ]
-    `);
+    const [change] = compareMaps(base, revision);
+
+    expect(change.kind === 'modified' && change.property).toBe('schema');
+    expect(change.kind === 'modified' && change.revision.value).toEqual({ $ref: '#/B' });
   });
 
   it('emits nothing when the two maps are identical', () => {
-    const entries = [entry({ pointer: '#/a', scalars: { type: 'string' } })];
+    const entries = [entry({ key: '#/a', properties: { enum: ['x', 'y'] } })];
 
     expect(compareMaps(toMap(entries), toMap(entries))).toEqual([]);
   });
