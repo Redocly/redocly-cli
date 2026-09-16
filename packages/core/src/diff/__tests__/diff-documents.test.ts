@@ -53,7 +53,7 @@ function report(result: DiffResult): string {
         .join('  →  ');
       const name = change.kind === 'modified' ? `${change.key} · ${change.property}` : change.key;
       return [
-        `${change.compat}  ${change.kind}  ${name}`,
+        `${change.impact}  ${change.kind}  ${name}`,
         ...change.verdicts.map((verdict) => `    ${verdict.ruleId}: ${verdict.message}`),
         `    at ${at}`,
       ].join('\n');
@@ -83,7 +83,7 @@ describe('diffDocuments', () => {
       non-breaking  modified  #/paths/~1pets/get/responses/200 · description
           at base.yaml #/paths/~1pets/get/responses/200/description  →  rev.yaml #/paths/~1pets/get/responses/200/description"
     `);
-    expect(result.summary).toEqual({ breaking: 1, nonBreaking: 2 });
+    expect(result.summary).toEqual({ major: 1, minor: 0, patch: 2 });
   });
 
   it('throws DiffError for different spec families', async () => {
@@ -132,7 +132,7 @@ describe('diffDocuments', () => {
       non-breaking  modified  #/paths/~1pet~1{0}/get/parameters/{path:0} · name
           at base.yaml #/paths/~1pet~1{id}/get/parameters/0/name  →  rev.yaml #/paths/~1pet~1{petId}/get/parameters/0/name"
     `);
-    expect(result.summary.breaking).toBe(0);
+    expect(result.summary.major).toBe(0);
   });
 
   it('keys two templates of the same shape in document order, suffixing the second', async () => {
