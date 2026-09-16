@@ -7,116 +7,83 @@ import {
   missingItems,
   type ConstraintDirection,
 } from '../constraints.js';
-import { breaking, type DiffRule, type Polarity, type Verdict } from '../types.js';
+import type { DiffRule, Direction } from '../types.js';
 
 /**
  * A tightening rejects input the API used to accept, so it breaks a request; a
  * loosening lets the API return something a consumer never handled, so it breaks
  * a response.
  */
-function verdictFor(
-  direction: ConstraintDirection,
-  polarity: Polarity,
-  message: string
-): Verdict | undefined {
-  if (direction === 'tighter' && polarity === 'request') return breaking(message);
-  if (direction === 'looser' && polarity === 'response') return breaking(message);
-  return undefined;
+function breaks(moved: ConstraintDirection, direction: Direction): boolean {
+  return (
+    (moved === 'tighter' && direction === 'request') ||
+    (moved === 'looser' && direction === 'response')
+  );
 }
 
-export const schemaTypeChanged: DiffRule = {
-  id: 'schema-type-changed',
-  description:
-    'A narrower type rejects values that clients send. A wider type returns values that clients do not handle.',
-  visit(change, ctx) {
+export const SchemaTypeChanged: DiffRule = () => ({
+  Schema(change, { report, direction, base, revision }) {
     if (change.kind !== 'modified' || change.property !== 'type') return;
     // `nullable: true` is 3.0's spelling of `type: [..., 'null']`, so both sides are
     // read through the node itself rather than from the changed value alone.
-    const before = effectiveTypes(change.base.value, ctx.base(change.key)?.properties.nullable);
-    const after = effectiveTypes(
-      change.revision.value,
-      ctx.revision(change.key)?.properties.nullable
-    );
+    const before = effectiveTypes(change.base.value, base(change.key)?.properties.nullable);
+    const after = effectiveTypes(change.revision.value, revision(change.key)?.properties.nullable);
     const described = `from '${[...before].join(' | ')}' to '${[...after].join(' | ')}'`;
 
-    if (ctx.polarity === 'request' && isTypeSetNarrowed(before, after)) {
-      return breaking(`Schema type narrowed ${described}.`);
+    if (direction === 'request' && isTypeSetNarrowed(before, after)) {
+      report({ message: `Schema type narrowed ${described}.` });
     }
-    if (ctx.polarity === 'response' && isTypeSetWidened(before, after)) {
-      return breaking(`Schema type widened ${described}.`);
+    if (direction === 'response' && isTypeSetWidened(before, after)) {
+      report({ message: `Schema type widened ${described}.` });
     }
-    return undefined;
   },
-};
+});
 
-export const enumValuesRemoved: DiffRule = {
-  id: 'enum-values-removed',
-  description: 'Removing enum values restricts what clients may send.',
-  visit(change, ctx) {
-    if (change.kind !== 'modified' || change.property !== 'enum' || ctx.polarity !== 'request')
-      return;
+export const EnumValuesRemoved: DiffRule = () => ({
+  Schema(change, { report, direction }) {
+    if (change.kind !== 'modified' || change.property !== 'enum' || direction !== 'request') return;
     const removed = missingItems(change.base.value, change.revision.value);
-    if (removed.length) {
-      return breaking(`Enum values removed: ${removed.join(', ')}.`);
-    }
-    return undefined;
+    if (removed.length) report({ message: `Enum values removed: ${removed.join(', ')}.` });
   },
-};
+});
 
-export const enumValuesAdded: DiffRule = {
-  id: 'enum-values-added',
-  description: 'Adding enum values to response data may send clients values they never handled.',
-  visit(change, ctx) {
-    if (change.kind !== 'modified' || change.property !== 'enum' || ctx.polarity !== 'response')
+export const EnumValuesAdded: DiffRule = () => ({
+  Schema(change, { report, direction }) {
+    if (change.kind !== 'modified' || change.property !== 'enum' || direction !== 'response')
       return;
     const added = addedItems(change.base.value, change.revision.value);
-    if (added.length) {
-      return breaking(`Enum values added: ${added.join(', ')}.`);
-    }
-    return undefined;
+    if (added.length) report({ message: `Enum values added: ${added.join(', ')}.` });
   },
-};
+});
 
-export const requiredPropertiesAdded: DiffRule = {
-  id: 'required-properties-added',
-  description: 'Requiring new request properties breaks clients that do not send them.',
-  visit(change, ctx) {
-    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'request')
+export const RequiredPropertiesAdded: DiffRule = () => ({
+  Schema(change, { report, direction }) {
+    if (change.kind !== 'modified' || change.property !== 'required' || direction !== 'request')
       return;
     const added = addedItems(change.base.value, change.revision.value);
-    if (added.length) {
-      return breaking(`Properties became required: ${added.join(', ')}.`);
-    }
-    return undefined;
+    if (added.length) report({ message: `Properties became required: ${added.join(', ')}.` });
   },
-};
+});
 
-export const requiredPropertiesRemoved: DiffRule = {
-  id: 'required-properties-removed',
-  description:
-    'A response property that is no longer required can be absent, which breaks clients that read it.',
-  visit(change, ctx) {
-    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'response')
+export const RequiredPropertiesRemoved: DiffRule = () => ({
+  Schema(change, { report, direction }) {
+    if (change.kind !== 'modified' || change.property !== 'required' || direction !== 'response')
       return;
     const removed = missingItems(change.base.value, change.revision.value);
-    if (removed.length) {
-      return breaking(`Properties are no longer required: ${removed.join(', ')}.`);
-    }
-    return undefined;
+    if (removed.length)
+      report({ message: `Properties are no longer required: ${removed.join(', ')}.` });
   },
-};
+});
 
-export const propertyRemovedFromResponse: DiffRule = {
-  id: 'property-removed-from-response',
-  description: 'Removing a response property breaks clients that read it.',
-  visit(change, ctx) {
-    if (change.kind !== 'removed' || ctx.polarity !== 'response') return;
+export const PropertyRemovedFromResponse: DiffRule = () => ({
+  Schema(change, { report, direction, nodeAt }) {
+    if (change.kind !== 'removed' || direction !== 'response') return;
     // Only a member of a `properties` map counts; a subschema of `oneOf` does not.
-    const parentKey = ctx.nodeAt(change.key)?.parentKey;
-    if (!parentKey || ctx.nodeAt(parentKey)?.typeName !== 'SchemaProperties') return;
-    return breaking('Schema property was removed.');
+    const parentKey = nodeAt(change.key)?.parentKey;
+    if (!parentKey || nodeAt(parentKey)?.typeName !== 'SchemaProperties') return;
+    report({ message: 'Schema property was removed.' });
   },
-};
+});
 
 function describeConstraint(property: string, before: unknown, after: unknown): string {
   if (before === undefined) return `\`${property}\` was added with value '${after}'.`;
@@ -126,64 +93,45 @@ function describeConstraint(property: string, before: unknown, after: unknown): 
 
 /**
  * A rule over one group of constraints on a value: the direction the constraint
- * moved in, together with the node's polarity, decides the verdict. The groups stay
+ * moved in, together with the node's direction, decides the verdict. The groups stay
  * separate rules so a report can name the constraint that actually moved.
  */
-function constraintRule(rule: { id: string; description: string; properties: string[] }): DiffRule {
-  const properties = new Set(rule.properties);
-  return {
-    id: rule.id,
-    description: rule.description,
-    visit(change, ctx) {
-      if (change.kind !== 'modified' || !properties.has(change.property)) return;
+function constraintRule(properties: string[]): DiffRule {
+  const watched = new Set(properties);
+  return () => ({
+    Schema(change, { report, direction }) {
+      if (change.kind !== 'modified' || !watched.has(change.property)) return;
       const before = change.base.value;
       const after = change.revision.value;
-      return verdictFor(
-        constraintDirection(change.property, before, after),
-        ctx.polarity,
-        describeConstraint(change.property, before, after)
-      );
+      if (breaks(constraintDirection(change.property, before, after), direction)) {
+        report({ message: describeConstraint(change.property, before, after) });
+      }
     },
-  };
+  });
 }
 
-export const numericRangeChanged = constraintRule({
-  id: 'numeric-range-changed',
-  description: 'Moving a numeric bound changes which values the API accepts or returns.',
-  properties: ['minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'multipleOf'],
-});
-
-export const stringLengthChanged = constraintRule({
-  id: 'string-length-changed',
-  description: 'Changing a string constraint changes which values the API accepts or returns.',
-  properties: ['minLength', 'maxLength', 'pattern'],
-});
-
-export const schemaFormatChanged = constraintRule({
-  id: 'schema-format-changed',
-  description: 'A format constrains the accepted values beyond the type itself.',
-  properties: ['format'],
-});
-
-export const additionalPropertiesChanged = constraintRule({
-  id: 'additional-properties-changed',
-  description: 'The `additionalProperties` value decides which extra properties an object accepts.',
-  properties: ['additionalProperties'],
-});
+export const NumericRangeChanged = constraintRule([
+  'minimum',
+  'maximum',
+  'exclusiveMinimum',
+  'exclusiveMaximum',
+  'multipleOf',
+]);
+export const StringLengthChanged = constraintRule(['minLength', 'maxLength', 'pattern']);
+export const SchemaFormatChanged = constraintRule(['format']);
+export const AdditionalPropertiesChanged = constraintRule(['additionalProperties']);
 
 // `oneOf`/`anyOf` list alternatives, so dropping one accepts less; `allOf` combines
-// constraints, so adding one accepts less. The key comes from the walker, which is
-// why the combinator can be told apart without reading the pointer.
+// constraints, so adding one accepts less. A `SchemaList` keeps the walker's key, so
+// the combinator is the last segment of its key.
 const ALTERNATIVE_COMBINATORS = new Set(['oneOf', 'anyOf']);
 
-export const schemaCombinatorChanged: DiffRule = {
-  id: 'schema-combinator-changed',
-  description: 'Adding or dropping a subschema changes which shapes the API accepts.',
-  visit(change, ctx) {
+export const SchemaCombinatorChanged: DiffRule = () => ({
+  Schema(change, { report, direction, nodeAt }) {
     if (change.kind === 'modified') return;
 
-    const parentKey = ctx.nodeAt(change.key)?.parentKey;
-    const parent = parentKey ? ctx.nodeAt(parentKey) : undefined;
+    const parentKey = nodeAt(change.key)?.parentKey;
+    const parent = parentKey ? nodeAt(parentKey) : undefined;
     if (parent?.typeName !== 'SchemaList') return;
 
     const combinator = parent.key.slice(parent.key.lastIndexOf('/') + 1);
@@ -191,29 +139,26 @@ export const schemaCombinatorChanged: DiffRule = {
 
     const removed = change.kind === 'removed';
     const acceptsLess = combinator === 'allOf' ? !removed : removed;
-
-    return verdictFor(
-      acceptsLess ? 'tighter' : 'looser',
-      ctx.polarity,
-      `A \`${combinator}\` subschema was ${removed ? 'removed' : 'added'}.`
-    );
+    if (breaks(acceptsLess ? 'tighter' : 'looser', direction)) {
+      report({ message: `A \`${combinator}\` subschema was ${removed ? 'removed' : 'added'}.` });
+    }
   },
-};
+});
 
 /**
  * Every rule over a `Schema` node, shared by the specification registries: an AsyncAPI
  * payload is the same node type, judged by the same questions.
  */
-export const schemaRules: DiffRule[] = [
-  schemaTypeChanged,
-  enumValuesRemoved,
-  enumValuesAdded,
-  requiredPropertiesAdded,
-  requiredPropertiesRemoved,
-  propertyRemovedFromResponse,
-  numericRangeChanged,
-  stringLengthChanged,
-  schemaFormatChanged,
-  additionalPropertiesChanged,
-  schemaCombinatorChanged,
-];
+export const schemaRules = {
+  'schema-type-changed': SchemaTypeChanged,
+  'enum-values-removed': EnumValuesRemoved,
+  'enum-values-added': EnumValuesAdded,
+  'required-properties-added': RequiredPropertiesAdded,
+  'required-properties-removed': RequiredPropertiesRemoved,
+  'property-removed-from-response': PropertyRemovedFromResponse,
+  'numeric-range-changed': NumericRangeChanged,
+  'string-length-changed': StringLengthChanged,
+  'schema-format-changed': SchemaFormatChanged,
+  'additional-properties-changed': AdditionalPropertiesChanged,
+  'schema-combinator-changed': SchemaCombinatorChanged,
+} satisfies Record<string, DiffRule>;
