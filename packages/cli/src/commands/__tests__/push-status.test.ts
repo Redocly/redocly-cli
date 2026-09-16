@@ -196,7 +196,7 @@ describe('handlePushStatus()', () => {
         buildType: 'preview',
         maxExecutionTime: undefined,
         retryIntervalMs: undefined,
-        startTime: undefined,
+        startTime: expect.any(Number),
         onRetry: expect.any(Function),
       });
       expect(process.stderr.write).toHaveBeenCalledWith('Pending preview...\n');
@@ -225,6 +225,8 @@ describe('handlePushStatus()', () => {
         2,
         expect.objectContaining({ buildType: 'production' })
       );
+      const [[previewOptions], [productionOptions]] = vi.mocked(waitForDeployment).mock.calls;
+      expect(productionOptions.startTime).toBe(previewOptions.startTime);
       expect(result?.production).toEqual(pushResponseStub.status.production);
     });
 

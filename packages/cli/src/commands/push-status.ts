@@ -48,6 +48,8 @@ export async function handlePushStatus({
   const { organization, project, pushId, wait } = argv;
   const domain = argv.domain || getDomain();
   const continueOnDeployFailures = argv['continue-on-deploy-failures'] || false;
+  // Shared by the preview and production waits, so both fit in one max-execution-time window.
+  const startTime = argv['start-time'] || Date.now();
 
   try {
     const apiKey = getApiKeys();
@@ -56,7 +58,7 @@ export async function handlePushStatus({
       ...statusOptions,
       maxExecutionTime: argv['max-execution-time'],
       retryIntervalMs: argv['retry-interval'] ? argv['retry-interval'] * 1000 : undefined,
-      startTime: argv['start-time'],
+      startTime,
     };
     const showProgress = (buildType: BuildType) => (pendingPush: PushResponse) => {
       const { status, url } = pendingPush.status[buildType].deploy;
