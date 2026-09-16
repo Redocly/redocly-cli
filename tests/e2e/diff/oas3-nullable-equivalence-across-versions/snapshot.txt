@@ -1,14 +1,14 @@
 openapi
-  ✔ non-breaking  modified  openapi
+  · patch  modified   · openapi
       at revision.yaml:1:10
 
 POST /pets
-  ✔ non-breaking  modified  requestBody/content/application~1json/schema/properties/name · nullable
+  · patch  modified  requestBody/content/application~1json/schema/properties/name · nullable
       at revision.yaml:15:19
-  ✔ non-breaking  modified  requestBody/content/application~1json/schema/properties/name · type
+  · patch  modified  requestBody/content/application~1json/schema/properties/name · type
       at revision.yaml:16:21
 
-0 breaking, 3 non-breaking.
+0 major, 0 minor, 3 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms

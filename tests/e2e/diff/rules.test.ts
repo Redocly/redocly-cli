@@ -209,7 +209,7 @@ const ASYNCAPI: RuleCase[] = [
 ];
 
 /**
- * Edits that must NOT be reported as breaking. Each one is the mirror of a rule above,
+ * Edits that must NOT be reported as a major. Each one is the mirror of a rule above,
  * so a rule that stops reading the direction — or the polarity of the node — fails here
  * instead of passing everywhere.
  */
@@ -245,12 +245,8 @@ describe('diff rules', () => {
     test(`${ruleId}: ${describes}`, async () => {
       // The verdict is read off the machine-readable report, so a change of wording in
       // the terminal output cannot quietly stop the rule from being exercised.
-      const breaking = runJsonDiff(fixture).changes.filter(
-        (change) => change.compat === 'breaking'
-      );
-      expect(breaking.flatMap((change) => change.verdicts ?? []).map((v) => v.ruleId)).toContain(
-        ruleId
-      );
+      const breaking = runJsonDiff(fixture).changes.filter((change) => change.impact === 'major');
+      expect(breaking.flatMap((change) => change.verdicts).map((v) => v.ruleId)).toContain(ruleId);
 
       await expect(runDiff(fixture)).toMatchFileSnapshot(
         join(fixturePath(fixture), 'snapshot.txt')
@@ -260,7 +256,7 @@ describe('diff rules', () => {
 
   for (const { fixture, describes } of NON_BREAKING) {
     test(`no breaking change when ${describes}`, async () => {
-      expect(runJsonDiff(fixture).summary.breaking).toBe(0);
+      expect(runJsonDiff(fixture).summary.major).toBe(0);
 
       await expect(runDiff(fixture)).toMatchFileSnapshot(
         join(fixturePath(fixture), 'snapshot.txt')

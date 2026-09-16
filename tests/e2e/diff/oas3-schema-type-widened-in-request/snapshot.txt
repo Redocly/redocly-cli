@@ -1,8 +1,8 @@
 POST /pets
-  ✔ non-breaking  modified  requestBody/content/application~1json/schema/properties/id · type
+  · patch  modified  requestBody/content/application~1json/schema/properties/id · type
       at revision.yaml:16:21
 
-0 breaking, 1 non-breaking.
+0 major, 0 minor, 1 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms

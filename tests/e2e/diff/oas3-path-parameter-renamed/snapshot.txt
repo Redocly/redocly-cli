@@ -1,12 +1,12 @@
 /pets/{petId}
-  ✔ non-breaking  modified  paths · /pets/{0} · path
+  · patch  modified  path
       at revision.yaml:7:5
 
 GET /pets/{petId}
-  ✔ non-breaking  modified  parameters/{path:0} · name
+  · patch  modified  parameters/{path:0} · name
       at revision.yaml:9:17
 
-0 breaking, 2 non-breaking.
+0 major, 0 minor, 2 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms

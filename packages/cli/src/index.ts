@@ -14,7 +14,8 @@ import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
-import { handleDiff, type DiffArgv, type DiffOutputFormat } from './commands/diff/index.js';
+import { handleDiff } from './commands/diff/index.js';
+import type { DiffArgv, DiffFailOn, DiffOutputFormat } from './commands/diff/types.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -162,12 +163,7 @@ yargs(hideBin(process.argv))
               'json',
               'markdown',
               'html',
-              'codeframe',
-              'checkstyle',
-              'codeclimate',
-              'summary',
               'github-actions',
-              'junit',
             ] as ReadonlyArray<DiffOutputFormat>,
             default: 'stylish' as const,
           },
@@ -177,9 +173,16 @@ yargs(hideBin(process.argv))
             alias: 'o',
           },
           'fail-on': {
-            description: 'Exit with a non-zero code when changes of this level are found.',
-            choices: ['breaking', 'none'] as ReadonlyArray<'breaking' | 'none'>,
-            default: 'breaking' as const,
+            description:
+              'Exit with a non-zero code when changes of this impact or higher are found.',
+            choices: ['major', 'minor', 'patch', 'none'] as ReadonlyArray<DiffFailOn>,
+            default: 'major' as const,
+          },
+          'check-version': {
+            description:
+              'Fail when info.version was not bumped to match the impact of the changes.',
+            type: 'boolean',
+            default: false,
           },
         }),
     (argv) => {
