@@ -1,6 +1,7 @@
 import { Location } from '../../ref-utils.js';
 import { Source } from '../../resolve.js';
 import { detectBreakingChanges, initDiffRules } from '../detect.js';
+import { recommendedDiffRules } from '../rules/index.js';
 import type { Change, DiffRule } from '../types.js';
 import { UsageIndex } from '../usage.js';
 import { treeOf } from './tree.js';
@@ -17,7 +18,7 @@ const emptyMaps = {
 // What every finding passes through: which visitors run, what a report becomes, and how the
 // same finding under two directions is kept once. The rules themselves are covered by tests/e2e/diff.
 describe('detectBreakingChanges', () => {
-  it('leaves a change no rule reports on non-breaking with no verdicts', () => {
+  it('leaves a change no rule reports on patch with no verdicts', () => {
     const changes: Change[] = [
       {
         key: '#/info',
@@ -29,9 +30,14 @@ describe('detectBreakingChanges', () => {
       },
     ];
 
-    const [change] = detectBreakingChanges({ changes, specVersion: 'oas3_1', ...emptyMaps });
+    const [change] = detectBreakingChanges({
+      changes,
+      specVersion: 'oas3_1',
+      ruleMap: recommendedDiffRules,
+      ...emptyMaps,
+    });
 
-    expect(change.compat).toBe('non-breaking');
+    expect(change.impact).toBe('patch');
     expect(change.verdicts).toEqual([]);
   });
 
@@ -45,9 +51,14 @@ describe('detectBreakingChanges', () => {
       },
     ];
 
-    const [change] = detectBreakingChanges({ changes, specVersion: 'async2', ...emptyMaps });
+    const [change] = detectBreakingChanges({
+      changes,
+      specVersion: 'async2',
+      ruleMap: recommendedDiffRules,
+      ...emptyMaps,
+    });
 
-    expect(change.compat).toBe('non-breaking');
+    expect(change.impact).toBe('patch');
   });
 
   it('stamps the rule id on a report and defaults its location to the display side', () => {
@@ -60,12 +71,18 @@ describe('detectBreakingChanges', () => {
       },
     ];
 
-    const [change] = detectBreakingChanges({ changes, specVersion: 'oas3_1', ...emptyMaps });
+    const [change] = detectBreakingChanges({
+      changes,
+      specVersion: 'oas3_1',
+      ruleMap: recommendedDiffRules,
+      ...emptyMaps,
+    });
 
-    expect(change.compat).toBe('breaking');
+    expect(change.impact).toBe('major');
     expect(change.verdicts).toEqual([
       {
         ruleId: 'operation-removed',
+        impact: 'major',
         message: 'Operation was removed.',
         location: at('#/paths/~1x/delete'),
       },
@@ -121,12 +138,71 @@ describe('detectBreakingChanges', () => {
       base: entries,
       revision: entries,
       usage,
+      ruleMap: recommendedDiffRules,
     });
 
     expect(change.verdicts.map((verdict) => verdict.ruleId)).toEqual([
       'enum-values-added',
       'enum-values-removed',
     ]);
+  });
+
+  it('defaults an unjudged addition to minor and an unjudged modification to patch', () => {
+    const changes: Change[] = [
+      {
+        key: '#/tags/{pets}',
+        kind: 'added',
+        typeName: 'Tag',
+        revision: { location: at('#/tags/0'), value: {} },
+      },
+      {
+        key: '#/info',
+        kind: 'modified',
+        property: 'title',
+        typeName: 'Info',
+        base: { location: at('#/info/title'), value: 'a' },
+        revision: { location: at('#/info/title'), value: 'b' },
+      },
+    ];
+
+    const [added, modified] = detectBreakingChanges({
+      changes,
+      specVersion: 'oas3_1',
+      ruleMap: recommendedDiffRules,
+      ...emptyMaps,
+    });
+
+    expect(added.impact).toBe('minor');
+    expect(modified.impact).toBe('patch');
+  });
+
+  it('stamps the configured impact on a verdict and skips a rule set to off', () => {
+    const changes: Change[] = [
+      {
+        key: '#/paths/~1x/delete',
+        kind: 'removed',
+        typeName: 'Operation',
+        base: { location: at('#/paths/~1x/delete'), value: {} },
+      },
+    ];
+
+    const [minor] = detectBreakingChanges({
+      changes,
+      specVersion: 'oas3_1',
+      ruleMap: { 'operation-removed': 'minor' },
+      ...emptyMaps,
+    });
+    const [off] = detectBreakingChanges({
+      changes,
+      specVersion: 'oas3_1',
+      ruleMap: { 'operation-removed': 'off' },
+      ...emptyMaps,
+    });
+
+    expect(minor.impact).toBe('minor');
+    expect(minor.verdicts[0].impact).toBe('minor');
+    expect(off.impact).toBe('patch');
+    expect(off.verdicts).toEqual([]);
   });
 });
 
@@ -135,7 +211,11 @@ describe('initDiffRules', () => {
     const rule: DiffRule = () => ({ Schema() {} });
 
     expect(
-      initDiffRules({ 'my-rule': rule }).map(({ id, visitor }) => [id, Object.keys(visitor)])
-    ).toEqual([['my-rule', ['Schema']]]);
+      initDiffRules({ 'my-rule': rule }, { 'my-rule': 'major' }).map(({ id, impact, visitor }) => [
+        id,
+        impact,
+        Object.keys(visitor),
+      ])
+    ).toEqual([['my-rule', 'major', ['Schema']]]);
   });
 });

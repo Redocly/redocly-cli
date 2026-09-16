@@ -2,7 +2,21 @@ import type { NodeEntry } from '../node-map/types.js';
 import type { SpecVersion } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
 
-export type Compat = 'breaking' | 'non-breaking';
+/** Lowest first. An impact is the semver part a change requires to be bumped. */
+export const impacts = ['patch', 'minor', 'major'] as const;
+export type Impact = (typeof impacts)[number];
+
+export function impactRank(impact: Impact): number {
+  return impacts.indexOf(impact);
+}
+
+export function highestImpact(candidates: Impact[]): Impact | undefined {
+  return candidates.reduce<Impact | undefined>(
+    (highest, impact) =>
+      highest === undefined || impactRank(impact) > impactRank(highest) ? impact : highest,
+    undefined
+  );
+}
 
 export interface LocatedNode {
   location: Location;
@@ -52,26 +66,27 @@ export type DiffRule = () => DiffVisitor;
 
 export interface RuleVerdict {
   ruleId: string;
+  impact: Impact;
   message: string;
   location: Location;
 }
 
-export type JudgedChange = Change & { compat: Compat; verdicts: RuleVerdict[] };
+export type JudgedChange = Change & {
+  impact: Impact;
+  direction: Direction;
+  verdicts: RuleVerdict[];
+};
 
 export interface DiffSummary {
-  breaking: number;
-  nonBreaking: number;
+  major: number;
+  minor: number;
+  patch: number;
 }
 
 export interface DiffResult {
   version: '1';
   specVersions: { base: SpecVersion; revision: SpecVersion };
   summary: DiffSummary;
+  bump?: Impact;
   changes: JudgedChange[];
-}
-
-const COMPAT_RANK: Record<Compat, number> = { breaking: 1, 'non-breaking': 0 };
-
-export function compatRank(compat: Compat): number {
-  return COMPAT_RANK[compat];
 }
