@@ -1,5 +1,5 @@
 GET /pets
-  ✖ breaking      changed  parameters/{query:sort}/schema · enum
+  ✖ breaking      modified  parameters/{query:sort}/schema · enum
       Enum values removed: desc. (enum-values-removed)
       at revision.yaml:14:15
 

@@ -1,4 +1,5 @@
-import type { Change, DiffResult } from '../types.js';
+import type { Compat, DiffResult, JudgedChange } from '../types.js';
+import { toJsonChange } from './json.js';
 
 function escapeHtml(value: unknown): string {
   return String(value)
@@ -8,24 +9,22 @@ function escapeHtml(value: unknown): string {
     .replace(/"/g, '&quot;');
 }
 
-const IMPACT_CLASS: Record<Change['compat'], string> = {
+const IMPACT_CLASS: Record<Compat, string> = {
   breaking: 'breaking',
   'non-breaking': 'ok',
 };
 
-function renderChange(change: Change): string {
-  const location = change.property ? `${change.pointer} · ${change.property}` : change.pointer;
-  const payload = {
-    ...(change.base ? { base: change.base } : {}),
-    ...(change.revision ? { revision: change.revision } : {}),
-  };
+function renderChange(change: JudgedChange): string {
+  const location = change.kind === 'modified' ? `${change.key} · ${change.property}` : change.key;
+  const { base, revision } = toJsonChange(change);
+  const payload = { ...(base ? { base } : {}), ...(revision ? { revision } : {}) };
   return `
     <details class="change ${IMPACT_CLASS[change.compat]}">
       <summary>
         <span class="badge">${escapeHtml(change.compat)}</span>
         <code>${escapeHtml(change.kind)}</code>
         <code class="loc">${escapeHtml(location)}</code>
-        ${(change.verdicts ?? [])
+        ${change.verdicts
           .map(
             (v) =>
               `<span class="msg">${escapeHtml(v.message)}</span> <span class="rules">${escapeHtml(

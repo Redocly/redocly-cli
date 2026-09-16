@@ -1,5 +1,5 @@
 /pets/{petId}
-  ✖ breaking      removed  paths · /pets/{petId}
+  ✖ breaking      removed  paths · /pets/{0}
       Path was removed. (path-removed)
       at base.yaml:11:5
 

@@ -1,5 +1,5 @@
 POST /pets
-  ✖ breaking      changed  requestBody/content/application~1json/schema · required
+  ✖ breaking      modified  requestBody/content/application~1json/schema · required
       Properties became required: name. (required-properties-added)
       at revision.yaml:13:25
 

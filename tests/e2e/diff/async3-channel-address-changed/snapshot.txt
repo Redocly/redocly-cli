@@ -1,5 +1,5 @@
 channels
-  ✖ breaking      changed  channels/userSignedUp · address
+  ✖ breaking      modified  channels/userSignedUp · address
       The channel address changed from 'user/signedup' to 'user/signed-up'. (channel-address-changed)
       at revision.yaml:7:14
 

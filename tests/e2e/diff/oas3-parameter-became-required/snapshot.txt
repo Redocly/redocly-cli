@@ -1,5 +1,5 @@
 GET /pets
-  ✖ breaking      changed  parameters/{query:limit} · required
+  ✖ breaking      modified  parameters/{query:limit} · required
       Parameter became required. (parameter-became-required)
       at revision.yaml:11:21
 
