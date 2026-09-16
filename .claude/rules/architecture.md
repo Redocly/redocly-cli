@@ -42,9 +42,10 @@ Everything that talks to the Redocly platform (Reunite): the API client, authent
 functions behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 Keep Reunite API calls and credential handling here, not in `packages/cli`.
 The package is also published so other programs, such as GitHub actions, can call it, so its
-functions take plain options and return data: no `argv`, no spinner, no printed output, and no
-`HandledError`. The CLI command handler in `packages/cli/src/commands/` maps `argv` to those
-options, renders the result, and maps errors to `HandledError`.
+functions take plain options and return data: no `argv`, no spinner, and no printed output.
+Scorecard fetching and validation report their failures as `HandledError` from core, which the
+CLI wrapper prints without a stack trace. The CLI command handler in `packages/cli/src/commands/`
+maps `argv` to those options, renders the result, and maps the remaining errors to `HandledError`.
 
 - `src/api/` — the Reunite API client, residency and domain resolution, and the wire types.
 - `src/auth/` — the OAuth device flow and the encrypted credentials store.

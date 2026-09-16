@@ -1,5 +1,11 @@
 import type { ScorecardConfig } from '@redocly/config';
-import { lintDocument, type Document, type Plugin, type BaseResolver } from '@redocly/openapi-core';
+import {
+  HandledError,
+  lintDocument,
+  type Document,
+  type Plugin,
+  type BaseResolver,
+} from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import { getTarget, resolveConfigForTarget } from '../targets-handler/targets-handler.js';
@@ -38,8 +44,8 @@ export async function validateScorecard({
   const levels = scorecardConfig.levels || [];
 
   if (targetLevel && !levels.some((level) => level.name === targetLevel)) {
-    throw new Error(
-      `Target level "${targetLevel}" not found in the scorecard configuration levels.`
+    throw new HandledError(
+      `Target level "${targetLevel}" not found in the scorecard configuration levels.\n`
     );
   }
 

@@ -126,12 +126,6 @@ export async function handleScorecardClassic({
   const matchedTarget = getTarget(scorecard.targets, metadata);
   const targetLevel = argv['target-level'] || matchedTarget?.minimumLevel;
 
-  if (targetLevel && !scorecard.levels?.some((level) => level.name === targetLevel)) {
-    throw new HandledError(
-      `Target level "${targetLevel}" not found in the scorecard configuration levels.\n`
-    );
-  }
-
   if (verbose && scorecard.targets?.length) {
     logger.info(
       `Scorecard has ${scorecard.targets.length} ${pluralize('target', scorecard.targets.length)} defined. Resolving target configurations...\n`
@@ -190,7 +184,7 @@ async function fetchScorecard({
         logger.error(`Stack trace:\n${error.stack}\n`);
       }
     }
-    throw new HandledError(error.message);
+    throw error;
   }
 
   if (verbose) {

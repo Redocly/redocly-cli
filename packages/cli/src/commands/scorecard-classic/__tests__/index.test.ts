@@ -43,24 +43,30 @@ describe('handleScorecardClassic()', () => {
     delete process.env.REDOCLY_AUTHORIZATION;
   });
 
-  it('reports a scorecard fetch failure as a handled error', async () => {
+  it('surfaces a scorecard fetch failure without running the validation', async () => {
     vi.mocked(fetchRemoteScorecardAndPlugins).mockRejectedValue(
-      new Error('Unauthorized access to project: test-project. Please check your credentials.')
-    );
-
-    await expect(handleScorecardClassic({ argv, config, version })).rejects.toThrow(
       new HandledError(
         'Unauthorized access to project: test-project. Please check your credentials.'
       )
     );
+
+    await expect(handleScorecardClassic({ argv, config, version })).rejects.toThrow(
+      'Unauthorized access to project: test-project. Please check your credentials.'
+    );
     expect(validateScorecard).not.toHaveBeenCalled();
   });
 
-  it('fails when the target level is not one of the scorecard levels', async () => {
+  it('passes the target level to the validation and surfaces its error', async () => {
+    vi.mocked(validateScorecard).mockRejectedValue(
+      new HandledError('Target level "Gold" not found in the scorecard configuration levels.\n')
+    );
+
     await expect(
       handleScorecardClassic({ argv: { ...argv, 'target-level': 'Gold' }, config, version })
     ).rejects.toThrow('Target level "Gold" not found in the scorecard configuration levels.');
-    expect(validateScorecard).not.toHaveBeenCalled();
+    expect(validateScorecard).toHaveBeenCalledWith(
+      expect.objectContaining({ targetLevel: 'Gold' })
+    );
   });
 
   it('passes the resolved document and scorecard to the validation and reports a clean result', async () => {

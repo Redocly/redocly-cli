@@ -1,3 +1,5 @@
+import { HandledError } from '@redocly/openapi-core';
+
 import type { RemoteScorecardAndPlugins, Project } from '../types.js';
 
 export type FetchRemoteScorecardAndPluginsParams = {
@@ -14,20 +16,24 @@ export async function fetchRemoteScorecardAndPlugins({
   const parsedProjectUrl = parseProjectUrl(projectUrl);
 
   if (!parsedProjectUrl) {
-    throw new Error(`Invalid project URL format: ${projectUrl}`);
+    throw new HandledError(`Invalid project URL format: ${projectUrl}`);
   }
 
-  const project = await fetchProjectConfigBySlugs({ ...parsedProjectUrl, auth, isApiKey });
-  const scorecard = project.config.scorecardClassic || project.config.scorecard;
+  try {
+    const project = await fetchProjectConfigBySlugs({ ...parsedProjectUrl, auth, isApiKey });
+    const scorecard = project.config.scorecardClassic || project.config.scorecard;
 
-  if (!scorecard) {
-    throw new Error('No scorecard configuration found.');
+    if (!scorecard) {
+      throw new Error('No scorecard configuration found.');
+    }
+
+    const pluginsUrl = project.config.pluginsUrl;
+    const plugins = pluginsUrl ? await fetchPlugins(pluginsUrl) : undefined;
+
+    return { scorecard, plugins, pluginsUrl };
+  } catch (error: unknown) {
+    throw new HandledError(error instanceof Error ? error.message : String(error));
   }
-
-  const pluginsUrl = project.config.pluginsUrl;
-  const plugins = pluginsUrl ? await fetchPlugins(pluginsUrl) : undefined;
-
-  return { scorecard, plugins, pluginsUrl };
 }
 
 function parseProjectUrl(

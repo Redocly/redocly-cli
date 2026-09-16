@@ -343,4 +343,16 @@ describe('validateScorecard', () => {
       expect(result.targetLevelAchieved).toBe(false);
     });
   });
+  it('fails with a handled error when the target level is not one of the scorecard levels', async () => {
+    await expect(
+      validateScorecard({
+        apiPath: 'test.yaml',
+        document: mockDocument,
+        externalRefResolver: mockResolver,
+        scorecardConfig: { levels: [{ name: 'Baseline', rules: {} }] },
+        targetLevel: 'Gold',
+      })
+    ).rejects.toThrow(openapiCore.HandledError);
+    expect(openapiCore.lintDocument).not.toHaveBeenCalled();
+  });
 });
