@@ -1,6 +1,6 @@
-import type { Change, DiffResult } from '../types.js';
+import type { Compat, DiffResult } from '../types.js';
 
-const IMPACT_LABEL: Record<Change['compat'], string> = {
+const IMPACT_LABEL: Record<Compat, string> = {
   breaking: '🔴 breaking',
   'non-breaking': '🟢 non-breaking',
 };
@@ -27,10 +27,10 @@ export function markdownDiff(result: DiffResult): string {
   ];
 
   for (const change of result.changes) {
-    const location = change.property ? `${change.pointer} · ${change.property}` : change.pointer;
+    const location = change.kind === 'modified' ? `${change.key} · ${change.property}` : change.key;
     // Only the message comes from the compared document and needs escaping. A rule id is
     // lowercase letters and hyphens, and the backticks around it are ours to keep.
-    const details = (change.verdicts ?? [])
+    const details = change.verdicts
       .map((verdict) => `${escapeCell(verdict.message)} \`${verdict.ruleId}\``)
       .join('<br>');
     lines.push(

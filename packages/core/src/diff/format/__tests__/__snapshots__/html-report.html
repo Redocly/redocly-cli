@@ -22,7 +22,7 @@
 <h1>API diff</h1>
 <p class="summary">
   <span style="color:#c0392b">3 breaking</span>
-  <span style="color:#1e8449">2 non-breaking</span>
+  <span style="color:#1e8449">1 non-breaking</span>
   <span style="color:#9aa5b1">oas3_1 → oas3_1</span>
 </p>
 
@@ -35,10 +35,10 @@
       </summary>
       <pre>{
   &quot;base&quot;: {
-    &quot;pointer&quot;: &quot;#/paths/~1pets/delete&quot;,
     &quot;file&quot;: &quot;base.yaml&quot;,
-    &quot;line&quot;: 30,
-    &quot;col&quot;: 3,
+    &quot;pointer&quot;: &quot;#/paths/~1pets/delete&quot;,
+    &quot;line&quot;: 16,
+    &quot;col&quot;: 7,
     &quot;value&quot;: {
       &quot;summary&quot;: &quot;&lt;script&gt;alert(1)&lt;/script&gt;&quot;
     }
@@ -49,21 +49,21 @@
     <details class="change breaking">
       <summary>
         <span class="badge">breaking</span>
-        <code>changed</code>
+        <code>modified</code>
         <code class="loc">#/paths/~1pets/get/parameters/{query:limit} · required</code>
         <span class="msg">Parameter became required.</span> <span class="rules">parameter-became-required</span>
       </summary>
       <pre>{
   &quot;base&quot;: {
-    &quot;pointer&quot;: &quot;#/paths/~1pets/get/parameters/0/required&quot;,
     &quot;file&quot;: &quot;base.yaml&quot;,
-    &quot;line&quot;: 9,
-    &quot;col&quot;: 21
+    &quot;pointer&quot;: &quot;#/paths/~1pets/get/parameters/0/required&quot;,
+    &quot;line&quot;: 6,
+    &quot;col&quot;: 11
   },
   &quot;revision&quot;: {
-    &quot;pointer&quot;: &quot;#/paths/~1pets/get/parameters/1/required&quot;,
     &quot;file&quot;: &quot;revision.yaml&quot;,
-    &quot;line&quot;: 11,
+    &quot;pointer&quot;: &quot;#/paths/~1pets/get/parameters/0/required&quot;,
+    &quot;line&quot;: 8,
     &quot;col&quot;: 21,
     &quot;value&quot;: true
   }
@@ -73,16 +73,23 @@
     <details class="change breaking">
       <summary>
         <span class="badge">breaking</span>
-        <code>changed</code>
+        <code>modified</code>
         <code class="loc">#/paths/~1pets/post/requestBody/content/application~1json/schema · pattern</code>
         <span class="msg">`pattern` changed from 'a' to 'a|b'.</span> <span class="rules">string-length-changed</span>
       </summary>
       <pre>{
-  &quot;revision&quot;: {
+  &quot;base&quot;: {
+    &quot;file&quot;: &quot;base.yaml&quot;,
     &quot;pointer&quot;: &quot;#/paths/~1pets/post/requestBody/content/application~1json/schema/pattern&quot;,
+    &quot;line&quot;: 14,
+    &quot;col&quot;: 24,
+    &quot;value&quot;: &quot;a&quot;
+  },
+  &quot;revision&quot;: {
     &quot;file&quot;: &quot;revision.yaml&quot;,
-    &quot;line&quot;: 18,
-    &quot;col&quot;: 22,
+    &quot;pointer&quot;: &quot;#/paths/~1pets/post/requestBody/content/application~1json/schema/pattern&quot;,
+    &quot;line&quot;: 15,
+    &quot;col&quot;: 24,
     &quot;value&quot;: &quot;a|b&quot;
   }
 }</pre>
@@ -97,38 +104,13 @@
       </summary>
       <pre>{
   &quot;revision&quot;: {
-    &quot;pointer&quot;: &quot;#/components/schemas/Pet&quot;,
     &quot;file&quot;: &quot;revision.yaml&quot;,
-    &quot;line&quot;: 20,
-    &quot;col&quot;: 5,
+    &quot;pointer&quot;: &quot;#/components/schemas/Pet&quot;,
+    &quot;line&quot;: 19,
+    &quot;col&quot;: 7,
     &quot;value&quot;: {
       &quot;type&quot;: &quot;object&quot;
     }
-  }
-}</pre>
-    </details>
-
-    <details class="change ok">
-      <summary>
-        <span class="badge">non-breaking</span>
-        <code>changed</code>
-        <code class="loc">#/paths/~1pet~1{id} · path</code>
-        
-      </summary>
-      <pre>{
-  &quot;base&quot;: {
-    &quot;pointer&quot;: &quot;#/paths/~1pet~1{id}&quot;,
-    &quot;file&quot;: &quot;base.yaml&quot;,
-    &quot;line&quot;: 4,
-    &quot;col&quot;: 3,
-    &quot;value&quot;: &quot;/pet/{id}&quot;
-  },
-  &quot;revision&quot;: {
-    &quot;pointer&quot;: &quot;#/paths/~1pet~1{petId}&quot;,
-    &quot;file&quot;: &quot;revision.yaml&quot;,
-    &quot;line&quot;: 4,
-    &quot;col&quot;: 3,
-    &quot;value&quot;: &quot;/pet/{petId}&quot;
   }
 }</pre>
     </details>

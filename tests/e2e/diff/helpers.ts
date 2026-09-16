@@ -23,11 +23,11 @@ export function runDiff(fixture: string, ...args: string[]): string {
 export function runJsonDiff(fixture: string): {
   summary: { breaking: number; nonBreaking: number };
   changes: {
-    pointer: string;
+    key: string;
     property?: string;
     kind: string;
     compat: string;
-    verdicts?: { ruleId: string; compat: string; message: string }[];
+    verdicts: { ruleId: string; compat: string; message: string }[];
   }[];
 } {
   const output = runDiff(fixture, '--format=json');

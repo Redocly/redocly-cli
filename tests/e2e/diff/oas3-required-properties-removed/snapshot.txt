@@ -1,5 +1,5 @@
 GET /pets
-  ✖ breaking      changed  responses/200/content/application~1json/schema · required
+  ✖ breaking      modified  responses/200/content/application~1json/schema · required
       Properties are no longer required: name. (required-properties-removed)
       at revision.yaml:15:27
 

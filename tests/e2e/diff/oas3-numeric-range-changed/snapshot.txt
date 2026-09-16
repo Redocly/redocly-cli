@@ -1,5 +1,5 @@
 POST /pets
-  ✖ breaking      changed  requestBody/content/application~1json/schema/properties/age · minimum
+  ✖ breaking      modified  requestBody/content/application~1json/schema/properties/age · minimum
       `minimum` changed from '0' to '10'. (numeric-range-changed)
       at revision.yaml:16:28
 
