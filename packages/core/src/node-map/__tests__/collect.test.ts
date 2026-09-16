@@ -2,50 +2,55 @@ import { outdent } from 'outdent';
 
 import { createConfig } from '../../config/index.js';
 import { detectSpec } from '../../detect-spec.js';
-import { getIdentityKey } from '../../diff/identity.js';
 import { getTypes } from '../../oas-types.js';
 import { makeDocumentFromString } from '../../resolve.js';
 import { normalizeTypes } from '../../types/index.js';
 import { collectNodeMap } from '../collect.js';
-import type { NodeEntry } from '../types.js';
+import type { IdentityFn, NodeEntry } from '../types.js';
 
-async function collect(yaml: string) {
-  const document = makeDocumentFromString(yaml, '');
+const noIdentity: IdentityFn = () => undefined;
+
+async function collect(yaml: string, identityOf: IdentityFn = noIdentity) {
+  const document = makeDocumentFromString(yaml, 'api.yaml');
   const config = await createConfig({});
   const specVersion = detectSpec(document.parsed);
   const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  return collectNodeMap({ document, types, specVersion, identityOf: getIdentityKey });
+  return collectNodeMap({ document, types, specVersion, identityOf });
 }
 
-/** `stable pointer  (real pointer)  TypeName` per node — the map the comparison runs on. */
+/** `key  (real pointer)  TypeName` per node — the map the comparison runs on. */
 function tree(entries: Map<string, NodeEntry>): string {
   return [...entries.values()]
-    .map((entry) => `${entry.pointer}  (${entry.realPointer})  ${entry.typeName}`)
+    .map((entry) => `${entry.key}  (${entry.location.pointer})  ${entry.typeName}`)
     .join('\n');
 }
 
-describe('collectNodeMap', () => {
-  it('keys every node by a stable pointer while remembering the real one', async () => {
-    const { entries } = await collect(outdent`
-      openapi: 3.1.0
-      info: { title: Test, version: '1.0' }
-      paths:
-        /pets:
-          get:
-            parameters:
-              - name: filter
-                in: query
-                schema: { type: string }
-              - name: limit
-                in: query
-                required: true
-                schema: { type: integer }
-            responses:
-              '200': { description: OK }
-    `);
+const PETSTORE = outdent`
+  openapi: 3.1.0
+  info: { title: Pets, version: '1.0' }
+  paths:
+    /pets:
+      get:
+        parameters:
+          - { name: limit, in: query, schema: { type: integer, maximum: 100 } }
+        responses:
+          '200':
+            content:
+              application/json:
+                schema: { $ref: '#/components/schemas/Pet' }
+  components:
+    schemas:
+      Pet:
+        type: object
+        required: [id]
+        properties:
+          id: { type: string }
+`;
 
-    // The parameters are keyed by `in` + `name`, so reordering them cannot read as a
-    // change, while the real pointer still points at the index they sit at today.
+describe('collectNodeMap', () => {
+  it('keys every object and array node hierarchically and keeps the walker location on it', async () => {
+    const { entries } = await collect(PETSTORE);
+
     expect(tree(entries)).toMatchInlineSnapshot(`
       "#/  (#/)  Root
       #/info  (#/info)  Info
@@ -53,120 +58,75 @@ describe('collectNodeMap', () => {
       #/paths/~1pets  (#/paths/~1pets)  PathItem
       #/paths/~1pets/get  (#/paths/~1pets/get)  Operation
       #/paths/~1pets/get/parameters  (#/paths/~1pets/get/parameters)  ParameterList
-      #/paths/~1pets/get/parameters/{query:filter}  (#/paths/~1pets/get/parameters/0)  Parameter
-      #/paths/~1pets/get/parameters/{query:filter}/schema  (#/paths/~1pets/get/parameters/0/schema)  Schema
-      #/paths/~1pets/get/parameters/{query:limit}  (#/paths/~1pets/get/parameters/1)  Parameter
-      #/paths/~1pets/get/parameters/{query:limit}/schema  (#/paths/~1pets/get/parameters/1/schema)  Schema
+      #/paths/~1pets/get/parameters/0  (#/paths/~1pets/get/parameters/0)  Parameter
+      #/paths/~1pets/get/parameters/0/schema  (#/paths/~1pets/get/parameters/0/schema)  Schema
       #/paths/~1pets/get/responses  (#/paths/~1pets/get/responses)  Responses
-      #/paths/~1pets/get/responses/200  (#/paths/~1pets/get/responses/200)  Response"
+      #/paths/~1pets/get/responses/200  (#/paths/~1pets/get/responses/200)  Response
+      #/paths/~1pets/get/responses/200/content  (#/paths/~1pets/get/responses/200/content)  MediaTypesMap
+      #/paths/~1pets/get/responses/200/content/application~1json  (#/paths/~1pets/get/responses/200/content/application~1json)  MediaType
+      #/components  (#/components)  Components
+      #/components/schemas  (#/components/schemas)  NamedSchemas
+      #/components/schemas/Pet  (#/components/schemas/Pet)  Schema
+      #/components/schemas/Pet/properties  (#/components/schemas/Pet/properties)  SchemaProperties
+      #/components/schemas/Pet/properties/id  (#/components/schemas/Pet/properties/id)  Schema"
     `);
-    expect(entries.get('#/paths/~1pets/get/parameters/{query:limit}')!.scalars).toMatchObject({
+    expect(entries.get('#/info')?.location.source.absoluteRef).toBe('api.yaml');
+    expect(entries.get('#/info')?.parentKey).toBe('#/');
+  });
+
+  it('keeps scalars, scalar arrays and $refs as properties and leaves nested nodes out', async () => {
+    const { entries, usageEdges } = await collect(PETSTORE);
+
+    const parameter = entries.get('#/paths/~1pets/get/parameters/0');
+    expect(parameter?.properties).toEqual({ name: 'limit', in: 'query' });
+    expect(parameter?.raw).toEqual({
       name: 'limit',
       in: 'query',
-      required: true,
+      schema: { type: 'integer', maximum: 100 },
     });
-  });
-
-  it('records $ref values as attributes and does not follow them', async () => {
-    const { entries, usageEdges } = await collect(outdent`
-      openapi: 3.1.0
-      info: { title: Test, version: '1.0' }
-      paths:
-        /pets:
-          get:
-            responses:
-              '200':
-                description: OK
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/Pet'
-      components:
-        schemas:
-          Pet:
-            type: object
-            properties:
-              name: { type: string }
-    `);
-
+    expect(entries.get('#/components/schemas/Pet')?.properties).toEqual({
+      type: 'object',
+      required: ['id'],
+    });
     const mediaType = entries.get('#/paths/~1pets/get/responses/200/content/application~1json');
-    expect(mediaType).toBeDefined();
-    expect(mediaType!.refs).toEqual({ schema: '#/components/schemas/Pet' });
-
-    // the component is collected once, at its canonical path
-    const pet = entries.get('#/components/schemas/Pet');
-    expect(pet).toBeDefined();
-    expect(pet!.typeName).toBe('Schema');
-    expect(entries.get('#/components/schemas/Pet/properties/name')).toBeDefined();
-
-    // usage edge recorded
-    // The site is the media type node that holds the `$ref`, since the reference
-    // itself is not a node and could not be looked up later.
-    expect(usageEdges).toContainEqual({
-      site: '#/paths/~1pets/get/responses/200/content/application~1json',
-      target: '#/components/schemas/Pet',
-    });
+    expect(mediaType?.properties).toEqual({ schema: { $ref: '#/components/schemas/Pet' } });
+    expect(usageEdges).toEqual([
+      {
+        site: '#/paths/~1pets/get/responses/200/content/application~1json',
+        target: '#/components/schemas/Pet',
+      },
+    ]);
   });
 
-  it('snapshots scalar arrays like enum and required', async () => {
-    const { entries } = await collect(outdent`
-      openapi: 3.1.0
-      info: { title: Test, version: '1.0' }
-      paths: {}
-      components:
-        schemas:
-          Size:
-            type: string
-            enum: [s, m, l]
-          Pet:
-            type: object
-            required: [name]
-            properties:
-              name: { type: string }
-    `);
-
-    expect(entries.get('#/components/schemas/Size')!.scalars.enum).toEqual(['s', 'm', 'l']);
-    expect(entries.get('#/components/schemas/Pet')!.scalars.required).toEqual(['name']);
-  });
-
-  it('keys list items by their identity, with pointer escaping inside the key', async () => {
-    const { entries } = await collect(outdent`
-      openapi: 3.1.0
-      info: { title: Test, version: '1.0' }
-      servers:
-        - url: https://api.example.com/v1
-        - url: https://staging.example.com/v1
-      tags:
-        - name: pets
-      paths: {}
-    `);
-
-    // Reordering these must not read as a change, so the key is the url, not the index.
-    // The slashes in it are escaped, or they would split the pointer into more segments.
-    expect(entries.has('#/servers/{https:~1~1api.example.com~1v1}')).toBe(true);
-    expect(entries.get('#/servers/{https:~1~1api.example.com~1v1}')!.realPointer).toBe(
-      '#/servers/0'
+  it('lets the identity replace the walker key, add properties, and suffixes a duplicate identity', async () => {
+    const byName: IdentityFn = (node, { typeName }) =>
+      typeName === 'Parameter' && typeof node.name === 'string'
+        ? { segment: `{${node.name}}`, properties: { identified: true } }
+        : undefined;
+    const { entries } = await collect(
+      outdent`
+        openapi: 3.1.0
+        info: { title: T, version: '1' }
+        paths:
+          /p:
+            get:
+              parameters:
+                - { name: a, in: query }
+                - { name: a, in: header }
+              responses: {}
+      `,
+      byName
     );
-    expect(entries.has('#/tags/{pets}')).toBe(true);
-  });
 
-  it('suffixes colliding identity keys deterministically', async () => {
-    const { entries } = await collect(outdent`
-      openapi: 3.1.0
-      info: { title: Test, version: '1.0' }
-      paths:
-        /pets:
-          get:
-            parameters:
-              - name: dup
-                in: query
-              - name: dup
-                in: query
-            responses:
-              '200': { description: OK }
-    `);
-
-    expect(entries.has('#/paths/~1pets/get/parameters/{query:dup}')).toBe(true);
-    expect(entries.has('#/paths/~1pets/get/parameters/{query:dup}#2')).toBe(true);
+    const keys = [...entries.keys()].filter((key) => key.includes('parameters/'));
+    expect(keys).toEqual(['#/paths/~1p/get/parameters/{a}', '#/paths/~1p/get/parameters/{a}#2']);
+    expect(entries.get('#/paths/~1p/get/parameters/{a}')?.properties).toEqual({
+      name: 'a',
+      in: 'query',
+      identified: true,
+    });
+    expect(entries.get('#/paths/~1p/get/parameters/{a}#2')?.location.pointer).toBe(
+      '#/paths/~1p/get/parameters/1'
+    );
   });
 });

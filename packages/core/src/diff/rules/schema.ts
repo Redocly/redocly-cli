@@ -6,7 +6,7 @@ import {
   isTypeSetWidened,
   missingItems,
   type ConstraintDirection,
-} from '../predicates.js';
+} from '../constraints.js';
 import { breaking, type DiffRule, type Polarity, type Verdict } from '../types.js';
 
 /**
