@@ -1,24 +1,44 @@
-import type { NormalizedProblem } from '../../walk.js';
-import { displaySide, type DiffResult } from '../types.js';
+import type { NormalizedProblem, ProblemSeverity } from '../../walk.js';
+import { displaySide, type DiffResult, type Impact } from '../types.js';
 
-// Lint's problem model describes defects carrying a severity, so only breaking
-// changes map onto it — the complete change list stays in the `json` format.
-// This is what lets the diff report reuse the lint formatters in core.
-export function breakingChangesToProblems(result: DiffResult): NormalizedProblem[] {
-  return result.changes
-    .filter((change) => change.compat === 'breaking')
-    .map((change) => {
-      // verdicts are worst-first, so the first one carries the breaking verdict.
-      const [verdict] = change.verdicts;
-      return {
-        message: verdict?.message ?? `${change.kind} ${change.key}`,
-        ruleId: verdict?.ruleId ?? 'diff',
-        severity: 'error' as const,
-        location: [displaySide(change).location],
-        // Point at the counterpart in the base document, so formats that render
-        // a `from` location show both sides of the change.
-        ...(change.kind === 'modified' ? { from: change.base.location } : {}),
-        suggest: [],
-      };
+// A lint problem carries one of two severities, so a patch has nowhere to go and is left
+// out; this is what lets the github-actions format come from core's formatProblems.
+const SEVERITIES: Partial<Record<Impact, ProblemSeverity>> = { major: 'error', minor: 'warn' };
+
+export function diffToProblems(result: DiffResult): NormalizedProblem[] {
+  return result.changes.flatMap((change) => {
+    const severity = SEVERITIES[change.impact];
+    if (!severity) return [];
+    // Point at the counterpart in the base document, so formats that render
+    // a `from` location show both sides of the change.
+    const from = change.kind === 'modified' ? { from: change.base.location } : {};
+
+    if (!change.verdicts.length) {
+      return [
+        {
+          message: `${change.kind} ${change.key}`,
+          ruleId: 'diff',
+          severity,
+          location: [displaySide(change).location],
+          ...from,
+          suggest: [],
+        },
+      ];
+    }
+
+    return change.verdicts.flatMap((verdict) => {
+      const verdictSeverity = SEVERITIES[verdict.impact];
+      if (!verdictSeverity) return [];
+      return [
+        {
+          message: verdict.message,
+          ruleId: verdict.ruleId,
+          severity: verdictSeverity,
+          location: [verdict.location],
+          ...from,
+          suggest: [],
+        },
+      ];
     });
+  });
 }
