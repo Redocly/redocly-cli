@@ -1,11 +1,11 @@
 channels
-  ✖ breaking      removed  channels/userSignedUp/messages/signup/payload/properties/plan
+  ✖ major  removed   channels/userSignedUp/messages/signup/payload/properties/plan
       Schema property was removed. (property-removed-from-response)
       at base.yaml:19:15
 
-1 breaking, 0 non-breaking.
+1 major, 0 minor, 0 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
-❌ Diff failed with 1 breaking change.
+❌ Diff failed with 1 major change.

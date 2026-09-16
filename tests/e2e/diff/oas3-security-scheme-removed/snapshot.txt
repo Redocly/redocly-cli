@@ -1,11 +1,11 @@
 components
-  ✖ breaking      removed  components/securitySchemes/basicAuth
+  ✖ major  removed   components/securitySchemes/basicAuth
       A security scheme was removed. (security-scheme-removed)
       at base.yaml:17:7
 
-1 breaking, 0 non-breaking.
+1 major, 0 minor, 0 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
-❌ Diff failed with 1 breaking change.
+❌ Diff failed with 1 major change.
