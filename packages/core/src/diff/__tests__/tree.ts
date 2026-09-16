@@ -1,29 +1,30 @@
 import type { NodeEntry } from '../../node-map/types.js';
+import { Location } from '../../ref-utils.js';
+import { Source } from '../../resolve.js';
+
+const source = new Source('tree.yaml', '');
 
 /**
- * Builds a lookup over a spelled-out node tree for tests that need real node
- * types rather than bare pointers. Each line is `pointer typeName`, optionally
- * followed by `key=value` scalars, and a node's parent is the closest preceding line
- * whose pointer is a prefix of it — which is what `collect` records when it walks a
- * document.
+ * Builds a lookup over a spelled-out node tree for tests that need real node types rather
+ * than bare keys. Each line is `key typeName`, optionally followed by `name=value`
+ * properties; a node's parent is the closest preceding line whose key is a prefix of it —
+ * which is what `collectNodeMap` records when it walks a document.
  */
 export function treeOf(nodes: string): Map<string, NodeEntry> {
   const entries = new Map<string, NodeEntry>();
-  const pointers: string[] = [];
+  const keys: string[] = [];
 
   for (const line of nodes.trim().split('\n')) {
-    const [pointer, typeName, ...assignments] = line.trim().split(/\s+/);
-    const parentPointer =
-      [...pointers].reverse().find((candidate) => pointer.startsWith(`${candidate}/`)) ?? null;
-    pointers.push(pointer);
-    entries.set(pointer, {
-      pointer,
-      realPointer: pointer,
-      parentPointer,
-      keyInParent: pointer.slice(pointer.lastIndexOf('/') + 1),
+    const [key, typeName, ...assignments] = line.trim().split(/\s+/);
+    const parentKey =
+      [...keys].reverse().find((candidate) => key.startsWith(`${candidate}/`)) ?? null;
+    keys.push(key);
+    entries.set(key, {
+      key,
+      parentKey,
+      location: new Location(source, key),
       typeName,
-      scalars: Object.fromEntries(assignments.map((pair) => pair.split('='))),
-      refs: {},
+      properties: Object.fromEntries(assignments.map((pair) => pair.split('='))),
       raw: {},
     });
   }

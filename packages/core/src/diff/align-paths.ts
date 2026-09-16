@@ -1,6 +1,5 @@
 import type { NodeEntry } from '../node-map/types.js';
-import { unescapePointerFragment } from '../ref-utils.js';
-import { escapeIdentityKeyPart } from './identity.js';
+import { escapePointerFragment, unescapePointerFragment } from '../ref-utils.js';
 
 export interface PathRename {
   baseTemplate: string;
@@ -92,8 +91,8 @@ export function alignRenamedPaths(
       // pre-escaped the way node-identity builds '{path:<name>}' segments
       paramMap: new Map(
         paramNames(rename.revisionTemplate).map((name, position) => [
-          escapeIdentityKeyPart(name),
-          escapeIdentityKeyPart(baseParams[position]),
+          escapePointerFragment(name),
+          escapePointerFragment(baseParams[position]),
         ])
       ),
     };
