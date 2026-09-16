@@ -22,14 +22,14 @@ export class UsageIndex {
     }
   }
 
-  /** `resolveSitePolarity` receives the pointer of the node that holds the reference. */
-  polarityOf(componentPointer: string, resolveSitePolarity: (site: string) => Polarity): Polarity {
+  /** `resolveSitePolarity` receives the key of the node that holds the reference. */
+  polarityOf(componentKey: string, resolveSitePolarity: (site: string) => Polarity): Polarity {
     const seen = new Set<string>();
-    const visit = (pointer: string): Polarity => {
-      if (seen.has(pointer)) return 'neutral'; // cycle guard
-      seen.add(pointer);
+    const visit = (key: string): Polarity => {
+      if (seen.has(key)) return 'neutral'; // cycle guard
+      seen.add(key);
       let result: Polarity = 'neutral';
-      for (const site of this.sitesByTarget.get(pointer) ?? []) {
+      for (const site of this.sitesByTarget.get(key) ?? []) {
         // a ref site inside another component chains to that component's own usage
         const siteComponentRoot = getComponentRoot(site, this.lookup);
         const sitePolarity = siteComponentRoot
@@ -40,6 +40,6 @@ export class UsageIndex {
       }
       return result;
     };
-    return visit(getComponentRoot(componentPointer, this.lookup) ?? componentPointer);
+    return visit(getComponentRoot(componentKey, this.lookup) ?? componentKey);
   }
 }

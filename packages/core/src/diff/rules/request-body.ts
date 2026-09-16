@@ -5,8 +5,9 @@ export const requestBodyBecameRequired: DiffRule = {
   id: 'request-body-became-required',
   description: 'Requiring a body that used to be optional breaks clients that send none.',
   visit(change, ctx) {
-    if (change.property !== 'required' || ctx.polarity !== 'request') return;
-    if (becameTrue(change.base?.value, change.revision?.value)) {
+    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'request')
+      return;
+    if (becameTrue(change.base.value, change.revision.value)) {
       return breaking('The request body became required.');
     }
     return undefined;
