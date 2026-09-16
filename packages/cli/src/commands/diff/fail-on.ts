@@ -1,6 +1,4 @@
-import { pluralize } from '@redocly/openapi-core';
-
-import type { DiffSummary } from './engine/types.js';
+import { pluralize, type DiffSummary } from '@redocly/openapi-core';
 
 export type DiffFailOn = 'breaking' | 'none';
 

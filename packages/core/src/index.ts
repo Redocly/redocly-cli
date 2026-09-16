@@ -129,6 +129,10 @@ export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-doc
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
+export { diffDocuments, DiffError } from './diff/index.js';
+export type { Change, DiffResult, DiffSummary } from './diff/types.js';
+export { diffReportFormats, type DiffReportFormat } from './diff/format/index.js';
+export { breakingChangesToProblems } from './diff/format/problems.js';
 export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
