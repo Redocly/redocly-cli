@@ -77,11 +77,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
       logger.output(output + '\n');
     }
   } else {
-    const problems = breakingChangesToProblems(
-      result,
-      baseDocument.source,
-      revisionDocument.source
-    );
+    const problems = breakingChangesToProblems(result);
     formatProblems(problems, {
       format: argv.format,
       totals: getTotals(problems),

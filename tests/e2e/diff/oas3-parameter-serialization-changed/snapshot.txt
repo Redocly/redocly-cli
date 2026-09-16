@@ -1,5 +1,5 @@
 GET /pets
-  ✖ breaking      changed  parameters/{query:tags} · style
+  ✖ breaking      modified  parameters/{query:tags} · style
       Parameter `style` changed from 'form' to 'spaceDelimited'. (parameter-serialization-changed)
       at revision.yaml:11:18
 

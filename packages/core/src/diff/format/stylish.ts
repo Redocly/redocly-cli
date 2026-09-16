@@ -1,10 +1,17 @@
 import * as path from 'node:path';
 
 import { isBrowser } from '../../env.js';
+import { getLineColLocation } from '../../format/codeframes.js';
 import { colorize } from '../../logger.js';
 import { isAbsoluteUrl, unescapePointerFragment } from '../../ref-utils.js';
-import { compatRank, type Change, type Compat, type DiffResult } from '../types.js';
-import { displaySide } from './change-side.js';
+import {
+  compatRank,
+  displaySide,
+  type Change,
+  type Compat,
+  type DiffResult,
+  type JudgedChange,
+} from '../types.js';
 
 const ICONS: Record<Compat, string> = {
   breaking: colorize.red('✖ breaking    '),
@@ -29,7 +36,7 @@ function segmentsOf(pointer: string): string[] {
 }
 
 function groupOf(change: Change): string {
-  const segments = segmentsOf(displaySide(change)?.pointer ?? change.pointer);
+  const segments = segmentsOf(displaySide(change).location.pointer);
   if (segments[0] === 'paths' && segments.length > 1) {
     const pathKey = unescapePointerFragment(segments[1]);
     const method = segments[2];
@@ -47,27 +54,29 @@ function labelSegments(segments: string[]): string[] {
 }
 
 function labelOf(change: Change): string {
-  const segments = segmentsOf(change.pointer);
+  const segments = segmentsOf(change.key);
   const named = labelSegments(segments);
   // A change on the operation itself leaves nothing after the prefix, so the whole
   // pointer is shown instead — there each segment is unescaped, so `~1pets` reads as
   // the path `/pets` rather than as one more separator.
   const label = named.length ? named.join('/') : segments.map(unescapePointerFragment).join(' · ');
 
-  if (!label) return change.property ?? change.pointer;
-  return change.property ? `${label} · ${change.property}` : label;
+  if (!label) return change.kind === 'modified' ? change.property : change.key;
+  return change.kind === 'modified' ? `${label} · ${change.property}` : label;
 }
 
-function locationOf(change: Change, cwd: string): string | undefined {
-  const side = displaySide(change);
-  if (!side?.file) return undefined;
-  const file = isAbsoluteUrl(side.file) ? side.file : path.relative(cwd, side.file);
-  return `${file}:${side.line}:${side.col}`;
+function locationOf(change: Change, cwd: string): string {
+  const { location } = displaySide(change);
+  const { start } = getLineColLocation(location);
+  const file = isAbsoluteUrl(location.source.absoluteRef)
+    ? location.source.absoluteRef
+    : path.relative(cwd, location.source.absoluteRef);
+  return `${file}:${start.line}:${start.col}`;
 }
 
 export function stylishDiff(result: DiffResult): string {
   const cwd = isBrowser ? '' : process.cwd();
-  const groups = new Map<string, Change[]>();
+  const groups = new Map<string, JudgedChange[]>();
   for (const change of result.changes) {
     const key = groupOf(change);
     const group = groups.get(key) ?? [];
@@ -79,15 +88,14 @@ export function stylishDiff(result: DiffResult): string {
   for (const [key, changes] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     lines.push(colorize.bold(colorize.blue(key)));
     const sorted = [...changes].sort(
-      (a, b) => compatRank(b.compat) - compatRank(a.compat) || a.pointer.localeCompare(b.pointer)
+      (a, b) => compatRank(b.compat) - compatRank(a.compat) || a.key.localeCompare(b.key)
     );
     for (const change of sorted) {
       lines.push(`  ${ICONS[change.compat]}  ${colorize.bold(change.kind)}  ${labelOf(change)}`);
-      for (const verdict of change.verdicts ?? []) {
+      for (const verdict of change.verdicts) {
         lines.push(colorize.gray(`      ${verdict.message} (${verdict.ruleId})`));
       }
-      const location = locationOf(change, cwd);
-      if (location) lines.push(colorize.gray(`      at ${location}`));
+      lines.push(colorize.gray(`      at ${locationOf(change, cwd)}`));
     }
     lines.push('');
   }

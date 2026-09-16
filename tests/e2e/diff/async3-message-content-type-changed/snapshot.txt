@@ -1,5 +1,5 @@
 channels
-  ✖ breaking      changed  channels/userSignedUp/messages/signup · contentType
+  ✖ breaking      modified  channels/userSignedUp/messages/signup · contentType
       The message content type changed from 'application/json' to 'application/avro'. (message-content-type-changed)
       at revision.yaml:10:22
 

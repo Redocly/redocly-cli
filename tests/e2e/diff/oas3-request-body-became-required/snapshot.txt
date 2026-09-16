@@ -1,5 +1,5 @@
 POST /pets
-  ✖ breaking      changed  requestBody · required
+  ✖ breaking      modified  requestBody · required
       The request body became required. (request-body-became-required)
       at revision.yaml:9:19
 
