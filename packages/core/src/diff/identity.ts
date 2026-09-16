@@ -1,26 +1,24 @@
-import { isPlainObject } from '../utils/is-plain-object.js';
+import type { IdentityFn } from '../node-map/types.js';
+import { escapePointerFragment } from '../ref-utils.js';
 
-// JSON Pointer escaping for identity-key content: keys become pointer segments.
-export function escapeIdentityKeyPart(value: string): string {
-  return value.replace(/~/g, '~0').replace(/\//g, '~1');
-}
+type ListItemIdentity = (node: Record<string, unknown>) => string | undefined;
 
-type IdentityKeyFn = (value: Record<string, unknown>) => string | undefined;
-
-// Identity keys for list items that have a natural identity.
-// Everything else falls back to positional matching (see spec §5.2).
-const IDENTITY_KEYS: Record<string, IdentityKeyFn> = {
-  Parameter: (v) =>
-    typeof v.in === 'string' && typeof v.name === 'string'
-      ? `{${escapeIdentityKeyPart(v.in)}:${escapeIdentityKeyPart(v.name)}}`
+// Identity segments for list items that have a natural identity; everything else keeps
+// its position. Each part is pointer-escaped so a `/` inside a name cannot forge a level.
+const LIST_ITEM_IDENTITIES: Record<string, ListItemIdentity> = {
+  Parameter: (parameter) =>
+    typeof parameter.in === 'string' && typeof parameter.name === 'string'
+      ? `{${escapePointerFragment(parameter.in)}:${escapePointerFragment(parameter.name)}}`
       : undefined,
-  Server: (v) => (typeof v.url === 'string' ? `{${escapeIdentityKeyPart(v.url)}}` : undefined),
-  Tag: (v) => (typeof v.name === 'string' ? `{${escapeIdentityKeyPart(v.name)}}` : undefined),
-  SecurityRequirement: (v) => `{${Object.keys(v).sort().map(escapeIdentityKeyPart).join('+')}}`,
+  Server: (server) =>
+    typeof server.url === 'string' ? `{${escapePointerFragment(server.url)}}` : undefined,
+  Tag: (tag) => (typeof tag.name === 'string' ? `{${escapePointerFragment(tag.name)}}` : undefined),
+  SecurityRequirement: (requirement) =>
+    `{${Object.keys(requirement).sort().map(escapePointerFragment).join('+')}}`,
 };
 
-export function getIdentityKey(typeName: string, value: unknown): string | undefined {
-  const keyFn = IDENTITY_KEYS[typeName];
-  if (!keyFn || !isPlainObject(value)) return undefined;
-  return keyFn(value as Record<string, unknown>);
-}
+export const identityOf: IdentityFn = (node, { typeName, parent }) => {
+  if (!Array.isArray(parent)) return undefined;
+  const segment = LIST_ITEM_IDENTITIES[typeName]?.(node);
+  return segment === undefined ? undefined : { segment };
+};

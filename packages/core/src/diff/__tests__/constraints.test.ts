@@ -4,9 +4,9 @@ import {
   effectiveTypes,
   isTypeSetNarrowed,
   isTypeSetWidened,
-} from '../predicates.js';
+} from '../constraints.js';
 
-describe('diff predicates', () => {
+describe('diff constraints', () => {
   it('does not treat an empty array as a scalar value', () => {
     // An empty array is walked as a node of its own, so counting it as a scalar too
     // would report the same change twice (`security: []` did).

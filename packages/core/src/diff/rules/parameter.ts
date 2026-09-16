@@ -1,5 +1,5 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
-import { becameTrue } from '../predicates.js';
+import { becameTrue } from '../constraints.js';
 import { breaking, type DiffRule } from '../types.js';
 
 // Registered for both `Parameter` and `ParameterList`: the last parameter of an
