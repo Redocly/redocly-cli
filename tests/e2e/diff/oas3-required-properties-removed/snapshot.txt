@@ -1,11 +1,11 @@
 GET /pets
-  ✖ breaking      modified  responses/200/content/application~1json/schema · required
+  ✖ major  modified  responses/200/content/application~1json/schema · required
       Properties are no longer required: name. (required-properties-removed)
       at revision.yaml:15:27
 
-1 breaking, 0 non-breaking.
+1 major, 0 minor, 0 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
-❌ Diff failed with 1 breaking change.
+❌ Diff failed with 1 major change.

@@ -1,11 +1,11 @@
 GET /pets
-  ✖ breaking      modified  parameters/{query:sort}/schema · enum
+  ✖ major  modified  parameters/{query:sort}/schema · enum
       Enum values removed: desc. (enum-values-removed)
       at revision.yaml:14:15
 
-1 breaking, 0 non-breaking.
+1 major, 0 minor, 0 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
-❌ Diff failed with 1 breaking change.
+❌ Diff failed with 1 major change.

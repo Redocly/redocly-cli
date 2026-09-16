@@ -21,13 +21,14 @@ export function runDiff(fixture: string, ...args: string[]): string {
  * the document is cut out of the captured output.
  */
 export function runJsonDiff(fixture: string): {
-  summary: { breaking: number; nonBreaking: number };
+  summary: { major: number; minor: number; patch: number };
+  bump?: 'patch' | 'minor' | 'major';
   changes: {
     key: string;
     property?: string;
     kind: string;
-    compat: string;
-    verdicts: { ruleId: string; compat: string; message: string }[];
+    impact: string;
+    verdicts: { ruleId: string; impact: string; message: string }[];
   }[];
 } {
   const output = runDiff(fixture, '--format=json');

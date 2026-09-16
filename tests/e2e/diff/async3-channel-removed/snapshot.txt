@@ -1,16 +1,16 @@
 channels
-  ✖ breaking      removed  channels/userDeleted
+  ✖ major  removed   channels/userDeleted
       The channel was removed. (channel-removed)
       at base.yaml:21:5
 
 operations
-  ✖ breaking      removed  operations/onUserDeleted
+  ✖ major  removed   operations/onUserDeleted
       Operation was removed. (operation-removed)
       at base.yaml:34:5
 
-2 breaking, 0 non-breaking.
+2 major, 0 minor, 0 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
-❌ Diff failed with 2 breaking changes.
+❌ Diff failed with 2 major changes.

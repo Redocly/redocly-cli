@@ -1,0 +1,16 @@
+import type { DiffReportFormat, Impact } from '@redocly/openapi-core';
+
+import type { VerifyConfigOptions } from '../../types.js';
+
+export type DiffOutputFormat = DiffReportFormat | 'github-actions';
+
+export type DiffFailOn = Impact | 'none';
+
+export type DiffArgv = {
+  base: string;
+  revision: string;
+  format: DiffOutputFormat;
+  output?: string;
+  'fail-on': DiffFailOn;
+  'check-version': boolean;
+} & VerifyConfigOptions;
