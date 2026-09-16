@@ -1,31 +1,40 @@
 import type { NodeEntry } from '../node-map/types.js';
 import type { SpecVersion } from '../oas-types.js';
+import type { Location } from '../ref-utils.js';
 
 export type Compat = 'breaking' | 'non-breaking';
 
-export type ChangeKind = 'added' | 'removed' | 'changed';
-
-export interface ChangeSide {
-  pointer: string; // real JSON Pointer in this document
-  file?: string; // absoluteRef of the side's document — filled by locateChanges()
-  line?: number; // 1-based — filled by locateChanges()
-  col?: number; // 1-based — filled by locateChanges()
-  value?: unknown;
+export interface LocatedNode {
+  location: Location;
+  value: unknown;
 }
 
-export interface Change {
-  pointer: string; // stable node pointer — the change's identity
-  property?: string; // set for property-level changes
-  kind: ChangeKind;
+interface ChangeBase {
+  key: string;
   typeName: string;
-  base?: ChangeSide; // absent for added
-  revision?: ChangeSide; // absent for removed
-  compat: Compat; // worst verdict's level; 'non-breaking' when no rule fired
-  verdicts?: ChangeVerdict[]; // every rule verdict, worst-first
 }
 
-// What compare() emits — classification fields are filled later by classify().
-export type RawChange = Omit<Change, 'compat' | 'verdicts'>;
+export type Change =
+  | (ChangeBase & { kind: 'added'; revision: LocatedNode })
+  | (ChangeBase & { kind: 'removed'; base: LocatedNode })
+  | (ChangeBase & {
+      kind: 'modified';
+      property: string;
+      base: LocatedNode;
+      revision: LocatedNode;
+    });
+
+export function displaySide(change: Change): LocatedNode {
+  return change.kind === 'removed' ? change.base : change.revision;
+}
+
+export interface ChangeVerdict {
+  ruleId: string;
+  compat: Compat;
+  message: string;
+}
+
+export type JudgedChange = Change & { compat: Compat; verdicts: ChangeVerdict[] };
 
 export interface DiffSummary {
   breaking: number;
@@ -36,7 +45,7 @@ export interface DiffResult {
   version: '1';
   specVersions: { base: SpecVersion; revision: SpecVersion };
   summary: DiffSummary;
-  changes: Change[];
+  changes: JudgedChange[];
 }
 
 export interface Verdict {
@@ -44,25 +53,21 @@ export interface Verdict {
   message: string;
 }
 
-export interface ChangeVerdict extends Verdict {
-  ruleId: string;
-}
-
 export type Polarity = 'request' | 'response' | 'both' | 'neutral';
 
 export interface RuleContext {
   polarity: Polarity;
   specVersion: SpecVersion;
-  base: (pointer: string) => NodeEntry | undefined;
-  revision: (pointer: string) => NodeEntry | undefined;
+  base: (key: string) => NodeEntry | undefined;
+  revision: (key: string) => NodeEntry | undefined;
   /** Either side, revision first — for reading a node's own type or its ancestors. */
-  nodeAt: (pointer: string) => NodeEntry | undefined;
+  nodeAt: (key: string) => NodeEntry | undefined;
 }
 
 export interface DiffRule {
   id: string;
   description: string;
-  visit(change: RawChange, ctx: RuleContext): Verdict | undefined;
+  visit(change: Change, ctx: RuleContext): Verdict | undefined;
 }
 
 export type DiffRuleRegistry = Record<string, DiffRule[]>;
