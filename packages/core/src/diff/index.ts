@@ -4,28 +4,13 @@ import { collectNodeMap } from '../node-map/collect.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
 import type { Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
-import { alignRenamedPaths, type PathRename } from './align-paths.js';
 import { compareMaps } from './compare.js';
 import { classifyChanges } from './detect.js';
 import { identityOf } from './identity.js';
-import { locateChanges } from './locate.js';
-import type { DiffResult, DiffSummary, RawChange } from './types.js';
+import type { DiffResult, DiffSummary } from './types.js';
 import { UsageIndex } from './usage.js';
 
 export class DiffError extends Error {}
-
-// The path template itself is a map key, not a node property, so the rename is
-// surfaced as a synthetic 'changed' on the PathItem with property 'path'.
-function toRenameChange(rename: PathRename): RawChange {
-  return {
-    pointer: rename.basePointer,
-    property: 'path',
-    kind: 'changed',
-    typeName: 'PathItem',
-    base: { pointer: rename.baseRealPointer, value: rename.baseTemplate },
-    revision: { pointer: rename.revisionRealPointer, value: rename.revisionTemplate },
-  };
-}
 
 export function diffDocuments(opts: {
   base: Document;
@@ -42,7 +27,7 @@ export function diffDocuments(opts: {
     );
   }
 
-  // Each side is collected with ITS OWN type tree (spec §5.6).
+  // Each side is collected with its own type tree.
   const collect = (document: Document, specVersion: SpecVersion) =>
     collectNodeMap({
       document,
@@ -51,38 +36,20 @@ export function diffDocuments(opts: {
       identityOf,
     });
 
-  const baseCollected = collect(base, baseVersion);
-  const revisionCollected = collect(revision, revisionVersion);
+  const baseMap = collect(base, baseVersion);
+  const revisionMap = collect(revision, revisionVersion);
 
-  const { revision: alignedRevision, renames } = alignRenamedPaths(
-    baseCollected.entries,
-    revisionCollected.entries
-  );
+  // A removed node only exists in the base, an added one only in the revision.
+  const nodeAt = (key: string) => revisionMap.entries.get(key) ?? baseMap.entries.get(key);
+  const usage = new UsageIndex([...baseMap.usageEdges, ...revisionMap.usageEdges], nodeAt);
 
-  const rawChanges = [
-    ...renames.map(toRenameChange),
-    ...compareMaps(baseCollected.entries, alignedRevision),
-  ];
-  // usage edges are NOT rewritten: polarity reads node types along the ancestor
-  // chain and component roots, neither of which a path rename alters
-  const nodeAt = (pointer: string) =>
-    alignedRevision.get(pointer) ?? baseCollected.entries.get(pointer);
-  const usage = new UsageIndex(
-    [...baseCollected.usageEdges, ...revisionCollected.usageEdges],
-    nodeAt
-  );
-
-  const changes = locateChanges(
-    classifyChanges({
-      changes: rawChanges,
-      specVersion: revisionVersion,
-      base: baseCollected.entries,
-      revision: alignedRevision,
-      usage,
-    }),
-    base.source,
-    revision.source
-  );
+  const changes = classifyChanges({
+    changes: compareMaps(baseMap.entries, revisionMap.entries),
+    specVersion: revisionVersion,
+    base: baseMap.entries,
+    revision: revisionMap.entries,
+    usage,
+  });
 
   const summary = changes.reduce<DiffSummary>(
     (acc, change) => {
