@@ -15,6 +15,19 @@ export const NoRequiredSchemaPropertiesUndefined:
   const parents: AnySchema[] = [];
   const validatedRefNodes = new Set<unknown>();
 
+  // `required` under `not` asserts the absence of a property, so its names are not
+  // expected to be declared. Detects both a `not` holding the node directly and a
+  // `not` reached earlier in the ancestor chain.
+  const isUnderNot = (chain: AnySchema[], ctx: UserContext): boolean => {
+    for (let i = 1; i < chain.length; i++) {
+      const parent = chain[i - 1];
+      if (!('not' in parent) || parent.not == null) continue;
+      if (parent.not === chain[i] || resolveSchema(parent.not, ctx).schema === chain[i])
+        return true;
+    }
+    return false;
+  };
+
   const reportUndefinedRequired = (
     schema: AnySchema,
     schemaLocation: Location,
@@ -38,6 +51,7 @@ export const NoRequiredSchemaPropertiesUndefined:
     ref: {
       leave(refNode: OasRef, ctx: UserContext, resolved: ResolveResult<AnySchema>) {
         if (ctx.type.name !== 'Schema') return;
+        if (isUnderNot([...parents, refNode as unknown as AnySchema], ctx)) return;
 
         // composed $refs are never visited as Schema nodes, so the `required` sibling
         // keywords of the ref itself and of the chain hops are validated here
@@ -62,16 +76,7 @@ export const NoRequiredSchemaPropertiesUndefined:
         parents.push(currentSchema);
         if (!isNotEmptyArray<string>(currentSchema.required)) return;
 
-        for (let i = 1; i < parents.length; i++) {
-          const parent = parents[i - 1];
-          if (
-            'not' in parent &&
-            parent.not != null &&
-            resolveSchema(parent.not, ctx).schema === parents[i]
-          ) {
-            return;
-          }
-        }
+        if (isUnderNot(parents, ctx)) return;
 
         const isCompositionChild = (parent: AnySchema, child: AnySchema): boolean => {
           const matchesChild = (s: AnySchema) => resolveSchema(s, ctx).schema === child;
