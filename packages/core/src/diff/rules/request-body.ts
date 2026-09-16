@@ -1,4 +1,4 @@
-import { becameTrue } from '../predicates.js';
+import { becameTrue } from '../constraints.js';
 import { breaking, type DiffRule } from '../types.js';
 
 export const requestBodyBecameRequired: DiffRule = {

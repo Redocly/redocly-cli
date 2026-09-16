@@ -7,7 +7,7 @@ import { normalizeTypes } from '../types/index.js';
 import { alignRenamedPaths, type PathRename } from './align-paths.js';
 import { compareMaps } from './compare.js';
 import { classifyChanges } from './detect.js';
-import { getIdentityKey } from './identity.js';
+import { identityOf } from './identity.js';
 import { locateChanges } from './locate.js';
 import type { DiffResult, DiffSummary, RawChange } from './types.js';
 import { UsageIndex } from './usage.js';
@@ -48,7 +48,7 @@ export function diffDocuments(opts: {
       document,
       types: normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config),
       specVersion,
-      identityOf: getIdentityKey,
+      identityOf,
     });
 
   const baseCollected = collect(base, baseVersion);
