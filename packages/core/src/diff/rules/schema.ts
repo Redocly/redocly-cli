@@ -29,13 +29,13 @@ export const schemaTypeChanged: DiffRule = {
   description:
     'A narrower type rejects values that clients send. A wider type returns values that clients do not handle.',
   visit(change, ctx) {
-    if (change.property !== 'type') return;
+    if (change.kind !== 'modified' || change.property !== 'type') return;
     // `nullable: true` is 3.0's spelling of `type: [..., 'null']`, so both sides are
     // read through the node itself rather than from the changed value alone.
-    const before = effectiveTypes(change.base?.value, ctx.base(change.pointer)?.scalars.nullable);
+    const before = effectiveTypes(change.base.value, ctx.base(change.key)?.properties.nullable);
     const after = effectiveTypes(
-      change.revision?.value,
-      ctx.revision(change.pointer)?.scalars.nullable
+      change.revision.value,
+      ctx.revision(change.key)?.properties.nullable
     );
     const described = `from '${[...before].join(' | ')}' to '${[...after].join(' | ')}'`;
 
@@ -53,8 +53,9 @@ export const enumValuesRemoved: DiffRule = {
   id: 'enum-values-removed',
   description: 'Removing enum values restricts what clients may send.',
   visit(change, ctx) {
-    if (change.property !== 'enum' || ctx.polarity !== 'request') return;
-    const removed = missingItems(change.base?.value, change.revision?.value);
+    if (change.kind !== 'modified' || change.property !== 'enum' || ctx.polarity !== 'request')
+      return;
+    const removed = missingItems(change.base.value, change.revision.value);
     if (removed.length) {
       return breaking(`Enum values removed: ${removed.join(', ')}.`);
     }
@@ -66,8 +67,9 @@ export const enumValuesAdded: DiffRule = {
   id: 'enum-values-added',
   description: 'Adding enum values to response data may send clients values they never handled.',
   visit(change, ctx) {
-    if (change.property !== 'enum' || ctx.polarity !== 'response') return;
-    const added = addedItems(change.base?.value, change.revision?.value);
+    if (change.kind !== 'modified' || change.property !== 'enum' || ctx.polarity !== 'response')
+      return;
+    const added = addedItems(change.base.value, change.revision.value);
     if (added.length) {
       return breaking(`Enum values added: ${added.join(', ')}.`);
     }
@@ -79,8 +81,9 @@ export const requiredPropertiesAdded: DiffRule = {
   id: 'required-properties-added',
   description: 'Requiring new request properties breaks clients that do not send them.',
   visit(change, ctx) {
-    if (change.property !== 'required' || ctx.polarity !== 'request') return;
-    const added = addedItems(change.base?.value, change.revision?.value);
+    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'request')
+      return;
+    const added = addedItems(change.base.value, change.revision.value);
     if (added.length) {
       return breaking(`Properties became required: ${added.join(', ')}.`);
     }
@@ -93,8 +96,9 @@ export const requiredPropertiesRemoved: DiffRule = {
   description:
     'A response property that is no longer required can be absent, which breaks clients that read it.',
   visit(change, ctx) {
-    if (change.property !== 'required' || ctx.polarity !== 'response') return;
-    const removed = missingItems(change.base?.value, change.revision?.value);
+    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'response')
+      return;
+    const removed = missingItems(change.base.value, change.revision.value);
     if (removed.length) {
       return breaking(`Properties are no longer required: ${removed.join(', ')}.`);
     }
@@ -108,8 +112,8 @@ export const propertyRemovedFromResponse: DiffRule = {
   visit(change, ctx) {
     if (change.kind !== 'removed' || ctx.polarity !== 'response') return;
     // Only a member of a `properties` map counts; a subschema of `oneOf` does not.
-    const parentPointer = ctx.nodeAt(change.pointer)?.parentPointer;
-    if (!parentPointer || ctx.nodeAt(parentPointer)?.typeName !== 'SchemaProperties') return;
+    const parentKey = ctx.nodeAt(change.key)?.parentKey;
+    if (!parentKey || ctx.nodeAt(parentKey)?.typeName !== 'SchemaProperties') return;
     return breaking('Schema property was removed.');
   },
 };
@@ -131,9 +135,9 @@ function constraintRule(rule: { id: string; description: string; properties: str
     id: rule.id,
     description: rule.description,
     visit(change, ctx) {
-      if (!change.property || !properties.has(change.property)) return;
-      const before = change.base?.value;
-      const after = change.revision?.value;
+      if (change.kind !== 'modified' || !properties.has(change.property)) return;
+      const before = change.base.value;
+      const after = change.revision.value;
       return verdictFor(
         constraintDirection(change.property, before, after),
         ctx.polarity,
@@ -176,13 +180,13 @@ export const schemaCombinatorChanged: DiffRule = {
   id: 'schema-combinator-changed',
   description: 'Adding or dropping a subschema changes which shapes the API accepts.',
   visit(change, ctx) {
-    if (change.kind === 'changed') return;
+    if (change.kind === 'modified') return;
 
-    const parentPointer = ctx.nodeAt(change.pointer)?.parentPointer;
-    const parent = parentPointer ? ctx.nodeAt(parentPointer) : undefined;
+    const parentKey = ctx.nodeAt(change.key)?.parentKey;
+    const parent = parentKey ? ctx.nodeAt(parentKey) : undefined;
     if (parent?.typeName !== 'SchemaList') return;
 
-    const combinator = String(parent.keyInParent);
+    const combinator = parent.key.slice(parent.key.lastIndexOf('/') + 1);
     if (combinator !== 'allOf' && !ALTERNATIVE_COMBINATORS.has(combinator)) return;
 
     const removed = change.kind === 'removed';
