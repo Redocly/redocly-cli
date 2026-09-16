@@ -1,19 +1,17 @@
 import { logger } from '@redocly/openapi-core';
-import { cyan, green, yellow } from 'colorette';
+import { cyan, green } from 'colorette';
 import { existsSync, writeFileSync, readFileSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as process from 'node:process';
 import { compare } from 'semver';
 
+import { renderBanner } from './banner.js';
 import { DEFAULT_FETCH_TIMEOUT } from './constants.js';
 import fetch from './fetch-with-timeout.js';
-import { cleanColors } from './miscellaneous.js';
 import { version, name } from './package.js';
 
 const VERSION_CACHE_FILE = 'redocly-cli-version';
-const SPACE_TO_BORDER = 4;
-
 const INTERVAL_TO_CHECK = 1000 * 60 * 60 * 12;
 const SHOULD_NOT_NOTIFY =
   process.env.NODE_ENV === 'test' ||
@@ -68,35 +66,14 @@ export const cacheLatestVersion = () => {
 };
 
 const renderUpdateBanner = (current: string, latest: string) => {
-  const messageLines = [
-    `A new version of ${cyan('Redocly CLI')} (${green(latest)}) is available.`,
-    `Update now: \`${cyan('npm i -g @redocly/cli@latest')}\`.`,
-    `Changelog: https://redocly.com/docs/cli/changelog/`,
-  ];
-  const maxLength = Math.max(...messageLines.map((line) => cleanColors(line).length));
-
-  const border = yellow('═'.repeat(maxLength + SPACE_TO_BORDER));
-  const extraSpaces = ' '.repeat(SPACE_TO_BORDER);
-
-  const banner = [
-    '',
-    extraSpaces + yellow('╔' + border + '╗'),
-    extraSpaces + yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║'),
-    messageLines.map(getLineWithPadding(maxLength, extraSpaces)).join('\n'),
-    extraSpaces + yellow('║' + ' '.repeat(maxLength + SPACE_TO_BORDER) + '║'),
-    extraSpaces + yellow('╚' + border + '╝'),
-    '',
-    '',
-  ].join('\n');
-  logger.info(banner);
+  logger.info(
+    renderBanner([
+      `A new version of ${cyan('Redocly CLI')} (${green(latest)}) is available.`,
+      `Update now: \`${cyan('npm i -g @redocly/cli@latest')}\`.`,
+      `Changelog: https://redocly.com/docs/cli/changelog/`,
+    ])
+  );
 };
-
-const getLineWithPadding =
-  (maxLength: number, extraSpaces: string) =>
-  (line: string): string => {
-    const padding = ' '.repeat(maxLength - cleanColors(line).length);
-    return `${extraSpaces}${yellow('║')}  ${line}${padding}  ${yellow('║')}`;
-  };
 
 const isNeedToBeCached = (): boolean => {
   try {

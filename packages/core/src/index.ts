@@ -111,6 +111,7 @@ export {
   Loc,
   walkDocument,
   type UserContext,
+  type ResolveResult,
 } from './walk.js';
 export { getAstNodeByPointer, getLineColLocation, getCodeframe } from './format/codeframes.js';
 export {

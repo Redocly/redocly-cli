@@ -12,7 +12,7 @@
     "test:check-config": "REDOCLY_SUPPRESS_UPDATE_NOTICE=true hyperfine --warmup 2 'node node_modules/cli-latest/bin/cli.js check-config --config=api-definitions/redocly.yaml --lint-config=warn' 'node node_modules/cli-next/bin/cli.js check-config --config=api-definitions/redocly.yaml --lint-config=warn'",
     "test": "npm run test:bundle && npm run test:lint && npm run test:check-config"
   },
-  "_enhancedDependencies": {
+  "_historicalVersions": {
     "cli-2.0.0": "npm:@redocly/cli@2.0.0",
     "cli-2.13.0": "npm:@redocly/cli@2.13.0",
     "cli-2.14.2": "npm:@redocly/cli@2.14.2",
@@ -23,6 +23,7 @@
     "cli-2.34.0": "npm:@redocly/cli@2.34.0",
     "cli-2.45.0": "npm:@redocly/cli@2.45.0",
     "cli-2.46.0": "npm:@redocly/cli@2.46.0",
+    "cli-2.51.1": "npm:@redocly/cli@2.51.1",
     "cli-latest": "npm:@redocly/cli@latest",
     "cli-next": "file:../../redocly-cli.tgz"
   },

@@ -37,6 +37,7 @@ rules:
 This rule will error if an array is declared without an `items` field.
 The `where` section is used to filter the rule to only apply to schemas of type `array`.
 Note the `defined: true` assertion, which ensures that the `type` field is defined.
+Without it, the rule would also match schemas that don't declare a `type` at all, because assertions pass on undefined values.
 
 ## Examples
 
@@ -54,4 +55,11 @@ components:
         type: string
     CustomerName: # This will pass, doesn't match the 'where' clause
       type: string
+    Orders: # This will pass; the nested 'metadata' schema declares no type, so the rule doesn't apply to it
+      type: array
+      items:
+        type: object
+        properties:
+          metadata:
+            description: Free-form value with no declared type
 ```

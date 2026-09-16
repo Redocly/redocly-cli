@@ -151,6 +151,9 @@ The SRI value also appears in [e2e test snapshots](#e2e-tests) — update those 
 
 There are three ways of providing arguments to the CLI: environment variables, command line arguments, and a Redocly configuration file.
 
+Boolean arguments and options default to `false`, so a missing value and an explicit `false` behave the same.
+Name each of them according to what makes `true`, so that adding them never alters the existing behavior.
+
 #### Environment variables
 
 Environment variables should be used to provide some arguments that are common for all the commands.
@@ -458,3 +461,8 @@ The released version can be installed with `npm install @redocly/cli@snapshot`.
 Redocly CLI v1 is currently in archive mode, but still can receive bug fixes.
 
 To release a new version, switch to the `v1` branch and follow the steps described in the Contribution guide (the `CONTRIBUTING.md` file).
+
+### Handle a broken release
+
+If a release pipeline failed or didn't start after the release PR was merged into `main` (for example, if GitHub Actions was down),
+you **must** merge a PR **without changesets** into `main` to trigger the release process again otherwise the release will be lost.

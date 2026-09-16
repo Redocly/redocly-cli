@@ -109,6 +109,11 @@ rules:
 ```
 
 The `subject` is the `version` property of the `info` object; Info is a [recognized node type](https://redocly.com/docs/openapi-visual-reference/openapi-node-types/).
+To find the exact type of a place in your API description, either:
+
+- Run the [`inspect-node-types` command](../commands/inspect-node-types.md) with a pointer to that place.
+- Hover over it in the [Redocly OpenAPI VS Code extension](https://redocly.com/docs/redocly-openapi/) to see the same type hints.
+
 Using the `pattern` assertion, describe what's allowed with [regular expression syntax](https://en.wikipedia.org/wiki/Regular_expression).
 Finally, adding the `message` ensures clear information is conveyed if the rule isn't satisfied.
 
@@ -143,3 +148,5 @@ Especially when you are working on improving your APIs or API descriptions, sett
 
 - Check out the detailed reference documentation for the [built-in rules](../rules/built-in-rules.md) and [configurable rules](../rules/configurable-rules.md).
 - If nothing there meets your needs, you can create your own rules by creating [custom plugins](../custom-plugins/index.md) with JavaScript.
+- If you work with an AI coding assistant, install the `redocly-lint-rules` agent skill with `npx skills add https://redocly.com`.
+  It turns a check written in plain language into a configurable rule or a custom plugin.

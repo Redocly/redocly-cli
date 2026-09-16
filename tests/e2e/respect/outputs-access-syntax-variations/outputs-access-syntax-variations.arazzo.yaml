@@ -35,7 +35,7 @@ workflows:
           itemsCount: $outputs.stepFullBody#/page/total
     outputs:
       itemsCount: $steps.search-menu.outputs.itemsCount
-  - workflowId: client-registration
+  - workflowId: order-attempt
     steps:
       - stepId: list-menu-items
         operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
@@ -45,30 +45,35 @@ workflows:
             value: mermaid-treasure-latte
         outputs:
           menuItems: $response.body
-      - stepId: create-client
-        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
+      - stepId: create-order
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders/post'
         requestBody:
           payload:
             listObject: $steps.list-menu-items.outputs.menuItems.page.limit
             listTotal: $steps.list-menu-items.outputs.menuItems#/page/total
+            orderItems:
+              - menuItemId: prd_0000000000seedtrams0000000
+                quantity: 2
+                comment: mermaid-treasure-latte
         successCriteria:
-          - condition: $statusCode == 400
+          - condition: $statusCode == 401
           - condition: $workflows.get-menu-items.outputs.itemsCount == 0
         outputs:
-          errorStatus: $response.body#/status
-          createdClientError: $response.body
+          orderError: $response.body
+          submittedOrder: $request.body
     outputs:
-      createdClientError: $steps.create-client.outputs.createdClientError
-  - workflowId: get-menu-items-by-error-field
+      orderError: $steps.create-order.outputs.orderError
+      submittedOrder: $steps.create-order.outputs.submittedOrder
+  - workflowId: get-menu-items-by-submitted-order
     steps:
-      - stepId: get-menu-items-by-error-field
+      - stepId: get-menu-items-by-submitted-order
         operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1menu/get'
         parameters:
           - name: search
             in: query
-            value: $workflows.client-registration.outputs.createdClientError#/details/errors/0/path/0
-          - name: x-original-message
+            value: $workflows.order-attempt.outputs.submittedOrder#/orderItems/0/comment
+          - name: x-original-quantity
             in: header
-            value: $workflows.client-registration.outputs.createdClientError.details.errors.0.message
+            value: $workflows.order-attempt.outputs.submittedOrder.orderItems.0.quantity
         successCriteria:
-          - condition: $workflows.client-registration.outputs.createdClientError#/status == 400
+          - condition: $workflows.order-attempt.outputs.orderError#/status == 401
