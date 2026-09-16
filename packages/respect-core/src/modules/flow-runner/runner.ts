@@ -200,7 +200,7 @@ export async function runWorkflow({
   const workflowSteps = workflow.steps.slice(fromStepIndex);
 
   // Reset $steps before running workflow steps.
-  // On resume (goto/retry by stepId), keep earlier step outputs but clear any steps that will be (re)executed.
+  // A goto to a step in this workflow keeps the outputs of steps that already ran.
   if (!fromStepId) {
     ctx.$steps = {};
   } else {
