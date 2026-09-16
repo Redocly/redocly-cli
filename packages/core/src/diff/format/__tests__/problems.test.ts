@@ -1,9 +1,11 @@
+import { Location } from '../../../ref-utils.js';
 import { Source } from '../../../resolve.js';
 import type { DiffResult } from '../../types.js';
 import { breakingChangesToProblems } from '../problems.js';
 
 const baseSource = new Source('base.yaml', 'openapi: 3.1.0\n');
 const revisionSource = new Source('revision.yaml', 'openapi: 3.1.0\n');
+const at = (source: Source, pointer: string) => new Location(source, pointer);
 
 const result: DiffResult = {
   version: '1',
@@ -11,22 +13,28 @@ const result: DiffResult = {
   summary: { breaking: 2, nonBreaking: 1 },
   changes: [
     {
-      pointer: '#/paths/~1pets/delete',
+      key: '#/paths/~1pets/delete',
       kind: 'removed',
       typeName: 'Operation',
-      base: { pointer: '#/paths/~1pets/delete', file: 'base.yaml', line: 21, col: 7 },
+      base: { location: at(baseSource, '#/paths/~1pets/delete'), value: undefined },
       compat: 'breaking',
       verdicts: [
         { compat: 'breaking', ruleId: 'operation-removed', message: 'Operation was removed.' },
       ],
     },
     {
-      pointer: '#/paths/~1pets/get/parameters/{query:limit}',
+      key: '#/paths/~1pets/get/parameters/{query:limit}',
       property: 'required',
-      kind: 'changed',
+      kind: 'modified',
       typeName: 'Parameter',
-      base: { pointer: '#/paths/~1pets/get/parameters/0/required' },
-      revision: { pointer: '#/paths/~1pets/get/parameters/0/required', value: true },
+      base: {
+        location: at(baseSource, '#/paths/~1pets/get/parameters/0/required'),
+        value: undefined,
+      },
+      revision: {
+        location: at(revisionSource, '#/paths/~1pets/get/parameters/0/required'),
+        value: true,
+      },
       compat: 'breaking',
       verdicts: [
         {
@@ -37,20 +45,21 @@ const result: DiffResult = {
       ],
     },
     {
-      pointer: '#/info',
+      key: '#/info',
       property: 'version',
-      kind: 'changed',
+      kind: 'modified',
       typeName: 'Info',
-      base: { pointer: '#/info/version' },
-      revision: { pointer: '#/info/version' },
+      base: { location: at(baseSource, '#/info/version'), value: '1.0.0' },
+      revision: { location: at(revisionSource, '#/info/version'), value: '1.0.1' },
       compat: 'non-breaking',
+      verdicts: [],
     },
   ],
 };
 
 describe('breakingChangesToProblems', () => {
   it('describes each breaking change the way a lint problem is described', () => {
-    const problems = breakingChangesToProblems(result, baseSource, revisionSource);
+    const problems = breakingChangesToProblems(result);
 
     // Only the breaking changes map onto a lint problem, because a problem always
     // carries a severity. A removal is shown in the base document, everything else in
