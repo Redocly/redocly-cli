@@ -9,8 +9,8 @@ import {
   type Change,
   type ChangeVerdict,
   type DiffRuleRegistry,
+  type JudgedChange,
   type Polarity,
-  type RawChange,
 } from './types.js';
 import type { UsageIndex } from './usage.js';
 
@@ -33,33 +33,33 @@ function expandPolarity(polarity: Polarity): Polarity[] {
 }
 
 export function classifyChanges(opts: {
-  changes: RawChange[];
+  changes: Change[];
   specVersion: SpecVersion;
   base: Map<string, NodeEntry>;
   revision: Map<string, NodeEntry>;
   usage: UsageIndex;
-}): Change[] {
+}): JudgedChange[] {
   const { changes, specVersion, base, revision, usage } = opts;
   const spec = SPECS[specVersion];
   if (!spec) {
     // Structural comparison works for every specification; only these families are
     // judged, so elsewhere no rule runs and nothing is called breaking.
-    return changes.map((change) => ({ ...change, compat: 'non-breaking' as const }));
+    return changes.map((change) => ({ ...change, compat: 'non-breaking' as const, verdicts: [] }));
   }
 
   // A removed node only exists in the base, an added one only in the revision.
-  const nodeAt: NodeLookup = (pointer) => revision.get(pointer) ?? base.get(pointer);
+  const nodeAt: NodeLookup = (key) => revision.get(key) ?? base.get(key);
 
   return changes.map((change) => {
     const rules = spec.rules[change.typeName] ?? [];
     const verdicts: ChangeVerdict[] = [];
 
-    for (const polarity of expandPolarity(spec.polarityOf(change.pointer, usage, nodeAt))) {
+    for (const polarity of expandPolarity(spec.polarityOf(change.key, usage, nodeAt))) {
       const ctx = {
         polarity,
         specVersion,
-        base: (pointer: string) => base.get(pointer),
-        revision: (pointer: string) => revision.get(pointer),
+        base: (key: string) => base.get(key),
+        revision: (key: string) => revision.get(key),
         nodeAt,
       };
       for (const rule of rules) {
@@ -76,10 +76,6 @@ export function classifyChanges(opts: {
       (a, b) => compatRank(b.compat) - compatRank(a.compat) || a.ruleId.localeCompare(b.ruleId)
     );
 
-    return {
-      ...change,
-      compat: verdicts[0]?.compat ?? 'non-breaking',
-      ...(verdicts.length ? { verdicts } : {}),
-    };
+    return { ...change, compat: verdicts[0]?.compat ?? 'non-breaking', verdicts };
   });
 }

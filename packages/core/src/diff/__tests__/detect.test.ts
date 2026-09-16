@@ -1,6 +1,8 @@
 import type { NodeEntry } from '../../node-map/types.js';
+import { Location } from '../../ref-utils.js';
+import { Source } from '../../resolve.js';
 import { classifyChanges } from '../detect.js';
-import type { RawChange } from '../types.js';
+import type { Change } from '../types.js';
 import { UsageIndex } from '../usage.js';
 import { treeOf } from './tree.js';
 
@@ -14,28 +16,30 @@ const emptyMaps = {
 // and which one decides the change. The rules themselves are covered by tests/e2e/diff.
 describe('classifyChanges', () => {
   it('defaults to non-breaking when no rule judges the change', () => {
-    const changes: RawChange[] = [
+    const location = new Location(new Source('api.yaml', ''), '#/info/title');
+    const changes: Change[] = [
       {
-        pointer: '#/info',
+        key: '#/info',
+        kind: 'modified',
         property: 'title',
-        kind: 'changed',
         typeName: 'Info',
-        base: { pointer: '#/info/title', value: 'a' },
-        revision: { pointer: '#/info/title', value: 'b' },
+        base: { location, value: 'a' },
+        revision: { location, value: 'b' },
       },
     ];
     const [change] = classifyChanges({ changes, specVersion: 'oas3_1', ...emptyMaps });
     expect(change.compat).toBe('non-breaking');
-    expect(change.verdicts).toBeUndefined();
+    expect(change.verdicts).toEqual([]);
   });
 
   it('returns structural-only (non-breaking) for specs without a registry', () => {
-    const changes: RawChange[] = [
+    const location = new Location(new Source('api.yaml', ''), '#/x');
+    const changes: Change[] = [
       {
-        pointer: '#/x',
+        key: '#/x',
         kind: 'removed',
         typeName: 'Operation',
-        base: { pointer: '#/x', value: {} },
+        base: { location, value: {} },
       },
     ];
     const [change] = classifyChanges({ changes, specVersion: 'async2', ...emptyMaps });
@@ -76,14 +80,15 @@ describe('classifyChanges', () => {
       ],
       tree
     );
-    const changes: RawChange[] = [
+    const location = new Location(new Source('api.yaml', ''), '#/components/schemas/S/enum');
+    const changes: Change[] = [
       {
-        pointer: '#/components/schemas/S',
+        key: '#/components/schemas/S',
         property: 'enum',
-        kind: 'changed',
+        kind: 'modified',
         typeName: 'Schema',
-        base: { pointer: '#/components/schemas/S/enum', value: ['a', 'b'] },
-        revision: { pointer: '#/components/schemas/S/enum', value: ['a', 'c'] },
+        base: { location, value: ['a', 'b'] },
+        revision: { location, value: ['a', 'c'] },
       },
     ];
     const [change] = classifyChanges({

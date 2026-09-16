@@ -24,7 +24,7 @@ export const parameterAddedRequired: DiffRule = {
   visit(change, ctx) {
     if (change.kind !== 'added' || ctx.polarity !== 'request') return;
     const added =
-      change.typeName === 'ParameterList' ? change.revision?.value : [change.revision?.value];
+      change.typeName === 'ParameterList' ? change.revision.value : [change.revision.value];
     if (!Array.isArray(added)) return;
     if (added.some((parameter) => isPlainObject(parameter) && parameter.required === true)) {
       return breaking('A new required parameter was added.');
@@ -37,8 +37,9 @@ export const parameterBecameRequired: DiffRule = {
   id: 'parameter-became-required',
   description: 'Marking an existing request parameter as required breaks clients that omit it.',
   visit(change, ctx) {
-    if (change.property !== 'required' || ctx.polarity !== 'request') return;
-    if (becameTrue(change.base?.value, change.revision?.value)) {
+    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'request')
+      return;
+    if (becameTrue(change.base.value, change.revision.value)) {
       return breaking('Parameter became required.');
     }
     return undefined;
@@ -53,10 +54,10 @@ export const parameterSerializationChanged: DiffRule = {
   id: 'parameter-serialization-changed',
   description: 'Changing how a parameter is serialized breaks clients that encode it the old way.',
   visit(change, ctx) {
-    if (!change.property || !SERIALIZATION.has(change.property)) return;
+    if (change.kind !== 'modified' || !SERIALIZATION.has(change.property)) return;
     if (ctx.polarity !== 'request') return;
     return breaking(
-      `Parameter \`${change.property}\` changed from '${change.base?.value}' to '${change.revision?.value}'.`
+      `Parameter \`${change.property}\` changed from '${change.base.value}' to '${change.revision.value}'.`
     );
   },
 };
