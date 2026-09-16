@@ -75,15 +75,16 @@ describe('diffDocuments', () => {
     // (accepts more, so a request tolerates it), and a description was reworded.
     // The real pointers differ per side, which is how the swap stays visible.
     expect(report(result)).toMatchInlineSnapshot(`
-      "breaking  modified  #/paths/~1pets/get/parameters/{query:limit} · required
+      "major  modified  #/paths/~1pets/get/parameters/{query:limit} · required
           parameter-became-required: Parameter became required.
           at base.yaml #/paths/~1pets/get/parameters/0  →  rev.yaml #/paths/~1pets/get/parameters/1/required
-      non-breaking  modified  #/paths/~1pets/get/parameters/{query:limit}/schema · type
+      patch  modified  #/paths/~1pets/get/parameters/{query:limit}/schema · type
           at base.yaml #/paths/~1pets/get/parameters/0/schema/type  →  rev.yaml #/paths/~1pets/get/parameters/1/schema/type
-      non-breaking  modified  #/paths/~1pets/get/responses/200 · description
+      patch  modified  #/paths/~1pets/get/responses/200 · description
           at base.yaml #/paths/~1pets/get/responses/200/description  →  rev.yaml #/paths/~1pets/get/responses/200/description"
     `);
     expect(result.summary).toEqual({ major: 1, minor: 0, patch: 2 });
+    expect(result.bump).toBe('major');
   });
 
   it('throws DiffError for different spec families', async () => {
@@ -127,12 +128,13 @@ describe('diffDocuments', () => {
     // the path template and the parameter name are reported as changes of their own,
     // both keyed by the path's shape.
     expect(report(result)).toMatchInlineSnapshot(`
-      "non-breaking  modified  #/paths/~1pet~1{0} · path
+      "patch  modified  #/paths/~1pet~1{0} · path
           at base.yaml #/paths/~1pet~1{id}  →  rev.yaml #/paths/~1pet~1{petId}
-      non-breaking  modified  #/paths/~1pet~1{0}/get/parameters/{path:0} · name
+      patch  modified  #/paths/~1pet~1{0}/get/parameters/{path:0} · name
           at base.yaml #/paths/~1pet~1{id}/get/parameters/0/name  →  rev.yaml #/paths/~1pet~1{petId}/get/parameters/0/name"
     `);
     expect(result.summary.major).toBe(0);
+    expect(result.bump).toBe('patch');
   });
 
   it('keys two templates of the same shape in document order, suffixing the second', async () => {
@@ -170,9 +172,9 @@ describe('diffDocuments', () => {
     const result = diffDocuments({ base, revision, config });
 
     expect(report(result)).toMatchInlineSnapshot(`
-      "non-breaking  modified  #/paths/~1a~1{0}~1b · path
+      "patch  modified  #/paths/~1a~1{0}~1b · path
           at base.yaml #/paths/~1a~1{x}~1b  →  rev.yaml #/paths/~1a~1{y}~1b
-      non-breaking  added  #/paths/~1a~1{0}~1b#2
+      minor  added  #/paths/~1a~1{0}~1b#2
           at rev.yaml #/paths/~1a~1{z}~1b"
     `);
   });
