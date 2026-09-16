@@ -22,9 +22,9 @@ export const channelAddressChanged: DiffRule = {
   id: 'channel-address-changed',
   description: 'The address is what clients publish to and subscribe on.',
   visit(change) {
-    if (change.property !== 'address') return;
+    if (change.kind !== 'modified' || change.property !== 'address') return;
     return breaking(
-      `The channel address changed from '${change.base?.value}' to '${change.revision?.value}'.`
+      `The channel address changed from '${change.base.value}' to '${change.revision.value}'.`
     );
   },
 };

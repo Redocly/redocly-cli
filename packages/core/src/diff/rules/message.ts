@@ -19,9 +19,9 @@ export const messageContentTypeChanged: DiffRule = {
   id: 'message-content-type-changed',
   description: 'A message in another content type cannot be decoded by existing clients.',
   visit(change) {
-    if (change.property !== 'contentType') return;
+    if (change.kind !== 'modified' || change.property !== 'contentType') return;
     return breaking(
-      `The message content type changed from '${change.base?.value}' to '${change.revision?.value}'.`
+      `The message content type changed from '${change.base.value}' to '${change.revision.value}'.`
     );
   },
 };
