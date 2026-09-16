@@ -129,9 +129,26 @@ export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
 export { diffDocuments, DiffError } from './diff/index.js';
-export type { Change, DiffResult, DiffSummary } from './diff/types.js';
+export {
+  impactRank,
+  impacts,
+  type Change,
+  type DiffResult,
+  type DiffSummary,
+  type Impact,
+  type JudgedChange,
+} from './diff/types.js';
+export type { DiffRuleMap } from './diff/rules/index.js';
 export { diffReportFormats, type DiffReportFormat } from './diff/format/index.js';
-export { breakingChangesToProblems } from './diff/format/problems.js';
+export { diffToProblems } from './diff/format/problems.js';
+export {
+  bumpSemver,
+  formatSemver,
+  parseSemver,
+  semverBumpBetween,
+  type Semver,
+  type SemverPart,
+} from './utils/semver.js';
 export { HandledError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
