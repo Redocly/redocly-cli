@@ -1,63 +1,65 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import { becameTrue } from '../constraints.js';
-import { breaking, type DiffRule } from '../types.js';
+import type { DiffRule } from '../types.js';
 
-// Registered for both `Parameter` and `ParameterList`: the last parameter of an
-// operation leaves with the whole `parameters` list, and the first one arrives with it,
-// so those changes land on the list rather than on a parameter.
-export const parameterRemoved: DiffRule = {
-  id: 'parameter-removed',
-  description: 'Removing a request parameter breaks clients that send it.',
-  visit(change, ctx) {
-    if (change.kind !== 'removed' || ctx.polarity !== 'request') return;
-    return breaking(
-      change.typeName === 'ParameterList'
-        ? 'Every parameter was removed.'
-        : 'Parameter was removed.'
-    );
-  },
-};
-
-export const parameterAddedRequired: DiffRule = {
-  id: 'parameter-added-required',
-  description: 'Adding a new required parameter breaks clients that do not send it.',
-  visit(change, ctx) {
-    if (change.kind !== 'added' || ctx.polarity !== 'request') return;
-    const added =
-      change.typeName === 'ParameterList' ? change.revision.value : [change.revision.value];
-    if (!Array.isArray(added)) return;
-    if (added.some((parameter) => isPlainObject(parameter) && parameter.required === true)) {
-      return breaking('A new required parameter was added.');
+// The last parameter of an operation leaves with the whole `parameters` list, and the first
+// one arrives with it, so those changes land on the list rather than on a parameter.
+export const ParameterRemoved: DiffRule = () => ({
+  Parameter(change, { report, direction }) {
+    if (change.kind === 'removed' && direction === 'request') {
+      report({ message: 'Parameter was removed.' });
     }
-    return undefined;
   },
-};
+  ParameterList(change, { report, direction }) {
+    if (change.kind === 'removed' && direction === 'request') {
+      report({ message: 'Every parameter was removed.' });
+    }
+  },
+});
 
-export const parameterBecameRequired: DiffRule = {
-  id: 'parameter-became-required',
-  description: 'Marking an existing request parameter as required breaks clients that omit it.',
-  visit(change, ctx) {
-    if (change.kind !== 'modified' || change.property !== 'required' || ctx.polarity !== 'request')
+function hasRequiredParameter(parameters: unknown[]): boolean {
+  return parameters.some((parameter) => isPlainObject(parameter) && parameter.required === true);
+}
+
+export const ParameterAddedRequired: DiffRule = () => ({
+  Parameter(change, { report, direction }) {
+    if (change.kind !== 'added' || direction !== 'request') return;
+    if (hasRequiredParameter([change.revision.value])) {
+      report({ message: 'A new required parameter was added.' });
+    }
+  },
+  ParameterList(change, { report, direction }) {
+    if (change.kind !== 'added' || direction !== 'request') return;
+    if (Array.isArray(change.revision.value) && hasRequiredParameter(change.revision.value)) {
+      report({ message: 'A new required parameter was added.' });
+    }
+  },
+});
+
+export const ParameterBecameRequired: DiffRule = () => ({
+  Parameter(change, { report, direction }) {
+    if (change.kind !== 'modified' || change.property !== 'required' || direction !== 'request')
       return;
     if (becameTrue(change.base.value, change.revision.value)) {
-      return breaking('Parameter became required.');
+      report({ message: 'Parameter became required.' });
     }
-    return undefined;
   },
-};
+});
 
 // How a value is put on the wire is part of the contract: a client that encoded
 // the old way is not understood after the change.
 const SERIALIZATION = new Set(['style', 'explode', 'allowReserved', 'allowEmptyValue']);
 
-export const parameterSerializationChanged: DiffRule = {
-  id: 'parameter-serialization-changed',
-  description: 'Changing how a parameter is serialized breaks clients that encode it the old way.',
-  visit(change, ctx) {
-    if (change.kind !== 'modified' || !SERIALIZATION.has(change.property)) return;
-    if (ctx.polarity !== 'request') return;
-    return breaking(
-      `Parameter \`${change.property}\` changed from '${change.base.value}' to '${change.revision.value}'.`
-    );
+export const ParameterSerializationChanged: DiffRule = () => ({
+  Parameter(change, { report, direction }) {
+    if (
+      change.kind !== 'modified' ||
+      !SERIALIZATION.has(change.property) ||
+      direction !== 'request'
+    )
+      return;
+    report({
+      message: `Parameter \`${change.property}\` changed from '${change.base.value}' to '${change.revision.value}'.`,
+    });
   },
-};
+});
