@@ -6,7 +6,6 @@ import { performance } from 'node:perf_hooks';
 import { default as redoc } from 'redoc';
 
 import { renderBanner } from '../../utils/banner.js';
-import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
