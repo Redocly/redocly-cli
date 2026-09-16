@@ -1,5 +1,5 @@
 GET /pets
-  ✖ breaking      changed  responses/200/content/application~1json/schema · enum
+  ✖ breaking      modified  responses/200/content/application~1json/schema · enum
       Enum values added: sold. (enum-values-added)
       at revision.yaml:15:23
 
