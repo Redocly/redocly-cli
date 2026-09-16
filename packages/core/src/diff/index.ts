@@ -5,7 +5,7 @@ import { getTypes, type SpecVersion } from '../oas-types.js';
 import type { Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { compareMaps } from './compare.js';
-import { classifyChanges } from './detect.js';
+import { detectBreakingChanges } from './detect.js';
 import { identityOf } from './identity.js';
 import type { DiffResult, DiffSummary } from './types.js';
 import { UsageIndex } from './usage.js';
@@ -43,7 +43,7 @@ export function diffDocuments(opts: {
   const nodeAt = (key: string) => revisionMap.entries.get(key) ?? baseMap.entries.get(key);
   const usage = new UsageIndex([...baseMap.usageEdges, ...revisionMap.usageEdges], nodeAt);
 
-  const changes = classifyChanges({
+  const changes = detectBreakingChanges({
     changes: compareMaps(baseMap.entries, revisionMap.entries),
     specVersion: revisionVersion,
     base: baseMap.entries,

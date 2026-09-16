@@ -19,7 +19,11 @@ const result: DiffResult = {
       base: { location: at(baseSource, '#/paths/~1pets/delete'), value: undefined },
       compat: 'breaking',
       verdicts: [
-        { compat: 'breaking', ruleId: 'operation-removed', message: 'Operation was removed.' },
+        {
+          ruleId: 'operation-removed',
+          message: 'Operation was removed.',
+          location: at(baseSource, '#/paths/~1pets/delete'),
+        },
       ],
     },
     {
@@ -38,9 +42,9 @@ const result: DiffResult = {
       compat: 'breaking',
       verdicts: [
         {
-          compat: 'breaking',
           ruleId: 'parameter-became-required',
           message: 'Parameter became required.',
+          location: at(revisionSource, '#/paths/~1pets/get/parameters/0/required'),
         },
       ],
     },
