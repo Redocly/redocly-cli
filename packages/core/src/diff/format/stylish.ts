@@ -5,17 +5,18 @@ import { getLineColLocation } from '../../format/codeframes.js';
 import { colorize } from '../../logger.js';
 import { isAbsoluteUrl, unescapePointerFragment } from '../../ref-utils.js';
 import {
-  compatRank,
   displaySide,
+  impactRank,
   type Change,
-  type Compat,
   type DiffResult,
+  type Impact,
   type JudgedChange,
 } from '../types.js';
 
-const ICONS: Record<Compat, string> = {
-  breaking: colorize.red('✖ breaking    '),
-  'non-breaking': colorize.green('✔ non-breaking'),
+const IMPACT_GLYPHS: Record<Impact, string> = {
+  major: colorize.red('✖ major'),
+  minor: colorize.green('✔ minor'),
+  patch: colorize.gray('· patch'),
 };
 
 const HTTP_METHODS = new Set([
@@ -30,7 +31,6 @@ const HTTP_METHODS = new Set([
   'query',
 ]);
 
-// Identity keys escape '/' (node-identity.ts), so plain splitting is safe.
 function segmentsOf(pointer: string): string[] {
   return pointer.replace(/^#\//, '').split('/');
 }
@@ -53,16 +53,16 @@ function labelSegments(segments: string[]): string[] {
   return segments.slice(underOperation ? 3 : 2);
 }
 
-function labelOf(change: Change): string {
-  const segments = segmentsOf(change.key);
-  const named = labelSegments(segments);
-  // A change on the operation itself leaves nothing after the prefix, so the whole
-  // pointer is shown instead — there each segment is unescaped, so `~1pets` reads as
-  // the path `/pets` rather than as one more separator.
-  const label = named.length ? named.join('/') : segments.map(unescapePointerFragment).join(' · ');
-
-  if (!label) return change.kind === 'modified' ? change.property : change.key;
-  return change.kind === 'modified' ? `${label} · ${change.property}` : label;
+// The group heading already names the endpoint, so the label starts after
+// `paths/<path>/<method>`. A change on the endpoint itself is labelled by its property;
+// the endpoint node itself by its real path, each segment unescaped.
+function labelOf(change: JudgedChange): string {
+  const named = labelSegments(segmentsOf(change.key));
+  if (named.length) {
+    return change.kind === 'modified' ? `${named.join('/')} · ${change.property}` : named.join('/');
+  }
+  if (change.kind === 'modified') return change.property;
+  return segmentsOf(displaySide(change).location.pointer).map(unescapePointerFragment).join(' · ');
 }
 
 function locationOf(change: Change, cwd: string): string {
@@ -88,10 +88,13 @@ export function stylishDiff(result: DiffResult): string {
   for (const [key, changes] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
     lines.push(colorize.bold(colorize.blue(key)));
     const sorted = [...changes].sort(
-      (a, b) => compatRank(b.compat) - compatRank(a.compat) || a.key.localeCompare(b.key)
+      (left, right) =>
+        impactRank(right.impact) - impactRank(left.impact) || left.key.localeCompare(right.key)
     );
     for (const change of sorted) {
-      lines.push(`  ${ICONS[change.compat]}  ${colorize.bold(change.kind)}  ${labelOf(change)}`);
+      lines.push(
+        `  ${IMPACT_GLYPHS[change.impact]}  ${colorize.bold(change.kind.padEnd(8))}  ${labelOf(change)}`
+      );
       for (const verdict of change.verdicts) {
         lines.push(colorize.gray(`      ${verdict.message} (${verdict.ruleId})`));
       }
@@ -100,9 +103,9 @@ export function stylishDiff(result: DiffResult): string {
     lines.push('');
   }
 
-  const { breaking, nonBreaking } = result.summary;
+  const { major, minor, patch } = result.summary;
   lines.push(
-    `${colorize.red(`${breaking} breaking`)}, ${colorize.green(`${nonBreaking} non-breaking`)}.`
+    `${colorize.red(`${major} major`)}, ${colorize.green(`${minor} minor`)}, ${colorize.gray(`${patch} patch`)}.`
   );
   return lines.join('\n');
 }
