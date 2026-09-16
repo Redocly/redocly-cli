@@ -1,7 +1,7 @@
 import { getComponentRoot, type NodeLookup } from '../node-map/chain.js';
-import type { Polarity } from './types.js';
+import type { Direction } from './types.js';
 
-export function mergePolarity(a: Polarity, b: Polarity): Polarity {
+export function mergeDirections(a: Direction, b: Direction): Direction {
   if (a === b) return a;
   if (a === 'neutral') return b;
   if (b === 'neutral') return a;
@@ -22,20 +22,20 @@ export class UsageIndex {
     }
   }
 
-  /** `resolveSitePolarity` receives the key of the node that holds the reference. */
-  polarityOf(componentKey: string, resolveSitePolarity: (site: string) => Polarity): Polarity {
+  /** `resolveSiteDirection` receives the key of the node that holds the reference. */
+  directionOf(componentKey: string, resolveSiteDirection: (site: string) => Direction): Direction {
     const seen = new Set<string>();
-    const visit = (key: string): Polarity => {
+    const visit = (key: string): Direction => {
       if (seen.has(key)) return 'neutral'; // cycle guard
       seen.add(key);
-      let result: Polarity = 'neutral';
+      let result: Direction = 'neutral';
       for (const site of this.sitesByTarget.get(key) ?? []) {
         // a ref site inside another component chains to that component's own usage
         const siteComponentRoot = getComponentRoot(site, this.lookup);
-        const sitePolarity = siteComponentRoot
+        const siteDirection = siteComponentRoot
           ? visit(siteComponentRoot)
-          : resolveSitePolarity(site);
-        result = mergePolarity(result, sitePolarity);
+          : resolveSiteDirection(site);
+        result = mergeDirections(result, siteDirection);
         if (result === 'both') return 'both';
       }
       return result;

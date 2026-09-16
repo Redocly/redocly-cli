@@ -85,7 +85,11 @@ const RESULT: DiffResult = {
       },
       compat: 'breaking',
       verdicts: [
-        { ruleId: 'operation-removed', compat: 'breaking', message: 'Operation was removed.' },
+        {
+          ruleId: 'operation-removed',
+          message: 'Operation was removed.',
+          location: at(base, '#/paths/~1pets/delete'),
+        },
       ],
     },
     {
@@ -105,8 +109,8 @@ const RESULT: DiffResult = {
       verdicts: [
         {
           ruleId: 'parameter-became-required',
-          compat: 'breaking',
           message: 'Parameter became required.',
+          location: at(revision, '#/paths/~1pets/get/parameters/0/required'),
         },
       ],
     },
@@ -133,10 +137,13 @@ const RESULT: DiffResult = {
       verdicts: [
         {
           ruleId: 'string-length-changed',
-          compat: 'breaking',
           // A pattern is free text, so a message about it can hold the markdown cell
           // separator and the code-span marker.
           message: "`pattern` changed from 'a' to 'a|b'.",
+          location: at(
+            revision,
+            '#/paths/~1pets/post/requestBody/content/application~1json/schema/pattern'
+          ),
         },
       ],
     },
