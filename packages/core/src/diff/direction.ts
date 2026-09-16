@@ -1,15 +1,15 @@
 import { ancestorChain, getComponentRoot, type NodeLookup } from '../node-map/chain.js';
 import type { NodeEntry } from '../node-map/types.js';
-import type { Polarity } from './types.js';
+import type { Direction } from './types.js';
 import type { UsageIndex } from './usage.js';
 
 /** How one specification family decides which way the data in a node travels. */
-export type PolarityResolver = (key: string, usage: UsageIndex, lookup: NodeLookup) => Polarity;
+export type DirectionResolver = (key: string, usage: UsageIndex, lookup: NodeLookup) => Direction;
 
-function opposite(polarity: Polarity): Polarity {
-  if (polarity === 'request') return 'response';
-  if (polarity === 'response') return 'request';
-  return polarity;
+function opposite(direction: Direction): Direction {
+  if (direction === 'request') return 'response';
+  if (direction === 'response') return 'request';
+  return direction;
 }
 
 // Direction comes from the node types the type tree assigns, not from pointer text:
@@ -27,7 +27,7 @@ const REQUEST_TYPES = new Set(['RequestBody', 'Parameter', 'ParameterList']);
 // callback declared inside a callback pointing the right way.
 const INVERTING_TYPES = new Set(['CallbacksMap', 'WebhooksMap']);
 
-function getOas3SitePolarity(key: string, lookup: NodeLookup): Polarity {
+function getOas3SiteDirection(key: string, lookup: NodeLookup): Direction {
   let inverted = false;
 
   for (const { typeName } of ancestorChain(key, lookup)) {
@@ -43,15 +43,15 @@ function getOas3SitePolarity(key: string, lookup: NodeLookup): Polarity {
   return 'neutral';
 }
 
-export const getOas3Polarity: PolarityResolver = (key, usage, lookup) => {
+export const getOas3Direction: DirectionResolver = (key, usage, lookup) => {
   // A component is compared at its own path, so its direction comes from the
   // sites that reference it rather than from its own position.
   const componentRoot = getComponentRoot(key, lookup);
   if (componentRoot) {
-    return usage.polarityOf(componentRoot, (site) => getOas3SitePolarity(site, lookup));
+    return usage.directionOf(componentRoot, (site) => getOas3SiteDirection(site, lookup));
   }
 
-  return getOas3SitePolarity(key, lookup);
+  return getOas3SiteDirection(key, lookup);
 };
 
 /**
@@ -59,20 +59,20 @@ export const getOas3Polarity: PolarityResolver = (key, usage, lookup) => {
  * the way a request body is; `send` means this application produces it, so its payload
  * is judged the way a response is.
  */
-function actionPolarity(action: unknown): Polarity {
+function actionDirection(action: unknown): Direction {
   if (action === 'receive') return 'request';
   if (action === 'send') return 'response';
   return 'neutral';
 }
 
-function getOperationPolarity(chain: NodeEntry[]): Polarity {
+function getOperationDirection(chain: NodeEntry[]): Direction {
   const operation = [...chain].reverse().find((entry) => entry.typeName === 'Operation');
   if (!operation) return 'neutral';
 
-  const polarity = actionPolarity(operation.properties.action);
+  const direction = actionDirection(operation.properties.action);
   // A reply answers the operation, so it travels back the other way.
   const underReply = chain.some((entry) => entry.typeName === 'OperationReply');
-  return underReply ? opposite(polarity) : polarity;
+  return underReply ? opposite(direction) : direction;
 }
 
 /**
@@ -80,30 +80,30 @@ function getOperationPolarity(chain: NodeEntry[]): Polarity {
  * `action` of the operation decides it. Channels and their messages sit outside the
  * operations, so their direction comes from every operation that references them.
  */
-export const getAsync3Polarity: PolarityResolver = (key, usage, lookup) =>
-  resolveAsync3Polarity(key, usage, lookup, new Set());
+export const getAsync3Direction: DirectionResolver = (key, usage, lookup) =>
+  resolveAsync3Direction(key, usage, lookup, new Set());
 
-function resolveAsync3Polarity(
+function resolveAsync3Direction(
   key: string,
   usage: UsageIndex,
   lookup: NodeLookup,
   resolving: Set<string>
-): Polarity {
+): Direction {
   // A payload that refers back into its own channel would otherwise resolve forever.
   if (resolving.has(key)) return 'neutral';
   resolving.add(key);
 
   const chain = ancestorChain(key, lookup);
-  const own = getOperationPolarity(chain);
+  const own = getOperationDirection(chain);
   if (own !== 'neutral') return own;
 
   // The nearest referenced ancestor wins: a change deep inside a payload is only
   // reachable through the message or channel that holds it.
   for (const entry of [...chain].reverse()) {
-    const polarity = usage.polarityOf(entry.key, (site) =>
-      resolveAsync3Polarity(site, usage, lookup, resolving)
+    const direction = usage.directionOf(entry.key, (site) =>
+      resolveAsync3Direction(site, usage, lookup, resolving)
     );
-    if (polarity !== 'neutral') return polarity;
+    if (direction !== 'neutral') return direction;
   }
 
   return 'neutral';
