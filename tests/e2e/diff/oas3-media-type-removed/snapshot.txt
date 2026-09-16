@@ -1,11 +1,11 @@
 GET /pets
-  ✖ breaking      removed  responses/200/content/application~1xml
+  ✖ major  removed   responses/200/content/application~1xml
       Media type was removed. (media-type-removed)
       at base.yaml:15:15
 
-1 breaking, 0 non-breaking.
+1 major, 0 minor, 0 patch.
 
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
-❌ Diff failed with 1 breaking change.
+❌ Diff failed with 1 major change.

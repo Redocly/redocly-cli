@@ -17,7 +17,7 @@ function diffExitCode(fixture: string, ...args: string[]): number | null {
 }
 
 describe('diff command', () => {
-  test('exits 1 on breaking changes with the default --fail-on=breaking', () => {
+  test('exits 1 on major changes with the default --fail-on=major', () => {
     expect(diffExitCode('oas3-breaking-changes')).toBe(1);
   });
 
@@ -25,13 +25,24 @@ describe('diff command', () => {
     expect(diffExitCode('oas3-breaking-changes', '--fail-on=none')).toBe(0);
   });
 
-  test('exits 0 when the only changes are non-breaking', () => {
+  test('exits 0 when the only changes are minor or patch', () => {
     expect(diffExitCode('oas3-parameter-added-optional')).toBe(0);
   });
 
-  test('rejects --output for formats that only print to stdout', () => {
-    const output = runDiff('oas3-breaking-changes', '--format=summary', '-o', 'out.txt');
+  test('exits 1 with --fail-on=minor when an optional parameter is added', () => {
+    expect(diffExitCode('oas3-parameter-added-optional', '--fail-on=minor')).toBe(1);
+  });
+
+  test('rejects --output for the github-actions format', () => {
+    const output = runDiff('oas3-breaking-changes', '--format=github-actions', '-o', 'out.txt');
     expect(output).toContain('prints to stdout only');
+  });
+
+  test('warns that --check-version was skipped when info.version is not semver', () => {
+    // Every diff fixture keeps a two-part `info.version` (e.g. '1.0'), so --check-version
+    // has nothing to compare and skips with a warning rather than passing judgment.
+    const output = runDiff('oas3-parameter-removed', '--check-version', '--fail-on=none');
+    expect(output).toContain('--check-version was skipped');
   });
 
   test('refuses to compare across specification families', () => {
