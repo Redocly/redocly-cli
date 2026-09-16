@@ -1,6 +1,6 @@
 import { getComponentRoot, type NodeLookup } from '../../node-map/chain.js';
-import { getAsync3Polarity, getOas3Polarity } from '../direction.js';
-import { mergePolarity, UsageIndex } from '../usage.js';
+import { getAsync3Direction, getOas3Direction } from '../direction.js';
+import { mergeDirections, UsageIndex } from '../usage.js';
 import { treeOf } from './tree.js';
 
 // One document covering every direction-bearing shape at once.
@@ -66,51 +66,51 @@ describe('getComponentRoot', () => {
   });
 });
 
-describe('mergePolarity', () => {
-  it('merges polarities', () => {
-    expect(mergePolarity('neutral', 'request')).toBe('request');
-    expect(mergePolarity('request', 'request')).toBe('request');
-    expect(mergePolarity('request', 'response')).toBe('both');
-    expect(mergePolarity('both', 'response')).toBe('both');
+describe('mergeDirections', () => {
+  it('merges directions', () => {
+    expect(mergeDirections('neutral', 'request')).toBe('request');
+    expect(mergeDirections('request', 'request')).toBe('request');
+    expect(mergeDirections('request', 'response')).toBe('both');
+    expect(mergeDirections('both', 'response')).toBe('both');
   });
 });
 
-describe('getOas3Polarity', () => {
+describe('getOas3Direction', () => {
   it('reads the direction off the node types on the way down', () => {
-    expect(getOas3Polarity('#/paths/~1p/get/responses/200', emptyUsage, tree)).toBe('response');
+    expect(getOas3Direction('#/paths/~1p/get/responses/200', emptyUsage, tree)).toBe('response');
     expect(
-      getOas3Polarity('#/paths/~1p/get/parameters/{query:limit}/schema', emptyUsage, tree)
+      getOas3Direction('#/paths/~1p/get/parameters/{query:limit}/schema', emptyUsage, tree)
     ).toBe('request');
     expect(
-      getOas3Polarity('#/paths/~1p/post/requestBody/content/application~1json', emptyUsage, tree)
+      getOas3Direction('#/paths/~1p/post/requestBody/content/application~1json', emptyUsage, tree)
     ).toBe('request');
-    expect(getOas3Polarity('#/info/title', emptyUsage, tree)).toBe('neutral');
-    expect(getOas3Polarity('#/tags/{pets}', emptyUsage, tree)).toBe('neutral');
+    expect(getOas3Direction('#/info/title', emptyUsage, tree)).toBe('neutral');
+    expect(getOas3Direction('#/tags/{pets}', emptyUsage, tree)).toBe('neutral');
   });
 
   it('flips the direction under callbacks and webhooks', () => {
     // The API sends these, so their request body reaches the consumer like a response.
     expect(
-      getOas3Polarity('#/paths/~1p/post/callbacks/onEvent/~1cb/post/requestBody', emptyUsage, tree)
+      getOas3Direction('#/paths/~1p/post/callbacks/onEvent/~1cb/post/requestBody', emptyUsage, tree)
     ).toBe('response');
-    expect(getOas3Polarity('#/webhooks/newPet/post/requestBody', emptyUsage, tree)).toBe(
+    expect(getOas3Direction('#/webhooks/newPet/post/requestBody', emptyUsage, tree)).toBe(
       'response'
     );
     // ...and what the consumer answers with is a request.
-    expect(getOas3Polarity('#/webhooks/newPet/post/responses', emptyUsage, tree)).toBe('request');
+    expect(getOas3Direction('#/webhooks/newPet/post/responses', emptyUsage, tree)).toBe('request');
   });
 
   it('is not fooled by properties named after a direction-bearing node', () => {
     // Both of these are `Schema` nodes; only their key looks like a context.
     expect(
-      getOas3Polarity(
+      getOas3Direction(
         '#/paths/~1p/post/requestBody/content/application~1json/schema/properties/responses',
         emptyUsage,
         tree
       )
     ).toBe('request');
     expect(
-      getOas3Polarity(
+      getOas3Direction(
         '#/paths/~1p/get/responses/200/content/application~1json/schema/properties/callbacks',
         emptyUsage,
         tree
@@ -118,7 +118,7 @@ describe('getOas3Polarity', () => {
     ).toBe('response');
   });
 
-  it('derives component polarity from usage sites', () => {
+  it('derives component direction from usage sites', () => {
     const usage = new UsageIndex(
       [
         {
@@ -128,7 +128,7 @@ describe('getOas3Polarity', () => {
       ],
       tree
     );
-    expect(getOas3Polarity('#/components/schemas/Pet/properties/name', usage, tree)).toBe(
+    expect(getOas3Direction('#/components/schemas/Pet/properties/name', usage, tree)).toBe(
       'response'
     );
   });
@@ -147,7 +147,7 @@ describe('getOas3Polarity', () => {
       ],
       tree
     );
-    expect(getOas3Polarity('#/components/schemas/Pet', usage, tree)).toBe('both');
+    expect(getOas3Direction('#/components/schemas/Pet', usage, tree)).toBe('both');
   });
 
   it('resolves transitive usage through other components, cycle-safe', () => {
@@ -166,11 +166,11 @@ describe('getOas3Polarity', () => {
       ],
       tree
     );
-    expect(getOas3Polarity('#/components/schemas/Address', usage, tree)).toBe('response');
+    expect(getOas3Direction('#/components/schemas/Address', usage, tree)).toBe('response');
   });
 
   it('returns neutral for unused components', () => {
-    expect(getOas3Polarity('#/components/schemas/Orphan', emptyUsage, tree)).toBe('neutral');
+    expect(getOas3Direction('#/components/schemas/Orphan', emptyUsage, tree)).toBe('neutral');
   });
 });
 
@@ -195,7 +195,7 @@ const asyncEntries = treeOf(`
 `);
 const asyncTree: NodeLookup = (pointer) => asyncEntries.get(pointer);
 
-describe('getAsync3Polarity', () => {
+describe('getAsync3Direction', () => {
   const usage = new UsageIndex(
     [
       { site: '#/operations/onSignup', target: '#/channels/signups' },
@@ -207,24 +207,24 @@ describe('getAsync3Polarity', () => {
 
   it('judges a received payload as a request and a sent one as a response', () => {
     // Another application produces what this one receives, so its payload is input.
-    expect(getAsync3Polarity('#/channels/signups/messages/signup/payload', usage, asyncTree)).toBe(
+    expect(getAsync3Direction('#/channels/signups/messages/signup/payload', usage, asyncTree)).toBe(
       'request'
     );
-    expect(getAsync3Polarity('#/channels/receipts/messages/receipt', usage, asyncTree)).toBe(
+    expect(getAsync3Direction('#/channels/receipts/messages/receipt', usage, asyncTree)).toBe(
       'response'
     );
   });
 
   it('flips the direction for a reply channel', () => {
-    expect(getAsync3Polarity('#/channels/orders', usage, asyncTree)).toBe('response');
+    expect(getAsync3Direction('#/channels/orders', usage, asyncTree)).toBe('response');
   });
 
   it('reads the direction off the operation the change sits in', () => {
-    expect(getAsync3Polarity('#/operations/sendReceipt', usage, asyncTree)).toBe('response');
+    expect(getAsync3Direction('#/operations/sendReceipt', usage, asyncTree)).toBe('response');
   });
 
   it('returns neutral for a channel no operation references', () => {
-    expect(getAsync3Polarity('#/channels/signups', new UsageIndex([], asyncTree), asyncTree)).toBe(
+    expect(getAsync3Direction('#/channels/signups', new UsageIndex([], asyncTree), asyncTree)).toBe(
       'neutral'
     );
   });
@@ -237,7 +237,7 @@ describe('getAsync3Polarity', () => {
       ],
       asyncTree
     );
-    expect(getAsync3Polarity('#/channels/signups/messages/signup', recursive, asyncTree)).toBe(
+    expect(getAsync3Direction('#/channels/signups/messages/signup', recursive, asyncTree)).toBe(
       'neutral'
     );
   });

@@ -1,12 +1,5 @@
 import { getLineColLocation } from '../../format/codeframes.js';
-import type {
-  Change,
-  ChangeVerdict,
-  Compat,
-  DiffResult,
-  JudgedChange,
-  LocatedNode,
-} from '../types.js';
+import type { Change, Compat, DiffResult, JudgedChange, LocatedNode } from '../types.js';
 
 export interface JsonLocatedNode {
   file: string;
@@ -16,6 +9,11 @@ export interface JsonLocatedNode {
   value: unknown;
 }
 
+export interface JsonVerdict {
+  ruleId: string;
+  message: string;
+}
+
 /** The wire shape: optional sides are the JSON reader's contract, the union stays internal. */
 export interface JsonChange {
   key: string;
@@ -23,7 +21,7 @@ export interface JsonChange {
   kind: Change['kind'];
   property?: string;
   compat: Compat;
-  verdicts: ChangeVerdict[];
+  verdicts: JsonVerdict[];
   base?: JsonLocatedNode;
   revision?: JsonLocatedNode;
 }
@@ -47,7 +45,13 @@ function toJsonNode({ location, value }: LocatedNode): JsonLocatedNode {
 
 export function toJsonChange(change: JudgedChange): JsonChange {
   const { key, typeName, kind, compat, verdicts } = change;
-  const common = { key, typeName, kind, compat, verdicts };
+  const common = {
+    key,
+    typeName,
+    kind,
+    compat,
+    verdicts: verdicts.map(({ ruleId, message }) => ({ ruleId, message })),
+  };
   switch (change.kind) {
     case 'added':
       return { ...common, revision: toJsonNode(change.revision) };
