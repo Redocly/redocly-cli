@@ -6,19 +6,20 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 import { isScalar, isScalarArray } from '../utils/is-scalar.js';
 import { normalizeVisitors } from '../visitors.js';
 import { walkDocument, type UserContext, type WalkContext } from '../walk.js';
-import type { NodeEntry, NodeMap, UsageEdge } from './types.js';
+import { ancestorChain } from './chain.js';
+import type { IdentityFn, NodeEntry, NodeMap, UsageEdge } from './types.js';
 
 export function collectNodeMap(opts: {
   document: Document;
   types: Record<string, NormalizedNodeType>;
   specVersion: SpecVersion;
-  identityOf: (typeName: string, node: unknown) => string | undefined;
+  identityOf: IdentityFn;
 }): NodeMap {
   const { document, types, specVersion, identityOf } = opts;
   const entries = new Map<string, NodeEntry>();
   const usageEdges: UsageEdge[] = [];
-  // realPointer → stablePointer, filled top-down (walk is pre-order)
-  const stableByReal = new Map<string, string>();
+  // real pointer → key, filled top-down (the walk is pre-order)
+  const keyByPointer = new Map<string, string>();
   const collisionCounts = new Map<string, number>();
 
   const visitor = {
@@ -26,52 +27,50 @@ export function collectNodeMap(opts: {
       enter(node: unknown, ctx: UserContext) {
         if (!isPlainObject(node) && !Array.isArray(node)) return;
 
-        const realPointer = ctx.location.pointer;
-        const { parentReal, segment } = splitPointer(realPointer);
-        const stableParent =
-          parentReal === null ? null : (stableByReal.get(parentReal) ?? parentReal);
+        const { parentPointer, segment } = splitPointer(ctx.location.pointer);
+        const parentKey =
+          parentPointer === null ? null : (keyByPointer.get(parentPointer) ?? parentPointer);
+        const ancestors =
+          parentKey === null ? [] : ancestorChain(parentKey, (key) => entries.get(key));
+        const identity = isPlainObject(node)
+          ? identityOf(node, {
+              typeName: ctx.type.name,
+              key: ctx.key,
+              parent: ctx.parent,
+              ancestors,
+            })
+          : undefined;
 
-        let stableSegment = segment;
-        if (Array.isArray(ctx.parent)) {
-          const identity = identityOf(ctx.type.name, node);
-          if (identity !== undefined) stableSegment = identity;
-        }
-
-        // The root's own pointer already ends in a slash, so a child of the root
+        // The root's own key already ends in a slash, so a child of the root
         // must not add a second one.
-        const stablePrefix = stableParent === '#/' ? '#' : stableParent;
-        let pointer = stablePrefix === null ? realPointer : `${stablePrefix}/${stableSegment}`;
-
-        if (entries.has(pointer)) {
-          const occurrence = (collisionCounts.get(pointer) ?? 1) + 1;
-          collisionCounts.set(pointer, occurrence);
-          pointer = `${pointer}#${occurrence}`;
+        const prefix = parentKey === '#/' ? '#' : parentKey;
+        let key = prefix === null ? segment : `${prefix}/${identity?.segment ?? segment}`;
+        if (entries.has(key)) {
+          const occurrence = (collisionCounts.get(key) ?? 1) + 1;
+          collisionCounts.set(key, occurrence);
+          key = `${key}#${occurrence}`;
         }
-        stableByReal.set(realPointer, pointer);
+        keyByPointer.set(ctx.location.pointer, key);
 
-        const scalars: Record<string, unknown> = {};
-        const refs: Record<string, string> = {};
+        const properties: Record<string, unknown> = {};
         if (isPlainObject(node)) {
-          for (const [prop, value] of Object.entries(node)) {
+          for (const [name, value] of Object.entries(node)) {
             if (isRef(value)) {
-              refs[prop] = value.$ref;
-              // The site is the node holding the reference, not the reference's own
-              // path: a `$ref` is not a node, so only the owner can be looked up later.
-              usageEdges.push({ site: pointer, target: value.$ref });
-            } else if (isScalar(value) || isScalarArray(value)) {
-              scalars[prop] = value;
+              // The site is the node holding the reference: a `$ref` is not a node of its own.
+              usageEdges.push({ site: key, target: value.$ref });
+            }
+            if (isRef(value) || isScalar(value) || isScalarArray(value)) {
+              properties[name] = value;
             }
           }
         }
 
-        entries.set(pointer, {
-          pointer,
-          realPointer,
-          parentPointer: stableParent,
-          keyInParent: ctx.key,
+        entries.set(key, {
+          key,
+          parentKey,
+          location: ctx.location,
           typeName: ctx.type.name,
-          scalars,
-          refs,
+          properties: { ...properties, ...identity?.properties },
           raw: node,
         });
       },
@@ -79,7 +78,7 @@ export function collectNodeMap(opts: {
   };
 
   const normalizedVisitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'diff-collect', visitor }],
+    [{ severity: 'warn', ruleId: 'node-map', visitor }],
     types
   );
   const ctx: WalkContext = { problems: [], specVersion, visitorsData: {} };
@@ -88,8 +87,8 @@ export function collectNodeMap(opts: {
     document,
     rootType: types.Root,
     normalizedVisitors,
-    // Empty map: $ref nodes fail to resolve and are NOT traversed —
-    // refs are recorded as node attributes above ($ref-as-scalar, spec §5.3).
+    // Empty map: `$ref` nodes fail to resolve and are NOT traversed — a reference
+    // is recorded as a property of the node holding it.
     resolvedRefMap: new Map(),
     ctx,
   });
@@ -97,11 +96,11 @@ export function collectNodeMap(opts: {
   return { entries, usageEdges };
 }
 
-function splitPointer(pointer: string): { parentReal: string | null; segment: string } {
+function splitPointer(pointer: string): { parentPointer: string | null; segment: string } {
   if (pointer === '#/' || pointer === '#') {
-    return { parentReal: null, segment: pointer };
+    return { parentPointer: null, segment: pointer };
   }
   const lastSlash = pointer.lastIndexOf('/');
-  const parentReal = lastSlash <= 1 ? '#/' : pointer.slice(0, lastSlash);
-  return { parentReal, segment: pointer.slice(lastSlash + 1) };
+  const parentPointer = lastSlash <= 1 ? '#/' : pointer.slice(0, lastSlash);
+  return { parentPointer, segment: pointer.slice(lastSlash + 1) };
 }

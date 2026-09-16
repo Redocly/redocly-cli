@@ -1,4 +1,4 @@
-import { addedItems } from '../predicates.js';
+import { addedItems } from '../constraints.js';
 import { breaking, type DiffRule, type RawChange, type RuleContext } from '../types.js';
 
 // Security sits outside the request/response split, so these rules do not read
