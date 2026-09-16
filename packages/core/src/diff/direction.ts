@@ -4,7 +4,7 @@ import type { Polarity } from './types.js';
 import type { UsageIndex } from './usage.js';
 
 /** How one specification family decides which way the data in a node travels. */
-export type PolarityResolver = (pointer: string, usage: UsageIndex, lookup: NodeLookup) => Polarity;
+export type PolarityResolver = (key: string, usage: UsageIndex, lookup: NodeLookup) => Polarity;
 
 function opposite(polarity: Polarity): Polarity {
   if (polarity === 'request') return 'response';
@@ -27,10 +27,10 @@ const REQUEST_TYPES = new Set(['RequestBody', 'Parameter', 'ParameterList']);
 // callback declared inside a callback pointing the right way.
 const INVERTING_TYPES = new Set(['CallbacksMap', 'WebhooksMap']);
 
-function getOas3SitePolarity(pointer: string, lookup: NodeLookup): Polarity {
+function getOas3SitePolarity(key: string, lookup: NodeLookup): Polarity {
   let inverted = false;
 
-  for (const { typeName } of ancestorChain(pointer, lookup)) {
+  for (const { typeName } of ancestorChain(key, lookup)) {
     if (INVERTING_TYPES.has(typeName)) {
       inverted = !inverted;
     } else if (RESPONSE_TYPES.has(typeName)) {
@@ -43,15 +43,15 @@ function getOas3SitePolarity(pointer: string, lookup: NodeLookup): Polarity {
   return 'neutral';
 }
 
-export const getOas3Polarity: PolarityResolver = (pointer, usage, lookup) => {
+export const getOas3Polarity: PolarityResolver = (key, usage, lookup) => {
   // A component is compared at its own path, so its direction comes from the
   // sites that reference it rather than from its own position.
-  const componentRoot = getComponentRoot(pointer, lookup);
+  const componentRoot = getComponentRoot(key, lookup);
   if (componentRoot) {
     return usage.polarityOf(componentRoot, (site) => getOas3SitePolarity(site, lookup));
   }
 
-  return getOas3SitePolarity(pointer, lookup);
+  return getOas3SitePolarity(key, lookup);
 };
 
 /**
@@ -69,7 +69,7 @@ function getOperationPolarity(chain: NodeEntry[]): Polarity {
   const operation = [...chain].reverse().find((entry) => entry.typeName === 'Operation');
   if (!operation) return 'neutral';
 
-  const polarity = actionPolarity(operation.scalars.action);
+  const polarity = actionPolarity(operation.properties.action);
   // A reply answers the operation, so it travels back the other way.
   const underReply = chain.some((entry) => entry.typeName === 'OperationReply');
   return underReply ? opposite(polarity) : polarity;
@@ -80,27 +80,27 @@ function getOperationPolarity(chain: NodeEntry[]): Polarity {
  * `action` of the operation decides it. Channels and their messages sit outside the
  * operations, so their direction comes from every operation that references them.
  */
-export const getAsync3Polarity: PolarityResolver = (pointer, usage, lookup) =>
-  resolveAsync3Polarity(pointer, usage, lookup, new Set());
+export const getAsync3Polarity: PolarityResolver = (key, usage, lookup) =>
+  resolveAsync3Polarity(key, usage, lookup, new Set());
 
 function resolveAsync3Polarity(
-  pointer: string,
+  key: string,
   usage: UsageIndex,
   lookup: NodeLookup,
   resolving: Set<string>
 ): Polarity {
   // A payload that refers back into its own channel would otherwise resolve forever.
-  if (resolving.has(pointer)) return 'neutral';
-  resolving.add(pointer);
+  if (resolving.has(key)) return 'neutral';
+  resolving.add(key);
 
-  const chain = ancestorChain(pointer, lookup);
+  const chain = ancestorChain(key, lookup);
   const own = getOperationPolarity(chain);
   if (own !== 'neutral') return own;
 
   // The nearest referenced ancestor wins: a change deep inside a payload is only
   // reachable through the message or channel that holds it.
   for (const entry of [...chain].reverse()) {
-    const polarity = usage.polarityOf(entry.pointer, (site) =>
+    const polarity = usage.polarityOf(entry.key, (site) =>
       resolveAsync3Polarity(site, usage, lookup, resolving)
     );
     if (polarity !== 'neutral') return polarity;

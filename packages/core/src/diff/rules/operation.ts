@@ -24,9 +24,9 @@ export const operationActionChanged: DiffRule = {
   id: 'operation-action-changed',
   description: 'Swapping send and receive reverses which side of the channel the API is on.',
   visit(change) {
-    if (change.property !== 'action') return;
+    if (change.kind !== 'modified' || change.property !== 'action') return;
     return breaking(
-      `The operation action changed from '${change.base?.value}' to '${change.revision?.value}'.`
+      `The operation action changed from '${change.base.value}' to '${change.revision.value}'.`
     );
   },
 };
