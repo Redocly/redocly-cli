@@ -22,6 +22,7 @@ const base = new Source(
     paths:
       /pets:
         get:
+          summary: List pets
           parameters:
             - name: limit
               in: query
@@ -44,6 +45,7 @@ const revision = new Source(
     paths:
       /pets:
         get:
+          summary: List all pets
           parameters:
             - name: limit
               in: query
@@ -73,7 +75,8 @@ const at = (source: Source, pointer: string) => new Location(source, pointer);
 const RESULT: DiffResult = {
   version: '1',
   specVersions: { base: 'oas3_1', revision: 'oas3_1' },
-  summary: { breaking: 3, nonBreaking: 1 },
+  summary: { major: 3, minor: 1, patch: 1 },
+  bump: 'major',
   changes: [
     {
       key: '#/paths/~1pets/delete',
@@ -83,10 +86,12 @@ const RESULT: DiffResult = {
         location: at(base, '#/paths/~1pets/delete'),
         value: { summary: '<script>alert(1)</script>' },
       },
-      compat: 'breaking',
+      impact: 'major',
+      direction: 'neutral',
       verdicts: [
         {
           ruleId: 'operation-removed',
+          impact: 'major',
           message: 'Operation was removed.',
           location: at(base, '#/paths/~1pets/delete'),
         },
@@ -105,10 +110,12 @@ const RESULT: DiffResult = {
         location: at(revision, '#/paths/~1pets/get/parameters/0/required'),
         value: true,
       },
-      compat: 'breaking',
+      impact: 'major',
+      direction: 'request',
       verdicts: [
         {
           ruleId: 'parameter-became-required',
+          impact: 'major',
           message: 'Parameter became required.',
           location: at(revision, '#/paths/~1pets/get/parameters/0/required'),
         },
@@ -133,10 +140,12 @@ const RESULT: DiffResult = {
         ),
         value: 'a|b',
       },
-      compat: 'breaking',
+      impact: 'major',
+      direction: 'request',
       verdicts: [
         {
           ruleId: 'string-length-changed',
+          impact: 'major',
           // A pattern is free text, so a message about it can hold the markdown cell
           // separator and the code-span marker.
           message: "`pattern` changed from 'a' to 'a|b'.",
@@ -148,6 +157,23 @@ const RESULT: DiffResult = {
       ],
     },
     {
+      key: '#/paths/~1pets/get',
+      property: 'summary',
+      kind: 'modified',
+      typeName: 'Operation',
+      base: {
+        location: at(base, '#/paths/~1pets/get/summary'),
+        value: 'List pets',
+      },
+      revision: {
+        location: at(revision, '#/paths/~1pets/get/summary'),
+        value: 'List all pets',
+      },
+      impact: 'patch',
+      direction: 'neutral',
+      verdicts: [],
+    },
+    {
       key: '#/components/schemas/Pet',
       kind: 'added',
       typeName: 'Schema',
@@ -155,7 +181,8 @@ const RESULT: DiffResult = {
         location: at(revision, '#/components/schemas/Pet'),
         value: { type: 'object' },
       },
-      compat: 'non-breaking',
+      impact: 'minor',
+      direction: 'neutral',
       verdicts: [],
     },
   ],
@@ -166,25 +193,27 @@ describe('stylishDiff', () => {
     // vitest.config.ts forces FORCE_COLOR=1, so the ANSI codes are stripped here.
     expect(stripColors(stylishDiff(RESULT))).toMatchInlineSnapshot(`
       "components
-        ✔ non-breaking  added  components/schemas/Pet
-            at revision.yaml:19:7
+        ✔ minor  added     components/schemas/Pet
+            at revision.yaml:20:7
 
       DELETE /pets
-        ✖ breaking      removed  paths · /pets · delete
+        ✖ major  removed   paths · /pets · delete
             Operation was removed. (operation-removed)
-            at base.yaml:16:7
+            at base.yaml:17:7
 
       GET /pets
-        ✖ breaking      modified  parameters/{query:limit} · required
+        ✖ major  modified  parameters/{query:limit} · required
             Parameter became required. (parameter-became-required)
-            at revision.yaml:8:21
+            at revision.yaml:9:21
+        · patch  modified  summary
+            at revision.yaml:5:16
 
       POST /pets
-        ✖ breaking      modified  requestBody/content/application~1json/schema · pattern
+        ✖ major  modified  requestBody/content/application~1json/schema · pattern
             \`pattern\` changed from 'a' to 'a|b'. (string-length-changed)
-            at revision.yaml:15:24
+            at revision.yaml:16:24
 
-      3 breaking, 1 non-breaking."
+      3 major, 1 minor, 1 patch."
     `);
   });
 });
@@ -194,14 +223,15 @@ describe('markdownDiff', () => {
     expect(markdownDiff(RESULT)).toMatchInlineSnapshot(`
       "## API diff
 
-      **3** breaking · **1** non-breaking
+      **3** major · **1** minor · **1** patch · requires a **major** bump
 
       | Impact | Change | Location | Details |
       | --- | --- | --- | --- |
-      | 🔴 breaking | removed | \`#/paths/~1pets/delete\` | Operation was removed. \`operation-removed\` |
-      | 🔴 breaking | modified | \`#/paths/~1pets/get/parameters/{query:limit} · required\` | Parameter became required. \`parameter-became-required\` |
-      | 🔴 breaking | modified | \`#/paths/~1pets/post/requestBody/content/application~1json/schema · pattern\` | \\\`pattern\\\` changed from 'a' to 'a\\|b'. \`string-length-changed\` |
-      | 🟢 non-breaking | added | \`#/components/schemas/Pet\` |  |"
+      | 🔴 major | removed | \`#/paths/~1pets/delete\` | Operation was removed. \`operation-removed\` |
+      | 🔴 major | modified | \`#/paths/~1pets/get/parameters/{query:limit} · required\` | Parameter became required. \`parameter-became-required\` |
+      | 🔴 major | modified | \`#/paths/~1pets/post/requestBody/content/application~1json/schema · pattern\` | \\\`pattern\\\` changed from 'a' to 'a\\|b'. \`string-length-changed\` |
+      | ⚪ patch | modified | \`#/paths/~1pets/get · summary\` |  |
+      | 🟢 minor | added | \`#/components/schemas/Pet\` |  |"
     `);
   });
 });

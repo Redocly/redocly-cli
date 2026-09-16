@@ -1,8 +1,9 @@
-import type { Compat, DiffResult } from '../types.js';
+import type { DiffResult, Impact } from '../types.js';
 
-const IMPACT_LABEL: Record<Compat, string> = {
-  breaking: '🔴 breaking',
-  'non-breaking': '🟢 non-breaking',
+const IMPACT_LABELS: Record<Impact, string> = {
+  major: '🔴 major',
+  minor: '🟢 minor',
+  patch: '⚪ patch',
 };
 
 // A cell is rendered inside a code span, so a backtick from the description would
@@ -16,11 +17,12 @@ function escapeCell(value: string): string {
 }
 
 export function markdownDiff(result: DiffResult): string {
-  const { breaking, nonBreaking } = result.summary;
+  const { major, minor, patch } = result.summary;
+  const required = result.bump ? ` · requires a **${result.bump}** bump` : '';
   const lines = [
     '## API diff',
     '',
-    `**${breaking}** breaking · **${nonBreaking}** non-breaking`,
+    `**${major}** major · **${minor}** minor · **${patch}** patch${required}`,
     '',
     '| Impact | Change | Location | Details |',
     '| --- | --- | --- | --- |',
@@ -34,7 +36,7 @@ export function markdownDiff(result: DiffResult): string {
       .map((verdict) => `${escapeCell(verdict.message)} \`${verdict.ruleId}\``)
       .join('<br>');
     lines.push(
-      `| ${IMPACT_LABEL[change.compat]} | ${change.kind} | \`${escapeCell(location)}\` | ${details} |`
+      `| ${IMPACT_LABELS[change.impact]} | ${change.kind} | \`${escapeCell(location)}\` | ${details} |`
     );
   }
 
