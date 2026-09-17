@@ -1,0 +1,35 @@
+name: Smoke tests
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+# Two pushes at once mark one of them outdated, which the smoke test treats as a failure.
+concurrency:
+  group: smoke-push
+  cancel-in-progress: false
+
+jobs:
+  run-smoke-push:
+    # Only run if PR is from the same repository (not a fork)
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run push smoke test
+        run: npm run smoke:push
+        env:
+          REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_PUSH_SMOKE_AUTHORIZATION }}

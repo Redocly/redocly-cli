@@ -15,6 +15,7 @@
     "e2e": "VITEST_SUITE=e2e vitest run",
     "client-generators": "VITEST_SUITE=client-generators vitest run",
     "smoke:rebilly": "VITEST_SUITE=smoke-rebilly vitest run",
+    "smoke:push": "VITEST_SUITE=smoke-push vitest run",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint ./packages",
