@@ -27,6 +27,8 @@ test(
         `Smoke test push from GitHub run ${runId}`,
         '--domain',
         'https://app.bhstage.cloud',
+        '--max-execution-time',
+        '900',
         '--wait-for-deployment',
       ],
       {
@@ -41,7 +43,7 @@ test(
     expect(output).toContain('Push ID:');
     // The file rarely changes between runs, so Reunite usually reports "no changes" instead of deploying.
     expect(output).toMatch(/Production deploy success\.|Reason: no changes\./);
-    // The CLI waits up to 20 minutes for the deployment by default.
+    // The CLI gives up on the deployment after --max-execution-time, so the test needs a bit more.
   },
-  30 * 60 * 1000
+  16 * 60 * 1000
 );
