@@ -401,6 +401,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "decorators": "Decorators",
+      "diff": "DiffRules",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends#extends",
@@ -466,6 +467,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Preprocessors": "Preprocessors",
       "async3Rules": "Rules",
       "decorators": "Decorators",
+      "diff": "DiffRules",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends#extends",
@@ -549,6 +551,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": "Decorators",
       "developerOnboarding": "rootRedoclyConfigSchema.developerOnboarding",
+      "diff": "DiffRules",
       "entitiesCatalog": "rootRedoclyConfigSchema.entitiesCatalog",
       "env": "rootRedoclyConfigSchema.env",
       "extends": {
@@ -759,6 +762,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "type": "array",
     },
+    "properties": {},
+  },
+  "DiffRules": {
+    "additionalProperties": [Function],
+    "description": "The \`diff\` block sets the semver impact of each diff rule: \`off\`, \`patch\`, \`minor\`, or \`major\`.",
     "properties": {},
   },
   "Discriminator": {
@@ -1346,6 +1354,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "decorators": "Decorators",
+      "diff": "DiffRules",
       "extends": {
         "description": "Use extends to inherit rules and their configurations from other rulesets.",
         "documentationLink": "https://redocly.com/docs/cli/configuration/reference/extends#extends",
