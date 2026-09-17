@@ -1,4 +1,4 @@
-import { isAbsoluteUrl, logger } from '@redocly/openapi-core';
+import { isAbsoluteUrl, logger, HandledError } from '@redocly/openapi-core';
 import { bold, cyan, yellow } from 'colorette';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -6,7 +6,6 @@ import { performance } from 'node:perf_hooks';
 import { default as redoc } from 'redoc';
 
 import { renderBanner } from '../../utils/banner.js';
-import { exitWithError } from '../../utils/error.js';
 import { getExecutionTime, getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import { redocVersion } from '../../utils/package.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -63,6 +62,6 @@ export const handlerBuildCommand = async ({
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (e) {
-    exitWithError(e);
+    throw new HandledError(e);
   }
 };
