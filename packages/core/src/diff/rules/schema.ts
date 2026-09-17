@@ -122,9 +122,13 @@ export const SchemaFormatChanged = constraintRule(['format']);
 export const AdditionalPropertiesChanged = constraintRule(['additionalProperties']);
 
 // `oneOf`/`anyOf` list alternatives, so dropping one accepts less; `allOf` combines
-// constraints, so adding one accepts less. A `SchemaList` keeps the walker's key, so
-// the combinator is the last segment of its key.
-const ALTERNATIVE_COMBINATORS = new Set(['oneOf', 'anyOf']);
+// constraints, so adding one accepts less. The type tree names each list after its keyword,
+// which is what tells a combinator apart from any other list of schemas.
+const COMBINATOR_KEYWORDS: Record<string, string> = {
+  AllOf: 'allOf',
+  AnyOf: 'anyOf',
+  OneOf: 'oneOf',
+};
 
 export const SchemaCombinatorChanged: DiffRule = () => ({
   Schema(change, { report, direction, nodeAt }) {
@@ -132,10 +136,8 @@ export const SchemaCombinatorChanged: DiffRule = () => ({
 
     const parentKey = nodeAt(change.key)?.parentKey;
     const parent = parentKey ? nodeAt(parentKey) : undefined;
-    if (parent?.typeName !== 'SchemaList') return;
-
-    const combinator = parent.key.slice(parent.key.lastIndexOf('/') + 1);
-    if (combinator !== 'allOf' && !ALTERNATIVE_COMBINATORS.has(combinator)) return;
+    const combinator = parent && COMBINATOR_KEYWORDS[parent.typeName];
+    if (!combinator) return;
 
     const removed = change.kind === 'removed';
     const acceptsLess = combinator === 'allOf' ? !removed : removed;
