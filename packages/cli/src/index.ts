@@ -143,7 +143,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'diff <base> <revision>',
-    'Compare two API descriptions and detect breaking changes [experimental].',
+    'Compare two API descriptions and rate every change by the semver bump it requires [experimental].',
     (yargs) =>
       yargs
         .env('REDOCLY_CLI_DIFF')
