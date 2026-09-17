@@ -31,7 +31,8 @@ jobs:
           redocly --version
       - name: Push to the staging Reunite project
         run: |
-          redocly push resources/description.md \
+          echo "Pushed at $(date -u +%Y-%m-%dT%H:%M:%SZ) by GitHub run ${{ github.run_id }}." > "$RUNNER_TEMP/push.md"
+          redocly push "$RUNNER_TEMP/push.md" \
             --organization redocly \
             --project dark-side-push-command-test \
             --mount-path cli-smoke \
