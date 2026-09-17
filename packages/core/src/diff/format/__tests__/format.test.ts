@@ -190,7 +190,6 @@ const RESULT: DiffResult = {
 
 describe('stylishDiff', () => {
   it('groups changes per operation, worst first, each with its verdicts and location', () => {
-    // vitest.config.ts forces FORCE_COLOR=1, so the ANSI codes are stripped here.
     expect(stripColors(stylishDiff(RESULT))).toMatchInlineSnapshot(`
       "components
         ✔ minor  added     components/schemas/Pet
