@@ -56,7 +56,6 @@ export function diffDocuments(opts: {
   const baseMap = collect(base, baseVersion);
   const revisionMap = collect(revision, revisionVersion);
 
-  // A removed node only exists in the base, an added one only in the revision.
   const nodeAt = (key: string) => revisionMap.entries.get(key) ?? baseMap.entries.get(key);
   const usage = new UsageIndex([...baseMap.usageEdges, ...revisionMap.usageEdges], nodeAt);
 

@@ -21,9 +21,9 @@ function renderChange(change: JudgedChange): string {
         <code class="loc">${escapeHtml(location)}</code>
         ${change.verdicts
           .map(
-            (v) =>
-              `<span class="msg">${escapeHtml(v.message)}</span> <span class="rules">${escapeHtml(
-                v.ruleId
+            (verdict) =>
+              `<span class="msg">${escapeHtml(verdict.message)}</span> <span class="rules">${escapeHtml(
+                verdict.ruleId
               )}</span>`
           )
           .join(' ')}

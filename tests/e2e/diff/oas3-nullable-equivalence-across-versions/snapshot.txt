@@ -1,5 +1,5 @@
 openapi
-  · patch  modified   · openapi
+  · patch  modified  openapi
       at revision.yaml:1:10
 
 POST /pets
