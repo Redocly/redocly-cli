@@ -17,6 +17,7 @@ export const configFixture: Config = {
   saveIgnore: vi.fn(),
   skipDecorators: vi.fn(),
   ignore: {},
+  diff: {},
   decorators: {
     oas2: {},
     oas3_0: {},

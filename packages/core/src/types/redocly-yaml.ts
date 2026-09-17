@@ -3,6 +3,7 @@ import type { JSONSchema } from 'json-schema-to-ts';
 import path from 'node:path';
 
 import type { Config, RawGovernanceConfig } from '../config/index.js';
+import { diffRuleIds } from '../diff/rules/index.js';
 import { graphqlNodeKinds } from '../graphql/node-kinds.js';
 import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
@@ -297,6 +298,7 @@ const configGovernanceProperties: Record<
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
   graphqlRules: 'Rules',
+  diff: 'DiffRules',
   preprocessors: 'Preprocessors',
   oas2Preprocessors: 'Preprocessors',
   oas3_0Preprocessors: 'Preprocessors',
@@ -453,6 +455,14 @@ const Rules: NodeType = {
     // Otherwise is considered as invalid
     return;
   },
+};
+
+const DiffRules: NodeType = {
+  properties: {},
+  description:
+    'The `diff` block sets the semver impact of each diff rule: `off`, `patch`, `minor`, or `major`.',
+  additionalProperties: (_value: unknown, key: string) =>
+    diffRuleIds.includes(key) ? { enum: ['off', 'patch', 'minor', 'major'] } : undefined,
 };
 
 const BuiltinRule: NodeType = {
@@ -833,6 +843,7 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ExternalDocs: Oas3_1Types.ExternalDocs,
   Xml: Oas3_1Types.Xml,
   Rules,
+  DiffRules,
   Decorators,
   Preprocessors,
   Assertions,
