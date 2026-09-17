@@ -224,6 +224,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -612,6 +613,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "warn",
               "type-description": "off",
@@ -1005,6 +1007,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -1482,6 +1485,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -1870,6 +1874,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "warn",
               "type-description": "off",
@@ -2263,6 +2268,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",

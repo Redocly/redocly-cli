@@ -1,6 +1,8 @@
 import type { ApiConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
+import type { DiffRuleId } from '../diff/rules/index.js';
+import type { Impact } from '../diff/types.js';
 import type {
   SpecMajorVersion,
   Oas3DecoratorsSet,
@@ -97,6 +99,8 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
   graphqlRules?: RuleMap<BuiltInGraphqlRuleId, RuleConfig, T>;
+  /** Semver impact per diff rule; `off` skips the rule. */
+  diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
 
   preprocessors?: Record<string, DecoratorConfig>;
   oas2Preprocessors?: Record<

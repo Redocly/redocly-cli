@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import type { Impact } from '../diff/types.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import {
   type Oas2RuleSet,
@@ -50,6 +51,7 @@ export class Config {
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
+  diff: Record<string, Impact | 'off'>;
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -157,6 +159,8 @@ export class Config {
       },
       graphql: {},
     };
+
+    this.diff = resolvedConfig.diff ?? {};
 
     this.ignore = opts.ignore ?? {};
   }

@@ -56,6 +56,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     overlay1Rules: {},
     openrpc1Rules: {},
     graphqlRules: {},
+    diff: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -112,6 +113,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.openrpc1Rules, rulesConf.rules);
     assignConfig(result.graphqlRules, rulesConf.graphqlRules);
     assignOnlyExistingConfig(result.graphqlRules, rulesConf.rules);
+    assignConfig(result.diff, rulesConf.diff);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
