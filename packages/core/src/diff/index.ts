@@ -4,6 +4,7 @@ import { collectNodeMap } from '../node-map/collect.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
 import type { Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
+import { isEmptyObject } from '../utils/is-empty-object.js';
 import { compareMaps } from './compare.js';
 import { detectBreakingChanges } from './detect.js';
 import { identityOf } from './identity.js';
@@ -59,13 +60,17 @@ export function diffDocuments(opts: {
   const nodeAt = (key: string) => revisionMap.entries.get(key) ?? baseMap.entries.get(key);
   const usage = new UsageIndex([...baseMap.usageEdges, ...revisionMap.usageEdges], nodeAt);
 
+  // A config that says nothing about diff gets the built-in preset, the way lint falls
+  // back to `recommended` when there is no config at all.
+  const ruleMap = isEmptyObject(config.diff) ? recommendedDiffRules : config.diff;
+
   const changes = detectBreakingChanges({
     changes: compareMaps(baseMap.entries, revisionMap.entries),
     specVersion: revisionVersion,
     base: baseMap.entries,
     revision: revisionMap.entries,
     usage,
-    ruleMap: recommendedDiffRules,
+    ruleMap,
   });
 
   const summary: DiffSummary = { major: 0, minor: 0, patch: 0 };
