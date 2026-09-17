@@ -2644,6 +2644,69 @@ describe('loadConfig', () => {
       },
     });
   });
+
+  it('should resolve file paths written in referenced config files against those files', async () => {
+    const config = await loadConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths/redocly.yaml'),
+    });
+    const { resolvedConfig } = config;
+
+    expect(resolvedConfig.plugins).toEqual(['governance/plugin.cjs']);
+    expect(config.plugins.map((plugin) => plugin.id)).toContain('file-paths-plugin');
+    expect(resolvedConfig.rules).toMatchObject({ 'info-license': 'error' });
+    expect(resolvedConfig.apis).toMatchObject({
+      inline: { root: './openapi.yaml', output: './dist/inline.yaml' },
+      'one-level': {
+        root: 'nested/openapi.yaml',
+        output: 'nested/dist/openapi.yaml',
+        clientOutput: 'nested/client.ts',
+        client: { setup: 'nested/setup.mjs', cliOutput: 'nested/cli/index.ts' },
+        rules: { 'info-license': 'error', 'operation-description': 'error' },
+      },
+      chained: { root: 'nested/deep/openapi.yaml' },
+      reused: { root: 'nested/openapi.yaml', output: 'nested/dist/openapi.yaml' },
+      untouched: {
+        root: 'https://example.com/openapi.yaml',
+        output: '/absolute/dist/openapi.yaml',
+        clientOutput: '',
+        title: './not-a-path',
+      },
+      'parent-dir': { root: 'specs/openapi.yaml', output: 'nested/dist/out.yaml' },
+    });
+    expect(resolvedConfig.client).toEqual({
+      setup: 'nested/setup.mjs',
+      cliOutput: 'nested/cli/index.ts',
+      goPackage: './not-a-path',
+    });
+  });
+
+  it('should rebase through a root config that is only a $ref to the nested one', async () => {
+    const { resolvedConfig } = await loadConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths-root.yaml'),
+    });
+
+    expect(resolvedConfig.plugins).toEqual(['file-paths/governance/plugin.cjs']);
+    expect(resolvedConfig.rules).toMatchObject({ 'info-license': 'error' });
+    expect(resolvedConfig.apis).toMatchObject({
+      inline: { root: 'file-paths/openapi.yaml', output: 'file-paths/dist/inline.yaml' },
+      'one-level': {
+        root: 'file-paths/nested/openapi.yaml',
+        clientOutput: 'file-paths/nested/client.ts',
+        client: { setup: 'file-paths/nested/setup.mjs' },
+        rules: { 'operation-description': 'error' },
+      },
+      chained: { root: 'file-paths/nested/deep/openapi.yaml' },
+      untouched: { root: 'https://example.com/openapi.yaml', title: './not-a-path' },
+      'parent-dir': {
+        root: 'file-paths/specs/openapi.yaml',
+        output: 'file-paths/nested/dist/out.yaml',
+      },
+    });
+    expect(resolvedConfig.client).toMatchObject({
+      setup: 'file-paths/nested/setup.mjs',
+      goPackage: './not-a-path',
+    });
+  });
 });
 
 describe('findConfig', () => {

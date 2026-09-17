@@ -1,9 +1,11 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 
-import { replaceRef } from '../ref-utils.js';
+import { rebaseFilePath, replaceRef } from '../ref-utils.js';
+import type { NormalizedScalarSchema } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -82,6 +84,28 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
+  return isPlainObject(schema) && schema.isFilePath === true;
+}
+
+// Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
+function rebaseFilePaths(node: unknown, ctx: UserContext) {
+  const rootDocumentRef = ctx.rootDocument.source.absoluteRef;
+  const sourceRef = ctx.location.source.absoluteRef;
+  if (!isPlainObject(node) || sourceRef === rootDocumentRef) {
+    return;
+  }
+  for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    if (!isFilePathSchema(schema)) {
+      continue;
+    }
+    const value = node[field];
+    if (isString(value)) {
+      node[field] = rebaseFilePath(value, sourceRef, rootDocumentRef);
+    }
+  }
+}
+
 export const configBundlerVisitor = normalizeVisitors(
   [
     {
@@ -91,6 +115,12 @@ export const configBundlerVisitor = normalizeVisitors(
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
             replaceRef(node, resolved, ctx);
+          },
+        },
+        // any node type can declare a file path, so each node is asked for its own type instead of listing types here
+        any: {
+          leave(node: unknown, ctx: UserContext) {
+            rebaseFilePaths(node, ctx);
           },
         },
         ConfigGovernance: {

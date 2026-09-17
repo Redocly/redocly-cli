@@ -116,6 +116,21 @@ export function resolvePath(base: string, relative: string): string {
   return path.resolve(base, relative);
 }
 
+function parentDir(ref: string): string {
+  return isAbsoluteUrl(ref) ? getDir(ref) : path.dirname(ref);
+}
+
+export function rebaseFilePath(filePath: string, fromRef: string, toRef: string): string {
+  if (!filePath || isAbsoluteUrl(filePath) || path.isAbsolute(filePath)) {
+    return filePath;
+  }
+  const absolutePath = resolvePath(parentDir(fromRef), filePath);
+  if (isAbsoluteUrl(absolutePath) || !toRef) {
+    return absolutePath;
+  }
+  return path.relative(parentDir(toRef), absolutePath);
+}
+
 export function isMappingRef(mapping: string) {
   // TODO: proper detection of mapping refs
   return (

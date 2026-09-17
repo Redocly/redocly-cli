@@ -8,6 +8,7 @@ import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { normalizeTypes } from '../types/index.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 import { omit } from '../utils/omit.js';
 import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
@@ -351,16 +352,32 @@ const ConfigApis: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
-const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
-  ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
-  properties: {
-    ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
-    ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
-    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
-    client: 'Client',
-    clientOutput: { type: 'string' },
-  },
-});
+function asFilePaths(properties: NodeType['properties'] | undefined, fields: string[]) {
+  const marked: NodeType['properties'] = {};
+  for (const field of fields) {
+    const schema = properties?.[field];
+    if (isPlainObject(schema)) {
+      marked[field] = { ...schema, isFilePath: true };
+    }
+  }
+  return marked;
+}
+
+const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => {
+  const schemaProperties =
+    nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties;
+  return {
+    ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
+    properties: {
+      ...schemaProperties,
+      ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+      // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
+      client: 'Client',
+      clientOutput: { type: 'string', isFilePath: true },
+      ...asFilePaths(schemaProperties, ['root', 'output']),
+    },
+  };
+};
 
 const ConfigHTTP: NodeType = {
   properties: {
@@ -382,7 +399,7 @@ const Client: NodeType = {
     runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
     goPackage: { type: 'string' },
-    cliOutput: { type: 'string' },
+    cliOutput: { type: 'string', isFilePath: true },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
@@ -391,7 +408,7 @@ const Client: NodeType = {
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
-    setup: { type: 'string' },
+    setup: { type: 'string', isFilePath: true },
     options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
