@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.53.3 (2026-09-17)
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/respect-core to v2.53.3.
+
 ## 2.53.2 (2026-09-15)
 
 ### Patch Changes

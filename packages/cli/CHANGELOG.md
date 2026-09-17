@@ -1,5 +1,13 @@
 # @redocly/cli
 
+## 2.53.3
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/respect-core to v2.53.3.
+
 ## 2.53.2
 
 ### Patch Changes
