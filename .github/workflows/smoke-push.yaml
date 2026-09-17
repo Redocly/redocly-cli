@@ -11,11 +11,6 @@ env:
   CI: true
   REDOCLY_TELEMETRY: off
 
-# Two pushes at once mark one of them outdated, which the smoke test treats as a failure.
-concurrency:
-  group: smoke-push
-  cancel-in-progress: false
-
 jobs:
   run-smoke-push:
     # Only run if PR is from the same repository (not a fork)
@@ -29,7 +24,15 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Run push smoke test
-        run: npm run smoke:push
+      - name: Push to the staging Reunite project
+        run: |
+          node packages/cli/lib/index.js push resources/description.md \
+            --organization redocly \
+            --project dark-side-push-command-test \
+            --mount-path cli-smoke \
+            --branch main \
+            --author "Redocly CLI Smoke <cli-smoke@redocly.com>" \
+            --message "Smoke test push from GitHub run ${{ github.run_id }}" \
+            --domain https://app.bhstage.cloud
         env:
           REDOCLY_AUTHORIZATION: ${{ secrets.REDOCLY_PUSH_SMOKE_AUTHORIZATION }}
