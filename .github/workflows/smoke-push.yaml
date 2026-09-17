@@ -24,9 +24,14 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Pack and install the CLI
+        run: |
+          npm run pack:prepare
+          npm i -g ./redocly-cli.tgz
+          redocly --version
       - name: Push to the staging Reunite project
         run: |
-          node packages/cli/lib/index.js push resources/description.md \
+          redocly push resources/description.md \
             --organization redocly \
             --project dark-side-push-command-test \
             --mount-path cli-smoke \
