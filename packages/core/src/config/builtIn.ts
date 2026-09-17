@@ -30,6 +30,7 @@ import {
 } from '../rules/overlay1/index.js';
 import all from './all.js';
 import minimal from './minimal.js';
+import recommendedDiff from './recommended-diff.js';
 import recommendedStrict from './recommended-strict.js';
 import recommended from './recommended.js';
 import spec from './spec.js';
@@ -38,6 +39,7 @@ import { type Plugin, type RawGovernanceConfig } from './types.js';
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {
   recommended,
   'recommended-strict': recommendedStrict,
+  'recommended-diff': recommendedDiff,
   minimal,
   all,
   spec,

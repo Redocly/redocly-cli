@@ -43,6 +43,7 @@ describe('Config.forAlias', () => {
           "openrpc1": {},
           "overlay1": {},
         },
+        "diff": {},
         "doNotResolveExamples": false,
         "document": {
           "parsed": {
@@ -109,6 +110,7 @@ describe('Config.forAlias', () => {
           "async3Preprocessors": {},
           "async3Rules": {},
           "decorators": {},
+          "diff": {},
           "graphqlRules": {},
           "oas2Decorators": {},
           "oas2Preprocessors": {},

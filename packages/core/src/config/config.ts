@@ -2,6 +2,7 @@ import type { RecheckConfig } from '@redocly/config';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import type { Impact } from '../diff/types.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import {
   type Oas2RuleSet,
@@ -52,6 +53,7 @@ export class Config {
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
   recheck: RecheckConfig;
+  diff: Record<string, Impact | 'off'>;
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -160,6 +162,8 @@ export class Config {
       graphql: {},
     };
     this.recheck = resolvedConfig.recheck ?? { rules: {} };
+
+    this.diff = resolvedConfig.diff ?? {};
 
     this.ignore = opts.ignore ?? {};
   }
