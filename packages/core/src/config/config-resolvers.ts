@@ -506,10 +506,18 @@ export async function resolvePlugins(
   return instances.filter(isDefined).flat();
 }
 
-export function resolvePreset(presetName: string, plugins: Plugin[]): RawGovernanceConfig {
+export function resolvePreset(
+  presetName: string,
+  plugins: Plugin[]
+): RawGovernanceConfig | undefined {
   const { pluginId, configName } = parsePresetName(presetName);
   const plugin = plugins.find((p) => p.id === pluginId);
   if (!plugin) {
+    if (isBrowser) {
+      // Plugins from a config file are not evaluated in the browser.
+      logger.warn(`Preset ${presetName} is skipped: plugin ${pluginId} is not evaluated.\n`);
+      return undefined;
+    }
     throw new Error(
       `Invalid config ${colorize.red(presetName)}: plugin ${pluginId} is not included.`
     );
