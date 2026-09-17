@@ -86,6 +86,7 @@ export function compareMaps(
   return changes;
 }
 
+// A property the node does not carry itself came from its identity (the path template), so it is located at the node.
 function propertyLocation(entry: NodeEntry, property: string) {
   const isOwnProperty = isPlainObject(entry.raw) && property in entry.raw;
   return isOwnProperty ? entry.location.child([property]) : entry.location;

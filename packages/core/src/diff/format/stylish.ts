@@ -32,7 +32,7 @@ const HTTP_METHODS = new Set([
 ]);
 
 function segmentsOf(pointer: string): string[] {
-  return pointer.replace(/^#\//, '').split('/');
+  return pointer.replace(/^#\//, '').split('/').filter(Boolean);
 }
 
 function groupOf(change: Change): string {
@@ -45,8 +45,6 @@ function groupOf(change: Change): string {
   return segments[0] || 'document';
 }
 
-// The group heading already says which operation this is, so the label starts after
-// `paths/<path>/<method>`.
 function labelSegments(segments: string[]): string[] {
   if (segments[0] !== 'paths') return segments;
   const underOperation = segments.length > 2 && HTTP_METHODS.has(segments[2]);

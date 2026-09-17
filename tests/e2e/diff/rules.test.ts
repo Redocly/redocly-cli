@@ -245,8 +245,12 @@ describe('diff rules', () => {
     test(`${ruleId}: ${describes}`, async () => {
       // The verdict is read off the machine-readable report, so a change of wording in
       // the terminal output cannot quietly stop the rule from being exercised.
-      const breaking = runJsonDiff(fixture).changes.filter((change) => change.impact === 'major');
-      expect(breaking.flatMap((change) => change.verdicts).map((v) => v.ruleId)).toContain(ruleId);
+      const majorChanges = runJsonDiff(fixture).changes.filter(
+        (change) => change.impact === 'major'
+      );
+      expect(majorChanges.flatMap((change) => change.verdicts).map((v) => v.ruleId)).toContain(
+        ruleId
+      );
 
       await expect(runDiff(fixture)).toMatchFileSnapshot(
         join(fixturePath(fixture), 'snapshot.txt')
