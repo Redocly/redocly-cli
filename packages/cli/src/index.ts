@@ -36,17 +36,12 @@ import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
 import { handleJoin } from './commands/join/index.js';
 import { handleLint } from './commands/lint.js';
-import { handleLogin } from './commands/login.js';
-import { handleLogout } from './commands/logout.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
-import { handlePushStatus } from './commands/push-status.js';
-import { handlePush } from './commands/push.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
-import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
@@ -312,7 +307,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handlePushStatus } = await import('./commands/push-status.js');
       commandWrapper(handlePushStatus)(argv);
     }
   )
@@ -421,7 +417,8 @@ yargs(hideBin(process.argv))
             default: false,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handlePush } = await import('./commands/push.js');
       commandWrapper(handlePush)(argv);
     }
   )
@@ -619,7 +616,8 @@ yargs(hideBin(process.argv))
           type: 'boolean',
         },
       }),
-    (argv) => {
+    async (argv) => {
+      const { handleLogin } = await import('./commands/login.js');
       commandWrapper(handleLogin)(argv);
     }
   )
@@ -627,7 +625,8 @@ yargs(hideBin(process.argv))
     'logout',
     'Clear your stored credentials.',
     (yargs) => yargs,
-    (argv) => {
+    async (argv) => {
+      const { handleLogout } = await import('./commands/logout.js');
       commandWrapper(handleLogout)(argv);
     }
   )
@@ -1249,6 +1248,7 @@ yargs(hideBin(process.argv))
       });
     },
     async (argv) => {
+      const { handleScorecardClassic } = await import('./commands/scorecard-classic/index.js');
       commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
     }
   )
