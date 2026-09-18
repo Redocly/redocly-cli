@@ -1,0 +1,14 @@
+
+🎉 No issues found!
+
+--output-path applies to --format json and sarif; the report goes to stdout.
+🏃 Running recheck on: docs
+   Disabled 1 rule(s) (severity: off)
+
+🔧 Running 52 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <time>
