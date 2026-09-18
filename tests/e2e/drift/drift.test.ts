@@ -319,6 +319,64 @@ describe('drift - output formats', () => {
   });
 });
 
+describe('drift - coverage', () => {
+  test('prints the coverage overview after the report with --coverage', async () => {
+    const { output, code } = runDrift([
+      'traffic-coverage.ndjson',
+      '--api',
+      'coverage-openapi.yaml',
+      '--rules',
+      'undocumented-endpoint',
+      '--coverage',
+    ]);
+    expect(code).toBe(0);
+    await matchSnapshot('coverage-overview', output);
+  });
+
+  test('keeps stdout machine-readable and moves the overview to stderr with --format json', () => {
+    const result = spawnSync(
+      'node',
+      [
+        indexEntryPoint,
+        'drift',
+        'traffic-coverage.ndjson',
+        '--api',
+        'coverage-openapi.yaml',
+        '--rules',
+        'undocumented-endpoint',
+        '--format',
+        'json',
+        '--coverage',
+      ],
+      { encoding: 'utf-8', stdio: 'pipe', cwd: fixtures, env: { ...process.env, NO_COLOR: 'TRUE' } }
+    );
+    expect(() => JSON.parse(result.stdout)).not.toThrow();
+    expect(result.stderr).toContain('API coverage:');
+  });
+
+  test('writes the detailed JSON coverage report with --coverage-output', async () => {
+    const outputDir = mkdtempSync(join(tmpdir(), 'drift-coverage-'));
+    const outputFile = join(outputDir, 'coverage.json');
+    try {
+      const { output } = runDrift([
+        'traffic-coverage.ndjson',
+        '--api',
+        'coverage-openapi.yaml',
+        '--rules',
+        'undocumented-endpoint',
+        '--coverage-output',
+        outputFile,
+      ]);
+      expect(output).toContain('Coverage report written to:');
+      expect(output).not.toContain('API coverage:');
+      const report = readFileSync(outputFile, 'utf-8').replaceAll(process.cwd(), '.');
+      await matchSnapshot('coverage-json', report);
+    } finally {
+      rmSync(outputDir, { recursive: true, force: true });
+    }
+  });
+});
+
 describe('drift - exit codes', () => {
   test('exits 0 when no error-level drift is found', () => {
     const { code } = runDrift([

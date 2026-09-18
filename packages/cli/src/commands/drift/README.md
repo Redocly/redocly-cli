@@ -42,6 +42,9 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 - `--rules <csv>`: subset of builtin rules
   (`undocumented-endpoint`, `schema-consistency`, `security-baseline`, `owasp-api-top10`)
 - `--output, -o <path>`: write the drift report (in the format selected with `--format`) to a file instead of stdout
+- `--coverage`: print an API coverage overview after the report: how many documented operations, parameters,
+  JSON schema properties, and response codes the traffic exercised
+- `--coverage-output <path>`: write a detailed JSON coverage report that lists the covered and missing items of every operation
 - `--server <url>`: server URL the traffic was captured against (host, host + base path, or a path-only prefix like `/api`).
   Only requests under it are considered, and the rest of their URL is treated as the API path.
   `--server` replaces the description's `servers` and the remainder is matched against the description paths directly.
@@ -55,6 +58,21 @@ redocly drift ./traffic.har --api ./openapi.yaml --format json -o ./drift-report
 
 - `0`: no error-level findings
 - `1`: error-level drift detected
+
+Coverage does not affect the exit code.
+
+## Coverage
+
+`--coverage` and `--coverage-output` measure how much of the description the traffic exercised.
+The collector (`engine/coverage-collector.ts`) is fed by `ValidationSession` with every exchange and its matched operation.
+Every documented item is an entry that is either covered or missing:
+
+- `operation`: matched by at least one exchange
+- `parameter`: a matched exchange carried it (cookie parameters are skipped with `--ignore-cookies`)
+- `property`: a matched exchange carried it in a JSON request or response body;
+  collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`, skipping `readOnly` properties on the request side and `writeOnly` on the response side.
+  For `oneOf` / `anyOf`, only the branches the value satisfies are entered.
+- `response`: a matched exchange resolved to that documented status (exact, then `2XX`, then `default`, like `schema-consistency`)
 
 ## Notes / PoC limitations
 

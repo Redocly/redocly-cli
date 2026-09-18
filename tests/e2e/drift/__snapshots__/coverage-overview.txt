@@ -1,0 +1,19 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/coverage-openapi.yaml
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-coverage.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=4 documented=4 undocumented=0
+┃ Findings: total=0 error=0 warning=0 info=0
+┃ Problems: total=0
+┗ Duration: <ms>ms
+
+✔ No findings.
+
+API coverage: 46%
+  operations         ███████████████░░░░░   75%      3/4
+  parameters         ██████████░░░░░░░░░░   50%      2/4
+  schema properties  ████████░░░░░░░░░░░░   41%    16/39
+  response codes     ███████████░░░░░░░░░   57%      4/7
+
