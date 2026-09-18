@@ -11,7 +11,7 @@ describe('retryUntilConditionMet()', () => {
     const data = await retryUntilConditionMet({
       operation,
       condition: (result: any) => result?.status === 'done',
-      retryIntervalMs: 10,
+      retryIntervalMs: 100,
       retryTimeoutMs: 1000,
     });
 
@@ -26,7 +26,7 @@ describe('retryUntilConditionMet()', () => {
       retryUntilConditionMet({
         operation,
         condition: (result: any) => result?.status === 'done',
-        retryIntervalMs: 10,
+        retryIntervalMs: 100,
         retryTimeoutMs: 50,
       })
     ).rejects.toThrow('Timeout exceeded.');
@@ -43,7 +43,7 @@ describe('retryUntilConditionMet()', () => {
     await retryUntilConditionMet({
       operation,
       condition: (result: any) => result?.status === 'done',
-      retryIntervalMs: 10,
+      retryIntervalMs: 100,
       retryTimeoutMs: 1000,
       onConditionNotMet,
     });
