@@ -1,0 +1,11 @@
+webhooks
+  ✖ major  removed   webhooks/newPet/post/requestBody/content/application~1json/schema/properties/tag
+      Schema property was removed. (property-removed-from-response)
+      at base.yaml:18:19
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

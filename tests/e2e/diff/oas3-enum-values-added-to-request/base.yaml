@@ -1,0 +1,15 @@
+openapi: 3.1.0
+info:
+  title: enum-values-added-to-request
+  version: '1.0'
+paths:
+  /pets:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              enum: [available, pending]
+      responses:
+        '200': { description: OK }

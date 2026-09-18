@@ -1,0 +1,11 @@
+channels
+  ✖ major  modified  channels/userSignedUp/messages/signup · contentType
+      The message content type changed from 'application/json' to 'application/avro'. (message-content-type-changed)
+      at revision.yaml:10:22
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

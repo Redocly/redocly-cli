@@ -1,0 +1,11 @@
+POST /pets
+  ✖ major  modified  requestBody/content/application~1json/schema · required
+      Properties became required: name. (required-properties-added)
+      at revision.yaml:13:25
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

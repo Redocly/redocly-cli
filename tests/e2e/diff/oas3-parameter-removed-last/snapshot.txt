@@ -1,0 +1,11 @@
+GET /pets
+  ✖ major  removed   parameters
+      Every parameter was removed. (parameter-removed)
+      at base.yaml:9:9
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

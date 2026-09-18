@@ -1,0 +1,11 @@
+operations
+  ✖ major  modified  operations/onUserSignedUp · action
+      The operation action changed from 'receive' to 'send'. (operation-action-changed)
+      at revision.yaml:22:13
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

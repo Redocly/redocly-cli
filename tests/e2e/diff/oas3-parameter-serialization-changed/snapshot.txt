@@ -1,0 +1,11 @@
+GET /pets
+  ✖ major  modified  parameters/{query:tags} · style
+      Parameter `style` changed from 'form' to 'spaceDelimited'. (parameter-serialization-changed)
+      at revision.yaml:11:18
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

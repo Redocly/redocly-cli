@@ -1,0 +1,11 @@
+servers
+  ✖ major  removed   servers/staging
+      The server was removed. (server-removed)
+      at base.yaml:10:5
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

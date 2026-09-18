@@ -1,0 +1,11 @@
+POST /pets
+  ✖ major  modified  requestBody/content/application~1json/schema/properties/name · type
+      Schema type narrowed from 'string | null' to 'string'. (schema-type-changed)
+      at revision.yaml:15:25
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

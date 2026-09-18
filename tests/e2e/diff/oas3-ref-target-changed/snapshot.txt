@@ -1,0 +1,11 @@
+GET /pets
+  ✖ major  modified  responses/200/content/application~1json · schema
+      The reference target changed from '#/components/schemas/Pet' to '#/components/schemas/PetV2'. The diff cannot check that the two targets are equivalent. (ref-target-changed)
+      at revision.yaml:14:17
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.
