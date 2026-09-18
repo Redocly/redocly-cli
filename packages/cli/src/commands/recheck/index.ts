@@ -14,7 +14,8 @@ import { dirname, extname } from 'node:path';
 
 import { AbortFlowError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { selectAction, type RecheckAction, type RecheckArgv } from './args.js';
+import { selectAction } from './select-action.js';
+import type { RecheckAction, RecheckArgv } from './types.js';
 
 const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
@@ -31,7 +32,7 @@ function isApiDescription(path: string): boolean {
   }
 }
 
-function lintOptions(argv: RecheckArgv): LintOptions {
+function toLintOptions(argv: RecheckArgv): LintOptions {
   return {
     format: argv.format,
     outputPath: argv['output-path'],
@@ -135,5 +136,5 @@ async function runAction(
     );
   }
   if (action === 'baseline') return generateBaseline(roots, resolved, engineLogger);
-  return runLint(roots, resolved, lintOptions(argv), engineLogger);
+  return runLint(roots, resolved, toLintOptions(argv), engineLogger);
 }

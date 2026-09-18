@@ -40,8 +40,7 @@ import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
-import { type RecheckFormat } from './commands/recheck/args.js';
-import { handleRecheck } from './commands/recheck/index.js';
+import { type RecheckFormat } from './commands/recheck/types.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
@@ -496,7 +495,8 @@ yargs(hideBin(process.argv))
             type: 'boolean',
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleRecheck } = await import('./commands/recheck/index.js');
       commandWrapper(handleRecheck)(argv);
     }
   )

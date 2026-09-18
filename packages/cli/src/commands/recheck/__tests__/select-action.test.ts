@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { selectAction, type RecheckArgv } from '../args.js';
+import { selectAction } from '../select-action.js';
+import type { RecheckArgv } from '../types.js';
 
 const base: RecheckArgv = { format: 'table' };
 
