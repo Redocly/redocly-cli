@@ -35,6 +35,7 @@ Add Recheck presets, such as `recheck/markdown`, to the root `extends` of `redoc
 - string
 - Path to the baseline file, relative to the directory of `redocly.yaml`.
   A run reports only errors that the baseline does not list.
+  The default is `.redocly.recheck-baseline.yaml` next to `redocly.yaml`, when that file exists.
 
 ---
 
@@ -210,7 +211,7 @@ extends:
 recheck:
   excludes:
     - CHANGELOG.md
-  baseline: ./.recheck-baseline.yaml
+  baseline: ./config/recheck-baseline.yaml
   markdoc: true
   rules:
     recheck/line-length: off

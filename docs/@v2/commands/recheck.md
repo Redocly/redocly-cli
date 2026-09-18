@@ -120,12 +120,15 @@ Later runs report only errors that the baseline does not list.
 redocly recheck docs --generate-baseline
 ```
 
-The command writes `.recheck-baseline.yaml` next to `redocly.yaml`.
-Add the file to the `recheck` block:
+The command writes `.redocly.recheck-baseline.yaml` next to `redocly.yaml`.
+Commit the file.
+Later runs pick it up automatically.
+
+To keep the baseline somewhere else, set `baseline` in the `recheck` block:
 
 ```yaml
 recheck:
-  baseline: ./.recheck-baseline.yaml
+  baseline: ./config/recheck-baseline.yaml
 ```
 
 After you fix errors, generate the baseline again and commit the smaller file.

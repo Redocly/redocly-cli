@@ -12,7 +12,6 @@ extends:
 recheck:
   rules:
     recheck/line-length: off
-  baseline: ./.recheck-baseline.yaml
 ```
 
 Run it with `npx @redocly/cli recheck`.

@@ -1,7 +1,9 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
-import { resolveRecheckConfig } from '../resolve.js';
+import { DEFAULT_BASELINE_FILE, resolveRecheckConfig } from '../resolve.js';
 
 const configDir = '/tmp/project';
 
@@ -41,12 +43,65 @@ describe('resolveRecheckConfig', () => {
   it('resolves the baseline path against the config directory', async () => {
     const result = await resolveRecheckConfig({
       extends: ['recheck/markdown'],
-      block: { baseline: './.recheck-baseline.yaml' },
+      block: { baseline: './.redocly.recheck-baseline.yaml' },
       configDir,
     });
     expect(result.success).toBe(true);
     if (!result.success) return;
-    expect(result.config.baselinePath).toBe(path.resolve(configDir, '.recheck-baseline.yaml'));
+    expect(result.config.baselinePath).toBe(
+      path.resolve(configDir, '.redocly.recheck-baseline.yaml')
+    );
+  });
+
+  describe('default baseline discovery', () => {
+    const tempDirs: string[] = [];
+
+    function makeConfigDir(withBaselineFile: boolean): string {
+      const dir = mkdtempSync(path.join(tmpdir(), 'recheck-baseline-'));
+      tempDirs.push(dir);
+      if (withBaselineFile) {
+        writeFileSync(path.join(dir, DEFAULT_BASELINE_FILE), 'version: 1\nfiles: {}\n', 'utf8');
+      }
+      return dir;
+    }
+
+    afterEach(() => {
+      for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('picks up the default baseline file next to redocly.yaml', async () => {
+      const dir = makeConfigDir(true);
+      const result = await resolveRecheckConfig({
+        extends: ['recheck/markdown'],
+        configDir: dir,
+      });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.config.baselinePath).toBe(path.resolve(dir, DEFAULT_BASELINE_FILE));
+    });
+
+    it('leaves the baseline path undefined when no default file exists', async () => {
+      const dir = makeConfigDir(false);
+      const result = await resolveRecheckConfig({
+        extends: ['recheck/markdown'],
+        configDir: dir,
+      });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.config.baselinePath).toBeUndefined();
+    });
+
+    it('prefers an explicit baseline key over the default file', async () => {
+      const dir = makeConfigDir(true);
+      const result = await resolveRecheckConfig({
+        extends: ['recheck/markdown'],
+        block: { baseline: './custom-baseline.yaml' },
+        configDir: dir,
+      });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.config.baselinePath).toBe(path.resolve(dir, 'custom-baseline.yaml'));
+    });
   });
 
   it('enables markdoc with the built-in realm schema for `markdoc: true`', async () => {

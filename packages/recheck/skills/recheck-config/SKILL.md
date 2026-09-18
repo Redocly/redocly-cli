@@ -58,11 +58,13 @@ When the corpus has too many errors to fix at once, record them and gate only ne
 redocly recheck --generate-baseline
 ```
 
-Commit `.recheck-baseline.yaml` and add it to the `recheck` block:
+Commit `.redocly.recheck-baseline.yaml`.
+The command writes it next to `redocly.yaml`, and later runs pick it up automatically.
+To keep the baseline somewhere else, set `baseline` in the `recheck` block:
 
 ```yaml
 recheck:
-  baseline: ./.recheck-baseline.yaml
+  baseline: ./config/recheck-baseline.yaml
 ```
 
 Counts only step down: when findings get fixed, regenerate the baseline and commit the diff.
