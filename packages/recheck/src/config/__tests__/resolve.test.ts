@@ -95,6 +95,22 @@ describe('resolveRecheckConfig', () => {
     ]);
   });
 
+  it('rejects a non-object `recheck` block instead of silently ignoring it', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: 'recheck/markdown',
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([{ message: '`recheck` must be an object', path: 'recheck' }]);
+  });
+
+  it('resolves an absent `recheck` block to an empty object', async () => {
+    const result = await resolveRecheckConfig({ extends: ['recheck/markdown'], configDir });
+    expect(result.success).toBe(true);
+  });
+
   it('surfaces engine validation errors', async () => {
     const result = await resolveRecheckConfig({
       block: {

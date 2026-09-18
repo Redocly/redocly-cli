@@ -50,6 +50,12 @@ function toEngineConfig(
 }
 
 export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<ResolveResult> {
+  if (input.block !== undefined && input.block !== null && !isPlainObject(input.block)) {
+    return {
+      success: false,
+      errors: [{ message: '`recheck` must be an object', path: 'recheck' }],
+    };
+  }
   const block = isPlainObject(input.block) ? input.block : {};
   if ('extends' in block) {
     return {
