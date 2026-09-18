@@ -20,7 +20,6 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/**/__tests__/**/*',
           'packages/cli/src/index.ts',
           'packages/cli/src/utils/assert-node-version.ts',
-          // Compile-only fixtures: they are type-checked, never executed.
           'packages/recheck/src/**/__typecheck__/**',
         ],
         thresholds: {
