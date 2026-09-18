@@ -20,7 +20,6 @@ import {
   type Async2Definition,
 } from '@redocly/openapi-core';
 import { blue, gray, green, red, yellow } from 'colorette';
-import { hasMagic, glob } from 'glob';
 import * as fs from 'node:fs';
 import { basename, dirname, extname, join, resolve, relative } from 'node:path';
 import * as process from 'node:process';
@@ -105,6 +104,7 @@ export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint 
 }
 
 async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
+  const { hasMagic, glob } = await import('glob');
   return (
     await Promise.all(
       argApis.map(async (aliasOrPath) => {

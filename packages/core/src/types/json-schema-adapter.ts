@@ -1,6 +1,6 @@
 // For internal usage only
 
-import Ajv from '@redocly/ajv/dist/2020.js';
+import { Ajv2020 } from '@redocly/ajv/dist/2020.js';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type { Oas3Schema } from '../typings/openapi.js';
@@ -9,15 +9,20 @@ import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
 type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
 
-const ajv = new (Ajv as any)({
-  strictSchema: false,
-  allowUnionTypes: true,
-  useDefaults: true,
-  allErrors: true,
-  discriminator: true,
-  strictTypes: false,
-  verbose: true,
-});
+let ajv: Ajv2020 | undefined;
+
+function getAjv(): Ajv2020 {
+  ajv ??= new Ajv2020({
+    strictSchema: false,
+    allowUnionTypes: true,
+    useDefaults: true,
+    allErrors: true,
+    discriminator: true,
+    strictTypes: false,
+    verbose: true,
+  });
+  return ajv;
+}
 
 function findOneOf(
   schemaOneOf: ExtendedJSONSchema[],
@@ -28,7 +33,7 @@ function findOneOf(
   }
 
   return (value: unknown) => {
-    let index = schemaOneOf.findIndex((option) => ajv.validate(option, value));
+    let index = schemaOneOf.findIndex((option) => getAjv().validate(option, value));
     if (index === -1) {
       index = 0;
     }
