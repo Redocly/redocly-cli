@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import { evaluatePluginsFromCode } from '../validation/plugin-evaluator.js';
 
 describe('evaluatePluginsFromCode', () => {
@@ -11,9 +13,15 @@ describe('evaluatePluginsFromCode', () => {
     expect(result).toEqual([]);
   });
 
-  it('should return empty array on invalid plugin code', async () => {
+  it('should return empty array and warn on invalid plugin code', async () => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+
     const result = await evaluatePluginsFromCode('invalid code');
+
     expect(result).toEqual([]);
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringMatching(/^Something went wrong during plugins evaluation: .+\n$/)
+    );
   });
 
   it('should evaluate valid plugin code and return plugins', async () => {

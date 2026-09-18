@@ -1,4 +1,4 @@
-import { BaseResolver, HandledError } from '@redocly/openapi-core';
+import { BaseResolver, HandledError, logger } from '@redocly/openapi-core';
 import { fetchRemoteScorecardAndPlugins, validateScorecard } from '@redocly/reunite-integration';
 
 import { getAliasOrPath, getFallbackApisOrExit } from '../../../utils/miscellaneous.js';
@@ -88,5 +88,35 @@ describe('handleScorecardClassic()', () => {
     expect(process.stdout.write).toHaveBeenCalledWith(
       expect.stringContaining('Your API meets all scorecard requirements.')
     );
+  });
+
+  it('prints the fetch, plugin, and level details when verbose is on', async () => {
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
+    const pluginsCode = 'export default [() => ({ id: "test-plugin" })]';
+    vi.mocked(fetchRemoteScorecardAndPlugins).mockResolvedValue({
+      scorecard: { levels: [{ name: 'Baseline', rules: {} }] },
+      plugins: pluginsCode,
+      pluginsUrl: 'https://example.com/plugins.js',
+    });
+    vi.mocked(validateScorecard).mockResolvedValue({
+      problems: [],
+      achievedLevel: 'Baseline',
+      targetLevelAchieved: true,
+    });
+
+    await handleScorecardClassic({ argv: { ...argv, verbose: true }, config, version });
+
+    expect(validateScorecard).toHaveBeenCalledWith(
+      expect.objectContaining({ pluginsCodeOrPlugins: pluginsCode })
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Starting fetch for remote scorecard configuration...\n'
+    );
+    expect(logger.info).toHaveBeenCalledWith('Successfully fetched scorecard configuration.\n');
+    expect(logger.info).toHaveBeenCalledWith('Scorecard levels found: 1\n');
+    expect(logger.info).toHaveBeenCalledWith(
+      'Successfully fetched plugins from https://example.com/plugins.js\n'
+    );
+    expect(logger.info).toHaveBeenCalledWith('Found 0 problems for level "Baseline".\n');
   });
 });
