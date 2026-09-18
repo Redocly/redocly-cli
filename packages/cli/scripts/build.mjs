@@ -17,8 +17,6 @@ const result = await build({
   platform: 'node',
   format: 'esm',
   target: 'node20.19',
-  // The engine imports these spell-check packages dynamically; a user installs them on demand.
-  external: ['nspell', 'dictionary-en'],
   minify: true,
   keepNames: false,
   metafile: true,
@@ -100,6 +98,30 @@ cpSync(
   path.join(packageDir, 'lib', 'eject-assets'),
   { recursive: true }
 );
+
+// `dictionary-en` reads its Hunspell data with `new URL(..., import.meta.url)`,
+// so the two data files must sit next to the chunk esbuild bundled it into.
+const dictionaryEntry = 'node_modules/dictionary-en/index.js';
+let dictionaryOutput;
+let dictionaryInput;
+for (const [outputPath, chunk] of Object.entries(result.metafile.outputs)) {
+  const match = Object.keys(chunk.inputs).find((inputPath) =>
+    inputPath.replace(/\\/g, '/').endsWith(dictionaryEntry)
+  );
+  if (match) {
+    dictionaryOutput = outputPath;
+    dictionaryInput = match;
+    break;
+  }
+}
+if (!dictionaryOutput) {
+  throw new Error('dictionary-en is no longer bundled — drop the data-file copy below');
+}
+const dictionaryRoot = path.dirname(path.resolve(packageDir, dictionaryInput));
+const dictionaryOutDir = path.dirname(path.resolve(packageDir, dictionaryOutput));
+for (const dataFile of ['index.aff', 'index.dic']) {
+  cpSync(path.join(dictionaryRoot, dataFile), path.join(dictionaryOutDir, dataFile));
+}
 
 function findLicenseText(pkgRoot) {
   for (const filename of ['LICENSE', 'LICENSE.md', 'LICENSE.txt', 'LICENCE', 'LICENCE.md']) {
