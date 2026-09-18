@@ -1,0 +1,107 @@
+{
+  "methodology": {
+    "description": "recheck/inclusive-language performed NO NEW FETCH (Task 11 controller resolutions §2): every term is sourced from five existing verification reports (task-9-verify-C.md, task-9-verify-D.md, task-10-verify-E.md, task-10-verify-G.md, task-10-verify-H.md, task-10-verify-accessibility.md), which already fetched and hashed the relevant live pages while building recheck/google and recheck/microsoft. This file cross-references those existing hashes rather than re-fetching or fabricating new ones.",
+    "crossReferencedFiles": [
+      "packages/recheck/presets/google/sources.json",
+      "packages/recheck/presets/microsoft/sources.json"
+    ]
+  },
+  "pages": [
+    {
+      "url": "https://developers.google.com/style/word-list",
+      "guide": "google",
+      "hashRecordedIn": "packages/recheck/presets/google/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": [
+        "slave",
+        "master/slave",
+        "blacklist",
+        "whitelist",
+        "grayed-out",
+        "greyed-out",
+        "nuke"
+      ]
+    },
+    {
+      "url": "https://developers.google.com/style/inclusive-documentation",
+      "guide": "google",
+      "hashRecordedIn": "packages/recheck/presets/google/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": [
+        "normal person",
+        "healthy person",
+        "suffering from",
+        "victim of",
+        "differently abled"
+      ]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/bias-free-communication",
+      "guide": "microsoft",
+      "hashRecordedIn": "packages/recheck/presets/microsoft/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": [
+        "he/she",
+        "s/he",
+        "demilitarized zone",
+        "DMZ",
+        "master/slave (secondary citation)"
+      ]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/militaristic-language",
+      "guide": "microsoft",
+      "hashRecordedIn": "packages/recheck/presets/microsoft/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": ["nuke"]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/m/master-slave",
+      "guide": "microsoft",
+      "hashRecordedIn": "packages/recheck/presets/microsoft/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": ["master/slave"]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/blacklist",
+      "guide": "microsoft",
+      "hashRecordedIn": "packages/recheck/presets/microsoft/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": ["blacklist"]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/accessibility-terms",
+      "guide": "microsoft",
+      "hashRecordedIn": "packages/recheck/presets/microsoft/sources.json",
+      "fetchedAt": "2026-07-29",
+      "coversTerms": [
+        "crippled",
+        "differently abled",
+        "victim of",
+        "normal person",
+        "healthy person"
+      ]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/w/whitelist",
+      "guide": "microsoft",
+      "hashRecordedIn": null,
+      "note": "Quoted verbatim in task-10-verify-H.md row 45 ('Never use whitelist. Use allow list instead.') but not independently hashed in microsoft/sources.json — cited via that report's quote, not re-fetched here.",
+      "coversTerms": ["whitelist"]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/d/demilitarized-zone-dmz",
+      "guide": "microsoft",
+      "hashRecordedIn": null,
+      "note": "Quoted verbatim in task-10-verify-G.md row 61 but not independently hashed in microsoft/sources.json — cited via that report's quote, not re-fetched here.",
+      "coversTerms": ["DMZ", "demilitarized zone"]
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/g/gray-grayed-out",
+      "guide": "microsoft",
+      "hashRecordedIn": null,
+      "note": "Quoted verbatim in task-10-verify-G.md row 112 but not independently hashed in microsoft/sources.json — cited via that report's quote, not re-fetched here.",
+      "coversTerms": ["grayed-out", "greyed-out"]
+    }
+  ]
+}
