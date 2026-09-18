@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
 import type { MarkdocSchema } from '../parser/markdoc/schema.js';
@@ -28,6 +29,8 @@ export interface RecheckBlockInput {
 export type ResolveResult =
   | { success: true; config: ResolvedRecheckConfig; errors: [] }
   | { success: false; errors: ValidationError[] };
+
+export const DEFAULT_BASELINE_FILE = '.redocly.recheck-baseline.yaml';
 
 const SEVERITIES = new Set(['off', 'info', 'warn', 'error']);
 
@@ -91,13 +94,18 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       configDir: input.configDir,
       markdoc: validation.markdoc.enabled,
       markdocSchema: validation.markdoc.schema,
-      baselinePath:
-        validation.baselinePath === undefined
-          ? undefined
-          : path.resolve(input.configDir, validation.baselinePath),
+      baselinePath: resolveBaselinePath(input.configDir, validation.baselinePath),
       apiDescriptionRules: isPlainObject(apiDescriptions?.rules)
         ? apiDescriptions?.rules
         : undefined,
     },
   };
+}
+
+// Without a `baseline` key, a `.redocly.recheck-baseline.yaml` next to
+// redocly.yaml is picked up by presence.
+function resolveBaselinePath(configDir: string, baselinePath?: string): string | undefined {
+  if (baselinePath !== undefined) return path.resolve(configDir, baselinePath);
+  const defaultPath = path.resolve(configDir, DEFAULT_BASELINE_FILE);
+  return existsSync(defaultPath) ? defaultPath : undefined;
 }

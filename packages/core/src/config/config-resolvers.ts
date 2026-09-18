@@ -39,9 +39,12 @@ import {
   deepCloneMapWithJSON,
   isCommonJsPlugin,
   isDeprecatedPluginFormat,
+  isRecheckPreset,
+  isReservedPluginId,
   mergeExtends,
   parsePresetName,
   prefixRules,
+  RESERVED_PLUGIN_IDS,
 } from './utils.js';
 
 export type PluginResolveInfo = {
@@ -115,6 +118,10 @@ export async function resolveConfig({
     resolvedPlugins = [...plugins, defaultPlugin];
   }
 
+  // Read before bundling: the bundler deletes `extends` from the root node in place.
+  const rootExtends = isPlainObject<RawUniversalConfig>(config) ? (config.extends ?? []) : [];
+  const recheckExtends = rootExtends.filter(isString).filter(isRecheckPreset);
+
   const bundledConfig = bundleConfig(
     rootDocument,
     deepCloneMapWithJSON(resolvedRefMap),
@@ -122,11 +129,14 @@ export async function resolveConfig({
     skipPluginEval
   );
 
+  const resolvedWithRecheck =
+    recheckExtends.length > 0 ? { ...bundledConfig, recheckExtends } : bundledConfig;
+
   // The apis merge relies on `extends` being resolved, which requires evaluated plugins.
-  if (bundledConfig.apis && !skipPluginEval) {
-    bundledConfig.apis = Object.fromEntries(
-      Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
-        const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
+  if (resolvedWithRecheck.apis && !skipPluginEval) {
+    resolvedWithRecheck.apis = Object.fromEntries(
+      Object.entries(resolvedWithRecheck.apis).map(([key, apiConfig]) => {
+        const mergedConfig = mergeExtends([resolvedWithRecheck, apiConfig]);
         return [key, { ...apiConfig, ...mergedConfig }];
       })
     );
@@ -144,7 +154,7 @@ export async function resolveConfig({
 
   return {
     resolvedConfig: {
-      ...bundledConfig,
+      ...resolvedWithRecheck,
       plugins: pluginPaths,
     },
     resolvedRefMap,
@@ -336,6 +346,11 @@ export async function resolvePlugins(
                 colorize.red(
                   `Plugin must define \`id\` property in ${colorize.blue(p.toString())}.`
                 )
+              );
+            }
+            if (isReservedPluginId(id)) {
+              throw new Error(
+                `Plugin id "${id}" is reserved. Reserved ids: ${RESERVED_PLUGIN_IDS.join(', ')}.`
               );
             }
             const pluginPath = pluginInstance.absolutePath ?? p.toString();

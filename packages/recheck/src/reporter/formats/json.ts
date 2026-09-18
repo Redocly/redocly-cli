@@ -30,6 +30,6 @@ export async function outputJsonFormat(
     await fs.writeFile(outputPath, content, 'utf8');
     logger.log(`\n   Wrote JSON report to ${outputPath}`);
   } else {
-    logger.log('\n' + content);
+    logger.output(content);
   }
 }

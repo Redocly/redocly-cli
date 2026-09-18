@@ -76,7 +76,6 @@ export async function outputSarifFormat(
     await fs.writeFile(outputPath, content, 'utf8');
     logger.log(`\n   Wrote SARIF to ${outputPath}`);
   } else {
-    // Print through the logger; note: other logs may be mixed in unless the caller isolates this channel
-    logger.log('\n' + content);
+    logger.output(content);
   }
 }

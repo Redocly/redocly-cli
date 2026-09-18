@@ -14,15 +14,15 @@ export function outputTableFormat(
   logger: Logger
 ): void {
   if (problems.length === 0) {
-    logger.log(green('\n🎉 No issues found!'));
+    logger.output(green('\n🎉 No issues found!'));
     if (showStats) {
-      logger.log(`\n📊 Summary: ${fileCount} file(s) scanned, 0 issues found.`);
+      logger.output(`\n📊 Summary: ${fileCount} file(s) scanned, 0 issues found.`);
     }
     return;
   }
 
   // Table format
-  logger.log(cyan(`\n📋 Found ${problems.length} issue(s):\n`));
+  logger.output(cyan(`\n📋 Found ${problems.length} issue(s):\n`));
 
   for (const problem of problems) {
     const severityColor =
@@ -32,14 +32,14 @@ export function outputTableFormat(
 
     const fixMark = problem.fixable ? green(' [fixable]') : '';
 
-    logger.log(
+    logger.output(
       `${severityColor(ruleDisplay.padEnd(25))} ${location.padEnd(40)} ${problem.message}${fixMark}`
     );
   }
 
   const fixableCount = problems.filter((problem) => problem.fixable).length;
   if (fixableCount > 0) {
-    logger.log(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
+    logger.output(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
   }
 
   // Summary
@@ -47,10 +47,10 @@ export function outputTableFormat(
   const warnCount = problems.filter((h) => h.severity === 'warn').length;
   const infoCount = problems.filter((h) => h.severity === 'info').length;
 
-  logger.log('');
-  if (errorCount > 0) logger.log(red(`   ${errorCount} error(s)`));
-  if (warnCount > 0) logger.log(yellow(`   ${warnCount} warning(s)`));
-  if (infoCount > 0) logger.log(cyan(`   ${infoCount} info message(s)`));
+  logger.output('');
+  if (errorCount > 0) logger.output(red(`   ${errorCount} error(s)`));
+  if (warnCount > 0) logger.output(yellow(`   ${warnCount} warning(s)`));
+  if (infoCount > 0) logger.output(cyan(`   ${infoCount} info message(s)`));
 
   // Show detailed statistics if requested
   if (showStats) {
