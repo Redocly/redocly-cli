@@ -12,17 +12,20 @@ function normalizeTiming(output: string): string {
   return output.replace(/(Completed in|Failed after) \d+(\.\d+)?m?s/g, '$1 <time>');
 }
 
+const recheckCases: [dirName: string, args: string[]][] = [
+  ['markdown-clean', ['recheck', 'docs']],
+  ['markdown-findings', ['recheck', 'docs']],
+  ['no-config', ['recheck', 'docs']],
+  ['no-recheck-config', ['recheck', 'docs']],
+  ['config-error', ['recheck', 'docs']],
+  ['api-descriptions', ['recheck']],
+];
+
 describe('recheck', () => {
-  test.each([
-    'markdown-clean',
-    'markdown-findings',
-    'no-config',
-    'no-recheck-config',
-    'config-error',
-  ])('%s', async (dirName) => {
+  test.each(recheckCases)('%s', async (dirName, args) => {
     const testPath = join(__dirname, dirName);
-    const args = getParams(indexEntryPoint, ['recheck', 'docs']);
-    const result = getCommandOutput(args, { testPath });
+    const params = getParams(indexEntryPoint, args);
+    const result = getCommandOutput(params, { testPath });
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );
@@ -128,6 +131,112 @@ describe('recheck', () => {
     const [stdout] = result.split('\n\n');
     expect(() => JSON.parse(stdout)).not.toThrow();
     expect(JSON.parse(stdout)).toHaveProperty('version', '2.1.0');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('api-descriptions-json reports a JSON description with its pointer', async () => {
+    const testPath = join(__dirname, 'api-descriptions-json');
+    const args = getParams(indexEntryPoint, ['recheck', 'openapi.json', '--format=json']);
+    const result = getCommandOutput(args, { testPath });
+    const [stdout] = result.split('\n\n');
+    const report = JSON.parse(stdout);
+    expect(report.issues[0]).toMatchObject({
+      ruleName: 'recheck/line-length',
+      line: 6,
+      pointer: '#/info/description',
+    });
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('api-unreadable reports an API description that does not parse', async () => {
+    const testPath = join(__dirname, 'api-unreadable');
+    const args = getParams(indexEntryPoint, ['recheck', 'broken.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('Could not read API description');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('yaml-page lints a YAML file that is not an API description as a page', async () => {
+    const testPath = join(__dirname, 'yaml-page');
+    const args = getParams(indexEntryPoint, ['recheck', 'notes.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).not.toContain('Could not read');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('apis-discovery lints the apis block when no paths are given', async () => {
+    const testPath = join(__dirname, 'apis-discovery');
+    const args = getParams(indexEntryPoint, ['recheck']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('Found 1 issue(s)');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('shared-description reports a description that two APIs share once', async () => {
+    const testPath = join(__dirname, 'shared-description');
+    const args = getParams(indexEntryPoint, ['recheck', 'a.yaml', 'b.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    const sharedLines = result.split('\n').filter((line) => line.includes('schemas.yaml'));
+    expect(sharedLines).toHaveLength(1);
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('api-no-descriptions reports no issues for an API without descriptions', async () => {
+    const testPath = join(__dirname, 'api-no-descriptions');
+    const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml', '--format=json']);
+    const result = getCommandOutput(args, { testPath });
+    const [stdout] = result.split('\n\n');
+    expect(JSON.parse(stdout).issues).toEqual([]);
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('ignore-short-name suppresses a finding keyed by the short rule name', async () => {
+    const testPath = join(__dirname, 'ignore-short-name');
+    const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('1 finding(s) suppressed by the ignore file.');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('readability-skips-api scores Markdown and skips the API description', async () => {
+    const testPath = join(__dirname, 'readability-skips-api');
+    const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml', 'docs', '--readability']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('Readability scores cover Markdown files only');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
+  test('baseline-kept-on-unreadable-api leaves the baseline file unchanged', async () => {
+    const testPath = join(__dirname, 'baseline-kept-on-unreadable-api');
+    const baselinePath = join(testPath, '.redocly.recheck-baseline.yaml');
+    const before = readFileSync(baselinePath, 'utf8');
+    const args = getParams(indexEntryPoint, [
+      'recheck',
+      'docs',
+      'broken.yaml',
+      '--generate-baseline',
+    ]);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('Baseline not written');
+    expect(readFileSync(baselinePath, 'utf8')).toBe(before);
     await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
       join(testPath, 'snapshot.txt')
     );

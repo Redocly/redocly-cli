@@ -46,6 +46,8 @@ export type { TextStatistics, ReadabilityFormula } from './metrics/index.js';
 export { TECHNICAL_PROPER_NOUNS } from './data/proper-nouns.js';
 export { runLint } from './actions/lint.js';
 export type { LintOptions } from './actions/lint.js';
+export { lintEmbeddedInputs } from './actions/embedded.js';
+export type { EmbeddedInput } from './actions/embedded.js';
 export { generateBaseline } from './actions/baseline.js';
 export { runReadability } from './actions/readability.js';
 export type { ReadabilityOptions } from './actions/readability.js';
