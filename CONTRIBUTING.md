@@ -89,6 +89,8 @@ Notice that the extra `--` is required to pass arguments to the CLI rather than 
 
 Format your code with `npm run format` before committing.
 
+To find unused files, exports, and dependencies, run `npx knip` (configured in `knip.jsonc`).
+
 Check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.

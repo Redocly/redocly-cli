@@ -1,0 +1,40 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  // System toolchains the generator tests shell out to.
+  "ignoreBinaries": ["go", "gofmt", "php"],
+  "workspaces": {
+    ".": {
+      "entry": [
+        "scripts/*.{js,mjs}",
+        "plugins/*.js",
+        "resources/*.js",
+        "tests/**/*.{ts,js,mjs,cjs}",
+      ],
+      "ignore": [
+        // Standalone examples for users; their dependencies are not installed here.
+        "cookbook/**",
+        // Generated clients are written into these folders during the e2e run, so their
+        // imports do not resolve in a clean checkout. Same exclusion as the root tsconfig.
+        "tests/e2e/generate-client/examples/**",
+        "tests/e2e/generate-client/*-consumer/**",
+      ],
+      // Only referenced from generated e2e consumer code.
+      "ignoreDependencies": ["@faker-js/faker", "swr", "zod"],
+    },
+    // Package entry points come from each package.json; fixtures are loaded by path in tests.
+    "packages/cli": {
+      "entry": ["scripts/*.mjs", "src/**/__tests__/fixtures/**"],
+    },
+    "packages/core": {
+      "entry": ["src/**/__tests__/fixtures/**"],
+    },
+    "packages/client-generator": {
+      "entry": [
+        // Runtime templates are copied into generated clients; their exports are the client's API.
+        "src/generators/*/runtime/**/*.ts",
+        "src/**/__tests__/fixtures/**",
+        "scripts/*.mjs",
+      ],
+    },
+  },
+}

@@ -19,7 +19,6 @@ vi.mock('colorette', async () => {
 
 const remotes = {
   getPush: vi.fn(),
-  getRemotesList: vi.fn(),
 };
 
 describe('handlePushStatus()', () => {
