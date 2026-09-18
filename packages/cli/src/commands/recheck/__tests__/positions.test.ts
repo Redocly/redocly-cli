@@ -23,6 +23,30 @@ describe('createPositionMapper', () => {
     expect(mapper(1, 1)).toEqual({ line: 6, column: 9 });
   });
 
+  it('anchors an empty literal block to the indicator, not a sibling key', () => {
+    const body = 'info:\n  description: |\n  title: Sibling\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(1, 1)).toEqual({ line: 2, column: 16 });
+  });
+
+  it('anchors an empty folded block to the indicator, not a sibling key', () => {
+    const body = 'info:\n  description: >\n  title: Sibling\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(1, 1)).toEqual({ line: 2, column: 16 });
+  });
+
+  it('anchors a whitespace-only block to the indicator, not a sibling key', () => {
+    const body = 'info:\n  description: |\n  \n  title: Sibling\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(1, 1)).toEqual({ line: 2, column: 16 });
+  });
+
+  it('maps a non-empty literal block exactly when a sibling key follows it', () => {
+    const body = 'info:\n  description: |\n    First line.\n  title: Sibling\n';
+    const mapper = createPositionMapper(yaml(body), '#/info/description');
+    expect(mapper(1, 1)).toEqual({ line: 3, column: 5 });
+  });
+
   it('honours a chomping indicator on a literal block', () => {
     const body = 'info:\n  description: |-\n    One.\n    Two.\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');
