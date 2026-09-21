@@ -1,12 +1,12 @@
 import {
+  BaseResolver,
   bundle,
   detectSpec,
   isAbsoluteUrl,
   isGraphqlRef,
   logger,
-  Source,
 } from '@redocly/openapi-core';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
 import { convertSwagger2OpenAPI } from 'redoc';
@@ -38,9 +38,11 @@ export const handlerBuildCommand = async ({
     let specType: SpecType;
 
     if (isGraphqlRef(apiRef)) {
-      definition = readFileSync(apiRef, 'utf-8');
+      const resolver = new BaseResolver(config.resolve);
+      const source = await resolver.loadExternalRef(apiRef);
+      definition = resolver.parseDocument(source, true).parsed as string;
       specType = 'graphql';
-      collectSpecData?.({ source: new Source(apiRef, definition) });
+      collectSpecData?.({ source });
     } else {
       const { bundle: bundleResult } = await bundle({
         ref: apiRef,

@@ -55,6 +55,7 @@ const config = {
 describe('build-docs', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
   });
 
   beforeEach(() => {
@@ -101,7 +102,8 @@ describe('build-docs', () => {
 
   it('should render a GraphQL schema as SDL without bundling it', async () => {
     const schema = 'type Query { hello: String }';
-    vi.mocked(fs.readFileSync).mockReturnValue(schema);
+    vi.mocked(fs.lstatSync).mockReturnValue({ isDirectory: () => false } as fs.Stats);
+    vi.mocked(fs.promises.readFile).mockResolvedValue(schema);
     const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     await handlerBuildCommand({
       argv: {
@@ -117,6 +119,31 @@ describe('build-docs', () => {
     expect(bundle).not.toHaveBeenCalled();
     expect(prepareApiDocs).toHaveBeenCalledWith(expect.objectContaining({ spec: schema }));
     expect(vi.mocked(prepareApiDocs).mock.lastCall?.[0]).not.toHaveProperty('specType');
+    expect(processExitMock).toBeCalledTimes(0);
+  });
+
+  it('loads a remote GraphQL schema over HTTP instead of reading it from disk', async () => {
+    const schema = 'type Query { hello: String }';
+    const url = 'https://example.com/schema.graphql';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(schema, { status: 200 }))
+    );
+    const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
+    await handlerBuildCommand({
+      argv: {
+        o: '',
+        template: '',
+        templateOptions: {},
+        inlineBundle: false,
+        api: url,
+      } as BuildDocsArgv,
+      config: await createConfig({}),
+      version: 'cli-version',
+    });
+    expect(bundle).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledWith(url, expect.anything());
+    expect(prepareApiDocs).toHaveBeenCalledWith(expect.objectContaining({ spec: schema }));
     expect(processExitMock).toBeCalledTimes(0);
   });
 
