@@ -2,4 +2,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed the `push-status --wait` and `push --wait-for-deployment` commands printing the same Reunite API sunset warning more than once.
+Fixed the `push-status --wait` command printing the Reunite API sunset warning twice for pushes to the main branch, and the `push` and `push-status` commands dropping the warning when the deployment failed.
