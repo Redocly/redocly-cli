@@ -329,7 +329,7 @@ export class ReuniteApi {
     domain,
     apiKey,
     command,
-    version = DEFAULT_CLI_VERSION,
+    version,
   }: {
     domain: string;
     apiKey: string;

@@ -3,7 +3,7 @@ import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
 
 import { ReuniteApiClient } from '../api/api-client.js';
-import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
+import { DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 
 export type Credentials = {
   access_token: string;
@@ -19,7 +19,7 @@ export class RedoclyOAuthDeviceFlow {
 
   constructor(
     private baseUrl: string,
-    version: string = DEFAULT_CLI_VERSION
+    version?: string
   ) {
     this.apiClient = new ReuniteApiClient('login', version);
   }

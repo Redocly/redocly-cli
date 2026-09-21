@@ -6,7 +6,6 @@ import { homedir } from 'node:os';
 import path from 'node:path';
 
 import { isValidReuniteUrl } from '../api/domains.js';
-import { DEFAULT_CLI_VERSION } from '../utils/constants.js';
 import { type Credentials, RedoclyOAuthDeviceFlow } from './device-flow.js';
 
 const CREDENTIALS_SALT = '4618dbc9-8aed-4e27-aaf0-225f4603e5a4';
@@ -20,7 +19,7 @@ export class RedoclyOAuthClient {
   private readonly key: Buffer;
   private readonly iv: Buffer;
 
-  constructor(private readonly version: string = DEFAULT_CLI_VERSION) {
+  constructor(private readonly version?: string) {
     const homeDirPath = homedir();
 
     this.credentialsFolderPath = path.join(homeDirPath, '.redocly');
