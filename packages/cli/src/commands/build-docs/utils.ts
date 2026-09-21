@@ -51,9 +51,9 @@ export function getObjectOrJSON(
         }
       } catch (e) {
         logger.error(
-          `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
+          `Encountered error:\n\n${openapiOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.\n`
         );
-        throw new HandledError(e);
+        throw new HandledError(e instanceof Error ? e.message : String(e));
       }
     default: {
       if (config?.configPath) {
