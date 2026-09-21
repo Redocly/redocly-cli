@@ -1,6 +1,8 @@
 import { logger, HandledError } from '@redocly/openapi-core';
 import { getReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { green } from 'colorette';
 
+import { printDeviceCode } from '../utils/print-device-code.js';
 import type { CommandArgs } from '../wrapper.js';
 
 export type LoginArgv = {
@@ -18,7 +20,8 @@ export async function handleLogin({ argv, config, version }: CommandArgs<LoginAr
       logger.info(`Local credentials file path: ${oauthClient.credentialsFilePath}\n`);
     }
 
-    await oauthClient.login(reuniteUrl);
+    await oauthClient.login(reuniteUrl, printDeviceCode);
+    logger.output(green('✅ Logged in\n\n'));
   } catch (error) {
     if (argv.verbose) {
       logger.error(`Residency: ${argv.residency}.\n`);

@@ -158,6 +158,16 @@ describe('collectFilesToPush()', () => {
     ]);
   });
 
+  it('reports a file that a later path overwrites', () => {
+    vi.spyOn(fs, 'statSync').mockReturnValue({ isDirectory: () => false } as any);
+    const onFileOverwritten = vi.fn();
+
+    const files = collectFilesToPush(['a/openapi.yaml', 'b/openapi.yaml'], onFileOverwritten);
+
+    expect(onFileOverwritten).toHaveBeenCalledWith('a/openapi.yaml', 'b/openapi.yaml');
+    expect(files).toEqual([{ name: 'openapi.yaml', path: path.resolve('b/openapi.yaml') }]);
+  });
+
   it('collects nothing when no files are given', () => {
     expect(collectFilesToPush([])).toEqual([]);
   });

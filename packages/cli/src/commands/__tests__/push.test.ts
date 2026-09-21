@@ -52,7 +52,7 @@ describe('handlePush()', () => {
   it('pushes the collected files with the commit details from the arguments', async () => {
     const result = await handlePush({ argv, config, version });
 
-    expect(collectFilesToPush).toHaveBeenCalledWith(['test-file']);
+    expect(collectFilesToPush).toHaveBeenCalledWith(['test-file'], expect.any(Function));
     expect(pushFiles).toHaveBeenCalledWith({
       domain: 'test-domain',
       apiKey: 'test-api-key',

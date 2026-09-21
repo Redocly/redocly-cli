@@ -52,7 +52,9 @@ export async function handlePush({
 
   try {
     const apiKey = getApiKeys();
-    files = collectFilesToPush(argv.files);
+    files = collectFilesToPush(argv.files, (existingPath, replacementPath) => {
+      logger.warn(`File ${existingPath} is overwritten by ${replacementPath}\n`);
+    });
 
     if (!files.length) {
       return printExecutionTime('push', startedAt, `No files to upload`);

@@ -1,11 +1,6 @@
 import * as openapiCore from '@redocly/openapi-core';
 
-import { evaluatePluginsFromCode } from '../validation/plugin-evaluator.js';
 import { validateScorecard } from '../validation/validate-scorecard.js';
-
-vi.mock('../validation/plugin-evaluator.js', () => ({
-  evaluatePluginsFromCode: vi.fn(),
-}));
 
 describe('validateScorecard', () => {
   const mockDocument = {
@@ -129,30 +124,7 @@ describe('validateScorecard', () => {
     expect(result.problems[0].message).toBe('Error 1');
   });
 
-  it('should evaluate plugins from code when string provided', async () => {
-    const scorecardConfig = {
-      levels: [{ name: 'Gold', rules: {} }],
-    };
-
-    const mockPlugins = [{ id: 'test-plugin' }];
-    vi.mocked(evaluatePluginsFromCode).mockResolvedValue(mockPlugins);
-
-    await validateScorecard({
-      apiPath: 'test.yaml',
-      document: mockDocument,
-      externalRefResolver: mockResolver,
-      scorecardConfig,
-      pluginsCodeOrPlugins: 'plugin-code',
-    });
-
-    expect(evaluatePluginsFromCode).toHaveBeenCalledWith('plugin-code', undefined);
-    expect(openapiCore.createConfig).toHaveBeenCalledWith(
-      expect.objectContaining({ plugins: mockPlugins }),
-      expect.any(Object)
-    );
-  });
-
-  it('should use plugins directly when array provided', async () => {
+  it('should pass the plugins to the level configs', async () => {
     const scorecardConfig = {
       levels: [{ name: 'Gold', rules: {} }],
     };
@@ -164,10 +136,9 @@ describe('validateScorecard', () => {
       document: mockDocument,
       externalRefResolver: mockResolver,
       scorecardConfig,
-      pluginsCodeOrPlugins: mockPlugins,
+      plugins: mockPlugins,
     });
 
-    expect(evaluatePluginsFromCode).not.toHaveBeenCalled();
     expect(openapiCore.createConfig).toHaveBeenCalledWith(
       expect.objectContaining({ plugins: mockPlugins }),
       expect.any(Object)

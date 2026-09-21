@@ -1,4 +1,4 @@
-import { logger, type Plugin } from '@redocly/openapi-core';
+import type { Plugin } from '@redocly/openapi-core';
 import { pathToFileURL } from 'node:url';
 
 type PluginFunction = () => Plugin;
@@ -15,16 +15,11 @@ export async function evaluatePluginsFromCode(
     return [];
   }
 
-  try {
-    const dirname = pathToFileURL(basePath ?? process.cwd()).href + '/';
-    const pluginsCodeWithDirname = pluginsCode.replaceAll('__redocly_dirname', `"${dirname}"`);
-    const dataUri = `data:text/javascript;base64,${btoa(pluginsCodeWithDirname)}`;
+  const dirname = pathToFileURL(basePath ?? process.cwd()).href + '/';
+  const pluginsCodeWithDirname = pluginsCode.replaceAll('__redocly_dirname', `"${dirname}"`);
+  const dataUri = `data:text/javascript;base64,${btoa(pluginsCodeWithDirname)}`;
 
-    const module: PluginsModule = await import(dataUri);
+  const module: PluginsModule = await import(dataUri);
 
-    return module.default.map((pluginFunction) => pluginFunction());
-  } catch (error) {
-    logger.warn(`Something went wrong during plugins evaluation: ${error.message}\n`);
-    return [];
-  }
+  return module.default.map((pluginFunction) => pluginFunction());
 }

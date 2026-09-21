@@ -47,6 +47,32 @@ describe('RedoclyOAuthClient', () => {
 
       await expect(client.login(mockBaseUrl)).rejects.toThrow('Failed to login');
     });
+
+    it('hands the device code callback to the flow', async () => {
+      const mockDeviceFlow = { run: vi.fn().mockResolvedValue({ access_token: 'test-token' }) };
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow;
+      });
+      const onDeviceCode = vi.fn();
+
+      await client.login(mockBaseUrl, onDeviceCode);
+
+      expect(mockDeviceFlow.run).toHaveBeenCalledWith(onDeviceCode);
+    });
+
+    it('fails when the credentials cannot be saved', async () => {
+      const mockDeviceFlow = { run: vi.fn().mockResolvedValue({ access_token: 'test-token' }) };
+      vi.mocked(RedoclyOAuthDeviceFlow).mockImplementation(function () {
+        return mockDeviceFlow;
+      });
+      vi.mocked(fs.writeFileSync).mockImplementation(() => {
+        throw new Error('EACCES: permission denied');
+      });
+
+      await expect(client.login(mockBaseUrl)).rejects.toThrow(
+        'Failed to save credentials: EACCES: permission denied'
+      );
+    });
   });
 
   describe('logout', () => {

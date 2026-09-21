@@ -1,5 +1,3 @@
-import { logger } from '@redocly/openapi-core';
-import { blue, green } from 'colorette';
 import * as childProcess from 'node:child_process';
 
 import { ReuniteApiClient } from '../api/api-client.js';
@@ -13,6 +11,13 @@ export type Credentials = {
   token_type?: string; // from login response
 };
 
+// What the user needs to authorize the device: the page to open and the code to enter there.
+export type DeviceCode = {
+  verificationUri: string;
+  verificationUriComplete: string;
+  userCode: string;
+};
+
 export class RedoclyOAuthDeviceFlow {
   private apiClient: ReuniteApiClient;
   private clientName = 'redocly-cli';
@@ -24,19 +29,15 @@ export class RedoclyOAuthDeviceFlow {
     this.apiClient = new ReuniteApiClient('login', version);
   }
 
-  async run() {
+  // `onDeviceCode` gets the URL and code to show the user before the browser opens and polling starts.
+  async run(onDeviceCode?: (code: DeviceCode) => void) {
     const code = await this.getDeviceCode();
-    logger.output(
-      'Attempting to automatically open the SSO authorization page in your default browser.\n'
-    );
-    logger.output(
-      'If the browser does not open or you wish to use a different device to authorize this request, open the following URL:\n\n'
-    );
-    logger.output(blue(code.verificationUri));
-    logger.output(`\n\n`);
-    logger.output(`Then enter the code:\n\n`);
-    logger.output(blue(code.userCode));
-    logger.output(`\n\n`);
+
+    onDeviceCode?.({
+      verificationUri: code.verificationUri,
+      verificationUriComplete: code.verificationUriComplete,
+      userCode: code.userCode,
+    });
 
     this.openBrowser(code.verificationUriComplete);
 
@@ -45,7 +46,6 @@ export class RedoclyOAuthDeviceFlow {
       code.interval,
       code.expiresIn
     );
-    logger.output(green('✅ Logged in\n\n'));
 
     return this.withResidency(accessToken);
   }

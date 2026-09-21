@@ -6,11 +6,9 @@ import {
   type Plugin,
   type BaseResolver,
 } from '@redocly/openapi-core';
-import * as path from 'node:path';
 
 import { getTarget, resolveConfigForTarget } from '../targets-handler/targets-handler.js';
 import type { ScorecardProblem } from '../types.js';
-import { evaluatePluginsFromCode } from './plugin-evaluator.js';
 
 export type ScorecardValidationResult = {
   problems: ScorecardProblem[];
@@ -24,7 +22,7 @@ export type ValidateScorecardParams = {
   externalRefResolver: BaseResolver;
   scorecardConfig: ScorecardConfig;
   configPath?: string;
-  pluginsCodeOrPlugins?: string | Plugin[];
+  plugins?: Plugin[];
   targetLevel?: string;
   metadata?: Record<string, unknown>;
 };
@@ -35,7 +33,7 @@ export async function validateScorecard({
   externalRefResolver,
   scorecardConfig,
   configPath,
-  pluginsCodeOrPlugins,
+  plugins = [],
   targetLevel,
   metadata = {},
 }: ValidateScorecardParams): Promise<ScorecardValidationResult> {
@@ -49,14 +47,6 @@ export async function validateScorecard({
     );
   }
 
-  const plugins =
-    typeof pluginsCodeOrPlugins === 'string'
-      ? await evaluatePluginsFromCode(
-          pluginsCodeOrPlugins,
-          configPath ? path.dirname(configPath) : undefined
-        )
-      : pluginsCodeOrPlugins;
-
   const targetRules = getTarget(scorecardConfig.targets, metadata)?.rules as
     | Record<string, unknown>
     | undefined;
@@ -65,7 +55,7 @@ export async function validateScorecard({
     apiPath,
     targetRules,
     levels,
-    Array.isArray(plugins) ? plugins : [],
+    plugins,
     configPath || ''
   );
 

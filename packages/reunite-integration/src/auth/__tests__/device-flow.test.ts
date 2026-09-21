@@ -76,6 +76,50 @@ describe('RedoclyOAuthDeviceFlow', () => {
     });
   });
 
+  describe('run', () => {
+    it('hands the device code to the callback before polling for the token', async () => {
+      vi.mocked(childProcess.spawn).mockReturnValue({
+        on: vi.fn().mockReturnThis(),
+        unref: vi.fn(),
+      } as unknown as childProcess.ChildProcess);
+      const request = vi.spyOn(flow['apiClient'], 'request');
+      request
+        .mockResolvedValueOnce({
+          json: () =>
+            Promise.resolve({
+              device_code: 'device-1',
+              user_code: 'ABCD-EFGH',
+              verification_uri: 'https://test.redocly.com/device',
+              verification_uri_complete: 'https://test.redocly.com/device?code=ABCD-EFGH',
+              interval: 0.01,
+              expires_in: 5,
+            }),
+        } as Response)
+        .mockResolvedValueOnce({
+          json: () =>
+            Promise.resolve({ access_token: 'token', refresh_token: 'refresh', expires_in: 3600 }),
+        } as Response);
+      const onDeviceCode = vi.fn();
+
+      const credentials = await flow.run(onDeviceCode);
+
+      expect(onDeviceCode).toHaveBeenCalledWith({
+        verificationUri: 'https://test.redocly.com/device',
+        verificationUriComplete: 'https://test.redocly.com/device?code=ABCD-EFGH',
+        userCode: 'ABCD-EFGH',
+      });
+      expect(onDeviceCode.mock.invocationCallOrder[0]).toBeLessThan(
+        request.mock.invocationCallOrder[1]
+      );
+      expect(credentials).toEqual({
+        access_token: 'token',
+        refresh_token: 'refresh',
+        expires_in: 3600,
+        residency: mockBaseUrl,
+      });
+    });
+  });
+
   describe('openBrowser', () => {
     const url = 'https://test.redocly.com/device?user_code=ABCD';
 
