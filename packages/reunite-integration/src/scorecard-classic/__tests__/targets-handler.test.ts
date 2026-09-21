@@ -34,12 +34,14 @@ describe('getTarget', () => {
     expect(getTarget(targets, { version: '1.2.3' })!.minimumLevel).toBe('Silver');
   });
 
-  it('should throws an error when regex pattern is invalid', () => {
+  it('should throw when the regex pattern is invalid', () => {
     const targets = [
       { where: { metadata: { version: '/^(1\\.[0-9]+\\.[0-9]+/' } }, minimumLevel: 'Silver' },
     ];
 
-    expect(getTarget(targets, { version: '1.2.3' })).toBeUndefined();
+    expect(() => getTarget(targets, { version: '1.2.3' })).toThrow(
+      'Invalid regex in scorecard target "version": /^(1\\.[0-9]+\\.[0-9]+/'
+    );
   });
 
   it('should not match target when regex does not match', () => {

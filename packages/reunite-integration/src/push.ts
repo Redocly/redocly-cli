@@ -1,4 +1,4 @@
-import { logger, slash } from '@redocly/openapi-core';
+import { slash } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -78,7 +78,11 @@ export async function pushFiles({
   return { pushId: id };
 }
 
-export function collectFilesToPush(files: string[]): FileToUpload[] {
+export function collectFilesToPush(
+  files: string[],
+  // Called when a later path maps to a file name an earlier path already used.
+  onFileOverwritten?: (existingPath: string, replacementPath: string) => void
+): FileToUpload[] {
   const collectedFiles: Record<string, string> = {};
 
   for (const file of files) {
@@ -96,7 +100,7 @@ export function collectFilesToPush(files: string[]): FileToUpload[] {
     const fileName = path.relative(fileDir, filePath);
 
     if (collectedFiles[fileName]) {
-      logger.warn(`File ${collectedFiles[fileName]} is overwritten by ${filePath}\n`);
+      onFileOverwritten?.(collectedFiles[fileName], filePath);
     }
 
     collectedFiles[fileName] = filePath;

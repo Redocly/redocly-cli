@@ -26,7 +26,7 @@ export type {
   UpsertRemoteResponse,
 } from './api/types.js';
 export { RedoclyOAuthClient } from './auth/oauth-client.js';
-export { RedoclyOAuthDeviceFlow, type Credentials } from './auth/device-flow.js';
+export { RedoclyOAuthDeviceFlow, type Credentials, type DeviceCode } from './auth/device-flow.js';
 export {
   collectFilesToPush,
   pushFiles,

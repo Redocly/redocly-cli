@@ -4,7 +4,7 @@ import {
   type RawUniversalConfig,
   type Plugin,
   createConfig,
-  logger,
+  HandledError,
   regexFromString,
 } from '@redocly/openapi-core';
 
@@ -74,9 +74,8 @@ function isTargetMatch(key: string, value: string, metadata: Record<string, unkn
     try {
       const regex = regexFromString(value) as RegExp;
       return regex.test(metadata[key] as string);
-    } catch (e) {
-      logger.error(`Invalid regex in scorecard target "${key}": ${value}`);
-      return false;
+    } catch {
+      throw new HandledError(`Invalid regex in scorecard target "${key}": ${value}`);
     }
   }
 

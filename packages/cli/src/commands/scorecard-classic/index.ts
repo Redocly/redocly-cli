@@ -7,6 +7,7 @@ import {
   type Document,
 } from '@redocly/openapi-core';
 import {
+  evaluatePluginsFromCode,
   fetchRemoteScorecardAndPlugins,
   getTarget,
   isAllowedScorecardProjectUrl,
@@ -16,6 +17,7 @@ import {
   type ScorecardValidationResult,
 } from '@redocly/reunite-integration';
 import { blue, bold, cyan, gray, green, white } from 'colorette';
+import { dirname } from 'node:path';
 
 import {
   formatPath,
@@ -144,7 +146,7 @@ export async function handleScorecardClassic({
     externalRefResolver,
     scorecardConfig: scorecard,
     configPath: config.configPath,
-    pluginsCodeOrPlugins: plugins,
+    plugins: await evaluatePlugins(plugins, config.configPath),
     targetLevel,
     metadata,
   });
@@ -161,6 +163,20 @@ export async function handleScorecardClassic({
   }
 
   reportResults({ path, result, targetLevel, format: argv.format, version, startedAt });
+}
+
+// The scorecard still runs, without plugins, when the plugins code cannot be evaluated.
+async function evaluatePlugins(pluginsCode: string | undefined, configPath: string | undefined) {
+  if (!pluginsCode) {
+    return [];
+  }
+
+  try {
+    return await evaluatePluginsFromCode(pluginsCode, configPath ? dirname(configPath) : undefined);
+  } catch (error) {
+    logger.warn(`Something went wrong during plugins evaluation: ${error.message}\n`);
+    return [];
+  }
 }
 
 async function fetchScorecard({

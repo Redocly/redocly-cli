@@ -107,7 +107,7 @@ describe('handleScorecardClassic()', () => {
     await handleScorecardClassic({ argv: { ...argv, verbose: true }, config, version });
 
     expect(validateScorecard).toHaveBeenCalledWith(
-      expect.objectContaining({ pluginsCodeOrPlugins: pluginsCode })
+      expect.objectContaining({ plugins: [expect.objectContaining({ id: 'test-plugin' })] })
     );
     expect(logger.info).toHaveBeenCalledWith(
       'Starting fetch for remote scorecard configuration...\n'

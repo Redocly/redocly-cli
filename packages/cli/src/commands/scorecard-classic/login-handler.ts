@@ -1,5 +1,8 @@
 import { logger, HandledError, type Config } from '@redocly/openapi-core';
 import { getReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { green } from 'colorette';
+
+import { printDeviceCode } from '../../utils/print-device-code.js';
 
 export async function handleLoginAndFetchToken(
   config: Config,
@@ -23,7 +26,8 @@ export async function handleLoginAndFetchToken(
   }
 
   try {
-    await oauthClient.login(reuniteUrl);
+    await oauthClient.login(reuniteUrl, printDeviceCode);
+    logger.output(green('✅ Logged in\n\n'));
     accessToken = await oauthClient.getAccessToken(reuniteUrl);
   } catch (error) {
     if (verbose) {
