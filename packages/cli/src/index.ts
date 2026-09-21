@@ -184,6 +184,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          'skip-rule': {
+            description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
         }),
     (argv) => {
       commandWrapper(handleDiff)(argv as Arguments<DiffArgv>);

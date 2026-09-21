@@ -101,6 +101,10 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   graphqlRules?: RuleMap<BuiltInGraphqlRuleId, RuleConfig, T>;
   /** Semver impact per diff rule; `off` skips the rule. */
   diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_0Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_1Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_2Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  async3Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
 
   preprocessors?: Record<string, DecoratorConfig>;
   oas2Preprocessors?: Record<

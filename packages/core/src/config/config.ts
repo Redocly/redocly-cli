@@ -1,7 +1,12 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { Impact } from '../diff/types.js';
+import {
+  diffSpecVersions,
+  isImpactSetting,
+  type DiffSpecVersion,
+  type Impact,
+} from '../diff/types.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import {
   type Oas2RuleSet,
@@ -51,7 +56,7 @@ export class Config {
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
-  diff: Record<string, Impact | 'off'>;
+  diff: Record<DiffSpecVersion, Record<string, Impact | 'off'>>;
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -160,7 +165,22 @@ export class Config {
       graphql: {},
     };
 
-    this.diff = resolvedConfig.diff ?? {};
+    // The common `diff` block is the base for every specification, and a value outside the
+    // impact ladder is linted as a warning, so it is read as `off` rather than reported.
+    const impactsOf = (specConfig?: Record<string, Impact | 'off'>) => {
+      const impacts: Record<string, Impact | 'off'> = {};
+      for (const [ruleId, impact] of Object.entries({ ...resolvedConfig.diff, ...specConfig })) {
+        impacts[ruleId] = isImpactSetting(impact) ? impact : 'off';
+      }
+      return impacts;
+    };
+
+    this.diff = {
+      oas3_0: impactsOf(resolvedConfig.oas3_0Diff),
+      oas3_1: impactsOf(resolvedConfig.oas3_1Diff),
+      oas3_2: impactsOf(resolvedConfig.oas3_2Diff),
+      async3: impactsOf(resolvedConfig.async3Diff),
+    };
 
     this.ignore = opts.ignore ?? {};
   }
@@ -449,6 +469,16 @@ export class Config {
               configurableRule.severity = 'off';
             }
           }
+        }
+      }
+    }
+  }
+
+  skipDiffRules(rules?: string[]) {
+    for (const ruleId of rules || []) {
+      for (const version of diffSpecVersions) {
+        if (this.diff[version][ruleId]) {
+          this.diff[version][ruleId] = 'off';
         }
       }
     }
