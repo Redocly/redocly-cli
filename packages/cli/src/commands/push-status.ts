@@ -52,11 +52,11 @@ export async function handlePushStatus({
   const continueOnDeployFailures = argv['continue-on-deploy-failures'] || false;
   // Shared by the preview and production waits, so both fit in one max-execution-time window.
   const startTime = argv['start-time'] || Date.now();
+  // Both waits may report a sunset warning; it is printed once, even when the deployment failed.
+  const sunsetWarnings: SunsetWarning[] = [];
 
   try {
     const apiKey = getApiKeys();
-    // Both waits may report a sunset warning; it is printed once at the end.
-    const sunsetWarnings: SunsetWarning[] = [];
     const statusOptions = {
       domain,
       apiKey,
@@ -101,7 +101,6 @@ export async function handlePushStatus({
       printScorecard(push.status.production.scorecard);
     }
     printPushStatusInfo({ organization, project, pushId, startedAt });
-    printSunsetWarning('push-status', sunsetWarnings);
 
     return {
       preview: push.status.preview,
@@ -114,6 +113,7 @@ export async function handlePushStatus({
     handleReuniteError('✗ Failed to get push status.', err);
   } finally {
     spinner.stop(); // Spinner can block process exit, so we need to stop it explicitly.
+    printSunsetWarning('push-status', sunsetWarnings);
   }
 }
 

@@ -137,13 +137,16 @@ describe('handlePush()', () => {
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
   });
 
-  it('prints the sunset warning reported by the upload', async () => {
+  it('prints the sunset warning reported by the upload even when the wait fails', async () => {
     vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
       onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
       return { pushId: 'test-id' };
     });
+    vi.mocked(waitForDeployment).mockRejectedValue(new Error('Timeout exceeded.'));
 
-    await handlePush({ argv, config, version });
+    await expect(
+      handlePush({ argv: { ...argv, 'wait-for-deployment': true }, config, version })
+    ).rejects.toThrow('Timeout exceeded.');
 
     expect(process.stderr.write).toHaveBeenCalledWith(
       expect.stringContaining(

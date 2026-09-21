@@ -171,6 +171,26 @@ describe('handlePushStatus()', () => {
     ).resolves.toEqual({ preview: failedPreview, production: null, commit: commitStub });
   });
 
+  it('prints the sunset warning even when the deployment failed', async () => {
+    vi.mocked(getPushStatus).mockImplementation(async ({ onSunsetWarning }) => {
+      onSunsetWarning?.({ sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false });
+      return {
+        ...pushResponseStub,
+        status: {
+          ...pushResponseStub.status,
+          preview: { deploy: { status: 'failed', url: null }, scorecard: [] },
+        },
+      };
+    });
+
+    await expect(handlePushStatus({ argv, config, version })).rejects.toThrow(
+      'Preview deploy fail'
+    );
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      expect.stringContaining('The "push-status" command will be incompatible')
+    );
+  });
+
   describe('"wait" option', () => {
     it('waits for the preview deployment and shows its progress', async () => {
       vi.mocked(waitForDeployment).mockImplementation(async ({ onRetry }) => {
