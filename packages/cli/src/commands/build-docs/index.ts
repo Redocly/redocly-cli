@@ -62,6 +62,6 @@ export const handlerBuildCommand = async ({
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
   } catch (e) {
-    throw new HandledError(e);
+    throw new HandledError(e instanceof Error ? e.message : String(e));
   }
 };
