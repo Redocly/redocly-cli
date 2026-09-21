@@ -179,6 +179,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          'skip-rule': {
+            description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
         }),
     async (argv) => {
       const { handleDiff } = await import('./commands/diff/index.js');
