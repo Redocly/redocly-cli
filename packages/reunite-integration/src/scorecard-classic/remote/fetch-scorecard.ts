@@ -6,12 +6,15 @@ export type FetchRemoteScorecardAndPluginsParams = {
   projectUrl: string;
   auth: string;
   isApiKey?: boolean;
+  // Receives a line for each step of the fetch, for step-by-step debugging.
+  onDebug?: (message: string) => void;
 };
 
 export async function fetchRemoteScorecardAndPlugins({
   projectUrl,
   auth,
   isApiKey = false,
+  onDebug,
 }: FetchRemoteScorecardAndPluginsParams): Promise<RemoteScorecardAndPlugins> {
   const parsedProjectUrl = parseProjectUrl(projectUrl);
 
@@ -20,7 +23,12 @@ export async function fetchRemoteScorecardAndPlugins({
   }
 
   try {
-    const project = await fetchProjectConfigBySlugs({ ...parsedProjectUrl, auth, isApiKey });
+    const project = await fetchProjectConfigBySlugs({
+      ...parsedProjectUrl,
+      auth,
+      isApiKey,
+      onDebug,
+    });
     const scorecard = project.config.scorecardClassic || project.config.scorecard;
 
     if (!scorecard) {
@@ -28,7 +36,7 @@ export async function fetchRemoteScorecardAndPlugins({
     }
 
     const pluginsUrl = project.config.pluginsUrl;
-    const plugins = pluginsUrl ? await fetchPlugins(pluginsUrl) : undefined;
+    const plugins = pluginsUrl ? await fetchPlugins(pluginsUrl, onDebug) : undefined;
 
     return { scorecard, plugins, pluginsUrl };
   } catch (error: unknown) {
@@ -61,17 +69,23 @@ async function fetchProjectConfigBySlugs({
   projectSlug,
   auth,
   isApiKey,
+  onDebug,
 }: {
   residency: string;
   orgSlug: string;
   projectSlug: string;
   auth: string;
   isApiKey: boolean;
+  onDebug?: (message: string) => void;
 }): Promise<Project> {
   const projectUrl = new URL(`${residency}/api/orgs/${orgSlug}/projects/${projectSlug}`);
   const projectResponse = await fetch(projectUrl, { headers: createAuthHeaders(auth, isApiKey) });
 
+  onDebug?.(`Project fetch response status: ${projectResponse.status}`);
+
   if (projectResponse.status === 401 || projectResponse.status === 403) {
+    onDebug?.(`Authentication failed with status ${projectResponse.status}.`);
+    onDebug?.('Check that your credentials are valid and have the necessary permissions.');
     throw new Error(
       `Unauthorized access to project: ${projectSlug}. Please check your credentials.`
     );
@@ -81,20 +95,31 @@ async function fetchProjectConfigBySlugs({
     throw new Error(`Failed to fetch project: ${projectSlug}. Status: ${projectResponse.status}`);
   }
 
+  onDebug?.('Successfully received project configuration.');
+
   return projectResponse.json();
 }
 
 // A plugins bundle that cannot be fetched is treated as no plugins.
-async function fetchPlugins(pluginsUrl: string): Promise<string | undefined> {
+async function fetchPlugins(
+  pluginsUrl: string,
+  onDebug?: (message: string) => void
+): Promise<string | undefined> {
+  onDebug?.(`Fetching plugins from: ${pluginsUrl}`);
+
   try {
     const pluginsResponse = await fetch(pluginsUrl);
 
+    onDebug?.(`Plugins fetch response status: ${pluginsResponse.status}`);
+
     if (pluginsResponse.status !== 200) {
+      onDebug?.('Failed to fetch plugins');
       return;
     }
 
     return pluginsResponse.text();
-  } catch {
+  } catch (error) {
+    onDebug?.(`Error fetching plugins: ${error instanceof Error ? error.message : String(error)}`);
     return;
   }
 }

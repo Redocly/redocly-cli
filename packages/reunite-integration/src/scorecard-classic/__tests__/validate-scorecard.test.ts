@@ -124,6 +124,41 @@ describe('validateScorecard', () => {
     expect(result.problems[0].message).toBe('Error 1');
   });
 
+  it('should report each validation step to onDebug', async () => {
+    const scorecardConfig = {
+      levels: [
+        { name: 'Baseline', rules: {} },
+        { name: 'Gold', rules: {} },
+      ],
+    };
+    vi.mocked(openapiCore.lintDocument)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        { message: 'Error 1', ruleId: 'rule-1', severity: 'error', location: [], ignored: false },
+      ] as any);
+    const onDebug = vi.fn();
+
+    await validateScorecard({
+      apiPath: 'test.yaml',
+      document: mockDocument,
+      externalRefResolver: mockResolver,
+      scorecardConfig,
+      plugins: [{ id: 'test-plugin' }],
+      onDebug,
+    });
+
+    expect(onDebug.mock.calls.map(([message]) => message)).toEqual([
+      '\nValidating level: "Baseline"',
+      'Using 1 plugin for this level.',
+      'Linting document against level rules...',
+      'Found 0 problems for level "Baseline".',
+      '\nValidating level: "Gold"',
+      'Using 1 plugin for this level.',
+      'Linting document against level rules...',
+      'Found 1 problem for level "Gold".',
+    ]);
+  });
+
   it('should pass the plugins to the level configs', async () => {
     const scorecardConfig = {
       levels: [{ name: 'Gold', rules: {} }],

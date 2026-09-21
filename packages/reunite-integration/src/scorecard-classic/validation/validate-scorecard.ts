@@ -2,6 +2,7 @@ import type { ScorecardConfig } from '@redocly/config';
 import {
   HandledError,
   lintDocument,
+  pluralize,
   type Document,
   type Plugin,
   type BaseResolver,
@@ -25,6 +26,8 @@ export type ValidateScorecardParams = {
   plugins?: Plugin[];
   targetLevel?: string;
   metadata?: Record<string, unknown>;
+  // Receives a line for each step of the validation, for step-by-step debugging.
+  onDebug?: (message: string) => void;
 };
 
 export async function validateScorecard({
@@ -36,6 +39,7 @@ export async function validateScorecard({
   plugins = [],
   targetLevel,
   metadata = {},
+  onDebug,
 }: ValidateScorecardParams): Promise<ScorecardValidationResult> {
   const problems: ScorecardProblem[] = [];
   const levelResults: Map<string, ScorecardProblem[]> = new Map();
@@ -60,6 +64,12 @@ export async function validateScorecard({
   );
 
   for (const level of levels) {
+    onDebug?.(`\nValidating level: "${level.name}"`);
+    if (plugins.length > 0) {
+      onDebug?.(`Using ${plugins.length} ${pluralize('plugin', plugins.length)} for this level.`);
+    }
+    onDebug?.('Linting document against level rules...');
+
     const levelProblems = await lintDocument({
       document,
       externalRefResolver,
@@ -72,6 +82,10 @@ export async function validateScorecard({
         ...problem,
         scorecardLevel: level.name,
       }));
+
+    onDebug?.(
+      `Found ${filteredProblems.length} ${pluralize('problem', filteredProblems.length)} for level "${level.name}".`
+    );
 
     levelResults.set(level.name, filteredProblems);
     problems.push(...filteredProblems);

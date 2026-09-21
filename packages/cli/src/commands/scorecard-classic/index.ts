@@ -146,34 +146,56 @@ export async function handleScorecardClassic({
     externalRefResolver,
     scorecardConfig: scorecard,
     configPath: config.configPath,
-    plugins: await evaluatePlugins(plugins, config.configPath),
+    plugins: await evaluatePlugins(plugins, config.configPath, verbose),
     targetLevel,
     metadata,
+    onDebug: verbose ? (message) => logger.info(`${message}\n`) : undefined,
   });
-
-  if (verbose) {
-    for (const level of scorecard.levels || []) {
-      const levelProblems = result.problems.filter(
-        (problem) => problem.scorecardLevel === level.name
-      );
-      logger.info(
-        `Found ${levelProblems.length} ${pluralize('problem', levelProblems.length)} for level "${level.name}".\n`
-      );
-    }
-  }
 
   reportResults({ path, result, targetLevel, format: argv.format, version, startedAt });
 }
 
 // The scorecard still runs, without plugins, when the plugins code cannot be evaluated.
-async function evaluatePlugins(pluginsCode: string | undefined, configPath: string | undefined) {
+async function evaluatePlugins(
+  pluginsCode: string | undefined,
+  configPath: string | undefined,
+  verbose: boolean | undefined
+) {
   if (!pluginsCode) {
+    if (verbose) {
+      logger.info(`No plugins code provided to evaluate.\n`);
+    }
     return [];
   }
 
+  if (verbose) {
+    logger.info(`Starting plugin evaluation...\n`);
+  }
+
   try {
-    return await evaluatePluginsFromCode(pluginsCode, configPath ? dirname(configPath) : undefined);
+    const plugins = await evaluatePluginsFromCode(
+      pluginsCode,
+      configPath ? dirname(configPath) : undefined
+    );
+
+    if (verbose) {
+      logger.info(
+        `Successfully evaluated ${plugins.length} ${pluralize('plugin', plugins.length)}.\n`
+      );
+      plugins.forEach((plugin, index) => {
+        logger.info(`   Plugin ${index + 1}: ${plugin.id || 'unnamed'}\n`);
+      });
+    }
+
+    return plugins;
   } catch (error) {
+    if (verbose) {
+      logger.error(`❌ Failed to evaluate plugins.\n`);
+      logger.error(`Error details: ${error.message}\n`);
+      if (error.stack) {
+        logger.error(`Stack trace:\n${error.stack}\n`);
+      }
+    }
     logger.warn(`Something went wrong during plugins evaluation: ${error.message}\n`);
     return [];
   }
@@ -191,7 +213,10 @@ async function fetchScorecard({
 
   let remoteScorecard: RemoteScorecardAndPlugins;
   try {
-    remoteScorecard = await fetchRemoteScorecardAndPlugins(params);
+    remoteScorecard = await fetchRemoteScorecardAndPlugins({
+      ...params,
+      onDebug: verbose ? (message) => logger.info(`${message}\n`) : undefined,
+    });
   } catch (error) {
     if (verbose) {
       logger.error(`❌ Failed to fetch remote scorecard configuration.\n`);

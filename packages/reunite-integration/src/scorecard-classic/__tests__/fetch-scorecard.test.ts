@@ -15,6 +15,44 @@ describe('fetchRemoteScorecardAndPlugins', () => {
     delete process.env.REDOCLY_AUTHORIZATION;
   });
 
+  it('should report each fetch step to onDebug', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        status: 200,
+        json: async () => ({
+          id: 'project-123',
+          slug: 'test-project',
+          config: { scorecard: { levels: [] }, pluginsUrl: 'https://example.com/plugins.js' },
+        }),
+      })
+      .mockResolvedValueOnce({ status: 404, text: async () => '' });
+    const onDebug = vi.fn();
+
+    await fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken, onDebug });
+
+    expect(onDebug.mock.calls.map(([message]) => message)).toEqual([
+      'Project fetch response status: 200',
+      'Successfully received project configuration.',
+      'Fetching plugins from: https://example.com/plugins.js',
+      'Plugins fetch response status: 404',
+      'Failed to fetch plugins',
+    ]);
+  });
+
+  it('should report an authentication failure to onDebug before failing', async () => {
+    mockFetch.mockResolvedValueOnce({ status: 401, json: async () => ({}) });
+    const onDebug = vi.fn();
+
+    await expect(
+      fetchRemoteScorecardAndPlugins({ projectUrl: validProjectUrl, auth: testToken, onDebug })
+    ).rejects.toThrow('Unauthorized access to project: test-project');
+    expect(onDebug.mock.calls.map(([message]) => message)).toEqual([
+      'Project fetch response status: 401',
+      'Authentication failed with status 401.',
+      'Check that your credentials are valid and have the necessary permissions.',
+    ]);
+  });
+
   it('should handle invalid URL format', async () => {
     await expect(
       fetchRemoteScorecardAndPlugins({ projectUrl: 'not-a-valid-url', auth: testToken })

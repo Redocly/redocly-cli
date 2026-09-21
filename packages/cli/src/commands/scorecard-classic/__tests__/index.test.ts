@@ -93,15 +93,17 @@ describe('handleScorecardClassic()', () => {
   it('prints the fetch, plugin, and level details when verbose is on', async () => {
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     const pluginsCode = 'export default [() => ({ id: "test-plugin" })]';
-    vi.mocked(fetchRemoteScorecardAndPlugins).mockResolvedValue({
-      scorecard: { levels: [{ name: 'Baseline', rules: {} }] },
-      plugins: pluginsCode,
-      pluginsUrl: 'https://example.com/plugins.js',
+    vi.mocked(fetchRemoteScorecardAndPlugins).mockImplementation(async ({ onDebug }) => {
+      onDebug?.('Project fetch response status: 200');
+      return {
+        scorecard: { levels: [{ name: 'Baseline', rules: {} }] },
+        plugins: pluginsCode,
+        pluginsUrl: 'https://example.com/plugins.js',
+      };
     });
-    vi.mocked(validateScorecard).mockResolvedValue({
-      problems: [],
-      achievedLevel: 'Baseline',
-      targetLevelAchieved: true,
+    vi.mocked(validateScorecard).mockImplementation(async ({ onDebug }) => {
+      onDebug?.('Found 0 problems for level "Baseline".');
+      return { problems: [], achievedLevel: 'Baseline', targetLevelAchieved: true };
     });
 
     await handleScorecardClassic({ argv: { ...argv, verbose: true }, config, version });
@@ -112,11 +114,41 @@ describe('handleScorecardClassic()', () => {
     expect(logger.info).toHaveBeenCalledWith(
       'Starting fetch for remote scorecard configuration...\n'
     );
+    expect(logger.info).toHaveBeenCalledWith('Project fetch response status: 200\n');
     expect(logger.info).toHaveBeenCalledWith('Successfully fetched scorecard configuration.\n');
     expect(logger.info).toHaveBeenCalledWith('Scorecard levels found: 1\n');
     expect(logger.info).toHaveBeenCalledWith(
       'Successfully fetched plugins from https://example.com/plugins.js\n'
     );
+    expect(logger.info).toHaveBeenCalledWith('Starting plugin evaluation...\n');
+    expect(logger.info).toHaveBeenCalledWith('Successfully evaluated 1 plugin.\n');
+    expect(logger.info).toHaveBeenCalledWith('   Plugin 1: test-plugin\n');
     expect(logger.info).toHaveBeenCalledWith('Found 0 problems for level "Baseline".\n');
+  });
+
+  it('prints the plugin evaluation failure when verbose is on and runs without plugins', async () => {
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(logger, 'error').mockImplementation(() => {});
+    vi.mocked(fetchRemoteScorecardAndPlugins).mockResolvedValue({
+      scorecard: { levels: [{ name: 'Baseline', rules: {} }] },
+      plugins: 'this is not javascript',
+      pluginsUrl: 'https://example.com/plugins.js',
+    });
+    vi.mocked(validateScorecard).mockResolvedValue({
+      problems: [],
+      achievedLevel: 'Baseline',
+      targetLevelAchieved: true,
+    });
+
+    await handleScorecardClassic({ argv: { ...argv, verbose: true }, config, version });
+
+    expect(validateScorecard).toHaveBeenCalledWith(expect.objectContaining({ plugins: [] }));
+    expect(logger.error).toHaveBeenCalledWith('❌ Failed to evaluate plugins.\n');
+    expect(logger.error).toHaveBeenCalledWith(expect.stringMatching(/^Error details: .+\n$/));
+    expect(logger.error).toHaveBeenCalledWith(expect.stringMatching(/^Stack trace:\n/));
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringMatching(/^Something went wrong during plugins evaluation: .+\n$/)
+    );
   });
 });
