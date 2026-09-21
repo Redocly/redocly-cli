@@ -1,0 +1,10 @@
+plugins:
+  - ./plugin.cjs
+rules:
+  operation-description: error
+  rule/security-not-empty:
+    subject:
+      type: Operation
+      property: security
+    assertions:
+      acme/isEmptyArray: false

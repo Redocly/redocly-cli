@@ -6,15 +6,16 @@ slug:
 
 # `generate-arazzo`
 
-Auto-generate Arazzo workflows based on an OpenAPI description file.
+Auto-generate an Arazzo description based on an OpenAPI description file.
 
 {% admonition type="warning" %}
 
-Given the nature of OpenAPI, the generated Arazzo description is not a complete test file and may not function.
-Dependencies between endpoints are not resolved without using the `--with-ai` option.
+Given the nature of OpenAPI, the generated Arazzo description is not a complete test file and may not function. Dependencies between endpoints are not resolved.
 
 It acts as a starting point for a test file and needs to be extended to be functional.
 {% /admonition %}
+
+The first HTTP response is used as the success criteria for each step.
 
 After writing the file, the command prints a ready-to-run [`respect`](./respect.md) command, including an `--input` placeholder for every workflow input.
 Before running the command, replace the placeholder values with real ones.
@@ -25,25 +26,68 @@ See the [Redesign workflows with AI](#redesign-workflows-with-ai) section.
 ## Usage
 
 ```sh
-redocly generate-arazzo <api>
-redocly generate-arazzo <api> --with-ai -o <outputName>
+npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> [-o | --output-file]
+npx @redocly/cli@latest generate-arazzo <your-OAS-description-file> --with-ai [--ai-provider=<option>] [--ai-model=<string>] [--max-workflows=<number>]
 ```
 
 ## Options
 
-| Option            | Type    | Description                                                                                                                                                                                                                                                                                             |
-| ----------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api               | string  | **REQUIRED.** Path to the API description file you want to generate Arazzo workflows from.                                                                                                                                                                                                              |
-| -o, --output-file | string  | Name for the generated output file. Defaults to `auto-generated.arazzo.yaml` **If the file already exists, it's overwritten.** See the [specify output file](#specify-output-file) section.                                                                                                             |
-| --with-ai         | boolean | Redesign the generated workflows with an AI provider, using the OpenAPI description as context. Default: `false`.<br />See the [redesign workflows with AI](#redesign-workflows-with-ai) section.<br />Without this option, only the first HTTP response is used as the success criteria for each step. |
-| --ai-provider     | string  | AI provider used with `--with-ai`. Runs the corresponding CLI in non-interactive mode.<br />**Possible values:** `claude`, `codex`, `cursor`. Default: `claude`.                                                                                                                                        |
-| --ai-model        | string  | Model passed to the selected AI provider. If not set, the provider's default model is used.                                                                                                                                                                                                             |
-| --ai-concurrency  | number  | Number of workflows designed in parallel with `--with-ai` when a large description is handled in two phases. Default: `4`.                                                                                                                                                                              |
-| --max-workflows   | number  | Most workflows the AI may design with `--with-ai`. The output contains the most likely scenarios instead of every combination. Default: `10`.                                                                                                                                                           |
+{% table %}
+
+- Option {% width="20%" %}
+- Type {% width="15%" %}
+- Description
+
+---
+
+- -o, --output-file
+- string
+- Name for the generated output file. Defaults to `auto-generated.arazzo.yaml` **If the file already exists, it's overwritten.** See the [specify output file](#specify-output-file) section.
+
+---
+
+- --with-ai
+- boolean
+- Redesign the generated workflows with an AI provider, using the OpenAPI description as context.
+  Default: `false`.
+  See the [redesign workflows with AI](#redesign-workflows-with-ai) section.
+
+---
+
+- --ai-provider
+- string
+- AI provider used with `--with-ai`.
+  Runs the corresponding CLI in non-interactive mode.
+  **Possible values:** `claude`, `codex`, `cursor`.
+  Default: `claude`.
+
+---
+
+- --ai-model
+- string
+- Model passed to the selected AI provider.
+  If not set, the provider's default model is used.
+
+---
+
+- --ai-concurrency
+- number
+- Number of workflows designed in parallel with `--with-ai` when a large description is handled in two phases.
+  Default: `4`.
+
+---
+
+- --max-workflows
+- number
+- Most workflows the AI may design with `--with-ai`.
+  The output contains the most likely scenarios instead of every combination.
+  Default: `10`.
+
+{% /table %}
 
 ## Examples
 
-Run the command: `redocly generate-arazzo 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml'`
+Run the command: `npx @redocly/cli@latest generate-arazzo 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml'`
 
 The command generates an `auto-generated.arazzo.yaml` file in the current directory.
 
@@ -177,7 +221,6 @@ Use `--ai-model` to choose a model, or the provider's default is used.
 
 ## Resources
 
-- [Respect command](./respect.md) to execute your Arazzo description.
 - [Learn more about Arazzo](/learn/arazzo/what-is-arazzo).
-- [Generate realistic Arazzo workflows with AI](https://redocly.com/blog/generate-arazzo-with-ai).
 - [Lint command](./lint.md) to lint your Arazzo description.
+- [Respect command](./respect.md) to execute your Arazzo description.

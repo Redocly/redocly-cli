@@ -53,6 +53,8 @@ export class Config {
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
+  // Plugins listed in a config file are not evaluated in the browser or when `skipPluginEval` is set.
+  readonly #pluginsEvaluated: boolean;
 
   constructor(
     resolvedConfig: ResolvedConfig,
@@ -63,6 +65,7 @@ export class Config {
       alias?: string;
       plugins?: Plugin[];
       ignore?: IgnoreConfig;
+      pluginsEvaluated?: boolean;
     } = {}
   ) {
     this.resolvedConfig = resolvedConfig;
@@ -73,10 +76,11 @@ export class Config {
     this._alias = opts.alias;
 
     this.plugins = opts.plugins || [];
+    this.#pluginsEvaluated = opts.pluginsEvaluated ?? true;
     this.doNotResolveExamples = !!resolvedConfig.resolve?.doNotResolveExamples;
 
     const group = (rules: Record<string, RuleConfig>) => {
-      return groupAssertionRules({ rules }, this.plugins);
+      return groupAssertionRules({ rules }, this.plugins, this.#pluginsEvaluated);
     };
 
     this.rules = {
@@ -177,6 +181,7 @@ export class Config {
         alias,
         plugins: this.plugins,
         ignore: this.ignore,
+        pluginsEvaluated: this.#pluginsEvaluated,
       }
     );
   }
