@@ -27,15 +27,22 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const startedAt = performance.now();
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
-  const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
+  const [{ path: revisionPath, alias }] = await getFallbackApisOrExit([argv.revision], config);
+  // The revision is the version being released, so its `apis` entry configures the comparison.
+  const revisionConfig = config.forAlias(alias);
+  revisionConfig.skipDiffRules(argv['skip-rule']);
 
-  const { bundle: baseDocument } = await bundle({ config, ref: basePath });
-  const { bundle: revisionDocument } = await bundle({ config, ref: revisionPath });
+  const { bundle: baseDocument } = await bundle({ config: revisionConfig, ref: basePath });
+  const { bundle: revisionDocument } = await bundle({ config: revisionConfig, ref: revisionPath });
   collectSpecData?.(revisionDocument);
 
   let result: DiffResult;
   try {
-    result = diffDocuments({ base: baseDocument, revision: revisionDocument, config });
+    result = diffDocuments({
+      base: baseDocument,
+      revision: revisionDocument,
+      config: revisionConfig,
+    });
   } catch (error) {
     if (error instanceof DiffError) {
       return exitWithError(error.message);

@@ -13,4 +13,5 @@ export type DiffArgv = {
   output?: string;
   'fail-on': DiffFailOn;
   'check-version': boolean;
+  'skip-rule'?: string[];
 } & VerifyConfigOptions;
