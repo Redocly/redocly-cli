@@ -84,6 +84,7 @@ describe('handlePushStatus()', () => {
       project: 'test-project',
       pushId: 'test-push-id',
       version,
+      onSunsetWarning: expect.any(Function),
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -193,6 +194,7 @@ describe('handlePushStatus()', () => {
         project: 'test-project',
         pushId: 'test-push-id',
         version,
+        onSunsetWarning: expect.any(Function),
         buildType: 'preview',
         maxExecutionTime: undefined,
         retryIntervalMs: undefined,
@@ -248,6 +250,22 @@ describe('handlePushStatus()', () => {
         [Error: ✗ Failed to get push status. Reason: Timeout exceeded.
         ]
       `);
+    });
+
+    it('prints a sunset warning once even when both deployments report it', async () => {
+      vi.mocked(waitForDeployment).mockImplementation(async ({ onSunsetWarning }) => {
+        onSunsetWarning?.({ sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false });
+        return { ...pushResponseStub, isMainBranch: true };
+      });
+
+      await handlePushStatus({ argv: { ...argv, wait: true }, config, version });
+
+      expect(waitForDeployment).toHaveBeenCalledTimes(2);
+      const stderrWrite = vi.mocked(process.stderr.write);
+      const sunsetMessages = stderrWrite.mock.calls.filter(([text]) =>
+        String(text).includes('will be incompatible')
+      );
+      expect(sunsetMessages).toHaveLength(1);
     });
   });
 });

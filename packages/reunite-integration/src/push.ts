@@ -2,7 +2,7 @@ import { logger, slash } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { ReuniteApi } from './api/index.js';
+import { ReuniteApi, type SunsetWarning } from './api/index.js';
 import type { UpsertRemoteResponse } from './api/types.js';
 
 export type FileToUpload = { name: string; path: string };
@@ -28,6 +28,8 @@ export type PushOptions = {
   version?: string;
   // Called once the remote exists, right before the files are uploaded to it.
   onUploadStart?: (remote: UpsertRemoteResponse) => void;
+  // Called after the push with the most urgent sunset warning the Reunite API sent, if any.
+  onSunsetWarning?: (warning: SunsetWarning) => void;
 };
 
 export type PushResult = {
@@ -45,6 +47,7 @@ export async function pushFiles({
   commit,
   version,
   onUploadStart,
+  onSunsetWarning,
 }: PushOptions): Promise<PushResult> {
   const client = new ReuniteApi({ domain, apiKey, command: 'push', version });
   const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, project);
@@ -66,7 +69,11 @@ export async function pushFiles({
     files.map((file) => ({ path: slash(file.name), stream: fs.createReadStream(file.path) }))
   );
 
-  client.reportSunsetWarnings();
+  const sunsetWarning = client.getSunsetWarning();
+
+  if (sunsetWarning) {
+    onSunsetWarning?.(sunsetWarning);
+  }
 
   return { pushId: id };
 }

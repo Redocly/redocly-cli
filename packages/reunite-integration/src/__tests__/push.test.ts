@@ -52,7 +52,7 @@ describe('pushFiles()', () => {
     remotes.push.mockResolvedValue({ id: 'test-id' });
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
-      this.reportSunsetWarnings = vi.fn();
+      this.getSunsetWarning = vi.fn();
     });
     vi.mocked(slash).mockImplementation((filePath) => filePath);
     vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
@@ -105,6 +105,19 @@ describe('pushFiles()', () => {
     remotes.push.mockRejectedValue(new ReuniteApiError('Deprecated.', 412));
 
     await expect(pushFiles(options)).rejects.toThrow('Deprecated.');
+  });
+
+  it('hands the sunset warning to the caller', async () => {
+    const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
+      this.remotes = remotes;
+      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    });
+    const onSunsetWarning = vi.fn();
+
+    await pushFiles({ ...options, onSunsetWarning });
+
+    expect(onSunsetWarning).toHaveBeenCalledWith(sunsetWarning);
   });
 });
 
