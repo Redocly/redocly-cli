@@ -1,4 +1,4 @@
-import { ReuniteApi } from './api/index.js';
+import { ReuniteApi, type SunsetWarning } from './api/index.js';
 import type { PushResponse } from './api/types.js';
 import { retryUntilConditionMet } from './utils/retry-until-condition-met.js';
 
@@ -15,6 +15,8 @@ export type PushStatusOptions = {
   project: string;
   pushId: string;
   version?: string;
+  // Called after the request with the most urgent sunset warning the Reunite API sent, if any.
+  onSunsetWarning?: (warning: SunsetWarning) => void;
 };
 
 export type WaitForDeploymentOptions = PushStatusOptions & {
@@ -30,7 +32,7 @@ export async function getPushStatus(options: PushStatusOptions): Promise<PushRes
   const client = createClient(options);
   const push = await getPush(client, options);
 
-  client.reportSunsetWarnings();
+  reportSunsetWarning(client, options);
 
   return push;
 }
@@ -54,13 +56,21 @@ export async function waitForDeployment({
     retryIntervalMs,
   });
 
-  client.reportSunsetWarnings();
+  reportSunsetWarning(client, options);
 
   return push;
 }
 
 function createClient({ domain, apiKey, version }: PushStatusOptions) {
   return new ReuniteApi({ domain, apiKey, command: 'push-status', version });
+}
+
+function reportSunsetWarning(client: ReuniteApi, { onSunsetWarning }: PushStatusOptions) {
+  const sunsetWarning = client.getSunsetWarning();
+
+  if (sunsetWarning) {
+    onSunsetWarning?.(sunsetWarning);
+  }
 }
 
 function getPush(client: ReuniteApi, { organization, project, pushId }: PushStatusOptions) {

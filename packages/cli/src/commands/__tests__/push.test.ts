@@ -73,6 +73,7 @@ describe('handlePush()', () => {
       },
       version,
       onUploadStart: expect.any(Function),
+      onSunsetWarning: expect.any(Function),
     });
     expect(process.stderr.write).toHaveBeenCalledWith('Uploading to remote-mount-path 1 file:\n');
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
@@ -134,5 +135,20 @@ describe('handlePush()', () => {
       handlePush({ argv: { ...argv, 'wait-for-deployment': true }, config, version })
     ).rejects.toThrow(/^✗ Failed to get push status\. Reason: Timeout exceeded\.\n$/);
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
+  });
+
+  it('prints the sunset warning reported by the upload', async () => {
+    vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
+      onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
+      return { pushId: 'test-id' };
+    });
+
+    await handlePush({ argv, config, version });
+
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'The "push" command is not compatible with your version of Redocly CLI.'
+      )
+    );
   });
 });

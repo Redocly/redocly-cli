@@ -64,7 +64,7 @@ function withDeployStatus(
 beforeEach(() => {
   vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
     this.remotes = remotes;
-    this.reportSunsetWarnings = vi.fn();
+    this.getSunsetWarning = vi.fn();
   });
 });
 
@@ -149,5 +149,20 @@ describe('waitForDeployment()', () => {
         startTime: Date.now() - 2000,
       })
     ).rejects.toThrow('Timeout exceeded.');
+  });
+
+  it('hands the sunset warning to the caller once the deployment finished', async () => {
+    const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
+      this.remotes = remotes;
+      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    });
+    remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'success'));
+    const onSunsetWarning = vi.fn();
+
+    await waitForDeployment({ ...options, buildType: 'preview', onSunsetWarning });
+
+    expect(onSunsetWarning).toHaveBeenCalledTimes(1);
+    expect(onSunsetWarning).toHaveBeenCalledWith(sunsetWarning);
   });
 });

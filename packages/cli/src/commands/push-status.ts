@@ -2,6 +2,7 @@ import { capitalize, HandledError, logger, type OutputFormat } from '@redocly/op
 import {
   getApiKeys,
   getDomain,
+  getMostUrgentSunsetWarning,
   getPushStatus,
   ReuniteApiError,
   waitForDeployment,
@@ -10,6 +11,7 @@ import {
   type DeploymentStatusResponse,
   type PushResponse,
   type ScorecardItem,
+  type SunsetWarning,
 } from '@redocly/reunite-integration';
 import * as colors from 'colorette';
 
@@ -53,7 +55,17 @@ export async function handlePushStatus({
 
   try {
     const apiKey = getApiKeys();
-    const statusOptions = { domain, apiKey, organization, project, pushId, version };
+    // Both waits may report a sunset warning; it is printed once at the end.
+    const sunsetWarnings: SunsetWarning[] = [];
+    const statusOptions = {
+      domain,
+      apiKey,
+      organization,
+      project,
+      pushId,
+      version,
+      onSunsetWarning: (warning: SunsetWarning) => sunsetWarnings.push(warning),
+    };
     const waitOptions = {
       ...statusOptions,
       maxExecutionTime: argv['max-execution-time'],
@@ -89,6 +101,7 @@ export async function handlePushStatus({
       printScorecard(push.status.production.scorecard);
     }
     printPushStatusInfo({ organization, project, pushId, startedAt });
+    printSunsetWarning('push-status', sunsetWarnings);
 
     return {
       preview: push.status.preview,
@@ -117,6 +130,30 @@ export function handleReuniteError(
   }
 
   throw new HandledError(`${message} Reason: ${error.message}\n`);
+}
+
+// Prints the most urgent of the sunset warnings a command collected, once.
+export function printSunsetWarning(
+  command: 'push' | 'push-status',
+  sunsetWarnings: SunsetWarning[]
+): void {
+  const sunsetWarning = getMostUrgentSunsetWarning(sunsetWarnings);
+
+  if (!sunsetWarning) {
+    return;
+  }
+
+  const updateVersionMessage = `Update to the latest version by running "npm install @redocly/cli@latest".`;
+
+  if (sunsetWarning.isSunsetExpired) {
+    logger.error(
+      `The "${command}" command is not compatible with your version of Redocly CLI. ${updateVersionMessage}\n\n`
+    );
+  } else {
+    logger.warn(
+      `The "${command}" command will be incompatible with your version of Redocly CLI after ${sunsetWarning.sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
+    );
+  }
 }
 
 function printPushStatusInfo({

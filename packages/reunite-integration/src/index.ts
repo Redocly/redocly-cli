@@ -1,4 +1,5 @@
 export {
+  getMostUrgentSunsetWarning,
   ReuniteApi,
   ReuniteApiClient,
   ReuniteApiError,

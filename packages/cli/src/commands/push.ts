@@ -5,12 +5,13 @@ import {
   getDomain,
   pushFiles,
   type FileToUpload,
+  type SunsetWarning,
 } from '@redocly/reunite-integration';
 import { green } from 'colorette';
 
 import { printExecutionTime } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
-import { handlePushStatus, handleReuniteError } from './push-status.js';
+import { handlePushStatus, handleReuniteError, printSunsetWarning } from './push-status.js';
 
 export type PushArgv = {
   files: string[];
@@ -47,6 +48,7 @@ export async function handlePush({
 
   let files: FileToUpload[];
   let pushId: string;
+  const sunsetWarnings: SunsetWarning[] = [];
 
   try {
     const apiKey = getApiKeys();
@@ -80,6 +82,7 @@ export async function handlePush({
           `Uploading to ${remote.mountPath} ${files.length} ${pluralize('file', files.length)}:\n`
         );
       },
+      onSunsetWarning: (warning) => sunsetWarnings.push(warning),
     });
     pushId = push.pushId;
   } catch (err) {
@@ -121,6 +124,8 @@ export async function handlePush({
       )} uploaded to organization ${organization}, project ${project}. Push ID: ${pushId}.`
     );
   }
+
+  printSunsetWarning('push', sunsetWarnings);
 
   return { pushId };
 }

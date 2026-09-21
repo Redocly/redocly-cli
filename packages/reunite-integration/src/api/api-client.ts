@@ -1,4 +1,3 @@
-import { logger } from '@redocly/openapi-core';
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
 
@@ -323,7 +322,6 @@ class RemotesApi {
 
 export class ReuniteApi {
   private apiClient: ReuniteApiClient;
-  private command: CommandOption;
 
   public remotes: RemotesApi;
 
@@ -338,43 +336,30 @@ export class ReuniteApi {
     command: CommandOption;
     version?: string;
   }) {
-    this.command = command;
-    this.apiClient = new ReuniteApiClient(this.command, version);
+    this.apiClient = new ReuniteApiClient(command, version);
 
     this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
   }
 
-  public reportSunsetWarnings(): void {
-    const sunsetWarnings = this.apiClient.sunsetWarnings;
-
-    if (sunsetWarnings.length) {
-      const [{ isSunsetExpired, sunsetDate }] = sunsetWarnings.sort(
-        (a: SunsetWarning, b: SunsetWarning) => {
-          // First, prioritize by expiration status
-          if (a.isSunsetExpired !== b.isSunsetExpired) {
-            return a.isSunsetExpired ? -1 : 1;
-          }
-
-          // If both are either expired or not, sort by sunset date
-          return a.sunsetDate > b.sunsetDate ? 1 : -1;
-        }
-      );
-
-      const updateVersionMessage = `Update to the latest version by running "npm install @redocly/cli@latest".`;
-
-      if (isSunsetExpired) {
-        logger.error(
-          `The "${this.command}" command is not compatible with your version of Redocly CLI. ${updateVersionMessage}\n\n`
-        );
-      } else {
-        logger.warn(
-          `The "${
-            this.command
-          }" command will be incompatible with your version of Redocly CLI after ${sunsetDate.toLocaleString()}. ${updateVersionMessage}\n\n`
-        );
-      }
-    }
+  // The most urgent sunset warning the Reunite API sent through this client so far, if any.
+  public getSunsetWarning(): SunsetWarning | undefined {
+    return getMostUrgentSunsetWarning(this.apiClient.sunsetWarnings);
   }
+}
+
+// An expired sunset comes first, then the closest upcoming one.
+export function getMostUrgentSunsetWarning(
+  sunsetWarnings: SunsetWarning[]
+): SunsetWarning | undefined {
+  const [mostUrgent] = [...sunsetWarnings].sort((a, b) => {
+    if (a.isSunsetExpired !== b.isSunsetExpired) {
+      return a.isSunsetExpired ? -1 : 1;
+    }
+
+    return a.sunsetDate > b.sunsetDate ? 1 : -1;
+  });
+
+  return mostUrgent;
 }
 
 export type PushPayload = {
