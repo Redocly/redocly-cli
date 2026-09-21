@@ -94,6 +94,7 @@ export async function handlePush({
   }
   logger.info('\n');
   logger.info(`Push ID: ${pushId}\n`);
+  printSunsetWarning('push', sunsetWarnings);
 
   // The wait reports its own failures; they must not be rewritten as upload failures.
   if (argv['wait-for-deployment']) {
@@ -124,8 +125,6 @@ export async function handlePush({
       )} uploaded to organization ${organization}, project ${project}. Push ID: ${pushId}.`
     );
   }
-
-  printSunsetWarning('push', sunsetWarnings);
 
   return { pushId };
 }
