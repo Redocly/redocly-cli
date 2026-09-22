@@ -19,7 +19,6 @@ import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
-import { getReuniteUrl } from '../reunite/api/index.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
@@ -84,8 +83,8 @@ export async function sendTelemetry({
       $0: _,
       ...args
     } = argv as Exact<Arguments<CommandArgv>>;
-    const { RedoclyOAuthClient } = await import('../auth/oauth-client.js');
-    const oauthClient = new RedoclyOAuthClient();
+    const { RedoclyOAuthClient, getReuniteUrl } = await import('@redocly/reunite-integration');
+    const oauthClient = new RedoclyOAuthClient(version);
     const reuniteUrl = getReuniteUrl(config, args.residency);
     const logged_in = await oauthClient.isAuthorized(reuniteUrl);
     let anonymous_id = getCachedAnonymousId();

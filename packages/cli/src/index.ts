@@ -12,7 +12,6 @@ import * as path from 'node:path';
 import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { handleLogin, handleLogout } from './commands/auth.js';
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
@@ -43,7 +42,6 @@ import { type ProxyArgv } from './commands/proxy/index.js';
 import { handleRespect, type RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import { handleScore } from './commands/score/index.js';
-import { handleScorecardClassic } from './commands/scorecard-classic/index.js';
 import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
@@ -51,8 +49,6 @@ import type {
 import { handleSplit } from './commands/split/index.js';
 import { handleStats } from './commands/stats/index.js';
 import { handleTranslations } from './commands/translations.js';
-import { handlePushStatus } from './reunite/commands/push-status.js';
-import { handlePush } from './reunite/commands/push.js';
 import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
@@ -311,7 +307,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handlePushStatus } = await import('./commands/push-status.js');
       commandWrapper(handlePushStatus)(argv);
     }
   )
@@ -420,7 +417,8 @@ yargs(hideBin(process.argv))
             default: false,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handlePush } = await import('./commands/push.js');
       commandWrapper(handlePush)(argv);
     }
   )
@@ -618,7 +616,8 @@ yargs(hideBin(process.argv))
           type: 'boolean',
         },
       }),
-    (argv) => {
+    async (argv) => {
+      const { handleLogin } = await import('./commands/login.js');
       commandWrapper(handleLogin)(argv);
     }
   )
@@ -626,7 +625,8 @@ yargs(hideBin(process.argv))
     'logout',
     'Clear your stored credentials.',
     (yargs) => yargs,
-    (argv) => {
+    async (argv) => {
+      const { handleLogout } = await import('./commands/logout.js');
       commandWrapper(handleLogout)(argv);
     }
   )
@@ -1248,6 +1248,7 @@ yargs(hideBin(process.argv))
       });
     },
     async (argv) => {
+      const { handleScorecardClassic } = await import('./commands/scorecard-classic/index.js');
       commandWrapper(handleScorecardClassic)(argv as Arguments<ScorecardClassicArgv>);
     }
   )
