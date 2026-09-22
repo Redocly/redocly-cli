@@ -16,6 +16,9 @@
     "npm": ">=10"
   },
   "engineStrict": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",

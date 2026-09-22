@@ -14,6 +14,13 @@ These are procedures — follow them in order.
 - Before writing the message, read the appropriate package `CHANGELOG.md` to match the existing entry structure.
 - Skip the changeset only for changes that don't affect the published packages — for example, edits to these AI-instruction files or repository tooling.
 
+## New packages
+
+Adding a package under `packages/` has release steps that the code alone does not cover.
+Before the PR's first snapshot release and before it merges, the package must exist on npm with a trusted publisher for this repository's `release.yaml`, or the snapshot job fails with `E404` and `changeset publish` fails with `ENEEDAUTH`, stopping the release half-way.
+Also add the package everywhere the packages are listed by name: the `Update package versions` and `Publish snapshot packages` steps of `.github/workflows/release.yaml`, `scripts/write-release-message.js` (its changelog in the Slack release message), and `scripts/local-pack.sh` (packed by `npm run pack:prepare`), and keep `publishConfig.access` set to `public`.
+The full procedure is in [`CONTRIBUTING.md`](../../CONTRIBUTING.md#publish-a-new-package-for-the-first-time).
+
 ## Commits
 
 - Ask before committing — let the contributor make the commit.

@@ -7,6 +7,9 @@ on:
   pull_request: # for the snapshot release flow
     types:
       - labeled
+  # To finish a release whose npm publish stopped half-way: runs dockerhub, the smoke checks, and notify
+  # for the version currently on main, without publishing anything.
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -64,7 +67,7 @@ jobs:
 
   dockerhub:
     needs: [release]
-    if: needs.release.outputs.published == 'true'
+    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || needs.release.outputs.published == 'true') }}
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -124,6 +127,7 @@ jobs:
       - release
       - dockerhub
     name: Test released version
+    if: ${{ !cancelled() && needs.dockerhub.result == 'success' }}
     continue-on-error: true
     runs-on: ubuntu-latest
     steps:
@@ -166,7 +170,7 @@ jobs:
     needs:
       - release
       - post-release-smoke-checks
-    if: needs.release.outputs.published == 'true'
+    if: ${{ !cancelled() && (github.event_name == 'workflow_dispatch' || needs.release.outputs.published == 'true') }}
     name: Send the Release Message to Slack
     runs-on: ubuntu-latest
     steps:
