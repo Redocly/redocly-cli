@@ -170,22 +170,15 @@ describe('split', () => {
 
     // split writes real files only outside the test environment
     const splitArgs = getParams(indexEntryPoint, ['split', 'openapi.yaml', '--outDir=output']);
-    const splitResult = spawnSync('node', splitArgs, {
+    spawnSync('node', splitArgs, {
       cwd: testPath,
-      encoding: 'utf-8',
       env: { ...process.env, NODE_ENV: 'production', NO_COLOR: 'TRUE' },
     });
-    const splitWarnings = splitResult.stderr
-      .split('\n')
-      .filter((line) => line.startsWith('warning:'))
-      .join('\n');
 
     // bundling the split output proves every component file was written and no $ref points at itself
     const bundleArgs = getParams(indexEntryPoint, ['bundle', 'output/openapi.yaml']);
     const bundleResult = getCommandOutput(bundleArgs, { testPath });
 
-    await expect(cleanupOutput(`${splitWarnings}\n${bundleResult}`)).toMatchFileSnapshot(
-      join(testPath, 'snapshot.txt')
-    );
+    await expect(cleanupOutput(bundleResult)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 });

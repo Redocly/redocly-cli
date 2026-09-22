@@ -13,13 +13,12 @@ export function getUniqueFileNamePath(
   ext: string,
   takenFileNames: Map<string, string>
 ) {
-  const preferredFilename = getFileNamePath(componentDirPath, componentName, ext);
-  let filename = preferredFilename;
+  let filename = getFileNamePath(componentDirPath, componentName, ext);
+  const collidingName = takenFileNames.get(filename.toLowerCase());
   for (let serialId = 2; takenFileNames.has(filename.toLowerCase()); serialId++) {
     filename = getFileNamePath(componentDirPath, `${componentName}-${serialId}`, ext);
   }
-  if (filename !== preferredFilename) {
-    const collidingName = takenFileNames.get(preferredFilename.toLowerCase());
+  if (collidingName) {
     logger.warn(
       `warning: ${componentName} and ${collidingName} would share one file on a case-insensitive file system, saving ${componentName} to ${blue(
         filename

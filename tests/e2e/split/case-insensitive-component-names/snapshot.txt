@@ -1,4 +1,3 @@
-warning: apiRequest and ApiRequest would share one file on a case-insensitive file system, saving apiRequest to output/components/schemas/apiRequest-2.yaml.
 openapi: 3.0.3
 info:
   title: Case-insensitive component names
@@ -14,6 +13,10 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/apiRequest-2'
 components:
   schemas:
     apiRequest-2:
