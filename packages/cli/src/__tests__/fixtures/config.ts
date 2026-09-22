@@ -17,6 +17,8 @@ export const configFixture: Config = {
   saveIgnore: vi.fn(),
   skipDecorators: vi.fn(),
   skipDiffRules: vi.fn(),
+  getDiffRulesForSpecVersion: vi.fn(() => []),
+  getDiffImpact: vi.fn(() => 'off' as const),
   ignore: {},
   diff: {
     oas3_0: {},

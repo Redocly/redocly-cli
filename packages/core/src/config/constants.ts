@@ -1,6 +1,6 @@
 export const CONFIG_FILE_NAME = 'redocly.yaml';
 
-export const DEFAULT_CONFIG = { extends: ['recommended', 'recommended-diff'] };
+export const DEFAULT_CONFIG = { extends: ['recommended', 'diff-recommended'] };
 
 export const IGNORE_FILE = '.redocly.lint-ignore.yaml';
 export const IGNORE_BANNER =

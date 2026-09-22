@@ -2,12 +2,7 @@ import type { RecheckConfig } from '@redocly/config';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import {
-  diffSpecVersions,
-  isImpactSetting,
-  type DiffSpecVersion,
-  type Impact,
-} from '../diff/types.js';
+import type { DiffRule, Impact } from '../diff/types.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import {
   type Oas2RuleSet,
@@ -25,6 +20,7 @@ import {
 import { isAbsoluteUrl } from '../ref-utils.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
+import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { omit } from '../utils/omit.js';
 import { slash } from '../utils/slash.js';
@@ -58,7 +54,8 @@ export class Config {
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
   recheck: RecheckConfig;
-  diff: Record<DiffSpecVersion, Record<string, Impact | 'off'>>;
+  /** Only the specifications the diff rules cover; the rest are absent, like in `DIRECTIONS`. */
+  diff: Partial<Record<SpecVersion, Record<string, Impact | 'off'>>>;
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -168,21 +165,11 @@ export class Config {
     };
     this.recheck = resolvedConfig.recheck ?? { rules: {} };
 
-    // The common `diff` block is the base for every specification, and a value outside the
-    // impact ladder is linted as a warning, so it is read as `off` rather than reported.
-    const impactsOf = (specConfig?: Record<string, Impact | 'off'>) => {
-      const impacts: Record<string, Impact | 'off'> = {};
-      for (const [ruleId, impact] of Object.entries({ ...resolvedConfig.diff, ...specConfig })) {
-        impacts[ruleId] = isImpactSetting(impact) ? impact : 'off';
-      }
-      return impacts;
-    };
-
     this.diff = {
-      oas3_0: impactsOf(resolvedConfig.oas3_0Diff),
-      oas3_1: impactsOf(resolvedConfig.oas3_1Diff),
-      oas3_2: impactsOf(resolvedConfig.oas3_2Diff),
-      async3: impactsOf(resolvedConfig.async3Diff),
+      oas3_0: { ...resolvedConfig.diff, ...resolvedConfig.oas3_0Diff },
+      oas3_1: { ...resolvedConfig.diff, ...resolvedConfig.oas3_1Diff },
+      oas3_2: { ...resolvedConfig.diff, ...resolvedConfig.oas3_2Diff },
+      async3: { ...resolvedConfig.diff, ...resolvedConfig.async3Diff },
     };
 
     this.ignore = opts.ignore ?? {};
@@ -370,6 +357,24 @@ export class Config {
   }
 
   // TODO: add rules for redocly.yaml / entities?
+  /** The diff rule sets every plugin offers for that specification family. */
+  getDiffRulesForSpecVersion(version: SpecMajorVersion): Record<string, DiffRule>[] {
+    switch (version) {
+      case 'oas3':
+        return this.plugins.map((plugin) => plugin.diff?.oas3).filter(isDefined);
+      case 'async3':
+        return this.plugins.map((plugin) => plugin.diff?.async3).filter(isDefined);
+      default:
+        return [];
+    }
+  }
+
+  getDiffImpact(ruleId: string, specVersion: SpecVersion): Impact | 'off' {
+    this._usedRules.add(ruleId);
+    this._usedVersions.add(specVersion);
+    return this.diff[specVersion]?.[ruleId] || 'off';
+  }
+
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
       case 'oas3': {
@@ -479,9 +484,9 @@ export class Config {
 
   skipDiffRules(rules?: string[]) {
     for (const ruleId of rules || []) {
-      for (const version of diffSpecVersions) {
-        if (this.diff[version][ruleId]) {
-          this.diff[version][ruleId] = 'off';
+      for (const impacts of Object.values(this.diff)) {
+        if (impacts[ruleId]) {
+          impacts[ruleId] = 'off';
         }
       }
     }
