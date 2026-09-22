@@ -33,14 +33,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Markup Link Checker (mlc) - docs
-        uses: becheran/mlc@7ec24825cefe0c9c8c6bac48430e1f69e3ec356e # v1.2.0
+        uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
         with:
-          args: ./docs
+          folder-path: './docs'
       - name: Markup Link Checker (mlc) - cookbook
-        uses: becheran/mlc@7ec24825cefe0c9c8c6bac48430e1f69e3ec356e # v1.2.0
+        uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
         with:
-          args: ./cookbook
+          folder-path: './cookbook'
       - name: Markup Link Checker (mlc) - repo docs
-        uses: becheran/mlc@7ec24825cefe0c9c8c6bac48430e1f69e3ec356e # v1.2.0
+        uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
         with:
-          args: -f ./README.md,./CONTRIBUTING.md
+          files: './README.md,./CONTRIBUTING.md'
