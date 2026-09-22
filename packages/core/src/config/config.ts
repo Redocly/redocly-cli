@@ -370,8 +370,6 @@ export class Config {
   }
 
   getDiffImpact(ruleId: string, specVersion: SpecVersion): Impact | 'off' {
-    this._usedRules.add(ruleId);
-    this._usedVersions.add(specVersion);
     return this.diff[specVersion]?.[ruleId] || 'off';
   }
 
