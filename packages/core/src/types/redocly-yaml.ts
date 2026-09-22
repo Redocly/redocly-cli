@@ -298,13 +298,6 @@ const configGovernanceProperties: Record<
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
   graphqlRules: 'Rules',
-  // TODO: move the diff blocks into the Redocly config schema (@redocly/config); they are
-  // declared here because that schema does not know about them yet.
-  diff: 'DiffRules',
-  oas3_0Diff: 'DiffRules',
-  oas3_1Diff: 'DiffRules',
-  oas3_2Diff: 'DiffRules',
-  async3Diff: 'DiffRules',
   preprocessors: 'Preprocessors',
   oas2Preprocessors: 'Preprocessors',
   oas3_0Preprocessors: 'Preprocessors',
@@ -327,6 +320,12 @@ const configGovernanceProperties: Record<
   arazzo1_1Decorators: 'Decorators',
   overlay1Decorators: 'Decorators',
   openrpc1Decorators: 'Decorators',
+
+  diff: 'DiffRules',
+  oas3_0Diff: 'DiffRules',
+  oas3_1Diff: 'DiffRules',
+  oas3_2Diff: 'DiffRules',
+  async3Diff: 'DiffRules',
 };
 
 const ConfigGovernance: NodeType = {
@@ -364,8 +363,6 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     // plugins are not allowed in apis, and diff compares two apis, so it is configured once.
-    // TODO: when the diff blocks move to @redocly/config, this exclusion has to move with
-    // them — otherwise the upstream schema will allow them per api again.
     ...omit(ConfigGovernance.properties, [
       'plugins',
       'diff',
@@ -473,8 +470,6 @@ const Rules: NodeType = {
   },
 };
 
-// TODO: this node hand-writes what the Redocly config schema will generate for the diff
-// blocks; delete it, its `configTypes` entry and the `diffRuleIds` import once it does.
 const DiffRules: NodeType = {
   properties: {},
   description:
@@ -863,10 +858,10 @@ const CoreConfigTypes: Record<string, NodeType> = {
   ExternalDocs: Oas3_1Types.ExternalDocs,
   Xml: Oas3_1Types.Xml,
   Rules,
-  DiffRules,
   Decorators,
   Preprocessors,
   Assertions,
+  DiffRules,
 };
 
 // FIXME: remove this once we remove `theme` from the schema

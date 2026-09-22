@@ -38,12 +38,18 @@ import spec from './spec.js';
 import { type Plugin, type RawGovernanceConfig } from './types.js';
 
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {
+  /**
+   * lint presets
+   */
   recommended,
   'recommended-strict': recommendedStrict,
-  'diff-recommended': diffRecommended,
   minimal,
   all,
   spec,
+  /**
+   * diff presets
+   */
+  'diff-recommended': diffRecommended,
 };
 
 export const defaultPlugin: Plugin<'built-in'> = {

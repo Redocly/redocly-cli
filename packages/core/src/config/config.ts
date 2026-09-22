@@ -369,10 +369,6 @@ export class Config {
     }
   }
 
-  getDiffImpact(ruleId: string, specVersion: SpecVersion): Impact | 'off' {
-    return this.diff[specVersion]?.[ruleId] || 'off';
-  }
-
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
       case 'oas3': {
@@ -463,6 +459,10 @@ export class Config {
     }
   }
 
+  getDiffImpact(ruleId: string, specVersion: SpecVersion): Impact | 'off' {
+    return this.diff[specVersion]?.[ruleId] || 'off';
+  }
+
   skipRules(rules?: string[]) {
     for (const ruleId of rules || []) {
       for (const version of specVersions) {
@@ -475,16 +475,6 @@ export class Config {
               configurableRule.severity = 'off';
             }
           }
-        }
-      }
-    }
-  }
-
-  skipDiffRules(rules?: string[]) {
-    for (const ruleId of rules || []) {
-      for (const impacts of Object.values(this.diff)) {
-        if (impacts[ruleId]) {
-          impacts[ruleId] = 'off';
         }
       }
     }
@@ -505,6 +495,16 @@ export class Config {
       for (const version of specVersions) {
         if (this.decorators[version][decoratorId]) {
           this.decorators[version][decoratorId] = 'off';
+        }
+      }
+    }
+  }
+
+  skipDiffRules(rules?: string[]) {
+    for (const ruleId of rules || []) {
+      for (const impacts of Object.values(this.diff)) {
+        if (impacts[ruleId]) {
+          impacts[ruleId] = 'off';
         }
       }
     }
