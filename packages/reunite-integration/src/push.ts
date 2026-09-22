@@ -50,32 +50,36 @@ export async function pushFiles({
   onSunsetWarning,
 }: PushOptions): Promise<PushResult> {
   const client = new ReuniteApi({ domain, apiKey, command: 'push', version });
-  const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, project);
-  const remote = await client.remotes.upsert(organization, project, {
-    mountBranchName: projectDefaultBranch,
-    mountPath,
-  });
 
-  onUploadStart?.(remote);
+  try {
+    const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, project);
+    const remote = await client.remotes.upsert(organization, project, {
+      mountBranchName: projectDefaultBranch,
+      mountPath,
+    });
 
-  const { id } = await client.remotes.push(
-    organization,
-    project,
-    {
-      remoteId: remote.id,
-      commit,
-      isMainBranch: defaultBranch === commit.branchName,
-    },
-    files.map((file) => ({ path: slash(file.name), stream: fs.createReadStream(file.path) }))
-  );
+    onUploadStart?.(remote);
 
-  const sunsetWarning = client.getSunsetWarning();
+    const { id } = await client.remotes.push(
+      organization,
+      project,
+      {
+        remoteId: remote.id,
+        commit,
+        isMainBranch: defaultBranch === commit.branchName,
+      },
+      files.map((file) => ({ path: slash(file.name), stream: fs.createReadStream(file.path) }))
+    );
 
-  if (sunsetWarning) {
-    onSunsetWarning?.(sunsetWarning);
+    return { pushId: id };
+  } finally {
+    // Runs whether the push succeeded or not: the client keeps the headers of every response it got.
+    const sunsetWarning = client.getSunsetWarning();
+
+    if (sunsetWarning) {
+      onSunsetWarning?.(sunsetWarning);
+    }
   }
-
-  return { pushId: id };
 }
 
 export function collectFilesToPush(

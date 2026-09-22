@@ -137,6 +137,20 @@ describe('handlePush()', () => {
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
   });
 
+  it('prints the sunset warning even when the upload fails', async () => {
+    vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
+      onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
+      throw new ReuniteApiError('Failed to fetch default branch. Unauthorized.', 401);
+    });
+
+    await expect(handlePush({ argv, config, version })).rejects.toThrow('✗ File upload failed.');
+    expect(process.stderr.write).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'The "push" command is not compatible with your version of Redocly CLI.'
+      )
+    );
+  });
+
   it('prints the sunset warning reported by the upload even when the wait fails', async () => {
     vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
       onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });

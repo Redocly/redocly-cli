@@ -88,6 +88,7 @@ export async function handlePush({
     });
     pushId = push.pushId;
   } catch (err) {
+    printSunsetWarning('push', sunsetWarnings);
     handleReuniteError('✗ File upload failed.', err);
   }
 

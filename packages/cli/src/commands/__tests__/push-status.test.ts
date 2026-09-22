@@ -287,5 +287,19 @@ describe('handlePushStatus()', () => {
       );
       expect(sunsetMessages).toHaveLength(1);
     });
+
+    it('prints the sunset warning even when the wait times out', async () => {
+      vi.mocked(waitForDeployment).mockImplementation(async ({ onSunsetWarning }) => {
+        onSunsetWarning?.({ sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false });
+        throw new Error('Timeout exceeded.');
+      });
+
+      await expect(
+        handlePushStatus({ argv: { ...argv, wait: true }, config, version })
+      ).rejects.toThrow('Timeout exceeded.');
+      expect(process.stderr.write).toHaveBeenCalledWith(
+        expect.stringContaining('The "push-status" command will be incompatible')
+      );
+    });
   });
 });

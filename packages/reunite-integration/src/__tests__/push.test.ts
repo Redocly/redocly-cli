@@ -119,6 +119,19 @@ describe('pushFiles()', () => {
 
     expect(onSunsetWarning).toHaveBeenCalledWith(sunsetWarning);
   });
+
+  it('hands the sunset warning to the caller even when the push fails', async () => {
+    const sunsetWarning = { sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true };
+    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
+      this.remotes = remotes;
+      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    });
+    remotes.push.mockRejectedValue(new ReuniteApiError('Gone.', 410));
+    const onSunsetWarning = vi.fn();
+
+    await expect(pushFiles({ ...options, onSunsetWarning })).rejects.toThrow('Gone.');
+    expect(onSunsetWarning).toHaveBeenCalledWith(sunsetWarning);
+  });
 });
 
 describe('collectFilesToPush()', () => {

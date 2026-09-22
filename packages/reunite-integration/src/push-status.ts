@@ -30,11 +30,12 @@ export type WaitForDeploymentOptions = PushStatusOptions & {
 
 export async function getPushStatus(options: PushStatusOptions): Promise<PushResponse> {
   const client = createClient(options);
-  const push = await getPush(client, options);
 
-  reportSunsetWarning(client, options);
-
-  return push;
+  try {
+    return await getPush(client, options);
+  } finally {
+    reportSunsetWarning(client, options);
+  }
 }
 
 export async function waitForDeployment({
@@ -46,25 +47,27 @@ export async function waitForDeployment({
   ...options
 }: WaitForDeploymentOptions): Promise<PushResponse> {
   const client = createClient(options);
-  const push = await retryUntilConditionMet({
-    operation: () => getPush(client, options),
-    condition: (result) =>
-      !PENDING_DEPLOYMENT_STATUSES.includes(result.status[buildType].deploy.status),
-    onConditionNotMet: onRetry,
-    startTime,
-    retryTimeoutMs: maxExecutionTime * 1000,
-    retryIntervalMs,
-  });
 
-  reportSunsetWarning(client, options);
-
-  return push;
+  try {
+    return await retryUntilConditionMet({
+      operation: () => getPush(client, options),
+      condition: (result) =>
+        !PENDING_DEPLOYMENT_STATUSES.includes(result.status[buildType].deploy.status),
+      onConditionNotMet: onRetry,
+      startTime,
+      retryTimeoutMs: maxExecutionTime * 1000,
+      retryIntervalMs,
+    });
+  } finally {
+    reportSunsetWarning(client, options);
+  }
 }
 
 function createClient({ domain, apiKey, version }: PushStatusOptions) {
   return new ReuniteApi({ domain, apiKey, command: 'push-status', version });
 }
 
+// Runs whether the request succeeded or not: the client keeps the headers of every response it got.
 function reportSunsetWarning(client: ReuniteApi, { onSunsetWarning }: PushStatusOptions) {
   const sunsetWarning = client.getSunsetWarning();
 
