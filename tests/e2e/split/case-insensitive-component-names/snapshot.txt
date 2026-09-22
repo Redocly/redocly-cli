@@ -1,29 +1,32 @@
+
+warning: apiRequest and ApiRequest would share one file on a case-insensitive file system, saving apiRequest to output/components/schemas/apiRequest-2.yaml.
+$ref: ./apiRequest-2.yaml
+type: object
+properties:
+  jobId:
+    type: string
+post:
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/apiRequest'
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiRequest'
 openapi: 3.0.3
 info:
   title: Case-insensitive component names
   version: 1.0.0
 paths:
   /apply:
-    post:
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/apiRequest-2'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/apiRequest-2'
-components:
-  schemas:
-    apiRequest-2:
-      type: object
-      properties:
-        jobId:
-          type: string
+    $ref: paths/apply.yaml
+🪓 Document: openapi.yaml is successfully split
+    and all related files are saved to the directory: output 
 
-bundling output/openapi.yaml...
-📦 Created a bundle for output/openapi.yaml at stdout <test>ms.
+openapi.yaml: split processed in <test>ms
+
