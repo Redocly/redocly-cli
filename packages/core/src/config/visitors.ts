@@ -88,7 +88,7 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
 }
 
 function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
-  return isPlainObject(schema) && schema.isFilePath === true;
+  return isPlainObject(schema) && schema.format === 'file-path';
 }
 
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.

@@ -7,7 +7,7 @@ export type ScalarSchema = {
   resolvable?: boolean;
   directResolveAs?: string;
   minimum?: number;
-  isFilePath?: boolean;
+  format?: string;
   description?: string;
   documentationLink?: string;
 };
@@ -20,7 +20,7 @@ export type NormalizedScalarSchema = {
   directResolveAs?: NormalizedNodeType;
   resolvable: boolean;
   minimum?: number;
-  isFilePath?: boolean;
+  format?: string;
   description?: string;
   documentationLink?: string;
 };

@@ -221,7 +221,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
       },
       "cliOutput": {
-        "isFilePath": true,
+        "format": "file-path",
         "type": "string",
       },
       "codeSamples": {
@@ -294,7 +294,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "setup": {
-        "isFilePath": true,
+        "format": "file-path",
         "type": "string",
       },
     },
@@ -400,7 +400,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Rules": "Rules",
       "client": "Client",
       "clientOutput": {
-        "isFilePath": true,
+        "format": "file-path",
         "type": "string",
       },
       "decorators": "Decorators",
@@ -433,7 +433,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "openrpc1Preprocessors": "Preprocessors",
       "openrpc1Rules": "Rules",
       "output": {
-        "isFilePath": true,
+        "format": "file-path",
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -443,7 +443,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
-        "isFilePath": true,
+        "format": "file-path",
         "type": "string",
       },
       "rules": "Rules",
@@ -1312,6 +1312,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "fromProjectUrl": {
+        "format": "uri",
         "type": "string",
       },
       "ignore": {
@@ -3464,6 +3465,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -3482,12 +3484,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -3506,6 +3510,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -6378,6 +6383,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -6396,12 +6402,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -6420,6 +6428,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -8880,10 +8889,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "endAt": {
+        "format": "date-time",
         "type": "string",
       },
       "rbac": "rootRedoclyConfigSchema.banner_items.rbac",
       "startAt": {
+        "format": "date-time",
         "type": "string",
       },
       "target": {
@@ -11978,6 +11989,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -11996,12 +12008,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -12020,6 +12034,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -14892,6 +14907,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -14910,12 +14926,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -14934,6 +14952,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -17394,10 +17413,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "endAt": {
+        "format": "date-time",
         "type": "string",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.banner_items.rbac",
       "startAt": {
+        "format": "date-time",
         "type": "string",
       },
       "target": {
@@ -19897,6 +19918,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -19915,12 +19937,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -19939,6 +19963,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -28663,6 +28688,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -28681,12 +28707,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -28705,6 +28733,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -33934,6 +33963,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -33952,12 +33982,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -33976,6 +34008,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },

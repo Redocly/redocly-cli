@@ -352,14 +352,14 @@ const ConfigApis: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
-// marks `root` and `output` until @redocly/config declares `isFilePath` itself, then this goes away;
+// marks `root` and `output` until @redocly/config declares the `file-path` format itself, then this goes away;
 // only fields the schema declares are marked, so a custom schema keeps its own set of properties
 function asFilePaths(properties: NodeType['properties'] | undefined, fields: string[]) {
   const marked: NodeType['properties'] = {};
   for (const field of fields) {
     const schema = properties?.[field];
     if (isPlainObject(schema)) {
-      marked[field] = { ...schema, isFilePath: true };
+      marked[field] = { ...schema, format: 'file-path' };
     }
   }
   return marked;
@@ -375,7 +375,7 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
       ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
       // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
       client: 'Client',
-      clientOutput: { type: 'string', isFilePath: true },
+      clientOutput: { type: 'string', format: 'file-path' },
       ...asFilePaths(schemaProperties, ['root', 'output']),
     },
   };
@@ -401,7 +401,7 @@ const Client: NodeType = {
     runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
     goPackage: { type: 'string' },
-    cliOutput: { type: 'string', isFilePath: true },
+    cliOutput: { type: 'string', format: 'file-path' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
@@ -410,7 +410,7 @@ const Client: NodeType = {
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
-    setup: { type: 'string', isFilePath: true },
+    setup: { type: 'string', format: 'file-path' },
     options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
