@@ -1,4 +1,4 @@
-import { createConfig } from '@redocly/openapi-core';
+import { createConfig, HandledError } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import { createStore, loadAndBundleSpec } from 'redoc';
@@ -6,7 +6,7 @@ import { type OpenAPISpec } from 'redoc/typings/types/index.js';
 
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
-import { getPageHTML } from '../../commands/build-docs/utils.js';
+import { getObjectOrJSON, getPageHTML } from '../../commands/build-docs/utils.js';
 import type * as miscellaneous from '../../utils/miscellaneous.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
@@ -75,5 +75,13 @@ describe('build-docs', () => {
     expect(loadAndBundleSpec).toBeCalledTimes(1);
     expect(getFallbackApisOrExit).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);
+  });
+
+  it('reports an invalid --theme.openapi value with the parse error only', async () => {
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const redoclyConfig = await createConfig({});
+
+    expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(HandledError);
+    expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(/^Unexpected token/);
   });
 });

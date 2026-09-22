@@ -1,7 +1,7 @@
 # Security guidelines
 
 The essentials are in `AGENTS.md`: this is the depth.
-The CLI reads local and remote files, resolves `$ref`s across documents, authenticates against Redocly cloud, and runs real HTTP requests in respect-core — treat all of that as untrusted input.
+The CLI reads local and remote files, resolves `$ref`s across documents, authenticates against Redocly cloud in reunite-integration, and runs real HTTP requests in respect-core — treat all of that as untrusted input.
 
 1. Never hardcode credentials, tokens, or API keys.
    Read them from the environment or the existing auth flow, and never log their values.
