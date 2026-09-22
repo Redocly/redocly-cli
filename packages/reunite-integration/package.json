@@ -27,7 +27,7 @@
     "Reunite"
   ],
   "dependencies": {
-    "@redocly/config": "^0.56.0",
+    "@redocly/config": "^0.57.0",
     "@redocly/openapi-core": "2.54.1",
     "undici": "^6.28.0"
   },
