@@ -85,6 +85,7 @@ export async function loadConfig(
   const ignore = await loadIgnoreConfig(configPath, resolver);
 
   const config = new Config(resolvedConfig, {
+    pluginsEvaluated: !isBrowser && !skipPluginEval,
     configPath,
     document: rawConfigDocument,
     resolvedRefMap: resolvedRefMap,
@@ -129,6 +130,7 @@ export async function createConfig(
   });
 
   return new Config(resolvedConfig, {
+    pluginsEvaluated: !isBrowser,
     configPath,
     document: rawConfigDocument,
     resolvedRefMap,

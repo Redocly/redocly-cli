@@ -1,3 +1,4 @@
+import { logger } from '../logger.js';
 import {
   asserts,
   buildAssertCustomFunction,
@@ -14,7 +15,8 @@ import type { RawGovernanceConfig, RuleConfig, Plugin } from './types.js';
 
 export function groupAssertionRules(
   config: RawGovernanceConfig,
-  plugins: Plugin[]
+  plugins: Plugin[],
+  pluginsEvaluated = true
 ): Record<string, RuleConfig> {
   if (!config.rules) {
     return {};
@@ -29,13 +31,17 @@ export function groupAssertionRules(
     if (ruleKey.startsWith('rule/') && isPlainObject(rule)) {
       const assertion = rule as RawAssertion;
 
-      if (plugins) {
-        registerCustomAssertions(plugins, assertion);
+      // We may have custom assertions inside the where block too
+      const definitions = [assertion, ...(assertion.where || [])];
 
-        // We may have custom assertion inside where block
-        for (const context of assertion.where || []) {
-          registerCustomAssertions(plugins, context);
-        }
+      if (
+        plugins &&
+        !definitions.every((definition) =>
+          registerCustomAssertions(plugins, definition, pluginsEvaluated)
+        )
+      ) {
+        logger.warn(`Rule ${ruleKey} is skipped: its plugin is not evaluated.\n`);
+        continue;
       }
       assertions.push({
         ...assertion,
@@ -53,7 +59,12 @@ export function groupAssertionRules(
   return transformedRules;
 }
 
-function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinition) {
+// Returns false when the rule has to be skipped because its plugin is not available.
+function registerCustomAssertions(
+  plugins: Plugin[],
+  assertion: AssertionDefinition,
+  pluginsEvaluated: boolean
+): boolean {
   for (const field of Object.keys(assertion.assertions || {})) {
     const [pluginId, fn] = field.split('/');
 
@@ -62,6 +73,7 @@ function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinit
     const plugin = plugins.find((plugin) => plugin.id === pluginId);
 
     if (!plugin) {
+      if (!pluginsEvaluated) return false;
       throw Error(`Plugin ${pluginId} isn't found.`);
     }
 
@@ -73,4 +85,6 @@ function registerCustomAssertions(plugins: Plugin[], assertion: AssertionDefinit
       plugin.assertions[fn]
     );
   }
+
+  return true;
 }

@@ -1,5 +1,5 @@
 ---
-slug: /docs/cli/v2/rules/overlay/struct
+slug: /docs/cli/v1/rules/overlay/struct
 ---
 
 # struct
