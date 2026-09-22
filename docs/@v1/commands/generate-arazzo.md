@@ -125,6 +125,6 @@ redocly generate-arazzo <your-OAS-description-file> --output-file=arazzo-custom.
 
 ## Resources
 
-- [Learn more about Arazzo](/learn/arazzo/what-is-arazzo).
+- [Learn more about Arazzo](https://redocly.com/learn/arazzo/what-is-arazzo).
 - [Lint command](./lint.md) to lint your Arazzo description.
 - [Respect command](./respect.md) to execute your Arazzo description.

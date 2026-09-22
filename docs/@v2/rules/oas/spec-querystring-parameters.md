@@ -128,4 +128,4 @@ paths:
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-querystring-parameters.ts)
-- [OpenAPI 3.2 Parameter object](https://spec.openapis.org/oas/3.2.0#parameter-object)
+- [OpenAPI 3.2 Parameter object](https://spec.openapis.org/oas/v3.2.0#parameter-object)
