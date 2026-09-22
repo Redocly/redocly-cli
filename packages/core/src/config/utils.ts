@@ -56,11 +56,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     overlay1Rules: {},
     openrpc1Rules: {},
     graphqlRules: {},
-    diff: {},
-    oas3_0Diff: {},
-    oas3_1Diff: {},
-    oas3_2Diff: {},
-    async3Diff: {},
 
     preprocessors: {},
     oas2Preprocessors: {},
@@ -85,6 +80,12 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1_1Decorators: {},
     overlay1Decorators: {},
     openrpc1Decorators: {},
+
+    diff: {},
+    oas3_0Diff: {},
+    oas3_1Diff: {},
+    oas3_2Diff: {},
+    async3Diff: {},
   };
 
   for (const rulesConf of rulesConfList) {
@@ -117,16 +118,6 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.openrpc1Rules, rulesConf.rules);
     assignConfig(result.graphqlRules, rulesConf.graphqlRules);
     assignOnlyExistingConfig(result.graphqlRules, rulesConf.rules);
-
-    assignConfig(result.diff, rulesConf.diff);
-    assignConfig(result.oas3_0Diff, rulesConf.oas3_0Diff);
-    assignOnlyExistingConfig(result.oas3_0Diff, rulesConf.diff);
-    assignConfig(result.oas3_1Diff, rulesConf.oas3_1Diff);
-    assignOnlyExistingConfig(result.oas3_1Diff, rulesConf.diff);
-    assignConfig(result.oas3_2Diff, rulesConf.oas3_2Diff);
-    assignOnlyExistingConfig(result.oas3_2Diff, rulesConf.diff);
-    assignConfig(result.async3Diff, rulesConf.async3Diff);
-    assignOnlyExistingConfig(result.async3Diff, rulesConf.diff);
 
     assignConfig(result.preprocessors, rulesConf.preprocessors);
     assignConfig(result.oas2Preprocessors, rulesConf.oas2Preprocessors);
@@ -171,6 +162,16 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
+
+    assignConfig(result.diff, rulesConf.diff);
+    assignConfig(result.oas3_0Diff, rulesConf.oas3_0Diff);
+    assignOnlyExistingConfig(result.oas3_0Diff, rulesConf.diff);
+    assignConfig(result.oas3_1Diff, rulesConf.oas3_1Diff);
+    assignOnlyExistingConfig(result.oas3_1Diff, rulesConf.diff);
+    assignConfig(result.oas3_2Diff, rulesConf.oas3_2Diff);
+    assignOnlyExistingConfig(result.oas3_2Diff, rulesConf.diff);
+    assignConfig(result.async3Diff, rulesConf.async3Diff);
+    assignOnlyExistingConfig(result.async3Diff, rulesConf.diff);
   }
 
   return result;

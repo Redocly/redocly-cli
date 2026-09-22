@@ -99,17 +99,6 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
   graphqlRules?: RuleMap<BuiltInGraphqlRuleId, RuleConfig, T>;
-  /**
-   * Semver impact per diff rule; `off` skips the rule.
-   * TODO: once `@redocly/config` declares the diff blocks, drop these five fields —
-   * `RawUniversalConfig` already spreads `RedoclyConfig`, so keeping both would make the
-   * upstream declaration unreachable. The `DiffRule`/`DiffRuleId` imports go with them.
-   */
-  diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  oas3_0Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  oas3_1Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  oas3_2Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
-  async3Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
 
   preprocessors?: Record<string, DecoratorConfig>;
   oas2Preprocessors?: Record<
@@ -155,6 +144,12 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   arazzo1_1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
+
+  diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_0Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_1Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  oas3_2Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
+  async3Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
@@ -202,7 +197,6 @@ export type RulesConfig<T> = {
 
 export type CustomRulesConfig = RulesConfig<undefined>;
 
-/** Diff rules are keyed by specification family, the way the other plugin slices are. */
 export type DiffRulesConfig<T> = {
   oas3?: RuleMap<Oas3DiffRuleId, DiffRule, T>;
   async3?: RuleMap<Async3DiffRuleId, DiffRule, T>;
@@ -224,11 +218,11 @@ export type Plugin<T = undefined> = {
 
   configs?: Record<string, RawGovernanceConfig>;
   rules?: RulesConfig<T>;
+  assertions?: AssertionsConfig;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
   diff?: DiffRulesConfig<T>;
   typeExtension?: TypeExtensionsConfig;
-  assertions?: AssertionsConfig;
 
   // Realm properties
   path?: string;

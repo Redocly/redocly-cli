@@ -404,18 +404,6 @@ export async function resolvePlugins(
                 plugin.rules.graphql = prefixRules(pluginInstance.rules.graphql, id);
               }
             }
-            if (pluginInstance.diff) {
-              if (!pluginInstance.diff.oas3 && !pluginInstance.diff.async3) {
-                throw new Error(`Plugin diff rules must have \`oas3\` or \`async3\` rules "${p}.`);
-              }
-              plugin.diff = {};
-              if (pluginInstance.diff.oas3) {
-                plugin.diff.oas3 = prefixRules(pluginInstance.diff.oas3, id);
-              }
-              if (pluginInstance.diff.async3) {
-                plugin.diff.async3 = prefixRules(pluginInstance.diff.async3, id);
-              }
-            }
             if (pluginInstance.preprocessors) {
               if (
                 !pluginInstance.preprocessors.oas3 &&
@@ -503,6 +491,19 @@ export async function resolvePlugins(
 
             if (pluginInstance.assertions) {
               plugin.assertions = pluginInstance.assertions;
+            }
+
+            if (pluginInstance.diff) {
+              if (!pluginInstance.diff.oas3 && !pluginInstance.diff.async3) {
+                throw new Error(`Plugin diff rules must have \`oas3\` or \`async3\` rules "${p}.`);
+              }
+              plugin.diff = {};
+              if (pluginInstance.diff.oas3) {
+                plugin.diff.oas3 = prefixRules(pluginInstance.diff.oas3, id);
+              }
+              if (pluginInstance.diff.async3) {
+                plugin.diff.async3 = prefixRules(pluginInstance.diff.async3, id);
+              }
             }
 
             return {
