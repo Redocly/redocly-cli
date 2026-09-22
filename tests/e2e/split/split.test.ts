@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -161,5 +161,31 @@ describe('split', () => {
 
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('component names that differ only by case', async () => {
+    const testPath = join(__dirname, 'case-insensitive-component-names');
+
+    rmSync(join(testPath, 'output'), { recursive: true, force: true });
+
+    // split writes real files only outside the test environment
+    const splitArgs = getParams(indexEntryPoint, ['split', 'openapi.yaml', '--outDir=output']);
+    const splitResult = spawnSync('node', splitArgs, {
+      cwd: testPath,
+      encoding: 'utf-8',
+      env: { ...process.env, NODE_ENV: 'production', NO_COLOR: 'TRUE' },
+    });
+    const splitWarnings = splitResult.stderr
+      .split('\n')
+      .filter((line) => line.startsWith('warning:'))
+      .join('\n');
+
+    // bundling the split output proves every component file was written and no $ref points at itself
+    const bundleArgs = getParams(indexEntryPoint, ['bundle', 'output/openapi.yaml']);
+    const bundleResult = getCommandOutput(bundleArgs, { testPath });
+
+    await expect(cleanupOutput(`${splitWarnings}\n${bundleResult}`)).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
   });
 });

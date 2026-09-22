@@ -50,7 +50,6 @@ export function splitAsyncApiDefinition({
     asyncapiDir,
     componentsFiles,
     channelsFiles,
-    ext,
     specVersion,
   });
 

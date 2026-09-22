@@ -1,0 +1,24 @@
+openapi: 3.0.3
+info:
+  title: Case-insensitive component names
+  version: 1.0.0
+paths:
+  /apply:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/apiRequest'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    ApiRequest:
+      $ref: '#/components/schemas/apiRequest'
+    apiRequest:
+      type: object
+      properties:
+        jobId:
+          type: string

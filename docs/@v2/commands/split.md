@@ -35,6 +35,9 @@ Channels, operations, and components are split from the root API description int
 - `operations/` - each operation is written to a separate file
 - `components/` - schemas, messages, securitySchemes, servers, serverVariables, parameters, replies, replyAddresses, correlationIds, messageTraits, operationTraits, tags, externalDocs, serverBindings, channelBindings, operationBindings, and messageBindings are each split into subdirectories
 
+Each component is written to a file named after the component.
+If two component names in the same group differ only by case, the second file gets a `-2` suffix, because such names would otherwise share one file on a case-insensitive file system.
+
 Use the [`bundle`](./bundle.md) command and supply the main file as the entrypoint to get your API description back in one file.
 Many API tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
 

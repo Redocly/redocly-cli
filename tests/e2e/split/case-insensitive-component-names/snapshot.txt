@@ -1,0 +1,26 @@
+warning: apiRequest and ApiRequest would share one file on a case-insensitive file system, saving apiRequest to output/components/schemas/apiRequest-2.yaml.
+openapi: 3.0.3
+info:
+  title: Case-insensitive component names
+  version: 1.0.0
+paths:
+  /apply:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/apiRequest-2'
+      responses:
+        '200':
+          description: OK
+components:
+  schemas:
+    apiRequest-2:
+      type: object
+      properties:
+        jobId:
+          type: string
+
+bundling output/openapi.yaml...
+📦 Created a bundle for output/openapi.yaml at stdout <test>ms.
