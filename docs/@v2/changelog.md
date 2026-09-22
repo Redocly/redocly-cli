@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.54.2 (2026-09-22)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+- Updated @redocly/reunite-integration to v2.54.2.
+
 ## 2.54.1 (2026-09-22)
 
 ### Patch Changes
