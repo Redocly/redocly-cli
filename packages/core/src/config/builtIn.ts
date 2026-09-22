@@ -5,6 +5,7 @@ import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
 import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
 import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
 import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
+import { async3Rules as async3DiffRules, oas3Rules as oas3DiffRules } from '../diff/rules/index.js';
 import {
   rules as arazzo1Rules,
   preprocessors as arazzoPreprocessors,
@@ -29,8 +30,8 @@ import {
   preprocessors as overlay1Preprocessors,
 } from '../rules/overlay1/index.js';
 import all from './all.js';
+import diffRecommended from './diff-recommended.js';
 import minimal from './minimal.js';
-import recommendedDiff from './recommended-diff.js';
 import recommendedStrict from './recommended-strict.js';
 import recommended from './recommended.js';
 import spec from './spec.js';
@@ -39,7 +40,7 @@ import { type Plugin, type RawGovernanceConfig } from './types.js';
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {
   recommended,
   'recommended-strict': recommendedStrict,
-  'recommended-diff': recommendedDiff,
+  'diff-recommended': diffRecommended,
   minimal,
   all,
   spec,
@@ -74,6 +75,10 @@ export const defaultPlugin: Plugin<'built-in'> = {
     arazzo1: arazzo1Decorators,
     overlay1: overlay1Decorators,
     openrpc1: openrpc1Decorators,
+  },
+  diff: {
+    oas3: oas3DiffRules,
+    async3: async3DiffRules,
   },
   configs: builtInConfigs,
 };
