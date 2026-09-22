@@ -1,5 +1,11 @@
 # @redocly/cli
 
+## 2.54.1
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.54.1.
+
 ## 2.54.0
 
 ### Patch Changes
