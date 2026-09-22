@@ -1,6 +1,6 @@
 {
   "name": "@redocly/reunite-integration",
-  "version": "2.53.3",
+  "version": "2.54.0",
   "description": "Programmatic access to the Redocly Reunite platform capabilities",
   "type": "module",
   "sideEffects": false,
@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "@redocly/config": "^0.56.0",
-    "@redocly/openapi-core": "2.53.3",
+    "@redocly/openapi-core": "2.54.0",
     "undici": "^6.28.0"
   },
   "files": [
