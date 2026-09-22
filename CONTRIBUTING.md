@@ -466,32 +466,7 @@ Redocly CLI v1 is currently in archive mode, but still can receive bug fixes.
 
 To release a new version, switch to the `v1` branch and follow the steps described in the Contribution guide (the `CONTRIBUTING.md` file).
 
-### Publish a new package for the first time
-
-Both the release job and the snapshot job publish with npm trusted publishing (OIDC).
-A trusted publisher is configured on the package's settings page on npmjs.com, so the package has to exist there before CI can publish it.
-Before the first snapshot release of a PR that adds a package, and before merging it, bootstrap the package by hand once:
-
-1. Create the package on npm by publishing a throwaway version from the package directory with `npm publish --access public --tag snapshot`.
-   This needs publish rights in the Redocly npm organization.
-   Use a prerelease version such as `0.0.0-snapshot.manual` (the client generator was created that way), so it sorts below every real release, and the `snapshot` tag keeps `latest` unassigned, so nobody installs it by default.
-   Change the version only locally for this publish and do not commit it.
-1. On npmjs.com, open the package settings and add a trusted publisher: GitHub Actions, organization `Redocly`, repository `redocly-cli`, workflow `release.yaml`.
-1. Keep `"publishConfig": { "access": "public" }` in the package manifest.
-1. Add the package everywhere the packages are listed by name: the `Update package versions` and `Publish snapshot packages` steps of `.github/workflows/release.yaml`, `scripts/write-release-message.js` (its changelog goes into the Slack release message), and `scripts/local-pack.sh` (packed by `npm run pack:prepare`).
-
-Without the first two steps, the snapshot job fails with `E404` for the new package, and `changeset publish` fails with `ENEEDAUTH` and stops the release half-way (see below).
-
 ### Handle a broken release
 
 If a release pipeline failed or didn't start after the release PR was merged into `main` (for example, if GitHub Actions was down),
 you **must** merge a PR **without changesets** into `main` to trigger the release process again otherwise the release will be lost.
-
-If `changeset publish` fails for one package after publishing the others, the job stops before it pushes the git tags, creates the GitHub releases, builds the Docker image, and sends the Slack message.
-Re-running the job does not help: it finds every package already published and skips all of that.
-To finish such a release:
-
-1. Fix the cause and publish the missing package, for example by hand from the release commit.
-1. Create and push the tags from the release commit: `git checkout <release-commit> && npx changeset tag && git push origin --tags`.
-1. Create a GitHub release for each tag with `gh release create <tag> --title <tag> --notes-file <notes>`, using the top section of the package's `CHANGELOG.md` as the notes.
-1. Run the `Release` workflow manually (`gh workflow run release.yaml --ref main`) to build the Docker image, run the smoke checks, and send the Slack message for the version on `main`.

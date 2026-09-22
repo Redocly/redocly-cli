@@ -58,9 +58,6 @@
     "npm": ">=10"
   },
   "engineStrict": true,
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "examples:regen": "node scripts/regenerate-examples.mjs",
     "prepare": "node scripts/generate-runtime-sources.mjs && node scripts/generate-eject-assets.mjs",
