@@ -139,7 +139,6 @@ export {
   type Impact,
   type JudgedChange,
 } from './diff/types.js';
-export type { DiffRuleMap } from './diff/rules/index.js';
 export { diffReportFormats, type DiffReportFormat } from './diff/format/index.js';
 export { diffToProblems } from './diff/format/problems.js';
 export {

@@ -298,6 +298,8 @@ const configGovernanceProperties: Record<
   overlay1Rules: 'Rules',
   openrpc1Rules: 'Rules',
   graphqlRules: 'Rules',
+  // TODO: move the diff blocks into the Redocly config schema (@redocly/config); they are
+  // declared here because that schema does not know about them yet.
   diff: 'DiffRules',
   oas3_0Diff: 'DiffRules',
   oas3_1Diff: 'DiffRules',
@@ -361,7 +363,17 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
-    ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    // plugins are not allowed in apis, and diff compares two apis, so it is configured once.
+    // TODO: when the diff blocks move to @redocly/config, this exclusion has to move with
+    // them — otherwise the upstream schema will allow them per api again.
+    ...omit(ConfigGovernance.properties, [
+      'plugins',
+      'diff',
+      'oas3_0Diff',
+      'oas3_1Diff',
+      'oas3_2Diff',
+      'async3Diff',
+    ]),
     // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
     client: 'Client',
     clientOutput: { type: 'string' },
@@ -461,12 +473,16 @@ const Rules: NodeType = {
   },
 };
 
+// TODO: this node hand-writes what the Redocly config schema will generate for the diff
+// blocks; delete it, its `configTypes` entry and the `diffRuleIds` import once it does.
 const DiffRules: NodeType = {
   properties: {},
   description:
     'The `diff` block sets the semver impact of each diff rule: `off`, `patch`, `minor`, or `major`.',
   additionalProperties: (_value: unknown, key: string) =>
-    diffRuleIds.includes(key) ? { enum: ['off', 'patch', 'minor', 'major'] } : undefined,
+    diffRuleIds.includes(key) || isCustomRuleId(key)
+      ? { enum: ['off', 'patch', 'minor', 'major'] }
+      : undefined,
 };
 
 const BuiltinRule: NodeType = {

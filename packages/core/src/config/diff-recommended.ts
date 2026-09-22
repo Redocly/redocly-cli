@@ -38,8 +38,8 @@ export const defaultDiffRules: Record<DiffRuleId, Impact | 'off'> = {
   'string-length-changed': 'major',
 };
 
-const recommendedDiff: RawGovernanceConfig<'built-in'> = {
+const diffRecommended: RawGovernanceConfig<'built-in'> = {
   diff: defaultDiffRules,
 };
 
-export default recommendedDiff;
+export default diffRecommended;
