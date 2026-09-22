@@ -178,7 +178,7 @@ This allows you to:
 
 ## Data collection
 
-This tool [collects data](./docs/@v2/usage-data.md) to help Redocly improve our products and services.
+This tool [collects data](./docs/%40v2/usage-data.md) to help Redocly improve our products and services.
 You can opt out by setting the `REDOCLY_TELEMETRY` environment variable to `off`.
 
 ## Update notifications
