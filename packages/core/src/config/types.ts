@@ -1,8 +1,8 @@
 import type { ApiConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
-import type { DiffRuleId } from '../diff/rules/index.js';
-import type { Impact } from '../diff/types.js';
+import type { Async3DiffRuleId, DiffRuleId, Oas3DiffRuleId } from '../diff/rules/index.js';
+import type { DiffRule, Impact } from '../diff/types.js';
 import type {
   SpecMajorVersion,
   Oas3DecoratorsSet,
@@ -99,7 +99,12 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Rules?: RuleMap<BuiltInOverlay1RuleId, RuleConfig, T>;
   openrpc1Rules?: RuleMap<BuiltInOpenRpc1RuleId, RuleConfig, T>;
   graphqlRules?: RuleMap<BuiltInGraphqlRuleId, RuleConfig, T>;
-  /** Semver impact per diff rule; `off` skips the rule. */
+  /**
+   * Semver impact per diff rule; `off` skips the rule.
+   * TODO: once `@redocly/config` declares the diff blocks, drop these five fields —
+   * `RawUniversalConfig` already spreads `RedoclyConfig`, so keeping both would make the
+   * upstream declaration unreachable. The `DiffRule`/`DiffRuleId` imports go with them.
+   */
   diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
   oas3_0Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
   oas3_1Diff?: RuleMap<DiffRuleId, Impact | 'off', T>;
@@ -197,6 +202,12 @@ export type RulesConfig<T> = {
 
 export type CustomRulesConfig = RulesConfig<undefined>;
 
+/** Diff rules are keyed by specification family, the way the other plugin slices are. */
+export type DiffRulesConfig<T> = {
+  oas3?: RuleMap<Oas3DiffRuleId, DiffRule, T>;
+  async3?: RuleMap<Async3DiffRuleId, DiffRule, T>;
+};
+
 export type AssertionContext = Partial<UserContext> & SkipFunctionContext & { node: any };
 
 export type AssertResult = { message?: string; location?: Location };
@@ -215,6 +226,7 @@ export type Plugin<T = undefined> = {
   rules?: RulesConfig<T>;
   preprocessors?: PreprocessorsConfig;
   decorators?: DecoratorsConfig;
+  diff?: DiffRulesConfig<T>;
   typeExtension?: TypeExtensionsConfig;
   assertions?: AssertionsConfig;
 

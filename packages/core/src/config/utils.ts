@@ -117,6 +117,7 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.openrpc1Rules, rulesConf.rules);
     assignConfig(result.graphqlRules, rulesConf.graphqlRules);
     assignOnlyExistingConfig(result.graphqlRules, rulesConf.rules);
+
     assignConfig(result.diff, rulesConf.diff);
     assignConfig(result.oas3_0Diff, rulesConf.oas3_0Diff);
     assignOnlyExistingConfig(result.oas3_0Diff, rulesConf.diff);

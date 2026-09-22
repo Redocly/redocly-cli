@@ -63,7 +63,7 @@ function report(result: DiffResult): string {
 
 describe('diffDocuments', () => {
   it('matches reordered parameters by identity and judges what actually changed', async () => {
-    const config = await createConfig({ extends: ['recommended-diff'] });
+    const config = await createConfig({ extends: ['diff-recommended'] });
     const result = diffDocuments({
       base: makeDocumentFromString(BASE, 'base.yaml'),
       revision: makeDocumentFromString(REVISION, 'rev.yaml'),
@@ -88,7 +88,7 @@ describe('diffDocuments', () => {
   });
 
   it('throws DiffError for different spec families', async () => {
-    const config = await createConfig({ extends: ['recommended-diff'] });
+    const config = await createConfig({ extends: ['diff-recommended'] });
     const oas2 = makeDocumentFromString(
       outdent`
         swagger: '2.0'
@@ -103,7 +103,7 @@ describe('diffDocuments', () => {
   });
 
   it('matches renamed path parameters instead of remove+add', async () => {
-    const config = await createConfig({ extends: ['recommended-diff'] });
+    const config = await createConfig({ extends: ['diff-recommended'] });
     const makeSpec = (param: string) => outdent`
         openapi: 3.1.0
         info: { title: T, version: '1' }
@@ -138,7 +138,7 @@ describe('diffDocuments', () => {
   });
 
   it('keys two templates of the same shape in document order, suffixing the second', async () => {
-    const config = await createConfig({ extends: ['recommended-diff'] });
+    const config = await createConfig({ extends: ['diff-recommended'] });
     const base = makeDocumentFromString(
       outdent`
           openapi: 3.1.0
