@@ -36,10 +36,12 @@ jobs:
         uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
         with:
           folder-path: './docs'
+          use-quiet-mode: 'yes'
       - name: Markup Link Checker (mlc) - cookbook
         uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
         with:
           folder-path: './cookbook'
+          use-quiet-mode: 'yes'
       - name: Markup Link Checker (mlc) - repo docs
         uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
         with:
