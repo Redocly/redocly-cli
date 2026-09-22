@@ -11,6 +11,10 @@ const generatedLogsReunite = fs
   .readFileSync('./packages/reunite-integration/CHANGELOG.md')
   .toString();
 const [, logReunite] = generatedLogsReunite.split('\n## ', 2);
+const generatedLogsClientGenerator = fs
+  .readFileSync('./packages/client-generator/CHANGELOG.md')
+  .toString();
+const [, logClientGenerator] = generatedLogsClientGenerator.split('\n## ', 2);
 
 fs.mkdirSync('./output', { recursive: true });
 fs.writeFileSync(
@@ -20,7 +24,8 @@ fs.writeFileSync(
       `:bookmark: New @redocly/cli release ${logCli}\n\n` +
         `:bookmark: New @redocly/openapi-core release ${logCore}\n\n` +
         `:bookmark: New @redocly/respect-core release ${logRespectCore}\n\n` +
-        `:bookmark: New @redocly/reunite-integration release ${logReunite}\n\n`
+        `:bookmark: New @redocly/reunite-integration release ${logReunite}\n\n` +
+        `:bookmark: New @redocly/client-generator release ${logClientGenerator}\n\n`
     ),
   })
 );
