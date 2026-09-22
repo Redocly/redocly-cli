@@ -11,7 +11,6 @@ on:
 
 env:
   CI: true
-  REDOCLY_TELEMETRY: off
 
 jobs:
   historical-versions:
