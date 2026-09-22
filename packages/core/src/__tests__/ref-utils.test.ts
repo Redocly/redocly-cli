@@ -12,7 +12,6 @@ import {
   isMappingRef,
   getDir,
   resolvePath,
-  rebaseFilePath,
 } from '../ref-utils.js';
 import { BaseResolver } from '../resolve.js';
 
@@ -258,50 +257,6 @@ describe('ref-utils', () => {
 
     it('should resolve relative paths for file system paths', () => {
       expect(resolvePath('/Users/test/config', 'file.yaml')).toMatch(/file\.yaml$/);
-    });
-  });
-
-  describe('rebaseFilePath', () => {
-    it('should rewrite a relative path so it resolves to the same file from another config', () => {
-      expect(
-        rebaseFilePath('./api.yaml', '/project/docs/redocly.yaml', '/project/redocly.yaml')
-      ).toEqual('docs/api.yaml');
-      expect(
-        rebaseFilePath('../specs/api.yaml', '/project/config/apis.yaml', '/project/redocly.yaml')
-      ).toEqual('specs/api.yaml');
-      expect(
-        rebaseFilePath(
-          './api.yaml',
-          'https://example.com/config/apis.yaml',
-          '/project/redocly.yaml'
-        )
-      ).toEqual('https://example.com/config/api.yaml');
-    });
-
-    it('should return an absolute path when there is no root config file', () => {
-      expect(rebaseFilePath('./api.yaml', '/project/docs/apis.yaml', '')).toEqual(
-        '/project/docs/api.yaml'
-      );
-    });
-
-    it('should resolve the root config against its parent directory even without an extension', () => {
-      expect(rebaseFilePath('./api.yaml', '/project/docs/apis.yaml', '/project/myconfig')).toEqual(
-        'docs/api.yaml'
-      );
-    });
-
-    it('should leave absolute paths, URLs, and empty values as they are', () => {
-      expect(
-        rebaseFilePath('/abs/api.yaml', '/project/docs/redocly.yaml', '/project/redocly.yaml')
-      ).toEqual('/abs/api.yaml');
-      expect(
-        rebaseFilePath(
-          'https://example.com/api.yaml',
-          '/project/docs/redocly.yaml',
-          '/project/redocly.yaml'
-        )
-      ).toEqual('https://example.com/api.yaml');
-      expect(rebaseFilePath('', '/project/docs/apis.yaml', '/project/redocly.yaml')).toEqual('');
     });
   });
 });

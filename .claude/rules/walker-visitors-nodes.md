@@ -48,7 +48,6 @@ Every hook receives a `UserContext` (`packages/core/src/walk.ts`):
 | `rawNode`          | The unresolved node, when the `$ref` itself matters  |
 | `type`             | Type descriptor of the current node                  |
 | `specVersion`      | Spec version of the document, for example `'OAS3_1'` |
-| `rootDocument`     | The document the walk started from                   |
 | `getVisitorData()` | Data store shared across one rule invocation         |
 
 ## Rules, decorators, and preprocessors

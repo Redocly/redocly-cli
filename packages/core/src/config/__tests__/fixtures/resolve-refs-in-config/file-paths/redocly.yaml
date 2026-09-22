@@ -16,5 +16,8 @@ apis:
     $ref: nested/untouched.yaml
   parent-dir:
     $ref: nested/deep/parent.yaml
+  sibling:
+    $ref: nested/api.yaml
+    output: ./dist/sibling.yaml
 client:
   $ref: nested/client.yaml

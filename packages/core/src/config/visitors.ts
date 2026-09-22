@@ -1,6 +1,7 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
+import * as path from 'node:path';
 
-import { rebaseFilePath, replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
 import type { NormalizedScalarSchema } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -69,6 +70,8 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
+  rootRef: string;
+  rebased: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -90,19 +93,32 @@ function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
 
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
-  const rootDocumentRef = ctx.rootDocument.source.absoluteRef;
-  const sourceRef = ctx.location.source.absoluteRef;
-  if (!isPlainObject(node) || sourceRef === rootDocumentRef) {
+  const { rootRef, rebased } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  // remove file URL prefix for OpenAPI language server
+  const rootPath = rootRef.replace(/^file:\/\//, '');
+  const sourceRef = ctx.location.source.absoluteRef.replace(/^file:\/\//, '');
+  if (!isPlainObject(node) || sourceRef === rootPath || rebased.has(node)) {
     return;
   }
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    if (!isFilePathSchema(schema)) {
+    const value = node[field];
+    if (
+      !isFilePathSchema(schema) ||
+      !isString(value) ||
+      !value ||
+      isAbsoluteUrl(value) ||
+      path.isAbsolute(value)
+    ) {
       continue;
     }
-    const value = node[field];
-    if (isString(value)) {
-      node[field] = rebaseFilePath(value, sourceRef, rootDocumentRef);
-    }
+    const absolutePath = isAbsoluteUrl(sourceRef)
+      ? new URL(value, sourceRef).href
+      : path.resolve(path.dirname(sourceRef), value);
+    node[field] = isAbsoluteUrl(absolutePath)
+      ? absolutePath
+      : path.relative(path.dirname(rootPath), absolutePath);
+    // a shared `$ref` target is visited once per node type name, so remember that it was rebased
+    rebased.add(node);
   }
 }
 
@@ -114,6 +130,8 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            // fields written next to `$ref` belong to this file and never reach a leave hook of their own
+            rebaseFilePaths(node, ctx);
             replaceRef(node, resolved, ctx);
           },
         },

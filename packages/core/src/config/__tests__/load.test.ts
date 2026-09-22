@@ -4,7 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 import { replaceSourceWithRef } from '../../../__tests__/utils.js';
 import { lintConfig } from '../../lint.js';
-import { BaseResolver } from '../../resolve.js';
+import { isAbsoluteUrl } from '../../ref-utils.js';
+import { BaseResolver, makeDocumentFromString } from '../../resolve.js';
 import { type Config } from '../config.js';
 import { loadConfig, findConfig, createConfig } from '../load.js';
 import { type RuleConfig, type RawUniversalConfig } from './../types.js';
@@ -2672,6 +2673,7 @@ describe('loadConfig', () => {
         title: './not-a-path',
       },
       'parent-dir': { root: 'specs/openapi.yaml', output: 'nested/dist/out.yaml' },
+      sibling: { root: 'nested/openapi.yaml', output: './dist/sibling.yaml' },
     });
     expect(resolvedConfig.client).toEqual({
       setup: 'nested/setup.mjs',
@@ -2701,6 +2703,7 @@ describe('loadConfig', () => {
         root: 'file-paths/specs/openapi.yaml',
         output: 'file-paths/nested/dist/out.yaml',
       },
+      sibling: { root: 'file-paths/nested/openapi.yaml', output: 'file-paths/dist/sibling.yaml' },
     });
     expect(resolvedConfig.client).toMatchObject({
       setup: 'file-paths/nested/setup.mjs',
@@ -2909,5 +2912,30 @@ describe('loadIgnoreConfig', () => {
     expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
 
     existsSyncSpy.mockRestore();
+  });
+
+  it('should resolve file paths written in a remote config file against its URL', async () => {
+    const fixturesDir = path.join(__dirname, './fixtures/resolve-refs-in-config/remote');
+    const externalRefResolver = new BaseResolver();
+    const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
+    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation((base, ref, isRoot) =>
+      isAbsoluteUrl(ref)
+        ? Promise.resolve(
+            makeDocumentFromString(
+              fs.readFileSync(path.join(fixturesDir, 'apis.yaml'), 'utf8'),
+              ref
+            )
+          )
+        : resolveLocalDocument(base, ref, isRoot)
+    );
+
+    const { resolvedConfig } = await loadConfig({
+      configPath: path.join(fixturesDir, 'redocly.yaml'),
+      externalRefResolver,
+    });
+
+    expect(resolvedConfig.apis).toMatchObject({
+      remote: { root: 'https://example.com/configs/openapi.yaml' },
+    });
   });
 });

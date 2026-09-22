@@ -352,6 +352,7 @@ const ConfigApis: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
+// marks fields only when the config schema declares them, so a custom schema keeps its own set of properties
 function asFilePaths(properties: NodeType['properties'] | undefined, fields: string[]) {
   const marked: NodeType['properties'] = {};
   for (const field of fields) {
