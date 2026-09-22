@@ -1,4 +1,4 @@
-# @redocly/reunite-integration
+# @redocly/reunite-integration test
 
 The part of Redocly CLI that talks to [Reunite](https://redocly.com/docs/realm): the API client, the OAuth client behind the `login` and `logout` commands, and the functions behind the `push`, `push-status`, and `scorecard-classic` commands.
 
