@@ -29,7 +29,6 @@
   "dependencies": {
     "@redocly/config": "^0.56.0",
     "@redocly/openapi-core": "2.53.3",
-    "colorette": "^1.2.0",
     "undici": "^6.28.0"
   },
   "files": [
