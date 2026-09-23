@@ -359,15 +359,15 @@ npx markdownlint-cli2 "docs/**/*.md"
 
 ### Markdown link checking
 
-We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder.
+We use [`markdown-link-check`](https://github.com/tcort/markdown-link-check) to check the links in the `docs/` and `cookbook/` folders and in the Markdown files in the repository root.
 This tool runs automatically on every pull request, but you can also run it locally if you want to.
-Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
+It needs Node.js, so run it with `npx` and point it at the files you changed:
 
 ```bash
-mlc docs/
+npx markdown-link-check --config .markdown-link-check.json docs/@v2/commands/lint.md
 ```
 
-The tool only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors.
+Links to other Redocly docs sections use absolute `https://redocly.com/...` URLs so that the checker can verify them.
 Take care when renaming pages or titles.
 
 ## Contribute to the Cookbook
