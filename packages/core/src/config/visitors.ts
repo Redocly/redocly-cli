@@ -87,23 +87,18 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-function isFilePathSchema(schema: unknown): schema is NormalizedScalarSchema {
-  return isPlainObject(schema) && schema.format === 'file-path';
-}
-
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebased } = ctx.getVisitorData() as ConfigBundlerVisitorData;
-  // remove file URL prefix for OpenAPI language server
-  const rootPath = rootRef.replace(/^file:\/\//, '');
-  const sourceRef = ctx.location.source.absoluteRef.replace(/^file:\/\//, '');
-  if (!isPlainObject(node) || sourceRef === rootPath || rebased.has(node)) {
+  const sourceRef = ctx.location.source.absoluteRef;
+  if (!isPlainObject(node) || sourceRef === rootRef || rebased.has(node)) {
     return;
   }
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
     if (
-      !isFilePathSchema(schema) ||
+      !isPlainObject<NormalizedScalarSchema>(schema) ||
+      schema.format !== 'file-path' ||
       !isString(value) ||
       !value ||
       isAbsoluteUrl(value) ||
@@ -116,7 +111,7 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
       : path.resolve(path.dirname(sourceRef), value);
     node[field] = isAbsoluteUrl(absolutePath)
       ? absolutePath
-      : path.relative(path.dirname(rootPath), absolutePath);
+      : path.relative(path.dirname(rootRef), absolutePath);
     // a shared `$ref` target is visited once per node type name, so remember that it was rebased
     rebased.add(node);
   }

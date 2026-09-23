@@ -19,5 +19,15 @@ apis:
   sibling:
     $ref: nested/api.yaml
     output: ./dist/sibling.yaml
+  shared-openapi:
+    root: ./openapi.yaml
+    openapi:
+      $ref: nested/openapi-settings.yaml
 client:
   $ref: nested/client.yaml
+logo:
+  $ref: nested/logo.yaml
+openapi:
+  $ref: nested/openapi-settings.yaml
+navbar:
+  $ref: nested/navbar.yaml

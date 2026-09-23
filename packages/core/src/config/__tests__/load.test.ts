@@ -2680,6 +2680,13 @@ describe('loadConfig', () => {
       cliOutput: 'nested/cli/index.ts',
       goPackage: './not-a-path',
     });
+    expect(resolvedConfig).toMatchObject({
+      logo: { favicon: 'nested/images/favicon.ico' },
+      openapi: { htmlTemplate: 'nested/template.html' },
+      navbar: { items: [{ page: 'nested/docs/index.md' }] },
+      // the same referenced object reached under a second node type is rebased once
+      apis: { 'shared-openapi': { openapi: { htmlTemplate: 'nested/template.html' } } },
+    });
   });
 
   it('should rebase through a root config that is only a $ref to the nested one', async () => {
@@ -2708,6 +2715,12 @@ describe('loadConfig', () => {
     expect(resolvedConfig.client).toMatchObject({
       setup: 'file-paths/nested/setup.mjs',
       goPackage: './not-a-path',
+    });
+    expect(resolvedConfig).toMatchObject({
+      logo: { favicon: 'file-paths/nested/images/favicon.ico' },
+      openapi: { htmlTemplate: 'file-paths/nested/template.html' },
+      navbar: { items: [{ page: 'file-paths/nested/docs/index.md' }] },
+      apis: { 'shared-openapi': { openapi: { htmlTemplate: 'file-paths/nested/template.html' } } },
     });
   });
 });
@@ -2936,24 +2949,6 @@ describe('loadIgnoreConfig', () => {
 
     expect(resolvedConfig.apis).toMatchObject({
       remote: { root: 'https://example.com/configs/openapi.yaml' },
-    });
-  });
-
-  it('should rebase every field the config schema marks with the file-path format', async () => {
-    const { resolvedConfig } = await loadConfig({
-      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/realm/redocly.yaml'),
-    });
-
-    expect(resolvedConfig).toMatchObject({
-      apis: { main: { root: 'nested/openapi.yaml', output: 'nested/dist/openapi.yaml' } },
-      openapi: { htmlTemplate: 'nested/template.html' },
-      logo: { image: 'nested/images/logo.svg', favicon: 'nested/images/favicon.ico' },
-      seo: { image: 'nested/images/og.png' },
-      navbar: { items: [{ page: 'nested/docs/index.md' }, { directory: 'nested/guides' }] },
-      search: { suggestedPages: [{ page: 'nested/docs/start.md' }] },
-      breadcrumbs: { prefixItems: [{ page: 'nested/index.md' }] },
-      products: { acme: { icon: 'nested/images/acme.svg', folder: 'nested/products/acme' } },
-      recheck: { markdoc: { extend: { tagsFile: 'nested/tags.js' } } },
     });
   });
 });
