@@ -68,7 +68,7 @@ paths:
                 properties:
                   startDate: { type: string, format: date }
                   endDate: { type: string, format: date }
-                  status: { type: string, enum: [scheduled, cancelled, completed] }
+                  status: { type: string, enum: [scheduled, canceled, completed] }
 ```
 
 Example of **incorrect** use (multiple `querystring` parameters):
@@ -116,7 +116,7 @@ paths:
                 properties:
                   startDate: { type: string, format: date }
                   endDate: { type: string, format: date }
-                  status: { type: string, enum: [scheduled, cancelled, completed] }
+                  status: { type: string, enum: [scheduled, canceled, completed] }
                   limit: { type: integer, default: 20 }
                   offset: { type: integer, default: 0 }
 ```
