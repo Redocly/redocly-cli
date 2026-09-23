@@ -6,7 +6,7 @@ import { outdent } from 'outdent';
 import { htmlDiff } from '../html.js';
 import { markdownDiff } from '../markdown.js';
 import { stylishDiff } from '../stylish.js';
-import { lonePair } from './pair.js';
+import { loneNode } from './diff-node.js';
 
 // format.test.ts — vitest runs with FORCE_COLOR=1, so the codes are stripped before snapshotting
 function stripColors(output: string): string {
@@ -80,13 +80,12 @@ const RESULT: DiffResult = {
     {
       key: '#/paths/~1pets/delete',
       kind: 'removed',
-      pair: lonePair('Operation', at(base, '#/paths/~1pets/delete')),
+      node: loneNode('Operation', at(base, '#/paths/~1pets/delete')),
       base: {
         location: at(base, '#/paths/~1pets/delete'),
         value: { summary: '<script>alert(1)</script>' },
       },
       impact: 'major',
-      direction: 'neutral',
       verdicts: [
         {
           ruleId: 'operation-removed',
@@ -100,7 +99,7 @@ const RESULT: DiffResult = {
       key: '#/paths/~1pets/get/parameters/{query:limit}',
       property: 'required',
       kind: 'modified',
-      pair: lonePair('Parameter', at(base, '#/paths/~1pets/get/parameters/{query:limit}')),
+      node: loneNode('Parameter', at(base, '#/paths/~1pets/get/parameters/{query:limit}')),
       base: {
         location: at(base, '#/paths/~1pets/get/parameters/0/required'),
         value: undefined,
@@ -110,7 +109,6 @@ const RESULT: DiffResult = {
         value: true,
       },
       impact: 'major',
-      direction: 'request',
       verdicts: [
         {
           ruleId: 'parameter-became-required',
@@ -124,7 +122,7 @@ const RESULT: DiffResult = {
       key: '#/paths/~1pets/post/requestBody/content/application~1json/schema',
       property: 'pattern',
       kind: 'modified',
-      pair: lonePair(
+      node: loneNode(
         'Schema',
         at(base, '#/paths/~1pets/post/requestBody/content/application~1json/schema')
       ),
@@ -143,7 +141,6 @@ const RESULT: DiffResult = {
         value: 'a|b',
       },
       impact: 'major',
-      direction: 'request',
       verdicts: [
         {
           ruleId: 'string-length-changed',
@@ -162,7 +159,7 @@ const RESULT: DiffResult = {
       key: '#/paths/~1pets/get',
       property: 'summary',
       kind: 'modified',
-      pair: lonePair('Operation', at(base, '#/paths/~1pets/get')),
+      node: loneNode('Operation', at(base, '#/paths/~1pets/get')),
       base: {
         location: at(base, '#/paths/~1pets/get/summary'),
         value: 'List pets',
@@ -172,19 +169,17 @@ const RESULT: DiffResult = {
         value: 'List all pets',
       },
       impact: 'patch',
-      direction: 'neutral',
       verdicts: [],
     },
     {
       key: '#/components/schemas/Pet',
       kind: 'added',
-      pair: lonePair('Schema', at(base, '#/components/schemas/Pet')),
+      node: loneNode('Schema', at(base, '#/components/schemas/Pet')),
       revision: {
         location: at(revision, '#/components/schemas/Pet'),
         value: { type: 'object' },
       },
       impact: 'minor',
-      direction: 'neutral',
       verdicts: [],
     },
   ],

@@ -1,17 +1,17 @@
 import type { Config } from '../config/index.js';
 import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
-import { collectNodes } from '../node-map/collect.js';
+import { buildNodeTree } from '../node-tree/build.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
 import type { Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { HandledError } from '../utils/error.js';
-import { changesIn } from './changes.js';
-import { judgeChanges } from './detect.js';
+import { collectChanges } from './changes.js';
+import { buildDiffTree, typeOf } from './diff-tree.js';
+import { directionsOf } from './direction.js';
 import { highestImpact } from './impact.js';
-import { pairDocuments, typeOf } from './pairs.js';
-import { diffSpecs, structuralSpec } from './specs/index.js';
+import { judgeChanges } from './judge.js';
+import { diffSpecs } from './specs/index.js';
 import type { DiffResult, DiffSummary, Impact, JudgedChange } from './types.js';
-import { usageDirections } from './usage.js';
 
 export function diffDocuments(opts: {
   base: Document;
@@ -30,35 +30,34 @@ export function diffDocuments(opts: {
   }
 
   const collect = (document: Document, specVersion: SpecVersion) => {
-    return collectNodes({
+    return buildNodeTree({
       document,
       types: normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config),
       specVersion,
     });
   };
 
-  const spec = diffSpecs[family];
+  const { identities = {}, directions = {} } = diffSpecs[family] ?? {};
 
   const collectedBase = collect(base, baseVersion);
   const collectedRevision = collect(revision, revisionVersion);
 
   const references = [...collectedBase.references, ...collectedRevision.references];
 
-  const { root, pairOf } = pairDocuments(
+  const { root, diffNodeOf } = buildDiffTree(
     collectedBase.root,
     collectedRevision.root,
-    spec ?? structuralSpec
+    identities
   );
 
-  const fromUsage = usageDirections(references, pairOf, spec ?? structuralSpec);
+  const directionOf = directionsOf(references, diffNodeOf, directions);
 
   const changes = judgeChanges({
-    changes: changesIn(root, spec ?? structuralSpec),
+    changes: collectChanges(root, identities),
     specVersion: revisionVersion,
-    spec,
     ruleSets: config.getDiffRulesForSpecVersion(family),
     impactOf: (ruleId) => config.getDiffImpact(ruleId, revisionVersion),
-    fromUsage,
+    directionOf,
   });
 
   return {
@@ -85,7 +84,7 @@ function requiredBump(changes: JudgedChange[]): Impact | undefined {
       const isVersionChange =
         change.kind === 'modified' &&
         change.property === 'version' &&
-        typeOf(change.pair) === 'Info';
+        typeOf(change.node) === 'Info';
 
       return !isVersionChange ? [change.impact] : [];
     })

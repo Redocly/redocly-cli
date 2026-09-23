@@ -133,17 +133,16 @@ export { logger, type LoggerInterface } from './logger.js';
 export { diffDocuments } from './diff/index.js';
 export {
   type Change,
+  type DiffNode,
   type DiffResult,
   type DiffSummary,
-  type Direction,
   type Impact,
   type JudgedChange,
   type LocatedNode,
-  type Pair,
 } from './diff/types.js';
 export { impactRank, impacts } from './diff/impact.js';
 export { displaySide } from './diff/changes.js';
-export { typeOf } from './diff/pairs.js';
+export { typeOf } from './diff/diff-tree.js';
 export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
