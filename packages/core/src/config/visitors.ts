@@ -106,12 +106,9 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     ) {
       continue;
     }
-    const absolutePath = isAbsoluteUrl(sourceRef)
+    node[field] = isAbsoluteUrl(sourceRef)
       ? new URL(value, sourceRef).href
-      : path.resolve(path.dirname(sourceRef), value);
-    node[field] = isAbsoluteUrl(absolutePath)
-      ? absolutePath
-      : path.relative(path.dirname(rootRef), absolutePath);
+      : path.relative(path.dirname(rootRef), path.resolve(path.dirname(sourceRef), value));
     // a shared `$ref` target is visited once per node type name, so remember that it was rebased
     rebased.add(node);
   }
