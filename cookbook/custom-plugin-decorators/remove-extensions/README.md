@@ -488,9 +488,7 @@ Copyright CIDgravity, @nicobao, 2022.
 
 Copy-pasted from:
 
-<!-- markdown-link-check-disable-next-line -->
-
-- https://github.com/CIDgravity/redoc-plugins (no longer available t)
+- https://github.com/CIDgravity/redoc-plugins (no longer available)
 - https://github.com/nicobao/redoc-plugins
 
 This decorator was originally licensed under both the Apache v2 license and the MIT license.
