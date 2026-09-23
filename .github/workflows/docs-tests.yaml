@@ -49,4 +49,4 @@ jobs:
         with:
           use-quiet-mode: 'yes'
           config-file: '.markdown-link-check.json'
-          files: './README.md,./CONTRIBUTING.md'
+          file-path: './README.md,./CONTRIBUTING.md'
