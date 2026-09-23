@@ -1,4 +1,5 @@
 *
+!eject-assets/**/*
 !lib/**/*
 !package.json
 !README.md

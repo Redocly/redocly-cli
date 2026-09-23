@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.57.0.
+
+## 2.54.1
+
 ## 2.54.0
 
 ## 2.53.3
