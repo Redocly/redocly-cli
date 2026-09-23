@@ -8,7 +8,6 @@ import { specVersions, getTypes } from '../oas-types.js';
 import { isAbsoluteUrl } from '../ref-utils.js';
 import { normalizeTypes } from '../types/index.js';
 import { isCustomRuleId } from '../utils/is-custom-rule-id.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
 import { omit } from '../utils/omit.js';
 import { listOf, mapOf, type NodeType, type PropType } from './index.js';
 import { getNodeTypesFromJSONSchema } from './json-schema-adapter.js';
@@ -352,34 +351,16 @@ const ConfigApis: NodeType = {
   documentationLink: 'https://redocly.com/docs/cli/configuration/reference/apis',
 };
 
-// marks `root` and `output` until @redocly/config declares the `file-path` format itself, then this goes away;
-// only fields the schema declares are marked, so a custom schema keeps its own set of properties
-function asFilePaths(properties: NodeType['properties'] | undefined, fields: string[]) {
-  const marked: NodeType['properties'] = {};
-  for (const field of fields) {
-    const schema = properties?.[field];
-    if (isPlainObject(schema)) {
-      marked[field] = { ...schema, format: 'file-path' };
-    }
-  }
-  return marked;
-}
-
-const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => {
-  const schemaProperties =
-    nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties;
-  return {
-    ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
-    properties: {
-      ...schemaProperties,
-      ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
-      // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
-      client: 'Client',
-      clientOutput: { type: 'string', format: 'file-path' },
-      ...asFilePaths(schemaProperties, ['root', 'output']),
-    },
-  };
-};
+const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeType => ({
+  ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties'],
+  properties: {
+    ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
+    ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
+    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
+    client: 'Client',
+    clientOutput: { type: 'string', format: 'file-path' },
+  },
+});
 
 const ConfigHTTP: NodeType = {
   properties: {

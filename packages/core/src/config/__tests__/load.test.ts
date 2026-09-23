@@ -2938,4 +2938,22 @@ describe('loadIgnoreConfig', () => {
       remote: { root: 'https://example.com/configs/openapi.yaml' },
     });
   });
+
+  it('should rebase every field the config schema marks with the file-path format', async () => {
+    const { resolvedConfig } = await loadConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/realm/redocly.yaml'),
+    });
+
+    expect(resolvedConfig).toMatchObject({
+      apis: { main: { root: 'nested/openapi.yaml', output: 'nested/dist/openapi.yaml' } },
+      openapi: { htmlTemplate: 'nested/template.html' },
+      logo: { image: 'nested/images/logo.svg', favicon: 'nested/images/favicon.ico' },
+      seo: { image: 'nested/images/og.png' },
+      navbar: { items: [{ page: 'nested/docs/index.md' }, { directory: 'nested/guides' }] },
+      search: { suggestedPages: [{ page: 'nested/docs/start.md' }] },
+      breadcrumbs: { prefixItems: [{ page: 'nested/index.md' }] },
+      products: { acme: { icon: 'nested/images/acme.svg', folder: 'nested/products/acme' } },
+      recheck: { markdoc: { extend: { tagsFile: 'nested/tags.js' } } },
+    });
+  });
 });

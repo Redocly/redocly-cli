@@ -3016,6 +3016,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "openrpc1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.openrpc1Rules",
       "output": {
+        "format": "file-path",
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -3031,6 +3032,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
+        "format": "file-path",
         "type": "string",
       },
       "rules": "rootRedoclyConfigSchema.apis_additionalProperties.rules",
@@ -3855,6 +3857,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -6733,6 +6736,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -8955,6 +8959,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
       },
     },
@@ -11540,6 +11545,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "openrpc1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openrpc1Rules",
       "output": {
+        "format": "file-path",
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -11555,6 +11561,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rbac",
       "root": {
+        "format": "file-path",
         "type": "string",
       },
       "rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rules",
@@ -12379,6 +12386,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -15257,6 +15265,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -17479,6 +17488,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
       },
     },
@@ -19300,6 +19310,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -19353,6 +19364,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -19404,6 +19416,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -19463,6 +19476,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -20313,10 +20327,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -20530,6 +20546,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -20583,6 +20600,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -20634,6 +20652,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -20693,6 +20712,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -20963,6 +20983,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -23087,9 +23108,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
+        "format": "file-path",
         "type": "string",
       },
       "icon": {
+        "format": "file-path",
         "type": "string",
       },
       "name": {
@@ -23646,6 +23669,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "tags": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags",
       "tagsFile": {
+        "format": "file-path",
         "minLength": 1,
         "type": "string",
       },
@@ -25285,6 +25309,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -25304,6 +25329,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "image": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -26284,6 +26310,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
       },
     },
@@ -28070,6 +28097,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -28123,6 +28151,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -28174,6 +28203,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -28233,6 +28263,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -28995,10 +29026,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -29135,6 +29168,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -29188,6 +29222,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -29239,6 +29274,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -29298,6 +29334,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -29536,6 +29573,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -31644,9 +31682,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
+        "format": "file-path",
         "type": "string",
       },
       "icon": {
+        "format": "file-path",
         "type": "string",
       },
       "name": {
@@ -32874,6 +32914,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -33345,6 +33386,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -33398,6 +33440,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -33449,6 +33492,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -33508,6 +33552,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -34358,10 +34403,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -34575,6 +34622,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -34628,6 +34676,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -34679,6 +34728,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -34738,6 +34788,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -35008,6 +35059,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "file-path",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -37132,9 +37184,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
+        "format": "file-path",
         "type": "string",
       },
       "icon": {
+        "format": "file-path",
         "type": "string",
       },
       "name": {
@@ -37691,6 +37745,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "tags": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags",
       "tagsFile": {
+        "format": "file-path",
         "minLength": 1,
         "type": "string",
       },
@@ -39330,6 +39385,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
@@ -39349,6 +39405,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "image": {
+        "format": "file-path",
         "type": "string",
         "uiHint": "file",
       },
