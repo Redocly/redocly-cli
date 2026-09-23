@@ -27,7 +27,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/redocly-cli.git"
+    "url": "git+https://github.com/Redocly/redocly-cli.git"
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [

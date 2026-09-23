@@ -15,6 +15,7 @@ Issue comments and discussion replies are expected to be written in the contribu
   - [Built-in rules changes](#built-in-rules-changes)
   - [Update Redoc](#update-redoc)
   - [Arguments usage](#arguments-usage)
+  - [Error handling](#error-handling)
   - [Exit codes](#exit-codes)
   - [Local source code usage](#local-source-code-usage)
 - [Tests](#tests)
@@ -175,9 +176,15 @@ Please use it to provide arguments that are common for all the commands, for a s
 It could be used for providing arguments for both **cli** and **core** packages.
 Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
 
-### Exit codes
+### Error handling and exit codes
 
-The application maintains the following exit codes.
+Every command wrapped in `commandWrapper` handles three main types of errors ([source](./packages/core/src/utils/error.ts)):
+
+- Technical errors that don't require a message to the user (`AbortFlowError`)
+- Known errors that originate on our side, with full details included in the error message (`HandledError` or errors converted to it)
+- Unknown errors that originate either on our side or in the user's code, requiring extra detail such as a stack trace (all other errors)
+
+The application maintains the following exit codes:
 
 | Exit code | Description               |
 | --------- | ------------------------- |
