@@ -1,5 +1,43 @@
 # @redocly/respect-core
 
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+
+## 2.54.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.1.
+
+## 2.54.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.0.
+
+## 2.53.3
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/openapi-core to v2.53.3.
+
+## 2.53.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 2.53.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.1.
+
 ## 2.53.0
 
 ### Patch Changes

@@ -12,6 +12,7 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/**/*.ts',
           'packages/core/src/**/*.ts',
           'packages/respect-core/src/**/*.ts',
+          'packages/reunite-integration/src/**/*.ts',
           'packages/client-generator/src/**/*.ts',
         ],
         provider: 'istanbul',
@@ -21,8 +22,8 @@ const configExtension: { [key: string]: ViteUserConfig } = {
           'packages/cli/src/utils/assert-node-version.ts',
         ],
         thresholds: {
-          lines: 78,
-          functions: 81,
+          lines: 79,
+          functions: 82,
           statements: 78,
           branches: 71,
         },

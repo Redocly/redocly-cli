@@ -1,5 +1,3 @@
-import type { VerifyConfigOptions } from '../../types.js';
-
 export type BuildDocsOptions = {
   watch?: boolean;
   output?: string;
@@ -22,4 +20,4 @@ export type BuildDocsArgv = {
   theme: {
     openapi: string | Record<string, unknown>;
   };
-} & VerifyConfigOptions;
+};
