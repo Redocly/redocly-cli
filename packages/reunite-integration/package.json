@@ -1,6 +1,6 @@
 {
   "name": "@redocly/reunite-integration",
-  "version": "2.54.1",
+  "version": "2.54.2",
   "description": "Programmatic access to the Redocly Reunite platform capabilities",
   "type": "module",
   "sideEffects": false,
@@ -19,7 +19,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/redocly-cli.git"
+    "url": "git+https://github.com/Redocly/redocly-cli.git"
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
@@ -27,11 +27,13 @@
     "Reunite"
   ],
   "dependencies": {
-    "@redocly/config": "^0.56.0",
-    "@redocly/openapi-core": "2.54.1",
+    "@redocly/openapi-core": "2.54.2",
     "undici": "^6.28.0"
   },
   "files": [
     "lib"
-  ]
+  ],
+  "devDependencies": {
+    "@redocly/config": "^0.57.0"
+  }
 }

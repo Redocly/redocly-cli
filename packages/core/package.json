@@ -1,6 +1,6 @@
 {
   "name": "@redocly/openapi-core",
-  "version": "2.54.1",
+  "version": "2.54.2",
   "description": "",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -24,7 +24,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/redocly-cli.git"
+    "url": "git+https://github.com/Redocly/redocly-cli.git"
   },
   "browser": {
     "fs": false,
@@ -53,7 +53,7 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.18.3",
-    "@redocly/config": "^0.56.0",
+    "@redocly/config": "^0.57.0",
     "ajv": "npm:@redocly/ajv@^8.18.3",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",

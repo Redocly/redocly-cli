@@ -3,7 +3,6 @@ import {
   doesYamlFileExist,
   isPlainObject,
   logger,
-  HandledError,
   getMajorSpecVersion,
   isGraphqlRef,
   type Config,
@@ -12,6 +11,7 @@ import {
   type NormalizedProblem,
   type SpecVersion,
   AbortFlowError,
+  HandledError,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
