@@ -47,6 +47,6 @@ describe('diff command', () => {
 
   test('refuses to compare across specification families', () => {
     const output = runDiff('cross-family');
-    expect(output).toContain('different specification families');
+    expect(output).toContain('Cannot compare oas2 with oas3_1.');
   });
 });
