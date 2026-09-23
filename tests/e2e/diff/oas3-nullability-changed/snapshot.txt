@@ -1,5 +1,5 @@
 POST /pets
-  ✖ major  modified  requestBody/content/application~1json/schema/properties/name · type
+  ✖ major  modified  requestBody/content/application/json/schema/properties/name · type
       Schema type narrowed from 'string | null' to 'string'. (schema-type-changed)
       at revision.yaml:15:25
 

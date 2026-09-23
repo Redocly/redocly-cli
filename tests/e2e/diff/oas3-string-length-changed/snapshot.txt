@@ -1,5 +1,5 @@
 POST /pets
-  ✖ major  modified  requestBody/content/application~1json/schema/properties/name · maxLength
+  ✖ major  modified  requestBody/content/application/json/schema/properties/name · maxLength
       `maxLength` changed from '100' to '10'. (string-length-changed)
       at revision.yaml:16:30
 

@@ -1,4 +1,5 @@
-import type { DiffResult } from '../types.js';
+import type { DiffResult } from '@redocly/openapi-core';
+
 import { htmlDiff } from './html.js';
 import { jsonDiff } from './json.js';
 import { markdownDiff } from './markdown.js';

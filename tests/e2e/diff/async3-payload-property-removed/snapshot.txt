@@ -1,5 +1,5 @@
 channels
-  ✖ major  removed   channels/userSignedUp/messages/signup/payload/properties/plan
+  ✖ major  removed   userSignedUp/messages/signup/payload/properties/plan
       Schema property was removed. (property-removed-from-response)
       at base.yaml:19:15
 

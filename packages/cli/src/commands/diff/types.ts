@@ -1,6 +1,7 @@
-import type { DiffReportFormat, Impact } from '@redocly/openapi-core';
+import type { Impact } from '@redocly/openapi-core';
 
 import type { VerifyConfigOptions } from '../../types.js';
+import type { DiffReportFormat } from './format/index.js';
 
 export type DiffOutputFormat = DiffReportFormat | 'github-actions';
 

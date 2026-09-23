@@ -1,5 +1,5 @@
 channels
-  · patch  modified  channels/userSignedUp/messages/signup/payload · required
+  · patch  modified  userSignedUp/messages/signup/payload · required
       at revision.yaml:14:13
 
 0 major, 0 minor, 1 patch.

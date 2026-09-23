@@ -1,12 +1,13 @@
-import type { DiffResult, JudgedChange } from '../types.js';
+import type { DiffResult, JudgedChange } from '@redocly/openapi-core';
+
 import { toJsonChange } from './json.js';
 
 function escapeHtml(value: unknown): string {
   return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
 }
 
 function renderChange(change: JudgedChange): string {

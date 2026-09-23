@@ -1,3 +1,5 @@
+import { fieldOf } from '../../node-map/access.js';
+import type { DiffRule, DiffVisit, Direction } from '../types.js';
 import {
   addedItems,
   constraintDirection,
@@ -6,8 +8,7 @@ import {
   isTypeSetWidened,
   missingItems,
   type ConstraintDirection,
-} from '../constraints.js';
-import type { DiffRule, Direction } from '../types.js';
+} from './constraints.js';
 
 /**
  * A tightening rejects input the API used to accept, so it breaks a request; a
@@ -22,12 +23,12 @@ function breaks(moved: ConstraintDirection, direction: Direction): boolean {
 }
 
 export const SchemaTypeChanged: DiffRule = () => ({
-  Schema(change, { report, direction, base, revision }) {
+  Schema(change, { report, direction }) {
     if (change.kind !== 'modified' || change.property !== 'type') return;
     // `nullable: true` is 3.0's spelling of `type: [..., 'null']`, so both sides are
     // read through the node itself rather than from the changed value alone.
-    const before = effectiveTypes(change.base.value, base(change.key)?.properties.nullable);
-    const after = effectiveTypes(change.revision.value, revision(change.key)?.properties.nullable);
+    const before = effectiveTypes(change.base.value, fieldOf(change.pair.base, 'nullable'));
+    const after = effectiveTypes(change.revision.value, fieldOf(change.pair.revision, 'nullable'));
     const described = `from '${[...before].join(' | ')}' to '${[...after].join(' | ')}'`;
 
     if (direction === 'request' && isTypeSetNarrowed(before, after)) {
@@ -75,13 +76,14 @@ export const RequiredPropertiesRemoved: DiffRule = () => ({
   },
 });
 
+// A member of a `properties` map; an alternative of a `oneOf` is a schema too, but not a property.
 export const PropertyRemovedFromResponse: DiffRule = () => ({
-  Schema(change, { report, direction, nodeAt }) {
-    if (change.kind !== 'removed' || direction !== 'response') return;
-    // Only a member of a `properties` map counts; a subschema of `oneOf` does not.
-    const parentKey = nodeAt(change.key)?.parentKey;
-    if (!parentKey || nodeAt(parentKey)?.typeName !== 'SchemaProperties') return;
-    report({ message: 'Schema property was removed.' });
+  SchemaProperties: {
+    Schema(change, { report, direction }) {
+      if (change.kind === 'removed' && direction === 'response') {
+        report({ message: 'Schema property was removed.' });
+      }
+    },
   },
 });
 
@@ -122,45 +124,22 @@ export const SchemaFormatChanged = constraintRule(['format']);
 export const AdditionalPropertiesChanged = constraintRule(['additionalProperties']);
 
 // `oneOf`/`anyOf` list alternatives, so dropping one accepts less; `allOf` combines
-// constraints, so adding one accepts less. The type tree names each list after its keyword,
-// which is what tells a combinator apart from any other list of schemas.
-const COMBINATOR_KEYWORDS: Record<string, string> = {
-  AllOf: 'allOf',
-  AnyOf: 'anyOf',
-  OneOf: 'oneOf',
-};
-
-export const SchemaCombinatorChanged: DiffRule = () => ({
-  Schema(change, { report, direction, nodeAt }) {
+// constraints, so adding one accepts less. Only the OpenAPI type tree names each list after
+// its keyword; the shared JSON Schema tree calls them all `SchemaList`, so there the rule
+// could not tell the keywords apart and is not registered.
+function combinatorChanged(combinator: 'allOf' | 'anyOf' | 'oneOf'): DiffVisit {
+  return (change, { report, direction }) => {
     if (change.kind === 'modified') return;
-
-    const parentKey = nodeAt(change.key)?.parentKey;
-    const parent = parentKey ? nodeAt(parentKey) : undefined;
-    const combinator = parent && COMBINATOR_KEYWORDS[parent.typeName];
-    if (!combinator) return;
-
     const removed = change.kind === 'removed';
     const acceptsLess = combinator === 'allOf' ? !removed : removed;
     if (breaks(acceptsLess ? 'tighter' : 'looser', direction)) {
       report({ message: `A \`${combinator}\` subschema was ${removed ? 'removed' : 'added'}.` });
     }
-  },
-});
+  };
+}
 
-/**
- * Every rule over a `Schema` node, shared by the specification registries: an AsyncAPI
- * payload is the same node type, judged by the same questions.
- */
-export const schemaRules = {
-  'schema-type-changed': SchemaTypeChanged,
-  'enum-values-removed': EnumValuesRemoved,
-  'enum-values-added': EnumValuesAdded,
-  'required-properties-added': RequiredPropertiesAdded,
-  'required-properties-removed': RequiredPropertiesRemoved,
-  'property-removed-from-response': PropertyRemovedFromResponse,
-  'numeric-range-changed': NumericRangeChanged,
-  'string-length-changed': StringLengthChanged,
-  'schema-format-changed': SchemaFormatChanged,
-  'additional-properties-changed': AdditionalPropertiesChanged,
-  'schema-combinator-changed': SchemaCombinatorChanged,
-} satisfies Record<string, DiffRule>;
+export const SchemaCombinatorChanged: DiffRule = () => ({
+  AllOf: { Schema: combinatorChanged('allOf') },
+  AnyOf: { Schema: combinatorChanged('anyOf') },
+  OneOf: { Schema: combinatorChanged('oneOf') },
+});

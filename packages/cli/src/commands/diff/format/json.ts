@@ -1,6 +1,14 @@
-import { getLineColLocation } from '../../format/codeframes.js';
-import type { Location } from '../../ref-utils.js';
-import type { Change, DiffResult, Direction, Impact, JudgedChange, LocatedNode } from '../types.js';
+import {
+  getLineColLocation,
+  typeOf,
+  type Change,
+  type DiffResult,
+  type Direction,
+  type Impact,
+  type JudgedChange,
+  type Location,
+  type LocatedNode,
+} from '@redocly/openapi-core';
 
 export interface JsonLocatedNode {
   file: string;
@@ -51,10 +59,10 @@ function toJsonNode({ location, value }: LocatedNode): JsonLocatedNode {
 }
 
 export function toJsonChange(change: JudgedChange): JsonChange {
-  const { key, typeName, kind, impact, direction, verdicts } = change;
+  const { key, pair, kind, impact, direction, verdicts } = change;
   const common = {
     key,
-    typeName,
+    typeName: typeOf(pair),
     kind,
     impact,
     direction,

@@ -1,4 +1,4 @@
-import { highestImpact, impactRank } from '../types.js';
+import { highestImpact, impactRank } from '../impact.js';
 
 describe('impact ladder', () => {
   it('orders patch below minor below major', () => {

@@ -2,8 +2,6 @@ import {
   bundle,
   DiffError,
   diffDocuments,
-  diffReportFormats,
-  diffToProblems,
   formatProblems,
   getTotals,
   logger,
@@ -16,6 +14,8 @@ import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellan
 import type { CommandArgs } from '../../wrapper.js';
 import { checkVersion, getDeclaredVersion } from './check-version.js';
 import { getDiffFailure } from './fail-on.js';
+import { diffReportFormats } from './format/index.js';
+import { diffToProblems } from './format/problems.js';
 import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
@@ -26,12 +26,15 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   }
 
   const startedAt = performance.now();
+
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
   const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
+
   config.skipDiffRules(argv['skip-rule']);
 
   const { bundle: baseDocument } = await bundle({ config, ref: basePath });
   const { bundle: revisionDocument } = await bundle({ config, ref: revisionPath });
+
   collectSpecData?.(revisionDocument);
 
   let result: DiffResult;

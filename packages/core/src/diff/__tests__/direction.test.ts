@@ -1,7 +1,7 @@
-import { getComponentRoot, type NodeLookup } from '../../node-map/chain.js';
-import { getAsync3Direction, getOas3Direction } from '../direction.js';
-import { mergeDirections, UsageIndex } from '../usage.js';
-import { treeOf } from './tree.js';
+import { async3Spec } from '../specs/async3.js';
+import { mergeDirections } from '../specs/direction.js';
+import { oas3Spec } from '../specs/oas3.js';
+import { treeOf, usageOfTree } from './tree.js';
 
 // One document covering every direction-bearing shape at once.
 const entries = treeOf(`
@@ -49,22 +49,9 @@ const entries = treeOf(`
   #/components/schemas/Address NamedSchemas
   #/components/schemas/Orphan Schema
 `);
-const tree: NodeLookup = (pointer) => entries.get(pointer);
-
-const emptyUsage = new UsageIndex([], tree);
-
-describe('getComponentRoot', () => {
-  it('finds the component a node belongs to', () => {
-    expect(getComponentRoot('#/components/schemas/Pet/properties/name', tree)).toBe(
-      '#/components/schemas/Pet'
-    );
-    expect(getComponentRoot('#/components/schemas/Pet', tree)).toBe('#/components/schemas/Pet');
-  });
-
-  it('returns undefined outside components', () => {
-    expect(getComponentRoot('#/paths/~1p/get', tree)).toBeUndefined();
-  });
-});
+const node = (key: string) => entries.get(key)!;
+const usageOf = (edges: Array<[string, string]>) => usageOfTree(entries, edges, oas3Spec);
+const emptyUsage = usageOf([]);
 
 describe('mergeDirections', () => {
   it('merges directions', () => {
@@ -77,100 +64,93 @@ describe('mergeDirections', () => {
 
 describe('getOas3Direction', () => {
   it('reads the direction off the node types on the way down', () => {
-    expect(getOas3Direction('#/paths/~1p/get/responses/200', emptyUsage, tree)).toBe('response');
+    expect(oas3Spec.directionOf(node('#/paths/~1p/get/responses/200'), emptyUsage)).toBe(
+      'response'
+    );
     expect(
-      getOas3Direction('#/paths/~1p/get/parameters/{query:limit}/schema', emptyUsage, tree)
+      oas3Spec.directionOf(node('#/paths/~1p/get/parameters/{query:limit}/schema'), emptyUsage)
     ).toBe('request');
     expect(
-      getOas3Direction('#/paths/~1p/post/requestBody/content/application~1json', emptyUsage, tree)
+      oas3Spec.directionOf(
+        node('#/paths/~1p/post/requestBody/content/application~1json'),
+        emptyUsage
+      )
     ).toBe('request');
-    expect(getOas3Direction('#/info/title', emptyUsage, tree)).toBe('neutral');
-    expect(getOas3Direction('#/tags/{pets}', emptyUsage, tree)).toBe('neutral');
+    expect(oas3Spec.directionOf(node('#/info/title'), emptyUsage)).toBe('neutral');
+    expect(oas3Spec.directionOf(node('#/tags/{pets}'), emptyUsage)).toBe('neutral');
   });
 
   it('flips the direction under callbacks and webhooks', () => {
     // The API sends these, so their request body reaches the consumer like a response.
     expect(
-      getOas3Direction('#/paths/~1p/post/callbacks/onEvent/~1cb/post/requestBody', emptyUsage, tree)
+      oas3Spec.directionOf(
+        node('#/paths/~1p/post/callbacks/onEvent/~1cb/post/requestBody'),
+        emptyUsage
+      )
     ).toBe('response');
-    expect(getOas3Direction('#/webhooks/newPet/post/requestBody', emptyUsage, tree)).toBe(
+    expect(oas3Spec.directionOf(node('#/webhooks/newPet/post/requestBody'), emptyUsage)).toBe(
       'response'
     );
     // ...and what the consumer answers with is a request.
-    expect(getOas3Direction('#/webhooks/newPet/post/responses', emptyUsage, tree)).toBe('request');
+    expect(oas3Spec.directionOf(node('#/webhooks/newPet/post/responses'), emptyUsage)).toBe(
+      'request'
+    );
   });
 
   it('is not fooled by properties named after a direction-bearing node', () => {
     // Both of these are `Schema` nodes; only their key looks like a context.
     expect(
-      getOas3Direction(
-        '#/paths/~1p/post/requestBody/content/application~1json/schema/properties/responses',
-        emptyUsage,
-        tree
+      oas3Spec.directionOf(
+        node('#/paths/~1p/post/requestBody/content/application~1json/schema/properties/responses'),
+        emptyUsage
       )
     ).toBe('request');
     expect(
-      getOas3Direction(
-        '#/paths/~1p/get/responses/200/content/application~1json/schema/properties/callbacks',
-        emptyUsage,
-        tree
+      oas3Spec.directionOf(
+        node('#/paths/~1p/get/responses/200/content/application~1json/schema/properties/callbacks'),
+        emptyUsage
       )
     ).toBe('response');
   });
 
   it('derives component direction from usage sites', () => {
-    const usage = new UsageIndex(
+    const usage = usageOf([
       [
-        {
-          site: '#/paths/~1p/get/responses/200/content/application~1json/schema',
-          target: '#/components/schemas/Pet',
-        },
+        '#/paths/~1p/get/responses/200/content/application~1json/schema',
+        '#/components/schemas/Pet',
       ],
-      tree
-    );
-    expect(getOas3Direction('#/components/schemas/Pet/properties/name', usage, tree)).toBe(
+    ]);
+    expect(oas3Spec.directionOf(node('#/components/schemas/Pet/properties/name'), usage)).toBe(
       'response'
     );
   });
 
   it('derives both when a component is used on both sides', () => {
-    const usage = new UsageIndex(
+    const usage = usageOf([
       [
-        {
-          site: '#/paths/~1p/get/responses/200/content/application~1json/schema',
-          target: '#/components/schemas/Pet',
-        },
-        {
-          site: '#/paths/~1p/post/requestBody/content/application~1json/schema',
-          target: '#/components/schemas/Pet',
-        },
+        '#/paths/~1p/get/responses/200/content/application~1json/schema',
+        '#/components/schemas/Pet',
       ],
-      tree
-    );
-    expect(getOas3Direction('#/components/schemas/Pet', usage, tree)).toBe('both');
+      ['#/paths/~1p/post/requestBody/content/application~1json/schema', '#/components/schemas/Pet'],
+    ]);
+    expect(oas3Spec.directionOf(node('#/components/schemas/Pet'), usage)).toBe('both');
   });
 
   it('resolves transitive usage through other components, cycle-safe', () => {
-    const usage = new UsageIndex(
+    const usage = usageOf([
       [
-        {
-          site: '#/paths/~1p/get/responses/200/content/application~1json/schema',
-          target: '#/components/schemas/Pet',
-        },
-        {
-          site: '#/components/schemas/Pet/properties/name',
-          target: '#/components/schemas/Address',
-        },
-        // cycle back
-        { site: '#/components/schemas/Address', target: '#/components/schemas/Pet' },
+        '#/paths/~1p/get/responses/200/content/application~1json/schema',
+        '#/components/schemas/Pet',
       ],
-      tree
-    );
-    expect(getOas3Direction('#/components/schemas/Address', usage, tree)).toBe('response');
+      ['#/components/schemas/Pet/properties/name', '#/components/schemas/Address'],
+      // cycle back
+      ['#/components/schemas/Address', '#/components/schemas/Pet'],
+    ]);
+    expect(oas3Spec.directionOf(node('#/components/schemas/Address'), usage)).toBe('response');
   });
 
   it('returns neutral for unused components', () => {
-    expect(getOas3Direction('#/components/schemas/Orphan', emptyUsage, tree)).toBe('neutral');
+    expect(oas3Spec.directionOf(node('#/components/schemas/Orphan'), emptyUsage)).toBe('neutral');
   });
 });
 
@@ -193,51 +173,47 @@ const asyncEntries = treeOf(`
   #/operations/onOrder Operation action=receive
   #/operations/onOrder/reply OperationReply
 `);
-const asyncTree: NodeLookup = (pointer) => asyncEntries.get(pointer);
+const asyncNode = (key: string) => asyncEntries.get(key)!;
+const asyncUsageOf = (edges: Array<[string, string]>) =>
+  usageOfTree(asyncEntries, edges, async3Spec);
 
 describe('getAsync3Direction', () => {
-  const usage = new UsageIndex(
-    [
-      { site: '#/operations/onSignup', target: '#/channels/signups' },
-      { site: '#/operations/sendReceipt', target: '#/channels/receipts' },
-      { site: '#/operations/onOrder/reply', target: '#/channels/orders' },
-    ],
-    asyncTree
-  );
+  const usage = asyncUsageOf([
+    ['#/operations/onSignup', '#/channels/signups'],
+    ['#/operations/sendReceipt', '#/channels/receipts'],
+    ['#/operations/onOrder/reply', '#/channels/orders'],
+  ]);
 
   it('judges a received payload as a request and a sent one as a response', () => {
     // Another application produces what this one receives, so its payload is input.
-    expect(getAsync3Direction('#/channels/signups/messages/signup/payload', usage, asyncTree)).toBe(
-      'request'
-    );
-    expect(getAsync3Direction('#/channels/receipts/messages/receipt', usage, asyncTree)).toBe(
+    expect(
+      async3Spec.directionOf(asyncNode('#/channels/signups/messages/signup/payload'), usage)
+    ).toBe('request');
+    expect(async3Spec.directionOf(asyncNode('#/channels/receipts/messages/receipt'), usage)).toBe(
       'response'
     );
   });
 
   it('flips the direction for a reply channel', () => {
-    expect(getAsync3Direction('#/channels/orders', usage, asyncTree)).toBe('response');
+    expect(async3Spec.directionOf(asyncNode('#/channels/orders'), usage)).toBe('response');
   });
 
   it('reads the direction off the operation the change sits in', () => {
-    expect(getAsync3Direction('#/operations/sendReceipt', usage, asyncTree)).toBe('response');
+    expect(async3Spec.directionOf(asyncNode('#/operations/sendReceipt'), usage)).toBe('response');
   });
 
   it('returns neutral for a channel no operation references', () => {
-    expect(getAsync3Direction('#/channels/signups', new UsageIndex([], asyncTree), asyncTree)).toBe(
+    expect(async3Spec.directionOf(asyncNode('#/channels/signups'), asyncUsageOf([]))).toBe(
       'neutral'
     );
   });
 
   it('does not hang on a payload that refers back into its own channel', () => {
-    const recursive = new UsageIndex(
-      [
-        { site: '#/channels/signups/messages/signup/payload', target: '#/channels/signups' },
-        { site: '#/channels/signups', target: '#/channels/signups/messages/signup/payload' },
-      ],
-      asyncTree
-    );
-    expect(getAsync3Direction('#/channels/signups/messages/signup', recursive, asyncTree)).toBe(
+    const recursive = asyncUsageOf([
+      ['#/channels/signups/messages/signup/payload', '#/channels/signups'],
+      ['#/channels/signups', '#/channels/signups/messages/signup/payload'],
+    ]);
+    expect(async3Spec.directionOf(asyncNode('#/channels/signups/messages/signup'), recursive)).toBe(
       'neutral'
     );
   });

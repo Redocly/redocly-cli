@@ -1,106 +1,71 @@
 import type { SpecVersion } from '../oas-types.js';
-import { isRef } from '../ref-utils.js';
 import type { Document } from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import { isScalar, isScalarArray } from '../utils/is-scalar.js';
 import { normalizeVisitors } from '../visitors.js';
 import { walkDocument, type UserContext, type WalkContext } from '../walk.js';
-import { ancestorChain } from './chain.js';
-import type { IdentityFn, NodeEntry, NodeMap, UsageEdge } from './types.js';
+import type { NodeEntry, Reference } from './types.js';
 
-export function collectNodeMap(opts: {
+export interface DocumentNodes {
+  root: NodeEntry;
+  nodes: Map<string, NodeEntry>;
+  references: Reference[];
+}
+
+export function collectNodes(opts: {
   document: Document;
   types: Record<string, NormalizedNodeType>;
   specVersion: SpecVersion;
-  identityOf: IdentityFn;
-}): NodeMap {
-  const { document, types, specVersion, identityOf } = opts;
-  const entries = new Map<string, NodeEntry>();
-  const usageEdges: UsageEdge[] = [];
-  // real pointer → key, filled top-down (the walk is pre-order)
-  const keyByPointer = new Map<string, string>();
-  const collisionCounts = new Map<string, number>();
+}): DocumentNodes {
+  const { document, types, specVersion } = opts;
+  const nodes = new Map<string, NodeEntry>();
+  const refSites: Array<{ from: NodeEntry; to: string }> = [];
 
   const visitor = {
-    any: {
-      enter(node: unknown, ctx: UserContext) {
-        if (!isPlainObject(node) && !Array.isArray(node)) return;
-
-        const { parentPointer, segment } = splitPointer(ctx.location.pointer);
-        const parentKey =
-          parentPointer === null ? null : (keyByPointer.get(parentPointer) ?? parentPointer);
-        const ancestors =
-          parentKey === null ? [] : ancestorChain(parentKey, (key) => entries.get(key));
-        const identity = isPlainObject(node)
-          ? identityOf(node, {
-              typeName: ctx.type.name,
-              key: ctx.key,
-              parent: ctx.parent,
-              ancestors,
-            })
-          : undefined;
-
-        // The root's own key already ends in a slash, so a child of the root
-        // must not add a second one.
-        const prefix = parentKey === '#/' ? '#' : parentKey;
-        let key = prefix === null ? segment : `${prefix}/${identity?.segment ?? segment}`;
-        if (entries.has(key)) {
-          const occurrence = (collisionCounts.get(key) ?? 1) + 1;
-          collisionCounts.set(key, occurrence);
-          key = `${key}#${occurrence}`;
-        }
-        keyByPointer.set(ctx.location.pointer, key);
-
-        const properties: Record<string, unknown> = {};
-        if (isPlainObject(node)) {
-          for (const [name, value] of Object.entries(node)) {
-            if (isRef(value)) {
-              // The site is the node holding the reference: a `$ref` is not a node of its own.
-              usageEdges.push({ site: key, target: value.$ref });
-            }
-            if (isRef(value) || isScalar(value) || isScalarArray(value)) {
-              properties[name] = value;
-            }
-          }
-        }
-
-        entries.set(key, {
-          key,
-          parentKey,
-          location: ctx.location,
-          typeName: ctx.type.name,
-          properties: { ...properties, ...identity?.properties },
-          raw: node,
-        });
-      },
+    any(node: unknown, { location, type, key }: UserContext) {
+      if (!isPlainObject(node) && !Array.isArray(node)) return;
+      const parent = nodes.get(parentPointer(location.pointer)) ?? null;
+      const entry: NodeEntry = {
+        type: type.name,
+        key,
+        location,
+        value: node,
+        parent,
+        children: [],
+      };
+      parent?.children.push(entry);
+      nodes.set(location.pointer, entry);
+    },
+    ref(node: { $ref: string }, { location }: UserContext) {
+      // The node holding the reference has been entered already; its target may come later.
+      const from = nodes.get(parentPointer(location.pointer));
+      if (from) refSites.push({ from, to: node.$ref });
     },
   };
 
-  const normalizedVisitors = normalizeVisitors(
-    [{ severity: 'warn', ruleId: 'node-map', visitor }],
-    types
-  );
-  const ctx: WalkContext = { problems: [], specVersion, visitorsData: {} };
+  const walkContext: WalkContext = { problems: [], specVersion, visitorsData: {} };
 
   walkDocument({
     document,
     rootType: types.Root,
-    normalizedVisitors,
-    // Empty map: `$ref` nodes fail to resolve and are NOT traversed — a reference
-    // is recorded as a property of the node holding it.
+    normalizedVisitors: normalizeVisitors(
+      [{ severity: 'warn', ruleId: 'node-map', visitor }],
+      types
+    ),
+    // An empty map leaves every `$ref` unresolved, so each node is visited once, where it is written.
     resolvedRefMap: new Map(),
-    ctx,
+    ctx: walkContext,
   });
 
-  return { entries, usageEdges };
+  const references = refSites.flatMap(({ from, to }) => {
+    const target = nodes.get(to);
+    return target ? [{ from, to: target }] : [];
+  });
+
+  return { root: nodes.get('#/')!, nodes, references };
 }
 
-function splitPointer(pointer: string): { parentPointer: string | null; segment: string } {
-  if (pointer === '#/' || pointer === '#') {
-    return { parentPointer: null, segment: pointer };
-  }
+function parentPointer(pointer: string): string {
   const lastSlash = pointer.lastIndexOf('/');
-  const parentPointer = lastSlash <= 1 ? '#/' : pointer.slice(0, lastSlash);
-  return { parentPointer, segment: pointer.slice(lastSlash + 1) };
+  return lastSlash <= 1 ? '#/' : pointer.slice(0, lastSlash);
 }

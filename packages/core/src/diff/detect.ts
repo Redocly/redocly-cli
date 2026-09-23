@@ -1,39 +1,65 @@
-import type { NodeLookup } from '../node-map/chain.js';
 import type { NodeEntry } from '../node-map/types.js';
 import type { SpecVersion } from '../oas-types.js';
-import { getAsync3Direction, getOas3Direction, type DirectionResolver } from './direction.js';
-import { async3Rules } from './rules/async3.js';
-import type { DiffRuleMap } from './rules/index.js';
-import { oas3Rules } from './rules/oas3.js';
-import {
-  displaySide,
-  highestImpact,
-  impactRank,
-  type Change,
-  type DiffReport,
-  type DiffRule,
-  type DiffVisitor,
-  type Direction,
-  type Impact,
-  type JudgedChange,
-  type RuleVerdict,
+import { displaySide } from './changes.js';
+import { highestImpact, impactRank } from './impact.js';
+import { nodeOf, typeOf } from './pairs.js';
+import type {
+  Change,
+  DiffReport,
+  DiffRule,
+  DiffSpec,
+  DiffVisitor,
+  Direction,
+  Impact,
+  InitializedDiffRule,
+  JudgedChange,
+  Pair,
+  RuleHandler,
+  RuleVerdict,
 } from './types.js';
-import type { UsageIndex } from './usage.js';
-
-export interface InitializedDiffRule {
-  id: string;
-  impact: Impact;
-  visitor: DiffVisitor;
-}
 
 export function initDiffRules(
-  rules: Record<string, DiffRule>,
-  ruleMap: Partial<Record<string, Impact | 'off'>>
+  ruleSets: Record<string, DiffRule>[],
+  impactOf: (ruleId: string) => Impact | 'off'
 ): InitializedDiffRule[] {
-  return Object.entries(rules).flatMap(([id, rule]) => {
-    const impact = ruleMap[id] ?? 'off';
-    return impact === 'off' ? [] : [{ id, impact, visitor: rule() }];
+  return ruleSets.flatMap((rules) =>
+    Object.entries(rules).flatMap(([id, rule]) => {
+      const impact = impactOf(id);
+      return impact === 'off' ? [] : [{ id, impact, handlers: handlersOf(rule(), [], id) }];
+    })
+  );
+}
+
+export function handlersOf(visitor: DiffVisitor, path: string[], ruleId: string): RuleHandler[] {
+  return Object.entries(visitor).flatMap(([key, value]) => {
+    if (key === 'leave' || key === 'skip' || (key === 'enter' && path.length === 0)) {
+      throw new Error(`Diff rule '${ruleId}' uses '${key}', which diff visitors do not have.`);
+    }
+    if (typeof value !== 'function') return handlersOf(value, [...path, key], ruleId);
+    if (key === 'any') return [{ path: [], visit: value }];
+    return [{ path: key === 'enter' ? path : [...path, key], visit: value }];
   });
+}
+
+/**
+ * Lint's nesting: `[A, B]` matches a node of type `B` when the first ancestor that is either
+ * an `A` or a `B` is an `A`. The empty path matches every change.
+ */
+export function matches(path: string[], pair: Pair): boolean {
+  if (path.length === 0) return true;
+  const type = path[path.length - 1];
+  if (typeOf(pair) !== type) return false;
+  if (path.length === 1) return true;
+
+  const container = nearest(pair.parent, [path[path.length - 2], type]);
+  return container !== undefined && matches(path.slice(0, -1), container);
+}
+
+function nearest(pair: Pair | null, types: string[]): Pair | undefined {
+  for (let current = pair; current; current = current.parent) {
+    if (types.includes(typeOf(current))) return current;
+  }
+  return undefined;
 }
 
 // What a change means when no rule spoke: something new is a minor, everything else a patch.
@@ -41,71 +67,39 @@ function unjudgedImpact(kind: Change['kind']): Impact {
   return kind === 'added' ? 'minor' : 'patch';
 }
 
-/**
- * What a specification family brings to detection: the rules to run, and the way that
- * family states which direction the data in a node travels.
- */
-const SPECS: Partial<
-  Record<SpecVersion, { rules: Record<string, DiffRule>; directionOf: DirectionResolver }>
-> = {
-  oas3_0: { rules: oas3Rules, directionOf: getOas3Direction },
-  oas3_1: { rules: oas3Rules, directionOf: getOas3Direction },
-  // A version gets its own entry once it needs a rule the others must not run.
-  oas3_2: { rules: oas3Rules, directionOf: getOas3Direction },
-  async3: { rules: async3Rules, directionOf: getAsync3Direction },
-};
-
 function expandDirection(direction: Direction): Direction[] {
   return direction === 'both' ? ['request', 'response'] : [direction];
 }
 
-export function detectBreakingChanges(opts: {
+export function judgeChanges(opts: {
   changes: Change[];
   specVersion: SpecVersion;
-  base: Map<string, NodeEntry>;
-  revision: Map<string, NodeEntry>;
-  usage: UsageIndex;
-  ruleMap: DiffRuleMap;
+  spec?: DiffSpec;
+  ruleSets: Record<string, DiffRule>[];
+  impactOf: (ruleId: string) => Impact | 'off';
+  fromUsage: (node: NodeEntry) => Direction;
 }): JudgedChange[] {
-  const { changes, specVersion, base, revision, usage, ruleMap } = opts;
-  const spec = SPECS[specVersion];
-  if (!spec) {
-    // Structural comparison works for every specification; only these families are
-    // judged, so elsewhere no rule runs and nothing is called breaking.
-    return changes.map((change) => ({
-      ...change,
-      impact: unjudgedImpact(change.kind),
-      direction: 'neutral' as const,
-      verdicts: [],
-    }));
-  }
-
-  const rules = initDiffRules(spec.rules, ruleMap);
-  // A removed node only exists in the base, an added one only in the revision.
-  const nodeAt: NodeLookup = (key) => revision.get(key) ?? base.get(key);
+  const { changes, specVersion, spec, ruleSets, impactOf, fromUsage } = opts;
+  // Structural comparison works for every specification; only the families with a spec are
+  // judged, so elsewhere no rule runs and nothing is called breaking.
+  const rules = spec ? initDiffRules(ruleSets, impactOf) : [];
 
   return changes.map((change) => {
     const verdicts: RuleVerdict[] = [];
-    const direction = spec.directionOf(change.key, usage, nodeAt);
+    const direction = spec?.directionOf(nodeOf(change.pair), fromUsage) ?? 'neutral';
 
     for (const expandedDirection of expandDirection(direction)) {
-      for (const { id, impact, visitor } of rules) {
+      for (const { id, impact, handlers } of rules) {
         const report = ({ message, location = displaySide(change).location }: DiffReport) => {
           // a node used both ways is visited twice; the same finding is kept once
           if (!verdicts.some((verdict) => verdict.ruleId === id && verdict.message === message)) {
             verdicts.push({ ruleId: id, impact, message, location });
           }
         };
-        const context = {
-          report,
-          direction: expandedDirection,
-          specVersion,
-          base: (key: string) => base.get(key),
-          revision: (key: string) => revision.get(key),
-          nodeAt,
-        };
-        visitor[change.typeName]?.(change, context);
-        visitor.any?.(change, context);
+        const context = { report, direction: expandedDirection, specVersion };
+        for (const { path, visit } of handlers) {
+          if (matches(path, change.pair)) visit(change, context);
+        }
       }
     }
 

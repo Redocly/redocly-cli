@@ -1,7 +1,7 @@
-import { Location } from '../../../ref-utils.js';
-import { Source } from '../../../resolve.js';
-import type { DiffResult } from '../../types.js';
+import { Location, Source, type DiffResult } from '@redocly/openapi-core';
+
 import { diffToProblems } from '../problems.js';
+import { lonePair } from './pair.js';
 
 const baseSource = new Source('base.yaml', 'openapi: 3.1.0\n');
 const revisionSource = new Source('revision.yaml', 'openapi: 3.1.0\n');
@@ -17,7 +17,7 @@ const result: DiffResult = {
       key: '#/paths/~1pets/get/parameters/{query:limit}',
       property: 'required',
       kind: 'modified',
-      typeName: 'Parameter',
+      pair: lonePair('Parameter', at(baseSource, '#/paths/~1pets/get/parameters/{query:limit}')),
       base: {
         location: at(baseSource, '#/paths/~1pets/get/parameters/0/required'),
         value: undefined,
@@ -46,7 +46,7 @@ const result: DiffResult = {
     {
       key: '#/components/schemas/Pet',
       kind: 'added',
-      typeName: 'Schema',
+      pair: lonePair('Schema', at(baseSource, '#/components/schemas/Pet')),
       revision: {
         location: at(revisionSource, '#/components/schemas/Pet'),
         value: { type: 'object' },
@@ -59,7 +59,7 @@ const result: DiffResult = {
       key: '#/info',
       property: 'version',
       kind: 'modified',
-      typeName: 'Info',
+      pair: lonePair('Info', at(baseSource, '#/info')),
       base: { location: at(baseSource, '#/info/version'), value: '1.0.0' },
       revision: { location: at(revisionSource, '#/info/version'), value: '1.0.1' },
       impact: 'patch',
