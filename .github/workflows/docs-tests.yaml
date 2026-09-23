@@ -32,17 +32,21 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Markup Link Checker (mlc) - docs
-        uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
+      - name: Markup Link Checker - docs
+        uses: tcort/github-action-markdown-link-check@v1
         with:
           folder-path: './docs'
           use-quiet-mode: 'yes'
-      - name: Markup Link Checker (mlc) - cookbook
-        uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
+          config-file: '.markdown-link-check.json'
+      - name: Markup Link Checker - cookbook
+        uses: tcort/github-action-markdown-link-check@v1
         with:
           folder-path: './cookbook'
           use-quiet-mode: 'yes'
-      - name: Markup Link Checker (mlc) - repo docs
-        uses: tcort/github-action-markdown-link-check@v1 # v1.2.0
+          config-file: '.markdown-link-check.json'
+      - name: Markup Link Checker - repo docs
+        uses: tcort/github-action-markdown-link-check@v1
         with:
+          use-quiet-mode: 'yes'
+          config-file: '.markdown-link-check.json'
           files: './README.md,./CONTRIBUTING.md'

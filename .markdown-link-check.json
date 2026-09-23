@@ -1,0 +1,6 @@
+{
+  "ignorePatterns": [
+    { "pattern": "^https://hub\\.docker\\.com/" },
+    { "pattern": "^https://www\\.npmjs\\.com/" }
+  ]
+}
