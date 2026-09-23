@@ -13,6 +13,8 @@ import {
 import { blue, bold, gray, green, red } from 'colorette';
 import * as path from 'node:path';
 
+import { byKeyAndProperty } from './order.js';
+
 const IMPACT_GLYPHS: Record<Impact, string> = {
   major: red('✖ major'),
   minor: green('✔ minor'),
@@ -90,7 +92,7 @@ export function stylishDiff(result: DiffResult): string {
     lines.push(bold(blue(key)));
     const sorted = [...changes].sort(
       (left, right) =>
-        impactRank(right.impact) - impactRank(left.impact) || left.key.localeCompare(right.key)
+        impactRank(right.impact) - impactRank(left.impact) || byKeyAndProperty(left, right)
     );
     for (const change of sorted) {
       lines.push(

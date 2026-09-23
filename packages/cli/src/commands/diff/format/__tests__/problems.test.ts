@@ -1,7 +1,7 @@
 import { Location, Source, type DiffResult } from '@redocly/openapi-core';
 
 import { diffToProblems } from '../problems.js';
-import { lonePair } from './pair.js';
+import { loneNode } from './diff-node.js';
 
 const baseSource = new Source('base.yaml', 'openapi: 3.1.0\n');
 const revisionSource = new Source('revision.yaml', 'openapi: 3.1.0\n');
@@ -17,7 +17,7 @@ const result: DiffResult = {
       key: '#/paths/~1pets/get/parameters/{query:limit}',
       property: 'required',
       kind: 'modified',
-      pair: lonePair('Parameter', at(baseSource, '#/paths/~1pets/get/parameters/{query:limit}')),
+      node: loneNode('Parameter', at(baseSource, '#/paths/~1pets/get/parameters/{query:limit}')),
       base: {
         location: at(baseSource, '#/paths/~1pets/get/parameters/0/required'),
         value: undefined,
@@ -27,7 +27,6 @@ const result: DiffResult = {
         value: true,
       },
       impact: 'major',
-      direction: 'request',
       verdicts: [
         {
           ruleId: 'parameter-became-required',
@@ -46,24 +45,22 @@ const result: DiffResult = {
     {
       key: '#/components/schemas/Pet',
       kind: 'added',
-      pair: lonePair('Schema', at(baseSource, '#/components/schemas/Pet')),
+      node: loneNode('Schema', at(baseSource, '#/components/schemas/Pet')),
       revision: {
         location: at(revisionSource, '#/components/schemas/Pet'),
         value: { type: 'object' },
       },
       impact: 'minor',
-      direction: 'neutral',
       verdicts: [],
     },
     {
       key: '#/info',
       property: 'version',
       kind: 'modified',
-      pair: lonePair('Info', at(baseSource, '#/info')),
+      node: loneNode('Info', at(baseSource, '#/info')),
       base: { location: at(baseSource, '#/info/version'), value: '1.0.0' },
       revision: { location: at(revisionSource, '#/info/version'), value: '1.0.1' },
       impact: 'patch',
-      direction: 'neutral',
       verdicts: [],
     },
   ],
