@@ -7,6 +7,12 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.55.0 (2026-09-23)
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.55.0.
+
 ## 2.54.2 (2026-09-22)
 
 ### Patch Changes

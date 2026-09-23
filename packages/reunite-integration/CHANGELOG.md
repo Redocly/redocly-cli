@@ -1,5 +1,17 @@
 # @redocly/reunite-integration
 
+## 2.55.0
+
+### Minor Changes
+
+- Removed the `getRemotesList()` method from the Reunite API client, together with the `ListRemotesResponse` and `Remote` types.
+
+  **Note**: `getRemotesList()`, `ListRemotesResponse`, and `Remote` are no longer exported from `@redocly/reunite-integration`.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.55.0.
+
 ## 2.54.2
 
 ### Patch Changes
