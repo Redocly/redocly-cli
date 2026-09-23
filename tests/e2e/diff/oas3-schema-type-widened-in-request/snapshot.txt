@@ -1,5 +1,5 @@
 POST /pets
-  · patch  modified  requestBody/content/application~1json/schema/properties/id · type
+  · patch  modified  requestBody/content/application/json/schema/properties/id · type
       at revision.yaml:16:21
 
 0 major, 0 minor, 1 patch.

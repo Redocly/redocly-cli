@@ -62,6 +62,49 @@ function report(result: DiffResult): string {
 }
 
 describe('diffDocuments', () => {
+  it('takes the direction of a component from a site that exists only in the revision', async () => {
+    const shared = outdent`
+      components:
+        schemas:
+          Size:
+            type: string
+    `;
+    const base = outdent`
+      openapi: 3.1.0
+      info: { title: T, version: '1.0.0' }
+      paths: {}
+      ${shared}
+            enum: [s, m, l]
+    `;
+    const revision = outdent`
+      openapi: 3.1.0
+      info: { title: T, version: '1.0.0' }
+      paths:
+        /pets:
+          post:
+            requestBody:
+              content:
+                application/json:
+                  schema: { $ref: '#/components/schemas/Size' }
+            responses: { '201': { description: Created } }
+      ${shared}
+            enum: [s, m]
+    `;
+    const config = await createConfig({ extends: ['diff-recommended'] });
+
+    const result = diffDocuments({
+      base: makeDocumentFromString(base, 'base.yaml'),
+      revision: makeDocumentFromString(revision, 'rev.yaml'),
+      config,
+    });
+
+    const enumChange = result.changes.find(
+      (change) => change.kind === 'modified' && change.property === 'enum'
+    );
+    expect(enumChange?.direction).toBe('request');
+    expect(enumChange?.verdicts.map((verdict) => verdict.ruleId)).toEqual(['enum-values-removed']);
+  });
+
   it('matches reordered parameters by identity and judges what actually changed', async () => {
     const config = await createConfig({ extends: ['diff-recommended'] });
     const result = diffDocuments({

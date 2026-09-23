@@ -1,5 +1,5 @@
 channels
-  ✖ major  removed   channels/userSignedUp/messages/signout
+  ✖ major  removed   userSignedUp/messages/signout
       The message was removed. (message-removed)
       at base.yaml:21:9
 

@@ -1,45 +1,43 @@
-import { getComponentRoot, type NodeLookup } from '../node-map/chain.js';
-import type { Direction } from './types.js';
+import type { NodeEntry, Reference } from '../node-map/types.js';
+import { mergeDirections } from './specs/direction.js';
+import type { DiffSpec, Direction, Pair } from './types.js';
 
-export function mergeDirections(a: Direction, b: Direction): Direction {
-  if (a === b) return a;
-  if (a === 'neutral') return b;
-  if (b === 'neutral') return a;
-  return 'both';
-}
+/**
+ * The direction every referenced node gets from the sites that reference it, over both
+ * documents at once so a shared component keeps one direction. A site inside another
+ * referenced node borrows that node's direction, which the repeated passes settle: merging
+ * only ever widens a direction, so the answers stop changing after a few rounds, and a
+ * reference cycle simply contributes nothing.
+ */
+export function usageDirections(
+  references: Reference[],
+  pairOf: Map<NodeEntry, Pair>,
+  spec: DiffSpec
+): (node: NodeEntry) => Direction {
+  const directions = new Map<Pair, Direction>();
+  const fromUsage = (node: NodeEntry): Direction => {
+    const pair = pairOf.get(node);
+    return (pair && directions.get(pair)) ?? 'neutral';
+  };
 
-export class UsageIndex {
-  private sitesByTarget = new Map<string, Set<string>>();
+  const edges = references.flatMap(({ from, to }) => {
+    const target = pairOf.get(spec.referenceTarget?.(to) ?? to);
+    return target ? [{ from, target }] : [];
+  });
 
-  constructor(
-    edges: Array<{ site: string; target: string }>,
-    private lookup: NodeLookup
-  ) {
-    for (const { site, target } of edges) {
-      const root = getComponentRoot(target, lookup) ?? target;
-      if (!this.sitesByTarget.has(root)) this.sitesByTarget.set(root, new Set());
-      this.sitesByTarget.get(root)!.add(site);
+  for (let settled = false; !settled; ) {
+    settled = true;
+    for (const { from, target } of edges) {
+      const merged = mergeDirections(
+        directions.get(target) ?? 'neutral',
+        spec.directionOf(from, fromUsage)
+      );
+      if (merged !== directions.get(target)) {
+        directions.set(target, merged);
+        settled = false;
+      }
     }
   }
 
-  /** `resolveSiteDirection` receives the key of the node that holds the reference. */
-  directionOf(componentKey: string, resolveSiteDirection: (site: string) => Direction): Direction {
-    const seen = new Set<string>();
-    const visit = (key: string): Direction => {
-      if (seen.has(key)) return 'neutral'; // cycle guard
-      seen.add(key);
-      let result: Direction = 'neutral';
-      for (const site of this.sitesByTarget.get(key) ?? []) {
-        // a ref site inside another component chains to that component's own usage
-        const siteComponentRoot = getComponentRoot(site, this.lookup);
-        const siteDirection = siteComponentRoot
-          ? visit(siteComponentRoot)
-          : resolveSiteDirection(site);
-        result = mergeDirections(result, siteDirection);
-        if (result === 'both') return 'both';
-      }
-      return result;
-    };
-    return visit(getComponentRoot(componentKey, this.lookup) ?? componentKey);
-  }
+  return fromUsage;
 }
