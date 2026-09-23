@@ -1,6 +1,6 @@
 import type { DiffResult, Impact } from '@redocly/openapi-core';
 
-import { byKey } from './order.js';
+import { byKeyAndProperty } from './order.js';
 
 const IMPACT_LABELS: Record<Impact, string> = {
   major: '🔴 major',
@@ -32,7 +32,7 @@ export function markdownDiff(result: DiffResult): string {
     '| --- | --- | --- | --- |',
   ];
 
-  for (const change of result.changes.toSorted(byKey)) {
+  for (const change of result.changes.toSorted(byKeyAndProperty)) {
     const location = change.kind === 'modified' ? `${change.key} · ${change.property}` : change.key;
     // Only the message comes from the compared document and needs escaping. A rule id is
     // lowercase letters and hyphens, and the backticks around it are ours to keep.

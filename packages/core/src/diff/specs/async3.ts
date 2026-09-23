@@ -1,40 +1,24 @@
-import { enclosing, fieldOf } from '../../node-map/access.js';
-import type { NodeEntry } from '../../node-map/types.js';
-import type { DiffSpec, Direction } from '../types.js';
-import { opposite } from './direction.js';
+import { enclosing, fieldOf } from '../../node-tree/access.js';
+import { opposite } from '../direction.js';
+import type { Direction, Directions } from '../types.js';
 
 /**
  * `receive` means another application produces the message, so its payload is judged the way
  * a request body is; `send` means this application produces it, so it is judged as a response.
  */
-function actionDirection(action: unknown): Direction {
+function actionDirection(action: unknown): Direction | undefined {
   if (action === 'receive') return 'request';
   if (action === 'send') return 'response';
-  return 'neutral';
+  return undefined;
 }
 
-function operationDirection(node: NodeEntry): Direction {
-  const operation = enclosing(node, 'Operation');
-  if (!operation) return 'neutral';
-
-  const direction = actionDirection(fieldOf(operation, 'action'));
+// Channels and their messages sit outside the operations, so they take the direction of the
+// operations that reference them.
+export const async3Directions: Directions = {
+  Operation: (operation) => actionDirection(fieldOf(operation, 'action')),
   // A reply answers the operation, so it travels back the other way.
-  return enclosing(node, 'OperationReply') ? opposite(direction) : direction;
-}
-
-export const async3Spec: DiffSpec = {
-  // Channels, messages and operations are named maps, so the node's own key is its identity.
-  identityOf: () => undefined,
-  // Channels and their messages sit outside the operations, so a change deep inside a payload
-  // is answered by the nearest ancestor an operation references.
-  directionOf: (node, fromUsage) => {
-    const own = operationDirection(node);
-    if (own !== 'neutral') return own;
-
-    for (let current: NodeEntry | null = node; current; current = current.parent) {
-      const direction = fromUsage(current);
-      if (direction !== 'neutral') return direction;
-    }
-    return 'neutral';
+  OperationReply: (reply) => {
+    const direction = actionDirection(fieldOf(enclosing(reply, 'Operation'), 'action'));
+    return direction && opposite(direction);
   },
 };

@@ -1,8 +1,8 @@
-import type { NodeEntry, Reference } from '../../node-map/types.js';
+import type { NodeEntry, Reference } from '../../node-tree/types.js';
 import { Location } from '../../ref-utils.js';
 import { Source } from '../../resolve.js';
-import type { DiffSpec, Pair } from '../types.js';
-import { usageDirections } from '../usage.js';
+import { directionsOf } from '../direction.js';
+import type { DiffNode, Directions } from '../types.js';
 
 const source = new Source('tree.yaml', '');
 
@@ -10,7 +10,7 @@ const source = new Source('tree.yaml', '');
  * Builds nodes from a spelled-out tree for tests that need real node types rather than a
  * document. Each line is `key Type`, optionally followed by `name=value` fields; a node's
  * parent is the closest preceding line whose key is a prefix of it — which is what
- * `collectNodes` records when it walks a document.
+ * `buildNodeTree` records when it walks a document.
  */
 export function treeOf(nodes: string): Map<string, NodeEntry> {
   const entries = new Map<string, NodeEntry>();
@@ -37,16 +37,22 @@ export function treeOf(nodes: string): Map<string, NodeEntry> {
   return entries;
 }
 
-/** The tree paired with itself: every node is both sides of its pair. */
-export function pairsOfTree(entries: Map<string, NodeEntry>): Map<NodeEntry, Pair> {
-  const pairs = new Map<NodeEntry, Pair>();
+/** The tree compared with itself: every entry is both sides of its node. */
+export function diffNodesOfTree(entries: Map<string, NodeEntry>): Map<NodeEntry, DiffNode> {
+  const diffNodes = new Map<NodeEntry, DiffNode>();
   for (const entry of entries.values()) {
-    const parent = entry.parent ? pairs.get(entry.parent)! : null;
-    const pair: Pair = { base: entry, revision: entry, parent, children: [], occurrence: 1 };
-    parent?.children.push(pair);
-    pairs.set(entry, pair);
+    const parent = entry.parent ? diffNodes.get(entry.parent)! : null;
+    const node: DiffNode = {
+      base: entry,
+      revision: entry,
+      parent,
+      children: [],
+      key: entry.location.pointer,
+    };
+    parent?.children.push(node);
+    diffNodes.set(entry, node);
   }
-  return pairs;
+  return diffNodes;
 }
 
 export function referencesOfTree(
@@ -56,11 +62,11 @@ export function referencesOfTree(
   return edges.map(([from, to]) => ({ from: entries.get(from)!, to: entries.get(to)! }));
 }
 
-/** The usage directions of a tree paired with itself, for tests that only vary the edges. */
-export function usageOfTree(
+/** The directions of a tree compared with itself, for tests that only vary the references. */
+export function directionsOfTree(
   entries: Map<string, NodeEntry>,
   edges: Array<[from: string, to: string]>,
-  spec: DiffSpec
+  directions: Directions
 ) {
-  return usageDirections(referencesOfTree(entries, edges), pairsOfTree(entries), spec);
+  return directionsOf(referencesOfTree(entries, edges), diffNodesOfTree(entries), directions);
 }

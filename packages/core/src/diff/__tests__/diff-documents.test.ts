@@ -102,7 +102,6 @@ describe('diffDocuments', () => {
     const enumChange = result.changes.find(
       (change) => change.kind === 'modified' && change.property === 'enum'
     );
-    expect(enumChange?.direction).toBe('request');
     expect(enumChange?.verdicts.map((verdict) => verdict.ruleId)).toEqual(['enum-values-removed']);
   });
 
@@ -144,6 +143,29 @@ describe('diffDocuments', () => {
     expect(() =>
       diffDocuments({ base: oas2, revision: makeDocumentFromString(REVISION, ''), config })
     ).toThrow(HandledError);
+  });
+
+  it('compares a specification without diff rules by its structure and judges nothing', async () => {
+    const config = await createConfig({ extends: ['diff-recommended'] });
+    const oas2 = (paths: string) =>
+      makeDocumentFromString(
+        outdent`
+          swagger: '2.0'
+          info: { title: Test, version: '1.0' }
+          paths: ${paths}
+        `,
+        ''
+      );
+
+    const result = diffDocuments({
+      base: oas2(`{ /pets: { get: { responses: { '200': { description: OK } } } } }`),
+      revision: oas2('{}'),
+      config,
+    });
+
+    expect(result.changes.map((change) => [change.kind, change.key, change.impact])).toEqual([
+      ['removed', '#/paths/~1pets', 'patch'],
+    ]);
   });
 
   it('matches renamed path parameters instead of remove+add', async () => {

@@ -1,9 +1,8 @@
-import type { NodeEntry, NodeValue } from '../../node-map/types.js';
+import type { NodeEntry, NodeValue } from '../../node-tree/types.js';
 import { Location } from '../../ref-utils.js';
 import { Source } from '../../resolve.js';
-import { changesIn } from '../changes.js';
-import { pairDocuments } from '../pairs.js';
-import type { DiffSpec } from '../types.js';
+import { collectChanges } from '../changes.js';
+import { buildDiffTree } from '../diff-tree.js';
 
 const source = new Source('api.yaml', '');
 
@@ -33,16 +32,14 @@ function documentOf(children: Record<string, { type?: string; value?: NodeValue 
   return nodes;
 }
 
-/** No identity of its own and no direction: the structure alone decides. */
-const structural: DiffSpec = { identityOf: () => undefined, directionOf: () => 'neutral' };
-
+// No identity of its own: the structure alone decides.
 const changesBetween = (
   base: ReturnType<typeof documentOf>,
   revision: ReturnType<typeof documentOf>
-) => changesIn(pairDocuments(base.get('#/')!, revision.get('#/')!, structural).root, structural);
+) => collectChanges(buildDiffTree(base.get('#/')!, revision.get('#/')!, {}).root, {});
 
 /** `kind key · property  base-pointer → revision-pointer` per change. */
-function summarize(changes: ReturnType<typeof changesIn>): string[] {
+function summarize(changes: ReturnType<typeof collectChanges>): string[] {
   return changes.map((change) => {
     const property = change.kind === 'modified' ? ` · ${change.property}` : '';
     const base = change.kind === 'added' ? '-' : change.base.location.pointer;
@@ -51,7 +48,7 @@ function summarize(changes: ReturnType<typeof changesIn>): string[] {
   });
 }
 
-describe('changesIn', () => {
+describe('collectChanges', () => {
   it('emits one modified change per differing property, located at the escaped property pointer', () => {
     const base = documentOf({ a: { value: { type: 'integer', 'x/y': 1 } } });
     const revision = documentOf({ a: { value: { type: 'number', 'x/y': 2 } } });

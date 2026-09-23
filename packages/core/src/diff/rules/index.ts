@@ -1,36 +1,37 @@
 import type { DiffRule } from '../types.js';
-import { ChannelAddressChanged, ChannelRemoved } from './channel.js';
-import { MessageContentTypeChanged, MessageRemoved } from './message.js';
-import { OperationActionChanged, OperationRemoved, PathRemoved } from './operation.js';
-import {
-  ParameterAddedRequired,
-  ParameterBecameRequired,
-  ParameterRemoved,
-  ParameterSerializationChanged,
-} from './parameter.js';
-import { RefTargetChanged } from './ref.js';
-import { RequestBodyBecameRequired, RequestBodyRemoved } from './request-body.js';
-import { MediaTypeRemoved, ResponseHeaderRemoved, ResponseRemoved } from './response.js';
-import {
-  AdditionalPropertiesChanged,
-  EnumValuesAdded,
-  EnumValuesRemoved,
-  NumericRangeChanged,
-  PropertyRemovedFromResponse,
-  RequiredPropertiesAdded,
-  RequiredPropertiesRemoved,
-  SchemaCombinatorChanged,
-  SchemaFormatChanged,
-  SchemaTypeChanged,
-  StringLengthChanged,
-} from './schema.js';
-import {
-  SecurityRequirementAdded,
-  SecuritySchemeChanged,
-  SecuritySchemeRemoved,
-  SecurityScopesAdded,
-} from './security.js';
-import { ServerRemoved } from './server.js';
+import { AdditionalPropertiesChanged } from './additional-properties-changed.js';
+import { ChannelAddressChanged } from './channel-address-changed.js';
+import { ChannelRemoved } from './channel-removed.js';
+import { EnumValuesAdded } from './enum-values-added.js';
+import { EnumValuesRemoved } from './enum-values-removed.js';
+import { MediaTypeRemoved } from './media-type-removed.js';
+import { MessageContentTypeChanged } from './message-content-type-changed.js';
+import { MessageRemoved } from './message-removed.js';
+import { NumericRangeChanged } from './numeric-range-changed.js';
+import { OperationActionChanged } from './operation-action-changed.js';
+import { OperationRemoved } from './operation-removed.js';
+import { ParameterAddedRequired } from './parameter-added-required.js';
+import { ParameterBecameRequired } from './parameter-became-required.js';
+import { ParameterRemoved } from './parameter-removed.js';
+import { ParameterSerializationChanged } from './parameter-serialization-changed.js';
+import { PathRemoved } from './path-removed.js';
+import { PropertyRemovedFromResponse } from './property-removed-from-response.js';
+import { RefTargetChanged } from './ref-target-changed.js';
+import { RequestBodyBecameRequired } from './request-body-became-required.js';
+import { RequestBodyRemoved } from './request-body-removed.js';
+import { RequiredPropertiesAdded } from './required-properties-added.js';
+import { RequiredPropertiesRemoved } from './required-properties-removed.js';
+import { ResponseHeaderRemoved } from './response-header-removed.js';
+import { ResponseRemoved } from './response-removed.js';
+import { SchemaCombinatorChanged } from './schema-combinator-changed.js';
+import { SchemaFormatChanged } from './schema-format-changed.js';
+import { SchemaTypeChanged } from './schema-type-changed.js';
+import { SecurityRequirementAdded } from './security-requirement-added.js';
+import { SecuritySchemeChanged } from './security-scheme-changed.js';
+import { SecuritySchemeRemoved } from './security-scheme-removed.js';
+import { SecurityScopesAdded } from './security-scopes-added.js';
+import { ServerRemoved } from './server-removed.js';
+import { StringLengthChanged } from './string-length-changed.js';
 
 /**
  * Every rule over a `Schema` node, shared by both registries: an AsyncAPI payload is the same

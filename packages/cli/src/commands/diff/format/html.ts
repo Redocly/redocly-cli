@@ -1,7 +1,7 @@
 import type { DiffResult, JudgedChange } from '@redocly/openapi-core';
 
 import { toJsonChange } from './json.js';
-import { byKey } from './order.js';
+import { byKeyAndProperty } from './order.js';
 
 function escapeHtml(value: unknown): string {
   return String(value)
@@ -71,7 +71,7 @@ export function htmlDiff(result: DiffResult): string {
     result.specVersions.revision
   )}</span>
 </p>
-${result.changes.toSorted(byKey).map(renderChange).join('\n')}
+${result.changes.toSorted(byKeyAndProperty).map(renderChange).join('\n')}
 </body>
 </html>`;
 }
