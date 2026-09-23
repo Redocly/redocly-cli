@@ -130,7 +130,7 @@ export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-doc
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
-export { diffDocuments, DiffError } from './diff/index.js';
+export { diffDocuments } from './diff/index.js';
 export {
   type Change,
   type DiffResult,

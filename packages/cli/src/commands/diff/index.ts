@@ -1,12 +1,4 @@
-import {
-  bundle,
-  DiffError,
-  diffDocuments,
-  formatProblems,
-  getTotals,
-  logger,
-  type DiffResult,
-} from '@redocly/openapi-core';
+import { bundle, diffDocuments, formatProblems, getTotals, logger } from '@redocly/openapi-core';
 import { writeFileSync } from 'node:fs';
 
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
@@ -37,15 +29,7 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   collectSpecData?.(revisionDocument);
 
-  let result: DiffResult;
-  try {
-    result = diffDocuments({ base: baseDocument, revision: revisionDocument, config });
-  } catch (error) {
-    if (error instanceof DiffError) {
-      return exitWithError(error.message);
-    }
-    throw error;
-  }
+  const result = diffDocuments({ base: baseDocument, revision: revisionDocument, config });
 
   if (argv.format === 'github-actions') {
     const problems = diffToProblems(result);

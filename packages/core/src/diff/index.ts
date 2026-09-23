@@ -4,6 +4,7 @@ import { collectNodes } from '../node-map/collect.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
 import type { Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
+import { HandledError } from '../utils/error.js';
 import { changesIn } from './changes.js';
 import { judgeChanges } from './detect.js';
 import { highestImpact } from './impact.js';
@@ -11,24 +12,6 @@ import { pairDocuments, typeOf } from './pairs.js';
 import { diffSpecs, structuralSpec } from './specs/index.js';
 import type { DiffResult, DiffSummary, Impact, JudgedChange } from './types.js';
 import { usageDirections } from './usage.js';
-
-export class DiffError extends Error {}
-
-const byKey = (left: { key: string }, right: { key: string }) =>
-  left.key < right.key ? -1 : left.key > right.key ? 1 : 0;
-
-// The change to `info.version` is the bump being checked, so it does not count toward it.
-function requiredBump(changes: JudgedChange[]): Impact | undefined {
-  const counted = changes.filter(
-    (change) =>
-      !(
-        typeOf(change.pair) === 'Info' &&
-        change.kind === 'modified' &&
-        change.property === 'version'
-      )
-  );
-  return highestImpact(counted.map((change) => change.impact));
-}
 
 export function diffDocuments(opts: {
   base: Document;
@@ -39,20 +22,20 @@ export function diffDocuments(opts: {
 
   const baseVersion = detectSpec(base.parsed);
   const revisionVersion = detectSpec(revision.parsed);
+
   const family = getMajorSpecVersion(revisionVersion);
+
   if (getMajorSpecVersion(baseVersion) !== family) {
-    throw new DiffError(
-      `The base and the revision use different specification families: '${baseVersion}' and '${revisionVersion}'. The diff command compares documents of one family only.`
-    );
+    throw new HandledError(`Cannot compare ${baseVersion} with ${revisionVersion}.`);
   }
 
-  // Each side is collected with its own type tree.
-  const collect = (document: Document, specVersion: SpecVersion) =>
-    collectNodes({
+  const collect = (document: Document, specVersion: SpecVersion) => {
+    return collectNodes({
       document,
       types: normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config),
       specVersion,
     });
+  };
 
   const spec = diffSpecs[family];
 
@@ -66,10 +49,11 @@ export function diffDocuments(opts: {
     collectedRevision.root,
     spec ?? structuralSpec
   );
+
   const fromUsage = usageDirections(references, pairOf, spec ?? structuralSpec);
 
   const changes = judgeChanges({
-    changes: changesIn(root, spec ?? structuralSpec).sort(byKey),
+    changes: changesIn(root, spec ?? structuralSpec),
     specVersion: revisionVersion,
     spec,
     ruleSets: config.getDiffRulesForSpecVersion(family),
@@ -77,14 +61,33 @@ export function diffDocuments(opts: {
     fromUsage,
   });
 
-  const summary: DiffSummary = { major: 0, minor: 0, patch: 0 };
-  for (const change of changes) summary[change.impact]++;
-
   return {
     version: '1',
-    specVersions: { base: baseVersion, revision: revisionVersion },
-    summary,
+    specVersions: {
+      base: baseVersion,
+      revision: revisionVersion,
+    },
+    summary: countByImpact(changes),
     bump: requiredBump(changes),
     changes,
   };
+}
+
+function countByImpact(changes: JudgedChange[]): DiffSummary {
+  const summary: DiffSummary = { major: 0, minor: 0, patch: 0 };
+  for (const change of changes) summary[change.impact]++;
+  return summary;
+}
+
+function requiredBump(changes: JudgedChange[]): Impact | undefined {
+  return highestImpact(
+    changes.flatMap((change) => {
+      const isVersionChange =
+        change.kind === 'modified' &&
+        change.property === 'version' &&
+        typeOf(change.pair) === 'Info';
+
+      return !isVersionChange ? [change.impact] : [];
+    })
+  );
 }

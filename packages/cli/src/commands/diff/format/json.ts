@@ -10,6 +10,8 @@ import {
   type LocatedNode,
 } from '@redocly/openapi-core';
 
+import { byKey } from './order.js';
+
 export interface JsonLocatedNode {
   file: string;
   pointer: string;
@@ -89,6 +91,9 @@ export function toJsonChange(change: JudgedChange): JsonChange {
 }
 
 export function jsonDiff(result: DiffResult): string {
-  const report: JsonDiffResult = { ...result, changes: result.changes.map(toJsonChange) };
+  const report: JsonDiffResult = {
+    ...result,
+    changes: result.changes.toSorted(byKey).map(toJsonChange),
+  };
   return JSON.stringify(report, null, 2);
 }

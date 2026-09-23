@@ -88,6 +88,13 @@ describe('diffToProblems', () => {
     ).toMatchInlineSnapshot(`
       [
         {
+          "at": "revision.yaml#/components/schemas/Pet",
+          "from": undefined,
+          "message": "added #/components/schemas/Pet",
+          "ruleId": "diff",
+          "severity": "warn",
+        },
+        {
           "at": "revision.yaml#/paths/~1pets/get/parameters/0/required",
           "from": "base.yaml#/paths/~1pets/get/parameters/0/required",
           "message": "Parameter became required.",
@@ -100,13 +107,6 @@ describe('diffToProblems', () => {
           "message": "Parameter serialization changed.",
           "ruleId": "parameter-serialization-changed",
           "severity": "error",
-        },
-        {
-          "at": "revision.yaml#/components/schemas/Pet",
-          "from": undefined,
-          "message": "added #/components/schemas/Pet",
-          "ruleId": "diff",
-          "severity": "warn",
         },
       ]
     `);
