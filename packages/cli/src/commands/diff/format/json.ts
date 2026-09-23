@@ -3,14 +3,13 @@ import {
   typeOf,
   type Change,
   type DiffResult,
-  type Direction,
   type Impact,
   type JudgedChange,
   type Location,
   type LocatedNode,
 } from '@redocly/openapi-core';
 
-import { byKey } from './order.js';
+import { byKeyAndProperty } from './order.js';
 
 export interface JsonLocatedNode {
   file: string;
@@ -34,7 +33,6 @@ export interface JsonChange {
   kind: Change['kind'];
   property?: string;
   impact: Impact;
-  direction: Direction;
   verdicts: JsonVerdict[];
   base?: JsonLocatedNode;
   revision?: JsonLocatedNode;
@@ -61,13 +59,12 @@ function toJsonNode({ location, value }: LocatedNode): JsonLocatedNode {
 }
 
 export function toJsonChange(change: JudgedChange): JsonChange {
-  const { key, pair, kind, impact, direction, verdicts } = change;
+  const { key, node, kind, impact, verdicts } = change;
   const common = {
     key,
-    typeName: typeOf(pair),
+    typeName: typeOf(node),
     kind,
     impact,
-    direction,
     verdicts: verdicts.map((verdict) => ({
       ruleId: verdict.ruleId,
       impact: verdict.impact,
@@ -93,7 +90,7 @@ export function toJsonChange(change: JudgedChange): JsonChange {
 export function jsonDiff(result: DiffResult): string {
   const report: JsonDiffResult = {
     ...result,
-    changes: result.changes.toSorted(byKey).map(toJsonChange),
+    changes: result.changes.toSorted(byKeyAndProperty).map(toJsonChange),
   };
   return JSON.stringify(report, null, 2);
 }
