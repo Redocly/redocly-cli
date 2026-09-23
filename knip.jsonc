@@ -7,12 +7,13 @@
       "entry": [
         "scripts/*.{js,mjs}",
         "plugins/*.js",
-        "resources/*.js",
         "tests/**/*.{ts,js,mjs,cjs}",
       ],
       "ignore": [
-        // Standalone examples for users; their dependencies are not installed here.
+        // Example material for users (cookbook plugins, sample descriptions, configs and
+        // plugins); not part of the build and its dependencies are not installed here.
         "cookbook/**",
+        "resources/**",
         // Generated clients are written into these folders during the e2e run, so their
         // imports do not resolve in a clean checkout. Same exclusion as the root tsconfig.
         "tests/e2e/generate-client/examples/**",
