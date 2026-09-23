@@ -1,5 +1,5 @@
 GET /pets
-  ✖ major  removed   responses/200/content/application~1xml
+  ✖ major  removed   responses/200/content/application/xml
       Media type was removed. (media-type-removed)
       at base.yaml:15:15
 

@@ -1,5 +1,5 @@
 GET /pets
-  ✖ major  removed   responses/200/content/application~1json/schema/properties/tag
+  ✖ major  removed   responses/200/content/application/json/schema/properties/tag
       Schema property was removed. (property-removed-from-response)
       at base.yaml:19:21
 
