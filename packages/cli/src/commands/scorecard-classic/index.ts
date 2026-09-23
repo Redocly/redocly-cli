@@ -1,5 +1,4 @@
 import {
-  AbortFlowError,
   BaseResolver,
   HandledError,
   logger,
@@ -296,11 +295,11 @@ function reportResults({
   );
 
   if (targetLevel && !targetLevelAchieved) {
-    throw new AbortFlowError('Target scorecard level not achieved.');
+    throw new HandledError('Target scorecard level not achieved.');
   }
 
   if (achievedLevel === 'Non Conformant') {
-    throw new AbortFlowError('Scorecard validation failed.');
+    throw new HandledError('Scorecard validation failed.');
   }
 }
 
