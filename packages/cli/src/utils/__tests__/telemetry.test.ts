@@ -1,11 +1,10 @@
 import { createConfig } from '@redocly/openapi-core';
+import { RedoclyOAuthClient, getReuniteUrl } from '@redocly/reunite-integration';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import { join } from 'node:path';
 import { it, expect, vi } from 'vitest';
 
-import { RedoclyOAuthClient } from '../../auth/oauth-client.js';
-import { getReuniteUrl } from '../../reunite/api/index.js';
 import { respondWithinMs } from '../network-check.js';
 import { sendTelemetry } from '../telemetry.js';
 
@@ -15,8 +14,7 @@ const mockOtelSend = vi.hoisted(() => vi.fn());
 vi.mock('@redocly/cli-otel', () => ({ CloudEvents: { mapToCloudEvent: mockMapToCloudEvent } }));
 vi.mock('../otel.js', () => ({ otelTelemetry: { send: mockOtelSend } }));
 vi.mock('../network-check.js');
-vi.mock('../../auth/oauth-client.js');
-vi.mock('../../reunite/api/index.js');
+vi.mock('@redocly/reunite-integration');
 vi.mock('node:child_process', async (importOriginal) => {
   const actual = await importOriginal<typeof childProcess>();
   return { ...actual, execSync: vi.fn(actual.execSync) };

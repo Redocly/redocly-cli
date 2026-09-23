@@ -23,7 +23,7 @@ workflows:
         outputs:
           menu: $response.body
       - stepId: step-with-json-replacements
-        operationId: registerOAuth2Client
+        operationId: createOrder
         requestBody:
           contentType: application/json
           payload: $steps.first-step.outputs.menu
@@ -36,7 +36,7 @@ workflows:
               value:
                 - '2025-01-01'
         successCriteria:
-          - condition: $statusCode == 400
+          - condition: $statusCode == 401
 
       - stepId: step-with-form-urlencoded-replacements
         operationId: createOrder

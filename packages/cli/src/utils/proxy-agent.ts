@@ -1,5 +1,3 @@
-import { HttpsProxyAgent } from 'https-proxy-agent';
-
 export function getProxyUrl(): string | undefined {
   return (
     process.env.HTTPS_PROXY ||
@@ -7,11 +5,6 @@ export function getProxyUrl(): string | undefined {
     process.env.http_proxy ||
     process.env.https_proxy
   );
-}
-
-export function getProxyAgent() {
-  const proxy = getProxyUrl();
-  return proxy ? new HttpsProxyAgent(proxy) : undefined;
 }
 
 export function shouldBypassProxy(url: string): boolean {

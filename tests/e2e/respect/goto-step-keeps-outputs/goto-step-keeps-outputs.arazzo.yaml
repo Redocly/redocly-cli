@@ -1,0 +1,35 @@
+arazzo: 1.0.1
+info:
+  title: Goto step keeps earlier outputs
+  description: A goto action targeting a step in the same workflow keeps earlier step outputs addressable.
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+workflows:
+  - workflowId: goto-keeps-outputs
+    steps:
+      - stepId: list-menu-items
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        outputs:
+          menuItems: $response.body
+        successCriteria:
+          - condition: $statusCode == 200
+
+      - stepId: failing-step
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 999
+        onFailure:
+          - name: goto-cleanup
+            type: goto
+            stepId: cleanup
+
+      - stepId: cleanup
+        operationId: $sourceDescriptions.cafe-api.listMenuItems
+        successCriteria:
+          - condition: $statusCode == 200
+          - condition: $steps.list-menu-items.outputs.menuItems != null

@@ -1,5 +1,32 @@
 # @redocly/openapi-core
 
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.57.0.
+
+## 2.54.1
+
+## 2.54.0
+
+## 2.53.3
+
+## 2.53.2
+
+### Patch Changes
+
+- Added `start` and `end` line and column positions to each problem location in the `--format=json` lint output.
+
+## 2.53.1
+
+## 2.53.0
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
 ## 2.52.1
 
 ## 2.52.0

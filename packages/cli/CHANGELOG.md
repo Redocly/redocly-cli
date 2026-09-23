@@ -1,5 +1,62 @@
 # @redocly/cli
 
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+- Updated @redocly/reunite-integration to v2.54.2.
+
+## 2.54.1
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.54.1.
+
+## 2.54.0
+
+### Patch Changes
+
+- Updated the `login` command to prevent it from passing the authorization URL through a shell.
+
+  The `login` command no longer waits for the browser launcher to exit.
+
+- Fixed the `push --wait-for-deployment` error message, which reported a failed or timed-out deployment as a file upload failure.
+- Fixed the `push-status --wait` command printing the Reunite API sunset warning twice for pushes to the main branch, and the `push` and `push-status` commands dropping the warning when the deployment or the request failed.
+- Updated @redocly/reunite-integration to v2.54.0.
+
+## 2.53.3
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/respect-core to v2.53.3.
+
+## 2.53.2
+
+### Patch Changes
+
+- Added `start` and `end` line and column positions to each problem location in the `--format=json` lint output.
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 2.53.1
+
+### Patch Changes
+
+- Added a deprecation warning to the `build-docs` command about the upcoming switch to Redoc 3.
+
+## 2.53.0
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
 ## 2.52.1
 
 ### Patch Changes

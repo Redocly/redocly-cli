@@ -298,7 +298,7 @@ yargs(hideBin(process.argv))
           },
         }),
     async (argv) => {
-      const { handlePushStatus } = await import('./reunite/commands/push-status.js');
+      const { handlePushStatus } = await import('./commands/push-status.js');
       commandWrapper(handlePushStatus)(argv);
     }
   )
@@ -408,7 +408,7 @@ yargs(hideBin(process.argv))
           },
         }),
     async (argv) => {
-      const { handlePush } = await import('./reunite/commands/push.js');
+      const { handlePush } = await import('./commands/push.js');
       commandWrapper(handlePush)(argv);
     }
   )
@@ -609,7 +609,7 @@ yargs(hideBin(process.argv))
         },
       }),
     async (argv) => {
-      const { handleLogin } = await import('./commands/auth.js');
+      const { handleLogin } = await import('./commands/login.js');
       commandWrapper(handleLogin)(argv);
     }
   )
@@ -618,7 +618,7 @@ yargs(hideBin(process.argv))
     'Clear your stored credentials.',
     (yargs) => yargs,
     async (argv) => {
-      const { handleLogout } = await import('./commands/auth.js');
+      const { handleLogout } = await import('./commands/logout.js');
       commandWrapper(handleLogout)(argv);
     }
   )

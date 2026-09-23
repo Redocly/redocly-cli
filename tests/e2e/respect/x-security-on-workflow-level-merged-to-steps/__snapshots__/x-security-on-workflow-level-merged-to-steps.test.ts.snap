@@ -62,7 +62,7 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
     Response Body:
       {
         "type": "about:blank",
-        "title": "Unauthorized",
+        "title": "Bearer token is required",
         "status": 401,
         "instance": "/orders"
       } 
