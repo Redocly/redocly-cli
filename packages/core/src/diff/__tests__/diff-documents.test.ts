@@ -2,7 +2,8 @@ import { outdent } from 'outdent';
 
 import { createConfig } from '../../config/index.js';
 import { makeDocumentFromString } from '../../resolve.js';
-import { DiffError, diffDocuments } from '../index.js';
+import { HandledError } from '../../utils/error.js';
+import { diffDocuments } from '../index.js';
 import type { DiffResult } from '../types.js';
 
 const BASE = outdent`
@@ -130,7 +131,7 @@ describe('diffDocuments', () => {
     expect(result.bump).toBe('major');
   });
 
-  it('throws DiffError for different spec families', async () => {
+  it('throws a handled error for different spec families', async () => {
     const config = await createConfig({ extends: ['diff-recommended'] });
     const oas2 = makeDocumentFromString(
       outdent`
@@ -142,7 +143,7 @@ describe('diffDocuments', () => {
     );
     expect(() =>
       diffDocuments({ base: oas2, revision: makeDocumentFromString(REVISION, ''), config })
-    ).toThrow(DiffError);
+    ).toThrow(HandledError);
   });
 
   it('matches renamed path parameters instead of remove+add', async () => {

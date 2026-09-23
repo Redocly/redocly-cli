@@ -228,11 +228,11 @@ describe('markdownDiff', () => {
 
       | Impact | Change | Location | Details |
       | --- | --- | --- | --- |
+      | 🟢 minor | added | \`#/components/schemas/Pet\` |  |
       | 🔴 major | removed | \`#/paths/~1pets/delete\` | Operation was removed. \`operation-removed\` |
-      | 🔴 major | modified | \`#/paths/~1pets/get/parameters/{query:limit} · required\` | Parameter became required. \`parameter-became-required\` |
-      | 🔴 major | modified | \`#/paths/~1pets/post/requestBody/content/application~1json/schema · pattern\` | \\\`pattern\\\` changed from 'a' to 'a\\|b'. \`string-length-changed\` |
       | ⚪ patch | modified | \`#/paths/~1pets/get · summary\` |  |
-      | 🟢 minor | added | \`#/components/schemas/Pet\` |  |"
+      | 🔴 major | modified | \`#/paths/~1pets/get/parameters/{query:limit} · required\` | Parameter became required. \`parameter-became-required\` |
+      | 🔴 major | modified | \`#/paths/~1pets/post/requestBody/content/application~1json/schema · pattern\` | \\\`pattern\\\` changed from 'a' to 'a\\|b'. \`string-length-changed\` |"
     `);
   });
 });
