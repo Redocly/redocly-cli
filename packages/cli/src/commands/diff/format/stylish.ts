@@ -1,23 +1,29 @@
-import * as path from 'node:path';
-
-import { isBrowser } from '../../env.js';
-import { getLineColLocation } from '../../format/codeframes.js';
-import { colorize } from '../../logger.js';
-import { isAbsoluteUrl, unescapePointerFragment } from '../../ref-utils.js';
 import {
   displaySide,
+  getLineColLocation,
   impactRank,
+  isAbsoluteUrl,
+  isBrowser,
+  parsePointer,
   type Change,
   type DiffResult,
   type Impact,
   type JudgedChange,
-} from '../types.js';
+} from '@redocly/openapi-core';
+import { blue, bold, gray, green, red } from 'colorette';
+import * as path from 'node:path';
 
 const IMPACT_GLYPHS: Record<Impact, string> = {
-  major: colorize.red('✖ major'),
-  minor: colorize.green('✔ minor'),
-  patch: colorize.gray('· patch'),
+  major: red('✖ major'),
+  minor: green('✔ minor'),
+  patch: gray('· patch'),
 };
+
+// `parsePointer` unescapes every segment and keeps the leading `#`, which names the document.
+function segmentsOf(pointer: string): string[] {
+  const [, ...segments] = parsePointer(pointer);
+  return segments;
+}
 
 const HTTP_METHODS = new Set([
   'get',
@@ -31,36 +37,33 @@ const HTTP_METHODS = new Set([
   'query',
 ]);
 
-function segmentsOf(pointer: string): string[] {
-  return pointer.replace(/^#\//, '').split('/').filter(Boolean);
-}
-
 function groupOf(change: Change): string {
   const segments = segmentsOf(displaySide(change).location.pointer);
   if (segments[0] === 'paths' && segments.length > 1) {
-    const pathKey = unescapePointerFragment(segments[1]);
+    const pathKey = segments[1];
     const method = segments[2];
     return method && HTTP_METHODS.has(method) ? `${method.toUpperCase()} ${pathKey}` : pathKey;
   }
   return segments[0] || 'document';
 }
 
+// The group heading already names what the label would repeat: the endpoint under
+// `paths`, the section anywhere else.
 function labelSegments(segments: string[]): string[] {
-  if (segments[0] !== 'paths') return segments;
+  if (segments[0] !== 'paths') return segments.slice(1);
   const underOperation = segments.length > 2 && HTTP_METHODS.has(segments[2]);
   return segments.slice(underOperation ? 3 : 2);
 }
 
-// The group heading already names the endpoint, so the label starts after
-// `paths/<path>/<method>`. A change on the endpoint itself is labelled by its property;
-// the endpoint node itself by its real path, each segment unescaped.
+// A change on the group node itself is labelled by its property; the node itself by its
+// real path, each segment unescaped so a `/` inside a name reads as one.
 function labelOf(change: JudgedChange): string {
   const named = labelSegments(segmentsOf(change.key));
   if (named.length) {
     return change.kind === 'modified' ? `${named.join('/')} · ${change.property}` : named.join('/');
   }
   if (change.kind === 'modified') return change.property;
-  return segmentsOf(displaySide(change).location.pointer).map(unescapePointerFragment).join(' · ');
+  return segmentsOf(displaySide(change).location.pointer).join(' · ');
 }
 
 function locationOf(change: Change, cwd: string): string {
@@ -84,26 +87,24 @@ export function stylishDiff(result: DiffResult): string {
 
   const lines: string[] = [];
   for (const [key, changes] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-    lines.push(colorize.bold(colorize.blue(key)));
+    lines.push(bold(blue(key)));
     const sorted = [...changes].sort(
       (left, right) =>
         impactRank(right.impact) - impactRank(left.impact) || left.key.localeCompare(right.key)
     );
     for (const change of sorted) {
       lines.push(
-        `  ${IMPACT_GLYPHS[change.impact]}  ${colorize.bold(change.kind.padEnd(8))}  ${labelOf(change)}`
+        `  ${IMPACT_GLYPHS[change.impact]}  ${bold(change.kind.padEnd(8))}  ${labelOf(change)}`
       );
       for (const verdict of change.verdicts) {
-        lines.push(colorize.gray(`      ${verdict.message} (${verdict.ruleId})`));
+        lines.push(gray(`      ${verdict.message} (${verdict.ruleId})`));
       }
-      lines.push(colorize.gray(`      at ${locationOf(change, cwd)}`));
+      lines.push(gray(`      at ${locationOf(change, cwd)}`));
     }
     lines.push('');
   }
 
   const { major, minor, patch } = result.summary;
-  lines.push(
-    `${colorize.red(`${major} major`)}, ${colorize.green(`${minor} minor`)}, ${colorize.gray(`${patch} patch`)}.`
-  );
+  lines.push(`${red(`${major} major`)}, ${green(`${minor} minor`)}, ${gray(`${patch} patch`)}.`);
   return lines.join('\n');
 }

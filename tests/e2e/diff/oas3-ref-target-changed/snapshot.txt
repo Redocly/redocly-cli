@@ -1,5 +1,5 @@
 GET /pets
-  ✖ major  modified  responses/200/content/application~1json · schema
+  ✖ major  modified  responses/200/content/application/json · schema
       The reference target changed from '#/components/schemas/Pet' to '#/components/schemas/PetV2'. The diff cannot check that the two targets are equivalent. (ref-target-changed)
       at revision.yaml:14:17
 

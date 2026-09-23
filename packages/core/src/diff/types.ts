@@ -2,20 +2,35 @@ import type { NodeEntry } from '../node-map/types.js';
 import type { SpecVersion } from '../oas-types.js';
 import type { Location } from '../ref-utils.js';
 
-/** Lowest first. An impact is the semver part a change requires to be bumped. */
-export const impacts = ['patch', 'minor', 'major'] as const;
-export type Impact = (typeof impacts)[number];
+export type Impact = 'patch' | 'minor' | 'major';
 
-export function impactRank(impact: Impact): number {
-  return impacts.indexOf(impact);
+/** Which way the data in a node travels; decides whether "accepts less" or "returns more" is the breaking side. */
+export type Direction = 'request' | 'response' | 'both' | 'neutral';
+
+/** The same logical node on both sides; one side is missing when the node was added or removed. */
+export interface Pair {
+  base?: NodeEntry;
+  revision?: NodeEntry;
+  parent: Pair | null;
+  children: Pair[];
+  /** Position among the siblings that share this pair's segment; the label carries it as `#n`. */
+  occurrence: number;
 }
 
-export function highestImpact(candidates: Impact[]): Impact | undefined {
-  return candidates.reduce<Impact | undefined>(
-    (highest, impact) =>
-      highest === undefined || impactRank(impact) > impactRank(highest) ? impact : highest,
-    undefined
-  );
+/** What the specification says about a node that the structure alone does not. */
+export interface NodeIdentity {
+  /** Replaces the node's own key when the two documents are matched up. */
+  segment: string;
+  /** Values the segment hides, compared as if the node carried them. */
+  values?: Record<string, unknown>;
+}
+
+/** Everything the comparison needs to know about one specification family. */
+export interface DiffSpec {
+  identityOf(node: NodeEntry, container: string): NodeIdentity | undefined;
+  /** The node a reference to this one lands on, when it is not the node itself. */
+  referenceTarget?: (node: NodeEntry) => NodeEntry | undefined;
+  directionOf(node: NodeEntry, fromUsage: (node: NodeEntry) => Direction): Direction;
 }
 
 export interface LocatedNode {
@@ -24,8 +39,9 @@ export interface LocatedNode {
 }
 
 interface ChangeBase {
+  /** The report key, derived from the pair; the pair itself is what a rule reads. */
   key: string;
-  typeName: string;
+  pair: Pair;
 }
 
 export type Change =
@@ -38,13 +54,6 @@ export type Change =
       revision: LocatedNode;
     });
 
-export function displaySide(change: Change): LocatedNode {
-  return change.kind === 'removed' ? change.base : change.revision;
-}
-
-/** Which way the data in a node travels; decides whether "accepts less" or "returns more" is the breaking side. */
-export type Direction = 'request' | 'response' | 'both' | 'neutral';
-
 export interface DiffReport {
   message: string;
   /** Defaults to the change's display side; a rule may point at a finer node. */
@@ -55,14 +64,29 @@ export interface DiffRuleContext {
   report: (report: DiffReport) => void;
   direction: Direction; // never 'both': a node used both ways is visited once per direction
   specVersion: SpecVersion;
-  base: (key: string) => NodeEntry | undefined;
-  revision: (key: string) => NodeEntry | undefined;
-  nodeAt: (key: string) => NodeEntry | undefined; // either side, revision first
 }
 
 export type DiffVisit = (change: Change, context: DiffRuleContext) => void;
-export type DiffVisitor = Record<string, DiffVisit>; // keyed by node type name; `any` runs for every change
+
+/**
+ * Keyed by node type name, nested the way lint visitors are: `SchemaProperties: { Schema }`
+ * runs for a schema that is a member of a properties map. `enter` inside a nested object is
+ * the handler of the container itself; `any` runs for every change.
+ */
+export type DiffVisitor = { [type: string]: DiffVisit | DiffVisitor };
 export type DiffRule = () => DiffVisitor;
+
+/** One handler of a rule with the type path it is nested under; `any` has the empty path. */
+export interface RuleHandler {
+  path: string[];
+  visit: DiffVisit;
+}
+
+export interface InitializedDiffRule {
+  id: string;
+  impact: Impact;
+  handlers: RuleHandler[];
+}
 
 export interface RuleVerdict {
   ruleId: string;

@@ -1,5 +1,5 @@
-import { becameTrue } from '../constraints.js';
 import type { DiffRule } from '../types.js';
+import { becameTrue } from './constraints.js';
 
 export const RequestBodyBecameRequired: DiffRule = () => ({
   RequestBody(change, { report, direction }) {

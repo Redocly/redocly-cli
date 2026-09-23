@@ -1,4 +1,4 @@
-import { isScalarArray } from '../../utils/is-scalar.js';
+import { isScalarArray } from '../../../utils/is-scalar.js';
 import {
   constraintDirection,
   effectiveTypes,

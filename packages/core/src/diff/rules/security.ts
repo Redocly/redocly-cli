@@ -1,30 +1,27 @@
-import { addedItems } from '../constraints.js';
-import type { Change, DiffRule, DiffRuleContext } from '../types.js';
+import { fieldOf } from '../../node-map/access.js';
+import type { DiffRule } from '../types.js';
+import { addedItems } from './constraints.js';
 
 // Security sits outside the request/response split, so these rules do not read
 // the direction: introducing authentication breaks every client either way.
 
 /**
- * `security: []` states that no authentication is needed, so a first entry filling
- * that list introduces it. An entry added to a list that already had one only offers
- * one more way to authenticate, which no existing client has to follow.
+ * A `security` list that appears where there was none lands on the list. `security: []`
+ * states that no authentication is needed, so a first entry filling that list lands on the
+ * entry; one more entry in a list that already had one only offers another way to
+ * authenticate, which no existing client has to follow.
  */
-function fillsAnEmptyList(change: Change, { nodeAt, base }: DiffRuleContext): boolean {
-  const parentKey = nodeAt(change.key)?.parentKey;
-  const baseList = parentKey ? base(parentKey)?.raw : undefined;
-  return Array.isArray(baseList) && baseList.length === 0;
-}
-
-// A `security` list that appears where there was none lands on the list, and a first
-// entry filling an empty list lands on the entry.
 export const SecurityRequirementAdded: DiffRule = () => ({
-  SecurityRequirementList(change, { report }) {
-    if (change.kind === 'added') report({ message: 'The API now requires authentication.' });
-  },
-  SecurityRequirement(change, context) {
-    if (change.kind === 'added' && fillsAnEmptyList(change, context)) {
-      context.report({ message: 'The API now requires authentication.' });
-    }
+  SecurityRequirementList: {
+    enter(change, { report }) {
+      if (change.kind === 'added') report({ message: 'The API now requires authentication.' });
+    },
+    SecurityRequirement(change, { report }) {
+      const list = change.pair.parent?.base?.value;
+      if (change.kind === 'added' && Array.isArray(list) && list.length === 0) {
+        report({ message: 'The API now requires authentication.' });
+      }
+    },
   },
 });
 
@@ -38,12 +35,12 @@ const SCHEME_IDENTITY = new Set([
 ]);
 
 export const SecuritySchemeChanged: DiffRule = () => ({
-  SecurityScheme(change, { report, base, revision }) {
+  SecurityScheme(change, { report }) {
     if (change.kind !== 'modified' || !SCHEME_IDENTITY.has(change.property)) return;
 
     // Switching the scheme's `type` drags its other fields along (an apiKey has
     // `in`/`name`, a bearer has `scheme`), so the type change speaks for them all.
-    const typeChanged = base(change.key)?.properties.type !== revision(change.key)?.properties.type;
+    const typeChanged = fieldOf(change.pair.base, 'type') !== fieldOf(change.pair.revision, 'type');
     if (typeChanged && change.property !== 'type') return;
 
     report({

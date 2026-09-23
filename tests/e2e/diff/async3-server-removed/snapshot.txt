@@ -1,5 +1,5 @@
 servers
-  ✖ major  removed   servers/staging
+  ✖ major  removed   staging
       The server was removed. (server-removed)
       at base.yaml:10:5
 

@@ -1,6 +1,6 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
-import { becameTrue } from '../constraints.js';
 import type { DiffRule } from '../types.js';
+import { becameTrue } from './constraints.js';
 
 // The last parameter of an operation leaves with the whole `parameters` list, and the first
 // one arrives with it, so those changes land on the list rather than on a parameter.

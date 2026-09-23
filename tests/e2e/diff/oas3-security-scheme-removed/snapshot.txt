@@ -1,5 +1,5 @@
 components
-  ✖ major  removed   components/securitySchemes/basicAuth
+  ✖ major  removed   securitySchemes/basicAuth
       A security scheme was removed. (security-scheme-removed)
       at base.yaml:17:7
 

@@ -1,4 +1,4 @@
-import type { DiffResult, Impact } from '../types.js';
+import type { DiffResult, Impact } from '@redocly/openapi-core';
 
 const IMPACT_LABELS: Record<Impact, string> = {
   major: '🔴 major',
@@ -11,9 +11,11 @@ const IMPACT_LABELS: Record<Impact, string> = {
 // would break out of the row itself.
 function escapeCell(value: string): string {
   return value
-    .replace(/\|/g, '\\|')
-    .replace(/`/g, '\\`')
-    .replace(/[\r\n]+/g, ' ');
+    .replaceAll('|', '\\|')
+    .replaceAll('`', '\\`')
+    .split('\n')
+    .map((line) => line.trim())
+    .join(' ');
 }
 
 export function markdownDiff(result: DiffResult): string {

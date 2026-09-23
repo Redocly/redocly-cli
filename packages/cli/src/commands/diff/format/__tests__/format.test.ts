@@ -1,13 +1,12 @@
+import { Location, Source, type DiffResult } from '@redocly/openapi-core';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { Location } from '../../../ref-utils.js';
-import { Source } from '../../../resolve.js';
-import type { DiffResult } from '../../types.js';
 import { htmlDiff } from '../html.js';
 import { markdownDiff } from '../markdown.js';
 import { stylishDiff } from '../stylish.js';
+import { lonePair } from './pair.js';
 
 // format.test.ts — vitest runs with FORCE_COLOR=1, so the codes are stripped before snapshotting
 function stripColors(output: string): string {
@@ -81,7 +80,7 @@ const RESULT: DiffResult = {
     {
       key: '#/paths/~1pets/delete',
       kind: 'removed',
-      typeName: 'Operation',
+      pair: lonePair('Operation', at(base, '#/paths/~1pets/delete')),
       base: {
         location: at(base, '#/paths/~1pets/delete'),
         value: { summary: '<script>alert(1)</script>' },
@@ -101,7 +100,7 @@ const RESULT: DiffResult = {
       key: '#/paths/~1pets/get/parameters/{query:limit}',
       property: 'required',
       kind: 'modified',
-      typeName: 'Parameter',
+      pair: lonePair('Parameter', at(base, '#/paths/~1pets/get/parameters/{query:limit}')),
       base: {
         location: at(base, '#/paths/~1pets/get/parameters/0/required'),
         value: undefined,
@@ -125,7 +124,10 @@ const RESULT: DiffResult = {
       key: '#/paths/~1pets/post/requestBody/content/application~1json/schema',
       property: 'pattern',
       kind: 'modified',
-      typeName: 'Schema',
+      pair: lonePair(
+        'Schema',
+        at(base, '#/paths/~1pets/post/requestBody/content/application~1json/schema')
+      ),
       base: {
         location: at(
           base,
@@ -160,7 +162,7 @@ const RESULT: DiffResult = {
       key: '#/paths/~1pets/get',
       property: 'summary',
       kind: 'modified',
-      typeName: 'Operation',
+      pair: lonePair('Operation', at(base, '#/paths/~1pets/get')),
       base: {
         location: at(base, '#/paths/~1pets/get/summary'),
         value: 'List pets',
@@ -176,7 +178,7 @@ const RESULT: DiffResult = {
     {
       key: '#/components/schemas/Pet',
       kind: 'added',
-      typeName: 'Schema',
+      pair: lonePair('Schema', at(base, '#/components/schemas/Pet')),
       revision: {
         location: at(revision, '#/components/schemas/Pet'),
         value: { type: 'object' },
@@ -192,7 +194,7 @@ describe('stylishDiff', () => {
   it('groups changes per operation, worst first, each with its verdicts and location', () => {
     expect(stripColors(stylishDiff(RESULT))).toMatchInlineSnapshot(`
       "components
-        ✔ minor  added     components/schemas/Pet
+        ✔ minor  added     schemas/Pet
             at revision.yaml:20:7
 
       DELETE /pets
@@ -208,7 +210,7 @@ describe('stylishDiff', () => {
             at revision.yaml:5:16
 
       POST /pets
-        ✖ major  modified  requestBody/content/application~1json/schema · pattern
+        ✖ major  modified  requestBody/content/application/json/schema · pattern
             \`pattern\` changed from 'a' to 'a|b'. (string-length-changed)
             at revision.yaml:16:24
 

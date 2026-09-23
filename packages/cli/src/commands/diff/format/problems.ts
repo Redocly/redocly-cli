@@ -1,5 +1,10 @@
-import type { NormalizedProblem, ProblemSeverity } from '../../walk.js';
-import { displaySide, type DiffResult, type Impact } from '../types.js';
+import {
+  displaySide,
+  type DiffResult,
+  type Impact,
+  type NormalizedProblem,
+  type ProblemSeverity,
+} from '@redocly/openapi-core';
 
 // A lint problem carries one of two severities, so a patch has nowhere to go and is left
 // out; this is what lets the github-actions format come from core's formatProblems.
