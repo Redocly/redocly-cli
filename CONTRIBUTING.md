@@ -15,6 +15,7 @@ Issue comments and discussion replies are expected to be written in the contribu
   - [Built-in rules changes](#built-in-rules-changes)
   - [Update Redoc](#update-redoc)
   - [Arguments usage](#arguments-usage)
+  - [Error handling](#error-handling)
   - [Exit codes](#exit-codes)
   - [Local source code usage](#local-source-code-usage)
 - [Tests](#tests)
@@ -46,7 +47,7 @@ Before submitting a pull request, please make sure the following is done:
 1. Ensure the test suite and lint checks pass (`npm run test` and `npm run lint`).
 1. It's your responsibility to ensure your contribution does not violate copyright laws.
 1. Each feat/fix PR should also contain a changeset (to create one, run `npx changeset`).
-   If your changes are scoped to `packages/core` or `packages/respect-core` but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
+   If your changes are scoped to `packages/core`, `packages/respect-core`, or other packages, but also affect Redocly CLI behavior, include the `@redocly/cli` package as well.
    Describe what you've done in this PR using sentence case (you can refer to our [changelog](https://redocly.com/docs/cli/changelog/)).
    This creates a file in the `.changeset` folder.
    Commit this file with your changes.
@@ -88,6 +89,8 @@ To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint reso
 Notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
 Format your code with `npm run format` before committing.
+
+To find unused files, exports, and dependencies, run `npx knip` (configured in `knip.jsonc`).
 
 Check the [Tests section](#tests) for the test commands reference.
 
@@ -173,9 +176,15 @@ Please use it to provide arguments that are common for all the commands, for a s
 It could be used for providing arguments for both **cli** and **core** packages.
 Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
 
-### Exit codes
+### Error handling and exit codes
 
-The application maintains the following exit codes.
+Every command wrapped in `commandWrapper` handles three main types of errors ([source](./packages/core/src/utils/error.ts)):
+
+- Technical errors that don't require a message to the user (`AbortFlowError`)
+- Known errors that originate on our side, with full details included in the error message (`HandledError` or errors converted to it)
+- Unknown errors that originate either on our side or in the user's code, requiring extra detail such as a stack trace (all other errors)
+
+The application maintains the following exit codes:
 
 | Exit code | Description               |
 | --------- | ------------------------- |
@@ -267,7 +276,7 @@ Reading a server's log goes through `serverLog()` in `tests/e2e/generate-client/
 
 Smokes are for testing the CLI in different environments.
 
-To run them locally, please follow the steps described in the smoke GitHub actions: [smoke-basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml).
+To run them locally, please follow the steps described in the smoke GitHub actions: [smoke-basic](.github/workflows/smoke.yaml), [smoke-plugins](.github/workflows/smoke-plugins.yaml), [smoke-rebilly](.github/workflows/smoke-rebilly.yaml), [smoke-push](.github/workflows/smoke-push.yaml).
 
 To update smoke tests for the `build-docs` command (which sometimes fails due to external package updates), please follow the steps below:
 
@@ -407,7 +416,7 @@ To add an entry:
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of three packages - CLI, core, and respect-core. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of five packages - CLI, core, respect-core, reunite-integration, and client-generator. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
@@ -423,6 +432,10 @@ To add an entry:
       - **`packages/core/src/typings`**: contains the common Typescript typings.
 
   - **`packages/respect-core`**: contains the Respect core package.
+
+  - **`packages/reunite-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+
+  - **`packages/client-generator`**: contains the client and SDK generators.
 
 - **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
 

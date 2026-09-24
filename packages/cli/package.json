@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.52.0",
+  "version": "2.54.2",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -23,7 +23,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/redocly-cli.git"
+    "url": "git+https://github.com/Redocly/redocly-cli.git"
   },
   "homepage": "https://github.com/Redocly/redocly-cli",
   "keywords": [
@@ -46,9 +46,10 @@
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/semantic-conventions": "1.41.1",
     "@redocly/cli-otel": "0.3.5",
-    "@redocly/client-generator": "0.4.7",
-    "@redocly/openapi-core": "2.52.0",
-    "@redocly/respect-core": "2.52.0",
+    "@redocly/client-generator": "0.4.15",
+    "@redocly/openapi-core": "2.54.2",
+    "@redocly/respect-core": "2.54.2",
+    "@redocly/reunite-integration": "2.54.2",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",
@@ -62,7 +63,6 @@
     "esbuild": "^0.28.0",
     "glob": "^13.0.5",
     "handlebars": "^4.7.9",
-    "https-proxy-agent": "^7.0.5",
     "react": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "redoc": "2.5.4",
