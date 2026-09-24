@@ -36,7 +36,7 @@ function documentOf(children: Record<string, { type?: string; value?: NodeValue 
 const changesBetween = (
   base: ReturnType<typeof documentOf>,
   revision: ReturnType<typeof documentOf>
-) => collectChanges(buildDiffTree(base.get('#/')!, revision.get('#/')!, {}).root, {});
+) => collectChanges(buildDiffTree(base.get('#/')!, revision.get('#/')!, {}).root);
 
 /** `kind key · property  base-pointer → revision-pointer` per change. */
 function summarize(changes: ReturnType<typeof collectChanges>): string[] {

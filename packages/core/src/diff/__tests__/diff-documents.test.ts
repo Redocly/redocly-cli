@@ -194,7 +194,7 @@ describe('diffDocuments', () => {
     // the path template and the parameter name are reported as changes of their own,
     // both keyed by the path's shape.
     expect(report(result)).toMatchInlineSnapshot(`
-      "patch  modified  #/paths/~1pet~1{0} · path
+      "patch  modified  #/paths/~1pet~1{0} · key
           at base.yaml #/paths/~1pet~1{id}  →  rev.yaml #/paths/~1pet~1{petId}
       patch  modified  #/paths/~1pet~1{0}/get/parameters/{path:0} · name
           at base.yaml #/paths/~1pet~1{id}/get/parameters/0/name  →  rev.yaml #/paths/~1pet~1{petId}/get/parameters/0/name"
@@ -238,7 +238,7 @@ describe('diffDocuments', () => {
     const result = diffDocuments({ base, revision, config });
 
     expect(report(result)).toMatchInlineSnapshot(`
-      "patch  modified  #/paths/~1a~1{0}~1b · path
+      "patch  modified  #/paths/~1a~1{0}~1b · key
           at base.yaml #/paths/~1a~1{x}~1b  →  rev.yaml #/paths/~1a~1{y}~1b
       minor  added  #/paths/~1a~1{0}~1b#2
           at rev.yaml #/paths/~1a~1{z}~1b"

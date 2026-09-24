@@ -47,7 +47,7 @@ export function diffNodesOfTree(entries: Map<string, NodeEntry>): Map<NodeEntry,
       revision: entry,
       parent,
       children: [],
-      key: entry.location.pointer,
+      label: entry.location.pointer,
     };
     parent?.children.push(node);
     diffNodes.set(entry, node);

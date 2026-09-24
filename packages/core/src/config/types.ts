@@ -1,7 +1,7 @@
 import type { ApiConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
-import type { Async3DiffRuleId, DiffRuleId, Oas3DiffRuleId } from '../diff/rules/index.js';
+import type { DiffRuleId, DiffRuleSets } from '../diff/rules/index.js';
 import type { DiffRule, Impact } from '../diff/types.js';
 import type {
   SpecMajorVersion,
@@ -198,8 +198,7 @@ export type RulesConfig<T> = {
 export type CustomRulesConfig = RulesConfig<undefined>;
 
 export type DiffRulesConfig<T> = {
-  oas3?: RuleMap<Oas3DiffRuleId, DiffRule, T>;
-  async3?: RuleMap<Async3DiffRuleId, DiffRule, T>;
+  [Family in keyof DiffRuleSets]?: RuleMap<keyof DiffRuleSets[Family] & string, DiffRule, T>;
 };
 
 export type AssertionContext = Partial<UserContext> & SkipFunctionContext & { node: any };

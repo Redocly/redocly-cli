@@ -10,6 +10,7 @@ import { buildDiffTree, typeOf } from './diff-tree.js';
 import { resolveDirections } from './direction.js';
 import { highestImpact } from './impact.js';
 import { judgeChanges } from './judge.js';
+import { isDiffFamily } from './rules/index.js';
 import { diffSpecs } from './specs/index.js';
 import type { DiffResult, DiffSummary, Impact, JudgedChange } from './types.js';
 
@@ -37,7 +38,9 @@ export function diffDocuments(opts: {
     });
   };
 
-  const { identities = {}, directions = {} } = diffSpecs[family] ?? {};
+  const { identities, directions } = isDiffFamily(family)
+    ? diffSpecs[family]
+    : { identities: {}, directions: {} };
 
   const collectedBase = collect(base, baseVersion);
   const collectedRevision = collect(revision, revisionVersion);
@@ -53,7 +56,7 @@ export function diffDocuments(opts: {
   const directionOf = resolveDirections(references, diffNodeOf, directions);
 
   const changes = judgeChanges({
-    changes: collectChanges(root, identities),
+    changes: collectChanges(root),
     specVersion: revisionVersion,
     ruleSets: config.getDiffRulesForSpecVersion(family),
     impactOf: (ruleId) => config.getDiffImpact(ruleId, revisionVersion),

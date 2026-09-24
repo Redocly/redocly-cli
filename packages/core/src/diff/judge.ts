@@ -17,7 +17,7 @@ import type {
 } from './types.js';
 
 /** One handler of an enabled rule, with the node types it is nested under; `any` has none. */
-export type RuleHandler = {
+type RuleHandler = {
   ruleId: string;
   impact: Impact;
   typePath: string[];
@@ -25,7 +25,7 @@ export type RuleHandler = {
 };
 
 /** The handlers of every rule the configuration turns on, in rule order. */
-export function activeHandlers(
+function activeHandlers(
   ruleSets: Record<string, DiffRule>[],
   impactOf: (ruleId: string) => Impact | 'off'
 ): RuleHandler[] {
@@ -50,7 +50,7 @@ const HOOKS = new Set(['enter', 'leave', 'skip']);
  * A rule's visitor is nested the way lint visitors are. Flattened, each handler carries the
  * types it is nested under, so a change can be checked against it without walking the visitor.
  */
-export function flattenVisitor(
+function flattenVisitor(
   visitor: DiffVisitor,
   ruleId: string,
   outerTypes: string[] = []

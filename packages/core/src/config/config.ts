@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { isDiffFamily } from '../diff/rules/index.js';
 import type { DiffRule, Impact } from '../diff/types.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import {
@@ -355,15 +356,9 @@ export class Config {
 
   // TODO: add rules for redocly.yaml / entities?
   /** The diff rule sets every plugin offers for that specification family. */
-  getDiffRulesForSpecVersion(version: SpecMajorVersion): Record<string, DiffRule>[] {
-    switch (version) {
-      case 'oas3':
-        return this.plugins.map((plugin) => plugin.diff?.oas3).filter(isDefined);
-      case 'async3':
-        return this.plugins.map((plugin) => plugin.diff?.async3).filter(isDefined);
-      default:
-        return [];
-    }
+  getDiffRulesForSpecVersion(family: SpecMajorVersion): Record<string, DiffRule>[] {
+    if (!isDiffFamily(family)) return [];
+    return this.plugins.map((plugin) => plugin.diff?.[family]).filter(isDefined);
   }
 
   getRulesForSpecVersion(version: SpecMajorVersion) {

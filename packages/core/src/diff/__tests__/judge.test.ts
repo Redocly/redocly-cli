@@ -1,7 +1,7 @@
 import { defaultDiffRules } from '../../config/diff-recommended.js';
 import { Location } from '../../ref-utils.js';
 import { Source } from '../../resolve.js';
-import { activeHandlers, appliesTo, flattenVisitor, judgeChanges } from '../judge.js';
+import { appliesTo, judgeChanges } from '../judge.js';
 import { oas3Rules } from '../rules/index.js';
 import { oas3Directions } from '../specs/oas3.js';
 import type { Change, DiffNode, DiffRule, Impact } from '../types.js';
@@ -15,7 +15,7 @@ const at = (pointer: string) => new Location(source, pointer);
 const loneNode = (type: string, location: Location): DiffNode => {
   const key = location.pointer.slice(location.pointer.lastIndexOf('/') + 1);
   const node = { type, key, location, value: {}, parent: null, children: [] };
-  return { base: node, revision: node, parent: null, children: [], key: '#/' };
+  return { base: node, revision: node, parent: null, children: [], label: '#/' };
 };
 
 // None of these lone nodes has a direction.
@@ -161,6 +161,66 @@ describe('judgeChanges', () => {
     expect(modified.impact).toBe('patch');
   });
 
+  it('runs a nested handler for a member only and an any handler for every change', () => {
+    const entries = treeOf(`
+      #/ Root
+      #/components Components
+      #/components/schemas NamedSchemas
+      #/components/schemas/Pet Schema
+      #/components/schemas/Pet/properties SchemaProperties
+      #/components/schemas/Pet/properties/name Schema
+    `);
+    const nodes = diffNodesOfTree(entries);
+    const removedAt = (pointer: string): Change => ({
+      key: pointer,
+      kind: 'removed',
+      node: nodes.get(entries.get(pointer)!)!,
+      base: { location: at(pointer), value: {} },
+    });
+    const rule: DiffRule = () => ({
+      any(_change, { report }) {
+        report({ message: 'any' });
+      },
+      SchemaProperties: {
+        Schema(_change, { report }) {
+          report({ message: 'property' });
+        },
+      },
+    });
+
+    const judged = judgeChanges({
+      changes: [
+        removedAt('#/components/schemas/Pet'),
+        removedAt('#/components/schemas/Pet/properties/name'),
+      ],
+      specVersion: 'oas3_1',
+      ruleSets: [{ 'my-rule': rule }],
+      impactOf: () => 'major',
+      ...unlinked,
+    });
+
+    expect(judged.map((change) => change.verdicts.map((verdict) => verdict.message))).toEqual([
+      ['any'],
+      ['any', 'property'],
+    ]);
+  });
+
+  it('rejects the lint hooks and a nested any, which a diff rule has no use for', () => {
+    const judgeWith = (rule: DiffRule) => () =>
+      judgeChanges({
+        changes: [],
+        specVersion: 'oas3_1',
+        ruleSets: [{ 'my-rule': rule }],
+        impactOf: () => 'major',
+        ...unlinked,
+      });
+
+    expect(judgeWith(() => ({ Schema: { enter() {} } }))).toThrow(
+      "Diff rule 'my-rule' uses 'enter'"
+    );
+    expect(judgeWith(() => ({ Schema: { any() {} } }))).toThrow("Diff rule 'my-rule' uses 'any'");
+  });
+
   it('stamps the configured impact on a verdict and skips a rule set to off', () => {
     const changes: Change[] = [
       {
@@ -244,45 +304,5 @@ describe('appliesTo', () => {
       appliesTo(['Schema'], diffNodeAt('#/components/schemas/Pet/properties/tags/items'))
     ).toBe(true);
     expect(appliesTo([], diffNodeAt('#/'))).toBe(true);
-  });
-});
-
-describe('flattenVisitor', () => {
-  it('flattens nested keys to type paths and any to the empty path', () => {
-    const visit = () => {};
-    const handlers = flattenVisitor(
-      { any: visit, Schema: visit, SchemaProperties: { Schema: visit } },
-      'my-rule'
-    );
-
-    expect(handlers.map(({ typePath }) => typePath)).toEqual([
-      [],
-      ['Schema'],
-      ['SchemaProperties', 'Schema'],
-    ]);
-  });
-
-  it('rejects the lint hooks and a nested any, which a diff rule has no use for', () => {
-    expect(() => flattenVisitor({ Schema: { enter: () => {} } }, 'my-rule')).toThrow(
-      "Diff rule 'my-rule' uses 'enter'"
-    );
-    expect(() => flattenVisitor({ Schema: { any: () => {} } }, 'my-rule')).toThrow(
-      "Diff rule 'my-rule' uses 'any'"
-    );
-  });
-});
-
-describe('activeHandlers', () => {
-  it('gives every handler of an enabled rule its id and configured impact', () => {
-    const rule: DiffRule = () => ({ Schema() {}, SchemaProperties: { Schema() {} } });
-
-    expect(
-      activeHandlers([{ 'my-rule': rule, 'off-rule': rule }], (ruleId) =>
-        ruleId === 'my-rule' ? 'major' : 'off'
-      ).map(({ ruleId, impact, typePath }) => [ruleId, impact, typePath])
-    ).toEqual([
-      ['my-rule', 'major', ['Schema']],
-      ['my-rule', 'major', ['SchemaProperties', 'Schema']],
-    ]);
   });
 });
