@@ -1,0 +1,49 @@
+
+get:
+  summary: List pets
+  x-codeSamples:
+    - lang: PHP
+      label: SDK 1
+      source:
+        $ref: ../code_samples/PHP/pets/get.php
+    - lang: PHP
+      label: SDK 2
+      source:
+        $ref: ../code_samples/PHP/pets/get-2.php
+  responses:
+    '200':
+      description: OK
+warning: Pets and pets would share one file on a case-insensitive file system, saving Pets to output/paths/Pets-2.yaml.
+get:
+  summary: List pets (legacy)
+  responses:
+    '200':
+      description: OK
+get:
+  summary: List pets (nested)
+  responses:
+    '200':
+      description: OK
+get:
+  summary: List pets (flat)
+  responses:
+    '200':
+      description: OK
+openapi: 3.1.0
+info:
+  title: File name clashes
+  version: 1.0.0
+paths:
+  /pets:
+    $ref: paths/pets.yaml
+  /Pets:
+    $ref: paths/Pets-2.yaml
+  /pets/list:
+    $ref: paths/pets_list.yaml
+  /pets_list:
+    $ref: paths/pets_list-2.yaml
+🪓 Document: openapi.yaml is successfully split
+    and all related files are saved to the directory: output 
+
+openapi.yaml: split processed in <test>ms
+

@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: File name clashes
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      summary: List pets
+      x-codeSamples:
+        - lang: PHP
+          label: SDK 1
+          source: $client->pets()->list();
+        - lang: PHP
+          label: SDK 2
+          source: $service->pets()->list();
+      responses:
+        '200':
+          description: OK
+  /Pets:
+    get:
+      summary: List pets (legacy)
+      responses:
+        '200':
+          description: OK
+  /pets/list:
+    get:
+      summary: List pets (nested)
+      responses:
+        '200':
+          description: OK
+  /pets_list:
+    get:
+      summary: List pets (flat)
+      responses:
+        '200':
+          description: OK

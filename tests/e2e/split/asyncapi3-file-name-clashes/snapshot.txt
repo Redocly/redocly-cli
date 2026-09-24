@@ -1,0 +1,30 @@
+
+address: user-events
+warning: UserEvents and userEvents would share one file on a case-insensitive file system, saving UserEvents to output/channels/UserEvents-2.yaml.
+address: legacy-user-events
+action: send
+channel:
+  $ref: ../channels/userEvents.yaml
+warning: SendUserEvent and sendUserEvent would share one file on a case-insensitive file system, saving SendUserEvent to output/operations/SendUserEvent-2.yaml.
+action: send
+channel:
+  $ref: ../channels/UserEvents-2.yaml
+asyncapi: 3.0.0
+info:
+  title: File name clashes
+  version: 1.0.0
+channels:
+  userEvents:
+    $ref: channels/userEvents.yaml
+  UserEvents:
+    $ref: channels/UserEvents-2.yaml
+operations:
+  sendUserEvent:
+    $ref: operations/sendUserEvent.yaml
+  SendUserEvent:
+    $ref: operations/SendUserEvent-2.yaml
+🪓 Document: asyncapi.yaml is successfully split
+    and all related files are saved to the directory: output 
+
+asyncapi.yaml: split processed in <test>ms
+

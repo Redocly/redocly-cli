@@ -2,29 +2,27 @@ import { logger } from '@redocly/openapi-core';
 import { blue } from 'colorette';
 import * as path from 'node:path';
 
-export function getFileNamePath(componentDirPath: string, componentName: string, ext: string) {
-  return path.join(componentDirPath, componentName) + `.${ext}`;
-}
-
-// Component names that differ only by case would share one file on a case-insensitive file system.
-export function getUniqueFileNamePath(
-  componentDirPath: string,
-  componentName: string,
-  ext: string,
+// Names that differ only by case would share one file on a case-insensitive file system,
+// and equal names would overwrite each other, so every later name gets a `-2`, `-3`, … suffix.
+export function getFileNamePath(
+  dirPath: string,
+  name: string,
+  extension: string,
   takenFileNames: Map<string, string>
 ) {
-  let filename = getFileNamePath(componentDirPath, componentName, ext);
+  const basePath = path.join(dirPath, name);
+  let filename = basePath + extension;
   const collidingName = takenFileNames.get(filename.toLowerCase());
   for (let serialId = 2; takenFileNames.has(filename.toLowerCase()); serialId++) {
-    filename = getFileNamePath(componentDirPath, `${componentName}-${serialId}`, ext);
+    filename = `${basePath}-${serialId}${extension}`;
   }
-  if (collidingName) {
+  if (collidingName && collidingName !== name) {
     logger.warn(
-      `warning: ${componentName} and ${collidingName} would share one file on a case-insensitive file system, saving ${componentName} to ${blue(
+      `warning: ${name} and ${collidingName} would share one file on a case-insensitive file system, saving ${name} to ${blue(
         filename
       )}.\n`
     );
   }
-  takenFileNames.set(filename.toLowerCase(), componentName);
+  takenFileNames.set(filename.toLowerCase(), name);
   return filename;
 }

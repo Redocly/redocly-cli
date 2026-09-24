@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
 import { assertWithinDir } from '../utils/assert-within-dir.js';
+import { getFileNamePath } from '../utils/get-file-name-path.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import { replaceChannelRefs } from '../utils/replace-channel-refs.js';
 import {
@@ -31,16 +32,19 @@ export function iterateAsyncApiOperations({
 }) {
   if (!operations) return;
   fs.mkdirSync(outDir, { recursive: true });
+  const takenFileNames = new Map<string, string>();
 
   for (const operationName of Object.keys(operations)) {
-    const operationFile = `${path.join(
-      outDir,
-      pathToFilename(operationName, pathSeparator)
-    )}.${ext}`;
     const operationData = operations[operationName];
 
     if (isRef(operationData)) continue;
 
+    const operationFile = getFileNamePath(
+      outDir,
+      pathToFilename(operationName, pathSeparator),
+      `.${ext}`,
+      takenFileNames
+    );
     assertWithinDir(asyncapiDir, operationFile, operationName);
 
     replace$Refs(operationData, path.dirname(operationFile), componentsFiles);

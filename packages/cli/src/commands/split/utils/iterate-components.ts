@@ -16,7 +16,7 @@ import { createComponentDir } from './create-component-dir.js';
 import { doesFileDiffer } from './does-file-differ.js';
 import { findComponentTypes } from './find-component-type.js';
 import { gatherComponentsFiles } from './gather-components-files.js';
-import { getUniqueFileNamePath } from './get-file-name-path.js';
+import { getFileNamePath } from './get-file-name-path.js';
 import { implicitlyReferenceDiscriminator } from './implicitly-reference-discriminator.js';
 import { isNotSecurityComponentType } from './is-not-security-component-type.js';
 import { removeEmptyComponents } from './remove-empty-components.js';
@@ -42,10 +42,10 @@ export function iterateComponents(
       const componentDirPath = path.join(componentsDir, componentType);
       const takenFileNames = new Map<string, string>();
       for (const componentName of Object.keys(components?.[componentType] || {})) {
-        const filename = getUniqueFileNamePath(
+        const filename = getFileNamePath(
           componentDirPath,
           componentName,
-          ext,
+          `.${ext}`,
           takenFileNames
         );
         assertWithinDir(openapiDir, filename, componentName);

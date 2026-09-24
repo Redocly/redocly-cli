@@ -8,6 +8,35 @@ import { getCommandOutput, getParams, cleanupOutput } from '../helpers.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const indexEntryPoint = join(process.cwd(), 'packages/cli/lib/index.js');
 
+function splitAndBundleBack(testPath: string, file: string) {
+  // split writes real files only outside the test environment
+  spawnSync('node', getParams(indexEntryPoint, ['split', file, '--outDir=output']), {
+    cwd: testPath,
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      NO_COLOR: 'TRUE',
+    },
+  });
+  getCommandOutput(getParams(indexEntryPoint, ['bundle', file, '-o=output/expected.yaml']), {
+    testPath,
+  });
+  getCommandOutput(
+    getParams(indexEntryPoint, ['bundle', 'output/openapi.yaml', '-o=output/bundled.yaml']),
+    { testPath }
+  );
+
+  const expected = readFileSync(join(testPath, 'output/expected.yaml'), 'utf8');
+  const actual = readFileSync(join(testPath, 'output/bundled.yaml'), 'utf8');
+
+  // Clean up output folder after splitting so the produced files do not interfere with other tests
+  spawnSync('rm', ['-rf', 'output'], {
+    cwd: testPath,
+  });
+
+  return { expected, actual };
+}
+
 describe('split', () => {
   test('without option: outDir', async () => {
     const testPath = join(__dirname, `missing-outDir`);
@@ -163,6 +192,16 @@ describe('split', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('asyncapi component names that differ only by case', async () => {
+    const testPath = join(__dirname, `asyncapi3-case-insensitive-component-names`);
+    const file = 'asyncapi.yaml';
+
+    const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test('component names that differ only by case', async () => {
     const testPath = join(__dirname, `case-insensitive-component-names`);
     const file = 'openapi.yaml';
@@ -172,4 +211,42 @@ describe('split', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
+
+  test('paths and code samples that map to one file name', async () => {
+    const testPath = join(__dirname, `file-name-clashes`);
+    const file = 'openapi.yaml';
+
+    const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('paths and code samples that map to one file name split and bundle again to the same content', () => {
+    const { expected, actual } = splitAndBundleBack(
+      join(__dirname, `file-name-clashes`),
+      'openapi.yaml'
+    );
+
+    expect(actual).toEqual(expected);
+  });
+
+  test('asyncapi channels and operations that differ only by case', async () => {
+    const testPath = join(__dirname, `asyncapi3-file-name-clashes`);
+    const file = 'asyncapi.yaml';
+
+    const args = getParams(indexEntryPoint, ['split', file, '--outDir=output']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('rebilly split and bundle again to the same content', () => {
+    const { expected, actual } = splitAndBundleBack(
+      join(__dirname, '../../smoke/rebilly'),
+      'rebilly-description.yaml'
+    );
+
+    expect(actual).toEqual(expected);
+  }, 60_000);
 });

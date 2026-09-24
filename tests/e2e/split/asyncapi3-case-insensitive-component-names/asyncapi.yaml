@@ -1,0 +1,28 @@
+asyncapi: 3.0.0
+info:
+  title: Case-insensitive component names
+  version: 1.0.0
+channels:
+  users:
+    address: users
+    messages:
+      UserSignedUp:
+        $ref: '#/components/messages/UserSignedUp'
+      UserUpdated:
+        $ref: '#/components/messages/UserUpdated'
+components:
+  messages:
+    UserSignedUp:
+      payload:
+        $ref: '#/components/schemas/User'
+    UserUpdated:
+      payload:
+        $ref: '#/components/schemas/user'
+  schemas:
+    User:
+      $ref: '#/components/schemas/user'
+    user:
+      type: object
+      properties:
+        id:
+          type: string

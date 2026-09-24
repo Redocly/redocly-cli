@@ -16,6 +16,7 @@ import {
 } from '../../../utils/miscellaneous.js';
 import { OPENAPI3_METHOD_NAMES } from '../oas/constants.js';
 import { assertWithinDir } from './assert-within-dir.js';
+import { getFileNamePath } from './get-file-name-path.js';
 import { traverseDirectoryDeep, traverseDirectoryDeepCallback } from './traverse-directory-deep.js';
 
 export function iteratePathItems(
@@ -29,13 +30,20 @@ export function iteratePathItems(
 ) {
   if (!pathItems) return;
   fs.mkdirSync(outDir, { recursive: true });
+  const takenPathFileNames = new Map<string, string>();
+  const takenSampleFileNames = new Map<string, string>();
 
   for (const pathName of Object.keys(pathItems)) {
-    const pathFile = `${path.join(outDir, pathToFilename(pathName, pathSeparator))}.${ext}`;
     const pathData = pathItems[pathName];
 
     if (isRef(pathData)) continue;
 
+    const pathFile = getFileNamePath(
+      outDir,
+      pathToFilename(pathName, pathSeparator),
+      `.${ext}`,
+      takenPathFileNames
+    );
     assertWithinDir(openapiDir, pathFile, pathName);
 
     for (const method of OPENAPI3_METHOD_NAMES) {
@@ -46,12 +54,16 @@ export function iteratePathItems(
       }
       for (const sample of methodDataXCode) {
         if (sample.source && (sample.source as unknown as OasRef).$ref) continue;
-        const sampleFileName = path.join(
-          openapiDir,
-          'code_samples',
-          escapeLanguageName(sample.lang),
-          codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator),
-          method + langToExt(sample.lang)
+        const sampleFileName = getFileNamePath(
+          path.join(
+            openapiDir,
+            'code_samples',
+            escapeLanguageName(sample.lang),
+            codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator)
+          ),
+          method,
+          langToExt(sample.lang),
+          takenSampleFileNames
         );
 
         assertWithinDir(openapiDir, sampleFileName, sample.lang);

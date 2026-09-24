@@ -1,0 +1,29 @@
+
+warning: user and User would share one file on a case-insensitive file system, saving user to output/components/schemas/user-2.yaml.
+address: users
+messages:
+  UserSignedUp:
+    $ref: ../components/messages/UserSignedUp.yaml
+  UserUpdated:
+    $ref: ../components/messages/UserUpdated.yaml
+$ref: ./user-2.yaml
+type: object
+properties:
+  id:
+    type: string
+payload:
+  $ref: ../schemas/User.yaml
+payload:
+  $ref: ../schemas/user-2.yaml
+asyncapi: 3.0.0
+info:
+  title: Case-insensitive component names
+  version: 1.0.0
+channels:
+  users:
+    $ref: channels/users.yaml
+🪓 Document: asyncapi.yaml is successfully split
+    and all related files are saved to the directory: output 
+
+asyncapi.yaml: split processed in <test>ms
+
