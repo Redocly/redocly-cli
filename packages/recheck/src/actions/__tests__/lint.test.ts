@@ -1029,6 +1029,28 @@ describe('runLint with embedded inputs', () => {
     expect(exitCode).toBe(0);
   });
 
+  it('marks a baseline entry stale for a changed API file that parsed but holds no descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const apiFile = path.join(dir, 'openapi.yaml');
+    await fs.writeFile(apiFile, 'openapi: 3.1.0\n');
+    await fs.writeFile(
+      path.join(dir, DEFAULT_BASELINE_FILE),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const changedList = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedList, `${apiFile}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const logger = collectingLogger();
+    const exitCode = await runLint(
+      [],
+      config,
+      { embeddedInputs: [], apiFiles: [apiFile], changedOnly: true, changedListPath: changedList },
+      logger
+    );
+    expect(logger.lines.join('\n')).toContain('1 stale');
+    expect(exitCode).toBe(1);
+  });
+
   it('does not abort the run when a name filter leaves no description rules at the requested severity', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);

@@ -102,8 +102,12 @@ export async function runLint(
       // (deleting the last baselined files turns their entries stale), and its
       // findings must flow through the same report/summary pipeline as every
       // other finding, so json/sarif/github-actions consumers see them too.
-      // Changed-only runs are not exhaustive and keep proving nothing here.
-      if (!(config.baselinePath && !options.changedOnly)) {
+      // Changed-only runs are not exhaustive and prove nothing here, unless
+      // a scanned API file (parsed, no descriptions) still has to face the
+      // gate.
+      const gateActive =
+        config.baselinePath !== undefined && (!options.changedOnly || apiFiles.length > 0);
+      if (!gateActive) {
         await emitEmptyReport(options, logger);
         logger.log(`   Completed in ${timer.elapsedString()}`);
         return 0;
@@ -134,15 +138,19 @@ export async function runLint(
       const changedEmbeddedInputs = embeddedInputs.filter((input) =>
         changedSet.has(pathModule.resolve(input.file))
       );
+      apiFiles = apiFiles.filter((file) => changedSet.has(pathModule.resolve(file)));
       logger.log(`   Filtering to ${changedFiles.length} changed file(s)`);
-      if (changedFiles.length === 0 && changedEmbeddedInputs.length === 0) {
+      if (
+        changedFiles.length === 0 &&
+        changedEmbeddedInputs.length === 0 &&
+        (apiFiles.length === 0 || config.baselinePath === undefined)
+      ) {
         logger.log(yellow('   Warning: No changed markdown files matched.'));
         await emitEmptyReport(options, logger);
         return 0;
       }
       files = changedFiles;
       embeddedInputs = changedEmbeddedInputs;
-      apiFiles = apiFiles.filter((file) => changedSet.has(pathModule.resolve(file)));
     }
 
     const fileInputs: FileInput[] = [];
