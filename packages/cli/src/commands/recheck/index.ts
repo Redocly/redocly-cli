@@ -15,7 +15,6 @@ import {
   Timer,
   type EmbeddedInput,
   type LintOptions,
-  type Logger,
   type NormalizedRule,
   type Problem,
   type ResolvedRecheckConfig,
@@ -135,8 +134,7 @@ export function withoutReadFiles(unreadableFiles: string[], readFiles: Set<strin
 
 async function collectEmbeddedInputs(
   apiPaths: string[],
-  config: Config,
-  engineLogger: Logger
+  config: Config
 ): Promise<{
   inputs: EmbeddedInput[];
   failureCount: number;
@@ -155,8 +153,8 @@ async function collectEmbeddedInputs(
     try {
       collected = await collectDescriptions(apiPath, config);
     } catch (error) {
-      engineLogger.error(
-        `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}`
+      logger.error(
+        `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}\n`
       );
       failureCount++;
       unreadableFiles.push(resolve(apiPath));
@@ -173,8 +171,8 @@ async function collectEmbeddedInputs(
   }
   const { inputs, remoteSkipped } = toEmbeddedInputs(descriptions);
   if (remoteSkipped > 0) {
-    engineLogger.log(
-      `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.`
+    logger.info(
+      `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.\n`
     );
   }
   return {
@@ -202,15 +200,9 @@ function ignoredBy(config: Config, rules: NormalizedRule[]): (problem: Problem) 
 }
 
 export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>): Promise<void> {
-  const engineLogger: Logger = {
-    log: (line) => void logger.info(`${line}\n`),
-    warn: (line) => void logger.warn(`${line}\n`),
-    error: (line) => void logger.error(`${line}\n`),
-    output: (line) => void logger.output(`${line}\n`),
-  };
   const selected = selectAction(argv);
   if ('error' in selected) {
-    engineLogger.error(selected.error);
+    logger.error(`${selected.error}\n`);
     throw new AbortFlowError('Recheck failed.');
   }
 
@@ -226,12 +218,12 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   let presets = config.resolvedConfig.recheckExtends ?? [];
   if (block == null && presets.length === 0) {
     if (config.configPath) {
-      engineLogger.log(
-        'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.'
+      logger.info(
+        'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
       );
       return;
     }
-    engineLogger.log(`No redocly.yaml found; using ${DEFAULT_PRESET}.`);
+    logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
     presets = [DEFAULT_PRESET];
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
@@ -239,30 +231,21 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     extends: presets,
     block,
     configDir,
-    warn: (message) => engineLogger.warn(message),
+    warn: (message) => logger.warn(`${message}\n`),
   });
   if (!resolved.success) {
-    engineLogger.error('The recheck configuration is not valid:');
+    logger.error('The recheck configuration is not valid:\n');
     for (const error of resolved.errors) {
-      engineLogger.error(`  ${error.path ? `${error.path}: ` : ''}${error.message}`);
+      logger.error(`  ${error.path ? `${error.path}: ` : ''}${error.message}\n`);
     }
     throw new AbortFlowError('Recheck failed.');
   }
 
   if (argv['output-path'] && argv.format !== 'json' && argv.format !== 'sarif') {
-    engineLogger.warn(
-      '--output-path applies to --format json and sarif; the report goes to stdout.'
-    );
+    logger.warn('--output-path applies to --format json and sarif; the report goes to stdout.\n');
   }
 
-  const exitCode = await runAction(
-    selected.action,
-    argv,
-    resolved.config,
-    engineLogger,
-    config,
-    configDir
-  );
+  const exitCode = await runAction(selected.action, argv, resolved.config, config, configDir);
   if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
 }
 
@@ -270,7 +253,6 @@ async function runAction(
   action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
   resolved: ResolvedRecheckConfig,
-  engineLogger: Logger,
   config: Config,
   configDir: string
 ): Promise<number> {
@@ -286,12 +268,12 @@ async function runAction(
 
   if (action === 'readability') {
     if (apiPaths.length > 0) {
-      engineLogger.warn(
-        `Readability scores cover Markdown files only; skipped ${apiPaths.length} API description(s).`
+      logger.warn(
+        `Readability scores cover Markdown files only; skipped ${apiPaths.length} API description(s).\n`
       );
     }
     if (roots.length === 0) {
-      engineLogger.log('No Markdown files to score.');
+      logger.info('No Markdown files to score.\n');
       return 0;
     }
     const result = await runReadability(roots, resolved, {});
@@ -306,11 +288,11 @@ async function runAction(
     failureCount,
     apiFiles,
     unreadableFiles,
-  } = await collectEmbeddedInputs(apiPaths, config, engineLogger);
+  } = await collectEmbeddedInputs(apiPaths, config);
   // A baseline built from a partial set of descriptions would hide findings.
   if (action === 'baseline' && failureCount > 0) {
-    engineLogger.error(
-      `Baseline not written: the run could not read ${failureCount} API description(s).`
+    logger.error(
+      `Baseline not written: the run could not read ${failureCount} API description(s).\n`
     );
     return 1;
   }
