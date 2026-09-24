@@ -87,6 +87,9 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+// a reference with a scheme is absolute, whatever the scheme (RFC 3986)
+const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i;
+
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebased } = ctx.getVisitorData() as ConfigBundlerVisitorData;
@@ -98,10 +101,10 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     const value = node[field];
     if (
       !isPlainObject<NormalizedScalarSchema>(schema) ||
-      schema.format !== 'file-path' ||
+      schema.format !== 'uri-reference' ||
       !isString(value) ||
       !value ||
-      isAbsoluteUrl(value) ||
+      URI_SCHEME.test(value) ||
       path.isAbsolute(value)
     ) {
       continue;

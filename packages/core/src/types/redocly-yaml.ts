@@ -358,7 +358,7 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
     // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
     client: 'Client',
-    clientOutput: { type: 'string', format: 'file-path' },
+    clientOutput: { type: 'string', format: 'uri-reference' },
   },
 });
 
@@ -382,7 +382,7 @@ const Client: NodeType = {
     runtime: { enum: ['inline', 'module'] },
     importExt: { enum: ['js', 'ts'] },
     goPackage: { type: 'string' },
-    cliOutput: { type: 'string', format: 'file-path' },
+    cliOutput: { type: 'string', format: 'uri-reference' },
     errorMode: { enum: ['throw', 'result'] },
     dateType: { enum: ['string', 'Date'] },
     mockData: { enum: ['static', 'faker'] },
@@ -391,7 +391,7 @@ const Client: NodeType = {
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
-    setup: { type: 'string', format: 'file-path' },
+    setup: { type: 'string', format: 'uri-reference' },
     options: mapOf('ClientGeneratorOptions'),
     pagination: 'ClientPagination',
   },
