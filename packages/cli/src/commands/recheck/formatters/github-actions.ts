@@ -1,10 +1,10 @@
-import type { Logger } from '../../actions/logger.js';
-import type { Problem } from '../../types/index.js';
+import { logger } from '@redocly/openapi-core';
+import type { Problem } from '@redocly/recheck';
 
 /**
  * Output problems in GitHub Actions format for inline file annotations
  */
-export function outputGitHubActionsFormat(problems: Problem[], logger: Logger): void {
+export function outputGitHubActionsFormat(problems: Problem[]): void {
   for (const problem of problems) {
     const command = problem.severity === 'error' ? 'error' : 'warning';
     const properties = [
@@ -19,6 +19,6 @@ export function outputGitHubActionsFormat(problems: Problem[], logger: Logger): 
     // Escape the message for GitHub Actions format
     const escapedMessage = problem.message.replace(/::/g, '%3A%3A').replace(/\n/g, '%0A');
 
-    logger.output(`::${command} ${properties}::${escapedMessage}`);
+    logger.output(`::${command} ${properties}::${escapedMessage}\n`);
   }
 }

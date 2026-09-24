@@ -1,8 +1,6 @@
-import * as fs from 'fs/promises';
-
-import type { Logger } from '../../actions/logger.js';
-import type { Problem } from '../../types/index.js';
-import { getBreakdownStats } from '../statistics.js';
+import { logger } from '@redocly/openapi-core';
+import { getBreakdownStats, type Problem } from '@redocly/recheck';
+import * as fs from 'node:fs/promises';
 
 /**
  * Output problems in JSON format to file or through the logger
@@ -11,8 +9,7 @@ export async function outputJsonFormat(
   problems: Problem[],
   fileCount: number,
   outputPath: string | undefined,
-  baseline: { matched: number; new: number; stale: number } | undefined,
-  logger: Logger
+  baseline: { matched: number; new: number; stale: number } | undefined
 ): Promise<void> {
   const report = {
     summary: {
@@ -28,8 +25,8 @@ export async function outputJsonFormat(
 
   if (outputPath && outputPath.length > 0) {
     await fs.writeFile(outputPath, content, 'utf8');
-    logger.log(`\n   Wrote JSON report to ${outputPath}`);
+    logger.info(`\n   Wrote JSON report to ${outputPath}\n`);
   } else {
-    logger.output(content);
+    logger.output(`${content}\n`);
   }
 }

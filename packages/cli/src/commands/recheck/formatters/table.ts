@@ -1,8 +1,12 @@
+import { logger } from '@redocly/openapi-core';
+import type { Problem } from '@redocly/recheck';
 import { red, green, yellow, cyan } from 'colorette';
 
-import type { Logger } from '../../actions/logger.js';
-import type { Problem } from '../../types/index.js';
-import { showDetailedStats } from '../statistics.js';
+import { showDetailedStats } from './statistics.js';
+
+function output(line: string): void {
+  logger.output(`${line}\n`);
+}
 
 /**
  * Output problems in table format through the logger
@@ -10,19 +14,18 @@ import { showDetailedStats } from '../statistics.js';
 export function outputTableFormat(
   problems: Problem[],
   fileCount: number,
-  showStats: boolean | undefined,
-  logger: Logger
+  showStats: boolean | undefined
 ): void {
   if (problems.length === 0) {
-    logger.output(green('\n🎉 No issues found!'));
+    output(green('\n🎉 No issues found!'));
     if (showStats) {
-      logger.output(`\n📊 Summary: ${fileCount} file(s) scanned, 0 issues found.`);
+      output(`\n📊 Summary: ${fileCount} file(s) scanned, 0 issues found.`);
     }
     return;
   }
 
   // Table format
-  logger.output(cyan(`\n📋 Found ${problems.length} issue(s):\n`));
+  output(cyan(`\n📋 Found ${problems.length} issue(s):\n`));
 
   for (const problem of problems) {
     const severityColor =
@@ -32,14 +35,14 @@ export function outputTableFormat(
 
     const fixMark = problem.fixable ? green(' [fixable]') : '';
 
-    logger.output(
+    output(
       `${severityColor(ruleDisplay.padEnd(25))} ${location.padEnd(40)} ${problem.message}${fixMark}`
     );
   }
 
   const fixableCount = problems.filter((problem) => problem.fixable).length;
   if (fixableCount > 0) {
-    logger.output(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
+    output(green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`));
   }
 
   // Summary
@@ -47,13 +50,13 @@ export function outputTableFormat(
   const warnCount = problems.filter((h) => h.severity === 'warn').length;
   const infoCount = problems.filter((h) => h.severity === 'info').length;
 
-  logger.output('');
-  if (errorCount > 0) logger.output(red(`   ${errorCount} error(s)`));
-  if (warnCount > 0) logger.output(yellow(`   ${warnCount} warning(s)`));
-  if (infoCount > 0) logger.output(cyan(`   ${infoCount} info message(s)`));
+  output('');
+  if (errorCount > 0) output(red(`   ${errorCount} error(s)`));
+  if (warnCount > 0) output(yellow(`   ${warnCount} warning(s)`));
+  if (infoCount > 0) output(cyan(`   ${infoCount} info message(s)`));
 
   // Show detailed statistics if requested
   if (showStats) {
-    showDetailedStats(fileCount, problems, logger);
+    showDetailedStats(fileCount, problems);
   }
 }

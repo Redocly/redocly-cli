@@ -1,15 +1,10 @@
 import { logger } from '@redocly/openapi-core';
-import {
-  generateReport,
-  printSummary,
-  buildSummary,
-  reportFixes,
-  type LintRunReport,
-  type LintRunResult,
-  type Logger,
-  type Timer,
-} from '@redocly/recheck';
+import { buildSummary, type LintRunReport, type LintRunResult, type Timer } from '@redocly/recheck';
 import { cyan, green, red, yellow } from 'colorette';
+
+import { reportFixes } from './formatters/fixes.js';
+import { generateReport } from './formatters/index.js';
+import { printSummary } from './formatters/summary.js';
 
 export interface LintPresentation {
   format: 'table' | 'json' | 'sarif' | 'github-actions';
@@ -19,14 +14,6 @@ export interface LintPresentation {
   summary?: 'json' | 'text';
   summaryPath?: string;
 }
-
-// Task 2 removes this adapter together with the engine reporter.
-const engineLogger: Logger = {
-  log: (line) => void logger.info(`${line}\n`),
-  warn: (line) => void logger.warn(`${line}\n`),
-  error: (line) => void logger.error(`${line}\n`),
-  output: (line) => void logger.output(`${line}\n`),
-};
 
 function info(line: string): void {
   logger.info(`${line}\n`);
@@ -43,24 +30,14 @@ function printFailure(message: string, timer: Timer): number {
 }
 
 async function printEmptyReport(presentation: LintPresentation): Promise<void> {
-  await generateReport(
-    [],
-    0,
-    {
-      format: presentation.format,
-      showStats: presentation.showStats,
-      annotationsLimit: presentation.annotationsLimit,
-      outputPath: presentation.outputPath,
-    },
-    engineLogger
-  );
+  await generateReport([], 0, {
+    format: presentation.format,
+    showStats: presentation.showStats,
+    annotationsLimit: presentation.annotationsLimit,
+    outputPath: presentation.outputPath,
+  });
   if (presentation.summary) {
-    await printSummary(
-      buildSummary([], 0),
-      presentation.summary,
-      presentation.summaryPath,
-      engineLogger
-    );
+    await printSummary(buildSummary([], 0), presentation.summary, presentation.summaryPath);
   }
 }
 
@@ -96,7 +73,7 @@ function printFixBlock(report: LintRunReport): void {
   info(cyan(`\n🔧 Auto-fixing issues...`));
   if (report.fixes.applied.length > 0) {
     info(green(`✅ Auto-fixed ${report.fixes.applied.length} issue(s)!`));
-    reportFixes(report.fixes.applied, engineLogger);
+    reportFixes(report.fixes.applied);
   } else {
     info(yellow(`⚠️  No auto-fixable issues found.`));
   }
@@ -182,21 +159,16 @@ async function printCompletedRun(
     );
   }
 
-  await generateReport(
-    result.problems,
-    result.scannedFileCount,
-    {
-      format: presentation.format,
-      showStats: presentation.showStats,
-      annotationsLimit: presentation.annotationsLimit,
-      outputPath: presentation.outputPath,
-      baseline: result.baseline,
-    },
-    engineLogger
-  );
+  await generateReport(result.problems, result.scannedFileCount, {
+    format: presentation.format,
+    showStats: presentation.showStats,
+    annotationsLimit: presentation.annotationsLimit,
+    outputPath: presentation.outputPath,
+    baseline: result.baseline,
+  });
   if (presentation.summary) {
     const summary = buildSummary(result.problems, result.scannedFileCount, result.baseline);
-    await printSummary(summary, presentation.summary, presentation.summaryPath, engineLogger);
+    await printSummary(summary, presentation.summary, presentation.summaryPath);
   }
 
   const errorCount = result.problems.filter((problem) => problem.severity === 'error').length;

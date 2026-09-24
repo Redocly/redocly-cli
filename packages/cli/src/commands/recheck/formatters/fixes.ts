@@ -1,7 +1,6 @@
+import { logger } from '@redocly/openapi-core';
+import type { Fix } from '@redocly/recheck';
 import { cyan, green } from 'colorette';
-
-import type { Logger } from '../actions/logger.js';
-import type { Fix } from '../types/index.js';
 
 /**
  * Builds a human-readable description of a fix from its edit fields, since the
@@ -27,8 +26,8 @@ function describeFix(fix: Fix): string {
   return 'applied fix';
 }
 
-export function reportFixes(fixes: Fix[], logger: Logger): void {
-  logger.log(cyan('\n🔧 Auto-fix Summary:'));
+export function reportFixes(fixes: Fix[]): void {
+  logger.info(`${cyan('\n🔧 Auto-fix Summary:')}\n`);
 
   // Group fixes by file
   const fixesByFile: Record<string, Fix[]> = {};
@@ -41,9 +40,11 @@ export function reportFixes(fixes: Fix[], logger: Logger): void {
 
   // Report fixes by file
   for (const [file, fileFixes] of Object.entries(fixesByFile)) {
-    logger.log(`\n   ${file}:`);
+    logger.info(`\n   ${file}:\n`);
     for (const fix of fileFixes) {
-      logger.log(green(`     ✓ Line ${fix.lineNumber} (${fix.ruleName}): ${describeFix(fix)}`));
+      logger.info(
+        `${green(`     ✓ Line ${fix.lineNumber} (${fix.ruleName}): ${describeFix(fix)}`)}\n`
+      );
     }
   }
 }
