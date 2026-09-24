@@ -12,6 +12,7 @@ import {
   resolveRecheckConfig,
   runLint,
   runReadability,
+  Timer,
   type EmbeddedInput,
   type LintOptions,
   type Logger,
@@ -29,6 +30,7 @@ import {
   type CollectedDescription,
 } from './descriptions.js';
 import { createPositionMapper } from './positions.js';
+import { printLintRun, printLintStart, type LintPresentation } from './print.js';
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
@@ -66,14 +68,19 @@ function classifyApiPath(path: string): ApiPathClassification {
 
 function toLintOptions(argv: RecheckArgv): LintOptions {
   return {
-    format: argv.format,
-    outputPath: argv['output-path'],
     tags: argv.tags,
     rules: argv.rule,
     excludeRules: argv['skip-rule'],
-    stats: argv.stats,
     fix: argv.fix,
+  };
+}
+
+function toLintPresentation(argv: RecheckArgv): LintPresentation {
+  return {
+    format: argv.format ?? 'table',
+    showStats: argv.stats,
     annotationsLimit: argv['max-problems'],
+    outputPath: argv['output-path'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
   };
@@ -295,16 +302,20 @@ async function runAction(
     return 1;
   }
   const isIgnored = ignoredBy(config, resolved.rules);
-  const exitCode =
-    action === 'baseline'
-      ? await generateBaseline(roots, resolved, engineLogger, { embeddedInputs, isIgnored })
-      : await runLint(
-          roots,
-          resolved,
-          { ...toLintOptions(argv), embeddedInputs, apiFiles, unreadableFiles, isIgnored },
-          engineLogger
-        );
+  if (action === 'baseline') {
+    return generateBaseline(roots, resolved, engineLogger, { embeddedInputs, isIgnored });
+  }
+  const timer = new Timer();
+  printLintStart(roots, embeddedInputs.length);
+  const result = await runLint(roots, resolved, {
+    ...toLintOptions(argv),
+    embeddedInputs,
+    apiFiles,
+    unreadableFiles,
+    isIgnored,
+  });
+  const exitCode = await printLintRun(result, toLintPresentation(argv), timer);
   // An API description that failed to parse fails the gate even when the
-  // lint or baseline action otherwise found nothing to report.
+  // lint action otherwise found nothing to report.
   return failureCount > 0 && exitCode === 0 ? 1 : exitCode;
 }

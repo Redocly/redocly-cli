@@ -45,9 +45,14 @@ export type { TextStatistics, ReadabilityFormula } from './metrics/index.js';
 // `exceptions` against what's already covered for free.
 export { TECHNICAL_PROPER_NOUNS } from './data/proper-nouns.js';
 export { runLint } from './actions/lint.js';
-export type { LintOptions } from './actions/lint.js';
+export type { LintOptions, LintRunReport, LintRunResult } from './actions/lint.js';
 export { lintEmbeddedInputs } from './actions/embedded.js';
 export type { EmbeddedInput } from './actions/embedded.js';
+export { toRoots } from './actions/roots.js';
+export { Timer } from './core/timing.js';
+export { generateReport } from './reporter/index.js';
+export { buildSummary, printSummary } from './reporter/summary.js';
+export { reportFixes } from './reporter/fixes.js';
 export { generateBaseline } from './actions/baseline.js';
 export { runReadability } from './actions/readability.js';
 export type { ReadabilityOptions } from './actions/readability.js';

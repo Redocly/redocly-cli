@@ -1,3 +1,4 @@
+// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
@@ -8,8 +9,11 @@ import {
   resolveRecheckConfig,
   type ResolvedRecheckConfig,
 } from '../../config/resolve.js';
-import { runLint } from '../lint.js';
-import { collectingLogger } from '../logger.js';
+import type { Problem } from '../../types/index.js';
+import { runLint, type LintRunReport, type LintRunResult } from '../lint.js';
+
+// A prose line longer than the `recheck/line-length` limit of 80 characters.
+const LONG_LINE = 'word '.repeat(30).trim();
 
 /** Builds a resolved config from block/extends data, the same shape a recheck.yaml
  *  root key would carry, without writing anything to disk. */
@@ -25,6 +29,18 @@ async function resolveConfig(
     );
   }
   return result.config;
+}
+
+/** Narrows a run result to a completed report, failing the test otherwise. */
+function completed(result: LintRunResult): LintRunReport {
+  if (result.status !== 'completed') {
+    throw new Error(`expected a completed run, got ${JSON.stringify(result)}`);
+  }
+  return result;
+}
+
+function errorsIn(problems: Problem[]): Problem[] {
+  return problems.filter((problem) => problem.severity === 'error');
 }
 
 describe('runLint', () => {
@@ -48,104 +64,11 @@ describe('runLint', () => {
       await fs.mkdir(emptyDir);
 
       const config = await resolveConfig(emptyDir, {}, ['recheck/markdown']);
-      const logger = collectingLogger();
-      const exitCode = await runLint(emptyDir, config, {}, logger);
+      const report = completed(await runLint(emptyDir, config, {}));
 
-      expect(exitCode).toBe(0); // Succeeds when no markdown files are found
-      expect(logger.lines.some((log) => log.includes('No markdown files found'))).toBe(true);
-    });
-  });
-
-  describe('Output format error handling', () => {
-    it('should handle file write errors for output-path', async () => {
-      const mdPath = path.join(tempDir, 'doc.md');
-      await fs.writeFile(mdPath, '# Test\nSome content');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/test-rule': {
-            severity: 'warn',
-            message: 'Test message',
-            assertions: { pattern: { tokens: ['content'] } },
-          },
-        },
-      });
-
-      // Try to write to a nonexistent directory
-      const invalidOutputPath = path.join(tempDir, 'nonexistent', 'output.json');
-
-      const logger = collectingLogger();
-      const exitCode = await runLint(
-        tempDir,
-        config,
-        { format: 'json', outputPath: invalidOutputPath },
-        logger
-      );
-
-      expect(exitCode).toBe(1); // The important part - it should fail with exit code 1
-      // The write failure surfaces through logger.errors, not logger.lines.
-    });
-
-    it.skip('should write table format to file when output-path specified', () => {
-      // Table output to file is not currently supported - only logger output
-    });
-
-    it('should write JSON format to file when output-path specified', async () => {
-      const mdPath = path.join(tempDir, 'doc.md');
-      await fs.writeFile(mdPath, '# Test\nSome content');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/test-rule': {
-            severity: 'error',
-            message: 'JSON test',
-            assertions: { pattern: { tokens: ['content'] } },
-          },
-        },
-      });
-
-      const outputPath = path.join(tempDir, 'output.json');
-
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json', outputPath }, logger);
-
-      expect(exitCode).toBe(1);
-
-      const outputContent = await fs.readFile(outputPath, 'utf8');
-      const parsed = JSON.parse(outputContent);
-      expect(parsed.summary.totalIssues).toBe(1);
-      expect(parsed.issues[0].message).toBe('JSON test');
-    });
-
-    it('should write SARIF format to file when output-path specified', async () => {
-      const mdPath = path.join(tempDir, 'doc.md');
-      await fs.writeFile(mdPath, '# Test\nSome content');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/test-rule': {
-            severity: 'error',
-            message: 'SARIF test',
-            assertions: { pattern: { tokens: ['content'] } },
-          },
-        },
-      });
-
-      const outputPath = path.join(tempDir, 'output.sarif');
-
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'sarif', outputPath }, logger);
-
-      expect(exitCode).toBe(1);
-
-      const outputContent = await fs.readFile(outputPath, 'utf8');
-      const parsed = JSON.parse(outputContent);
-      expect(parsed.runs[0].results).toHaveLength(1);
-      expect(parsed.runs[0].results[0].message.text).toBe('SARIF test');
-    });
-
-    it.skip('should write GitHub Actions format to file when output-path specified', () => {
-      // GitHub Actions output to file may not be supported - mainly for logger output
+      expect(report.filesFound).toBe(0);
+      expect(report.empty).toBe(true);
+      expect(report.problems).toEqual([]);
     });
   });
 
@@ -165,11 +88,10 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, {}, logger);
+      const report = completed(await runLint(tempDir, config, {}));
 
-      expect(exitCode).toBe(0); // No errors because no markdown files found
-      expect(logger.lines.some((log) => log.includes('No markdown files found'))).toBe(true);
+      expect(report.filesFound).toBe(0);
+      expect(errorsIn(report.problems)).toHaveLength(0);
     });
 
     it('should handle empty markdown files', async () => {
@@ -186,10 +108,10 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, {}, logger);
+      const report = completed(await runLint(tempDir, config, {}));
 
-      expect(exitCode).toBe(0); // No issues found in empty file
+      expect(report.filesFound).toBe(1);
+      expect(errorsIn(report.problems)).toHaveLength(0);
     });
 
     // The CLI filters severity:off rules out of the run list before
@@ -212,12 +134,14 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, {}, logger);
+      const report = completed(await runLint(tempDir, config, {}));
+      const messages = report.problems.map((problem) => problem.message);
 
-      expect(exitCode).toBe(0); // directive warnings are warn-severity, not errors
-      expect(logger.outputs.some((log) => log.includes('unknown rule "no-such-rule"'))).toBe(true);
-      expect(logger.outputs.some((log) => log.includes('unknown rule "muted-rule"'))).toBe(false);
+      expect(errorsIn(report.problems)).toHaveLength(0); // directive warnings are warn-severity
+      expect(messages.some((message) => message.includes('unknown rule "no-such-rule"'))).toBe(
+        true
+      );
+      expect(messages.some((message) => message.includes('unknown rule "muted-rule"'))).toBe(false);
     });
   });
 
@@ -236,11 +160,11 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { fix: true }, logger);
+      const report = completed(await runLint(tempDir, config, { fix: true }));
 
-      expect(exitCode).toBe(1); // Still reports original issues even after fixing
-      expect(logger.lines.some((log) => log.includes('Auto-fixed'))).toBe(true);
+      // Still reports the original issues even after fixing.
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
+      expect(report.fixes?.applied.length).toBeGreaterThan(0);
 
       // Verify file was actually fixed
       const fixedContent = await fs.readFile(mdPath, 'utf8');
@@ -281,8 +205,7 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      await runLint(tempDir, config, { fix: true }, logger);
+      const report = completed(await runLint(tempDir, config, { fix: true }));
 
       const fixedContent = await fs.readFile(mdPath, 'utf8');
       expect(fixedContent).toBe('- bullet one\n');
@@ -291,9 +214,9 @@ describe('runLint', () => {
       // fix conflicts with no-hard-tabs' and is skipped, then re-proposed
       // and applied in pass 2) but only 3 ever land — the report must show
       // the true count, not every proposal.
-      expect(logger.lines.some((log) => log.includes('Auto-fixed 3 issue(s)'))).toBe(true);
+      expect(report.fixes?.applied).toHaveLength(3);
       // The skipped-then-reapplied fix converged, so no warning is due.
-      expect(logger.lines.some((log) => log.includes('could not be applied'))).toBe(false);
+      expect(report.fixes?.skippedCount).toBe(0);
     });
 
     it('should report when no auto-fixable issues found', async () => {
@@ -310,71 +233,10 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { fix: true }, logger);
+      const report = completed(await runLint(tempDir, config, { fix: true }));
 
-      expect(exitCode).toBe(1); // Still has unfixable errors
-      expect(logger.lines.some((log) => log.includes('No auto-fixable issues found'))).toBe(true);
-    });
-  });
-
-  describe('Summary and SARIF output', () => {
-    it('writes JSON summary to file', async () => {
-      const mdPath = path.join(tempDir, 'doc.md');
-      await fs.writeFile(mdPath, '# Test\nThis is a test');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/no-gerunds': {
-            severity: 'warn',
-            message: 'Avoid gerunds',
-            assertions: { pattern: { tokens: ['is a test'] } },
-          },
-        },
-      });
-
-      const summaryPath = path.join(tempDir, 'summary.json');
-
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { summary: 'json', summaryPath }, logger);
-      expect(exitCode).toBe(0);
-
-      const summaryContent = await fs.readFile(summaryPath, 'utf8');
-      const summary = JSON.parse(summaryContent);
-
-      expect(summary.totalIssues).toBe(1);
-      expect(summary.totalWarnings).toBe(1);
-      expect(summary.breakdown['recheck/no-gerunds'].total).toBe(1);
-    });
-
-    it('caps SARIF results with annotations-limit', async () => {
-      const mdPath = path.join(tempDir, 'doc.md');
-      await fs.writeFile(mdPath, '# Test\n' + 'bad sentence. '.repeat(5));
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/bad-sentence': {
-            severity: 'error',
-            message: 'Bad',
-            assertions: { pattern: { tokens: ['bad sentence'] } },
-          },
-        },
-      });
-      const outputPath = path.join(tempDir, 'report.sarif');
-
-      const logger = collectingLogger();
-      const exitCode = await runLint(
-        tempDir,
-        config,
-        { format: 'sarif', outputPath, annotationsLimit: 2 },
-        logger
-      );
-      expect(exitCode).toBe(1);
-
-      const sarifContent = await fs.readFile(outputPath, 'utf8');
-      const sarif = JSON.parse(sarifContent);
-
-      expect(sarif.runs[0].results).toHaveLength(2);
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0); // Still has unfixable errors
+      expect(report.fixes).toEqual({ applied: [], skippedCount: 0 });
     });
   });
 
@@ -407,14 +269,12 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json', severity: 'info' }, logger);
-      expect(exitCode).toBe(1);
-      const jsonBlock = logger.outputs.find((line) => line.trim().startsWith('{'));
-      expect(jsonBlock).toBeTruthy();
-      const report = JSON.parse(jsonBlock as string);
-      expect(report.summary.totalIssues).toBe(3);
-      expect(report.summary.breakdown['recheck/composite-rule'].total).toBe(3);
+      const report = completed(await runLint(tempDir, config, { severity: 'info' }));
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
+      expect(report.problems).toHaveLength(3);
+      expect(
+        report.problems.every((problem) => problem.ruleName === 'recheck/composite-rule')
+      ).toBe(true);
     });
   });
 
@@ -441,29 +301,16 @@ describe('runLint', () => {
           },
         });
 
-        const outputPath = path.join(tempDir, 'report.json');
-        const summaryPath = path.join(tempDir, 'summary.json');
+        const report = completed(await runLint(tempDir, config, {}));
 
-        const logger = collectingLogger();
-        const exitCode = await runLint(
-          tempDir,
-          config,
-          { format: 'json', outputPath, summary: 'json', summaryPath },
-          logger
-        );
-
-        expect(exitCode).toBe(0); // warn severity — no errors
-        // The pre-existing per-file warning still appears...
-        expect(logger.lines.some((log) => log.includes('Could not read file'))).toBe(true);
-        // ...plus a one-line note with the skipped count.
-        expect(logger.lines.some((log) => log.includes('Skipped 1 unreadable file'))).toBe(true);
+        expect(errorsIn(report.problems)).toHaveLength(0); // warn severity — no errors
+        expect(report.unreadableFiles).toEqual([unreadablePath]);
 
         // 3 markdown files were discovered but only 2 were actually linted —
         // stats/file totals must cover the linted set, not the requested one.
-        const report = JSON.parse(await fs.readFile(outputPath, 'utf8'));
-        expect(report.summary.filesScanned).toBe(2);
-        const summary = JSON.parse(await fs.readFile(summaryPath, 'utf8'));
-        expect(summary.filesScanned).toBe(2);
+        expect(report.filesFound).toBe(3);
+        expect(report.scannedFileCount).toBe(2);
+        expect(report.problems.every((problem) => problem.file !== unreadablePath)).toBe(true);
       }
     );
   });
@@ -497,20 +344,13 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json' }, logger);
+      const { problems } = completed(await runLint(tempDir, config, {}));
 
-      expect(exitCode).toBe(1); // Should find errors
-
-      // Extract JSON output
-      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
-      expect(jsonLine).toBeTruthy();
-      const report = JSON.parse(jsonLine as string);
+      expect(errorsIn(problems).length).toBeGreaterThan(0); // Should find errors
 
       // Should only find TODOs in config files, not api or root files
-      expect(report.summary.totalIssues).toBe(2);
-      expect(report.issues).toHaveLength(2);
-      expect(report.issues.every((issue: any) => issue.file.includes('docs/config/'))).toBe(true);
+      expect(problems).toHaveLength(2);
+      expect(problems.every((problem) => problem.file.includes('docs/config/'))).toBe(true);
     });
 
     it('should exclude files matching excludes path patterns', async () => {
@@ -538,20 +378,13 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json' }, logger);
+      const { problems } = completed(await runLint(tempDir, config, {}));
 
-      expect(exitCode).toBe(1); // Should find errors
-
-      // Extract JSON output
-      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
-      expect(jsonLine).toBeTruthy();
-      const report = JSON.parse(jsonLine as string);
+      expect(errorsIn(problems).length).toBeGreaterThan(0); // Should find errors
 
       // Should only find TODOs in main docs, not in drafts
-      expect(report.summary.totalIssues).toBe(2);
-      expect(report.issues).toHaveLength(2);
-      expect(report.issues.every((issue: any) => !issue.file.includes('drafts/'))).toBe(true);
+      expect(problems).toHaveLength(2);
+      expect(problems.every((problem) => !problem.file.includes('drafts/'))).toBe(true);
     });
 
     it('should support complex path patterns', async () => {
@@ -580,23 +413,16 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json' }, logger);
+      const { problems } = completed(await runLint(tempDir, config, {}));
 
-      expect(exitCode).toBe(1); // Should find errors
-
-      // Extract JSON output
-      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
-      expect(jsonLine).toBeTruthy();
-      const report = JSON.parse(jsonLine as string);
+      expect(errorsIn(problems).length).toBeGreaterThan(0); // Should find errors
 
       // Should only find FIXMEs in components and api directories
-      expect(report.summary.totalIssues).toBe(2);
-      expect(report.issues).toHaveLength(2);
-      expect(report.issues.some((issue: any) => issue.file.includes('components/'))).toBe(true);
-      expect(report.issues.some((issue: any) => issue.file.includes('api/'))).toBe(true);
-      expect(report.issues.every((issue: any) => !issue.file.includes('README.md'))).toBe(true);
-      expect(report.issues.every((issue: any) => !issue.file.includes('tests/'))).toBe(true);
+      expect(problems).toHaveLength(2);
+      expect(problems.some((problem) => problem.file.includes('components/'))).toBe(true);
+      expect(problems.some((problem) => problem.file.includes('api/'))).toBe(true);
+      expect(problems.every((problem) => !problem.file.includes('README.md'))).toBe(true);
+      expect(problems.every((problem) => !problem.file.includes('tests/'))).toBe(true);
     });
 
     it('should work with basename patterns (backward compatibility)', async () => {
@@ -616,22 +442,16 @@ describe('runLint', () => {
         },
       });
 
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json' }, logger);
+      const { problems } = completed(await runLint(tempDir, config, {}));
 
-      expect(exitCode).toBe(1); // Should find errors
-
-      // Extract JSON output
-      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
-      expect(jsonLine).toBeTruthy();
-      const report = JSON.parse(jsonLine as string);
+      expect(errorsIn(problems).length).toBeGreaterThan(0); // Should find errors
 
       // Should only find TODOs in config files
-      expect(report.summary.totalIssues).toBe(2);
-      expect(report.issues).toHaveLength(2);
+      expect(problems).toHaveLength(2);
       expect(
-        report.issues.every(
-          (issue: any) => issue.file.includes('config.md') || issue.file.includes('setup.config.md')
+        problems.every(
+          (problem) =>
+            problem.file.includes('config.md') || problem.file.includes('setup.config.md')
         )
       ).toBe(true);
     });
@@ -655,19 +475,16 @@ describe('runLint', () => {
 
       const config = await resolveConfig(tempDir, { markdoc: true }, ['recheck/markdoc']);
 
-      const outputPath = path.join(tempDir, 'output.json');
-      const logger = collectingLogger();
-      const exitCode = await runLint(tempDir, config, { format: 'json', outputPath }, logger);
+      const { problems } = completed(await runLint(tempDir, config, {}));
 
       // A severity-error finding means exit code 1, so the rule really ran
       // rather than merely loading.
-      expect(exitCode).toBe(1);
-      const parsed = JSON.parse(await fs.readFile(outputPath, 'utf8'));
+      expect(errorsIn(problems).length).toBeGreaterThan(0);
       expect(
-        parsed.issues.some(
-          (issue: any) =>
-            issue.ruleName === 'recheck/markdoc-attributes' &&
-            issue.message.includes('is missing its required')
+        problems.some(
+          (problem) =>
+            problem.ruleName === 'recheck/markdoc-attributes' &&
+            problem.message.includes('is missing its required')
         )
       ).toBe(true);
     });
@@ -680,35 +497,29 @@ describe('runLint', () => {
       );
 
       // Extending `recheck/markdoc` without `markdoc: true` must warn on this
-      // path too. The warning is forwarded from config resolution into the
-      // same logger runLint reports through.
-      const logger = collectingLogger();
+      // path too. The warning comes from config resolution.
+      const warnings: string[] = [];
       const result = await resolveRecheckConfig({
         extends: ['recheck/markdoc'],
         configDir: tempDir,
-        warn: logger.warn,
+        warn: (message) => void warnings.push(message),
       });
       expect(result.success).toBe(true);
       if (!result.success) return;
 
-      const exitCode = await runLint(tempDir, result.config, { format: 'json' }, logger);
-      expect(exitCode).toBe(0);
+      const { problems } = completed(await runLint(tempDir, result.config, {}));
+      expect(errorsIn(problems)).toHaveLength(0);
 
-      // An exit code alone cannot distinguish "the flag gated the rules" from
+      // No errors alone cannot distinguish "the flag gated the rules" from
       // "the rules ran and found nothing on this fixture".
-      const jsonLine = logger.outputs.find((log) => log.trim().startsWith('{'));
-      expect(jsonLine).toBeTruthy();
-      const report = JSON.parse(jsonLine as string);
-      expect(
-        report.issues.some((issue: any) =>
-          (issue.ruleName as string).startsWith('recheck/markdoc-')
-        )
-      ).toBe(false);
+      expect(problems.some((problem) => problem.ruleName.startsWith('recheck/markdoc-'))).toBe(
+        false
+      );
 
       // The warning firing confirms the silence above is the flag gating the
       // rules, not the whole check being skipped.
       expect(
-        logger.warnings.some((message) =>
+        warnings.some((message) =>
           message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
         )
       ).toBe(true);
@@ -741,23 +552,16 @@ describe('runLint', () => {
         },
       });
 
-      const outputPath = path.join(tempDir, 'report.json');
-      const logger = collectingLogger();
-      const exitCode = await runLint(
-        [guides, reference],
-        config,
-        { format: 'json', outputPath },
-        logger
-      );
+      const report = completed(await runLint([guides, reference], config, {}));
 
       // The warn-only root cannot mask the error root.
-      expect(exitCode).toBe(1);
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
 
-      const report = JSON.parse(await fs.readFile(outputPath, 'utf8'));
-      expect(report.summary.filesScanned).toBe(2);
-      const reportedFiles = report.issues.map((issue: any) => issue.file);
-      expect(reportedFiles.some((file: string) => file.includes('guide.md'))).toBe(true);
-      expect(reportedFiles.some((file: string) => file.includes('api.md'))).toBe(true);
+      expect(report.roots).toEqual([guides, reference]);
+      expect(report.scannedFileCount).toBe(2);
+      const reportedFiles = report.problems.map((problem) => problem.file);
+      expect(reportedFiles.some((file) => file.includes('guide.md'))).toBe(true);
+      expect(reportedFiles.some((file) => file.includes('api.md'))).toBe(true);
     });
   });
 });
@@ -777,10 +581,14 @@ describe('runLint image metadata', () => {
           },
         },
       });
-      const logger = collectingLogger();
-      const exitCode = await runLint(root, config, {}, logger);
-      expect(exitCode).toBe(1);
-      expect(logger.outputs.some((line) => line.includes('big.png'))).toBe(true);
+      const { problems } = completed(await runLint(root, config, {}));
+      expect(errorsIn(problems).length).toBeGreaterThan(0);
+      expect(
+        problems.some(
+          (problem) =>
+            problem.ruleName === 'recheck/max-image-size' && problem.message.includes('big.png')
+        )
+      ).toBe(true);
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
@@ -804,71 +612,67 @@ describe('runLint with embedded inputs', () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
-    const exitCode = await runLint(
-      dir,
-      config,
-      {
-        format: 'json',
+    const result = completed(
+      await runLint(dir, config, {
         embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
-      },
-      logger
+      })
     );
-    const report = JSON.parse(logger.outputs.join(''));
-    const files = new Set(report.issues.map((issue: { file: string }) => issue.file));
+    const files = new Set(result.problems.map((problem) => problem.file));
     expect(files.has(path.join(dir, 'page.md'))).toBe(true);
     expect(files.has(path.join(dir, 'openapi.yaml'))).toBe(true);
-    expect(
-      report.issues.find((issue: { file: string }) => issue.file.endsWith('openapi.yaml')).line
-    ).toBe(11);
-    expect(exitCode).toBe(1);
+    expect(result.problems.find((problem) => problem.file.endsWith('openapi.yaml'))?.line).toBe(11);
+    expect(result.apiDescriptionCount).toBe(1);
+    expect(result.scannedFileCount).toBe(1);
+    expect(result.scannedDescriptionFileCount).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
   });
 
   it('lints embedded inputs with no Markdown roots', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
-    const exitCode = await runLint(
-      [],
-      config,
-      { embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')] },
-      logger
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+      })
     );
-    expect(exitCode).toBe(0);
-    expect(logger.lines.join('\n')).not.toContain('No markdown files found');
+    expect(errorsIn(result.problems)).toHaveLength(0);
+    expect(result.roots).toEqual([]);
+    expect(result.apiDescriptionCount).toBe(1);
+    expect(result.empty).toBe(false);
   });
 
-  it('skips fixes inside descriptions and says so once', async () => {
+  it('reports nothing to check for a run with no root and no description', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
-    await runLint(
-      [],
-      config,
-      { fix: true, embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Trailing.   \n')] },
-      logger
+    const result = completed(await runLint([], config, { embeddedInputs: [] }));
+    expect(result.roots.length === 0 && result.apiDescriptionCount === 0).toBe(true);
+    expect(result.empty).toBe(true);
+  });
+
+  it('skips fixes inside descriptions and counts them', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(
+      await runLint([], config, {
+        fix: true,
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Trailing.   \n')],
+      })
     );
-    const notices = logger.lines.filter((line) =>
-      line.includes('Fixes do not apply inside API descriptions')
-    );
-    expect(notices).toHaveLength(1);
+    expect(result.descriptionFixesSkipped).toBe(1);
+    expect(result.fixes?.applied).toEqual([]);
   });
 
   it('drops findings the ignore predicate accepts and reports the count', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
-    const exitCode = await runLint(
-      [],
-      config,
-      {
+    const result = completed(
+      await runLint([], config, {
         embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
         isIgnored: (problem) => problem.pointer === '#/info/description',
-      },
-      logger
+      })
     );
-    expect(exitCode).toBe(0);
-    expect(logger.lines.join('\n')).toContain('1 finding(s) suppressed by the ignore file');
+    expect(errorsIn(result.problems)).toHaveLength(0);
+    expect(result.suppressedByIgnoreFile).toBe(1);
   });
 
   it('does not abort the run for a rule that is off for descriptions', async () => {
@@ -879,26 +683,18 @@ describe('runLint with embedded inputs', () => {
       { apiDescriptions: { rules: { 'recheck/line-length': 'off' } } },
       ['recheck/markdown']
     );
-    const logger = collectingLogger();
-    const exitCode = await runLint(
-      dir,
-      config,
-      {
-        format: 'json',
+    const result = completed(
+      await runLint(dir, config, {
         rules: ['recheck/line-length'],
         embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
-      },
-      logger
+      })
     );
-    const report = JSON.parse(logger.outputs.join(''));
-    const lineLengthIssues = report.issues.filter(
-      (issue: { ruleName: string }) => issue.ruleName === 'recheck/line-length'
+    const lineLengthProblems = result.problems.filter(
+      (problem) => problem.ruleName === 'recheck/line-length'
     );
-    expect(exitCode).toBe(1);
-    expect(lineLengthIssues).toHaveLength(1);
-    expect(lineLengthIssues[0].file).toBe(path.join(dir, 'page.md'));
-    expect(logger.lines.join('\n')).not.toContain('no rule in this configuration matches');
-    expect(logger.errors.join('\n')).not.toContain('no rule in this configuration matches');
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+    expect(lineLengthProblems).toHaveLength(1);
+    expect(lineLengthProblems[0].file).toBe(path.join(dir, 'page.md'));
   });
   it('filters embedded inputs to the changed set when only the API file changed', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
@@ -907,25 +703,19 @@ describe('runLint with embedded inputs', () => {
     const changedListPath = path.join(dir, 'changed.txt');
     await fs.writeFile(changedListPath, `${apiFile}\n`);
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
 
-    const exitCode = await runLint(
-      dir,
-      config,
-      {
-        format: 'json',
+    const result = completed(
+      await runLint(dir, config, {
         changedOnly: true,
         changedListPath,
         embeddedInputs: [embedded(apiFile, `${LONG_LINE}\n`)],
-      },
-      logger
+      })
     );
 
-    const report = JSON.parse(logger.outputs.join(''));
-    const files = new Set(report.issues.map((issue: { file: string }) => issue.file));
+    const files = new Set(result.problems.map((problem) => problem.file));
     expect(files.has(apiFile)).toBe(true);
     expect(files.has(path.join(dir, 'page.md'))).toBe(false);
-    expect(exitCode).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
   });
 
   it('drops embedded inputs when only a page changed', async () => {
@@ -936,25 +726,19 @@ describe('runLint with embedded inputs', () => {
     const changedListPath = path.join(dir, 'changed.txt');
     await fs.writeFile(changedListPath, `${pagePath}\n`);
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
 
-    const exitCode = await runLint(
-      dir,
-      config,
-      {
-        format: 'json',
+    const result = completed(
+      await runLint(dir, config, {
         changedOnly: true,
         changedListPath,
         embeddedInputs: [embedded(apiFile, `${LONG_LINE}\n`)],
-      },
-      logger
+      })
     );
 
-    const report = JSON.parse(logger.outputs.join(''));
-    const files = new Set(report.issues.map((issue: { file: string }) => issue.file));
+    const files = new Set(result.problems.map((problem) => problem.file));
     expect(files.has(pagePath)).toBe(true);
     expect(files.has(apiFile)).toBe(false);
-    expect(exitCode).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
   });
 
   it('reports an empty report when no page and no description changed', async () => {
@@ -963,24 +747,18 @@ describe('runLint with embedded inputs', () => {
     const changedListPath = path.join(dir, 'changed.txt');
     await fs.writeFile(changedListPath, `${path.join(dir, 'untouched.md')}\n`);
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
 
-    const exitCode = await runLint(
-      dir,
-      config,
-      {
-        format: 'json',
+    const result = completed(
+      await runLint(dir, config, {
         changedOnly: true,
         changedListPath,
         embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
-      },
-      logger
+      })
     );
 
-    const report = JSON.parse(logger.outputs.join(''));
-    expect(report.summary.totalIssues).toBe(0);
-    expect(report.issues).toHaveLength(0);
-    expect(exitCode).toBe(0);
+    expect(result.empty).toBe(true);
+    expect(result.changedFilter).toEqual({ provided: true, matched: 0 });
+    expect(result.problems).toHaveLength(0);
   });
 
   it('reports a stale baseline entry for an API file that this run linted', async () => {
@@ -990,17 +768,15 @@ describe('runLint with embedded inputs', () => {
       'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
     );
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
 
-    const exitCode = await runLint(
-      [],
-      config,
-      { embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')] },
-      logger
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+      })
     );
 
-    expect(logger.lines.join('\n')).toContain('1 stale');
-    expect(exitCode).toBe(1);
+    expect(result.baseline?.stale).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
   });
 
   it('leaves a baseline entry alone when its rule is off for descriptions', async () => {
@@ -1016,17 +792,15 @@ describe('runLint with embedded inputs', () => {
       },
       ['recheck/markdown']
     );
-    const logger = collectingLogger();
 
-    const exitCode = await runLint(
-      [],
-      config,
-      { embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')] },
-      logger
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+      })
     );
 
-    expect(logger.lines.join('\n')).toContain('0 stale');
-    expect(exitCode).toBe(0);
+    expect(result.baseline?.stale).toBe(0);
+    expect(errorsIn(result.problems)).toHaveLength(0);
   });
 
   it('marks a baseline entry stale for a changed API file that parsed but holds no descriptions', async () => {
@@ -1040,15 +814,16 @@ describe('runLint with embedded inputs', () => {
     const changedList = path.join(dir, 'changed.txt');
     await fs.writeFile(changedList, `${apiFile}\n`);
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
-    const exitCode = await runLint(
-      [],
-      config,
-      { embeddedInputs: [], apiFiles: [apiFile], changedOnly: true, changedListPath: changedList },
-      logger
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [],
+        apiFiles: [apiFile],
+        changedOnly: true,
+        changedListPath: changedList,
+      })
     );
-    expect(logger.lines.join('\n')).toContain('1 stale');
-    expect(exitCode).toBe(1);
+    expect(result.baseline?.stale).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
   });
 
   it('does not abort the run when a name filter leaves no description rules at the requested severity', async () => {
@@ -1059,27 +834,20 @@ describe('runLint with embedded inputs', () => {
       { apiDescriptions: { rules: { 'recheck/line-length': 'warn' } } },
       ['recheck/markdown']
     );
-    const logger = collectingLogger();
-    const exitCode = await runLint(
-      dir,
-      config,
-      {
-        format: 'json',
+    const result = completed(
+      await runLint(dir, config, {
         severity: 'error',
         rules: ['recheck/line-length'],
         embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
-      },
-      logger
+      })
     );
-    const report = JSON.parse(logger.outputs.join(''));
-    const lineLengthIssues = report.issues.filter(
-      (issue: { ruleName: string }) => issue.ruleName === 'recheck/line-length'
+    const lineLengthProblems = result.problems.filter(
+      (problem) => problem.ruleName === 'recheck/line-length'
     );
-    expect(exitCode).toBe(1);
-    expect(lineLengthIssues).toHaveLength(1);
-    expect(lineLengthIssues[0].file).toBe(path.join(dir, 'page.md'));
-    expect(logger.lines.join('\n')).not.toContain('no rule in this configuration matches');
-    expect(logger.errors.join('\n')).not.toContain('no rule in this configuration matches');
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+    expect(lineLengthProblems).toHaveLength(1);
+    expect(lineLengthProblems[0].file).toBe(path.join(dir, 'page.md'));
+    expect(result.executedDescriptionRuleCount).toBe(0);
   });
 
   it('counts a parsed API file with no descriptions as scanned, so its baseline entry goes stale', async () => {
@@ -1091,13 +859,14 @@ describe('runLint with embedded inputs', () => {
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
     const apiFile = path.join(dir, 'openapi.yaml');
 
-    const withApiFiles = collectingLogger();
-    await runLint([], config, { embeddedInputs: [], apiFiles: [apiFile] }, withApiFiles);
-    expect(withApiFiles.lines.join('\n')).toContain('1 stale');
+    const withApiFiles = completed(
+      await runLint([], config, { embeddedInputs: [], apiFiles: [apiFile] })
+    );
+    expect(withApiFiles.baseline?.stale).toBe(1);
+    expect(withApiFiles.scannedDescriptionFileCount).toBe(1);
 
-    const withoutApiFiles = collectingLogger();
-    await runLint([], config, { embeddedInputs: [] }, withoutApiFiles);
-    expect(withoutApiFiles.lines.join('\n')).toContain('0 stale');
+    const withoutApiFiles = completed(await runLint([], config, { embeddedInputs: [] }));
+    expect(withoutApiFiles.baseline?.stale).toBe(0);
   });
 
   it('keeps the baseline entry of an unreadable API file out of the stale check', async () => {
@@ -1108,18 +877,171 @@ describe('runLint with embedded inputs', () => {
     );
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
 
-    const withUnreadable = collectingLogger();
-    const exitCode = await runLint(
-      dir,
-      config,
-      { embeddedInputs: [], apiFiles: [], unreadableFiles: [path.join(dir, 'openapi.yaml')] },
-      withUnreadable
+    const withUnreadable = completed(
+      await runLint(dir, config, {
+        embeddedInputs: [],
+        apiFiles: [],
+        unreadableFiles: [path.join(dir, 'openapi.yaml')],
+      })
     );
-    expect(withUnreadable.lines.join('\n')).toContain('0 stale');
-    expect(exitCode).toBe(0);
+    expect(withUnreadable.baseline?.stale).toBe(0);
+    expect(errorsIn(withUnreadable.problems)).toHaveLength(0);
 
-    const withoutUnreadable = collectingLogger();
-    await runLint(dir, config, { embeddedInputs: [], apiFiles: [] }, withoutUnreadable);
-    expect(withoutUnreadable.lines.join('\n')).toContain('1 stale');
+    const withoutUnreadable = completed(
+      await runLint(dir, config, { embeddedInputs: [], apiFiles: [] })
+    );
+    expect(withoutUnreadable.baseline?.stale).toBe(1);
+  });
+});
+
+describe('runLint result', () => {
+  const tempDirs: string[] = [];
+
+  async function makeTempDir(): Promise<string> {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-result-'));
+    tempDirs.push(dir);
+    return dir;
+  }
+
+  afterEach(async () => {
+    for (const dir of tempDirs.splice(0)) {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('returns the run as data instead of printing it', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint(dir, config, {});
+    expect(result.status).toBe('completed');
+    if (result.status !== 'completed') return;
+    expect(result.roots).toEqual([dir]);
+    expect(result.filesFound).toBe(1);
+    expect(result.scannedFileCount).toBe(1);
+    expect(result.empty).toBe(false);
+    expect(result.problems.map((problem) => problem.ruleName)).toContain('recheck/line-length');
+    expect(result.fixes).toBeUndefined();
+    expect(result.baseline).toBeUndefined();
+  });
+
+  it('reports an unknown rule name as a result, not an exception', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint(dir, config, { rules: ['recheck/no-such-rule'] });
+    expect(result.status).toBe('unknown-rule');
+    if (result.status !== 'unknown-rule') return;
+    expect(result.available).toContain('recheck/line-length');
+  });
+
+  it('counts the rules that run and the rules that severity off disables', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    const config = await resolveConfig(dir, {
+      rules: {
+        'recheck/no-todos': {
+          severity: 'warn',
+          message: 'TODO found',
+          assertions: { pattern: { tokens: ['TODO'] } },
+        },
+        'recheck/muted-rule': {
+          severity: 'off',
+          message: 'Never fires',
+          assertions: { pattern: { tokens: ['Page'] } },
+        },
+      },
+    });
+    const report = completed(await runLint(dir, config, {}));
+    expect(report.ruleCount).toBe(1);
+    expect(report.disabledRuleCount).toBe(1);
+  });
+
+  it('reports how many files the changed list kept', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'kept.md'), '# Kept\n');
+    await fs.writeFile(path.join(dir, 'other.md'), '# Other\n');
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${path.join(dir, 'kept.md')}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const report = completed(await runLint(dir, config, { changedOnly: true, changedListPath }));
+    expect(report.filesFound).toBe(2);
+    expect(report.changedFilter).toEqual({ provided: true, matched: 1 });
+    expect(report.scannedFileCount).toBe(1);
+
+    const emptyListPath = path.join(dir, 'empty.txt');
+    await fs.writeFile(emptyListPath, '');
+    const unfiltered = completed(
+      await runLint(dir, config, { changedOnly: true, changedListPath: emptyListPath })
+    );
+    expect(unfiltered.changedFilter).toEqual({ provided: false, matched: 0 });
+    expect(unfiltered.empty).toBe(true);
+  });
+
+  it('suppresses baselined errors and reports the baseline counts', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    await fs.writeFile(
+      path.join(dir, '.redocly.recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  page.md:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const report = completed(await runLint(dir, config, {}));
+    expect(report.baseline).toEqual({ matched: 1, new: 0, stale: 0 });
+    expect(report.problems.map((problem) => problem.ruleName)).not.toContain('recheck/line-length');
+  });
+
+  it('reports a baseline file that disappears before the run', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    const baselinePath = path.join(dir, '.redocly.recheck-baseline.yaml');
+    await fs.writeFile(baselinePath, 'version: 1\nfiles: {}\n');
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    await fs.rm(baselinePath);
+    const result = await runLint(dir, config, {});
+    expect(result).toMatchObject({
+      status: 'baseline-missing',
+      baselinePath,
+      report: { filesFound: 1, scannedFileCount: 1 },
+    });
+  });
+
+  it('carries the fix report when the baseline file disappears before the run', async () => {
+    const dir = await makeTempDir();
+    const pagePath = path.join(dir, 'page.md');
+    await fs.writeFile(pagePath, '# Page\nThis has trailing spaces   \nAnother line');
+    const baselinePath = path.join(dir, '.redocly.recheck-baseline.yaml');
+    await fs.writeFile(baselinePath, 'version: 1\nfiles: {}\n');
+    const config = await resolveConfig(dir, {
+      rules: {
+        'recheck/no-trailing-spaces': {
+          severity: 'error',
+          message: 'No trailing spaces',
+          assertions: { 'no-trailing-spaces': {} },
+        },
+      },
+    });
+    expect(config.baselinePath).toBe(baselinePath);
+    await fs.rm(baselinePath);
+
+    const result = await runLint(dir, config, { fix: true });
+    expect(result.status).toBe('baseline-missing');
+    if (result.status !== 'baseline-missing') return;
+    expect(result.report.fixes?.applied.length).toBeGreaterThan(0);
+    expect(await fs.readFile(pagePath, 'utf8')).toBe(
+      '# Page\nThis has trailing spaces\nAnother line'
+    );
+  });
+
+  it('reports an engine error as a failed result', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    await fs.writeFile(path.join(dir, '.redocly.recheck-baseline.yaml'), 'version: 2\n');
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint(dir, config, {});
+    expect(result.status).toBe('failed');
+    if (result.status !== 'failed') return;
+    expect(result.message).toContain('unsupported version 2');
   });
 });

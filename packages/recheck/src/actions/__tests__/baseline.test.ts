@@ -84,9 +84,10 @@ describe('generateBaseline', () => {
     // The baseline is discovered by presence, so the config resolves again
     // now that the file exists.
     const configWithBaseline = await resolveConfig(dir, {}, ['recheck/markdown']);
-    const logger = collectingLogger();
-    const exitCode = await runLint([], configWithBaseline, { embeddedInputs, isIgnored }, logger);
-    expect(logger.lines.join('\n')).toContain('0 stale');
-    expect(exitCode).toBe(0);
+    const result = await runLint([], configWithBaseline, { embeddedInputs, isIgnored });
+    expect(result.status).toBe('completed');
+    if (result.status !== 'completed') return;
+    expect(result.baseline).toEqual({ matched: 0, new: 0, stale: 0 });
+    expect(result.problems.filter((problem) => problem.severity === 'error')).toHaveLength(0);
   });
 });
