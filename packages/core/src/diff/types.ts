@@ -59,8 +59,10 @@ export type JudgedChange = Change & { impact: Impact; verdicts: RuleVerdict[] };
 export type DiffSummary = Record<Impact, number>;
 
 export type DiffResult = {
-  version: '1';
+  files: { base: string; revision: string };
   specVersions: { base: SpecVersion; revision: SpecVersion };
+  /** The `info.version` each document declares, when it is a string. */
+  infoVersions: { base?: string; revision?: string };
   summary: DiffSummary;
   bump?: Impact;
   changes: JudgedChange[];

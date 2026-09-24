@@ -10,7 +10,7 @@ export const RefTargetChanged: DiffRule = () => ({
   any(change, { report }) {
     if (change.kind !== 'modified' || change.property !== '$ref') return;
     report({
-      message: `The reference target changed from ${describeTarget(change.base.value)} to ${describeTarget(
+      message: `Reference target changed from ${describeTarget(change.base.value)} to ${describeTarget(
         change.revision.value
       )}. The diff cannot check that the two targets are equivalent.`,
     });

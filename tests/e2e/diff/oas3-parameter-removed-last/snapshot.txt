@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  removed   parameters
-      Every parameter was removed. (parameter-removed)
+      All parameters were removed. (parameter-removed)
       at base.yaml:9:9
 
 1 major, 0 minor, 0 patch.

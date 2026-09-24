@@ -1,5 +1,5 @@
 import type { DiffRule, DiffVisit } from '../types.js';
-import { breakingDirection } from './utils.js';
+import { breakingDirection, ofSchema } from './utils.js';
 
 // `oneOf`/`anyOf` list alternatives, so dropping one accepts less; `allOf` combines
 // constraints, so adding one accepts less. Only the OpenAPI type tree names each list after
@@ -11,7 +11,10 @@ function combinatorChanged(combinator: 'allOf' | 'anyOf' | 'oneOf'): DiffVisit {
     const removed = change.kind === 'removed';
     const acceptsLess = combinator === 'allOf' ? !removed : removed;
     if (directions.includes(breakingDirection(acceptsLess))) {
-      report({ message: `A \`${combinator}\` subschema was ${removed ? 'removed' : 'added'}.` });
+      const owner = ofSchema(change.node.parent?.parent);
+      report({
+        message: `\`${combinator}\` subschema${owner} was ${removed ? 'removed' : 'added'}.`,
+      });
     }
   };
 }

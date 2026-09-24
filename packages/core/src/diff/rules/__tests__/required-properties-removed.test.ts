@@ -81,7 +81,7 @@ describe('required-properties-removed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/required",
-              "message": "Properties are no longer required: quantity.",
+              "message": "Properties are no longer required: \`quantity\`.",
               "ruleId": "required-properties-removed",
             },
           ],

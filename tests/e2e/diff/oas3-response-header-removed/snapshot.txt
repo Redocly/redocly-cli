@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  removed   responses/200/headers
-      The response headers were removed. (response-header-removed)
+      All headers of response `200` were removed. (response-header-removed)
       at base.yaml:12:13
 
 1 major, 0 minor, 0 patch.

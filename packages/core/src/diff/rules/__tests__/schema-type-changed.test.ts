@@ -50,7 +50,7 @@ describe('schema-type-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
-              "message": "Schema type narrowed from 'number' to 'integer'.",
+              "message": "Type narrowed from 'number' to 'integer'.",
               "ruleId": "schema-type-changed",
             },
           ],
@@ -115,7 +115,7 @@ describe('schema-type-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
-              "message": "Schema type widened from 'integer' to 'number'.",
+              "message": "Type widened from 'integer' to 'number'.",
               "ruleId": "schema-type-changed",
             },
           ],
@@ -150,7 +150,7 @@ describe('schema-type-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
-              "message": "Schema type narrowed from 'number | null' to 'number'.",
+              "message": "Type narrowed from 'number | null' to 'number'.",
               "ruleId": "schema-type-changed",
             },
           ],

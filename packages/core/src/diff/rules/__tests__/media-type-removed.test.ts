@@ -46,7 +46,7 @@ describe('media-type-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1menu/get/responses/200/content/text~1csv",
-              "message": "Media type was removed.",
+              "message": "Media type \`text/csv\` was removed.",
               "ruleId": "media-type-removed",
             },
           ],

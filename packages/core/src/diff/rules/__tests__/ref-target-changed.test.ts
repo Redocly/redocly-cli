@@ -52,7 +52,7 @@ describe('ref-target-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1menu~1{menuItemId}/get/responses/200/content/application~1json/schema/$ref",
-              "message": "The reference target changed from '#/components/schemas/Beverage' to '#/components/schemas/Dessert'. The diff cannot check that the two targets are equivalent.",
+              "message": "Reference target changed from '#/components/schemas/Beverage' to '#/components/schemas/Dessert'. The diff cannot check that the two targets are equivalent.",
               "ruleId": "ref-target-changed",
             },
           ],

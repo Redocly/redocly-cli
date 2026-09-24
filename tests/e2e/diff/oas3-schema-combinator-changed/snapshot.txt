@@ -1,6 +1,6 @@
 POST /pets
   ✖ major  removed   requestBody/content/application/json/schema/oneOf/1
-      A `oneOf` subschema was removed. (schema-combinator-changed)
+      `oneOf` subschema was removed. (schema-combinator-changed)
       at base.yaml:14:19
 
 1 major, 0 minor, 0 patch.

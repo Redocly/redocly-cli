@@ -1,5 +1,6 @@
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { DiffRule } from '../types.js';
+import { describeParameter } from './utils.js';
 
 function hasRequiredParameter(parameters: unknown[]): boolean {
   return parameters.some((parameter) => isPlainObject(parameter) && parameter.required === true);
@@ -11,13 +12,13 @@ export const ParameterAddedRequired: DiffRule = () => ({
   Parameter(change, { report, directions }) {
     if (change.kind !== 'added' || !directions.includes('request')) return;
     if (hasRequiredParameter([change.revision.value])) {
-      report({ message: 'A new required parameter was added.' });
+      report({ message: `Required ${describeParameter(change.node)} was added.` });
     }
   },
   ParameterList(change, { report, directions }) {
     if (change.kind !== 'added' || !directions.includes('request')) return;
     if (Array.isArray(change.revision.value) && hasRequiredParameter(change.revision.value)) {
-      report({ message: 'A new required parameter was added.' });
+      report({ message: 'Required parameters were added.' });
     }
   },
 });

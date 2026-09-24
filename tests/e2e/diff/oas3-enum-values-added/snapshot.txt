@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  modified  responses/200/content/application/json/schema · enum
-      Enum values added: sold. (enum-values-added)
+      Enum gained values: 'sold'. (enum-values-added)
       at revision.yaml:15:23
 
 1 major, 0 minor, 0 patch.

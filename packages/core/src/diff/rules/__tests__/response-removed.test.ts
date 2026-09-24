@@ -43,7 +43,7 @@ describe('response-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders~1{orderId}/get/responses/404",
-              "message": "Response was removed.",
+              "message": "Response \`404\` was removed.",
               "ruleId": "response-removed",
             },
           ],

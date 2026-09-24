@@ -1,6 +1,6 @@
-channels
-  ✖ major  modified  userSignedUp/messages/signup/payload · required
-      Properties became required: plan. (required-properties-added)
+channel userSignedUp
+  ✖ major  modified  messages/signup/payload · required
+      Properties became required: `plan`. (required-properties-added)
       at revision.yaml:14:13
 
 1 major, 0 minor, 0 patch.

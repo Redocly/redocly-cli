@@ -43,7 +43,7 @@ describe('operation-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders~1{orderId}/delete",
-              "message": "Operation was removed.",
+              "message": "Operation \`DELETE /orders/{orderId}\` was removed.",
               "ruleId": "operation-removed",
             },
           ],

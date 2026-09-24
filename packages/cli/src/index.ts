@@ -158,7 +158,7 @@ yargs(hideBin(process.argv))
               'markdown',
               'html',
               'github-actions',
-              // TODO: 'next-version'
+              'next-version',
             ] as ReadonlyArray<DiffOutputFormat>,
             default: 'stylish' as const,
           },

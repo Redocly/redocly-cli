@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  modified  parameters/{query:limit} · required
-      Parameter became required. (parameter-became-required)
+      `limit` query parameter became required. (parameter-became-required)
       at revision.yaml:11:21
 
 1 major, 0 minor, 0 patch.

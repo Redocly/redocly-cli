@@ -1,6 +1,6 @@
 DELETE /pets
-  ✖ major  removed   paths · /pets · delete
-      Operation was removed. (operation-removed)
+  ✖ major  removed
+      Operation `DELETE /pets` was removed. (operation-removed)
       at base.yaml:12:7
 
 1 major, 0 minor, 0 patch.
