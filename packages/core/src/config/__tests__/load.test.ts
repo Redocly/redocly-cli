@@ -2725,22 +2725,16 @@ describe('loadConfig', () => {
   });
 
   it('should resolve file paths written in a remote config file against its URL', async () => {
-    const fixturesDir = path.join(__dirname, './fixtures/resolve-refs-in-config/remote');
     const externalRefResolver = new BaseResolver();
     const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
     vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation((base, ref, isRoot) =>
       isAbsoluteUrl(ref)
-        ? Promise.resolve(
-            makeDocumentFromString(
-              fs.readFileSync(path.join(fixturesDir, 'apis.yaml'), 'utf8'),
-              ref
-            )
-          )
+        ? Promise.resolve(makeDocumentFromString('remote:\n  root: ./openapi.yaml\n', ref))
         : resolveLocalDocument(base, ref, isRoot)
     );
 
     const { resolvedConfig } = await loadConfig({
-      configPath: path.join(fixturesDir, 'redocly.yaml'),
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/remote/redocly.yaml'),
       externalRefResolver,
     });
 

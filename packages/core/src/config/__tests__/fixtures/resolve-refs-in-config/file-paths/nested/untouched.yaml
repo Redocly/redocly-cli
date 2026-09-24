@@ -1,4 +1,0 @@
-root: https://example.com/openapi.yaml
-output: /absolute/dist/openapi.yaml
-clientOutput: ''
-title: ./not-a-path
