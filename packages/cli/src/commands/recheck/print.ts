@@ -64,6 +64,53 @@ async function printEmptyReport(presentation: LintPresentation): Promise<void> {
   }
 }
 
+// Prints the lines the engine printed before it reached the report or an error.
+function printPreamble(report: LintRunReport): void {
+  if (report.disabledRuleCount > 0) {
+    info(`   Disabled ${report.disabledRuleCount} rule(s) (severity: off)`);
+  }
+  info(cyan(`\n🔧 Running ${report.ruleCount} rule(s)...`));
+  if (report.empty) return;
+  if (report.filesFound === 0) {
+    info(yellow(`⚠️  No markdown files found in: ${report.roots.join(', ')}`));
+  }
+  info(`   Found ${report.filesFound} markdown file(s)`);
+  if (report.changedFilter?.provided) {
+    info(`   Filtering to ${report.changedFilter.matched} changed file(s)`);
+  }
+  for (const filePath of report.unreadableFiles) {
+    info(yellow(`   Warning: Could not read file ${filePath}`));
+  }
+  if (report.unreadableFiles.length > 0) {
+    info(
+      yellow(
+        `   Warning: Skipped ${report.unreadableFiles.length} unreadable file(s); linting ${report.scannedFileCount} file(s)`
+      )
+    );
+  }
+  printFixBlock(report);
+}
+
+function printFixBlock(report: LintRunReport): void {
+  if (!report.fixes) return;
+  info(cyan(`\n🔧 Auto-fixing issues...`));
+  if (report.fixes.applied.length > 0) {
+    info(green(`✅ Auto-fixed ${report.fixes.applied.length} issue(s)!`));
+    reportFixes(report.fixes.applied, engineLogger);
+  } else {
+    info(yellow(`⚠️  No auto-fixable issues found.`));
+  }
+  if (report.fixes.skippedCount > 0) {
+    info(
+      yellow(
+        `⚠️  ${report.fixes.skippedCount} proposed fix(es) were not applied — either the edits ` +
+          `still conflicted after repeated passes, or the fix was withheld to avoid ` +
+          `rewriting a Markdoc tag — fix the reported issue(s) manually.`
+      )
+    );
+  }
+}
+
 export async function printLintRun(
   result: LintRunResult,
   presentation: LintPresentation,
@@ -75,6 +122,7 @@ export async function printLintRun(
     return 1;
   }
   if (result.status === 'baseline-missing') {
+    printPreamble(result.report);
     info(red(`❌ Baseline file not found: ${result.baselinePath}`));
     info(
       '   Run `redocly recheck --generate-baseline` to create it, or remove the `baseline` key from the recheck block.'
@@ -82,6 +130,7 @@ export async function printLintRun(
     return 1;
   }
   if (result.status === 'failed') {
+    printPreamble(result.report);
     return printFailure(result.message, timer);
   }
 
@@ -93,73 +142,39 @@ export async function printLintRun(
   }
 }
 
+// Prints the rest of a run that ended before the rules ran, then an empty report.
+async function printEmptyRun(
+  result: LintRunReport,
+  presentation: LintPresentation,
+  timer: Timer
+): Promise<number> {
+  if (result.filesFound === 0) {
+    info(yellow(`⚠️  No markdown files found in: ${result.roots.join(', ')}`));
+    await printEmptyReport(presentation);
+    info(`   Completed in ${timer.elapsedString()}`);
+    return 0;
+  }
+  info(`   Found ${result.filesFound} markdown file(s)`);
+  if (!result.changedFilter?.provided) {
+    info(
+      yellow('   Warning: --changed-only set, but no changed files were provided. Nothing to scan.')
+    );
+    await printEmptyReport(presentation);
+    return 0;
+  }
+  info(`   Filtering to ${result.changedFilter.matched} changed file(s)`);
+  info(yellow('   Warning: No changed markdown files matched.'));
+  await printEmptyReport(presentation);
+  return 0;
+}
+
 async function printCompletedRun(
   result: LintRunReport,
   presentation: LintPresentation,
   timer: Timer
 ): Promise<number> {
-  if (result.disabledRuleCount > 0) {
-    info(`   Disabled ${result.disabledRuleCount} rule(s) (severity: off)`);
-  }
-  info(cyan(`\n🔧 Running ${result.ruleCount} rule(s)...`));
-
-  if (result.filesFound === 0) {
-    info(yellow(`⚠️  No markdown files found in: ${result.roots.join(', ')}`));
-    if (result.empty) {
-      await printEmptyReport(presentation);
-      info(`   Completed in ${timer.elapsedString()}`);
-      return 0;
-    }
-  }
-  info(`   Found ${result.filesFound} markdown file(s)`);
-
-  if (result.changedFilter) {
-    if (!result.changedFilter.provided) {
-      info(
-        yellow(
-          '   Warning: --changed-only set, but no changed files were provided. Nothing to scan.'
-        )
-      );
-      await printEmptyReport(presentation);
-      return 0;
-    }
-    info(`   Filtering to ${result.changedFilter.matched} changed file(s)`);
-    if (result.changedFilter.matched === 0) {
-      info(yellow('   Warning: No changed markdown files matched.'));
-      await printEmptyReport(presentation);
-      return 0;
-    }
-  }
-
-  for (const filePath of result.unreadableFiles) {
-    info(yellow(`   Warning: Could not read file ${filePath}`));
-  }
-  if (result.unreadableFiles.length > 0) {
-    info(
-      yellow(
-        `   Warning: Skipped ${result.unreadableFiles.length} unreadable file(s); linting ${result.scannedFileCount} file(s)`
-      )
-    );
-  }
-
-  if (result.fixes) {
-    info(cyan(`\n🔧 Auto-fixing issues...`));
-    if (result.fixes.applied.length > 0) {
-      info(green(`✅ Auto-fixed ${result.fixes.applied.length} issue(s)!`));
-      reportFixes(result.fixes.applied, engineLogger);
-    } else {
-      info(yellow(`⚠️  No auto-fixable issues found.`));
-    }
-    if (result.fixes.skippedCount > 0) {
-      info(
-        yellow(
-          `⚠️  ${result.fixes.skippedCount} proposed fix(es) were not applied — either the edits ` +
-            `still conflicted after repeated passes, or the fix was withheld to avoid ` +
-            `rewriting a Markdoc tag — fix the reported issue(s) manually.`
-        )
-      );
-    }
-  }
+  printPreamble(result);
+  if (result.empty) return printEmptyRun(result, presentation, timer);
 
   if (result.baseline) {
     info(

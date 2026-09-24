@@ -38,8 +38,8 @@ export interface LintRunReport {
 
 export type LintRunResult =
   | { status: 'unknown-rule'; message: string; available: string[] }
-  | { status: 'baseline-missing'; baselinePath: string }
-  | { status: 'failed'; message: string }
+  | { status: 'baseline-missing'; baselinePath: string; report: LintRunReport }
+  | { status: 'failed'; message: string; report: LintRunReport }
   | ({ status: 'completed' } & LintRunReport);
 
 /**
@@ -152,7 +152,7 @@ export async function runLint(
       try {
         baselineText = await fs.readFile(config.baselinePath, 'utf8');
       } catch {
-        return { status: 'baseline-missing', baselinePath: config.baselinePath };
+        return { status: 'baseline-missing', baselinePath: config.baselinePath, report };
       }
       const baseline = parseBaseline(baselineText, config.baselinePath);
       const toKey = baselineKeyMapper(config.configDir);
@@ -177,6 +177,7 @@ export async function runLint(
     return {
       status: 'failed',
       message: error instanceof Error ? error.message : 'Unknown error',
+      report,
     };
   }
 }

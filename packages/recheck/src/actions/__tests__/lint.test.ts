@@ -697,7 +697,38 @@ describe('runLint result', () => {
     const config = await resolveConfig(dir, {}, ['recheck/markdown']);
     await fs.rm(baselinePath);
     const result = await runLint(dir, config, {});
-    expect(result).toEqual({ status: 'baseline-missing', baselinePath });
+    expect(result).toMatchObject({
+      status: 'baseline-missing',
+      baselinePath,
+      report: { filesFound: 1, scannedFileCount: 1 },
+    });
+  });
+
+  it('carries the fix report when the baseline file disappears before the run', async () => {
+    const dir = await makeTempDir();
+    const pagePath = path.join(dir, 'page.md');
+    await fs.writeFile(pagePath, '# Page\nThis has trailing spaces   \nAnother line');
+    const baselinePath = path.join(dir, '.redocly.recheck-baseline.yaml');
+    await fs.writeFile(baselinePath, 'version: 1\nfiles: {}\n');
+    const config = await resolveConfig(dir, {
+      rules: {
+        'recheck/no-trailing-spaces': {
+          severity: 'error',
+          message: 'No trailing spaces',
+          assertions: { 'no-trailing-spaces': {} },
+        },
+      },
+    });
+    expect(config.baselinePath).toBe(baselinePath);
+    await fs.rm(baselinePath);
+
+    const result = await runLint(dir, config, { fix: true });
+    expect(result.status).toBe('baseline-missing');
+    if (result.status !== 'baseline-missing') return;
+    expect(result.report.fixes?.applied.length).toBeGreaterThan(0);
+    expect(await fs.readFile(pagePath, 'utf8')).toBe(
+      '# Page\nThis has trailing spaces\nAnother line'
+    );
   });
 
   it('reports an engine error as a failed result', async () => {
