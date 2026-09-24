@@ -1,4 +1,4 @@
-import { parseYaml } from '@redocly/openapi-core';
+import { bundle, createConfig, parseYaml } from '@redocly/openapi-core';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -77,6 +77,54 @@ describe('codeSamples', () => {
       expect(sourceOf('python')).toContain('from openapi_client import Client');
       expect(sourceOf('php')).toContain("require 'openapi.client.php'");
       expect(sourceOf('go')).toContain('cafe.New(cafe.Config{})');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('emits targets that the bundle command applies, including quoted and referenced path items', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'code-samples-bundle-'));
+    try {
+      await writeFile(
+        join(dir, 'openapi.yaml'),
+        outdent`
+          openapi: 3.1.0
+          info: { title: t, version: '1' }
+          paths:
+            /pets:
+              $ref: '#/components/pathItems/Pets'
+            /o'clock:
+              get:
+                operationId: getTime
+                responses: { '200': { description: ok } }
+          components:
+            pathItems:
+              Pets:
+                get:
+                  operationId: listPets
+                  responses: { '200': { description: ok } }
+        `
+      );
+      await generateClient({
+        api: join(dir, 'openapi.yaml'),
+        output: join(dir, 'client.ts'),
+        codeSamples: true,
+      });
+
+      const { bundle: result, problems } = await bundle({
+        ref: join(dir, 'openapi.yaml'),
+        config: await createConfig({}),
+        overlays: [join(dir, 'client.code-samples.yaml')],
+      });
+
+      expect(problems).toEqual([]);
+      const { paths, components } = result.parsed as {
+        paths: Record<string, { get: Record<string, unknown> }>;
+        components: { pathItems: Record<string, { get: Record<string, unknown> }> };
+      };
+      // Overlays don't follow `$ref`s, so the samples go where the path item is declared.
+      expect(components.pathItems.Pets.get['x-codeSamples']).toHaveLength(1);
+      expect(paths["/o'clock"].get['x-codeSamples']).toHaveLength(1);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

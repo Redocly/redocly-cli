@@ -60,6 +60,15 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 
 ---
 
+- overlays
+- [string]
+- Paths or URLs of [Overlay](https://spec.openapis.org/overlay/latest.html) files that the `bundle` command applies to this API, in order.
+  Paths are relative to the configuration file.
+  The `--overlay` option replaces this list.
+  See [Apply overlays](../../commands/bundle.md#apply-overlays).
+
+---
+
 - client
 - [Client object](./client.md)
 - TypeScript client generation configuration override for this API, used by the `generate-client` command.

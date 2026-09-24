@@ -1187,3 +1187,95 @@ describe('bundle with --component-names-strategy title', () => {
     `);
   });
 });
+
+describe('bundle with overlays', () => {
+  it('should apply overlays before decorators and bundle the files they reference', async () => {
+    const overlayPath = path.join(__dirname, 'fixtures/overlay/overlays/public.yaml');
+    const {
+      bundle: res,
+      problems,
+      fileDependencies,
+    } = await bundle({
+      config: await createConfig({ decorators: { 'remove-x-internal': 'on' } }),
+      ref: path.join(__dirname, 'fixtures/overlay/openapi.yaml'),
+      overlays: [overlayPath],
+      removeUnusedComponents: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    expect(fileDependencies).toContain(overlayPath);
+    expect(res.parsed).toMatchInlineSnapshot(`
+      openapi: 3.1.0
+      info:
+        title: Museum API
+        version: 1.0.0
+      paths:
+        /tickets:
+          get:
+            summary: List tickets
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      $ref: '#/components/schemas/Ticket'
+      components:
+        schemas:
+          Ticket:
+            type: object
+            properties:
+              id:
+                type: string
+
+    `);
+  });
+
+  it('should dereference after applying overlays', async () => {
+    const { bundle: res, problems } = await bundle({
+      config: await createConfig({}),
+      ref: path.join(__dirname, 'fixtures/overlay/recursive.yaml'),
+      overlays: [path.join(__dirname, 'fixtures/overlay/recursive-overlay.yaml')],
+      dereference: true,
+    });
+
+    expect(problems).toHaveLength(0);
+    const schema = (res.parsed as any).paths['/nodes'].get.responses['200'].content[
+      'application/json'
+    ].schema;
+    expect(schema.description).toBe('A tree node');
+    expect(schema.properties.children.items.description).toBe('A tree node');
+    expect(schema.properties.children.description).toBe('Child nodes');
+  });
+
+  it('should report an unresolved ref once when dereferencing after overlays', async () => {
+    const { problems } = await bundle({
+      config: await createConfig({}),
+      doc: parseYamlToDocument(
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Museum API
+            version: 1.0.0
+          components:
+            schemas:
+              Ticket:
+                $ref: ./missing.yaml
+        `,
+        path.join(__dirname, 'fixtures/overlay/openapi.yaml')
+      ),
+      overlays: [path.join(__dirname, 'fixtures/overlay/overlays/public.yaml')],
+      dereference: true,
+    });
+
+    expect(problems.map(({ message }) => message.split(':')[0])).toEqual(["Can't resolve $ref"]);
+  });
+
+  it('should reject an overlay that is not an Overlay document', async () => {
+    const apiPath = path.join(__dirname, 'fixtures/overlay/openapi.yaml');
+
+    await expect(
+      bundle({ config: await createConfig({}), ref: apiPath, overlays: [apiPath] })
+    ).rejects.toThrowError(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
+  });
+});

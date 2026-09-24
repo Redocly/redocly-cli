@@ -436,6 +436,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Decorators": "Decorators",
       "overlay1Preprocessors": "Preprocessors",
       "overlay1Rules": "Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
@@ -1824,6 +1830,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "SelectorObject",
           "Actions",
           "Action",
+          "ReusableActions",
+          "ReusableAction",
+          "ReusableActionFields",
           "Method",
           "MethodList",
           "ContentDescriptor",

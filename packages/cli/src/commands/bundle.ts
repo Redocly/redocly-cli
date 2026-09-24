@@ -2,6 +2,7 @@ import {
   formatProblems,
   getTotals,
   bundle,
+  isAbsoluteUrl,
   logger,
   type Oas2Definition,
   type Oas3Definition,
@@ -13,6 +14,7 @@ import {
 } from '@redocly/openapi-core';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
+import { dirname, resolve } from 'path';
 import { performance } from 'perf_hooks';
 
 import { type OutputExtension, type Totals } from '../types.js';
@@ -43,6 +45,7 @@ export type BundleArgv = {
   'component-names-strategy'?: ComponentNamesStrategy;
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
+  overlay?: string[];
 };
 
 export async function handleBundle({
@@ -53,6 +56,7 @@ export async function handleBundle({
 }: CommandArgs<BundleArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
+  const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
 
   for (const { path, alias, output } of apis) {
     try {
@@ -60,6 +64,11 @@ export async function handleBundle({
       const aliasConfig = config.forAlias(alias);
       aliasConfig.skipPreprocessors(argv['skip-preprocessor']);
       aliasConfig.skipDecorators(argv['skip-decorator']);
+      const overlays =
+        argv.overlay ??
+        aliasConfig.resolvedConfig.overlays?.map((overlay) =>
+          isAbsoluteUrl(overlay) ? overlay : resolve(configDir, overlay)
+        );
 
       if (alias === undefined) {
         logger.info(gray(`bundling ${formatPath(path)}...\n`));
@@ -81,6 +90,7 @@ export async function handleBundle({
         keepUrlRefs: argv['keep-url-references'],
         componentRenamingConflicts: argv['component-renaming-conflicts-severity'],
         componentNamesStrategy: argv['component-names-strategy'],
+        overlays,
         collectSpecData,
       });
 

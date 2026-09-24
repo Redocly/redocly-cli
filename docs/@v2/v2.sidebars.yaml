@@ -78,6 +78,8 @@
           page: guides/hide-apis.md
         - label: Replace the servers URL
           page: guides/replace-servers-url.md
+        - label: Apply overlays
+          page: guides/apply-overlays.md
         - label: Enforce response contents
           page: guides/response-contains-property.md
         - page: guides/lint-asyncapi.md
