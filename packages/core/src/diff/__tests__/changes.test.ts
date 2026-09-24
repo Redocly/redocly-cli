@@ -1,106 +1,179 @@
-import type { NodeEntry, NodeValue } from '../../node-tree/types.js';
-import { Location } from '../../ref-utils.js';
-import { Source } from '../../resolve.js';
+import { outdent } from 'outdent';
+
+import { replaceSourceWithRefInChanges } from '../../../__tests__/utils.js';
 import { collectChanges } from '../changes.js';
 import { buildDiffTree } from '../diff-tree.js';
+import { nodeTreeOf, treeOf } from './utils.js';
 
-const source = new Source('api.yaml', '');
-
-/** A root with one level of children, each given as `key: { type, value }`. */
-function documentOf(children: Record<string, { type?: string; value?: NodeValue }>) {
-  const root: NodeEntry = {
-    type: 'Root',
-    key: '',
-    location: new Location(source, '#/'),
-    value: {},
-    parent: null,
-    children: [],
-  };
-  const nodes = new Map<string, NodeEntry>([['#/', root]]);
-  for (const [key, { type = 'Schema', value = {} }] of Object.entries(children)) {
-    const node: NodeEntry = {
-      type,
-      key,
-      location: root.location.child([key]),
-      value,
-      parent: root,
-      children: [],
-    };
-    root.children.push(node);
-    nodes.set(node.location.pointer, node);
-  }
-  return nodes;
-}
-
-// No identity of its own: the structure alone decides.
-const changesBetween = (
-  base: ReturnType<typeof documentOf>,
-  revision: ReturnType<typeof documentOf>
-) => collectChanges(buildDiffTree(base.get('#/')!, revision.get('#/')!, {}).root);
-
-/** `kind key · property  base-pointer → revision-pointer` per change. */
-function summarize(changes: ReturnType<typeof collectChanges>): string[] {
-  return changes.map((change) => {
-    const property = change.kind === 'modified' ? ` · ${change.property}` : '';
-    const base = change.kind === 'added' ? '-' : change.base.location.pointer;
-    const revision = change.kind === 'removed' ? '-' : change.revision.location.pointer;
-    return `${change.kind} ${change.key}${property}  ${base} → ${revision}`;
-  });
-}
+const cafe = (menuItem: string) => outdent`
+  openapi: 3.1.0
+  info: { title: Cafe, version: 1.0.0 }
+  paths: {}
+  components:
+    schemas:
+      MenuItem: ${menuItem}
+`;
 
 describe('collectChanges', () => {
-  it('emits one modified change per differing property, located at the escaped property pointer', () => {
-    const base = documentOf({ a: { value: { type: 'integer', 'x/y': 1 } } });
-    const revision = documentOf({ a: { value: { type: 'number', 'x/y': 2 } } });
+  it('should report every property that differs, at its escaped pointer on each side', async () => {
+    const base = await nodeTreeOf(
+      cafe("{ type: integer, x-price/unit: cents, description: 'A drink' }")
+    );
+    const revision = await nodeTreeOf(
+      cafe("{ type: number, x-price/unit: euros, description: 'A drink' }")
+    );
 
-    expect(summarize(changesBetween(base, revision))).toEqual([
-      'modified #/a · type  #/a/type → #/a/type',
-      'modified #/a · x/y  #/a/x~1y → #/a/x~1y',
-    ]);
+    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+
+    expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "api.yaml#/components/schemas/MenuItem/type",
+            "value": "integer",
+          },
+          "key": "#/components/schemas/MenuItem",
+          "kind": "modified",
+          "property": "type",
+          "revision": {
+            "location": "api.yaml#/components/schemas/MenuItem/type",
+            "value": "number",
+          },
+        },
+        {
+          "base": {
+            "location": "api.yaml#/components/schemas/MenuItem/x-price~1unit",
+            "value": "cents",
+          },
+          "key": "#/components/schemas/MenuItem",
+          "kind": "modified",
+          "property": "x-price/unit",
+          "revision": {
+            "location": "api.yaml#/components/schemas/MenuItem/x-price~1unit",
+            "value": "euros",
+          },
+        },
+      ]
+    `);
   });
 
-  it('reports a removed node once, with the whole node as the value, and nothing below it', () => {
-    const base = documentOf({ a: { value: { b: { c: 1 } } } });
-    const nested: NodeEntry = {
-      type: 'Schema',
-      key: 'b',
-      location: new Location(source, '#/a/b'),
-      value: { c: 1 },
-      parent: base.get('#/a')!,
-      children: [],
-    };
-    base.get('#/a')!.children.push(nested);
-    base.set('#/a/b', nested);
+  it('should locate a property one side does not have at the node itself', async () => {
+    const base = await nodeTreeOf(cafe('{ type: object }'));
+    const revision = await nodeTreeOf(cafe('{ type: object, minProperties: 1 }'));
 
-    const changes = changesBetween(base, documentOf({}));
+    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
 
-    expect(summarize(changes)).toEqual(['removed #/a  #/a → -']);
-    expect(changes[0].kind === 'removed' && changes[0].base.value).toEqual({ b: { c: 1 } });
+    expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "api.yaml#/components/schemas/MenuItem",
+            "value": undefined,
+          },
+          "key": "#/components/schemas/MenuItem",
+          "kind": "modified",
+          "property": "minProperties",
+          "revision": {
+            "location": "api.yaml#/components/schemas/MenuItem/minProperties",
+            "value": 1,
+          },
+        },
+      ]
+    `);
   });
 
-  it('treats a node whose type changed as a removed+added pair at the same key', () => {
-    const base = documentOf({ a: { type: 'Schema' } });
-    const revision = documentOf({ a: { type: 'Parameter' } });
+  it('should report a removed node once, with its whole value, and nothing below it', async () => {
+    const base = await nodeTreeOf(cafe('{ properties: { price: { type: number, minimum: 0 } } }'));
+    const revision = await nodeTreeOf(cafe('{ properties: {} }'));
 
-    expect(summarize(changesBetween(base, revision))).toEqual([
-      'removed #/a  #/a → -',
-      'added #/a  - → #/a',
-    ]);
+    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+
+    expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "api.yaml#/components/schemas/MenuItem/properties/price",
+            "value": {
+              "minimum": 0,
+              "type": "number",
+            },
+          },
+          "key": "#/components/schemas/MenuItem/properties/price",
+          "kind": "removed",
+        },
+      ]
+    `);
   });
 
-  it('compares the target of a $ref node like any other value of it', () => {
-    const base = documentOf({ schema: { value: { $ref: '#/A' } } });
-    const revision = documentOf({ schema: { value: { $ref: '#/B' } } });
+  it('should report a node of another type in the same place as a removal and an addition', () => {
+    // The walker gives a place its type from the document, so the two sides can disagree.
+    const base = treeOf(`
+      #/ Root
+      #/components Components
+      #/components/examples NamedExamples
+      #/components/examples/latte Example
+    `);
+    const revision = treeOf(`
+      #/ Root
+      #/components Components
+      #/components/examples NamedExamples
+      #/components/examples/latte Schema
+    `);
 
-    const [change] = changesBetween(base, revision);
+    const changes = collectChanges(buildDiffTree(base.get('#/')!, revision.get('#/')!, {}).root);
 
-    expect(change.kind === 'modified' && change.property).toBe('$ref');
-    expect(change.kind === 'modified' && change.revision.value).toBe('#/B');
+    expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "tree.yaml#/components/examples/latte",
+            "value": {},
+          },
+          "key": "#/components/examples/latte",
+          "kind": "removed",
+        },
+        {
+          "key": "#/components/examples/latte",
+          "kind": "added",
+          "revision": {
+            "location": "tree.yaml#/components/examples/latte",
+            "value": {},
+          },
+        },
+      ]
+    `);
   });
 
-  it('emits nothing when the two documents are identical', () => {
-    const shape = { a: { value: { enum: ['x', 'y'] } } };
+  it('should compare a $ref by where it points', async () => {
+    const base = await nodeTreeOf(cafe("{ $ref: '#/components/schemas/Beverage' }"));
+    const revision = await nodeTreeOf(cafe("{ $ref: '#/components/schemas/Dessert' }"));
 
-    expect(changesBetween(documentOf(shape), documentOf(shape))).toEqual([]);
+    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+
+    expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "api.yaml#/components/schemas/MenuItem/$ref",
+            "value": "#/components/schemas/Beverage",
+          },
+          "key": "#/components/schemas/MenuItem",
+          "kind": "modified",
+          "property": "$ref",
+          "revision": {
+            "location": "api.yaml#/components/schemas/MenuItem/$ref",
+            "value": "#/components/schemas/Dessert",
+          },
+        },
+      ]
+    `);
+  });
+
+  it('should report nothing when the documents are the same', async () => {
+    const { root } = await nodeTreeOf(cafe('{ type: string, enum: [coffee, tea] }'));
+
+    const changes = collectChanges(buildDiffTree(root, root, {}).root);
+
+    expect(changes).toEqual([]);
   });
 });
