@@ -88,14 +88,14 @@ describe('collectChanges', () => {
     ]);
   });
 
-  it('compares a $ref the way it compares a scalar', () => {
-    const base = documentOf({ a: { value: { schema: { $ref: '#/A' } } } });
-    const revision = documentOf({ a: { value: { schema: { $ref: '#/B' } } } });
+  it('compares the target of a $ref node like any other value of it', () => {
+    const base = documentOf({ schema: { value: { $ref: '#/A' } } });
+    const revision = documentOf({ schema: { value: { $ref: '#/B' } } });
 
     const [change] = changesBetween(base, revision);
 
-    expect(change.kind === 'modified' && change.property).toBe('schema');
-    expect(change.kind === 'modified' && change.revision.value).toEqual({ $ref: '#/B' });
+    expect(change.kind === 'modified' && change.property).toBe('$ref');
+    expect(change.kind === 'modified' && change.revision.value).toBe('#/B');
   });
 
   it('emits nothing when the two documents are identical', () => {

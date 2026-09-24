@@ -24,8 +24,23 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   config.skipDiffRules(argv['skip-rule']);
 
-  const { bundle: baseDocument } = await bundle({ config, ref: basePath });
-  const { bundle: revisionDocument } = await bundle({ config, ref: revisionPath });
+  const { bundle: baseDocument, problems: baseProblems } = await bundle({ config, ref: basePath });
+  const { bundle: revisionDocument, problems: revisionProblems } = await bundle({
+    config,
+    ref: revisionPath,
+  });
+
+  const bundleProblems = [...baseProblems, ...revisionProblems];
+  if (bundleProblems.length) {
+    formatProblems(bundleProblems, {
+      format: 'codeframe',
+      totals: getTotals(bundleProblems),
+      command: 'bundle',
+    });
+    logger.warn(
+      '⚠️  The problems above leave parts of the descriptions unresolved, so the diff may miss changes there or judge them without knowing whether they are in a request or a response.\n'
+    );
+  }
 
   collectSpecData?.(revisionDocument);
 

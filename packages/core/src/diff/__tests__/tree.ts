@@ -1,7 +1,7 @@
 import type { NodeEntry, Reference } from '../../node-tree/types.js';
 import { Location } from '../../ref-utils.js';
 import { Source } from '../../resolve.js';
-import { directionsOf } from '../direction.js';
+import { resolveDirections } from '../direction.js';
 import type { DiffNode, Directions } from '../types.js';
 
 const source = new Source('tree.yaml', '');
@@ -68,5 +68,5 @@ export function directionsOfTree(
   edges: Array<[from: string, to: string]>,
   directions: Directions
 ) {
-  return directionsOf(referencesOfTree(entries, edges), diffNodesOfTree(entries), directions);
+  return resolveDirections(referencesOfTree(entries, edges), diffNodesOfTree(entries), directions);
 }

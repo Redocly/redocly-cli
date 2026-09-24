@@ -1,6 +1,6 @@
 import type { NodeEntry } from '../node-tree/types.js';
 import { escapePointerFragment, joinPointer } from '../ref-utils.js';
-import type { DiffNode, Identities } from './types.js';
+import type { DiffNode, Identities, NodeIdentity } from './types.js';
 
 export function latestOf(node: DiffNode): NodeEntry {
   return (node.revision ?? node.base)!;
@@ -23,7 +23,13 @@ export function buildDiffTree(
 ): { root: DiffNode; diffNodeOf: Map<NodeEntry, DiffNode> } {
   const diffNodeOf = new Map<NodeEntry, DiffNode>();
 
-  function addSubtree(node: DiffNode): DiffNode {
+  function addNode(
+    parent: DiffNode | null,
+    key: string,
+    sides: Pick<DiffNode, 'base' | 'revision'>
+  ): DiffNode {
+    const node: DiffNode = { ...sides, parent, children: [], key };
+    parent?.children.push(node);
     if (node.base) diffNodeOf.set(node.base, node);
     if (node.revision) diffNodeOf.set(node.revision, node);
 
@@ -53,27 +59,44 @@ export function buildDiffTree(
     const sharedKey = joinPointer(parent.key, segment);
     for (let index = 0; index < Math.max(baseNodes.length, revisionNodes.length); index++) {
       const key = index === 0 ? sharedKey : `${sharedKey}#${index + 1}`;
+      const base = baseNodes[index];
+      const revision = revisionNodes[index];
 
-      const add = (sides: Pick<DiffNode, 'base' | 'revision'>) =>
-        parent.children.push(addSubtree({ ...sides, parent, children: [], key }));
-
-      const baseNode = baseNodes[index];
-      const revisionNode = revisionNodes[index];
-      const typeChanged = baseNode && revisionNode && baseNode.type !== revisionNode.type;
-      if (typeChanged) {
+      if (base && revision && base.type !== revision.type) {
         // A different kind of node in the same place is a removal and an addition.
-        add({ base: baseNode });
-        add({ revision: revisionNode });
+        addNode(parent, key, { base });
+        addNode(parent, key, { revision });
       } else {
-        add({ base: baseNode, revision: revisionNode });
+        addNode(parent, key, { base, revision });
       }
     }
   }
 
-  return {
-    root: addSubtree({ base, revision, parent: null, children: [], key: '#/' }),
-    diffNodeOf,
-  };
+  return { root: addNode(null, '#/', { base, revision }), diffNodeOf };
+}
+
+/**
+ * What the specification says identifies a child of a container. A `$ref` is identified by what
+ * it points at, read at the place it is written, so a referenced parameter still has its name.
+ */
+export function identityOf(
+  child: NodeEntry,
+  container: string,
+  identities: Identities
+): NodeIdentity | undefined {
+  const subject = child.target ? { ...child.target, key: child.key, parent: child.parent } : child;
+  return identities[container]?.(subject);
+}
+
+// A list item has no name of its own: an inline one is known by its position, a `$ref` by the
+// node it points at, so reordering references is not a change.
+function segmentOf(child: NodeEntry, container: string, identities: Identities): string {
+  const identity = identityOf(child, container, identities);
+  if (identity) return identity.segment;
+  if (typeof child.key === 'number' && child.target) {
+    return `{${escapePointerFragment(child.target.location.pointer)}}`;
+  }
+  return escapePointerFragment(String(child.key));
 }
 
 function groupBySegment(
@@ -84,8 +107,7 @@ function groupBySegment(
   const groups = new Map<string, NodeEntry[]>();
 
   for (const node of nodes) {
-    const segment =
-      identities[container]?.(node)?.segment ?? escapePointerFragment(String(node.key));
+    const segment = segmentOf(node, container, identities);
     const group = groups.get(segment);
 
     if (group) {
