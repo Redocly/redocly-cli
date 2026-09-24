@@ -1,132 +1,151 @@
 import { outdent } from 'outdent';
 
-import { createConfig } from '../../config/index.js';
-import { detectSpec } from '../../detect-spec.js';
-import { buildNodeTree } from '../../node-tree/build.js';
-import { getTypes } from '../../oas-types.js';
-import { makeDocumentFromString } from '../../resolve.js';
-import { normalizeTypes } from '../../types/index.js';
 import { buildDiffTree } from '../diff-tree.js';
 import { oas3Identities } from '../specs/oas3.js';
-import type { DiffNode } from '../types.js';
+import { nodeTreeOf } from './utils.js';
 
-async function nodesOf(yaml: string) {
-  const document = makeDocumentFromString(yaml, 'api.yaml');
-  const config = await createConfig({});
-  const specVersion = detectSpec(document.parsed);
-  const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
-  return buildNodeTree({ document, types, specVersion }).root;
-}
-
-/** Every node's label, the document compared with itself. */
-async function labelsOf(yaml: string): Promise<Map<string, DiffNode>> {
-  const root = await nodesOf(yaml);
-  const labels = new Map<string, DiffNode>();
-  const visit = (node: DiffNode) => {
-    labels.set(node.label, node);
-    node.children.forEach(visit);
-  };
-  visit(buildDiffTree(root, root, oas3Identities).root);
-  return labels;
-}
+const cafe = (body: string) => outdent`
+  openapi: 3.1.0
+  info: { title: Cafe, version: 1.0.0 }
+  ${body}
+`;
 
 describe('buildDiffTree', () => {
-  it('labels a path by its shape and its path parameters by position', async () => {
-    const labels = await labelsOf(outdent`
-      openapi: 3.1.0
-      info: { title: T, version: '1' }
-      paths:
-        /pets/{petId}/toys/{toyId}:
-          get:
-            parameters:
-              - { name: toyId, in: path, required: true, schema: { type: string } }
-              - { name: petId, in: path, required: true, schema: { type: string } }
-              - { name: q, in: query, schema: { type: string } }
-            responses: {}
-    `);
-
-    expect(labels.get('#/paths/~1pets~1{0}~1toys~1{1}')?.base?.key).toBe(
-      '/pets/{petId}/toys/{toyId}'
+  it('should label a path by its shape and a path parameter by its place in the template', async () => {
+    const { root } = await nodeTreeOf(
+      cafe(outdent`
+        paths:
+          /orders/{orderId}/items/{itemId}:
+            get:
+              parameters:
+                - { name: itemId, in: path, required: true }
+                - { name: orderId, in: path, required: true }
+                - { name: fields, in: query }
+              responses: {}
+      `)
     );
-    expect(
-      [...labels.keys()].filter((key) => key.includes('parameters/') && !key.endsWith('/schema'))
-    ).toEqual([
-      '#/paths/~1pets~1{0}~1toys~1{1}/get/parameters/{path:1}',
-      '#/paths/~1pets~1{0}~1toys~1{1}/get/parameters/{path:0}',
-      '#/paths/~1pets~1{0}~1toys~1{1}/get/parameters/{query:q}',
-    ]);
+    const { diffNodeOf } = buildDiffTree(root, root, oas3Identities);
+    const labels = [...new Set(diffNodeOf.values())].map((node) => node.label);
+
+    const parameterLabels = labels.filter((label) => label.includes('/parameters/'));
+
+    expect(parameterLabels).toMatchInlineSnapshot(`
+      [
+        "#/paths/~1orders~1{0}~1items~1{1}/get/parameters/{path:1}",
+        "#/paths/~1orders~1{0}~1items~1{1}/get/parameters/{path:0}",
+        "#/paths/~1orders~1{0}~1items~1{1}/get/parameters/{query:fields}",
+      ]
+    `);
   });
 
-  it('keeps a callback key as it is and falls back to the parameter name there', async () => {
-    const labels = await labelsOf(outdent`
-      openapi: 3.1.0
-      info: { title: T, version: '1' }
-      paths:
-        /subscribe:
-          post:
-            responses: {}
-            callbacks:
-              onEvent:
-                '{$request.body#/url}':
-                  post:
-                    parameters:
-                      - { name: id, in: path, required: true, schema: { type: string } }
-                    responses: {}
-    `);
-
-    expect(labels.has('#/paths/~1subscribe/post/callbacks/onEvent/{$request.body#~1url}')).toBe(
-      true
+  it('should keep a callback key as it is and label a path parameter there by its name', async () => {
+    const { root } = await nodeTreeOf(
+      cafe(outdent`
+        paths:
+          /orders:
+            post:
+              responses: {}
+              callbacks:
+                orderReady:
+                  '{$request.body#/callbackUrl}':
+                    post:
+                      parameters:
+                        - { name: orderId, in: path, required: true }
+                      responses: {}
+      `)
     );
-    expect(
-      labels.has(
-        '#/paths/~1subscribe/post/callbacks/onEvent/{$request.body#~1url}/post/parameters/{path:id}'
-      )
-    ).toBe(true);
-  });
+    const { diffNodeOf } = buildDiffTree(root, root, oas3Identities);
+    const labels = [...new Set(diffNodeOf.values())].map((node) => node.label);
 
-  it('labels servers by url, tags by name, and security requirements by their scheme names', async () => {
-    const labels = await labelsOf(outdent`
-      openapi: 3.1.0
-      info: { title: T, version: '1' }
-      servers:
-        - url: https://a.example/v1
-      tags:
-        - name: pets
-      security:
-        - oauth: [read]
-          apiKey: []
-      paths: {}
+    const parameterLabels = labels.filter((label) => label.includes('/parameters/'));
+
+    expect(parameterLabels).toMatchInlineSnapshot(`
+      [
+        "#/paths/~1orders/post/callbacks/orderReady/{$request.body#~1callbackUrl}/post/parameters/{path:orderId}",
+      ]
     `);
-
-    expect(labels.has('#/servers/{https:~1~1a.example~1v1}')).toBe(true);
-    expect(labels.has('#/tags/{pets}')).toBe(true);
-    expect(labels.has('#/security/{apiKey+oauth}')).toBe(true);
   });
 
-  it('matches siblings with the same identity in order and numbers the label from the second one', async () => {
-    const yaml = (second: string) => outdent`
-      openapi: 3.1.0
-      info: { title: T, version: '1' }
-      paths:
-        /p:
-          get:
-            parameters:
-              - { name: a, in: query }
-              ${second}
-            responses: {}
-    `;
-    const base = await nodesOf(yaml('- { name: a, in: query, required: true }'));
-    const revision = await nodesOf(yaml(''));
+  it('should label servers by url, tags by name and security requirements by scheme names', async () => {
+    const { root } = await nodeTreeOf(
+      cafe(outdent`
+        servers:
+          - url: https://api.cafe.example
+        tags:
+          - name: Orders
+        security:
+          - OAuth: [orders:read]
+            ApiKey: []
+        paths: {}
+      `)
+    );
+    const { diffNodeOf } = buildDiffTree(root, root, oas3Identities);
+    const labels = [...new Set(diffNodeOf.values())].map((node) => node.label);
 
-    const list = buildDiffTree(base, revision, oas3Identities)
-      .root.children.flatMap((node) => node.children)
-      .flatMap((node) => node.children)
-      .flatMap((node) => node.children)
-      .find((node) => node.base?.type === 'ParameterList')!;
+    const identifiedLabels = labels.filter((label) => /\/(servers|tags|security)\//.test(label));
 
-    expect(list.children.map((node) => [node.label, node.base?.key, node.revision?.key])).toEqual([
-      ['#/paths/~1p/get/parameters/{query:a}', 0, 0],
-      ['#/paths/~1p/get/parameters/{query:a}#2', 1, undefined],
-    ]);
+    expect(identifiedLabels).toMatchInlineSnapshot(`
+      [
+        "#/servers/{https:~1~1api.cafe.example}",
+        "#/security/{ApiKey+OAuth}",
+        "#/tags/{Orders}",
+      ]
+    `);
+  });
+
+  it('should match a referenced list item by what it points at, wherever it is listed', async () => {
+    const menu = (parameters: string) =>
+      cafe(outdent`
+        paths:
+          /menu:
+            get:
+              parameters: ${parameters}
+              responses: {}
+        components:
+          schemas:
+            Sort: { name: sort, in: query }
+            Filter: { name: filter, in: query }
+      `);
+
+    const base = await nodeTreeOf(
+      menu("[{ $ref: '#/components/schemas/Sort' }, { $ref: '#/components/schemas/Filter' }]")
+    );
+    const revision = await nodeTreeOf(
+      menu("[{ $ref: '#/components/schemas/Filter' }, { $ref: '#/components/schemas/Sort' }]")
+    );
+    const { diffNodeOf } = buildDiffTree(base.root, revision.root, oas3Identities);
+    const nodes = new Map([...diffNodeOf.values()].map((node) => [node.label, node]));
+    const sort = nodes.get('#/paths/~1menu/get/parameters/{query:sort}')!;
+    const filter = nodes.get('#/paths/~1menu/get/parameters/{query:filter}')!;
+
+    expect(sort.base?.key).toBe(0);
+    expect(sort.revision?.key).toBe(1);
+    expect(filter.base?.key).toBe(1);
+    expect(filter.revision?.key).toBe(0);
+  });
+
+  it('should match items that share an identity in document order and number the extra one', async () => {
+    const menu = (parameters: string) =>
+      cafe(outdent`
+        paths:
+          /menu:
+            get:
+              parameters: ${parameters}
+              responses: {}
+      `);
+
+    const base = await nodeTreeOf(
+      menu('[{ name: search, in: query }, { name: search, in: query, required: true }]')
+    );
+    const revision = await nodeTreeOf(menu('[{ name: search, in: query }]'));
+    const { diffNodeOf } = buildDiffTree(base.root, revision.root, oas3Identities);
+    const nodes = new Map([...diffNodeOf.values()].map((node) => [node.label, node]));
+    const first = nodes.get('#/paths/~1menu/get/parameters/{query:search}')!;
+    const second = nodes.get('#/paths/~1menu/get/parameters/{query:search}#2')!;
+
+    expect(first.base?.key).toBe(0);
+    expect(first.revision?.key).toBe(0);
+    expect(second.base?.key).toBe(1);
+    expect(second.revision).toBeUndefined();
   });
 });
