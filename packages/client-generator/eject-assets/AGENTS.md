@@ -97,6 +97,7 @@ discriminated union on `kind`: `scalar`, `array`, `object`, `record`, `ref`,
 | `deref(schema, model)`                                  | Follow a `ref` chain to the schema it names (cycle-guarded).                                                                     |
 | `jsonSuccessSchema(op)` / `sseResponse(op)`             | The primary JSON success schema; the `text/event-stream` response when the operation streams.                                    |
 | `isMultipartBody(op)`                                   | Whether the request body is multipart.                                                                                           |
+| `isBinaryContentType(contentType)`                      | Whether a body of this content type is bytes (archives, PDF, images, media) — decode it as a Blob, not JSON or text.             |
 | `serverUrlParts(server)`                                | A server-URL template as literal/variable parts, ready for any concatenation syntax.                                             |
 | `securityRequirements(op, model)`                       | The operation's security as OR-alternatives of AND-sets, denormalized against the declared schemes.                              |
 | `paginationItemSchema(pageSchema, itemsPointer, model)` | The raw element schema behind a pagination rule's `items` pointer — a `ref` element keeps its name.                              |
