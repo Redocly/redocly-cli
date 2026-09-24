@@ -1,6 +1,0 @@
-0 major, 0 minor, 0 patch.
-
-
-base.yaml vs revision.yaml: diff processed in <test>ms
-
-✅ Diff passed.
