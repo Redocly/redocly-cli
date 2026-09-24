@@ -134,7 +134,7 @@ apis:
 
 The `--overlay` option replaces the overlays listed in the configuration file.
 
-Overlays are applied to the bundled API description, before decorators and before unused components are removed.
+Overlays are applied to the bundled API description before decorators run and before unused components are removed.
 Write each action's `target` against the output of `redocly bundle` without overlays: it reaches everything the bundle includes, even parts that live in separate files.
 Decorators see the changes the overlays make.
 For example, an overlay can mark operations with `x-internal: true`, and the [`remove-x-internal`](../decorators/remove-x-internal.md) decorator then removes them.
