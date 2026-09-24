@@ -9,6 +9,12 @@ export function enclosing(node: NodeEntry | null, type: string): NodeEntry | und
   return undefined;
 }
 
+/** What the node stands for: a `$ref` stands for the node it points at. */
+export function valueOf(node: NodeEntry): NodeEntry['value'] {
+  return node.target?.value ?? node.value;
+}
+
 export function fieldOf(node: NodeEntry | undefined, name: string): unknown {
-  return node && isPlainObject(node.value) ? node.value[name] : undefined;
+  const value = node && valueOf(node);
+  return isPlainObject(value) ? value[name] : undefined;
 }

@@ -1,10 +1,10 @@
-import { enclosing, fieldOf } from '../../node-tree/access.js';
+import { enclosing, fieldOf, valueOf } from '../../node-tree/access.js';
 import type { NodeEntry } from '../../node-tree/types.js';
 import { escapePointerFragment } from '../../ref-utils.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import { templateParameterNames, templateShape } from '../../utils/path-template.js';
 import { opposite } from '../direction.js';
-import type { Direction, Directions, Identities, NodeIdentity } from '../types.js';
+import type { Direction, Directions, Identities } from '../types.js';
 
 export const oas3Identities: Identities = {
   Paths: pathIdentity,
@@ -37,20 +37,17 @@ function side(direction: Direction) {
 
 // "Templated paths with the same hierarchy but different templated names MUST NOT exist
 // as they are identical" (OpenAPI, Paths Object) — the shape is the identity, the names are not.
-function pathIdentity(path: NodeEntry): NodeIdentity {
-  return {
-    segment: escapePointerFragment(templateShape(String(path.key))),
-    values: { path: path.key },
-  };
+function pathIdentity(path: NodeEntry): string {
+  return escapePointerFragment(templateShape(String(path.key)));
 }
 
-function parameterIdentity(parameter: NodeEntry): NodeIdentity | undefined {
+function parameterIdentity(parameter: NodeEntry): string | undefined {
   const location = fieldOf(parameter, 'in');
   const name = fieldOf(parameter, 'name');
   if (typeof location !== 'string' || typeof name !== 'string') return undefined;
   return location === 'path'
-    ? { segment: pathParameterSegment(name, parameter) }
-    : { segment: `{${escapePointerFragment(location)}:${escapePointerFragment(name)}}` };
+    ? pathParameterSegment(name, parameter)
+    : `{${escapePointerFragment(location)}:${escapePointerFragment(name)}}`;
 }
 
 /**
@@ -65,12 +62,12 @@ function pathParameterSegment(name: string, parameter: NodeEntry): string {
   return position === -1 ? `{path:${escapePointerFragment(name)}}` : `{path:${position}}`;
 }
 
-function schemeNamesIdentity(requirement: NodeEntry): NodeIdentity | undefined {
-  if (!isPlainObject(requirement.value)) return undefined;
-  const names = Object.keys(requirement.value).sort().map(escapePointerFragment);
-  return { segment: `{${names.join('+')}}` };
+function schemeNamesIdentity(requirement: NodeEntry): string | undefined {
+  const value = valueOf(requirement);
+  if (!isPlainObject(value)) return undefined;
+  return `{${Object.keys(value).sort().map(escapePointerFragment).join('+')}}`;
 }
 
-function named(value: unknown): NodeIdentity | undefined {
-  return typeof value === 'string' ? { segment: `{${escapePointerFragment(value)}}` } : undefined;
+function named(value: unknown): string | undefined {
+  return typeof value === 'string' ? `{${escapePointerFragment(value)}}` : undefined;
 }
