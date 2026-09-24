@@ -7,7 +7,7 @@ import { normalizeTypes } from '../types/index.js';
 import { HandledError } from '../utils/error.js';
 import { collectChanges } from './changes.js';
 import { buildDiffTree, typeOf } from './diff-tree.js';
-import { directionsOf } from './direction.js';
+import { resolveDirections } from './direction.js';
 import { highestImpact } from './impact.js';
 import { judgeChanges } from './judge.js';
 import { diffSpecs } from './specs/index.js';
@@ -50,7 +50,7 @@ export function diffDocuments(opts: {
     identities
   );
 
-  const directionOf = directionsOf(references, diffNodeOf, directions);
+  const directionOf = resolveDirections(references, diffNodeOf, directions);
 
   const changes = judgeChanges({
     changes: collectChanges(root, identities),

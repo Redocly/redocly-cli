@@ -9,6 +9,8 @@ export type NodeEntry = {
   value: NodeValue;
   parent: NodeEntry | null;
   children: NodeEntry[];
+  /** For a `$ref`, the node it points at; absent when it does not resolve. */
+  target?: NodeEntry;
 };
 
 export type Reference = { from: NodeEntry; to: NodeEntry };
