@@ -1,5 +1,5 @@
 /pets/{petId}
-  · patch  modified  path
+  · patch  modified  key
       at revision.yaml:7:5
 
 GET /pets/{petId}

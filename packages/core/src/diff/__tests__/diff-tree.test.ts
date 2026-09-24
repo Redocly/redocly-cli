@@ -18,12 +18,12 @@ async function nodesOf(yaml: string) {
   return buildNodeTree({ document, types, specVersion }).root;
 }
 
-/** Every node's key, the document compared with itself. */
+/** Every node's label, the document compared with itself. */
 async function labelsOf(yaml: string): Promise<Map<string, DiffNode>> {
   const root = await nodesOf(yaml);
   const labels = new Map<string, DiffNode>();
   const visit = (node: DiffNode) => {
-    labels.set(node.key, node);
+    labels.set(node.label, node);
     node.children.forEach(visit);
   };
   visit(buildDiffTree(root, root, oas3Identities).root);
@@ -124,7 +124,7 @@ describe('buildDiffTree', () => {
       .flatMap((node) => node.children)
       .find((node) => node.base?.type === 'ParameterList')!;
 
-    expect(list.children.map((node) => [node.key, node.base?.key, node.revision?.key])).toEqual([
+    expect(list.children.map((node) => [node.label, node.base?.key, node.revision?.key])).toEqual([
       ['#/paths/~1p/get/parameters/{query:a}', 0, 0],
       ['#/paths/~1p/get/parameters/{query:a}#2', 1, undefined],
     ]);
