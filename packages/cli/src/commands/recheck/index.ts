@@ -30,7 +30,12 @@ import {
   type CollectedDescription,
 } from './descriptions.js';
 import { createPositionMapper } from './positions.js';
-import { printLintRun, printLintStart, type LintPresentation } from './print.js';
+import {
+  printLintRun,
+  printLintStart,
+  printReadabilityRun,
+  type LintPresentation,
+} from './print.js';
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
@@ -277,15 +282,11 @@ async function runAction(
       engineLogger.log('No Markdown files to score.');
       return 0;
     }
-    return runReadability(
-      roots,
-      resolved,
-      {
-        format: argv.format === 'json' ? 'json' : 'table',
-        outputPath: argv['output-path'],
-      },
-      engineLogger
-    );
+    const result = await runReadability(roots, resolved, {});
+    return printReadabilityRun(result, {
+      format: argv.format === 'json' ? 'json' : 'table',
+      outputPath: argv['output-path'],
+    });
   }
 
   const {

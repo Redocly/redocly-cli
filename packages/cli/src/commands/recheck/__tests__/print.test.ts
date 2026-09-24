@@ -1,10 +1,16 @@
-import { Timer, type Fix, type LintRunReport, type Problem } from '@redocly/recheck';
+import {
+  Timer,
+  type Fix,
+  type LintRunReport,
+  type Problem,
+  type ReadabilityRunResult,
+} from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { printLintRun } from '../print.js';
+import { printLintRun, printReadabilityRun } from '../print.js';
 import { captureLogger } from './capture-logger.js';
 
 const EMPTY_REPORT: LintRunReport = {
@@ -408,5 +414,57 @@ describe('printLintRun report files', () => {
       )
     ).toEqual([1, 2]);
     expect(stderr.join('')).toContain('\n   Annotations prepared: 2 (limit 2)\n');
+  });
+});
+
+const READABILITY_RESULT: ReadabilityRunResult = {
+  roots: ['docs'],
+  filesFound: 1,
+  unreadableFiles: [],
+  rows: [
+    {
+      file: 'docs/index.md',
+      words: 4,
+      sentences: 1,
+      fleschReadingEase: 97.03,
+      fleschKincaidGrade: 0.72,
+      automatedReadabilityIndex: -2.94,
+    },
+  ],
+  summary: {
+    files: 1,
+    scored: 1,
+    medianFleschReadingEase: 97.03,
+    medianFleschKincaidGrade: 0.72,
+    medianAutomatedReadabilityIndex: -2.94,
+  },
+};
+
+describe('printReadabilityRun', () => {
+  it('prints the table on stdout and the scored count on stderr', async () => {
+    const { stderr, stdout } = captureLogger();
+    const code = await printReadabilityRun(READABILITY_RESULT, { format: 'table' });
+    expect(code).toBe(0);
+    expect(stdout.join('')).toContain('   FRE     Grade     ARI   Words   Sentences  File\n');
+    expect(stdout.join('')).toContain('docs/index.md\n');
+    const printed = stderr.join('');
+    expect(printed).toContain('📖 Measuring readability of: docs');
+    expect(printed).toContain('   Scoring 1 markdown file(s)\n');
+    expect(printed).toContain('1 of 1 file(s) scored');
+  });
+
+  it('prints the JSON report on stdout and no scored count', async () => {
+    const { stderr, stdout } = captureLogger();
+    const code = await printReadabilityRun(
+      { ...READABILITY_RESULT, unreadableFiles: ['docs/secret.md'] },
+      { format: 'json' }
+    );
+    expect(code).toBe(0);
+    const report = JSON.parse(stdout.join(''));
+    expect(report.summary.scored).toBe(1);
+    expect(report.files[0].file).toBe('docs/index.md');
+    const printed = stderr.join('');
+    expect(printed).toContain('   Warning: Could not read file docs/secret.md');
+    expect(printed).not.toContain('file(s) scored');
   });
 });

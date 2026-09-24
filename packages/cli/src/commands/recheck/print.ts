@@ -1,9 +1,16 @@
 import { logger } from '@redocly/openapi-core';
-import { buildSummary, type LintRunReport, type LintRunResult, type Timer } from '@redocly/recheck';
+import {
+  buildSummary,
+  type LintRunReport,
+  type LintRunResult,
+  type ReadabilityRunResult,
+  type Timer,
+} from '@redocly/recheck';
 import { cyan, green, red, yellow } from 'colorette';
 
 import { reportFixes } from './formatters/fixes.js';
 import { generateReport } from './formatters/index.js';
+import { outputReadabilityJson, outputReadabilityTable } from './formatters/readability.js';
 import { printSummary } from './formatters/summary.js';
 
 export interface LintPresentation {
@@ -204,5 +211,31 @@ async function printCompletedRun(
     info(`   Found ${result.problems.length} warning(s) and info message(s).`);
   }
   info(`   Completed in ${timer.elapsedString()}`);
+  return 0;
+}
+
+export async function printReadabilityRun(
+  result: ReadabilityRunResult,
+  presentation: { format: 'table' | 'json'; outputPath?: string }
+): Promise<number> {
+  info(cyan(`📖 Measuring readability of: ${result.roots.join(', ')}`));
+  info(`   Scoring ${result.filesFound} markdown file(s)`);
+  for (const file of result.unreadableFiles) {
+    info(yellow(`   Warning: Could not read file ${file}`));
+  }
+  if (presentation.format === 'json') {
+    await outputReadabilityJson(result, presentation.outputPath);
+    return 0;
+  }
+  outputReadabilityTable(result);
+  const { summary } = result;
+  info(
+    green(
+      `   ${summary.scored} of ${summary.files} file(s) scored` +
+        (summary.medianFleschReadingEase === null
+          ? ''
+          : ` • median FRE ${summary.medianFleschReadingEase} • median grade ${summary.medianFleschKincaidGrade} • median ARI ${summary.medianAutomatedReadabilityIndex}`)
+    )
+  );
   return 0;
 }
