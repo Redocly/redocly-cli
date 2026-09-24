@@ -14,18 +14,14 @@ export type DiffNode = {
   parent: DiffNode | null;
   children: DiffNode[];
   /** Segments from the root joined like a pointer; `#n` marks the n-th sibling with one segment. */
-  key: string;
+  label: string;
 };
 
-export type NodeIdentity = {
-  /** Replaces the node's own key when the two documents are matched up. */
-  segment: string;
-  /** Values the segment hides, compared as if the node carried them. */
-  values?: Record<string, unknown>;
-};
-
-/** Per container type: the identity of a child, where its key or position is not it. */
-export type Identities = Partial<Record<string, (node: NodeEntry) => NodeIdentity | undefined>>;
+/**
+ * Per container type: the segment that identifies a child, where its key or position does not.
+ * It replaces the child's key when the two documents are matched up.
+ */
+export type Identities = Partial<Record<string, (node: NodeEntry) => string | undefined>>;
 
 /** Per node type: which way the data below it travels; the nearest type that says it wins. */
 export type Directions = Partial<
@@ -34,6 +30,7 @@ export type Directions = Partial<
 
 export type LocatedNode = { location: Location; value: unknown };
 
+/** `key` is the label of the node the change is on. */
 export type Change = { key: string; node: DiffNode } & (
   | { kind: 'added'; revision: LocatedNode }
   | { kind: 'removed'; base: LocatedNode }

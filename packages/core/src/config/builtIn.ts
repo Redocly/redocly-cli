@@ -5,7 +5,7 @@ import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
 import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
 import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
 import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
-import { async3Rules as async3DiffRules, oas3Rules as oas3DiffRules } from '../diff/rules/index.js';
+import { diffRuleSets } from '../diff/rules/index.js';
 import {
   rules as arazzo1Rules,
   preprocessors as arazzoPreprocessors,
@@ -82,9 +82,6 @@ export const defaultPlugin: Plugin<'built-in'> = {
     overlay1: overlay1Decorators,
     openrpc1: openrpc1Decorators,
   },
-  diff: {
-    oas3: oas3DiffRules,
-    async3: async3DiffRules,
-  },
+  diff: diffRuleSets,
   configs: builtInConfigs,
 };

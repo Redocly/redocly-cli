@@ -88,10 +88,19 @@ export const async3Rules = {
   ...schemaRules,
 } satisfies Record<string, DiffRule>;
 
-export type Oas3DiffRuleId = keyof typeof oas3Rules;
-export type Async3DiffRuleId = keyof typeof async3Rules;
-export type DiffRuleId = Oas3DiffRuleId | Async3DiffRuleId;
+/** The specification families diff rules exist for. */
+export const diffRuleSets = { oas3: oas3Rules, async3: async3Rules };
+
+export type DiffRuleSets = typeof diffRuleSets;
+export type DiffFamily = keyof DiffRuleSets;
+export type DiffRuleId = {
+  [Family in DiffFamily]: keyof DiffRuleSets[Family] & string;
+}[DiffFamily];
+
+export function isDiffFamily(family: string): family is DiffFamily {
+  return Object.hasOwn(diffRuleSets, family);
+}
 
 export const diffRuleIds: string[] = [
-  ...new Set([...Object.keys(oas3Rules), ...Object.keys(async3Rules)]),
+  ...new Set(Object.values(diffRuleSets).flatMap((rules) => Object.keys(rules))),
 ];
