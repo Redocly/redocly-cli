@@ -10,6 +10,7 @@ import type {
   ParamModel,
   SchemaModel,
 } from '../intermediate-representation/model.js';
+import { isBinaryContentType } from './operation.js';
 import { paginationRuleFor } from './pagination.js';
 import { Printer } from './printer.js';
 
@@ -82,11 +83,7 @@ function isBinary(op: OperationModel): boolean {
   if (op.successResponses.some((response) => response.contentType.toLowerCase().includes('json'))) {
     return false;
   }
-  return op.successResponses.some(
-    (response) =>
-      response.contentType.startsWith('image/') ||
-      response.contentType === 'application/octet-stream'
-  );
+  return op.successResponses.some((response) => isBinaryContentType(response.contentType));
 }
 
 function writeParameterTable(printer: Printer, params: ParamModel[]): void {
