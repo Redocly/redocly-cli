@@ -13,11 +13,23 @@ import {
   type Oas3Visitor,
   type Source,
 } from '@redocly/openapi-core';
+import { dirname, resolve } from 'node:path';
 
 export interface CollectedDescription {
   source: Source;
   pointer: string;
   text: string;
+}
+
+// Thrown when a local `$ref` target is missing or does not parse; `files`
+// holds the absolute paths of those targets.
+export class UnresolvedRefError extends Error {
+  constructor(
+    message: string,
+    readonly files: string[]
+  ) {
+    super(message);
+  }
 }
 
 export interface CollectedDescriptions {
@@ -47,6 +59,7 @@ export async function collectDescriptions(
   // Throws for a local $ref target that is missing or does not parse.
   // Without this check, the walk skips that file and reports nothing.
   const brokenRefs: string[] = [];
+  const brokenTargets = new Set<string>();
   for (const [refId, resolvedRef] of resolvedRefMap) {
     if (resolvedRef.resolved) continue;
     const separatorIndex = refId.indexOf('::');
@@ -56,8 +69,10 @@ export async function collectDescriptions(
     brokenRefs.push(
       `Could not resolve $ref ${ref} from ${sourceFile}: ${resolvedRef.error?.message ?? 'unknown error'}`
     );
+    brokenTargets.add(resolve(dirname(sourceFile), ref.split('#')[0]));
   }
-  if (brokenRefs.length > 0) throw new Error(brokenRefs.join('\n'));
+  if (brokenRefs.length > 0)
+    throw new UnresolvedRefError(brokenRefs.join('\n'), [...brokenTargets]);
 
   const seen = new Set<string>();
   const collected: CollectedDescription[] = [];

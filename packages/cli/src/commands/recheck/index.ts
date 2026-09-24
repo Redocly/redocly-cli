@@ -23,7 +23,11 @@ import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname, resolve } from 'node:path';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { collectDescriptions, type CollectedDescription } from './descriptions.js';
+import {
+  collectDescriptions,
+  UnresolvedRefError,
+  type CollectedDescription,
+} from './descriptions.js';
 import { createPositionMapper } from './positions.js';
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
@@ -137,6 +141,7 @@ async function collectEmbeddedInputs(
       );
       failureCount++;
       unreadableFiles.push(resolve(apiPath));
+      if (error instanceof UnresolvedRefError) unreadableFiles.push(...error.files);
       continue;
     }
     for (const file of collected.files) apiFiles.add(file);

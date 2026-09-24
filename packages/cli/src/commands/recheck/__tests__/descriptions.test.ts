@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { collectDescriptions } from '../descriptions.js';
+import { collectDescriptions, UnresolvedRefError } from '../descriptions.js';
 
 const dirs: string[] = [];
 afterEach(() => {
@@ -129,9 +129,12 @@ components:
 `,
     });
     const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    await expect(collectDescriptions(join(dir, 'openapi.yaml'), config)).rejects.toThrow(
-      'missing.yaml'
+    const failure = await collectDescriptions(join(dir, 'openapi.yaml'), config).catch(
+      (error: unknown) => error
     );
+    expect(failure).toBeInstanceOf(UnresolvedRefError);
+    expect((failure as UnresolvedRefError).message).toContain('missing.yaml');
+    expect((failure as UnresolvedRefError).files).toEqual([join(dir, 'missing.yaml')]);
 
     const multiFileDir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
     await expect(
