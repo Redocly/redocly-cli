@@ -1,4 +1,4 @@
-openapi
+document
   · patch  modified  openapi
       at revision.yaml:1:10
 
@@ -13,3 +13,4 @@ POST /pets
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
+✅ Diff passed.

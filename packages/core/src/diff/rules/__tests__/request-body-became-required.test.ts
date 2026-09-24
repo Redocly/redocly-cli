@@ -45,7 +45,7 @@ describe('request-body-became-required', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/required",
-              "message": "The request body became required.",
+              "message": "Request body became required.",
               "ruleId": "request-body-became-required",
             },
           ],

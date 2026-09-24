@@ -3,3 +3,4 @@
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
+✅ Diff passed.

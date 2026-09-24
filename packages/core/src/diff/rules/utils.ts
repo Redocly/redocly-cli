@@ -1,4 +1,42 @@
-import type { DiffRule, Direction } from '../types.js';
+import { fieldOf } from '../../node-tree/access.js';
+import { latestOf, typeOf } from '../diff-tree.js';
+import type { DiffNode, DiffRule, Direction } from '../types.js';
+
+/** What a node is called in its document: its key, or the key of the node a `$ref` item points at. */
+export function nameOf(node: DiffNode): string {
+  const entry = latestOf(node);
+  return String(entry.target?.key ?? entry.key);
+}
+
+/** ` of `name`` for a property or a named component schema, and nothing for an inline one. */
+export function ofSchema(node: DiffNode | null | undefined): string {
+  const container = node?.parent && typeOf(node.parent);
+  if (container !== 'SchemaProperties' && container !== 'NamedSchemas') return '';
+  return ` of \`${nameOf(node!)}\``;
+}
+
+/** A parameter as a message names it, such as ``\`limit\` query parameter``. */
+export function describeParameter(node: DiffNode): string {
+  const location = fieldOf(latestOf(node), 'in');
+  const name = fieldOf(latestOf(node), 'name');
+  return [
+    typeof name === 'string' ? `\`${name}\`` : undefined,
+    typeof location === 'string' ? location : undefined,
+    'parameter',
+  ]
+    .filter(Boolean)
+    .join(' ');
+}
+
+/** The values of a list, each quoted, for a message. */
+export function quoted(values: unknown[]): string {
+  return values.map((value) => `'${value}'`).join(', ');
+}
+
+/** The names of a list, each in backticks, for a message. */
+export function named(values: unknown[]): string {
+  return values.map((value) => `\`${value}\``).join(', ');
+}
 
 /** The items of `list` that `other` does not have. */
 export function itemsOnlyIn(list: unknown, other: unknown): unknown[] {
@@ -48,10 +86,11 @@ export function acceptsLess(constraint: string, before: unknown, after: unknown)
   return true;
 }
 
-function describeConstraint(constraint: string, before: unknown, after: unknown): string {
-  if (before === undefined) return `\`${constraint}\` was added with value '${after}'.`;
-  if (after === undefined) return `\`${constraint}\` was removed.`;
-  return `\`${constraint}\` changed from '${before}' to '${after}'.`;
+/** How a value moved, for a message: set where it was absent, dropped, or changed. */
+export function describeChange(subject: string, before: unknown, after: unknown): string {
+  if (before === undefined) return `${subject} was added with value '${after}'.`;
+  if (after === undefined) return `${subject} was removed.`;
+  return `${subject} changed from '${before}' to '${after}'.`;
 }
 
 /**
@@ -66,7 +105,8 @@ export function constraintRule(constraints: string[]): DiffRule {
       const before = change.base.value;
       const after = change.revision.value;
       if (directions.includes(breakingDirection(acceptsLess(change.property, before, after)))) {
-        report({ message: describeConstraint(change.property, before, after) });
+        const subject = `\`${change.property}\`${ofSchema(change.node)}`;
+        report({ message: describeChange(subject, before, after) });
       }
     },
   });

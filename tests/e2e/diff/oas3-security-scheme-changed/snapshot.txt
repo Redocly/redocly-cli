@@ -1,6 +1,6 @@
 components
   ✖ major  modified  securitySchemes/apiKey · type
-      Security scheme `type` changed from 'apiKey' to 'http'. (security-scheme-changed)
+      `type` of security scheme `apiKey` changed from 'apiKey' to 'http'. (security-scheme-changed)
       at revision.yaml:16:13
   · patch  modified  securitySchemes/apiKey · in
       at revision.yaml:16:7

@@ -50,7 +50,7 @@ describe('schema-combinator-changed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/oneOf/1",
-              "message": "A \`oneOf\` subschema was removed.",
+              "message": "\`oneOf\` subschema was removed.",
               "ruleId": "schema-combinator-changed",
             },
           ],
@@ -99,7 +99,7 @@ describe('schema-combinator-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf/1",
-              "message": "A \`allOf\` subschema was added.",
+              "message": "\`allOf\` subschema was added.",
               "ruleId": "schema-combinator-changed",
             },
           ],

@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  removed   parameters/{query:limit}
-      Parameter was removed. (parameter-removed)
+      `limit` query parameter was removed. (parameter-removed)
       at base.yaml:9:11
 
 1 major, 0 minor, 0 patch.

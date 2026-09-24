@@ -1,5 +1,6 @@
 import { fieldOf } from '../../node-tree/access.js';
 import type { DiffRule } from '../types.js';
+import { describeChange, nameOf } from './utils.js';
 
 const SCHEME_IDENTITY = new Set([
   'type',
@@ -20,7 +21,11 @@ export const SecuritySchemeChanged: DiffRule = () => ({
     if (typeChanged && change.property !== 'type') return;
 
     report({
-      message: `Security scheme \`${change.property}\` changed from '${change.base.value}' to '${change.revision.value}'.`,
+      message: describeChange(
+        `\`${change.property}\` of security scheme \`${nameOf(change.node)}\``,
+        change.base.value,
+        change.revision.value
+      ),
     });
   },
 });

@@ -51,7 +51,7 @@ describe('parameter-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1menu/get/parameters/0",
-              "message": "Parameter was removed.",
+              "message": "\`limit\` query parameter was removed.",
               "ruleId": "parameter-removed",
             },
           ],
@@ -89,7 +89,7 @@ describe('parameter-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1menu/get/parameters",
-              "message": "Every parameter was removed.",
+              "message": "All parameters were removed.",
               "ruleId": "parameter-removed",
             },
           ],
@@ -128,7 +128,7 @@ describe('parameter-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1menu/get/parameters/0",
-              "message": "Parameter was removed.",
+              "message": "\`sort\` query parameter was removed.",
               "ruleId": "parameter-removed",
             },
           ],

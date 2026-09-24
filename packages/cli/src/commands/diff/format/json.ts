@@ -1,96 +1,46 @@
 import {
-  getLineColLocation,
   typeOf,
-  type Change,
   type DiffResult,
-  type Impact,
   type JudgedChange,
   type Location,
   type LocatedNode,
 } from '@redocly/openapi-core';
 
-import { byKeyAndProperty } from './order.js';
+import { formatPath } from '../../../utils/miscellaneous.js';
+import { lineColOf } from './location.js';
 
-export interface JsonLocatedNode {
-  file: string;
-  pointer: string;
-  line: number;
-  col: number;
-  value: unknown;
+function toJsonLocation(location: Location) {
+  const { file, line, col } = lineColOf(location);
+  return { file, pointer: location.pointer, line, col };
 }
 
-export interface JsonVerdict {
-  ruleId: string;
-  impact: Impact;
-  message: string;
-  location: Omit<JsonLocatedNode, 'value'>;
-}
-
-/** The wire shape: optional sides are the JSON reader's contract, the union stays internal. */
-export interface JsonChange {
-  key: string;
-  typeName: string;
-  kind: Change['kind'];
-  property?: string;
-  impact: Impact;
-  verdicts: JsonVerdict[];
-  base?: JsonLocatedNode;
-  revision?: JsonLocatedNode;
-}
-
-export interface JsonDiffResult extends Omit<DiffResult, 'changes'> {
-  changes: JsonChange[];
-}
-
-// Nodes inlined by bundling do not exist in the root source AST;
-// getLineColLocation falls back to 1:1 for such pointers.
-function toJsonLocation(location: Location): Omit<JsonLocatedNode, 'value'> {
-  const { start } = getLineColLocation(location);
-  return {
-    file: location.source.absoluteRef,
-    pointer: location.pointer,
-    line: start.line,
-    col: start.col,
-  };
-}
-
-function toJsonNode({ location, value }: LocatedNode): JsonLocatedNode {
+function toJsonNode({ location, value }: LocatedNode) {
   return { ...toJsonLocation(location), value };
 }
 
-export function toJsonChange(change: JudgedChange): JsonChange {
-  const { key, node, kind, impact, verdicts } = change;
-  const common = {
-    key,
-    typeName: typeOf(node),
-    kind,
-    impact,
-    verdicts: verdicts.map((verdict) => ({
-      ruleId: verdict.ruleId,
-      impact: verdict.impact,
-      message: verdict.message,
-      location: toJsonLocation(verdict.location),
+// Fields a change does not have stay undefined, and JSON.stringify leaves them out.
+export function toJsonChange(change: JudgedChange) {
+  return {
+    key: change.key,
+    typeName: typeOf(change.node),
+    kind: change.kind,
+    impact: change.impact,
+    verdicts: change.verdicts.map(({ location, ...verdict }) => ({
+      ...verdict,
+      location: toJsonLocation(location),
     })),
+    property: change.kind === 'modified' ? change.property : undefined,
+    base: 'base' in change ? toJsonNode(change.base) : undefined,
+    revision: 'revision' in change ? toJsonNode(change.revision) : undefined,
   };
-  switch (change.kind) {
-    case 'added':
-      return { ...common, revision: toJsonNode(change.revision) };
-    case 'removed':
-      return { ...common, base: toJsonNode(change.base) };
-    case 'modified':
-      return {
-        ...common,
-        property: change.property,
-        base: toJsonNode(change.base),
-        revision: toJsonNode(change.revision),
-      };
-  }
 }
 
 export function jsonDiff(result: DiffResult): string {
-  const report: JsonDiffResult = {
+  const report = {
+    reportVersion: '1',
     ...result,
-    changes: result.changes.toSorted(byKeyAndProperty).map(toJsonChange),
+    files: { base: formatPath(result.files.base), revision: formatPath(result.files.revision) },
+    changes: result.changes.map(toJsonChange),
   };
   return JSON.stringify(report, null, 2);
 }

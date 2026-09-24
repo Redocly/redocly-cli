@@ -72,14 +72,14 @@ const OPENAPI: RuleCase[] = [
     describes: 'the request body disappears',
   },
   {
-    fixture: 'oas3-property-removed-from-response',
-    ruleId: 'property-removed-from-response',
+    fixture: 'oas3-property-removed',
+    ruleId: 'property-removed',
     describes: 'a response property disappears',
   },
   {
     fixture: 'oas3-webhook-payload-property-removed',
     // A webhook body travels to the consumer, so it is judged as a response.
-    ruleId: 'property-removed-from-response',
+    ruleId: 'property-removed',
     describes: 'a webhook payload drops a property',
   },
   {
@@ -213,7 +213,7 @@ const ASYNCAPI: RuleCase[] = [
   },
   {
     fixture: 'async3-payload-property-removed',
-    ruleId: 'property-removed-from-response',
+    ruleId: 'property-removed',
     describes: 'a sent payload drops a property',
   },
 ];

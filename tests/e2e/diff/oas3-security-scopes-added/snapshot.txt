@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  modified  security/{oauth} · oauth
-      Scheme `oauth` requires new scopes: pets:write. (security-scopes-added)
+      Security scheme `oauth` requires new scopes: 'pets:write'. (security-scopes-added)
       at revision.yaml:10:13
 
 1 major, 0 minor, 0 patch.

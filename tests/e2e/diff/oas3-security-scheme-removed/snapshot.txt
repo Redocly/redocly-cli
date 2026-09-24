@@ -1,6 +1,6 @@
 components
   ✖ major  removed   securitySchemes/basicAuth
-      A security scheme was removed. (security-scheme-removed)
+      Security scheme `basicAuth` was removed. (security-scheme-removed)
       at base.yaml:17:7
 
 1 major, 0 minor, 0 patch.
