@@ -3,7 +3,7 @@
 ## Introduction
 
 The `recheck` block configures the [`recheck`](../../commands/recheck.md) command.
-It adjusts the rules that the Recheck presets provide, and it sets file excludes, a baseline, and Markdoc parsing.
+It adjusts the rules that the Recheck presets provide, and it sets file excludes and Markdoc parsing.
 
 The block does not accept `extends`.
 Add Recheck presets, such as `recheck/markdown`, to the root `extends` of `redocly.yaml`.
@@ -28,14 +28,6 @@ Add Recheck presets, such as `recheck/markdown`, to the root `extends` of `redoc
 - [string]
 - File globs that every rule in this block skips.
   Recheck adds this list to each rule's own `excludes`.
-
----
-
-- baseline
-- string
-- Path to the baseline file, relative to the directory of `redocly.yaml`.
-  A run reports only errors that the baseline does not list.
-  The default is `.redocly.recheck-baseline.yaml` next to `redocly.yaml`, when that file exists.
 
 ---
 
@@ -211,7 +203,6 @@ extends:
 recheck:
   excludes:
     - CHANGELOG.md
-  baseline: ./config/recheck-baseline.yaml
   markdoc: true
   rules:
     recheck/line-length: off
@@ -225,7 +216,7 @@ recheck:
 ```
 
 This config adds the `recheck/markdown` preset in the root `extends`.
-The `recheck` block skips `CHANGELOG.md`, uses a baseline file, turns on Markdoc-aware parsing, turns off one rule, and adds one rule.
+The `recheck` block skips `CHANGELOG.md`, turns on Markdoc-aware parsing, turns off one rule, and adds one rule.
 
 ## Related options
 

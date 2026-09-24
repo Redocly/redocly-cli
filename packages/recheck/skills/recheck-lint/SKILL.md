@@ -46,6 +46,6 @@ If neither exists, skip this skill.
 
 - Warnings do not block you.
   Leave them unless the task asks for cleanup.
-- If the project has a baseline file (a `baseline:` key in the `recheck` block), the baseline already covers old findings; only new findings are yours to fix.
+- If the project has a `.redocly.recheck-baseline.yaml` file next to redocly.yaml, the baseline already covers old findings; only new findings are yours to fix.
   Do not regenerate the baseline to absorb findings your change introduced.
 - A finding you believe is a false positive is worth reporting to the maintainer, not silently suppressing.

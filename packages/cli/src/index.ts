@@ -450,11 +450,6 @@ yargs(hideBin(process.argv))
             description: 'Write the report to a file instead of stdout.',
             type: 'string',
           },
-          severity: {
-            description: 'Run only rules at this severity or higher.',
-            choices: ['warn', 'error'] as ReadonlyArray<'warn' | 'error'>,
-            type: 'string',
-          },
           tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
           rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
           'skip-rule': { description: 'Skip these rules.', array: true, type: 'string' },

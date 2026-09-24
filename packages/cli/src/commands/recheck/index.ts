@@ -35,7 +35,6 @@ function toLintOptions(argv: RecheckArgv): LintOptions {
   return {
     format: argv.format,
     outputPath: argv['output-path'],
-    severity: argv.severity,
     tags: argv.tags,
     rules: argv.rule,
     excludeRules: argv['skip-rule'],

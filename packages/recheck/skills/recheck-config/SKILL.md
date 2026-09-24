@@ -60,12 +60,6 @@ redocly recheck --generate-baseline
 
 Commit `.redocly.recheck-baseline.yaml`.
 The command writes it next to `redocly.yaml`, and later runs pick it up automatically.
-To keep the baseline somewhere else, set `baseline` in the `recheck` block:
-
-```yaml
-recheck:
-  baseline: ./config/recheck-baseline.yaml
-```
 
 Counts only step down: when findings get fixed, regenerate the baseline and commit the diff.
 

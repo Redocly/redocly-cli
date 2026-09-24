@@ -3,4 +3,3 @@
    Found 1 markdown file(s)
 ✅ Wrote ./tests/e2e/recheck/generate-baseline/.redocly.recheck-baseline.yaml
    3 error finding(s) across 1 file(s) baselined.
-   Runs pick up this file automatically; set `baseline` in the recheck block to use another path.

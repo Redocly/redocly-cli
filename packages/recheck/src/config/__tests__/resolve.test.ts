@@ -40,19 +40,6 @@ describe('resolveRecheckConfig', () => {
     expect(rule?.severity).toBe('off');
   });
 
-  it('resolves the baseline path against the config directory', async () => {
-    const result = await resolveRecheckConfig({
-      extends: ['recheck/markdown'],
-      block: { baseline: './.redocly.recheck-baseline.yaml' },
-      configDir,
-    });
-    expect(result.success).toBe(true);
-    if (!result.success) return;
-    expect(result.config.baselinePath).toBe(
-      path.resolve(configDir, '.redocly.recheck-baseline.yaml')
-    );
-  });
-
   describe('default baseline discovery', () => {
     const tempDirs: string[] = [];
 
@@ -90,18 +77,23 @@ describe('resolveRecheckConfig', () => {
       if (!result.success) return;
       expect(result.config.baselinePath).toBeUndefined();
     });
+  });
 
-    it('prefers an explicit baseline key over the default file', async () => {
-      const dir = makeConfigDir(true);
-      const result = await resolveRecheckConfig({
-        extends: ['recheck/markdown'],
-        block: { baseline: './custom-baseline.yaml' },
-        configDir: dir,
-      });
-      expect(result.success).toBe(true);
-      if (!result.success) return;
-      expect(result.config.baselinePath).toBe(path.resolve(dir, 'custom-baseline.yaml'));
+  it('rejects a `baseline` key in the block', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { baseline: './custom-baseline.yaml' },
+      configDir,
     });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message:
+          '`recheck.baseline` is not supported; the command reads `.redocly.recheck-baseline.yaml` next to `redocly.yaml`.',
+        path: 'recheck.baseline',
+      },
+    ]);
   });
 
   it('enables markdoc with the built-in realm schema for `markdoc: true`', async () => {

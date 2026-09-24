@@ -4,4 +4,3 @@ extends:
 recheck:
   rules:
     recheck/line-length: off
-  baseline: ./recheck-baseline.yaml
