@@ -6,7 +6,6 @@ export type RecheckArgv = {
   paths?: string[];
   format: RecheckFormat;
   'output-path'?: string;
-  severity?: 'warn' | 'error';
   tags?: string[];
   rule?: string[];
   'skip-rule'?: string[];

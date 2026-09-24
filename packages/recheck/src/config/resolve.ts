@@ -134,6 +134,18 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       ],
     };
   }
+  if ('baseline' in block) {
+    return {
+      success: false,
+      errors: [
+        {
+          message:
+            '`recheck.baseline` is not supported; the command reads `.redocly.recheck-baseline.yaml` next to `redocly.yaml`.',
+          path: 'recheck.baseline',
+        },
+      ],
+    };
+  }
   if ('rules' in block && !isPlainObject(block.rules)) {
     return {
       success: false,
@@ -185,16 +197,15 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       configDir: input.configDir,
       markdoc: validation.markdoc.enabled,
       markdocSchema: validation.markdoc.schema,
-      baselinePath: resolveBaselinePath(input.configDir, validation.baselinePath),
+      baselinePath: resolveBaselinePath(input.configDir),
       descriptionRules: overrides.rules,
     },
   };
 }
 
-// Without a `baseline` key, a `.redocly.recheck-baseline.yaml` next to
-// redocly.yaml is picked up by presence.
-function resolveBaselinePath(configDir: string, baselinePath?: string): string | undefined {
-  if (baselinePath !== undefined) return path.resolve(configDir, baselinePath);
+// A `.redocly.recheck-baseline.yaml` next to redocly.yaml is picked up by
+// presence.
+function resolveBaselinePath(configDir: string): string | undefined {
   const defaultPath = path.resolve(configDir, DEFAULT_BASELINE_FILE);
   return existsSync(defaultPath) ? defaultPath : undefined;
 }

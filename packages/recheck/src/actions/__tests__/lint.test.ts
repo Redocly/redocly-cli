@@ -3,7 +3,11 @@ import * as os from 'os';
 import * as path from 'path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
+import {
+  DEFAULT_BASELINE_FILE,
+  resolveRecheckConfig,
+  type ResolvedRecheckConfig,
+} from '../../config/resolve.js';
 import { runLint } from '../lint.js';
 import { collectingLogger } from '../logger.js';
 
@@ -982,12 +986,10 @@ describe('runLint with embedded inputs', () => {
   it('reports a stale baseline entry for an API file that this run linted', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(
-      path.join(dir, 'recheck-baseline.yaml'),
+      path.join(dir, DEFAULT_BASELINE_FILE),
       'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
     );
-    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
-      'recheck/markdown',
-    ]);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
     const logger = collectingLogger();
 
     const exitCode = await runLint(
@@ -1004,13 +1006,12 @@ describe('runLint with embedded inputs', () => {
   it('leaves a baseline entry alone when its rule is off for descriptions', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(
-      path.join(dir, 'recheck-baseline.yaml'),
+      path.join(dir, DEFAULT_BASELINE_FILE),
       'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
     );
     const config = await resolveConfig(
       dir,
       {
-        baseline: './recheck-baseline.yaml',
         apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
       },
       ['recheck/markdown']
@@ -1062,12 +1063,10 @@ describe('runLint with embedded inputs', () => {
   it('counts a parsed API file with no descriptions as scanned, so its baseline entry goes stale', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(
-      path.join(dir, 'recheck-baseline.yaml'),
+      path.join(dir, DEFAULT_BASELINE_FILE),
       'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
     );
-    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
-      'recheck/markdown',
-    ]);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
     const apiFile = path.join(dir, 'openapi.yaml');
 
     const withApiFiles = collectingLogger();
@@ -1082,12 +1081,10 @@ describe('runLint with embedded inputs', () => {
   it('keeps the baseline entry of an unreadable API file out of the stale check', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(
-      path.join(dir, 'recheck-baseline.yaml'),
+      path.join(dir, DEFAULT_BASELINE_FILE),
       'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
     );
-    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
-      'recheck/markdown',
-    ]);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
 
     const withUnreadable = collectingLogger();
     const exitCode = await runLint(

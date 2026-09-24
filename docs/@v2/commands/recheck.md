@@ -51,7 +51,6 @@ Use at most one of them in a run.
 | --output-path             | string   | Write the report to this file instead of stdout. Applies to `--format json` and `sarif`.                                          |
 | --readability             | boolean  | Report readability scores instead of lint findings.                                                                               |
 | --rule                    | [string] | Run only these rules. Alias: `-r`.                                                                                                |
-| --severity                | string   | Run only rules at this severity or higher.<br />**Possible values:** `warn`, `error`.                                             |
 | --skip-rule               | [string] | Skip these rules.                                                                                                                 |
 | --stats                   | boolean  | Print statistics per rule. Alias: `-s`.                                                                                           |
 | --summary                 | string   | Print a summary of the run.<br />**Possible values:** `json`, `text`.                                                             |
@@ -127,13 +126,6 @@ redocly recheck docs --generate-baseline
 The command writes `.redocly.recheck-baseline.yaml` next to `redocly.yaml`.
 Commit the file.
 Later runs pick it up automatically.
-
-To keep the baseline somewhere else, set `baseline` in the `recheck` block:
-
-```yaml
-recheck:
-  baseline: ./config/recheck-baseline.yaml
-```
 
 After you fix errors, generate the baseline again and commit the smaller file.
 When an API description does not parse, the command writes no baseline and fails.

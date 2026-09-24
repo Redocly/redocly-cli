@@ -77,16 +77,11 @@ export async function generateBaseline(
   const kept = isIgnored ? problems.filter((problem) => !isIgnored(problem)) : problems;
   const errors = kept.filter((problem) => problem.severity === 'error');
   const baseline = buildBaseline(errors, baselineKeyMapper(configDir));
-  const outPath = config.baselinePath ?? pathModule.resolve(configDir, DEFAULT_BASELINE_FILE);
+  const outPath = pathModule.resolve(configDir, DEFAULT_BASELINE_FILE);
   await fs.writeFile(outPath, serializeBaseline(baseline), 'utf8');
 
   const fileCount = Object.keys(baseline.files).length;
   logger.log(green(`✅ Wrote ${outPath}`));
   logger.log(`   ${errors.length} error finding(s) across ${fileCount} file(s) baselined.`);
-  if (config.baselinePath === undefined) {
-    logger.log(
-      '   Runs pick up this file automatically; set `baseline` in the recheck block to use another path.'
-    );
-  }
   return 0;
 }

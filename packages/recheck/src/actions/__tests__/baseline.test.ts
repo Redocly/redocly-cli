@@ -60,9 +60,7 @@ describe('generateBaseline', () => {
   });
   it('leaves out findings the ignore predicate accepts, so no run reports them stale', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-baseline-ignored-'));
-    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
-      'recheck/markdown',
-    ]);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
     const longLine = 'lorem ipsum dolor sit amet '.repeat(6).trim();
     const apiFile = path.join(dir, 'openapi.yaml');
     const embeddedInputs = [
@@ -79,12 +77,15 @@ describe('generateBaseline', () => {
       await generateBaseline([], config, collectingLogger(), { embeddedInputs, isIgnored })
     ).toBe(0);
 
-    const baselineText = await fs.readFile(path.join(dir, 'recheck-baseline.yaml'), 'utf8');
+    const baselineText = await fs.readFile(path.join(dir, DEFAULT_BASELINE_FILE), 'utf8');
     const baseline = yaml.load(baselineText) as { files: Record<string, Record<string, number>> };
     expect(baseline.files[baselineKeyMapper(dir)(apiFile)]).toBeUndefined();
 
+    // The baseline is discovered by presence, so the config resolves again
+    // now that the file exists.
+    const configWithBaseline = await resolveConfig(dir, {}, ['recheck/markdown']);
     const logger = collectingLogger();
-    const exitCode = await runLint([], config, { embeddedInputs, isIgnored }, logger);
+    const exitCode = await runLint([], configWithBaseline, { embeddedInputs, isIgnored }, logger);
     expect(logger.lines.join('\n')).toContain('0 stale');
     expect(exitCode).toBe(0);
   });
