@@ -43,6 +43,27 @@ describe('ApiClient', () => {
     );
   });
 
+  it('should append the client marker from REDOCLY_CLIENT to the user agent', async () => {
+    vi.stubEnv('REDOCLY_CLIENT', 'redocly-reunite-push-action/v1.4.0');
+    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
+    const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });
+
+    try {
+      await apiClient.remotes.getDefaultBranch(testOrg, testProject);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'user-agent': `${expectedUserAgent} redocly-reunite-push-action/v1.4.0`,
+        }),
+      })
+    );
+  });
+
   describe('getDefaultBranch()', () => {
     let apiClient: ReuniteApi;
 
