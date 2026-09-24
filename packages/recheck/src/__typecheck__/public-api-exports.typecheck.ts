@@ -69,7 +69,7 @@ export const typedRunLint: typeof runLint = runLint;
 
 export const typedGenerateBaseline: typeof generateBaseline = generateBaseline;
 
-export const typedReadabilityOptions: ReadabilityOptions = { format: 'table' };
+export const typedReadabilityOptions: ReadabilityOptions = { changedOnly: false };
 export const typedRunReadability: typeof runReadability = runReadability;
 
 export const typedMarkdocSchemaOptions: MarkdocSchemaOptions = {

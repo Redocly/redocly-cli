@@ -52,7 +52,11 @@ export { buildSummary, getBreakdownStats } from './core/summary.js';
 export type { RuleBreakdown, Summary } from './types/reporting.js';
 export { generateBaseline } from './actions/baseline.js';
 export { runReadability } from './actions/readability.js';
-export type { ReadabilityOptions } from './actions/readability.js';
+export type {
+  FileReadability,
+  ReadabilityOptions,
+  ReadabilityRunResult,
+} from './actions/readability.js';
 export { generateMarkdocSchema } from './actions/markdoc-schema.js';
 export type { MarkdocSchemaOptions } from './actions/markdoc-schema.js';
 export { silentLogger, collectingLogger } from './actions/logger.js';

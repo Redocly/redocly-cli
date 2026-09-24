@@ -1,10 +1,10 @@
+// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
-import { collectingLogger } from '../logger.js';
 import { runReadability } from '../readability.js';
 
 async function resolveConfig(configDir: string): Promise<ResolvedRecheckConfig> {
@@ -28,7 +28,16 @@ describe('runReadability', () => {
     await fs.rm(tempDir, { recursive: true, force: true });
   });
 
-  it('scores two roots into one table', async () => {
+  it('returns rows and medians as data', async () => {
+    await fs.writeFile(path.join(tempDir, 'a.md'), '# A\n\nThe cat sat on the mat. It was warm.\n');
+    const result = await runReadability(tempDir, await resolveConfig(tempDir), {});
+    expect(result.filesFound).toBe(1);
+    expect(result.rows.map((row) => path.basename(row.file))).toEqual(['a.md']);
+    expect(result.summary.scored).toBe(1);
+    expect(result.unreadableFiles).toEqual([]);
+  });
+
+  it('scores two roots into one set of rows', async () => {
     const guides = path.join(tempDir, 'guides');
     const reference = path.join(tempDir, 'reference');
     await fs.mkdir(guides);
@@ -42,20 +51,31 @@ describe('runReadability', () => {
       '# API\n\nThis endpoint returns a list of users. Each user carries an identifier.\n'
     );
 
-    const logger = collectingLogger();
-    const exitCode = await runReadability(
-      [guides, reference],
-      await resolveConfig(tempDir),
-      {},
-      logger
-    );
+    const result = await runReadability([guides, reference], await resolveConfig(tempDir), {});
 
-    expect(exitCode).toBe(0);
-    expect(logger.lines.some((line) => line.includes('Scoring 2 markdown file(s)'))).toBe(true);
-    // One table, not one per root: a single header line with both files under it.
-    expect(logger.outputs.filter((line) => line.includes('FRE     Grade'))).toHaveLength(1);
-    const table = logger.outputs.join('\n');
-    expect(table).toContain('guide.md');
-    expect(table).toContain('api.md');
+    expect(result.roots).toEqual([guides, reference]);
+    expect(result.filesFound).toBe(2);
+    expect(result.rows.map((row) => path.basename(row.file))).toEqual(['guide.md', 'api.md']);
+    expect(result.summary.files).toBe(2);
+    expect(result.summary.scored).toBe(2);
+    expect(result.summary.medianFleschReadingEase).not.toBeNull();
   });
+
+  // chmod 000 does not stop root (or Windows) from reading the file.
+  it.skipIf(process.getuid?.() === 0 || process.platform === 'win32')(
+    'lists an unreadable file and scores the rest',
+    async () => {
+      await fs.writeFile(path.join(tempDir, 'ok.md'), '# Ok\n\nThe cat sat on the mat.\n');
+      const unreadablePath = path.join(tempDir, 'unreadable.md');
+      await fs.writeFile(unreadablePath, '# Secret\n\nThe dog ran home.\n');
+      await fs.chmod(unreadablePath, 0o000);
+
+      const result = await runReadability(tempDir, await resolveConfig(tempDir), {});
+
+      expect(result.filesFound).toBe(2);
+      expect(result.unreadableFiles).toEqual([unreadablePath]);
+      expect(result.rows.map((row) => path.basename(row.file))).toEqual(['ok.md']);
+      expect(result.summary.files).toBe(1);
+    }
+  );
 });

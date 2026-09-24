@@ -15,7 +15,12 @@ import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname } from 'node:path';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { printLintRun, printLintStart, type LintPresentation } from './print.js';
+import {
+  printLintRun,
+  printLintStart,
+  printReadabilityRun,
+  type LintPresentation,
+} from './print.js';
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
@@ -131,15 +136,11 @@ async function runAction(
   if (roots.length === 0) return 0;
 
   if (action === 'readability') {
-    return runReadability(
-      roots,
-      resolved,
-      {
-        format: argv.format === 'json' ? 'json' : 'table',
-        outputPath: argv['output-path'],
-      },
-      engineLogger
-    );
+    const result = await runReadability(roots, resolved, {});
+    return printReadabilityRun(result, {
+      format: argv.format === 'json' ? 'json' : 'table',
+      outputPath: argv['output-path'],
+    });
   }
   if (action === 'baseline') return generateBaseline(roots, resolved, engineLogger);
   const timer = new Timer();
