@@ -1,6 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 import {
   buildSummary,
+  type BaselineRunResult,
   type LintRunReport,
   type LintRunResult,
   type ReadabilityRunResult,
@@ -26,11 +27,15 @@ function info(line: string): void {
   logger.info(`${line}\n`);
 }
 
-export function printLintStart(roots: string[], apiDescriptionCount: number): void {
-  const targets = [
+function runTargets(roots: string[], apiDescriptionCount: number): string[] {
+  return [
     ...roots,
     ...(apiDescriptionCount > 0 ? [`${apiDescriptionCount} API description(s)`] : []),
   ];
+}
+
+export function printLintStart(roots: string[], apiDescriptionCount: number): void {
+  const targets = runTargets(roots, apiDescriptionCount);
   info(
     cyan(`🏃 Running recheck on: ${targets.length > 0 ? targets.join(', ') : 'nothing to check'}`)
   );
@@ -236,6 +241,20 @@ export async function printReadabilityRun(
           ? ''
           : ` • median FRE ${summary.medianFleschReadingEase} • median grade ${summary.medianFleschKincaidGrade} • median ARI ${summary.medianAutomatedReadabilityIndex}`)
     )
+  );
+  return 0;
+}
+
+export function printBaselineRun(result: BaselineRunResult): number {
+  const targets = runTargets(result.roots, result.apiDescriptionCount);
+  info(cyan(`📋 Building recheck baseline from: ${targets.join(', ')}`));
+  info(`   Found ${result.filesFound} markdown file(s)`);
+  for (const file of result.unreadableFiles) {
+    info(yellow(`   Warning: Could not read file ${file}`));
+  }
+  info(green(`✅ Wrote ${result.outPath}`));
+  info(
+    `   ${result.errorCount} error finding(s) across ${result.baselinedFileCount} file(s) baselined.`
   );
   return 0;
 }

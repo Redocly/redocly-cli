@@ -31,6 +31,7 @@ import {
 } from './descriptions.js';
 import { createPositionMapper } from './positions.js';
 import {
+  printBaselineRun,
   printLintRun,
   printLintStart,
   printReadabilityRun,
@@ -315,7 +316,7 @@ async function runAction(
   }
   const isIgnored = ignoredBy(config, resolved.rules);
   if (action === 'baseline') {
-    return generateBaseline(roots, resolved, engineLogger, { embeddedInputs, isIgnored });
+    return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
   }
   const timer = new Timer();
   printLintStart(roots, embeddedInputs.length);
