@@ -23,14 +23,3 @@ export interface BaselineStats {
   new: number;
   stale: number;
 }
-
-export type OutputFormat = 'table' | 'json' | 'sarif' | 'github-actions';
-
-export interface ReportOptions {
-  format: OutputFormat;
-  showStats?: boolean;
-  annotationsLimit?: number;
-  outputPath?: string;
-  /** Present only when a baseline is active; the json format serializes it. */
-  baseline?: BaselineStats;
-}

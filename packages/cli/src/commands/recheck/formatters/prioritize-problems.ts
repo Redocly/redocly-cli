@@ -1,4 +1,4 @@
-import type { Problem } from '../types/index.js';
+import type { Problem } from '@redocly/recheck';
 
 const SEVERITY_ORDER: Record<string, number> = {
   error: 2,

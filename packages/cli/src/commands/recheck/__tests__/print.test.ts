@@ -1,21 +1,11 @@
-import { logger } from '@redocly/openapi-core';
 import { Timer, type Fix, type LintRunReport, type Problem } from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { printLintRun } from '../print.js';
-
-function captureLogger() {
-  const stderr: string[] = [];
-  const stdout: string[] = [];
-  vi.spyOn(logger, 'info').mockImplementation((line) => void stderr.push(line));
-  vi.spyOn(logger, 'warn').mockImplementation((line) => void stderr.push(line));
-  vi.spyOn(logger, 'error').mockImplementation((line) => void stderr.push(line));
-  vi.spyOn(logger, 'output').mockImplementation((line) => void stdout.push(line));
-  return { stderr, stdout };
-}
+import { captureLogger } from './capture-logger.js';
 
 const EMPTY_REPORT: LintRunReport = {
   roots: ['docs'],
@@ -49,6 +39,17 @@ const WARNING: Problem = {
   ruleName: 'recheck/no-todos',
   severity: 'warn',
   message: 'TODO found.',
+};
+
+const ERROR: Problem = {
+  file: 'docs/index.md',
+  line: 3,
+  column: 1,
+  text: '',
+  match: '',
+  ruleName: 'recheck/line-length',
+  severity: 'error',
+  message: 'Line too long.',
 };
 
 const FIX: Fix = {
@@ -327,5 +328,85 @@ describe('printLintRun', () => {
     } finally {
       await fs.rm(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('printLintRun report files', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-print-files-'));
+  });
+
+  afterEach(async () => {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  });
+
+  it('writes the JSON report to the output path', async () => {
+    const outputPath = path.join(tempDir, 'output.json');
+    const { stderr, stdout } = captureLogger();
+    const code = await printLintRun(
+      { status: 'completed', ...LINTED_REPORT, problems: [ERROR] },
+      { format: 'json', outputPath },
+      new Timer()
+    );
+    expect(code).toBe(1);
+    const report = JSON.parse(await fs.readFile(outputPath, 'utf8'));
+    expect(report.summary.totalIssues).toBe(1);
+    expect(report.issues[0].message).toBe('Line too long.');
+    expect(stderr.join('')).toContain(`\n   Wrote JSON report to ${outputPath}\n`);
+    expect(stdout).toEqual([]);
+  });
+
+  it('writes the SARIF report to the output path', async () => {
+    const outputPath = path.join(tempDir, 'output.sarif');
+    const { stderr, stdout } = captureLogger();
+    const code = await printLintRun(
+      { status: 'completed', ...LINTED_REPORT, problems: [ERROR] },
+      { format: 'sarif', outputPath },
+      new Timer()
+    );
+    expect(code).toBe(1);
+    const sarif = JSON.parse(await fs.readFile(outputPath, 'utf8'));
+    expect(sarif.runs[0].results).toHaveLength(1);
+    expect(sarif.runs[0].results[0].message.text).toBe('Line too long.');
+    expect(stderr.join('')).toContain(`\n   Wrote SARIF to ${outputPath}\n`);
+    expect(stdout).toEqual([]);
+  });
+
+  it('writes the JSON summary to the summary path', async () => {
+    const summaryPath = path.join(tempDir, 'summary.json');
+    const { stderr } = captureLogger();
+    const code = await printLintRun(
+      { status: 'completed', ...LINTED_REPORT, problems: [WARNING] },
+      { format: 'table', summary: 'json', summaryPath },
+      new Timer()
+    );
+    expect(code).toBe(0);
+    const summary = JSON.parse(await fs.readFile(summaryPath, 'utf8'));
+    expect(summary.totalIssues).toBe(1);
+    expect(summary.totalWarnings).toBe(1);
+    expect(summary.breakdown['recheck/no-todos'].total).toBe(1);
+    expect(stderr.join('')).toContain(`\n   Wrote summary to ${summaryPath}\n`);
+  });
+
+  it('caps the SARIF results with the annotations limit', async () => {
+    const outputPath = path.join(tempDir, 'report.sarif');
+    const problems = [5, 4, 3, 2, 1].map((line) => ({ ...ERROR, line }));
+    const { stderr } = captureLogger();
+    const code = await printLintRun(
+      { status: 'completed', ...LINTED_REPORT, problems },
+      { format: 'sarif', outputPath, annotationsLimit: 2 },
+      new Timer()
+    );
+    expect(code).toBe(1);
+    const sarif = JSON.parse(await fs.readFile(outputPath, 'utf8'));
+    expect(
+      sarif.runs[0].results.map(
+        (result: { locations: { physicalLocation: { region: { startLine: number } } }[] }) =>
+          result.locations[0].physicalLocation.region.startLine
+      )
+    ).toEqual([1, 2]);
+    expect(stderr.join('')).toContain('\n   Annotations prepared: 2 (limit 2)\n');
   });
 });

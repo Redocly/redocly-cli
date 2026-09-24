@@ -1,7 +1,6 @@
-import * as fs from 'fs/promises';
-
-import type { Logger } from '../../actions/logger.js';
-import type { Problem } from '../../types/index.js';
+import { logger } from '@redocly/openapi-core';
+import type { Problem } from '@redocly/recheck';
+import * as fs from 'node:fs/promises';
 
 const SEVERITY_TO_LEVEL: Record<string, 'error' | 'warning' | 'note'> = {
   error: 'error',
@@ -66,16 +65,15 @@ export function buildSarif(problems: Problem[]): Record<string, unknown> {
  */
 export async function outputSarifFormat(
   problems: Problem[],
-  outputPath: string | undefined,
-  logger: Logger
+  outputPath: string | undefined
 ): Promise<void> {
   const sarif = buildSarif(problems);
   const content = JSON.stringify(sarif, null, 2);
 
   if (outputPath && outputPath.length > 0) {
     await fs.writeFile(outputPath, content, 'utf8');
-    logger.log(`\n   Wrote SARIF to ${outputPath}`);
+    logger.info(`\n   Wrote SARIF to ${outputPath}\n`);
   } else {
-    logger.output(content);
+    logger.output(`${content}\n`);
   }
 }
