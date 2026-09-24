@@ -1,0 +1,10 @@
+
+🎉 No issues found!
+
+Could not read API description openapi.yaml: Could not resolve $ref ./missing.yaml#/Pet from ./tests/e2e/recheck/api-broken-ref/openapi.yaml: ENOENT: no such file or directory './tests/e2e/recheck/api-broken-ref/missing.yaml'
+🏃 Running recheck on: nothing to check
+
+🔧 Running 53 rule(s)...
+
+   Annotations prepared: 0
+   Completed in <time>

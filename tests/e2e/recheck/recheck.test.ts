@@ -162,6 +162,17 @@ describe('recheck', () => {
     );
   });
 
+  test('api-broken-ref reports an API description whose local $ref target is missing', async () => {
+    const testPath = join(__dirname, 'api-broken-ref');
+    const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('Could not read API description');
+    expect(result).toContain('missing.yaml');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
   test('yaml-page lints a YAML file that is not an API description as a page', async () => {
     const testPath = join(__dirname, 'yaml-page');
     const args = getParams(indexEntryPoint, ['recheck', 'notes.yaml']);

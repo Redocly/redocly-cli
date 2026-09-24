@@ -44,6 +44,21 @@ export async function collectDescriptions(
     externalRefResolver: resolver,
   });
 
+  // Throws for a local $ref target that is missing or does not parse.
+  // Without this check, the walk skips that file and reports nothing.
+  const brokenRefs: string[] = [];
+  for (const [refId, resolvedRef] of resolvedRefMap) {
+    if (resolvedRef.resolved) continue;
+    const separatorIndex = refId.indexOf('::');
+    const sourceFile = refId.slice(0, separatorIndex);
+    const ref = refId.slice(separatorIndex + 2);
+    if (isAbsoluteUrl(sourceFile) || isAbsoluteUrl(ref)) continue;
+    brokenRefs.push(
+      `Could not resolve $ref ${ref} from ${sourceFile}: ${resolvedRef.error?.message ?? 'unknown error'}`
+    );
+  }
+  if (brokenRefs.length > 0) throw new Error(brokenRefs.join('\n'));
+
   const seen = new Set<string>();
   const collected: CollectedDescription[] = [];
   const visitor: Oas3Visitor = {

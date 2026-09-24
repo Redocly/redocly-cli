@@ -113,4 +113,31 @@ describe('collectDescriptions', () => {
     expect(files).toContain(join(dir, 'openapi.yaml'));
     expect(files).toContain(join(dir, 'schemas.yaml'));
   });
+
+  it('rejects a root whose local $ref target is missing', async () => {
+    const dir = fixture({
+      'openapi.yaml': `openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+  description: Welcome to the museum.
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: './missing.yaml#/Pet'
+`,
+    });
+    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
+    await expect(collectDescriptions(join(dir, 'openapi.yaml'), config)).rejects.toThrow(
+      'missing.yaml'
+    );
+
+    const multiFileDir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
+    await expect(
+      collectDescriptions(join(multiFileDir, 'openapi.yaml'), config)
+    ).resolves.toMatchObject({
+      files: expect.arrayContaining([join(multiFileDir, 'schemas.yaml')]),
+    });
+  });
 });

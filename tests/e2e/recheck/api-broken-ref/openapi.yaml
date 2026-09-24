@@ -1,0 +1,10 @@
+openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+  description: Welcome to the museum.
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: './missing.yaml#/Pet'
