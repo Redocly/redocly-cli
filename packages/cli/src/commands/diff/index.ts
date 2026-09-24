@@ -1,6 +1,8 @@
 import {
+  AbortFlowError,
   bundle,
   diffDocuments,
+  HandledError,
   formatProblems,
   getTotals,
   logger,
@@ -9,7 +11,6 @@ import {
 import { green } from 'colorette';
 import { writeFileSync } from 'node:fs';
 
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { checkVersion } from './check-version.js';
@@ -20,7 +21,7 @@ import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
   if (argv.output && argv.format === 'github-actions') {
-    return exitWithError(
+    throw new HandledError(
       `The github-actions format prints to stdout only. To write a report to a file, use one of these formats: ${Object.keys(diffReportFormats).join(', ')}.`
     );
   }
