@@ -16,13 +16,10 @@ export function opposite(direction: Direction): Direction {
 
 /**
  * The way the data in a node travels. The node's position says it first; where it says nothing,
- * the node takes the direction of every site that references it or one of its ancestors, over
- * both documents, so a shared component keeps one direction. A site inside another referenced
- * node borrows that node's direction, which the repeated passes settle: merging only ever widens
- * a direction, so the answers stop changing after a few rounds, and a reference cycle simply
- * contributes nothing.
+ * the node takes the directions its referenced ancestors are used in, over both documents, so a
+ * shared component keeps one direction.
  */
-export function directionsOf(
+export function resolveDirections(
   references: Reference[],
   diffNodeOf: Map<NodeEntry, DiffNode>,
   directions: Directions
@@ -40,18 +37,29 @@ export function directionsOf(
     return merged;
   };
 
-  let widened = true;
-  while (widened) {
-    widened = false;
-    for (const { from, to } of references) {
-      const target = diffNodeOf.get(to)!;
-      const current = usage.get(target) ?? [];
-      const merged = mergeDirections(current, directionOf(from));
-      if (merged.length !== current.length) {
-        usage.set(target, merged);
-        widened = true;
-      }
+  // A site inside a referenced node borrows that node's usage, so each time a usage widens, the
+  // references made from inside it are taken again. Usage only ever widens, so this ends, and a
+  // reference cycle simply contributes nothing.
+  const madeInside = new Map<DiffNode, Reference[]>();
+  for (const reference of references) {
+    for (let current: NodeEntry | null = reference.from; current; current = current.parent) {
+      const node = diffNodeOf.get(current)!;
+      const made = madeInside.get(node);
+      if (made) made.push(reference);
+      else madeInside.set(node, [reference]);
     }
+  }
+
+  const pending = [...references];
+  while (pending.length) {
+    const { from, to } = pending.pop()!;
+    const target = diffNodeOf.get(to)!;
+    const known = usage.get(target) ?? [];
+    const widened = mergeDirections(known, directionOf(from));
+    if (widened.length === known.length) continue;
+
+    usage.set(target, widened);
+    for (const reference of madeInside.get(target) ?? []) pending.push(reference);
   }
 
   return directionOf;

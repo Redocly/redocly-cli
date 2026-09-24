@@ -71,6 +71,7 @@ describe('buildNodeTree', () => {
       #/paths/~1pets/get/responses/200  200  Response
       #/paths/~1pets/get/responses/200/content  content  MediaTypesMap
       #/paths/~1pets/get/responses/200/content/application~1json  application/json  MediaType
+      #/paths/~1pets/get/responses/200/content/application~1json/schema  schema  Schema
       #/components  components  Components
       #/components/schemas  schemas  NamedSchemas
       #/components/schemas/Pet  Pet  Schema
@@ -120,8 +121,34 @@ describe('buildNodeTree references', () => {
     `);
 
     expect(references.map(({ from, to }) => [from.location.pointer, to.location.pointer])).toEqual([
-      ['#/paths/~1p/get/parameters', '#/components/parameters/Limit'],
-      ['#/paths/~1p/get/responses/200/content/application~1json', '#/components/schemas/Pet'],
+      ['#/paths/~1p/get/parameters/0', '#/components/parameters/Limit'],
+      [
+        '#/paths/~1p/get/responses/200/content/application~1json/schema',
+        '#/components/schemas/Pet',
+      ],
+    ]);
+    expect(references.map(({ from }) => from.type)).toEqual(['Parameter', 'Schema']);
+  });
+
+  it('resolves a $ref whose pointer is percent-encoded', async () => {
+    const { references } = await build(outdent`
+      openapi: 3.1.0
+      info: { title: T, version: '1' }
+      paths:
+        /p:
+          get:
+            responses:
+              '200':
+                content:
+                  application/json:
+                    schema: { $ref: '#/components/schemas/Pet%20Name' }
+      components:
+        schemas:
+          Pet Name: { type: object }
+    `);
+
+    expect(references.map(({ to }) => to.location.pointer)).toEqual([
+      '#/components/schemas/Pet Name',
     ]);
   });
 });

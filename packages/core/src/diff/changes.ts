@@ -1,9 +1,8 @@
 import type { NodeEntry } from '../node-tree/types.js';
-import { isRef } from '../ref-utils.js';
 import { dequal } from '../utils/dequal.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isScalar, isScalarArray } from '../utils/is-scalar.js';
-import { latestOf, typeOf } from './diff-tree.js';
+import { identityOf, latestOf, typeOf } from './diff-tree.js';
 import type { Change, DiffNode, Identities, LocatedNode } from './types.js';
 
 export function displaySide(change: Change): LocatedNode {
@@ -50,7 +49,7 @@ export function collectChanges(root: DiffNode, identities: Identities): Change[]
 }
 
 /**
- * The node's own values — scalars, scalar arrays and `$ref`s; nested objects and arrays are
+ * The node's own values — scalars and scalar arrays; nested objects, arrays and `$ref`s are
  * nodes of their own. A value the segment hides, such as a path template, is compared too.
  */
 function comparableValues(
@@ -62,16 +61,17 @@ function comparableValues(
 
   if (isPlainObject(side.value)) {
     for (const [name, item] of Object.entries(side.value)) {
-      if (isRef(item) || isScalar(item) || isScalarArray(item)) values[name] = item;
+      if (isScalar(item) || isScalarArray(item)) values[name] = item;
     }
   }
 
-  const identity = node.parent && identities[typeOf(node.parent)]?.(side);
+  const identity = node.parent && identityOf(side, typeOf(node.parent), identities);
   return { ...values, ...identity?.values };
 }
 
+// A `$ref` added or removed stands for what it points at, so a rule reads the target's value.
 function located(side: NodeEntry): LocatedNode {
-  return { location: side.location, value: side.value };
+  return { location: side.location, value: side.target?.value ?? side.value };
 }
 
 // A value the node does not carry as a property (the path template) is located at the node.

@@ -1,7 +1,7 @@
 import { defaultDiffRules } from '../../config/diff-recommended.js';
 import { Location } from '../../ref-utils.js';
 import { Source } from '../../resolve.js';
-import { activeRules, appliesTo, flattenVisitor, judgeChanges } from '../judge.js';
+import { activeHandlers, appliesTo, flattenVisitor, judgeChanges } from '../judge.js';
 import { oas3Rules } from '../rules/index.js';
 import { oas3Directions } from '../specs/oas3.js';
 import type { Change, DiffNode, DiffRule, Impact } from '../types.js';
@@ -272,16 +272,17 @@ describe('flattenVisitor', () => {
   });
 });
 
-describe('activeRules', () => {
-  it('instantiates one visitor per rule under the rule id', () => {
-    const rule: DiffRule = () => ({ Schema() {} });
+describe('activeHandlers', () => {
+  it('gives every handler of an enabled rule its id and configured impact', () => {
+    const rule: DiffRule = () => ({ Schema() {}, SchemaProperties: { Schema() {} } });
 
     expect(
-      activeRules([{ 'my-rule': rule }], () => 'major').map(({ id, impact, handlers }) => [
-        id,
-        impact,
-        handlers.map(({ typePath }) => typePath),
-      ])
-    ).toEqual([['my-rule', 'major', [['Schema']]]]);
+      activeHandlers([{ 'my-rule': rule, 'off-rule': rule }], (ruleId) =>
+        ruleId === 'my-rule' ? 'major' : 'off'
+      ).map(({ ruleId, impact, typePath }) => [ruleId, impact, typePath])
+    ).toEqual([
+      ['my-rule', 'major', ['Schema']],
+      ['my-rule', 'major', ['SchemaProperties', 'Schema']],
+    ]);
   });
 });
