@@ -1,0 +1,18 @@
+info
+  · patch  modified  version
+      at revision.yaml:2:31
+
+GET /menu
+  ✔ minor  added     parameters/{query:category}
+      at revision.yaml:14:11
+
+/specials
+  ✔ minor  added
+      at revision.yaml:31:5
+
+0 major, 2 minor, 1 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+✅ Diff passed.

@@ -1,0 +1,16 @@
+document
+  · patch  modified  openapi
+      at revision.yaml:1:10
+
+components
+  · patch  modified  schemas/Order/properties/note · nullable
+      at revision.yaml:21:15
+  · patch  modified  schemas/Order/properties/note · type
+      at revision.yaml:21:23
+
+0 major, 0 minor, 3 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+✅ Diff passed.
