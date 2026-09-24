@@ -21,12 +21,9 @@ exports[`should use inputs from CLI and env 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -39,7 +36,7 @@ exports[`should use inputs from CLI and env 1`] = `
   Running child workflow for the step search-menu 
   Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✓ GET /menu - step search-menu 
+  ✗ GET /menu - step search-menu 
 
     Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
@@ -54,12 +51,9 @@ exports[`should use inputs from CLI and env 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -68,7 +62,7 @@ exports[`should use inputs from CLI and env 1`] = `
     ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
- 
+    ✗ unexpected error
  
   ✓ GET /menu - step test-default-input 
 
@@ -86,12 +80,9 @@ exports[`should use inputs from CLI and env 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -102,11 +93,11 @@ exports[`should use inputs from CLI and env 1`] = `
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow inputs-with-cli-and-env.arazzo.yaml / client-registration 
+  Running workflow inputs-with-cli-and-env.arazzo.yaml / order-attempt 
  
-  ✓ POST /oauth2/register - step create-client 
+  ✓ POST /orders - step create-order 
 
-    Request URL: https://api.cafe.redocly.com/oauth2/register
+    Request URL: https://api.cafe.redocly.com/orders
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -120,52 +111,49 @@ exports[`should use inputs from CLI and env 1`] = `
       } 
  
 
-    Response status code: 400
+    Response status code: 401
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
         "type": "about:blank",
-        "title": "Validation failed",
-        "status": 400,
-        "instance": "/oauth2/register",
-        "details": {
-          "errors": [
-            {
-              "code": "invalid_type",
-              "expected": "string",
-              "received": "undefined",
-              "path": [
-                "name"
-              ],
-              "message": "Required"
-            }
-          ]
-        }
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
       } 
  
-    ✓ success criteria check - $statusCode == 400
-    ✓ success criteria check - $[?@.title == 'Validation failed']
-    ✓ status code check - $statusCode in [201, 400, 500]
+    ✓ success criteria check - $statusCode == 401
+    ✓ success criteria check - $[?@.title == 'Bearer token is required']
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
     ✓ content-type check
     ✓ schema check
  
+
+  Failed tests info:
+
+  Workflow name: get-menu-items
  
+    stepId - search-menu 
+    ✗ unexpected error 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
   Summary for inputs-with-cli-and-env.arazzo.yaml
   
-  Workflows: 2 passed, 2 total
-  Steps: 4 passed, 4 total
-  Checks: 16 passed, 16 total
+  Workflows: 1 passed, 1 failed, 2 total
+  Steps: 3 passed, 1 failed, 4 total
+  Checks: 12 passed, 1 failed, 13 total
   Time: <test>ms 
  
  
 ┌─────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├─────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ inputs-with-cli-and-env.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+│ x inputs-with-cli-and-env.arazzo.yaml                                       │ 2          │ 1       │ 1       │ -        │
 └─────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
+
+ Tests exited with error 
 
 "
 `;

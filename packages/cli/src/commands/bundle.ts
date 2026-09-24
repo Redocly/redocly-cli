@@ -9,13 +9,13 @@ import {
   type ComponentNamesStrategy,
   type Async2Definition,
   type Async3Definition,
+  AbortFlowError,
 } from '@redocly/openapi-core';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
 import { performance } from 'perf_hooks';
 
-import { type OutputExtension, type Totals, type VerifyConfigOptions } from '../types.js';
-import { AbortFlowError } from '../utils/error.js';
+import { type OutputExtension, type Totals } from '../types.js';
 import {
   dumpBundle,
   getExecutionTime,
@@ -43,7 +43,7 @@ export type BundleArgv = {
   'component-names-strategy'?: ComponentNamesStrategy;
   'skip-decorator'?: string[];
   'skip-preprocessor'?: string[];
-} & VerifyConfigOptions;
+};
 
 export async function handleBundle({
   argv,

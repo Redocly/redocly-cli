@@ -10,10 +10,8 @@ import type {
   ServerCapabilities,
   Tool,
 } from '@modelcontextprotocol/sdk/types.js';
-import { logger } from '@redocly/openapi-core';
+import { logger, HandledError } from '@redocly/openapi-core';
 import { gray } from 'colorette';
-
-import { exitWithError } from '../../utils/error.js';
 
 export type McpTarget =
   | { kind: 'http'; url: URL; headers: Record<string, string> }
@@ -112,7 +110,7 @@ async function connectClient(
       await mcpClient.close().catch(() => undefined);
     }
   }
-  exitWithError(
+  throw new HandledError(
     `Failed to connect to the MCP server at ${targetLabel(target)}: ${
       firstError instanceof Error ? firstError.message : String(firstError)
     }`

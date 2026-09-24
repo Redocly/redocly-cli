@@ -5,6 +5,7 @@ cp packages/core/package.json packages/core/package.json.bak
 cp packages/respect-core/package.json packages/respect-core/package.json.bak
 cp packages/client-generator/package.json packages/client-generator/package.json.bak
 cp packages/recheck/package.json packages/recheck/package.json.bak
+cp packages/reunite-integration/package.json packages/reunite-integration/package.json.bak
 
 # Build and pack core package
 cd packages/core
@@ -32,6 +33,13 @@ recheck=$(npm pack | tail -n 1)
 mv $recheck ../../recheck.tgz
 cd ../../
 
+# Update and pack reunite-integration package
+cd packages/reunite-integration
+jq '.dependencies["@redocly/openapi-core"] = "./openapi-core.tgz"' package.json > tmp.json && mv tmp.json package.json
+reunite_integration=$(npm pack | tail -n 1)
+mv $reunite_integration ../../reunite-integration.tgz
+cd ../../
+
 # Pack cli from its staged, dependency-free publish directory
 cd packages/cli
 npm run prepare:publish-dir
@@ -45,3 +53,4 @@ mv packages/core/package.json.bak packages/core/package.json
 mv packages/respect-core/package.json.bak packages/respect-core/package.json
 mv packages/client-generator/package.json.bak packages/client-generator/package.json
 mv packages/recheck/package.json.bak packages/recheck/package.json
+mv packages/reunite-integration/package.json.bak packages/reunite-integration/package.json

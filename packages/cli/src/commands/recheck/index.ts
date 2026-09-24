@@ -1,4 +1,11 @@
-import { detectSpec, isAbsoluteUrl, logger, parseYaml, type Config } from '@redocly/openapi-core';
+import {
+  AbortFlowError,
+  detectSpec,
+  isAbsoluteUrl,
+  logger,
+  parseYaml,
+  type Config,
+} from '@redocly/openapi-core';
 import {
   generateBaseline,
   generateMarkdocSchema,
@@ -15,7 +22,6 @@ import {
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname, resolve } from 'node:path';
 
-import { AbortFlowError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { collectDescriptions, type CollectedDescription } from './descriptions.js';
 import { createPositionMapper } from './positions.js';

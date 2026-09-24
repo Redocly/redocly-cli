@@ -13,11 +13,10 @@ import {
   type ResolveResult,
   type UserContext,
   type WalkContext,
+  HandledError,
 } from '@redocly/openapi-core';
 import { relative, resolve } from 'node:path';
 
-import type { VerifyConfigOptions } from '../types.js';
-import { exitWithError } from '../utils/error.js';
 import { getFallbackApisOrExit } from '../utils/miscellaneous.js';
 import type { CommandArgs } from '../wrapper.js';
 
@@ -27,7 +26,7 @@ export type InspectNodeTypesArgv = {
   type?: string;
   summary?: boolean;
   parents?: boolean;
-} & VerifyConfigOptions;
+};
 
 const MAX_SUGGESTIONS = 20;
 
@@ -122,7 +121,7 @@ export async function handleInspectNodeTypes({
     const typeName = argv.type;
     const filtered = allNodes.filter(({ types }) => types.includes(typeName));
     if (filtered.length === 0) {
-      exitWithError(
+      throw new HandledError(
         `No nodes of type '${typeName}'. Run the command with --summary to see the types used in this description.`
       );
     }
@@ -211,7 +210,7 @@ function findNode(nodes: Map<string, FoundNode>, pointer: string, rootRef: strin
   const node = nodes.get(`${absoluteRef}#${fragment || '/'}`);
 
   if (!node) {
-    exitWithError(
+    throw new HandledError(
       `No node at ${pointer}. ${
         describeClosestNode(nodes, absoluteRef, `#${fragment || '/'}`, file) ??
         `Check the pointer, and make sure the file is referenced from ${formatRef(rootRef)}.`
