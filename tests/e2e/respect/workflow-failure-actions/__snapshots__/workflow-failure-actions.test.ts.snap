@@ -14,20 +14,12 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running failure action repeated-failure-action-1 for the step get-menu-items 
   Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✓ GET /menu - step search-menu 
+  ✗ GET /menu - step search-menu 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
- 
-
-  Retrying step get-menu-items (1/1)
- 
-  ✗ GET /menu - step get-menu-items 
-    ✗ success criteria check - $statusCode == 201
-    ✓ status code check - $statusCode in [200, 400, 500]
-    ✓ content-type check
-    ✓ schema check
+    ✗ unexpected error
  
   ✗ GET /menu - step get-menu-items-2 
     ✗ success criteria check - $statusCode == 201
@@ -49,9 +41,9 @@ exports[`should execute successActions for each workflow step if it does not hav
   Workflow name: get-menu-items
  
     stepId - get-menu-items 
-    ✗ success criteria check 
-      Checking simple criteria: {"condition":"$statusCode == 201"}
-       
+    ✗ unexpected error 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
     stepId - get-menu-items-2 
     ✗ success criteria check 
       Checking simple criteria: {"condition":"$statusCode == 201"}
@@ -59,8 +51,8 @@ exports[`should execute successActions for each workflow step if it does not hav
   Summary for workflow-failure-actions.arazzo.yaml
   
   Workflows: 1 failed, 1 total
-  Steps: 1 passed, 2 failed, 3 total
-  Checks: 10 passed, 2 failed, 12 total
+  Steps: 2 failed, 2 total
+  Checks: 3 passed, 2 failed, 5 total
   Time: <test>ms 
  
  
