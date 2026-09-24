@@ -34,6 +34,7 @@ import {
   printBaselineRun,
   printLintRun,
   printLintStart,
+  printMarkdocSchemaRun,
   printReadabilityRun,
   type LintPresentation,
 } from './print.js';
@@ -214,11 +215,10 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   }
 
   if (selected.action === 'markdoc-schema') {
-    const exitCode = await generateMarkdocSchema(
-      { from: argv.from ?? [], out: argv.out ?? '', check: argv.check },
-      engineLogger
+    const code = printMarkdocSchemaRun(
+      await generateMarkdocSchema({ from: argv.from ?? [], out: argv.out ?? '', check: argv.check })
     );
-    if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
+    if (code !== 0) throw new AbortFlowError('Recheck failed.');
     return;
   }
 

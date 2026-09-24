@@ -1,3 +1,4 @@
+// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as yaml from 'js-yaml';
 import * as fs from 'node:fs';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
@@ -6,7 +7,6 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { collectingLogger } from '../logger.js';
 import { generateMarkdocSchema } from '../markdoc-schema.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -27,10 +27,11 @@ describe('generateMarkdocSchema', () => {
 
   it('writes a YAML file carrying the extracted statics under a generated-file header', async () => {
     const out = await tmpOut();
-    const logger = collectingLogger();
-    const result = await generateMarkdocSchema({ from: [fixture('module-a.ts')], out }, logger);
+    const result = await generateMarkdocSchema({ from: [fixture('module-a.ts')], out });
 
-    expect(result, `errors:\n${logger.errors.join('\n')}`).toBe(0);
+    expect(result.status).toBe('written');
+    if (result.status !== 'written') return;
+    expect(result.outPath).toBe(out);
     const content = await readFile(out, 'utf8');
     expect(content).toContain('# Source module(s):');
     expect(content).toContain(fixture('module-a.ts'));
@@ -47,15 +48,15 @@ describe('generateMarkdocSchema', () => {
     expect(parsed['onlyInA']).toBeDefined();
   });
 
-  it('merges two modules whose shared tag is identical, exit 0, tag appears once', async () => {
+  it('merges two modules whose shared tag is identical, tag appears once', async () => {
     const out = await tmpOut();
-    const logger = collectingLogger();
-    const result = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts'), fixture('module-b-same-widget.ts')], out },
-      logger
-    );
+    const result = await generateMarkdocSchema({
+      from: [fixture('module-a.ts'), fixture('module-b-same-widget.ts')],
+      out,
+    });
 
-    expect(result, `errors:\n${logger.errors.join('\n')}`).toBe(0);
+    expect(result.status).toBe('written');
+    if (result.status !== 'written') return;
     const content = await readFile(out, 'utf8');
     const parsed = yaml.load(content) as Record<string, unknown>;
     expect(Object.keys(parsed).filter((key) => key === 'widget')).toHaveLength(1);
@@ -63,82 +64,68 @@ describe('generateMarkdocSchema', () => {
     expect(parsed['onlyInB']).toBeDefined();
   });
 
-  it('rejects two modules whose shared tag differs, exit 1, names the tag and both modules', async () => {
+  it('rejects two modules whose shared tag differs, names the tag and both modules', async () => {
     const out = await tmpOut();
     const moduleA = fixture('module-a.ts');
     const moduleC = fixture('module-c-conflicting-widget.ts');
-    const logger = collectingLogger();
-    const result = await generateMarkdocSchema({ from: [moduleA, moduleC], out }, logger);
+    const result = await generateMarkdocSchema({ from: [moduleA, moduleC], out });
 
-    expect(result).toBe(1);
-    const errorText = logger.errors.join('\n');
-    expect(errorText).toContain('widget');
-    expect(errorText).toContain(moduleA);
-    expect(errorText).toContain(moduleC);
+    expect(result.status).toBe('conflicts');
+    if (result.status !== 'conflicts') return;
+    const conflictText = result.conflicts.join('\n');
+    expect(conflictText).toContain('widget');
+    expect(conflictText).toContain(moduleA);
+    expect(conflictText).toContain(moduleC);
     expect(fs.existsSync(out)).toBe(false);
   });
 
-  it('--check exits 0 and leaves an up-to-date file untouched', async () => {
+  it('--check leaves an up-to-date file untouched', async () => {
     const out = await tmpOut();
-    const writeResult = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts')], out },
-      collectingLogger()
-    );
-    expect(writeResult).toBe(0);
+    const writeResult = await generateMarkdocSchema({ from: [fixture('module-a.ts')], out });
+    expect(writeResult.status).toBe('written');
     const mtimeBefore = (await stat(out)).mtimeMs;
 
-    const logger = collectingLogger();
-    const checkResult = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts')], out, check: true },
-      logger
-    );
-    expect(checkResult, `errors:\n${logger.errors.join('\n')}`).toBe(0);
+    const checkResult = await generateMarkdocSchema({
+      from: [fixture('module-a.ts')],
+      out,
+      check: true,
+    });
+    expect(checkResult).toEqual({ status: 'up-to-date', outPath: out });
     const mtimeAfter = (await stat(out)).mtimeMs;
     expect(mtimeAfter).toBe(mtimeBefore);
   });
 
-  it('--check exits 1 and names the file after it was mutated', async () => {
+  it('--check reports a stale file after it was mutated', async () => {
     const out = await tmpOut();
-    const writeResult = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts')], out },
-      collectingLogger()
-    );
-    expect(writeResult).toBe(0);
+    const writeResult = await generateMarkdocSchema({ from: [fixture('module-a.ts')], out });
+    expect(writeResult.status).toBe('written');
     await writeFile(out, '# mutated by hand\nwidget: {}\n', 'utf8');
 
-    const logger = collectingLogger();
-    const checkResult = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts')], out, check: true },
-      logger
-    );
-    expect(checkResult).toBe(1);
-    expect(logger.errors.join('\n')).toContain(out);
+    const checkResult = await generateMarkdocSchema({
+      from: [fixture('module-a.ts')],
+      out,
+      check: true,
+    });
+    expect(checkResult).toEqual({ status: 'stale', outPath: out });
   });
 
-  it('--check against a file that never existed exits 1 and says so, not "stale"', async () => {
+  it('--check against a file that never existed reports missing, not stale', async () => {
     const out = await tmpOut();
-    const logger = collectingLogger();
-    const checkResult = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts')], out, check: true },
-      logger
-    );
-    expect(checkResult).toBe(1);
-    const errorText = logger.errors.join('\n');
-    expect(errorText).toContain('does not exist');
-    expect(errorText).not.toContain('stale');
+    const checkResult = await generateMarkdocSchema({
+      from: [fixture('module-a.ts')],
+      out,
+      check: true,
+    });
+    expect(checkResult).toEqual({ status: 'missing', outPath: out });
   });
 
   it('a typo’d --out directory is a one-line diagnosis, not a stack trace', async () => {
     const out = path.join(tmpdir(), `rc-missing-dir-${Date.now()}`, 'sub', 'tags.yaml');
-    const logger = collectingLogger();
-    const writeResult = await generateMarkdocSchema(
-      { from: [fixture('module-a.ts')], out },
-      logger
-    );
-    expect(writeResult).toBe(1);
-    const errorText = logger.errors.join('\n');
-    expect(errorText).toContain('could not write');
-    expect(errorText).toContain(out);
-    expect(errorText).not.toContain('    at '); // no stack frames reach the user
+    const result = await generateMarkdocSchema({ from: [fixture('module-a.ts')], out });
+
+    expect(result.status).toBe('write-error');
+    if (result.status !== 'write-error') return;
+    expect(result.outPath).toBe(out);
+    expect(result.message).not.toContain('    at '); // no stack frames reach the user
   });
 });

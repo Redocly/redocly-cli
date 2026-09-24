@@ -6,13 +6,21 @@ import { pathToFileURL } from 'node:url';
 import { extractStatics, type RawMarkdocTagMap } from '../parser/markdoc/extract-statics.js';
 import type { MarkdocTagSchema } from '../parser/markdoc/schema.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import type { Logger } from './logger.js';
 
 export interface MarkdocSchemaOptions {
   from: string[];
   out: string;
   check?: boolean;
 }
+
+export type MarkdocSchemaResult =
+  | { status: 'written'; outPath: string }
+  | { status: 'up-to-date'; outPath: string }
+  | { status: 'missing'; outPath: string }
+  | { status: 'stale'; outPath: string }
+  | { status: 'conflicts'; conflicts: string[] }
+  | { status: 'load-error'; message: string }
+  | { status: 'write-error'; outPath: string; message: string };
 
 /** One `--from` module's extracted tags, alongside the argument the user typed for it (used in every message and the regenerate header — never the resolved path, which is a per-machine detail). */
 interface ExtractedModule {
@@ -113,9 +121,8 @@ function renderYaml(
  * apart from a project's real customizations.
  */
 export async function generateMarkdocSchema(
-  options: MarkdocSchemaOptions,
-  logger: Logger
-): Promise<number> {
+  options: MarkdocSchemaOptions
+): Promise<MarkdocSchemaResult> {
   const cwd = process.cwd();
   const modules: ExtractedModule[] = [];
 
@@ -125,17 +132,14 @@ export async function generateMarkdocSchema(
       const { tags } = extractStatics(rawTags, {}, {});
       modules.push({ source: fromArg, tags });
     } catch (error) {
-      logger.error(error instanceof Error ? error.message : String(error));
-      return 1;
+      const message = error instanceof Error ? error.message : String(error);
+      return { status: 'load-error', message };
     }
   }
 
   const { merged, conflicts } = mergeExtracted(modules);
   if (conflicts.length > 0) {
-    for (const conflict of conflicts) {
-      logger.error(`redocly recheck --generate-markdoc-schema: ${conflict}`);
-    }
-    return 1;
+    return { status: 'conflicts', conflicts };
   }
 
   const rendered = renderYaml(merged, options.from, options.out);
@@ -143,16 +147,13 @@ export async function generateMarkdocSchema(
 
   if (options.check) {
     const onDisk = await readFile(outPath, 'utf8').catch(() => null);
-    if (onDisk !== rendered) {
-      logger.error(
-        onDisk === null
-          ? `${outPath} does not exist — run \`redocly recheck --generate-markdoc-schema\` without --check to create it.`
-          : `${outPath} is stale — run \`redocly recheck --generate-markdoc-schema\` to regenerate it.`
-      );
-      return 1;
+    if (onDisk === null) {
+      return { status: 'missing', outPath };
     }
-    logger.log(`${outPath} is up to date.`);
-    return 0;
+    if (onDisk !== rendered) {
+      return { status: 'stale', outPath };
+    }
+    return { status: 'up-to-date', outPath };
   }
 
   try {
@@ -161,11 +162,7 @@ export async function generateMarkdocSchema(
     // A typo'd --out path should read as a one-line diagnosis, not a stack
     // trace; creating missing directories silently would mask the typo.
     const detail = error instanceof Error ? error.message : String(error);
-    logger.error(
-      `redocly recheck --generate-markdoc-schema: could not write ${outPath} — ${detail}`
-    );
-    return 1;
+    return { status: 'write-error', outPath, message: detail };
   }
-  logger.log(`Wrote ${outPath}`);
-  return 0;
+  return { status: 'written', outPath };
 }

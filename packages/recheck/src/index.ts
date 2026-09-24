@@ -61,7 +61,7 @@ export type {
   ReadabilityRunResult,
 } from './actions/readability.js';
 export { generateMarkdocSchema } from './actions/markdoc-schema.js';
-export type { MarkdocSchemaOptions } from './actions/markdoc-schema.js';
+export type { MarkdocSchemaOptions, MarkdocSchemaResult } from './actions/markdoc-schema.js';
 export { silentLogger, collectingLogger } from './actions/logger.js';
 export type { Logger, CollectingLogger } from './actions/logger.js';
 

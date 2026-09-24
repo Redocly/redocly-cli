@@ -4,6 +4,7 @@ import {
   type BaselineRunResult,
   type LintRunReport,
   type LintRunResult,
+  type MarkdocSchemaResult,
   type ReadabilityRunResult,
   type Timer,
 } from '@redocly/recheck';
@@ -257,4 +258,38 @@ export function printBaselineRun(result: BaselineRunResult): number {
     `   ${result.errorCount} error finding(s) across ${result.baselinedFileCount} file(s) baselined.`
   );
   return 0;
+}
+
+export function printMarkdocSchemaRun(result: MarkdocSchemaResult): number {
+  switch (result.status) {
+    case 'written':
+      info(`Wrote ${result.outPath}`);
+      return 0;
+    case 'up-to-date':
+      info(`${result.outPath} is up to date.`);
+      return 0;
+    case 'missing':
+      logger.error(
+        `${result.outPath} does not exist — run \`redocly recheck --generate-markdoc-schema\` without --check to create it.\n`
+      );
+      return 1;
+    case 'stale':
+      logger.error(
+        `${result.outPath} is stale — run \`redocly recheck --generate-markdoc-schema\` to regenerate it.\n`
+      );
+      return 1;
+    case 'conflicts':
+      for (const conflict of result.conflicts) {
+        logger.error(`redocly recheck --generate-markdoc-schema: ${conflict}\n`);
+      }
+      return 1;
+    case 'load-error':
+      logger.error(`${result.message}\n`);
+      return 1;
+    case 'write-error':
+      logger.error(
+        `redocly recheck --generate-markdoc-schema: could not write ${result.outPath} — ${result.message}\n`
+      );
+      return 1;
+  }
 }
