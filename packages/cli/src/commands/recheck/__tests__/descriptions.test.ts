@@ -143,4 +143,25 @@ components:
       files: expect.arrayContaining([join(multiFileDir, 'schemas.yaml')]),
     });
   });
+
+  it('names the unread target by the same split the walker uses when the file name has a hash', async () => {
+    const dir = fixture({
+      'openapi.yaml': `openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: './data#v2.yaml#/Pet'
+`,
+    });
+    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
+    const failure = await collectDescriptions(join(dir, 'openapi.yaml'), config).catch(
+      (error: unknown) => error
+    );
+    expect(failure).toBeInstanceOf(UnresolvedRefError);
+    expect((failure as UnresolvedRefError).files).toEqual([join(dir, 'data#v2.yaml')]);
+  });
 });
