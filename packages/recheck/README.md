@@ -69,4 +69,4 @@ recheck:
 
 ## How to contribute
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md).
+See the [Recheck engine](../../CONTRIBUTING.md#recheck-engine) section of the root contributing guide.
