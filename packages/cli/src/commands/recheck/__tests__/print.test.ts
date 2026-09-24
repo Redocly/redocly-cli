@@ -12,7 +12,12 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { printBaselineRun, printLintRun, printReadabilityRun } from '../print.js';
+import {
+  printBaselineRun,
+  printLintRun,
+  printMarkdocSchemaRun,
+  printReadabilityRun,
+} from '../print.js';
 import { captureLogger } from './capture-logger.js';
 
 const EMPTY_REPORT: LintRunReport = {
@@ -461,6 +466,80 @@ describe('printBaselineRun', () => {
       `${yellow('   Warning: Could not read file docs/a.md')}\n`,
       `${yellow('   Warning: Could not read file docs/b.md')}\n`,
       `${green('✅ Wrote /project/.redocly.recheck-baseline.yaml')}\n`,
+    ]);
+  });
+});
+
+describe('printMarkdocSchemaRun', () => {
+  it('prints the written path and exits 0', () => {
+    const { stderr, stdout } = captureLogger();
+    const code = printMarkdocSchemaRun({ status: 'written', outPath: '/project/tags.yaml' });
+    expect(code).toBe(0);
+    expect(stdout).toEqual([]);
+    expect(stderr).toEqual(['Wrote /project/tags.yaml\n']);
+  });
+
+  it('prints the up-to-date path and exits 0', () => {
+    const { stderr } = captureLogger();
+    const code = printMarkdocSchemaRun({ status: 'up-to-date', outPath: '/project/tags.yaml' });
+    expect(code).toBe(0);
+    expect(stderr).toEqual(['/project/tags.yaml is up to date.\n']);
+  });
+
+  it('prints a missing-file error naming the fix and exits 1', () => {
+    const { stderr } = captureLogger();
+    const code = printMarkdocSchemaRun({ status: 'missing', outPath: '/project/tags.yaml' });
+    expect(code).toBe(1);
+    expect(stderr).toEqual([
+      '/project/tags.yaml does not exist — run `redocly recheck --generate-markdoc-schema` without --check to create it.\n',
+    ]);
+  });
+
+  it('prints a stale-file error naming the fix and exits 1', () => {
+    const { stderr } = captureLogger();
+    const code = printMarkdocSchemaRun({ status: 'stale', outPath: '/project/tags.yaml' });
+    expect(code).toBe(1);
+    expect(stderr).toEqual([
+      '/project/tags.yaml is stale — run `redocly recheck --generate-markdoc-schema` to regenerate it.\n',
+    ]);
+  });
+
+  it('prints one prefixed error line per conflict and exits 1', () => {
+    const { stderr } = captureLogger();
+    const code = printMarkdocSchemaRun({
+      status: 'conflicts',
+      conflicts: [
+        'tag "widget" differs between "a.ts" and "b.ts"',
+        'tag "card" differs between "a.ts" and "c.ts"',
+      ],
+    });
+    expect(code).toBe(1);
+    expect(stderr).toEqual([
+      'redocly recheck --generate-markdoc-schema: tag "widget" differs between "a.ts" and "b.ts"\n',
+      'redocly recheck --generate-markdoc-schema: tag "card" differs between "a.ts" and "c.ts"\n',
+    ]);
+  });
+
+  it('prints the load-error message as-is and exits 1', () => {
+    const { stderr } = captureLogger();
+    const code = printMarkdocSchemaRun({
+      status: 'load-error',
+      message: 'could not import "schema.ts". Compile it to JavaScript first.',
+    });
+    expect(code).toBe(1);
+    expect(stderr).toEqual(['could not import "schema.ts". Compile it to JavaScript first.\n']);
+  });
+
+  it('prints a prefixed write-error message and exits 1', () => {
+    const { stderr } = captureLogger();
+    const code = printMarkdocSchemaRun({
+      status: 'write-error',
+      outPath: '/project/tags.yaml',
+      message: 'ENOENT: no such file or directory',
+    });
+    expect(code).toBe(1);
+    expect(stderr).toEqual([
+      'redocly recheck --generate-markdoc-schema: could not write /project/tags.yaml — ENOENT: no such file or directory\n',
     ]);
   });
 });
