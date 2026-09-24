@@ -8,7 +8,6 @@ import {
   Timer,
   toRoots,
   type LintOptions,
-  type Logger,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { readFileSync, statSync } from 'node:fs';
@@ -62,15 +61,9 @@ function toLintPresentation(argv: RecheckArgv): LintPresentation {
 }
 
 export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>): Promise<void> {
-  const engineLogger: Logger = {
-    log: (line) => void logger.info(`${line}\n`),
-    warn: (line) => void logger.warn(`${line}\n`),
-    error: (line) => void logger.error(`${line}\n`),
-    output: (line) => void logger.output(`${line}\n`),
-  };
   const selected = selectAction(argv);
   if ('error' in selected) {
-    engineLogger.error(selected.error);
+    logger.error(`${selected.error}\n`);
     throw new AbortFlowError('Recheck failed.');
   }
 
@@ -86,12 +79,12 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   let presets = config.resolvedConfig.recheckExtends ?? [];
   if (block == null && presets.length === 0) {
     if (config.configPath) {
-      engineLogger.log(
-        'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.'
+      logger.info(
+        'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
       );
       return;
     }
-    engineLogger.log(`No redocly.yaml found; using ${DEFAULT_PRESET}.`);
+    logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
     presets = [DEFAULT_PRESET];
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
@@ -99,37 +92,34 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     extends: presets,
     block,
     configDir,
-    warn: (message) => engineLogger.warn(message),
+    warn: (message) => logger.warn(`${message}\n`),
   });
   if (!resolved.success) {
-    engineLogger.error('The recheck configuration is not valid:');
+    logger.error('The recheck configuration is not valid:\n');
     for (const error of resolved.errors) {
-      engineLogger.error(`  ${error.path ? `${error.path}: ` : ''}${error.message}`);
+      logger.error(`  ${error.path ? `${error.path}: ` : ''}${error.message}\n`);
     }
     throw new AbortFlowError('Recheck failed.');
   }
 
   if (argv['output-path'] && argv.format !== 'json' && argv.format !== 'sarif') {
-    engineLogger.warn(
-      '--output-path applies to --format json and sarif; the report goes to stdout.'
-    );
+    logger.warn('--output-path applies to --format json and sarif; the report goes to stdout.\n');
   }
 
-  const exitCode = await runAction(selected.action, argv, resolved.config, engineLogger);
+  const exitCode = await runAction(selected.action, argv, resolved.config);
   if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
 }
 
 async function runAction(
   action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
-  resolved: ResolvedRecheckConfig,
-  engineLogger: Logger
+  resolved: ResolvedRecheckConfig
 ): Promise<number> {
   const requested = argv.paths && argv.paths.length > 0 ? argv.paths : ['.'];
   const roots: string[] = [];
   for (const path of requested) {
     if (isApiDescription(path)) {
-      engineLogger.warn(`API descriptions are linted from the next release; skipped ${path}`);
+      logger.warn(`API descriptions are linted from the next release; skipped ${path}\n`);
     } else {
       roots.push(path);
     }

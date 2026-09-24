@@ -14,8 +14,6 @@ import {
   generateBaseline,
   runReadability,
   generateMarkdocSchema,
-  silentLogger,
-  collectingLogger,
   type RecheckBlockInput,
   type RecheckConfig,
   type ResolvedRecheckConfig,
@@ -24,8 +22,6 @@ import {
   type LintOptions,
   type ReadabilityOptions,
   type MarkdocSchemaOptions,
-  type Logger,
-  type CollectingLogger,
 } from '../index.js';
 
 export const typedConfig: RecheckConfig = {
@@ -60,9 +56,6 @@ export const typedResolveResult: ResolveResult = {
 };
 
 export const typedResolveRecheckConfig: typeof resolveRecheckConfig = resolveRecheckConfig;
-
-export const typedLogger: Logger = silentLogger;
-export const typedCollectingLogger: CollectingLogger = collectingLogger();
 
 export const typedLintOptions: LintOptions = { fix: false };
 export const typedRunLint: typeof runLint = runLint;
