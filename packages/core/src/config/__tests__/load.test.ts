@@ -2646,7 +2646,7 @@ describe('loadConfig', () => {
     });
   });
 
-  it('should resolve file paths written in referenced config files against those files', async () => {
+  it('should rebase file paths from referenced config files onto the root config', async () => {
     const config = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths/redocly.yaml'),
     });
@@ -2721,6 +2721,31 @@ describe('loadConfig', () => {
       openapi: { htmlTemplate: 'file-paths/nested/template.html' },
       navbar: { items: [{ page: 'file-paths/nested/docs/index.md' }] },
       apis: { 'shared-openapi': { openapi: { htmlTemplate: 'file-paths/nested/template.html' } } },
+    });
+  });
+
+  it('should resolve file paths written in a remote config file against its URL', async () => {
+    const fixturesDir = path.join(__dirname, './fixtures/resolve-refs-in-config/remote');
+    const externalRefResolver = new BaseResolver();
+    const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
+    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation((base, ref, isRoot) =>
+      isAbsoluteUrl(ref)
+        ? Promise.resolve(
+            makeDocumentFromString(
+              fs.readFileSync(path.join(fixturesDir, 'apis.yaml'), 'utf8'),
+              ref
+            )
+          )
+        : resolveLocalDocument(base, ref, isRoot)
+    );
+
+    const { resolvedConfig } = await loadConfig({
+      configPath: path.join(fixturesDir, 'redocly.yaml'),
+      externalRefResolver,
+    });
+
+    expect(resolvedConfig.apis).toMatchObject({
+      remote: { root: 'https://example.com/configs/openapi.yaml' },
     });
   });
 });
@@ -2925,30 +2950,5 @@ describe('loadIgnoreConfig', () => {
     expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
 
     existsSyncSpy.mockRestore();
-  });
-
-  it('should resolve file paths written in a remote config file against its URL', async () => {
-    const fixturesDir = path.join(__dirname, './fixtures/resolve-refs-in-config/remote');
-    const externalRefResolver = new BaseResolver();
-    const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
-    vi.spyOn(externalRefResolver, 'resolveDocument').mockImplementation((base, ref, isRoot) =>
-      isAbsoluteUrl(ref)
-        ? Promise.resolve(
-            makeDocumentFromString(
-              fs.readFileSync(path.join(fixturesDir, 'apis.yaml'), 'utf8'),
-              ref
-            )
-          )
-        : resolveLocalDocument(base, ref, isRoot)
-    );
-
-    const { resolvedConfig } = await loadConfig({
-      configPath: path.join(fixturesDir, 'redocly.yaml'),
-      externalRefResolver,
-    });
-
-    expect(resolvedConfig.apis).toMatchObject({
-      remote: { root: 'https://example.com/configs/openapi.yaml' },
-    });
   });
 });
