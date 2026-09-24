@@ -64,7 +64,7 @@ export const typedResolveRecheckConfig: typeof resolveRecheckConfig = resolveRec
 export const typedLogger: Logger = silentLogger;
 export const typedCollectingLogger: CollectingLogger = collectingLogger();
 
-export const typedLintOptions: LintOptions = { format: 'table' };
+export const typedLintOptions: LintOptions = { fix: false };
 export const typedRunLint: typeof runLint = runLint;
 
 export const typedGenerateBaseline: typeof generateBaseline = generateBaseline;

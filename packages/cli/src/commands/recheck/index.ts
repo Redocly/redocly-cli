@@ -5,6 +5,8 @@ import {
   resolveRecheckConfig,
   runLint,
   runReadability,
+  Timer,
+  toRoots,
   type LintOptions,
   type Logger,
   type ResolvedRecheckConfig,
@@ -13,6 +15,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname } from 'node:path';
 
 import type { CommandArgs } from '../../wrapper.js';
+import { printLintRun, printLintStart, type LintPresentation } from './print.js';
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
@@ -33,14 +36,19 @@ function isApiDescription(path: string): boolean {
 
 function toLintOptions(argv: RecheckArgv): LintOptions {
   return {
-    format: argv.format,
-    outputPath: argv['output-path'],
     tags: argv.tags,
     rules: argv.rule,
     excludeRules: argv['skip-rule'],
-    stats: argv.stats,
     fix: argv.fix,
+  };
+}
+
+function toLintPresentation(argv: RecheckArgv): LintPresentation {
+  return {
+    format: argv.format ?? 'table',
+    showStats: argv.stats,
     annotationsLimit: argv['max-problems'],
+    outputPath: argv['output-path'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
   };
@@ -134,5 +142,8 @@ async function runAction(
     );
   }
   if (action === 'baseline') return generateBaseline(roots, resolved, engineLogger);
-  return runLint(roots, resolved, toLintOptions(argv), engineLogger);
+  const timer = new Timer();
+  printLintStart(toRoots(roots));
+  const result = await runLint(roots, resolved, toLintOptions(argv));
+  return printLintRun(result, toLintPresentation(argv), timer);
 }
