@@ -1,0 +1,12 @@
+extends:
+  - diff-recommended
+apis:
+  cafe@v1:
+    root: base.yaml
+  cafe@v2:
+    root: revision.yaml
+# The cafe accepts new enum values in its responses, and treats a dropped header as a patch.
+diff:
+  enum-values-added: off
+oas3_1Diff:
+  response-header-removed: patch
