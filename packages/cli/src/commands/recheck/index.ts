@@ -16,6 +16,7 @@ import { dirname, extname } from 'node:path';
 
 import type { CommandArgs } from '../../wrapper.js';
 import {
+  printBaselineRun,
   printLintRun,
   printLintStart,
   printReadabilityRun,
@@ -142,7 +143,7 @@ async function runAction(
       outputPath: argv['output-path'],
     });
   }
-  if (action === 'baseline') return generateBaseline(roots, resolved, engineLogger);
+  if (action === 'baseline') return printBaselineRun(await generateBaseline(roots, resolved));
   const timer = new Timer();
   printLintStart(toRoots(roots));
   const result = await runLint(roots, resolved, toLintOptions(argv));

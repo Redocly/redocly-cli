@@ -1,4 +1,3 @@
-import { cyan, green, yellow } from 'colorette';
 import * as fs from 'fs/promises';
 import * as pathModule from 'path';
 
@@ -7,8 +6,16 @@ import { buildBaseline, serializeBaseline, baselineKeyMapper } from '../core/bas
 import { needsImageMetadata, loadImageMetadata } from '../core/files.js';
 import { filterEnabledRules } from '../core/rule-filters.js';
 import { runRules, type FileInput } from '../core/runner.js';
-import type { Logger } from './logger.js';
 import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
+
+export interface BaselineRunResult {
+  roots: string[];
+  filesFound: number;
+  unreadableFiles: string[];
+  outPath: string;
+  errorCount: number;
+  baselinedFileCount: number;
+}
 
 /**
  * Runs the full configured rule set and writes the baseline file: one count
@@ -17,20 +24,17 @@ import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
  */
 export async function generateBaseline(
   paths: string | string[] = '.',
-  config: ResolvedRecheckConfig,
-  logger: Logger
-): Promise<number> {
+  config: ResolvedRecheckConfig
+): Promise<BaselineRunResult> {
   const roots = toRoots(paths);
-  logger.log(cyan(`📋 Building recheck baseline from: ${roots.join(', ')}`));
-
   const configDir = config.configDir;
 
   const { enabled: rulesToRun } = filterEnabledRules(config.rules);
   const files = await discoverFilesForRoots(roots);
-  logger.log(`   Found ${files.length} markdown file(s)`);
 
   const loadImageMeta = needsImageMetadata(rulesToRun);
   const fileInputs: FileInput[] = [];
+  const unreadableFiles: string[] = [];
   for (const filePath of files) {
     try {
       const content = await fs.readFile(filePath, 'utf8');
@@ -39,7 +43,7 @@ export async function generateBaseline(
         : undefined;
       fileInputs.push({ path: filePath, content, metadata });
     } catch {
-      logger.log(yellow(`   Warning: Could not read file ${filePath}`));
+      unreadableFiles.push(filePath);
     }
   }
 
@@ -54,8 +58,12 @@ export async function generateBaseline(
   const outPath = pathModule.resolve(configDir, DEFAULT_BASELINE_FILE);
   await fs.writeFile(outPath, serializeBaseline(baseline), 'utf8');
 
-  const fileCount = Object.keys(baseline.files).length;
-  logger.log(green(`✅ Wrote ${outPath}`));
-  logger.log(`   ${errors.length} error finding(s) across ${fileCount} file(s) baselined.`);
-  return 0;
+  return {
+    roots,
+    filesFound: files.length,
+    unreadableFiles,
+    outPath,
+    errorCount: errors.length,
+    baselinedFileCount: Object.keys(baseline.files).length,
+  };
 }

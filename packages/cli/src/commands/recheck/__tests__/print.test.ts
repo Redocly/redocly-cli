@@ -1,16 +1,18 @@
 import {
   Timer,
+  type BaselineRunResult,
   type Fix,
   type LintRunReport,
   type Problem,
   type ReadabilityRunResult,
 } from '@redocly/recheck';
+import { cyan, green, yellow } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { printLintRun, printReadabilityRun } from '../print.js';
+import { printBaselineRun, printLintRun, printReadabilityRun } from '../print.js';
 import { captureLogger } from './capture-logger.js';
 
 const EMPTY_REPORT: LintRunReport = {
@@ -426,5 +428,39 @@ describe('printReadabilityRun', () => {
     const printed = stderr.join('');
     expect(printed).toContain('   Warning: Could not read file docs/secret.md');
     expect(printed).not.toContain('file(s) scored');
+  });
+});
+
+const BASELINE_RESULT: BaselineRunResult = {
+  roots: ['docs', 'guides'],
+  filesFound: 2,
+  unreadableFiles: [],
+  outPath: '/project/.redocly.recheck-baseline.yaml',
+  errorCount: 3,
+  baselinedFileCount: 1,
+};
+
+describe('printBaselineRun', () => {
+  it('prints the roots, the written path, and the counts on stderr and exits 0', () => {
+    const { stderr, stdout } = captureLogger();
+    const code = printBaselineRun(BASELINE_RESULT);
+    expect(code).toBe(0);
+    expect(stdout).toEqual([]);
+    expect(stderr).toEqual([
+      `${cyan('📋 Building recheck baseline from: docs, guides')}\n`,
+      '   Found 2 markdown file(s)\n',
+      `${green('✅ Wrote /project/.redocly.recheck-baseline.yaml')}\n`,
+      '   3 error finding(s) across 1 file(s) baselined.\n',
+    ]);
+  });
+
+  it('prints a warning for each unreadable file before the written path', () => {
+    const { stderr } = captureLogger();
+    printBaselineRun({ ...BASELINE_RESULT, unreadableFiles: ['docs/a.md', 'docs/b.md'] });
+    expect(stderr.slice(2, 5)).toEqual([
+      `${yellow('   Warning: Could not read file docs/a.md')}\n`,
+      `${yellow('   Warning: Could not read file docs/b.md')}\n`,
+      `${green('✅ Wrote /project/.redocly.recheck-baseline.yaml')}\n`,
+    ]);
   });
 });

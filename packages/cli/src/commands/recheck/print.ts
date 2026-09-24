@@ -1,6 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 import {
   buildSummary,
+  type BaselineRunResult,
   type LintRunReport,
   type LintRunResult,
   type ReadabilityRunResult,
@@ -214,6 +215,19 @@ export async function printReadabilityRun(
           ? ''
           : ` • median FRE ${summary.medianFleschReadingEase} • median grade ${summary.medianFleschKincaidGrade} • median ARI ${summary.medianAutomatedReadabilityIndex}`)
     )
+  );
+  return 0;
+}
+
+export function printBaselineRun(result: BaselineRunResult): number {
+  info(cyan(`📋 Building recheck baseline from: ${result.roots.join(', ')}`));
+  info(`   Found ${result.filesFound} markdown file(s)`);
+  for (const file of result.unreadableFiles) {
+    info(yellow(`   Warning: Could not read file ${file}`));
+  }
+  info(green(`✅ Wrote ${result.outPath}`));
+  info(
+    `   ${result.errorCount} error finding(s) across ${result.baselinedFileCount} file(s) baselined.`
   );
   return 0;
 }

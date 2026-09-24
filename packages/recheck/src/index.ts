@@ -51,6 +51,7 @@ export { Timer } from './core/timing.js';
 export { buildSummary, getBreakdownStats } from './core/summary.js';
 export type { RuleBreakdown, Summary } from './types/reporting.js';
 export { generateBaseline } from './actions/baseline.js';
+export type { BaselineRunResult } from './actions/baseline.js';
 export { runReadability } from './actions/readability.js';
 export type {
   FileReadability,
