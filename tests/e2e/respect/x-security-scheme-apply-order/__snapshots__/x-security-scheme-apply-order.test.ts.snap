@@ -23,12 +23,9 @@ exports[`should apply x-security schemes in Top-Down order, the Last one have bi
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
