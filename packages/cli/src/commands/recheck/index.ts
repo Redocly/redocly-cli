@@ -125,6 +125,12 @@ export function toEmbeddedInputs(descriptions: CollectedDescription[]): {
   return { inputs, remoteSkipped };
 }
 
+// A file one API could not reach through a `$ref` but another API read is
+// scanned, not unreadable, so its baseline entries still apply.
+export function withoutReadFiles(unreadableFiles: string[], readFiles: Set<string>): string[] {
+  return [...new Set(unreadableFiles.filter((file) => !readFiles.has(file)))];
+}
+
 async function collectEmbeddedInputs(
   apiPaths: string[],
   config: Config,
@@ -169,7 +175,12 @@ async function collectEmbeddedInputs(
       `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.`
     );
   }
-  return { inputs, failureCount, apiFiles: [...apiFiles], unreadableFiles };
+  return {
+    inputs,
+    failureCount,
+    apiFiles: [...apiFiles],
+    unreadableFiles: withoutReadFiles(unreadableFiles, apiFiles),
+  };
 }
 
 // True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
