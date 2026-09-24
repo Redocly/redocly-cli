@@ -803,6 +803,24 @@ describe('runLint with embedded inputs', () => {
     expect(errorsIn(result.problems)).toHaveLength(0);
   });
 
+  it('counts changed API files in the changed-file match', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const apiFile = path.join(dir, 'openapi.yaml');
+    await fs.writeFile(apiFile, 'openapi: 3.1.0\n');
+    const changedList = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedList, `${apiFile}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint([], config, {
+      embeddedInputs: [embedded(apiFile, 'Short.\n')],
+      apiFiles: [apiFile],
+      changedOnly: true,
+      changedListPath: changedList,
+    });
+    expect(result.status).toBe('completed');
+    if (result.status !== 'completed') return;
+    expect(result.changedFilter).toEqual({ provided: true, matched: 1 });
+  });
+
   it('marks a baseline entry stale for a changed API file that parsed but holds no descriptions', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     const apiFile = path.join(dir, 'openapi.yaml');

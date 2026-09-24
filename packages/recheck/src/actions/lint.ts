@@ -137,7 +137,16 @@ export async function runLint(
         changedSet.has(pathModule.resolve(input.file))
       );
       apiFiles = apiFiles.filter((file) => changedSet.has(pathModule.resolve(file)));
-      report.changedFilter = { provided: true, matched: changedFiles.length };
+      // Pages plus the distinct API files the list kept, whether they carry
+      // descriptions or not.
+      const changedApiFiles = new Set([
+        ...changedEmbeddedInputs.map((input) => input.file),
+        ...apiFiles,
+      ]);
+      report.changedFilter = {
+        provided: true,
+        matched: changedFiles.length + changedApiFiles.size,
+      };
       if (
         changedFiles.length === 0 &&
         changedEmbeddedInputs.length === 0 &&
