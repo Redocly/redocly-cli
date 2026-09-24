@@ -9,13 +9,13 @@ import {
   type Config,
   type Exact,
   type OutputFormat,
+  AbortFlowError,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
-import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
-import { AbortFlowError } from '../utils/error.js';
+import type { CommandArgv, Totals } from '../types.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
@@ -37,7 +37,7 @@ export type LintArgv = {
   'generate-ignore-file'?: boolean;
   'skip-rule'?: string[];
   'skip-preprocessor'?: string[];
-} & VerifyConfigOptions;
+};
 
 export async function handleLint({
   argv,

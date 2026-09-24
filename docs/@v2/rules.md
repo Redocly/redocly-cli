@@ -12,6 +12,9 @@ Redocly uses rules to describe all the different aspects of API behavior that we
 - **Configurable rules** allow powerful describing of API standards without needing to write code. Create a configurable rule, choose which parts of the API description it applies to, and what the criteria for success are. The linting tool does the rest. With plenty of examples, the [configurable rules](./rules/configurable-rules.md) helps you to describe your API standards easily and well.
 - **Custom code rules** if none of the above exactly fits your needs, then a [custom code plugin](./custom-plugins/index.md) is an extensible way to bring some custom JavaScript to build on Redocly's existing features.
 
+If you work with an AI coding assistant, the `redocly-lint-rules` agent skill picks the right level for a check written in plain language and writes the rule for you.
+Install it with `npx skills add https://redocly.com`.
+
 ## Rulesets
 
 Rulesets are groups of rules that are applied together, and APIs can be checked against as many rulesets as needed during linting. To get you started, there are some built-in rulesets:

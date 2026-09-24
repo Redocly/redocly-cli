@@ -36,7 +36,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Redocly/redocly-cli.git"
+    "url": "git+https://github.com/Redocly/redocly-cli.git"
   },
   "keywords": [
     "linter",
@@ -55,7 +55,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.26.2",
     "@faker-js/faker": "^10.6.0",
-    "@redocly/mock-server": "^0.10.0",
+    "@redocly/mock-server": "0.11.0-next.2",
     "@tanstack/react-query": "^5.0.0",
     "@testing-library/react": "^16.0.0",
     "@types/node": "^22.15.3",
@@ -67,6 +67,7 @@
     "jsdom": "^27.2.0",
     "json-schema-to-ts": "^3.0.0",
     "json-server": "1.0.0-beta.3",
+    "knip": "^6.37.0",
     "lint-staged": "^15.4.3",
     "msw": "^2.14.6",
     "outdent": "^0.7.1",

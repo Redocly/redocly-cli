@@ -1,4 +1,4 @@
-import { detectSpec, logger, parseYaml } from '@redocly/openapi-core';
+import { AbortFlowError, detectSpec, logger, parseYaml } from '@redocly/openapi-core';
 import {
   generateBaseline,
   generateMarkdocSchema,
@@ -12,7 +12,6 @@ import {
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname } from 'node:path';
 
-import { AbortFlowError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';

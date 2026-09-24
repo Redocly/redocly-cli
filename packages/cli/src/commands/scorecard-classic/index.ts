@@ -1,24 +1,37 @@
-import { BaseResolver, logger, type Document } from '@redocly/openapi-core';
+import {
+  AbortFlowError,
+  BaseResolver,
+  HandledError,
+  logger,
+  pluralize,
+  type Document,
+} from '@redocly/openapi-core';
+import {
+  evaluatePluginsFromCode,
+  fetchRemoteScorecardAndPlugins,
+  getTarget,
+  isAllowedScorecardProjectUrl,
+  validateScorecard,
+  type FetchRemoteScorecardAndPluginsParams,
+  type RemoteScorecardAndPlugins,
+  type ScorecardValidationResult,
+} from '@redocly/reunite-integration';
 import { blue, bold, cyan, gray, green, white } from 'colorette';
+import { dirname } from 'node:path';
 
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import {
   formatPath,
+  getAliasOrPath,
   getExecutionTime,
   getFallbackApisOrExit,
-  getAliasOrPath,
 } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { handleLoginAndFetchToken } from './auth/login-handler.js';
 import { printScorecardResultsAsCheckstyle } from './formatters/checkstyle-formatter.js';
 import { printScorecardResultsAsJson } from './formatters/json-formatter.js';
 import { printScorecardResultsAsJunit } from './formatters/junit-formatter.js';
 import { printScorecardResults } from './formatters/stylish-formatter.js';
-import { fetchRemoteScorecardAndPlugins } from './remote/fetch-scorecard.js';
-import { getTarget } from './targets-handler/targets-handler.js';
-import type { ScorecardClassicArgv } from './types.js';
-import { isAllowedScorecardProjectUrl } from './validation/project-url.js';
-import { validateScorecard } from './validation/validate-scorecard.js';
+import { handleLoginAndFetchToken } from './login-handler.js';
+import type { ScorecardClassicArgv, ScorecardClassicOutputFormat } from './types.js';
 
 type ExtendedDocument = Document & {
   parsed: Document['parsed'] & {
@@ -33,7 +46,10 @@ export async function handleScorecardClassic({
   collectSpecData,
 }: CommandArgs<ScorecardClassicArgv>) {
   const startedAt = performance.now();
-  const apis = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  const { verbose } = argv;
+
+  const [{ path, alias }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);
+  const matchedAlias = getAliasOrPath(config, path).alias || alias;
 
   const projectUrl =
     argv['project-url'] ||
@@ -41,50 +57,47 @@ export async function handleScorecardClassic({
     config.resolvedConfig.scorecard?.fromProjectUrl;
 
   if (!projectUrl) {
-    exitWithError(
+    throw new HandledError(
       'Scorecard is not configured. Please provide it via --project-url flag or configure it in redocly.yaml. Learn more: https://redocly.com/docs/realm/config/scorecard#fromprojecturl-example'
     );
   }
 
   if (!isAllowedScorecardProjectUrl(projectUrl)) {
-    exitWithError(`Project URL must be from the .redocly.com domain. Received: ${projectUrl}`);
+    throw new HandledError(
+      `Project URL must be from the .redocly.com domain. Received: ${projectUrl}`
+    );
   }
 
   const apiKey = process.env.REDOCLY_AUTHORIZATION;
 
   if (isNonInteractiveEnvironment() && !apiKey) {
-    exitWithError(
+    throw new HandledError(
       'Please provide an API key using the REDOCLY_AUTHORIZATION environment variable.\n'
     );
   }
 
-  const auth = apiKey || (await handleLoginAndFetchToken(config, argv.verbose));
+  const auth = apiKey || (await handleLoginAndFetchToken(config, version, verbose));
 
   if (!auth) {
-    exitWithError('Failed to obtain access token or API key.');
+    throw new HandledError('Failed to obtain access token or API key.');
   }
 
-  const { scorecard, plugins } = await fetchRemoteScorecardAndPlugins({
+  const { scorecard, plugins } = await fetchScorecard({
     projectUrl,
     auth,
     isApiKey: !!apiKey,
-    verbose: argv.verbose,
+    verbose,
   });
-
-  const { path, alias } = apis[0];
-
-  const matchedEntry = getAliasOrPath(config, path);
-  const matchedAlias = matchedEntry.alias || alias;
 
   const apiConfigMetadata = matchedAlias
     ? config.resolvedConfig.apis?.[matchedAlias]?.metadata
     : undefined;
 
-  if (argv.verbose && matchedAlias && apiConfigMetadata) {
+  if (verbose && matchedAlias && apiConfigMetadata) {
     logger.info(`\n✓ Matched API "${cyan(matchedAlias)}" from config\n`);
   }
 
-  if (argv.verbose) {
+  if (verbose) {
     logger.info(`Processing API: ${cyan(matchedAlias || 'default')}\n`);
     logger.info(`Path: ${formatPath(path)}\n`);
     if (apiConfigMetadata) {
@@ -108,30 +121,145 @@ export async function handleScorecardClassic({
     ...apiConfigMetadata,
   };
 
-  if (argv.verbose) {
+  if (verbose) {
     logger.info(`Combined Metadata for target matching: ${JSON.stringify(metadata, null, 2)}\n`);
   }
 
-  const targetLevel = argv['target-level'] || getTarget(scorecard?.targets, metadata)?.minimumLevel;
+  const matchedTarget = getTarget(scorecard.targets, metadata);
+  const targetLevel = argv['target-level'] || matchedTarget?.minimumLevel;
+
+  if (verbose && scorecard.targets?.length) {
+    logger.info(
+      `Scorecard has ${scorecard.targets.length} ${pluralize('target', scorecard.targets.length)} defined. Resolving target configurations...\n`
+    );
+    logger.info(
+      matchedTarget
+        ? `Found matching target for metadata. Resolving configurations for target "${JSON.stringify(matchedTarget.where)}"...\n`
+        : `No matching target found for metadata. Proceeding with level configurations only.\n`
+    );
+  }
 
   logger.info(gray(`\nRunning scorecard for ${formatPath(path)}...\n`));
-  const {
-    problems: result,
-    achievedLevel,
-    targetLevelAchieved,
-  } = await validateScorecard({
+  const result = await validateScorecard({
     apiPath: path,
     document,
     externalRefResolver,
-    scorecardConfig: scorecard!,
+    scorecardConfig: scorecard,
     configPath: config.configPath,
-    pluginsCodeOrPlugins: plugins,
+    plugins: await evaluatePlugins(plugins, config.configPath, verbose),
     targetLevel,
     metadata,
-    verbose: argv.verbose,
+    onDebug: verbose ? (message) => logger.info(`${message}\n`) : undefined,
   });
 
-  if (result.length === 0) {
+  reportResults({ path, result, targetLevel, format: argv.format, version, startedAt });
+}
+
+// The scorecard still runs, without plugins, when the plugins code cannot be evaluated.
+async function evaluatePlugins(
+  pluginsCode: string | undefined,
+  configPath: string | undefined,
+  verbose: boolean | undefined
+) {
+  if (!pluginsCode) {
+    if (verbose) {
+      logger.info(`No plugins code provided to evaluate.\n`);
+    }
+    return [];
+  }
+
+  if (verbose) {
+    logger.info(`Starting plugin evaluation...\n`);
+  }
+
+  try {
+    const plugins = await evaluatePluginsFromCode(
+      pluginsCode,
+      configPath ? dirname(configPath) : undefined
+    );
+
+    if (verbose) {
+      logger.info(
+        `Successfully evaluated ${plugins.length} ${pluralize('plugin', plugins.length)}.\n`
+      );
+      plugins.forEach((plugin, index) => {
+        logger.info(`   Plugin ${index + 1}: ${plugin.id || 'unnamed'}\n`);
+      });
+    }
+
+    return plugins;
+  } catch (error) {
+    if (verbose) {
+      logger.error(`❌ Failed to evaluate plugins.\n`);
+      logger.error(`Error details: ${error.message}\n`);
+      if (error.stack) {
+        logger.error(`Stack trace:\n${error.stack}\n`);
+      }
+    }
+    logger.warn(`Something went wrong during plugins evaluation: ${error.message}\n`);
+    return [];
+  }
+}
+
+async function fetchScorecard({
+  verbose,
+  ...params
+}: FetchRemoteScorecardAndPluginsParams & {
+  verbose?: boolean;
+}): Promise<RemoteScorecardAndPlugins> {
+  if (verbose) {
+    logger.info(`Starting fetch for remote scorecard configuration...\n`);
+  }
+
+  let remoteScorecard: RemoteScorecardAndPlugins;
+  try {
+    remoteScorecard = await fetchRemoteScorecardAndPlugins({
+      ...params,
+      onDebug: verbose ? (message) => logger.info(`${message}\n`) : undefined,
+    });
+  } catch (error) {
+    if (verbose) {
+      logger.error(`❌ Failed to fetch remote scorecard configuration.\n`);
+      logger.error(`Error details: ${error.message}\n`);
+      if (error.stack) {
+        logger.error(`Stack trace:\n${error.stack}\n`);
+      }
+    }
+    throw error;
+  }
+
+  if (verbose) {
+    const { scorecard, plugins, pluginsUrl } = remoteScorecard;
+    logger.info(`Successfully fetched scorecard configuration.\n`);
+    logger.info(`Scorecard levels found: ${scorecard.levels?.length || 0}\n`);
+    if (plugins) {
+      logger.info(`Successfully fetched plugins from ${pluginsUrl}\n`);
+    } else if (pluginsUrl) {
+      logger.info(`No plugins were loaded from ${pluginsUrl}\n`);
+    } else {
+      logger.info(`No custom plugins configured for this scorecard.\n`);
+    }
+  }
+
+  return remoteScorecard;
+}
+
+function reportResults({
+  path,
+  result: { problems, achievedLevel, targetLevelAchieved },
+  targetLevel,
+  format,
+  version,
+  startedAt,
+}: {
+  path: string;
+  result: ScorecardValidationResult;
+  targetLevel?: string;
+  format: ScorecardClassicOutputFormat;
+  version: string;
+  startedAt: number;
+}) {
+  if (problems.length === 0) {
     logger.output(white(bold(`\n ☑️  Achieved Level: ${cyan(achievedLevel)}\n`)));
 
     logger.output(
@@ -144,20 +272,14 @@ export async function handleScorecardClassic({
     return;
   }
 
-  if (targetLevel && !targetLevelAchieved) {
-    logger.error(
-      `\n❌ Your API specification does not satisfy the target scorecard level "${targetLevel}".\n`
-    );
-  }
-
-  if (argv.format === 'json') {
-    printScorecardResultsAsJson(result, achievedLevel, targetLevelAchieved, version);
-  } else if (argv.format === 'checkstyle') {
-    printScorecardResultsAsCheckstyle(path, result, achievedLevel, targetLevelAchieved);
-  } else if (argv.format === 'junit') {
-    printScorecardResultsAsJunit(path, result, achievedLevel, targetLevelAchieved);
+  if (format === 'json') {
+    printScorecardResultsAsJson(problems, achievedLevel, targetLevelAchieved, version);
+  } else if (format === 'checkstyle') {
+    printScorecardResultsAsCheckstyle(path, problems, achievedLevel, targetLevelAchieved);
+  } else if (format === 'junit') {
+    printScorecardResultsAsJunit(path, problems, achievedLevel, targetLevelAchieved);
   } else {
-    printScorecardResults(result, achievedLevel, targetLevelAchieved);
+    printScorecardResults(problems, achievedLevel, targetLevelAchieved);
   }
 
   const elapsed = getExecutionTime(startedAt);
@@ -168,12 +290,14 @@ export async function handleScorecardClassic({
   );
 
   if (targetLevel && !targetLevelAchieved) {
-    throw new AbortFlowError('Target scorecard level not achieved.');
-  } else if (achievedLevel !== 'Non Conformant') {
-    return;
+    throw new HandledError(
+      `\n❌ Your API specification does not satisfy the target scorecard level "${targetLevel}".\n`
+    );
   }
 
-  throw new AbortFlowError('Scorecard validation failed.');
+  if (achievedLevel === 'Non Conformant') {
+    throw new AbortFlowError('Scorecard validation failed.');
+  }
 }
 
 function isNonInteractiveEnvironment(): boolean {
