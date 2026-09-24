@@ -43,7 +43,7 @@ describe('ApiClient', () => {
     );
   });
 
-  it('should append the client marker from REDOCLY_ENVIRONMENT to the user agent', async () => {
+  it('should append REDOCLY_ENVIRONMENT to the user agent', async () => {
     vi.stubEnv('REDOCLY_ENVIRONMENT', 'redocly-reunite-push-action/v1.4.0');
     mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ branchName: 'main' }) });
     const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command, version });

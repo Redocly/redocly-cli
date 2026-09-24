@@ -1,9 +1,9 @@
 import type { ReadStream } from 'node:fs';
 import type { Readable } from 'node:stream';
 
-import { getClientMarker } from '../utils/client-marker.js';
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
+import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import type { ProjectSourceResponse, PushResponse, UpsertRemoteResponse } from './types.js';
 
 interface BaseApiClient {
@@ -31,10 +31,10 @@ export class ReuniteApiClient implements BaseApiClient {
   ) {}
 
   public async request(url: string, options: FetchWithTimeoutOptions) {
-    const client = getClientMarker();
+    const environment = getRedoclyEnvironment();
     const headers = {
       ...options.headers,
-      'user-agent': `redocly-cli/${this.version} ${this.command}${client ? ` ${client}` : ''}`,
+      'user-agent': `redocly-cli/${this.version} ${this.command}${environment ? ` ${environment}` : ''}`,
     };
 
     try {
