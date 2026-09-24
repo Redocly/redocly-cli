@@ -241,4 +241,15 @@ describe('recheck', () => {
       join(testPath, 'snapshot.txt')
     );
   });
+
+  test('unreadable-api-keeps-baseline does not report its baseline entry as stale', async () => {
+    const testPath = join(__dirname, 'unreadable-api-keeps-baseline');
+    const args = getParams(indexEntryPoint, ['recheck']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('Could not read API description');
+    expect(result).not.toContain('Baseline is stale');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
 });

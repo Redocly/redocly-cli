@@ -108,9 +108,15 @@ async function collectEmbeddedInputs(
   apiPaths: string[],
   config: Config,
   engineLogger: Logger
-): Promise<{ inputs: EmbeddedInput[]; failureCount: number; apiFiles: string[] }> {
+): Promise<{
+  inputs: EmbeddedInput[];
+  failureCount: number;
+  apiFiles: string[];
+  unreadableFiles: string[];
+}> {
   const descriptions: CollectedDescription[] = [];
   const apiFiles = new Set<string>();
+  const unreadableFiles: string[] = [];
   let failureCount = 0;
   // Two APIs may `$ref` the same file, so the descriptions of that file are
   // deduplicated across every API, not within one.
@@ -124,6 +130,7 @@ async function collectEmbeddedInputs(
         `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}`
       );
       failureCount++;
+      unreadableFiles.push(resolve(apiPath));
       continue;
     }
     for (const file of collected.files) apiFiles.add(file);
@@ -140,7 +147,7 @@ async function collectEmbeddedInputs(
       `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.`
     );
   }
-  return { inputs, failureCount, apiFiles: [...apiFiles] };
+  return { inputs, failureCount, apiFiles: [...apiFiles], unreadableFiles };
 }
 
 // True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
@@ -268,6 +275,7 @@ async function runAction(
     inputs: embeddedInputs,
     failureCount,
     apiFiles,
+    unreadableFiles,
   } = await collectEmbeddedInputs(apiPaths, config, engineLogger);
   // A baseline built from a partial set of descriptions would hide findings.
   if (action === 'baseline' && failureCount > 0) {
@@ -283,7 +291,7 @@ async function runAction(
       : await runLint(
           roots,
           resolved,
-          { ...toLintOptions(argv), embeddedInputs, apiFiles, isIgnored },
+          { ...toLintOptions(argv), embeddedInputs, apiFiles, unreadableFiles, isIgnored },
           engineLogger
         );
   // An API description that failed to parse fails the gate even when the

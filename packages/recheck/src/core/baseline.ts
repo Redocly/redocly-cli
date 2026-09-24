@@ -99,6 +99,8 @@ export interface CompareOptions {
    * exhaustively.
    */
   scanRoots?: string[];
+  /** Baseline keys of files this run could not read; their entries are neither matched nor stale. */
+  skipFiles?: Set<string>;
 }
 
 function underRoot(key: string, root: string): boolean {
@@ -135,7 +137,9 @@ export function compareToBaseline(
   }
 
   for (const group of errorGroups.values()) {
-    const budget = baseline.files[group.key]?.[group.rule] ?? 0;
+    const budget = options.skipFiles?.has(group.key)
+      ? 0
+      : (baseline.files[group.key]?.[group.rule] ?? 0);
     const found = group.problems.length;
     if (found <= budget) {
       suppressed += found;
@@ -160,6 +164,7 @@ export function compareToBaseline(
   const scannedKeys = new Set(options.scannedFiles.map(options.toKey));
   const staleProblems: Problem[] = [];
   for (const [file, rules] of Object.entries(baseline.files)) {
+    if (options.skipFiles?.has(file)) continue;
     const seen =
       scannedKeys.has(file) || (options.scanRoots ?? []).some((root) => underRoot(file, root));
     if (!seen) continue;

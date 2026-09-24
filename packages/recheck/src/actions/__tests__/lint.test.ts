@@ -1078,4 +1078,29 @@ describe('runLint with embedded inputs', () => {
     await runLint([], config, { embeddedInputs: [] }, withoutApiFiles);
     expect(withoutApiFiles.lines.join('\n')).toContain('0 stale');
   });
+
+  it('keeps the baseline entry of an unreadable API file out of the stale check', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(
+      path.join(dir, 'recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, { baseline: './recheck-baseline.yaml' }, [
+      'recheck/markdown',
+    ]);
+
+    const withUnreadable = collectingLogger();
+    const exitCode = await runLint(
+      dir,
+      config,
+      { embeddedInputs: [], apiFiles: [], unreadableFiles: [path.join(dir, 'openapi.yaml')] },
+      withUnreadable
+    );
+    expect(withUnreadable.lines.join('\n')).toContain('0 stale');
+    expect(exitCode).toBe(0);
+
+    const withoutUnreadable = collectingLogger();
+    await runLint(dir, config, { embeddedInputs: [], apiFiles: [] }, withoutUnreadable);
+    expect(withoutUnreadable.lines.join('\n')).toContain('1 stale');
+  });
 });

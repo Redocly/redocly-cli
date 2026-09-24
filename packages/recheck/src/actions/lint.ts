@@ -34,6 +34,8 @@ export interface LintOptions {
   embeddedInputs?: EmbeddedInput[];
   // Local API files that were read for descriptions; a parsed file with none still counts as scanned.
   apiFiles?: string[];
+  // API files that could not be read; their baseline entries are neither matched nor stale.
+  unreadableFiles?: string[];
   // Returns true for a finding the caller's ignore file suppresses.
   isIgnored?: (problem: Problem) => boolean;
 }
@@ -303,6 +305,7 @@ export async function runLint(
         // A changed-only run walks nothing exhaustively, so a missing file
         // proves nothing there; a plain run walked every root in full.
         scanRoots: options.changedOnly ? undefined : roots.map(toKey),
+        skipFiles: new Set((options.unreadableFiles ?? []).map(toKey)),
       });
       reportProblems = comparison.problems;
       baselineStats = {
