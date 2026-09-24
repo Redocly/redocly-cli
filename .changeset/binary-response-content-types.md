@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed generated clients to decode compressed archives (`application/gzip`, `application/zip`, `application/x-tar`), PDF, Office documents, audio, video and font responses as binary instead of attempting to parse them as JSON.
+Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
