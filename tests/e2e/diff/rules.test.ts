@@ -32,6 +32,11 @@ const OPENAPI: RuleCase[] = [
     describes: 'a new required query parameter appears',
   },
   {
+    fixture: 'oas3-parameter-ref-replaced',
+    ruleId: 'parameter-added-required',
+    describes: 'a referenced parameter is swapped for a required one',
+  },
+  {
     fixture: 'oas3-parameter-became-required',
     ruleId: 'parameter-became-required',
     describes: 'an optional query parameter becomes required',
@@ -127,6 +132,11 @@ const OPENAPI: RuleCase[] = [
     fixture: 'oas3-schema-combinator-changed',
     ruleId: 'schema-combinator-changed',
     describes: 'a request oneOf drops an accepted subschema',
+  },
+  {
+    fixture: 'oas3-allof-ref-replaced',
+    ruleId: 'schema-combinator-changed',
+    describes: 'a referenced `allOf` member of a response is swapped for another',
   },
   {
     fixture: 'oas3-ref-target-changed',
@@ -237,6 +247,10 @@ const NON_BREAKING: { fixture: string; describes: string }[] = [
   {
     fixture: 'async3-sent-payload-required-added',
     describes: 'a sent payload requires one more property',
+  },
+  {
+    fixture: 'oas3-parameter-refs-reordered',
+    describes: 'referenced parameters are listed in another order',
   },
 ];
 

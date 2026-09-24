@@ -50,9 +50,9 @@ const entries = treeOf(`
   #/components/schemas/Orphan Schema
 `);
 const node = (key: string) => entries.get(key)!;
-const directionsOf = (edges: Array<[string, string]>) =>
+const resolveWithReferences = (edges: Array<[string, string]>) =>
   directionsOfTree(entries, edges, oas3Directions);
-const unreferenced = directionsOf([]);
+const unreferenced = resolveWithReferences([]);
 
 describe('mergeDirections', () => {
   it('merges directions', () => {
@@ -100,7 +100,7 @@ describe('getOas3Direction', () => {
   });
 
   it('derives component direction from usage sites', () => {
-    const directionOf = directionsOf([
+    const directionOf = resolveWithReferences([
       [
         '#/paths/~1p/get/responses/200/content/application~1json/schema',
         '#/components/schemas/Pet',
@@ -110,7 +110,7 @@ describe('getOas3Direction', () => {
   });
 
   it('derives both when a component is used on both sides', () => {
-    const directionOf = directionsOf([
+    const directionOf = resolveWithReferences([
       [
         '#/paths/~1p/get/responses/200/content/application~1json/schema',
         '#/components/schemas/Pet',
@@ -121,7 +121,7 @@ describe('getOas3Direction', () => {
   });
 
   it('resolves transitive usage through other components, cycle-safe', () => {
-    const directionOf = directionsOf([
+    const directionOf = resolveWithReferences([
       [
         '#/paths/~1p/get/responses/200/content/application~1json/schema',
         '#/components/schemas/Pet',

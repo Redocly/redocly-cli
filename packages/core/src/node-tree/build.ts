@@ -1,4 +1,5 @@
 import type { SpecVersion } from '../oas-types.js';
+import { escapePointerFragment, joinPointer, parseRef } from '../ref-utils.js';
 import type { Document } from '../resolve.js';
 import type { NormalizedNodeType } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -15,27 +16,23 @@ export function buildNodeTree(opts: {
 }): NodeTree {
   const { document, types, specVersion } = opts;
   const nodes = new Map<string, NodeEntry>();
-  const refSites: Array<{ from: NodeEntry; to: string }> = [];
+  const refs: Array<{ entry: NodeEntry; ref: string }> = [];
+
+  const add = (value: NodeEntry['value'], { location, type, key }: UserContext): NodeEntry => {
+    const parent = nodes.get(parentPointer(location.pointer)) ?? null;
+    const entry: NodeEntry = { type: type.name, key, location, value, parent, children: [] };
+    parent?.children.push(entry);
+    nodes.set(location.pointer, entry);
+    return entry;
+  };
 
   const visitor = {
-    any(node: unknown, { location, type, key }: UserContext) {
-      if (!isPlainObject(node) && !Array.isArray(node)) return;
-      const parent = nodes.get(parentPointer(location.pointer)) ?? null;
-      const entry: NodeEntry = {
-        type: type.name,
-        key,
-        location,
-        value: node,
-        parent,
-        children: [],
-      };
-      parent?.children.push(entry);
-      nodes.set(location.pointer, entry);
+    any(node: unknown, context: UserContext) {
+      if (isPlainObject(node) || Array.isArray(node)) add(node, context);
     },
-    ref(node: { $ref: string }, { location }: UserContext) {
-      // The node holding the reference has been entered already; its target may come later.
-      const from = nodes.get(parentPointer(location.pointer));
-      if (from) refSites.push({ from, to: node.$ref });
+    // A `$ref` is a node of the type its place expects; the node it points at may come later.
+    ref(node: { $ref: string }, context: UserContext) {
+      refs.push({ entry: add(node, context), ref: node.$ref });
     },
   };
 
@@ -53,12 +50,21 @@ export function buildNodeTree(opts: {
     ctx: walkContext,
   });
 
-  const references = refSites.flatMap(({ from, to }) => {
-    const target = nodes.get(to);
-    return target ? [{ from, to: target }] : [];
-  });
+  const references: Reference[] = [];
+  for (const { entry, ref } of refs) {
+    entry.target = nodes.get(pointerOf(ref));
+    if (entry.target) references.push({ from: entry, to: entry.target });
+  }
 
   return { root: nodes.get('#/')!, references };
+}
+
+// A `$ref` may percent-encode its pointer (`Pet%20Name`), while a location spells it as written.
+function pointerOf(ref: string): string {
+  return parseRef(ref).pointer.reduce(
+    (pointer, segment) => joinPointer(pointer, escapePointerFragment(segment)),
+    '#/'
+  );
 }
 
 function parentPointer(pointer: string): string {

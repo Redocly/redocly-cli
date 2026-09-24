@@ -45,6 +45,12 @@ describe('diff command', () => {
     expect(output).toContain('--check-version was skipped');
   });
 
+  test('warns that an unresolved reference leaves part of the description unjudged', () => {
+    const output = runDiff('unresolved-ref');
+    expect(output).toContain("Can't resolve $ref");
+    expect(output).toContain('the diff may miss changes there');
+  });
+
   test('refuses to compare across specification families', () => {
     const output = runDiff('cross-family');
     expect(output).toContain('Cannot compare oas2 with oas3_1.');

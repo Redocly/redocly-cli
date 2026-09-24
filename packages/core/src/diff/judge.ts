@@ -16,26 +16,31 @@ import type {
   RuleVerdict,
 } from './types.js';
 
-/** One handler of a rule with the node types it is nested under; `any` has none. */
-export type RuleHandler = { typePath: string[]; visit: DiffVisit };
-export type ActiveRule = { id: string; impact: Impact; handlers: RuleHandler[] };
+/** One handler of an enabled rule, with the node types it is nested under; `any` has none. */
+export type RuleHandler = {
+  ruleId: string;
+  impact: Impact;
+  typePath: string[];
+  visit: DiffVisit;
+};
 
-/** The rules the configuration turns on, each with the impact it gives. */
-export function activeRules(
+/** The handlers of every rule the configuration turns on, in rule order. */
+export function activeHandlers(
   ruleSets: Record<string, DiffRule>[],
   impactOf: (ruleId: string) => Impact | 'off'
-): ActiveRule[] {
-  const rules: ActiveRule[] = [];
+): RuleHandler[] {
+  const handlers: RuleHandler[] = [];
 
   for (const ruleSet of ruleSets) {
-    for (const [id, rule] of Object.entries(ruleSet)) {
-      const impact = impactOf(id);
-      if (impact !== 'off') {
-        rules.push({ id, impact, handlers: flattenVisitor(rule(), id) });
+    for (const [ruleId, rule] of Object.entries(ruleSet)) {
+      const impact = impactOf(ruleId);
+      if (impact === 'off') continue;
+      for (const { typePath, visit } of flattenVisitor(rule(), ruleId)) {
+        handlers.push({ ruleId, impact, typePath, visit });
       }
     }
   }
-  return rules;
+  return handlers;
 }
 
 // A diff visitor sees whole changes, not a walk, so lint's hooks have nothing to run on.
@@ -49,7 +54,7 @@ export function flattenVisitor(
   visitor: DiffVisitor,
   ruleId: string,
   outerTypes: string[] = []
-): RuleHandler[] {
+): Pick<RuleHandler, 'typePath' | 'visit'>[] {
   return Object.entries(visitor).flatMap(([type, value]) => {
     if (HOOKS.has(type) || (type === 'any' && outerTypes.length > 0)) {
       throw new Error(`Diff rule '${ruleId}' uses '${type}' where diff visitors do not have it.`);
@@ -65,17 +70,13 @@ export function flattenVisitor(
  * inside one. The empty path applies to every node.
  */
 export function appliesTo(typePath: string[], node: DiffNode): boolean {
-  if (typePath.length === 0) return true;
+  let current: DiffNode | undefined = node;
 
-  const type = typePath[typePath.length - 1];
-  if (typeOf(node) !== type) return false;
-
-  const outerTypes = typePath.slice(0, -1);
-  if (outerTypes.length === 0) return true;
-
-  const owner = nearest(node.parent, [outerTypes[outerTypes.length - 1], type]);
-
-  return owner !== undefined && appliesTo(outerTypes, owner);
+  for (let index = typePath.length - 1; index >= 0; index--) {
+    if (current === undefined || typeOf(current) !== typePath[index]) return false;
+    if (index > 0) current = nearest(current.parent, [typePath[index - 1], typePath[index]]);
+  }
+  return true;
 }
 
 function nearest(node: DiffNode | null, types: string[]): DiffNode | undefined {
@@ -93,20 +94,19 @@ export function judgeChanges(opts: {
   directionOf: (node: NodeEntry) => Direction[];
 }): JudgedChange[] {
   const { changes, specVersion, ruleSets, impactOf, directionOf } = opts;
-  const rules = activeRules(ruleSets, impactOf);
+  const handlers = activeHandlers(ruleSets, impactOf);
 
   return changes.map((change) => {
     const verdicts: RuleVerdict[] = [];
     const directions = directionOf(latestOf(change.node));
 
-    for (const { id, impact, handlers } of rules) {
+    for (const { ruleId, impact, typePath, visit } of handlers) {
+      if (!appliesTo(typePath, change.node)) continue;
       const report: DiffRuleContext['report'] = ({
         message,
         location = displaySide(change).location,
-      }) => verdicts.push({ ruleId: id, impact, message, location });
-      for (const { typePath, visit } of handlers) {
-        if (appliesTo(typePath, change.node)) visit(change, { report, directions, specVersion });
-      }
+      }) => verdicts.push({ ruleId, impact, message, location });
+      visit(change, { report, directions, specVersion });
     }
 
     const impact = highestImpact(verdicts.map((verdict) => verdict.impact));
