@@ -8,9 +8,11 @@ export function getDiffFailure(summary: DiffSummary, failOn: DiffFailOn): string
   const failing = [...impacts]
     .reverse()
     .filter((impact) => impactRank(impact) >= impactRank(failOn) && summary[impact] > 0);
+
   if (!failing.length) return undefined;
 
   const total = failing.reduce((sum, impact) => sum + summary[impact], 0);
   const counted = failing.map((impact) => `${summary[impact]} ${impact}`).join(' and ');
+
   return `❌ Diff failed with ${counted} ${pluralize('change', total)}.`;
 }

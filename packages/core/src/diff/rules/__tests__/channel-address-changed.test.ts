@@ -39,7 +39,7 @@ describe('channel-address-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/channels/orderPlaced/address",
-              "message": "The channel address changed from 'orders.placed' to 'kitchen.orders.placed'.",
+              "message": "Channel \`orderPlaced\` address changed from 'orders.placed' to 'kitchen.orders.placed'.",
               "ruleId": "channel-address-changed",
             },
           ],

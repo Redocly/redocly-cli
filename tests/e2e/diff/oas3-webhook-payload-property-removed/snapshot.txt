@@ -1,6 +1,6 @@
-webhooks
-  ✖ major  removed   newPet/post/requestBody/content/application/json/schema/properties/tag
-      Schema property was removed. (property-removed-from-response)
+POST newPet (webhook)
+  ✖ major  removed   requestBody/content/application/json/schema/properties/tag
+      Property `tag` was removed. (property-removed)
       at base.yaml:18:19
 
 1 major, 0 minor, 0 patch.

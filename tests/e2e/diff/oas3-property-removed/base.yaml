@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: property-removed-from-response
+  title: property-removed
   version: '1.0'
 paths:
   /pets:
@@ -14,4 +14,6 @@ paths:
                 type: object
                 properties:
                   name:
+                    type: string
+                  tag:
                     type: string

@@ -39,7 +39,7 @@ describe('channel-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/channels/orderReady",
-              "message": "The channel was removed.",
+              "message": "Channel \`orderReady\` was removed.",
               "ruleId": "channel-removed",
             },
           ],
@@ -73,7 +73,7 @@ describe('channel-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/channels",
-              "message": "Every channel was removed.",
+              "message": "All channels were removed.",
               "ruleId": "channel-removed",
             },
           ],

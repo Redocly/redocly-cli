@@ -23,7 +23,7 @@ const cafe = (order: string) => outdent`
                 schema: ${order}
 `;
 
-describe('property-removed-from-response', () => {
+describe('property-removed', () => {
   it('should report a property a response no longer sends, not one a request no longer takes', async () => {
     const result = diffDocuments({
       base: makeDocumentFromString(
@@ -36,7 +36,7 @@ describe('property-removed-from-response', () => {
         cafe('{ type: object, properties: { menuItemId: { type: string } } }'),
         'revision.yaml'
       ),
-      config: await createConfig({ diff: { 'property-removed-from-response': 'major' } }),
+      config: await createConfig({ diff: { 'property-removed': 'major' } }),
     });
 
     expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
@@ -67,8 +67,8 @@ describe('property-removed-from-response', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/note",
-              "message": "Schema property was removed.",
-              "ruleId": "property-removed-from-response",
+              "message": "Property \`note\` was removed.",
+              "ruleId": "property-removed",
             },
           ],
         },
@@ -83,7 +83,7 @@ describe('property-removed-from-response', () => {
         'base.yaml'
       ),
       revision: makeDocumentFromString(cafe('{ oneOf: [{ type: string }] }'), 'revision.yaml'),
-      config: await createConfig({ diff: { 'property-removed-from-response': 'major' } }),
+      config: await createConfig({ diff: { 'property-removed': 'major' } }),
     });
 
     expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`

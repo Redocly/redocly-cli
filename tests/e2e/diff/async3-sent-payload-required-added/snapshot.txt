@@ -1,5 +1,5 @@
-channels
-  · patch  modified  userSignedUp/messages/signup/payload · required
+channel userSignedUp
+  · patch  modified  messages/signup/payload · required
       at revision.yaml:14:13
 
 0 major, 0 minor, 1 patch.
@@ -7,3 +7,4 @@ channels
 
 base.yaml vs revision.yaml: diff processed in <test>ms
 
+✅ Diff passed.

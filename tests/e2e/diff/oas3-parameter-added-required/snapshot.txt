@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  added     parameters
-      A new required parameter was added. (parameter-added-required)
+      Required parameters were added. (parameter-added-required)
       at revision.yaml:9:9
 
 1 major, 0 minor, 0 patch.

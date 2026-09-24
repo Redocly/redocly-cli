@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  modified  responses/200/content/application/json/schema · required
-      Properties are no longer required: name. (required-properties-removed)
+      Properties are no longer required: `name`. (required-properties-removed)
       at revision.yaml:15:27
 
 1 major, 0 minor, 0 patch.

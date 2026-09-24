@@ -63,7 +63,7 @@ describe('enum-values-removed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/enum",
-              "message": "Enum values removed: preparing.",
+              "message": "Enum lost values: 'preparing'.",
               "ruleId": "enum-values-removed",
             },
           ],

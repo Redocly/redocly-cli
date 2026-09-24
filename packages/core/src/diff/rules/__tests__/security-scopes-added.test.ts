@@ -62,7 +62,7 @@ describe('security-scopes-added', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/get/security/0/OAuth",
-              "message": "Scheme \`OAuth\` requires new scopes: orders:write.",
+              "message": "Security scheme \`OAuth\` requires new scopes: 'orders:write'.",
               "ruleId": "security-scopes-added",
             },
           ],

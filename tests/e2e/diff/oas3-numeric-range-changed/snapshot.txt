@@ -1,6 +1,6 @@
 POST /pets
   ✖ major  modified  requestBody/content/application/json/schema/properties/age · minimum
-      `minimum` changed from '0' to '10'. (numeric-range-changed)
+      `minimum` of `age` changed from '0' to '10'. (numeric-range-changed)
       at revision.yaml:16:28
 
 1 major, 0 minor, 0 patch.

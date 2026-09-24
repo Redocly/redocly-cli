@@ -1,6 +1,6 @@
-servers
-  ✖ major  removed   staging
-      The server was removed. (server-removed)
+server staging
+  ✖ major  removed
+      Server `staging` was removed. (server-removed)
       at base.yaml:10:5
 
 1 major, 0 minor, 0 patch.

@@ -1,13 +1,21 @@
-import { bundle, diffDocuments, formatProblems, getTotals, logger } from '@redocly/openapi-core';
+import {
+  bundle,
+  diffDocuments,
+  formatProblems,
+  getTotals,
+  logger,
+  type JudgedChange,
+} from '@redocly/openapi-core';
+import { green } from 'colorette';
 import { writeFileSync } from 'node:fs';
 
 import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { getFallbackApisOrExit, printExecutionTime } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import { checkVersion, getDeclaredVersion } from './check-version.js';
+import { checkVersion } from './check-version.js';
 import { getDiffFailure } from './fail-on.js';
+import { printGithubActions } from './format/github-actions.js';
 import { diffReportFormats } from './format/index.js';
-import { diffToProblems } from './format/problems.js';
 import type { DiffArgv } from './types.js';
 
 export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<DiffArgv>) {
@@ -19,18 +27,18 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
 
   const startedAt = performance.now();
 
+  config.skipDiffRules(argv['skip-rule']);
+
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
   const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
 
-  config.skipDiffRules(argv['skip-rule']);
+  const [base, revision] = await Promise.all([
+    bundle({ config, ref: basePath }),
+    bundle({ config, ref: revisionPath }),
+  ]);
 
-  const { bundle: baseDocument, problems: baseProblems } = await bundle({ config, ref: basePath });
-  const { bundle: revisionDocument, problems: revisionProblems } = await bundle({
-    config,
-    ref: revisionPath,
-  });
+  const bundleProblems = [...base.problems, ...revision.problems];
 
-  const bundleProblems = [...baseProblems, ...revisionProblems];
   if (bundleProblems.length) {
     formatProblems(bundleProblems, {
       format: 'codeframe',
@@ -42,45 +50,48 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
     );
   }
 
-  collectSpecData?.(revisionDocument);
+  collectSpecData?.(revision.bundle);
 
-  const result = diffDocuments({ base: baseDocument, revision: revisionDocument, config });
+  const result = diffDocuments({ base: base.bundle, revision: revision.bundle, config });
+
+  result.changes.sort(byKeyAndProperty);
 
   if (argv.format === 'github-actions') {
-    const problems = diffToProblems(result);
-    formatProblems(problems, {
-      format: 'github-actions',
-      totals: getTotals(problems),
-      maxProblems: problems.length,
-    });
+    printGithubActions(result);
+  } else if (argv.output) {
+    writeFileSync(argv.output, diffReportFormats[argv.format](result));
+    logger.info(`Diff report written to ${argv.output}.\n`);
   } else {
-    const output = diffReportFormats[argv.format](result);
-    if (argv.output) {
-      writeFileSync(argv.output, output);
-      logger.info(`Diff report written to ${argv.output}.\n`);
-    } else {
-      logger.output(output + '\n');
-    }
+    logger.output(diffReportFormats[argv.format](result) + '\n');
   }
 
   printExecutionTime('diff', startedAt, `${basePath} vs ${revisionPath}`);
 
-  const failures: string[] = [];
-  const thresholdFailure = getDiffFailure(result.summary, argv['fail-on']);
-  if (thresholdFailure) failures.push(thresholdFailure);
-
-  if (argv['check-version']) {
-    const versionCheck = checkVersion({
-      base: getDeclaredVersion(baseDocument),
-      revision: getDeclaredVersion(revisionDocument),
-      required: result.bump,
-    });
-    if (versionCheck.status === 'skipped') logger.warn(`${versionCheck.message}\n`);
-    if (versionCheck.status === 'failed') failures.push(versionCheck.message);
-  }
+  const failures = [
+    getDiffFailure(result.summary, argv['fail-on']),
+    argv['check-version'] &&
+      checkVersion({
+        base: result.infoVersions.base,
+        revision: result.infoVersions.revision,
+        required: result.bump,
+      }),
+  ].filter((failure) => typeof failure === 'string');
 
   if (failures.length) {
     for (const failure of failures) logger.error(`${failure}\n`);
+
     throw new AbortFlowError('Diff failed.');
   }
+
+  logger.info(green('✅ Diff passed.\n'));
+}
+
+function byKeyAndProperty(left: JudgedChange, right: JudgedChange): number {
+  if (left.key !== right.key) return left.key < right.key ? -1 : 1;
+
+  const leftProperty = left.kind === 'modified' ? left.property : '';
+  const rightProperty = right.kind === 'modified' ? right.property : '';
+  if (leftProperty !== rightProperty) return leftProperty < rightProperty ? -1 : 1;
+
+  return 0;
 }

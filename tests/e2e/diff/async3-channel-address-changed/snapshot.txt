@@ -1,6 +1,6 @@
-channels
-  ✖ major  modified  userSignedUp · address
-      The channel address changed from 'user/signedup' to 'user/signed-up'. (channel-address-changed)
+channel userSignedUp
+  ✖ major  modified  address
+      Channel `userSignedUp` address changed from 'user/signedup' to 'user/signed-up'. (channel-address-changed)
       at revision.yaml:7:14
 
 1 major, 0 minor, 0 patch.

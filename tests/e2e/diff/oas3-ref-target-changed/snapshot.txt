@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  modified  responses/200/content/application/json/schema · $ref
-      The reference target changed from '#/components/schemas/Pet' to '#/components/schemas/PetV2'. The diff cannot check that the two targets are equivalent. (ref-target-changed)
+      Reference target changed from '#/components/schemas/Pet' to '#/components/schemas/PetV2'. The diff cannot check that the two targets are equivalent. (ref-target-changed)
       at revision.yaml:14:23
 
 1 major, 0 minor, 0 patch.

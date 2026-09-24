@@ -1,6 +1,6 @@
-operations
-  ✖ major  modified  onUserSignedUp · action
-      The operation action changed from 'receive' to 'send'. (operation-action-changed)
+operation onUserSignedUp
+  ✖ major  modified  action
+      Operation `onUserSignedUp` action changed from 'receive' to 'send'. (operation-action-changed)
       at revision.yaml:22:13
 
 1 major, 0 minor, 0 patch.

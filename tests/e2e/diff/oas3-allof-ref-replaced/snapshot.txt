@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  removed   responses/200/content/application/json/schema/allOf/{#/components/schemas/Named}
-      A `allOf` subschema was removed. (schema-combinator-changed)
+      `allOf` subschema was removed. (schema-combinator-changed)
       at base.yaml:15:21
   ✔ minor  added     responses/200/content/application/json/schema/allOf/{#/components/schemas/Tagged}
       at revision.yaml:15:21

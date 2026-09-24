@@ -38,11 +38,10 @@ describe('diff command', () => {
     expect(output).toContain('prints to stdout only');
   });
 
-  test('warns that --check-version was skipped when info.version is not semver', () => {
-    // Every diff fixture keeps a two-part `info.version` (e.g. '1.0'), so --check-version
-    // has nothing to compare and skips with a warning rather than passing judgment.
+  test('fails --check-version when info.version is not semver', () => {
+    // Every diff fixture keeps a two-part `info.version` (e.g. '1.0'), which is not semver.
     const output = runDiff('oas3-parameter-removed', '--check-version', '--fail-on=none');
-    expect(output).toContain('--check-version was skipped');
+    expect(output).toContain('--check-version cannot compare it');
   });
 
   test('warns that an unresolved reference leaves part of the description unjudged', () => {

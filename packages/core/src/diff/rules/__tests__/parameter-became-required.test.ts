@@ -57,7 +57,7 @@ describe('parameter-became-required', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1menu/get/parameters/0/required",
-              "message": "Parameter became required.",
+              "message": "\`limit\` query parameter became required.",
               "ruleId": "parameter-became-required",
             },
           ],

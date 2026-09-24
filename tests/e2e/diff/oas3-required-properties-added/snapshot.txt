@@ -1,6 +1,6 @@
 POST /pets
   ✖ major  modified  requestBody/content/application/json/schema · required
-      Properties became required: name. (required-properties-added)
+      Properties became required: `name`. (required-properties-added)
       at revision.yaml:13:25
 
 1 major, 0 minor, 0 patch.

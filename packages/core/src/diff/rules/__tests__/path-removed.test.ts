@@ -44,7 +44,7 @@ describe('path-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1revenue",
-              "message": "Path was removed.",
+              "message": "Path \`/revenue\` was removed.",
               "ruleId": "path-removed",
             },
           ],

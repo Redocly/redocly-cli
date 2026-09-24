@@ -72,7 +72,7 @@ describe('parameter-added-required', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1menu/get/parameters/2",
-              "message": "A new required parameter was added.",
+              "message": "Required \`locale\` header parameter was added.",
               "ruleId": "parameter-added-required",
             },
           ],
@@ -114,7 +114,7 @@ describe('parameter-added-required', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1menu/get/parameters/1",
-              "message": "A new required parameter was added.",
+              "message": "Required \`category\` query parameter was added.",
               "ruleId": "parameter-added-required",
             },
           ],

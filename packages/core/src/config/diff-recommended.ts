@@ -19,7 +19,7 @@ export const defaultDiffRules: Record<DiffRuleId, Impact | 'off'> = {
   'parameter-removed': 'major',
   'parameter-serialization-changed': 'major',
   'path-removed': 'major',
-  'property-removed-from-response': 'major',
+  'property-removed': 'major',
   'ref-target-changed': 'major',
   'request-body-became-required': 'major',
   'request-body-removed': 'major',

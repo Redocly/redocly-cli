@@ -57,7 +57,7 @@ describe('parameter-serialization-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1menu/get/parameters/0/explode",
-              "message": "Parameter \`explode\` changed from 'true' to 'false'.",
+              "message": "\`explode\` of \`category\` query parameter changed from 'true' to 'false'.",
               "ruleId": "parameter-serialization-changed",
             },
           ],

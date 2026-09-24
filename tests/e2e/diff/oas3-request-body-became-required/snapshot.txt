@@ -1,6 +1,6 @@
 POST /pets
   ✖ major  modified  requestBody · required
-      The request body became required. (request-body-became-required)
+      Request body became required. (request-body-became-required)
       at revision.yaml:9:19
 
 1 major, 0 minor, 0 patch.
