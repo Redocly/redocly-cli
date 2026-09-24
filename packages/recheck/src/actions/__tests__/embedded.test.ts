@@ -24,6 +24,26 @@ function input(content: string, overrides: Partial<EmbeddedInput> = {}): Embedde
 }
 
 describe('lintEmbeddedInputs', () => {
+  it('drops document-shape rules from every preset prefix, not only recheck/', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/google'],
+      block: {},
+      configDir: process.cwd(),
+    });
+    if (!result.success) throw new Error('config');
+    const { problems } = await lintEmbeddedInputs(
+      [input('A description with no heading at all.\n')],
+      result.config.descriptionRules,
+      {
+        knownRuleNames: new Set(result.config.rules.map((rule) => rule.name)),
+        markdoc: false,
+        markdocSchema: null,
+      }
+    );
+    expect(problems.map((problem) => problem.ruleName)).not.toContain('google/single-h1');
+    expect(problems.map((problem) => problem.ruleName)).not.toContain('google/first-line-h1');
+  });
+
   it('remaps positions and carries the pointer', async () => {
     const config = await rules();
     const { problems } = await lintEmbeddedInputs(

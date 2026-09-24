@@ -15,9 +15,10 @@ import { parseDirectives } from './directives.js';
 import { newLineRe } from './line-endings.js';
 import { markdocTagSpans, protectMarkdocTags, type MarkdocTagSpan } from './markdoc-tags.js';
 
-// Rules embedded markdown cannot support: they assert whole-document
+// Assertions embedded markdown cannot support: they assert whole-document
 // shape, or resolve anchors embedded content does not carry (document-level
 // and renderer-generated ones such as Redoc's `#section/...` deep links).
+// Matched by assertion id, so a rule under any preset prefix is covered.
 const EMBEDDED_UNSUPPORTED_RULES = new Set([
   'single-h1',
   'first-line-h1',
@@ -180,7 +181,9 @@ export async function runRules(
   options: RunnerOptions = {}
 ): Promise<RunResult> {
   if (options.embedded === true) {
-    rules = rules.filter((rule) => !EMBEDDED_UNSUPPORTED_RULES.has(rule.shortName));
+    rules = rules.filter(
+      (rule) => !Object.keys(rule.assertions).some((id) => EMBEDDED_UNSUPPORTED_RULES.has(id))
+    );
   }
   const problems: Problem[] = [];
   const fixesByFile = new Map<string, Fix[]>();
