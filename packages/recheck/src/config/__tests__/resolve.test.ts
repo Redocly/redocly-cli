@@ -279,4 +279,58 @@ describe('resolveRecheckConfig', () => {
       message: 'Shorter.',
     });
   });
+
+  it('rejects a non-object apiDescriptions block', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: 'off' },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      { message: '`recheck.apiDescriptions` must be an object', path: 'recheck.apiDescriptions' },
+    ]);
+  });
+
+  it('rejects an unknown key in the apiDescriptions block', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rule: { 'recheck/line-length': 'off' } } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '`recheck.apiDescriptions` has unknown keys: rule',
+        path: 'recheck.apiDescriptions',
+      },
+    ]);
+  });
+
+  it('rejects a non-object apiDescriptions.rules block', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: 'off' } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '`recheck.apiDescriptions.rules` must be an object',
+        path: 'recheck.apiDescriptions.rules',
+      },
+    ]);
+  });
+
+  it('resolves an apiDescriptions block with an empty rules object', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: {} } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(true);
+  });
 });

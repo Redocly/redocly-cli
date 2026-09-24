@@ -140,6 +140,31 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       errors: [{ message: '`recheck.rules` must be an object', path: 'recheck.rules' }],
     };
   }
+  if ('apiDescriptions' in block) {
+    const { apiDescriptions } = block;
+    const errors: ValidationError[] = [];
+    if (!isPlainObject(apiDescriptions)) {
+      errors.push({
+        message: '`recheck.apiDescriptions` must be an object',
+        path: 'recheck.apiDescriptions',
+      });
+    } else {
+      const unknownKeys = Object.keys(apiDescriptions).filter((key) => key !== 'rules');
+      if (unknownKeys.length > 0) {
+        errors.push({
+          message: `\`recheck.apiDescriptions\` has unknown keys: ${unknownKeys.join(', ')}`,
+          path: 'recheck.apiDescriptions',
+        });
+      }
+      if ('rules' in apiDescriptions && !isPlainObject(apiDescriptions.rules)) {
+        errors.push({
+          message: '`recheck.apiDescriptions.rules` must be an object',
+          path: 'recheck.apiDescriptions.rules',
+        });
+      }
+    }
+    if (errors.length > 0) return { success: false, errors };
+  }
   const validation = await validate(toEngineConfig(block, input.extends), {
     configDir: input.configDir,
     warn: input.warn,

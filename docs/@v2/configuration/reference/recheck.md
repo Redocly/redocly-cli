@@ -228,6 +228,8 @@ Use a severity string to change the severity of a preset rule or to turn it off.
 
 {% /table %}
 
+Any other key is a configuration error.
+
 ## Example
 
 ```yaml
