@@ -1,6 +1,7 @@
 import { fieldOf } from '../../node-tree/access.js';
 import { dequal } from '../../utils/dequal.js';
 import type { DiffRule } from '../types.js';
+import { ofSchema } from './utils.js';
 
 // `integer` accepts a subset of what `number` does, so it is the one implicit widening among
 // the JSON Schema primitive types.
@@ -40,10 +41,10 @@ export const SchemaTypeChanged: DiffRule = () => ({
     const described = `from '${before.join(' | ')}' to '${after.join(' | ')}'`;
 
     if (directions.includes('request') && typesNotIn(before, after).length) {
-      report({ message: `Schema type narrowed ${described}.` });
+      report({ message: `Type${ofSchema(change.node)} narrowed ${described}.` });
     }
     if (directions.includes('response') && typesNotIn(after, before).length) {
-      report({ message: `Schema type widened ${described}.` });
+      report({ message: `Type${ofSchema(change.node)} widened ${described}.` });
     }
   },
 });

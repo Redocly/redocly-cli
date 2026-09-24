@@ -46,7 +46,7 @@ describe('request-body-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders/post/requestBody",
-              "message": "The request body was removed.",
+              "message": "Request body was removed.",
               "ruleId": "request-body-removed",
             },
           ],

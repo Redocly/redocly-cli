@@ -41,7 +41,7 @@ describe('security-scheme-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/components/securitySchemes/Bearer",
-              "message": "A security scheme was removed.",
+              "message": "Security scheme \`Bearer\` was removed.",
               "ruleId": "security-scheme-removed",
             },
           ],

@@ -105,7 +105,7 @@ describe('diffDocuments', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/components/schemas/OrderStatus/enum",
-              "message": "Enum values removed: preparing.",
+              "message": "Enum of \`OrderStatus\` lost values: 'preparing'.",
               "ruleId": "enum-values-removed",
             },
           ],
@@ -151,7 +151,7 @@ describe('diffDocuments', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1menu/get/parameters/1/required",
-              "message": "Parameter became required.",
+              "message": "\`limit\` query parameter became required.",
               "ruleId": "parameter-became-required",
             },
           ],

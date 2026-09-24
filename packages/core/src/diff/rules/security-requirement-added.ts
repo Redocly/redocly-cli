@@ -11,12 +11,12 @@ import type { DiffRule } from '../types.js';
  */
 export const SecurityRequirementAdded: DiffRule = () => ({
   SecurityRequirementList(change, { report }) {
-    if (change.kind === 'added') report({ message: 'The API now requires authentication.' });
+    if (change.kind === 'added') report({ message: 'Authentication became required.' });
   },
   SecurityRequirement(change, { report }) {
     const list = change.node.parent?.base?.value;
     if (change.kind === 'added' && Array.isArray(list) && list.length === 0) {
-      report({ message: 'The API now requires authentication.' });
+      report({ message: 'Authentication became required.' });
     }
   },
 });

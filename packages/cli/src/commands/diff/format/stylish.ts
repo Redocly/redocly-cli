@@ -1,19 +1,24 @@
 import {
   displaySide,
-  getLineColLocation,
   impactRank,
-  isAbsoluteUrl,
-  isBrowser,
+  impacts,
   parsePointer,
+  typeOf,
   type Change,
+  type DiffNode,
   type DiffResult,
   type Impact,
   type JudgedChange,
 } from '@redocly/openapi-core';
 import { blue, bold, gray, green, red } from 'colorette';
-import * as path from 'node:path';
 
-import { byKeyAndProperty } from './order.js';
+import { lineColOf } from './location.js';
+
+const IMPACT_COLORS: Record<Impact, (text: string) => string> = {
+  major: red,
+  minor: green,
+  patch: gray,
+};
 
 const IMPACT_GLYPHS: Record<Impact, string> = {
   major: red('✖ major'),
@@ -27,86 +32,82 @@ function segmentsOf(pointer: string): string[] {
   return segments;
 }
 
-const HTTP_METHODS = new Set([
-  'get',
-  'put',
-  'post',
-  'delete',
-  'options',
-  'head',
-  'patch',
-  'trace',
-  'query',
-]);
-
-function groupOf(change: Change): string {
-  const segments = segmentsOf(displaySide(change).location.pointer);
-  if (segments[0] === 'paths' && segments.length > 1) {
-    const pathKey = segments[1];
-    const method = segments[2];
-    return method && HTTP_METHODS.has(method) ? `${method.toUpperCase()} ${pathKey}` : pathKey;
-  }
-  return segments[0] || 'document';
+function nameOf(node: DiffNode): string {
+  return String((node.revision ?? node.base)!.key);
 }
 
-// The group heading already names what the label would repeat: the endpoint under
-// `paths`, the section anywhere else.
-function labelSegments(segments: string[]): string[] {
-  if (segments[0] !== 'paths') return segments.slice(1);
-  const underOperation = segments.length > 2 && HTTP_METHODS.has(segments[2]);
-  return segments.slice(underOperation ? 3 : 2);
+// The items that get a heading of their own, by the type of the map that holds them.
+const ITEM_HEADINGS: Partial<Record<string, (name: string) => string>> = {
+  Paths: (path) => path,
+  WebhooksMap: (webhook) => `${webhook} (webhook)`,
+  NamedChannels: (channel) => `channel ${channel}`,
+  NamedOperations: (operation) => `operation ${operation}`,
+  ServerMap: (server) => `server ${server}`,
+};
+
+/**
+ * The heading a change is listed under — its endpoint, webhook, channel, operation or server,
+ * or else the section it sits in — and how many levels below the root that heading names. The
+ * names come from the matched nodes, so a renamed path keeps one heading for all its changes.
+ */
+function headingOf(change: Change): { heading: string; depth: number } {
+  const ancestors: DiffNode[] = [];
+  for (let node: DiffNode | null = change.node; node; node = node.parent) ancestors.unshift(node);
+  const [, section, item, operation] = ancestors;
+
+  if (!section) return { heading: 'document', depth: 0 };
+  const itemHeading = ITEM_HEADINGS[typeOf(section)];
+  if (!item || !itemHeading) return { heading: nameOf(section), depth: 1 };
+
+  const heading = itemHeading(nameOf(item));
+  const isOperation = operation && typeOf(operation) === 'Operation' && typeOf(item) === 'PathItem';
+  if (isOperation) return { heading: `${nameOf(operation).toUpperCase()} ${heading}`, depth: 3 };
+  return { heading, depth: 2 };
 }
 
-// A change on the group node itself is labelled by its property; the node itself by its
-// real path, each segment unescaped so a `/` inside a name reads as one.
+// The label leaves out what the heading names, so a change on the heading's own node has only
+// its property, if any. Each segment is unescaped, so a `/` inside a name reads as one.
 function labelOf(change: JudgedChange): string {
-  const named = labelSegments(segmentsOf(change.key));
-  if (named.length) {
-    return change.kind === 'modified' ? `${named.join('/')} · ${change.property}` : named.join('/');
-  }
-  if (change.kind === 'modified') return change.property;
-  return segmentsOf(displaySide(change).location.pointer).join(' · ');
-}
-
-function locationOf(change: Change, cwd: string): string {
-  const { location } = displaySide(change);
-  const { start } = getLineColLocation(location);
-  const file = isAbsoluteUrl(location.source.absoluteRef)
-    ? location.source.absoluteRef
-    : path.relative(cwd, location.source.absoluteRef);
-  return `${file}:${start.line}:${start.col}`;
+  const below = segmentsOf(change.key).slice(headingOf(change).depth).join('/');
+  if (change.kind !== 'modified') return below;
+  return below ? `${below} · ${change.property}` : change.property;
 }
 
 export function stylishDiff(result: DiffResult): string {
-  const cwd = isBrowser ? '' : process.cwd();
   const groups = new Map<string, JudgedChange[]>();
   for (const change of result.changes) {
-    const key = groupOf(change);
-    const group = groups.get(key) ?? [];
+    const { heading } = headingOf(change);
+    const group = groups.get(heading) ?? [];
     group.push(change);
-    groups.set(key, group);
+    groups.set(heading, group);
   }
 
   const lines: string[] = [];
-  for (const [key, changes] of [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-    lines.push(bold(blue(key)));
-    const sorted = [...changes].sort(
-      (left, right) =>
-        impactRank(right.impact) - impactRank(left.impact) || byKeyAndProperty(left, right)
+  // The changes come sorted by key, so the headings follow the document's structure.
+  for (const [heading, changes] of groups) {
+    lines.push(bold(blue(heading)));
+    // Sorting is stable, so changes of one impact keep the order the report lists them in.
+    const sorted = changes.toSorted(
+      (left, right) => impactRank(right.impact) - impactRank(left.impact)
     );
     for (const change of sorted) {
-      lines.push(
-        `  ${IMPACT_GLYPHS[change.impact]}  ${bold(change.kind.padEnd(8))}  ${labelOf(change)}`
-      );
+      const label = labelOf(change);
+      const kind = bold(label ? change.kind.padEnd(8) : change.kind);
+      lines.push(`  ${IMPACT_GLYPHS[change.impact]}  ${kind}${label ? `  ${label}` : ''}`);
       for (const verdict of change.verdicts) {
         lines.push(gray(`      ${verdict.message} (${verdict.ruleId})`));
       }
-      lines.push(gray(`      at ${locationOf(change, cwd)}`));
+      const { file, line, col } = lineColOf(displaySide(change).location);
+      lines.push(gray(`      at ${file}:${line}:${col}`));
     }
     lines.push('');
   }
 
-  const { major, minor, patch } = result.summary;
-  lines.push(`${red(`${major} major`)}, ${green(`${minor} minor`)}, ${gray(`${patch} patch`)}.`);
+  // A zero is not a finding, so it is not coloured like one.
+  const counts = impacts.toReversed().map((impact) => {
+    const count = result.summary[impact];
+    return (count ? IMPACT_COLORS[impact] : gray)(`${count} ${impact}`);
+  });
+  lines.push(`${counts.join(', ')}.`);
   return lines.join('\n');
 }

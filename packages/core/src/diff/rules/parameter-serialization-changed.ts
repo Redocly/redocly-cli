@@ -1,4 +1,5 @@
 import type { DiffRule } from '../types.js';
+import { describeChange, describeParameter } from './utils.js';
 
 // How a value is put on the wire is part of the contract: a client that encoded
 // the old way is not understood after the change.
@@ -9,7 +10,11 @@ export const ParameterSerializationChanged: DiffRule = () => ({
     if (change.kind !== 'modified' || !SERIALIZATION.has(change.property)) return;
     if (!directions.includes('request')) return;
     report({
-      message: `Parameter \`${change.property}\` changed from '${change.base.value}' to '${change.revision.value}'.`,
+      message: describeChange(
+        `\`${change.property}\` of ${describeParameter(change.node)}`,
+        change.base.value,
+        change.revision.value
+      ),
     });
   },
 });

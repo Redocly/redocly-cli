@@ -1,9 +1,9 @@
 GET /pets
   ✖ major  removed   parameters/{query:limit}
-      Parameter was removed. (parameter-removed)
+      `limit` query parameter was removed. (parameter-removed)
       at base.yaml:9:11
   ✖ major  added     parameters/{query:owner}
-      A new required parameter was added. (parameter-added-required)
+      Required `owner` query parameter was added. (parameter-added-required)
       at revision.yaml:9:11
 
 2 major, 0 minor, 0 patch.

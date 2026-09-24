@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  modified  parameters/{query:sort}/schema · enum
-      Enum values removed: desc. (enum-values-removed)
+      Enum lost values: 'desc'. (enum-values-removed)
       at revision.yaml:14:15
 
 1 major, 0 minor, 0 patch.

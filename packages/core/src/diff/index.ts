@@ -5,6 +5,7 @@ import { getTypes, type SpecVersion } from '../oas-types.js';
 import type { Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { HandledError } from '../utils/error.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
 import { collectChanges } from './changes.js';
 import { buildDiffTree, typeOf } from './diff-tree.js';
 import { resolveDirections } from './direction.js';
@@ -64,15 +65,25 @@ export function diffDocuments(opts: {
   });
 
   return {
-    version: '1',
+    files: {
+      base: base.source.absoluteRef,
+      revision: revision.source.absoluteRef,
+    },
     specVersions: {
       base: baseVersion,
       revision: revisionVersion,
     },
+    infoVersions: { base: infoVersionOf(base), revision: infoVersionOf(revision) },
     summary: countByImpact(changes),
     bump: requiredBump(changes),
     changes,
   };
+}
+
+function infoVersionOf({ parsed }: Document): string | undefined {
+  const version =
+    isPlainObject(parsed) && isPlainObject(parsed.info) ? parsed.info.version : undefined;
+  return typeof version === 'string' ? version : undefined;
 }
 
 function countByImpact(changes: JudgedChange[]): DiffSummary {

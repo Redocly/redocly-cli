@@ -1,6 +1,6 @@
 /pets/{petId}
-  ✖ major  removed   paths · /pets/{petId}
-      Path was removed. (path-removed)
+  ✖ major  removed
+      Path `/pets/{petId}` was removed. (path-removed)
       at base.yaml:11:5
 
 1 major, 0 minor, 0 patch.

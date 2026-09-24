@@ -1,6 +1,6 @@
 POST /pets
   ✖ major  modified  requestBody/content/application/json/schema/properties/id · format
-      `format` was added with value 'uuid'. (schema-format-changed)
+      `format` of `id` was added with value 'uuid'. (schema-format-changed)
       at revision.yaml:16:27
 
 1 major, 0 minor, 0 patch.

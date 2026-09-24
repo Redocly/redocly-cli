@@ -53,7 +53,7 @@ describe('security-requirement-added', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/get/security",
-              "message": "The API now requires authentication.",
+              "message": "Authentication became required.",
               "ruleId": "security-requirement-added",
             },
           ],
@@ -88,7 +88,7 @@ describe('security-requirement-added', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/get/security/0",
-              "message": "The API now requires authentication.",
+              "message": "Authentication became required.",
               "ruleId": "security-requirement-added",
             },
           ],

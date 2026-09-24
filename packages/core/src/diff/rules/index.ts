@@ -15,7 +15,7 @@ import { ParameterBecameRequired } from './parameter-became-required.js';
 import { ParameterRemoved } from './parameter-removed.js';
 import { ParameterSerializationChanged } from './parameter-serialization-changed.js';
 import { PathRemoved } from './path-removed.js';
-import { PropertyRemovedFromResponse } from './property-removed-from-response.js';
+import { PropertyRemoved } from './property-removed.js';
 import { RefTargetChanged } from './ref-target-changed.js';
 import { RequestBodyBecameRequired } from './request-body-became-required.js';
 import { RequestBodyRemoved } from './request-body-removed.js';
@@ -43,7 +43,7 @@ const schemaRules = {
   'enum-values-added': EnumValuesAdded,
   'required-properties-added': RequiredPropertiesAdded,
   'required-properties-removed': RequiredPropertiesRemoved,
-  'property-removed-from-response': PropertyRemovedFromResponse,
+  'property-removed': PropertyRemoved,
   'numeric-range-changed': NumericRangeChanged,
   'string-length-changed': StringLengthChanged,
   'schema-format-changed': SchemaFormatChanged,
@@ -66,6 +66,7 @@ export const oas3Rules = {
   'security-scopes-added': SecurityScopesAdded,
   'security-scheme-changed': SecuritySchemeChanged,
   'security-scheme-removed': SecuritySchemeRemoved,
+  'server-removed': ServerRemoved,
   'ref-target-changed': RefTargetChanged,
   ...schemaRules,
   'schema-combinator-changed': SchemaCombinatorChanged,

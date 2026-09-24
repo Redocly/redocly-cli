@@ -50,7 +50,7 @@ describe('response-header-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders/post/responses/201/headers/X-Rate-Limit",
-              "message": "A response header was removed.",
+              "message": "Response header \`X-Rate-Limit\` was removed.",
               "ruleId": "response-header-removed",
             },
           ],
@@ -89,7 +89,7 @@ describe('response-header-removed', () => {
             {
               "impact": "major",
               "location": "base.yaml#/paths/~1orders/post/responses/201/headers",
-              "message": "The response headers were removed.",
+              "message": "All headers of response \`201\` were removed.",
               "ruleId": "response-header-removed",
             },
           ],

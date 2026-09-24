@@ -47,7 +47,7 @@ describe('security-scheme-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/components/securitySchemes/ApiKey/name",
-              "message": "Security scheme \`name\` changed from 'X-Api-Key' to 'X-Cafe-Key'.",
+              "message": "\`name\` of security scheme \`ApiKey\` changed from 'X-Api-Key' to 'X-Cafe-Key'.",
               "ruleId": "security-scheme-changed",
             },
           ],
@@ -85,7 +85,7 @@ describe('security-scheme-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/components/securitySchemes/ApiKey/type",
-              "message": "Security scheme \`type\` changed from 'apiKey' to 'http'.",
+              "message": "\`type\` of security scheme \`ApiKey\` changed from 'apiKey' to 'http'.",
               "ruleId": "security-scheme-changed",
             },
           ],

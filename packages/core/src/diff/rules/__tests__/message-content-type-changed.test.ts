@@ -42,7 +42,7 @@ describe('message-content-type-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/channels/orders/messages/orderPlaced/contentType",
-              "message": "The message content type changed from 'application/json' to 'application/avro'.",
+              "message": "Message \`orderPlaced\` content type changed from 'application/json' to 'application/avro'.",
               "ruleId": "message-content-type-changed",
             },
           ],

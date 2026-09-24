@@ -1,6 +1,6 @@
 POST /pets
   ✖ major  removed   requestBody
-      The request body was removed. (request-body-removed)
+      Request body was removed. (request-body-removed)
       at base.yaml:9:9
 
 1 major, 0 minor, 0 patch.

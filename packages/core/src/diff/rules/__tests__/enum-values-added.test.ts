@@ -82,7 +82,7 @@ describe('enum-values-added', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/enum",
-              "message": "Enum values added: preparing.",
+              "message": "Enum gained values: 'preparing'.",
               "ruleId": "enum-values-added",
             },
           ],

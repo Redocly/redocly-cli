@@ -1,6 +1,6 @@
 GET /pets
   ✖ major  added     security
-      The API now requires authentication. (security-requirement-added)
+      Authentication became required. (security-requirement-added)
       at revision.yaml:9:9
 
 1 major, 0 minor, 0 patch.

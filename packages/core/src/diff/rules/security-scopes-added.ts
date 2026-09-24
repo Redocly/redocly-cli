@@ -1,5 +1,5 @@
 import type { DiffRule } from '../types.js';
-import { itemsOnlyIn } from './utils.js';
+import { itemsOnlyIn, quoted } from './utils.js';
 
 export const SecurityScopesAdded: DiffRule = () => ({
   SecurityRequirement(change, { report }) {
@@ -7,6 +7,8 @@ export const SecurityScopesAdded: DiffRule = () => ({
     if (change.kind !== 'modified') return;
     const added = itemsOnlyIn(change.revision.value, change.base.value);
     if (!added.length) return;
-    report({ message: `Scheme \`${change.property}\` requires new scopes: ${added.join(', ')}.` });
+    report({
+      message: `Security scheme \`${change.property}\` requires new scopes: ${quoted(added)}.`,
+    });
   },
 });

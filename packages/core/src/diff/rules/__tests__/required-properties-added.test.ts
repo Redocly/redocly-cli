@@ -58,7 +58,7 @@ describe('required-properties-added', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",
-              "message": "Properties became required: quantity.",
+              "message": "Properties became required: \`quantity\`.",
               "ruleId": "required-properties-added",
             },
           ],

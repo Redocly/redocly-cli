@@ -43,7 +43,7 @@ describe('operation-action-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/operations/onOrderPlaced/action",
-              "message": "The operation action changed from 'receive' to 'send'.",
+              "message": "Operation \`onOrderPlaced\` action changed from 'receive' to 'send'.",
               "ruleId": "operation-action-changed",
             },
           ],
