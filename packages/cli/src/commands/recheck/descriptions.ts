@@ -13,7 +13,6 @@ import {
   type Oas3Visitor,
   type Source,
 } from '@redocly/openapi-core';
-import { dirname, resolve } from 'node:path';
 
 export interface CollectedDescription {
   source: Source;
@@ -69,7 +68,10 @@ export async function collectDescriptions(
     brokenRefs.push(
       `Could not resolve $ref ${ref} from ${sourceFile}: ${resolvedRef.error?.message ?? 'unknown error'}`
     );
-    brokenTargets.add(resolve(dirname(sourceFile), ref.split('#')[0]));
+    // Same split as the walker: only `#/` starts a JSON pointer.
+    const [uri] = ref.split('#/');
+    const targetUri = uri.endsWith('#') ? uri.slice(0, -1) : uri;
+    if (targetUri !== '') brokenTargets.add(resolver.resolveExternalRef(sourceFile, targetUri));
   }
   if (brokenRefs.length > 0)
     throw new UnresolvedRefError(brokenRefs.join('\n'), [...brokenTargets]);
