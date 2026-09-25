@@ -99,6 +99,7 @@ redocly recheck docs --format=github-actions
 ```
 
 In a GitHub Actions workflow, this format adds each finding as an annotation on the changed line.
+An error becomes `::error`, a warning `::warning`, and an info finding `::notice`.
 Each finding is one line of output:
 
 ```text

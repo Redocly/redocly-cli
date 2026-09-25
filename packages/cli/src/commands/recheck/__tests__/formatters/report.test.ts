@@ -24,6 +24,14 @@ const WARNING: Problem = {
   message: 'TODO found.',
 };
 
+const INFO: Problem = {
+  ...ERROR,
+  line: 2,
+  ruleName: 'technical-english/passive-voice',
+  severity: 'info',
+  message: 'Prefer the active voice.',
+};
+
 afterEach(() => vi.restoreAllMocks());
 
 describe('generateReport', () => {
@@ -39,7 +47,7 @@ describe('generateReport', () => {
   it('prints GitHub Actions annotations on stdout with errors first', async () => {
     const { stderr, stdout } = captureLogger();
 
-    await generateReport([WARNING, { ...ERROR, message: 'a::b\nc' }], 1, {
+    await generateReport([INFO, WARNING, { ...ERROR, message: 'a::b\nc' }], 1, {
       format: 'github-actions',
       annotationsLimit: 10,
     });
@@ -47,8 +55,9 @@ describe('generateReport', () => {
     expect(stdout).toEqual([
       '::error title=recheck/line-length,file=docs/index.md,line=5,endLine=5,col=1,endColumn=2::a%3A%3Ab%0Ac\n',
       '::warning title=recheck/no-todos,file=docs/index.md,line=1,endLine=1,col=1,endColumn=2::TODO found.\n',
+      '::notice title=technical-english/passive-voice,file=docs/index.md,line=2,endLine=2,col=1,endColumn=2::Prefer the active voice.\n',
     ]);
-    expect(stderr).toEqual(['\n   Annotations prepared: 2 (limit 10)\n']);
+    expect(stderr).toEqual(['\n   Annotations prepared: 3 (limit 10)\n']);
   });
 
   it('prints the JSON report with the baseline counts on stdout', async () => {
