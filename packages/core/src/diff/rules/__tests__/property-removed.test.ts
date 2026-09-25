@@ -115,4 +115,97 @@ describe('property-removed', () => {
       ]
     `);
   });
+
+  it('should not report a writeOnly property, which a response never sends', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(
+        cafe('{ properties: { pin: { type: string, writeOnly: true } } }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(cafe('{ properties: {} }'), 'revision.yaml'),
+      config: await createConfig({ diff: { 'property-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/pin",
+            "value": {
+              "type": "string",
+              "writeOnly": true,
+            },
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/pin",
+          "kind": "removed",
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/pin",
+            "value": {
+              "type": "string",
+              "writeOnly": true,
+            },
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/pin",
+          "kind": "removed",
+          "verdicts": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report every property leaving with the whole properties map', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(
+        cafe('{ type: object, properties: { note: { type: string } } }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(cafe('{ type: object }'), 'revision.yaml'),
+      config: await createConfig({ diff: { 'property-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties",
+            "value": {
+              "note": {
+                "type": "string",
+              },
+            },
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties",
+          "kind": "removed",
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties",
+            "value": {
+              "note": {
+                "type": "string",
+              },
+            },
+          },
+          "impact": "major",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties",
+          "kind": "removed",
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties",
+              "message": "All properties were removed.",
+              "ruleId": "property-removed",
+            },
+          ],
+        },
+      ]
+    `);
+  });
 });

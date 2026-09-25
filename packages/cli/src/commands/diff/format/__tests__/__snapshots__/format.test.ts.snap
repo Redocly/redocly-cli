@@ -86,7 +86,7 @@ exports[`htmlDiff > should render a self-contained page 1`] = `
         <span class="badge">major</span>
         <code>modified</code>
         <code class="loc">#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note · pattern</code>
-        <span class="msg">\`pattern\` of \`note\` changed from 'a' to 'a|b'.</span> <span class="rules">string-length-changed</span>
+        <span class="msg">\`pattern\` of \`note\` changed from 'a' to 'a|b'.</span> <span class="rules">string-constraint-changed</span>
       </summary>
       <pre>{
   &quot;base&quot;: {
@@ -262,7 +262,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       "impact": "major",
       "verdicts": [
         {
-          "ruleId": "string-length-changed",
+          "ruleId": "string-constraint-changed",
           "impact": "major",
           "message": "\`pattern\` of \`note\` changed from 'a' to 'a|b'.",
           "location": {
@@ -383,7 +383,7 @@ exports[`markdownDiff > should render one table row per change 1`] = `
 | --- | --- | --- | --- | --- |
 | ⚪ patch | modified | \`#/paths/~1menu/get · summary\` | revision.yaml:6:16 |  |
 | 🔴 major | modified | \`#/paths/~1menu/get/parameters/{query:limit} · required\` | revision.yaml:8:47 | \\\`limit\\\` query parameter became required. \`parameter-became-required\` |
-| 🔴 major | modified | \`#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note · pattern\` | revision.yaml:15:68 | \\\`pattern\\\` of \\\`note\\\` changed from 'a' to 'a\\|b'. \`string-length-changed\` |
+| 🔴 major | modified | \`#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note · pattern\` | revision.yaml:15:68 | \\\`pattern\\\` of \\\`note\\\` changed from 'a' to 'a\\|b'. \`string-constraint-changed\` |
 | 🔴 major | removed | \`#/paths/~1orders/delete\` | base.yaml:18:7 | Operation \\\`DELETE /orders\\\` was removed. \`operation-removed\` |
 | 🔴 major | removed | \`#/webhooks/orderReady/post/requestBody/content/application~1json/schema/properties/eta\` | base.yaml:26:42 | Property \\\`eta\\\` was removed. \`property-removed\` |
 | 🟢 minor | added | \`#/components\` | revision.yaml:26:3 |  |"
@@ -393,7 +393,7 @@ exports[`nextVersionDiff > should bump the base version as far as the changes re
 
 exports[`printGithubActions > should annotate each verdict of a breaking change as an error and skip the rest 1`] = `
 "::error title=parameter-became-required,file=revision.yaml,line=8,col=47,endLine=8,endColumn=51::\`limit\` query parameter became required.
-::error title=string-length-changed,file=revision.yaml,line=15,col=68,endLine=15,endColumn=73::\`pattern\` of \`note\` changed from 'a' to 'a|b'.
+::error title=string-constraint-changed,file=revision.yaml,line=15,col=68,endLine=15,endColumn=73::\`pattern\` of \`note\` changed from 'a' to 'a|b'.
 ::error title=operation-removed,file=base.yaml,line=18,col=7,endLine=19,endColumn=55::Operation \`DELETE /orders\` was removed.
 ::error title=property-removed,file=base.yaml,line=26,col=42,endLine=26,endColumn=58::Property \`eta\` was removed.
 "
@@ -428,7 +428,7 @@ exports[`stylishDiff > should group the changes per endpoint and webhook, worst 
 
 POST /orders
   ✖ major  modified  requestBody/content/application/json/schema/properties/note · pattern
-      \`pattern\` of \`note\` changed from 'a' to 'a|b'. (string-length-changed)
+      \`pattern\` of \`note\` changed from 'a' to 'a|b'. (string-constraint-changed)
       at revision.yaml:15:68
 
 DELETE /orders

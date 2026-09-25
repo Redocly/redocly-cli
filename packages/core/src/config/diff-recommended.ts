@@ -14,7 +14,6 @@ export const defaultDiffRules: Record<DiffRuleId, Impact | 'off'> = {
   'numeric-range-changed': 'major',
   'operation-action-changed': 'major',
   'operation-removed': 'major',
-  'parameter-added-required': 'major',
   'parameter-became-required': 'major',
   'parameter-removed': 'major',
   'parameter-serialization-changed': 'major',
@@ -30,12 +29,11 @@ export const defaultDiffRules: Record<DiffRuleId, Impact | 'off'> = {
   'schema-combinator-changed': 'major',
   'schema-format-changed': 'major',
   'schema-type-changed': 'major',
-  'security-requirement-added': 'major',
+  'security-requirement-changed': 'major',
   'security-scheme-changed': 'major',
   'security-scheme-removed': 'major',
-  'security-scopes-added': 'major',
   'server-removed': 'major',
-  'string-length-changed': 'major',
+  'string-constraint-changed': 'major',
 };
 
 const diffRecommended: RawGovernanceConfig<'built-in'> = {
