@@ -90,5 +90,5 @@ components:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/no-unresolved-refs.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/v1/packages/core/src/rules/no-unresolved-refs.ts)
 - Read our guide on [how to use JSON references ($refs)](https://redocly.com/docs/resources/ref-guide)

@@ -68,7 +68,7 @@ paths:
                 properties:
                   startDate: { type: string, format: date }
                   endDate: { type: string, format: date }
-                  status: { type: string, enum: [scheduled, cancelled, completed] }
+                  status: { type: string, enum: [scheduled, canceled, completed] }
 ```
 
 Example of **incorrect** use (multiple `querystring` parameters):
@@ -116,7 +116,7 @@ paths:
                 properties:
                   startDate: { type: string, format: date }
                   endDate: { type: string, format: date }
-                  status: { type: string, enum: [scheduled, cancelled, completed] }
+                  status: { type: string, enum: [scheduled, canceled, completed] }
                   limit: { type: integer, default: 20 }
                   offset: { type: integer, default: 0 }
 ```
@@ -128,4 +128,4 @@ paths:
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/spec-querystring-parameters.ts)
-- [OpenAPI 3.2 Parameter object](https://spec.openapis.org/oas/3.2.0#parameter-object)
+- [OpenAPI 3.2 Parameter object](https://spec.openapis.org/oas/v3.2.0#parameter-object)
