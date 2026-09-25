@@ -189,7 +189,7 @@ function positionsToLoc(
   }
   const lineStarts = getLineStarts(source);
   const start = offsetToLoc(source, lineStarts, startPos);
-  const lastChar = offsetToLoc(source, lineStarts, Math.max(endPos - 1, 0));
+  const lastChar = offsetToLoc(source, lineStarts, endPos - 1);
   return { start, end: { line: lastChar.line, col: lastChar.col + 1 } };
 }
 
