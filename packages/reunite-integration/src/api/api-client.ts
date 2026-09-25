@@ -224,6 +224,9 @@ class RemotesApi {
     if (payload.isMainBranch) {
       formData.append('isMainBranch', 'true');
     }
+    if (payload.replace) {
+      formData.append('replace', 'true');
+    }
     try {
       const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
@@ -342,6 +345,7 @@ export type PushPayload = {
     };
   };
   isMainBranch?: boolean;
+  replace?: boolean;
 };
 
 export async function streamToBuffer(stream: ReadStream | Readable): Promise<Buffer> {
