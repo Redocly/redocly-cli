@@ -153,6 +153,10 @@ describe('split', () => {
     });
 
     expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.anything(),
+      path.join(openapiDir, 'paths', 'test.json')
+    );
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
       expect.objectContaining({ paths: { '/test': { $ref: 'paths/test.json' } } }),
       path.join(openapiDir, 'openapi.json')
     );
@@ -172,6 +176,10 @@ describe('split', () => {
     });
 
     expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.anything(),
+      path.join(openapiDir, 'webhooks', 'test.json')
+    );
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
       expect.objectContaining({ webhooks: { test: { $ref: 'webhooks/test.json' } } }),
       path.join(openapiDir, 'openapi.json')
     );
@@ -190,6 +198,10 @@ describe('split', () => {
       version: 'cli-version',
     });
 
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.anything(),
+      path.join(openapiDir, 'webhooks', 'test.json')
+    );
     expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
       expect.objectContaining({ 'x-webhooks': { test: { $ref: 'webhooks/test.json' } } }),
       path.join(openapiDir, 'openapi.json')
