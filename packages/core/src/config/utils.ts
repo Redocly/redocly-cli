@@ -166,12 +166,18 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
 
-    // The block is not validated here. check-config reports a block or `rules` of the wrong type.
-    if (isPlainObject<RecheckBlock>(rulesConf.recheck)) {
-      const { rules, ...settings } = rulesConf.recheck;
-      Object.assign(recheck, settings);
-      if (isPlainObject<RecheckRulesInput>(rules)) {
-        recheck.rules = mergeRecheckRules(recheck.rules, rules);
+    // `mergeExtends` does not validate the block. check-config reports a wrong type.
+    const block: unknown = rulesConf.recheck;
+    if (isPlainObject(result.recheck) && block !== undefined && block !== null) {
+      if (isPlainObject<RecheckBlock>(block)) {
+        const { rules, ...settings } = block;
+        Object.assign(recheck, settings);
+        if (isPlainObject<RecheckRulesInput>(rules)) {
+          recheck.rules = mergeRecheckRules(recheck.rules, rules);
+        }
+      } else {
+        // The raw value must reach the engine, which reports the wrong type.
+        result.recheck = block as RecheckBlock;
       }
     }
   }

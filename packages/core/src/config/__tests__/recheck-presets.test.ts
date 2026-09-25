@@ -1,4 +1,4 @@
-import { presetBlocks } from '@redocly/recheck';
+import { presetBlocks, type RecheckBlock } from '@redocly/recheck';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 
 import { lintConfig } from '../../lint.js';
 import { createConfig, loadConfig } from '../load.js';
+import { mergeExtends } from '../utils.js';
 
 const fixturesDir = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -75,7 +76,7 @@ describe('recheck presets in extends', () => {
     expect(config.recheck.excludes).toEqual(['drafts/**']);
   });
 
-  it('keeps the preset rules when the block or its rules have the wrong type', async () => {
+  it('keeps the preset rules when `rules` has the wrong type', async () => {
     const emptyRules = await createConfig(outdent`
       extends:
         - recheck/markdown
@@ -83,13 +84,21 @@ describe('recheck presets in extends', () => {
         rules:
     `);
     expect(emptyRules.recheck.rules?.['recheck/line-length']).toMatchObject({ severity: 'error' });
+  });
 
-    const stringBlock = await createConfig(outdent`
+  it('carries a block that is not an object to the engine', async () => {
+    const config = await createConfig(outdent`
       extends:
         - recheck/markdown
-      recheck: markdown
+      recheck: 5
     `);
-    expect(stringBlock.recheck).toEqual({ rules: presetBlocks.markdown.rules });
+    expect(config.recheck as unknown).toEqual(5);
+
+    const later = mergeExtends([
+      { recheck: 5 as unknown as RecheckBlock },
+      { recheck: { rules: { 'recheck/line-length': 'off' } } },
+    ]);
+    expect(later.recheck as unknown).toEqual(5);
   });
 
   it('does not change the shared preset entries', async () => {
@@ -113,6 +122,18 @@ describe('recheck presets in extends', () => {
     expect(config.recheck.rules?.['recheck/no-trailing-spaces']).toMatchObject({
       severity: 'error',
     });
+  });
+
+  it('loads the recheck plugin for a preset in a scorecard level', async () => {
+    const config = await createConfig(outdent`
+      scorecard:
+        levels:
+          - name: Baseline
+            extends:
+              - recheck/markdown
+    `);
+    expect(config.plugins.find((plugin) => plugin.id === 'recheck')).toBeDefined();
+    expect(config.recheck).toEqual({ rules: {} });
   });
 
   it('does not load the recheck plugin when plugin evaluation is skipped', async () => {

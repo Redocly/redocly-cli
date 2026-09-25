@@ -3,26 +3,12 @@ import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { isPlainObject } from '../../utils/is-plain-object.js';
 import { presetBlocks } from '../presets/index.js';
 import { buildMarkdownPreset } from '../presets/markdown.js';
-import { mergeRecheckRules, type RecheckRulesInput } from '../public.js';
 import { DEFAULT_BASELINE_FILE, resolveRecheckConfig } from '../resolve.js';
+import { withPresets } from './with-presets.js';
 
 const configDir = '/tmp/project';
-
-/** Returns `block` with the named presets merged in, as core does for `extends`. */
-function withPresets(
-  names: string[],
-  block: Record<string, unknown> = {}
-): Record<string, unknown> {
-  const presetRules = names.reduce<RecheckRulesInput>(
-    (merged, name) => mergeRecheckRules(merged, presetBlocks[name.replace(/^recheck\//, '')].rules),
-    {}
-  );
-  const blockRules = isPlainObject(block.rules) ? (block.rules as RecheckRulesInput) : {};
-  return { ...block, rules: mergeRecheckRules(presetRules, blockRules) };
-}
 
 describe('resolveRecheckConfig', () => {
   it('validates a block with a preset merged in', async () => {

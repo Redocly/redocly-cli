@@ -78,10 +78,18 @@ describe('handleRecheck', () => {
   it('reports a `rules` value that is not an object', async () => {
     const block = { rules: null } as unknown as RecheckBlock;
     await expect(run(block, path.join(dir, 'redocly.yaml'))).rejects.toThrow(AbortFlowError);
-    expect(output.stderr).not.toContain(NO_CONFIG_NOTICE);
     expect(output.stderr).toEqual([
       'The recheck configuration is not valid:\n',
       '  recheck.rules: `recheck.rules` must be an object\n',
+    ]);
+  });
+
+  it('reports a block that is not an object', async () => {
+    const block = 5 as unknown as RecheckBlock;
+    await expect(run(block, path.join(dir, 'redocly.yaml'))).rejects.toThrow(AbortFlowError);
+    expect(output.stderr).toEqual([
+      'The recheck configuration is not valid:\n',
+      '  recheck: `recheck` must be an object\n',
     ]);
   });
 });

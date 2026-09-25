@@ -4,11 +4,9 @@ import * as os from 'os';
 import * as path from 'path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { presetBlocks } from '../../config/presets/index.js';
-import { mergeRecheckRules, type RecheckRulesInput } from '../../config/public.js';
+import { withPresets } from '../../config/__tests__/with-presets.js';
 import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
 import type { Problem } from '../../types/index.js';
-import { isPlainObject } from '../../utils/is-plain-object.js';
 import { runLint, type LintRunReport, type LintRunResult } from '../lint.js';
 
 // A prose line longer than the `recheck/line-length` limit of 80 characters.
@@ -21,13 +19,8 @@ async function resolveConfig(
   block: Record<string, unknown> = {},
   extendsList?: string[]
 ): Promise<ResolvedRecheckConfig> {
-  const presetRules = (extendsList ?? []).reduce<RecheckRulesInput>(
-    (merged, name) => mergeRecheckRules(merged, presetBlocks[name.replace(/^recheck\//, '')].rules),
-    {}
-  );
-  const blockRules = isPlainObject(block.rules) ? (block.rules as RecheckRulesInput) : {};
   const result = await resolveRecheckConfig({
-    block: { ...block, rules: mergeRecheckRules(presetRules, blockRules) },
+    block: withPresets(extendsList ?? [], block),
     configDir,
   });
   if (!result.success) {
