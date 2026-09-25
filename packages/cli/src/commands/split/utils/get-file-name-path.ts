@@ -12,10 +12,11 @@ export type FileNameConflict = {
 export function getFileNamePath(
   dirPath: string,
   name: string,
-  extension: string,
+  ext: string,
   takenFileNames: Map<string, string>,
   conflictReport?: { conflicts: FileNameConflict[]; pointer: string }
 ) {
+  const extension = ext ? `.${ext}` : '';
   const basePath = path.join(dirPath, name);
   let filename = basePath + extension;
   const collidingName = takenFileNames.get(filename.toLowerCase());

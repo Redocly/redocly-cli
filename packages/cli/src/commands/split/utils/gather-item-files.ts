@@ -20,7 +20,7 @@ export function gatherItemFiles(
     const itemFile = getFileNamePath(
       outDir,
       pathToFilename(itemName, pathSeparator),
-      `.${ext}`,
+      ext,
       takenFileNames,
       { conflicts, pointer: `${pointer}/${escapePointerFragment(itemName)}` }
     );

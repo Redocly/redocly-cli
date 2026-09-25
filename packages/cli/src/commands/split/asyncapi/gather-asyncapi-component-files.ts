@@ -34,7 +34,7 @@ export function gatherAsyncApiComponentFiles({
     const componentDirPath = path.join(componentsDir, componentType);
     const takenFileNames = new Map<string, string>();
     for (const componentName of Object.keys(components[componentType] || {})) {
-      const filename = getFileNamePath(componentDirPath, componentName, `.${ext}`, takenFileNames, {
+      const filename = getFileNamePath(componentDirPath, componentName, ext, takenFileNames, {
         conflicts,
         pointer: `#/components/${componentType}/${escapePointerFragment(componentName)}`,
       });

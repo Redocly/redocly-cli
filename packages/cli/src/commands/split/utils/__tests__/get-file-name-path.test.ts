@@ -8,19 +8,19 @@ describe('getFileNamePath', () => {
     const conflicts: FileNameConflict[] = [];
 
     expect(
-      getFileNamePath('schemas', 'ApiRequest', '.yaml', takenFileNames, {
+      getFileNamePath('schemas', 'ApiRequest', 'yaml', takenFileNames, {
         conflicts,
         pointer: '#/components/schemas/ApiRequest',
       })
     ).toBe(path.join('schemas', 'ApiRequest.yaml'));
     expect(
-      getFileNamePath('schemas', 'apiRequest', '.yaml', takenFileNames, {
+      getFileNamePath('schemas', 'apiRequest', 'yaml', takenFileNames, {
         conflicts,
         pointer: '#/components/schemas/apiRequest',
       })
     ).toBe(path.join('schemas', 'apiRequest-2.yaml'));
     expect(
-      getFileNamePath('schemas', 'APIREQUEST', '.yaml', takenFileNames, {
+      getFileNamePath('schemas', 'APIREQUEST', 'yaml', takenFileNames, {
         conflicts,
         pointer: '#/components/schemas/APIREQUEST',
       })
@@ -46,13 +46,13 @@ describe('getFileNamePath', () => {
     const conflicts: FileNameConflict[] = [];
     const conflictReport = { conflicts, pointer: '#/paths/~1menu' };
 
-    expect(getFileNamePath('samples', 'post', '.php', takenFileNames, conflictReport)).toBe(
+    expect(getFileNamePath('samples', 'post', 'php', takenFileNames, conflictReport)).toBe(
       path.join('samples', 'post.php')
     );
-    expect(getFileNamePath('samples', 'post', '.php', takenFileNames, conflictReport)).toBe(
+    expect(getFileNamePath('samples', 'post', 'php', takenFileNames, conflictReport)).toBe(
       path.join('samples', 'post-2.php')
     );
-    expect(getFileNamePath('samples', 'post-2', '.php', takenFileNames, conflictReport)).toBe(
+    expect(getFileNamePath('samples', 'post-2', 'php', takenFileNames, conflictReport)).toBe(
       path.join('samples', 'post-2-2.php')
     );
     expect(getFileNamePath('samples', 'get', '', takenFileNames, conflictReport)).toBe(

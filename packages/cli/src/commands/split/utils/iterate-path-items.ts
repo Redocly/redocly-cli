@@ -55,7 +55,7 @@ export function iteratePathItems(
             codeSamplesPathPrefix + pathToFilename(pathName, pathSeparator)
           ),
           method,
-          langToExt(sample.lang),
+          langToExt(sample.lang).slice(1),
           takenSampleFileNames
         );
 
