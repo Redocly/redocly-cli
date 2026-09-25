@@ -65,7 +65,7 @@ function transformJSONSchemaToNodeType(
     schema.type === 'integer' ||
     schema.type === 'boolean'
   ) {
-    const { default: _, format: _format, ...rest } = schema;
+    const { default: _, ...rest } = schema;
     return rest as PropType;
   }
 

@@ -1,0 +1,33 @@
+extends:
+  - ./governance/rules.yaml
+plugins:
+  - ./governance/plugin.cjs
+apis:
+  inline:
+    root: ./openapi.yaml
+    output: ./dist/inline.yaml
+  one-level:
+    $ref: nested/config.yaml#/api
+  chained:
+    $ref: nested/config.yaml#/chain
+  reused:
+    $ref: nested/config.yaml#/api
+  untouched:
+    $ref: nested/config.yaml#/untouched
+  parent-dir:
+    $ref: nested/deep/config.yaml#/parent
+  sibling:
+    $ref: nested/config.yaml#/api
+    output: ./dist/sibling.yaml
+  shared-openapi:
+    root: ./openapi.yaml
+    openapi:
+      $ref: nested/config.yaml#/openapi
+client:
+  $ref: nested/config.yaml#/client
+logo:
+  $ref: nested/config.yaml#/logo
+openapi:
+  $ref: nested/config.yaml#/openapi
+navbar:
+  $ref: nested/config.yaml#/navbar

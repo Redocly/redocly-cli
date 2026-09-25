@@ -1,9 +1,12 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
+import * as path from 'node:path';
 
-import { replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import type { NormalizedScalarSchema } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -67,6 +70,8 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
+  rootRef: string;
+  rebased: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -82,6 +87,36 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+// a reference with a scheme is absolute, whatever the scheme (RFC 3986)
+const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i;
+
+// Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
+function rebaseFilePaths(node: unknown, ctx: UserContext) {
+  const { rootRef, rebased } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const sourceRef = ctx.location.source.absoluteRef;
+  if (!isPlainObject(node) || sourceRef === rootRef || rebased.has(node)) {
+    return;
+  }
+  for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    const value = node[field];
+    if (
+      !isPlainObject<NormalizedScalarSchema>(schema) ||
+      schema.format !== 'uri-reference' ||
+      !isString(value) ||
+      !value ||
+      URI_SCHEME.test(value) ||
+      path.isAbsolute(value)
+    ) {
+      continue;
+    }
+    node[field] = isAbsoluteUrl(sourceRef)
+      ? new URL(value, sourceRef).href
+      : path.relative(path.dirname(rootRef), path.resolve(path.dirname(sourceRef), value));
+    // a shared `$ref` target is visited once per node type name, so remember that it was rebased
+    rebased.add(node);
+  }
+}
+
 export const configBundlerVisitor = normalizeVisitors(
   [
     {
@@ -90,7 +125,15 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            // fields written next to `$ref` belong to this file and never reach a leave hook of their own
+            rebaseFilePaths(node, ctx);
             replaceRef(node, resolved, ctx);
+          },
+        },
+        // any node type can declare a file path, so each node is asked for its own type instead of listing types here
+        any: {
+          leave(node: unknown, ctx: UserContext) {
+            rebaseFilePaths(node, ctx);
           },
         },
         ConfigGovernance: {
