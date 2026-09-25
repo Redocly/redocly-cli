@@ -26,9 +26,9 @@ export const NoAmbiguousPaths: Oas3Rule | Oas2Rule = () => {
         }
 
         let ambiguousPath: ParsedPath | undefined;
-        for (const seenPath of seenPaths) {
-          if (arePathsAmbiguous(seenPath, parsedPath)) {
-            ambiguousPath = seenPath;
+        for (const path of seenPaths) {
+          if (arePathsAmbiguous(path, parsedPath)) {
+            ambiguousPath = path;
             break;
           }
         }
