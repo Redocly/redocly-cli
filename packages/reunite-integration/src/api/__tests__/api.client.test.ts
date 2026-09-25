@@ -297,8 +297,30 @@ describe('ApiClient', () => {
       expect(passedFormData.get('commit[author][email]')).toBe(pushPayload.commit.author.email);
       expect(passedFormData.get('commit[branchName]')).toBe(pushPayload.commit.branchName);
       expect(passedFormData.get('files[some-file.yaml]')).toBeInstanceOf(Blob);
+      expect(passedFormData.has('replace')).toBe(false);
 
       expect(result).toEqual(responseMock);
+    });
+
+    it('should ask the API to replace the remote files when replace is set', async () => {
+      let passedFormData: FormData = new FormData();
+
+      vi.mocked(fetch).mockImplementationOnce(async (_: any, options: any): Promise<Response> => {
+        passedFormData = options.body;
+        return {
+          ok: true,
+          json: vi.fn().mockResolvedValue(responseMock),
+        } as unknown as Response;
+      });
+
+      await apiClient.remotes.push(
+        testOrg,
+        testProject,
+        { ...pushPayload, replace: true },
+        filesMock
+      );
+
+      expect(passedFormData.get('replace')).toBe('true');
     });
 
     it('should throw parsed error if response is not ok', async () => {
