@@ -31,6 +31,7 @@ export type PushArgv = {
   'wait-for-deployment'?: boolean;
   'max-execution-time'?: number;
   'continue-on-deploy-failures'?: boolean;
+  replace?: boolean;
   verbose?: boolean;
   format?: Extract<OutputFormat, 'stylish'>;
 };
@@ -79,6 +80,7 @@ export async function handlePush({
         author: parseCommitAuthor(argv.author),
       },
       version,
+      replace: argv.replace,
       onUploadStart: (remote) => {
         logger.info(
           `Uploading to ${remote.mountPath} ${files.length} ${pluralize('file', files.length)}:\n`
