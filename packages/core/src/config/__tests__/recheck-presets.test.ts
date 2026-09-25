@@ -1,9 +1,16 @@
 import { presetBlocks } from '@redocly/recheck';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 import { describe, expect, it } from 'vitest';
 
 import { lintConfig } from '../../lint.js';
-import { createConfig } from '../load.js';
+import { createConfig, loadConfig } from '../load.js';
+
+const fixturesDir = path.join(
+  path.dirname(fileURLToPath(import.meta.url)),
+  'fixtures/recheck-presets'
+);
 
 const withPreset = outdent`
   extends:
@@ -97,6 +104,21 @@ describe('recheck presets in extends', () => {
 
     const named = await createConfig(withPreset);
     expect(named.plugins.find((plugin) => plugin.id === 'recheck')).toBeDefined();
+  });
+
+  it('loads the recheck plugin for a preset in a shared config file', async () => {
+    const config = await loadConfig({ configPath: path.join(fixturesDir, 'redocly.yaml') });
+    expect(config.recheck.rules?.['recheck/no-trailing-spaces']).toMatchObject({
+      severity: 'error',
+    });
+  });
+
+  it('does not load the recheck plugin when plugin evaluation is skipped', async () => {
+    const config = await loadConfig({
+      configPath: path.join(fixturesDir, 'base.yaml'),
+      skipPluginEval: true,
+    });
+    expect(config.plugins.find((plugin) => plugin.id === 'recheck')).toBeUndefined();
   });
 
   it('rejects a plugin that takes the built-in id', async () => {

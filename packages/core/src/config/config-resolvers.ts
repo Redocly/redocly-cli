@@ -97,7 +97,7 @@ export async function resolveConfig({
 
   const builtInPlugins = skipPluginEval
     ? [defaultPlugin]
-    : await resolveBuiltInPlugins(isPlainObject<RawUniversalConfig>(config) ? config : {});
+    : await resolveBuiltInPlugins(config, resolvedRefMap);
   let pluginsOrPaths: (Plugin | PluginResolveInfo)[] = [];
   let resolvedPlugins: Plugin[];
   let rootConfigDir: string = '';
@@ -155,18 +155,40 @@ export async function resolveConfig({
   };
 }
 
-// Loads the built-in plugins whose id an `extends` entry names, in the root
-// or under an api.
-async function resolveBuiltInPlugins(config: RawUniversalConfig): Promise<Plugin[]> {
-  const sections = [config, ...Object.values(config.apis ?? {})];
-  const extendsEntries = sections.flatMap((section) => section.extends ?? []).filter(isString);
-  const pluginIds = new Set(extendsEntries.map((entry) => parsePresetName(entry).pluginId));
+// Loads the built-in plugins whose id an `extends` entry names.
+// `extends` can sit in shared files and scorecard levels, so the scan covers every resolved document.
+async function resolveBuiltInPlugins(
+  config: unknown,
+  resolvedRefMap: ResolvedRefMap
+): Promise<Plugin[]> {
+  const documents = new Set([
+    config,
+    ...[...resolvedRefMap.values()].map((ref) => ref.document?.parsed),
+  ]);
+  const pluginIds = new Set(
+    [...documents].flatMap(collectExtendsEntries).map((entry) => parsePresetName(entry).pluginId)
+  );
   const loaded = await Promise.all(
     Object.entries(lazyBuiltInPlugins)
       .filter(([id]) => pluginIds.has(id))
       .map(([, load]) => load())
   );
   return [defaultPlugin, ...loaded];
+}
+
+// Returns the strings of every `extends` array in a node, at any depth.
+function collectExtendsEntries(node: unknown): string[] {
+  if (Array.isArray(node)) {
+    return node.flatMap(collectExtendsEntries);
+  }
+  if (!isPlainObject(node)) {
+    return [];
+  }
+  return Object.entries(node).flatMap(([key, value]) =>
+    key === 'extends' && Array.isArray(value)
+      ? value.filter(isString)
+      : collectExtendsEntries(value)
+  );
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {

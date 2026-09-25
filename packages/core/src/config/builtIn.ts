@@ -78,7 +78,10 @@ export const defaultPlugin: Plugin<'built-in'> = {
 
 // Built-in plugins that load on demand: `resolveConfig` loads one when an
 // `extends` entry names a config of its id. The prose engine is heavy, so a
-// config that never names `recheck/*` never loads it.
+// config that never names `recheck/*` never loads it. The `webpackIgnore` hint
+// makes webpack and rspack leave the import to runtime, so a bundle of core must
+// be able to resolve `@redocly/recheck` at runtime. esbuild ignores the hint and
+// bundles the engine into a split chunk.
 export const lazyBuiltInPlugins: Record<string, () => Promise<Plugin>> = {
   recheck: async () => {
     // `webpackIgnore` keeps the engine out of the bundles that tools make from core.
