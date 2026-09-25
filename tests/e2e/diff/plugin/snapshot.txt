@@ -1,0 +1,11 @@
+GET /menu
+  ✖ major  modified  tags
+      Tags removed: public. (cafe/tag-removed)
+      at revision.yaml:6:13
+
+1 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 1 major change.

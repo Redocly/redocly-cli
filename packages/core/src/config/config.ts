@@ -1,6 +1,8 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
+import { isDiffFamily } from '../diff/rules/index.js';
+import type { DiffRule, Impact } from '../diff/types.js';
 import { stringifyYaml } from '../js-yaml/index.js';
 import {
   type Oas2RuleSet,
@@ -18,6 +20,7 @@ import {
 import { isAbsoluteUrl } from '../ref-utils.js';
 import type { Document, ResolvedRefMap } from '../resolve.js';
 import type { NodeType } from '../types/index.js';
+import { isDefined } from '../utils/is-defined.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { omit } from '../utils/omit.js';
 import { slash } from '../utils/slash.js';
@@ -50,6 +53,8 @@ export class Config {
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
+  /** Only the specifications the diff rules cover; the rest are absent, like in `DIRECTIONS`. */
+  diff: Partial<Record<SpecVersion, Record<string, Impact | 'off'>>>;
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -156,6 +161,13 @@ export class Config {
         ...resolvedConfig.openrpc1Decorators,
       },
       graphql: {},
+    };
+
+    this.diff = {
+      oas3_0: { ...resolvedConfig.diff, ...resolvedConfig.oas3_0Diff },
+      oas3_1: { ...resolvedConfig.diff, ...resolvedConfig.oas3_1Diff },
+      oas3_2: { ...resolvedConfig.diff, ...resolvedConfig.oas3_2Diff },
+      async3: { ...resolvedConfig.diff, ...resolvedConfig.async3Diff },
     };
 
     this.ignore = opts.ignore ?? {};
@@ -343,6 +355,12 @@ export class Config {
   }
 
   // TODO: add rules for redocly.yaml / entities?
+  /** The diff rule sets every plugin offers for that specification family. */
+  getDiffRulesForSpecVersion(family: SpecMajorVersion): Record<string, DiffRule>[] {
+    if (!isDiffFamily(family)) return [];
+    return this.plugins.map((plugin) => plugin.diff?.[family]).filter(isDefined);
+  }
+
   getRulesForSpecVersion(version: SpecMajorVersion) {
     switch (version) {
       case 'oas3': {
@@ -433,6 +451,10 @@ export class Config {
     }
   }
 
+  getDiffImpact(ruleId: string, specVersion: SpecVersion): Impact | 'off' {
+    return this.diff[specVersion]?.[ruleId] || 'off';
+  }
+
   skipRules(rules?: string[]) {
     for (const ruleId of rules || []) {
       for (const version of specVersions) {
@@ -465,6 +487,16 @@ export class Config {
       for (const version of specVersions) {
         if (this.decorators[version][decoratorId]) {
           this.decorators[version][decoratorId] = 'off';
+        }
+      }
+    }
+  }
+
+  skipDiffRules(rules?: string[]) {
+    for (const ruleId of rules || []) {
+      for (const impacts of Object.values(this.diff)) {
+        if (impacts[ruleId]) {
+          impacts[ruleId] = 'off';
         }
       }
     }

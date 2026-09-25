@@ -203,6 +203,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "async3Decorators": {},
+            "async3Diff": {},
             "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
@@ -224,6 +225,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -282,6 +284,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_0Decorators": {},
+            "oas3_0Diff": {},
             "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
@@ -352,6 +355,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_1Decorators": {},
+            "oas3_1Diff": {},
             "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
@@ -419,6 +423,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_2Decorators": {},
+            "oas3_2Diff": {},
             "oas3_2Preprocessors": {},
             "oas3_2Rules": {
               "array-parameter-serialization": "off",
@@ -591,6 +596,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "async3Decorators": {},
+            "async3Diff": {},
             "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
@@ -612,6 +618,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "warn",
               "type-description": "off",
@@ -668,6 +675,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_0Decorators": {},
+            "oas3_0Diff": {},
             "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
@@ -736,6 +744,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_1Decorators": {},
+            "oas3_1Diff": {},
             "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
@@ -801,6 +810,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_2Decorators": {},
+            "oas3_2Diff": {},
             "oas3_2Preprocessors": {},
             "oas3_2Rules": {
               "array-parameter-serialization": "off",
@@ -984,6 +994,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "async3Decorators": {},
+            "async3Diff": {},
             "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
@@ -1005,6 +1016,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -1061,6 +1073,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_0Decorators": {},
+            "oas3_0Diff": {},
             "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
@@ -1129,6 +1142,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_1Decorators": {},
+            "oas3_1Diff": {},
             "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
@@ -1194,6 +1208,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_2Decorators": {},
+            "oas3_2Diff": {},
             "oas3_2Preprocessors": {},
             "oas3_2Rules": {
               "array-parameter-serialization": "off",
@@ -1461,6 +1476,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "async3Decorators": {},
+            "async3Diff": {},
             "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
@@ -1482,6 +1498,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -1540,6 +1557,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_0Decorators": {},
+            "oas3_0Diff": {},
             "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
@@ -1610,6 +1628,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_1Decorators": {},
+            "oas3_1Diff": {},
             "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
@@ -1677,6 +1696,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_2Decorators": {},
+            "oas3_2Diff": {},
             "oas3_2Preprocessors": {},
             "oas3_2Rules": {
               "array-parameter-serialization": "off",
@@ -1849,6 +1869,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "async3Decorators": {},
+            "async3Diff": {},
             "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
@@ -1870,6 +1891,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "warn",
               "type-description": "off",
@@ -1926,6 +1948,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_0Decorators": {},
+            "oas3_0Diff": {},
             "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
@@ -1994,6 +2017,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_1Decorators": {},
+            "oas3_1Diff": {},
             "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
@@ -2059,6 +2083,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_2Decorators": {},
+            "oas3_2Diff": {},
             "oas3_2Preprocessors": {},
             "oas3_2Rules": {
               "array-parameter-serialization": "off",
@@ -2242,6 +2267,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "async3Decorators": {},
+            "async3Diff": {},
             "async3Preprocessors": {},
             "async3Rules": {
               "channels-kebab-case": "off",
@@ -2263,6 +2289,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "decorators": {},
+            "diff": {},
             "graphqlRules": {
               "no-unused-types": "off",
               "type-description": "off",
@@ -2319,6 +2346,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_0Decorators": {},
+            "oas3_0Diff": {},
             "oas3_0Preprocessors": {},
             "oas3_0Rules": {
               "array-parameter-serialization": "off",
@@ -2387,6 +2415,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_1Decorators": {},
+            "oas3_1Diff": {},
             "oas3_1Preprocessors": {},
             "oas3_1Rules": {
               "array-parameter-serialization": "off",
@@ -2452,6 +2481,7 @@ describe('loadConfig', () => {
               "tags-alphabetical": "off",
             },
             "oas3_2Decorators": {},
+            "oas3_2Diff": {},
             "oas3_2Preprocessors": {},
             "oas3_2Rules": {
               "array-parameter-serialization": "off",

@@ -5,6 +5,7 @@ import { decorators as oas2Decorators } from '../decorators/oas2/index.js';
 import { decorators as oas3Decorators } from '../decorators/oas3/index.js';
 import { decorators as openrpc1Decorators } from '../decorators/openrpc/index.js';
 import { decorators as overlay1Decorators } from '../decorators/overlay1/index.js';
+import { diffRuleSets } from '../diff/rules/index.js';
 import {
   rules as arazzo1Rules,
   preprocessors as arazzoPreprocessors,
@@ -29,6 +30,7 @@ import {
   preprocessors as overlay1Preprocessors,
 } from '../rules/overlay1/index.js';
 import all from './all.js';
+import diffRecommended from './diff-recommended.js';
 import minimal from './minimal.js';
 import recommendedStrict from './recommended-strict.js';
 import recommended from './recommended.js';
@@ -36,11 +38,18 @@ import spec from './spec.js';
 import { type Plugin, type RawGovernanceConfig } from './types.js';
 
 export const builtInConfigs: Record<string, RawGovernanceConfig> = {
+  /**
+   * lint presets
+   */
   recommended,
   'recommended-strict': recommendedStrict,
   minimal,
   all,
   spec,
+  /**
+   * diff presets
+   */
+  'diff-recommended': diffRecommended,
 };
 
 export const defaultPlugin: Plugin<'built-in'> = {
@@ -73,5 +82,6 @@ export const defaultPlugin: Plugin<'built-in'> = {
     overlay1: overlay1Decorators,
     openrpc1: openrpc1Decorators,
   },
+  diff: diffRuleSets,
   configs: builtInConfigs,
 };

@@ -1,0 +1,7 @@
+::error title=parameter-became-required,file=revision.yaml,line=8,col=47,endLine=8,endColumn=51::`limit` query parameter became required.
+::error title=path-removed,file=base.yaml,line=12,col=5,endLine=14,endColumn=42::Path `/orders/{orderId}` was removed.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 2 major changes.

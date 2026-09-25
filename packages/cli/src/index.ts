@@ -14,6 +14,8 @@ import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
 import { handleBundle } from './commands/bundle.js';
+import { handleDiff } from './commands/diff/index.js';
+import type { DiffArgv, DiffFailOn, DiffOutputFormat } from './commands/diff/types.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -137,6 +139,60 @@ yargs(hideBin(process.argv))
         }),
     (argv) => {
       commandWrapper(handleInspectNodeTypes)(argv);
+    }
+  )
+  .command(
+    'diff <base> <revision>',
+    'Compare two API descriptions and rate every change by the semver bump it requires [experimental].',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_DIFF')
+        .positional('base', { type: 'string', demandOption: true })
+        .positional('revision', { type: 'string', demandOption: true })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: [
+              'stylish',
+              'json',
+              'markdown',
+              'html',
+              'github-actions',
+              'next-version',
+            ] as ReadonlyArray<DiffOutputFormat>,
+            default: 'stylish' as const,
+          },
+          output: {
+            description: 'Write the diff report to a file.',
+            type: 'string',
+            alias: 'o',
+          },
+          'fail-on': {
+            description:
+              'Exit with a non-zero code when changes of this impact or higher are found.',
+            choices: ['major', 'minor', 'patch', 'none'] as ReadonlyArray<DiffFailOn>,
+            default: 'major' as const,
+          },
+          'check-version': {
+            description:
+              'Fail when info.version was not bumped to match the impact of the changes.',
+            type: 'boolean',
+            default: false,
+          },
+          'skip-rule': {
+            description: 'Ignore certain rules.',
+            array: true,
+            type: 'string',
+          },
+        }),
+    (argv) => {
+      commandWrapper(handleDiff)(argv as Arguments<DiffArgv>);
     }
   )
   .command(

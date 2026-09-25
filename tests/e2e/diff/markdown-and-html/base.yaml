@@ -1,0 +1,14 @@
+openapi: 3.1.0
+info: { title: Cafe, version: 1.2.0 }
+paths:
+  /menu:
+    get:
+      summary: List the menu
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+  /orders/{orderId}:
+    delete:
+      responses:
+        '204': { description: Cancelled }

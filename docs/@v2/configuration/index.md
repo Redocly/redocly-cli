@@ -95,6 +95,19 @@ You can also define your [configurable rules](../rules/configurable-rules.md) he
 
 For more information and examples, visit the [configuring rules documentation](./rules.md).
 
+### Configure `diff` rules
+
+In the `diff` section, set the impact that each [diff rule](../rules/diff-rules.md) gives to a change: `major`, `minor`, `patch`, or `off`.
+The [`diff` command](../commands/diff.md) uses these rules to compare two versions of an API.
+See the [`diff` reference](./reference/diff.md) for all options.
+
+```yaml
+extends:
+  - diff-recommended
+diff:
+  enum-values-added: minor
+```
+
 <a id="theme-object"></a>
 
 ### Configure OpenAPI features and documentation styles
