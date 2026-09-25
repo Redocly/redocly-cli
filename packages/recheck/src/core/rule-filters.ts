@@ -42,27 +42,26 @@ export function matchesRuleName(rule: NormalizedRule, name: string): boolean {
  */
 export function filterByRuleNames(rules: NormalizedRule[], names: string[]): NormalizedRule[] {
   if (!names.length) return rules;
-  const unknown = names.filter((name) => !rules.some((rule) => matchesRuleName(rule, name)));
-  if (unknown.length > 0) {
-    throw new UnknownRuleNameError(
-      unknown,
-      rules.map((rule) => rule.name)
-    );
-  }
+  assertRuleNamesKnown(rules, names);
   return rules.filter((rule) => names.some((name) => matchesRuleName(rule, name)));
 }
 
 /** Inverse of `filterByRuleNames`, with the same name matching and typo check. */
 export function excludeByRuleNames(rules: NormalizedRule[], names: string[]): NormalizedRule[] {
   if (!names.length) return rules;
+  assertRuleNamesKnown(rules, names);
+  return rules.filter((rule) => !names.some((name) => matchesRuleName(rule, name)));
+}
+
+/**
+ * Throws `UnknownRuleNameError` for a name that matches none of `rules`. The
+ * available list names each rule once, so `rules` can join two rule sets.
+ */
+export function assertRuleNamesKnown(rules: NormalizedRule[], names: string[]): void {
   const unknown = names.filter((name) => !rules.some((rule) => matchesRuleName(rule, name)));
   if (unknown.length > 0) {
-    throw new UnknownRuleNameError(
-      unknown,
-      rules.map((rule) => rule.name)
-    );
+    throw new UnknownRuleNameError(unknown, [...new Set(rules.map((rule) => rule.name))]);
   }
-  return rules.filter((rule) => !names.some((name) => matchesRuleName(rule, name)));
 }
 
 const SEVERITY_LEVELS: Record<string, number> = {

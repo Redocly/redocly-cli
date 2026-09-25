@@ -19,6 +19,7 @@ const recheckCases: [dirName: string, args: string[]][] = [
   ['no-recheck-config', ['recheck', 'docs']],
   ['config-error', ['recheck', 'docs']],
   ['api-descriptions', ['recheck']],
+  ['api-rule-off-for-pages', ['recheck', '--rule', 'recheck/line-length']],
 ];
 
 describe('recheck', () => {

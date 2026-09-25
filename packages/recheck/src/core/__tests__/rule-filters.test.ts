@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest';
 import type { NormalizedRule } from '../../types/index.js';
 import {
   applyFilters,
+  assertRuleNamesKnown,
   filterByRuleNames,
   excludeByRuleNames,
   UnknownRuleNameError,
@@ -36,6 +37,20 @@ const RULES = [
   rule('recheck/no-gerund-headings'),
   rule('google/passive-voice', { tags: ['voice'] as never }),
 ];
+
+describe('assertRuleNamesKnown', () => {
+  it('accepts a full name and a short name', () => {
+    expect(() =>
+      assertRuleNamesKnown(RULES, ['us-spelling', 'google/passive-voice'])
+    ).not.toThrow();
+  });
+
+  it('names each available rule once when the rule set holds a rule twice', () => {
+    const error = captureError(() => assertRuleNamesKnown([...RULES, ...RULES], ['nope']));
+    expect(error.unknown).toEqual(['nope']);
+    expect(error.available).toEqual(RULES.map((r) => r.name));
+  });
+});
 
 describe('filterByRuleNames', () => {
   it('keeps only the named rule, matched by its full config key', () => {

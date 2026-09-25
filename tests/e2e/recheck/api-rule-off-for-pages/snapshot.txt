@@ -1,0 +1,17 @@
+
+📋 Found 1 issue(s):
+
+line-length               ./tests/e2e/recheck/api-rule-off-for-pages/openapi.yaml:7:85 Line length (Expected: 80; Actual: 134)
+
+   1 error(s)
+
+🏃 Running recheck on: ., 1 API description(s)
+   Disabled 1 rule(s) (severity: off)
+
+🔧 Running 0 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 1
+
+❌ Found 1 error(s). Exiting with code 1.
+   Completed in <time>

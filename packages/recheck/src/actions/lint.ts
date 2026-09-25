@@ -4,7 +4,12 @@ import * as pathModule from 'path';
 import type { ResolvedRecheckConfig } from '../config/resolve.js';
 import { parseBaseline, compareToBaseline, baselineKeyMapper } from '../core/baseline.js';
 import { loadChangedFiles, needsImageMetadata, loadImageMetadata } from '../core/files.js';
-import { applyFilters, matchesRuleName, UnknownRuleNameError } from '../core/rule-filters.js';
+import {
+  applyFilters,
+  assertRuleNamesKnown,
+  matchesRuleName,
+  UnknownRuleNameError,
+} from '../core/rule-filters.js';
 import { runRules, runRulesUntilStable, type FileInput } from '../core/runner.js';
 import type { Fix, NormalizedRule, Problem } from '../types/index.js';
 import { lintEmbeddedInputs, type EmbeddedInput } from './embedded.js';
@@ -59,6 +64,23 @@ export type LintRunResult =
   | { status: 'failed'; message: string; report: LintRunReport }
   | ({ status: 'completed' } & LintRunReport);
 
+// Narrows one rule set by name with no typo check; `assertRuleNamesKnown`
+// already ran over pages and descriptions together.
+function narrowByRuleNames(
+  rules: NormalizedRule[],
+  include: string[],
+  exclude: string[]
+): NormalizedRule[] {
+  let narrowed = rules;
+  if (include.length > 0) {
+    narrowed = narrowed.filter((rule) => include.some((name) => matchesRuleName(rule, name)));
+  }
+  if (exclude.length > 0) {
+    narrowed = narrowed.filter((rule) => !exclude.some((name) => matchesRuleName(rule, name)));
+  }
+  return narrowed;
+}
+
 /**
  * Run recheck on files under one or more roots
  */
@@ -73,21 +95,36 @@ export async function runLint(
   // parameter still covers the call that passes no paths at all.
   const roots = Array.isArray(paths) && paths.length === 0 ? [] : toRoots(paths);
 
+  const ruleNames = options.rules ?? [];
+  const excludeRuleNames = options.excludeRules ?? [];
   let rulesToRun: NormalizedRule[];
   let disabledCount: number;
+  let descriptionRules: NormalizedRule[] = [];
   try {
     ({ filtered: rulesToRun, disabledCount } = applyFilters(config.rules, {
       severity: options.severity,
       tags: options.tags,
-      rules: options.rules,
-      excludeRules: options.excludeRules,
     }));
+    // A name filter must match a rule in effect on pages or, when the run has
+    // description inputs, on descriptions: `apiDescriptions.rules` can turn on
+    // a rule that is `off` for pages. The check runs once over both sides;
+    // each side then narrows on its own, so a name the other side matches
+    // leaves this side empty instead of failing the run.
+    if (embeddedInputs.length > 0 || apiFiles.length > 0) {
+      descriptionRules = applyFilters(config.descriptionRules, {
+        severity: options.severity,
+        tags: options.tags,
+      }).filtered;
+    }
+    assertRuleNamesKnown([...rulesToRun, ...descriptionRules], [...ruleNames, ...excludeRuleNames]);
   } catch (error) {
     if (error instanceof UnknownRuleNameError) {
       return { status: 'unknown-rule', message: error.message, available: error.available };
     }
     throw error;
   }
+  rulesToRun = narrowByRuleNames(rulesToRun, ruleNames, excludeRuleNames);
+  descriptionRules = narrowByRuleNames(descriptionRules, ruleNames, excludeRuleNames);
 
   const report: LintRunReport = {
     roots,
@@ -202,28 +239,7 @@ export async function runLint(
     // A scanned API file with zero descriptions still needs the description
     // rules recorded as executed, so a leftover baseline entry for it goes stale.
     if (embeddedInputs.length > 0 || apiFiles.length > 0) {
-      // The page side already validated the rule names. Description rules go
-      // through `applyFilters` for severity and tags only; a name filter there
-      // would treat a rule that severity or tags dropped as unknown and throw.
-      const { filtered: severityAndTagsFiltered } = applyFilters(config.descriptionRules, {
-        severity: options.severity,
-        tags: options.tags,
-      });
-      let descriptionRules = severityAndTagsFiltered;
-      if (options.rules !== undefined && options.rules.length > 0) {
-        const ruleNames = options.rules;
-        descriptionRules = descriptionRules.filter((rule) =>
-          ruleNames.some((name) => matchesRuleName(rule, name))
-        );
-      }
-      if (options.excludeRules !== undefined && options.excludeRules.length > 0) {
-        const excludeRuleNames = options.excludeRules;
-        descriptionRules = descriptionRules.filter(
-          (rule) => !excludeRuleNames.some((name) => matchesRuleName(rule, name))
-        );
-      }
-      const noRulesLeftForDescriptions =
-        options.rules !== undefined && options.rules.length > 0 && descriptionRules.length === 0;
+      const noRulesLeftForDescriptions = ruleNames.length > 0 && descriptionRules.length === 0;
 
       if (!noRulesLeftForDescriptions) {
         for (const rule of descriptionRules) executedDescriptionRules.add(rule.name);

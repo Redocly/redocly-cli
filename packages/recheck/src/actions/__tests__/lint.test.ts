@@ -696,6 +696,86 @@ describe('runLint with embedded inputs', () => {
     expect(lineLengthProblems).toHaveLength(1);
     expect(lineLengthProblems[0].file).toBe(path.join(dir, 'page.md'));
   });
+  it('runs a rule that is off for pages and on for descriptions when a name filter selects it', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      {
+        rules: { 'recheck/line-length': 'off' },
+        apiDescriptions: { rules: { 'recheck/line-length': 'error' } },
+      },
+      ['recheck/markdown']
+    );
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const result = completed(
+      await runLint(dir, config, {
+        rules: ['recheck/line-length'],
+        embeddedInputs: [embedded(apiFile, `${LONG_LINE}\n`)],
+      })
+    );
+    expect(result.ruleCount).toBe(0);
+    expect(result.executedDescriptionRuleCount).toBe(1);
+    expect(result.problems.map((problem) => [problem.ruleName, problem.file])).toEqual([
+      ['recheck/line-length', apiFile],
+    ]);
+  });
+
+  it('accepts a skip filter for a rule that is off for pages and on for descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      {
+        rules: { 'recheck/line-length': 'off' },
+        apiDescriptions: { rules: { 'recheck/line-length': 'error' } },
+      },
+      ['recheck/markdown']
+    );
+    const result = completed(
+      await runLint(dir, config, {
+        excludeRules: ['recheck/line-length'],
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      })
+    );
+    expect(result.executedDescriptionRuleCount).toBeGreaterThan(0);
+    expect(result.problems.filter((problem) => problem.ruleName === 'recheck/line-length')).toEqual(
+      []
+    );
+  });
+
+  it('keeps the unknown-rule result for a page-only run that names a rule off for pages', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      {
+        rules: { 'recheck/line-length': 'off' },
+        apiDescriptions: { rules: { 'recheck/line-length': 'error' } },
+      },
+      ['recheck/markdown']
+    );
+    const result = await runLint(dir, config, { rules: ['recheck/line-length'] });
+    expect(result.status).toBe('unknown-rule');
+  });
+
+  it('names each available rule once when a name matches neither pages nor descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n\nFine.\n');
+    const config = await resolveConfig(
+      dir,
+      { apiDescriptions: { rules: { 'recheck/line-length': 'warn' } } },
+      ['recheck/markdown']
+    );
+    const result = await runLint(dir, config, {
+      rules: ['recheck/nope'],
+      embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+    });
+    expect(result.status).toBe('unknown-rule');
+    if (result.status !== 'unknown-rule') return;
+    expect(result.available.filter((name) => name === 'recheck/line-length')).toHaveLength(1);
+  });
+
   it('filters embedded inputs to the changed set when only the API file changed', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
     await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
