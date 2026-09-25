@@ -2,11 +2,13 @@ import { logger } from '@redocly/openapi-core';
 import type { Problem } from '@redocly/recheck';
 
 // Each severity maps to the workflow command of the same weight, so a
-// workflow that fails on warnings does not fail on info findings.
+// workflow that fails on warnings does not fail on info findings. A rule
+// that is off reports nothing, so its entry never prints.
 const COMMAND_BY_SEVERITY: Record<Problem['severity'], string> = {
   error: 'error',
   warn: 'warning',
   info: 'notice',
+  off: 'notice',
 };
 
 /**
