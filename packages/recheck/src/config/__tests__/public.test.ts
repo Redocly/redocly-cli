@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { mergeRecheckRules, mergeRuleEntry } from '../public.js';
+import { mergeRecheckRules, mergeRuleEntry, type RecheckRulesInput } from '../public.js';
 
 const preset = {
   'recheck/line-length': {
@@ -53,5 +53,22 @@ describe('mergeRecheckRules', () => {
   it('treats missing inputs as empty', () => {
     expect(mergeRecheckRules(undefined, undefined)).toEqual({});
     expect(mergeRecheckRules(preset, undefined)).toEqual(preset);
+  });
+
+  // Unvalidated YAML can hold values outside `RecheckRuleInput`; the casts model that.
+  it('replaces the entry with a null override and does not throw', () => {
+    const override = { 'recheck/line-length': null } as unknown as RecheckRulesInput;
+    expect(mergeRecheckRules(preset, override)['recheck/line-length']).toBeNull();
+  });
+
+  it('replaces the entry with a number override as given', () => {
+    const override = { 'recheck/line-length': 5 } as unknown as RecheckRulesInput;
+    expect(mergeRecheckRules(preset, override)['recheck/line-length']).toBe(5);
+  });
+
+  it('sets a string override on a null entry', () => {
+    const base = { 'recheck/line-length': null } as unknown as RecheckRulesInput;
+    const merged = mergeRecheckRules(base, { 'recheck/line-length': 'warn' });
+    expect(merged['recheck/line-length']).toBe('warn');
   });
 });

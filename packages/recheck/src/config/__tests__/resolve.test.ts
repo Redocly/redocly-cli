@@ -49,6 +49,19 @@ describe('resolveRecheckConfig', () => {
     expect(rule?.severity).toBe('warn');
   });
 
+  it('turns a severity shorthand without a preset into a rule the engine validates', async () => {
+    const result = await resolveRecheckConfig({
+      block: { rules: { 'custom/x': 'off' } },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    const error = result.errors.find((e) =>
+      e.message.includes("must have required property 'message'")
+    );
+    expect(error?.value).toMatchObject({ severity: 'off' });
+  });
+
   it('normalizes the severity shorthand', async () => {
     const result = await resolveRecheckConfig({
       block: withPresets(['recheck/markdown'], { rules: { 'recheck/heading-style': 'off' } }),

@@ -37,8 +37,14 @@ export function mergeRecheckRules(
 ): RecheckRulesInput {
   const merged: RecheckRulesInput = { ...base };
   for (const [key, entry] of Object.entries(override)) {
-    const current = merged[key];
-    merged[key] = isPlainObject(current) ? mergeRuleEntry(current, entry) : entry;
+    // The input is unvalidated YAML, so an entry can hold any value, such as null.
+    const current: unknown = merged[key];
+    const next: unknown = entry;
+    const canMerge = typeof next === 'string' || isPlainObject(next);
+    merged[key] =
+      isPlainObject<Partial<BaseRule>>(current) && canMerge
+        ? mergeRuleEntry(current, entry)
+        : entry;
   }
   return merged;
 }
