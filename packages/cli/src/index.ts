@@ -519,6 +519,12 @@ yargs(hideBin(process.argv))
             array: true,
             type: 'string',
           },
+          overlay: {
+            description: 'Overlay file to apply. Repeat to apply several, in order.',
+            array: true,
+            type: 'string',
+            requiresArg: true,
+          },
           dereferenced: {
             alias: 'd',
             type: 'boolean',

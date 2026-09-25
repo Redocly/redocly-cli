@@ -6,7 +6,13 @@
 // package. The `/generate` entry re-exports `generateClient` from here and
 // layers the sync TS toolkit on top.
 
-import { logger, stringifyYaml } from '@redocly/openapi-core';
+import {
+  isRef,
+  logger,
+  stringifyYaml,
+  unescapePointerFragment,
+  type Oas3Definition,
+} from '@redocly/openapi-core';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, parse, resolve, sep } from 'node:path';
 
@@ -165,6 +171,7 @@ function warnRepeatedParamNames(model: ApiModel): void {
  * generation stays side-effect-free on the source.
  */
 function codeSamplesOverlay(
+  document: Oas3Definition,
   model: ApiModel,
   emit: EmitOptions,
   selected: string[],
@@ -173,15 +180,17 @@ function codeSamplesOverlay(
   pagination?: ModelPagination
 ): string | undefined {
   const actions = [];
+  const targets = new Set<string>();
   for (const op of allOperations(model.services)) {
+    const target = operationTarget(document, op.path, op.method);
+    // Paths that reference the same path item share its operation; the first path's samples win.
+    if (targets.has(target)) continue;
+    targets.add(target);
     const samples = selected
       .map((name) => registry.get(name)?.sample?.(op, { model, emit, outputPath, pagination }))
       .filter((sample): sample is CodeSample => sample !== undefined);
     if (samples.length > 0) {
-      actions.push({
-        target: `$.paths['${op.path.replaceAll("'", "''")}'].${op.method}`,
-        update: { 'x-codeSamples': samples },
-      });
+      actions.push({ target, update: { 'x-codeSamples': samples } });
     }
   }
   if (actions.length === 0) return undefined;
@@ -190,6 +199,18 @@ function codeSamplesOverlay(
     info: { title: `Code samples for ${model.title}`, version: model.version },
     actions,
   });
+}
+
+// Overlays don't follow `$ref`s, so a referenced path item gets its samples where it is declared.
+function operationTarget(document: Oas3Definition, path: string, method: string): string {
+  // RFC 9535 escapes `\` and `'` in a quoted name with a backslash.
+  const select = (name: string) => `['${name.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}']`;
+  const pathItem = document.paths?.[path];
+  const pathItemTarget =
+    isRef(pathItem) && pathItem.$ref.startsWith('#/')
+      ? '$' + pathItem.$ref.slice(2).split('/').map(unescapePointerFragment).map(select).join('')
+      : `$.paths${select(path)}`;
+  return `${pathItemTarget}.${method}`;
 }
 
 export async function generateClient(
@@ -282,7 +303,15 @@ export async function generateClient(
   });
 
   if (options.codeSamples === true) {
-    const overlay = codeSamplesOverlay(model, emit, selected, registry, outputPath, pagination);
+    const overlay = codeSamplesOverlay(
+      document,
+      model,
+      emit,
+      selected,
+      registry,
+      outputPath,
+      pagination
+    );
     if (overlay !== undefined) {
       files.push({ path: outputPath.replace(/\.[^.]+$/, '.code-samples.yaml'), content: overlay });
     }

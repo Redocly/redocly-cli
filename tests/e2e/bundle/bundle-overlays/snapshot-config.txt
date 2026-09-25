@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info:
+  title: Museum API
+  version: 1.0.0
+paths:
+  /tickets:
+    get:
+      operationId: listTickets
+      tags:
+        - tickets
+        - public
+      responses:
+        '200':
+          description: OK
+      summary: List tickets
+
+bundling openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for openapi.yaml at stdout <test>ms.
+🧹 Removed 1 unused components.

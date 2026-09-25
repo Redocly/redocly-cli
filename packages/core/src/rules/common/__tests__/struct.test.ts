@@ -857,3 +857,61 @@ describe('AsyncAPI bindings struct', () => {
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });
+
+describe('Overlay struct', () => {
+  it('should not report on Overlay 1.1 fields', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        overlay: 1.1.0
+        info:
+          title: Public API
+          version: 1.0.0
+          description: Hides internal operations.
+        actions:
+          - target: $.paths['/public-tickets']
+            copy: $.paths['/tickets']
+      `,
+      'overlay.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not report on Overlay 1.2 reusable actions', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        overlay: 1.2.0
+        $self: https://example.com/overlays/errors.yaml
+        info:
+          title: Error responses
+          version: 1.0.0
+        components:
+          actions:
+            errorResponse:
+              description: Adds an error response to the operation
+              fields:
+                update:
+                  '404':
+                    description: Not Found
+        actions:
+          - $ref: '#/components/actions/errorResponse'
+            target: $.paths['/items'].get.responses
+      `,
+      'overlay.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error', 'no-unresolved-refs': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+});

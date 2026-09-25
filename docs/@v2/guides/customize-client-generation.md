@@ -269,7 +269,13 @@ A generator that can call an operation can also document the operation.
 Implement the optional `sample(operation, ctx)` hook to return one idiomatic snippet (`{ lang, label, source }`) for each operation.
 With `codeSamples: true` in the `client` block, generation collects the samples of every selected generator into `<output>.code-samples.yaml`.
 This file is an [OpenAPI Overlay](https://spec.openapis.org/overlay/latest.html) that adds `x-codeSamples` to each operation.
-Docs tooling can apply the file.
+Apply it when you bundle the API description, so the samples appear in your docs:
+
+```bash
+redocly bundle openapi.yaml --overlay=src/api/client.code-samples.yaml -o dist/openapi.yaml
+```
+
+To apply it on every bundle, list the file under [`overlays`](../configuration/reference/apis.md) for the API in `redocly.yaml`.
 
 The built-in `typescript` generator implements the hook.
 If you only set the flag, your Redoc docs get a TypeScript example for each operation.
