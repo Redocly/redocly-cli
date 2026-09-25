@@ -5,7 +5,7 @@ import { createConfig } from '../../../config/index.js';
 import { makeDocumentFromString } from '../../../resolve.js';
 import { diffDocuments } from '../../index.js';
 
-const cafe = (content: string) => outdent`
+const cafe = (content?: string) => outdent`
   openapi: 3.1.0
   info: { title: Cafe, version: 1.0.0 }
   paths:
@@ -14,7 +14,7 @@ const cafe = (content: string) => outdent`
         responses:
           '200':
             description: OK
-            content: ${content}
+            ${content === undefined ? '' : `content: ${content}`}
 `;
 
 const json = 'application/json: { schema: { type: array } }';
@@ -47,6 +47,42 @@ describe('media-type-removed', () => {
               "impact": "major",
               "location": "base.yaml#/paths/~1menu/get/responses/200/content/text~1csv",
               "message": "Media type \`text/csv\` was removed.",
+              "ruleId": "media-type-removed",
+            },
+          ],
+        },
+      ]
+    `);
+  });
+
+  it('should report every media type leaving with the whole content map', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(cafe(`{ ${json} }`), 'base.yaml'),
+      revision: makeDocumentFromString(cafe(), 'revision.yaml'),
+      config: await createConfig({ diff: { 'media-type-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1menu/get/responses/200/content",
+            "value": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                },
+              },
+            },
+          },
+          "impact": "major",
+          "key": "#/paths/~1menu/get/responses/200/content",
+          "kind": "removed",
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "base.yaml#/paths/~1menu/get/responses/200/content",
+              "message": "All media types were removed.",
               "ruleId": "media-type-removed",
             },
           ],

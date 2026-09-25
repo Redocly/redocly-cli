@@ -10,7 +10,6 @@ import { MessageRemoved } from './message-removed.js';
 import { NumericRangeChanged } from './numeric-range-changed.js';
 import { OperationActionChanged } from './operation-action-changed.js';
 import { OperationRemoved } from './operation-removed.js';
-import { ParameterAddedRequired } from './parameter-added-required.js';
 import { ParameterBecameRequired } from './parameter-became-required.js';
 import { ParameterRemoved } from './parameter-removed.js';
 import { ParameterSerializationChanged } from './parameter-serialization-changed.js';
@@ -26,12 +25,11 @@ import { ResponseRemoved } from './response-removed.js';
 import { SchemaCombinatorChanged } from './schema-combinator-changed.js';
 import { SchemaFormatChanged } from './schema-format-changed.js';
 import { SchemaTypeChanged } from './schema-type-changed.js';
-import { SecurityRequirementAdded } from './security-requirement-added.js';
+import { SecurityRequirementChanged } from './security-requirement-changed.js';
 import { SecuritySchemeChanged } from './security-scheme-changed.js';
 import { SecuritySchemeRemoved } from './security-scheme-removed.js';
-import { SecurityScopesAdded } from './security-scopes-added.js';
 import { ServerRemoved } from './server-removed.js';
-import { StringLengthChanged } from './string-length-changed.js';
+import { StringConstraintChanged } from './string-constraint-changed.js';
 
 /**
  * Every rule over a `Schema` node, shared by both registries: an AsyncAPI payload is the same
@@ -45,7 +43,7 @@ const schemaRules = {
   'required-properties-removed': RequiredPropertiesRemoved,
   'property-removed': PropertyRemoved,
   'numeric-range-changed': NumericRangeChanged,
-  'string-length-changed': StringLengthChanged,
+  'string-constraint-changed': StringConstraintChanged,
   'schema-format-changed': SchemaFormatChanged,
   'additional-properties-changed': AdditionalPropertiesChanged,
 } satisfies Record<string, DiffRule>;
@@ -54,7 +52,6 @@ export const oas3Rules = {
   'operation-removed': OperationRemoved,
   'path-removed': PathRemoved,
   'parameter-removed': ParameterRemoved,
-  'parameter-added-required': ParameterAddedRequired,
   'parameter-became-required': ParameterBecameRequired,
   'parameter-serialization-changed': ParameterSerializationChanged,
   'request-body-removed': RequestBodyRemoved,
@@ -62,8 +59,7 @@ export const oas3Rules = {
   'response-removed': ResponseRemoved,
   'response-header-removed': ResponseHeaderRemoved,
   'media-type-removed': MediaTypeRemoved,
-  'security-requirement-added': SecurityRequirementAdded,
-  'security-scopes-added': SecurityScopesAdded,
+  'security-requirement-changed': SecurityRequirementChanged,
   'security-scheme-changed': SecuritySchemeChanged,
   'security-scheme-removed': SecuritySchemeRemoved,
   'server-removed': ServerRemoved,

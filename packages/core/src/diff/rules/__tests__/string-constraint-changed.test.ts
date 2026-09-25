@@ -23,12 +23,12 @@ const cafe = (note: string) => outdent`
                 schema: ${note}
 `;
 
-describe('string-length-changed', () => {
+describe('string-constraint-changed', () => {
   it('should report a length limit that makes a request accept less', async () => {
     const result = diffDocuments({
       base: makeDocumentFromString(cafe('{ type: string, maxLength: 200 }'), 'base.yaml'),
       revision: makeDocumentFromString(cafe('{ type: string, maxLength: 100 }'), 'revision.yaml'),
-      config: await createConfig({ diff: { 'string-length-changed': 'major' } }),
+      config: await createConfig({ diff: { 'string-constraint-changed': 'major' } }),
     });
 
     expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
@@ -51,7 +51,7 @@ describe('string-length-changed', () => {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/maxLength",
               "message": "\`maxLength\` changed from '200' to '100'.",
-              "ruleId": "string-length-changed",
+              "ruleId": "string-constraint-changed",
             },
           ],
         },
@@ -81,7 +81,7 @@ describe('string-length-changed', () => {
         cafe("{ type: string, pattern: '^[a-z ]+$' }"),
         'revision.yaml'
       ),
-      config: await createConfig({ diff: { 'string-length-changed': 'major' } }),
+      config: await createConfig({ diff: { 'string-constraint-changed': 'major' } }),
     });
 
     expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
@@ -104,7 +104,7 @@ describe('string-length-changed', () => {
               "impact": "major",
               "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/pattern",
               "message": "\`pattern\` changed from '^[a-z]+$' to '^[a-z ]+$'.",
-              "ruleId": "string-length-changed",
+              "ruleId": "string-constraint-changed",
             },
           ],
         },

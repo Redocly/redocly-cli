@@ -14,7 +14,9 @@ const WIDER_TYPE: Partial<Record<string, string>> = { integer: 'number' };
 function acceptedTypes(type: unknown, nullable?: unknown): string[] {
   const declared = Array.isArray(type) ? type : type === undefined ? [] : [type];
   const types = declared.filter((value): value is string => typeof value === 'string');
-  return nullable === true && !types.includes('null') ? [...types, 'null'] : types;
+  // Without a `type`, a schema already accepts `null` with every other type.
+  const addsNull = nullable === true && types.length > 0 && !types.includes('null');
+  return addsNull ? [...types, 'null'] : types;
 }
 
 /** The types of `types` that `accepted` does not take. */
@@ -36,14 +38,15 @@ export const SchemaTypeChanged: DiffRule = () => ({
 
     const before = acceptedTypes(fieldOf(base, 'type'), fieldOf(base, 'nullable'));
     const after = acceptedTypes(fieldOf(revision, 'type'), fieldOf(revision, 'nullable'));
-    // An absent `type` accepts anything, so there is nothing to narrow or widen.
-    if (!before.length || !after.length) return;
-    const described = `from '${before.join(' | ')}' to '${after.join(' | ')}'`;
+    // An absent `type` accepts every type: adding one narrows the schema, and removing one widens it.
+    const narrowed = after.length > 0 && (!before.length || typesNotIn(before, after).length > 0);
+    const widened = before.length > 0 && (!after.length || typesNotIn(after, before).length > 0);
+    const described = `from '${before.join(' | ') || 'any'}' to '${after.join(' | ') || 'any'}'`;
 
-    if (directions.includes('request') && typesNotIn(before, after).length) {
+    if (directions.includes('request') && narrowed) {
       report({ message: `Type${ofSchema(change.node)} narrowed ${described}.` });
     }
-    if (directions.includes('response') && typesNotIn(after, before).length) {
+    if (directions.includes('response') && widened) {
       report({ message: `Type${ofSchema(change.node)} widened ${described}.` });
     }
   },

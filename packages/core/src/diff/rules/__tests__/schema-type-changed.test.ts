@@ -270,4 +270,110 @@ describe('schema-type-changed', () => {
       ]
     `);
   });
+
+  it('should report a type that a schema without one now requires in a request', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(cafe('3.1.0', '{ description: Price }'), 'base.yaml'),
+      revision: makeDocumentFromString(
+        cafe('3.1.0', '{ description: Price, type: number }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'schema-type-changed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
+            "value": undefined,
+          },
+          "impact": "major",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
+          "kind": "modified",
+          "property": "type",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
+            "value": "number",
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
+              "message": "Type narrowed from 'any' to 'number'.",
+              "ruleId": "schema-type-changed",
+            },
+          ],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
+            "value": undefined,
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
+          "kind": "modified",
+          "property": "type",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
+            "value": "number",
+          },
+          "verdicts": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report a type that a response no longer keeps to', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(
+        cafe('3.1.0', '{ description: Price, type: number }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(cafe('3.1.0', '{ description: Price }'), 'revision.yaml'),
+      config: await createConfig({ diff: { 'schema-type-changed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/type",
+            "value": "number",
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
+          "kind": "modified",
+          "property": "type",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
+            "value": undefined,
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/type",
+            "value": "number",
+          },
+          "impact": "major",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
+          "kind": "modified",
+          "property": "type",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
+            "value": undefined,
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
+              "message": "Type widened from 'number' to 'any'.",
+              "ruleId": "schema-type-changed",
+            },
+          ],
+        },
+      ]
+    `);
+  });
 });
