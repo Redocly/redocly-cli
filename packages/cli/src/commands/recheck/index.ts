@@ -31,10 +31,12 @@ import {
 import { createPositionMapper } from './positions.js';
 import {
   printBaselineRun,
+  printBaselineStart,
   printLintRun,
   printLintStart,
   printMarkdocSchemaRun,
   printReadabilityRun,
+  printReadabilityStart,
   type LintPresentation,
 } from './print.js';
 import { selectAction } from './select-action.js';
@@ -276,6 +278,7 @@ async function runAction(
       logger.info('No Markdown files to score.\n');
       return 0;
     }
+    printReadabilityStart(roots);
     const result = await runReadability(roots, resolved, {});
     return printReadabilityRun(result, {
       format: argv.format === 'json' ? 'json' : 'table',
@@ -298,6 +301,7 @@ async function runAction(
   }
   const isIgnored = ignoredBy(config, resolved.rules);
   if (action === 'baseline') {
+    printBaselineStart(roots, embeddedInputs.length);
     return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
   }
   const timer = new Timer();

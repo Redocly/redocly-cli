@@ -1,5 +1,14 @@
 # @redocly/cli
 
+## 2.54.3
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Added the value of the `REDOCLY_ENVIRONMENT` environment variable to the `user-agent` header of the `login`, `push`, and `push-status` requests.
+- Updated @redocly/client-generator to v0.4.16.
+- Updated @redocly/reunite-integration to v2.54.3.
+
 ## 2.54.2
 
 ### Patch Changes

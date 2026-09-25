@@ -408,6 +408,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          replace: {
+            description: 'Remove the files under the mount path that are not part of this push.',
+            type: 'boolean',
+            default: false,
+          },
           verbose: {
             type: 'boolean',
             default: false,

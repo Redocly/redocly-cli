@@ -51,9 +51,9 @@ export function outputTableFormat(
   }
 
   // Summary
-  const errorCount = problems.filter((h) => h.severity === 'error').length;
-  const warnCount = problems.filter((h) => h.severity === 'warn').length;
-  const infoCount = problems.filter((h) => h.severity === 'info').length;
+  const errorCount = problems.filter((problem) => problem.severity === 'error').length;
+  const warnCount = problems.filter((problem) => problem.severity === 'warn').length;
+  const infoCount = problems.filter((problem) => problem.severity === 'info').length;
 
   output('');
   if (errorCount > 0) output(red(`   ${errorCount} error(s)`));

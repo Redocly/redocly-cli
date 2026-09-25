@@ -38,9 +38,9 @@ export function buildSummary(
   baseline?: Summary['baseline']
 ): Summary {
   const breakdown = getBreakdownStats(problems);
-  const totalErrors = problems.filter((h) => h.severity === 'error').length;
-  const totalWarnings = problems.filter((h) => h.severity === 'warn').length;
-  const totalInfo = problems.filter((h) => h.severity === 'info').length;
+  const totalErrors = problems.filter((problem) => problem.severity === 'error').length;
+  const totalWarnings = problems.filter((problem) => problem.severity === 'warn').length;
+  const totalInfo = problems.filter((problem) => problem.severity === 'info').length;
 
   return {
     filesScanned: fileCount,

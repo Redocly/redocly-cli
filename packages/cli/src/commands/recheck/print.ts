@@ -42,6 +42,15 @@ export function printLintStart(roots: string[], apiDescriptionCount: number): vo
   );
 }
 
+export function printReadabilityStart(roots: string[]): void {
+  info(cyan(`📖 Measuring readability of: ${roots.join(', ')}`));
+}
+
+export function printBaselineStart(roots: string[], apiDescriptionCount: number): void {
+  const targets = runTargets(roots, apiDescriptionCount);
+  info(cyan(`📋 Building recheck baseline from: ${targets.join(', ')}`));
+}
+
 function printFailure(message: string, timer: Timer): number {
   logger.error(red(`💥 Error running recheck: ${message}`) + '\n');
   info(`   Failed after ${timer.elapsedString()}`);
@@ -60,7 +69,7 @@ async function printEmptyReport(presentation: LintPresentation): Promise<void> {
   }
 }
 
-// Prints the lines the engine printed before it reached the report or an error.
+// Prints the rule count, file count, file warnings, and the fix block from a lint run report.
 function printPreamble(report: LintRunReport): void {
   if (report.disabledRuleCount > 0) {
     info(`   Disabled ${report.disabledRuleCount} rule(s) (severity: off)`);
@@ -224,7 +233,6 @@ export async function printReadabilityRun(
   result: ReadabilityRunResult,
   presentation: { format: 'table' | 'json'; outputPath?: string }
 ): Promise<number> {
-  info(cyan(`📖 Measuring readability of: ${result.roots.join(', ')}`));
   info(`   Scoring ${result.filesFound} markdown file(s)`);
   for (const file of result.unreadableFiles) {
     info(yellow(`   Warning: Could not read file ${file}`));
@@ -247,8 +255,6 @@ export async function printReadabilityRun(
 }
 
 export function printBaselineRun(result: BaselineRunResult): number {
-  const targets = runTargets(result.roots, result.apiDescriptionCount);
-  info(cyan(`📋 Building recheck baseline from: ${targets.join(', ')}`));
   info(`   Found ${result.filesFound} markdown file(s)`);
   for (const file of result.unreadableFiles) {
     info(yellow(`   Warning: Could not read file ${file}`));

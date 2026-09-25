@@ -20,7 +20,9 @@ export function showDetailedStats(fileCount: number, problems: Problem[]): void 
     output('\n   Breakdown by rule:');
 
     // Sort rules by total count (descending)
-    const sortedRules = Object.entries(breakdown).sort(([, a], [, b]) => b.total - a.total);
+    const sortedRules = Object.entries(breakdown).sort(
+      ([, left], [, right]) => right.total - left.total
+    );
 
     for (const [ruleName, stats] of sortedRules) {
       const parts: string[] = [];
