@@ -22,7 +22,7 @@ import { implicitlyReferenceDiscriminator } from './implicitly-reference-discrim
 import { removeEmptyComponents } from './remove-empty-components.js';
 import { replace$Refs } from './replace-$-refs.js';
 
-export function gatherOasComponentFiles(
+export function gatherComponentFiles(
   openapi: AnyOas3Definition,
   openapiDir: string,
   componentsFiles: ComponentsFiles,
