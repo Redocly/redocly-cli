@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
+import { withPresets } from '../../config/__tests__/with-presets.js';
 import { resolveRecheckConfig } from '../../config/resolve.js';
 import { lintEmbeddedInputs, type EmbeddedInput } from '../embedded.js';
 
 async function rules() {
   const result = await resolveRecheckConfig({
-    extends: ['recheck/markdown'],
-    block: {},
+    block: withPresets(['recheck/markdown']),
     configDir: process.cwd(),
   });
   if (!result.success) throw new Error('config');
@@ -26,8 +26,7 @@ function input(content: string, overrides: Partial<EmbeddedInput> = {}): Embedde
 describe('lintEmbeddedInputs', () => {
   it('drops document-shape rules from every preset prefix, not only recheck/', async () => {
     const result = await resolveRecheckConfig({
-      extends: ['recheck/google'],
-      block: {},
+      block: withPresets(['recheck/google']),
       configDir: process.cwd(),
     });
     if (!result.success) throw new Error('config');

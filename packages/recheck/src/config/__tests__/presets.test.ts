@@ -6,7 +6,7 @@ import { lintContent } from '../../index.js';
 import { scopeRules } from '../../rules/registry.js';
 import { allTokenRules, RECHECK_ORIGINAL_TOKEN_RULE_NAMES } from '../../rules/token/index.js';
 import type { ScopeRule } from '../../rules/types.js';
-import { presets, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
+import { presets, presetBlocks, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { PROSE_PRESET_ASSERTIONS, buildProsePreset } from '../presets/prose.js';
 import { validate } from '../validate.js';
 
@@ -950,5 +950,15 @@ describe('registry <-> preset completeness (native scope-rule assertions)', () =
     }
     expect(scopeRules[fakeId]).toBeUndefined();
     expect(() => assertCompleteness(candidateAssertionIds())).not.toThrow();
+  });
+});
+
+describe('presetBlocks', () => {
+  it('holds every preset under its bare name with the same rules', () => {
+    const bareNames = Object.keys(presets).map((id) => id.replace(/^recheck\//, ''));
+    expect(Object.keys(presetBlocks)).toEqual(bareNames);
+    for (const [id, rules] of Object.entries(presets)) {
+      expect(presetBlocks[id.replace(/^recheck\//, '')]).toEqual({ rules });
+    }
   });
 });

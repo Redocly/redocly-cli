@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { withPresets } from '../../config/__tests__/with-presets.js';
 import {
   DEFAULT_BASELINE_FILE,
   resolveRecheckConfig,
@@ -33,7 +34,10 @@ async function resolveConfig(
   block: Record<string, unknown> = {},
   extendsList?: string[]
 ): Promise<ResolvedRecheckConfig> {
-  const result = await resolveRecheckConfig({ extends: extendsList, block, configDir });
+  const result = await resolveRecheckConfig({
+    block: withPresets(extendsList ?? [], block),
+    configDir,
+  });
   if (!result.success) {
     throw new Error(
       `config resolution failed: ${result.errors.map((error) => error.message).join('; ')}`

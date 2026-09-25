@@ -6,6 +6,6 @@
 
 Added the `redocly recheck` command.
 It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
-`check-config` accepts the block, and the `lint` command ignores `recheck/*` presets.
+Recheck presets resolve through `extends` like any plugin config, and the `recheck` block merges on top of them.
 The engine's actions return data.
 The CLI prints it.

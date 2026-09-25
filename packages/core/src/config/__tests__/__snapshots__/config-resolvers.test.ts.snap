@@ -372,6 +372,9 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "info-contact": "off",
   },
   "preprocessors": {},
+  "recheck": {
+    "rules": {},
+  },
   "root": "some/path",
   "rules": {
     "boolean-parameter-prefixes": "error",
@@ -828,6 +831,9 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "api/plugin.js",
   ],
   "preprocessors": {},
+  "recheck": {
+    "rules": {},
+  },
   "rules": {
     "boolean-parameter-prefixes": "error",
     "local/operation-id-not-test": "error",

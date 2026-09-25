@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
+import { withPresets } from '../../config/__tests__/with-presets.js';
 import {
   DEFAULT_BASELINE_FILE,
   resolveRecheckConfig,
@@ -15,14 +16,17 @@ import { runLint, type LintRunReport, type LintRunResult } from '../lint.js';
 // A prose line longer than the `recheck/line-length` limit of 80 characters.
 const LONG_LINE = 'word '.repeat(30).trim();
 
-/** Builds a resolved config from block/extends data, the same shape a recheck.yaml
- *  root key would carry, without writing anything to disk. */
+/** Merges the named presets into `block`, as core does for `extends`, and
+ *  resolves the result without writing anything to disk. */
 async function resolveConfig(
   configDir: string,
   block: Record<string, unknown> = {},
   extendsList?: string[]
 ): Promise<ResolvedRecheckConfig> {
-  const result = await resolveRecheckConfig({ extends: extendsList, block, configDir });
+  const result = await resolveRecheckConfig({
+    block: withPresets(extendsList ?? [], block),
+    configDir,
+  });
   if (!result.success) {
     throw new Error(
       `config resolution failed: ${result.errors.map((error) => error.message).join('; ')}`
@@ -496,18 +500,10 @@ describe('runLint', () => {
         '{% admonition %}\nMissing the required type attribute.\n{% /admonition %}\n'
       );
 
-      // Extending `recheck/markdoc` without `markdoc: true` must warn on this
-      // path too. The warning comes from config resolution.
-      const warnings: string[] = [];
-      const result = await resolveRecheckConfig({
-        extends: ['recheck/markdoc'],
-        configDir: tempDir,
-        warn: (message) => void warnings.push(message),
-      });
-      expect(result.success).toBe(true);
-      if (!result.success) return;
+      const config = await resolveConfig(tempDir, {}, ['recheck/markdoc']);
+      expect(config.markdoc).toBe(false);
 
-      const { problems } = completed(await runLint(tempDir, result.config, {}));
+      const { problems } = completed(await runLint(tempDir, config, {}));
       expect(errorsIn(problems)).toHaveLength(0);
 
       // No errors alone cannot distinguish "the flag gated the rules" from
@@ -516,13 +512,9 @@ describe('runLint', () => {
         false
       );
 
-      // The warning firing confirms the silence above is the flag gating the
-      // rules, not the whole check being skipped.
-      expect(
-        warnings.some((message) =>
-          message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
-        )
-      ).toBe(true);
+      // The Markdoc rules are in the resolved config, so the silence above is
+      // the flag gating them, not the rules being absent.
+      expect(config.rules.some((rule) => rule.name === 'recheck/markdoc-attributes')).toBe(true);
     });
   });
 

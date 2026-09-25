@@ -504,6 +504,9 @@ describe('loadConfig', () => {
               "info-contact": "off",
             },
             "preprocessors": {},
+            "recheck": {
+              "rules": {},
+            },
             "rules": {
               "boolean-parameter-prefixes": {
                 "severity": "off",
@@ -884,6 +887,9 @@ describe('loadConfig', () => {
               "info-contact": "off",
             },
             "preprocessors": {},
+            "recheck": {
+              "rules": {},
+            },
             "rules": {
               "no-unresolved-refs": "error",
               "rule/operation-summary": {
@@ -1277,6 +1283,9 @@ describe('loadConfig', () => {
               "info-contact": "off",
             },
             "preprocessors": {},
+            "recheck": {
+              "rules": {},
+            },
             "rules": {
               "no-ambiguous-paths": "error",
               "no-invalid-schema-examples": "error",
@@ -1762,6 +1771,9 @@ describe('loadConfig', () => {
               "info-contact": "off",
             },
             "preprocessors": {},
+            "recheck": {
+              "rules": {},
+            },
             "rules": {
               "boolean-parameter-prefixes": {
                 "severity": "off",
@@ -2142,6 +2154,9 @@ describe('loadConfig', () => {
               "info-contact": "off",
             },
             "preprocessors": {},
+            "recheck": {
+              "rules": {},
+            },
             "rules": {
               "no-unresolved-refs": "error",
               "rule/operation-summary": {
@@ -2535,6 +2550,9 @@ describe('loadConfig', () => {
               "info-contact": "off",
             },
             "preprocessors": {},
+            "recheck": {
+              "rules": {},
+            },
             "rules": {
               "no-ambiguous-paths": "error",
               "no-invalid-schema-examples": "error",

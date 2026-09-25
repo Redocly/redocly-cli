@@ -14,7 +14,13 @@ import {
   generateBaseline,
   runReadability,
   generateMarkdocSchema,
+  presetBlocks,
+  mergeRecheckRules,
+  mergeRuleEntry,
+  type RecheckBlock,
   type RecheckBlockInput,
+  type RecheckRuleInput,
+  type RecheckRulesInput,
   type RecheckConfig,
   type ResolvedRecheckConfig,
   type ResolveResult,
@@ -38,9 +44,23 @@ export const typedError: ValidationError = {
 };
 
 export const typedRecheckBlockInput: RecheckBlockInput = {
-  extends: ['recheck/markdown'],
+  block: { rules: { 'recheck/no-trailing-spaces': 'warn' } },
   configDir: '/project',
 };
+
+export const typedRecheckRuleInput: RecheckRuleInput = 'off';
+export const typedRecheckRulesInput: RecheckRulesInput = {
+  'recheck/line-length': { severity: 'warn' },
+};
+export const typedRecheckBlock: RecheckBlock = {
+  rules: typedRecheckRulesInput,
+  excludes: ['CHANGELOG.md'],
+  markdoc: true,
+  apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
+};
+export const typedPresetBlocks: Record<string, RecheckBlock> = presetBlocks;
+export const typedMergeRecheckRules: typeof mergeRecheckRules = mergeRecheckRules;
+export const typedMergeRuleEntry: typeof mergeRuleEntry = mergeRuleEntry;
 
 export const typedResolvedRecheckConfig: ResolvedRecheckConfig = {
   rules: [],

@@ -1,3 +1,9 @@
+import {
+  mergeRecheckRules,
+  type RecheckBlock,
+  type RecheckRulesInput,
+} from '@redocly/recheck/config';
+
 import type {
   Oas3RuleSet,
   Oas2RuleSet,
@@ -11,16 +17,6 @@ import type {
 import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
-
-export function isRecheckPreset(name: string): boolean {
-  return name.startsWith('recheck/');
-}
-
-export const RESERVED_PLUGIN_IDS = ['recheck', 'redocly', 'redoc', 'realm', 'reunite'] as const;
-
-export function isReservedPluginId(id: string): boolean {
-  return (RESERVED_PLUGIN_IDS as readonly string[]).includes(id);
-}
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
   if (presetName.indexOf('/') > -1) {
@@ -53,6 +49,7 @@ export function prefixRules<
 }
 
 export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
+  const recheck: RecheckBlock & { rules: RecheckRulesInput } = { rules: {} };
   const result: Required<ResolvedGovernanceConfig> = {
     rules: {},
     oas2Rules: {},
@@ -90,6 +87,8 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     arazzo1_1Decorators: {},
     overlay1Decorators: {},
     openrpc1Decorators: {},
+
+    recheck,
   };
 
   for (const rulesConf of rulesConfList) {
@@ -166,6 +165,21 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignOnlyExistingConfig(result.overlay1Decorators, rulesConf.decorators);
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
+
+    // `mergeExtends` does not validate the block. check-config reports a wrong type.
+    const block: unknown = rulesConf.recheck;
+    if (isPlainObject(result.recheck) && block !== undefined && block !== null) {
+      if (isPlainObject<RecheckBlock>(block)) {
+        const { rules, ...settings } = block;
+        Object.assign(recheck, settings);
+        if (isPlainObject<RecheckRulesInput>(rules)) {
+          recheck.rules = mergeRecheckRules(recheck.rules, rules);
+        }
+      } else {
+        // The raw value must reach the engine, which reports the wrong type.
+        result.recheck = block as RecheckBlock;
+      }
+    }
   }
 
   return result;

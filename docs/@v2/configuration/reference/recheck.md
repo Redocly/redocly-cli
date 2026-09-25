@@ -7,6 +7,7 @@ It adjusts the rules that the Recheck presets provide, and it sets file excludes
 
 The block does not accept `extends`.
 Add Recheck presets, such as `recheck/markdown`, to the root `extends` of `redocly.yaml`.
+The block merges on top of the presets.
 
 ## Options
 

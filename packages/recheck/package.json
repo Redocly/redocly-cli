@@ -9,6 +9,10 @@
     ".": {
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js"
+    },
+    "./config": {
+      "types": "./lib/config/public.d.ts",
+      "import": "./lib/config/public.js"
     }
   },
   "engines": {

@@ -2,6 +2,7 @@ import {
   AbortFlowError,
   detectSpec,
   isAbsoluteUrl,
+  isPlainObject,
   logger,
   parseYaml,
   type Config,
@@ -9,6 +10,7 @@ import {
 import {
   generateBaseline,
   generateMarkdocSchema,
+  presetBlocks,
   resolveRecheckConfig,
   runLint,
   runReadability,
@@ -17,6 +19,7 @@ import {
   type LintOptions,
   type NormalizedRule,
   type Problem,
+  type RecheckBlock,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { readFileSync, statSync } from 'node:fs';
@@ -42,7 +45,7 @@ import {
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
-const DEFAULT_PRESET = 'recheck/markdown';
+const DEFAULT_PRESET_NAME = 'markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
 // A requested path is an API description ('api'), a same-extension file that
@@ -72,6 +75,16 @@ function classifyApiPath(path: string): ApiPathClassification {
     return 'not-api';
   }
   return 'api';
+}
+
+// A block with no settings and no rules means recheck is not configured.
+// A value of the wrong type counts as configured. The engine then reports the error.
+function hasRecheckConfig(block: RecheckBlock): boolean {
+  if (!isPlainObject(block)) return true;
+  const { rules, ...settings } = block;
+  if (Object.keys(settings).length > 0) return true;
+  if (rules === undefined) return false;
+  return !isPlainObject(rules) || Object.keys(rules).length > 0;
 }
 
 function toLintOptions(argv: RecheckArgv): LintOptions {
@@ -216,21 +229,19 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     return;
   }
 
-  const block = config.resolvedConfig.recheck;
-  let presets = config.resolvedConfig.recheckExtends ?? [];
-  if (block == null && presets.length === 0) {
+  let block = config.recheck;
+  if (!hasRecheckConfig(block)) {
     if (config.configPath) {
       logger.info(
         'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
       );
       return;
     }
-    logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
-    presets = [DEFAULT_PRESET];
+    logger.info(`No redocly.yaml found; using recheck/${DEFAULT_PRESET_NAME}.\n`);
+    block = presetBlocks[DEFAULT_PRESET_NAME];
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
-    extends: presets,
     block,
     configDir,
     warn: (message) => logger.warn(`${message}\n`),

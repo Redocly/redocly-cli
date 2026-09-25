@@ -53,8 +53,8 @@ export default function myPlugin() {
 }
 ```
 
-Redocly reserves the plugin ids `recheck`, `redocly`, `redoc`, `realm`, and `reunite`.
-A plugin that declares one of them fails to load.
+The built-in plugin of the [`recheck`](../commands/recheck.md) command uses the id `recheck`.
+A custom plugin with that id fails to load.
 
 ## Supported formats
 

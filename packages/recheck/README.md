@@ -21,13 +21,18 @@ Its documentation lives at https://redocly.com/docs/cli/commands/recheck.
 
 The package exports the engine for tools that embed it:
 
-- `resolveRecheckConfig` turns a `recheck` block and a list of preset names into normalized rules.
+- `presetBlocks` holds each preset as the `recheck` block that it adds.
+- `resolveRecheckConfig` turns a `recheck` block into normalized rules.
+  Give it the block with its presets merged in.
 - `lintFiles` and `lintContent` run those rules over files or strings.
 - `runLint`, `generateBaseline`, `runReadability`, and `generateMarkdocSchema` are the actions the CLI command calls.
   Each action returns a result object.
   The CLI prints it.
   `runLint`, `generateBaseline`, and `runReadability` accept one path or a list of paths.
 - `parseMarkdown`, `extractScopes`, and `applyFixesToContent` expose the parser, the scope extractor, and the fixer.
+
+The `@redocly/recheck/config` entry exports the `RecheckBlock` type and the rule merge, `mergeRecheckRules`.
+It does not load the parser or the rules.
 
 The standalone `recheck` binary and the `recheck.yaml` file are not part of this package.
 
