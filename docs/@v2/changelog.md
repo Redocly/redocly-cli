@@ -7,6 +7,17 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.55.0 (2026-09-25)
+
+### Minor Changes
+
+- Added the `--replace` option to the `push` command.
+  `--replace` removes the files under the mount path that are not part of the push.
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.55.0.
+
 ## 2.54.3 (2026-09-25)
 
 ### Patch Changes

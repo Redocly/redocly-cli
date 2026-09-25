@@ -1,5 +1,16 @@
 # @redocly/cli
 
+## 2.55.0
+
+### Minor Changes
+
+- Added the `--replace` option to the `push` command.
+  `--replace` removes the files under the mount path that are not part of the push.
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.55.0.
+
 ## 2.54.3
 
 ### Patch Changes
