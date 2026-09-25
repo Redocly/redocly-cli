@@ -7,21 +7,11 @@ import Ajv2020, {
 import AjvDraft4 from '@redocly/ajv/dist/draft4.js';
 import addFormats from 'ajv-formats';
 
-import { escapePointerFragment, isRef, isRefWithSiblings, type Location } from '../ref-utils.js';
+import { escapePointerFragment, type Location } from '../ref-utils.js';
 import type { Oas3Schema, Oas3_1Schema } from '../typings/openapi.js';
 import type { ResolveFn, UserContext } from '../walk.js';
 
 type AjvDialect = '2020' | 'draft4';
-
-// Keywords that do not affect validation here, so schemas that differ only in them share one validator.
-const ANNOTATION_KEYWORDS = [
-  'title',
-  'description',
-  'example',
-  'examples',
-  'default',
-  'deprecated',
-];
 
 function getSchemaIdKey(dialect: AjvDialect) {
   return dialect === 'draft4' ? 'id' : '$id';
@@ -34,7 +24,6 @@ function getDialectBySpecVersion(specVersion: UserContext['specVersion']): AjvDi
 
 export class AjvValidator {
   private instances: Partial<Record<AjvDialect, any>> = {};
-  private sharedValidators = new Map<string, ValidateFunction>();
 
   validate(
     data: unknown,
@@ -150,19 +139,6 @@ export class AjvValidator {
     dialect: AjvDialect
   ): ValidateFunction | undefined {
     const ajv = this.getAjv(resolve, dialect);
-    // Every place that references the same schema shares one compiled validator.
-    if (isRef(schema) && !isRefWithSiblings(schema)) {
-      const resolved = resolve<Oas3Schema | Oas3_1Schema>(schema, loc.source.absoluteRef);
-      if (resolved.location) {
-        schema = resolved.node;
-        loc = resolved.location;
-      }
-    }
-    // A schema without `$ref` does not depend on its location, so equal schemas share one compiled validator.
-    const shape = getSchemaShape(schema, dialect);
-    const sharedValidator = shape && this.sharedValidators.get(shape);
-    if (sharedValidator) return sharedValidator;
-
     const $id = encodeURI(loc.absolutePointer);
     const schemaIdKey = getSchemaIdKey(dialect);
 
@@ -177,19 +153,6 @@ export class AjvValidator {
       );
     }
 
-    const validate = ajv.getSchema($id);
-    if (shape && validate) {
-      this.sharedValidators.set(shape, validate);
-    }
-    return validate;
+    return ajv.getSchema($id);
   }
-}
-
-function getSchemaShape(schema: Oas3Schema | Oas3_1Schema, dialect: AjvDialect) {
-  const keywords: Record<string, unknown> = { ...schema };
-  for (const keyword of ANNOTATION_KEYWORDS) {
-    delete keywords[keyword];
-  }
-  const shape = JSON.stringify(keywords);
-  return shape.includes('"$ref"') ? undefined : `${dialect}:${shape}`;
 }
