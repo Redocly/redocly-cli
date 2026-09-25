@@ -106,8 +106,6 @@ describe('split', () => {
     const filePath =
       'packages/cli/src/commands/split/__tests__/fixtures/path-traversal-asyncapi.json';
 
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-
     await expect(
       handleSplit({
         argv: {
