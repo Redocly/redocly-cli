@@ -1,5 +1,12 @@
 # @redocly/reunite-integration
 
+## 2.54.3
+
+### Patch Changes
+
+- Added the value of the `REDOCLY_ENVIRONMENT` environment variable to the `user-agent` header of the `login`, `push`, and `push-status` requests.
+- Updated @redocly/openapi-core to v2.54.3.
+
 ## 2.54.2
 
 ### Patch Changes

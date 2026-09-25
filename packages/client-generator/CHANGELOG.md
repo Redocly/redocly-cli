@@ -1,5 +1,12 @@
 # @redocly/client-generator
 
+## 0.4.16
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Updated @redocly/openapi-core to v2.54.3.
+
 ## 0.4.15
 
 ### Patch Changes
