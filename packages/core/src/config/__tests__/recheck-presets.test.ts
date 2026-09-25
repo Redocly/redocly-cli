@@ -32,7 +32,9 @@ describe('recheck presets in extends', () => {
       severity: 'error',
     });
     expect(config.resolvedConfig.rules?.['no-unresolved-refs']).toBeDefined();
-    expect(config.resolvedConfig).not.toHaveProperty('recheckExtends');
+    expect(Object.keys(config.resolvedConfig).filter((key) => key.startsWith('recheck'))).toEqual([
+      'recheck',
+    ]);
   });
 
   it('merges assertion options per id and keeps the preset message', async () => {

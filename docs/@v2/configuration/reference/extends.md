@@ -9,12 +9,15 @@ Multiple values are supported, and can include:
 - configuration defined in a [custom plugin](../../custom-plugins/index.md)
 - a path or URL to another `redocly.yaml` file
 
-Entries that start with `recheck/`, such as `recheck/markdown`, are presets for the [`recheck`](recheck.md) command.
-The `lint` command ignores them.
-Add them to the root `extends` only.
-`recheck` does not read them from an API's `extends`.
-Redocly reserves the plugin ids `recheck`, `redocly`, `redoc`, `realm`, and `reunite`.
-A plugin that declares one of them fails to load.
+Entries that start with `recheck/`, such as `recheck/markdown`, are presets for the [`recheck`](../../commands/recheck.md) command.
+They are the configs of the built-in `recheck` plugin.
+`extends` resolves them the same way as any other plugin config.
+A custom plugin cannot use the id `recheck`.
+
+The [`recheck` block](recheck.md) merges on top of the presets.
+The `recheck` command reads the presets in the root `extends` and in the files that the root `extends` lists.
+It does not read them from an API's `extends`.
+The `lint` command reads no rules from them.
 
 Extends is useful if you use a common ruleset across multiple projects.
 Define a ruleset in one location, and each project can `extend` it, with or without modification.
