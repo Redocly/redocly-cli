@@ -124,7 +124,7 @@ Coverage is measured the same way test runners measure code coverage: each docum
 With `--coverage`, the command prints an overview after the drift report:
 
 ```bash
-API coverage: 46%
+API coverage
   operations         ███████████████░░░░░   75%      3/4
   parameters         ██████████░░░░░░░░░░   50%      2/4
   schema properties  ████████░░░░░░░░░░░░   41%    16/39
@@ -140,8 +140,7 @@ API coverage: 46%
 
 Schema properties are collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
 Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
-For `oneOf` and `anyOf`, a body only covers the properties of the branches it satisfies.
-The overall percentage is the covered share of all items across the four categories.
+A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whichever branch it satisfies.
 
 If the report on stdout is machine-readable (`--format json`, `csv`, or `sarif` without `--output`), the overview is printed to stderr so the report stays parseable.
 
@@ -157,7 +156,6 @@ With `--coverage-output`, the command writes a JSON report that lists, for every
     "exchanges": { "total": 4, "matched": 4, "withBody": 4 }
   },
   "totals": {
-    "overall": { "covered": 25, "total": 54 },
     "operations": { "covered": 3, "total": 4 },
     "parameters": { "covered": 2, "total": 4 },
     "properties": { "covered": 16, "total": 39 },

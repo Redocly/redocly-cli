@@ -218,7 +218,6 @@ export interface CoverageSummary {
     withBody: number;
   };
   totals: {
-    overall: CoverageCount;
     operations: CoverageCount;
     parameters: CoverageCount;
     properties: CoverageCount;

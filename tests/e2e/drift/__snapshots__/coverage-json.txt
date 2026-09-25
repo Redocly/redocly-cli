@@ -11,10 +11,6 @@
     }
   },
   "totals": {
-    "overall": {
-      "covered": 25,
-      "total": 54
-    },
     "operations": {
       "covered": 3,
       "total": 4

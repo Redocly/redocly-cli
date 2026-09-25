@@ -242,8 +242,6 @@ export class ValidationSession {
       ? new CoverageCollector({
           openApiIndex: options.openApiIndex,
           ignoreCookies: options.ignoreCookies ?? false,
-          validateSchema: (schema, value, validateOptions) =>
-            this.schemaValidator.validate(schema, value, validateOptions?.target),
         })
       : undefined;
   }

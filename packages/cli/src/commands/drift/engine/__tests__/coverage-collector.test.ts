@@ -5,7 +5,6 @@ import type {
   OpenApiOperation,
 } from '../../types/index.js';
 import { CoverageCollector } from '../coverage-collector.js';
-import { SchemaValidator } from '../schema-validator.js';
 
 const itemSchema = {
   type: 'object',
@@ -112,14 +111,8 @@ function createExchange(
 }
 
 describe('CoverageCollector', () => {
-  it('tracks operations, parameters, response codes, and properties of the matched branch', () => {
-    const schemaValidator = new SchemaValidator();
-    const collector = new CoverageCollector({
-      openApiIndex,
-      ignoreCookies: true,
-      validateSchema: (schema, value, options) =>
-        schemaValidator.validate(schema, value, options?.target),
-    });
+  it('tracks operations, parameters, response codes, and properties', () => {
+    const collector = new CoverageCollector({ openApiIndex, ignoreCookies: true });
 
     collector.record(
       createExchange(0, { name: 'Dune', details: { kind: 'book', pages: 412 } }, 201, {
@@ -299,10 +292,6 @@ describe('CoverageCollector', () => {
             "covered": 1,
             "total": 2,
           },
-          "overall": {
-            "covered": 16,
-            "total": 25,
-          },
           "parameters": {
             "covered": 0,
             "total": 2,
@@ -320,14 +309,8 @@ describe('CoverageCollector', () => {
     `);
   });
 
-  it('credits the properties of every branch when the payload matches none of them', () => {
-    const schemaValidator = new SchemaValidator();
-    const collector = new CoverageCollector({
-      openApiIndex,
-      ignoreCookies: false,
-      validateSchema: (schema, value, options) =>
-        schemaValidator.validate(schema, value, options?.target),
-    });
+  it('credits a documented property the body carries even when the body matches no branch', () => {
+    const collector = new CoverageCollector({ openApiIndex, ignoreCookies: false });
 
     collector.record(
       createExchange(0, { name: 'Dune', details: { kind: 'book', pages: 'many' } }, 400, {

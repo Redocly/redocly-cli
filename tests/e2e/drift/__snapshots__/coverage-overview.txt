@@ -11,7 +11,7 @@
 
 ✔ No findings.
 
-API coverage: 46%
+API coverage
   operations         ███████████████░░░░░   75%      3/4
   parameters         ██████████░░░░░░░░░░   50%      2/4
   schema properties  ████████░░░░░░░░░░░░   41%    16/39

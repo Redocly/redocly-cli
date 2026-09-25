@@ -20,7 +20,7 @@ function percentLabel(pct: number | undefined): string {
 }
 
 function renderBar(pct: number | undefined, color: boolean): string {
-  const filled = pct === undefined ? 0 : Math.round((pct / 100) * BAR_WIDTH);
+  const filled = pct === undefined ? 0 : Math.floor((pct / 100) * BAR_WIDTH);
   const bar = `${'█'.repeat(filled)}${'░'.repeat(BAR_WIDTH - filled)}`;
   if (!color || pct === undefined) {
     return bar;
@@ -38,7 +38,7 @@ export function renderCoverageOverview(summary: CoverageSummary, color: boolean)
   ];
   const ratioWidth = Math.max(...rows.map(([, count]) => `${count.covered}/${count.total}`.length));
 
-  const heading = `API coverage: ${percentLabel(percent(summary.totals.overall))}`;
+  const heading = 'API coverage';
   const lines = [color ? bold(cyan(heading)) : heading];
   for (const [label, count] of rows) {
     const pct = percent(count);

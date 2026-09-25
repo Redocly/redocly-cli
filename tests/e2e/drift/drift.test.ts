@@ -351,7 +351,7 @@ describe('drift - coverage', () => {
       { encoding: 'utf-8', stdio: 'pipe', cwd: fixtures, env: { ...process.env, NO_COLOR: 'TRUE' } }
     );
     expect(() => JSON.parse(result.stdout)).not.toThrow();
-    expect(result.stderr).toContain('API coverage:');
+    expect(result.stderr).toContain('API coverage');
   });
 
   test('writes the detailed JSON coverage report with --coverage-output', async () => {
@@ -368,7 +368,7 @@ describe('drift - coverage', () => {
         outputFile,
       ]);
       expect(output).toContain('Coverage report written to:');
-      expect(output).not.toContain('API coverage:');
+      expect(output).not.toContain('API coverage');
       const report = readFileSync(outputFile, 'utf-8').replaceAll(process.cwd(), '.');
       await matchSnapshot('coverage-json', report);
     } finally {

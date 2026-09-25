@@ -9,14 +9,11 @@ import type {
   NormalizedExchange,
   OpenApiIndex,
   OpenApiOperation,
-  RuleContext,
 } from '../types/index.js';
 import { isJsonMime, pickSchemaByMime } from '../utils/http.js';
 import { resolveResponseKey } from '../utils/openapi.js';
 import { getActualParameterValue } from '../utils/parameters.js';
 import { isPropertyExcludedFromTarget } from './schema-validator.js';
-
-type ValidateSchema = RuleContext['validateSchema'];
 
 interface CoverageEntry {
   item: CoverageItem;
@@ -31,7 +28,6 @@ interface OperationCoverageState {
 interface CoverageCollectorOptions {
   openApiIndex: OpenApiIndex;
   ignoreCookies: boolean;
-  validateSchema: ValidateSchema;
 }
 
 function entryKey(item: CoverageItem): string {
@@ -116,10 +112,9 @@ function collectPropertySites(
 
 /**
  * Walk a JSON value together with its schema and mark every documented property
- * the value carries. For `oneOf` / `anyOf`, only the branches the value satisfies
- * are entered, so a payload never credits properties of a sibling branch. When
- * the value satisfies none of them, every branch is entered so an invalid payload
- * still credits the documented properties it carries.
+ * the value carries. Every `allOf` / `oneOf` / `anyOf` branch is entered: entries
+ * are keyed by path and only fields present in the value are marked, so a branch
+ * can only credit a documented field the value really carries.
  */
 function observeProperties(
   value: unknown,
@@ -127,7 +122,6 @@ function observeProperties(
   site: PropertySite,
   path: string,
   entries: Map<string, CoverageEntry>,
-  validateSchema: ValidateSchema,
   ancestors: Set<object>
 ): void {
   if (!isPlainObject(schema) || ancestors.has(schema)) {
@@ -135,19 +129,11 @@ function observeProperties(
   }
   ancestors.add(schema);
 
-  const observeBranch = (branch: unknown) =>
-    observeProperties(value, branch, site, path, entries, validateSchema, ancestors);
-
-  if (Array.isArray(schema.allOf)) {
-    schema.allOf.forEach(observeBranch);
-  }
-
-  for (const branches of [schema.oneOf, schema.anyOf]) {
+  for (const branches of [schema.allOf, schema.oneOf, schema.anyOf]) {
     if (Array.isArray(branches)) {
-      const matchingBranches = branches.filter(
-        (branch) => validateSchema(branch, value, { target: site.target }).valid
-      );
-      (matchingBranches.length > 0 ? matchingBranches : branches).forEach(observeBranch);
+      for (const branch of branches) {
+        observeProperties(value, branch, site, path, entries, ancestors);
+      }
     }
   }
 
@@ -158,29 +144,13 @@ function observeProperties(
       }
       const childPath = propertyPath(path, name);
       markEntry(entries, { kind: 'property', ...site, path: childPath });
-      observeProperties(
-        value[name],
-        propertySchema,
-        site,
-        childPath,
-        entries,
-        validateSchema,
-        ancestors
-      );
+      observeProperties(value[name], propertySchema, site, childPath, entries, ancestors);
     }
   }
 
   if (isPlainObject(schema.items) && Array.isArray(value)) {
     for (const element of value) {
-      observeProperties(
-        element,
-        schema.items,
-        site,
-        `${path}[]`,
-        entries,
-        validateSchema,
-        ancestors
-      );
+      observeProperties(element, schema.items, site, `${path}[]`, entries, ancestors);
     }
   }
 
@@ -239,13 +209,6 @@ function countByKind(states: OperationCoverageState[], kind: CoverageItem['kind'
   return count;
 }
 
-function sumCounts(counts: CoverageCount[]): CoverageCount {
-  return counts.reduce(
-    (sum, count) => ({ covered: sum.covered + count.covered, total: sum.total + count.total }),
-    { covered: 0, total: 0 }
-  );
-}
-
 function toOperationReport(state: OperationCoverageState): CoverageOperationReport {
   const report: CoverageOperationReport = {
     method: state.operation.method.toUpperCase(),
@@ -266,11 +229,9 @@ function toOperationReport(state: OperationCoverageState): CoverageOperationRepo
  */
 export class CoverageCollector {
   private readonly states = new Map<OpenApiOperation, OperationCoverageState>();
-  private readonly validateSchema: ValidateSchema;
   private readonly exchanges = { total: 0, matched: 0, withBody: 0 };
 
   constructor(options: CoverageCollectorOptions) {
-    this.validateSchema = options.validateSchema;
     for (const operations of options.openApiIndex.operationsByMethod.values()) {
       for (const operation of operations) {
         this.states.set(operation, createOperationState(operation, options.ignoreCookies));
@@ -319,7 +280,6 @@ export class CoverageCollector {
         { target: 'request' },
         '',
         entries,
-        this.validateSchema,
         new Set()
       );
     }
@@ -346,7 +306,6 @@ export class CoverageCollector {
         { target: 'response', status },
         '',
         entries,
-        this.validateSchema,
         new Set()
       );
     }
@@ -359,19 +318,13 @@ export class CoverageCollector {
         left.operation.method.localeCompare(right.operation.method)
     );
 
-    const operations = countByKind(states, 'operation');
-    const parameters = countByKind(states, 'parameter');
-    const properties = countByKind(states, 'property');
-    const responses = countByKind(states, 'response');
-
     return {
       exchanges: this.exchanges,
       totals: {
-        overall: sumCounts([operations, parameters, properties, responses]),
-        operations,
-        parameters,
-        properties,
-        responses,
+        operations: countByKind(states, 'operation'),
+        parameters: countByKind(states, 'parameter'),
+        properties: countByKind(states, 'property'),
+        responses: countByKind(states, 'response'),
       },
       operations: states.map(toOperationReport),
     };
