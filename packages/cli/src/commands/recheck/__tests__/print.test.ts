@@ -74,28 +74,7 @@ describe('printLintRun', () => {
   it('prints a completed run with one error and exits 1', async () => {
     const { stderr, stdout } = captureLogger();
     const code = await printLintRun(
-      {
-        status: 'completed',
-        roots: ['docs'],
-        ruleCount: 3,
-        disabledRuleCount: 0,
-        filesFound: 1,
-        unreadableFiles: [],
-        scannedFileCount: 1,
-        empty: false,
-        problems: [
-          {
-            file: 'docs/index.md',
-            line: 3,
-            column: 1,
-            text: '',
-            match: '',
-            ruleName: 'recheck/line-length',
-            severity: 'error',
-            message: 'Line too long.',
-          },
-        ],
-      },
+      { status: 'completed', ...LINTED_REPORT, problems: [ERROR] },
       { format: 'table' },
       new Timer()
     );
@@ -152,10 +131,14 @@ describe('printLintRun', () => {
       new Timer()
     );
     expect(code).toBe(0);
+    expect(stderr.slice(2, 7)).toEqual([
+      `${cyan('\n🔧 Auto-fixing issues...')}\n`,
+      `${green('✅ Auto-fixed 1 issue(s)!')}\n`,
+      `${cyan('\n🔧 Auto-fix Summary:')}\n`,
+      '\n   docs/index.md:\n',
+      `${green('     ✓ Line 2 (recheck/no-trailing-spaces): removed 3 character(s)')}\n`,
+    ]);
     const printed = stderr.join('');
-    expect(printed).toContain('🔧 Auto-fixing issues...');
-    expect(printed).toContain('✅ Auto-fixed 1 issue(s)!');
-    expect(printed).toContain('✓ Line 2 (recheck/no-trailing-spaces): removed 3 character(s)');
     expect(printed).toContain('⚠️  2 proposed fix(es) were not applied');
   });
 
@@ -415,7 +398,6 @@ describe('printReadabilityRun', () => {
     expect(stdout.join('')).toContain('   FRE     Grade     ARI   Words   Sentences  File\n');
     expect(stdout.join('')).toContain('docs/index.md\n');
     const printed = stderr.join('');
-    expect(printed).toContain('📖 Measuring readability of: docs');
     expect(printed).toContain('   Scoring 1 markdown file(s)\n');
     expect(printed).toContain('1 of 1 file(s) scored');
   });
@@ -446,13 +428,12 @@ const BASELINE_RESULT: BaselineRunResult = {
 };
 
 describe('printBaselineRun', () => {
-  it('prints the roots, the written path, and the counts on stderr and exits 0', () => {
+  it('prints the found count, the written path, and the counts on stderr and exits 0', () => {
     const { stderr, stdout } = captureLogger();
     const code = printBaselineRun(BASELINE_RESULT);
     expect(code).toBe(0);
     expect(stdout).toEqual([]);
     expect(stderr).toEqual([
-      `${cyan('📋 Building recheck baseline from: docs, guides')}\n`,
       '   Found 2 markdown file(s)\n',
       `${green('✅ Wrote /project/.redocly.recheck-baseline.yaml')}\n`,
       '   3 error finding(s) across 1 file(s) baselined.\n',
@@ -462,7 +443,7 @@ describe('printBaselineRun', () => {
   it('prints a warning for each unreadable file before the written path', () => {
     const { stderr } = captureLogger();
     printBaselineRun({ ...BASELINE_RESULT, unreadableFiles: ['docs/a.md', 'docs/b.md'] });
-    expect(stderr.slice(2, 5)).toEqual([
+    expect(stderr.slice(1, 4)).toEqual([
       `${yellow('   Warning: Could not read file docs/a.md')}\n`,
       `${yellow('   Warning: Could not read file docs/b.md')}\n`,
       `${green('✅ Wrote /project/.redocly.recheck-baseline.yaml')}\n`,

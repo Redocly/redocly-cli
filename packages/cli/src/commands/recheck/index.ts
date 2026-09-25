@@ -6,7 +6,6 @@ import {
   runLint,
   runReadability,
   Timer,
-  toRoots,
   type LintOptions,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
@@ -16,10 +15,12 @@ import { dirname, extname } from 'node:path';
 import type { CommandArgs } from '../../wrapper.js';
 import {
   printBaselineRun,
+  printBaselineStart,
   printLintRun,
   printLintStart,
   printMarkdocSchemaRun,
   printReadabilityRun,
+  printReadabilityStart,
   type LintPresentation,
 } from './print.js';
 import { selectAction } from './select-action.js';
@@ -127,15 +128,19 @@ async function runAction(
   if (roots.length === 0) return 0;
 
   if (action === 'readability') {
+    printReadabilityStart(roots);
     const result = await runReadability(roots, resolved, {});
     return printReadabilityRun(result, {
       format: argv.format === 'json' ? 'json' : 'table',
       outputPath: argv['output-path'],
     });
   }
-  if (action === 'baseline') return printBaselineRun(await generateBaseline(roots, resolved));
+  if (action === 'baseline') {
+    printBaselineStart(roots);
+    return printBaselineRun(await generateBaseline(roots, resolved));
+  }
   const timer = new Timer();
-  printLintStart(toRoots(roots));
+  printLintStart(roots);
   const result = await runLint(roots, resolved, toLintOptions(argv));
   return printLintRun(result, toLintPresentation(argv), timer);
 }

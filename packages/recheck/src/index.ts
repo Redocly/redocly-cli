@@ -46,7 +46,6 @@ export type { TextStatistics, ReadabilityFormula } from './metrics/index.js';
 export { TECHNICAL_PROPER_NOUNS } from './data/proper-nouns.js';
 export { runLint } from './actions/lint.js';
 export type { LintOptions, LintRunReport, LintRunResult } from './actions/lint.js';
-export { toRoots } from './actions/roots.js';
 export { Timer } from './core/timing.js';
 export { buildSummary, getBreakdownStats } from './core/summary.js';
 export type { RuleBreakdown, Summary } from './types/reporting.js';

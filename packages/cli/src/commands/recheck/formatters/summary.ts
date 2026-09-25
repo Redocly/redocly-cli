@@ -22,9 +22,9 @@ export async function printSummary(
     );
     lines.push('');
     lines.push('Breakdown by rule:');
-    for (const [rule, s] of Object.entries(summary.breakdown)) {
+    for (const [rule, ruleStats] of Object.entries(summary.breakdown)) {
       lines.push(
-        `${rule}: ${s.total} (errors: ${s.errors}, warnings: ${s.warnings}, info: ${s.info})`
+        `${rule}: ${ruleStats.total} (errors: ${ruleStats.errors}, warnings: ${ruleStats.warnings}, info: ${ruleStats.info})`
       );
     }
     content = lines.join('\n');

@@ -13,15 +13,15 @@ const SEVERITY_ORDER: Record<string, number> = {
 export function prioritizeProblems(problems: Problem[], limit?: number): Problem[] {
   if (problems.length === 0) return [];
 
-  const sorted = [...problems].sort((a, b) => {
-    const sa = SEVERITY_ORDER[a.severity] ?? 0;
-    const sb = SEVERITY_ORDER[b.severity] ?? 0;
-    if (sb !== sa) return sb - sa;
+  const sorted = [...problems].sort((left, right) => {
+    const leftSeverity = SEVERITY_ORDER[left.severity] ?? 0;
+    const rightSeverity = SEVERITY_ORDER[right.severity] ?? 0;
+    if (rightSeverity !== leftSeverity) return rightSeverity - leftSeverity;
 
     // Stable-ish tiebreaker: file then line then column
-    if (a.file !== b.file) return a.file.localeCompare(b.file);
-    if (a.line !== b.line) return a.line - b.line;
-    return a.column - b.column;
+    if (left.file !== right.file) return left.file.localeCompare(right.file);
+    if (left.line !== right.line) return left.line - right.line;
+    return left.column - right.column;
   });
 
   if (typeof limit === 'number' && limit >= 0) return sorted.slice(0, limit);

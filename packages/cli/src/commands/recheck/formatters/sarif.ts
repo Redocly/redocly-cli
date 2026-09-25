@@ -28,15 +28,15 @@ export function buildSarif(problems: Problem[]): Record<string, unknown> {
     }
   }
 
-  const results = problems.map((h) => ({
-    ruleId: h.ruleName,
-    level: SEVERITY_TO_LEVEL[h.severity] ?? 'warning',
-    message: { text: h.message },
+  const results = problems.map((problem) => ({
+    ruleId: problem.ruleName,
+    level: SEVERITY_TO_LEVEL[problem.severity] ?? 'warning',
+    message: { text: problem.message },
     locations: [
       {
         physicalLocation: {
-          artifactLocation: { uri: h.file },
-          region: { startLine: h.line, startColumn: h.column },
+          artifactLocation: { uri: problem.file },
+          region: { startLine: problem.line, startColumn: problem.column },
         },
       },
     ],
