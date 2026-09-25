@@ -4,6 +4,7 @@ import {
   type ArgsStyle,
   type DateType,
   type ErrorMode,
+  isBinaryContentType,
   type ModelPagination,
   type NamedSchemaModel,
   type OperationModel,
@@ -83,10 +84,7 @@ export function responseText(
   let hasText = false;
   for (const response of responses) {
     let member: string;
-    if (
-      response.contentType.startsWith('image/') ||
-      response.contentType === 'application/octet-stream'
-    ) {
+    if (isBinaryContentType(response.contentType)) {
       member = 'Blob';
       hasBinary = true;
     } else if (response.contentType.startsWith('text/')) {

@@ -515,6 +515,17 @@ describe('response type discovery (computeResponse through *Result)', () => {
     ).toContain('export type GetTextResult = string;');
   });
 
+  it('treats compressed archives and documents as binary, like images', () => {
+    for (const contentType of ['application/gzip', 'application/zip', 'application/pdf']) {
+      expect(
+        emitWithOp({
+          name: 'download',
+          successResponses: [{ contentType, schema: { kind: 'unknown' }, status: 200 }],
+        })
+      ).toContain('export type DownloadResult = Blob;');
+    }
+  });
+
   it('unions mixed binary + text responses and dedupes identical types', () => {
     const out = emitWithOp({
       name: 'getPhoto',
