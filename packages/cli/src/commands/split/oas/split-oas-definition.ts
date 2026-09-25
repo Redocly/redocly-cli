@@ -9,9 +9,10 @@ import * as path from 'node:path';
 
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import type { AnyOas3Definition, ComponentsFiles } from '../types.js';
+import { gatherComponentsFiles } from '../utils/gather-components-files.js';
 import { gatherItemFiles } from '../utils/gather-item-files.js';
 import type { FileNameConflict } from '../utils/get-file-name-path.js';
-import { gatherComponentFiles, iterateComponents } from '../utils/iterate-components.js';
+import { iterateComponents } from '../utils/iterate-components.js';
 import { iteratePathItems } from '../utils/iterate-path-items.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import { reportFileNameConflicts } from '../utils/report-file-name-conflicts.js';
@@ -34,7 +35,7 @@ export function splitOASDefinition(
   // every file name is chosen before anything is written, so a conflict reported as an error leaves no files behind
   const componentsFiles: ComponentsFiles = {};
   const conflicts: FileNameConflict[] = [];
-  gatherComponentFiles(openapi, openapiDir, componentsFiles, ext, conflicts);
+  gatherComponentsFiles(openapi, openapiDir, componentsFiles, ext, conflicts);
   const pathItemFiles = gatherItemFiles(
     openapi.paths,
     '#/paths',
