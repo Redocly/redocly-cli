@@ -112,6 +112,19 @@ recheck:
 The `lint` command ignores the Recheck presets and the `recheck` block, and the `recheck` command ignores API rulesets.
 For more information, visit the [`recheck` block reference](./reference/recheck.md) and the [Markdown and prose linting](../recheck/index.md) section.
 
+### Configure `diff` rules
+
+In the `diff` section, set the impact that each [diff rule](../rules/diff-rules.md) gives to a change: `major`, `minor`, `patch`, or `off`.
+The [`diff` command](../commands/diff.md) uses these rules to compare two versions of an API.
+See the [`diff` reference](./reference/diff.md) for all options.
+
+```yaml
+extends:
+  - diff-recommended
+diff:
+  enum-values-added: minor
+```
+
 <a id="theme-object"></a>
 
 ### Configure OpenAPI features and documentation styles
