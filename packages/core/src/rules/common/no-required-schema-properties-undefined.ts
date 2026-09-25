@@ -1,5 +1,6 @@
 import { type Location } from '../../ref-utils.js';
 import type { OasRef } from '../../typings/openapi.js';
+import { getOwn } from '../../utils/get-own.js';
 import { isNotEmptyArray } from '../../utils/is-not-empty-array.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { Async2Rule, Async3Rule, Arazzo1Rule, Oas2Rule, Oas3Rule } from '../../visitors.js';
@@ -80,14 +81,58 @@ export const NoRequiredSchemaPropertiesUndefined:
         };
 
         const compositionRoot = findCompositionRoot(parents.length - 2, currentSchema);
+        const propertyContainerSchema = compositionRoot ?? currentSchema;
+
+        const hasPropertyInParentContext = (
+          propertyName: string,
+          targetSchema: AnySchema
+        ): boolean => {
+          for (let i = parents.length - 2; i >= 0; i--) {
+            const ancestor = parents[i];
+            const props = ancestor.properties as Record<string, AnySchema> | undefined;
+            if (!props) continue;
+
+            const propertyKey = (Object.keys(props) as string[]).find((key) => {
+              const schema = getOwn(props, key) as AnySchema;
+              if (schema === targetSchema) return true;
+              return resolveSchema(schema, ctx).schema === targetSchema;
+            });
+            if (!propertyKey) continue;
+
+            const checkSiblings = (siblings: AnySchema[] | undefined): boolean =>
+              !!siblings?.some((sibling) => {
+                const { schema: siblingSchema, location } = resolveSchema(sibling, ctx);
+                if (!siblingSchema?.properties) return false;
+                const propertyDef = getOwn(
+                  siblingSchema.properties as Record<string, AnySchema>,
+                  propertyKey
+                ) as AnySchema | undefined;
+                return (
+                  propertyDef !== undefined &&
+                  schemaHasProperty(propertyDef, propertyName, ctx, new Set(), location)
+                );
+              });
+
+            if (
+              checkSiblings(ancestor.allOf) ||
+              checkSiblings(ancestor.anyOf) ||
+              checkSiblings(ancestor.oneOf)
+            ) {
+              return true;
+            }
+          }
+
+          return false;
+        };
 
         for (const [i, requiredProperty] of currentSchema.required.entries()) {
           if (
-            !schemaHasProperty(currentSchema, requiredProperty, ctx) &&
-            !schemaHasProperty(compositionRoot, requiredProperty, ctx)
+            !schemaHasProperty(currentSchema, requiredProperty, ctx, new Set(), ctx.location) &&
+            !schemaHasProperty(compositionRoot, requiredProperty, ctx, new Set(), ctx.location) &&
+            !hasPropertyInParentContext(requiredProperty, propertyContainerSchema)
           ) {
             ctx.report({
-              message: `Required property '${requiredProperty}' is not defined.`,
+              message: `Required property '${requiredProperty}' is undefined.`,
               location: ctx.location.child(['required', i]),
               reference:
                 'https://redocly.com/docs/cli/rules/common/no-required-schema-properties-undefined',
