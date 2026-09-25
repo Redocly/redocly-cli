@@ -1,6 +1,6 @@
 import * as path from 'node:path';
 
-import { getFileNamePath, type FileNameConflict } from '../utils/get-file-name-path.js';
+import { getFileNamePath, type FileNameConflict } from '../get-file-name-path.js';
 
 describe('getFileNamePath', () => {
   it('should suffix names that differ from a taken one only by case and collect them as conflicts', () => {
