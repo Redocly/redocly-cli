@@ -5,7 +5,9 @@ import { fileURLToPath } from 'url';
 import { describe, expect, it } from 'vitest';
 
 import { runRules } from '../../core/runner.js';
-import { DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
+import { isPlainObject } from '../../utils/is-plain-object.js';
+import { DOCUMENTED_OPT_IN_ASSERTIONS, presetBlocks } from '../presets/index.js';
+import { mergeRecheckRules, type RecheckRulesInput } from '../public.js';
 import { resolveRecheckConfig } from '../resolve.js';
 
 // Proves the README's opt-in prose assertions snippet is a real, working
@@ -33,12 +35,21 @@ function extractOptInSnippet(): string {
 }
 
 // The snippet is a `redocly.yaml` document (root `extends` plus a `recheck`
-// block), so resolving it takes the same two pieces `resolveRecheckConfig`
-// takes at runtime: the `recheck/*` names from `extends`, and the block.
+// block). The `recheck/*` presets from `extends` merge into the block, as core
+// does, before `resolveRecheckConfig` validates it.
 async function resolveOptInSnippet(snippet: string) {
-  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: unknown };
+  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: Record<string, unknown> };
   const extendsList = (doc.extends ?? []).filter((name) => name.startsWith('recheck/'));
-  return resolveRecheckConfig({ extends: extendsList, block: doc.recheck, configDir: readmeDir });
+  const block = doc.recheck ?? {};
+  const presetRules = extendsList.reduce<RecheckRulesInput>(
+    (merged, name) => mergeRecheckRules(merged, presetBlocks[name.replace(/^recheck\//, '')].rules),
+    {}
+  );
+  const blockRules = isPlainObject(block.rules) ? (block.rules as RecheckRulesInput) : {};
+  return resolveRecheckConfig({
+    block: { ...block, rules: mergeRecheckRules(presetRules, blockRules) },
+    configDir: readmeDir,
+  });
 }
 
 describe('README "Opt-in prose assertions" snippet', () => {

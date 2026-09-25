@@ -90,7 +90,6 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
-    extends: presets,
     block,
     configDir,
     warn: (message) => logger.warn(`${message}\n`),

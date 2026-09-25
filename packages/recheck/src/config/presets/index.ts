@@ -1,4 +1,5 @@
 import type { BaseRule, RecheckRules, ValidationError } from '../../types/index.js';
+import { mergeRuleEntry, type RecheckBlock } from '../public.js';
 import { buildApiDescriptionsPreset } from './api-descriptions.js';
 import { buildGooglePreset } from './google.js';
 import { buildInclusiveLanguagePreset } from './inclusive-language.js';
@@ -37,6 +38,15 @@ export const presets: Record<string, RecheckRules> = {
   'recheck/api-descriptions': buildApiDescriptionsPreset(),
 };
 
+const PRESET_PREFIX = 'recheck/';
+
+// The same presets keyed by bare name, each as the `recheck` block it
+// contributes. Core registers them as the configs of its built-in `recheck`
+// plugin, so `extends: [recheck/markdown]` resolves to `presetBlocks.markdown`.
+export const presetBlocks: Record<string, RecheckBlock> = Object.fromEntries(
+  Object.entries(presets).map(([id, rules]) => [id.slice(PRESET_PREFIX.length), { rules }])
+);
+
 /**
  * Documented, monorepo-wide opt-in scope-rule assertions -- native
  * scope-rule assertions (see rules/registry.ts's `scopeRules`) that exist
@@ -72,23 +82,6 @@ export const presets: Record<string, RecheckRules> = {
  * formula or threshold at all (see microsoft.ts's file header).
  */
 export const DOCUMENTED_OPT_IN_ASSERTIONS = ['conditional', 'metric', 'spelling'] as const;
-
-/**
- * Deep-merges a user rule entry on top of a preset rule entry for the same
- * rule key: severity/message/fix are shallow-overridden when the user sets
- * them; `assertions` is merged per assertion id (user options for a given
- * assertion id replace that assertion's preset options entirely, but other
- * preset assertion ids/options are preserved).
- */
-function mergeRule(presetRule: BaseRule, userRule: Partial<BaseRule>): BaseRule {
-  const merged: BaseRule = { ...presetRule, ...userRule };
-
-  if (userRule.assertions) {
-    merged.assertions = { ...presetRule.assertions, ...userRule.assertions };
-  }
-
-  return merged;
-}
 
 /**
  * Resolves the `extends` key of a raw config object into a fully merged
@@ -144,12 +137,18 @@ export function resolveExtends(config: Record<string, unknown>): {
     for (const [ruleKey, presetRule] of Object.entries(preset)) {
       // Deep-copy the preset rule to prevent AJV mutations from polluting the shared registry
       const ruleCopy = structuredClone(presetRule);
-      merged[ruleKey] = merged[ruleKey] ? mergeRule(merged[ruleKey], ruleCopy) : ruleCopy;
+      // The preset entry is complete, so the merged entry is too.
+      merged[ruleKey] = merged[ruleKey]
+        ? (mergeRuleEntry(merged[ruleKey], ruleCopy) as BaseRule)
+        : ruleCopy;
     }
   }
 
   for (const [ruleKey, userRule] of Object.entries(userRules)) {
-    merged[ruleKey] = merged[ruleKey] ? mergeRule(merged[ruleKey], userRule) : userRule;
+    // Same reason as above: a user entry merges into a complete preset entry.
+    merged[ruleKey] = merged[ruleKey]
+      ? (mergeRuleEntry(merged[ruleKey], userRule) as BaseRule)
+      : userRule;
   }
 
   return { config: merged, errors };

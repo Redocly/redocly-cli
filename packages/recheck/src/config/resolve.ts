@@ -18,9 +18,7 @@ export interface ResolvedRecheckConfig {
 }
 
 export interface RecheckBlockInput {
-  // `recheck/*` entries from the root `extends` of redocly.yaml, in order.
-  extends?: string[];
-  // The `recheck` block of redocly.yaml, as parsed.
+  // The `recheck` block of redocly.yaml with its presets merged in, as parsed.
   block?: unknown;
   configDir: string;
   warn?: (message: string) => void;
@@ -35,14 +33,10 @@ export const DEFAULT_BASELINE_FILE = '.redocly.recheck-baseline.yaml';
 const SEVERITIES = new Set(['off', 'info', 'warn', 'error']);
 
 // The block nests rules under `rules`; the engine's own config shape keeps
-// rule entries at the top level beside `excludes`, `baseline`, and `markdoc`.
-function toEngineConfig(
-  block: Record<string, unknown>,
-  extendsList: string[] | undefined
-): Record<string, unknown> {
+// rule entries at the top level beside `excludes` and `markdoc`.
+function toEngineConfig(block: Record<string, unknown>): Record<string, unknown> {
   const { rules, apiDescriptions: _apiDescriptions, ...rest } = block;
   const engineConfig: Record<string, unknown> = { ...rest };
-  if (extendsList && extendsList.length > 0) engineConfig.extends = extendsList;
   if (isPlainObject(rules)) {
     for (const [name, entry] of Object.entries(rules)) {
       engineConfig[name] =
@@ -90,7 +84,9 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       errors: [{ message: '`recheck.rules` must be an object', path: 'recheck.rules' }],
     };
   }
-  const validation = await validate(toEngineConfig(block, input.extends), {
+  // Validation fills schema defaults in place; the clone keeps the shared
+  // preset entries untouched.
+  const validation = await validate(toEngineConfig(structuredClone(block)), {
     configDir: input.configDir,
     warn: input.warn,
   });
