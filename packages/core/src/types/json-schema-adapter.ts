@@ -12,15 +12,17 @@ type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLin
 let ajv: Ajv2020 | undefined;
 
 function getAjv(): Ajv2020 {
-  ajv ??= new Ajv2020({
-    strictSchema: false,
-    allowUnionTypes: true,
-    useDefaults: true,
-    allErrors: true,
-    discriminator: true,
-    strictTypes: false,
-    verbose: true,
-  });
+  if (!ajv) {
+    ajv = new Ajv2020({
+      strictSchema: false,
+      allowUnionTypes: true,
+      useDefaults: true,
+      allErrors: true,
+      discriminator: true,
+      strictTypes: false,
+      verbose: true,
+    });
+  }
   return ajv;
 }
 

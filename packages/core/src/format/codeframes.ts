@@ -153,8 +153,10 @@ function getLineStarts(source: Source): number[] {
   let lineStarts = lineStartsCache.get(source);
   if (!lineStarts) {
     lineStarts = [0];
-    for (let i = source.body.indexOf('\n'); i !== -1; i = source.body.indexOf('\n', i + 1)) {
-      lineStarts.push(i + 1);
+    for (let index = 0; index < source.body.length; index++) {
+      if (source.body[index] === '\n') {
+        lineStarts.push(index + 1);
+      }
     }
     lineStartsCache.set(source, lineStarts);
   }
@@ -165,7 +167,7 @@ function offsetToLoc(source: Source, lineStarts: number[], offset: number): Loc 
   let low = 0;
   let high = lineStarts.length - 1;
   while (low < high) {
-    const middle = (low + high + 1) >> 1;
+    const middle = Math.floor((low + high + 1) / 2);
     if (lineStarts[middle] <= offset) {
       low = middle;
     } else {
@@ -174,8 +176,10 @@ function offsetToLoc(source: Source, lineStarts: number[], offset: number): Loc 
   }
   const lineStart = lineStarts[low];
   // A '\r' right after '\n' does not count as a column.
-  const skippedCarriageReturn =
-    low > 0 && source.body[lineStart] === '\r' && offset > lineStart ? 1 : 0;
+  let skippedCarriageReturn = 0;
+  if (low > 0 && source.body[lineStart] === '\r' && offset > lineStart) {
+    skippedCarriageReturn = 1;
+  }
   return { line: low + 1, col: offset - lineStart + 1 - skippedCarriageReturn };
 }
 
