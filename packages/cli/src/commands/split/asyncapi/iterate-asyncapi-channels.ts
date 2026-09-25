@@ -2,9 +2,8 @@ import { slash, isRef } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
+import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
-import { assertWithinDir } from '../utils/assert-within-dir.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import {
   traverseDirectoryDeep,
@@ -13,32 +12,26 @@ import {
 
 export function iterateAsyncApiChannels({
   channels,
+  channelsFiles,
   asyncapiDir,
   outDir,
   componentsFiles,
-  pathSeparator,
-  ext,
 }: {
   channels: Record<string, any> | undefined;
+  channelsFiles: ChannelsFiles;
   asyncapiDir: string;
   outDir: string;
   componentsFiles: ComponentsFiles;
-  pathSeparator: string;
-  ext: string;
-}): ChannelsFiles {
-  const channelsFiles: ChannelsFiles = {};
-  if (!channels) return channelsFiles;
+}) {
+  if (!channels) return;
   fs.mkdirSync(outDir, { recursive: true });
 
   for (const channelName of Object.keys(channels)) {
-    const channelFile = `${path.join(outDir, pathToFilename(channelName, pathSeparator))}.${ext}`;
     const channelData = channels[channelName];
 
     if (isRef(channelData)) continue;
 
-    assertWithinDir(asyncapiDir, channelFile, channelName);
-
-    channelsFiles[channelName] = channelFile;
+    const channelFile = channelsFiles[channelName];
     replace$Refs(channelData, path.dirname(channelFile), componentsFiles);
     writeToFileByExtension(channelData, channelFile);
     channels[channelName] = {
@@ -47,5 +40,4 @@ export function iterateAsyncApiChannels({
 
     traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
   }
-  return channelsFiles;
 }

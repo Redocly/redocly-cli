@@ -35,6 +35,11 @@ Channels, operations, and components are split from the root API description int
 - `operations/` - each operation is written to a separate file
 - `components/` - schemas, messages, securitySchemes, servers, serverVariables, parameters, replies, replyAddresses, correlationIds, messageTraits, operationTraits, tags, externalDocs, serverBindings, channelBindings, operationBindings, and messageBindings are each split into subdirectories
 
+Components, paths, webhooks, channels, and operations are written to files named after them.
+When two of them would share one file, the second file gets a `-2` suffix.
+That happens when names differ only by case, which a case-insensitive file system treats as one file name, or when names become equal after `/` is replaced with the separator.
+Code samples in one language for the same operation are saved the same way.
+
 Use the [`bundle`](./bundle.md) command and supply the main file as the entrypoint to get your API description back in one file.
 Many API tools prefer a single file, but `split` and `bundle` allow you to manage your files easily for development, and then prepare a single file for other tools to consume.
 
@@ -48,15 +53,16 @@ redocly split --version
 
 ## Options
 
-| Option        | Type    | Description                                                                                                                                                                                                                               |
-| ------------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| api           | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                                                                        |
-| --config      | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                      |
-| --help        | boolean | Show help.                                                                                                                                                                                                                                |
-| --lint-config | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                        |
-| --outDir      | string  | **REQUIRED.** Path to the directory where you want to save the split files. If the specified directory doesn't exist, it is created automatically.                                                                                        |
-| --separator   | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`, root level path `/` becomes `_.yaml`, and so on). |
-| --version     | boolean | Show version number.                                                                                                                                                                                                                      |
+| Option                         | Type    | Description                                                                                                                                                                                                                               |
+| ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| api                            | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                                                                        |
+| --config                       | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                      |
+| --file-name-conflicts-severity | string  | Specify the severity level for reporting when two names differ only by case and would share one file. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                                     |
+| --help                         | boolean | Show help.                                                                                                                                                                                                                                |
+| --lint-config                  | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                        |
+| --outDir                       | string  | **REQUIRED.** Path to the directory where you want to save the split files. If the specified directory doesn't exist, it is created automatically.                                                                                        |
+| --separator                    | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`, root level path `/` becomes `_.yaml`, and so on). |
+| --version                      | boolean | Show version number.                                                                                                                                                                                                                      |
 
 ## Examples
 
@@ -76,3 +82,20 @@ Document: pet.yaml is successfully split
 
 pet.yaml: split processed in 33ms
 </pre>
+
+### Configure file name conflicts
+
+When two components, paths, webhooks, channels, or operations have names that differ only by case, such as `User` and `user`, they would share one file on a case-insensitive file system.
+By default, Redocly CLI warns you about these conflicts and saves the second one to a file with a `-2` suffix, for example `user-2.yaml`.
+
+You can adjust how the CLI handles these conflicts with the `--file-name-conflicts-severity` option:
+
+- `off`: No warnings or errors are shown.
+- `warn` (default): Shows a warning and saves the second file with a `-2` suffix.
+- `error`: Treats conflicts as errors; the split fails and no files are created.
+
+For example, to fail the split instead of saving files with a suffix:
+
+```bash
+redocly split openapi.yaml --outDir=openapi --file-name-conflicts-severity=error
+```

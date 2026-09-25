@@ -1,5 +1,5 @@
 import type {
-  Oas2Definition,
+  RuleSeverity,
   Oas3Definition,
   Oas3_1Definition,
   Oas3_2Definition,
@@ -16,13 +16,6 @@ import type {
 } from './asyncapi/constants.js';
 import type { OPENAPI3_METHOD_NAMES, OPENAPI3_COMPONENT_NAMES } from './oas/constants.js';
 
-export type Definition =
-  | Oas2Definition
-  | Oas3Definition
-  | Oas3_1Definition
-  | Oas3_2Definition
-  | Async2Definition
-  | Async3Definition;
 export interface ComponentsFiles {
   [schemas: string]: any;
 }
@@ -53,4 +46,5 @@ export type SplitArgv = {
   api: string;
   outDir: string;
   separator: string;
+  'file-name-conflicts-severity'?: RuleSeverity;
 };
