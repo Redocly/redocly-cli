@@ -5,6 +5,7 @@ slug: /docs/cli/rules/common/no-enum-type-mismatch
 # no-enum-type-mismatch
 
 Requires that the contents of every `enum` value in your API description conform to the corresponding schema's specified `type`.
+The same check applies to the value of `const`.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -43,7 +44,7 @@ style Schema fill:#codaf9,stroke:#0044d4,stroke-width:5px
 
 ## API design principles
 
-If a property is defined for a certain type, then its corresponding `enum` values should comply with that type.
+If a property is defined for a certain type, then its corresponding `enum` and `const` values should comply with that type.
 Lack of compliance is most likely the result of a typo.
 
 ## Configuration
@@ -92,6 +93,15 @@ properties:
       - adventurous
       - aggressive
       - passive
+```
+
+Example of an **incorrect** `const` value given the type:
+
+```yaml Bad example
+properties:
+  apiVersion:
+    type: string
+    const: 2
 ```
 
 ## Related rules

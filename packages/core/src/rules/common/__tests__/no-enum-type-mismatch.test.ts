@@ -166,6 +166,96 @@ describe('Oas3 typed enum', () => {
     `);
   });
 
+  it('should report a mismatched value that shares its text with a matching one', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          paths:
+            /some:
+              get:
+                responses:
+                  '200':
+                    content:
+                      application/json:
+                        schema:
+                          type:
+                            - string
+                          enum:
+                            - 1
+                            - '1'
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/0",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Enum value \`1\` must be of allowed types: \`string\`.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should point at the offending value when it is not a string', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          paths:
+            /some:
+              get:
+                responses:
+                  '200':
+                    content:
+                      application/json:
+                        schema:
+                          type:
+                            - boolean
+                          enum:
+                            - zz
+                            - 2
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(
+      replaceSourceWithRef(results).map((problem) => [problem.message, problem.location[0].pointer])
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "Enum value \`zz\` must be of allowed types: \`boolean\`.",
+          "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/0",
+        ],
+        [
+          "Enum value \`2\` must be of allowed types: \`boolean\`.",
+          "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/1",
+        ],
+      ]
+    `);
+  });
+
   it('should not crash on null schema when there is struct rule', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -353,5 +443,100 @@ describe('Oas3 typed enum', () => {
         },
       ]
     `);
+  });
+});
+
+describe('Oas3.1 typed const', () => {
+  it('should report a const value that does not match type', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test API
+          version: '1.0.0'
+        components:
+          schemas:
+            Scalar:
+              type: string
+              const: 1
+            List:
+              type:
+                - string
+                - 'null'
+              const: true
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Scalar/const",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`const\` value must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/List/const",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`const\` value must be of the same type as the \`type\` field: expected "string" or "null" but received "boolean".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report a const value that matches type', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test API
+          version: '1.0.0'
+        components:
+          schemas:
+            Scalar:
+              type: integer
+              const: 1
+            Nullable:
+              type:
+                - string
+                - 'null'
+              const: null
+            Untyped:
+              const: 1
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
   });
 });
