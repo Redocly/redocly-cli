@@ -128,6 +128,24 @@ schemas:
         example: doggie
 ```
 
+The rule does not check `required` inside `not`.
+Those names assert that a property must be absent, not that it must be declared in `properties`.
+
+```yaml
+schemas:
+  Contact:
+    type: object
+    properties:
+      email:
+        type: string
+      phone:
+        type: string
+    not:
+      required:
+        - email
+        - phone
+```
+
 ## Related rules
 
 - [no-schema-type-mismatch](./no-schema-type-mismatch.md)
