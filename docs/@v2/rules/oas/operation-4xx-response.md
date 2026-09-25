@@ -23,10 +23,11 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 
 ## Configuration
 
-| Option           | Type    | Description                                                                               |
-| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
-| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
-| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                   |
+| Option           | Type    | Description                                                                                                 |
+| ---------------- | ------- | ----------------------------------------------------------------------------------------------------------- |
+| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration).                   |
+| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                                     |
+| excludeMethods   | array   | List of HTTP methods (case-insensitive) to exclude from 4XX validation. Default: `['get','head','options']` |
 
 An example configuration:
 
@@ -42,6 +43,15 @@ rules:
   operation-4xx-response:
     severity: error
     validateWebhooks: true
+```
+
+To exclude additional methods from 4XX validation:
+
+```yaml
+rules:
+  operation-4xx-response:
+    severity: error
+    excludeMethods: [get, head, options, trace]
 ```
 
 ## Examples
