@@ -7,7 +7,6 @@ import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
 import { type ComponentsFiles } from '../types.js';
-import { gatherItemFiles } from '../utils/gather-item-files.js';
 import { iteratePathItems } from '../utils/iterate-path-items.js';
 import samplesJson from './fixtures/samples.json' with { type: 'json' };
 import specJson from './fixtures/spec.json' with { type: 'json' };
@@ -155,15 +154,7 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
     iteratePathItems(
       openapi.paths,
-      gatherItemFiles(
-        openapi.paths,
-        '#/paths',
-        openapiDir,
-        path.join(openapiDir, 'paths'),
-        '_',
-        'yaml',
-        []
-      ),
+      { '/test': 'output/split-test/paths/test.yaml' },
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
@@ -184,15 +175,7 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi.webhooks,
-      gatherItemFiles(
-        openapi.webhooks,
-        '#/webhooks',
-        openapiDir,
-        path.join(openapiDir, 'webhooks'),
-        '_',
-        'yaml',
-        []
-      ),
+      { test: 'output/split-test/webhooks/test.yaml' },
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
@@ -214,15 +197,7 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi['x-webhooks'],
-      gatherItemFiles(
-        openapi['x-webhooks'],
-        '#/x-webhooks',
-        openapiDir,
-        path.join(openapiDir, 'webhooks'),
-        '_',
-        'yaml',
-        []
-      ),
+      { test: 'output/split-test/webhooks/test.yaml' },
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
@@ -243,15 +218,7 @@ describe('split', () => {
     vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(
       openapi.paths,
-      gatherItemFiles(
-        openapi.paths,
-        '#/paths',
-        openapiDir,
-        path.join(openapiDir, 'paths'),
-        '_',
-        'yaml',
-        []
-      ),
+      { '/test': 'output/split-test/paths/test.yaml' },
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
