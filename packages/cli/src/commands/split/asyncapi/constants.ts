@@ -1,21 +1,3 @@
-export const ASYNCAPI_ACTION_NAMES = ['send', 'receive'] as const;
-export const ASYNCAPI2_COMPONENT_NAMES = [
-  'schemas',
-  'messages',
-  'parameters',
-  'correlationIds',
-  'messageTraits',
-  'operationTraits',
-  'securitySchemes',
-  'servers',
-  'serverVariables',
-  'channels',
-  'serverBindings',
-  'channelBindings',
-  'operationBindings',
-  'messageBindings',
-] as const;
-
 export const ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES = [
   'schemas',
   'messages',
@@ -24,28 +6,6 @@ export const ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES = [
   'correlationIds',
   'messageTraits',
   'operationTraits',
-  'serverBindings',
-  'channelBindings',
-  'operationBindings',
-  'messageBindings',
-] as const;
-
-export const ASYNCAPI3_COMPONENT_NAMES = [
-  'schemas',
-  'messages',
-  'parameters',
-  'replies',
-  'replyAddresses',
-  'correlationIds',
-  'messageTraits',
-  'operationTraits',
-  'tags',
-  'externalDocs',
-  'securitySchemes',
-  'servers',
-  'serverVariables',
-  'channels',
-  'operations',
   'serverBindings',
   'channelBindings',
   'operationBindings',

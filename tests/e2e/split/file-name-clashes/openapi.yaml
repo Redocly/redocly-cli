@@ -3,34 +3,44 @@ info:
   title: File name clashes
   version: 1.0.0
 paths:
-  /pets:
+  /menu:
     get:
-      summary: List pets
+      summary: List menu items
       x-codeSamples:
         - lang: PHP
           label: SDK 1
-          source: $client->pets()->list();
+          source: $client->menu()->list();
         - lang: PHP
           label: SDK 2
-          source: $service->pets()->list();
+          source: $cafe->menu()->list();
       responses:
         '200':
           description: OK
-  /Pets:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MenuItem'
+  /Menu:
     get:
-      summary: List pets (legacy)
+      summary: List menu items (legacy)
       responses:
         '200':
           description: OK
-  /pets/list:
+  /menu/items:
     get:
-      summary: List pets (nested)
+      summary: List menu items (nested)
       responses:
         '200':
           description: OK
-  /pets_list:
+  /menu_items:
     get:
-      summary: List pets (flat)
+      summary: List menu items (flat)
       responses:
         '200':
           description: OK
+components:
+  schemas:
+    MenuItem:
+      type: object

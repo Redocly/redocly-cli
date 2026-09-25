@@ -252,6 +252,21 @@ describe('split', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('paths that map to one file name with the error severity', async () => {
+    const testPath = join(__dirname, `file-name-clashes`);
+    const file = 'openapi.yaml';
+
+    const args = getParams(indexEntryPoint, [
+      'split',
+      file,
+      '--outDir=output',
+      '--file-name-conflicts-severity=error',
+    ]);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-error.txt'));
+  });
+
   test('paths and code samples that map to one file name split and bundle again to the same content', () => {
     const { expected, actual } = splitAndBundleBack(
       join(__dirname, `file-name-clashes`),

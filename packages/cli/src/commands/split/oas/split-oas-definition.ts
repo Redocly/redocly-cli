@@ -3,8 +3,8 @@ import {
   type Oas3_2Definition,
   type Oas3Definition,
   type RuleSeverity,
+  type Source,
 } from '@redocly/openapi-core';
-import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
@@ -21,6 +21,7 @@ export function splitOASDefinition(
   openapiDir: string,
   pathSeparator: string,
   ext: string,
+  source: Source,
   fileNameConflictsSeverity?: RuleSeverity
 ) {
   const pathsDir = path.join(openapiDir, 'paths');
@@ -28,6 +29,7 @@ export function splitOASDefinition(
   const webhooks =
     (openapi as Oas3_1Definition | Oas3_2Definition).webhooks ||
     (openapi as Oas3Definition)['x-webhooks'];
+  const webhooksPointer = 'webhooks' in openapi && openapi.webhooks ? '#/webhooks' : '#/x-webhooks';
 
   // every file name is chosen before anything is written, so a conflict reported as an error leaves no files behind
   const componentsFiles: ComponentsFiles = {};
@@ -35,6 +37,7 @@ export function splitOASDefinition(
   gatherOasComponentFiles(openapi, openapiDir, componentsFiles, ext, conflicts);
   const pathItemFiles = gatherItemFiles(
     openapi.paths,
+    '#/paths',
     openapiDir,
     pathsDir,
     pathSeparator,
@@ -43,15 +46,15 @@ export function splitOASDefinition(
   );
   const webhookFiles = gatherItemFiles(
     webhooks,
+    webhooksPointer,
     openapiDir,
     webhooksDir,
     pathSeparator,
     ext,
     conflicts
   );
-  reportFileNameConflicts(conflicts, fileNameConflictsSeverity);
+  reportFileNameConflicts(conflicts, source, fileNameConflictsSeverity);
 
-  fs.mkdirSync(openapiDir, { recursive: true });
   iterateComponents(openapi, openapiDir, componentsFiles);
   iteratePathItems(
     openapi.paths,

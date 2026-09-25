@@ -1,5 +1,4 @@
-import { type Async3Definition, type RuleSeverity } from '@redocly/openapi-core';
-import * as fs from 'node:fs';
+import { type Async3Definition, type RuleSeverity, type Source } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
@@ -20,6 +19,7 @@ export function splitAsyncApiDefinition({
   pathSeparator,
   ext,
   specVersion,
+  source,
   fileNameConflictsSeverity,
 }: {
   asyncapi: AnyAsyncApiDefinition;
@@ -27,6 +27,7 @@ export function splitAsyncApiDefinition({
   pathSeparator: string;
   ext: string;
   specVersion: 'async2' | 'async3';
+  source: Source;
   fileNameConflictsSeverity?: RuleSeverity;
 }) {
   const channelsDir = path.join(asyncapiDir, CHANNELS);
@@ -48,6 +49,7 @@ export function splitAsyncApiDefinition({
   });
   const channelsFiles = gatherItemFiles(
     asyncapi.channels,
+    '#/channels',
     asyncapiDir,
     channelsDir,
     pathSeparator,
@@ -56,15 +58,14 @@ export function splitAsyncApiDefinition({
   );
   const operationFiles = gatherItemFiles(
     operations,
+    '#/operations',
     asyncapiDir,
     operationsDir,
     pathSeparator,
     ext,
     conflicts
   );
-  reportFileNameConflicts(conflicts, fileNameConflictsSeverity);
-
-  fs.mkdirSync(asyncapiDir, { recursive: true });
+  reportFileNameConflicts(conflicts, source, fileNameConflictsSeverity);
 
   // Phase 2: split channels (componentsFiles is populated → replace$Refs rewrites #/components/... refs)
   iterateAsyncApiChannels({

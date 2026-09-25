@@ -1,4 +1,6 @@
 import {
+  escapePointerFragment,
+  isTruthy,
   logger,
   type Oas3_1Schema,
   type Oas3ComponentName,
@@ -15,10 +17,8 @@ import { assertWithinDir } from './assert-within-dir.js';
 import { createComponentDir } from './create-component-dir.js';
 import { doesFileDiffer } from './does-file-differ.js';
 import { findComponentTypes } from './find-component-type.js';
-import { gatherComponentsFiles } from './gather-components-files.js';
 import { getFileNamePath, type FileNameConflict } from './get-file-name-path.js';
 import { implicitlyReferenceDiscriminator } from './implicitly-reference-discriminator.js';
-import { isNotSecurityComponentType } from './is-not-security-component-type.js';
 import { removeEmptyComponents } from './remove-empty-components.js';
 import { replace$Refs } from './replace-$-refs.js';
 
@@ -36,15 +36,21 @@ export function gatherOasComponentFiles(
     const componentDirPath = path.join(componentsDir, componentType);
     const takenFileNames = new Map<string, string>();
     for (const componentName of Object.keys(components[componentType] || {})) {
-      const filename = getFileNamePath(
-        componentDirPath,
-        componentName,
-        `.${ext}`,
-        takenFileNames,
-        conflicts
-      );
+      const filename = getFileNamePath(componentDirPath, componentName, `.${ext}`, takenFileNames, {
+        conflicts,
+        pointer: `#/components/${componentType}/${escapePointerFragment(componentName)}`,
+      });
       assertWithinDir(openapiDir, filename, componentName);
-      gatherComponentsFiles(components, componentsFiles, componentType, componentName, filename);
+      let inherits: string[] = [];
+      if (componentType === 'schemas') {
+        inherits = (
+          (components[componentType]?.[componentName] as Oas3Schema | Oas3_1Schema)?.allOf || []
+        )
+          .map(({ $ref }) => $ref)
+          .filter(isTruthy);
+      }
+      componentsFiles[componentType] = componentsFiles[componentType] || {};
+      componentsFiles[componentType][componentName] = { inherits, filename };
     }
   }
 }
@@ -85,10 +91,7 @@ export function iterateComponents(
           writeToFileByExtension(componentData, filename);
         }
 
-        if (isNotSecurityComponentType(componentType)) {
-          // security schemas must referenced from components
-          delete openapi.components?.[componentType]?.[componentName];
-        }
+        delete openapi.components?.[componentType]?.[componentName];
       }
       removeEmptyComponents(openapi, componentType);
     }

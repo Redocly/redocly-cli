@@ -109,6 +109,27 @@ describe('split', () => {
     expect(utils.writeToFileByExtension).not.toHaveBeenCalled();
   });
 
+  it('aborts before writing any file when an asyncapi component would be written outside the output directory', async () => {
+    const filePath =
+      'packages/cli/src/commands/split/__tests__/fixtures/path-traversal-asyncapi.json';
+
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+
+    await expect(
+      handleSplit({
+        argv: {
+          api: filePath,
+          outDir: openapiDir,
+          separator: '_',
+        },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(openapiCore.HandledError);
+
+    expect(utils.writeToFileByExtension).not.toHaveBeenCalled();
+  });
+
   it('should use the correct separator', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 
@@ -134,7 +155,15 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
     iteratePathItems(
       openapi.paths,
-      gatherItemFiles(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), '_', 'yaml', []),
+      gatherItemFiles(
+        openapi.paths,
+        '#/paths',
+        openapiDir,
+        path.join(openapiDir, 'paths'),
+        '_',
+        'yaml',
+        []
+      ),
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
@@ -157,15 +186,17 @@ describe('split', () => {
       openapi.webhooks,
       gatherItemFiles(
         openapi.webhooks,
+        '#/webhooks',
         openapiDir,
         path.join(openapiDir, 'webhooks'),
-        'webhook_',
+        '_',
         'yaml',
         []
       ),
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
+      '_',
       'webhook_'
     );
 
@@ -185,15 +216,17 @@ describe('split', () => {
       openapi['x-webhooks'],
       gatherItemFiles(
         openapi['x-webhooks'],
+        '#/x-webhooks',
         openapiDir,
         path.join(openapiDir, 'webhooks'),
-        'webhook_',
+        '_',
         'yaml',
         []
       ),
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
+      '_',
       'webhook_'
     );
 
@@ -210,7 +243,15 @@ describe('split', () => {
     vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(
       openapi.paths,
-      gatherItemFiles(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), '_', 'yaml', []),
+      gatherItemFiles(
+        openapi.paths,
+        '#/paths',
+        openapiDir,
+        path.join(openapiDir, 'paths'),
+        '_',
+        'yaml',
+        []
+      ),
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,

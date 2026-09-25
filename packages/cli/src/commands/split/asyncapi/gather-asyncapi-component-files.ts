@@ -1,4 +1,4 @@
-import { isTruthy } from '@redocly/openapi-core';
+import { escapePointerFragment } from '@redocly/openapi-core';
 import * as path from 'node:path';
 
 import { COMPONENTS } from '../constants.js';
@@ -7,6 +7,7 @@ import {
   type AnyAsyncApiDefinition,
   type ComponentsFiles,
 } from '../types.js';
+import { assertWithinDir } from '../utils/assert-within-dir.js';
 import { getFileNamePath, type FileNameConflict } from '../utils/get-file-name-path.js';
 import { findAsyncApiComponentTypes } from './find-asyncapi-component-types.js';
 
@@ -33,24 +34,13 @@ export function gatherAsyncApiComponentFiles({
     const componentDirPath = path.join(componentsDir, componentType);
     const takenFileNames = new Map<string, string>();
     for (const componentName of Object.keys(components[componentType] || {})) {
-      const filename = getFileNamePath(
-        componentDirPath,
-        componentName,
-        `.${ext}`,
-        takenFileNames,
-        conflicts
-      );
-      let inherits: string[] = [];
-      if (componentType === 'schemas') {
-        inherits = (
-          (components[componentType]?.[componentName] as { allOf?: Array<{ $ref?: string }> })
-            ?.allOf || []
-        )
-          .map(({ $ref }) => $ref)
-          .filter(isTruthy);
-      }
+      const filename = getFileNamePath(componentDirPath, componentName, `.${ext}`, takenFileNames, {
+        conflicts,
+        pointer: `#/components/${componentType}/${escapePointerFragment(componentName)}`,
+      });
+      assertWithinDir(asyncapiDir, filename, componentName);
       componentsFiles[componentType] = componentsFiles[componentType] || {};
-      componentsFiles[componentType][componentName] = { inherits, filename };
+      componentsFiles[componentType][componentName] = { filename };
     }
   }
 }

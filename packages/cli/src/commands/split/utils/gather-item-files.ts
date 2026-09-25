@@ -1,4 +1,4 @@
-import { isRef } from '@redocly/openapi-core';
+import { escapePointerFragment, isRef } from '@redocly/openapi-core';
 
 import { pathToFilename } from '../../../utils/miscellaneous.js';
 import { assertWithinDir } from './assert-within-dir.js';
@@ -6,6 +6,7 @@ import { getFileNamePath, type FileNameConflict } from './get-file-name-path.js'
 
 export function gatherItemFiles(
   items: Record<string, unknown> | undefined,
+  pointer: string,
   baseDir: string,
   outDir: string,
   pathSeparator: string,
@@ -21,7 +22,7 @@ export function gatherItemFiles(
       pathToFilename(itemName, pathSeparator),
       `.${ext}`,
       takenFileNames,
-      conflicts
+      { conflicts, pointer: `${pointer}/${escapePointerFragment(itemName)}` }
     );
     assertWithinDir(baseDir, itemFile, itemName);
     itemFiles[itemName] = itemFile;
