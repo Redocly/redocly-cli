@@ -45,6 +45,22 @@ export const NoEnumTypeMismatch:
           });
         }
       }
+
+      if ('const' in schema && schema.type) {
+        const types = Array.isArray(schema.type) ? schema.type : [schema.type];
+        const matchesAnyType = types.some((type) =>
+          matchesJsonSchemaType(schema.const, type, schema.nullable as boolean)
+        );
+        if (!matchesAnyType) {
+          report({
+            message: `The \`const\` value must be of the same type as the \`type\` field: expected "${types.join(
+              '" or "'
+            )}" but received "${oasTypeOf(schema.const)}".`,
+            location: location.child(['const']),
+            reference: 'https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch',
+          });
+        }
+      }
     },
   };
 };
