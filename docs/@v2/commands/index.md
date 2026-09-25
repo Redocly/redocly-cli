@@ -20,7 +20,7 @@ Docs rendering commands:
 CI and delivery commands:
 
 - [`bundle`](bundle.md) Bundle an API description.
-- [`diff`](diff.md) Compare two API descriptions and detect breaking changes [experimental feature].
+- [`diff`](diff.md) Compare two API descriptions and rate each change by the semver bump it requires [experimental feature].
 - [`join`](join.md) Join API descriptions [experimental feature].
 
 API testing and drift commands:

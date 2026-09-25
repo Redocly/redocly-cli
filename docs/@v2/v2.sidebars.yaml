@@ -203,6 +203,7 @@
             - page: rules/arazzo/workflow-dependsOn.md
             - page: rules/arazzo/workflowId-unique.md
 
+        - page: rules/diff-rules.md
         - page: rules/configure-rules.md
           label: Rule configuration
         - page: rules/configurable-rules.md
@@ -230,6 +231,7 @@
             - page: configuration/reference/apis.md
             - page: configuration/reference/client.md
             - page: configuration/reference/decorators.md
+            - page: configuration/reference/diff.md
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md
             - page: configuration/reference/preprocessors.md
@@ -240,6 +242,8 @@
       items:
         - label: Custom rules
           page: custom-plugins/custom-rules.md
+        - label: Custom diff rules
+          page: custom-plugins/custom-diff-rules.md
         - label: Custom decorators
           page: custom-plugins/custom-decorators.md
         - label: Custom config
