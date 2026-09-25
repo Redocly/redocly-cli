@@ -180,15 +180,17 @@ function codeSamplesOverlay(
   pagination?: ModelPagination
 ): string | undefined {
   const actions = [];
+  const targets = new Set<string>();
   for (const op of allOperations(model.services)) {
+    const target = operationTarget(document, op.path, op.method);
+    // Paths that reference the same path item share its operation; the first path's samples win.
+    if (targets.has(target)) continue;
+    targets.add(target);
     const samples = selected
       .map((name) => registry.get(name)?.sample?.(op, { model, emit, outputPath, pagination }))
       .filter((sample): sample is CodeSample => sample !== undefined);
     if (samples.length > 0) {
-      actions.push({
-        target: operationTarget(document, op.path, op.method),
-        update: { 'x-codeSamples': samples },
-      });
+      actions.push({ target, update: { 'x-codeSamples': samples } });
     }
   }
   if (actions.length === 0) return undefined;

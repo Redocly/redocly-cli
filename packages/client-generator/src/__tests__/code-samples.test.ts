@@ -93,6 +93,8 @@ describe('codeSamples', () => {
           paths:
             /pets:
               $ref: '#/components/pathItems/Pets'
+            /animals:
+              $ref: '#/components/pathItems/Pets'
             /o'clock:
               get:
                 operationId: getTime
@@ -122,7 +124,7 @@ describe('codeSamples', () => {
         paths: Record<string, { get: Record<string, unknown> }>;
         components: { pathItems: Record<string, { get: Record<string, unknown> }> };
       };
-      // Overlays don't follow `$ref`s, so the samples go where the path item is declared.
+      // Overlays don't follow `$ref`s, so the samples go where the path item is declared, once.
       expect(components.pathItems.Pets.get['x-codeSamples']).toHaveLength(1);
       expect(paths["/o'clock"].get['x-codeSamples']).toHaveLength(1);
     } finally {
