@@ -1,4 +1,5 @@
 import type { ApiConfig, RedoclyConfig } from '@redocly/config';
+import type { RecheckBlock } from '@redocly/recheck/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type {
@@ -142,6 +143,9 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   arazzo1_1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
+
+  /** The `recheck` block; presets named in `extends` merge into it. */
+  recheck?: RecheckBlock;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
@@ -289,7 +293,7 @@ export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
   ClientGeneratorApiConfig;
 
-export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
+export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins' | 'recheck'> &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApiConfig>;
@@ -304,8 +308,6 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     plugins?: string[];
     /** Per-api key, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
-    /** `recheck/*` entries from the root `extends`, in order; the prose engine composes them. */
-    recheckExtends?: string[];
   };
 
 export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

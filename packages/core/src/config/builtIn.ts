@@ -75,3 +75,19 @@ export const defaultPlugin: Plugin<'built-in'> = {
   },
   configs: builtInConfigs,
 };
+
+// Built-in plugins that load on demand: `resolveConfig` loads one when an
+// `extends` entry names a config of its id. The prose engine is heavy, so a
+// config that never names `recheck/*` never loads it.
+export const lazyBuiltInPlugins: Record<string, () => Promise<Plugin>> = {
+  recheck: async () => {
+    // `webpackIgnore` keeps the engine out of the bundles that tools make from core.
+    const { presetBlocks } = await import(/* webpackIgnore: true */ '@redocly/recheck');
+    return {
+      id: 'recheck',
+      configs: Object.fromEntries(
+        Object.entries(presetBlocks).map(([name, block]) => [name, { recheck: block }])
+      ),
+    };
+  },
+};

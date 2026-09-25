@@ -19,7 +19,7 @@ import { isDefined } from '../utils/is-defined.js';
 import { isNotString } from '../utils/is-not-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
-import { defaultPlugin } from './builtIn.js';
+import { defaultPlugin, lazyBuiltInPlugins } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
 import {
@@ -39,12 +39,9 @@ import {
   deepCloneMapWithJSON,
   isCommonJsPlugin,
   isDeprecatedPluginFormat,
-  isRecheckPreset,
-  isReservedPluginId,
   mergeExtends,
   parsePresetName,
   prefixRules,
-  RESERVED_PLUGIN_IDS,
 } from './utils.js';
 
 export type PluginResolveInfo = {
@@ -98,6 +95,9 @@ export async function resolveConfig({
       new BaseResolver(getResolveConfig((config as RawUniversalConfig)?.resolve)),
   });
 
+  const builtInPlugins = skipPluginEval
+    ? [defaultPlugin]
+    : await resolveBuiltInPlugins(isPlainObject<RawUniversalConfig>(config) ? config : {});
   let pluginsOrPaths: (Plugin | PluginResolveInfo)[] = [];
   let resolvedPlugins: Plugin[];
   let rootConfigDir: string = '';
@@ -106,7 +106,7 @@ export async function resolveConfig({
     const instantiatedPlugins = ((config as RawUniversalConfig)?.plugins || []).filter(
       (p) => !isString(p)
     ) as Plugin[];
-    resolvedPlugins = [...instantiatedPlugins, defaultPlugin];
+    resolvedPlugins = [...instantiatedPlugins, ...builtInPlugins];
   } else {
     rootConfigDir = path.dirname(configPath ?? '');
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
@@ -115,12 +115,8 @@ export async function resolveConfig({
       rootConfigDir,
       skipPluginEval
     );
-    resolvedPlugins = [...plugins, defaultPlugin];
+    resolvedPlugins = [...plugins, ...builtInPlugins];
   }
-
-  // Read before bundling: the bundler deletes `extends` from the root node in place.
-  const rootExtends = isPlainObject<RawUniversalConfig>(config) ? (config.extends ?? []) : [];
-  const recheckExtends = rootExtends.filter(isString).filter(isRecheckPreset);
 
   const bundledConfig = bundleConfig(
     rootDocument,
@@ -129,14 +125,11 @@ export async function resolveConfig({
     skipPluginEval
   );
 
-  const resolvedWithRecheck =
-    recheckExtends.length > 0 ? { ...bundledConfig, recheckExtends } : bundledConfig;
-
   // The apis merge relies on `extends` being resolved, which requires evaluated plugins.
-  if (resolvedWithRecheck.apis && !skipPluginEval) {
-    resolvedWithRecheck.apis = Object.fromEntries(
-      Object.entries(resolvedWithRecheck.apis).map(([key, apiConfig]) => {
-        const mergedConfig = mergeExtends([resolvedWithRecheck, apiConfig]);
+  if (bundledConfig.apis && !skipPluginEval) {
+    bundledConfig.apis = Object.fromEntries(
+      Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
+        const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
         return [key, { ...apiConfig, ...mergedConfig }];
       })
     );
@@ -154,12 +147,26 @@ export async function resolveConfig({
 
   return {
     resolvedConfig: {
-      ...resolvedWithRecheck,
+      ...bundledConfig,
       plugins: pluginPaths,
     },
     resolvedRefMap,
     plugins: resolvedPlugins,
   };
+}
+
+// Loads the built-in plugins whose id an `extends` entry names, in the root
+// or under an api.
+async function resolveBuiltInPlugins(config: RawUniversalConfig): Promise<Plugin[]> {
+  const sections = [config, ...Object.values(config.apis ?? {})];
+  const extendsEntries = sections.flatMap((section) => section.extends ?? []).filter(isString);
+  const pluginIds = new Set(extendsEntries.map((entry) => parsePresetName(entry).pluginId));
+  const loaded = await Promise.all(
+    Object.entries(lazyBuiltInPlugins)
+      .filter(([id]) => pluginIds.has(id))
+      .map(([, load]) => load())
+  );
+  return [defaultPlugin, ...loaded];
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {
@@ -348,10 +355,8 @@ export async function resolvePlugins(
                 )
               );
             }
-            if (isReservedPluginId(id)) {
-              throw new Error(
-                `Plugin id "${id}" is reserved. Reserved ids: ${RESERVED_PLUGIN_IDS.join(', ')}.`
-              );
+            if (Object.hasOwn(lazyBuiltInPlugins, id)) {
+              throw new Error(`Plugin id "${id}" belongs to a built-in plugin.`);
             }
             const pluginPath = pluginInstance.absolutePath ?? p.toString();
             const existingPluginPath = seenPluginIds.get(id);

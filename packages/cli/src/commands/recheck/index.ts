@@ -77,7 +77,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   }
 
   const block = config.resolvedConfig.recheck;
-  let presets = config.resolvedConfig.recheckExtends ?? [];
+  let presets: string[] = [];
   if (block == null && presets.length === 0) {
     if (config.configPath) {
       logger.info(
