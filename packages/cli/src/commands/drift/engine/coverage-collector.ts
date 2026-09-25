@@ -30,7 +30,7 @@ interface OperationCoverageState {
 
 interface CoverageCollectorOptions {
   openApiIndex: OpenApiIndex;
-  ignoreCookies?: boolean;
+  ignoreCookies: boolean;
   validateSchema: ValidateSchema;
 }
 
@@ -117,7 +117,9 @@ function collectPropertySites(
 /**
  * Walk a JSON value together with its schema and mark every documented property
  * the value carries. For `oneOf` / `anyOf`, only the branches the value satisfies
- * are entered, so a payload never credits properties of a sibling branch.
+ * are entered, so a payload never credits properties of a sibling branch. When
+ * the value satisfies none of them, every branch is entered so an invalid payload
+ * still credits the documented properties it carries.
  */
 function observeProperties(
   value: unknown,
@@ -142,11 +144,10 @@ function observeProperties(
 
   for (const branches of [schema.oneOf, schema.anyOf]) {
     if (Array.isArray(branches)) {
-      for (const branch of branches) {
-        if (validateSchema(branch, value, { target: site.target }).valid) {
-          observeBranch(branch);
-        }
-      }
+      const matchingBranches = branches.filter(
+        (branch) => validateSchema(branch, value, { target: site.target }).valid
+      );
+      (matchingBranches.length > 0 ? matchingBranches : branches).forEach(observeBranch);
     }
   }
 
@@ -272,7 +273,7 @@ export class CoverageCollector {
     this.validateSchema = options.validateSchema;
     for (const operations of options.openApiIndex.operationsByMethod.values()) {
       for (const operation of operations) {
-        this.states.set(operation, createOperationState(operation, options.ignoreCookies ?? false));
+        this.states.set(operation, createOperationState(operation, options.ignoreCookies));
       }
     }
   }

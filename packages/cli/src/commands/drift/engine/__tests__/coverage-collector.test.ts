@@ -1,4 +1,9 @@
-import type { NormalizedExchange, OpenApiIndex, OpenApiOperation } from '../../types/index.js';
+import type {
+  CoverageItem,
+  NormalizedExchange,
+  OpenApiIndex,
+  OpenApiOperation,
+} from '../../types/index.js';
 import { CoverageCollector } from '../coverage-collector.js';
 import { SchemaValidator } from '../schema-validator.js';
 
@@ -313,5 +318,42 @@ describe('CoverageCollector', () => {
         },
       }
     `);
+  });
+
+  it('credits the properties of every branch when the payload matches none of them', () => {
+    const schemaValidator = new SchemaValidator();
+    const collector = new CoverageCollector({
+      openApiIndex,
+      ignoreCookies: false,
+      validateSchema: (schema, value, options) =>
+        schemaValidator.validate(schema, value, options?.target),
+    });
+
+    collector.record(
+      createExchange(0, { name: 'Dune', details: { kind: 'book', pages: 'many' } }, 400, {
+        message: 'pages must be an integer',
+      }),
+      { operation: createItem, pathParams: {} },
+      {}
+    );
+
+    const coverage = collector.finalize().operations[0];
+    const requestProperties = (list: CoverageItem[]) =>
+      list.flatMap((item) =>
+        item.kind === 'property' && item.target === 'request' ? [item.path] : []
+      );
+
+    expect(requestProperties(coverage.covered)).toEqual([
+      'name',
+      'details',
+      'details.kind',
+      'details.pages',
+    ]);
+    expect(requestProperties(coverage.missing)).toEqual([
+      'price',
+      'price.amount',
+      'price.currency',
+      'details.duration',
+    ]);
   });
 });

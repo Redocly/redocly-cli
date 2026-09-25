@@ -12,7 +12,7 @@ interface CoverageReportMeta {
 }
 
 function percent(count: CoverageCount): number | undefined {
-  return count.total === 0 ? undefined : Math.round((count.covered / count.total) * 100);
+  return count.total === 0 ? undefined : Math.floor((count.covered / count.total) * 100);
 }
 
 function percentLabel(pct: number | undefined): string {
