@@ -1,0 +1,4 @@
+
+error: apiRequest and ApiRequest would share one file on a case-insensitive file system.
+❌ Errors encountered while splitting: files not created.
+

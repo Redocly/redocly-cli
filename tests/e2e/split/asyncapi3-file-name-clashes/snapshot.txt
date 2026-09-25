@@ -1,11 +1,11 @@
 
-address: user-events
 warning: UserEvents and userEvents would share one file on a case-insensitive file system, saving UserEvents to output/channels/UserEvents-2.yaml.
+warning: SendUserEvent and sendUserEvent would share one file on a case-insensitive file system, saving SendUserEvent to output/operations/SendUserEvent-2.yaml.
+address: user-events
 address: legacy-user-events
 action: send
 channel:
   $ref: ../channels/userEvents.yaml
-warning: SendUserEvent and sendUserEvent would share one file on a case-insensitive file system, saving SendUserEvent to output/operations/SendUserEvent-2.yaml.
 action: send
 channel:
   $ref: ../channels/UserEvents-2.yaml

@@ -1,6 +1,6 @@
-import { logger } from '@redocly/openapi-core';
-import { blue } from 'colorette';
 import * as path from 'node:path';
+
+export type FileNameConflict = { name: string; collidingName: string; filename: string };
 
 // Names that differ only by case would share one file on a case-insensitive file system,
 // and equal names would overwrite each other, so every later name gets a `-2`, `-3`, … suffix.
@@ -8,7 +8,8 @@ export function getFileNamePath(
   dirPath: string,
   name: string,
   extension: string,
-  takenFileNames: Map<string, string>
+  takenFileNames: Map<string, string>,
+  conflicts?: FileNameConflict[]
 ) {
   const basePath = path.join(dirPath, name);
   let filename = basePath + extension;
@@ -17,11 +18,7 @@ export function getFileNamePath(
     filename = `${basePath}-${serialId}${extension}`;
   }
   if (collidingName && collidingName !== name) {
-    logger.warn(
-      `warning: ${name} and ${collidingName} would share one file on a case-insensitive file system, saving ${name} to ${blue(
-        filename
-      )}.\n`
-    );
+    conflicts?.push({ name, collidingName, filename });
   }
   takenFileNames.set(filename.toLowerCase(), name);
   return filename;

@@ -39,12 +39,19 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
         pathSeparator: separator,
         ext,
         specVersion,
+        fileNameConflictsSeverity: argv['file-name-conflicts-severity'],
       });
       break;
     case 'oas3_0':
     case 'oas3_1':
     case 'oas3_2':
-      splitOASDefinition(definition as AnyOas3Definition, outDir, separator, ext);
+      splitOASDefinition(
+        definition as AnyOas3Definition,
+        outDir,
+        separator,
+        ext,
+        argv['file-name-conflicts-severity']
+      );
       break;
     case 'oas2':
       throw new HandledError('OpenAPI 2 is not supported by this command.');

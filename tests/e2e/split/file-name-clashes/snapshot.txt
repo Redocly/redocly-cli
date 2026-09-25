@@ -1,4 +1,5 @@
 
+warning: Pets and pets would share one file on a case-insensitive file system, saving Pets to output/paths/Pets-2.yaml.
 get:
   summary: List pets
   x-codeSamples:
@@ -13,7 +14,6 @@ get:
   responses:
     '200':
       description: OK
-warning: Pets and pets would share one file on a case-insensitive file system, saving Pets to output/paths/Pets-2.yaml.
 get:
   summary: List pets (legacy)
   responses:

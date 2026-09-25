@@ -7,7 +7,7 @@ import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
 import { type ComponentsFiles } from '../types.js';
-import { iteratePathItems } from '../utils/iterate-path-items.js';
+import { gatherPathItemFiles, iteratePathItems } from '../utils/iterate-path-items.js';
 import samplesJson from './fixtures/samples.json' with { type: 'json' };
 import specJson from './fixtures/spec.json' with { type: 'json' };
 import webhooksJson from './fixtures/webhooks.json' with { type: 'json' };
@@ -133,12 +133,18 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
     iteratePathItems(
       openapi.paths,
+      gatherPathItemFiles(
+        openapi.paths,
+        openapiDir,
+        path.join(openapiDir, 'paths'),
+        '_',
+        'yaml',
+        []
+      ),
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
-      '_',
-      undefined,
-      'yaml'
+      '_'
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
@@ -155,12 +161,18 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi.webhooks,
+      gatherPathItemFiles(
+        openapi.webhooks,
+        openapiDir,
+        path.join(openapiDir, 'webhooks'),
+        'webhook_',
+        'yaml',
+        []
+      ),
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
-      'webhook_',
-      undefined,
-      'yaml'
+      'webhook_'
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
@@ -177,12 +189,18 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi['x-webhooks'],
+      gatherPathItemFiles(
+        openapi['x-webhooks'],
+        openapiDir,
+        path.join(openapiDir, 'webhooks'),
+        'webhook_',
+        'yaml',
+        []
+      ),
       openapiDir,
       path.join(openapiDir, 'webhooks'),
       componentsFiles,
-      'webhook_',
-      undefined,
-      'yaml'
+      'webhook_'
     );
 
     expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
@@ -198,12 +216,18 @@ describe('split', () => {
     vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(
       openapi.paths,
+      gatherPathItemFiles(
+        openapi.paths,
+        openapiDir,
+        path.join(openapiDir, 'paths'),
+        '_',
+        'yaml',
+        []
+      ),
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
-      '_',
-      undefined,
-      'yaml'
+      '_'
     );
 
     expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');

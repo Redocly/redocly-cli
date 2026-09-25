@@ -7,7 +7,7 @@ import {
   type AnyAsyncApiDefinition,
   type ComponentsFiles,
 } from '../types.js';
-import { getFileNamePath } from '../utils/get-file-name-path.js';
+import { getFileNamePath, type FileNameConflict } from '../utils/get-file-name-path.js';
 import { findAsyncApiComponentTypes } from './find-asyncapi-component-types.js';
 
 export function gatherAsyncApiComponentFiles({
@@ -16,12 +16,14 @@ export function gatherAsyncApiComponentFiles({
   componentsFiles,
   ext,
   specVersion,
+  conflicts,
 }: {
   asyncapi: AnyAsyncApiDefinition;
   asyncapiDir: string;
   componentsFiles: ComponentsFiles;
   ext: string;
   specVersion: 'async2' | 'async3';
+  conflicts: FileNameConflict[];
 }) {
   const components: AnyAsyncApiComponents | undefined = asyncapi.components;
   if (!components) return;
@@ -31,7 +33,13 @@ export function gatherAsyncApiComponentFiles({
     const componentDirPath = path.join(componentsDir, componentType);
     const takenFileNames = new Map<string, string>();
     for (const componentName of Object.keys(components[componentType] || {})) {
-      const filename = getFileNamePath(componentDirPath, componentName, `.${ext}`, takenFileNames);
+      const filename = getFileNamePath(
+        componentDirPath,
+        componentName,
+        `.${ext}`,
+        takenFileNames,
+        conflicts
+      );
       let inherits: string[] = [];
       if (componentType === 'schemas') {
         inherits = (

@@ -5,47 +5,67 @@ import * as path from 'node:path';
 import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
 import { assertWithinDir } from '../utils/assert-within-dir.js';
-import { getFileNamePath } from '../utils/get-file-name-path.js';
+import { getFileNamePath, type FileNameConflict } from '../utils/get-file-name-path.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import {
   traverseDirectoryDeep,
   traverseDirectoryDeepCallback,
 } from '../utils/traverse-directory-deep.js';
 
-export function iterateAsyncApiChannels({
+export function gatherAsyncApiChannelFiles({
   channels,
   asyncapiDir,
   outDir,
-  componentsFiles,
   pathSeparator,
   ext,
+  conflicts,
+}: {
+  channels: Record<string, unknown> | undefined;
+  asyncapiDir: string;
+  outDir: string;
+  pathSeparator: string;
+  ext: string;
+  conflicts: FileNameConflict[];
+}): ChannelsFiles {
+  const channelsFiles: ChannelsFiles = {};
+  const takenFileNames = new Map<string, string>();
+  for (const [channelName, channelData] of Object.entries(channels || {})) {
+    if (isRef(channelData)) continue;
+    const channelFile = getFileNamePath(
+      outDir,
+      pathToFilename(channelName, pathSeparator),
+      `.${ext}`,
+      takenFileNames,
+      conflicts
+    );
+    assertWithinDir(asyncapiDir, channelFile, channelName);
+    channelsFiles[channelName] = channelFile;
+  }
+  return channelsFiles;
+}
+
+export function iterateAsyncApiChannels({
+  channels,
+  channelsFiles,
+  asyncapiDir,
+  outDir,
+  componentsFiles,
 }: {
   channels: Record<string, any> | undefined;
+  channelsFiles: ChannelsFiles;
   asyncapiDir: string;
   outDir: string;
   componentsFiles: ComponentsFiles;
-  pathSeparator: string;
-  ext: string;
-}): ChannelsFiles {
-  const channelsFiles: ChannelsFiles = {};
-  if (!channels) return channelsFiles;
+}) {
+  if (!channels) return;
   fs.mkdirSync(outDir, { recursive: true });
-  const takenFileNames = new Map<string, string>();
 
   for (const channelName of Object.keys(channels)) {
     const channelData = channels[channelName];
 
     if (isRef(channelData)) continue;
 
-    const channelFile = getFileNamePath(
-      outDir,
-      pathToFilename(channelName, pathSeparator),
-      `.${ext}`,
-      takenFileNames
-    );
-    assertWithinDir(asyncapiDir, channelFile, channelName);
-
-    channelsFiles[channelName] = channelFile;
+    const channelFile = channelsFiles[channelName];
     replace$Refs(channelData, path.dirname(channelFile), componentsFiles);
     writeToFileByExtension(channelData, channelFile);
     channels[channelName] = {
@@ -54,5 +74,4 @@ export function iterateAsyncApiChannels({
 
     traverseDirectoryDeep(outDir, traverseDirectoryDeepCallback, componentsFiles);
   }
-  return channelsFiles;
 }

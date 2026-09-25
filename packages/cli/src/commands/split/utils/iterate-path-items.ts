@@ -16,21 +16,45 @@ import {
 } from '../../../utils/miscellaneous.js';
 import { OPENAPI3_METHOD_NAMES } from '../oas/constants.js';
 import { assertWithinDir } from './assert-within-dir.js';
-import { getFileNamePath } from './get-file-name-path.js';
+import { getFileNamePath, type FileNameConflict } from './get-file-name-path.js';
 import { traverseDirectoryDeep, traverseDirectoryDeepCallback } from './traverse-directory-deep.js';
+
+export function gatherPathItemFiles(
+  pathItems: Record<string, Referenced<Oas3PathItem>> | undefined,
+  openapiDir: string,
+  outDir: string,
+  pathSeparator: string,
+  ext: string,
+  conflicts: FileNameConflict[]
+) {
+  const pathItemFiles: Record<string, string> = {};
+  const takenFileNames = new Map<string, string>();
+  for (const [pathName, pathData] of Object.entries(pathItems || {})) {
+    if (isRef(pathData)) continue;
+    const pathFile = getFileNamePath(
+      outDir,
+      pathToFilename(pathName, pathSeparator),
+      `.${ext}`,
+      takenFileNames,
+      conflicts
+    );
+    assertWithinDir(openapiDir, pathFile, pathName);
+    pathItemFiles[pathName] = pathFile;
+  }
+  return pathItemFiles;
+}
 
 export function iteratePathItems(
   pathItems: Record<string, Referenced<Oas3PathItem>> | undefined,
+  pathItemFiles: Record<string, string>,
   openapiDir: string,
   outDir: string,
   componentsFiles: object,
   pathSeparator: string,
-  codeSamplesPathPrefix: string = '',
-  ext: string
+  codeSamplesPathPrefix: string = ''
 ) {
   if (!pathItems) return;
   fs.mkdirSync(outDir, { recursive: true });
-  const takenPathFileNames = new Map<string, string>();
   const takenSampleFileNames = new Map<string, string>();
 
   for (const pathName of Object.keys(pathItems)) {
@@ -38,13 +62,7 @@ export function iteratePathItems(
 
     if (isRef(pathData)) continue;
 
-    const pathFile = getFileNamePath(
-      outDir,
-      pathToFilename(pathName, pathSeparator),
-      `.${ext}`,
-      takenPathFileNames
-    );
-    assertWithinDir(openapiDir, pathFile, pathName);
+    const pathFile = pathItemFiles[pathName];
 
     for (const method of OPENAPI3_METHOD_NAMES) {
       const methodData = pathData[method];
