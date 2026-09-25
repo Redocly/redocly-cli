@@ -96,3 +96,23 @@ describe('SchemaValidator discriminated oneOf', () => {
     expect(result).toEqual({ valid: true, errors: [] });
   });
 });
+
+describe('SchemaValidator readOnly and writeOnly through allOf', () => {
+  const validator = new SchemaValidator();
+  const schema = {
+    type: 'object',
+    required: ['id', 'name'],
+    properties: {
+      id: { allOf: [{ type: 'string' }, { readOnly: true }] },
+      name: { type: 'string' },
+    },
+  };
+
+  it('does not require a readOnly property in a request', () => {
+    expect(validator.validate(schema, { name: 'Dune' }, 'request').errors).toEqual([]);
+  });
+
+  it('still requires the property in a response', () => {
+    expect(validator.validate(schema, { name: 'Dune' }, 'response').valid).toBe(false);
+  });
+});

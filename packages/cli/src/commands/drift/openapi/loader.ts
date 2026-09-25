@@ -34,6 +34,10 @@ type HttpMethod = (typeof HTTP_METHODS)[number];
 
 const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
 
+// Response keys are status codes, status ranges such as `2XX`, or `default`;
+// anything else in the responses map is a specification extension.
+const RESPONSE_STATUS_KEY = /^(default|[1-5](\d{2}|xx))$/i;
+
 function isHttpMethod(value: string): value is HttpMethod {
   return (HTTP_METHODS as readonly string[]).includes(value);
 }
@@ -135,11 +139,9 @@ function extractRequestBodyContent(requestBody: unknown): Record<string, unknown
   return extractMediaSchemas(requestBody.content);
 }
 
-function extractResponseBodyContent(responses: unknown): Record<string, Record<string, unknown>> {
-  if (!isPlainObject(responses)) {
-    return {};
-  }
-
+function extractResponseBodyContent(
+  responses: Record<string, unknown>
+): Record<string, Record<string, unknown>> {
   const output: Record<string, Record<string, unknown>> = {};
   for (const [statusCode, responseObject] of Object.entries(responses)) {
     if (!isPlainObject(responseObject) || !('content' in responseObject)) {
@@ -247,6 +249,13 @@ function createIndexVisitor(
               rootServers
             );
             const requestBody = operation.requestBody;
+            const responses = isPlainObject(operation.responses)
+              ? Object.fromEntries(
+                  Object.entries(operation.responses).filter(([key]) =>
+                    RESPONSE_STATUS_KEY.test(key)
+                  )
+                )
+              : {};
 
             const item: OpenApiOperation = {
               operationId: toOperationId(
@@ -263,7 +272,8 @@ function createIndexVisitor(
               requestParameters: mergedParameters,
               requestBodyContent: extractRequestBodyContent(requestBody),
               requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
-              responseBodyContent: extractResponseBodyContent(operation.responses),
+              responseStatuses: Object.keys(responses),
+              responseBodyContent: extractResponseBodyContent(responses),
               security: normalizeSecurity(operation.security) ?? normalizeSecurity(rootSecurity),
               securitySchemes,
               specSource,

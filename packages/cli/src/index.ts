@@ -1332,6 +1332,17 @@ yargs(hideBin(process.argv))
               'Server URL the traffic was captured against: only requests under it are considered, and the rest of their URL is treated as the API path. It replaces the description servers and the remaining path is matched against the description paths directly. Mutually exclusive with --match-mode.',
             type: 'string',
           },
+          coverage: {
+            describe:
+              'Print how much of the description the traffic exercised: operations, parameters, schema properties, and response codes.',
+            type: 'boolean',
+            default: false,
+          },
+          'coverage-output': {
+            describe:
+              'Write a detailed JSON coverage report (per operation, with covered and missing items) to this file.',
+            type: 'string',
+          },
           config: { describe: 'Path to the config file.', type: 'string' },
           'lint-config': {
             describe: 'Severity level for config file linting.',
