@@ -23,6 +23,7 @@ Rulesets are groups of rules that are applied together, and APIs can be checked 
 - A [recommended](./rules/recommended.md) ruleset is our unabashedly opinionated recommendation of what we think a good API looks like. It's a great place to start, before adapting to your own context.
 - A [recommended-strict](./rules/recommended.md#recommended-strict-ruleset) ruleset is identical to the `recommended`, except it elevates all warnings to errors. It's the ideal option for those who don't want to miss anything.
 - A [minimal](./rules/minimal.md) ruleset is a good starting point for an existing API that doesn't currently conform to any standard. It has fewer rules that cause an error, with others either downgraded to a warning or turned off completely.
+- The [diff-recommended](./rules/diff-rules.md#diff-recommended-ruleset) ruleset holds the rules that the `diff` command uses to find breaking changes between two versions of an API.
 
 Enable a ruleset by adding a block like this to the Redocly configuration file:
 
