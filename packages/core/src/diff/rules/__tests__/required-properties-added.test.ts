@@ -86,4 +86,57 @@ describe('required-properties-added', () => {
       ]
     `);
   });
+
+  it('should not report a readOnly property, which a request never sends', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(
+        cafe('{ properties: { orderId: { type: string, readOnly: true } } }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        cafe('{ required: [orderId], properties: { orderId: { type: string, readOnly: true } } }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'required-properties-added': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
+            "value": undefined,
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
+          "kind": "modified",
+          "property": "required",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",
+            "value": [
+              "orderId",
+            ],
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
+            "value": undefined,
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
+          "kind": "modified",
+          "property": "required",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/required",
+            "value": [
+              "orderId",
+            ],
+          },
+          "verdicts": [],
+        },
+      ]
+    `);
+  });
 });

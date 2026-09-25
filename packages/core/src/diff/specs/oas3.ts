@@ -20,7 +20,16 @@ export const oas3Directions: Directions = {
   Parameter: side('request'),
   Responses: side('response'),
   Response: side('response'),
+  Schema: accessSide,
 };
+
+// "readOnly" data only comes from the API and "writeOnly" data only goes to it (OpenAPI, Schema
+// Object), wherever the schema is used.
+function accessSide(schema: NodeEntry): Direction | undefined {
+  if (fieldOf(schema, 'readOnly') === true) return 'response';
+  if (fieldOf(schema, 'writeOnly') === true) return 'request';
+  return undefined;
+}
 
 /**
  * The data a node describes travels `direction` — the other way round under a callback or a

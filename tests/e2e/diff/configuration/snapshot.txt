@@ -6,7 +6,7 @@ components
       Properties of `Order` became required: `pickupAt`. (required-properties-added)
       at revision.yaml:58:17
   ✖ major  modified  schemas/Order/properties/note · maxLength
-      `maxLength` of `note` changed from '200' to '100'. (string-length-changed)
+      `maxLength` of `note` changed from '200' to '100'. (string-constraint-changed)
       at revision.yaml:61:42
   ✔ minor  added     schemas/Order/properties/pickupAt
       at revision.yaml:62:19

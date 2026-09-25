@@ -89,4 +89,57 @@ describe('required-properties-removed', () => {
       ]
     `);
   });
+
+  it('should not report a writeOnly property, which a response never sends', async () => {
+    const result = diffDocuments({
+      base: makeDocumentFromString(
+        cafe('{ required: [pin], properties: { pin: { type: string, writeOnly: true } } }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        cafe('{ properties: { pin: { type: string, writeOnly: true } } }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'required-properties-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",
+            "value": [
+              "pin",
+            ],
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
+          "kind": "modified",
+          "property": "required",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
+            "value": undefined,
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/required",
+            "value": [
+              "pin",
+            ],
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
+          "kind": "modified",
+          "property": "required",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
+            "value": undefined,
+          },
+          "verdicts": [],
+        },
+      ]
+    `);
+  });
 });

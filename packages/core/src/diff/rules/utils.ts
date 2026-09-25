@@ -1,6 +1,6 @@
 import { fieldOf } from '../../node-tree/access.js';
 import { latestOf, typeOf } from '../diff-tree.js';
-import type { DiffNode, DiffRule, Direction } from '../types.js';
+import type { DiffNode, DiffRule, DiffVisit, Direction } from '../types.js';
 
 /** What a node is called in its document: its key, or the key of the node a `$ref` item points at. */
 export function nameOf(node: DiffNode): string {
@@ -13,6 +13,14 @@ export function ofSchema(node: DiffNode | null | undefined): string {
   const container = node?.parent && typeOf(node.parent);
   if (container !== 'SchemaProperties' && container !== 'NamedSchemas') return '';
   return ` of \`${nameOf(node!)}\``;
+}
+
+/** The names of the properties of `schema` that are marked with `keyword`, such as `readOnly`. */
+export function propertiesMarked(schema: DiffNode, keyword: 'readOnly' | 'writeOnly'): string[] {
+  const properties = schema.children.find((child) => typeOf(child) === 'SchemaProperties');
+  return (properties?.children ?? [])
+    .filter((property) => fieldOf(latestOf(property), keyword) === true)
+    .map(nameOf);
 }
 
 /** A parameter as a message names it, such as ``\`limit\` query parameter``. */
@@ -50,20 +58,8 @@ export function breakingDirection(acceptsLess: boolean): Direction {
   return acceptsLess ? 'request' : 'response';
 }
 
-const LOWER_BOUNDS = new Set([
-  'minimum',
-  'exclusiveMinimum',
-  'minLength',
-  'minItems',
-  'minProperties',
-]);
-const UPPER_BOUNDS = new Set([
-  'maximum',
-  'exclusiveMaximum',
-  'maxLength',
-  'maxItems',
-  'maxProperties',
-]);
+const LOWER_BOUNDS = new Set(['minLength', 'minItems', 'minProperties']);
+const UPPER_BOUNDS = new Set(['maxLength', 'maxItems', 'maxProperties']);
 // Equivalence of these cannot be decided by comparing values, so any change to one is taken
 // as accepting less rather than guessed at.
 const OPAQUE = new Set(['pattern', 'format', 'multipleOf']);
@@ -80,9 +76,6 @@ export function acceptsLess(constraint: string, before: unknown, after: unknown)
     if (LOWER_BOUNDS.has(constraint)) return after > before;
     if (UPPER_BOUNDS.has(constraint)) return after < before;
   }
-  // `exclusiveMinimum`/`exclusiveMaximum` are booleans in OpenAPI 3.0.
-  if (typeof before === 'boolean' && typeof after === 'boolean') return after;
-
   return true;
 }
 
@@ -93,6 +86,17 @@ export function describeChange(subject: string, before: unknown, after: unknown)
   return `${subject} changed from '${before}' to '${after}'.`;
 }
 
+/** Reports a constraint that moved so that the schema accepts less in a request, or more in a response. */
+export const judgeConstraint: DiffVisit = (change, { report, directions }) => {
+  if (change.kind !== 'modified') return;
+  const before = change.base.value;
+  const after = change.revision.value;
+  if (directions.includes(breakingDirection(acceptsLess(change.property, before, after)))) {
+    const subject = `\`${change.property}\`${ofSchema(change.node)}`;
+    report({ message: describeChange(subject, before, after) });
+  }
+};
+
 /**
  * A rule over one group of constraints on a value. The groups stay separate rules so a report
  * can name the constraint that actually moved.
@@ -100,13 +104,9 @@ export function describeChange(subject: string, before: unknown, after: unknown)
 export function constraintRule(constraints: string[]): DiffRule {
   const watched = new Set(constraints);
   return () => ({
-    Schema(change, { report, directions }) {
-      if (change.kind !== 'modified' || !watched.has(change.property)) return;
-      const before = change.base.value;
-      const after = change.revision.value;
-      if (directions.includes(breakingDirection(acceptsLess(change.property, before, after)))) {
-        const subject = `\`${change.property}\`${ofSchema(change.node)}`;
-        report({ message: describeChange(subject, before, after) });
+    Schema(change, context) {
+      if (change.kind === 'modified' && watched.has(change.property)) {
+        judgeConstraint(change, context);
       }
     },
   });
