@@ -16,33 +16,8 @@ import {
 } from '../../../utils/miscellaneous.js';
 import { OPENAPI3_METHOD_NAMES } from '../oas/constants.js';
 import { assertWithinDir } from './assert-within-dir.js';
-import { getFileNamePath, type FileNameConflict } from './get-file-name-path.js';
+import { getFileNamePath } from './get-file-name-path.js';
 import { traverseDirectoryDeep, traverseDirectoryDeepCallback } from './traverse-directory-deep.js';
-
-export function gatherPathItemFiles(
-  pathItems: Record<string, Referenced<Oas3PathItem>> | undefined,
-  openapiDir: string,
-  outDir: string,
-  pathSeparator: string,
-  ext: string,
-  conflicts: FileNameConflict[]
-) {
-  const pathItemFiles: Record<string, string> = {};
-  const takenFileNames = new Map<string, string>();
-  for (const [pathName, pathData] of Object.entries(pathItems || {})) {
-    if (isRef(pathData)) continue;
-    const pathFile = getFileNamePath(
-      outDir,
-      pathToFilename(pathName, pathSeparator),
-      `.${ext}`,
-      takenFileNames,
-      conflicts
-    );
-    assertWithinDir(openapiDir, pathFile, pathName);
-    pathItemFiles[pathName] = pathFile;
-  }
-  return pathItemFiles;
-}
 
 export function iteratePathItems(
   pathItems: Record<string, Referenced<Oas3PathItem>> | undefined,

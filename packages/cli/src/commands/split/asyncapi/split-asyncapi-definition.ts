@@ -5,19 +5,14 @@ import * as path from 'node:path';
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { CHANNELS, OPERATIONS } from '../constants.js';
 import { type ComponentsFiles, type AnyAsyncApiDefinition } from '../types.js';
+import { gatherItemFiles } from '../utils/gather-item-files.js';
 import type { FileNameConflict } from '../utils/get-file-name-path.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import { reportFileNameConflicts } from '../utils/report-file-name-conflicts.js';
 import { gatherAsyncApiComponentFiles } from './gather-asyncapi-component-files.js';
-import {
-  gatherAsyncApiChannelFiles,
-  iterateAsyncApiChannels,
-} from './iterate-asyncapi-channels.js';
+import { iterateAsyncApiChannels } from './iterate-asyncapi-channels.js';
 import { iterateAsyncApiComponents } from './iterate-asyncapi-components.js';
-import {
-  gatherAsyncApiOperationFiles,
-  iterateAsyncApiOperations,
-} from './iterate-asyncapi-operations.js';
+import { iterateAsyncApiOperations } from './iterate-asyncapi-operations.js';
 
 export function splitAsyncApiDefinition({
   asyncapi,
@@ -51,22 +46,22 @@ export function splitAsyncApiDefinition({
     specVersion,
     conflicts,
   });
-  const channelsFiles = gatherAsyncApiChannelFiles({
-    channels: asyncapi.channels,
+  const channelsFiles = gatherItemFiles(
+    asyncapi.channels,
     asyncapiDir,
-    outDir: channelsDir,
+    channelsDir,
     pathSeparator,
     ext,
-    conflicts,
-  });
-  const operationFiles = gatherAsyncApiOperationFiles({
+    conflicts
+  );
+  const operationFiles = gatherItemFiles(
     operations,
     asyncapiDir,
-    outDir: operationsDir,
+    operationsDir,
     pathSeparator,
     ext,
-    conflicts,
-  });
+    conflicts
+  );
   reportFileNameConflicts(conflicts, fileNameConflictsSeverity);
 
   fs.mkdirSync(asyncapiDir, { recursive: true });

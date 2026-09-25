@@ -2,47 +2,13 @@ import { slash, isRef } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
+import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
-import { assertWithinDir } from '../utils/assert-within-dir.js';
-import { getFileNamePath, type FileNameConflict } from '../utils/get-file-name-path.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import {
   traverseDirectoryDeep,
   traverseDirectoryDeepCallback,
 } from '../utils/traverse-directory-deep.js';
-
-export function gatherAsyncApiChannelFiles({
-  channels,
-  asyncapiDir,
-  outDir,
-  pathSeparator,
-  ext,
-  conflicts,
-}: {
-  channels: Record<string, unknown> | undefined;
-  asyncapiDir: string;
-  outDir: string;
-  pathSeparator: string;
-  ext: string;
-  conflicts: FileNameConflict[];
-}): ChannelsFiles {
-  const channelsFiles: ChannelsFiles = {};
-  const takenFileNames = new Map<string, string>();
-  for (const [channelName, channelData] of Object.entries(channels || {})) {
-    if (isRef(channelData)) continue;
-    const channelFile = getFileNamePath(
-      outDir,
-      pathToFilename(channelName, pathSeparator),
-      `.${ext}`,
-      takenFileNames,
-      conflicts
-    );
-    assertWithinDir(asyncapiDir, channelFile, channelName);
-    channelsFiles[channelName] = channelFile;
-  }
-  return channelsFiles;
-}
 
 export function iterateAsyncApiChannels({
   channels,

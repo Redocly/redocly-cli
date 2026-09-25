@@ -7,7 +7,8 @@ import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
 import { type ComponentsFiles } from '../types.js';
-import { gatherPathItemFiles, iteratePathItems } from '../utils/iterate-path-items.js';
+import { gatherItemFiles } from '../utils/gather-item-files.js';
+import { iteratePathItems } from '../utils/iterate-path-items.js';
 import samplesJson from './fixtures/samples.json' with { type: 'json' };
 import specJson from './fixtures/spec.json' with { type: 'json' };
 import webhooksJson from './fixtures/webhooks.json' with { type: 'json' };
@@ -133,14 +134,7 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
     iteratePathItems(
       openapi.paths,
-      gatherPathItemFiles(
-        openapi.paths,
-        openapiDir,
-        path.join(openapiDir, 'paths'),
-        '_',
-        'yaml',
-        []
-      ),
+      gatherItemFiles(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), '_', 'yaml', []),
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,
@@ -161,7 +155,7 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi.webhooks,
-      gatherPathItemFiles(
+      gatherItemFiles(
         openapi.webhooks,
         openapiDir,
         path.join(openapiDir, 'webhooks'),
@@ -189,7 +183,7 @@ describe('split', () => {
     vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
     iteratePathItems(
       openapi['x-webhooks'],
-      gatherPathItemFiles(
+      gatherItemFiles(
         openapi['x-webhooks'],
         openapiDir,
         path.join(openapiDir, 'webhooks'),
@@ -216,14 +210,7 @@ describe('split', () => {
     vi.spyOn(utils, 'escapeLanguageName');
     iteratePathItems(
       openapi.paths,
-      gatherPathItemFiles(
-        openapi.paths,
-        openapiDir,
-        path.join(openapiDir, 'paths'),
-        '_',
-        'yaml',
-        []
-      ),
+      gatherItemFiles(openapi.paths, openapiDir, path.join(openapiDir, 'paths'), '_', 'yaml', []),
       openapiDir,
       path.join(openapiDir, 'paths'),
       componentsFiles,

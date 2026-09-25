@@ -9,9 +9,10 @@ import * as path from 'node:path';
 
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import type { AnyOas3Definition, ComponentsFiles } from '../types.js';
+import { gatherItemFiles } from '../utils/gather-item-files.js';
 import type { FileNameConflict } from '../utils/get-file-name-path.js';
 import { gatherOasComponentFiles, iterateComponents } from '../utils/iterate-components.js';
-import { gatherPathItemFiles, iteratePathItems } from '../utils/iterate-path-items.js';
+import { iteratePathItems } from '../utils/iterate-path-items.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import { reportFileNameConflicts } from '../utils/report-file-name-conflicts.js';
 
@@ -32,7 +33,7 @@ export function splitOASDefinition(
   const componentsFiles: ComponentsFiles = {};
   const conflicts: FileNameConflict[] = [];
   gatherOasComponentFiles(openapi, openapiDir, componentsFiles, ext, conflicts);
-  const pathItemFiles = gatherPathItemFiles(
+  const pathItemFiles = gatherItemFiles(
     openapi.paths,
     openapiDir,
     pathsDir,
@@ -40,7 +41,7 @@ export function splitOASDefinition(
     ext,
     conflicts
   );
-  const webhookFiles = gatherPathItemFiles(
+  const webhookFiles = gatherItemFiles(
     webhooks,
     openapiDir,
     webhooksDir,
