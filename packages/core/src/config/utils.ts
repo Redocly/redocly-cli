@@ -1,8 +1,5 @@
-import {
-  mergeRecheckRules,
-  type RecheckBlock,
-  type RecheckRulesInput,
-} from '@redocly/recheck/config';
+import type { RecheckConfig } from '@redocly/config';
+import { mergeRecheckRules, type RecheckRulesInput } from '@redocly/recheck/config';
 
 import type {
   Oas3RuleSet,
@@ -49,7 +46,7 @@ export function prefixRules<
 }
 
 export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
-  const recheck: RecheckBlock & { rules: RecheckRulesInput } = { rules: {} };
+  const recheck: RecheckConfig & { rules: RecheckRulesInput } = { rules: {} };
   const result: Required<ResolvedGovernanceConfig> = {
     rules: {},
     oas2Rules: {},
@@ -169,15 +166,16 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     // `mergeExtends` does not validate the block. check-config reports a wrong type.
     const block: unknown = rulesConf.recheck;
     if (isPlainObject(result.recheck) && block !== undefined && block !== null) {
-      if (isPlainObject<RecheckBlock>(block)) {
+      if (isPlainObject<RecheckConfig>(block)) {
         const { rules, ...settings } = block;
         Object.assign(recheck, settings);
-        if (isPlainObject<RecheckRulesInput>(rules)) {
-          recheck.rules = mergeRecheckRules(recheck.rules, rules);
+        if (isPlainObject(rules)) {
+          // `RecheckConfig` and `RecheckRulesInput` describe the same YAML rule entries.
+          recheck.rules = mergeRecheckRules(recheck.rules, rules as RecheckRulesInput);
         }
       } else {
         // The raw value must reach the engine, which reports the wrong type.
-        result.recheck = block as RecheckBlock;
+        result.recheck = block as RecheckConfig;
       }
     }
   }

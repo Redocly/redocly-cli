@@ -1,5 +1,4 @@
-import type { ApiConfig, RedoclyConfig } from '@redocly/config';
-import type { RecheckBlock } from '@redocly/recheck/config';
+import type { ApiConfig, RecheckConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type {
@@ -145,7 +144,7 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   openrpc1Decorators?: Record<string, DecoratorConfig>;
 
   /** The `recheck` block; presets named in `extends` merge into it. */
-  recheck?: RecheckBlock;
+  recheck?: RecheckConfig;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
@@ -293,7 +292,7 @@ export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
   ClientGeneratorApiConfig;
 
-export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins' | 'recheck'> &
+export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
     plugins?: (string | Plugin)[];
     apis?: Record<string, RawUniversalApiConfig>;

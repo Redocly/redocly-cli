@@ -4,6 +4,7 @@ import {
   isPlainObject,
   logger,
   parseYaml,
+  type Config,
 } from '@redocly/openapi-core';
 import {
   generateBaseline,
@@ -14,7 +15,6 @@ import {
   runReadability,
   Timer,
   type LintOptions,
-  type RecheckBlock,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { readFileSync, statSync } from 'node:fs';
@@ -51,7 +51,7 @@ function isApiDescription(path: string): boolean {
 
 // A block with no settings and no rules means recheck is not configured.
 // A value of the wrong type counts as configured. The engine then reports the error.
-function hasRecheckConfig(block: RecheckBlock): boolean {
+function hasRecheckConfig(block: Config['recheck']): boolean {
   if (!isPlainObject(block)) return true;
   const { rules, ...settings } = block;
   if (Object.keys(settings).length > 0) return true;

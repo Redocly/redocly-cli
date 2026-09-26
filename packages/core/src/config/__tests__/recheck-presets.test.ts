@@ -1,4 +1,5 @@
-import { presetConfigs, resolveRecheckConfig, type RecheckBlock } from '@redocly/recheck';
+import type { RecheckConfig } from '@redocly/config';
+import { presetConfigs, resolveRecheckConfig } from '@redocly/recheck';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
@@ -105,7 +106,7 @@ describe('recheck presets in extends', () => {
     expect(config.recheck as unknown).toEqual(5);
 
     const later = mergeExtends([
-      { recheck: 5 as unknown as RecheckBlock },
+      { recheck: 5 as unknown as RecheckConfig },
       { recheck: { rules: { 'recheck/line-length': 'off' } } },
     ]);
     expect(later.recheck as unknown).toEqual(5);
@@ -118,23 +119,20 @@ describe('recheck presets in extends', () => {
     });
   });
 
-  it('loads the recheck plugin only when extends names one of its configs', async () => {
+  it('registers the built-in recheck plugin for every config', async () => {
     const plain = await createConfig('extends:\n  - recommended\n');
-    expect(plain.plugins.find((plugin) => plugin.id === 'recheck')).toBeUndefined();
+    expect(plain.plugins.find((plugin) => plugin.id === 'recheck')).toBeDefined();
     expect(plain.recheck).toEqual({ rules: {} });
-
-    const named = await createConfig(withPreset);
-    expect(named.plugins.find((plugin) => plugin.id === 'recheck')).toBeDefined();
   });
 
-  it('loads the recheck plugin for a preset in a shared config file', async () => {
+  it('resolves a recheck preset from a shared config file', async () => {
     const config = await loadConfig({ configPath: path.join(fixturesDir, 'redocly.yaml') });
     expect(config.recheck.rules?.['recheck/no-trailing-spaces']).toMatchObject({
       severity: 'error',
     });
   });
 
-  it('loads the recheck plugin for a preset in a scorecard level', async () => {
+  it('resolves a recheck preset in a scorecard level', async () => {
     const config = await createConfig(outdent`
       scorecard:
         levels:
@@ -146,12 +144,12 @@ describe('recheck presets in extends', () => {
     expect(config.recheck).toEqual({ rules: {} });
   });
 
-  it('does not load the recheck plugin when plugin evaluation is skipped', async () => {
+  it('keeps the recheck plugin when plugin evaluation is skipped', async () => {
     const config = await loadConfig({
-      configPath: path.join(fixturesDir, 'base.yaml'),
+      configPath: path.join(fixturesDir, 'redocly.yaml'),
       skipPluginEval: true,
     });
-    expect(config.plugins.find((plugin) => plugin.id === 'recheck')).toBeUndefined();
+    expect(config.plugins.find((plugin) => plugin.id === 'recheck')).toBeDefined();
   });
 
   it('rejects a plugin that takes the built-in id', async () => {
