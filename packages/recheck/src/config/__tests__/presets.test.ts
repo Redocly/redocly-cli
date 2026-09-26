@@ -7,6 +7,7 @@ import { scopeRules } from '../../rules/registry.js';
 import { allTokenRules, RECHECK_ORIGINAL_TOKEN_RULE_NAMES } from '../../rules/token/index.js';
 import type { ScopeRule } from '../../rules/types.js';
 import { presets, presetConfigs, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
+import { registerPresetRules } from '../presets/markdown.js';
 import { PROSE_PRESET_ASSERTIONS, buildProsePreset } from '../presets/prose.js';
 import { validate } from '../validate.js';
 
@@ -980,5 +981,17 @@ describe('presetConfigs', () => {
         expect(rule.message, `${id} ${rule.name}`).toBeTruthy();
       }
     }
+  });
+});
+
+describe('registerPresetRules', () => {
+  it('adds a message only when the rule name has one', () => {
+    expect(registerPresetRules(['a'], { a: 'A' })).toEqual({
+      'recheck/a': { severity: 'error', message: 'A', assertions: { a: {} } },
+    });
+    // `toStrictEqual` fails on a `message` key, even when its value is undefined.
+    expect(registerPresetRules(['b'])).toStrictEqual({
+      'recheck/b': { severity: 'error', assertions: { b: {} } },
+    });
   });
 });

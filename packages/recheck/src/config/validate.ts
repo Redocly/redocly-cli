@@ -1403,18 +1403,15 @@ function validateSemantics(
 }
 
 /**
- * Resolves the `extends` key of a raw config object into merged rule
- * entries. The schema has not validated these entries yet. Presets are
- * applied in listed order (later presets' rule keys override earlier ones,
- * same per-rule merge as user overrides), then the user's own rule keys are
- * merged on top by rule key. The `extends` key itself is stripped from the
- * result — it is not a rule and must not reach schema/semantic rule
- * validation.
+ * Resolves the `extends` key of a raw config into merged rule entries.
+ * The schema has not validated these entries yet.
  *
- * Unknown preset names produce a ValidationError (naming the preset) and
- * do not throw — this matches the rest of the load-time validation
- * pipeline, which collects errors into `result.errors` rather than
- * throwing on bad user input.
+ * Presets apply in listed order.
+ * A later preset and the user's own keys merge by rule key.
+ * The result has no `extends` key, because `extends` is not a rule.
+ *
+ * An unknown preset name gives a ValidationError that names the preset.
+ * This function does not throw on bad user input.
  */
 export function resolveExtends(config: Record<string, unknown>): {
   config: Record<string, Partial<BaseRule>>;
@@ -1428,7 +1425,7 @@ export function resolveExtends(config: Record<string, unknown>): {
     return { config: userRules, errors: [] };
   }
 
-  // Validate `extends` shape before attempting resolution
+  // `extends` must be an array of preset names.
   if (!Array.isArray(extendsList)) {
     return {
       config: userRules,
@@ -1456,7 +1453,7 @@ export function resolveExtends(config: Record<string, unknown>): {
       continue;
     }
     for (const [ruleKey, presetRule] of Object.entries(preset)) {
-      // Deep-copy the preset rule to prevent AJV mutations from polluting the shared registry
+      // Validation writes defaults into the entry, so clone the shared preset entry.
       const ruleCopy = structuredClone(presetRule);
       merged[ruleKey] = merged[ruleKey] ? mergeRuleEntry(merged[ruleKey], ruleCopy) : ruleCopy;
     }

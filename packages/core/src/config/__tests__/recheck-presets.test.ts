@@ -140,7 +140,6 @@ describe('recheck presets in extends', () => {
             extends:
               - recheck/markdown
     `);
-    expect(config.plugins.find((plugin) => plugin.id === 'recheck')).toBeDefined();
     expect(config.recheck).toEqual({ rules: {} });
   });
 

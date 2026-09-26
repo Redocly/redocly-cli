@@ -65,8 +65,8 @@ Use a severity string to change the severity of a preset rule or to turn it off.
 - message
 - string
 - The message that the rule reports.
-  **REQUIRED** for a scope rule.
-  A token rule takes its default message when the entry has none.
+  **REQUIRED** for a scope rule, which uses an assertion such as `pattern` or `metric`.
+  A token rule, which uses an assertion such as `line-length`, takes its default message when the entry has none.
 
 ---
 
