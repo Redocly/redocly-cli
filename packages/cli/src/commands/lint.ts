@@ -141,20 +141,6 @@ export async function handleLint({
   }
 }
 
-function isOutputFormat(format: string | undefined): format is OutputFormat {
-  return (
-    format === 'codeframe' ||
-    format === 'stylish' ||
-    format === 'json' ||
-    format === 'checkstyle' ||
-    format === 'codeclimate' ||
-    format === 'summary' ||
-    format === 'github-actions' ||
-    format === 'markdown' ||
-    format === 'junit'
-  );
-}
-
 export async function handleLintConfig(argv: Exact<CommandArgv>, version: string, config: Config) {
   if (argv['lint-config'] === 'off' || config.document === undefined) {
     return;
@@ -180,7 +166,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   const fileTotals = getTotals(problems);
 
   formatProblems(problems, {
-    format: isOutputFormat(argv.format) ? argv.format : undefined,
+    format: argv.format === 'table' ? undefined : argv.format,
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,

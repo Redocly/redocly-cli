@@ -1,3 +1,5 @@
+import { presetConfigs } from '@redocly/recheck/config';
+
 import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
 import { decorators as async2Decorators } from '../decorators/async2/index.js';
 import { decorators as async3Decorators } from '../decorators/async3/index.js';
@@ -76,20 +78,6 @@ export const defaultPlugin: Plugin<'built-in'> = {
   configs: builtInConfigs,
 };
 
-// Built-in plugins that load on demand: `resolveConfig` loads one when an
-// `extends` entry names a config of its id. The prose engine is heavy, so a
-// config that never names `recheck/*` never loads it. The `webpackIgnore` hint
-// makes webpack and rspack leave the import to runtime. A bundle of core must
-// resolve `@redocly/recheck` at runtime. esbuild ignores the hint and bundles
-// the engine into a split chunk.
-export const lazyBuiltInPlugins: Record<string, () => Promise<Plugin>> = {
-  recheck: async () => {
-    const { presetBlocks } = await import(/* webpackIgnore: true */ '@redocly/recheck');
-    return {
-      id: 'recheck',
-      configs: Object.fromEntries(
-        Object.entries(presetBlocks).map(([name, block]) => [name, { recheck: block }])
-      ),
-    };
-  },
-};
+// The recheck presets are the configs of this plugin, so `extends: [recheck/markdown]`
+// resolves like any plugin config.
+export const recheckPlugin: Plugin = { id: 'recheck', configs: presetConfigs };

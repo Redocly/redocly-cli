@@ -10,7 +10,7 @@ import {
 import {
   generateBaseline,
   generateMarkdocSchema,
-  presetBlocks,
+  presetConfigs,
   resolveRecheckConfig,
   runLint,
   runReadability,
@@ -19,7 +19,6 @@ import {
   type LintOptions,
   type NormalizedRule,
   type Problem,
-  type RecheckBlock,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { readFileSync, statSync } from 'node:fs';
@@ -79,7 +78,7 @@ function classifyApiPath(path: string): ApiPathClassification {
 
 // A block with no settings and no rules means recheck is not configured.
 // A value of the wrong type counts as configured. The engine then reports the error.
-function hasRecheckConfig(block: RecheckBlock): boolean {
+function hasRecheckConfig(block: Config['recheck']): boolean {
   if (!isPlainObject(block)) return true;
   const { rules, ...settings } = block;
   if (Object.keys(settings).length > 0) return true;
@@ -238,7 +237,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
       return;
     }
     logger.info(`No redocly.yaml found; using recheck/${DEFAULT_PRESET_NAME}.\n`);
-    block = presetBlocks[DEFAULT_PRESET_NAME];
+    block = presetConfigs[DEFAULT_PRESET_NAME].recheck;
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({

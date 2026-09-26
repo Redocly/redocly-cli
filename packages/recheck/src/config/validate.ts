@@ -18,7 +18,8 @@ import { tokenizeSelector, wholeDocumentKeywordProblems } from '../scopes/select
 import { validateScopeSelector } from '../scopes/vocabulary.js';
 import type { RecheckRules, NormalizedRule, ValidationError, BaseRule } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import { resolveExtends } from './presets/index.js';
+import { presets } from './presets/index.js';
+import { mergeRuleEntry } from './public.js';
 import { RECHECK_CONFIG_SCHEMA, MARKDOC_TAG_SCHEMA } from './schema.js';
 
 const ajv = new (Ajv as any)({
@@ -1402,6 +1403,96 @@ function validateSemantics(
 }
 
 /**
+ * Resolves the `extends` key of a raw config into merged rule entries.
+ * The schema has not validated these entries yet.
+ *
+ * Presets apply in listed order.
+ * A later preset and the user's own keys merge by rule key.
+ * The result has no `extends` key, because `extends` is not a rule.
+ *
+ * An unknown preset name gives a ValidationError that names the preset.
+ * This function does not throw on bad user input.
+ */
+export function resolveExtends(config: Record<string, unknown>): {
+  config: Record<string, Partial<BaseRule>>;
+  errors: ValidationError[];
+} {
+  const { extends: extendsList, ...rest } = config;
+  // The schema checks these entries after the merge.
+  const userRules = rest as Record<string, Partial<BaseRule>>;
+
+  if (extendsList === undefined) {
+    return { config: userRules, errors: [] };
+  }
+
+  // `extends` must be an array of preset names.
+  if (!Array.isArray(extendsList)) {
+    return {
+      config: userRules,
+      errors: [
+        {
+          message: '"extends" must be an array of preset names',
+          path: 'extends',
+          value: extendsList,
+        },
+      ],
+    };
+  }
+
+  const errors: ValidationError[] = [];
+
+  const merged: Record<string, Partial<BaseRule>> = {};
+  for (const name of extendsList) {
+    const preset = presets[name as string];
+    if (!preset) {
+      errors.push({
+        message: `Unknown preset "${name}" in "extends" — expected one of: ${Object.keys(presets).join(', ')}`,
+        path: 'extends',
+        value: name,
+      });
+      continue;
+    }
+    for (const [ruleKey, presetRule] of Object.entries(preset)) {
+      // Validation writes defaults into the entry, so clone the shared preset entry.
+      const ruleCopy = structuredClone(presetRule);
+      merged[ruleKey] = merged[ruleKey] ? mergeRuleEntry(merged[ruleKey], ruleCopy) : ruleCopy;
+    }
+  }
+
+  for (const [ruleKey, userRule] of Object.entries(userRules)) {
+    merged[ruleKey] = merged[ruleKey] ? mergeRuleEntry(merged[ruleKey], userRule) : userRule;
+  }
+
+  return { config: merged, errors };
+}
+
+// A token rule's message comes from its defaults; a scope rule must name one.
+function fillDefaultMessages(
+  rules: Record<string, Partial<BaseRule>>
+): Record<string, Partial<BaseRule>> {
+  const filled = { ...rules };
+  for (const [key, entry] of Object.entries(rules)) {
+    if (!isPlainObject(entry) || entry.message !== undefined) continue;
+    if (!isPlainObject(entry.assertions)) continue;
+    const message = Object.keys(entry.assertions)
+      .map(tokenDefaultMessage)
+      .find((candidate) => candidate !== undefined);
+    if (message !== undefined) filled[key] = { ...entry, message };
+  }
+  return filled;
+}
+
+function tokenDefaultMessage(assertionId: string): string | undefined {
+  try {
+    const resolved = resolveAssertion(assertionId);
+    const message = resolved.kind === 'token' ? resolved.rule.defaults.message : undefined;
+    return typeof message === 'string' ? message : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
  * Full validation pipeline. `options.configDir` (default `process.cwd()`) is
  * where a relative `markdoc.extend.tagsFile` resolves from -- the directory
  * containing the config file, so a project's `tagsFile: ./tags.yaml` behaves
@@ -1443,9 +1534,12 @@ export async function validate(
   // validation entirely, hiding e.g. an unknown assertion id elsewhere in the
   // same config.
   const hasExtends = isPlainObject(config) && 'extends' in config;
-  const { config: resolvedConfig, errors: extendsErrors } = hasExtends
+  const { config: mergedConfig, errors: extendsErrors } = hasExtends
     ? resolveExtends(config)
-    : { config: config as RecheckRules, errors: [] as ValidationError[] };
+    : { config: config as Record<string, Partial<BaseRule>>, errors: [] as ValidationError[] };
+  const resolvedConfig = isPlainObject(mergedConfig)
+    ? fillDefaultMessages(mergedConfig)
+    : mergedConfig;
 
   // Which rules carry an EXPLICIT `scope`, recorded before validateStructure
   // runs: AJV `useDefaults` mutates the config in place, injecting
@@ -1527,6 +1621,7 @@ export async function validate(
   // Then validate semantics of everything that resolved successfully.
   // `markdoc` is stripped first, exactly as `extends` is stripped in
   // resolveExtends, so rule iteration in validateSemantics never sees it.
+  // Structural validation passed, so every rule entry is complete.
   const {
     markdoc: _markdoc,
     excludes: globalExcludes,

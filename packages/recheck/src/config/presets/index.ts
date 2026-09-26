@@ -1,5 +1,4 @@
-import type { BaseRule, RecheckRules, ValidationError } from '../../types/index.js';
-import { mergeRuleEntry, type RecheckBlock } from '../public.js';
+import type { RecheckRules } from '../../types/index.js';
 import { buildApiDescriptionsPreset } from './api-descriptions.js';
 import { buildGooglePreset } from './google.js';
 import { buildInclusiveLanguagePreset } from './inclusive-language.js';
@@ -40,12 +39,15 @@ export const presets: Record<string, RecheckRules> = {
 
 const PRESET_PREFIX = 'recheck/';
 
-// The same presets keyed by bare name, each as the `recheck` block it
-// contributes. Core registers them as the configs of its built-in `recheck`
-// plugin, so `extends: [recheck/markdown]` resolves to `presetBlocks.markdown`.
-export const presetBlocks: Record<string, RecheckBlock> = Object.fromEntries(
-  Object.entries(presets).map(([id, rules]) => [id.slice(PRESET_PREFIX.length), { rules }])
-);
+// The same presets keyed by bare name, each as a config with a `recheck`
+// block. Core registers them as the configs of its built-in `recheck` plugin.
+export const presetConfigs: Record<string, { recheck: { rules: RecheckRules } }> =
+  Object.fromEntries(
+    Object.entries(presets).map(([id, rules]) => [
+      id.slice(PRESET_PREFIX.length),
+      { recheck: { rules } },
+    ])
+  );
 
 /**
  * Documented, monorepo-wide opt-in scope-rule assertions -- native
@@ -82,74 +84,3 @@ export const presetBlocks: Record<string, RecheckBlock> = Object.fromEntries(
  * formula or threshold at all (see microsoft.ts's file header).
  */
 export const DOCUMENTED_OPT_IN_ASSERTIONS = ['conditional', 'metric', 'spelling'] as const;
-
-/**
- * Resolves the `extends` key of a raw config object into a fully merged
- * `RecheckRules`: presets are applied in listed order (later presets'
- * rule keys override earlier ones, same per-rule merge as user overrides),
- * then the user's own rule keys are merged on top by rule key. The
- * `extends` key itself is stripped from the result — it is not a rule and
- * must not reach schema/semantic rule validation.
- *
- * Unknown preset names produce a ValidationError (naming the preset) and
- * do not throw — this matches the rest of the load-time validation
- * pipeline, which collects errors into `result.errors` rather than
- * throwing on bad user input.
- */
-export function resolveExtends(config: Record<string, unknown>): {
-  config: RecheckRules;
-  errors: ValidationError[];
-} {
-  const { extends: extendsList, ...rest } = config;
-  const userRules = rest as RecheckRules;
-
-  if (extendsList === undefined) {
-    return { config: userRules, errors: [] };
-  }
-
-  // Validate `extends` shape before attempting resolution
-  if (!Array.isArray(extendsList)) {
-    return {
-      config: userRules,
-      errors: [
-        {
-          message: '"extends" must be an array of preset names',
-          path: 'extends',
-          value: extendsList,
-        },
-      ],
-    };
-  }
-
-  const errors: ValidationError[] = [];
-
-  let merged: RecheckRules = {};
-  for (const name of extendsList) {
-    const preset = presets[name as string];
-    if (!preset) {
-      errors.push({
-        message: `Unknown preset "${name}" in "extends" — expected one of: ${Object.keys(presets).join(', ')}`,
-        path: 'extends',
-        value: name,
-      });
-      continue;
-    }
-    for (const [ruleKey, presetRule] of Object.entries(preset)) {
-      // Deep-copy the preset rule to prevent AJV mutations from polluting the shared registry
-      const ruleCopy = structuredClone(presetRule);
-      // The preset entry is complete, so the merged entry is too.
-      merged[ruleKey] = merged[ruleKey]
-        ? (mergeRuleEntry(merged[ruleKey], ruleCopy) as BaseRule)
-        : ruleCopy;
-    }
-  }
-
-  for (const [ruleKey, userRule] of Object.entries(userRules)) {
-    // Same reason as above: a user entry merges into a complete preset entry.
-    merged[ruleKey] = merged[ruleKey]
-      ? (mergeRuleEntry(merged[ruleKey], userRule) as BaseRule)
-      : userRule;
-  }
-
-  return { config: merged, errors };
-}

@@ -1,5 +1,5 @@
 import { AbortFlowError, Source, type Config } from '@redocly/openapi-core';
-import { presetBlocks, type RecheckBlock } from '@redocly/recheck';
+import { presetConfigs, type RecheckBlock } from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -40,7 +40,7 @@ describe('handleRecheck', () => {
 
   it('runs the rules of a preset merged into the block', async () => {
     await expect(
-      run({ rules: presetBlocks.markdown.rules }, path.join(dir, 'redocly.yaml'))
+      run(presetConfigs.markdown.recheck, path.join(dir, 'redocly.yaml'))
     ).rejects.toThrow(AbortFlowError);
     const report = output.stdout.join('');
     expect(report).toContain('single-h1');
@@ -48,7 +48,9 @@ describe('handleRecheck', () => {
   });
 
   it('runs only the rules of the block', async () => {
-    const rules = { 'recheck/single-h1': presetBlocks.markdown.rules!['recheck/single-h1'] };
+    const rules = {
+      'recheck/single-h1': presetConfigs.markdown.recheck.rules!['recheck/single-h1'],
+    };
     await expect(run({ rules }, path.join(dir, 'redocly.yaml'))).rejects.toThrow(AbortFlowError);
     const report = output.stdout.join('');
     expect(report).toContain('single-h1');

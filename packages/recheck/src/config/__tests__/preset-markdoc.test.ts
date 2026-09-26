@@ -5,9 +5,9 @@ import { describe, expect, it, beforeAll } from 'vitest';
 
 import { lintContent } from '../../index.js';
 import type { Problem } from '../../types/index.js';
-import { presets, resolveExtends } from '../presets/index.js';
+import { presets } from '../presets/index.js';
 import { MARKDOC_PRESET_RULE_NAMES, MARKDOC_VIOLATION_CLASSES } from '../presets/markdoc.js';
-import { validate } from '../validate.js';
+import { resolveExtends, validate } from '../validate.js';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 function fixture(name: string): string {

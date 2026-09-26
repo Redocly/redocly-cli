@@ -14,7 +14,7 @@ import {
   generateBaseline,
   runReadability,
   generateMarkdocSchema,
-  presetBlocks,
+  presetConfigs,
   mergeRecheckRules,
   mergeRuleEntry,
   type RecheckBlock,
@@ -58,7 +58,7 @@ export const typedRecheckBlock: RecheckBlock = {
   markdoc: true,
   apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
 };
-export const typedPresetBlocks: Record<string, RecheckBlock> = presetBlocks;
+export const typedPresetConfigs: Record<string, { recheck: RecheckBlock }> = presetConfigs;
 export const typedMergeRecheckRules: typeof mergeRecheckRules = mergeRecheckRules;
 export const typedMergeRuleEntry: typeof mergeRuleEntry = mergeRuleEntry;
 

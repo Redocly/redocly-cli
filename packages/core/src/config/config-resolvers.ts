@@ -19,7 +19,7 @@ import { isDefined } from '../utils/is-defined.js';
 import { isNotString } from '../utils/is-not-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
-import { defaultPlugin, lazyBuiltInPlugins } from './builtIn.js';
+import { defaultPlugin, recheckPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
 import {
@@ -95,9 +95,6 @@ export async function resolveConfig({
       new BaseResolver(getResolveConfig((config as RawUniversalConfig)?.resolve)),
   });
 
-  const builtInPlugins = skipPluginEval
-    ? [defaultPlugin]
-    : await resolveBuiltInPlugins(config, resolvedRefMap);
   let pluginsOrPaths: (Plugin | PluginResolveInfo)[] = [];
   let resolvedPlugins: Plugin[];
   let rootConfigDir: string = '';
@@ -106,7 +103,7 @@ export async function resolveConfig({
     const instantiatedPlugins = ((config as RawUniversalConfig)?.plugins || []).filter(
       (p) => !isString(p)
     ) as Plugin[];
-    resolvedPlugins = [...instantiatedPlugins, ...builtInPlugins];
+    resolvedPlugins = [...instantiatedPlugins, defaultPlugin, recheckPlugin];
   } else {
     rootConfigDir = path.dirname(configPath ?? '');
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
@@ -115,7 +112,7 @@ export async function resolveConfig({
       rootConfigDir,
       skipPluginEval
     );
-    resolvedPlugins = [...plugins, ...builtInPlugins];
+    resolvedPlugins = [...plugins, defaultPlugin, recheckPlugin];
   }
 
   const bundledConfig = bundleConfig(
@@ -153,42 +150,6 @@ export async function resolveConfig({
     resolvedRefMap,
     plugins: resolvedPlugins,
   };
-}
-
-// Loads the built-in plugins whose id an `extends` entry names.
-// `extends` can sit in shared files and scorecard levels, so the scan covers every resolved document.
-async function resolveBuiltInPlugins(
-  config: unknown,
-  resolvedRefMap: ResolvedRefMap
-): Promise<Plugin[]> {
-  const documents = new Set([
-    config,
-    ...[...resolvedRefMap.values()].map((ref) => ref.document?.parsed),
-  ]);
-  const pluginIds = new Set(
-    [...documents].flatMap(collectExtendsEntries).map((entry) => parsePresetName(entry).pluginId)
-  );
-  const loaded = await Promise.all(
-    Object.entries(lazyBuiltInPlugins)
-      .filter(([id]) => pluginIds.has(id))
-      .map(([, load]) => load())
-  );
-  return [defaultPlugin, ...loaded];
-}
-
-// Returns the strings of every `extends` array in a node, at any depth.
-function collectExtendsEntries(node: unknown): string[] {
-  if (Array.isArray(node)) {
-    return node.flatMap(collectExtendsEntries);
-  }
-  if (!isPlainObject(node)) {
-    return [];
-  }
-  return Object.entries(node).flatMap(([key, value]) =>
-    key === 'extends' && Array.isArray(value)
-      ? value.filter(isString)
-      : collectExtendsEntries(value)
-  );
 }
 
 function getDefaultPluginPath(configDir: string): string | undefined {
@@ -377,7 +338,7 @@ export async function resolvePlugins(
                 )
               );
             }
-            if (Object.hasOwn(lazyBuiltInPlugins, id)) {
+            if (id === recheckPlugin.id) {
               throw new Error(`Plugin id "${id}" belongs to a built-in plugin.`);
             }
             const pluginPath = pluginInstance.absolutePath ?? p.toString();

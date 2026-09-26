@@ -1,6 +1,14 @@
+import { readFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-import { mergeRecheckRules, mergeRuleEntry, type RecheckRulesInput } from '../public.js';
+import {
+  mergeRecheckRules,
+  mergeRuleEntry,
+  presetConfigs,
+  type RecheckRulesInput,
+} from '../public.js';
 
 const preset = {
   'recheck/line-length': {
@@ -70,5 +78,49 @@ describe('mergeRecheckRules', () => {
     const base = { 'recheck/line-length': null } as unknown as RecheckRulesInput;
     const merged = mergeRecheckRules(base, { 'recheck/line-length': 'warn' });
     expect(merged['recheck/line-length']).toBe('warn');
+  });
+});
+
+describe('the config entry', () => {
+  const srcDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+
+  // Follows value and side-effect imports. The compiler removes `import type`.
+  // A relative specifier adds a module. Any other specifier adds a package.
+  function runtimeImports(
+    file: string,
+    found = { modules: new Set<string>(), packages: [] as string[] }
+  ): typeof found {
+    if (found.modules.has(file)) return found;
+    found.modules.add(file);
+    const source = readFileSync(file, 'utf8');
+    for (const [, specifier] of source.matchAll(
+      /^(?:import|export)(?!\s+type\b)(?:[^;]*?\sfrom)?\s*'([^']+)';/gms
+    )) {
+      if (specifier.startsWith('.')) {
+        runtimeImports(resolve(dirname(file), specifier.replace(/\.js$/, '.ts')), found);
+      } else {
+        found.packages.push(specifier);
+      }
+    }
+    return found;
+  }
+
+  it('exports the presets as configs with a recheck block', () => {
+    expect(presetConfigs.markdown.recheck.rules?.['recheck/line-length']).toEqual({
+      severity: 'error',
+      assertions: { 'line-length': {} },
+    });
+  });
+
+  it('loads no package and no engine module', () => {
+    const { modules, packages } = runtimeImports(resolve(srcDir, 'config/public.ts'));
+    const files = [...modules].map((file) => relative(srcDir, file));
+    const engineFiles = files.filter((file) =>
+      /^(?:rules|parser|metrics)\/|^config\/validate\.ts$/.test(file)
+    );
+    // The walk must reach a preset file. Otherwise the checks below pass with no data.
+    expect(files).toContain('config/presets/markdown.ts');
+    expect(packages).toEqual([]);
+    expect(engineFiles).toEqual([]);
   });
 });

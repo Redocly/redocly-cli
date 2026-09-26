@@ -16,14 +16,8 @@ export type RuleScope =
 
 export interface BaseRule {
   severity: RuleSeverity;
-  // Optional at the type level only: token rules fall back to their own
-  // `defaults.message` (see formatTokenMessage in rules/token/messages.ts)
-  // when a config entry omits it. The config schema (schema.ts) still lists
-  // `message` under `required` for user-facing validation — scope rules have
-  // no default-message mechanism and still need it enforced there. This
-  // narrower type-level change only lets code (e.g. the token-rule test
-  // harness and preset registration) construct a rule without a message
-  // without fighting the compiler.
+  // Optional: `validate` fills a token rule's message from its `defaults`.
+  // The schema then requires a message, so a scope rule must set one.
   message?: string;
   tags?: string[];
   description?: string;
@@ -43,7 +37,8 @@ export interface NormalizedRule {
   name: string;
   shortName: string;
   severity: RuleSeverity;
-  // See BaseRule.message — optional at the type level for the same reason.
+  // `validate` always sets it. A caller that builds rules for `runRules` can
+  // omit it; a token rule then uses its `defaults.message`.
   message?: string;
   tags?: string[];
   description?: string;
@@ -69,7 +64,8 @@ export interface NormalizedRule {
  * preset may set one field of a preset rule and inherit the rest (see
  * `mergeRuleEntry` in config/public.ts). `severity`, `message` and
  * `assertions` are required on the MERGED rule, which the JSON schema
- * enforces at load time.
+ * enforces at load time. `validate` fills a missing token rule message
+ * before that check.
  *
  * The index signature is keyed on a template literal, not `string`: every
  * rule name contains a `/` (namespace/rule) and no engine-level key does,
