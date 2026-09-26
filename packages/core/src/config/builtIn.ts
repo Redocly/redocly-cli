@@ -1,3 +1,5 @@
+import { presetConfigs } from '@redocly/recheck/config';
+
 import { decorators as arazzo1Decorators } from '../decorators/arazzo/index.js';
 import { decorators as async2Decorators } from '../decorators/async2/index.js';
 import { decorators as async3Decorators } from '../decorators/async3/index.js';
@@ -75,3 +77,7 @@ export const defaultPlugin: Plugin<'built-in'> = {
   },
   configs: builtInConfigs,
 };
+
+// The recheck presets are the configs of this plugin, so `extends: [recheck/markdown]`
+// resolves like any plugin config.
+export const recheckPlugin: Plugin = { id: 'recheck', configs: presetConfigs };

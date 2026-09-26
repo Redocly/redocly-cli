@@ -146,7 +146,12 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     return;
   }
 
-  if (argv.format === 'json' || argv.format === 'junit' || argv.format === 'checkstyle') {
+  if (
+    argv.format === 'json' ||
+    argv.format === 'junit' ||
+    argv.format === 'checkstyle' ||
+    argv.format === 'sarif'
+  ) {
     // these are single-document formats, so a separate config-lint document would break the output
     return;
   }
@@ -161,7 +166,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   const fileTotals = getTotals(problems);
 
   formatProblems(problems, {
-    format: argv.format,
+    format: argv.format === 'table' ? undefined : argv.format,
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,

@@ -1,0 +1,108 @@
+{
+  "normalization": {
+    "method": "main-region-sha256",
+    "description": "Each digest is sha256 over the UTF-8 bytes of the first <main>...</main> region extracted from the raw HTML response -- NOT the full page. Correction (2026-07-30): a prior version of this file hashed the raw HTML directly and claimed digital.gov's plain-language pages are static enough for that to be reproducible ('two consecutive fetches ... byte-identical'). That claim does not hold: on independent re-fetch of all 9 pages below, every recorded `bytes` (raw page length) matched exactly, but NONE of the recorded raw-HTML `sha256` values did. Cause, found by diffing two raw fetches: digital.gov runs on Drupal, and every response embeds Drupal-generated metadata OUTSIDE the guide content -- an anonymous-user `permissionsHash` (a 64-hex-char token in the inline `drupal-settings-json` <script>), aggregated CSS/JS asset filenames (`css_<hash>.css`, `js_<hash>.js`, content-hashed per Drupal's asset-aggregation build), and an `ajaxPageState.libraries` deflate+base64 blob describing loaded asset libraries. These change across Drupal deploys/cache-clears (not on every single request -- repeated fetches within one test session are identical) but are each a fixed-format token, so the overall page BYTE LENGTH stays constant even when the exact bytes differ -- a length-preserving drift raw-HTML hashing cannot catch as anything but total mismatch. All of this metadata lives before the opening <main> tag; none of it was found inside <main>...</main> (checked by scanning the extracted region for any 16+ char hex/base64-like token -- zero hits across all 9 pages).",
+    "extractionPattern": "<main[\\s\\S]*?</main>",
+    "extractionFlags": "first match, dot-matches-newline via [\\s\\S]",
+    "hashedBytesField": "bytes -- the byte length of the EXTRACTED <main> region (UTF-8), not the raw page. A future re-check with a matching bytes but different sha256 (or vice versa) signals the extraction may have changed shape rather than the content, and should be triaged before treating it as drift.",
+    "fetchMethod": "curl -sL (redirects followed), matching the method recorded in .superpowers/sdd/task-11-verify-plain-language.md.",
+    "reproducibilityCheck": "All 9 pages below were fetched TWICE each, ~80 seconds apart (past this site's `cache-control: max-age=60` CDN TTL, so the second fetch is not guaranteed to be a cached copy of the first) -- the extracted <main> region was byte-identical (and therefore sha256-identical) both times for every page (see reproducible: true on every entry). Confirmed empirically, not assumed."
+  },
+  "deadSiteNote": "plainlanguage.gov itself is dead: every path under it 301-redirects to https://digital.gov/guides/plain-language. See PROVENANCE.md's 'plainlanguage.gov is dead' section. Redirect targets, not the plainlanguage.gov URLs themselves, are what's hashed below.",
+  "pages": [
+    {
+      "url": "https://digital.gov/guides/plain-language",
+      "fetchedAt": "2026-07-30",
+      "bytes": 5892,
+      "sha256": "91e2c32a9563e673d9227190534542a25f6a4500603f907d9ab4caf3b8fb0975",
+      "reproducible": true,
+      "coversTerms": [
+        "overview; establishes the plainlanguage.gov redirect and public-domain status"
+      ]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/principles",
+      "fetchedAt": "2026-07-30",
+      "bytes": 10406,
+      "sha256": "afdbcd6f3a2752ff6e6e35bd46349429c4b3ec02d2f1b170cc739c820f1cf3d2",
+      "reproducible": true,
+      "coversTerms": [
+        "the '8th-grade' quote that argues AGAINST a fixed readability target -- why no metric rule ships"
+      ]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/writing",
+      "fetchedAt": "2026-07-30",
+      "bytes": 15569,
+      "sha256": "abaaa5b42aafb0f4e1523d8059639165d854c18eb121247c48e484f85fed9a2a",
+      "reproducible": true,
+      "coversTerms": [
+        "nominalizations (hidden verbs) -- considered, not shipped; see PROVENANCE.md"
+      ]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/writing/clear-short",
+      "fetchedAt": "2026-07-30",
+      "bytes": 12116,
+      "sha256": "cccdabde1fbd41322858568c29d46b246a4f7daef7e412354a7165e520fb737d",
+      "reproducible": true,
+      "coversTerms": [
+        "plain-language/paragraph-max-words",
+        "plain-language/paragraph-sentence-count"
+      ]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/writing/style",
+      "fetchedAt": "2026-07-30",
+      "bytes": 22278,
+      "sha256": "df247d43335f57a7c861a7a5204828947dbe97412980b8cfafd72e6e809ae0ec",
+      "reproducible": true,
+      "coversTerms": [
+        "plain-language/filler-phrases",
+        "plain-language/an-amount-of",
+        "plain-language/double-negative-phrases",
+        "plain-language/double-negative-patterns"
+      ]
+    },
+    {
+      "url": "https://digital.gov/guides/writing-understanding/familiar-terms",
+      "fetchedAt": "2026-07-30",
+      "bytes": 10597,
+      "sha256": "93eadf5196a121f3f23978b346af45a39c5efa089adb2e448d0a40a7836f6b4a",
+      "reproducible": true,
+      "coversTerms": ["plain-language/complex-words"]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/principles/short-simple",
+      "fetchedAt": "2026-07-30",
+      "bytes": 12449,
+      "sha256": "aedc14e0f7b1eadc5f1674cf87132ace08f9846c9da7606fdfb6f53b4c5ad3d2",
+      "reproducible": true,
+      "coversTerms": ["plain-language/redundant-pairs", "plain-language/excess-intensifiers"]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/principles/avoid-jargon",
+      "fetchedAt": "2026-07-30",
+      "bytes": 12356,
+      "sha256": "843427bb3d96e8accb832adba736877d2b9577ba5270808abceaa5bdd8f06eaf",
+      "reproducible": true,
+      "coversTerms": ["plain-language/jargon-terms"]
+    },
+    {
+      "url": "https://digital.gov/guides/plain-language/test",
+      "fetchedAt": "2026-07-30",
+      "bytes": 8161,
+      "sha256": "907f005e694966076904fd945bb186a29b6780ce0a78a5cc9a667ee4bfcd06a0",
+      "reproducible": true,
+      "coversTerms": [
+        "confirms testing method is user-testing-based, not an automated readability formula -- why no metric rule ships"
+      ]
+    }
+  ],
+  "notIndependentlyHashed": [
+    {
+      "url": "https://www.whitehouse.gov/wp-content/uploads/legacy_drupal_files/omb/memoranda/2011/m11-15.pdf",
+      "note": "OMB Memo M-11-15. Read natively as a PDF in task-11-verify-plain-language.md, not re-fetched or hashed here; defines 'plain writing' only in prose terms, no numeric target."
+    }
+  ]
+}

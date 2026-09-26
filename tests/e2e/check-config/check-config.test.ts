@@ -12,6 +12,7 @@ describe('check-config', () => {
     { dirName: 'invalid-config--lint-config-error', option: 'error' },
     { dirName: 'invalid-config--no-option', option: null },
     { dirName: 'valid-config', option: null },
+    { dirName: 'valid-config-with-recheck', option: null },
   ];
 
   test.each(folderPathWithOptions)('test with option: %s', async (folderPathWithOptions) => {

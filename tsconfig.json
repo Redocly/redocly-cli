@@ -18,7 +18,11 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
     "lib": ["ESNext", "DOM", "dom.iterable"],
-    "paths": { "*": ["./packages/*"] },
+    "paths": {
+      "*": ["./packages/*"],
+      "@redocly/recheck": ["./packages/recheck/src/index.ts"],
+      "@redocly/recheck/config": ["./packages/recheck/src/config/public.ts"]
+    },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "esModuleInterop": true

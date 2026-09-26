@@ -1,0 +1,4 @@
+
+The recheck configuration is not valid:
+  /recheck~1no-such-rule: /recheck~1no-such-rule: must have required property 'message'
+  /recheck~1no-such-rule: /recheck~1no-such-rule: must have required property 'assertions'

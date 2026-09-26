@@ -48,6 +48,7 @@
     "@redocly/cli-otel": "0.3.5",
     "@redocly/client-generator": "0.4.16",
     "@redocly/openapi-core": "2.54.3",
+    "@redocly/recheck": "2.51.0",
     "@redocly/respect-core": "2.54.3",
     "@redocly/reunite-integration": "2.54.3",
     "@types/cookie": "0.6.0",

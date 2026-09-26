@@ -1,3 +1,4 @@
+import type { RecheckConfig } from '@redocly/config';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
@@ -50,6 +51,7 @@ export class Config {
   rules: Record<SpecVersion, Record<string, RuleConfig>>;
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
+  recheck: RecheckConfig;
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -157,6 +159,7 @@ export class Config {
       },
       graphql: {},
     };
+    this.recheck = resolvedConfig.recheck ?? { rules: {} };
 
     this.ignore = opts.ignore ?? {};
   }

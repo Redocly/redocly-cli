@@ -1,4 +1,4 @@
-import type { ApiConfig, RedoclyConfig } from '@redocly/config';
+import type { ApiConfig, RecheckConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type {
@@ -142,6 +142,9 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   arazzo1_1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
+
+  /** The `recheck` block; presets named in `extends` merge into it. */
+  recheck?: RecheckConfig;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
