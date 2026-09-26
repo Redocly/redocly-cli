@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
 import { MARKDOC_REALM_SCHEMA } from '../../data/markdoc-realm-schema.js';
+import { resolveAssertion } from '../../rules/registry.js';
 import { validate } from '../validate.js';
 
 function baseRule(scope: unknown) {
@@ -673,5 +674,61 @@ describe('top-level baseline key', () => {
   it('is absent when the config does not set it', async () => {
     const result = await validate({ 'test/a': { ...rule } } as never);
     expect(result.baselinePath).toBeUndefined();
+  });
+});
+
+describe('default messages', () => {
+  function tokenDefaultMessage(id: string): unknown {
+    const resolved = resolveAssertion(id);
+    return resolved.kind === 'token' ? resolved.rule.defaults.message : undefined;
+  }
+
+  it('fills the token rule default when a preset entry has no message', async () => {
+    const result = await validate({ extends: ['recheck/markdown'] }, { configDir: process.cwd() });
+    expect(result.isValid).toBe(true);
+    const rule = result.rules.find((entry) => entry.name === 'recheck/line-length');
+    expect(rule?.message).toBeTypeOf('string');
+    expect(rule?.message).toBe(tokenDefaultMessage('line-length'));
+  });
+
+  it('fills the token rule default for a user entry without extends', async () => {
+    const result = await validate(
+      { 'recheck/line-length': { severity: 'warn', assertions: { 'line-length': {} } } },
+      { configDir: process.cwd() }
+    );
+    expect(result.isValid).toBe(true);
+    expect(result.rules[0].message).toBe(tokenDefaultMessage('line-length'));
+  });
+
+  it('keeps an explicit message', async () => {
+    const result = await validate(
+      { extends: ['recheck/markdown'], 'recheck/line-length': { message: 'Too long' } },
+      { configDir: process.cwd() }
+    );
+    expect(result.rules.find((entry) => entry.name === 'recheck/line-length')?.message).toBe(
+      'Too long'
+    );
+  });
+
+  it('still rejects an entry with no message and no token default', async () => {
+    const result = await validate(
+      { 'recheck/nope': { severity: 'error', assertions: { nope: {} } } },
+      { configDir: process.cwd() }
+    );
+    expect(result.isValid).toBe(false);
+    expect(result.errors.map((error) => error.message).join('\n')).toContain(
+      "must have required property 'message'"
+    );
+  });
+
+  it('still rejects a scope rule entry with no message', async () => {
+    const result = await validate(
+      { 'recheck/words': { severity: 'error', assertions: { pattern: { tokens: ['foo'] } } } },
+      { configDir: process.cwd() }
+    );
+    expect(result.isValid).toBe(false);
+    expect(result.errors.map((error) => error.message).join('\n')).toContain(
+      "must have required property 'message'"
+    );
   });
 });

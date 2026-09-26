@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 import { describe, expect, it } from 'vitest';
 
 import { lintContent } from '../../index.js';
-import type { LengthAssertion } from '../../types/index.js';
-import { presets, resolveExtends } from '../presets/index.js';
+import { presets } from '../presets/index.js';
+import { resolveExtends } from '../validate.js';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 function fixture(name: string): string {
@@ -162,21 +162,24 @@ describe('composition: extends [recheck/microsoft, recheck/plain-language] (both
     // Each retains its OWN preset's original options -- proving the merge
     // didn't average, overwrite, or otherwise cross-contaminate the three
     // independently-keyed `length` rules.
-    expect(microsoftParagraph.scope).toBe('paragraph');
-    expect((microsoftParagraph.assertions.length as LengthAssertion).unit).toBe('sentences');
-    expect((microsoftParagraph.assertions.length as LengthAssertion).max).toBe(7);
+    expect(microsoftParagraph).toMatchObject({
+      scope: 'paragraph',
+      assertions: { length: { unit: 'sentences', max: 7 } },
+    });
     expect(microsoftParagraph).toEqual(presets['recheck/microsoft']['microsoft/paragraph-length']);
 
-    expect(plainMaxWords.scope).toBe('paragraph');
-    expect((plainMaxWords.assertions.length as LengthAssertion).unit).toBe('words');
-    expect((plainMaxWords.assertions.length as LengthAssertion).max).toBe(250);
+    expect(plainMaxWords).toMatchObject({
+      scope: 'paragraph',
+      assertions: { length: { unit: 'words', max: 250 } },
+    });
     expect(plainMaxWords).toEqual(
       presets['recheck/plain-language']['plain-language/paragraph-max-words']
     );
 
-    expect(plainSentenceCount.scope).toBe('paragraph');
-    expect((plainSentenceCount.assertions.length as LengthAssertion).unit).toBe('sentences');
-    expect((plainSentenceCount.assertions.length as LengthAssertion).max).toBe(8);
+    expect(plainSentenceCount).toMatchObject({
+      scope: 'paragraph',
+      assertions: { length: { unit: 'sentences', max: 8 } },
+    });
     expect(plainSentenceCount).toEqual(
       presets['recheck/plain-language']['plain-language/paragraph-sentence-count']
     );

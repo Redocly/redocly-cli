@@ -5,6 +5,8 @@ import { isPlainObject } from '../utils/is-plain-object.js';
 // This file is the `@redocly/recheck/config` entry. Core loads it for every
 // config, so it must not import the parser, the rules, or the metrics.
 
+export { presetConfigs } from './presets/index.js';
+
 export type RecheckRuleInput = RuleSeverity | Partial<BaseRule>;
 export type RecheckRulesInput = Record<string, RecheckRuleInput>;
 

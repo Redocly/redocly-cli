@@ -6,7 +6,7 @@ import { lintContent } from '../../index.js';
 import { scopeRules } from '../../rules/registry.js';
 import { allTokenRules, RECHECK_ORIGINAL_TOKEN_RULE_NAMES } from '../../rules/token/index.js';
 import type { ScopeRule } from '../../rules/types.js';
-import { presets, presetBlocks, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
+import { presets, presetConfigs, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { PROSE_PRESET_ASSERTIONS, buildProsePreset } from '../presets/prose.js';
 import { validate } from '../validate.js';
 
@@ -136,7 +136,7 @@ describe('extends presets', () => {
     expect(result.errors.some((error) => error.message.includes('not-a-real-rule'))).toBe(true);
   });
 
-  it('markdown preset includes the batch-1 heading rules, batch-2 whitespace/line rules, batch-3 list rules, batch-4 code/inline rules, batch-5 link/image/emphasis rules, and batch-6 blockquote/table rules, registered incrementally by each batch', () => {
+  it('markdown preset includes the batch-1 heading rules, batch-2 whitespace/line rules, batch-3 list rules, batch-4 code/inline rules, batch-5 link/image/emphasis rules, and batch-6 blockquote/table rules, registered incrementally by each batch', async () => {
     const markdown = presets['recheck/markdown'];
     expect(Object.keys(markdown).sort()).toEqual(
       [
@@ -197,52 +197,55 @@ describe('extends presets', () => {
         .map((name) => `recheck/${name}`)
         .sort()
     );
-    // Every entry's message is derived from the token rule's own
+    // Validation fills each entry's message from the token rule's own
     // defaults.message — no hand-maintained message map for ported rules.
-    expect(markdown['recheck/heading-increment'].message).toBe(
+    const validated = await validate({ extends: ['recheck/markdown'] });
+    expect(validated.isValid).toBe(true);
+    const messages = new Map(validated.rules.map((rule) => [rule.name, rule.message]));
+    expect(messages.get('recheck/heading-increment')).toBe(
       'Heading levels should only increment by one level at a time.'
     );
     // single-trailing-newline has no legacy scope-id collision, so its
     // message is also derived from defaults.message with no override.
-    expect(markdown['recheck/single-trailing-newline'].message).toBe(
+    expect(messages.get('recheck/single-trailing-newline')).toBe(
       'Files should end with a single newline character.'
     );
     // These ids resolve straight to their token rules and derive their message
     // from `defaults.message`, so the preset needs no explicit override.
-    expect(markdown['recheck/no-trailing-spaces'].message).toBe('Trailing spaces');
-    expect(markdown['recheck/no-hard-tabs'].message).toBe('Hard tabs');
+    expect(messages.get('recheck/no-trailing-spaces')).toBe('Trailing spaces');
+    expect(messages.get('recheck/no-hard-tabs')).toBe('Hard tabs');
     // Batch-3 list rules have no legacy scope-id collision (the legacy
     // `bullet-style` id is distinct from `ul-style`), so all six derive
     // their message from defaults.message with no override needed either.
-    expect(markdown['recheck/ul-style'].message).toBe('Unordered list style');
-    expect(markdown['recheck/blanks-around-lists'].message).toBe(
+    expect(messages.get('recheck/ul-style')).toBe('Unordered list style');
+    expect(messages.get('recheck/blanks-around-lists')).toBe(
       'Lists should be surrounded by blank lines'
     );
     // Batch-4 rules have no legacy scope-id collision, so all ten derive
     // their message from defaults.message with no override needed.
-    expect(markdown['recheck/no-reversed-links'].message).toBe('Reversed link syntax');
-    expect(markdown['recheck/no-space-in-emphasis'].message).toBe('Spaces inside emphasis markers');
-    expect(markdown['recheck/no-empty-links'].message).toBe('No empty links');
+    expect(messages.get('recheck/no-reversed-links')).toBe('Reversed link syntax');
+    expect(messages.get('recheck/no-space-in-emphasis')).toBe('Spaces inside emphasis markers');
+    expect(messages.get('recheck/no-empty-links')).toBe('No empty links');
     // Batch-5 rules have no legacy scope-id collision either (`link-fragments`
     // is a new id, distinct from the legacy `no-broken-fragment-links` scope
     // rule it replaces), so all eleven derive their message from
     // defaults.message with no override needed.
-    expect(markdown['recheck/no-inline-html'].message).toBe('Inline HTML');
-    expect(markdown['recheck/link-fragments'].message).toBe('Link fragments should be valid');
-    expect(markdown['recheck/link-image-style'].message).toBe('Link and image style');
+    expect(messages.get('recheck/no-inline-html')).toBe('Inline HTML');
+    expect(messages.get('recheck/link-fragments')).toBe('Link fragments should be valid');
+    expect(messages.get('recheck/link-image-style')).toBe('Link and image style');
     // Batch-6 rules (the final batch) have no legacy scope-id collision
     // either, so all six derive their message from defaults.message with
     // no override needed.
-    expect(markdown['recheck/no-multiple-space-blockquote'].message).toBe(
+    expect(messages.get('recheck/no-multiple-space-blockquote')).toBe(
       'Multiple spaces after blockquote symbol'
     );
-    expect(markdown['recheck/no-blanks-blockquote'].message).toBe('Blank line inside blockquote');
-    expect(markdown['recheck/table-pipe-style'].message).toBe('Table pipe style');
-    expect(markdown['recheck/table-column-count'].message).toBe('Table column count');
-    expect(markdown['recheck/blanks-around-tables'].message).toBe(
+    expect(messages.get('recheck/no-blanks-blockquote')).toBe('Blank line inside blockquote');
+    expect(messages.get('recheck/table-pipe-style')).toBe('Table pipe style');
+    expect(messages.get('recheck/table-column-count')).toBe('Table column count');
+    expect(messages.get('recheck/blanks-around-tables')).toBe(
       'Tables should be surrounded by blank lines'
     );
-    expect(markdown['recheck/table-column-style'].message).toBe('Table column style');
+    expect(messages.get('recheck/table-column-style')).toBe('Table column style');
   });
 
   it('markdown-relaxed preset turns off no-inline-html and no-bare-urls (upstream "no-inline-html"/"no-bare-urls": false) and leaves the other nine batch-5 rules untouched', () => {
@@ -314,7 +317,7 @@ describe('extends presets', () => {
     );
   });
 
-  it('minimal preset contains exactly the five planned rules, with no-reversed-links and no-empty-links now registered by batch 4', () => {
+  it('minimal preset contains exactly the five planned rules, with no-reversed-links and no-empty-links now registered by batch 4', async () => {
     const minimal = presets['recheck/minimal'];
     expect(Object.keys(minimal).sort()).toEqual(
       [
@@ -327,8 +330,11 @@ describe('extends presets', () => {
         .map((name) => `recheck/${name}`)
         .sort()
     );
-    expect(minimal['recheck/no-reversed-links'].message).toBe('Reversed link syntax');
-    expect(minimal['recheck/no-empty-links'].message).toBe('No empty links');
+    const validated = await validate({ extends: ['recheck/minimal'] });
+    expect(validated.isValid).toBe(true);
+    const messages = new Map(validated.rules.map((rule) => [rule.name, rule.message]));
+    expect(messages.get('recheck/no-reversed-links')).toBe('Reversed link syntax');
+    expect(messages.get('recheck/no-empty-links')).toBe('No empty links');
   });
 
   it('markdown-relaxed preset computes overrides on top of markdown preset, activating the first-line-h1 override now that it is registered', () => {
@@ -953,12 +959,26 @@ describe('registry <-> preset completeness (native scope-rule assertions)', () =
   });
 });
 
-describe('presetBlocks', () => {
-  it('holds every preset under its bare name with the same rules', () => {
+describe('presetConfigs', () => {
+  it('holds every preset under its bare name as a recheck block', () => {
     const bareNames = Object.keys(presets).map((id) => id.replace(/^recheck\//, ''));
-    expect(Object.keys(presetBlocks)).toEqual(bareNames);
+    expect(Object.keys(presetConfigs)).toEqual(bareNames);
     for (const [id, rules] of Object.entries(presets)) {
-      expect(presetBlocks[id.replace(/^recheck\//, '')]).toEqual({ rules });
+      expect(presetConfigs[id.replace(/^recheck\//, '')]).toEqual({ recheck: { rules } });
+    }
+  });
+
+  it('carries no derived message for a token rule', () => {
+    expect(presets['recheck/markdown']['recheck/line-length']).not.toHaveProperty('message');
+  });
+
+  it('validates every preset alone, with a message on every rule', async () => {
+    for (const id of Object.keys(presets)) {
+      const result = await validate({ extends: [id] });
+      expect(result.errors, id).toEqual([]);
+      for (const rule of result.rules) {
+        expect(rule.message, `${id} ${rule.name}`).toBeTruthy();
+      }
     }
   });
 });

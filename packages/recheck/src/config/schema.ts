@@ -39,9 +39,8 @@ export const RECHECK_CONFIG_SCHEMA = {
   type: 'object',
   properties: {
     // Preset names to expand before schema/semantic rule validation runs —
-    // resolved in src/config/validate.ts via resolveExtends() (see
-    // src/config/presets/index.ts). Not a rule; excluded from rule
-    // iteration in validateSemantics().
+    // resolved in src/config/validate.ts via resolveExtends(). Not a rule;
+    // excluded from rule iteration in validateSemantics().
     extends: {
       type: 'array',
       items: { type: 'string', minLength: 1 },

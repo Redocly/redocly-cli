@@ -8,7 +8,7 @@ import {
 import {
   generateBaseline,
   generateMarkdocSchema,
-  presetBlocks,
+  presetConfigs,
   resolveRecheckConfig,
   runLint,
   runReadability,
@@ -103,7 +103,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
       return;
     }
     logger.info(`No redocly.yaml found; using recheck/${DEFAULT_PRESET_NAME}.\n`);
-    block = presetBlocks[DEFAULT_PRESET_NAME];
+    block = presetConfigs[DEFAULT_PRESET_NAME].recheck;
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({

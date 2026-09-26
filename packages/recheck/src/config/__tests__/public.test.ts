@@ -1,6 +1,14 @@
+import { readFileSync } from 'node:fs';
+import { dirname, relative, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-import { mergeRecheckRules, mergeRuleEntry, type RecheckRulesInput } from '../public.js';
+import {
+  mergeRecheckRules,
+  mergeRuleEntry,
+  presetConfigs,
+  type RecheckRulesInput,
+} from '../public.js';
 
 const preset = {
   'recheck/line-length': {
@@ -70,5 +78,36 @@ describe('mergeRecheckRules', () => {
     const base = { 'recheck/line-length': null } as unknown as RecheckRulesInput;
     const merged = mergeRecheckRules(base, { 'recheck/line-length': 'warn' });
     expect(merged['recheck/line-length']).toBe('warn');
+  });
+});
+
+describe('the config entry', () => {
+  const srcDir = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+
+  // Follows value imports only; `import type` is erased at compile time.
+  function runtimeImports(file: string, reached = new Set<string>()): Set<string> {
+    if (reached.has(file)) return reached;
+    reached.add(file);
+    const source = readFileSync(file, 'utf8');
+    for (const [, specifier] of source.matchAll(
+      /^(?:import|export)(?!\s+type\b)[^;]*?\sfrom\s+'(\.[^']+)';/gms
+    )) {
+      runtimeImports(resolve(dirname(file), specifier.replace(/\.js$/, '.ts')), reached);
+    }
+    return reached;
+  }
+
+  it('exports the presets as configs with a recheck block', () => {
+    expect(presetConfigs.markdown.recheck.rules?.['recheck/line-length']).toEqual({
+      severity: 'error',
+      assertions: { 'line-length': {} },
+    });
+  });
+
+  it('loads only the presets and small helpers', () => {
+    const reached = [...runtimeImports(resolve(srcDir, 'config/public.ts'))]
+      .map((file) => relative(srcDir, file))
+      .filter((file) => !/^config\/(public|presets\/[a-z-]+)\.ts$/.test(file));
+    expect(reached).toEqual(['utils/is-plain-object.ts']);
   });
 });

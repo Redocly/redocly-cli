@@ -1,24 +1,12 @@
-import { resolveAssertion } from '../../rules/registry.js';
 import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
- * Builds preset rule entries for a set of already-ported rule names: one
- * `recheck/<name>` entry each, `severity: 'error'`, and empty assertion
- * options (`{}`, i.e. upstream/rule defaults) — per spec §4.
+ * Builds one `recheck/<name>` entry for each rule name, with
+ * `severity: 'error'` and empty assertion options.
  *
- * Message resolution (single source of truth, no hand-maintained message
- * strings duplicated here): for a **token** rule (every markdownlint-ported
- * rule from Task 5 onward), the message comes straight from that rule's own
- * `defaults.message` via `resolveAssertion` — the same default a user's
- * config falls back to when it omits `message` (see
- * rules/token/messages.ts formatTokenMessage). For a **scope** rule (the
- * pre-existing native rules, which have no `defaults` object at all — see
- * rules/types.ts ScopeRule), there's nothing to derive a message from, so
- * an explicit override in `messages` is required; passing one for a token
- * rule is also allowed and wins, in case a preset ever needs to override a
- * rule's wording. The current config schema still requires a non-empty
- * `message` on every rule (see schema.ts `required: [...]`) — that hasn't
- * changed, only where the string comes from at preset-build time.
+ * An entry has a `message` only when `messages` names one. `validate` gives a
+ * token rule the message from its `defaults`. A scope rule has no `defaults`,
+ * so it needs an explicit message here.
  */
 export function registerPresetRules(
   names: string[],
@@ -26,45 +14,17 @@ export function registerPresetRules(
 ): RecheckRules {
   const config: RecheckRules = {};
   for (const name of names) {
-    const message = messages[name] ?? defaultMessageFor(name);
-    if (!message) {
-      throw new Error(`registerPresetRules: missing message for preset rule "${name}"`);
-    }
-    const rule: BaseRule = {
-      severity: 'error',
-      message,
-      assertions: { [name]: {} },
-    };
+    const rule: BaseRule = { severity: 'error', assertions: { [name]: {} } };
+    if (messages[name]) rule.message = messages[name];
     config[`recheck/${name}`] = rule;
   }
   return config;
 }
 
-function defaultMessageFor(name: string): string | undefined {
-  try {
-    const resolved = resolveAssertion(name);
-    if (resolved.kind === 'token') {
-      const message = resolved.rule.defaults.message;
-      return typeof message === 'string' ? message : undefined;
-    }
-    return undefined;
-  } catch {
-    // Not yet registered (e.g. a scope rule with no explicit message
-    // passed, or a name that doesn't resolve at all) — validate.ts's
-    // validateAssertions() is what actually gates unknown assertion ids
-    // for user configs; this function only decides whether it can
-    // synthesize a message.
-    return undefined;
-  }
-}
-
 /**
- * Rule (short) names ported into the `recheck/markdown` preset so far. Each
- * batch task (5-10) appends the rule names it lands. Token-rule messages
- * are derived automatically from the rule's own `defaults.message` (see
- * defaultMessageFor above) — only list a name in MARKDOWN_PRESET_MESSAGES
- * if it's a scope rule (no `defaults`) or the preset wants to override the
- * rule's own wording.
+ * Rule (short) names in the `recheck/markdown` preset. `validate` gives each
+ * token rule the message from its own `defaults.message`. List a name in
+ * MARKDOWN_PRESET_MESSAGES only for a scope rule or to change the wording.
  */
 export const MARKDOWN_PRESET_RULES: string[] = [
   'heading-increment',
@@ -123,14 +83,8 @@ export const MARKDOWN_PRESET_RULES: string[] = [
 ];
 
 /**
- * Explicit message overrides for markdown preset rules, keyed by (short)
- * rule name. Only needed for scope rules (which have no `defaults.message`
- * to derive from) or to override a token rule's own default wording — see
- * registerPresetRules/defaultMessageFor above. Empty today: every rule in
- * MARKDOWN_PRESET_RULES is a token rule and derives its message from its own
- * `defaults.message`. (`no-trailing-spaces` and `no-hard-tabs` needed
- * entries here before Task 11 removed the legacy scope rules that used to
- * shadow them via `resolveAssertion`'s scope-first resolution.)
+ * Explicit messages for markdown preset rules, keyed by short rule name.
+ * Empty today: every rule in MARKDOWN_PRESET_RULES is a token rule.
  */
 export const MARKDOWN_PRESET_MESSAGES: Record<string, string> = {};
 

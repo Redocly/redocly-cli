@@ -1,4 +1,4 @@
-import { presetBlocks, type RecheckBlock } from '@redocly/recheck';
+import { presetConfigs, resolveRecheckConfig, type RecheckBlock } from '@redocly/recheck';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
@@ -38,7 +38,7 @@ describe('recheck presets in extends', () => {
     ]);
   });
 
-  it('merges assertion options per id and keeps the preset message', async () => {
+  it('merges assertion options per id and resolves the default message', async () => {
     const config = await createConfig(outdent`
       extends:
         - recheck/markdown
@@ -47,11 +47,21 @@ describe('recheck presets in extends', () => {
           recheck/line-length:
             assertions:
               line-length:
-                max: 120
+                lineLength: 120
     `);
     const rule = config.recheck.rules?.['recheck/line-length'];
-    expect(rule).toMatchObject({ severity: 'error', assertions: { 'line-length': { max: 120 } } });
-    expect(typeof (rule as { message?: string }).message).toBe('string');
+    expect(rule).toMatchObject({
+      severity: 'error',
+      assertions: { 'line-length': { lineLength: 120 } },
+    });
+    const resolved = await resolveRecheckConfig({ block: config.recheck, configDir: fixturesDir });
+    expect(resolved.success).toBe(true);
+    if (!resolved.success) return;
+    const lineLength = resolved.config.rules.find((entry) => entry.name === 'recheck/line-length');
+    expect(lineLength).toMatchObject({
+      message: 'Line length',
+      assertions: { 'line-length': { lineLength: 120 } },
+    });
   });
 
   it('lets a later preset override an earlier one', async () => {
@@ -103,7 +113,7 @@ describe('recheck presets in extends', () => {
 
   it('does not change the shared preset entries', async () => {
     await createConfig(withPreset);
-    expect(presetBlocks.markdown.rules?.['recheck/line-length']).toMatchObject({
+    expect(presetConfigs.markdown.recheck.rules?.['recheck/line-length']).toMatchObject({
       severity: 'error',
     });
   });

@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { presetBlocks } from '../presets/index.js';
+import { presetConfigs } from '../presets/index.js';
 import { buildMarkdownPreset } from '../presets/markdown.js';
 import { DEFAULT_BASELINE_FILE, resolveRecheckConfig } from '../resolve.js';
 import { withPresets } from './with-presets.js';
@@ -178,11 +178,11 @@ describe('resolveRecheckConfig', () => {
 
   it('leaves the shared preset entries unchanged', async () => {
     const result = await resolveRecheckConfig({
-      block: { rules: presetBlocks.markdown.rules },
+      block: presetConfigs.markdown.recheck,
       configDir,
     });
     expect(result.success).toBe(true);
-    expect(presetBlocks.markdown.rules).toEqual(buildMarkdownPreset());
+    expect(presetConfigs.markdown.recheck.rules).toEqual(buildMarkdownPreset());
   });
 
   it('surfaces engine validation errors', async () => {

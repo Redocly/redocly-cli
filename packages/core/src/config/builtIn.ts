@@ -84,12 +84,7 @@ export const defaultPlugin: Plugin<'built-in'> = {
 // the engine into a split chunk.
 export const lazyBuiltInPlugins: Record<string, () => Promise<Plugin>> = {
   recheck: async () => {
-    const { presetBlocks } = await import(/* webpackIgnore: true */ '@redocly/recheck');
-    return {
-      id: 'recheck',
-      configs: Object.fromEntries(
-        Object.entries(presetBlocks).map(([name, block]) => [name, { recheck: block }])
-      ),
-    };
+    const { presetConfigs } = await import(/* webpackIgnore: true */ '@redocly/recheck');
+    return { id: 'recheck', configs: presetConfigs };
   },
 };
