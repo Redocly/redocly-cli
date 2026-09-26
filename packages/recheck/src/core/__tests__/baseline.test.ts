@@ -190,6 +190,23 @@ describe('deleted files under a scan root', () => {
     );
     expect(result.staleEntries).toBe(0);
   });
+
+  it('an entry for a skipped file is not stale even when a scan root covers it', () => {
+    const result = compareToBaseline(
+      [],
+      { version: 1, files: { 'broken.yaml': { r: 1 } } },
+      {
+        scannedFiles: [],
+        executedRules: new Set(['r']),
+        toKey: identity,
+        scanRoots: ['.'],
+        skipFiles: new Set(['broken.yaml']),
+      }
+    );
+    expect(result.staleEntries).toBe(0);
+    expect(result.suppressed).toBe(0);
+    expect(result.problems).toEqual([]);
+  });
 });
 
 describe('buildBaseline keys', () => {

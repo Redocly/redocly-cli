@@ -37,6 +37,12 @@ The block merges on top of the presets.
 - Turn on Markdoc-aware parsing.
   `true` is the same as `{ schema: realm }`.
 
+---
+
+- apiDescriptions
+- [API descriptions object](#api-descriptions-object)
+- Rule overrides that apply only to descriptions inside API documents.
+
 {% /table %}
 
 ### Rules object
@@ -197,6 +203,27 @@ Use a severity string to change the severity of a preset rule or to turn it off.
 
 {% /table %}
 
+### API descriptions object
+
+{% table %}
+
+- Option
+- Type
+- Description
+
+---
+
+- rules
+- [Rules object](#rules-object)
+- Overrides for rules that are in effect.
+  A severity string changes the severity.
+  A rule object changes the fields it lists.
+  A name that is not in effect is a configuration error.
+
+{% /table %}
+
+Any other key is a configuration error.
+
 ## Example
 
 ```yaml
@@ -215,10 +242,14 @@ recheck:
         metric:
           formula: flesch-reading-ease
           min: 30
+  apiDescriptions:
+    rules:
+      recheck/line-length: off
 ```
 
 This config adds the `recheck/markdown` preset in the root `extends`.
 The `recheck` block skips `CHANGELOG.md`, turns on Markdoc-aware parsing, turns off one rule, and adds one rule.
+It also turns off line-length checks inside API descriptions.
 
 ## Related options
 

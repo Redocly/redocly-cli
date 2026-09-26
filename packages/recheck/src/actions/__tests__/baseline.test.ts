@@ -10,11 +10,24 @@ import {
   resolveRecheckConfig,
   type ResolvedRecheckConfig,
 } from '../../config/resolve.js';
-import { parseBaseline } from '../../core/baseline.js';
+import { baselineKeyMapper, parseBaseline } from '../../core/baseline.js';
+import type { Problem } from '../../types/index.js';
 import { generateBaseline } from '../baseline.js';
+import type { EmbeddedInput } from '../embedded.js';
+import { runLint } from '../lint.js';
 
 // A prose line longer than the `recheck/line-length` limit of 80 characters.
 const LONG_LINE = 'word '.repeat(30).trim();
+
+// One embedded `info.description` whose only line is longer than the limit.
+function descriptionInput(apiFile: string): EmbeddedInput {
+  return {
+    file: apiFile,
+    pointer: '#/info/description',
+    content: `${LONG_LINE}\n`,
+    mapPosition: (line, column) => ({ line, column }),
+  };
+}
 
 async function resolveConfig(
   configDir: string,
@@ -138,4 +151,45 @@ describe('generateBaseline', () => {
       expect(Object.keys((await readWrittenBaseline(result.outPath)).files)).toEqual(['page.md']);
     }
   );
+
+  it('includes embedded API description findings, keyed by the API file', async () => {
+    const dir = await makeTempDir();
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const result = await generateBaseline([], config, {
+      embeddedInputs: [descriptionInput(apiFile)],
+    });
+
+    expect(result.roots).toEqual([]);
+    expect(result.filesFound).toBe(0);
+    expect(result.apiDescriptionCount).toBe(1);
+    expect(result.errorCount).toBe(1);
+    expect(result.baselinedFileCount).toBe(1);
+    const written = await readWrittenBaseline(result.outPath);
+    expect(written.files[baselineKeyMapper(dir)(apiFile)]).toEqual({ 'recheck/line-length': 1 });
+  });
+
+  it('leaves out findings the ignore predicate accepts, so no run reports them stale', async () => {
+    const dir = await makeTempDir();
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const embeddedInputs = [descriptionInput(apiFile)];
+    const isIgnored = (problem: Problem) => problem.pointer === '#/info/description';
+    const baselineRun = await generateBaseline([], config, { embeddedInputs, isIgnored });
+
+    expect(baselineRun.apiDescriptionCount).toBe(1);
+    expect(baselineRun.errorCount).toBe(0);
+    expect(baselineRun.baselinedFileCount).toBe(0);
+    const written = await readWrittenBaseline(baselineRun.outPath);
+    expect(written.files[baselineKeyMapper(dir)(apiFile)]).toBeUndefined();
+
+    // The baseline is discovered by presence, so the config resolves again
+    // now that the file exists.
+    const configWithBaseline = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint([], configWithBaseline, { embeddedInputs, isIgnored });
+    expect(result.status).toBe('completed');
+    if (result.status !== 'completed') return;
+    expect(result.baseline).toEqual({ matched: 0, new: 0, stale: 0 });
+    expect(result.problems.filter((problem) => problem.severity === 'error')).toHaveLength(0);
+  });
 });

@@ -1,0 +1,5 @@
+apis:
+  museum:
+    root: broken.yaml
+extends:
+  - recheck/markdown

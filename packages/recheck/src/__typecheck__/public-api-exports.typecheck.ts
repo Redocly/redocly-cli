@@ -67,6 +67,7 @@ export const typedResolvedRecheckConfig: ResolvedRecheckConfig = {
   configDir: '/project',
   markdoc: false,
   markdocSchema: null,
+  descriptionRules: [],
 };
 
 export const typedResolveResult: ResolveResult = {

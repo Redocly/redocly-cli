@@ -1,4 +1,4 @@
-import { AbortFlowError, type Config } from '@redocly/openapi-core';
+import { AbortFlowError, Source, type Config } from '@redocly/openapi-core';
 import { presetConfigs, type RecheckBlock } from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
@@ -6,7 +6,7 @@ import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { configFixture } from '../../../__tests__/fixtures/config.js';
-import { handleRecheck } from '../index.js';
+import { handleRecheck, toEmbeddedInputs, withoutReadFiles } from '../index.js';
 import type { RecheckArgv } from '../types.js';
 import { captureLogger } from './capture-logger.js';
 
@@ -93,5 +93,34 @@ describe('handleRecheck', () => {
       'The recheck configuration is not valid:\n',
       '  recheck: `recheck` must be an object\n',
     ]);
+  });
+});
+
+describe('toEmbeddedInputs', () => {
+  it('skips a description reached through a remote $ref and counts it', () => {
+    const remote = {
+      source: new Source('https://example.com/schemas.yaml', 'description: text\n'),
+      pointer: '#/description',
+      text: 'text',
+    };
+    const local = {
+      source: new Source(path.join(os.tmpdir(), 'schemas.yaml'), 'description: text\n'),
+      pointer: '#/description',
+      text: 'text',
+    };
+
+    const { inputs, remoteSkipped } = toEmbeddedInputs([remote, local]);
+
+    expect(inputs).toHaveLength(1);
+    expect(remoteSkipped).toBe(1);
+    expect(inputs[0].file).toBe(local.source.absoluteRef);
+  });
+});
+
+describe('withoutReadFiles', () => {
+  it('keeps a file out of the unreadable list when another API read it', () => {
+    const shared = '/api/schemas.yaml';
+    const missing = '/api/missing.yaml';
+    expect(withoutReadFiles([missing, shared, shared], new Set([shared]))).toEqual([missing]);
   });
 });

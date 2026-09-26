@@ -5,7 +5,11 @@ import * as path from 'path';
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
 import { withPresets } from '../../config/__tests__/with-presets.js';
-import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
+import {
+  DEFAULT_BASELINE_FILE,
+  resolveRecheckConfig,
+  type ResolvedRecheckConfig,
+} from '../../config/resolve.js';
 import type { Problem } from '../../types/index.js';
 import { runLint, type LintRunReport, type LintRunResult } from '../lint.js';
 
@@ -580,6 +584,403 @@ describe('runLint image metadata', () => {
     } finally {
       await fs.rm(root, { recursive: true, force: true });
     }
+  });
+});
+
+describe('runLint with embedded inputs', () => {
+  // A single unbroken run of characters cannot exceed `recheck/line-length`
+  // (markdownlint's own MD013 stern/strict rule collapses it), so the fixture
+  // repeats separate words instead.
+  const LONG_LINE = 'lorem ipsum dolor sit amet '.repeat(6).trim();
+
+  const embedded = (file: string, content: string) => ({
+    file,
+    pointer: '#/info/description',
+    content,
+    mapPosition: (line: number, column: number) => ({ line: line + 10, column }),
+  });
+
+  it('reports page and description findings in one run', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(
+      await runLint(dir, config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      })
+    );
+    const files = new Set(result.problems.map((problem) => problem.file));
+    expect(files.has(path.join(dir, 'page.md'))).toBe(true);
+    expect(files.has(path.join(dir, 'openapi.yaml'))).toBe(true);
+    expect(result.problems.find((problem) => problem.file.endsWith('openapi.yaml'))?.line).toBe(11);
+    expect(result.apiDescriptionCount).toBe(1);
+    expect(result.scannedFileCount).toBe(1);
+    expect(result.scannedDescriptionFileCount).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+  });
+
+  it('lints embedded inputs with no Markdown roots', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+      })
+    );
+    expect(errorsIn(result.problems)).toHaveLength(0);
+    expect(result.roots).toEqual([]);
+    expect(result.apiDescriptionCount).toBe(1);
+    expect(result.empty).toBe(false);
+  });
+
+  it('reports nothing to check for a run with no root and no description', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(await runLint([], config, { embeddedInputs: [] }));
+    expect(result.roots.length === 0 && result.apiDescriptionCount === 0).toBe(true);
+    expect(result.empty).toBe(true);
+  });
+
+  it('skips fixes inside descriptions and counts them', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(
+      await runLint([], config, {
+        fix: true,
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Trailing.   \n')],
+      })
+    );
+    expect(result.descriptionFixesSkipped).toBe(1);
+    expect(result.fixes?.applied).toEqual([]);
+  });
+
+  it('drops findings the ignore predicate accepts and reports the count', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+        isIgnored: (problem) => problem.pointer === '#/info/description',
+      })
+    );
+    expect(errorsIn(result.problems)).toHaveLength(0);
+    expect(result.suppressedByIgnoreFile).toBe(1);
+  });
+
+  it('does not abort the run for a rule that is off for descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      { apiDescriptions: { rules: { 'recheck/line-length': 'off' } } },
+      ['recheck/markdown']
+    );
+    const result = completed(
+      await runLint(dir, config, {
+        rules: ['recheck/line-length'],
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      })
+    );
+    const lineLengthProblems = result.problems.filter(
+      (problem) => problem.ruleName === 'recheck/line-length'
+    );
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+    expect(lineLengthProblems).toHaveLength(1);
+    expect(lineLengthProblems[0].file).toBe(path.join(dir, 'page.md'));
+  });
+  it('runs a rule that is off for pages and on for descriptions when a name filter selects it', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      {
+        rules: { 'recheck/line-length': 'off' },
+        apiDescriptions: { rules: { 'recheck/line-length': 'error' } },
+      },
+      ['recheck/markdown']
+    );
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const result = completed(
+      await runLint(dir, config, {
+        rules: ['recheck/line-length'],
+        embeddedInputs: [embedded(apiFile, `${LONG_LINE}\n`)],
+      })
+    );
+    expect(result.ruleCount).toBe(0);
+    expect(result.executedDescriptionRuleCount).toBe(1);
+    expect(result.problems.map((problem) => [problem.ruleName, problem.file])).toEqual([
+      ['recheck/line-length', apiFile],
+    ]);
+  });
+
+  it('accepts a skip filter for a rule that is off for pages and on for descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      {
+        rules: { 'recheck/line-length': 'off' },
+        apiDescriptions: { rules: { 'recheck/line-length': 'error' } },
+      },
+      ['recheck/markdown']
+    );
+    const result = completed(
+      await runLint(dir, config, {
+        excludeRules: ['recheck/line-length'],
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      })
+    );
+    expect(result.executedDescriptionRuleCount).toBeGreaterThan(0);
+    expect(result.problems.filter((problem) => problem.ruleName === 'recheck/line-length')).toEqual(
+      []
+    );
+  });
+
+  it('keeps the unknown-rule result for a page-only run that names a rule off for pages', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      {
+        rules: { 'recheck/line-length': 'off' },
+        apiDescriptions: { rules: { 'recheck/line-length': 'error' } },
+      },
+      ['recheck/markdown']
+    );
+    const result = await runLint(dir, config, { rules: ['recheck/line-length'] });
+    expect(result.status).toBe('unknown-rule');
+  });
+
+  it('names each available rule once when a name matches neither pages nor descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n\nFine.\n');
+    const config = await resolveConfig(
+      dir,
+      { apiDescriptions: { rules: { 'recheck/line-length': 'warn' } } },
+      ['recheck/markdown']
+    );
+    const result = await runLint(dir, config, {
+      rules: ['recheck/nope'],
+      embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+    });
+    expect(result.status).toBe('unknown-rule');
+    if (result.status !== 'unknown-rule') return;
+    expect(result.available.filter((name) => name === 'recheck/line-length')).toHaveLength(1);
+  });
+
+  it('filters embedded inputs to the changed set when only the API file changed', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${apiFile}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const result = completed(
+      await runLint(dir, config, {
+        changedOnly: true,
+        changedListPath,
+        embeddedInputs: [embedded(apiFile, `${LONG_LINE}\n`)],
+      })
+    );
+
+    const files = new Set(result.problems.map((problem) => problem.file));
+    expect(files.has(apiFile)).toBe(true);
+    expect(files.has(path.join(dir, 'page.md'))).toBe(false);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+  });
+
+  it('drops embedded inputs when only a page changed', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const pagePath = path.join(dir, 'page.md');
+    await fs.writeFile(pagePath, `# Page\n\n${LONG_LINE}\n`);
+    const apiFile = path.join(dir, 'openapi.yaml');
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${pagePath}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const result = completed(
+      await runLint(dir, config, {
+        changedOnly: true,
+        changedListPath,
+        embeddedInputs: [embedded(apiFile, `${LONG_LINE}\n`)],
+      })
+    );
+
+    const files = new Set(result.problems.map((problem) => problem.file));
+    expect(files.has(pagePath)).toBe(true);
+    expect(files.has(apiFile)).toBe(false);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+  });
+
+  it('reports an empty report when no page and no description changed', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${path.join(dir, 'untouched.md')}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const result = completed(
+      await runLint(dir, config, {
+        changedOnly: true,
+        changedListPath,
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      })
+    );
+
+    expect(result.empty).toBe(true);
+    expect(result.changedFilter).toEqual({ provided: true, matched: 0 });
+    expect(result.problems).toHaveLength(0);
+  });
+
+  it('reports a stale baseline entry for an API file that this run linted', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(
+      path.join(dir, DEFAULT_BASELINE_FILE),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+      })
+    );
+
+    expect(result.baseline?.stale).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+  });
+
+  it('leaves a baseline entry alone when its rule is off for descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(
+      path.join(dir, DEFAULT_BASELINE_FILE),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(
+      dir,
+      {
+        apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
+      },
+      ['recheck/markdown']
+    );
+
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), 'Fine.\n')],
+      })
+    );
+
+    expect(result.baseline?.stale).toBe(0);
+    expect(errorsIn(result.problems)).toHaveLength(0);
+  });
+
+  it('counts changed API files in the changed-file match', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const apiFile = path.join(dir, 'openapi.yaml');
+    await fs.writeFile(apiFile, 'openapi: 3.1.0\n');
+    const changedList = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedList, `${apiFile}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint([], config, {
+      embeddedInputs: [embedded(apiFile, 'Short.\n')],
+      apiFiles: [apiFile],
+      changedOnly: true,
+      changedListPath: changedList,
+    });
+    expect(result.status).toBe('completed');
+    if (result.status !== 'completed') return;
+    expect(result.changedFilter).toEqual({ provided: true, matched: 1 });
+  });
+
+  it('marks a baseline entry stale for a changed API file that parsed but holds no descriptions', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    const apiFile = path.join(dir, 'openapi.yaml');
+    await fs.writeFile(apiFile, 'openapi: 3.1.0\n');
+    await fs.writeFile(
+      path.join(dir, DEFAULT_BASELINE_FILE),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const changedList = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedList, `${apiFile}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = completed(
+      await runLint([], config, {
+        embeddedInputs: [],
+        apiFiles: [apiFile],
+        changedOnly: true,
+        changedListPath: changedList,
+      })
+    );
+    expect(result.baseline?.stale).toBe(1);
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+  });
+
+  it('does not abort the run when a name filter leaves no description rules at the requested severity', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(
+      dir,
+      { apiDescriptions: { rules: { 'recheck/line-length': 'warn' } } },
+      ['recheck/markdown']
+    );
+    const result = completed(
+      await runLint(dir, config, {
+        severity: 'error',
+        rules: ['recheck/line-length'],
+        embeddedInputs: [embedded(path.join(dir, 'openapi.yaml'), `${LONG_LINE}\n`)],
+      })
+    );
+    const lineLengthProblems = result.problems.filter(
+      (problem) => problem.ruleName === 'recheck/line-length'
+    );
+    expect(errorsIn(result.problems).length).toBeGreaterThan(0);
+    expect(lineLengthProblems).toHaveLength(1);
+    expect(lineLengthProblems[0].file).toBe(path.join(dir, 'page.md'));
+    expect(result.executedDescriptionRuleCount).toBe(0);
+  });
+
+  it('counts a parsed API file with no descriptions as scanned, so its baseline entry goes stale', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(
+      path.join(dir, DEFAULT_BASELINE_FILE),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const apiFile = path.join(dir, 'openapi.yaml');
+
+    const withApiFiles = completed(
+      await runLint([], config, { embeddedInputs: [], apiFiles: [apiFile] })
+    );
+    expect(withApiFiles.baseline?.stale).toBe(1);
+    expect(withApiFiles.scannedDescriptionFileCount).toBe(1);
+
+    const withoutApiFiles = completed(await runLint([], config, { embeddedInputs: [] }));
+    expect(withoutApiFiles.baseline?.stale).toBe(0);
+  });
+
+  it('keeps the baseline entry of an unreadable API file out of the stale check', async () => {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-embedded-'));
+    await fs.writeFile(
+      path.join(dir, DEFAULT_BASELINE_FILE),
+      'version: 1\nfiles:\n  openapi.yaml:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const withUnreadable = completed(
+      await runLint(dir, config, {
+        embeddedInputs: [],
+        apiFiles: [],
+        unreadableFiles: [path.join(dir, 'openapi.yaml')],
+      })
+    );
+    expect(withUnreadable.baseline?.stale).toBe(0);
+    expect(errorsIn(withUnreadable.problems)).toHaveLength(0);
+
+    const withoutUnreadable = completed(
+      await runLint(dir, config, { embeddedInputs: [], apiFiles: [] })
+    );
+    expect(withoutUnreadable.baseline?.stale).toBe(1);
   });
 });
 

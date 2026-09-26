@@ -1,0 +1,9 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Museum",
+    "version": "1.0.0",
+    "description": "This description is far too long for the line-length rule because it keeps going without a break until the limit is well behind it."
+  },
+  "paths": {}
+}

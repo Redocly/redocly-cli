@@ -35,6 +35,17 @@ describe('outputTableFormat', () => {
     expect(stderr).toEqual([]);
   });
 
+  it('does not mark or count a fixable description finding, since --fix cannot rewrite it', () => {
+    const { stdout } = captureLogger();
+
+    outputTableFormat([problem({ fixable: true, pointer: '#/info/description' })], 1, false);
+
+    const printed = stripVTControlCharacters(stdout.join(''));
+    expect(printed).toContain('Line too long.\n');
+    expect(printed).not.toContain('[fixable]');
+    expect(printed).not.toContain('fixable with --fix');
+  });
+
   it('prints the rule breakdown, largest first, when stats are on', () => {
     const { stdout } = captureLogger();
 

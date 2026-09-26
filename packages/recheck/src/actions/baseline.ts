@@ -6,6 +6,8 @@ import { buildBaseline, serializeBaseline, baselineKeyMapper } from '../core/bas
 import { needsImageMetadata, loadImageMetadata } from '../core/files.js';
 import { filterEnabledRules } from '../core/rule-filters.js';
 import { runRules, type FileInput } from '../core/runner.js';
+import type { Problem } from '../types/index.js';
+import { lintEmbeddedInputs, type EmbeddedInput } from './embedded.js';
 import { discoverFilesForRoots, rootForFile, toRoots } from './roots.js';
 
 export interface BaselineRunResult {
@@ -15,6 +17,7 @@ export interface BaselineRunResult {
   outPath: string;
   errorCount: number;
   baselinedFileCount: number;
+  apiDescriptionCount: number;
 }
 
 /**
@@ -24,9 +27,17 @@ export interface BaselineRunResult {
  */
 export async function generateBaseline(
   paths: string | string[] = '.',
-  config: ResolvedRecheckConfig
+  config: ResolvedRecheckConfig,
+  options: {
+    embeddedInputs?: EmbeddedInput[];
+    // Returns true for a finding the caller's ignore file suppresses. The
+    // baseline must drop the same findings `runLint` drops, or every run
+    // reports the extra entries as stale.
+    isIgnored?: (problem: Problem) => boolean;
+  } = {}
 ): Promise<BaselineRunResult> {
-  const roots = toRoots(paths);
+  const embeddedInputs = options.embeddedInputs ?? [];
+  const roots = Array.isArray(paths) && paths.length === 0 ? [] : toRoots(paths);
   const configDir = config.configDir;
 
   const { enabled: rulesToRun } = filterEnabledRules(config.rules);
@@ -53,7 +64,19 @@ export async function generateBaseline(
     markdocSchema: config.markdocSchema,
   });
 
-  const errors = problems.filter((problem) => problem.severity === 'error');
+  if (embeddedInputs.length > 0) {
+    const { enabled: descriptionRulesToRun } = filterEnabledRules(config.descriptionRules);
+    const embedded = await lintEmbeddedInputs(embeddedInputs, descriptionRulesToRun, {
+      knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
+      markdoc: config.markdoc,
+      markdocSchema: config.markdocSchema,
+    });
+    problems.push(...embedded.problems);
+  }
+
+  const isIgnored = options.isIgnored;
+  const kept = isIgnored ? problems.filter((problem) => !isIgnored(problem)) : problems;
+  const errors = kept.filter((problem) => problem.severity === 'error');
   const baseline = buildBaseline(errors, baselineKeyMapper(configDir));
   const outPath = pathModule.resolve(configDir, DEFAULT_BASELINE_FILE);
   await fs.writeFile(outPath, serializeBaseline(baseline), 'utf8');
@@ -65,5 +88,6 @@ export async function generateBaseline(
     outPath,
     errorCount: errors.length,
     baselinedFileCount: Object.keys(baseline.files).length,
+    apiDescriptionCount: embeddedInputs.length,
   };
 }
