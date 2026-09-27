@@ -34,7 +34,8 @@ export function splitOASDefinition(
   const webhooksPointer =
     'webhooks' in openapi && openapi.webhooks ? `#/${WEBHOOKS}` : `#/${xWEBHOOKS}`;
 
-  // every file name is chosen before anything is written, so a conflict reported as an error leaves no files behind
+  // every file name is chosen before anything is written,
+  // so a conflict reported as an error leaves no files behind
   const componentsFiles: ComponentsFiles = {};
   const conflicts: FileNameConflict[] = [];
   gatherComponentsFiles(openapi, openapiDir, componentsFiles, ext, conflicts);
