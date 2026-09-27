@@ -1,0 +1,4 @@
+recheck:
+  rules:
+    recheck/line-length:
+      severity: warn

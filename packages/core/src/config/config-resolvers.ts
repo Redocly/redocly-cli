@@ -19,7 +19,7 @@ import { isDefined } from '../utils/is-defined.js';
 import { isNotString } from '../utils/is-not-string.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { isString } from '../utils/is-string.js';
-import { defaultPlugin, recheckPlugin } from './builtIn.js';
+import { defaultPlugin } from './builtIn.js';
 import { CONFIG_FILE_NAME, DEFAULT_CONFIG, DEFAULT_PROJECT_PLUGIN_PATHS } from './constants.js';
 import { getResolveConfig } from './get-resolve-config.js';
 import {
@@ -28,6 +28,7 @@ import {
   loadPluginModule,
   setCachedPlugins,
 } from './plugins-cache.js';
+import { RECHECK_PLUGIN_ID } from './recheck.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -103,7 +104,7 @@ export async function resolveConfig({
     const instantiatedPlugins = ((config as RawUniversalConfig)?.plugins || []).filter(
       (p) => !isString(p)
     ) as Plugin[];
-    resolvedPlugins = [...instantiatedPlugins, defaultPlugin, recheckPlugin];
+    resolvedPlugins = [...instantiatedPlugins, defaultPlugin];
   } else {
     rootConfigDir = path.dirname(configPath ?? '');
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
@@ -112,7 +113,7 @@ export async function resolveConfig({
       rootConfigDir,
       skipPluginEval
     );
-    resolvedPlugins = [...plugins, defaultPlugin, recheckPlugin];
+    resolvedPlugins = [...plugins, defaultPlugin];
   }
 
   const bundledConfig = bundleConfig(
@@ -338,8 +339,8 @@ export async function resolvePlugins(
                 )
               );
             }
-            if (id === recheckPlugin.id) {
-              throw new Error(`Plugin id "${id}" belongs to a built-in plugin.`);
+            if (id === RECHECK_PLUGIN_ID) {
+              throw new Error(`Plugin id "${id}" is reserved for Recheck presets.`);
             }
             const pluginPath = pluginInstance.absolutePath ?? p.toString();
             const existingPluginPath = seenPluginIds.get(id);

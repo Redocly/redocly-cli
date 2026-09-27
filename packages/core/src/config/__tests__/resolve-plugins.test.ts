@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-import { defaultPlugin, recheckPlugin } from '../builtIn.js';
+import { defaultPlugin } from '../builtIn.js';
 import { loadConfig } from '../load.js';
 
 describe('resolving a plugin', () => {
@@ -36,7 +36,6 @@ describe('resolving a plugin', () => {
     expect(config.plugins).toEqual([
       { absolutePath: path.join(__dirname, 'fixtures/throwing-plugin.cjs') },
       defaultPlugin,
-      recheckPlugin,
     ]);
   });
 
@@ -59,7 +58,6 @@ describe('resolving a plugin', () => {
     expect(config.plugins).toEqual([
       { absolutePath: path.join(__dirname, 'fixtures/default-plugin/@theme/plugin.js') },
       defaultPlugin,
-      recheckPlugin,
     ]);
   });
 });

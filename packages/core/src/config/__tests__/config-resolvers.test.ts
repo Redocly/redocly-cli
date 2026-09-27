@@ -50,9 +50,8 @@ describe('resolveConfig', () => {
     const { resolvedConfig, plugins } = await resolveConfig({
       rawConfigDocument: makeDocument(baseGovernanceConfig),
     });
-    expect(plugins?.length).toEqual(2);
+    expect(plugins?.length).toEqual(1);
     expect(plugins?.[0].id).toEqual('');
-    expect(plugins?.[1].id).toEqual('recheck');
     expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
@@ -81,9 +80,8 @@ describe('resolveConfig', () => {
     const { resolvedConfig, plugins } = await resolveConfig({
       rawConfigDocument: makeDocument({ ...baseGovernanceConfig, extends: [] }),
     });
-    expect(plugins?.length).toEqual(2);
+    expect(plugins?.length).toEqual(1);
     expect(plugins?.[0].id).toEqual('');
-    expect(plugins?.[1].id).toEqual('recheck');
     expect(resolvedConfig.rules).toEqual({
       'operation-2xx-response': 'warn',
     });
@@ -102,7 +100,7 @@ describe('resolveConfig', () => {
 
     expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
-    expect(plugins?.length).toBe(3);
+    expect(plugins?.length).toBe(2);
 
     expect(resolvedConfig.rules).toEqual({
       'boolean-parameter-prefixes': 'error',
@@ -179,7 +177,7 @@ describe('resolveConfig', () => {
 
     expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
-    expect(plugins?.length).toBe(3);
+    expect(plugins?.length).toBe(2);
 
     const localPlugin = plugins?.find((p) => p.id === 'test-plugin');
     expect(localPlugin).toBeDefined();
@@ -211,7 +209,7 @@ describe('resolveConfig', () => {
 
     expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('warn');
     expect(plugins).toBeDefined();
-    expect(plugins?.length).toBe(3);
+    expect(plugins?.length).toBe(2);
 
     const localPlugin = plugins?.find((p) => p.id === 'test-plugin');
     expect(localPlugin).toBeDefined();
@@ -254,10 +252,10 @@ describe('resolveConfig', () => {
     expect(resolvedConfig?.rules?.['operation-4xx-response']).toEqual('off');
     expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('error');
     expect(plugins).toBeDefined();
-    expect(plugins?.length).toBe(4);
+    expect(plugins?.length).toBe(3);
     expect(
       plugins
-        ?.filter(({ id }) => id !== '' && id !== 'recheck') // filter out the built-in plugins
+        ?.filter(({ id }) => id !== '') // filter out the default plugin
         .map(({ absolutePath, path, ...rest }) => ({
           ...rest,
           absolutePath: absolutePath?.replace(__dirname, '...'),
@@ -281,7 +279,7 @@ describe('resolveConfig', () => {
     new Config(resolvedConfig, { plugins });
 
     expect(plugins).toBeDefined();
-    expect(plugins?.length).toBe(3);
+    expect(plugins?.length).toBe(2);
     expect(asserts['test-plugin/checkWordsCount' as keyof Asserts]).toBeDefined();
   });
 
@@ -357,7 +355,7 @@ describe('resolveConfig', () => {
   it('should resolve `recommended-strict` ruleset correctly', async () => {
     const expectedStrict = JSON.parse(JSON.stringify(recommended)) as Omit<
       RawGovernanceConfig,
-      'extends' | 'plugins' | 'recheck'
+      'extends' | 'plugins' | 'recheck' | 'recheckExtends'
     >;
     for (const section of Object.values(expectedStrict)) {
       for (let ruleName in section) {
@@ -403,9 +401,8 @@ describe('resolveConfig', () => {
       plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
 
-    expect(plugins?.length).toEqual(2);
+    expect(plugins?.length).toEqual(1);
     expect(plugins?.[0].id).toEqual('');
-    expect(plugins?.[1].id).toEqual('recheck');
 
     expect(apis['petstore'].rules).toEqual({
       'operation-2xx-response': 'warn',
@@ -439,7 +436,7 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
 
-    expect(plugins?.length).toEqual(3); // all plugins
+    expect(plugins?.length).toEqual(2); // all plugins
   });
 
   it('should ignore minimal from the root and read local file', async () => {
@@ -468,7 +465,7 @@ describe('resolveConfig', () => {
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config
 
-    expect(plugins?.length).toEqual(3);
+    expect(plugins?.length).toEqual(2);
 
     expect(apis['petstore']).toMatchSnapshot();
   });
@@ -582,9 +579,8 @@ describe('resolveApis', () => {
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
 
     expect(apis?.['petstore'].rules).toEqual({});
-    expect(plugins?.length).toEqual(2);
+    expect(plugins?.length).toEqual(1);
     expect(plugins?.[0].id).toEqual('');
-    expect(plugins?.[1].id).toEqual('recheck');
   });
 
   it('should resolve apis rootOrApiRawConfig when it contains file and not set recommended', async () => {
@@ -610,9 +606,8 @@ describe('resolveApis', () => {
       'operation-2xx-response': 'warn',
       'operation-4xx-response': 'error',
     });
-    expect(plugins?.length).toEqual(2);
+    expect(plugins?.length).toEqual(1);
     expect(plugins?.[0].id).toEqual('');
-    expect(plugins?.[1].id).toEqual('recheck');
   });
 
   it('should resolve apis rootOrApiRawConfig when it contains file', async () => {
@@ -640,7 +635,7 @@ describe('resolveApis', () => {
     expect(apis?.['petstore'].rules?.['operation-2xx-response']).toEqual('off');
     expect(apis?.['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis?.['petstore'].rules?.['local/operation-id-not-test']).toEqual('error');
-    expect(plugins?.length).toEqual(3);
+    expect(plugins?.length).toEqual(2);
     expect(rules?.['operation-2xx-response']).toEqual('warn');
   });
 
