@@ -9,7 +9,6 @@ import {
 import {
   generateBaseline,
   generateMarkdocSchema,
-  presetConfigs,
   resolveRecheckConfig,
   runLint,
   runReadability,
@@ -34,7 +33,7 @@ import {
 import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
-const DEFAULT_PRESET_NAME = 'markdown';
+const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
 // An API description is a YAML or JSON file whose root parses as a known spec.
@@ -94,19 +93,21 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     return;
   }
 
-  let block = config.recheck;
-  if (!hasRecheckConfig(block)) {
+  let presets = config.recheckExtends;
+  const block = config.recheck;
+  if (presets.length === 0 && !hasRecheckConfig(block)) {
     if (config.configPath) {
       logger.info(
         'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
       );
       return;
     }
-    logger.info(`No redocly.yaml found; using recheck/${DEFAULT_PRESET_NAME}.\n`);
-    block = presetConfigs[DEFAULT_PRESET_NAME].recheck;
+    logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
+    presets = [DEFAULT_PRESET];
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
+    extends: presets,
     block,
     configDir,
     warn: (message) => logger.warn(`${message}\n`),

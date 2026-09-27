@@ -24,10 +24,12 @@ export type { NormalizedRule, RecheckConfig, RecheckRules } from './types/rules.
 export type { RuleSeverity } from './types/rules.js';
 export type { ValidationError } from './types/validation.js';
 export { resolveRecheckConfig } from './config/resolve.js';
-export type { RecheckBlockInput, ResolvedRecheckConfig, ResolveResult } from './config/resolve.js';
-export { presetConfigs } from './config/presets/index.js';
-export { mergeRecheckRules, mergeRuleEntry } from './config/public.js';
-export type { RecheckBlock, RecheckRuleInput, RecheckRulesInput } from './config/public.js';
+export type {
+  RecheckBlock,
+  RecheckBlockInput,
+  ResolvedRecheckConfig,
+  ResolveResult,
+} from './config/resolve.js';
 // Exposed so callers building their own FileInput[] (e.g. the ai-worker
 // recheck tool) can populate metadata the same way lintFiles does, without
 // reimplementing image-metadata loading.

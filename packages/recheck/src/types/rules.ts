@@ -62,7 +62,7 @@ export interface NormalizedRule {
  *
  * A rule entry is `Partial<BaseRule>` because a config that `extends` a
  * preset may set one field of a preset rule and inherit the rest (see
- * `mergeRuleEntry` in config/public.ts). `severity`, `message` and
+ * `resolveExtends` in config/validate.ts). `severity`, `message` and
  * `assertions` are required on the MERGED rule, which the JSON schema
  * enforces at load time. `validate` fills a missing token rule message
  * before that check.

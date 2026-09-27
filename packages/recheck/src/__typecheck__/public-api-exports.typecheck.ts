@@ -14,13 +14,8 @@ import {
   generateBaseline,
   runReadability,
   generateMarkdocSchema,
-  presetConfigs,
-  mergeRecheckRules,
-  mergeRuleEntry,
   type RecheckBlock,
   type RecheckBlockInput,
-  type RecheckRuleInput,
-  type RecheckRulesInput,
   type RecheckConfig,
   type ResolvedRecheckConfig,
   type ResolveResult,
@@ -43,24 +38,18 @@ export const typedError: ValidationError = {
   path: 'rule.assertions.foo',
 };
 
-export const typedRecheckBlockInput: RecheckBlockInput = {
-  block: { rules: { 'recheck/no-trailing-spaces': 'warn' } },
-  configDir: '/project',
-};
-
-export const typedRecheckRuleInput: RecheckRuleInput = 'off';
-export const typedRecheckRulesInput: RecheckRulesInput = {
-  'recheck/line-length': { severity: 'warn' },
-};
 export const typedRecheckBlock: RecheckBlock = {
-  rules: typedRecheckRulesInput,
+  rules: { 'recheck/line-length': { severity: 'warn' }, 'recheck/no-trailing-spaces': 'off' },
   excludes: ['CHANGELOG.md'],
   markdoc: true,
   apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
 };
-export const typedPresetConfigs: Record<string, { recheck: RecheckBlock }> = presetConfigs;
-export const typedMergeRecheckRules: typeof mergeRecheckRules = mergeRecheckRules;
-export const typedMergeRuleEntry: typeof mergeRuleEntry = mergeRuleEntry;
+
+export const typedRecheckBlockInput: RecheckBlockInput = {
+  extends: ['recheck/markdown'],
+  block: typedRecheckBlock,
+  configDir: '/project',
+};
 
 export const typedResolvedRecheckConfig: ResolvedRecheckConfig = {
   rules: [],

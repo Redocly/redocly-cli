@@ -53,7 +53,7 @@ export default function myPlugin() {
 }
 ```
 
-The built-in plugin of the [`recheck`](../commands/recheck.md) command uses the id `recheck`.
+[Recheck presets](../commands/recheck.md) use the id `recheck`.
 A custom plugin with that id fails to load.
 
 ## Supported formats

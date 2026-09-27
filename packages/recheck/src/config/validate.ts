@@ -1,4 +1,5 @@
 import Ajv from '@redocly/ajv';
+import { mergeRecheckRules } from '@redocly/openapi-core';
 import addFormats from 'ajv-formats';
 import * as yaml from 'js-yaml';
 import * as fs from 'node:fs/promises';
@@ -19,7 +20,6 @@ import { validateScopeSelector } from '../scopes/vocabulary.js';
 import type { RecheckRules, NormalizedRule, ValidationError, BaseRule } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { presets } from './presets/index.js';
-import { mergeRuleEntry } from './public.js';
 import { RECHECK_CONFIG_SCHEMA, MARKDOC_TAG_SCHEMA } from './schema.js';
 
 const ajv = new (Ajv as any)({
@@ -1441,9 +1441,9 @@ export function resolveExtends(config: Record<string, unknown>): {
 
   const errors: ValidationError[] = [];
 
-  const merged: Record<string, Partial<BaseRule>> = {};
+  let merged = mergeRecheckRules();
   for (const name of extendsList) {
-    const preset = presets[name as string];
+    const preset = Object.hasOwn(presets, name) ? presets[name] : undefined;
     if (!preset) {
       errors.push({
         message: `Unknown preset "${name}" in "extends" — expected one of: ${Object.keys(presets).join(', ')}`,
@@ -1452,18 +1452,13 @@ export function resolveExtends(config: Record<string, unknown>): {
       });
       continue;
     }
-    for (const [ruleKey, presetRule] of Object.entries(preset)) {
-      // Validation writes defaults into the entry, so clone the shared preset entry.
-      const ruleCopy = structuredClone(presetRule);
-      merged[ruleKey] = merged[ruleKey] ? mergeRuleEntry(merged[ruleKey], ruleCopy) : ruleCopy;
-    }
+    // Validation writes defaults into the entries, so clone the shared preset.
+    merged = mergeRecheckRules(merged, structuredClone(preset));
   }
+  merged = mergeRecheckRules(merged, userRules);
 
-  for (const [ruleKey, userRule] of Object.entries(userRules)) {
-    merged[ruleKey] = merged[ruleKey] ? mergeRuleEntry(merged[ruleKey], userRule) : userRule;
-  }
-
-  return { config: merged, errors };
+  // Core's merge returns the entries of a recheck block; the engine reads them as partial rules.
+  return { config: merged as Record<string, Partial<BaseRule>>, errors };
 }
 
 // A token rule's message comes from its defaults; a scope rule must name one.
