@@ -49,7 +49,7 @@ export function splitAsyncApiDefinition({
   });
   const channelsFiles = gatherItemFiles(
     asyncapi.channels,
-    '#/channels',
+    `#/${CHANNELS}`,
     asyncapiDir,
     channelsDir,
     pathSeparator,
@@ -58,7 +58,7 @@ export function splitAsyncApiDefinition({
   );
   const operationFiles = gatherItemFiles(
     operations,
-    '#/operations',
+    `#/${OPERATIONS}`,
     asyncapiDir,
     operationsDir,
     pathSeparator,

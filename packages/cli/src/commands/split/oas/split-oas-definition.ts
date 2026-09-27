@@ -8,6 +8,7 @@ import {
 import * as path from 'node:path';
 
 import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
+import { PATHS, WEBHOOKS, xWEBHOOKS } from '../constants.js';
 import type { AnyOas3Definition, ComponentsFiles } from '../types.js';
 import { gatherComponentsFiles } from '../utils/gather-components-files.js';
 import { gatherItemFiles } from '../utils/gather-item-files.js';
@@ -25,12 +26,13 @@ export function splitOASDefinition(
   source: Source,
   fileNameConflictsSeverity?: RuleSeverity
 ) {
-  const pathsDir = path.join(openapiDir, 'paths');
-  const webhooksDir = path.join(openapiDir, 'webhooks');
+  const pathsDir = path.join(openapiDir, PATHS);
+  const webhooksDir = path.join(openapiDir, WEBHOOKS);
   const webhooks =
     (openapi as Oas3_1Definition | Oas3_2Definition).webhooks ||
     (openapi as Oas3Definition)['x-webhooks'];
-  const webhooksPointer = 'webhooks' in openapi && openapi.webhooks ? '#/webhooks' : '#/x-webhooks';
+  const webhooksPointer =
+    'webhooks' in openapi && openapi.webhooks ? `#/${WEBHOOKS}` : `#/${xWEBHOOKS}`;
 
   // every file name is chosen before anything is written, so a conflict reported as an error leaves no files behind
   const componentsFiles: ComponentsFiles = {};
@@ -38,7 +40,7 @@ export function splitOASDefinition(
   gatherComponentsFiles(openapi, openapiDir, componentsFiles, ext, conflicts);
   const pathItemFiles = gatherItemFiles(
     openapi.paths,
-    '#/paths',
+    `#/${PATHS}`,
     openapiDir,
     pathsDir,
     pathSeparator,
