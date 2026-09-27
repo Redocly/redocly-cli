@@ -28,7 +28,7 @@ import {
   loadPluginModule,
   setCachedPlugins,
 } from './plugins-cache.js';
-import { RECHECK_PLUGIN_ID } from './recheck.js';
+import { orderRecheckPresets, RECHECK_PLUGIN_ID } from './recheck.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -128,12 +128,10 @@ export async function resolveConfig({
     bundledConfig.apis = Object.fromEntries(
       Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
         const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
-        const recheckExtends = [
-          ...new Set([
-            ...(bundledConfig.recheckExtends ?? []),
-            ...(apiConfig.recheckExtends ?? []),
-          ]),
-        ];
+        const recheckExtends = orderRecheckPresets([
+          ...(bundledConfig.recheckExtends ?? []),
+          ...(apiConfig.recheckExtends ?? []),
+        ]);
         return [
           key,
           { ...apiConfig, ...mergedConfig, ...(recheckExtends.length > 0 && { recheckExtends }) },

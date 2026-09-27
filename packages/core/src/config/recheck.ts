@@ -15,6 +15,14 @@ export function isRecheckPreset(name: string): boolean {
 }
 
 /**
+ * Keeps each preset name once at its last listed position, because a later preset wins.
+ * The input does not change.
+ */
+export function orderRecheckPresets(names: string[]): string[] {
+  return names.filter((name, index) => names.indexOf(name, index + 1) === -1);
+}
+
+/**
  * Merges one rule entry on top of another. A severity string sets `severity`.
  * An object sets its own keys and merges `assertions` per assertion id. An
  * object on a severity string keeps that severity. Any other value replaces

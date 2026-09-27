@@ -4,7 +4,7 @@ import { isAbsoluteUrl } from '../ref-utils.js';
 import { isTruthy } from '../utils/is-truthy.js';
 import { type UserContext } from '../walk.js';
 import { resolvePreset } from './config-resolvers.js';
-import { isRecheckPreset } from './recheck.js';
+import { isRecheckPreset, orderRecheckPresets } from './recheck.js';
 import { type Plugin, type RawGovernanceConfig } from './types.js';
 import { mergeExtends } from './utils.js';
 
@@ -35,7 +35,7 @@ export function bundleExtends({
     recheckExtends.push(...(bundled.recheckExtends ?? []));
   }
   const merged = mergeExtends([...bundledExtends, { ...node, extends: undefined }]);
-  const ordered = [...new Set([...recheckExtends, ...(node.recheckExtends ?? [])])];
+  const ordered = orderRecheckPresets([...recheckExtends, ...(node.recheckExtends ?? [])]);
   return ordered.length > 0 ? { ...merged, recheckExtends: ordered } : merged;
 }
 
