@@ -141,12 +141,15 @@ describe('resolveRecheckConfig', () => {
     expect(result.config.apiDescriptionRules).toEqual({ 'recheck/line-length': 'off' });
   });
 
-  it('reports an unknown preset by name', async () => {
-    const result = await resolveRecheckConfig({ extends: ['recheck/nope'], configDir });
-    expect(result.success).toBe(false);
-    if (result.success) return;
-    expect(result.errors[0].message).toContain('Unknown preset "recheck/nope"');
-  });
+  it.each(['recheck/nope', 'constructor'])(
+    'reports the unknown preset %s by name',
+    async (name) => {
+      const result = await resolveRecheckConfig({ extends: [name], configDir });
+      expect(result.success).toBe(false);
+      if (result.success) return;
+      expect(result.errors[0].message).toContain(`Unknown preset "${name}"`);
+    }
+  );
 
   it('merges the block on top of the presets with the core merge', async () => {
     const result = await resolveRecheckConfig({

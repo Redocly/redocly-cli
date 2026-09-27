@@ -1441,7 +1441,7 @@ export function resolveExtends(config: Record<string, unknown>): {
 
   const errors: ValidationError[] = [];
 
-  let merged = mergeRecheckRules();
+  let merged: Record<string, unknown> = {};
   for (const name of extendsList) {
     const preset = Object.hasOwn(presets, name) ? presets[name] : undefined;
     if (!preset) {
