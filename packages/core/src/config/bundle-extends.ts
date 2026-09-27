@@ -24,7 +24,7 @@ export function bundleExtends({
   const recheckExtends: string[] = [];
   const bundledExtends: RawGovernanceConfig[] = [];
   for (const presetItem of (node.extends || []).filter(isTruthy)) {
-    if (isRecheckPreset(presetItem)) {
+    if (!isAbsoluteUrl(presetItem) && !path.extname(presetItem) && isRecheckPreset(presetItem)) {
       recheckExtends.push(presetItem);
       continue;
     }

@@ -37,9 +37,16 @@ describe('mergeRecheckRule', () => {
     });
   });
 
+  it('keeps a severity string base under an object override', () => {
+    expect(mergeRecheckRule('off', { severity: 'warn' })).toEqual({ severity: 'warn' });
+    expect(mergeRecheckRule('warn', { assertions: { x: {} } })).toEqual({
+      severity: 'warn',
+      assertions: { x: {} },
+    });
+  });
+
   it('replaces the entry for any other value', () => {
     expect(mergeRecheckRule(preset, null)).toBeNull();
-    expect(mergeRecheckRule('off', { severity: 'warn' })).toEqual({ severity: 'warn' });
     expect(mergeRecheckRule(null, 'warn')).toBe('warn');
   });
 });
@@ -84,5 +91,9 @@ describe('mergeRecheckBlocks', () => {
 
   it('returns a block that is not an object as it is, so the engine reports it', () => {
     expect(mergeRecheckBlocks({ rules: {} }, 5)).toBe(5);
+  });
+
+  it('keeps a base that is not an object, so the engine reports it', () => {
+    expect(mergeRecheckBlocks(5 as never, { rules: {} })).toBe(5);
   });
 });

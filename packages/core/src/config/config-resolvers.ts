@@ -128,7 +128,16 @@ export async function resolveConfig({
     bundledConfig.apis = Object.fromEntries(
       Object.entries(bundledConfig.apis).map(([key, apiConfig]) => {
         const mergedConfig = mergeExtends([bundledConfig, apiConfig]);
-        return [key, { ...apiConfig, ...mergedConfig }];
+        const recheckExtends = [
+          ...new Set([
+            ...(bundledConfig.recheckExtends ?? []),
+            ...(apiConfig.recheckExtends ?? []),
+          ]),
+        ];
+        return [
+          key,
+          { ...apiConfig, ...mergedConfig, ...(recheckExtends.length > 0 && { recheckExtends }) },
+        ];
       })
     );
   }

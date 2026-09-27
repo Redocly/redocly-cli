@@ -295,7 +295,10 @@ export type RawUniversalApiConfig = ApiConfig &
 
 export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
-  ClientGeneratorApiConfig;
+  ClientGeneratorApiConfig & {
+    /** The root `recheck/*` presets, then the presets of this api, with no repeats. */
+    recheckExtends?: string[];
+  };
 
 export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {

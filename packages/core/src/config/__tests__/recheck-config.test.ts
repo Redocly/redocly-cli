@@ -41,6 +41,28 @@ describe('recheck presets in extends', () => {
     expect(config.forAlias('main').recheckExtends).toEqual(['recheck/markdown']);
   });
 
+  it('puts the root presets before the presets of an api', async () => {
+    const config = await createConfig(outdent`
+      extends:
+        - recheck/markdown
+      apis:
+        main:
+          root: ./openapi.yaml
+          extends:
+            - recheck/prose
+        other:
+          root: ./other.yaml
+    `);
+    expect(config.forAlias('main').recheckExtends).toEqual(['recheck/markdown', 'recheck/prose']);
+    expect(config.forAlias('other').recheckExtends).toEqual(['recheck/markdown']);
+  });
+
+  it('reads a file in a recheck folder as a shared config file', async () => {
+    const config = await loadConfig({ configPath: join(fixtures, 'folder-file', 'redocly.yaml') });
+    expect(config.recheckExtends).toEqual([]);
+    expect(config.recheck.rules).toEqual({ 'recheck/line-length': 'off' });
+  });
+
   it('has no recheck presets and an empty block by default', async () => {
     const config = await createConfig('extends:\n  - recommended\n');
     expect(config.recheckExtends).toEqual([]);

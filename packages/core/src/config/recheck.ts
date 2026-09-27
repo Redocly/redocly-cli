@@ -15,17 +15,19 @@ export function isRecheckPreset(name: string): boolean {
 }
 
 /**
- * Merges one rule entry on top of another. A severity string sets `severity`;
- * an object sets its own keys and merges `assertions` per assertion id; any
- * other value replaces the entry. The inputs do not change.
+ * Merges one rule entry on top of another. A severity string sets `severity`.
+ * An object sets its own keys and merges `assertions` per assertion id. An
+ * object on a severity string keeps that severity. Any other value replaces
+ * the entry. The inputs do not change.
  */
 export function mergeRecheckRule(base: unknown, override: unknown): unknown {
-  if (!isPlainObject(base)) return override;
-  if (typeof override === 'string') return { ...base, severity: override };
+  const baseRule = typeof base === 'string' && isPlainObject(override) ? { severity: base } : base;
+  if (!isPlainObject(baseRule)) return override;
+  if (typeof override === 'string') return { ...baseRule, severity: override };
   if (!isPlainObject(override)) return override;
-  const merged: Record<string, unknown> = { ...base, ...override };
-  if (isPlainObject(base.assertions) && isPlainObject(override.assertions)) {
-    merged.assertions = { ...base.assertions, ...override.assertions };
+  const merged: Record<string, unknown> = { ...baseRule, ...override };
+  if (isPlainObject(baseRule.assertions) && isPlainObject(override.assertions)) {
+    merged.assertions = { ...baseRule.assertions, ...override.assertions };
   }
   return merged;
 }
@@ -44,10 +46,12 @@ export function mergeRecheckRules(base?: unknown, override?: unknown): RecheckRu
 
 /**
  * Merges one `recheck` block on top of another: `rules` by rule key, the other
- * keys assigned. A block that is not an object comes back as it is, so the
- * engine reports the wrong type. The inputs do not change.
+ * keys assigned. A base that is not an object stays as it is. An override that
+ * is not an object replaces the block. The engine then reports the wrong type.
+ * The inputs do not change.
  */
 export function mergeRecheckBlocks(base: RecheckConfig, override: unknown): RecheckConfig {
+  if (!isPlainObject(base)) return base;
   if (override === undefined || override === null) return base;
   if (!isPlainObject(override)) return override as RecheckConfig;
   const { rules, ...settings } = override;

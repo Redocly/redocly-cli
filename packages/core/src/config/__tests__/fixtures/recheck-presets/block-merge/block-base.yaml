@@ -1,4 +1,3 @@
 recheck:
   rules:
-    recheck/line-length:
-      severity: warn
+    recheck/line-length: warn
