@@ -52,6 +52,7 @@ export class Config {
   preprocessors: Record<SpecVersion, Record<string, PreprocessorConfig>>;
   decorators: Record<SpecVersion, Record<string, DecoratorConfig>>;
   recheck: RecheckConfig;
+  recheckExtends: string[];
 
   private _usedRules: Set<string> = new Set();
   private _usedVersions: Set<SpecVersion> = new Set();
@@ -160,6 +161,7 @@ export class Config {
       graphql: {},
     };
     this.recheck = resolvedConfig.recheck ?? { rules: {} };
+    this.recheckExtends = resolvedConfig.recheckExtends ?? [];
 
     this.ignore = opts.ignore ?? {};
   }

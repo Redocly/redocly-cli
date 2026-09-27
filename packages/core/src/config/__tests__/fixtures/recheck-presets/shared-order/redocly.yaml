@@ -1,0 +1,4 @@
+extends:
+  - recheck/google
+  - ../base.yaml
+  - recheck/prose

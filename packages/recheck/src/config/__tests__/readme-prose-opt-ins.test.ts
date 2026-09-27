@@ -7,7 +7,6 @@ import { describe, expect, it } from 'vitest';
 import { runRules } from '../../core/runner.js';
 import { DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { resolveRecheckConfig } from '../resolve.js';
-import { withPresets } from './with-presets.js';
 
 // Proves the README's opt-in prose assertions snippet is a real, working
 // `redocly.yaml` example. It covers the three assertions no preset ships:
@@ -34,15 +33,12 @@ function extractOptInSnippet(): string {
 }
 
 // The snippet is a `redocly.yaml` document (root `extends` plus a `recheck`
-// block). The `recheck/*` presets from `extends` merge into the block, as core
-// does, before `resolveRecheckConfig` validates it.
+// block), so resolving it takes the same two pieces `resolveRecheckConfig`
+// takes at runtime: the `recheck/*` names from `extends`, and the block.
 async function resolveOptInSnippet(snippet: string) {
-  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: Record<string, unknown> };
+  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: unknown };
   const extendsList = (doc.extends ?? []).filter((name) => name.startsWith('recheck/'));
-  return resolveRecheckConfig({
-    block: withPresets(extendsList, doc.recheck ?? {}),
-    configDir: readmeDir,
-  });
+  return resolveRecheckConfig({ extends: extendsList, block: doc.recheck, configDir: readmeDir });
 }
 
 describe('README "Opt-in prose assertions" snippet', () => {

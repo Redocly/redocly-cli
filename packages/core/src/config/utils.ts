@@ -1,5 +1,4 @@
 import type { RecheckConfig } from '@redocly/config';
-import { mergeRecheckRules, type RecheckRulesInput } from '@redocly/recheck/config';
 
 import type {
   Oas3RuleSet,
@@ -13,6 +12,7 @@ import type {
 } from '../oas-types.js';
 import { assignOnlyExistingConfig, assignConfig } from '../utils/assign-config.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { mergeRecheckBlocks } from './recheck.js';
 import type { ImportedPlugin, ResolvedGovernanceConfig, Plugin, PluginCreator } from './types.js';
 
 export function parsePresetName(presetName: string): { pluginId: string; configName: string } {
@@ -46,7 +46,7 @@ export function prefixRules<
 }
 
 export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
-  const recheck: RecheckConfig & { rules: RecheckRulesInput } = { rules: {} };
+  let recheck: RecheckConfig = { rules: {} };
   const result: Required<ResolvedGovernanceConfig> = {
     rules: {},
     oas2Rules: {},
@@ -163,22 +163,9 @@ export function mergeExtends(rulesConfList: ResolvedGovernanceConfig[]) {
     assignConfig(result.openrpc1Decorators, rulesConf.openrpc1Decorators);
     assignOnlyExistingConfig(result.openrpc1Decorators, rulesConf.decorators);
 
-    // `mergeExtends` does not validate the block. check-config reports a wrong type.
-    const block: unknown = rulesConf.recheck;
-    if (isPlainObject(result.recheck) && block !== undefined && block !== null) {
-      if (isPlainObject<RecheckConfig>(block)) {
-        const { rules, ...settings } = block;
-        Object.assign(recheck, settings);
-        if (isPlainObject(rules)) {
-          // `RecheckConfig` and `RecheckRulesInput` describe the same YAML rule entries.
-          recheck.rules = mergeRecheckRules(recheck.rules, rules as RecheckRulesInput);
-        }
-      } else {
-        // The raw value must reach the engine, which reports the wrong type.
-        result.recheck = block as RecheckConfig;
-      }
-    }
+    recheck = mergeRecheckBlocks(recheck, rulesConf.recheck);
   }
+  result.recheck = recheck;
 
   return result;
 }

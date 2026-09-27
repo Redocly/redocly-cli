@@ -5,6 +5,7 @@
     "outDir": "lib",
     "strict": true
   },
+  "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"],
   "exclude": ["lib", "**/__tests__", "**/*.test.ts", "**/__typecheck__"]
 }

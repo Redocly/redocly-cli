@@ -1,10 +1,20 @@
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
-import type { MarkdocSchema } from '../parser/markdoc/schema.js';
-import type { NormalizedRule, ValidationError } from '../types/index.js';
+import type { MarkdocSchema, MarkdocUserConfig } from '../parser/markdoc/schema.js';
+import type { BaseRule, NormalizedRule, RuleSeverity, ValidationError } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
 import { validate } from './validate.js';
+
+type RecheckRulesInput = Record<string, RuleSeverity | Partial<BaseRule>>;
+
+// The `recheck` block of redocly.yaml, before the engine validates it.
+export interface RecheckBlock {
+  rules?: RecheckRulesInput;
+  excludes?: string[];
+  markdoc?: boolean | MarkdocUserConfig;
+  apiDescriptions?: { rules?: RecheckRulesInput };
+}
 
 export interface ResolvedRecheckConfig {
   rules: NormalizedRule[];
@@ -17,7 +27,9 @@ export interface ResolvedRecheckConfig {
 }
 
 export interface RecheckBlockInput {
-  // The `recheck` block of redocly.yaml with its presets merged in, as parsed.
+  // The `recheck/*` entries from `extends` of redocly.yaml, in order.
+  extends?: string[];
+  // The `recheck` block of redocly.yaml, as parsed.
   block?: unknown;
   configDir: string;
   warn?: (message: string) => void;
@@ -33,9 +45,13 @@ const SEVERITIES = new Set(['off', 'info', 'warn', 'error']);
 
 // The block nests rules under `rules`; the engine's own config shape keeps
 // rule entries at the top level beside `excludes` and `markdoc`.
-function toEngineConfig(block: Record<string, unknown>): Record<string, unknown> {
+function toEngineConfig(
+  block: Record<string, unknown>,
+  extendsList: string[] | undefined
+): Record<string, unknown> {
   const { rules, apiDescriptions: _apiDescriptions, ...rest } = block;
   const engineConfig: Record<string, unknown> = { ...rest };
+  if (extendsList && extendsList.length > 0) engineConfig.extends = extendsList;
   if (isPlainObject(rules)) {
     for (const [name, entry] of Object.entries(rules)) {
       engineConfig[name] =
@@ -171,9 +187,9 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
     }
     if (errors.length > 0) return { success: false, errors };
   }
-  // Validation fills schema defaults in place; the clone keeps the shared
-  // preset entries untouched.
-  const validation = await validate(toEngineConfig(structuredClone(block)), {
+  // Validation fills schema defaults in place; the clone keeps the caller's
+  // block untouched.
+  const validation = await validate(toEngineConfig(structuredClone(block), input.extends), {
     configDir: input.configDir,
     warn: input.warn,
   });

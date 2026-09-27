@@ -143,11 +143,16 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
 
-  /** The `recheck` block; presets named in `extends` merge into it. */
+  /** The `recheck` block; the blocks of shared config files merge into it by rule key. */
   recheck?: RecheckConfig;
+  /** Set by the config bundler: the `recheck/*` presets from `extends`, in order. */
+  recheckExtends?: string[];
 };
 
-export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
+export type ResolvedGovernanceConfig = Omit<
+  RawGovernanceConfig,
+  'extends' | 'plugins' | 'recheckExtends'
+>;
 
 export type PreprocessorsConfig = {
   oas3?: Oas3DecoratorsSet;
@@ -290,7 +295,10 @@ export type RawUniversalApiConfig = ApiConfig &
 
 export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
-  ClientGeneratorApiConfig;
+  ClientGeneratorApiConfig & {
+    /** The root `recheck/*` presets, then the presets of this api, with no repeats. */
+    recheckExtends?: string[];
+  };
 
 export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
@@ -307,6 +315,7 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     plugins?: string[];
     /** Per-api key, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
+    recheckExtends?: string[];
   };
 
 export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

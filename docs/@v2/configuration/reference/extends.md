@@ -9,9 +9,7 @@ Multiple values are supported, and can include:
 - configuration defined in a [custom plugin](../../custom-plugins/index.md)
 - a path or URL to another `redocly.yaml` file
 
-Entries that start with `recheck/`, such as `recheck/markdown`, are presets for the [`recheck`](../../commands/recheck.md) command.
-They are the configs of the built-in `recheck` plugin.
-`extends` resolves them the same way as any other plugin config.
+Entries that start with `recheck/`, such as `recheck/markdown`, are Recheck presets, which [`redocly recheck`](../../commands/recheck.md) composes.
 A custom plugin cannot use the id `recheck`.
 
 The [`recheck` block](recheck.md) merges on top of the presets.

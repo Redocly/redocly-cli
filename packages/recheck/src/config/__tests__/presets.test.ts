@@ -6,7 +6,7 @@ import { lintContent } from '../../index.js';
 import { scopeRules } from '../../rules/registry.js';
 import { allTokenRules, RECHECK_ORIGINAL_TOKEN_RULE_NAMES } from '../../rules/token/index.js';
 import type { ScopeRule } from '../../rules/types.js';
-import { presets, presetConfigs, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
+import { presets, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { registerPresetRules } from '../presets/markdown.js';
 import { PROSE_PRESET_ASSERTIONS, buildProsePreset } from '../presets/prose.js';
 import { validate } from '../validate.js';
@@ -960,15 +960,7 @@ describe('registry <-> preset completeness (native scope-rule assertions)', () =
   });
 });
 
-describe('presetConfigs', () => {
-  it('holds every preset under its bare name as a recheck block', () => {
-    const bareNames = Object.keys(presets).map((id) => id.replace(/^recheck\//, ''));
-    expect(Object.keys(presetConfigs)).toEqual(bareNames);
-    for (const [id, rules] of Object.entries(presets)) {
-      expect(presetConfigs[id.replace(/^recheck\//, '')]).toEqual({ recheck: { rules } });
-    }
-  });
-
+describe('preset data', () => {
   it('carries no derived message for a token rule', () => {
     expect(presets['recheck/markdown']['recheck/line-length']).not.toHaveProperty('message');
   });

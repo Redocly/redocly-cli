@@ -1,5 +1,5 @@
 import { AbortFlowError, Source, type Config } from '@redocly/openapi-core';
-import { presetConfigs, type RecheckBlock } from '@redocly/recheck';
+import type { RecheckBlock } from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -32,15 +32,19 @@ describe('handleRecheck', () => {
     await fs.rm(dir, { recursive: true, force: true });
   });
 
-  function run(recheck: RecheckBlock, configPath: string | undefined): Promise<void> {
+  function run(
+    recheck: RecheckBlock,
+    configPath: string | undefined,
+    recheckExtends: string[] = []
+  ): Promise<void> {
     const argv: RecheckArgv = { format: 'table', paths: [path.join(dir, 'docs')] };
-    const config = { ...configFixture, recheck, configPath } as Config;
+    const config = { ...configFixture, recheck, recheckExtends, configPath } as Config;
     return handleRecheck({ argv, config, version: 'test' });
   }
 
-  it('runs the rules of a preset merged into the block', async () => {
+  it('runs the rules of a preset from the root extends', async () => {
     await expect(
-      run(presetConfigs.markdown.recheck, path.join(dir, 'redocly.yaml'))
+      run({ rules: {} }, path.join(dir, 'redocly.yaml'), ['recheck/markdown'])
     ).rejects.toThrow(AbortFlowError);
     const report = output.stdout.join('');
     expect(report).toContain('single-h1');
@@ -49,7 +53,7 @@ describe('handleRecheck', () => {
 
   it('runs only the rules of the block', async () => {
     const rules = {
-      'recheck/single-h1': presetConfigs.markdown.recheck.rules!['recheck/single-h1'],
+      'recheck/single-h1': { severity: 'error' as const, assertions: { 'single-h1': {} } },
     };
     await expect(run({ rules }, path.join(dir, 'redocly.yaml'))).rejects.toThrow(AbortFlowError);
     const report = output.stdout.join('');

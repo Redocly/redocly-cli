@@ -89,6 +89,7 @@ describe('Config.forAlias', () => {
         "recheck": {
           "rules": {},
         },
+        "recheckExtends": [],
         "resolve": {
           "http": {
             "customFetch": undefined,

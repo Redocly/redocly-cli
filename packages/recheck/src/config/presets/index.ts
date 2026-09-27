@@ -37,18 +37,6 @@ export const presets: Record<string, RecheckRules> = {
   'recheck/api-descriptions': buildApiDescriptionsPreset(),
 };
 
-const PRESET_PREFIX = 'recheck/';
-
-// The same presets keyed by bare name, each as a config with a `recheck`
-// block. Core registers them as the configs of its built-in `recheck` plugin.
-export const presetConfigs: Record<string, { recheck: { rules: RecheckRules } }> =
-  Object.fromEntries(
-    Object.entries(presets).map(([id, rules]) => [
-      id.slice(PRESET_PREFIX.length),
-      { recheck: { rules } },
-    ])
-  );
-
 /**
  * Documented, monorepo-wide opt-in scope-rule assertions -- native
  * scope-rule assertions (see rules/registry.ts's `scopeRules`) that exist

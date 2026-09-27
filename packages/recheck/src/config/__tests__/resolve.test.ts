@@ -3,17 +3,16 @@ import { tmpdir } from 'node:os';
 import * as path from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { presetConfigs } from '../presets/index.js';
+import { presets } from '../presets/index.js';
 import { buildMarkdownPreset } from '../presets/markdown.js';
 import { DEFAULT_BASELINE_FILE, resolveRecheckConfig } from '../resolve.js';
-import { withPresets } from './with-presets.js';
 
 const configDir = '/tmp/project';
 
 describe('resolveRecheckConfig', () => {
-  it('validates a block with a preset merged in', async () => {
+  it('composes presets named in the root extends', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown']),
+      extends: ['recheck/markdown'],
       configDir,
     });
     expect(result.success).toBe(true);
@@ -24,9 +23,10 @@ describe('resolveRecheckConfig', () => {
 
   it('applies a block rule object over the preset', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         rules: { 'recheck/heading-style': { severity: 'warn' } },
-      }),
+      },
       configDir,
     });
     expect(result.success).toBe(true);
@@ -50,7 +50,8 @@ describe('resolveRecheckConfig', () => {
 
   it('normalizes the severity shorthand', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], { rules: { 'recheck/heading-style': 'off' } }),
+      extends: ['recheck/markdown'],
+      block: { rules: { 'recheck/heading-style': 'off' } },
       configDir,
     });
     expect(result.success).toBe(true);
@@ -78,7 +79,7 @@ describe('resolveRecheckConfig', () => {
     it('picks up the default baseline file next to redocly.yaml', async () => {
       const dir = makeConfigDir(true);
       const result = await resolveRecheckConfig({
-        block: withPresets(['recheck/markdown']),
+        extends: ['recheck/markdown'],
         configDir: dir,
       });
       expect(result.success).toBe(true);
@@ -89,7 +90,7 @@ describe('resolveRecheckConfig', () => {
     it('leaves the baseline path undefined when no default file exists', async () => {
       const dir = makeConfigDir(false);
       const result = await resolveRecheckConfig({
-        block: withPresets(['recheck/markdown']),
+        extends: ['recheck/markdown'],
         configDir: dir,
       });
       expect(result.success).toBe(true);
@@ -100,7 +101,8 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects a `baseline` key in the block', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], { baseline: './custom-baseline.yaml' }),
+      extends: ['recheck/markdown'],
+      block: { baseline: './custom-baseline.yaml' },
       configDir,
     });
     expect(result.success).toBe(false);
@@ -116,13 +118,40 @@ describe('resolveRecheckConfig', () => {
 
   it('enables markdoc with the built-in realm schema for `markdoc: true`', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], { markdoc: true }),
+      extends: ['recheck/markdown'],
+      block: { markdoc: true },
       configDir,
     });
     expect(result.success).toBe(true);
     if (!result.success) return;
     expect(result.config.markdoc).toBe(true);
     expect(result.config.markdocSchema).not.toBeNull();
+  });
+
+  it.each(['recheck/nope', 'constructor'])(
+    'reports the unknown preset %s by name',
+    async (name) => {
+      const result = await resolveRecheckConfig({ extends: [name], configDir });
+      expect(result.success).toBe(false);
+      if (result.success) return;
+      expect(result.errors[0].message).toContain(`Unknown preset "${name}"`);
+    }
+  );
+
+  it('merges the block on top of the presets with the core merge', async () => {
+    const result = await resolveRecheckConfig({
+      extends: ['recheck/markdown'],
+      block: {
+        rules: { 'recheck/line-length': { assertions: { 'line-length': { lineLength: 120 } } } },
+      },
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const rule = result.config.rules.find((entry) => entry.name === 'recheck/line-length');
+    expect(rule?.severity).toBe('error');
+    expect(rule?.assertions['line-length']).toEqual({ lineLength: 120 });
+    expect(typeof rule?.message).toBe('string');
   });
 
   it('rejects extends inside the block with a pointer to the root', async () => {
@@ -166,11 +195,11 @@ describe('resolveRecheckConfig', () => {
 
   it('leaves the shared preset entries unchanged', async () => {
     const result = await resolveRecheckConfig({
-      block: presetConfigs.markdown.recheck,
+      extends: ['recheck/markdown'],
       configDir,
     });
     expect(result.success).toBe(true);
-    expect(presetConfigs.markdown.recheck.rules).toEqual(buildMarkdownPreset());
+    expect(presets['recheck/markdown']).toEqual(buildMarkdownPreset());
   });
 
   it('surfaces engine validation errors', async () => {
@@ -215,14 +244,15 @@ describe('resolveRecheckConfig', () => {
 
   it('applies apiDescriptions.rules onto the effective rules for descriptions', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         apiDescriptions: {
           rules: {
             'recheck/line-length': 'off',
             'recheck/no-trailing-spaces': { severity: 'warn' },
           },
         },
-      }),
+      },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(true);
@@ -239,9 +269,10 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects an apiDescriptions override for a rule that is not in effect', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         apiDescriptions: { rules: { 'recheck/nope': 'off' } },
-      }),
+      },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(false);
@@ -253,9 +284,10 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects an apiDescriptions severity override with an unknown severity', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         apiDescriptions: { rules: { 'recheck/line-length': 'eror' } },
-      }),
+      },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(false);
@@ -270,9 +302,10 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects an apiDescriptions rule-object override with an unknown severity', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         apiDescriptions: { rules: { 'recheck/line-length': { severity: 'loud' } } },
-      }),
+      },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(false);
@@ -287,11 +320,12 @@ describe('resolveRecheckConfig', () => {
 
   it('applies an apiDescriptions rule-object override with a valid severity', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         apiDescriptions: {
           rules: { 'recheck/line-length': { severity: 'warn', message: 'Shorter.' } },
         },
-      }),
+      },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(true);
@@ -305,7 +339,8 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects a non-object apiDescriptions block', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], { apiDescriptions: 'off' }),
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: 'off' },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(false);
@@ -317,9 +352,10 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects an unknown key in the apiDescriptions block', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], {
+      extends: ['recheck/markdown'],
+      block: {
         apiDescriptions: { rule: { 'recheck/line-length': 'off' } },
-      }),
+      },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(false);
@@ -334,7 +370,8 @@ describe('resolveRecheckConfig', () => {
 
   it('rejects a non-object apiDescriptions.rules block', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], { apiDescriptions: { rules: 'off' } }),
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: 'off' } },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(false);
@@ -349,7 +386,8 @@ describe('resolveRecheckConfig', () => {
 
   it('resolves an apiDescriptions block with an empty rules object', async () => {
     const result = await resolveRecheckConfig({
-      block: withPresets(['recheck/markdown'], { apiDescriptions: { rules: {} } }),
+      extends: ['recheck/markdown'],
+      block: { apiDescriptions: { rules: {} } },
       configDir: process.cwd(),
     });
     expect(result.success).toBe(true);
