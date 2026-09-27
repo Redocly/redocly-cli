@@ -5,6 +5,7 @@ import {
   mergeRecheckBlocks,
   mergeRecheckRule,
   mergeRecheckRules,
+  orderRecheckPresets,
 } from '../recheck.js';
 
 const preset = {
@@ -18,6 +19,18 @@ describe('isRecheckPreset', () => {
     expect(isRecheckPreset('recheck/markdown')).toBe(true);
     expect(isRecheckPreset('recommended')).toBe(false);
     expect(isRecheckPreset('my-plugin/recheck')).toBe(false);
+  });
+});
+
+describe('orderRecheckPresets', () => {
+  it('keeps each name once at its last position and does not change the input', () => {
+    const names = ['a', 'b', 'a'];
+    expect(orderRecheckPresets(names)).toEqual(['b', 'a']);
+    expect(names).toEqual(['a', 'b', 'a']);
+  });
+
+  it('returns an empty list for an empty list', () => {
+    expect(orderRecheckPresets([])).toEqual([]);
   });
 });
 

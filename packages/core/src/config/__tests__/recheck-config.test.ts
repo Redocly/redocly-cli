@@ -29,6 +29,16 @@ describe('recheck presets in extends', () => {
     expect(config.recheckExtends).toEqual(['recheck/google', 'recheck/markdown', 'recheck/prose']);
   });
 
+  it('keeps the last listing of a repeated preset', async () => {
+    const config = await createConfig(outdent`
+      extends:
+        - recheck/markdown
+        - recheck/markdown-relaxed
+        - recheck/markdown
+    `);
+    expect(config.recheckExtends).toEqual(['recheck/markdown-relaxed', 'recheck/markdown']);
+  });
+
   it('collects a preset named under an api on that api', async () => {
     const config = await createConfig(outdent`
       apis:
@@ -55,6 +65,23 @@ describe('recheck presets in extends', () => {
     `);
     expect(config.forAlias('main').recheckExtends).toEqual(['recheck/markdown', 'recheck/prose']);
     expect(config.forAlias('other').recheckExtends).toEqual(['recheck/markdown']);
+  });
+
+  it('keeps the last listing of a preset that the root and an api both list', async () => {
+    const config = await createConfig(outdent`
+      extends:
+        - recheck/markdown
+      apis:
+        main:
+          root: ./openapi.yaml
+          extends:
+            - recheck/markdown-relaxed
+            - recheck/markdown
+    `);
+    expect(config.forAlias('main').recheckExtends).toEqual([
+      'recheck/markdown-relaxed',
+      'recheck/markdown',
+    ]);
   });
 
   it('reads a file in a recheck folder as a shared config file', async () => {
