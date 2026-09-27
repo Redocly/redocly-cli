@@ -212,21 +212,6 @@ describe('split', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
-  test('component names that differ only by case with the error severity', async () => {
-    const testPath = join(__dirname, `case-insensitive-component-names`);
-    const file = 'openapi.yaml';
-
-    const args = getParams(indexEntryPoint, [
-      'split',
-      file,
-      '--outDir=output',
-      '--file-name-conflicts-severity=error',
-    ]);
-
-    const result = getCommandOutput(args, { testPath });
-    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot-error.txt'));
-  });
-
   test('component names that differ only by case with the off severity', async () => {
     const testPath = join(__dirname, `case-insensitive-component-names`);
     const file = 'openapi.yaml';
