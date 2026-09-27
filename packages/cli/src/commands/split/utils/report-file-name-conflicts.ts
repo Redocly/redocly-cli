@@ -21,9 +21,8 @@ export function reportFileNameConflicts(
       ruleId: 'split',
       severity,
       message:
-        severity === 'error'
-          ? `${name} and ${collidingName} would share one file on a case-insensitive file system.`
-          : `${name} and ${collidingName} would share one file on a case-insensitive file system, saving ${name} to ${filename}.`,
+        `${name} and ${collidingName} would share one file on a case-insensitive file system` +
+        (severity === 'error' ? '.' : `, saving ${name} to ${filename}.`),
       location: [{ source, pointer, reportOnKey: true }],
       suggest: [],
     })
