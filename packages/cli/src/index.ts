@@ -195,9 +195,9 @@ yargs(hideBin(process.argv))
             default: '_',
           },
           'file-name-conflicts-severity': {
-            description:
-              'Whether to show warnings or fail when two names would share one file (defaults to warn).',
+            description: 'Severity level for file name conflicts.',
             choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
           config: {
             description: 'Path to the config file.',
