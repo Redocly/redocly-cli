@@ -56,12 +56,12 @@ redocly split --version
 | Option                         | Type    | Description                                                                                                                                                                                                                               |
 | ------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | api                            | string  | **REQUIRED.** Path to the API description file that you want to split into a multi-file structure.                                                                                                                                        |
-| --config                       | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                      |
-| --file-name-conflicts-severity | string  | Specify the severity level for reporting when two names differ only by case and would share one file. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                                     |
+| --config                       | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                                                                                                                      |
+| --file-name-conflicts-severity | string  | Specify the severity level for reporting when two names differ only by case and would share one file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                     |
 | --help                         | boolean | Show help.                                                                                                                                                                                                                                |
 | --lint-config                  | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                                        |
 | --outDir                       | string  | **REQUIRED.** Path to the directory where you want to save the split files. If the specified directory doesn't exist, it is created automatically.                                                                                        |
-| --separator                    | string  | File path separator used while splitting. The default value is `_`. This controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`, root level path `/` becomes `_.yaml`, and so on). |
+| --separator                    | string  | File path separator used while splitting. Default value is `_`. Controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`, root level path `/` becomes `_.yaml`, and so on). |
 | --version                      | boolean | Show version number.                                                                                                                                                                                                                      |
 
 ## Examples
@@ -86,7 +86,7 @@ pet.yaml: split processed in 33ms
 ### Configure file name conflicts
 
 When two components, paths, webhooks, channels, or operations have names that differ only by case, such as `User` and `user`, they would share one file on a case-insensitive file system.
-By default, Redocly CLI warns you about these conflicts and saves the second one to a file with a `-2` suffix, for example `user-2.yaml`.
+By default, Redocly CLI warns about these conflicts and saves the second one to a file with a `-2` suffix, for example `user-2.yaml`.
 
 You can adjust how the CLI handles these conflicts with the `--file-name-conflicts-severity` option:
 
