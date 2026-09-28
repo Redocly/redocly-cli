@@ -2,6 +2,7 @@ import type { Problem } from '@redocly/recheck';
 import { stripVTControlCharacters } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { generateReport } from '../../formatters/index.js';
 import { outputTableFormat } from '../../formatters/table.js';
 import { captureLogger } from '../capture-logger.js';
 
@@ -64,5 +65,34 @@ describe('outputTableFormat', () => {
     expect(stripVTControlCharacters(stdout.join(''))).toBe(
       '\n🎉 No issues found!\n\n📊 Summary: 4 file(s) scanned, 0 issues found.\n'
     );
+  });
+});
+
+describe('generateReport with the table format', () => {
+  const HIDDEN_LINE = '< ... 1 more problems hidden > increase with `--max-problems N`\n';
+
+  it('prints the problems up to maxProblems and then the count of hidden problems', () => {
+    const { stdout } = captureLogger();
+
+    generateReport([problem(), problem({ line: 2 })], 1, {
+      format: 'table',
+      maxProblems: 1,
+    });
+
+    const printed = stripVTControlCharacters(stdout.join(''));
+    expect(printed).toContain('docs/index.md:1:1');
+    expect(printed).not.toContain('docs/index.md:2:1');
+    expect(printed.endsWith(HIDDEN_LINE)).toBe(true);
+  });
+
+  it('prints every problem and no hidden count without maxProblems', () => {
+    const { stdout } = captureLogger();
+
+    generateReport([problem(), problem({ line: 2 })], 1, { format: 'table' });
+
+    const printed = stripVTControlCharacters(stdout.join(''));
+    expect(printed).toContain('docs/index.md:1:1');
+    expect(printed).toContain('docs/index.md:2:1');
+    expect(printed).not.toContain('more problems hidden');
   });
 });

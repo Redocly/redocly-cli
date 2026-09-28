@@ -1,18 +1,9 @@
 import { logger } from '@redocly/openapi-core';
 import type { ReadabilityRunResult } from '@redocly/recheck';
-import * as fs from 'node:fs/promises';
 
-export async function outputReadabilityJson(
-  result: ReadabilityRunResult,
-  outputPath?: string
-): Promise<void> {
+export function outputReadabilityJson(result: ReadabilityRunResult): void {
   const report = JSON.stringify({ summary: result.summary, files: result.rows }, null, 2);
-  if (outputPath && outputPath.length > 0) {
-    await fs.writeFile(outputPath, report, 'utf8');
-    logger.info(`   Wrote JSON report to ${outputPath}\n`);
-  } else {
-    logger.output(`${report}\n`);
-  }
+  logger.output(`${report}\n`);
 }
 
 export function outputReadabilityTable(result: ReadabilityRunResult): void {

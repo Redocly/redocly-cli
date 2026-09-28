@@ -1,5 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 import type { Problem } from '@redocly/recheck';
+import { gray } from 'colorette';
 
 import { outputGitHubActionsFormat } from './github-actions.js';
 import { outputJsonFormat } from './json.js';
@@ -10,38 +11,42 @@ import { outputTableFormat } from './table.js';
 export interface ReportOptions {
   format: 'table' | 'json' | 'sarif' | 'github-actions';
   showStats?: boolean;
-  annotationsLimit?: number;
-  outputPath?: string;
+  maxProblems?: number;
   baseline?: { matched: number; new: number; stale: number };
 }
 
-export async function generateReport(
+export function generateReport(
   problems: Problem[],
   fileCount: number,
   options: ReportOptions
-): Promise<void> {
-  const { format, showStats, annotationsLimit, outputPath, baseline } = options;
+): void {
+  const { format, showStats, maxProblems, baseline } = options;
   const prioritized =
-    typeof annotationsLimit === 'number'
-      ? prioritizeProblems(problems, annotationsLimit)
-      : problems;
+    typeof maxProblems === 'number' ? prioritizeProblems(problems, maxProblems) : problems;
 
   switch (format) {
     case 'sarif':
-      await outputSarifFormat(prioritized, outputPath);
+      outputSarifFormat(prioritized);
       break;
     case 'github-actions':
       outputGitHubActionsFormat(prioritized);
       break;
     case 'json':
-      await outputJsonFormat(prioritized, fileCount, outputPath, baseline);
+      outputJsonFormat(prioritized, fileCount, baseline);
       break;
     default:
-      outputTableFormat(problems, fileCount, showStats);
+      outputTableFormat(prioritized, fileCount, showStats);
+      if (problems.length > prioritized.length) {
+        logger.output(
+          `< ... ${problems.length - prioritized.length} more problems hidden > ${gray(
+            'increase with `--max-problems N`'
+          )}\n`
+        );
+      }
       break;
   }
 
-  const limitInfoEnd = typeof annotationsLimit === 'number' ? ` (limit ${annotationsLimit})` : '';
+  const limitInfoEnd = typeof maxProblems === 'number' ? ` (limit ${maxProblems})` : '';
   logger.info(
     `\n   Annotations prepared: ${prioritized.length}${prioritized.length > 0 ? limitInfoEnd : ''}\n`
   );

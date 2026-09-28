@@ -18,8 +18,7 @@ import { printSummary } from './formatters/summary.js';
 export interface LintPresentation {
   format: 'table' | 'json' | 'sarif' | 'github-actions';
   showStats?: boolean;
-  annotationsLimit?: number;
-  outputPath?: string;
+  maxProblems?: number;
   summary?: 'json' | 'text';
   summaryPath?: string;
 }
@@ -43,11 +42,10 @@ function printFailure(message: string, timer: Timer): number {
 }
 
 async function printEmptyReport(presentation: LintPresentation): Promise<void> {
-  await generateReport([], 0, {
+  generateReport([], 0, {
     format: presentation.format,
     showStats: presentation.showStats,
-    annotationsLimit: presentation.annotationsLimit,
-    outputPath: presentation.outputPath,
+    maxProblems: presentation.maxProblems,
   });
   if (presentation.summary) {
     await printSummary(buildSummary([], 0), presentation.summary, presentation.summaryPath);
@@ -65,9 +63,6 @@ function printPreamble(report: LintRunReport): void {
     logger.info(`${yellow(`⚠️  No markdown files found in: ${report.roots.join(', ')}`)}\n`);
   }
   logger.info(`   Found ${report.filesFound} markdown file(s)\n`);
-  if (report.changedFilter?.provided) {
-    logger.info(`   Filtering to ${report.changedFilter.matched} changed file(s)\n`);
-  }
   for (const filePath of report.unreadableFiles) {
     logger.info(`${yellow(`   Warning: Could not read file ${filePath}`)}\n`);
   }
@@ -124,7 +119,7 @@ export async function printLintRun(
     return printFailure(result.message, timer);
   }
 
-  // A report or summary that cannot be written fails the run like an engine error.
+  // A summary that cannot be written fails the run like an engine error.
   try {
     return await printCompletedRun(result, presentation, timer);
   } catch (error) {
@@ -132,29 +127,15 @@ export async function printLintRun(
   }
 }
 
-// Prints the rest of a run that ended before the rules ran, then an empty report.
+// Prints the rest of a run that found no files, then an empty report.
 async function printEmptyRun(
   result: LintRunReport,
   presentation: LintPresentation,
   timer: Timer
 ): Promise<number> {
-  if (result.filesFound === 0) {
-    logger.info(`${yellow(`⚠️  No markdown files found in: ${result.roots.join(', ')}`)}\n`);
-    await printEmptyReport(presentation);
-    logger.info(`   Completed in ${timer.elapsedString()}\n`);
-    return 0;
-  }
-  logger.info(`   Found ${result.filesFound} markdown file(s)\n`);
-  if (!result.changedFilter?.provided) {
-    logger.info(
-      `${yellow('   Warning: --changed-only set, but no changed files were provided. Nothing to scan.')}\n`
-    );
-    await printEmptyReport(presentation);
-    return 0;
-  }
-  logger.info(`   Filtering to ${result.changedFilter.matched} changed file(s)\n`);
-  logger.info(`${yellow('   Warning: No changed markdown files matched.')}\n`);
+  logger.info(`${yellow(`⚠️  No markdown files found in: ${result.roots.join(', ')}`)}\n`);
   await printEmptyReport(presentation);
+  logger.info(`   Completed in ${timer.elapsedString()}\n`);
   return 0;
 }
 
@@ -172,11 +153,10 @@ async function printCompletedRun(
     );
   }
 
-  await generateReport(result.problems, result.scannedFileCount, {
+  generateReport(result.problems, result.scannedFileCount, {
     format: presentation.format,
     showStats: presentation.showStats,
-    annotationsLimit: presentation.annotationsLimit,
-    outputPath: presentation.outputPath,
+    maxProblems: presentation.maxProblems,
     baseline: result.baseline,
   });
   if (presentation.summary) {
@@ -198,16 +178,16 @@ async function printCompletedRun(
   return 0;
 }
 
-export async function printReadabilityRun(
+export function printReadabilityRun(
   result: ReadabilityRunResult,
-  presentation: { format: 'table' | 'json'; outputPath?: string }
-): Promise<number> {
+  presentation: { format: 'table' | 'json' }
+): number {
   logger.info(`   Scoring ${result.filesFound} markdown file(s)\n`);
   for (const file of result.unreadableFiles) {
     logger.info(`${yellow(`   Warning: Could not read file ${file}`)}\n`);
   }
   if (presentation.format === 'json') {
-    await outputReadabilityJson(result, presentation.outputPath);
+    outputReadabilityJson(result);
     return 0;
   }
   outputReadabilityTable(result);

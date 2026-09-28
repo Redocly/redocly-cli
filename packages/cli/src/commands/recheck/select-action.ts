@@ -15,8 +15,8 @@ export function selectAction(argv: RecheckArgv): { action: RecheckAction } | { e
   if (action === 'readability' && argv.format !== 'table' && argv.format !== 'json') {
     return { error: '--readability supports --format table or json.' };
   }
-  if (action === 'markdoc-schema' && ((argv.from ?? []).length === 0 || !argv.out)) {
-    return { error: '--generate-markdoc-schema requires --from and --out.' };
+  if (action === 'markdoc-schema' && ((argv.from ?? []).length === 0 || !argv.output)) {
+    return { error: '--generate-markdoc-schema requires --from and --output.' };
   }
   return { action };
 }

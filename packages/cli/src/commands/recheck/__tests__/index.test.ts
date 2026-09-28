@@ -12,6 +12,8 @@ import { captureLogger } from './capture-logger.js';
 
 const NO_CONFIG_NOTICE =
   'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n';
+const PER_API_WARNING =
+  'Recheck settings under apis.main are not used; the command reads the root config.\n';
 
 // Two adjacent top-level headings break `single-h1` and `blanks-around-headings`.
 const DOCUMENT = '# One\n# Two\n';
@@ -35,10 +37,12 @@ describe('handleRecheck', () => {
   function run(
     recheck: RecheckBlock,
     configPath: string | undefined,
-    recheckExtends: string[] = []
+    recheckExtends: string[] = [],
+    parsed?: unknown
   ): Promise<void> {
     const argv: RecheckArgv = { format: 'table', paths: [path.join(dir, 'docs')] };
-    const config = { ...configFixture, recheck, recheckExtends, configPath } as Config;
+    const document = parsed === undefined ? undefined : { parsed };
+    const config = { ...configFixture, recheck, recheckExtends, configPath, document } as Config;
     return handleRecheck({ argv, config, version: 'test' });
   }
 
@@ -81,13 +85,11 @@ describe('handleRecheck', () => {
     expect(report).toContain('blanks-around-headings');
   });
 
-  it('reports a `rules` value that is not an object', async () => {
+  it('checks nothing when `rules` is null and the block has no settings', async () => {
     const block = { rules: null } as unknown as RecheckBlock;
-    await expect(run(block, path.join(dir, 'redocly.yaml'))).rejects.toThrow(AbortFlowError);
-    expect(output.stderr).toEqual([
-      'The recheck configuration is not valid:\n',
-      '  recheck.rules: `recheck.rules` must be an object\n',
-    ]);
+    await run(block, path.join(dir, 'redocly.yaml'));
+    expect(output.stderr).toEqual([NO_CONFIG_NOTICE]);
+    expect(output.stdout).toEqual([]);
   });
 
   it('reports a block that is not an object', async () => {
@@ -97,5 +99,29 @@ describe('handleRecheck', () => {
       'The recheck configuration is not valid:\n',
       '  recheck: `recheck` must be an object\n',
     ]);
+  });
+
+  describe('per-API recheck settings', () => {
+    const SETTINGS_ONLY: RecheckBlock = { rules: {}, excludes: ['**/skip.md'] };
+
+    function runWithApi(api: Record<string, unknown>): Promise<void> {
+      const parsed = { apis: { main: { root: 'openapi.yaml', ...api } } };
+      return run(SETTINGS_ONLY, path.join(dir, 'redocly.yaml'), [], parsed);
+    }
+
+    it('warns once about a recheck block under an API', async () => {
+      await runWithApi({ recheck: { rules: {} } });
+      expect(output.stderr.filter((line) => line === PER_API_WARNING)).toHaveLength(1);
+    });
+
+    it('warns about a recheck preset in the extends of an API', async () => {
+      await runWithApi({ extends: ['recheck/markdown'] });
+      expect(output.stderr.filter((line) => line === PER_API_WARNING)).toHaveLength(1);
+    });
+
+    it('does not warn about an API with no recheck settings', async () => {
+      await runWithApi({ extends: ['recommended'] });
+      expect(output.stderr.join('')).not.toContain('Recheck settings under apis.');
+    });
   });
 });

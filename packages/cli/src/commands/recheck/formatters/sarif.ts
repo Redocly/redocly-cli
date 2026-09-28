@@ -1,6 +1,5 @@
 import { logger } from '@redocly/openapi-core';
 import type { Problem } from '@redocly/recheck';
-import * as fs from 'node:fs/promises';
 
 const SEVERITY_TO_LEVEL: Record<string, 'error' | 'warning' | 'note'> = {
   error: 'error',
@@ -61,19 +60,8 @@ export function buildSarif(problems: Problem[]): Record<string, unknown> {
 }
 
 /**
- * Output problems in SARIF format to file or through the logger
+ * Output problems in SARIF format through the logger
  */
-export async function outputSarifFormat(
-  problems: Problem[],
-  outputPath: string | undefined
-): Promise<void> {
-  const sarif = buildSarif(problems);
-  const content = JSON.stringify(sarif, null, 2);
-
-  if (outputPath && outputPath.length > 0) {
-    await fs.writeFile(outputPath, content, 'utf8');
-    logger.info(`\n   Wrote SARIF to ${outputPath}\n`);
-  } else {
-    logger.output(`${content}\n`);
-  }
+export function outputSarifFormat(problems: Problem[]): void {
+  logger.output(`${JSON.stringify(buildSarif(problems), null, 2)}\n`);
 }

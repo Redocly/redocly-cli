@@ -1,5 +1,0 @@
-extends:
-  - recheck/markdown
-recheck:
-  rules:
-    recheck/line-length: off

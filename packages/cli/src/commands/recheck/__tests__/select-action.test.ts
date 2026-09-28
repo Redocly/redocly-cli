@@ -18,7 +18,7 @@ describe('selectAction', () => {
         ...base,
         'generate-markdoc-schema': true,
         from: ['./theme.ts'],
-        out: 'schema.json',
+        output: 'schema.json',
       })
     ).toEqual({
       action: 'markdoc-schema',
@@ -44,16 +44,16 @@ describe('selectAction', () => {
     });
   });
 
-  it('requires --from and --out for the markdoc schema action', () => {
+  it('requires --from and --output for the markdoc schema action', () => {
     expect(selectAction({ ...base, 'generate-markdoc-schema': true })).toEqual({
-      error: '--generate-markdoc-schema requires --from and --out.',
+      error: '--generate-markdoc-schema requires --from and --output.',
     });
     expect(
       selectAction({
         ...base,
         'generate-markdoc-schema': true,
         from: ['./theme.ts'],
-        out: 'schema.json',
+        output: 'schema.json',
       })
     ).toEqual({ action: 'markdoc-schema' });
   });

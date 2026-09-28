@@ -57,22 +57,6 @@ describe('recheck', () => {
     );
   });
 
-  test('output-path-warning writes no file for --format table', async () => {
-    const testPath = join(__dirname, 'output-path-warning');
-    const reportPath = join(testPath, 'report.txt');
-    const args = getParams(indexEntryPoint, [
-      'recheck',
-      'docs',
-      '--format=table',
-      '--output-path=report.txt',
-    ]);
-    const result = getCommandOutput(args, { testPath });
-    expect(existsSync(reportPath)).toBe(false);
-    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
-      join(testPath, 'snapshot.txt')
-    );
-  });
-
   test('generate-baseline writes the default baseline file', async () => {
     const testPath = join(__dirname, 'generate-baseline');
     const baselinePath = join(testPath, '.redocly.recheck-baseline.yaml');
@@ -96,7 +80,7 @@ describe('recheck', () => {
       'recheck',
       '--generate-markdoc-schema',
       '--from=theme.js',
-      '--out=schema.yaml',
+      '--output=schema.yaml',
     ]);
     try {
       const result = getCommandOutput(args, { testPath });

@@ -30,7 +30,7 @@ Configure recheck for a project the way its maintainers would: measure first, de
 1. Run the whole corpus and count findings per rule:
 
    ```bash
-   redocly recheck docs --format json --annotations-limit 5000 --output-path findings.json
+   redocly recheck docs --format json > findings.json
    ```
 
    Group the findings by `ruleName` and look at real examples of each before deciding anything.

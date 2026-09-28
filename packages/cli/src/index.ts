@@ -451,17 +451,13 @@ yargs(hideBin(process.argv))
             choices: ['table', 'json', 'sarif', 'github-actions'] as ReadonlyArray<RecheckFormat>,
             default: 'table' as RecheckFormat,
           },
-          'output-path': {
-            description: 'Write the report to a file instead of stdout.',
-            type: 'string',
-          },
           tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
           rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
           'skip-rule': { description: 'Skip these rules.', array: true, type: 'string' },
           stats: { description: 'Print rule statistics.', alias: 's', type: 'boolean' },
           fix: { description: 'Apply fixes to Markdown files.', alias: 'f', type: 'boolean' },
           'max-problems': {
-            description: 'Cap the number of annotations reported.',
+            description: 'Maximum number of problems in the report.',
             type: 'number',
           },
           summary: {
@@ -487,9 +483,9 @@ yargs(hideBin(process.argv))
             array: true,
             type: 'string',
           },
-          out: { description: 'Output file for the generated schema.', type: 'string' },
+          output: { description: 'Output file for the generated schema.', type: 'string' },
           check: {
-            description: 'Fail if the generated schema differs from --out.',
+            description: 'Fail if the generated schema differs from --output.',
             type: 'boolean',
           },
         }),
