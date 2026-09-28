@@ -17,6 +17,9 @@ export {
 export type {
   DeploymentStatus,
   DeploymentStatusResponse,
+  ListResponse,
+  OrganizationResponse,
+  ProjectResponse,
   ProjectSourceResponse,
   PushResponse,
   PushStatusResponse,
@@ -32,6 +35,14 @@ export {
   type PushOptions,
   type PushResult,
 } from './push.js';
+export {
+  isOrganizationId,
+  isProjectId,
+  resolveProjectRef,
+  type ProjectRef,
+  type ResolvedProjectRef,
+  type ResolveProjectRefOptions,
+} from './resolve-project-ref.js';
 export {
   getPushStatus,
   waitForDeployment,

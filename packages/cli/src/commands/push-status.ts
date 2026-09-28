@@ -65,6 +65,7 @@ export async function handlePushStatus({
       pushId,
       version,
       onSunsetWarning: (warning: SunsetWarning) => sunsetWarnings.push(warning),
+      onSlugResolved: printSlugDeprecation,
     };
     const waitOptions = {
       ...statusOptions,
@@ -130,6 +131,18 @@ export function handleReuniteError(
   }
 
   throw new HandledError(`${message} Reason: ${error.message}\n`);
+}
+
+export function printSlugDeprecation({
+  organizationId,
+  projectId,
+}: {
+  organizationId: string;
+  projectId: string;
+}): void {
+  logger.warn(
+    `Organization and project slugs are deprecated. Use the ids instead: --organization ${organizationId} --project ${projectId}\n`
+  );
 }
 
 // Prints the most urgent of the sunset warnings a command collected, once.

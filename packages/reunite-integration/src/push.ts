@@ -4,6 +4,7 @@ import * as path from 'node:path';
 
 import { ReuniteApi, type SunsetWarning } from './api/index.js';
 import type { UpsertRemoteResponse } from './api/types.js';
+import { resolveProjectRef, type ResolvedProjectRef } from './resolve-project-ref.js';
 
 export type FileToUpload = { name: string; path: string };
 
@@ -32,9 +33,11 @@ export type PushOptions = {
   onUploadStart?: (remote: UpsertRemoteResponse) => void;
   // Called after the push with the most urgent sunset warning the Reunite API sent, if any.
   onSunsetWarning?: (warning: SunsetWarning) => void;
+  // Called when the organization or the project was given as a slug and had to be looked up.
+  onSlugResolved?: (resolved: ResolvedProjectRef) => void;
 };
 
-export type PushResult = {
+export type PushResult = ResolvedProjectRef & {
   pushId: string;
 };
 
@@ -51,12 +54,18 @@ export async function pushFiles({
   replace,
   onUploadStart,
   onSunsetWarning,
+  onSlugResolved,
 }: PushOptions): Promise<PushResult> {
   const client = new ReuniteApi({ domain, apiKey, command: 'push', version });
 
   try {
-    const projectDefaultBranch = await client.remotes.getDefaultBranch(organization, project);
-    const remote = await client.remotes.upsert(organization, project, {
+    const { organizationId, projectId } = await resolveProjectRef(client, {
+      organization,
+      project,
+      onSlugResolved,
+    });
+    const projectDefaultBranch = await client.remotes.getDefaultBranch(organizationId, projectId);
+    const remote = await client.remotes.upsert(organizationId, projectId, {
       mountBranchName: projectDefaultBranch,
       mountPath,
     });
@@ -64,8 +73,8 @@ export async function pushFiles({
     onUploadStart?.(remote);
 
     const { id } = await client.remotes.push(
-      organization,
-      project,
+      organizationId,
+      projectId,
       {
         remoteId: remote.id,
         commit,
@@ -75,7 +84,7 @@ export async function pushFiles({
       files.map((file) => ({ path: slash(file.name), stream: fs.createReadStream(file.path) }))
     );
 
-    return { pushId: id };
+    return { pushId: id, organizationId, projectId };
   } finally {
     // Runs whether the push succeeded or not: the client keeps the headers of every response it got.
     const sunsetWarning = client.getSunsetWarning();

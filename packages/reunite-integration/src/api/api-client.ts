@@ -4,7 +4,14 @@ import type { Readable } from 'node:stream';
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
-import type { ProjectSourceResponse, PushResponse, UpsertRemoteResponse } from './types.js';
+import type {
+  ListResponse,
+  OrganizationResponse,
+  ProjectResponse,
+  ProjectSourceResponse,
+  PushResponse,
+  UpsertRemoteResponse,
+} from './types.js';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
@@ -98,11 +105,11 @@ export class ReuniteApiClient implements BaseApiClient {
   }
 }
 
-class RemotesApi {
+abstract class ResourceApi {
   constructor(
-    private client: BaseApiClient,
-    private readonly domain: string,
-    private readonly apiKey: string
+    protected client: BaseApiClient,
+    protected readonly domain: string,
+    protected readonly apiKey: string
   ) {}
 
   protected async getParsedResponse<T>(response: Response): Promise<T> {
@@ -117,7 +124,71 @@ class RemotesApi {
       response.status
     );
   }
+}
 
+class OrganizationsApi extends ResourceApi {
+  async findBySlug(slug: string): Promise<OrganizationResponse | undefined> {
+    const query = new URLSearchParams({ filter: `slug:${slug}`, limit: '1' });
+
+    try {
+      const response = await this.client.request(`${this.domain}/api/orgs?${query}`, {
+        timeout: DEFAULT_FETCH_TIMEOUT,
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`,
+        },
+      });
+
+      const { data } = await this.getParsedResponse<ListResponse<OrganizationResponse>>(response);
+
+      return data[0];
+    } catch (err) {
+      const message = `Failed to fetch organization. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
+    }
+  }
+
+  async findProjectBySlug(
+    organizationId: string,
+    slug: string
+  ): Promise<ProjectResponse | undefined> {
+    const query = new URLSearchParams({ filter: `slug:${slug}`, limit: '1' });
+
+    try {
+      const response = await this.client.request(
+        `${this.domain}/api/orgs/${organizationId}/projects?${query}`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
+
+      const { data } = await this.getParsedResponse<ListResponse<ProjectResponse>>(response);
+
+      return data[0];
+    } catch (err) {
+      const message = `Failed to fetch project. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
+    }
+  }
+}
+
+class RemotesApi extends ResourceApi {
   async getDefaultBranch(organizationId: string, projectId: string) {
     try {
       const response = await this.client.request(
@@ -289,6 +360,7 @@ class RemotesApi {
 export class ReuniteApi {
   private apiClient: ReuniteApiClient;
 
+  public organizations: OrganizationsApi;
   public remotes: RemotesApi;
 
   constructor({
@@ -304,6 +376,7 @@ export class ReuniteApi {
   }) {
     this.apiClient = new ReuniteApiClient(command, version);
 
+    this.organizations = new OrganizationsApi(this.apiClient, domain, apiKey);
     this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
   }
 

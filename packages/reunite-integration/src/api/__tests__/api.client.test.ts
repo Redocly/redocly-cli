@@ -511,3 +511,65 @@ describe('ApiClient', () => {
     });
   });
 });
+
+describe('OrganizationsApi', () => {
+  const testToken = 'test-token';
+  const testDomain = 'test-domain.com';
+  const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command: 'push' });
+
+  it('finds an organization by slug through the organizations listing', async () => {
+    const organization = { id: 'org_01hksn7dgmb6jpak0tzzepreq1', slug: 'acme', name: 'Acme' };
+    mockFetchResponse({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ object: 'list', data: [organization] }),
+    });
+
+    const result = await apiClient.organizations.findBySlug('acme');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      `${testDomain}/api/orgs?filter=slug%3Aacme&limit=1`,
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({ Authorization: `Bearer ${testToken}` }),
+      })
+    );
+    expect(result).toEqual(organization);
+  });
+
+  it('returns nothing when no organization matches the slug', async () => {
+    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ object: 'list', data: [] }) });
+
+    await expect(apiClient.organizations.findBySlug('nope')).resolves.toBeUndefined();
+  });
+
+  it('finds a project by slug within the organization', async () => {
+    const project = { id: 'prj_01hksn7dhbmf3nby0aeax6bkvf', slug: 'docs', name: 'Docs' };
+    mockFetchResponse({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ object: 'list', data: [project] }),
+    });
+
+    const result = await apiClient.organizations.findProjectBySlug(
+      'org_01hksn7dgmb6jpak0tzzepreq1',
+      'docs'
+    );
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      `${testDomain}/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects?filter=slug%3Adocs&limit=1`,
+      expect.objectContaining({ method: 'GET' })
+    );
+    expect(result).toEqual(project);
+  });
+
+  it('wraps API errors of the lookup', async () => {
+    mockFetchResponse({
+      ok: false,
+      status: 403,
+      json: vi.fn().mockResolvedValue({ title: 'Forbidden' }),
+    });
+
+    await expect(apiClient.organizations.findBySlug('acme')).rejects.toThrow(
+      new ReuniteApiError('Failed to fetch organization. Forbidden.', 403)
+    );
+  });
+});

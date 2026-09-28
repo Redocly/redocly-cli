@@ -8,12 +8,13 @@ vi.mock('../api/index.js', async () => {
 });
 
 const remotes = { getPush: vi.fn() };
+const organizations = { findBySlug: vi.fn(), findProjectBySlug: vi.fn() };
 
 const options = {
   domain: 'test-domain',
   apiKey: 'test-api-key',
-  organization: 'test-org',
-  project: 'test-project',
+  organization: 'org_01hksn7dgmb6jpak0tzzepreq1',
+  project: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
   pushId: 'test-push-id',
   version: '1.2.3',
 };
@@ -64,6 +65,7 @@ function withDeployStatus(
 beforeEach(() => {
   vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
     this.remotes = remotes;
+    this.organizations = organizations;
     this.getSunsetWarning = vi.fn();
   });
 });
@@ -81,11 +83,38 @@ describe('getPushStatus()', () => {
       version: '1.2.3',
     });
     expect(remotes.getPush).toHaveBeenCalledWith({
-      organizationId: 'test-org',
-      projectId: 'test-project',
+      organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
+      projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
       pushId: 'test-push-id',
     });
     expect(result).toBe(pushResponseStub);
+  });
+
+  it('resolves slugs once and reports it', async () => {
+    remotes.getPush.mockResolvedValue(pushResponseStub);
+    organizations.findBySlug.mockResolvedValue({
+      id: 'org_01hksn7dgmb6jpak0tzzepreq1',
+      slug: 'acme',
+      name: 'Acme',
+    });
+    organizations.findProjectBySlug.mockResolvedValue({
+      id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      slug: 'docs',
+      name: 'Docs',
+    });
+    const onSlugResolved = vi.fn();
+
+    await getPushStatus({ ...options, organization: 'acme', project: 'docs', onSlugResolved });
+
+    expect(remotes.getPush).toHaveBeenCalledWith({
+      organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
+      projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      pushId: 'test-push-id',
+    });
+    expect(onSlugResolved).toHaveBeenCalledWith({
+      organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
+      projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+    });
   });
 });
 
@@ -155,6 +184,7 @@ describe('waitForDeployment()', () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
+      this.organizations = organizations;
       this.getSunsetWarning = vi.fn(() => sunsetWarning);
     });
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'success'));
@@ -170,6 +200,7 @@ describe('waitForDeployment()', () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
+      this.organizations = organizations;
       this.getSunsetWarning = vi.fn(() => sunsetWarning);
     });
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'pending'));
