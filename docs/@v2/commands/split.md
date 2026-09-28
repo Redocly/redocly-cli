@@ -90,7 +90,7 @@ By default, Redocly CLI warns you about these conflicts and saves the second one
 
 You can adjust how the CLI handles these conflicts with the `--file-name-conflicts-severity` option:
 
-- `off`: No warnings or errors are shown.
+- `off`: Saves the second file with a `-2` suffix without a warning.
 - `warn` (default): Shows a warning and saves the second file with a `-2` suffix.
 - `error`: Treats conflicts as errors; the split fails and no files are created.
 
