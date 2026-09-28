@@ -13,9 +13,8 @@ Options:
                                                              [string] [required]
   --separator                     File path separator used while splitting.
                                                          [string] [default: "_"]
-  --file-name-conflicts-severity  Whether to show warnings or fail when two name
-                                  s would share one file (defaults to warn).
-                                               [choices: "warn", "error", "off"]
+  --file-name-conflicts-severity  Severity level for file name conflicts.
+                                [choices: "warn", "error", "off"] [default: warn]
   --config                        Path to the config file.              [string]
   --lint-config                   Severity level for config file linting.
                              [choices: "warn", "error", "off"] [default: "warn"]
