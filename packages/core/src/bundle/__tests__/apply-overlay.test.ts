@@ -186,6 +186,24 @@ describe('applyOverlay', () => {
     `);
   });
 
+  it('applies an action once to a node that the target selects twice', () => {
+    const { parsed, problems } = apply(outdent`
+      - target: $.paths['/tickets'].get.parameters[?@.name == 'limit', 0]
+        remove: true
+      - target: $.paths['/tickets', '/tickets'].get
+        update:
+          tags: [public]
+    `);
+
+    expect(problems).toEqual([]);
+    const operation = (parsed as any).paths['/tickets'].get;
+    expect(operation.parameters.map(({ name }: { name: string }) => name)).toEqual([
+      'dummy',
+      'page',
+    ]);
+    expect(operation.tags).toEqual(['tickets', 'public']);
+  });
+
   it('applies actions in order, so update, copy, and remove can move a node', () => {
     const { parsed, problems } = apply(outdent`
       - target: $.paths
@@ -356,23 +374,21 @@ describe('applyOverlay', () => {
     });
   });
 
-  it('reports an actions field that is not a list', () => {
-    const target = parseYamlToDocument(document, 'openapi.yaml');
-    const overlay = parseOverlay(
-      outdent`
-        overlay: 1.1.0
-        info:
-          title: Test overlay
-          version: 1.0.0
-        actions:
-          target: $.info
-      `,
-      'overlay.yaml'
-    );
+  it('reports an overlay without a list of actions', () => {
+    const problemsFor = (actions: string) =>
+      applyOverlay(
+        parseYamlToDocument(document, 'openapi.yaml'),
+        parseOverlay(
+          `overlay: 1.1.0\ninfo: { title: T, version: 1.0.0 }\n${actions}`,
+          'overlay.yaml'
+        ),
+        new BaseResolver()
+      ).map(({ message }) => message);
 
-    expect(applyOverlay(target, overlay, new BaseResolver()).map(({ message }) => message)).toEqual(
-      ['The `actions` field must be a list.']
-    );
+    expect(problemsFor('actions:\n  target: $.info')).toEqual([
+      'The overlay must have a list of `actions`.',
+    ]);
+    expect(problemsFor('')).toEqual(['The overlay must have a list of `actions`.']);
   });
 
   it('reports actions that cannot be applied', () => {
@@ -400,6 +416,13 @@ describe('applyOverlay', () => {
       - $ref: '#/components/actions/missing'
         target: $.info
       - Not an action
+      - target: $['tags', 'info']
+        update:
+          name: Mixed kinds
+      - $ref: '#/components/actions/missing'
+        target: $.info
+        update:
+          title: Not allowed next to $ref
     `);
 
     expect(problems).toMatchInlineSnapshot(`
@@ -476,6 +499,24 @@ describe('applyOverlay', () => {
           - source: overlay.yaml
             pointer: '#/actions/8'
             reportOnKey: false
+        suggest: []
+      - ruleId: overlay
+        severity: error
+        message: The target must select only objects, only arrays, or only primitive values.
+        location:
+          - source: overlay.yaml
+            pointer: '#/actions/9/target'
+            reportOnKey: false
+        suggest: []
+      - ruleId: overlay
+        severity: error
+        message: >-
+          Property \`update\` is not expected here because it is defined alongside
+          \`$ref\`.
+        location:
+          - source: overlay.yaml
+            pointer: '#/actions/10/update'
+            reportOnKey: true
         suggest: []
     `);
   });

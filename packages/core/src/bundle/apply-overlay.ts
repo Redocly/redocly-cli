@@ -107,6 +107,20 @@ export function applyOverlay(
     }
     if (value === undefined) return;
 
+    const kinds = new Set(
+      targets.map(({ keys }) => {
+        const node = getNode(document.parsed, keys);
+        return Array.isArray(node) ? 'array' : isPlainObject(node) ? 'object' : 'primitive';
+      })
+    );
+    if (kinds.size > 1) {
+      report({
+        message: 'The target must select only objects, only arrays, or only primitive values.',
+        location: location.child(['target']),
+      });
+      return;
+    }
+
     for (const target of targets) {
       const error = updateNode(document.parsed, target, value, ownedNodes);
       if (error) {
@@ -117,21 +131,34 @@ export function applyOverlay(
   };
 
   const visitor: Overlay1Visitor = {
-    Actions(actions, { report, location }) {
+    Root({ actions }, { report, location }) {
       if (!Array.isArray(actions)) {
-        report({ message: 'The `actions` field must be a list.', location });
+        report({
+          message: 'The overlay must have a list of `actions`.',
+          location: location.child(['actions']),
+        });
         return;
       }
       actions.forEach((item, index) => {
+        const itemLocation = location.child(['actions', index]);
         if (!isPlainObject(item)) {
-          report({ message: 'An action must be an object.', location: location.child([index]) });
+          report({ message: 'An action must be an object.', location: itemLocation });
           return;
         }
         if (!isRef(item)) {
-          applyAction(item, location.child([index]), report);
+          applyAction(item, itemLocation, report);
           return;
         }
-        const { $ref, ...reference } = item;
+        // A reference to a reusable action only supplies its `target` and `description`.
+        const { $ref, target, description: _description, ...fields } = item;
+        const unexpected = Object.keys(fields).find((key) => !key.startsWith('x-'));
+        if (unexpected) {
+          report({
+            message: `Property \`${unexpected}\` is not expected here because it is defined alongside \`$ref\`.`,
+            location: itemLocation.child([unexpected]).key(),
+          });
+          return;
+        }
         const reusableAction = $ref.startsWith(REUSABLE_ACTION_PREFIX)
           ? getOwn(
               components?.actions ?? {},
@@ -141,11 +168,11 @@ export function applyOverlay(
         if (!reusableAction) {
           report({
             message: `Can't find the reusable action \`${$ref}\`.`,
-            location: location.child([index, '$ref']),
+            location: itemLocation.child(['$ref']),
           });
           return;
         }
-        applyAction({ ...reusableAction.fields, ...reference }, location.child([index]), report);
+        applyAction({ ...reusableAction.fields, target }, itemLocation, report);
       });
     },
   };
@@ -183,7 +210,8 @@ function rebaseRefs(value: unknown, rebase: (uri: string) => string) {
 
 function selectNodes(root: unknown, expression: string): Match[] {
   // The parsed document is JSON-compatible data.
-  return paths(root as JsonValue, expression).map((jsonPath) => ({
+  // A target can select the same node twice; the action changes it once.
+  return [...new Set(paths(root as JsonValue, expression))].map((jsonPath) => ({
     jsonPath,
     // A normalized path has one `['name']` or `[index]` selector per segment; parsing unescapes it.
     keys: parseJsonPath(jsonPath).segments.flatMap(({ node }) =>

@@ -14,13 +14,14 @@ import {
 } from '@redocly/openapi-core';
 import { blue, gray, green, yellow } from 'colorette';
 import { writeFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { resolve } from 'path';
 import { performance } from 'perf_hooks';
 
 import { type OutputExtension, type Totals } from '../types.js';
 import {
   dumpBundle,
   getExecutionTime,
+  getConfigDirectory,
   getFallbackApisOrExit,
   getOutputFileName,
   handleError,
@@ -56,7 +57,7 @@ export async function handleBundle({
 }: CommandArgs<BundleArgv>) {
   const apis = await getFallbackApisOrExit(argv.apis, config);
   const totals: Totals = { errors: 0, warnings: 0, ignored: 0 };
-  const configDir = config.configPath ? dirname(config.configPath) : process.cwd();
+  const configDir = getConfigDirectory(config);
 
   for (const { path, alias, output } of apis) {
     try {

@@ -65,6 +65,7 @@ If your project contains multiple APIs, the `apis` configuration section allows 
 - Paths or URLs of [Overlay](https://spec.openapis.org/overlay/latest.html) files that the `bundle` command applies to this API, in order.
   Paths are relative to the configuration file.
   The `--overlay` option replaces this list.
+  Only the `bundle` command applies overlays; other commands, such as `build-docs` and `push`, use the API description without them.
   See [Apply overlays](../../commands/bundle.md#apply-overlays).
 
 ---

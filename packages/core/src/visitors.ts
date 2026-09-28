@@ -321,7 +321,6 @@ type ArazzoFlatVisitor = {
 
 type Overlay1FlatVisitor = {
   Root?: VisitFunctionOrObject<Overlay1Definition>;
-  Actions?: VisitFunctionOrObject<Overlay1Definition['actions']>;
 };
 
 type OpenRpc1FlatVisitor = {
