@@ -668,7 +668,7 @@ describe('createTestContext', () => {
             },
           },
           outputs: {
-            output1: { type: 'string' },
+            output1: '$steps.step1.outputs.value',
           },
           steps: [
             {
@@ -702,9 +702,7 @@ describe('createTestContext', () => {
         inputs: {
           input1: 'value1',
         },
-        outputs: {
-          output1: { type: 'string' },
-        },
+        outputs: undefined,
         steps: {
           step1: {},
         },
