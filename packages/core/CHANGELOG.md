@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.55.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.58.0.
+- Fixed an issue where the `workflow-dependsOn` rule reported a duplicate when different workflows listed the same workflow in `dependsOn`.
+
 ## 2.54.3
 
 ## 2.54.2
