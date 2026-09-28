@@ -1,0 +1,27 @@
+api:
+  extends:
+    - ./api-rules.yaml
+  root: ./openapi.yaml
+  output: dist/openapi.yaml
+  clientOutput: ./client.ts
+  client:
+    setup: ./setup.mjs
+    cliOutput: ./cli/index.ts
+chain:
+  $ref: ./deep/config.yaml#/api
+untouched:
+  root: https://example.com/openapi.yaml
+  output: /absolute/dist/openapi.yaml
+  clientOutput: ''
+  title: ./not-a-path
+client:
+  setup: ./setup.mjs
+  cliOutput: ./cli/index.ts
+  goPackage: ./not-a-path
+logo:
+  favicon: ./images/favicon.ico
+openapi:
+  htmlTemplate: ./template.html
+navbar:
+  items:
+    - page: ./docs/index.md

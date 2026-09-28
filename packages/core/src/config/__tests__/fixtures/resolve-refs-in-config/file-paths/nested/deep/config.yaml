@@ -1,0 +1,5 @@
+api:
+  root: ./openapi.yaml
+parent:
+  root: ../../specs/openapi.yaml
+  output: ../dist/out.yaml
