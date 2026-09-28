@@ -198,6 +198,13 @@ describe('public API', () => {
     expect(error.message).not.toMatch(/Invalid scope selector/);
   });
 
+  it('lintContent names the config key of a schema error', async () => {
+    const badConfig = { 'custom/x': { severity: 'off' } } as unknown as RecheckConfig;
+    await expect(lintContent('# TODO\n', badConfig)).rejects.toThrow(
+      "/custom~1x: must have required property 'message'"
+    );
+  });
+
   // Lock the legit compound-negation selector end-to-end (the spec's own
   // example) so the all/raw-term rejection can't over-reach. Note the
   // selector filters by segment NAME: heading and blockquote text is

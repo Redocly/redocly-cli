@@ -26,7 +26,6 @@ const ajv = new (Ajv as any)({
   // mismatching AJV typing due to fork
   useDefaults: true,
   allErrors: true,
-  verbose: true,
 });
 (addFormats as any)(ajv); // mismatching AJV typing due to fork
 ajv.addSchema(RECHECK_CONFIG_SCHEMA, 'recheck-config');
@@ -59,9 +58,8 @@ function validateStructure(config: any): ValidationError[] {
           ? ` (unknown property "${error.params.additionalProperty}")`
           : '';
       return {
-        message: `${error.instancePath || '/'}: ${error.message}${extra}`,
+        message: `${error.message}${extra}`,
         path: error.instancePath,
-        value: error.data,
       };
     });
   }
@@ -136,7 +134,6 @@ function validateTokenRuleOptions(
       errors.push({
         message: `Rule "${name}": unknown option "${key}" for assertion "${id}" (accepted: ${[...allowed].sort().join(', ')})`,
         path: `${name}.assertions.${id}.${key}`,
-        value: key,
       });
     }
   }
@@ -1107,7 +1104,7 @@ async function loadMarkdocTagsFile(
   } catch (error) {
     errors.push({
       path: '/markdoc/extend/tagsFile',
-      message: `markdoc.extend.tagsFile: could not read "${resolvedPath}": ${error instanceof Error ? error.message : String(error)}`,
+      message: `could not read "${resolvedPath}": ${error instanceof Error ? error.message : String(error)}`,
     });
     return { errors };
   }
@@ -1118,7 +1115,7 @@ async function loadMarkdocTagsFile(
   } catch (error) {
     errors.push({
       path: '/markdoc/extend/tagsFile',
-      message: `markdoc.extend.tagsFile: could not parse "${resolvedPath}" as YAML: ${error instanceof Error ? error.message : String(error)}`,
+      message: `could not parse "${resolvedPath}" as YAML: ${error instanceof Error ? error.message : String(error)}`,
     });
     return { errors };
   }
@@ -1126,7 +1123,7 @@ async function loadMarkdocTagsFile(
   if (!isPlainObject(parsed)) {
     errors.push({
       path: '/markdoc/extend/tagsFile',
-      message: `markdoc.extend.tagsFile: "${resolvedPath}" must be a YAML map of tag name to tag schema, got ${
+      message: `"${resolvedPath}" must be a YAML map of tag name to tag schema, got ${
         parsed === null ? 'null' : Array.isArray(parsed) ? 'an array' : typeof parsed
       }`,
     });
@@ -1139,7 +1136,7 @@ async function loadMarkdocTagsFile(
       const detail = ajv.errorsText(validateMarkdocTagShape.errors, { separator: '; ' });
       errors.push({
         path: `/markdoc/extend/tagsFile/${tagName}`,
-        message: `markdoc.extend.tagsFile: "${resolvedPath}" tag "${tagName}" is invalid: ${detail}`,
+        message: `"${resolvedPath}" tag "${tagName}" is invalid: ${detail}`,
       });
       continue;
     }
@@ -1433,7 +1430,6 @@ export function resolveExtends(config: Record<string, unknown>): {
         {
           message: '"extends" must be an array of preset names',
           path: 'extends',
-          value: extendsList,
         },
       ],
     };
@@ -1448,7 +1444,6 @@ export function resolveExtends(config: Record<string, unknown>): {
       errors.push({
         message: `Unknown preset "${name}" in "extends" — expected one of: ${Object.keys(presets).join(', ')}`,
         path: 'extends',
-        value: name,
       });
       continue;
     }
