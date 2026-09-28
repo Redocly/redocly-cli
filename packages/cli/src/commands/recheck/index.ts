@@ -113,6 +113,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     return;
   }
 
+  warnAboutPerApiRecheck(config);
   let presets = config.recheckExtends;
   const block = config.recheck;
   if (presets.length === 0 && !hasRecheckConfig(block)) {
@@ -125,7 +126,6 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
     presets = [DEFAULT_PRESET];
   }
-  warnAboutPerApiRecheck(config);
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
     extends: presets,

@@ -69,30 +69,53 @@ describe('outputTableFormat', () => {
 });
 
 describe('generateReport with the table format', () => {
-  const HIDDEN_LINE = '< ... 1 more problems hidden > increase with `--max-problems N`\n';
+  const HIDDEN = 'more problems hidden > increase with `--max-problems N`\n';
 
-  it('prints the problems up to maxProblems and then the count of hidden problems', () => {
-    const { stdout } = captureLogger();
+  function plain(lines: string[]): string {
+    return stripVTControlCharacters(lines.join(''));
+  }
+
+  it('counts every problem, prints the rows up to maxProblems, and reports the rest on stderr', () => {
+    const { stderr, stdout } = captureLogger();
 
     generateReport([problem(), problem({ line: 2 })], 1, {
       format: 'table',
       maxProblems: 1,
     });
 
-    const printed = stripVTControlCharacters(stdout.join(''));
+    const printed = plain(stdout);
     expect(printed).toContain('docs/index.md:1:1');
     expect(printed).not.toContain('docs/index.md:2:1');
-    expect(printed.endsWith(HIDDEN_LINE)).toBe(true);
+    expect(printed).toContain('Found 2 issue(s):');
+    expect(printed).toContain('\n   2 error(s)\n');
+    expect(printed).not.toContain('more problems hidden');
+    expect(plain(stderr)).toContain(`< ... 1 ${HIDDEN}`);
+  });
+
+  it('prints the counts and no rows when maxProblems is 0', () => {
+    const { stderr, stdout } = captureLogger();
+
+    generateReport([problem(), problem({ line: 2 })], 1, {
+      format: 'table',
+      maxProblems: 0,
+    });
+
+    const printed = plain(stdout);
+    expect(printed).not.toContain('No issues found!');
+    expect(printed).not.toContain('docs/index.md:');
+    expect(printed).toContain('Found 2 issue(s):');
+    expect(printed).toContain('\n   2 error(s)\n');
+    expect(plain(stderr)).toContain(`< ... 2 ${HIDDEN}`);
   });
 
   it('prints every problem and no hidden count without maxProblems', () => {
-    const { stdout } = captureLogger();
+    const { stderr, stdout } = captureLogger();
 
     generateReport([problem(), problem({ line: 2 })], 1, { format: 'table' });
 
-    const printed = stripVTControlCharacters(stdout.join(''));
+    const printed = plain(stdout);
     expect(printed).toContain('docs/index.md:1:1');
     expect(printed).toContain('docs/index.md:2:1');
-    expect(printed).not.toContain('more problems hidden');
+    expect(plain([...stdout, ...stderr])).not.toContain('more problems hidden');
   });
 });

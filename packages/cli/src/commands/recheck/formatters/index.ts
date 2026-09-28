@@ -21,8 +21,10 @@ export function generateReport(
   options: ReportOptions
 ): void {
   const { format, showStats, maxProblems, baseline } = options;
-  const prioritized =
-    typeof maxProblems === 'number' ? prioritizeProblems(problems, maxProblems) : problems;
+  const limited = typeof maxProblems === 'number';
+  // The stats show tied rules in list order. The full list must have the order of the rows.
+  const ordered = limited ? prioritizeProblems(problems) : problems;
+  const prioritized = limited ? prioritizeProblems(ordered, maxProblems) : ordered;
 
   switch (format) {
     case 'sarif':
@@ -35,18 +37,19 @@ export function generateReport(
       outputJsonFormat(prioritized, fileCount, baseline);
       break;
     default:
-      outputTableFormat(prioritized, fileCount, showStats);
-      if (problems.length > prioritized.length) {
-        logger.output(
-          `< ... ${problems.length - prioritized.length} more problems hidden > ${gray(
-            'increase with `--max-problems N`'
-          )}\n`
-        );
-      }
+      outputTableFormat(ordered, fileCount, showStats, prioritized);
       break;
   }
 
-  const limitInfoEnd = typeof maxProblems === 'number' ? ` (limit ${maxProblems})` : '';
+  if (problems.length > prioritized.length) {
+    logger.info(
+      `< ... ${problems.length - prioritized.length} more problems hidden > ${gray(
+        'increase with `--max-problems N`'
+      )}\n`
+    );
+  }
+
+  const limitInfoEnd = limited ? ` (limit ${maxProblems})` : '';
   logger.info(
     `\n   Annotations prepared: ${prioritized.length}${prioritized.length > 0 ? limitInfoEnd : ''}\n`
   );

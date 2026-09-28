@@ -119,6 +119,13 @@ describe('handleRecheck', () => {
       expect(output.stderr.filter((line) => line === PER_API_WARNING)).toHaveLength(1);
     });
 
+    it('warns about a per-API preset when the root config has no recheck settings', async () => {
+      const parsed = { apis: { main: { root: 'openapi.yaml', extends: ['recheck/markdown'] } } };
+      await run({ rules: {} }, path.join(dir, 'redocly.yaml'), [], parsed);
+      expect(output.stderr).toEqual([PER_API_WARNING, NO_CONFIG_NOTICE]);
+      expect(output.stdout).toEqual([]);
+    });
+
     it('does not warn about an API with no recheck settings', async () => {
       await runWithApi({ extends: ['recommended'] });
       expect(output.stderr.join('')).not.toContain('Recheck settings under apis.');
