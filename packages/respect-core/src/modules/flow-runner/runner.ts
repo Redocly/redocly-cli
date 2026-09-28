@@ -369,6 +369,7 @@ export async function resolveWorkflowContext(
   // executing external workflow should not mutate the original context
   // only outputs are transferred to the parent workflow
   // creating the new ctx for the external workflow or recreate current ctx for local workflow
+  // the secrets set is shared, so secrets learned in the external workflow stay masked in the parent
   return testDescription
     ? await createTestContext(
         testDescription,
@@ -383,7 +384,8 @@ export async function resolveWorkflowContext(
           skip: undefined,
           config,
         },
-        ctx.apiClient
+        ctx.apiClient,
+        ctx.secretsSet
       )
     : {
         ...ctx,
