@@ -1,0 +1,181 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should pass failure action parameters as inputs to the action target workflow 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow action-parameters-passed-to-target-workflow.arazzo.yaml / retry-with-parameters 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+
+    Request URL: https://api.cafe.redocly.com/menu?limit=abc
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Invalid limit",
+        "status": 400,
+        "instance": "/menu?limit=abc"
+      } 
+ 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action search-then-retry for the step list-menu-items-with-invalid-limit 
+  Running workflow action-parameters-passed-to-target-workflow.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+
+  Retrying step list-menu-items-with-invalid-limit (1/1)
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+
+    Request URL: https://api.cafe.redocly.com/menu?limit=abc
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Invalid limit",
+        "status": 400,
+        "instance": "/menu?limit=abc"
+      } 
+ 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow action-parameters-passed-to-target-workflow.arazzo.yaml / goto-with-reusable-parameter 
+ 
+  ✗ GET /menu - step list-menu-items-with-invalid-limit 
+
+    Request URL: https://api.cafe.redocly.com/menu?limit=abc
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 400
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "type": "about:blank",
+        "title": "Invalid limit",
+        "status": 400,
+        "instance": "/menu?limit=abc"
+      } 
+ 
+    ✗ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action goto-search for the step list-menu-items-with-invalid-limit 
+  Running workflow action-parameters-passed-to-target-workflow.arazzo.yaml / search-menu 
+ 
+  ✓ GET /menu - step search-menu-items 
+
+    Request URL: https://api.cafe.redocly.com/menu?search=unicorn-glitter-mocha
+    Request Headers:
+      accept: application/json, application/problem+json 
+ 
+
+    Response status code: 200
+    Response time: <test> ms
+    Response Headers: <response headers test>
+    Response Size: <test> bytes
+    Response Body:
+      {
+        "object": "list",
+        "page": {
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
+        },
+        "items": []
+      } 
+ 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: retry-with-parameters
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+      
+  Workflow name: goto-with-reusable-parameter
+ 
+    stepId - list-menu-items-with-invalid-limit 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 200"}
+       
+  Summary for action-parameters-passed-to-target-workflow.arazzo.yaml
+  
+  Workflows: 2 failed, 2 total
+  Steps: 2 passed, 2 failed, 4 total
+  Checks: 14 passed, 2 failed, 16 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                                        │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x action-parameters-passed-to-target-workflow.arazzo.yaml                                       │ 2          │ 0       │ 2       │ -        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+"
+`;

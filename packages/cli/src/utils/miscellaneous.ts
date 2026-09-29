@@ -18,6 +18,7 @@ import {
   type Exact,
   type Async3Definition,
   type Async2Definition,
+  type Plugin,
 } from '@redocly/openapi-core';
 import { blue, gray, green, red, yellow } from 'colorette';
 import * as fs from 'node:fs';
@@ -432,12 +433,14 @@ export function printUnusedWarnings(config: Config) {
 
 export async function loadConfigAndHandleErrors(
   argv: Exact<CommandArgv>,
-  version: string
+  version: string,
+  plugins?: Plugin[]
 ): Promise<Config> {
   try {
     const config = await loadConfig({
       configPath: argv.config,
       customExtends: argv.extends as string[] | undefined,
+      plugins,
     });
     await handleLintConfig(argv, version, config);
     return config;

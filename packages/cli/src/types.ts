@@ -15,6 +15,7 @@ import type { PreviewProjectArgv } from './commands/preview-project/types.js';
 import type { ProxyArgv } from './commands/proxy/index.js';
 import type { PushStatusArgv } from './commands/push-status.js';
 import type { PushArgv } from './commands/push.js';
+import type { RecheckArgv } from './commands/recheck/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
 import type { ScorecardClassicArgv } from './commands/scorecard-classic/types.js';
 import type { SplitArgv } from './commands/split/types.js';
@@ -53,6 +54,7 @@ export type CommandArgv = (
   | GenerateArazzoCommandArgv
   | EjectGeneratorCommandArgv
   | IntrospectMcpCommandArgv
+  | RecheckArgv
   | ScorecardClassicArgv
 ) &
   VerifyConfigOptions;

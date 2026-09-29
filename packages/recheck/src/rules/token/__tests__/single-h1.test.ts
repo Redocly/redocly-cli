@@ -1,0 +1,56 @@
+import { describe, expect, it } from 'vitest';
+
+import { tokenRuleHarness } from './harness.js';
+
+describe('single-h1 (MD025)', () => {
+  const h = tokenRuleHarness('single-h1');
+
+  it('passes a single top-level heading', async () => {
+    expect(await h.lint('# Title\n\n## Heading\n\n## Another heading\n')).toEqual([]);
+  });
+
+  it('flags a second top-level heading when the first is the document title', async () => {
+    const problems = await h.lint('# Top level heading\n\n# Another top-level heading\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(3);
+  });
+
+  it('does not flag h1s when the first heading is not top-level (preceded by content)', async () => {
+    expect(await h.lint('Some intro text.\n\n# H1 one\n\n# H1 two\n')).toEqual([]);
+  });
+
+  it('honors a custom level option', async () => {
+    const level2 = tokenRuleHarness('single-h1', { level: 2 });
+    const problems = await level2.lint('## Top\n\n## Another top\n');
+    expect(problems).toHaveLength(1);
+  });
+
+  it('treats a frontmatter title as the top-level heading', async () => {
+    const problems = await h.lint('---\ntitle: T\n---\n\n# Also top level\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(5);
+  });
+
+  it('frontMatterTitle: "" disables the front matter title, so the first body h1 is the title again', async () => {
+    const off = tokenRuleHarness('single-h1', { frontMatterTitle: '' });
+    const problems = await off.lint('---\ntitle: T\n---\n\n# A\n\n# B\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(7);
+  });
+
+  it('treats a QUOTED frontmatter title key as the top-level heading (upstream default regex)', async () => {
+    const problems = await h.lint('---\n"title": My Doc\n---\n\n# Another H1\n');
+    expect(problems).toHaveLength(1);
+  });
+
+  it('does not flag two DocFX tab headings (both excluded from top-level heading matching, verified against upstream MD025)', async () => {
+    expect(await h.lint('# [A](#tab/a)\n\n# [B](#tab/b)\n')).toEqual([]);
+  });
+
+  it('still flags a second top-level heading when frontmatter has no title key (regression)', async () => {
+    // Front matter without a title must not count as content before the first h1.
+    const problems = await h.lint('---\nproducts:\n  - Redoc\n---\n# H1 one\n\n# H1 two\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(7);
+  });
+});

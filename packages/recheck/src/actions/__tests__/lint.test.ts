@@ -1,0 +1,653 @@
+import * as fs from 'fs/promises';
+import * as os from 'os';
+import * as path from 'path';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+
+import { presetBlock } from '../../__tests__/preset-block.js';
+import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
+import type { Problem } from '../../types/index.js';
+import { runLint, type LintRunReport, type LintRunResult } from '../lint.js';
+
+// A prose line longer than the `recheck/line-length` limit of 80 characters.
+const LONG_LINE = 'word '.repeat(30).trim();
+
+/** Builds a resolved config the way the command does, without writing to disk. */
+async function resolveConfig(
+  configDir: string,
+  block: Record<string, unknown> = {},
+  extendsList: string[] = []
+): Promise<ResolvedRecheckConfig> {
+  const result = await resolveRecheckConfig({
+    block: await presetBlock(extendsList, block),
+    configDir,
+  });
+  if (!result.success) {
+    throw new Error(
+      `config resolution failed: ${result.errors.map((error) => error.message).join('; ')}`
+    );
+  }
+  return result.config;
+}
+
+function completed(result: LintRunResult): LintRunReport {
+  if (result.status !== 'completed') {
+    throw new Error(`expected a completed run, got ${JSON.stringify(result)}`);
+  }
+  return result;
+}
+
+function errorsIn(problems: Problem[]): Problem[] {
+  return problems.filter((problem) => problem.severity === 'error');
+}
+
+describe('runLint', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-run-test-'));
+  });
+
+  afterEach(async () => {
+    try {
+      await fs.rm(tempDir, { recursive: true, force: true });
+    } catch (_e) {
+      // ignore cleanup error
+    }
+  });
+
+  describe('CLI option validation', () => {
+    it('should handle empty directories gracefully', async () => {
+      const emptyDir = path.join(tempDir, 'empty');
+      await fs.mkdir(emptyDir);
+
+      const config = await resolveConfig(emptyDir, {}, ['recheck/markdown']);
+      const report = completed(await runLint(emptyDir, config, {}));
+
+      expect(report.filesFound).toBe(0);
+      expect(report.empty).toBe(true);
+      expect(report.problems).toEqual([]);
+    });
+  });
+
+  describe('File processing edge cases', () => {
+    it('should handle empty markdown files', async () => {
+      const mdPath = path.join(tempDir, 'empty.md');
+      await fs.writeFile(mdPath, '');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/test-rule': {
+            severity: 'warn',
+            message: 'Test',
+            assertions: { pattern: { tokens: ['content'] } },
+          },
+        },
+      });
+
+      const report = completed(await runLint(tempDir, config, {}));
+
+      expect(report.filesFound).toBe(1);
+      expect(report.scannedFileCount).toBe(1);
+      expect(report.problems).toEqual([]);
+    });
+
+    // Rules set to `off` are not in the run list, but a directive naming one must not warn as unknown.
+    it('does not warn for a directive naming a severity:off rule; still warns for an unknown name', async () => {
+      const mdPath = path.join(tempDir, 'doc.md');
+      await fs.writeFile(
+        mdPath,
+        '<!-- recheck-disable muted-rule -->\n\n<!-- recheck-disable no-such-rule -->\n\nBody.\n'
+      );
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/muted-rule': {
+            severity: 'off',
+            message: 'Never fires',
+            assertions: { pattern: { tokens: ['nomatch'] } },
+          },
+        },
+      });
+
+      const report = completed(await runLint(tempDir, config, {}));
+      const messages = report.problems.map((problem) => problem.message);
+
+      expect(errorsIn(report.problems)).toHaveLength(0);
+      expect(messages.some((message) => message.includes('unknown rule "no-such-rule"'))).toBe(
+        true
+      );
+      expect(messages.some((message) => message.includes('unknown rule "muted-rule"'))).toBe(false);
+    });
+  });
+
+  describe('Auto-fix functionality', () => {
+    it('should apply auto-fixes when --fix is enabled', async () => {
+      const mdPath = path.join(tempDir, 'doc.md');
+      await fs.writeFile(mdPath, '# Test\nThis has trailing spaces   \nAnother line');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/no-trailing-spaces': {
+            severity: 'error',
+            message: 'No trailing spaces',
+            assertions: { 'no-trailing-spaces': {} },
+          },
+        },
+      });
+
+      const report = completed(await runLint(tempDir, config, { fix: true }));
+
+      // Still reports the original issues even after fixing.
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
+      expect(report.fixes?.applied.length).toBeGreaterThan(0);
+
+      const fixedContent = await fs.readFile(mdPath, 'utf8');
+      expect(fixedContent).toBe('# Test\nThis has trailing spaces\nAnother line');
+    });
+
+    it('converges multi-rule fixes on the same line in a single --fix run', async () => {
+      // All three fixes land in one `--fix` run. `strict: true` keeps the 2 trailing spaces left by the tab fix from counting as a Markdown line break.
+      const mdPath = path.join(tempDir, 'doc.md');
+      await fs.writeFile(mdPath, '* bullet one\t\n');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/ul-style': {
+            severity: 'error',
+            message: "Use '-' bullets",
+            assertions: { 'ul-style': { style: 'dash' } },
+          },
+          'recheck/no-hard-tabs': {
+            severity: 'error',
+            message: 'Use spaces instead of tabs',
+            assertions: { 'no-hard-tabs': { codeBlocks: false, spacesPerTab: 2 } },
+          },
+          'recheck/no-trailing-spaces': {
+            severity: 'error',
+            message: 'Remove trailing spaces',
+            assertions: { 'no-trailing-spaces': { codeBlocks: false, strict: true } },
+          },
+        },
+      });
+
+      const report = completed(await runLint(tempDir, config, { fix: true }));
+
+      const fixedContent = await fs.readFile(mdPath, 'utf8');
+      expect(fixedContent).toBe('- bullet one\n');
+
+      // Four fixes are proposed across passes, but only three are applied. The report counts the applied ones.
+      expect(report.fixes?.applied).toHaveLength(3);
+      expect(report.fixes?.skippedCount).toBe(0);
+    });
+
+    it('should report when no auto-fixable issues found', async () => {
+      const mdPath = path.join(tempDir, 'doc.md');
+      await fs.writeFile(mdPath, '# Test\nSome content');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/non-fixable-rule': {
+            severity: 'error',
+            message: 'Cannot fix this',
+            assertions: { pattern: { tokens: ['content'] } },
+          },
+        },
+      });
+
+      const report = completed(await runLint(tempDir, config, { fix: true }));
+
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
+      expect(report.fixes).toEqual({ applied: [], skippedCount: 0 });
+    });
+  });
+
+  describe('Multi-assertions support', () => {
+    it('runs all assertions in a rule and supports native swap/pattern', async () => {
+      const md = [
+        '# Heading',
+        'This colour is wrong and behaviour is odd.',
+        'Please avoid Foo in headings.',
+        'List:',
+        '* item',
+      ].join('\n');
+      const mdPath = path.join(tempDir, 'doc.md');
+      await fs.writeFile(mdPath, md, 'utf8');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/composite-rule': {
+            severity: 'error',
+            message: 'Issue: %s',
+            assertions: {
+              swap: {
+                ignoreCase: true,
+                wordBoundary: true,
+                pairs: { colour: 'color', behaviour: 'behavior' },
+              },
+              pattern: { ignoreCase: true, tokens: ['Foo'] },
+            },
+          },
+        },
+      });
+
+      const report = completed(await runLint(tempDir, config, { severity: 'info' }));
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
+      expect(report.problems).toHaveLength(3);
+      expect(
+        report.problems.every((problem) => problem.ruleName === 'recheck/composite-rule')
+      ).toBe(true);
+    });
+  });
+
+  describe('Unreadable files', () => {
+    // chmod 000 does not stop root (or Windows) from reading the file, so skip there.
+    it.skipIf(process.getuid?.() === 0 || process.platform === 'win32')(
+      'reports stats over actually-linted files and notes the skipped count',
+      async () => {
+        await fs.writeFile(path.join(tempDir, 'ok.md'), '# Ok\nThis has a TODO item');
+        await fs.writeFile(path.join(tempDir, 'other.md'), '# Other\nNothing to see');
+        const unreadablePath = path.join(tempDir, 'unreadable.md');
+        await fs.writeFile(unreadablePath, '# Secret\nTODO hidden');
+        await fs.chmod(unreadablePath, 0o000);
+
+        const config = await resolveConfig(tempDir, {
+          rules: {
+            'recheck/no-todos': {
+              severity: 'warn',
+              message: 'TODO found',
+              assertions: { pattern: { tokens: ['TODO'] } },
+            },
+          },
+        });
+
+        const report = completed(await runLint(tempDir, config, {}));
+
+        // Only the readable file's TODO is reported. The unreadable file is listed, not linted.
+        expect(report.problems.map((problem) => path.basename(problem.file))).toEqual(['ok.md']);
+        expect(report.unreadableFiles).toEqual([unreadablePath]);
+
+        // Totals cover the 2 linted files, not the 3 found.
+        expect(report.filesFound).toBe(3);
+        expect(report.scannedFileCount).toBe(2);
+        expect(report.problems.every((problem) => problem.file !== unreadablePath)).toBe(true);
+      }
+    );
+  });
+
+  describe('File targeting with path patterns', () => {
+    it('should apply rules only to files matching appliesTo path patterns', async () => {
+      const docsDir = path.join(tempDir, 'docs');
+      const configDir = path.join(docsDir, 'config');
+      const apiDir = path.join(docsDir, 'api');
+
+      await fs.mkdir(docsDir, { recursive: true });
+      await fs.mkdir(configDir, { recursive: true });
+      await fs.mkdir(apiDir, { recursive: true });
+
+      await fs.writeFile(path.join(configDir, 'settings.md'), '# Settings\nThis has a TODO item');
+      await fs.writeFile(path.join(configDir, 'advanced.md'), '# Advanced\nAnother TODO here');
+      await fs.writeFile(path.join(apiDir, 'endpoints.md'), '# Endpoints\nThis also has TODO');
+      await fs.writeFile(path.join(docsDir, 'readme.md'), '# README\nTODO in readme');
+      await fs.writeFile(path.join(tempDir, 'root.md'), '# Root\nTODO at root');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/config-only-todos': {
+            severity: 'error',
+            message: 'TODO found in config docs',
+            appliesTo: ['docs/config/**'],
+            assertions: { pattern: { tokens: ['TODO'] } },
+          },
+        },
+      });
+
+      const { problems } = completed(await runLint(tempDir, config, {}));
+
+      expect(errorsIn(problems).length).toBeGreaterThan(0);
+
+      expect(problems).toHaveLength(2);
+      expect(problems.every((problem) => problem.file.includes('docs/config/'))).toBe(true);
+    });
+
+    it('should exclude files matching excludes path patterns', async () => {
+      const docsDir = path.join(tempDir, 'docs');
+      const draftsDir = path.join(docsDir, 'drafts');
+
+      await fs.mkdir(docsDir, { recursive: true });
+      await fs.mkdir(draftsDir, { recursive: true });
+
+      await fs.writeFile(path.join(docsDir, 'guide.md'), '# Guide\nThis has TODO');
+      await fs.writeFile(path.join(docsDir, 'tutorial.md'), '# Tutorial\nAnother TODO');
+      await fs.writeFile(path.join(draftsDir, 'draft1.md'), '# Draft\nTODO in draft');
+      await fs.writeFile(path.join(draftsDir, 'draft2.md'), '# Draft 2\nTODO in draft 2');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/no-todos': {
+            severity: 'error',
+            message: 'TODO found',
+            excludes: ['docs/drafts/**'],
+            assertions: { pattern: { tokens: ['TODO'] } },
+          },
+        },
+      });
+
+      const { problems } = completed(await runLint(tempDir, config, {}));
+
+      expect(errorsIn(problems).length).toBeGreaterThan(0);
+
+      expect(problems).toHaveLength(2);
+      expect(problems.every((problem) => !problem.file.includes('drafts/'))).toBe(true);
+    });
+  });
+
+  // These go through `runLint` because the `markdoc: true` setting once never reached the runner from the command.
+  describe('Markdoc flag threading (CLI gap closed)', () => {
+    it('a markdoc rule fires via the command entry point when the config sets markdoc: true', async () => {
+      const mdPath = path.join(tempDir, 'doc.md');
+      // A missing required `type` attribute is only detected when `ctx.markdoc` is set.
+      await fs.writeFile(
+        mdPath,
+        '{% admonition %}\nMissing the required type attribute.\n{% /admonition %}\n'
+      );
+
+      const config = await resolveConfig(tempDir, { markdoc: true }, ['recheck/markdoc']);
+
+      const { problems } = completed(await runLint(tempDir, config, {}));
+
+      // An error finding gives exit code 1, so the rule ran.
+      expect(errorsIn(problems).length).toBeGreaterThan(0);
+      expect(
+        problems.some(
+          (problem) =>
+            problem.ruleName === 'recheck/markdoc-attributes' &&
+            problem.message.includes('is missing its required')
+        )
+      ).toBe(true);
+    });
+
+    it('without markdoc: true, the identical tag content reports nothing (proves the flag -- not something else -- gates it)', async () => {
+      const mdPath = path.join(tempDir, 'doc.md');
+      await fs.writeFile(
+        mdPath,
+        '{% admonition %}\nMissing the required type attribute.\n{% /admonition %}\n'
+      );
+
+      // Markdoc rules without `markdoc: true` warn here too.
+      const warnings: string[] = [];
+      const result = await resolveRecheckConfig({
+        block: await presetBlock(['recheck/markdoc']),
+        configDir: tempDir,
+        warn: (message) => void warnings.push(message),
+      });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.config.markdoc).toBe(false);
+
+      const { problems } = completed(await runLint(tempDir, result.config, {}));
+      expect(errorsIn(problems)).toHaveLength(0);
+
+      expect(problems.some((problem) => problem.ruleName.startsWith('recheck/markdoc-'))).toBe(
+        false
+      );
+
+      // The rules are configured, so the silence comes from the flag.
+      expect(result.config.rules.some((rule) => rule.name === 'recheck/markdoc-attributes')).toBe(
+        true
+      );
+      expect(warnings.some((message) => message.includes('"markdoc" parsing is off'))).toBe(true);
+    });
+  });
+
+  describe('Several roots', () => {
+    it('lints two directories in one call and exits on the worse of the two', async () => {
+      const guides = path.join(tempDir, 'guides');
+      const reference = path.join(tempDir, 'reference');
+      await fs.mkdir(guides);
+      await fs.mkdir(reference);
+      await fs.writeFile(path.join(guides, 'guide.md'), '# Guide\nThis has a TODO item');
+      await fs.writeFile(path.join(reference, 'api.md'), '# API\nThis has a FIXME item');
+
+      const config = await resolveConfig(tempDir, {
+        rules: {
+          'recheck/no-todos': {
+            severity: 'warn',
+            message: 'TODO found',
+            assertions: { pattern: { tokens: ['TODO'] } },
+          },
+          'recheck/no-fixmes': {
+            severity: 'error',
+            message: 'FIXME found',
+            assertions: { pattern: { tokens: ['FIXME'] } },
+          },
+        },
+      });
+
+      const report = completed(await runLint([guides, reference], config, {}));
+
+      expect(errorsIn(report.problems).length).toBeGreaterThan(0);
+
+      expect(report.roots).toEqual([guides, reference]);
+      expect(report.scannedFileCount).toBe(2);
+      const reportedFiles = report.problems.map((problem) => problem.file);
+      expect(reportedFiles.some((file) => file.includes('guide.md'))).toBe(true);
+      expect(reportedFiles.some((file) => file.includes('api.md'))).toBe(true);
+    });
+  });
+});
+
+describe('runLint image metadata', () => {
+  it('confines image lookups to the scanned root, not the working directory', async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-image-root-'));
+    try {
+      await fs.writeFile(path.join(root, 'big.png'), Buffer.alloc(2048));
+      await fs.writeFile(path.join(root, 'doc.md'), '# Doc\n\n![Big](./big.png)\n');
+      const config = await resolveConfig(root, {
+        rules: {
+          'recheck/max-image-size': {
+            severity: 'error',
+            message: 'Image too large: %s',
+            assertions: { 'max-image-size': { maxSizeKB: 1 } },
+          },
+        },
+      });
+      const { problems } = completed(await runLint(root, config, {}));
+      expect(errorsIn(problems).length).toBeGreaterThan(0);
+      expect(
+        problems.some(
+          (problem) =>
+            problem.ruleName === 'recheck/max-image-size' && problem.message.includes('big.png')
+        )
+      ).toBe(true);
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+});
+
+describe('runLint result', () => {
+  const tempDirs: string[] = [];
+
+  async function makeTempDir(): Promise<string> {
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-result-'));
+    tempDirs.push(dir);
+    return dir;
+  }
+
+  afterEach(async () => {
+    for (const dir of tempDirs.splice(0)) {
+      await fs.rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('returns the run as data instead of printing it', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint(dir, config, {});
+    expect(result.status).toBe('completed');
+    if (result.status !== 'completed') return;
+    expect(result.roots).toEqual([dir]);
+    expect(result.filesFound).toBe(1);
+    expect(result.scannedFileCount).toBe(1);
+    expect(result.empty).toBe(false);
+    expect(result.problems.map((problem) => problem.ruleName)).toContain('recheck/line-length');
+    expect(result.fixes).toBeUndefined();
+    expect(result.baseline).toBeUndefined();
+  });
+
+  it('reports an unknown rule name as a result, not an exception', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint(dir, config, { rules: ['recheck/no-such-rule'] });
+    expect(result.status).toBe('unknown-rule');
+    if (result.status !== 'unknown-rule') return;
+    expect(result.available).toContain('recheck/line-length');
+  });
+
+  it('counts the rules that run and the rules that severity off disables', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    const config = await resolveConfig(dir, {
+      rules: {
+        'recheck/no-todos': {
+          severity: 'warn',
+          message: 'TODO found',
+          assertions: { pattern: { tokens: ['TODO'] } },
+        },
+        'recheck/muted-rule': {
+          severity: 'off',
+          message: 'Never fires',
+          assertions: { pattern: { tokens: ['Page'] } },
+        },
+      },
+    });
+    const report = completed(await runLint(dir, config, {}));
+    expect(report.ruleCount).toBe(1);
+    expect(report.disabledRuleCount).toBe(1);
+  });
+
+  it('reports how many files the changed list kept', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'kept.md'), '# Kept\n');
+    await fs.writeFile(path.join(dir, 'other.md'), '# Other\n');
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${path.join(dir, 'kept.md')}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const report = completed(await runLint(dir, config, { changedOnly: true, changedListPath }));
+    expect(report.filesFound).toBe(2);
+    expect(report.changedFilter).toEqual({ provided: true, matched: 1 });
+    expect(report.scannedFileCount).toBe(1);
+
+    const emptyListPath = path.join(dir, 'empty.txt');
+    await fs.writeFile(emptyListPath, '');
+    const unfiltered = completed(
+      await runLint(dir, config, { changedOnly: true, changedListPath: emptyListPath })
+    );
+    expect(unfiltered.changedFilter).toEqual({ provided: false, matched: 0 });
+    expect(unfiltered.empty).toBe(true);
+  });
+
+  it('suppresses baselined errors and reports the baseline counts', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), `# Page\n\n${LONG_LINE}\n`);
+    await fs.writeFile(
+      path.join(dir, '.redocly.recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  page.md:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const report = completed(await runLint(dir, config, {}));
+    expect(report.baseline).toEqual({ matched: 1, new: 0, stale: 0 });
+    expect(report.problems.map((problem) => problem.ruleName)).not.toContain('recheck/line-length');
+  });
+
+  it('turns a baseline entry stale when its last baselined file is deleted', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(
+      path.join(dir, '.redocly.recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  gone.md:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const report = completed(await runLint(dir, config, {}));
+
+    expect(report.filesFound).toBe(0);
+    expect(report.baseline).toEqual({ matched: 0, new: 0, stale: 1 });
+    expect(report.problems).toHaveLength(1);
+    expect(report.problems[0].message).toContain('Baseline is stale');
+  });
+
+  it('does not judge baseline entries of unscanned files stale on a changed-only run', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'kept.md'), '# Kept\n');
+    await fs.writeFile(path.join(dir, 'other.md'), '# Other\n');
+    await fs.writeFile(
+      path.join(dir, '.redocly.recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  other.md:\n    recheck/line-length: 1\n  gone.md:\n    recheck/line-length: 1\n'
+    );
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${path.join(dir, 'kept.md')}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const report = completed(await runLint(dir, config, { changedOnly: true, changedListPath }));
+
+    expect(report.scannedFileCount).toBe(1);
+    expect(report.baseline).toEqual({ matched: 0, new: 0, stale: 0 });
+    expect(report.problems).toEqual([]);
+  });
+
+  it('reports a baseline file that disappears before the run', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    const baselinePath = path.join(dir, '.redocly.recheck-baseline.yaml');
+    await fs.writeFile(baselinePath, 'version: 1\nfiles: {}\n');
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    await fs.rm(baselinePath);
+    const result = await runLint(dir, config, {});
+    expect(result).toMatchObject({
+      status: 'baseline-missing',
+      baselinePath,
+      report: { filesFound: 1, scannedFileCount: 1 },
+    });
+  });
+
+  it('carries the fix report when the baseline file disappears before the run', async () => {
+    const dir = await makeTempDir();
+    const pagePath = path.join(dir, 'page.md');
+    await fs.writeFile(pagePath, '# Page\nThis has trailing spaces   \nAnother line');
+    const baselinePath = path.join(dir, '.redocly.recheck-baseline.yaml');
+    await fs.writeFile(baselinePath, 'version: 1\nfiles: {}\n');
+    const config = await resolveConfig(dir, {
+      rules: {
+        'recheck/no-trailing-spaces': {
+          severity: 'error',
+          message: 'No trailing spaces',
+          assertions: { 'no-trailing-spaces': {} },
+        },
+      },
+    });
+    expect(config.baselinePath).toBe(baselinePath);
+    await fs.rm(baselinePath);
+
+    const result = await runLint(dir, config, { fix: true });
+    expect(result.status).toBe('baseline-missing');
+    if (result.status !== 'baseline-missing') return;
+    expect(result.report.fixes?.applied.length).toBeGreaterThan(0);
+    expect(await fs.readFile(pagePath, 'utf8')).toBe(
+      '# Page\nThis has trailing spaces\nAnother line'
+    );
+  });
+
+  it('reports an engine error as a failed result', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'page.md'), '# Page\n');
+    await fs.writeFile(path.join(dir, '.redocly.recheck-baseline.yaml'), 'version: 2\n');
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+    const result = await runLint(dir, config, {});
+    expect(result.status).toBe('failed');
+    if (result.status !== 'failed') return;
+    expect(result.message).toContain('unsupported version 2');
+  });
+});

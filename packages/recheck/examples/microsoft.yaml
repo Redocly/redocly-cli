@@ -1,0 +1,1542 @@
+# ==============================================================================
+# recheck/microsoft — Microsoft Writing Style Guide, as a config
+# ==============================================================================
+# Source:     Microsoft Writing Style Guide
+#             https://learn.microsoft.com/en-us/style-guide/welcome/
+# License:    CC BY 4.0 — granted by the guide's backing GitHub repository,
+#             NOT by any learn.microsoft.com page (none states a licence):
+#             https://github.com/MicrosoftDocs/microsoft-style-guide/blob/main/LICENSE
+# Synced:     2026-07-29
+# Provenance: packages/recheck/presets/microsoft/PROVENANCE.md
+#
+# Rules are adapted to Recheck's own assertion vocabulary (swap, pattern,
+# capitalization, length, occurrence); wording is paraphrased in each rule's
+# `message`, never quoted verbatim from the guide.
+#
+# Generated file — do not hand-edit. Regenerate with `node scripts/generate-examples.mjs`
+# after changing src/config/presets/microsoft.ts or this file's appendix
+# (examples/appendices/microsoft.appendix.yaml).
+
+# ------------------------------------------------------------------------------
+# What to paste
+# ------------------------------------------------------------------------------
+# This is the entire adoption cost: two lines. `recheck/markdown` is the
+# 53-rule markdownlint-parity structural set; `recheck/microsoft` layers the
+# Writing Style Guide's own opinions on top — it ships its own
+# heading/list/table/alt-text structural rules too, so the two are
+# complementary, not duplicates.
+
+extends:
+  - recheck/markdown
+  - recheck/microsoft
+
+# ------------------------------------------------------------------------------
+# How to tune it
+# ------------------------------------------------------------------------------
+# Your own rule keys always win over the preset's (`extends` resolves
+# first, then your top-level keys are merged on top, per rule key).
+#
+# Turn a rule off entirely:
+#
+#   microsoft/az-navigation:
+#     severity: off
+#
+# Downgrade an error to a warning:
+#
+#   microsoft/heading-sentence-case:
+#     severity: warn
+#
+# Silence one occurrence instead of the whole rule, with an inline HTML
+# comment directive — works on any rule, from any preset:
+#
+#   <!-- recheck-disable-next-line microsoft/az-navigation -->
+#   Click the hot link to continue.
+#
+#   <!-- recheck-disable microsoft/az-navigation -->
+#   ...several occurrences here are all silenced...
+#   <!-- recheck-enable microsoft/az-navigation -->
+#
+#   <!-- recheck-disable-file -->
+#
+# THE SHARP EDGE — read this before reaching for a per-term override.
+# Merging happens per ASSERTION ID, not per option inside it.
+# Setting:
+#
+#   microsoft/spelling-hyphenation:
+#     assertions:
+#       swap:
+#         ignoreCase: false
+#
+# does not just flip `ignoreCase` — it REPLACES the whole `swap` assertion
+# object, silently dropping the preset's 25-entry `pairs` map along with
+# it, and the config then fails validation outright:
+#
+#   Rule "microsoft/spelling-hyphenation": swap requires a "pairs" object
+#   mapping find -> replace strings
+#
+# (verified against this exact rule).
+# So today, to reject one term out of a bundled swap/pattern rule, your
+# options are: turn the whole rule off, restate its entire pairs/tokens
+# yourself, or inline-disable each occurrence as shown above. A per-term
+# opt-out for swap/pattern is a known follow-up, not a promise.
+#
+# Two assertion types DO already have a per-term escape hatch:
+# `capitalization`'s `exceptions` (an array of allowed terms that COMPOSES
+# with the built-in technical-proper-noun vocabulary and anything else you
+# add — it does not replace either) and `spelling`'s `ignore` (spelling
+# itself isn't shipped by any of these four presets — see the README's
+# "Opt-in prose assertions").
+# For example, to stop this preset's own sentence-case rule from flagging
+# your product's name:
+#
+#   microsoft/heading-sentence-case:
+#     assertions:
+#       capitalization:
+#         match: $sentence
+#         exceptions: [Your Product Name]
+#
+# Verified: this reports zero findings on a heading using "Your Product
+# Name" while every other sentence-case violation still fires normally.
+
+# ------------------------------------------------------------------------------
+# Full expansion (reference)
+# ------------------------------------------------------------------------------
+# This is what `extends: [recheck/microsoft]` resolves to today: all 93 rules,
+# alphabetized by rule id, generated straight from the live preset (`node
+# scripts/generate-examples.mjs`). You do not need to copy any of it — the
+# extends block above already gives you all of this. Read it to see exactly
+# what you are adopting, or as a starting point if you would rather pin or
+# fork specific rules into your own config instead of extending the preset.
+#
+# `fix: false` on every rule below means what it says: detection-only, no
+# exceptions — see "How to tune it" above and PROVENANCE.md for why.
+
+microsoft/accessibility-terms:
+  severity: error
+  message: Use people-first language instead of "%s" — see the accessibility term collection (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/accessibility-terms
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bcrippled\b
+        - \bhandicapped\b
+        - \bthe handicapped\b
+        - \bpeople with handicaps\b
+        - \bslow learner\b
+        - \bmentally handicapped\b
+        - \bdifferently abled\b
+        - \bspecial needs\b
+        - \baffected by\b
+        - \bstricken with\b
+        - \bsuffers from\b
+        - \ba victim of\b
+        - \bsight-impaired\b
+        - \bvision-impaired\b
+        - \bhearing-impaired\b
+        - \bnon-verbal\b
+        - \bmaimed\b
+        - \bmissing a limb\b
+        - \bbirth defect\b
+        - \bSpecial Ed person\b
+        - \bnormal person\b
+        - \bhealthy person\b
+        - \bAsperger['’]s\b
+        - \bdumb\b
+        - \b(?:is|was|are|were|being|been)\s+mute\b
+        - \bdeaf and mute\b
+        - \bdeaf-mute\b
+        - \blame\b
+        - \bstupid\b
+        - \ban epileptic\b(?!\s+(?:seizure|episode|fit|attack|event))
+      ignoreCase: true
+microsoft/actionable:
+  severity: warn
+  message: Avoid "%s"; rewrite using "that you can act on" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/a/actionable
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bactionable\b
+      ignoreCase: true
+microsoft/alt-text-format:
+  severity: warn
+  message: Alt text should start with a capital letter and end with a period (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/accessibility/alternative-text
+  scope: alt
+  fix: false
+  assertions:
+    capitalization:
+      match: ^[A-Z].*\.$
+microsoft/alt-text-generic-opener:
+  severity: warn
+  message: Don't start alt text with a generic word such as "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/accessibility/alternative-text
+  scope: alt
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ^(?:Image|Icon|Graphic|Button|Link)\b
+      ignoreCase: true
+microsoft/alt-text-length:
+  severity: warn
+  message: Alt text is %s %s long; Microsoft limits it to 150 characters (max %s).
+  link: https://learn.microsoft.com/en-us/style-guide/accessibility/alternative-text
+  scope: alt
+  fix: false
+  assertions:
+    length:
+      unit: characters
+      max: 150
+microsoft/alt-text-no-filename:
+  severity: warn
+  message: Don't use an image's file name as its alt text (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/accessibility/alternative-text
+  scope: alt
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \.(?:png|jpe?g|gif|svg|webp)$
+      ignoreCase: true
+microsoft/article-before-acronym:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Microsoft: article choice follows pronunciation).'
+  link: https://learn.microsoft.com/en-us/style-guide/acronyms
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        an URL: a URL
+        a ISP: an ISP
+        an SQL database: a SQL database
+        an SQL: a SQL
+      ignoreCase: true
+      wordBoundary: true
+microsoft/avoid-please:
+  severity: warn
+  message: Avoid "%s" except when asking the customer to do something inconvenient (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/p/please
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bplease\b
+      ignoreCase: true
+microsoft/az-abbreviations-names:
+  severity: error
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hexadecimal
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        defrag: defragment
+        okay: OK
+      ignoreCase: true
+      wordBoundary: true
+microsoft/az-abbreviations-names-detect:
+  severity: error
+  message: 'Microsoft style: use "number sign" instead of "%s" — except for the literal phone-keypad key (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/n/number-sign
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bpound sign\b
+      ignoreCase: true
+microsoft/az-abbreviations-substitutions:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hexadecimal
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        hex: hexadecimal
+        (?<!\bon\s)\bspec\b: specification
+        MSFT: Microsoft
+        alright: OK
+        all right: OK
+      ignoreCase: true
+      wordBoundary: true
+      keysAreRegex: true
+microsoft/az-case-fixable:
+  severity: error
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/internet-intranet-extranet
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        Big Data: big data
+        Dark Mode: dark mode
+        darkmode: dark mode
+        Devops: DevOps
+        devops: DevOps
+        bluetooth: Bluetooth
+        Javascript: JavaScript
+        javascript: JavaScript
+      ignoreCase: false
+      wordBoundary: true
+microsoft/az-case-fixable-detect:
+  severity: error
+  message: Use "%s" instead of "%s" (Microsoft) in ordinary prose -- but lowercase "boolean" is correct and expected when naming the OpenAPI/JSON Schema type.
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/internet-intranet-extranet
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        boolean: Boolean
+      ignoreCase: false
+      wordBoundary: true
+microsoft/az-case-only:
+  severity: error
+  message: 'Use "%s" instead of "%s" (Microsoft): rewrite, this fix would silently no-op.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/internet-intranet-extranet
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        Internet: internet
+        Intranet: intranet
+        Extranet: extranet
+        Euro: euro
+        WWW: www
+        Registry: registry
+        Spam: spam
+      ignoreCase: false
+      wordBoundary: true
+microsoft/az-direction-layout:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/far-left-far-right
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        top left: upper left
+        top right: upper right
+        far-left: leftmost
+        far-right: rightmost
+        left-justified: left-aligned
+        right-justified: right-aligned
+        ragged right: left-aligned
+      ignoreCase: true
+      wordBoundary: true
+microsoft/az-direction-layout-detect:
+  severity: error
+  message: 'Microsoft style: use "lower left"/"lower right" instead of "%s" — except when discussing the BottomLeft/BottomRight API properties (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/bottom-left-bottom-right
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bbottom left\b
+        - \bbottom right\b
+      ignoreCase: true
+microsoft/az-filesystem:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/c/child-folder
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        child folder: subfolder
+        \bhome directory\b(?!\s+for\s+(?:its|the|your|his|her|their)?\s*config): root directory
+        graphics adapter: video card
+        display adapter: video card
+        video adapter: video card
+        graphics card: video card
+        display driver: video driver
+        graphics driver: video driver
+        remote drive: network drive
+      ignoreCase: true
+      wordBoundary: true
+      keysAreRegex: true
+microsoft/az-geography:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/far-east
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bFar East\b: East Asia
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-geography-detect:
+  severity: error
+  message: 'Microsoft style: prefer "thanks" over "%s" in most content — see the a-z word list for the formal/serious-content exception.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/t/thanks-thank-you
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bthank you\b
+      ignoreCase: true
+microsoft/az-grammar-usage:
+  severity: error
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/a/as-well-as
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        towards: toward
+        upwards: upward
+        afterwards: afterward
+        useable: usable
+        moveable: movable
+        broadcasted: broadcast
+        matrixes: matrices
+        appendixes: appendices
+        zeroes: zeros
+      ignoreCase: true
+      wordBoundary: true
+microsoft/az-grammar-usage-detect:
+  severity: error
+  message: 'Microsoft style: "%s" needs a context-specific rewrite, not a blind substitution — "as well as" is a caution against treating it as a synonym for "and", not an instruction to replace it; "or greater/higher/lower" only becomes "or later/earlier" when identifying program or app version numbers, not general magnitude (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/a/as-well-as
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bas well as\b
+        - \bor greater\b
+        - \bor higher\b
+        - \bor lower\b
+      ignoreCase: true
+microsoft/az-grammar-usage-substitutions:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/a/as-well-as
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        whether or not: whether
+        center around: center on
+        different to: different from
+        inside of: inside
+        outside of: outside
+        off of: 'off'
+        administrate: administer
+        alphabetic: alphabetical
+        mathematic: mathematical
+        numerical: numeric
+      ignoreCase: true
+      wordBoundary: true
+microsoft/az-judgment-words:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/finalize
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bfinalize\b: finish
+        \bbug fix\b: software update
+        \bbeta\b(?!\s+(?:distribution|function|coefficient|particle|blocker|decay)\b): preview
+        \bEULA\b: license terms
+        \bEnd-User License Agreement\b: license terms
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-lifecycle-verbs:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/boot
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bcarry out\b: run
+        (?<!\b(?:the|an|no|emergency)\s)\bexit\b(?!\s+(?:code|status|button|sign|strategy|interview|poll|ramp|velocity|row)\b): close
+        (?<!\b(?:product|software|game|website|app|feature|rocket|mission)\s)\blaunch\b(?!\s+(?:date|event|party|window|site|pad|day|plan|schedule|announcement)\b): open
+        \bboot\b(?!\s+(?:disk|sector|loader|sequence|process|time|options?|record|partition|menu|order|camera)\b): turn on
+        \bundelete\b: restore
+        \binstantiate\b: create an instance of
+        \biconize\b: minimize
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-lifecycle-verbs-detect:
+  severity: error
+  message: 'Microsoft style: "%s" needs a context-specific replacement or carries a conditional exception — see the a-z word list before rewriting.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/q/quit
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bquit\b
+        - \bdeinstall\b
+        - \breinitialize\b
+      ignoreCase: true
+microsoft/az-navigation:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/v/visit
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bhot link\b: link
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-navigation-detect:
+  severity: error
+  message: 'Microsoft style: use "go to" instead of "%s" in most cases — but "visit" is OK for a suggestion/browsing tone (Microsoft); see the a-z word list before rewriting.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/v/visit
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bvisit\b(?!\s+(?:count|counts|duration|frequency|history|log|data)\b)
+      ignoreCase: true
+microsoft/az-no-replacement:
+  severity: error
+  message: Don't use "%s" (Microsoft); be specific instead.
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/black-box
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bblack box\b
+        - \bdot-com\b
+        - \bedutainment\b
+        - \bhoneypot\b
+        - \bbackbone\b
+        - \bwordwrap\b
+        - \bnatural user interface\b
+        - \bNUI\b
+        - \bsubaddress\b
+      ignoreCase: true
+microsoft/az-real-replacements:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/friendly-name
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bfriendly name\b: display name
+        \bprint queue\b: list of documents
+        \bprinter queue\b: list of documents
+        \bdata record\b: record
+        \be-form\b: form
+        \bupsize\b: scale up
+        \bworking memory\b: available memory
+        \bsoft copy\b: file
+        (?<!\b(?:a|an|the|this|that|your|my|its|his|her|their|our)\s)\bprint out\b(?!\s+of\b): print
+        \bsearch and replace\b: find and replace
+        \btarget drive\b: destination drive
+        \btarget file\b: destination file
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-state-failure:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hang
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bhangs\b(?!\s+(?:on|up|around|out|together|of|in|tight|loose|fire|from|over)\b): stops responding
+        \bhang\b(?!\s+(?:on|up|around|out|together|of|in|tight|loose|fire|from|over)\b): stop responding
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-state-failure-detect:
+  severity: error
+  message: 'Microsoft style: "%s" needs a context-specific replacement (fail for hardware, stop responding for programs).'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/c/crash
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bcrash\b(?!\s+(?:dump|report|log|course|test|site)\b)
+        - \block up\b
+      ignoreCase: true
+microsoft/az-typography:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/r/roman
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \btypeface\b: font
+        \btype style\b: font style
+        \bbolded\b: bold
+        \bboldface\b: bold
+        \broman\b(?!\s+(?:numeral|numerals|empire|alphabet|calendar|law|catholic|republic|mythology|god|gods|ruins?|coins?|holiday|road|roads|bath|baths|army|legion|forum|senate|aqueduct)\b): regular type
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-ui-nouns:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/blade
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bblade\b(?!\s+(?:server|servers|enclosure|chassis|centers?|centres?)\b): pane
+        \binsertion point\b: pointer
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/az-ui-nouns-detect:
+  severity: error
+  message: 'Microsoft style: "%s" carries a conditional exception — see the a-z word list before rewriting.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hierarchical-menu
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bhierarchical menu\b
+        - \bsecondary menu\b
+        - \brunning head\b
+        - \brunning foot\b
+      ignoreCase: true
+microsoft/az-verb-able:
+  severity: error
+  message: 'Rewrite "%s" using "%s" (Microsoft): a direct substitution may be ungrammatical.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/blacklist
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        blacklist: block list
+        whitelist: allow list
+        allowlist: allow list
+        blocklist: block list
+      ignoreCase: true
+      wordBoundary: true
+microsoft/bias-free-terms:
+  severity: error
+  message: 'Use "%s" instead of "%s" (Microsoft: bias-free communication).'
+  link: https://learn.microsoft.com/en-us/style-guide/bias-free-communication
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        chairman: chair
+        chairwoman: chair
+        mankind: humanity
+        manmade: synthetic
+        man-made: synthetic
+        manpower: workforce
+        salesman: sales representative
+        salesmen: sales representatives
+        demilitarized zone: perimeter network
+        \bDMZ\b(?!\s+(?:dividing|between|separating)\b): perimeter network
+        screened subnet: perimeter network
+      ignoreCase: true
+      wordBoundary: true
+      keysAreRegex: true
+microsoft/bookmark-favorite:
+  severity: error
+  message: 'Rewrite "%s" using "%s" (Microsoft): a direct substitution may be ungrammatical.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/b/bookmark
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        bookmark: favorite
+      ignoreCase: true
+      wordBoundary: true
+microsoft/bucketize:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/dont-use-common-words-in-new-ways
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        bucketize: group
+      ignoreCase: true
+      wordBoundary: true
+microsoft/capitalize-after-heading-colon:
+  severity: warn
+  message: Capitalize the first word after a colon in a heading (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/punctuation/colons
+  scope: heading
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ':\s+[a-z]'
+microsoft/checkbox-verbs:
+  severity: warn
+  message: Use "%s" instead of "%s" for checkboxes (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/procedures-instructions/describing-interactions-with-ui
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        uncheck: clear
+        unmark: clear
+        unselect: clear
+      ignoreCase: true
+      wordBoundary: true
+microsoft/comma-density:
+  severity: warn
+  message: Sentence has %s commas; Microsoft suggests at most %s.
+  link: https://learn.microsoft.com/en-us/style-guide/punctuation/
+  scope: sentence
+  fix: false
+  assertions:
+    occurrence:
+      pattern: ','
+      max: 2
+microsoft/contraction-consistency:
+  severity: warn
+  message: '"%s" conflicts with the first-used form "%s" in this file (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-contractions
+  scope: summary
+  fix: false
+  assertions:
+    consistency:
+      ignoreCase: true
+      either:
+        can't: cannot
+        don't: do not
+        won't: will not
+        isn't: is not
+        it's: it is
+microsoft/cyberattack-spelling:
+  severity: error
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/militaristic-language
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        cyber attack: cyberattack
+        cyber-attack: cyberattack
+        cyber threat: cyberthreat
+        cyber-threat: cyberthreat
+      ignoreCase: true
+      wordBoundary: true
+microsoft/descriptive-link-text:
+  severity: error
+  message: Link text should be descriptive, not a generic phrase (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/urls-web-addresses
+  scope: all
+  fix: false
+  assertions:
+    descriptive-link-text: {}
+microsoft/dialog-terminology:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/procedures-instructions/formatting-text-in-instructions
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        pop-up window: dialog
+        dialog box: dialog
+        dialogue box: dialog
+      ignoreCase: true
+      wordBoundary: true
+microsoft/glyph:
+  severity: error
+  message: Use "%s" instead of "%s" (Microsoft) when referring generically to a UI icon/image — but it's OK to use "glyph" in a technical discussion of fonts and characters.
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/avoid-jargon
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        glyph: symbol
+      ignoreCase: true
+      wordBoundary: true
+microsoft/heading-sentence-case:
+  severity: error
+  message: '"%s" should use %s capitalization (Microsoft: sentence case for headings).'
+  link: https://learn.microsoft.com/en-us/style-guide/capitalization
+  scope: heading
+  fix: false
+  assertions:
+    capitalization:
+      match: $sentence
+microsoft/impact-verb:
+  severity: warn
+  message: 'Use "affect" instead of "impact" as a verb (Microsoft): "%s"'
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/dont-use-common-words-in-new-ways
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bimpact(?:s|ed|ing)?\s+(?:performance|productivity|quality|reliability|availability|latency|throughput)\b
+microsoft/italic-as-noun:
+  severity: error
+  message: Avoid "%s"; rewrite using "italic" as an adjective, e.g. "italic text" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/italic
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bitalics\b
+        - \bitalicized\b
+      ignoreCase: true
+microsoft/keyboard-shortcut-plus-spacing:
+  severity: warn
+  message: 'Don''t put a space around "+" in a keyboard shortcut (Microsoft): "%s"'
+  link: https://learn.microsoft.com/en-us/style-guide/procedures-instructions/formatting-text-in-instructions
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:Ctrl|Alt|Shift|Cmd)\s+\+\s+
+microsoft/left-hand-right-hand:
+  severity: error
+  message: 'Rewrite "%s" using "%s" (Microsoft): no replacement is stated for the modifier sense.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/l/left-leftmost-left-hand
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        left-hand: left
+        right-hand: right
+      ignoreCase: true
+      wordBoundary: true
+microsoft/leverage:
+  severity: error
+  message: 'Rewrite "%s" using "%s" (Microsoft): only the VERB sense ("leverage the API") is targeted — "leverage"/"leveraged" are also common, correct nouns/adjectives ("financial leverage", "a leveraged buyout") a blind substitution would corrupt.'
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/avoid-jargon
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        leverage: use
+        leveraging: using
+        leveraged: used
+      ignoreCase: true
+      wordBoundary: true
+microsoft/list-item-capital:
+  severity: error
+  message: '"%s" should start with a capital letter (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/lists
+  scope: list-item
+  fix: false
+  assertions:
+    capitalization:
+      match: ^[^a-z].*
+microsoft/list-length:
+  severity: warn
+  message: List has %s item(s); Microsoft recommends 2-7 (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/lists
+  scope: all
+  fix: false
+  assertions:
+    list-length:
+      min: 2
+      max: 7
+microsoft/master-slave:
+  severity: error
+  message: 'Avoid "%s" (Microsoft): the guide''s two pages disagree on the replacement — use "primary/subordinate" (bias-free-communication) or "primary/replica" (also acceptable: primary/secondary, principal/agent, controller/worker; a-z/master-slave) depending on context.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/m/master-slave
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bmaster\s*/\s*slave\b
+        - \bmaster-slave\b
+      ignoreCase: true
+microsoft/mouse-over:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/term-collections/mouse-mouse-interaction-terms
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        mouse over: hover over
+      ignoreCase: true
+      wordBoundary: true
+microsoft/no-alt-text:
+  severity: error
+  message: 'Every image needs alt text (Microsoft: accessibility).'
+  link: https://learn.microsoft.com/en-us/style-guide/accessibility/alternative-text
+  scope: all
+  fix: false
+  assertions:
+    no-alt-text: {}
+microsoft/no-ampersand-in-headings:
+  severity: warn
+  message: Spell out "and"; avoid & and + in headings (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/headings
+  scope: heading
+  exceptions:
+    lines:
+      - C++
+      - A+
+      - .NET
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - '&(?!amp;|nbsp;|lt;|gt;|quot;|#)'
+        - \+
+microsoft/no-apostrophe-plural-decade:
+  severity: warn
+  message: 'Don''t use an apostrophe to form a plural decade (Microsoft): "%s"'
+  link: https://learn.microsoft.com/en-us/style-guide/punctuation/apostrophes
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:19|20)\d0['’]s\b
+microsoft/no-awkward-contractions:
+  severity: warn
+  message: Avoid the ambiguous contraction "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-contractions
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:there['’]d|it['’]ll|they['’]d|that['’]ll|there['’]ll)\b
+      ignoreCase: true
+microsoft/no-blank-table-cell:
+  severity: warn
+  message: Use "Not applicable" or "None" instead of an em dash in a table cell (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/tables
+  scope: table.cell
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ^\s*(?:—\s*)?$
+microsoft/no-click:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Microsoft: avoid input-specific verbs).'
+  link: https://learn.microsoft.com/en-us/style-guide/procedures-instructions/describing-interactions-with-ui
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        click on: select
+        (?<![\w-])click(?![a-zA-Z])(?!\s+(?:count|counts|rate|rates|event|events|tracking|data|metrics?|history|id|ids|per)\b): select
+        (?<![\w-])clicks(?![a-zA-Z])(?!\s+(?:count|counts|rate|rates|event|events|tracking|data|metrics?|history|per)\b): selects
+        (?<![\w-])clicking(?![a-zA-Z]): selecting
+        (?<![\w-])clicked(?![a-zA-Z]): selected
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/no-derogatory-slang:
+  severity: error
+  message: Avoid the derogatory or culturally appropriative term "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/bias-free-communication
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bpimp\b
+        - \bbitch\b
+        - \bspirit animal\b
+      ignoreCase: true
+microsoft/no-ellipsis-column-header:
+  severity: warn
+  message: 'Don''t end a table column header with an ellipsis (Microsoft): "%s"'
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/tables
+  scope: table.header
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - (?:\.\.\.|…)$
+microsoft/no-emphasis-as-heading:
+  severity: error
+  message: Use a heading level, not bold or italic text, to show hierarchy (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/accessibility/writing-all-abilities
+  scope: all
+  fix: false
+  assertions:
+    no-emphasis-as-heading: {}
+microsoft/no-from-before-en-dash-range:
+  severity: warn
+  message: 'Don''t use "from" before an en-dash number range (Microsoft): "%s"'
+  link: https://learn.microsoft.com/en-us/style-guide/numbers
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bfrom\s+\d+\s*[–—]\s*\d+
+microsoft/no-latin-abbreviations:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-us-spelling-avoid-non-english-words
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \be\.g\.,?: for example
+        \bi\.e\.,?: that is
+        \bviz\.: namely
+        \bergo\b: therefore
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/no-latin-abbreviations-detect:
+  severity: error
+  message: 'Microsoft style: avoid the non-English phrase "%s" — no single replacement is prescribed; rewrite for the context (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-us-spelling-avoid-non-english-words
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bde facto\b
+        - \bad hoc\b
+        - \bvis-[àa]-vis\b
+      ignoreCase: true
+microsoft/no-multiple-blanks:
+  severity: error
+  message: Don't use extra blank lines to create heading spacing (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/headings
+  scope: all
+  fix: false
+  assertions:
+    no-multiple-blanks: {}
+microsoft/no-space-around-em-dash:
+  severity: warn
+  message: Don't use spaces around an em dash (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/punctuation/dashes-hyphens/
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \s—\s
+microsoft/no-trailing-conjunction-list:
+  severity: warn
+  message: 'Don''t end a list item with a semicolon, comma, or conjunction (Microsoft): "%s"'
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/lists
+  scope: list-item
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - '[,;]$'
+        - \b(?:and|or)$
+      ignoreCase: true
+microsoft/no-trailing-punctuation:
+  severity: error
+  message: Don't end headings with punctuation (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/headings
+  scope: all
+  fix: false
+  assertions:
+    no-trailing-punctuation: {}
+microsoft/no-weak-phrasing:
+  severity: warn
+  message: Avoid weak phrasing such as "%s"; start the sentence with a verb (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/top-10-tips-style-voice
+  scope:
+    - paragraph
+    - list-item
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bthere (?:is|are|was|were)\b
+      ignoreCase: true
+microsoft/noon-midnight:
+  severity: warn
+  message: Use "noon" or "midnight" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/numbers
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b12:00\s*(?:AM|PM|am|pm)\b
+microsoft/ordinal-no-ly:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/numbers
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        firstly: first
+        secondly: second
+        thirdly: third
+      ignoreCase: true
+      wordBoundary: true
+microsoft/paragraph-length:
+  severity: warn
+  message: Paragraph is %s %s long; Microsoft suggests at most 7 (sentences, as a proxy for lines).
+  link: https://learn.microsoft.com/en-us/style-guide/scannable-content/
+  scope: paragraph
+  fix: false
+  assertions:
+    length:
+      unit: sentences
+      max: 7
+microsoft/press-key-verb:
+  severity: warn
+  message: Use "select" to describe pressing a key, not "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/h/hit
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:press|hit|strike)\s+(?:the\s+)?(?:Enter|Tab|Esc|Escape|Delete|Backspace|spacebar|Ctrl|Shift|Alt)\b
+        - \b(?:press|hit|strike)\s+the\s+\S+\s+key\b
+      ignoreCase: true
+microsoft/racial-ethnic-capitalization:
+  severity: error
+  message: 'Use title-style capitalization: "%s" instead of "%s" (Microsoft).'
+  link: https://learn.microsoft.com/en-us/style-guide/bias-free-communication
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        asian: Asian
+        black and african american: Black and African American
+        hispanic and latinx: Hispanic and Latinx
+        native american: Native American
+        alaska native: Alaska Native
+        native hawaiian: Native Hawaiian
+        pacific islander: Pacific Islander
+        indigenous peoples: Indigenous Peoples
+      ignoreCase: false
+      wordBoundary: true
+microsoft/sign-in-sign-out:
+  severity: warn
+  message: 'Rewrite "%s" as "%s" (Microsoft): "login"/"logon" as a noun needs a sentence rewrite.'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/l/log-on-log-off
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        log into: sign in to
+        log onto: sign in to
+        log in: sign in
+        login: sign in
+        log on: sign in
+        logon: sign in
+        log off: sign out
+        log out: sign out
+        logout: sign out
+        sign into: sign in to
+        signin: sign in
+        sign off: sign out
+      ignoreCase: true
+      wordBoundary: true
+microsoft/simple-words:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-simple-words-concise-sentences
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \butilize\b: use
+        \butilise\b: use
+        \bmake use of\b: use
+        \bin order to\b: to
+        \bas a means to\b: to
+        \bin addition\b(?!\s+to\b): also
+        \bestablish connectivity\b: connect
+        \binform\b: tell
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/single-space-after-punctuation:
+  severity: warn
+  message: Use one space, not two, after end punctuation (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/punctuation/periods
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - '[.!?:]\s{2,}(?=[A-Z])'
+microsoft/spell-out-ordinals:
+  severity: warn
+  message: Spell out ordinal numbers; avoid "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/numbers
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b\d+(?:st|nd|rd|th)\b
+microsoft/spelling-hyphenation:
+  severity: error
+  message: Microsoft style spells this "%s", not "%s".
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/e/email
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \be-?mail\b(?<!email): email
+        \bdata ?base\b(?<!database): database
+        \bend ?point\b(?<!endpoint): endpoint
+        \bweb ?site\b(?<!website): website
+        \bweb ?page\b(?<!webpage): webpage
+        \bwork ?station\b(?<!workstation): workstation
+        \bscreen ?shot\b(?<!screenshot): screenshot
+        \btask ?bar\b(?<!taskbar): taskbar
+        \bname ?space\b(?<!namespace): namespace
+        \bplug-in\b: plugin
+        \becommerce\b: e-commerce
+        \belearning\b: e-learning
+        \bebook\b: e-book
+        \bcyber-security\b: cybersecurity
+        \bco-author\b: coauthor
+        \bdial ?up\b: dial-up
+        \bread only\b: read-only
+        \bcontext sensitive\b: context-sensitive
+        \bsingle sign ?on\b: single sign-on
+        \bmulti-factor\b: multifactor
+        \bmulti-cloud\b: multicloud
+        \bmulti-tenant\b: multitenant
+        \bwell-being\b: wellbeing
+        \btool ?tip\b(?<!tooltip): tooltip
+        \bimbed\b: embed
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/straight-quotes:
+  severity: warn
+  message: Use straight quotation marks, not curly ones (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/punctuation/quotation-marks
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        “: '"'
+        ”: '"'
+        ‘: "'"
+        ’: "'"
+microsoft/the-ask:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/dont-use-common-words-in-new-ways
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bthe ask\b(?!\s+(?:tick|ticks|price|prices|spread|spreads|size|quote|quotes)\b): the request
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/tooltip-capitalization:
+  severity: error
+  message: 'Use "%s", not "%s" (Microsoft: tooltip is one word, lowercase).'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/t/tooltip
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        ToolTip: tooltip
+      ignoreCase: false
+      wordBoundary: true
+microsoft/us-spelling:
+  severity: error
+  message: Use the US spelling "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-us-spelling-avoid-non-english-words
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bcentred\b: centered
+        \bcentring\b: centering
+        \bcatalogued\b: cataloged
+        \bcataloguing\b: cataloging
+        \bcancelled\b: canceled
+        \bcancelling\b: canceling
+        \bfavourite\b: favorite
+        \bauthorise\b: authorize
+        \bauthorises\b: authorizes
+        \bauthorised\b: authorized
+        \bauthorising\b: authorizing
+        \bauthorisation\b: authorization
+        \bcustomise\b: customize
+        \bcustomises\b: customizes
+        \bcustomised\b: customized
+        \bcustomising\b: customizing
+        \bcustomisation\b: customization
+        \blabelled\b: labeled
+        \blabelling\b: labeling
+        \bmodelled\b: modeled
+        \bmodelling\b: modeling
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/us-spelling-detect:
+  severity: error
+  message: Use the US spelling "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-us-spelling-avoid-non-english-words
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bcentre\b: center
+        \bcentres\b: centers
+        \bcatalogue\b: catalog
+        \bcatalogues\b: catalogs
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/usa-abbreviation:
+  severity: warn
+  message: 'Microsoft style: use "%s" instead of "%s".'
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/f/far-east
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bUSA\b: US
+        \bU\.S\.A\.: US
+        \bU\.S\.: US
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/use-contractions:
+  severity: warn
+  message: Microsoft style prefers the contraction "%s" over "%s".
+  link: https://learn.microsoft.com/en-us/style-guide/word-choice/use-contractions
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        cannot: can't
+        can not: can't
+        do not: don't
+        does not: doesn't
+        did not: didn't
+        is not: isn't
+        are not: aren't
+        was not: wasn't
+        were not: weren't
+        will not: won't
+        would not: wouldn't
+        should not: shouldn't
+        could not: couldn't
+        have not: haven't
+        has not: hasn't
+        had not: hadn't
+        it is: it's
+        you are: you're
+        we are: we're
+        they are: they're
+        you will: you'll
+        let us: let's
+      ignoreCase: true
+      wordBoundary: true
+microsoft/versus-in-text:
+  severity: warn
+  message: Use "%s" instead of "%s" in body text (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/v/versus-vs
+  scope:
+    - paragraph
+    - list-item
+    - table.cell
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bvs\.: versus
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+microsoft/vs-in-headings:
+  severity: warn
+  message: Use "%s" instead of "%s" in headings (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/v/versus-vs
+  scope: heading
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        versus: vs.
+      ignoreCase: true
+      wordBoundary: true
+microsoft/world-wide-web:
+  severity: warn
+  message: Use "%s" instead of "%s" (Microsoft).
+  link: https://learn.microsoft.com/en-us/style-guide/a-z-word-list-term-collections/i/internet-intranet-extranet
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        World Wide Web: web
+      ignoreCase: false
+      wordBoundary: true
+
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/microsoft (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `node scripts/generate-examples.mjs`. Editing it
+# makes examples/microsoft.yaml stale until you regenerate — the drift
+# test's failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why: packages/recheck/presets/microsoft/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# TOO-RISKY / NOISY — real, guide-confirmed content, judged too broad or too
+# audience-conditional to enforce mechanically. Shown here as the rule it
+# WOULD be if shipped, commented out, so you can see the shape being avoided.
+# ------------------------------------------------------------------------------
+
+# TOO-RISKY: "deprecated" is confirmed guide content ("avoid in content for a
+# technical audience"), but it's itself load-bearing OpenAPI vocabulary (the
+# `deprecated: true` field) — shipping this would misfire on Redocly's own
+# API-documentation domain.
+# microsoft/deprecated-obsolete:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft).'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { deprecated: obsolete }
+
+# TOO-RISKY: Microsoft's own page carves out exactly Redocly's audience —
+# "it's OK to use header as a short form of file header, as in HTML header"
+# — the standard, correct term for an HTTP/API header throughout API docs.
+# microsoft/header-heading:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft) — except in developer content.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { header: heading }
+
+# TOO-RISKY: "context menu" is developer-audience-conditional per Microsoft's
+# own page ("use context menu only in content for developers") — Redocly's
+# docs ARE developer content, so this would misfire if shipped unconditionally.
+# microsoft/context-menu:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft) — except in developer content.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { context menu: shortcut menu }
+
+# TOO-RISKY: "that" referring to people is one of the most common words in
+# English; only a small fraction of occurrences refer to people at all, so a
+# literal swap toward "who" would be extraordinarily noisy.
+# microsoft/that-who:
+#   severity: warn
+#   message: 'Consider "%s" instead of "%s" when referring to a person (Microsoft).'
+#   assertions:
+#     pattern:
+#       tokens: ['\bthat\b']
+
+# TOO-RISKY: "star" is an ordinary English word (star rating, star
+# performer) with a narrow, Microsoft-documented exception (OK for a
+# phone-keypad key) a blanket swap would miss in both directions.
+# microsoft/star-asterisk:
+#   severity: warn
+#   message: 'Use "%s" instead of "%s" (Microsoft), except for the phone-keypad key.'
+#   assertions:
+#     swap:
+#       ignoreCase: true
+#       wordBoundary: true
+#       pairs: { star: asterisk }
+
+# ------------------------------------------------------------------------------
+# NEEDS HUMAN REVIEW — real guide content with no safe mechanical detection
+# (NOT-ENFORCEABLE). Recheck cannot check these; review them yourself:
+# ------------------------------------------------------------------------------
+#   [ ] Active voice, subjunctive mood, verb-first sentences, modifier
+#       stacks, that/who omission — all require POS tagging or grammatical-
+#       role judgment beyond regex/AST primitives
+#   [ ] Table cells in sentence case — reference tables are dense with
+#       identifiers and proper nouns that don't fit cleanly
+#   [ ] "Name" as a column header — genuinely correct in many API reference
+#       tables; Microsoft's own objection needs context this preset doesn't have
+#   [ ] Second-level headings need at least two siblings; no two headings in
+#       a row; list-item parallelism
+#   [ ] En dash for a minus sign; "from"/"through" ranges; closing-quote
+#       placement; mid-sentence colon rules
+#   [ ] Spell out single-digit numbers; no sentence-initial numerals; no
+#       K/M/B abbreviations; spell out months
+#   [ ] Bare-URL/link-formatting rules (available generically via
+#       `recheck/markdown`'s `no-bare-urls` if you want them, just not
+#       attributed to Microsoft specifically here)
+#   [ ] House-rule structural conventions (link fragments, fenced-code
+#       language, single H1, consistent bullet/fence/emphasis style) — real
+#       and worth having, but the guide itself never states them, so they
+#       don't ship under a Microsoft attribution

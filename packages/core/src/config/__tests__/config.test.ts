@@ -86,6 +86,9 @@ describe('Config.forAlias', () => {
           "openrpc1": {},
           "overlay1": {},
         },
+        "recheck": {
+          "rules": {},
+        },
         "resolve": {
           "http": {
             "customFetch": undefined,
@@ -127,6 +130,9 @@ describe('Config.forAlias', () => {
           "overlay1Rules": {},
           "plugins": undefined,
           "preprocessors": {},
+          "recheck": {
+            "rules": {},
+          },
           "resolve": {
             "http": {
               "headers": [],

@@ -227,12 +227,17 @@ const Replacement: NodeType = {
   },
 };
 
+// action parameters are passed to the workflow that `workflowId` references
+const requiredActionFields: NodeType['required'] = (value) =>
+  value?.parameters === undefined ? ['type', 'name'] : ['type', 'name', 'workflowId'];
+
 const SuccessActionObject: NodeType = {
   ...Arazzo1Types.SuccessActionObject,
   properties: {
     ...Arazzo1Types.SuccessActionObject.properties,
     parameters: 'Parameters',
   },
+  required: requiredActionFields,
 };
 
 const FailureActionObject: NodeType = {
@@ -241,6 +246,7 @@ const FailureActionObject: NodeType = {
     ...Arazzo1Types.FailureActionObject.properties,
     parameters: 'Parameters',
   },
+  required: requiredActionFields,
 };
 
 export const Arazzo1_1Types: Record<string, NodeType> = {

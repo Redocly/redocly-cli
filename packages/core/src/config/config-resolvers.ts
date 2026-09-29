@@ -28,6 +28,7 @@ import {
   loadPluginModule,
   setCachedPlugins,
 } from './plugins-cache.js';
+import { RECHECK_PLUGIN_ID } from './recheck.js';
 import type {
   Plugin,
   RawUniversalConfig,
@@ -56,6 +57,7 @@ export type ConfigOptions = {
   externalRefResolver?: BaseResolver;
   customExtends?: string[];
   skipPluginEval?: boolean;
+  plugins?: Plugin[];
 };
 
 export async function resolveConfig({
@@ -64,6 +66,7 @@ export async function resolveConfig({
   externalRefResolver,
   customExtends,
   skipPluginEval,
+  plugins: extraPlugins = [],
 }: ConfigOptions): Promise<{
   resolvedConfig: ResolvedConfig;
   resolvedRefMap: ResolvedRefMap;
@@ -103,7 +106,7 @@ export async function resolveConfig({
     const instantiatedPlugins = ((config as RawUniversalConfig)?.plugins || []).filter(
       (p) => !isString(p)
     ) as Plugin[];
-    resolvedPlugins = [...instantiatedPlugins, defaultPlugin];
+    resolvedPlugins = [...instantiatedPlugins, defaultPlugin, ...extraPlugins];
   } else {
     rootConfigDir = path.dirname(configPath ?? '');
     pluginsOrPaths = collectConfigPlugins(rootDocument, resolvedRefMap, rootConfigDir);
@@ -112,7 +115,7 @@ export async function resolveConfig({
       rootConfigDir,
       skipPluginEval
     );
-    resolvedPlugins = [...plugins, defaultPlugin];
+    resolvedPlugins = [...plugins, defaultPlugin, ...extraPlugins];
   }
 
   const bundledConfig = bundleConfig(
@@ -337,6 +340,9 @@ export async function resolvePlugins(
                   `Plugin must define \`id\` property in ${colorize.blue(p.toString())}.`
                 )
               );
+            }
+            if (id === RECHECK_PLUGIN_ID) {
+              throw new Error(`Plugin id "${id}" is reserved for Recheck presets.`);
             }
             const pluginPath = pluginInstance.absolutePath ?? p.toString();
             const existingPluginPath = seenPluginIds.get(id);
