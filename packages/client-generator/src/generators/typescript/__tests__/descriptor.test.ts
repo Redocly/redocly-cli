@@ -229,6 +229,18 @@ describe('renderDescriptors', () => {
     );
     expect(blob).toContain('responseKind: "blob"');
 
+    const archive = emitDescriptors(
+      modelWith([
+        operation({
+          name: 'getArchive',
+          successResponses: [
+            { contentType: 'application/gzip', schema: { kind: 'unknown' }, status: 200 },
+          ],
+        }),
+      ])
+    );
+    expect(archive).toContain('responseKind: "blob"');
+
     const sse = emitDescriptors(
       modelWith([
         operation({

@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -32,7 +32,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `introspect-mcp`     | Record a live MCP server's tools, prompts, and resources in `x-mcp` [experimental]    | API authoring         |
 | `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                      | Docs rendering        |
 | `preview`            | Local preview of a Redocly project (Realm, Reef, Revel)                               | Docs rendering        |
-| `bundle`             | Resolve all `$ref`s into a single self-contained file and apply decorators            | CI and delivery       |
+| `bundle`             | Resolve all `$ref`s into one self-contained file; apply decorators and overlays       | CI and delivery       |
 | `join`               | Merge several API descriptions into one [experimental]                                | CI and delivery       |
 | `respect`            | Run API tests described in an Arazzo description against a live API                   | API testing and drift |
 | `generate-arazzo`    | Scaffold an Arazzo description from an OpenAPI description                            | API testing and drift |
@@ -82,6 +82,14 @@ Use the `redocly-lint-rules` skill for that: it picks the cheapest rung (built-i
 
 Decorators rewrite the description at bundle time — `lint` checks the source as written; `bundle`, `build-docs`, and `push` see the decorated output.
 Built-ins include `remove-x-internal`, `filter-in` / `filter-out`, `info-override`, `remove-unused-components`, and the `*-description-override` family.
+
+## Apply overlays
+
+`bundle` applies Overlay 1.0, 1.1, and 1.2 files to the bundled description, before decorators: pass `--overlay <file>` (repeatable, applied in order), or list them under `overlays` in an `apis` entry, with paths relative to `redocly.yaml`.
+`--overlay` replaces the configured list.
+Action targets run against the bundled output, so check them against `redocly bundle <api>` without overlays; a target that matches nothing changes nothing and isn't reported.
+File `$ref`s in overlay values are relative to the overlay file and get bundled; decorators such as `remove-x-internal` see the overlay's changes.
+Two `apis` entries with the same `root` and different `overlays` and `output` publish two versions of one API.
 
 ## Extend with custom plugins
 
@@ -138,6 +146,7 @@ apis:
 
 With `apis.<name>.clientOutput` set, a bare `redocly generate-client` generates every opted-in API.
 An API's own `client` block replaces the top-level one wholesale — repeat the shared fields in it.
+With `client.codeSamples: true`, it also writes `<output>.code-samples.yaml`, an overlay that adds `x-codeSamples`; add it to the API's `overlays` (or pass `--overlay`) so `bundle` puts the samples in the description.
 
 ## Test a live API
 

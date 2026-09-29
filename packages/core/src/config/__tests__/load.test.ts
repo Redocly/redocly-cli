@@ -502,6 +502,7 @@ describe('loadConfig', () => {
             "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
+              "spec-ref-siblings": "off",
             },
             "preprocessors": {},
             "rules": {
@@ -882,6 +883,7 @@ describe('loadConfig', () => {
             "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
+              "spec-ref-siblings": "warn",
             },
             "preprocessors": {},
             "rules": {
@@ -1275,6 +1277,7 @@ describe('loadConfig', () => {
             "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
+              "spec-ref-siblings": "off",
             },
             "preprocessors": {},
             "rules": {
@@ -1760,6 +1763,7 @@ describe('loadConfig', () => {
             "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
+              "spec-ref-siblings": "off",
             },
             "preprocessors": {},
             "rules": {
@@ -2140,6 +2144,7 @@ describe('loadConfig', () => {
             "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
+              "spec-ref-siblings": "warn",
             },
             "preprocessors": {},
             "rules": {
@@ -2533,6 +2538,7 @@ describe('loadConfig', () => {
             "overlay1Preprocessors": {},
             "overlay1Rules": {
               "info-contact": "off",
+              "spec-ref-siblings": "off",
             },
             "preprocessors": {},
             "rules": {

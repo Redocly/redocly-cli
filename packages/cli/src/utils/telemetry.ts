@@ -19,6 +19,7 @@ import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
+import type { BundleTelemetry } from '../commands/bundle.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
@@ -51,6 +52,7 @@ export async function sendTelemetry({
   lint_rules_with_ignored_problems,
   generate_client,
   eject_generator,
+  bundle,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -67,6 +69,7 @@ export async function sendTelemetry({
   lint_rules_with_ignored_problems: string[] | undefined;
   generate_client?: GenerateClientTelemetry;
   eject_generator?: EjectGeneratorTelemetry;
+  bundle?: BundleTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -160,6 +163,8 @@ export async function sendTelemetry({
         eject_generator_conflicts: eject_generator?.eject_generator_conflicts,
         eject_generator_from_version: eject_generator?.eject_generator_from_version,
         eject_generator_to_version: eject_generator?.eject_generator_to_version,
+        // bundle usage (a count only — never overlay paths or contents).
+        bundle_overlays_count: bundle?.bundle_overlays_count,
       },
     ];
 

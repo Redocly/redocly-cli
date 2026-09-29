@@ -203,7 +203,7 @@ describe('getOperationFromDescriptionBySource', () => {
       });
     });
 
-    it('should return the operation from first available description if operationId does not have dot notation', () => {
+    it('should return the operation from the description that defines it if operationId does not have dot notation', () => {
       const operation = getOperationFromDescriptionBySource(
         {
           operationId: 'getPet',
@@ -216,6 +216,39 @@ describe('getOperationFromDescriptionBySource', () => {
         method: 'get',
         path: '/pet',
         descriptionName: 'cats',
+        pathParameters: [],
+        servers: undefined,
+      });
+    });
+
+    it('should look up an operationId without dot notation only in openapi descriptions', () => {
+      const context = {
+        $sourceDescriptions: {
+          // the arazzo description comes first, as when it finishes loading first
+          oauth: { arazzo: '1.0.1', workflows: [] },
+          cafe: {
+            paths: {
+              '/orders': {
+                get: {
+                  operationId: 'listOrders',
+                },
+              },
+            },
+          },
+        },
+        sourceDescriptions: [
+          { name: 'cafe', type: 'openapi', url: 'https://cafe.redocly.com/openapi.yaml' },
+          { name: 'oauth', type: 'arazzo', url: './oauth.arazzo.yaml' },
+        ],
+      } as unknown as TestContext;
+
+      const operation = getOperationFromDescriptionBySource({ operationId: 'listOrders' }, context);
+
+      expect(operation).toEqual({
+        operationId: 'listOrders',
+        method: 'get',
+        path: '/orders',
+        descriptionName: 'cafe',
         pathParameters: [],
         servers: undefined,
       });

@@ -1,5 +1,34 @@
 import type { ServerModel } from '../../intermediate-representation/model.js';
-import { serverUrlParts } from '../operation.js';
+import { isBinaryContentType, serverUrlParts } from '../operation.js';
+
+describe('isBinaryContentType', () => {
+  it.each([
+    'application/octet-stream',
+    'application/gzip',
+    'application/x-gzip',
+    'application/zip',
+    'application/x-tar',
+    'application/pdf',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'image/png',
+    'audio/mpeg',
+    'video/mp4',
+    'font/woff2',
+  ])('treats %s as binary', (contentType) => {
+    expect(isBinaryContentType(contentType)).toBe(true);
+  });
+
+  it.each(['application/json', 'application/problem+json', 'text/plain', 'text/event-stream'])(
+    'treats %s as not binary',
+    (contentType) => {
+      expect(isBinaryContentType(contentType)).toBe(false);
+    }
+  );
+
+  it('ignores parameters and case', () => {
+    expect(isBinaryContentType('Application/GZIP; q=0.9')).toBe(true);
+  });
+});
 
 describe('serverUrlParts', () => {
   it('splits a template into literals and declared variables, in order', () => {

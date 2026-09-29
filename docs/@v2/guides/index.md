@@ -49,6 +49,12 @@ Prevent APIs from being viewed by external audiences.
 Replace the server URL in different environments.
 {% /card %}
 
+{% card title="Apply overlays"
+    to="./apply-overlays"
+  %}
+Publish different versions of an API from one source with Overlay files.
+{% /card %}
+
 {% card title="Lint AsyncAPI descriptions"
     to="./lint-asyncapi"
   %}

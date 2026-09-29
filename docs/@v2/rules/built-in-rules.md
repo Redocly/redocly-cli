@@ -167,6 +167,7 @@ Rules for the main Overlay specification format.
 ### Overlay
 
 - [info-contact](./overlay/info-contact.md): Contact section is defined under `info`
+- [spec-ref-siblings](./oas/spec-ref-siblings.md): Allows only specification-permitted properties next to a `$ref`
 - [no-unresolved-refs](./common/no-unresolved-refs.md): Every `$ref` must exist
 
 ## Open-RPC rules
