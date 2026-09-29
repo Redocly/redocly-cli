@@ -106,7 +106,7 @@ function renderYaml(
   const header =
     `# Generated file — do not hand-edit.\n` +
     `# Source module(s): ${fromArgs.join(', ')}\n` +
-    `# Regenerate: redocly recheck --generate-markdoc-schema ${fromFlags} --out ${outArg}\n`;
+    `# Regenerate: redocly recheck --generate-markdoc-schema ${fromFlags} --output ${outArg}\n`;
   return header + yaml.dump(merged, { sortKeys: true });
 }
 
@@ -159,7 +159,7 @@ export async function generateMarkdocSchema(
   try {
     await writeFile(outPath, rendered, 'utf8');
   } catch (error) {
-    // A typo'd --out path should read as a one-line diagnosis, not a stack
+    // A typo'd --output path should read as a one-line diagnosis, not a stack
     // trace; creating missing directories silently would mask the typo.
     const detail = error instanceof Error ? error.message : String(error);
     return { status: 'write-error', outPath, message: detail };

@@ -1,16 +1,14 @@
 import { logger } from '@redocly/openapi-core';
 import { getBreakdownStats, type Problem } from '@redocly/recheck';
-import * as fs from 'node:fs/promises';
 
 /**
- * Output problems in JSON format to file or through the logger
+ * Output problems in JSON format through the logger
  */
-export async function outputJsonFormat(
+export function outputJsonFormat(
   problems: Problem[],
   fileCount: number,
-  outputPath: string | undefined,
-  baseline: { matched: number; new: number; stale: number } | undefined
-): Promise<void> {
+  baseline?: { matched: number; new: number; stale: number }
+): void {
   const report = {
     summary: {
       filesScanned: fileCount,
@@ -21,12 +19,5 @@ export async function outputJsonFormat(
     issues: problems,
   };
 
-  const content = JSON.stringify(report, null, 2);
-
-  if (outputPath && outputPath.length > 0) {
-    await fs.writeFile(outputPath, content, 'utf8');
-    logger.info(`\n   Wrote JSON report to ${outputPath}\n`);
-  } else {
-    logger.output(`${content}\n`);
-  }
+  logger.output(`${JSON.stringify(report, null, 2)}\n`);
 }

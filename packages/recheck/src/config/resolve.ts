@@ -42,6 +42,7 @@ export type ResolveResult =
 export const DEFAULT_BASELINE_FILE = '.redocly.recheck-baseline.yaml';
 
 const SEVERITIES = new Set(['off', 'info', 'warn', 'error']);
+const ENGINE_SETTINGS = new Set(['excludes', 'markdoc']);
 
 // The block nests rules under `rules`; the engine's own config shape keeps
 // rule entries at the top level beside `excludes` and `markdoc`.
@@ -124,6 +125,24 @@ function applyDescriptionOverrides(
   return { rules: [...byName.values()], errors };
 }
 
+// The engine validates the flat shape (rule keys at the top level). The block
+// nests them under `rules`, so the reported path must say where the user wrote it.
+function toBlockPath(enginePath: string | undefined): string {
+  if (!enginePath || enginePath === '/') return 'recheck';
+  // Schema errors give a JSON pointer.
+  // The engine's own checks give `<rule key>.<option>` or `extends`.
+  const segments = enginePath.startsWith('/')
+    ? enginePath
+        .split('/')
+        .slice(1)
+        .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
+    : [enginePath];
+  if (segments[0] === 'extends') return segments.join('.');
+  return ENGINE_SETTINGS.has(segments[0])
+    ? `recheck.${segments.join('.')}`
+    : `recheck.rules.${segments.join('.')}`;
+}
+
 export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<ResolveResult> {
   if (input.block !== undefined && input.block !== null && !isPlainObject(input.block)) {
     return {
@@ -194,7 +213,10 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
     warn: input.warn,
   });
   if (!validation.isValid) {
-    return { success: false, errors: validation.errors };
+    return {
+      success: false,
+      errors: validation.errors.map((error) => ({ ...error, path: toBlockPath(error.path) })),
+    };
   }
   const apiDescriptions = isPlainObject(block.apiDescriptions) ? block.apiDescriptions : undefined;
   const overrides = applyDescriptionOverrides(validation.rules, apiDescriptions?.rules);

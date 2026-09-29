@@ -186,48 +186,6 @@ describe('printLintRun', () => {
     expect(suppressedAt).toBeLessThan(printed.indexOf('   Baseline: 0 matched, 0 new, 0 stale'));
   });
 
-  it('prints an empty report when --changed-only gets no changed files', async () => {
-    const { stderr } = captureLogger();
-    const code = await printLintRun(
-      {
-        status: 'completed',
-        ...EMPTY_REPORT,
-        filesFound: 2,
-        changedFilter: { provided: false, matched: 0 },
-      },
-      { format: 'table' },
-      new Timer()
-    );
-    expect(code).toBe(0);
-    const printed = stderr.join('');
-    expect(printed).toContain('   Found 2 markdown file(s)\n');
-    expect(printed).toContain(
-      'Warning: --changed-only set, but no changed files were provided. Nothing to scan.'
-    );
-    expect(printed).toContain('\n   Annotations prepared: 0\n');
-    expect(printed).not.toContain('Filtering to');
-    expect(printed).not.toContain('Completed in');
-  });
-
-  it('prints an empty report when no changed file matches', async () => {
-    const { stderr } = captureLogger();
-    const code = await printLintRun(
-      {
-        status: 'completed',
-        ...EMPTY_REPORT,
-        filesFound: 2,
-        changedFilter: { provided: true, matched: 0 },
-      },
-      { format: 'table' },
-      new Timer()
-    );
-    expect(code).toBe(0);
-    const printed = stderr.join('');
-    expect(printed).toContain('   Found 2 markdown file(s)\n   Filtering to 0 changed file(s)\n');
-    expect(printed).toContain('Warning: No changed markdown files matched.');
-    expect(printed).toContain('\n   Annotations prepared: 0\n');
-  });
-
   it('warns about each unreadable file and the count of skipped files', async () => {
     const { stderr } = captureLogger();
     await printLintRun(
@@ -313,13 +271,17 @@ describe('printLintRun', () => {
     );
   });
 
-  it('prints a report that cannot be written as a failed run and exits 1', async () => {
+  it('prints a summary that cannot be written as a failed run and exits 1', async () => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-print-'));
     try {
       const { stderr } = captureLogger();
       const code = await printLintRun(
-        { status: 'completed', ...EMPTY_REPORT },
-        { format: 'json', outputPath: path.join(dir, 'missing', 'report.json') },
+        { status: 'completed', ...LINTED_REPORT },
+        {
+          format: 'table',
+          summary: 'json',
+          summaryPath: path.join(dir, 'missing', 'summary.json'),
+        },
         new Timer()
       );
       expect(code).toBe(1);
@@ -329,9 +291,28 @@ describe('printLintRun', () => {
       await fs.rm(dir, { recursive: true, force: true });
     }
   });
+
+  it('caps the SARIF results with maxProblems', async () => {
+    const problems = [5, 4, 3, 2, 1].map((line) => ({ ...ERROR, line }));
+    const { stderr, stdout } = captureLogger();
+    const code = await printLintRun(
+      { status: 'completed', ...LINTED_REPORT, problems },
+      { format: 'sarif', maxProblems: 2 },
+      new Timer()
+    );
+    expect(code).toBe(1);
+    const sarif = JSON.parse(stdout.join(''));
+    expect(
+      sarif.runs[0].results.map(
+        (result: { locations: { physicalLocation: { region: { startLine: number } } }[] }) =>
+          result.locations[0].physicalLocation.region.startLine
+      )
+    ).toEqual([1, 2]);
+    expect(stderr.join('')).toContain('\n   Annotations prepared: 2 (limit 2)\n');
+  });
 });
 
-describe('printLintRun report files', () => {
+describe('printLintRun summary file', () => {
   let tempDir: string;
 
   beforeEach(async () => {
@@ -340,38 +321,6 @@ describe('printLintRun report files', () => {
 
   afterEach(async () => {
     await fs.rm(tempDir, { recursive: true, force: true });
-  });
-
-  it('writes the JSON report to the output path', async () => {
-    const outputPath = path.join(tempDir, 'output.json');
-    const { stderr, stdout } = captureLogger();
-    const code = await printLintRun(
-      { status: 'completed', ...LINTED_REPORT, problems: [ERROR] },
-      { format: 'json', outputPath },
-      new Timer()
-    );
-    expect(code).toBe(1);
-    const report = JSON.parse(await fs.readFile(outputPath, 'utf8'));
-    expect(report.summary.totalIssues).toBe(1);
-    expect(report.issues[0].message).toBe('Line too long.');
-    expect(stderr.join('')).toContain(`\n   Wrote JSON report to ${outputPath}\n`);
-    expect(stdout).toEqual([]);
-  });
-
-  it('writes the SARIF report to the output path', async () => {
-    const outputPath = path.join(tempDir, 'output.sarif');
-    const { stderr, stdout } = captureLogger();
-    const code = await printLintRun(
-      { status: 'completed', ...LINTED_REPORT, problems: [ERROR] },
-      { format: 'sarif', outputPath },
-      new Timer()
-    );
-    expect(code).toBe(1);
-    const sarif = JSON.parse(await fs.readFile(outputPath, 'utf8'));
-    expect(sarif.runs[0].results).toHaveLength(1);
-    expect(sarif.runs[0].results[0].message.text).toBe('Line too long.');
-    expect(stderr.join('')).toContain(`\n   Wrote SARIF to ${outputPath}\n`);
-    expect(stdout).toEqual([]);
   });
 
   it('writes the JSON summary to the summary path', async () => {
@@ -388,26 +337,6 @@ describe('printLintRun report files', () => {
     expect(summary.totalWarnings).toBe(1);
     expect(summary.breakdown['recheck/no-todos'].total).toBe(1);
     expect(stderr.join('')).toContain(`\n   Wrote summary to ${summaryPath}\n`);
-  });
-
-  it('caps the SARIF results with the annotations limit', async () => {
-    const outputPath = path.join(tempDir, 'report.sarif');
-    const problems = [5, 4, 3, 2, 1].map((line) => ({ ...ERROR, line }));
-    const { stderr } = captureLogger();
-    const code = await printLintRun(
-      { status: 'completed', ...LINTED_REPORT, problems },
-      { format: 'sarif', outputPath, annotationsLimit: 2 },
-      new Timer()
-    );
-    expect(code).toBe(1);
-    const sarif = JSON.parse(await fs.readFile(outputPath, 'utf8'));
-    expect(
-      sarif.runs[0].results.map(
-        (result: { locations: { physicalLocation: { region: { startLine: number } } }[] }) =>
-          result.locations[0].physicalLocation.region.startLine
-      )
-    ).toEqual([1, 2]);
-    expect(stderr.join('')).toContain('\n   Annotations prepared: 2 (limit 2)\n');
   });
 });
 
@@ -435,9 +364,9 @@ const READABILITY_RESULT: ReadabilityRunResult = {
 };
 
 describe('printReadabilityRun', () => {
-  it('prints the table on stdout and the scored count on stderr', async () => {
+  it('prints the table on stdout and the scored count on stderr', () => {
     const { stderr, stdout } = captureLogger();
-    const code = await printReadabilityRun(READABILITY_RESULT, { format: 'table' });
+    const code = printReadabilityRun(READABILITY_RESULT, { format: 'table' });
     expect(code).toBe(0);
     expect(stdout.join('')).toContain('   FRE     Grade     ARI   Words   Sentences  File\n');
     expect(stdout.join('')).toContain('docs/index.md\n');
@@ -446,9 +375,9 @@ describe('printReadabilityRun', () => {
     expect(printed).toContain('1 of 1 file(s) scored');
   });
 
-  it('prints the JSON report on stdout and no scored count', async () => {
+  it('prints the JSON report on stdout and no scored count', () => {
     const { stderr, stdout } = captureLogger();
-    const code = await printReadabilityRun(
+    const code = printReadabilityRun(
       { ...READABILITY_RESULT, unreadableFiles: ['docs/secret.md'] },
       { format: 'json' }
     );

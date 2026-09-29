@@ -74,7 +74,9 @@ async function normalizeConfig(
 ) {
   const result = await validate(config, { configDir, warn });
   if (!result.isValid) {
-    const messages = result.errors.map((error) => error.message).join('; ');
+    const messages = result.errors
+      .map((error) => `${error.path ? `${error.path}: ` : ''}${error.message}`)
+      .join('; ');
     throw new Error(`Invalid recheck configuration: ${messages}`);
   }
   // Mirror the CLI (see commands/run.ts's applyFilters): rules with

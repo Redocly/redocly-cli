@@ -35,7 +35,9 @@ describe('generateMarkdocSchema', () => {
     const content = await readFile(out, 'utf8');
     expect(content).toContain('# Source module(s):');
     expect(content).toContain(fixture('module-a.ts'));
-    expect(content).toContain('# Regenerate: redocly recheck --generate-markdoc-schema --from');
+    expect(content).toContain(
+      `# Regenerate: redocly recheck --generate-markdoc-schema --from ${fixture('module-a.ts')} --output ${out}\n`
+    );
 
     const parsed = yaml.load(content) as Record<string, unknown>;
     expect(parsed['widget']).toEqual({
@@ -119,7 +121,7 @@ describe('generateMarkdocSchema', () => {
     expect(checkResult).toEqual({ status: 'missing', outPath: out });
   });
 
-  it('a typo’d --out directory is a one-line diagnosis, not a stack trace', async () => {
+  it('a typo’d --output directory is a one-line diagnosis, not a stack trace', async () => {
     const out = path.join(tmpdir(), `rc-missing-dir-${Date.now()}`, 'sub', 'tags.yaml');
     const result = await generateMarkdocSchema({ from: [fixture('module-a.ts')], out });
 

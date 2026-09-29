@@ -5,12 +5,15 @@ import { red, green, yellow, cyan } from 'colorette';
 import { showDetailedStats } from './statistics.js';
 
 /**
- * Output problems in table format through the logger
+ * Output problems in table format through the logger.
+ * The header, counts, and stats count all `problems`.
+ * The table prints only the rows of `shown`.
  */
 export function outputTableFormat(
   problems: Problem[],
   fileCount: number,
-  showStats: boolean | undefined
+  showStats: boolean | undefined,
+  shown: Problem[] = problems
 ): void {
   if (problems.length === 0) {
     logger.output(`${green('\n🎉 No issues found!')}\n`);
@@ -23,7 +26,7 @@ export function outputTableFormat(
   // Table format
   logger.output(`${cyan(`\n📋 Found ${problems.length} issue(s):\n`)}\n`);
 
-  for (const problem of problems) {
+  for (const problem of shown) {
     const severityColor =
       problem.severity === 'error' ? red : problem.severity === 'warn' ? yellow : cyan;
     const location = `${problem.file}:${problem.line}:${problem.column}`;

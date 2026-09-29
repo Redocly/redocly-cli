@@ -8,7 +8,6 @@ const SEVERITY_ORDER: Record<string, number> = {
 
 /**
  * Prioritize problems by severity (error > warn > info) and cap to a limit if provided.
- * This is intended for CI annotations (e.g., SARIF) and does not affect CLI output.
  */
 export function prioritizeProblems(problems: Problem[], limit?: number): Problem[] {
   if (problems.length === 0) return [];

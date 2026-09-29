@@ -3,6 +3,8 @@ import {
   detectSpec,
   isAbsoluteUrl,
   isPlainObject,
+  isRecheckPreset,
+  isString,
   logger,
   parseYaml,
   type Config,
@@ -76,13 +78,28 @@ function classifyApiPath(path: string): ApiPathClassification {
 }
 
 // A block with no settings and no rules means recheck is not configured.
-// A value of the wrong type counts as configured. The engine then reports the error.
+// A block of the wrong type counts as configured. The engine then reports the error.
 function hasRecheckConfig(block: Config['recheck']): boolean {
   if (!isPlainObject(block)) return true;
   const { rules, ...settings } = block;
-  if (Object.keys(settings).length > 0) return true;
-  if (rules === undefined) return false;
-  return !isPlainObject(rules) || Object.keys(rules).length > 0;
+  return Object.keys(settings).length > 0 || Object.keys(rules ?? {}).length > 0;
+}
+
+// The command reads the root config only; per-API recheck settings do nothing.
+function warnAboutPerApiRecheck(config: Config): void {
+  const raw = config.document?.parsed;
+  if (!isPlainObject(raw) || !isPlainObject(raw.apis)) return;
+  for (const [alias, api] of Object.entries(raw.apis)) {
+    if (!isPlainObject(api)) continue;
+    const presets = Array.isArray(api.extends)
+      ? api.extends.filter(isString).filter(isRecheckPreset)
+      : [];
+    if ('recheck' in api || presets.length > 0) {
+      logger.warn(
+        `Recheck settings under apis.${alias} are not used; the command reads the root config.\n`
+      );
+    }
+  }
 }
 
 function toLintOptions(argv: RecheckArgv): LintOptions {
@@ -98,8 +115,7 @@ function toLintPresentation(argv: RecheckArgv): LintPresentation {
   return {
     format: argv.format ?? 'table',
     showStats: argv.stats,
-    annotationsLimit: argv['max-problems'],
-    outputPath: argv['output-path'],
+    maxProblems: argv['max-problems'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
   };
@@ -221,12 +237,17 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
 
   if (selected.action === 'markdoc-schema') {
     const code = printMarkdocSchemaRun(
-      await generateMarkdocSchema({ from: argv.from ?? [], out: argv.out ?? '', check: argv.check })
+      await generateMarkdocSchema({
+        from: argv.from ?? [],
+        out: argv.output ?? '',
+        check: argv.check,
+      })
     );
     if (code !== 0) throw new AbortFlowError('Recheck failed.');
     return;
   }
 
+  warnAboutPerApiRecheck(config);
   let presets = config.recheckExtends;
   const block = config.recheck;
   if (presets.length === 0 && !hasRecheckConfig(block)) {
@@ -252,10 +273,6 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
       logger.error(`  ${error.path ? `${error.path}: ` : ''}${error.message}\n`);
     }
     throw new AbortFlowError('Recheck failed.');
-  }
-
-  if (argv['output-path'] && argv.format !== 'json' && argv.format !== 'sarif') {
-    logger.warn('--output-path applies to --format json and sarif; the report goes to stdout.\n');
   }
 
   const exitCode = await runAction(selected.action, argv, resolved.config, config, configDir);
@@ -291,10 +308,7 @@ async function runAction(
     }
     printReadabilityStart(roots);
     const result = await runReadability(roots, resolved, {});
-    return printReadabilityRun(result, {
-      format: argv.format === 'json' ? 'json' : 'table',
-      outputPath: argv['output-path'],
-    });
+    return printReadabilityRun(result, { format: argv.format === 'json' ? 'json' : 'table' });
   }
 
   const {

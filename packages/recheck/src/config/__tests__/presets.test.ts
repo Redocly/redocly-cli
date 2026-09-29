@@ -463,7 +463,7 @@ describe('extends presets', () => {
     );
     expect(result.errors).toContainEqual(
       expect.objectContaining({
-        message: expect.stringContaining('unknown assertion type "no-such-assertion"'),
+        message: expect.stringContaining('Unknown assertion type "no-such-assertion"'),
       })
     );
   });

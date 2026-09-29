@@ -27,16 +27,16 @@ Configure recheck for a project the way its maintainers would: measure first, de
 
 ## Tune severities from measurements, not taste
 
-1. Run the whole corpus and count findings per rule:
+1. Run the whole document set and count findings per rule:
 
    ```bash
-   redocly recheck docs --format json --annotations-limit 5000 --output-path findings.json
+   redocly recheck docs --format json > findings.json
    ```
 
    Group the findings by `ruleName` and look at real examples of each before deciding anything.
 
 2. Decide per rule from the counts:
-   - `error` — enforce now; the corpus is clean or you fix it in the same change.
+   - `error` — enforce now; the document set is clean or you fix it in the same change.
    - `warn` — a worklist; visible, not blocking.
    - `off` — decided against; keep a comment that says why, or the decision is lost.
 
@@ -50,9 +50,9 @@ Configure recheck for a project the way its maintainers would: measure first, de
 3. `exceptions.lines` for a recurring true positive that must stay as written.
 4. An inline `<!-- recheck-disable-next-line rule-name -->` for a single line.
 
-## Adopt strictness on a large corpus with a baseline
+## Adopt strictness on a large document set with a baseline
 
-When the corpus has too many errors to fix at once, record them and gate only new ones:
+When the document set has too many errors to fix at once, record them and gate only new ones:
 
 ```bash
 redocly recheck --generate-baseline

@@ -5,7 +5,6 @@ export type RecheckFormat = 'table' | 'json' | 'sarif' | 'github-actions';
 export type RecheckArgv = {
   paths?: string[];
   format: RecheckFormat;
-  'output-path'?: string;
   tags?: string[];
   rule?: string[];
   'skip-rule'?: string[];
@@ -18,7 +17,7 @@ export type RecheckArgv = {
   'generate-baseline'?: boolean;
   'generate-markdoc-schema'?: boolean;
   from?: string[];
-  out?: string;
+  output?: string;
   check?: boolean;
 } & VerifyConfigOptions;
 

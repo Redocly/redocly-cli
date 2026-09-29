@@ -395,6 +395,16 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('Bearer 125');
   });
 
+  it('should throw when an embedded runtime expression has no value', () => {
+    const payload = 'Bearer {$outputs.accessToken}';
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [Error: Runtime expression '{$outputs.accessToken}' has no value. 
+      Check that it references a step or workflow that has already run and sets this output, or an input that is provided.]
+    `);
+  });
+
   it('should evaluate multiword runtime expression with JsonPointer value', () => {
     const payload = 'Bearer {$request.body#/multiwordSecret}';
     expect(

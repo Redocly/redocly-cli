@@ -11,6 +11,8 @@ Rules come from presets, such as `recheck/markdown`, that you add to the root `e
 The [`recheck` block](../configuration/reference/recheck.md) adjusts those rules.
 With no `redocly.yaml`, the command uses `recheck/markdown`.
 With a `redocly.yaml` that has neither, the command checks nothing and says so.
+The command reads the root `recheck` config; settings under `apis.<name>` are not used.
+
 With no paths, the command lints the Markdown files under the current directory and every local API in `apis`.
 With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
 
@@ -22,7 +24,7 @@ redocly recheck <paths>...
 redocly recheck [--fix]
 redocly recheck [--readability]
 redocly recheck [--generate-baseline]
-redocly recheck [--generate-markdoc-schema] [--from=<path>...] [--out=<path>] [--check]
+redocly recheck [--generate-markdoc-schema] [--from=<path>...] [--output=<path>] [--check]
 redocly recheck --help
 ```
 
@@ -37,18 +39,17 @@ Use at most one of them in a run.
 | Option                    | Type     | Description                                                                                                                       |
 | ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | paths                     | [string] | Files or directories to lint. Default value is the current directory.                                                             |
-| --check                   | boolean  | Fail when the generated schema differs from the file in `--out`. Use with `--generate-markdoc-schema`.                            |
+| --check                   | boolean  | Fail when the generated schema differs from the file in `--output`. Use with `--generate-markdoc-schema`.                         |
 | --config                  | string   | Path to the [configuration file](../configuration/index.md).                                                                      |
 | --fix                     | boolean  | Apply fixes to the Markdown files. Alias: `-f`.                                                                                   |
 | --format                  | string   | Format for the report.<br />**Possible values:** `table`, `json`, `sarif`, `github-actions`. Default value is `table`.            |
 | --from                    | [string] | Module paths to read Markdoc tags from. Use with `--generate-markdoc-schema`.                                                     |
 | --generate-baseline       | boolean  | Write a baseline file from the current errors.                                                                                    |
-| --generate-markdoc-schema | boolean  | Generate a Markdoc tag schema from theme modules. Needs `--from` and `--out`.                                                     |
+| --generate-markdoc-schema | boolean  | Generate a Markdoc tag schema from theme modules. Needs `--from` and `--output`.                                                  |
 | --help                    | boolean  | Show help.                                                                                                                        |
 | --lint-config             | string   | Specify the severity level for the configuration file.<br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
-| --max-problems            | number   | Maximum number of annotations in the report.                                                                                      |
-| --out                     | string   | Output file for the generated schema.                                                                                             |
-| --output-path             | string   | Write the report to this file instead of stdout. Applies to `--format json` and `sarif`.                                          |
+| --max-problems            | number   | Maximum number of problems in the report; applies to every format.                                                                |
+| --output                  | string   | Output file for the generated schema.                                                                                             |
 | --readability             | boolean  | Report readability scores instead of lint findings.                                                                               |
 | --rule                    | [string] | Run only these rules. Alias: `-r`.                                                                                                |
 | --skip-rule               | [string] | Skip these rules.                                                                                                                 |
@@ -105,15 +106,6 @@ Each finding is one line of output:
 ```text
 ::error title=recheck/single-h1,file=docs/index.md,line=2,endLine=2,col=1,endColumn=1::Multiple top-level headings in the same document
 ```
-
-### Write a JSON report to a file
-
-```bash
-redocly recheck docs --format=json --output-path=recheck-report.json
-```
-
-The command writes the report to `recheck-report.json`.
-`--output-path` applies to `--format json` and `sarif`.
 
 ### Use a baseline
 

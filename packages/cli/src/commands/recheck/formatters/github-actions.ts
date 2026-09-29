@@ -11,6 +11,15 @@ const COMMAND_BY_SEVERITY: Record<Problem['severity'], string> = {
   off: 'notice',
 };
 
+function escapeProperty(value: string): string {
+  return value
+    .replace(/%/g, '%25')
+    .replace(/\r/g, '%0D')
+    .replace(/\n/g, '%0A')
+    .replace(/:/g, '%3A')
+    .replace(/,/g, '%2C');
+}
+
 /**
  * Output problems in GitHub Actions format for inline file annotations
  */
@@ -18,17 +27,19 @@ export function outputGitHubActionsFormat(problems: Problem[]): void {
   for (const problem of problems) {
     const command = COMMAND_BY_SEVERITY[problem.severity];
     const properties = [
-      `title=${problem.ruleName}`,
-      `file=${problem.file}`,
+      `title=${escapeProperty(problem.ruleName)}`,
+      `file=${escapeProperty(problem.file)}`,
       `line=${problem.line}`,
       `endLine=${problem.line}`,
       `col=${problem.column}`,
       `endColumn=${problem.column + (problem.match?.length || 1)}`,
     ].join(',');
 
-    // Escape the message for GitHub Actions format
-    const escapedMessage = problem.message.replace(/::/g, '%3A%3A').replace(/\n/g, '%0A');
+    const message = problem.message
+      .replace(/%/g, '%25')
+      .replace(/\r/g, '%0D')
+      .replace(/\n/g, '%0A');
 
-    logger.output(`::${command} ${properties}::${escapedMessage}\n`);
+    logger.output(`::${command} ${properties}::${message}\n`);
   }
 }

@@ -42,10 +42,37 @@ describe('resolveRecheckConfig', () => {
     });
     expect(result.success).toBe(false);
     if (result.success) return;
-    const error = result.errors.find((e) =>
-      e.message.includes("must have required property 'message'")
-    );
-    expect(error?.value).toMatchObject({ severity: 'off' });
+    expect(result.errors[0]).toEqual({
+      path: 'recheck.rules.custom/x',
+      message: "must have required property 'message'",
+    });
+  });
+
+  it('reports a bad block setting at its block path', async () => {
+    const result = await resolveRecheckConfig({ block: { excludes: 'x' }, configDir });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].path).toBe('recheck.excludes');
+    expect(result.errors[0].message).toMatch(/^must be array/);
+  });
+
+  it('reports a markdoc tagsFile error at its block path without repeating it', async () => {
+    const result = await resolveRecheckConfig({
+      block: { markdoc: { schema: 'realm', extend: { tagsFile: 'missing-tags.yaml' } } },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].path).toBe('recheck.markdoc.extend.tagsFile');
+    expect(result.errors[0].message).toMatch(/^could not read "/);
+  });
+
+  it('reports an unknown block key at the block root', async () => {
+    const result = await resolveRecheckConfig({ block: { nope: 1 }, configDir });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].path).toBe('recheck');
+    expect(result.errors[0].message).toContain('unknown property "nope"');
   });
 
   it('normalizes the severity shorthand', async () => {
@@ -135,6 +162,7 @@ describe('resolveRecheckConfig', () => {
       expect(result.success).toBe(false);
       if (result.success) return;
       expect(result.errors[0].message).toContain(`Unknown preset "${name}"`);
+      expect(result.errors[0].path).toBe('extends');
     }
   );
 
@@ -217,7 +245,9 @@ describe('resolveRecheckConfig', () => {
     });
     expect(result.success).toBe(false);
     if (result.success) return;
-    expect(result.errors.some((e) => e.message.includes('unknown assertion type'))).toBe(true);
+    const error = result.errors.find((e) => e.message.includes('Unknown assertion type'));
+    expect(error?.path).toBe('recheck.rules.custom/bad.assertions.no-such-assertion');
+    expect(error?.message).toBe('Unknown assertion type "no-such-assertion"');
   });
 
   it('forwards engine warnings to the warn callback', async () => {

@@ -35,36 +35,36 @@ const INFO: Problem = {
 afterEach(() => vi.restoreAllMocks());
 
 describe('generateReport', () => {
-  it('prints the annotations count without the limit when no problem is prepared', async () => {
+  it('prints the annotations count without the limit when no problem is prepared', () => {
     const { stderr, stdout } = captureLogger();
 
-    await generateReport([], 0, { format: 'sarif', annotationsLimit: 5 });
+    generateReport([], 0, { format: 'sarif', maxProblems: 5 });
 
     expect(JSON.parse(stdout.join('')).runs[0].results).toEqual([]);
     expect(stderr).toEqual(['\n   Annotations prepared: 0\n']);
   });
 
-  it('prints GitHub Actions annotations on stdout with errors first', async () => {
+  it('prints GitHub Actions annotations on stdout with errors first', () => {
     const { stderr, stdout } = captureLogger();
 
-    await generateReport([INFO, WARNING, { ...ERROR, message: 'a::b\nc' }], 1, {
+    generateReport([INFO, WARNING, { ...ERROR, message: 'a::b\nc' }], 1, {
       format: 'github-actions',
-      annotationsLimit: 10,
+      maxProblems: 10,
     });
 
     expect(stdout).toEqual([
-      '::error title=recheck/line-length,file=docs/index.md,line=5,endLine=5,col=1,endColumn=2::a%3A%3Ab%0Ac\n',
+      '::error title=recheck/line-length,file=docs/index.md,line=5,endLine=5,col=1,endColumn=2::a::b%0Ac\n',
       '::warning title=recheck/no-todos,file=docs/index.md,line=1,endLine=1,col=1,endColumn=2::TODO found.\n',
       '::notice title=technical-english/passive-voice,file=docs/index.md,line=2,endLine=2,col=1,endColumn=2::Prefer the active voice.\n',
     ]);
     expect(stderr).toEqual(['\n   Annotations prepared: 3 (limit 10)\n']);
   });
 
-  it('prints the JSON report with the baseline counts on stdout', async () => {
+  it('prints the JSON report with the baseline counts on stdout', () => {
     const { stdout } = captureLogger();
     const baseline = { matched: 1, new: 1, stale: 0 };
 
-    await generateReport([ERROR], 3, { format: 'json', baseline });
+    generateReport([ERROR], 3, { format: 'json', baseline });
 
     expect(stdout).toHaveLength(1);
     expect(stdout[0].endsWith('}\n')).toBe(true);
