@@ -128,21 +128,24 @@ abstract class ResourceApi {
 
 class OrganizationsApi extends ResourceApi {
   async findBySlug(slug: string): Promise<OrganizationResponse | undefined> {
-    const query = new URLSearchParams({ filter: `slug:${slug}`, limit: '1' });
-
     try {
-      const response = await this.client.request(`${this.domain}/api/orgs?${query}`, {
-        timeout: DEFAULT_FETCH_TIMEOUT,
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-      });
+      const response = await this.client.request(
+        `${this.domain}/api/orgs/${encodeURIComponent(slug)}`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
 
-      const { data } = await this.getParsedResponse<ListResponse<OrganizationResponse>>(response);
+      if (response.status === 404) {
+        return undefined;
+      }
 
-      return data[0];
+      return await this.getParsedResponse<OrganizationResponse>(response);
     } catch (err) {
       const message = `Failed to fetch organization. ${err.message}`;
 

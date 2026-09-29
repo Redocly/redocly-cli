@@ -517,17 +517,14 @@ describe('OrganizationsApi', () => {
   const testDomain = 'test-domain.com';
   const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command: 'push' });
 
-  it('finds an organization by slug through the organizations listing', async () => {
+  it('finds an organization by its slug in the path', async () => {
     const organization = { id: 'org_01hksn7dgmb6jpak0tzzepreq1', slug: 'acme', name: 'Acme' };
-    mockFetchResponse({
-      ok: true,
-      json: vi.fn().mockResolvedValue({ object: 'list', data: [organization] }),
-    });
+    mockFetchResponse({ ok: true, status: 200, json: vi.fn().mockResolvedValue(organization) });
 
     const result = await apiClient.organizations.findBySlug('acme');
 
     expect(global.fetch).toHaveBeenCalledWith(
-      `${testDomain}/api/orgs?filter=slug%3Aacme&limit=1`,
+      `${testDomain}/api/orgs/acme`,
       expect.objectContaining({
         method: 'GET',
         headers: expect.objectContaining({ Authorization: `Bearer ${testToken}` }),
@@ -537,7 +534,11 @@ describe('OrganizationsApi', () => {
   });
 
   it('returns nothing when no organization matches the slug', async () => {
-    mockFetchResponse({ ok: true, json: vi.fn().mockResolvedValue({ object: 'list', data: [] }) });
+    mockFetchResponse({
+      ok: false,
+      status: 404,
+      json: vi.fn().mockResolvedValue({ title: 'Organization not found' }),
+    });
 
     await expect(apiClient.organizations.findBySlug('nope')).resolves.toBeUndefined();
   });
