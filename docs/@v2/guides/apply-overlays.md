@@ -21,7 +21,8 @@ Use overlays for changes that come from other tools, such as the code samples th
 
 - [Install Redocly CLI](../installation.md) version 2.x.
 - An API description to change.
-  The examples use an `openapi.yaml` file whose `/tickets` path item lives in a separate `paths/tickets.yaml` file, with one operation marked `x-internal: true`.
+  The examples use an `openapi.yaml` file whose `/tickets` path item lives in a separate `paths/tickets.yaml` file.
+  Its `get` operation has `tags: [tickets]`, and its `post` operation is marked `x-internal: true`.
 
 ## Write an overlay
 
@@ -76,6 +77,8 @@ paths:
     get:
       summary: List tickets
       operationId: listTickets
+      tags:
+        - tickets
       responses:
         '200':
           description: OK
