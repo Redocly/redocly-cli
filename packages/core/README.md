@@ -1,6 +1,6 @@
 # openapi-core
 
-See https://github.com/Redocly/redocly-li
+See https://github.com/Redocly/redocly-cli
 
 > [!IMPORTANT]
 > The `openapi-core package` is designed for our internal use; the interfaces that are considered safe to use are documented below.
