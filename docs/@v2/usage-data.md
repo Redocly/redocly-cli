@@ -32,3 +32,8 @@ Values such as file names, organization IDs, and URLs are removed, replaced by j
 ## Opt out of data collection
 
 To opt out, set the `REDOCLY_TELEMETRY` environment variable to `off`, or set `telemetry: off` in the `redocly.yaml` configuration file.
+
+## Requests to Reunite
+
+The `login`, `push`, and `push-status` commands send the CLI version, the command name, and the value of the `REDOCLY_ENVIRONMENT` environment variable in the `user-agent` header of their requests to Reunite.
+The `REDOCLY_TELEMETRY` setting does not apply to this header.

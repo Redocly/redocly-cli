@@ -1,5 +1,30 @@
 # @redocly/cli
 
+## 2.55.0
+
+### Minor Changes
+
+- Added the `--replace` option to the `push` command.
+  `--replace` removes the files under the mount path that are not part of the push.
+
+### Patch Changes
+
+- Fixed `respect` so known secrets are masked in non-JSON request bodies, such as `application/x-www-form-urlencoded` token requests.
+- Fixed `respect` so a step fails with a clear error when a runtime expression embedded in a string has no value, such as `Bearer {$outputs.accessToken}`.
+- Updated @redocly/openapi-core to v2.55.0.
+- Updated @redocly/respect-core to v2.55.0.
+- Updated @redocly/reunite-integration to v2.55.0.
+- Fixed an issue where the `workflow-dependsOn` rule reported a duplicate when different workflows listed the same workflow in `dependsOn`.
+
+## 2.54.3
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Added the value of the `REDOCLY_ENVIRONMENT` environment variable to the `user-agent` header of the `login`, `push`, and `push-status` requests.
+- Updated @redocly/client-generator to v0.4.16.
+- Updated @redocly/reunite-integration to v2.54.3.
+
 ## 2.54.2
 
 ### Patch Changes
