@@ -1,0 +1,7 @@
+apis:
+  main:
+    root: ./openapi.yaml
+    overlays:
+      - ./overlays/public.yaml
+    decorators:
+      remove-unused-components: on

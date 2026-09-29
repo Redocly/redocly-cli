@@ -203,7 +203,7 @@ const builtInArazzo1Rules = [
 ] as const;
 export type BuiltInArazzo1RuleId = (typeof builtInArazzo1Rules)[number];
 
-const builtInOverlay1Rules = ['info-contact'] as const;
+const builtInOverlay1Rules = ['info-contact', 'spec-ref-siblings'] as const;
 export type BuiltInOverlay1RuleId = (typeof builtInOverlay1Rules)[number];
 
 const builtInOpenRpc1Rules = [
@@ -356,9 +356,10 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
-    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
+    // TODO: move `client`, `clientOutput`, and `overlays` into the Redocly config schema (@redocly/config).
     client: 'Client',
     clientOutput: { type: 'string' },
+    overlays: { type: 'array', items: { type: 'string' } },
   },
 });
 

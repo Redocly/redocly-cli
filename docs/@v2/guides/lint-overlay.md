@@ -7,7 +7,8 @@ seo:
 # Lint Overlay with Redocly CLI
 
 [Overlay](https://spec.openapis.org/overlay/latest.html#Overlay-specification) is an open standard from the OpenAPI Initiative for describing a set of changes to be applied or “overlaid” onto an existing OpenAPI description.
-Redocly CLI offers support for checking that your Overlay files are valid.
+Redocly CLI offers support for checking that your Overlay 1.0, 1.1, and 1.2 files are valid.
+To apply an Overlay to an API description, see [Apply overlays](./apply-overlays.md).
 
 {% admonition type="info" name="Experimental Overlay support" %}
 This feature is at an early stage, please send us lots of [feedback](https://github.com/redocly/redocly-cli/issues)!
@@ -30,13 +31,13 @@ If the file does not match the specification, the tool shows the details of each
 
 ```text
 validating overlay/museum-api.overlay.yaml...
-[1] overlay/museum-api.overlay.yaml:5:3 at #/info/description
+[1] overlay/museum-api.overlay.yaml:5:3 at #/info/summary
 
-Property `description` is not expected here.
+Property `summary` is not expected here.
 
 3 |   title: Sample Overlay Configuration
 4 |   version: 1.0.0
-5 |   description: ""
+5 |   summary: ""
 6 | extends: openapi.yaml
 7 | actions:
 
