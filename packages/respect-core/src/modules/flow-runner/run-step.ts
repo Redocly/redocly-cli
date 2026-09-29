@@ -373,8 +373,8 @@ export async function runStep({
               targetCtx,
               targetWorkflowId: targetWorkflow.workflowId,
             });
-          } catch (error: any) {
-            return failStepWithActionError(error.message);
+          } catch (error) {
+            return failStepWithActionError(error instanceof Error ? error.message : String(error));
           }
         }
 
