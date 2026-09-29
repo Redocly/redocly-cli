@@ -71,3 +71,28 @@ it('sendTelemetry sends the event when npm is not available', async () => {
   );
   expect(mockOtelSend).toHaveBeenCalled();
 });
+
+it('sendTelemetry includes the number of overlays a bundle run applied', async () => {
+  vi.mocked(respondWithinMs).mockResolvedValue(true);
+
+  await sendTelemetry({
+    config: await createConfig({}),
+    argv: { _: ['bundle'] } as any,
+    exit_code: 0,
+    execution_time: 1500,
+    spec_version: 'oas3_1',
+    spec_keyword: 'openapi',
+    spec_full_version: '3.1.0',
+    respect_x_security_auth_types: undefined,
+    respect_source_description_types: undefined,
+    respect_criterion_object_types: undefined,
+    lint_rules_with_errors: undefined,
+    lint_rules_with_warnings: undefined,
+    lint_rules_with_ignored_problems: undefined,
+    bundle: { bundle_overlays_count: 2 },
+  });
+
+  expect(mockMapToCloudEvent).toHaveBeenCalledWith(
+    expect.objectContaining({ data: [expect.objectContaining({ bundle_overlays_count: 2 })] })
+  );
+});
