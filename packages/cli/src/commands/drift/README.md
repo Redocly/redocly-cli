@@ -71,7 +71,7 @@ Every documented item is an entry that is either covered or missing:
 - `parameter`: a matched exchange carried it (cookie parameters are skipped with `--ignore-cookies`)
 - `property`: a matched exchange carried it in a JSON request or response body;
   collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`, skipping `readOnly` properties on the request side and `writeOnly` on the response side.
-  A property declared in several `oneOf` / `anyOf` branches is counted once, and a body covers it whichever branch it satisfies.
+  A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whenever it carries that field, whichever branch declares it.
 - `response`: a matched exchange resolved to that documented status (exact, then `2XX`, then `default`, like `schema-consistency`)
 
 ## Notes / PoC limitations

@@ -140,7 +140,7 @@ API coverage
 
 Schema properties are collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
 Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
-A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whichever branch it satisfies.
+A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whenever it carries that field, whichever branch declares it.
 
 If the report on stdout is machine-readable (`--format json`, `csv`, or `sarif` without `--output`), the overview is printed to stderr so the report stays parseable.
 

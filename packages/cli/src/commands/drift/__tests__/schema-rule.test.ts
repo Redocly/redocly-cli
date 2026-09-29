@@ -175,3 +175,34 @@ describe('schema-consistency deepObject query parameter check', () => {
     expect(validatedValues).toEqual([{ id: 'acme', name: 'acme' }]);
   });
 });
+
+describe('schema-consistency response schema lookup', () => {
+  const rule = new SchemaConsistencyRule();
+
+  it('does not validate the body against the default response when the exact status is documented without content', () => {
+    const validatedSchemas: unknown[] = [];
+    const context = createContext(404);
+    const matchedOperation = createMatchedOperation();
+    matchedOperation.operation.responseStatuses = ['200', '404', 'default'];
+    matchedOperation.operation.responseBodyContent = {
+      '200': { 'application/json': { type: 'object' } },
+      default: { 'application/json': { type: 'object', required: ['code'] } },
+    };
+    context.matchedOperation = matchedOperation;
+    context.exchange.response = {
+      status: 404,
+      headers: { 'content-type': 'application/json' },
+      contentType: 'application/json',
+      bodyText: '{"message":"not found"}',
+      bodyJson: { message: 'not found' },
+    };
+    context.validateSchema = (schema) => {
+      validatedSchemas.push(schema);
+      return { valid: true, errors: [] };
+    };
+
+    rule.analyze(context);
+
+    expect(validatedSchemas).toEqual([]);
+  });
+});

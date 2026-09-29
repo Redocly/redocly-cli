@@ -329,9 +329,9 @@ function pickResponseSchema(
     return undefined;
   }
 
-  const { responseBodyContent } = matchedOperation.operation;
-  const responseKey = resolveResponseKey(response.status, Object.keys(responseBodyContent));
-  if (responseKey === undefined) {
+  const { responseStatuses, responseBodyContent } = matchedOperation.operation;
+  const responseKey = resolveResponseKey(response.status, responseStatuses);
+  if (responseKey === undefined || responseBodyContent[responseKey] === undefined) {
     return undefined;
   }
 
