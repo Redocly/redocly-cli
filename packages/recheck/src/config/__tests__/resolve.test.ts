@@ -258,8 +258,9 @@ describe('resolveRecheckConfig', () => {
     });
     expect(result.success).toBe(false);
     if (result.success) return;
-    const error = result.errors.find((e) => e.message.includes('unknown assertion type'));
+    const error = result.errors.find((e) => e.message.includes('Unknown assertion type'));
     expect(error?.path).toBe('recheck.rules.custom/bad.assertions.no-such-assertion');
+    expect(error?.message).toBe('Unknown assertion type "no-such-assertion"');
   });
 
   it('forwards engine warnings to the warn callback', async () => {

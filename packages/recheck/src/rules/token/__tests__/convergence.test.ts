@@ -44,7 +44,7 @@ describe('removed legacy assertion ids fail validation (PR #24801)', () => {
     expect(result.isValid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({
-        message: expect.stringContaining(`unknown assertion type "${assertionId}"`),
+        message: expect.stringContaining(`Unknown assertion type "${assertionId}"`),
       })
     );
   });

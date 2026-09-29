@@ -73,7 +73,7 @@ function validateStructure(config: any): ValidationError[] {
 function validateAssertions(rule: BaseRule, name: string, errors: ValidationError[]): void {
   if (!isPlainObject(rule.assertions)) {
     errors.push({
-      message: `Rule "${name}": assertions must be an object`,
+      message: 'Assertions must be an object',
       path: `${name}.assertions`,
     });
     return;
@@ -92,7 +92,7 @@ function validateAssertions(rule: BaseRule, name: string, errors: ValidationErro
       resolved = resolveAssertion(assertionType);
     } catch {
       errors.push({
-        message: `Rule "${name}": unknown assertion type "${assertionType}"`,
+        message: `Unknown assertion type "${assertionType}"`,
         path: `${name}.assertions.${assertionType}`,
       });
       continue;
@@ -132,7 +132,7 @@ function validateTokenRuleOptions(
   for (const key of Object.keys(optionsObject)) {
     if (!allowed.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown option "${key}" for assertion "${id}" (accepted: ${[...allowed].sort().join(', ')})`,
+        message: `Unknown option "${key}" for assertion "${id}" (accepted: ${[...allowed].sort().join(', ')})`,
         path: `${name}.assertions.${id}.${key}`,
       });
     }
@@ -161,7 +161,7 @@ function requireOptionsObject(
   const config = assertions[assertionId];
   if (!isPlainObject(config)) {
     errors.push({
-      message: `Rule "${name}": ${assertionId} assertion options must be an object`,
+      message: `The ${assertionId} assertion options must be an object`,
       path: `${name}.assertions.${assertionId}`,
     });
     return undefined;
@@ -191,7 +191,7 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
   for (const key of Object.keys(patternConfig)) {
     if (!PATTERN_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown pattern option "${key}"`,
+        message: `Unknown pattern option "${key}"`,
         path: `${name}.assertions.pattern.${key}`,
       });
     }
@@ -200,7 +200,7 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
   if ('negate' in patternConfig) {
     errors.push({
       message:
-        `Rule "${name}": pattern option "negate" was removed — it never worked ` +
+        `Pattern option "negate" was removed — it never worked ` +
         `(it never reported anything); remove it from the config`,
       path: `${name}.assertions.pattern.negate`,
     });
@@ -228,21 +228,21 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
     tokens.every((token) => typeof token === 'string');
   if (!isValidTokens) {
     errors.push({
-      message: `Rule "${name}": pattern requires "tokens" to be a non-empty array of strings`,
+      message: 'Pattern requires "tokens" to be a non-empty array of strings',
       path: `${name}.assertions.pattern.tokens`,
     });
   }
 
   if (ignoreCase !== undefined && typeof ignoreCase !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": pattern option "ignoreCase" must be a boolean`,
+      message: 'Pattern option "ignoreCase" must be a boolean',
       path: `${name}.assertions.pattern.ignoreCase`,
     });
   }
 
   if (nonword !== undefined && typeof nonword !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": pattern option "nonword" must be a boolean`,
+      message: 'Pattern option "nonword" must be a boolean',
       path: `${name}.assertions.pattern.nonword`,
     });
   }
@@ -253,7 +253,7 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
   const includeCode = patternConfig.includeCode;
   if (includeCode !== undefined && typeof includeCode !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": pattern option "includeCode" must be a boolean`,
+      message: 'Pattern option "includeCode" must be a boolean',
       path: `${name}.assertions.pattern.includeCode`,
     });
   }
@@ -274,7 +274,7 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
   for (const key of Object.keys(occurrenceConfig)) {
     if (!OCCURRENCE_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown occurrence option "${key}"`,
+        message: `Unknown occurrence option "${key}"`,
         path: `${name}.assertions.occurrence.${key}`,
       });
     }
@@ -287,7 +287,7 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
   };
   if (min === undefined && max === undefined) {
     errors.push({
-      message: `Rule "${name}": occurrence requires at least one of "min" or "max"`,
+      message: 'Occurrence requires at least one of "min" or "max"',
       path: `${name}.assertions.occurrence`,
     });
   }
@@ -300,21 +300,21 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
   // this; occurrence didn't.
   if (min !== undefined && typeof min !== 'number') {
     errors.push({
-      message: `Rule "${name}": occurrence option "min" must be a number`,
+      message: 'Occurrence option "min" must be a number',
       path: `${name}.assertions.occurrence.min`,
     });
   }
 
   if (max !== undefined && typeof max !== 'number') {
     errors.push({
-      message: `Rule "${name}": occurrence option "max" must be a number`,
+      message: 'Occurrence option "max" must be a number',
       path: `${name}.assertions.occurrence.max`,
     });
   }
 
   if (typeof min === 'number' && typeof max === 'number' && min > max) {
     errors.push({
-      message: `Rule "${name}": occurrence "min" (${min}) must not exceed "max" (${max})`,
+      message: `Occurrence "min" (${min}) must not exceed "max" (${max})`,
       path: `${name}.assertions.occurrence`,
     });
   }
@@ -325,7 +325,7 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
   // min-only rule can never fire. Reject loudly instead.
   if (typeof pattern !== 'string' || pattern.length === 0) {
     errors.push({
-      message: `Rule "${name}": occurrence requires a non-empty string "pattern"`,
+      message: 'Occurrence requires a non-empty string "pattern"',
       path: `${name}.assertions.occurrence.pattern`,
     });
   }
@@ -346,7 +346,7 @@ function validateRepetitionOptions(rule: BaseRule, name: string, errors: Validat
   for (const key of Object.keys(repetitionConfig)) {
     if (!REPETITION_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown repetition option "${key}"`,
+        message: `Unknown repetition option "${key}"`,
         path: `${name}.assertions.repetition.${key}`,
       });
     }
@@ -356,14 +356,14 @@ function validateRepetitionOptions(rule: BaseRule, name: string, errors: Validat
 
   if (pattern !== undefined && (typeof pattern !== 'string' || pattern.length === 0)) {
     errors.push({
-      message: `Rule "${name}": repetition option "pattern" must be a non-empty string`,
+      message: 'Repetition option "pattern" must be a non-empty string',
       path: `${name}.assertions.repetition.pattern`,
     });
   }
 
   if (ignoreCase !== undefined && typeof ignoreCase !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": repetition option "ignoreCase" must be a boolean`,
+      message: 'Repetition option "ignoreCase" must be a boolean',
       path: `${name}.assertions.repetition.ignoreCase`,
     });
   }
@@ -385,7 +385,7 @@ function validateConsistencyOptions(rule: BaseRule, name: string, errors: Valida
   for (const key of Object.keys(consistencyConfig)) {
     if (!CONSISTENCY_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown consistency option "${key}"`,
+        message: `Unknown consistency option "${key}"`,
         path: `${name}.assertions.consistency.${key}`,
       });
     }
@@ -395,27 +395,28 @@ function validateConsistencyOptions(rule: BaseRule, name: string, errors: Valida
 
   if (!isPlainObject(either)) {
     errors.push({
-      message: `Rule "${name}": consistency requires "either" to be an object mapping one variant to another (e.g. behavior: behaviour)`,
+      message:
+        'Consistency requires "either" to be an object mapping one variant to another (e.g. behavior: behaviour)',
       path: `${name}.assertions.consistency.either`,
     });
   } else {
     const entries = Object.entries(either);
     if (entries.length === 0) {
       errors.push({
-        message: `Rule "${name}": consistency "either" must declare at least one variant pair`,
+        message: 'Consistency "either" must declare at least one variant pair',
         path: `${name}.assertions.consistency.either`,
       });
     }
     for (const [variant, alternative] of entries) {
       if (variant.length === 0) {
         errors.push({
-          message: `Rule "${name}": consistency "either" entry keys must be non-empty strings`,
+          message: 'Consistency "either" entry keys must be non-empty strings',
           path: `${name}.assertions.consistency.either`,
         });
       }
       if (typeof alternative !== 'string' || alternative.length === 0) {
         errors.push({
-          message: `Rule "${name}": consistency "either" entry "${variant}" must map to a non-empty string variant`,
+          message: `Consistency "either" entry "${variant}" must map to a non-empty string variant`,
           path: `${name}.assertions.consistency.either.${variant}`,
         });
       }
@@ -424,7 +425,7 @@ function validateConsistencyOptions(rule: BaseRule, name: string, errors: Valida
 
   if (ignoreCase !== undefined && typeof ignoreCase !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": consistency option "ignoreCase" must be a boolean`,
+      message: 'Consistency option "ignoreCase" must be a boolean',
       path: `${name}.assertions.consistency.ignoreCase`,
     });
   }
@@ -446,7 +447,7 @@ function validateConditionalOptions(rule: BaseRule, name: string, errors: Valida
   for (const key of Object.keys(conditionalConfig)) {
     if (!CONDITIONAL_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown conditional option "${key}"`,
+        message: `Unknown conditional option "${key}"`,
         path: `${name}.assertions.conditional.${key}`,
       });
     }
@@ -460,21 +461,21 @@ function validateConditionalOptions(rule: BaseRule, name: string, errors: Valida
 
   if (typeof first !== 'string' || first.length === 0) {
     errors.push({
-      message: `Rule "${name}": conditional requires a non-empty string "first"`,
+      message: 'Conditional requires a non-empty string "first"',
       path: `${name}.assertions.conditional.first`,
     });
   }
 
   if (typeof second !== 'string' || second.length === 0) {
     errors.push({
-      message: `Rule "${name}": conditional requires a non-empty string "second"`,
+      message: 'Conditional requires a non-empty string "second"',
       path: `${name}.assertions.conditional.second`,
     });
   }
 
   if (ignoreCase !== undefined && typeof ignoreCase !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": conditional option "ignoreCase" must be a boolean`,
+      message: 'Conditional option "ignoreCase" must be a boolean',
       path: `${name}.assertions.conditional.ignoreCase`,
     });
   }
@@ -504,7 +505,7 @@ function validateCapitalizationOptions(
   for (const key of Object.keys(capitalizationConfig)) {
     if (!CAPITALIZATION_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown capitalization option "${key}"`,
+        message: `Unknown capitalization option "${key}"`,
         path: `${name}.assertions.capitalization.${key}`,
       });
     }
@@ -519,7 +520,7 @@ function validateCapitalizationOptions(
 
   if (builtinVocabulary !== undefined && typeof builtinVocabulary !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": capitalization option "builtinVocabulary" must be a boolean`,
+      message: 'Capitalization option "builtinVocabulary" must be a boolean',
       path: `${name}.assertions.capitalization.builtinVocabulary`,
     });
   }
@@ -527,7 +528,7 @@ function validateCapitalizationOptions(
   if (typeof match !== 'string' || match.length === 0) {
     errors.push({
       message:
-        `Rule "${name}": capitalization requires a non-empty string "match" ` +
+        `Capitalization requires a non-empty string "match" ` +
         `($title, $sentence, $lower, $upper, or a regex pattern)`,
       path: `${name}.assertions.capitalization.match`,
     });
@@ -535,7 +536,7 @@ function validateCapitalizationOptions(
 
   if (style !== undefined && style !== 'ap' && style !== 'chicago') {
     errors.push({
-      message: `Rule "${name}": capitalization option "style" must be "ap" or "chicago"`,
+      message: 'Capitalization option "style" must be "ap" or "chicago"',
       path: `${name}.assertions.capitalization.style`,
     });
   }
@@ -546,7 +547,7 @@ function validateCapitalizationOptions(
       exceptions.every((entry) => typeof entry === 'string' && entry.length > 0);
     if (!isValidExceptions) {
       errors.push({
-        message: `Rule "${name}": capitalization option "exceptions" must be an array of non-empty strings`,
+        message: 'Capitalization option "exceptions" must be an array of non-empty strings',
         path: `${name}.assertions.capitalization.exceptions`,
       });
     }
@@ -577,7 +578,7 @@ function validateMetricOptions(rule: BaseRule, name: string, errors: ValidationE
   for (const key of Object.keys(metricConfig)) {
     if (!METRIC_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown metric option "${key}"`,
+        message: `Unknown metric option "${key}"`,
         path: `${name}.assertions.metric.${key}`,
       });
     }
@@ -587,35 +588,35 @@ function validateMetricOptions(rule: BaseRule, name: string, errors: ValidationE
 
   if (typeof formula !== 'string' || !METRIC_FORMULAS.has(formula)) {
     errors.push({
-      message: `Rule "${name}": metric requires "formula" to be one of ${[...METRIC_FORMULAS].join(', ')}`,
+      message: `Metric requires "formula" to be one of ${[...METRIC_FORMULAS].join(', ')}`,
       path: `${name}.assertions.metric.formula`,
     });
   }
 
   if (min === undefined && max === undefined) {
     errors.push({
-      message: `Rule "${name}": metric requires at least one of "min" or "max"`,
+      message: 'Metric requires at least one of "min" or "max"',
       path: `${name}.assertions.metric`,
     });
   }
 
   if (min !== undefined && typeof min !== 'number') {
     errors.push({
-      message: `Rule "${name}": metric option "min" must be a number`,
+      message: 'Metric option "min" must be a number',
       path: `${name}.assertions.metric.min`,
     });
   }
 
   if (max !== undefined && typeof max !== 'number') {
     errors.push({
-      message: `Rule "${name}": metric option "max" must be a number`,
+      message: 'Metric option "max" must be a number',
       path: `${name}.assertions.metric.max`,
     });
   }
 
   if (typeof min === 'number' && typeof max === 'number' && min > max) {
     errors.push({
-      message: `Rule "${name}": metric "min" (${min}) must not exceed "max" (${max})`,
+      message: `Metric "min" (${min}) must not exceed "max" (${max})`,
       path: `${name}.assertions.metric`,
     });
   }
@@ -648,7 +649,7 @@ function validateCountBounds(
   if (typeof min === 'number' && (!Number.isInteger(min) || min < 1)) {
     errors.push({
       message:
-        `Rule "${name}": ${assertionId} option "min" must be a positive integer ` +
+        `The ${assertionId} option "min" must be a positive integer ` +
         `(${min} could never be violated by a real count)`,
       path: `${name}.assertions.${assertionId}.min`,
     });
@@ -657,7 +658,7 @@ function validateCountBounds(
   if (typeof max === 'number' && (!Number.isInteger(max) || max < 0)) {
     errors.push({
       message:
-        `Rule "${name}": ${assertionId} option "max" must be a non-negative integer ` +
+        `The ${assertionId} option "max" must be a non-negative integer ` +
         `(${max} would be violated by every real count)`,
       path: `${name}.assertions.${assertionId}.max`,
     });
@@ -692,21 +693,21 @@ function validateListLengthOptions(rule: BaseRule, name: string, errors: Validat
 
   if (min !== undefined && typeof min !== 'number') {
     errors.push({
-      message: `Rule "${name}": list-length option "min" must be a number`,
+      message: 'List-length option "min" must be a number',
       path: `${name}.assertions.list-length.min`,
     });
   }
 
   if (max !== undefined && typeof max !== 'number') {
     errors.push({
-      message: `Rule "${name}": list-length option "max" must be a number`,
+      message: 'List-length option "max" must be a number',
       path: `${name}.assertions.list-length.max`,
     });
   }
 
   if (typeof min === 'number' && typeof max === 'number' && min > max) {
     errors.push({
-      message: `Rule "${name}": list-length "min" (${min}) must not exceed "max" (${max})`,
+      message: `List-length "min" (${min}) must not exceed "max" (${max})`,
       path: `${name}.assertions.list-length`,
     });
   }
@@ -731,7 +732,7 @@ function validateSpellingOptions(rule: BaseRule, name: string, errors: Validatio
   for (const key of Object.keys(spellingConfig)) {
     if (!SPELLING_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown spelling option "${key}"`,
+        message: `Unknown spelling option "${key}"`,
         path: `${name}.assertions.spelling.${key}`,
       });
     }
@@ -746,14 +747,14 @@ function validateSpellingOptions(rule: BaseRule, name: string, errors: Validatio
 
   if (builtinVocabulary !== undefined && typeof builtinVocabulary !== 'boolean') {
     errors.push({
-      message: `Rule "${name}": spelling option "builtinVocabulary" must be a boolean`,
+      message: 'Spelling option "builtinVocabulary" must be a boolean',
       path: `${name}.assertions.spelling.builtinVocabulary`,
     });
   }
 
   if (dictionary !== undefined && (typeof dictionary !== 'string' || dictionary.length === 0)) {
     errors.push({
-      message: `Rule "${name}": spelling option "dictionary" must be a non-empty string`,
+      message: 'Spelling option "dictionary" must be a non-empty string',
       path: `${name}.assertions.spelling.dictionary`,
     });
   }
@@ -763,7 +764,7 @@ function validateSpellingOptions(rule: BaseRule, name: string, errors: Validatio
       Array.isArray(vocab) && vocab.every((word) => typeof word === 'string' && word.length > 0);
     if (!isValidVocab) {
       errors.push({
-        message: `Rule "${name}": spelling option "vocab" must be an array of non-empty strings`,
+        message: 'Spelling option "vocab" must be an array of non-empty strings',
         path: `${name}.assertions.spelling.vocab`,
       });
     }
@@ -774,7 +775,7 @@ function validateSpellingOptions(rule: BaseRule, name: string, errors: Validatio
       Array.isArray(ignore) && ignore.every((word) => typeof word === 'string' && word.length > 0);
     if (!isValidIgnore) {
       errors.push({
-        message: `Rule "${name}": spelling option "ignore" must be an array of non-empty strings`,
+        message: 'Spelling option "ignore" must be an array of non-empty strings',
         path: `${name}.assertions.spelling.ignore`,
       });
     }
@@ -799,7 +800,7 @@ function validateLengthOptions(rule: BaseRule, name: string, errors: ValidationE
   for (const key of Object.keys(lengthConfig)) {
     if (!LENGTH_OPTION_KEYS.has(key)) {
       errors.push({
-        message: `Rule "${name}": unknown length option "${key}"`,
+        message: `Unknown length option "${key}"`,
         path: `${name}.assertions.length.${key}`,
       });
     }
@@ -809,35 +810,35 @@ function validateLengthOptions(rule: BaseRule, name: string, errors: ValidationE
 
   if (typeof unit !== 'string' || !LENGTH_UNITS.has(unit)) {
     errors.push({
-      message: `Rule "${name}": length requires "unit" to be one of ${[...LENGTH_UNITS].join(', ')}`,
+      message: `Length requires "unit" to be one of ${[...LENGTH_UNITS].join(', ')}`,
       path: `${name}.assertions.length.unit`,
     });
   }
 
   if (min === undefined && max === undefined) {
     errors.push({
-      message: `Rule "${name}": length requires at least one of "min" or "max"`,
+      message: 'Length requires at least one of "min" or "max"',
       path: `${name}.assertions.length`,
     });
   }
 
   if (min !== undefined && typeof min !== 'number') {
     errors.push({
-      message: `Rule "${name}": length option "min" must be a number`,
+      message: 'Length option "min" must be a number',
       path: `${name}.assertions.length.min`,
     });
   }
 
   if (max !== undefined && typeof max !== 'number') {
     errors.push({
-      message: `Rule "${name}": length option "max" must be a number`,
+      message: 'Length option "max" must be a number',
       path: `${name}.assertions.length.max`,
     });
   }
 
   if (typeof min === 'number' && typeof max === 'number' && min > max) {
     errors.push({
-      message: `Rule "${name}": length "min" (${min}) must not exceed "max" (${max})`,
+      message: `Length "min" (${min}) must not exceed "max" (${max})`,
       path: `${name}.assertions.length`,
     });
   }
@@ -867,13 +868,13 @@ function validateSwapPairEntries(
     const entryPath = `${path}.${key}`;
     if (key.length === 0) {
       errors.push({
-        message: `Rule "${name}": swap "pairs" entry keys must be non-empty strings`,
+        message: 'Swap "pairs" entry keys must be non-empty strings',
         path: entryPath,
       });
     }
     if (typeof value !== 'string') {
       errors.push({
-        message: `Rule "${name}": swap "pairs" entry "${key}" must map to a string replacement`,
+        message: `Swap "pairs" entry "${key}" must map to a string replacement`,
         path: entryPath,
       });
     }
@@ -913,7 +914,7 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
     if (!SWAP_RESERVED_KEYS.has(key)) {
       errors.push({
         message:
-          `Rule "${name}": unknown swap option "${key}" -- swap does not accept ` +
+          `Unknown swap option "${key}" -- swap does not accept ` +
           `find -> replace entries at the top level; move find -> replace entries under "pairs:"`,
         path: `${name}.assertions.swap.${key}`,
       });
@@ -924,7 +925,7 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
     const value = swapConfig[key];
     if (value !== undefined && typeof value !== 'boolean') {
       errors.push({
-        message: `Rule "${name}": swap option "${key}" must be a boolean`,
+        message: `Swap option "${key}" must be a boolean`,
         path: `${name}.assertions.swap.${key}`,
       });
     }
@@ -932,7 +933,7 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
 
   if (!('pairs' in swapConfig)) {
     errors.push({
-      message: `Rule "${name}": swap requires a "pairs" object mapping find -> replace strings`,
+      message: 'Swap requires a "pairs" object mapping find -> replace strings',
       path: `${name}.assertions.swap.pairs`,
     });
     return;
@@ -941,7 +942,7 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
   const pairs = swapConfig.pairs;
   if (!isPlainObject(pairs) || Object.keys(pairs).length === 0) {
     errors.push({
-      message: `Rule "${name}": swap option "pairs" must be a non-empty object mapping find -> replace strings`,
+      message: 'Swap option "pairs" must be a non-empty object mapping find -> replace strings',
       path: `${name}.assertions.swap.pairs`,
     });
   } else {
@@ -1036,7 +1037,7 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
       if (unreadable.length > 0) {
         errors.push({
           message:
-            `Rule "${rule.name}": spelling dictionary file${unreadable.length > 1 ? 's' : ''} ` +
+            `Spelling dictionary file${unreadable.length > 1 ? 's' : ''} ` +
             `not found or not readable: ${unreadable.join(', ')}`,
           path: `${rule.name}.assertions.spelling.dictionary`,
         });
@@ -1247,7 +1248,7 @@ function validateScope(rule: BaseRule, name: string, errors: ValidationError[]):
     if (typeof entry !== 'string') continue; // caught by schema
     for (const problem of validateScopeSelector(entry)) {
       errors.push({
-        message: `Rule "${name}": invalid scope — ${problem}`,
+        message: `Invalid scope — ${problem}`,
         path: `${name}.scope`,
       });
     }
@@ -1261,7 +1262,7 @@ function validateScope(rule: BaseRule, name: string, errors: ValidationError[]):
     // the same inputs.
     for (const problem of wholeDocumentKeywordProblems(entry)) {
       errors.push({
-        message: `Rule "${name}": invalid scope — ${problem}`,
+        message: `Invalid scope — ${problem}`,
         path: `${name}.scope`,
       });
     }
@@ -1281,7 +1282,7 @@ function validateScope(rule: BaseRule, name: string, errors: ValidationError[]):
       if (term === 'all' || term === 'raw') {
         errors.push({
           message:
-            `Rule "${name}": scope "${term}" covers the whole document and cannot be ` +
+            `Scope "${term}" covers the whole document and cannot be ` +
             `combined with other scopes — use \`scope: ${term}\` alone`,
           path: `${name}.scope`,
         });
@@ -1350,7 +1351,7 @@ function validateSemantics(
       const placeholderCap = messagePlaceholderCap(rule);
       if (placeholderCount > placeholderCap) {
         errors.push({
-          message: `Rule "${name}": message can have at most ${placeholderCap} %s placeholders, found ${placeholderCount}`,
+          message: `Message can have at most ${placeholderCap} %s placeholders, found ${placeholderCount}`,
           path: `${name}.message`,
         });
       }
@@ -1390,7 +1391,7 @@ function validateSemantics(
       rules.push(normalizedRule);
     } catch (error) {
       errors.push({
-        message: `Rule "${key}": ${error instanceof Error ? error.message : String(error)}`,
+        message: error instanceof Error ? error.message : String(error),
         path: key,
       });
     }

@@ -24,7 +24,7 @@ export function generateReport(
   const limited = typeof maxProblems === 'number';
   // The stats show tied rules in list order. The full list must have the order of the rows.
   const ordered = limited ? prioritizeProblems(problems) : problems;
-  const prioritized = limited ? prioritizeProblems(ordered, maxProblems) : ordered;
+  const prioritized = limited && maxProblems >= 0 ? ordered.slice(0, maxProblems) : ordered;
 
   switch (format) {
     case 'sarif':

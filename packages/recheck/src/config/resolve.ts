@@ -43,6 +43,7 @@ export type ResolveResult =
 export const DEFAULT_BASELINE_FILE = '.redocly.recheck-baseline.yaml';
 
 const SEVERITIES = new Set(['off', 'info', 'warn', 'error']);
+const ENGINE_SETTINGS = new Set(['excludes', 'markdoc']);
 
 // The block nests rules under `rules`; the engine's own config shape keeps
 // rule entries at the top level beside `excludes` and `markdoc`.
@@ -75,8 +76,7 @@ function toBlockPath(enginePath: string | undefined): string {
         .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
     : [enginePath];
   if (segments[0] === 'extends') return segments.join('.');
-  const settings = new Set(['excludes', 'markdoc', 'apiDescriptions']);
-  return settings.has(segments[0])
+  return ENGINE_SETTINGS.has(segments[0])
     ? `recheck.${segments.join('.')}`
     : `recheck.rules.${segments.join('.')}`;
 }
