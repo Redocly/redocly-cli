@@ -49,6 +49,11 @@ export type BundleArgv = {
   overlay?: string[];
 };
 
+export type BundleTelemetry = { bundle_overlays_count?: number };
+
+/** Populated by handleBundle; the wrapper adds it to the telemetry payload. */
+export const bundleTelemetry: BundleTelemetry = {};
+
 export async function handleBundle({
   argv,
   config,
@@ -70,6 +75,10 @@ export async function handleBundle({
         aliasConfig.resolvedConfig.overlays?.map((overlay) =>
           isAbsoluteUrl(overlay) ? overlay : resolve(configDir, overlay)
         );
+      if (overlays?.length) {
+        bundleTelemetry.bundle_overlays_count =
+          (bundleTelemetry.bundle_overlays_count ?? 0) + overlays.length;
+      }
 
       if (alias === undefined) {
         logger.info(gray(`bundling ${formatPath(path)}...\n`));
