@@ -15,6 +15,7 @@ import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
 import {
   getValueFromContext,
+  isParameterWithIn,
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
@@ -355,8 +356,18 @@ export async function runStep({
 
         if (targetWorkflow && action.parameters) {
           try {
+            const actionParameters = action.parameters.map((parameter) =>
+              resolveReusableComponentItem(parameter, ctx)
+            );
+            // action parameters always map to workflow inputs, so the spec forbids `in` on them
+            const parameterWithIn = actionParameters.find(isParameterWithIn);
+            if (parameterWithIn) {
+              return failStepWithActionError(
+                `Parameter "in" is not allowed for ${action.name} action parameter ${parameterWithIn.name}`
+              );
+            }
             passParametersToWorkflowInputs({
-              parameters: action.parameters,
+              parameters: actionParameters,
               ctx,
               workflowId,
               targetCtx,
@@ -490,20 +501,17 @@ function passParametersToWorkflowInputs({
       ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
     },
   };
-  const workflowInputParameters = parameters
-    .map((parameter) => resolveReusableComponentItem(parameter, ctx))
-    .filter(isParameterWithoutIn)
-    .reduce(
-      (acc, parameter: ParameterWithoutIn) => {
-        acc[parameter.name] = getValueFromContext({
-          value: parameter.value,
-          ctx: ctxWithInputs,
-          logger: ctx.options.logger,
-        });
-        return acc;
-      },
-      {} as Record<string, unknown>
-    );
+  const workflowInputParameters = parameters.filter(isParameterWithoutIn).reduce(
+    (acc, parameter: ParameterWithoutIn) => {
+      acc[parameter.name] = getValueFromContext({
+        value: parameter.value,
+        ctx: ctxWithInputs,
+        logger: ctx.options.logger,
+      });
+      return acc;
+    },
+    {} as Record<string, unknown>
+  );
 
   // Merge the runtime inputs with the parameters passed to the workflow
   targetCtx.$workflows[targetWorkflowId].inputs = {
