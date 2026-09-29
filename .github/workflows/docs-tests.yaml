@@ -32,11 +32,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Markup Link Checker (mlc) - docs
-        uses: becheran/mlc@7ec24825cefe0c9c8c6bac48430e1f69e3ec356e # v1.2.0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          args: ./docs
-      - name: Markup Link Checker (mlc) - cookbook
-        uses: becheran/mlc@7ec24825cefe0c9c8c6bac48430e1f69e3ec356e # v1.2.0
-        with:
-          args: ./cookbook
+          node-version: 24
+      - name: Markdown Link Checker
+        run: npx --yes markdown-link-check@3.15.0 --quiet --config .markdown-link-check.json docs cookbook README.md CONTRIBUTING.md packages/*/README.md
