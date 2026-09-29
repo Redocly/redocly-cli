@@ -367,15 +367,15 @@ npx markdownlint-cli2 "docs/**/*.md"
 
 ### Markdown link checking
 
-We use [`markdown-link-check`](https://github.com/tcort/markdown-link-check) to check the links in the `docs/` and `cookbook/` folders and in the Markdown files in the repository root.
+We use [`markdown-link-check`](https://github.com/tcort/markdown-link-check) to check the links in our docs.
 This tool runs automatically on every pull request, but you can also run it locally if you want to.
-It needs Node.js, so run it with `npx` and point it at the files you changed:
+Run this from the project root:
 
 ```bash
-npx markdown-link-check --config .markdown-link-check.json docs/@v2/commands/lint.md
+npx markdown-link-check --config .markdown-link-check.json docs
 ```
 
-Links to other Redocly docs sections use absolute `https://redocly.com/...` URLs so that the checker can verify them.
+Use relative file paths when pointing to local files, and absolute links when pointing to external ones.
 Take care when renaming pages or titles.
 
 ## Contribute to the Cookbook

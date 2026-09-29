@@ -32,17 +32,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Markup Link Checker - docs and cookbook
-        uses: tcort/github-action-markdown-link-check@v1
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
-          folder-path: './docs,./cookbook'
-          use-quiet-mode: 'yes'
-          config-file: '.markdown-link-check.json'
-      - name: Markup Link Checker - repo docs
-        uses: tcort/github-action-markdown-link-check@v1
-        with:
-          use-quiet-mode: 'yes'
-          config-file: '.markdown-link-check.json'
-          file-path: './README.md,./CONTRIBUTING.md'
-          folder-path: '.'
-          max-depth: 1
+          node-version: 24
+      - name: Markdown Link Checker
+        run: npx --yes markdown-link-check@3.15.0 --quiet --config .markdown-link-check.json docs cookbook README.md CONTRIBUTING.md packages/*/README.md
