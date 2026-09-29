@@ -14,7 +14,6 @@ import type {
 import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
 import {
-  getValueFromContext,
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
@@ -30,6 +29,7 @@ import { calculateTotals } from '../logger-output/index.js';
 import { evaluateRuntimeExpressionPayload } from '../runtime-expressions/index.js';
 import { Timer } from '../timeout-timer/timer.js';
 import { callAPIAndAnalyzeResults } from './call-api-and-analyze-results.js';
+import { createRuntimeExpressionCtx } from './context/index.js';
 import { prepareRequest, type RequestData } from './prepare-request.js';
 import { runWorkflow, resolveWorkflowContext } from './runner.js';
 import { checkCriteria } from './success-criteria/index.js';
@@ -89,20 +89,15 @@ export async function runStep({
       ctx.options.config
     );
 
-    if (resolvedParameters && resolvedParameters.length > 0) {
-      passParametersToWorkflowInputs({
-        parameters: resolvedParameters,
-        ctx,
-        workflowId,
-        targetCtx: workflowCtx,
-        targetWorkflowId: targetWorkflow.workflowId,
-      });
-    }
+    const workflowInputs = resolvedParameters?.length
+      ? getWorkflowInputs({ parameters: resolvedParameters, ctx, workflowId })
+      : undefined;
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);
     const stepWorkflowResult = await runWorkflow({
       workflowInput: targetWorkflow,
       ctx: workflowCtx,
+      inputs: workflowInputs,
       skipLineSeparator: true,
       parentStepId: stepId,
       invocationContext: `Child workflow of step ${stepId}`,
@@ -318,14 +313,14 @@ export async function runStep({
       return { shouldEnd: true };
     }
 
-    // called right before the target workflow runs, so a skipped run leaves its inputs untouched
-    function passActionParameters(
-      action: OnFailureObject | OnSuccessObject,
-      targetWorkflowId: string,
-      targetCtx: TestContext
-    ): { shouldEnd: true } | undefined {
-      if (!action.parameters) {
-        return undefined;
+    // resolves the action parameters into the inputs of the action target workflow;
+    // a broken parameter fails the step instead, so the target workflow doesn't run
+    function getActionInputs(action: OnFailureObject | OnSuccessObject): {
+      inputs?: Record<string, unknown>;
+      failure?: { shouldEnd: true };
+    } {
+      if (!action.workflowId || !action.parameters) {
+        return {};
       }
       try {
         const actionParameters = action.parameters.map((parameter) =>
@@ -337,20 +332,20 @@ export async function runStep({
           (parameter): parameter is Parameter & { in: unknown; name: string } => 'in' in parameter
         );
         if (parameterWithIn) {
-          return failStepWithActionError(
-            `Parameter "in" is not allowed for ${action.name} action parameter ${parameterWithIn.name}`
-          );
+          return {
+            failure: failStepWithActionError(
+              `Parameter "in" is not allowed for ${action.name} action parameter ${parameterWithIn.name}`
+            ),
+          };
         }
-        passParametersToWorkflowInputs({
-          parameters: actionParameters,
-          ctx,
-          workflowId,
-          targetCtx,
-          targetWorkflowId,
-        });
-        return undefined;
+        // the step has run, so the parameters can use its `$response` and `$statusCode`
+        return {
+          inputs: getWorkflowInputs({ parameters: actionParameters, ctx, workflowId, step }),
+        };
       } catch (error) {
-        return failStepWithActionError(error instanceof Error ? error.message : String(error));
+        return {
+          failure: failStepWithActionError(error instanceof Error ? error.message : String(error)),
+        };
       }
     }
 
@@ -416,17 +411,14 @@ export async function runStep({
           }
 
           if (targetWorkflow) {
-            const parametersFailure = passActionParameters(
-              action,
-              targetWorkflow.workflowId,
-              targetCtx
-            );
-            if (parametersFailure) {
-              return parametersFailure;
+            const { inputs, failure } = getActionInputs(action);
+            if (failure) {
+              return failure;
             }
             const stepWorkflowResult = await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
+              inputs,
               skipLineSeparator: true,
               invocationContext: `Retry action for step ${stepId}`,
               executedStepsCount,
@@ -480,20 +472,15 @@ export async function runStep({
             });
           }
 
-          if (targetWorkflow) {
-            const parametersFailure = passActionParameters(
-              action,
-              targetWorkflow.workflowId,
-              targetCtx
-            );
-            if (parametersFailure) {
-              return parametersFailure;
-            }
+          const { inputs, failure } = getActionInputs(action);
+          if (failure) {
+            return failure;
           }
 
           const stepWorkflowResult = await runWorkflow({
             workflowInput: targetWorkflow || workflow,
             ctx: targetCtx,
+            inputs,
             fromStepId: targetStep,
             skipLineSeparator: true,
             invocationContext: `Goto from step ${stepId}`,
@@ -514,41 +501,38 @@ export async function runStep({
 }
 
 // When a step or an action targets a workflow, its parameters without `in` map to the workflow inputs.
-function passParametersToWorkflowInputs({
+function getWorkflowInputs({
   parameters,
   ctx,
   workflowId,
-  targetCtx,
-  targetWorkflowId,
+  step,
 }: {
   parameters: Parameter[];
   ctx: TestContext;
   workflowId: string | undefined;
-  targetCtx: TestContext;
-  targetWorkflowId: string;
-}) {
-  const ctxWithInputs = {
-    ...ctx,
-    $inputs: {
-      ...ctx.$inputs,
-      ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+  step?: Step;
+}): Record<string, unknown> {
+  const expressionContext = createRuntimeExpressionCtx({
+    ctx: {
+      ...ctx,
+      $inputs: {
+        ...ctx.$inputs,
+        ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+      },
     },
-  };
-  const workflowInputParameters = parameters.filter(isParameterWithoutIn).reduce(
+    workflowId,
+    step,
+  });
+
+  return parameters.filter(isParameterWithoutIn).reduce(
     (acc, parameter: ParameterWithoutIn) => {
-      acc[parameter.name] = getValueFromContext({
-        value: parameter.value,
-        ctx: ctxWithInputs,
+      acc[parameter.name] = evaluateRuntimeExpressionPayload({
+        payload: parameter.value,
+        context: expressionContext,
         logger: ctx.options.logger,
       });
       return acc;
     },
     {} as Record<string, unknown>
   );
-
-  // Merge the runtime inputs with the parameters passed to the workflow
-  targetCtx.$workflows[targetWorkflowId].inputs = {
-    ...targetCtx.$workflows[targetWorkflowId].inputs,
-    ...workflowInputParameters,
-  };
 }

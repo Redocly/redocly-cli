@@ -13,7 +13,7 @@ components:
   parameters:
     search:
       name: search
-      value: mermaid-treasure-latte
+      value: unicorn-glitter-mocha
 
 workflows:
   - workflowId: search-menu

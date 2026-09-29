@@ -1679,11 +1679,13 @@ describe('runStep', () => {
             parameters: [
               { name: 'search', value: '$inputs.birdName' },
               { reference: '$components.parameters.limit' },
+              { name: 'color', value: '$response.body#/color' },
+              { name: 'statusCode', value: '$statusCode' },
             ],
           },
         ],
         checks: [],
-        response: {} as any,
+        response: { statusCode: 200, body: { color: 'green' }, header: {} } as ResponseContext,
       };
 
       vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
@@ -1699,7 +1701,7 @@ describe('runStep', () => {
         ...basicCTX,
         workflows: [{ workflowId: 'get-bird-workflow', steps: [stepOne] }, searchWorkflow],
         $workflows: {
-          'get-bird-workflow': { steps: {}, inputs: { birdName: 'parrot' } },
+          'get-bird-workflow': { steps: { 'get-bird': {} }, inputs: { birdName: 'parrot' } },
           'search-workflow': { steps: {}, inputs: {} },
         },
         $components: {
@@ -1720,12 +1722,11 @@ describe('runStep', () => {
       });
 
       expect(runWorkflow).toHaveBeenCalledTimes(1);
-      const { workflowInput, ctx: targetCtx } = vi.mocked(runWorkflow).mock.calls[0][0];
+      const { workflowInput, inputs } = vi.mocked(runWorkflow).mock.calls[0][0];
       expect(workflowInput).toEqual(searchWorkflow);
-      expect(targetCtx.$workflows['search-workflow'].inputs).toEqual({
-        search: 'parrot',
-        limit: 5,
-      });
+      expect(inputs).toEqual({ search: 'parrot', limit: 5, color: 'green', statusCode: 200 });
+      // the inputs go to this run of the target workflow only, not to the shared context
+      expect(context.$workflows['search-workflow'].inputs).toEqual({});
     }
   );
 

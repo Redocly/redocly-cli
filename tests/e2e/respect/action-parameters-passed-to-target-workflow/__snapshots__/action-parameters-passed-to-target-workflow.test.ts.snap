@@ -119,7 +119,7 @@ exports[`should pass failure action parameters as inputs to the action target wo
  
   ✓ GET /menu - step search-menu-items 
 
-    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
+    Request URL: https://api.cafe.redocly.com/menu?search=unicorn-glitter-mocha
     Request Headers:
       accept: application/json, application/problem+json 
  
