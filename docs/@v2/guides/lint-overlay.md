@@ -116,9 +116,13 @@ jobs:
         run: redocly lint overlay/*yaml --format=github-actions
 ```
 
-With this action in place, the intentional errors I added to the Overlay description are shown as annotations on the pull request:
+With this action in place, the linting step prints each problem in the `github-actions` format, and GitHub shows it as an annotation on the matching line of the pull request.
+For the two errors from the earlier example, the step prints the following output:
 
-![Screenshot of annotation flagging "description" as an unexpected value](./images/museum-overlay-lint.png)
+```text
+::error title=struct,file=overlay/museum-api.overlay.yaml,line=5,col=3,endLine=5,endColumn=10::Property `summary` is not expected here.
+::error title=struct,file=overlay/museum-api.overlay.yaml,line=11,col=3,endLine=11,endColumn=11::Property `descript` is not expected here.%0A%0ADid you mean: description ?%0A%0A
+```
 
 ## Participate in Redocly CLI
 
