@@ -90,32 +90,13 @@ export async function runStep({
     );
 
     if (resolvedParameters && resolvedParameters.length > 0) {
-      // When the step in context specifies a workflowId, then all parameters without `in` maps to workflow inputs.
-      const workflowInputParameters = resolvedParameters.filter(isParameterWithoutIn).reduce(
-        (acc, parameter: ParameterWithoutIn) => {
-          const ctxWithInputs = {
-            ...ctx,
-            $inputs: {
-              ...ctx.$inputs,
-              ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
-            },
-          };
-          // Ensure parameter is of type ParameterWithoutIn
-          acc[parameter.name] = getValueFromContext({
-            value: parameter.value,
-            ctx: ctxWithInputs,
-            logger: ctx.options.logger,
-          });
-          return acc;
-        },
-        {} as Record<string, any>
-      );
-
-      // Merge the runtime inputs with the inputs passed in the step as parameters for the workflow
-      workflowCtx.$workflows[targetWorkflow.workflowId].inputs = {
-        ...workflowCtx.$workflows[targetWorkflow.workflowId].inputs,
-        ...workflowInputParameters,
-      };
+      passParametersToWorkflowInputs({
+        parameters: resolvedParameters,
+        ctx,
+        workflowId,
+        targetCtx: workflowCtx,
+        targetWorkflowId: targetWorkflow.workflowId,
+      });
     }
 
     printChildWorkflowSeparator(stepId, ctx.options.logger);
@@ -372,6 +353,20 @@ export async function runStep({
               )
             : { ...ctx, executedSteps: [] };
 
+        if (targetWorkflow && action.parameters) {
+          try {
+            passParametersToWorkflowInputs({
+              parameters: action.parameters,
+              ctx,
+              workflowId,
+              targetCtx,
+              targetWorkflowId: targetWorkflow.workflowId,
+            });
+          } catch (error: any) {
+            return failStepWithActionError(error.message);
+          }
+        }
+
         const targetStep = action.stepId ? action.stepId : undefined;
 
         if (type === 'retry') {
@@ -472,4 +467,47 @@ export async function runStep({
       return { shouldEnd: true };
     }
   }
+}
+
+// When a step or an action targets a workflow, its parameters without `in` map to the workflow inputs.
+function passParametersToWorkflowInputs({
+  parameters,
+  ctx,
+  workflowId,
+  targetCtx,
+  targetWorkflowId,
+}: {
+  parameters: Parameter[];
+  ctx: TestContext;
+  workflowId: string | undefined;
+  targetCtx: TestContext;
+  targetWorkflowId: string;
+}) {
+  const ctxWithInputs = {
+    ...ctx,
+    $inputs: {
+      ...ctx.$inputs,
+      ...(workflowId ? ctx.$workflows[workflowId]?.inputs : {}),
+    },
+  };
+  const workflowInputParameters = parameters
+    .map((parameter) => resolveReusableComponentItem(parameter, ctx))
+    .filter(isParameterWithoutIn)
+    .reduce(
+      (acc, parameter: ParameterWithoutIn) => {
+        acc[parameter.name] = getValueFromContext({
+          value: parameter.value,
+          ctx: ctxWithInputs,
+          logger: ctx.options.logger,
+        });
+        return acc;
+      },
+      {} as Record<string, unknown>
+    );
+
+  // Merge the runtime inputs with the parameters passed to the workflow
+  targetCtx.$workflows[targetWorkflowId].inputs = {
+    ...targetCtx.$workflows[targetWorkflowId].inputs,
+    ...workflowInputParameters,
+  };
 }
