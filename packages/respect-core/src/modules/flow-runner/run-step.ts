@@ -316,6 +316,39 @@ export async function runStep({
       return { shouldEnd: true };
     }
 
+    // called right before the target workflow runs, so a skipped run leaves its inputs untouched
+    function passActionParameters(
+      action: OnFailureObject | OnSuccessObject,
+      targetWorkflowId: string,
+      targetCtx: TestContext
+    ): { shouldEnd: true } | undefined {
+      if (!action.parameters) {
+        return undefined;
+      }
+      try {
+        const actionParameters = action.parameters.map((parameter) =>
+          resolveReusableComponentItem(parameter, ctx)
+        );
+        // action parameters always map to workflow inputs, so the spec forbids `in` on them
+        const parameterWithIn = actionParameters.find(isParameterWithIn);
+        if (parameterWithIn) {
+          return failStepWithActionError(
+            `Parameter "in" is not allowed for ${action.name} action parameter ${parameterWithIn.name}`
+          );
+        }
+        passParametersToWorkflowInputs({
+          parameters: actionParameters,
+          ctx,
+          workflowId,
+          targetCtx,
+          targetWorkflowId,
+        });
+        return undefined;
+      } catch (error) {
+        return failStepWithActionError(error instanceof Error ? error.message : String(error));
+      }
+    }
+
     for (const action of actions) {
       const { type, criteria } = action;
 
@@ -354,30 +387,6 @@ export async function runStep({
               )
             : { ...ctx, executedSteps: [] };
 
-        if (targetWorkflow && action.parameters) {
-          try {
-            const actionParameters = action.parameters.map((parameter) =>
-              resolveReusableComponentItem(parameter, ctx)
-            );
-            // action parameters always map to workflow inputs, so the spec forbids `in` on them
-            const parameterWithIn = actionParameters.find(isParameterWithIn);
-            if (parameterWithIn) {
-              return failStepWithActionError(
-                `Parameter "in" is not allowed for ${action.name} action parameter ${parameterWithIn.name}`
-              );
-            }
-            passParametersToWorkflowInputs({
-              parameters: actionParameters,
-              ctx,
-              workflowId,
-              targetCtx,
-              targetWorkflowId: targetWorkflow.workflowId,
-            });
-          } catch (error) {
-            return failStepWithActionError(error instanceof Error ? error.message : String(error));
-          }
-        }
-
         const targetStep = action.stepId ? action.stepId : undefined;
 
         if (type === 'retry') {
@@ -402,6 +411,14 @@ export async function runStep({
           }
 
           if (targetWorkflow) {
+            const parametersFailure = passActionParameters(
+              action,
+              targetWorkflow.workflowId,
+              targetCtx
+            );
+            if (parametersFailure) {
+              return parametersFailure;
+            }
             const stepWorkflowResult = await runWorkflow({
               workflowInput: targetWorkflow,
               ctx: targetCtx,
@@ -456,6 +473,17 @@ export async function runStep({
               kind,
               logger: ctx.options.logger,
             });
+          }
+
+          if (targetWorkflow) {
+            const parametersFailure = passActionParameters(
+              action,
+              targetWorkflow.workflowId,
+              targetCtx
+            );
+            if (parametersFailure) {
+              return parametersFailure;
+            }
           }
 
           const stepWorkflowResult = await runWorkflow({
