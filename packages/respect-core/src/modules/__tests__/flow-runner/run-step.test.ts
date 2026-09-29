@@ -18,7 +18,7 @@ import {
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
 } from '../../flow-runner/index.js';
-import { displayChecks } from '../../logger-output/index.js';
+import { calculateTotals, displayChecks } from '../../logger-output/index.js';
 import { Timer } from '../../timeout-timer/timer.js';
 
 vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
@@ -1729,70 +1729,81 @@ describe('runStep', () => {
     }
   );
 
-  it('should fail the step when an action parameter uses `in`', async () => {
-    const stepOne: Step = {
-      stepId: 'get-bird',
-      'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
-      successCriteria: [{ condition: '$statusCode == 200' }],
-      onFailure: [
-        {
-          name: 'goto-search',
-          type: 'goto',
-          workflowId: 'search-workflow',
-          parameters: [{ reference: '$components.parameters.search' }],
+  it.each(['query', 'querystring'])(
+    'should fail the step when a retry action parameter uses `in: %s`',
+    async (location) => {
+      const stepOne: Step = {
+        stepId: 'get-bird',
+        'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+        successCriteria: [{ condition: '$statusCode == 200' }],
+        onFailure: [
+          {
+            name: 'search-then-retry',
+            type: 'retry',
+            retryLimit: 1,
+            workflowId: 'search-workflow',
+            parameters: [{ reference: '$components.parameters.search' }],
+          },
+        ],
+        checks: [],
+        response: {} as any,
+      };
+
+      vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        unexpectedErrorCheck: true,
+        statusCodeCheck: true,
+      }));
+      vi.mocked(checkCriteria).mockReturnValue([]);
+
+      const context = {
+        ...basicCTX,
+        workflows: [
+          { workflowId: 'get-bird-workflow', steps: [stepOne] },
+          { workflowId: 'search-workflow', steps: [] },
+        ],
+        $workflows: {
+          'get-bird-workflow': { steps: {} },
+          'search-workflow': { steps: {} },
         },
-      ],
-      checks: [],
-      response: {} as any,
-    };
+        $components: {
+          parameters: { search: { name: 'search', in: location, value: 'parrot' } },
+        },
+        executedSteps: [],
+      } as unknown as TestContext;
 
-    vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
-      successCriteriaCheck: false,
-      schemaCheck: true,
-      networkCheck: true,
-      unexpectedErrorCheck: true,
-      statusCodeCheck: true,
-    }));
-    vi.mocked(checkCriteria).mockReturnValue([]);
+      vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => ({
+        ...context,
+        executedSteps: [],
+      }));
 
-    const context = {
-      ...basicCTX,
-      workflows: [
-        { workflowId: 'get-bird-workflow', steps: [stepOne] },
-        { workflowId: 'search-workflow', steps: [] },
-      ],
-      $workflows: {
-        'get-bird-workflow': { steps: {} },
-        'search-workflow': { steps: {} },
-      },
-      $components: {
-        parameters: { search: { name: 'search', in: 'query', value: 'parrot' } },
-      },
-      executedSteps: [],
-    } as unknown as TestContext;
+      const result = await runStep({
+        step: stepOne,
+        ctx: context,
+        workflowId: 'get-bird-workflow',
+        executedStepsCount: { value: 0 },
+      });
 
-    vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => ({
-      ...context,
-      executedSteps: [],
-    }));
-
-    const result = await runStep({
-      step: stepOne,
-      ctx: context,
-      workflowId: 'get-bird-workflow',
-      executedStepsCount: { value: 0 },
-    });
-
-    expect(result).toEqual({ shouldEnd: true });
-    expect(runWorkflow).not.toHaveBeenCalled();
-    expect(context.executedSteps).toHaveLength(1);
-    expect((context.executedSteps[0] as Step).checks.at(-1)).toEqual({
-      name: CHECKS.UNEXPECTED_ERROR,
-      message: 'Parameter "in" is not allowed for goto-search action parameter search',
-      passed: false,
-      severity: 'error',
-    });
-  });
+      expect(result).toEqual({ shouldEnd: true });
+      expect(runWorkflow).not.toHaveBeenCalled();
+      expect(context.executedSteps).toHaveLength(1);
+      expect((context.executedSteps[0] as Step).checks.at(-1)).toEqual({
+        name: CHECKS.UNEXPECTED_ERROR,
+        message: 'Parameter "in" is not allowed for search-then-retry action parameter search',
+        passed: false,
+        severity: 'error',
+      });
+      const totals = calculateTotals([
+        {
+          workflowId: 'get-bird-workflow',
+          executedSteps: context.executedSteps,
+        } as unknown as WorkflowExecutionResult,
+      ]);
+      expect(totals.steps.failed).toEqual(1);
+    }
+  );
 
   it('should not pass action parameters to the target workflow when no retries are left', async () => {
     const stepOne: Step = {

@@ -15,7 +15,6 @@ import { delay } from '../../utils/delay.js';
 import { CHECKS } from '../checks/index.js';
 import {
   getValueFromContext,
-  isParameterWithIn,
   isParameterWithoutIn,
   resolveReusableComponentItem,
   resolveWorkflowReference,
@@ -304,6 +303,9 @@ export async function runStep({
         severity: ctx.severity['UNEXPECTED_ERROR'],
       };
       step.checks.push(failedCheck);
+      // the step ends here without a retry, so the totals must count it
+      // even when a retry action has already set its retries left
+      step.retriesLeft = 0;
       if (!ctx.executedSteps.includes(step)) {
         // the child workflow path has not registered nor printed the step yet
         ctx.executedSteps.push(step);
@@ -329,8 +331,11 @@ export async function runStep({
         const actionParameters = action.parameters.map((parameter) =>
           resolveReusableComponentItem(parameter, ctx)
         );
-        // action parameters always map to workflow inputs, so the spec forbids `in` on them
-        const parameterWithIn = actionParameters.find(isParameterWithIn);
+        // action parameters always map to workflow inputs, so the spec forbids any `in` on them,
+        // including locations that respect doesn't send, such as `querystring`
+        const parameterWithIn = actionParameters.find(
+          (parameter): parameter is Parameter & { in: unknown; name: string } => 'in' in parameter
+        );
         if (parameterWithIn) {
           return failStepWithActionError(
             `Parameter "in" is not allowed for ${action.name} action parameter ${parameterWithIn.name}`
