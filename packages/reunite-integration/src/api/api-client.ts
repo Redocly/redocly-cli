@@ -3,12 +3,8 @@ import type { Readable } from 'node:stream';
 
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
-import type {
-  ListRemotesResponse,
-  ProjectSourceResponse,
-  PushResponse,
-  UpsertRemoteResponse,
-} from './types.js';
+import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
+import type { ProjectSourceResponse, PushResponse, UpsertRemoteResponse } from './types.js';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
@@ -35,9 +31,10 @@ export class ReuniteApiClient implements BaseApiClient {
   ) {}
 
   public async request(url: string, options: FetchWithTimeoutOptions) {
+    const environment = getRedoclyEnvironment();
     const headers = {
       ...options.headers,
-      'user-agent': `redocly-cli/${this.version} ${this.command}`,
+      'user-agent': `redocly-cli/${this.version} ${this.command}${environment ? ` ${environment}` : ''}`,
     };
 
     try {
@@ -227,6 +224,9 @@ class RemotesApi {
     if (payload.isMainBranch) {
       formData.append('isMainBranch', 'true');
     }
+    if (payload.replace) {
+      formData.append('replace', 'true');
+    }
     try {
       const response = await this.client.request(
         `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/pushes`,
@@ -242,40 +242,6 @@ class RemotesApi {
       return await this.getParsedResponse<PushResponse>(response);
     } catch (err) {
       const message = `Failed to push. ${err.message}`;
-
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
-      }
-
-      throw new Error(message);
-    }
-  }
-
-  async getRemotesList({
-    organizationId,
-    projectId,
-    mountPath,
-  }: {
-    organizationId: string;
-    projectId: string;
-    mountPath: string;
-  }) {
-    try {
-      const response = await this.client.request(
-        `${this.domain}/api/orgs/${organizationId}/projects/${projectId}/remotes?filter=mountPath:/${mountPath}/`,
-        {
-          timeout: DEFAULT_FETCH_TIMEOUT,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      return await this.getParsedResponse<ListRemotesResponse>(response);
-    } catch (err) {
-      const message = `Failed to get remote list. ${err.message}`;
 
       if (err instanceof ReuniteApiError) {
         throw new ReuniteApiError(message, err.status);
@@ -379,6 +345,7 @@ export type PushPayload = {
     };
   };
   isMainBranch?: boolean;
+  replace?: boolean;
 };
 
 export async function streamToBuffer(stream: ReadStream | Readable): Promise<Buffer> {

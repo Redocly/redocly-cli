@@ -178,6 +178,6 @@ Use `--ai-model` to choose a model, or the provider's default is used.
 ## Resources
 
 - [Respect command](./respect.md) to execute your Arazzo description.
-- [Learn more about Arazzo](/learn/arazzo/what-is-arazzo).
+- [Learn more about Arazzo](https://redocly.com/learn/arazzo/what-is-arazzo).
 - [Generate realistic Arazzo workflows with AI](https://redocly.com/blog/generate-arazzo-with-ai).
 - [Lint command](./lint.md) to lint your Arazzo description.

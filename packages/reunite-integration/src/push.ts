@@ -26,6 +26,8 @@ export type PushOptions = {
     repository?: string;
   };
   version?: string;
+  // Removes the files under the mount path that are not part of this push.
+  replace?: boolean;
   // Called once the remote exists, right before the files are uploaded to it.
   onUploadStart?: (remote: UpsertRemoteResponse) => void;
   // Called after the push with the most urgent sunset warning the Reunite API sent, if any.
@@ -46,6 +48,7 @@ export async function pushFiles({
   defaultBranch,
   commit,
   version,
+  replace,
   onUploadStart,
   onSunsetWarning,
 }: PushOptions): Promise<PushResult> {
@@ -67,6 +70,7 @@ export async function pushFiles({
         remoteId: remote.id,
         commit,
         isMainBranch: defaultBranch === commit.branchName,
+        replace,
       },
       files.map((file) => ({ path: slash(file.name), stream: fs.createReadStream(file.path) }))
     );

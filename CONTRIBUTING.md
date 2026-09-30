@@ -15,7 +15,7 @@ Issue comments and discussion replies are expected to be written in the contribu
   - [Built-in rules changes](#built-in-rules-changes)
   - [Update Redoc](#update-redoc)
   - [Arguments usage](#arguments-usage)
-  - [Exit codes](#exit-codes)
+  - [Error handling and exit codes](#error-handling-and-exit-codes)
   - [Local source code usage](#local-source-code-usage)
 - [Tests](#tests)
 - [Contribute documentation](#contribute-documentation)
@@ -88,6 +88,8 @@ To run a specific CLI command, use `npm run cli`, e.g. `npm run cli -- lint reso
 Notice that the extra `--` is required to pass arguments to the CLI rather than to NPM itself.
 
 Format your code with `npm run format` before committing.
+
+To find unused files, exports, and dependencies, run `npx knip` (configured in `knip.jsonc`).
 
 Check the [Tests section](#tests) for the test commands reference.
 
@@ -173,9 +175,15 @@ Please use it to provide arguments that are common for all the commands, for a s
 It could be used for providing arguments for both **cli** and **core** packages.
 Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
 
-### Exit codes
+### Error handling and exit codes
 
-The application maintains the following exit codes.
+Every command wrapped in `commandWrapper` handles three main types of errors ([source](./packages/core/src/utils/error.ts)):
+
+- Technical errors that don't require a message to the user (`AbortFlowError`)
+- Known errors that originate on our side, with full details included in the error message (`HandledError` or errors converted to it)
+- Unknown errors that originate either on our side or in the user's code, requiring extra detail such as a stack trace (all other errors)
+
+The application maintains the following exit codes:
 
 | Exit code | Description               |
 | --------- | ------------------------- |
@@ -359,15 +367,15 @@ npx markdownlint-cli2 "docs/**/*.md"
 
 ### Markdown link checking
 
-We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder.
+We use [`markdown-link-check`](https://github.com/tcort/markdown-link-check) to check the links in our docs.
 This tool runs automatically on every pull request, but you can also run it locally if you want to.
-Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
+Run this from the project root:
 
 ```bash
-mlc docs/
+npx markdown-link-check --config .markdown-link-check.json docs
 ```
 
-The tool only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors.
+Use relative file paths when pointing to local files, and absolute links when pointing to external ones.
 Take care when renaming pages or titles.
 
 ## Contribute to the Cookbook

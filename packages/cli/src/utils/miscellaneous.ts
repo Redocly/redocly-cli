@@ -63,7 +63,7 @@ export async function getFallbackApisOrExit(
   return res;
 }
 
-function getConfigDirectory(config: Config) {
+export function getConfigDirectory(config: Config) {
   return config.configPath ? dirname(config.configPath) : process.cwd();
 }
 

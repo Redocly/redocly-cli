@@ -101,6 +101,17 @@ describe('pushFiles()', () => {
     );
   });
 
+  it('passes the replace flag to the push', async () => {
+    await pushFiles({ ...options, replace: true });
+
+    expect(remotes.push).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ replace: true }),
+      expect.anything()
+    );
+  });
+
   it('lets API errors through', async () => {
     remotes.push.mockRejectedValue(new ReuniteApiError('Deprecated.', 412));
 

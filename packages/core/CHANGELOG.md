@@ -1,5 +1,27 @@
 # @redocly/openapi-core
 
+## 2.56.0
+
+### Minor Changes
+
+- Added support for applying Overlay documents to the `bundle` command output.
+  Pass overlays with the new `--overlay` option or list them under `overlays` for an API in `redocly.yaml`.
+- Added support for linting Overlay 1.1 and 1.2 documents, including the `copy` action field, the `$self` field, and reusable actions in `components.actions`.
+  The `spec-ref-siblings` rule now checks the fields next to a reusable action `$ref` in Overlay documents.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.59.0.
+
+## 2.55.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.58.0.
+- Fixed an issue where the `workflow-dependsOn` rule reported a duplicate when different workflows listed the same workflow in `dependsOn`.
+
+## 2.54.3
+
 ## 2.54.2
 
 ### Patch Changes

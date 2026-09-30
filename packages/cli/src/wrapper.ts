@@ -3,7 +3,6 @@ import {
   doesYamlFileExist,
   isPlainObject,
   logger,
-  HandledError,
   getMajorSpecVersion,
   isGraphqlRef,
   type Config,
@@ -12,9 +11,11 @@ import {
   type NormalizedProblem,
   type SpecVersion,
   AbortFlowError,
+  HandledError,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
+import { bundleTelemetry } from './commands/bundle.js';
 import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
@@ -148,6 +149,7 @@ export function commandWrapper<T extends CommandArgv>(
           lint_rules_with_ignored_problems: [...lintRulesWithIgnoredProblems],
           generate_client: generateClientTelemetry,
           eject_generator: ejectGeneratorTelemetry,
+          bundle: bundleTelemetry,
         });
       }
       process.once('beforeExit', () => {

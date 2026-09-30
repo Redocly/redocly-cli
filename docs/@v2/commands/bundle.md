@@ -15,6 +15,7 @@ All components are automatically resolved and included without requiring explici
 The `join` command can combine multiple OpenAPI files into a single unified API description file.
 
 The `bundle` command first executes preprocessors, then rules, then decorators.
+[Overlays](#apply-overlays) are applied after the API description is bundled and before the decorators.
 
 ## Usage
 
@@ -22,6 +23,7 @@ The `bundle` command first executes preprocessors, then rules, then decorators.
 redocly bundle <apis>...
 redocly bundle <apis> [--remove-unused-components]
 redocly bundle <apis> [--config=<path>]
+redocly bundle <api> [--overlay=<path>]...
 redocly bundle <apis>... -o <outputName> --ext <ext>
 redocly bundle --version
 ```
@@ -41,6 +43,7 @@ redocly bundle --version
 | --lint-config                           | string   | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                                                                                                    |
 | --component-renaming-conflicts-severity | string   | Specify the severity level for reporting when schemas are referenced with the same name but different content during bundling. <br/> **Possible values:** `warn`, `error`, `off`. The default value is `warn`.                                            |
 | --metafile                              | string   | Path for the bundle metadata file.                                                                                                                                                                                                                        |
+| --overlay                               | [string] | Apply an [Overlay](#apply-overlays) to the bundle. Repeat the option to apply several overlays in order. Replaces the `overlays` set for the API in the configuration file.                                                                               |
 | --output, -o                            | string   | Name or folder for the bundle file specified using the command line. If you don't specify the file extension, `.yaml` is used by default. If the specified folder doesn't exist, it's created automatically. **Overwrites existing bundler output file.** |
 | --remove-unused-components              | boolean  | Remove unused components from the `bundle` output.                                                                                                                                                                                                        |
 | --skip-decorator                        | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                 |
@@ -106,6 +109,45 @@ redocly bundle --dereferenced --output dist --ext json openapi/openapi.yaml open
 {% admonition type="warning" name="Note" %}
 JSON output only works when there are no circular references.
 {% /admonition %}
+
+### Apply overlays
+
+An [Overlay](https://spec.openapis.org/overlay/latest.html) describes changes to an API description in a separate file, for example to hide internal operations or add details for a public version of an API.
+The `bundle` command applies Overlay 1.0, 1.1, and 1.2 documents to the bundled API description.
+
+```bash
+redocly bundle openapi.yaml --overlay=overlays/public.yaml --overlay=overlays/branding.yaml -o dist/public.yaml
+```
+
+To apply overlays every time an API is bundled, list them under `overlays` in the `apis` section of your Redocly configuration file.
+Paths are relative to the configuration file.
+
+```yaml
+apis:
+  public:
+    root: openapi.yaml
+    output: dist/public.yaml
+    overlays:
+      - overlays/public.yaml
+      - overlays/branding.yaml
+```
+
+The `--overlay` option replaces the overlays listed in the configuration file.
+
+Overlays are applied to the bundled API description before decorators run and before unused components are removed.
+Write each action's `target` against the output of `redocly bundle` without overlays: it reaches everything the bundle includes, even parts that live in separate files.
+Decorators see the changes the overlays make.
+For example, an overlay can mark operations with `x-internal: true`, and the [`remove-x-internal`](../decorators/remove-x-internal.md) decorator then removes them.
+When you create a dereferenced bundle, the overlays are applied before the references are resolved, so a change to a component reaches every place that uses it.
+
+A `$ref` in an overlay value that points to a file is relative to the overlay file, or to the overlay's `$self` URI in Overlay 1.2.
+The command bundles the referenced files like the rest of the API description.
+A `$ref` that starts with `#`, such as `$ref: '#/components/schemas/Ticket'`, points into the API description.
+
+If an action can't be applied, for example because its `target` isn't a valid JSONPath expression, the command reports an error and doesn't create the bundle unless you use `--force`.
+An action whose `target` matches nothing changes nothing and isn't reported.
+
+See [Apply overlays](../guides/apply-overlays.md) for a step-by-step guide.
 
 ### Use alternative configuration file
 

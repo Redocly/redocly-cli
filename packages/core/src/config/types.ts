@@ -302,8 +302,9 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
   ResolvedGovernanceConfig & {
     apis?: Record<string, ResolvedApiConfig>;
     plugins?: string[];
-    /** Per-api key, present after `forAlias` flattens an api entry into the root shape. */
+    /** Per-api keys, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
+    overlays?: string[];
   };
 
 export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

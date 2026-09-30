@@ -272,12 +272,6 @@ function reportResults({
     return;
   }
 
-  if (targetLevel && !targetLevelAchieved) {
-    logger.error(
-      `\n❌ Your API specification does not satisfy the target scorecard level "${targetLevel}".\n`
-    );
-  }
-
   if (format === 'json') {
     printScorecardResultsAsJson(problems, achievedLevel, targetLevelAchieved, version);
   } else if (format === 'checkstyle') {
@@ -296,7 +290,9 @@ function reportResults({
   );
 
   if (targetLevel && !targetLevelAchieved) {
-    throw new AbortFlowError('Target scorecard level not achieved.');
+    throw new HandledError(
+      `\n❌ Your API specification does not satisfy the target scorecard level "${targetLevel}".\n`
+    );
   }
 
   if (achievedLevel === 'Non Conformant') {

@@ -397,6 +397,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          replace: {
+            description: 'Remove the files under the mount path that are not part of this push.',
+            type: 'boolean',
+            default: false,
+          },
           verbose: {
             type: 'boolean',
             default: false,
@@ -504,6 +509,12 @@ yargs(hideBin(process.argv))
             description: 'Ignore certain decorators.',
             array: true,
             type: 'string',
+          },
+          overlay: {
+            description: 'Overlay file to apply. Repeat to apply several, in order.',
+            array: true,
+            type: 'string',
+            requiresArg: true,
           },
           dereferenced: {
             alias: 'd',

@@ -10,6 +10,7 @@ import {
   type CliFlag,
   constantCase,
   groupSlug,
+  isBinaryContentType,
   type ModelPagination,
   type OperationModel,
   type ParamModel,
@@ -55,11 +56,7 @@ function isBlobOp(op: OperationModel): boolean {
   if (responses.some((response) => response.contentType.toLowerCase().includes('json'))) {
     return false;
   }
-  return responses.some(
-    (response) =>
-      response.contentType.startsWith('image/') ||
-      response.contentType === 'application/octet-stream'
-  );
+  return responses.some((response) => isBinaryContentType(response.contentType));
 }
 
 function jsonSuccessSchema(op: OperationModel): SchemaModel | undefined {

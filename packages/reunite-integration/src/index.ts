@@ -17,11 +17,9 @@ export {
 export type {
   DeploymentStatus,
   DeploymentStatusResponse,
-  ListRemotesResponse,
   ProjectSourceResponse,
   PushResponse,
   PushStatusResponse,
-  Remote,
   ScorecardItem,
   UpsertRemoteResponse,
 } from './api/types.js';
