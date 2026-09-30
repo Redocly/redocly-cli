@@ -1,0 +1,9 @@
+asyncapi: 3.0.0
+info: { title: Cafe kitchen, version: 1.0.0 }
+servers:
+  production: { host: kitchen.cafe.example, protocol: mqtt }
+  staging: { host: staging.cafe.example, protocol: mqtt }
+channels:
+  orderPlaced: { address: orders/placed }
+operations:
+  sendOrderReady: { action: send, channel: { $ref: '#/channels/orderPlaced' } }

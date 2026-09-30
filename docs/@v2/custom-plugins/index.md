@@ -21,6 +21,8 @@ Custom plugins can extend the built-in functionality of Redocly in the following
 
 - **Write your own custom rules in JavaScript**. If your API standards include elements that can't be expressed by our existing rules, including configurable ones, you can code your own rules. See the [documentation on writing your own rules in custom plugins](./custom-rules.md) for more information.
 
+- **Write your own diff rules in JavaScript**. If the `diff` command must find a breaking change that the built-in [diff rules](../rules/diff-rules.md) do not find, see [diff rules in plugins](./custom-diff-rules.md).
+
 - **Define configuration in a custom plugin**. Redocly supports [resuable ruleset configuration](../guides/configure-rules.md#create-reusable-configuration) already, but defining configuration in a custom plugin is particularly useful when the configuration belongs alongside other plugin elements. See the [documentation on configuration in plugins](./custom-config.md) for more information.
 
 - **Extend existing standard definitions with additional type definitions**. Working with extensions to defined standards can be helped by [extending the supported types](./extended-types.md).

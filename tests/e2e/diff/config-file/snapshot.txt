@@ -1,0 +1,26 @@
+info
+  · patch  modified  version
+      at revision.yaml:2:31
+
+GET /menu
+  ✔ minor  modified  parameters/{query:limit} · required
+      `limit` query parameter became required. (parameter-became-required)
+      at revision.yaml:8:47
+  · patch  modified  summary
+      at revision.yaml:6:16
+
+/orders/{orderId}
+  ✔ minor  removed
+      Path `/orders/{orderId}` was removed. (path-removed)
+      at base.yaml:12:5
+
+/specials
+  ✔ minor  added
+      at revision.yaml:12:5
+
+0 major, 3 minor, 2 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+✅ Diff passed.

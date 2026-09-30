@@ -1,0 +1,42 @@
+channel menuChanged
+  ✖ major  removed
+      Channel `menuChanged` was removed. (channel-removed)
+      at base.yaml:23:5
+
+channel orderPlaced
+  ✖ major  modified  address
+      Channel `orderPlaced` address changed from 'orders/placed' to 'orders/new'. (channel-address-changed)
+      at revision.yaml:7:14
+  ✖ major  modified  messages/orderPlaced · contentType
+      Message `orderPlaced` content type changed from 'application/json' to 'application/avro'. (message-content-type-changed)
+      at revision.yaml:10:22
+  ✖ major  modified  messages/orderPlaced/payload · required
+      Properties became required: `items`. (required-properties-added)
+      at revision.yaml:13:21
+
+channel orderReady
+  ✖ major  removed   messages/orderReady/payload/properties/orderId
+      Property `orderId` was removed. (property-removed)
+      at base.yaml:21:57
+
+operation sendMenuChanged
+  ✖ major  removed
+      Operation `sendMenuChanged` was removed. (operation-removed)
+      at base.yaml:35:5
+
+operation sendOrderReady
+  ✖ major  modified  action
+      Operation `sendOrderReady` action changed from 'send' to 'receive'. (operation-action-changed)
+      at revision.yaml:27:13
+
+server staging
+  ✖ major  removed
+      Server `staging` was removed. (server-removed)
+      at base.yaml:5:12
+
+8 major, 0 minor, 0 patch.
+
+
+base.yaml vs revision.yaml: diff processed in <test>ms
+
+❌ Diff failed with 8 major changes.

@@ -61,13 +61,14 @@ export { YamlParseError } from './errors/yaml-parse-error.js';
 export { parseYaml, stringifyYaml } from './js-yaml/index.js';
 export {
   unescapePointerFragment,
+  parsePointer,
   isRef,
   isMappingRef,
   isAbsoluteUrl,
   getDir,
   resolvePath,
   escapePointerFragment,
-  type Location,
+  Location,
 } from './ref-utils.js';
 export { detectSpec, getMajorSpecVersion } from './detect-spec.js';
 export { getTypes, type SpecVersion, type SpecMajorVersion } from './oas-types.js';
@@ -129,6 +130,19 @@ export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-doc
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
+export { diffDocuments } from './diff/index.js';
+export {
+  type Change,
+  type DiffNode,
+  type DiffResult,
+  type DiffSummary,
+  type Impact,
+  type JudgedChange,
+  type LocatedNode,
+} from './diff/types.js';
+export { impactRank, impacts } from './diff/impact.js';
+export { displaySide } from './diff/changes.js';
+export { typeOf } from './diff/diff-tree.js';
 export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';

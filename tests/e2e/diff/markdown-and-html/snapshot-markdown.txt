@@ -1,0 +1,11 @@
+## API diff: base.yaml → revision.yaml
+
+**2** major · **1** minor · **2** patch · requires a **major** bump
+
+| Impact | Change | Pointer | Location | Details |
+| --- | --- | --- | --- | --- |
+| ⚪ patch | modified | `#/info · version` | revision.yaml:2:31 |  |
+| ⚪ patch | modified | `#/paths/~1menu/get · summary` | revision.yaml:6:16 |  |
+| 🔴 major | modified | `#/paths/~1menu/get/parameters/{query:limit} · required` | revision.yaml:8:47 | \`limit\` query parameter became required. `parameter-became-required` |
+| 🔴 major | removed | `#/paths/~1orders~1{0}` | base.yaml:12:5 | Path \`/orders/{orderId}\` was removed. `path-removed` |
+| 🟢 minor | added | `#/paths/~1specials` | revision.yaml:12:5 |  |
