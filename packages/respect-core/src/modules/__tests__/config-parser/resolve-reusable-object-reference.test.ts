@@ -84,16 +84,16 @@ describe('resolveReusableObjectReference', () => {
     });
   });
 
-  it('should override the value if the value is provided', () => {
+  it.each(['12', false, 0, ''])('should override the value with %j', (value) => {
     expect(
-      resolveReusableObjectReference({ reference: '$components.parameters.test', value: '12' }, {
+      resolveReusableObjectReference({ reference: '$components.parameters.test', value }, {
         $components: { parameters: { test: { value: 'test', in: 'query', name: 'test' } } },
         options: {
           logger,
         },
       } as unknown as TestContext)
     ).toEqual({
-      value: '12',
+      value,
       in: 'query',
       name: 'test',
     });
