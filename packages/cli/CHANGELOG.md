@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 2.56.1
+
+### Patch Changes
+
+- Improved overall startup performance.
+- Updated @redocly/openapi-core to v2.56.1.
+
 ## 2.56.0
 
 ### Minor Changes
