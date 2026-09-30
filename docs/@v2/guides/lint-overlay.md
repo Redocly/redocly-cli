@@ -118,7 +118,7 @@ jobs:
 
 With this action in place, the intentional errors I added to the Overlay description are shown as annotations on the pull request:
 
-![Screenshot of annotation flagging "description" as an unexpected value](./images/museum-overlay-lint.png)
+![Screenshot of annotations flagging "summary" and "descript" as unexpected properties](./images/museum-overlay-lint.png)
 
 ## Participate in Redocly CLI
 
