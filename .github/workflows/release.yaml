@@ -15,11 +15,14 @@ concurrency:
 env:
   REDOCLY_TELEMETRY: 'off'
 
+# Every job stays on GitHub-hosted runners. release and release-snapshot publish through npm
+# trusted publishing (OIDC), which doesn't support self-hosted runners such as Blacksmith, and the
+# rest of this workflow runs too rarely for faster runners to matter.
 jobs:
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     permissions:
       id-token: write # Required for OIDC
       contents: write
@@ -65,7 +68,7 @@ jobs:
   dockerhub:
     needs: [release]
     if: needs.release.outputs.published == 'true'
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     permissions:
       packages: write
     steps:
@@ -125,7 +128,7 @@ jobs:
       - dockerhub
     name: Test released version
     continue-on-error: true
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -168,7 +171,7 @@ jobs:
       - post-release-smoke-checks
     if: needs.release.outputs.published == 'true'
     name: Send the Release Message to Slack
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -197,7 +200,7 @@ jobs:
   release-snapshot:
     if: github.event_name == 'pull_request' && github.event.label.name == 'snapshot'
     name: Release Snapshot
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
