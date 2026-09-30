@@ -356,10 +356,9 @@ const createConfigApisProperties = (nodeTypes: Record<string, NodeType>): NodeTy
   properties: {
     ...nodeTypes['rootRedoclyConfigSchema.apis_additionalProperties']?.properties,
     ...omit(ConfigGovernance.properties, ['plugins']), // plugins are not allowed in apis
-    // TODO: move `client`, `clientOutput`, and `overlays` into the Redocly config schema (@redocly/config).
+    // TODO: move `client` and `clientOutput` into the Redocly config schema (@redocly/config).
     client: 'Client',
     clientOutput: { type: 'string' },
-    overlays: { type: 'array', items: { type: 'string' } },
   },
 });
 

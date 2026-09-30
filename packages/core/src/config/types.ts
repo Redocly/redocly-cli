@@ -283,14 +283,11 @@ export type RawUniversalApiConfig = ApiConfig &
   RawGovernanceConfig &
   ClientGeneratorApiConfig & {
     plugins?: (string | Plugin)[];
-    overlays?: string[];
   };
 
 export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
-  ClientGeneratorApiConfig & {
-    overlays?: string[];
-  };
+  ClientGeneratorApiConfig;
 
 export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
