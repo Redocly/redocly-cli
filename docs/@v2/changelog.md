@@ -7,6 +7,13 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.56.1 (2026-09-30)
+
+### Patch Changes
+
+- Improved overall startup performance.
+- Updated @redocly/openapi-core to v2.56.1.
+
 ## 2.56.0 (2026-09-30)
 
 ### Minor Changes

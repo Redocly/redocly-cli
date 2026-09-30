@@ -1,5 +1,11 @@
 # @redocly/openapi-core
 
+## 2.56.1
+
+### Patch Changes
+
+- Improved overall startup performance.
+
 ## 2.56.0
 
 ### Minor Changes
