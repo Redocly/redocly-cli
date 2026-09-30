@@ -1,5 +1,18 @@
 # @redocly/cli
 
+## 2.57.0
+
+### Minor Changes
+
+- Added `const` checking to the `no-enum-type-mismatch` rule: a `const` value must conform to the schema's `type`, the same way every `enum` value does.
+
+  **Note**: linting output may include new errors for schemas whose `const` value doesn't match their `type`.
+
+### Patch Changes
+
+- Fixed an issue where `no-enum-type-mismatch` dropped violations and reported a wrong location when `type` was written as an array.
+- Updated @redocly/openapi-core to v2.57.0.
+
 ## 2.56.1
 
 ### Patch Changes
