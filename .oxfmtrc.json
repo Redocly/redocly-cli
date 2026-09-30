@@ -21,7 +21,8 @@
     "*.toml",
     "LICENSE.md",
     "CHANGELOG.md",
-    ".changeset/pre.json"
+    ".changeset/pre.json",
+    ".recheck/"
   ],
   "experimentalSortImports": {
     "groups": [
