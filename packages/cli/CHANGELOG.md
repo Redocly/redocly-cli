@@ -1,5 +1,24 @@
 # @redocly/cli
 
+## 2.56.0
+
+### Minor Changes
+
+- Added support for applying Overlay documents to the `bundle` command output.
+  Pass overlays with the new `--overlay` option or list them under `overlays` for an API in `redocly.yaml`.
+- Added support for linting Overlay 1.1 and 1.2 documents, including the `copy` action field, the `$self` field, and reusable actions in `components.actions`.
+  The `spec-ref-siblings` rule now checks the fields next to a reusable action `$ref` in Overlay documents.
+
+### Patch Changes
+
+- Fixed an issue where `respect` failed with an unexpected error when a step used an `operationId` without the `$sourceDescriptions.<name>.` prefix and the Arazzo file also listed an `arazzo` source description.
+  Such `operationId`s are looked up in the `openapi` source descriptions only.
+- Updated `undici` to the `6.29.0` version.
+- Updated @redocly/client-generator to v0.4.18.
+- Updated @redocly/openapi-core to v2.56.0.
+- Updated @redocly/respect-core to v2.56.0.
+- Updated @redocly/reunite-integration to v2.56.0.
+
 ## 2.55.0
 
 ### Minor Changes
