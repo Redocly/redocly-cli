@@ -6,7 +6,7 @@ When multiple `sourceDescriptions` exist, `workflow.x-security.schemeName` must 
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 With multiple source descriptions, using a plain `schemeName` is ambiguous. Requiring a reference of the form `$sourceDescriptions.{name}.{schemeName}` disambiguates which source description provides the security scheme.
 
@@ -96,4 +96,4 @@ workflows:
 
 ## Resources
 
-- Rule source: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/x-security-scheme-name-reference.ts
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/x-security-scheme-name-reference.ts)

@@ -26,8 +26,6 @@ Ensures that all `$ref` instances in your API descriptions are resolved.
 | ------- | ------------- |
 | 1.x     | ✅            |
 
-The default setting for this rule (in the `spec`, `recommended`, and `minimal` configuration) is `error`.
-
 ## API design principles
 
 The `$ref` (reference object) is useful for keeping your OpenAPI descriptions DRY (don't repeat yourself).
@@ -39,6 +37,8 @@ This rule prevents that from happening.
 | Option   | Type   | Description                                                                                |
 | -------- | ------ | ------------------------------------------------------------------------------------------ |
 | severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+
+The default setting for this rule (in the `spec`, `recommended`, and `minimal` configuration) is `error`.
 
 An example configuration:
 
@@ -107,4 +107,4 @@ components:
 ## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/v1/packages/core/src/rules/no-unresolved-refs.ts)
-- Read our guide on [how to use JSON references ($refs)](https://redocly.com/docs/resources/ref-guide)
+- [How to use JSON references ($refs)](https://redocly.com/docs/resources/ref-guide)

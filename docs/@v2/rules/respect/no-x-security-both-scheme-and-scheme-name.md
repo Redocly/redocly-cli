@@ -6,7 +6,7 @@ Forbids using both `scheme` and `schemeName` in the same `x-security` item.
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Rationale
+## API design principles
 
 Each `x-security` entry must reference a security scheme in exactly one way—either embed the `scheme` object or reference it via `schemeName`.
 You can include multiple `x-security` entries in a workflow; this rule applies to each entry individually. Using both `scheme` and `schemeName` in the same entry is ambiguous and is rejected by the runtime.
@@ -71,4 +71,4 @@ workflows:
 
 ## Resources
 
-- Rule source: https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/no-x-security-both-scheme-and-scheme-name.ts
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/respect/no-x-security-both-scheme-and-scheme-name.ts)

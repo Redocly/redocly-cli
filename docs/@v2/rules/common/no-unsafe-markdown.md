@@ -20,7 +20,7 @@ Disallows potentially executable content in `description` fields.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0    | ✅            |
+| 1.x    | ✅            |
 
 ## API design principles
 

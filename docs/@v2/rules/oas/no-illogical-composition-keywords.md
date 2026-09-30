@@ -6,18 +6,6 @@ slug: /docs/cli/rules/oas/no-illogical-composition-keywords
 
 Ensures that `oneOf`, `anyOf`, and `allOf` combine schemas that a value can actually resolve against.
 
-The rule reports:
-
-- A `oneOf` or `anyOf` with fewer than two schemas, unless the schema declares a `discriminator`.
-- `oneOf` or `anyOf` with fewer than two schemas, unless the schema declares a `discriminator`
-- `allOf` with fewer than two schemas that neither declares another keyword of its own nor extends a discriminated schema
-- schemas repeated inside the same keyword
-- empty schemas (`{}`) used as members
-- two `oneOf` schemas that a single value can match at the same time
-- schemas that accept null alongside a `oneOf` member that also accepts null
-- member schemas that omit the `discriminator` property from required
-- inline `oneOf` or `anyOf` members that a `discriminator` cannot select
-
 | OAS | Compatibility |
 | --- | ------------- |
 | 2.0 | ❌            |
@@ -66,6 +54,21 @@ A member that declares `$id` is exempt, because a `mapping` entry can name it by
 Wrapping one schema in `allOf` to attach sibling keywords, such as `description` or `readOnly` next to a `$ref`, stays common because support for `$ref` siblings is uneven across tools.
 Referencing a schema that declares a `discriminator` carries meaning of its own too: the discriminator resolves the subtype by its schema name, so the wrapper declares a subtype even when it adds no properties.
 The rule reports an `allOf` wrapper only when neither applies.
+
+The rule reports:
+
+- `oneOf` or `anyOf` with fewer than two schemas, unless the schema declares a `discriminator`
+- `allOf` with fewer than two schemas that neither declares another keyword of its own nor extends a discriminated schema
+- schemas repeated inside the same keyword
+- empty schemas (`{}`) used as members
+- two `oneOf` schemas that a single value can match at the same time
+- schemas that accept null alongside a `oneOf` member that also accepts null
+- member schemas that omit the `discriminator` property from required
+- inline `oneOf` or `anyOf` members that a `discriminator` cannot select
+
+On OAS 3.2, [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) flags a discriminator whose `propertyName` is optional but has no `defaultMapping` required by OAS 3.2.
+`no-illogical-composition-keywords` checks the same issue on OAS 3.0 and 3.1, where `defaultMapping` doesn't exist.
+Enable both rules to cover every OAS version.
 
 ## Configuration
 
@@ -213,9 +216,7 @@ components:
 
 - [no-schema-type-mismatch](../common/no-schema-type-mismatch.md)
 - [no-required-schema-properties-undefined](../common/no-required-schema-properties-undefined.md)
-- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md) — on OAS 3.2, flags a discriminator whose `propertyName` is optional but has no `defaultMapping` required by OAS 3.2.
-  `no-illogical-composition-keywords` checks the same issue on OAS 3.0 and 3.1, where `defaultMapping` doesn't exist.
-  Enable both rules to cover every OAS version.
+- [spec-discriminator-defaultMapping](./spec-discriminator-defaultMapping.md)
 
 ## Resources
 

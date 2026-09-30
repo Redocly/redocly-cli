@@ -6,7 +6,7 @@ Requires the `replacements` in the `step.requestBody` object to be unique.
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 The list of locations and values to set within a payload must not have duplicates that might result in content override.
 

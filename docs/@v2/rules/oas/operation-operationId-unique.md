@@ -13,7 +13,7 @@ Requires unique `operationId` values for each operation.
 | 3.1 | ✅            |
 | 3.2 | ✅            |
 
-## API design principle
+## API design principles
 
 The `operationId` is used by tooling to identify operations (which are otherwise done through scary looking JSON pointers).
 
@@ -80,4 +80,4 @@ paths:
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/operation-operationId-unique.ts)
 - [Operation object docs](https://redocly.com/docs/openapi-visual-reference/operation/)
-- Consider using [configurable rules](../configurable-rules.md) for more specific rules for `operationId`s such as length, casing, and pattern enforcement.
+- [Configurable rules for the length, casing, and pattern of `operationId` values](../configurable-rules.md)

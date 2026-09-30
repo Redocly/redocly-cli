@@ -6,7 +6,7 @@ The `name` property of the Source Description object must be unique across all s
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 To avoid confusion or unexpected outputs, each Source Description object must have a unique `name` property.
 Especially in a longer list of sources, this could be difficult to identify and could have unwanted side effects.

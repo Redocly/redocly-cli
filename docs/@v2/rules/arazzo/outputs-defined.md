@@ -6,7 +6,7 @@ The output value should be defined before usage.
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 In Arazzo, every `outputs` mapping—linking a friendly name to a dynamic output value—must be explicitly defined before it is referenced or used elsewhere in the description.
 

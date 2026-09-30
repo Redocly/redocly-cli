@@ -13,13 +13,6 @@ Ensures there are no identical paths in your API descriptions even when they hav
 | 3.1 | ✅            |
 | 3.2 | ✅            |
 
-According to the OpenAPI specification:
-
-> The following paths are considered identical and invalid:
->
->      /pets/{petId}
->      /pets/{name}
-
 ```mermaid
 flowchart TD
 
@@ -32,6 +25,13 @@ style Paths fill:#codaf9,stroke:#0044d4,stroke-width:5px
 Identical paths leads to uncertainty and doubt for both API producers and consumers.
 Ambiguity surrounds us.
 Minimize it in APIs to make them as easy as possible to use.
+
+According to the OpenAPI specification:
+
+> The following paths are considered identical and invalid:
+>
+>      /pets/{petId}
+>      /pets/{name}
 
 ## Configuration
 

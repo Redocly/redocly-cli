@@ -18,6 +18,12 @@ Requires that every scope used in a security requirement is defined in the corre
 | 2.6      | ✅            |
 | 3.0      | ✅            |
 
+## API design principles
+
+A scope that is used in a security requirement but not declared in the security scheme is almost always a typo or a leftover from a renamed scope.
+Clients generated or configured from such a description request permissions that don't exist, and fail at authorization time.
+This rule catches the mismatch early and suggests the closest declared scope.
+
 The rule checks security schemes of type `oauth2`, where the set of valid scopes is declared in the API description:
 
 - **OpenAPI 3.x and AsyncAPI 2.6**: scopes used in security requirements must be declared in the `scopes` of at least one of the scheme's `flows`.
@@ -27,12 +33,6 @@ The rule checks security schemes of type `oauth2`, where the set of valid scopes
 Other scheme types are skipped: `openIdConnect` scopes are defined behind the discovery URL and can't be checked statically.
 For the remaining types OpenAPI 3.1 and later allow arbitrary role names.
 Requirements that reference undefined security schemes are skipped as well — those are reported by the [security-defined](../oas/security-defined.md) rule.
-
-## API design principles
-
-A scope that is used in a security requirement but not declared in the security scheme is almost always a typo or a leftover from a renamed scope.
-Clients generated or configured from such a description request permissions that don't exist, and fail at authorization time.
-This rule catches the mismatch early and suggests the closest declared scope.
 
 ## Configuration
 

@@ -20,7 +20,7 @@ Requires all values in an `enum` to be unique.
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0    | ✅            |
+| 1.x    | ✅            |
 
 ## API design principles
 

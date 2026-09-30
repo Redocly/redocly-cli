@@ -13,6 +13,16 @@ Validates that tag parent references are properly defined and don't create circu
 | 3.1 | ❌            |
 | 3.2 | ✅            |
 
+## API design principles
+
+OpenAPI 3.2 introduced the ability to organize tags in a hierarchical structure using the `parent` field.
+This rule ensures that:
+
+1. **Parent tags exist**: Any tag referenced as a parent must be defined in the `tags` array.
+2. **No circular references**: Tag parent relationships must not create circular dependencies.
+
+Proper tag hierarchy helps organize your API documentation and makes it easier for users to navigate related endpoints.
+
 ```yaml Object structure
 tags:
   - name: string
@@ -30,19 +40,11 @@ tags:
     description: Books category
 ```
 
-The default setting for this rule (in the built-in `recommended` configuration) is `error`.
-
-## API design principles
-
-OpenAPI 3.2 introduced the ability to organize tags in a hierarchical structure using the `parent` field.
-This rule ensures that:
-
-1. **Parent tags exist**: Any tag referenced as a parent must be defined in the `tags` array.
-2. **No circular references**: Tag parent relationships must not create circular dependencies.
-
-Proper tag hierarchy helps organize your API documentation and makes it easier for users to navigate related endpoints.
-
 ## Configuration
+
+| Option   | Type   | Description                                                                                |
+| -------- | ------ | ------------------------------------------------------------------------------------------ |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
 
 To configure the rule, add it to the `rules` object in your configuration file.
 Set the desired [severity](../../rules.md#severity-settings) for the rule.
@@ -52,9 +54,7 @@ rules:
   spec-no-invalid-tag-parents: error
 ```
 
-| Option   | Type   | Description                                                                                |
-| -------- | ------ | ------------------------------------------------------------------------------------------ |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `error` (in `recommended` configuration). |
+The default setting for this rule (in the built-in `recommended` configuration) is `error`.
 
 An example configuration:
 

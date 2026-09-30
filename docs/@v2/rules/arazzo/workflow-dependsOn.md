@@ -6,7 +6,7 @@ Requires the items in the `workflow` `dependsOn` property to exist and to be uni
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 To avoid ambiguity or potential clashes, the `dependsOn` list values should be unique.
 

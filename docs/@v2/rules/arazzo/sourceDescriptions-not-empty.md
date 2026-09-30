@@ -6,7 +6,7 @@ The Source Description must have at least one entry.
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 Source descriptions are an important part of an Arazzo description, and at least one entry must exist.
 If the list is empty, this could indicate an omission or another problem; this rule alerts you if that happens.

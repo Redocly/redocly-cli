@@ -4,10 +4,7 @@ slug: /docs/cli/rules/common/no-schema-type-mismatch
 
 # no-schema-type-mismatch
 
-Ensures that a schema's structural properties match its declared `type`. In particular:
-
-- A schema of type `object` **must not** include an `items` field.
-- A schema of type `array` **must not** include a `properties` field.
+Ensures that a schema's structural properties match its declared `type`.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -23,7 +20,7 @@ Ensures that a schema's structural properties match its declared `type`. In part
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0    | ✅            |
+| 1.x    | ✅            |
 
 ```mermaid
 flowchart TD
@@ -39,6 +36,11 @@ When designing an API schema, the defined `type` should be consistent with its s
 - **Arrays** are ordered lists of items and must use `items` to define their content. Including `properties` is invalid.
 
 This rule helps catch typos and misconfigurations early in your API definition.
+
+In particular:
+
+- A schema of type `object` **must not** include an `items` field.
+- A schema of type `array` **must not** include a `properties` field.
 
 ## Configuration
 
