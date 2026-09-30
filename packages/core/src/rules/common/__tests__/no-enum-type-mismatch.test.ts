@@ -213,6 +213,48 @@ describe('Oas3 typed enum', () => {
     `);
   });
 
+  it('should report every repeated mismatched value at its own position', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          paths:
+            /some:
+              get:
+                responses:
+                  '200':
+                    content:
+                      application/json:
+                        schema:
+                          type: string
+                          enum:
+                            - 1
+                            - 1
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(
+      replaceSourceWithRef(results).map((problem) => [problem.message, problem.location[0].pointer])
+    ).toMatchInlineSnapshot(`
+      [
+        [
+          "All values of \`enum\` field must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/0",
+        ],
+        [
+          "All values of \`enum\` field must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "#/paths/~1some/get/responses/200/content/application~1json/schema/enum/1",
+        ],
+      ]
+    `);
+  });
+
   it('should point at the offending value when it is not a string', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -538,5 +580,51 @@ describe('Oas3.1 typed const', () => {
     });
 
     expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  });
+
+  it('should not crash on boolean schemas', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        info:
+          title: Test API
+          version: '1.0.0'
+        components:
+          schemas:
+            Anything: true
+            Nothing: false
+            Composed:
+              allOf:
+                - true
+                - type: string
+                  const: 1
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/components/schemas/Composed/allOf/1/const",
+              "reportOnKey": false,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "The \`const\` value must be of the same type as the \`type\` field: expected "string" but received "integer".",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-enum-type-mismatch",
+          "ruleId": "no-enum-type-mismatch",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 });
