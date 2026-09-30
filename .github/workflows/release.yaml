@@ -19,7 +19,7 @@ jobs:
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Release
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       id-token: write # Required for OIDC
       contents: write
@@ -65,7 +65,7 @@ jobs:
   dockerhub:
     needs: [release]
     if: needs.release.outputs.published == 'true'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       packages: write
     steps:
@@ -125,7 +125,7 @@ jobs:
       - dockerhub
     name: Test released version
     continue-on-error: true
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -168,7 +168,7 @@ jobs:
       - post-release-smoke-checks
     if: needs.release.outputs.published == 'true'
     name: Send the Release Message to Slack
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Checkout Repo
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -197,7 +197,7 @@ jobs:
   release-snapshot:
     if: github.event_name == 'pull_request' && github.event.label.name == 'snapshot'
     name: Release Snapshot
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     permissions:
       contents: write
       pull-requests: write
