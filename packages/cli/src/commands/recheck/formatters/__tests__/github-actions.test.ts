@@ -1,8 +1,8 @@
 import type { Problem } from '@redocly/recheck';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { outputGitHubActionsFormat } from '../../formatters/github-actions.js';
-import { captureLogger } from '../capture-logger.js';
+import { captureLogger } from '../../__tests__/capture-logger.js';
+import { outputGitHubActionsFormat } from '../github-actions.js';
 
 afterEach(() => vi.restoreAllMocks());
 

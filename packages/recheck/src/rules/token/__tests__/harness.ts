@@ -41,12 +41,16 @@ export const tokenRuleHarness = (
 };
 
 /**
- * `no-trailing-spaces` and `no-hard-tabs` are also ids of legacy scope rules
- * in registry.ts's `scopeRules`, and `resolveAssertion` is scope-first — so a
- * `tokenRuleHarness` test would silently exercise the legacy rule instead of
- * the token rule under test. This harness calls `TokenRule.check()` directly,
- * bypassing the resolver, while still formatting messages through
- * `formatTokenMessage` so `.message` assertions match the real pipeline.
+ * Escape hatch for a token rule whose id collides with a still-registered
+ * legacy scope rule: `resolveAssertion` is scope-first, so a `tokenRuleHarness`
+ * test would silently exercise the scope rule instead of the token rule under
+ * test. This harness calls `TokenRule.check()` directly, bypassing the
+ * resolver, while still formatting messages through `formatTokenMessage` so
+ * `.message` assertions match the real pipeline.
+ *
+ * No rule needs it today: `no-trailing-spaces` and `no-hard-tabs` used to
+ * collide with legacy scope rules, but those were removed, so both are tested
+ * through `tokenRuleHarness`.
  */
 export function tokenRuleUnitHarness(rule: TokenRule, options: Record<string, unknown> = {}) {
   const build = (md: string) => {

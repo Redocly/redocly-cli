@@ -31,12 +31,31 @@ describe('formatTemplate', () => {
 describe('formatTokenMessage', () => {
   it('prefers config message and substitutes context', () => {
     expect(
-      formatTokenMessage('Bad: %s', rule({ message: 'Default.' }), { line: 1, context: 'foo' })
+      formatTokenMessage('Bad: %s', rule({ message: 'Default.' }), {
+        line: 1,
+        context: 'foo',
+      })
     ).toBe('Bad: foo');
+  });
+  it('does not append a detail the message already contains', () => {
+    expect(
+      formatTokenMessage('Too long (max 80)', rule({ message: 'Default.' }), {
+        line: 1,
+        detail: 'max 80',
+      })
+    ).toBe('Too long (max 80)');
+  });
+  it('uses the message verbatim when there is no context or detail', () => {
+    expect(formatTokenMessage('Bad: %s', rule({ message: 'Default.' }), { line: 1 })).toBe(
+      'Bad: %s'
+    );
   });
   it('falls back to rule default message and appends detail', () => {
     expect(
-      formatTokenMessage(undefined, rule({ message: 'Default.' }), { line: 1, detail: 'why' })
+      formatTokenMessage(undefined, rule({ message: 'Default.' }), {
+        line: 1,
+        detail: 'why',
+      })
     ).toBe('Default. (why)');
   });
 });

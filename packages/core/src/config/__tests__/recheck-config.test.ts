@@ -99,9 +99,13 @@ describe('recheck presets in extends', () => {
 });
 
 describe('recheck block merge', () => {
-  it('carries the user block through', async () => {
+  it('carries the user block through and keeps its rules out of the lint rules', async () => {
     const config = await createConfig(withPreset);
     expect(config.recheck).toEqual({ rules: { 'recheck/line-length': 'off' } });
+    expect(config.resolvedConfig.rules).not.toHaveProperty('recheck/line-length');
+    for (const rules of Object.values(config.rules)) {
+      expect(rules).not.toHaveProperty('recheck/line-length');
+    }
   });
 
   it('merges a shared block by rule key and assigns settings', async () => {

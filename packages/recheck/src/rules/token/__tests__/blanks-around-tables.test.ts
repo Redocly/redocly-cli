@@ -16,6 +16,7 @@ describe('blanks-around-tables (MD058)', () => {
     const problems = await h.lint(md);
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(2);
+    expect(problems[0].column).toBe(1);
   });
 
   it('flags a table with no blank line below', async () => {

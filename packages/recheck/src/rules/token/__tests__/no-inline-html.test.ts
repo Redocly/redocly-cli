@@ -4,25 +4,23 @@ import { tokenRuleHarness } from './harness.js';
 
 describe('no-inline-html (MD033)', () => {
   const h = tokenRuleHarness('no-inline-html');
-  const hAllowed = tokenRuleHarness('no-inline-html', { allowedElements: ['br'] });
-  const hTableAllowed = tokenRuleHarness('no-inline-html', { tableAllowedElements: ['br'] });
+  const hAllowed = tokenRuleHarness('no-inline-html', {
+    allowedElements: ['br'],
+  });
+  const hTableAllowed = tokenRuleHarness('no-inline-html', {
+    tableAllowedElements: ['br'],
+  });
 
   it('passes pure Markdown with no inline HTML', async () => {
     expect(await h.lint('# Heading\n\nSome *text*.\n')).toEqual([]);
   });
 
-  it('flags an inline HTML element, exact line/column', async () => {
+  it('flags an inline HTML element once, exact line/column (the closing tag is not reported)', async () => {
     const problems = await h.lint('Some <span>text</span> here.\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
     expect(problems[0].column).toBe(6);
     expect(problems[0].message).toContain('Element: span');
-  });
-
-  it('does not flag a closing tag (only unclosed opening tags are reported)', async () => {
-    // Only the opening <span> is flagged, not </span>
-    const problems = await h.lint('Some <span>text</span> here.\n');
-    expect(problems).toHaveLength(1);
   });
 
   it('honors allowedElements: does not flag an allowed element anywhere', async () => {

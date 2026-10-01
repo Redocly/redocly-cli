@@ -43,8 +43,45 @@ describe('required-headings (MD043)', () => {
     expect(await h.lint('# Heading\n\n## Item\n\n## Foot\n')).toEqual([]);
   });
 
+  it('flags a required heading missing from the end of the document, at the last line', async () => {
+    const h = tokenRuleHarness('required-headings', {
+      headings: ['# A', '## B'],
+    });
+    const problems = await h.lint('# A\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(2);
+    expect(problems[0].match).toBe('## B');
+  });
+
+  it('reports the first missing required heading when several are missing', async () => {
+    const h = tokenRuleHarness('required-headings', { headings: ['# A', '## B', '## C'] });
+    const problems = await h.lint('# A\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].match).toBe('## B');
+  });
+
+  it('"+" requires at least one heading, so a "+" with nothing to absorb reports the next required heading missing', async () => {
+    const h = tokenRuleHarness('required-headings', {
+      headings: ['# A', '+', '## Z'],
+    });
+    expect(await h.lint('# A\n\n## x\n\n## y\n\n## Z\n')).toEqual([]);
+    const problems = await h.lint('# A\n\n## Z\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].match).toBe('## Z');
+  });
+
+  it('an explicit empty headings list means "no headings allowed"', async () => {
+    const h = tokenRuleHarness('required-headings', { headings: [] });
+    const problems = await h.lint('# A\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(1);
+    expect(problems[0].message).toContain('Expected: [None]; Actual: # A');
+  });
+
   it('matches case-insensitively by default and honors matchCase', async () => {
-    const insensitive = tokenRuleHarness('required-headings', { headings: ['# heading'] });
+    const insensitive = tokenRuleHarness('required-headings', {
+      headings: ['# heading'],
+    });
     expect(await insensitive.lint('# HEADING\n')).toEqual([]);
 
     const strict = tokenRuleHarness('required-headings', {

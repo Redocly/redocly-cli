@@ -4,6 +4,8 @@ import { parseMarkdown, filterByTypes } from '../../../parser/index.js';
 import {
   addRangeToSet,
   clearHtmlCommentText,
+  ellipsify,
+  escapeForRegExp,
   filterByPredicate,
   frontMatterHasTitle,
   getBlockQuotePrefixText,
@@ -11,7 +13,9 @@ import {
   getHeadingLevel,
   getHeadingText,
   getParentOfType,
+  hasOverlap,
   isBlankLine,
+  toWellFormedString,
 } from '../helpers.js';
 
 describe('filterByPredicate', () => {
@@ -321,5 +325,60 @@ describe('frontMatterHasTitle', () => {
     // block split on line endings, fences included, so `^---$` finds a title.
     const tree = parseMarkdown('---\nauthor: A\n---\n\nBody\n');
     expect(frontMatterHasTitle(tree, '^---$')).toBe(true);
+  });
+});
+
+describe('hasOverlap', () => {
+  const range = (startLine: number, startColumn: number, endLine: number, endColumn: number) => ({
+    startLine,
+    startColumn,
+    endLine,
+    endColumn,
+  });
+
+  it('is true for ranges that share a position, in either argument order', () => {
+    expect(hasOverlap(range(1, 1, 1, 5), range(1, 5, 1, 9))).toBe(true);
+    expect(hasOverlap(range(1, 5, 1, 9), range(1, 1, 1, 5))).toBe(true);
+  });
+
+  it('is false for disjoint ranges, in either argument order', () => {
+    expect(hasOverlap(range(1, 1, 1, 4), range(1, 5, 1, 9))).toBe(false);
+    expect(hasOverlap(range(1, 5, 1, 9), range(1, 1, 1, 4))).toBe(false);
+  });
+
+  it('compares lines before columns for ranges on different lines', () => {
+    expect(hasOverlap(range(1, 9, 3, 2), range(2, 1, 2, 3))).toBe(true);
+    expect(hasOverlap(range(1, 9, 1, 12), range(2, 1, 2, 3))).toBe(false);
+  });
+});
+
+describe('ellipsify', () => {
+  const long = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+  it('leaves text of 30 characters or fewer untouched and truncates from 31', () => {
+    expect(ellipsify('a'.repeat(30), true, true)).toBe('a'.repeat(30));
+    expect(ellipsify('a'.repeat(31))).toBe('a'.repeat(30) + '...');
+  });
+
+  it('keeps the start by default, the end when only `end` is set, and both ends when both are set', () => {
+    expect(ellipsify(long)).toBe('abcdefghijklmnopqrstuvwxyz0123...');
+    expect(ellipsify(long, false, true)).toBe('...' + 'ghijklmnopqrstuvwxyz0123456789');
+    expect(ellipsify(long, true, true)).toBe('abcdefghijklmno...vwxyz0123456789');
+  });
+});
+
+describe('escapeForRegExp', () => {
+  it('escapes every regex metacharacter so the result matches the input literally', () => {
+    const input = 'a.b*c+d?e^f$g{h}i(j)k|l[m]n\\o-p/q';
+    expect(new RegExp(`^${escapeForRegExp(input)}$`).test(input)).toBe(true);
+    expect(new RegExp(escapeForRegExp('a.c')).test('abc')).toBe(false);
+  });
+});
+
+describe('toWellFormedString', () => {
+  it('replaces lone surrogates with U+FFFD and keeps valid surrogate pairs', () => {
+    expect(toWellFormedString('a\uD800b')).toBe('a\uFFFDb');
+    expect(toWellFormedString('a\uDC00b')).toBe('a\uFFFDb');
+    expect(toWellFormedString('a\u{1F600}b')).toBe('a\u{1F600}b');
   });
 });

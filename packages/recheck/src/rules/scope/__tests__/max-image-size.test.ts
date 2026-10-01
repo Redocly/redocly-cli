@@ -160,6 +160,51 @@ describe('max-image-size', () => {
     });
   });
 
+  describe('defaults and limit boundary', () => {
+    it('flags an image only when it is strictly larger than the limit', async () => {
+      const content = '![At limit](./at.png)\n\n![Over limit](./over.png)\n';
+      const fileMetadata = createFileMetadata({
+        './at.png': { size: 100 * 1024, exists: true },
+        './over.png': { size: 100 * 1024 + 1, exists: true },
+      });
+
+      const problems = await maxImageSize.execute(
+        createRule(100),
+        'test.md',
+        buildContext(content, fileMetadata)
+      );
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0].message).toContain('./over.png');
+    });
+
+    it('without `extensions`, checks the default image types case-insensitively and ignores others', async () => {
+      const content = [
+        '![Upper](./shout.PNG)',
+        '',
+        '![Pdf](./manual.pdf)',
+        '',
+        '![None](./no-extension)',
+        '',
+      ].join('\n');
+      const big = { size: 150 * 1024, exists: true };
+      const fileMetadata = createFileMetadata({
+        './shout.PNG': big,
+        './manual.pdf': big,
+        './no-extension': big,
+      });
+
+      const problems = await maxImageSize.execute(
+        createRule(100),
+        'test.md',
+        buildContext(content, fileMetadata)
+      );
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0].message).toContain('./shout.PNG');
+    });
+  });
+
   describe('image reference extraction', () => {
     it('should handle images with titles', async () => {
       const content = `# Test Document

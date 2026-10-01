@@ -31,6 +31,13 @@ describe('single-h1 (MD025)', () => {
     expect(problems[0].line).toBe(5);
   });
 
+  it('frontMatterTitle: "" disables the front matter title, so the first body h1 is the title again', async () => {
+    const off = tokenRuleHarness('single-h1', { frontMatterTitle: '' });
+    const problems = await off.lint('---\ntitle: T\n---\n\n# A\n\n# B\n');
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(7);
+  });
+
   it('treats a QUOTED frontmatter title key as the top-level heading (upstream default regex)', async () => {
     const problems = await h.lint('---\n"title": My Doc\n---\n\n# Another H1\n');
     expect(problems).toHaveLength(1);

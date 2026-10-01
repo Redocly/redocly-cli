@@ -2,69 +2,85 @@ import type { Problem } from '@redocly/recheck';
 import { stripVTControlCharacters } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { generateReport } from '../../formatters/index.js';
-import { outputTableFormat } from '../../formatters/table.js';
-import { captureLogger } from '../capture-logger.js';
+import { captureLogger } from '../../__tests__/capture-logger.js';
+import { generateReport } from '../index.js';
+
+const ERROR: Problem = {
+  file: 'docs/index.md',
+  line: 5,
+  column: 1,
+  text: '',
+  match: '',
+  ruleName: 'recheck/line-length',
+  severity: 'error',
+  message: 'Line too long.',
+};
+
+const WARNING: Problem = {
+  ...ERROR,
+  line: 1,
+  ruleName: 'recheck/no-todos',
+  severity: 'warn',
+  message: 'TODO found.',
+};
+
+const INFO: Problem = {
+  ...ERROR,
+  line: 2,
+  ruleName: 'technical-english/passive-voice',
+  severity: 'info',
+  message: 'Prefer the active voice.',
+};
 
 function problem(overrides: Partial<Problem> = {}): Problem {
-  return {
-    file: 'docs/index.md',
-    line: 1,
-    column: 1,
-    text: '',
-    match: '',
-    ruleName: 'recheck/line-length',
-    severity: 'error',
-    message: 'Line too long.',
-    ...overrides,
-  };
+  return { ...ERROR, line: 1, ...overrides };
 }
 
 afterEach(() => vi.restoreAllMocks());
 
-describe('outputTableFormat', () => {
-  it('marks a fixable finding with [fixable] and counts the fixable findings', () => {
+describe('generateReport', () => {
+  it('prints the annotations count without the limit when no problem is prepared', () => {
     const { stderr, stdout } = captureLogger();
 
-    outputTableFormat([problem({ fixable: true }), problem({ line: 2 })], 1, false);
+    generateReport([], 0, { format: 'sarif', maxProblems: 5 });
 
-    const printed = stripVTControlCharacters(stdout.join(''));
-    expect(printed).toContain('docs/index.md:1:1');
-    expect(printed).toContain('Line too long. [fixable]\n');
-    expect(printed).toContain('\n   1 of 2 fixable with --fix\n');
-    expect(printed).toContain('\n   2 error(s)\n');
-    expect(stderr).toEqual([]);
+    expect(JSON.parse(stdout.join('')).runs[0].results).toEqual([]);
+    expect(stderr).toEqual(['\n   Annotations prepared: 0\n']);
   });
 
-  it('prints the rule breakdown, largest first, when stats are on', () => {
-    const { stdout } = captureLogger();
+  it('prints GitHub Actions annotations on stdout with errors first', () => {
+    const { stderr, stdout } = captureLogger();
 
-    outputTableFormat(
-      [
-        problem({ severity: 'warn', ruleName: 'recheck/no-todos' }),
-        problem(),
-        problem({ line: 2, severity: 'info' }),
-      ],
-      2,
-      true
-    );
+    generateReport([INFO, WARNING, { ...ERROR, message: 'a::b\nc' }], 1, {
+      format: 'github-actions',
+      maxProblems: 10,
+    });
 
-    const printed = stripVTControlCharacters(stdout.join(''));
-    expect(printed).toContain('\n📊 Summary Statistics:\n');
-    expect(printed).toContain('   2 markdown file(s) scanned\n   3 total issue(s) detected\n');
-    expect(printed).toContain(
-      '\n   Breakdown by rule:\n   line-length: 2 (1 error, 1 info)\n   no-todos: 1 (1 warning)\n'
-    );
+    expect(stdout).toEqual([
+      '::error title=recheck/line-length,file=docs/index.md,line=5,endLine=5,col=1,endColumn=2::a::b%0Ac\n',
+      '::warning title=recheck/no-todos,file=docs/index.md,line=1,endLine=1,col=1,endColumn=2::TODO found.\n',
+      '::notice title=technical-english/passive-voice,file=docs/index.md,line=2,endLine=2,col=1,endColumn=2::Prefer the active voice.\n',
+    ]);
+    expect(stderr).toEqual(['\n   Annotations prepared: 3 (limit 10)\n']);
   });
 
-  it('prints the scanned file count of a clean run when stats are on', () => {
+  it('prints the JSON report with the baseline counts on stdout', () => {
     const { stdout } = captureLogger();
+    const baseline = { matched: 1, new: 1, stale: 0 };
 
-    outputTableFormat([], 4, true);
+    generateReport([ERROR], 3, { format: 'json', baseline });
 
-    expect(stripVTControlCharacters(stdout.join(''))).toBe(
-      '\n🎉 No issues found!\n\n📊 Summary: 4 file(s) scanned, 0 issues found.\n'
-    );
+    expect(stdout).toHaveLength(1);
+    expect(stdout[0].endsWith('}\n')).toBe(true);
+    expect(JSON.parse(stdout[0])).toEqual({
+      summary: {
+        filesScanned: 3,
+        totalIssues: 1,
+        baseline,
+        breakdown: { 'recheck/line-length': { errors: 1, warnings: 0, info: 0, total: 1 } },
+      },
+      issues: [ERROR],
+    });
   });
 });
 

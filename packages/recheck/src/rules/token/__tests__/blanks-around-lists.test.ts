@@ -13,6 +13,7 @@ describe('blanks-around-lists (MD032)', () => {
     const problems = await h.lint('Some text\n* List item\n* List item\n\nMore\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(2);
+    expect(problems[0].column).toBe(1);
   });
 
   it('flags a list with no blank line below', async () => {

@@ -1,7 +1,50 @@
+import * as fs from 'fs/promises';
+import * as os from 'os';
 import * as path from 'path';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { rootForFile } from '../roots.js';
+import { discoverFilesForRoots, rootForFile, toRoots } from '../roots.js';
+
+describe('toRoots', () => {
+  it('wraps a single path in an array', () => {
+    expect(toRoots('docs')).toEqual(['docs']);
+  });
+
+  it('keeps several paths in order', () => {
+    expect(toRoots(['guides', 'reference'])).toEqual(['guides', 'reference']);
+  });
+
+  it('falls back to the current directory when no path is given', () => {
+    expect(toRoots([])).toEqual(['.']);
+  });
+});
+
+describe('discoverFilesForRoots', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-roots-test-'));
+  });
+
+  afterEach(async () => {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  });
+
+  it('lists a file once when roots repeat or overlap, in first-seen root order', async () => {
+    const guides = path.join(tempDir, 'guides');
+    await fs.mkdir(guides);
+    const guide = path.join(guides, 'guide.md');
+    const top = path.join(tempDir, 'top.md');
+    await fs.writeFile(guide, '# Guide\n');
+    await fs.writeFile(top, '# Top\n');
+
+    // `guides` is walked first, then the parent (which re-finds guide.md),
+    // then guide.md itself as a file root.
+    const files = await discoverFilesForRoots([guides, tempDir, guide]);
+
+    expect(files).toEqual([guide, top]);
+  });
+});
 
 describe('rootForFile', () => {
   const cwd = process.cwd();

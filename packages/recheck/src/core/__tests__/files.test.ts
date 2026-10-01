@@ -3,7 +3,126 @@ import * as os from 'os';
 import * as path from 'path';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 
-import { loadImageMetadata, MAX_IMAGE_REFS_PER_FILE } from '../files.js';
+import {
+  discoverMarkdownFiles,
+  loadChangedFiles,
+  loadImageMetadata,
+  mapLimit,
+  MAX_IMAGE_REFS_PER_FILE,
+} from '../files.js';
+
+describe('discoverMarkdownFiles', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-discover-'));
+  });
+
+  afterEach(async () => {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  });
+
+  async function touch(...segments: string[]): Promise<string> {
+    const filePath = path.join(tempDir, ...segments);
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, '# Doc\n');
+    return filePath;
+  }
+
+  it('finds .md and .markdown files recursively, matching the extension case-insensitively', async () => {
+    const found = [
+      await touch('a.md'),
+      await touch('nested', 'b.markdown'),
+      await touch('nested', 'deeper', 'C.MD'),
+    ];
+    await touch('notes.txt');
+    await touch('md'); // a bare name is not an extension
+
+    expect((await discoverMarkdownFiles(tempDir)).sort()).toEqual(found.sort());
+  });
+
+  it('skips dot directories and node_modules, dist, and build', async () => {
+    const kept = await touch('docs', 'kept.md');
+    await touch('.hidden', 'a.md');
+    await touch('node_modules', 'pkg', 'README.md');
+    await touch('dist', 'a.md');
+    await touch('build', 'a.md');
+
+    expect(await discoverMarkdownFiles(tempDir)).toEqual([kept]);
+  });
+
+  it('returns a file path as is, whatever its extension', async () => {
+    const textFile = await touch('notes.txt');
+
+    expect(await discoverMarkdownFiles(textFile)).toEqual([textFile]);
+  });
+
+  it('rejects a path that does not exist', async () => {
+    await expect(discoverMarkdownFiles(path.join(tempDir, 'missing'))).rejects.toThrow(/ENOENT/);
+  });
+});
+
+describe('loadChangedFiles', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-changed-'));
+  });
+
+  afterEach(async () => {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  });
+
+  it('reads one path per line, trimming whitespace and dropping blank lines, with LF or CRLF', async () => {
+    const listPath = path.join(tempDir, 'changed.txt');
+    await fs.writeFile(listPath, '  docs/a.md  \r\n\r\n\tdocs/b.md\n\n');
+
+    expect(await loadChangedFiles(listPath)).toEqual(['docs/a.md', 'docs/b.md']);
+  });
+
+  it('treats an unreadable list path as an empty list rather than throwing', async () => {
+    expect(await loadChangedFiles(path.join(tempDir, 'missing.txt'))).toEqual([]);
+  });
+});
+
+describe('mapLimit', () => {
+  it('preserves result order regardless of completion order', async () => {
+    const items = [30, 10, 20, 5, 15];
+    const results = await mapLimit(items, 2, async (ms) => {
+      await new Promise((resolve) => setTimeout(resolve, ms));
+      return ms;
+    });
+    expect(results).toEqual(items);
+  });
+
+  it('never runs more than `limit` callbacks concurrently', async () => {
+    const items = Array.from({ length: 10 }, (_, i) => i);
+    let inFlight = 0;
+    let maxInFlight = 0;
+
+    await mapLimit(items, 3, async (i) => {
+      inFlight++;
+      maxInFlight = Math.max(maxInFlight, inFlight);
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      inFlight--;
+      return i;
+    });
+
+    expect(maxInFlight).toBeLessThanOrEqual(3);
+    expect(maxInFlight).toBeGreaterThan(1); // sanity: concurrency actually happened
+  });
+
+  it('passes through results and the original index', async () => {
+    const items = ['a', 'b', 'c'];
+    const results = await mapLimit(items, 16, async (item, index) => `${item}-${index}`);
+    expect(results).toEqual(['a-0', 'b-1', 'c-2']);
+  });
+
+  it('handles an empty array', async () => {
+    const results = await mapLimit([], 16, async (item) => item);
+    expect(results).toEqual([]);
+  });
+});
 
 describe('loadImageMetadata — root confinement', () => {
   let tempDir: string; // holds root/ plus files deliberately OUTSIDE root
@@ -118,11 +237,12 @@ describe('loadImageMetadata — symlink-aware root confinement', () => {
     'records an in-root symlink that resolves OUTSIDE the root as exists:false without leaking the target',
     async () => {
       // The link itself sits INSIDE the root, so the lexical check passes;
-      // its target (/etc/hosts — present and readable on the POSIX
-      // platforms this test runs on) is outside. Before the physical
-      // check, fs.stat followed the link and leaked the real target's
-      // existence and size into lint output.
-      await fs.symlink('/etc/hosts', path.join(root, 'docs', 'evil.png'));
+      // its target (a real file beside the root, not a system file that
+      // may be absent) is outside. Before the physical check, fs.stat
+      // followed the link and leaked the real target's existence and size
+      // into lint output.
+      await fs.writeFile(path.join(tempDir, 'outside.png'), Buffer.alloc(4096, 0));
+      await fs.symlink(path.join(tempDir, 'outside.png'), path.join(root, 'docs', 'evil.png'));
 
       const doc = path.join(root, 'docs', 'doc.md');
       const metadata = await loadImageMetadata(doc, '![evil](./evil.png)\n', root);

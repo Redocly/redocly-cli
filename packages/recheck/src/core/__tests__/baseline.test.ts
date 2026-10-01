@@ -62,6 +62,23 @@ describe('parseBaseline', () => {
       /positive integer/
     );
   });
+
+  it('rejects a fractional count and a malformed files or entry mapping', () => {
+    expect(() => parseBaseline('version: 1\nfiles:\n  a.md:\n    r: 1.5\n', 'x')).toThrow(
+      /positive integer/
+    );
+    expect(() => parseBaseline('version: 1\nfiles: [a.md]\n', 'x')).toThrow(
+      /"files" must be a mapping/
+    );
+    expect(() => parseBaseline('version: 1\nfiles:\n  a.md: 3\n', 'x')).toThrow(
+      /entry "a.md" must map rules to counts/
+    );
+  });
+
+  it('reads a baseline with no files as empty', () => {
+    expect(parseBaseline('version: 1\n', 'x')).toEqual({ version: 1, files: {} });
+    expect(parseBaseline('version: 1\nfiles:\n', 'x')).toEqual({ version: 1, files: {} });
+  });
 });
 
 describe('buildBaseline', () => {
@@ -128,15 +145,6 @@ describe('compareToBaseline', () => {
     );
   });
 
-  it('a deleted file is the same stale case when it was in the scan scope', () => {
-    const result = compareToBaseline(
-      [],
-      { version: 1, files: { 'gone.md': { r: 1 } } },
-      options(['gone.md'], ['r'])
-    );
-    expect(result.staleEntries).toBe(1);
-  });
-
   it('staleness is scoped to scanned files', () => {
     const result = compareToBaseline(
       [],
@@ -180,6 +188,24 @@ describe('deleted files under a scan root', () => {
       { scannedFiles: [], executedRules: new Set(['r']), toKey: identity }
     );
     expect(result.staleEntries).toBe(0);
+  });
+
+  it('a sibling directory sharing the root name as a prefix stays out of scope', () => {
+    const result = compareToBaseline(
+      [],
+      { version: 1, files: { 'docs-old/gone.md': { r: 1 } } },
+      { scannedFiles: [], executedRules: new Set(['r']), toKey: identity, scanRoots: ['docs'] }
+    );
+    expect(result.staleEntries).toBe(0);
+  });
+
+  it('a root of "." (the config directory) covers every entry', () => {
+    const result = compareToBaseline(
+      [],
+      { version: 1, files: { 'any/where/gone.md': { r: 1 } } },
+      { scannedFiles: [], executedRules: new Set(['r']), toKey: identity, scanRoots: ['.'] }
+    );
+    expect(result.staleEntries).toBe(1);
   });
 
   it('an entry outside the walked root stays out of scope', () => {

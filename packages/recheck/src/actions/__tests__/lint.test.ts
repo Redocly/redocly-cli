@@ -87,7 +87,7 @@ describe('runLint', () => {
       const report = completed(await runLint(tempDir, config, {}));
 
       expect(report.filesFound).toBe(0);
-      expect(errorsIn(report.problems)).toHaveLength(0);
+      expect(report.problems).toEqual([]);
     });
 
     it('should handle empty markdown files', async () => {
@@ -107,7 +107,8 @@ describe('runLint', () => {
       const report = completed(await runLint(tempDir, config, {}));
 
       expect(report.filesFound).toBe(1);
-      expect(errorsIn(report.problems)).toHaveLength(0);
+      expect(report.scannedFileCount).toBe(1);
+      expect(report.problems).toEqual([]);
     });
 
     // The CLI filters severity:off rules out of the run list before
@@ -299,7 +300,9 @@ describe('runLint', () => {
 
         const report = completed(await runLint(tempDir, config, {}));
 
-        expect(errorsIn(report.problems)).toHaveLength(0); // warn severity — no errors
+        // Only the readable file's TODO is reported; the unreadable one is
+        // listed, not linted.
+        expect(report.problems.map((problem) => path.basename(problem.file))).toEqual(['ok.md']);
         expect(report.unreadableFiles).toEqual([unreadablePath]);
 
         // 3 markdown files were discovered but only 2 were actually linted —
@@ -691,6 +694,42 @@ describe('runLint result', () => {
     const report = completed(await runLint(dir, config, {}));
     expect(report.baseline).toEqual({ matched: 1, new: 0, stale: 0 });
     expect(report.problems.map((problem) => problem.ruleName)).not.toContain('recheck/line-length');
+  });
+
+  it('turns a baseline entry stale when its last baselined file is deleted', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(
+      path.join(dir, '.redocly.recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  gone.md:\n    recheck/line-length: 1\n'
+    );
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    // No markdown file is left to scan, yet the baseline gate still runs.
+    const report = completed(await runLint(dir, config, {}));
+
+    expect(report.filesFound).toBe(0);
+    expect(report.baseline).toEqual({ matched: 0, new: 0, stale: 1 });
+    expect(report.problems).toHaveLength(1);
+    expect(report.problems[0].message).toContain('Baseline is stale');
+  });
+
+  it('does not judge baseline entries of unscanned files stale on a changed-only run', async () => {
+    const dir = await makeTempDir();
+    await fs.writeFile(path.join(dir, 'kept.md'), '# Kept\n');
+    await fs.writeFile(path.join(dir, 'other.md'), '# Other\n');
+    await fs.writeFile(
+      path.join(dir, '.redocly.recheck-baseline.yaml'),
+      'version: 1\nfiles:\n  other.md:\n    recheck/line-length: 1\n  gone.md:\n    recheck/line-length: 1\n'
+    );
+    const changedListPath = path.join(dir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${path.join(dir, 'kept.md')}\n`);
+    const config = await resolveConfig(dir, {}, ['recheck/markdown']);
+
+    const report = completed(await runLint(dir, config, { changedOnly: true, changedListPath }));
+
+    expect(report.scannedFileCount).toBe(1);
+    expect(report.baseline).toEqual({ matched: 0, new: 0, stale: 0 });
+    expect(report.problems).toEqual([]);
   });
 
   it('reports a baseline file that disappears before the run', async () => {
