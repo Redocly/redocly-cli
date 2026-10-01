@@ -717,27 +717,20 @@ yargs(hideBin(process.argv))
     yargs
       .env('REDOCLY_CLI_GIT')
       .command(
-        'clone [directory]',
+        'clone <project> [directory]',
         'Clone a Redocly-hosted project.',
         (yargs) =>
           yargs
+            .positional('project', {
+              description: 'Organization and project slugs or IDs, as `<organization>/<project>`.',
+              type: 'string',
+              demandOption: true,
+            })
             .positional('directory', {
               description: 'Directory to clone into. Defaults to the project.',
               type: 'string',
             })
             .options({
-              organization: {
-                description: 'Organization slug or ID.',
-                alias: 'o',
-                type: 'string',
-                demandOption: true,
-              },
-              project: {
-                description: 'Project slug or ID.',
-                alias: 'p',
-                type: 'string',
-                demandOption: true,
-              },
               residency: {
                 description: 'Residency of the application. Defaults to `us`.',
                 alias: ['r'],
