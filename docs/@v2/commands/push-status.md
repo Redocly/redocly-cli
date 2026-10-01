@@ -30,8 +30,8 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push-status <pushId> --organization <org
 | Option                        | Type    | Description                                                                                                                    |
 | ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | pushId                        | string  | **REQUIRED.** Identifier of the push you are tracking. Returned as result of the [`push`](./push.md) command.                  |
-| --organization, -o            | string  | **REQUIRED.** [Organization ID](#find-ids), for example `org_01hksn7dgmb6jpak0tzzepreq1`.                                      |
-| --project, -p                 | string  | **REQUIRED.** [Project ID](#find-ids), for example `prj_01hksn7dhbmf3nby0aeax6bkvf`.                                           |
+| --organization, -o            | string  | **REQUIRED.** [Organization ID](#find-ids), for example `org_01h1s5z6vf2mm1mz3hevnn9va7`.                                      |
+| --project, -p                 | string  | **REQUIRED.** [Project ID](#find-ids), for example `prj_01hh1t9sa6gwfv5naz04gr7ehm`.                                           |
 | --domain, -d                  | string  | The domain that the `push` command pushed to. Default value is [https://app.cloud.redocly.com](https://app.cloud.redocly.com). |
 | --wait                        | boolean | Waits until the build is completed if it is in progress. Default value is `false`.                                             |
 | --max-execution-time          | number  | Maximum wait time for build completion in seconds (used in conjunction with the `--wait` option). Default value is `1200`.     |
@@ -57,7 +57,7 @@ When `push` is performed from the repository's default branch, a preview build i
 The following example command prints the status of completed preview and production builds as well as scorecards if they exist for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project:
 
 ```bash
-REDOCLY_AUTHORIZATION='api-key' redocly push-status push_01hkw0p0wg348n3gtxmv8rt6hy -o=org_01hksn7dgmb6jpak0tzzepreq1 -p=prj_01hksn7dhbmf3nby0aeax6bkvf
+REDOCLY_AUTHORIZATION='api-key' redocly push-status push_01hkw0p0wg348n3gtxmv8rt6hy -o=org_01h1s5z6vf2mm1mz3hevnn9va7 -p=prj_01hh1t9sa6gwfv5naz04gr7ehm
 ```
 
 If there are preview or production builds that haven't completed yet for the push ID, they are not included in the output of this command.
@@ -69,5 +69,5 @@ You can configure the `push-status` command to check the deployment statuses of 
 The following example command prints the status for the preview and production builds as well as scorecards if they exist for the push with the ID `push_01hkw0p0wg348n3gtxmv8rt6hy` in the `redocly` organization and `awesome-api-docs` project:
 
 ```bash
-REDOCLY_AUTHORIZATION='api-key' redocly push-status push_01hkw0p0wg348n3gtxmv8rt6hy -o=org_01hksn7dgmb6jpak0tzzepreq1 -p=prj_01hksn7dhbmf3nby0aeax6bkvf --wait
+REDOCLY_AUTHORIZATION='api-key' redocly push-status push_01hkw0p0wg348n3gtxmv8rt6hy -o=org_01h1s5z6vf2mm1mz3hevnn9va7 -p=prj_01hh1t9sa6gwfv5naz04gr7ehm --wait
 ```

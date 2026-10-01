@@ -31,8 +31,8 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | Option                        |   Type   | Description                                                                                                                                                                            |
 | ----------------------------- | :------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | files                         | [string] | **REQUIRED.** List of folders and/or files to upload.                                                                                                                                  |
-| --organization, -o            |  string  | **REQUIRED.** [Organization ID](#find-ids), for example `org_01hksn7dgmb6jpak0tzzepreq1`.                                                                                              |
-| --project, -p                 |  string  | **REQUIRED.** [Project ID](#find-ids), for example `prj_01hksn7dhbmf3nby0aeax6bkvf`.                                                                                                   |
+| --organization, -o            |  string  | **REQUIRED.** [Organization ID](#find-ids), for example `org_01h1s5z6vf2mm1mz3hevnn9va7`.                                                                                              |
+| --project, -p                 |  string  | **REQUIRED.** [Project ID](#find-ids), for example `prj_01hh1t9sa6gwfv5naz04gr7ehm`.                                                                                                   |
 | --mount-path, -mp             |  string  | **REQUIRED.** The path where the files are mounted in the project. Cannot be empty or identical to the project path.                                                                   |
 | --branch, -b                  |  string  | **REQUIRED.** The branch files are pushed from.                                                                                                                                        |
 | --author, -a                  |  string  | **REQUIRED.** The author of the push in the format: `'Author Name <author-email@example.com>'`.                                                                                        |
@@ -72,8 +72,8 @@ The following command pushes the `index.md` and `docs/push.yaml` files to the `p
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
 redocly push index.md docs/push.yaml \
-          --organization org_01hksn7dgmb6jpak0tzzepreq1 \
-          --project prj_01hksn7dhbmf3nby0aeax6bkvf \
+          --organization org_01h1s5z6vf2mm1mz3hevnn9va7 \
+          --project prj_01hh1t9sa6gwfv5naz04gr7ehm \
           --mount-path 'docs/push' \
           --branch "docs/push-info" \
           --author "User <user@example.com>" \
@@ -91,8 +91,8 @@ This command example does the same as the [previous example](#push-files-to-the-
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
 redocly push docs/push.yaml \
-          --organization org_01hksn7dgmb6jpak0tzzepreq1 \
-          --project prj_01hksn7dhbmf3nby0aeax6bkvf \
+          --organization org_01h1s5z6vf2mm1mz3hevnn9va7 \
+          --project prj_01hh1t9sa6gwfv5naz04gr7ehm \
           --mount-path 'docs/push' \
           --branch "docs/push-info" \
           --author "User <user@example.com>" \
@@ -110,8 +110,8 @@ It also removes the files under the `docs/push` mount path that are not part of 
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
 redocly push docs \
-          --organization org_01hksn7dgmb6jpak0tzzepreq1 \
-          --project prj_01hksn7dhbmf3nby0aeax6bkvf \
+          --organization org_01h1s5z6vf2mm1mz3hevnn9va7 \
+          --project prj_01hh1t9sa6gwfv5naz04gr7ehm \
           --mount-path 'docs/push' \
           --branch "docs/push-info" \
           --author "User <user@example.com>" \
