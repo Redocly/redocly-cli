@@ -340,6 +340,7 @@ const minimal: RawGovernanceConfig<'built-in'> = {
   },
   overlay1Rules: {
     'info-contact': 'off',
+    'spec-ref-siblings': 'off',
   },
   graphqlRules: {
     'no-unused-types': 'off',

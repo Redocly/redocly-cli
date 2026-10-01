@@ -13,12 +13,13 @@ import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 
 import type { CriterionObject } from '../../../core/src/typings/arazzo.js';
+import type { BundleTelemetry } from '../commands/bundle.js';
 import type { CommandArgv } from '../types.js';
 import type {
   EjectGeneratorTelemetry,
@@ -51,6 +52,7 @@ export async function sendTelemetry({
   lint_rules_with_ignored_problems,
   generate_client,
   eject_generator,
+  bundle,
 }: {
   config: Config | undefined;
   argv: Arguments<CommandArgv> | undefined;
@@ -67,6 +69,7 @@ export async function sendTelemetry({
   lint_rules_with_ignored_problems: string[] | undefined;
   generate_client?: GenerateClientTelemetry;
   eject_generator?: EjectGeneratorTelemetry;
+  bundle?: BundleTelemetry;
 }): Promise<void> {
   try {
     if (!argv) {
@@ -160,6 +163,8 @@ export async function sendTelemetry({
         eject_generator_conflicts: eject_generator?.eject_generator_conflicts,
         eject_generator_from_version: eject_generator?.eject_generator_from_version,
         eject_generator_to_version: eject_generator?.eject_generator_to_version,
+        // bundle usage (a count only — never overlay paths or contents).
+        bundle_overlays_count: bundle?.bundle_overlays_count,
       },
     ];
 
@@ -413,7 +418,18 @@ export function cleanArgs(parsedArgs: CommandArgv, rawArgv: string[]) {
   return { arguments: JSON.stringify(commandArguments), raw_input: commandInput };
 }
 
+// npm ships inside the Node.js installation, so its package.json gives the version without starting npm.
+const NPM_PACKAGE_JSON =
+  process.platform === 'win32'
+    ? join(dirname(process.execPath), 'node_modules', 'npm', 'package.json')
+    : join(dirname(process.execPath), '..', 'lib', 'node_modules', 'npm', 'package.json');
+
 function getNpmVersion(): string {
+  try {
+    return JSON.parse(readFileSync(NPM_PACKAGE_JSON, 'utf8')).version;
+  } catch {
+    // A custom layout keeps npm elsewhere, so ask the npm on PATH.
+  }
   try {
     return execSync('npm -v', { stdio: ['ignore', 'pipe', 'ignore'] })
       .toString()

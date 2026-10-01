@@ -1,0 +1,108 @@
+openapi: 3.1.0
+info:
+  title: Coverage Test API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /items:
+    get:
+      operationId: listItems
+      responses:
+        x-internal-note: Extension keys are not response codes.
+        '200':
+          description: Items.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        '400':
+          description: Bad request.
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+    post:
+      operationId: createItem
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Bad request.
+  /items/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getItem
+      responses:
+        '200':
+          description: One item.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Not found.
+    delete:
+      operationId: deleteItem
+      responses:
+        '204':
+          description: Deleted.
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          readOnly: true
+        name:
+          type: string
+        price:
+          type: object
+          properties:
+            amount:
+              type: number
+            currency:
+              type: string
+        tags:
+          type: array
+          items:
+            type: string
+        details:
+          oneOf:
+            - type: object
+              required: [kind, pages]
+              properties:
+                kind:
+                  const: book
+                pages:
+                  type: integer
+            - type: object
+              required: [kind, duration]
+              properties:
+                kind:
+                  const: music
+                duration:
+                  type: integer
