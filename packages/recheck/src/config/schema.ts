@@ -40,8 +40,6 @@ export const RECHECK_CONFIG_SCHEMA = {
       type: 'array',
       items: { type: 'string', minLength: 1 },
     },
-    // Path to the baseline file, relative to this config. Not a rule.
-    baseline: { type: 'string', minLength: 1 },
     // Off by default, because Liquid and Jinja use the same {% %} delimiters.
     // `true` means `{ schema: 'realm' }`. `schema: false` parses Markdoc without
     // checking tags against a schema.

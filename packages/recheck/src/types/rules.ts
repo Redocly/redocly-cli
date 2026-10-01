@@ -64,7 +64,6 @@ export interface NormalizedRule {
 export type RecheckConfig = {
   extends?: string[];
   excludes?: string[];
-  baseline?: string;
   markdoc?: boolean | MarkdocUserConfig;
   [ruleName: `${string}/${string}`]: Partial<BaseRule>;
 };

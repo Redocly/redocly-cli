@@ -572,34 +572,6 @@ describe('top-level excludes', () => {
   });
 });
 
-describe('top-level baseline key', () => {
-  const rule = {
-    severity: 'error' as const,
-    message: 'm',
-    assertions: { pattern: { tokens: ['zzz'] } },
-  };
-
-  it('accepts a path, returns it, and keeps it out of rule iteration', async () => {
-    const result = await validate({
-      baseline: './.recheck-baseline.yaml',
-      'test/a': { ...rule },
-    } as never);
-    expect(result.isValid).toBe(true);
-    expect(result.baselinePath).toBe('./.recheck-baseline.yaml');
-    expect(result.rules.map((r) => r.name)).toEqual(['test/a']);
-  });
-
-  it('rejects a non-string value', async () => {
-    const result = await validate({ baseline: 42, 'test/a': { ...rule } } as never);
-    expect(result.isValid).toBe(false);
-  });
-
-  it('is absent when the config does not set it', async () => {
-    const result = await validate({ 'test/a': { ...rule } } as never);
-    expect(result.baselinePath).toBeUndefined();
-  });
-});
-
 describe('default messages', () => {
   function tokenDefaultMessage(id: string): unknown {
     const resolved = resolveAssertion(id);

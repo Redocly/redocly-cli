@@ -1235,8 +1235,6 @@ export async function validate(
   // `enabled` is true for `markdoc: true` or an object with a `schema` (including `schema: false`).
   // `schema` is null when there is none.
   markdoc: { enabled: boolean; schema: MarkdocSchema | null };
-  /** The `baseline` path, as written. */
-  baselinePath?: string;
 }> {
   const warn = options?.warn ?? (() => {});
 
@@ -1259,7 +1257,6 @@ export async function validate(
               key !== 'extends' &&
               key !== 'markdoc' &&
               key !== 'excludes' &&
-              key !== 'baseline' &&
               isPlainObject(rule) &&
               'scope' in rule
           )
@@ -1313,12 +1310,10 @@ export async function validate(
   const {
     markdoc: _markdoc,
     excludes: globalExcludes,
-    baseline: baselinePath,
     ...rulesOnlyConfig
   } = resolvedConfig as RecheckRules & {
     markdoc?: boolean | MarkdocUserConfig;
     excludes?: string[];
-    baseline?: string;
   };
   const { errors: semanticErrors, rules: validatedRules } = validateSemantics(
     rulesOnlyConfig as RecheckRules,
@@ -1341,6 +1336,5 @@ export async function validate(
     errors,
     rules,
     markdoc: { enabled: markdocEnabled, schema: markdocSchema },
-    baselinePath,
   };
 }
