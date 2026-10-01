@@ -1,5 +1,36 @@
 # @redocly/openapi-core
 
+## 2.57.0
+
+### Minor Changes
+
+- Added `const` checking to the `no-enum-type-mismatch` rule: a `const` value must conform to the schema's `type`, the same way every `enum` value does.
+
+  **Note**: linting output may include new errors for schemas whose `const` value doesn't match their `type`.
+
+### Patch Changes
+
+- Fixed an issue where `no-enum-type-mismatch` dropped violations and reported a wrong location when `type` was written as an array.
+
+## 2.56.1
+
+### Patch Changes
+
+- Improved overall startup performance.
+
+## 2.56.0
+
+### Minor Changes
+
+- Added support for applying Overlay documents to the `bundle` command output.
+  Pass overlays with the new `--overlay` option or list them under `overlays` for an API in `redocly.yaml`.
+- Added support for linting Overlay 1.1 and 1.2 documents, including the `copy` action field, the `$self` field, and reusable actions in `components.actions`.
+  The `spec-ref-siblings` rule now checks the fields next to a reusable action `$ref` in Overlay documents.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.59.0.
+
 ## 2.55.0
 
 ### Patch Changes

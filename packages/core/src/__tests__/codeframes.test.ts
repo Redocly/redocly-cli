@@ -106,6 +106,20 @@ describe('Location', () => {
     expect(preciseLocation.end).toEqual({ line: 2, col: 9 });
   });
 
+  it('should calculate the same columns in a file with CRLF line endings', () => {
+    const loc = {
+      reportOnKey: false,
+      pointer: '#/info/license/name',
+      source: new Source(
+        'foobar.yaml',
+        'openapi: 3.0.2\r\ninfo:\r\n  license:\r\n    name: MIT\r\n    url: https://google.com\r\n'
+      ),
+    };
+    const preciseLocation = getLineColLocation(loc);
+    expect(preciseLocation.start).toEqual({ line: 4, col: 11 });
+    expect(preciseLocation.end).toEqual({ line: 4, col: 14 });
+  });
+
   it('should return first line for empty doc', () => {
     const loc = {
       reportOnKey: false,

@@ -74,5 +74,5 @@ info:
 
 ## Resources
 
-- [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/common/info-license-url.ts)
+- [Rule source](https://github.com/Redocly/redocly-cli/blob/v1/packages/core/src/rules/common/info-license-url.ts)
 - [License object docs](https://redocly.com/docs/openapi-visual-reference/license/)
