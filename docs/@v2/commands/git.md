@@ -15,9 +15,10 @@ Projects connected to GitHub, GitLab, Bitbucket, or Azure DevOps keep using that
 
 Have the following ready:
 
-- [Redocly CLI](../installation.md) and `git` installed.
+- [Redocly CLI](../installation.md) and `git` 2.31 or later installed.
 - A user account in the Reunite organization, with access to the project.
-- A login: run [`redocly login`](./login.md), or set the `REDOCLY_AUTHORIZATION` environment variable to an organization [API key](https://redocly.com/docs/realm/setup/how-to/api-keys).
+- A login: run [`redocly login`](./login.md), or set the `REDOCLY_AUTHORIZATION` environment variable to an organization [API key](https://redocly.com/docs/realm/reunite/organization/api-keys) with the RBAC permission model.
+  API keys with granular permissions can't be used with Git.
 
 ## Command usage
 
@@ -28,7 +29,7 @@ redocly git pull [refspec...]
 ```
 
 Run `push` and `pull` inside a repository created with `redocly git clone`.
-They find the Reunite remote among the repository's remotes and pass every other argument to `git`.
+They find the Reunite remote among the repository's remotes and send your Redocly credentials only to that host.
 
 ## Command options
 
@@ -47,7 +48,7 @@ Clones the project into `directory` and sets `origin` to the project's Reunite g
 
 ### push
 
-Runs `git push` against the project's Reunite remote.
+Runs `git push` in the current repository with your Redocly credentials.
 
 | Option             | Type     | Description                                                              |
 | ------------------ | -------- | ------------------------------------------------------------------------ |
@@ -59,7 +60,7 @@ Runs `git push` against the project's Reunite remote.
 
 ### pull
 
-Runs `git pull` against the project's Reunite remote.
+Runs `git pull` in the current repository with your Redocly credentials.
 
 | Option   | Type     | Description                                                              |
 | -------- | -------- | ------------------------------------------------------------------------ |
@@ -73,7 +74,7 @@ Reunite applies your project role to every git request:
 
 - Cloning and pulling need read access to every file in the project.
   If your access is limited to some files, use the Reunite editor instead.
-- Pushing needs permission to commit and write access to every file in the project.
+- Pushing needs permission to commit, write access to every file in the project, and an active subscription.
 - Pushing to the default branch needs the permission to edit it, which the project **Admin** role has.
   With other roles, push a branch and open a pull request in Reunite.
 - Creating and deleting branches need the matching branch permissions. The default branch can't be deleted.

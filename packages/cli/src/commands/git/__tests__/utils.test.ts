@@ -1,4 +1,5 @@
 import { HandledError } from '@redocly/openapi-core';
+import type * as ReuniteIntegration from '@redocly/reunite-integration';
 import { RedoclyOAuthClient } from '@redocly/reunite-integration';
 import { spawn, spawnSync } from 'node:child_process';
 import { EventEmitter } from 'node:events';
@@ -6,7 +7,10 @@ import { EventEmitter } from 'node:events';
 import { buildProjectGitUrl, findRedoclyRemote, resolveGitAuthHeader, runGit } from '../utils.js';
 
 vi.mock('node:child_process', () => ({ spawn: vi.fn(), spawnSync: vi.fn() }));
-vi.mock('@redocly/reunite-integration', () => ({ RedoclyOAuthClient: vi.fn() }));
+vi.mock('@redocly/reunite-integration', async () => ({
+  ...(await vi.importActual<typeof ReuniteIntegration>('@redocly/reunite-integration')),
+  RedoclyOAuthClient: vi.fn(),
+}));
 
 describe('git utils', () => {
   const originalEnv = process.env;
@@ -65,6 +69,23 @@ describe('git utils', () => {
 
       expect(findRedoclyRemote('/repo')).toBeNull();
     });
+
+    it('ignores remotes that are not on an https or local Reunite host', () => {
+      vi.mocked(spawnSync).mockReturnValue({
+        status: 0,
+        stdout: 'remote.origin.url http://example.com/api/orgs/acme/projects/docs/git\n',
+      } as any);
+
+      expect(findRedoclyRemote('/repo')).toBeNull();
+    });
+
+    it('explains a missing git binary', () => {
+      vi.mocked(spawnSync).mockReturnValue({
+        error: Object.assign(new Error('spawnSync git ENOENT'), { code: 'ENOENT' }),
+      } as any);
+
+      expect(() => findRedoclyRemote('/repo')).toThrow('git is not installed or not on PATH.');
+    });
   });
 
   describe('resolveGitAuthHeader', () => {
@@ -103,13 +124,15 @@ describe('git utils', () => {
   });
 
   describe('runGit', () => {
-    function mockChild() {
+    function mockChild(version = 'git version 2.55.0') {
+      vi.mocked(spawnSync).mockReturnValue({ status: 0, stdout: `${version}\n` } as any);
       const child = new EventEmitter();
       vi.mocked(spawn).mockReturnValue(child as any);
       return child;
     }
 
-    it('spawns git with the header scoped to the Reunite host and no prompts', async () => {
+    it('passes the credential through the environment, scoped to the Reunite host', async () => {
+      delete process.env.GIT_CONFIG_COUNT;
       const child = mockChild();
       const exitCode = runGit({
         reuniteUrl: 'http://localhost',
@@ -121,19 +144,32 @@ describe('git utils', () => {
       await expect(exitCode).resolves.toBe(0);
       expect(spawn).toHaveBeenCalledWith(
         'git',
-        [
-          '-c',
-          'http.http://localhost/.extraHeader=Cookie: accessToken=abc',
-          '-c',
-          'credential.helper=',
-          'push',
-          '--force',
-        ],
+        ['push', '--force'],
         expect.objectContaining({
           stdio: 'inherit',
-          env: expect.objectContaining({ GIT_TERMINAL_PROMPT: '0' }),
+          env: expect.objectContaining({
+            GIT_TERMINAL_PROMPT: '0',
+            GIT_CONFIG_COUNT: '2',
+            GIT_CONFIG_KEY_0: 'http.http://localhost/.extraHeader',
+            GIT_CONFIG_VALUE_0: 'Cookie: accessToken=abc',
+            GIT_CONFIG_KEY_1: 'credential.http://localhost/.helper',
+            GIT_CONFIG_VALUE_1: '',
+          }),
         })
       );
+    });
+
+    it('keeps git configuration that the environment already passes', async () => {
+      process.env.GIT_CONFIG_COUNT = '1';
+      const child = mockChild();
+      const exitCode = runGit({ reuniteUrl: 'http://localhost', authHeader: 'x', args: ['pull'] });
+      child.emit('close', 0);
+
+      await expect(exitCode).resolves.toBe(0);
+      expect(vi.mocked(spawn).mock.calls[0]?.[2]?.env).toMatchObject({
+        GIT_CONFIG_COUNT: '3',
+        GIT_CONFIG_KEY_1: 'http.http://localhost/.extraHeader',
+      });
     });
 
     it('resolves with the git exit code', async () => {
@@ -144,12 +180,23 @@ describe('git utils', () => {
       await expect(exitCode).resolves.toBe(1);
     });
 
-    it('explains a missing git binary', async () => {
-      const child = mockChild();
-      const exitCode = runGit({ reuniteUrl: 'http://localhost', authHeader: 'x', args: ['pull'] });
-      child.emit('error', Object.assign(new Error('spawn git ENOENT'), { code: 'ENOENT' }));
+    it('requires git 2.31 or later', async () => {
+      mockChild('git version 2.30.9');
 
-      await expect(exitCode).rejects.toThrow('git is not installed or not on PATH.');
+      await expect(
+        runGit({ reuniteUrl: 'http://localhost', authHeader: 'x', args: ['pull'] })
+      ).rejects.toThrow('need git 2.31 or later');
+      expect(spawn).not.toHaveBeenCalled();
+    });
+
+    it('explains a missing git binary', async () => {
+      vi.mocked(spawnSync).mockReturnValue({
+        error: Object.assign(new Error('spawnSync git ENOENT'), { code: 'ENOENT' }),
+      } as any);
+
+      await expect(
+        runGit({ reuniteUrl: 'http://localhost', authHeader: 'x', args: ['pull'] })
+      ).rejects.toThrow('git is not installed or not on PATH.');
     });
   });
 });
