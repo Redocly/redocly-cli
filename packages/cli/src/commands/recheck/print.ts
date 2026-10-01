@@ -52,7 +52,6 @@ async function printEmptyReport(presentation: LintPresentation): Promise<void> {
   }
 }
 
-// Prints the rule count, file count, file warnings, and the fix block from a lint run report.
 function printPreamble(report: LintRunReport): void {
   if (report.disabledRuleCount > 0) {
     logger.info(`   Disabled ${report.disabledRuleCount} rule(s) (severity: off)\n`);
@@ -127,7 +126,6 @@ export async function printLintRun(
   }
 }
 
-// Prints the rest of a run that found no files, then an empty report.
 async function printEmptyRun(
   result: LintRunReport,
   presentation: LintPresentation,

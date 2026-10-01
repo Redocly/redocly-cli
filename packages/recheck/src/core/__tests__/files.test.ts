@@ -109,7 +109,7 @@ describe('mapLimit', () => {
     });
 
     expect(maxInFlight).toBeLessThanOrEqual(3);
-    expect(maxInFlight).toBeGreaterThan(1); // sanity: concurrency actually happened
+    expect(maxInFlight).toBeGreaterThan(1);
   });
 
   it('passes through results and the original index', async () => {
@@ -125,7 +125,7 @@ describe('mapLimit', () => {
 });
 
 describe('loadImageMetadata — root confinement', () => {
-  let tempDir: string; // holds root/ plus files deliberately OUTSIDE root
+  let tempDir: string; // holds root/ and files outside it
   let root: string;
 
   beforeEach(async () => {
@@ -152,10 +152,7 @@ describe('loadImageMetadata — root confinement', () => {
   });
 
   it('records ../ traversal refs escaping the root as exists:false without stat-ing them', async () => {
-    // The escape target EXISTS on disk (sibling of root): the old
-    // unconfined behavior stat'ed it and reported exists:true/size —
-    // an existence/size disclosure for anything reachable from the doc
-    // (e.g. ../../../../etc/passwd). Confined, it must read as missing.
+    // The target exists, but it is outside the root, so it must read as missing.
     await fs.writeFile(path.join(tempDir, 'outside.png'), Buffer.alloc(4096, 0));
 
     const doc = path.join(root, 'docs', 'doc.md');
@@ -177,11 +174,7 @@ describe('loadImageMetadata — root confinement', () => {
 
   it('records absolute-path refs (filesystem or site-absolute) as exists:false without stat-ing', async () => {
     const doc = path.join(root, 'docs', 'doc.md');
-    // /etc/passwd exists on disk; /images/foo.png is a typical
-    // site-absolute doc ref. Both resolve outside the root and must be
-    // treated as missing (which is also what the old code effectively did
-    // for site-absolute refs — the stat against the filesystem root
-    // failed — so real-corpus findings don't change).
+    // Both paths resolve outside the root, so they read as missing.
     const content = '![p](/etc/passwd)\n\n![site](/images/foo.png)\n';
     const metadata = await loadImageMetadata(doc, content, root);
 
@@ -198,8 +191,7 @@ describe('loadImageMetadata — root confinement', () => {
   });
 
   it('defaults the root to process.cwd()', async () => {
-    // A ref escaping the current working directory is confined even when
-    // no explicit root is passed.
+    // Without a root argument, refs are limited to the current working directory.
     const doc = path.join(root, 'docs', 'doc.md');
     const content = '![passwd](/etc/passwd)\n';
     const metadata = await loadImageMetadata(doc, content);
@@ -213,13 +205,10 @@ describe('loadImageMetadata — root confinement', () => {
 });
 
 describe('loadImageMetadata — symlink-aware root confinement', () => {
-  let tempDir: string; // holds root/ plus files deliberately OUTSIDE root
+  let tempDir: string; // holds root/ and files outside it
   let root: string;
 
-  // Symlink creation needs privileges on Windows (Developer Mode or
-  // SeCreateSymbolicLinkPrivilege), so these scenarios can't be set up
-  // there — skip rather than silently assert the wrong thing (same
-  // pattern as the unreadable-file skip in commands/__tests__/run.test.ts).
+  // Creating symlinks needs special privileges on Windows, so these tests are skipped there.
   const symlinksUnavailable = process.platform === 'win32';
 
   beforeEach(async () => {
@@ -236,11 +225,7 @@ describe('loadImageMetadata — symlink-aware root confinement', () => {
   it.skipIf(symlinksUnavailable)(
     'records an in-root symlink that resolves OUTSIDE the root as exists:false without leaking the target',
     async () => {
-      // The link itself sits INSIDE the root, so the lexical check passes;
-      // its target (a real file beside the root, not a system file that
-      // may be absent) is outside. Before the physical check, fs.stat
-      // followed the link and leaked the real target's existence and size
-      // into lint output.
+      // The link is inside the root but its target is outside it.
       await fs.writeFile(path.join(tempDir, 'outside.png'), Buffer.alloc(4096, 0));
       await fs.symlink(path.join(tempDir, 'outside.png'), path.join(root, 'docs', 'evil.png'));
 
@@ -258,9 +243,7 @@ describe('loadImageMetadata — symlink-aware root confinement', () => {
   it.skipIf(symlinksUnavailable)(
     'confines refs that traverse an in-root directory symlink escaping the root',
     async () => {
-      // Directory variant of the same bypass: root/docs/assets -> tempDir,
-      // so ./assets/outside.png lexically stays inside the root but
-      // physically lands on a sibling of it.
+      // Same, with a directory symlink: ./assets/outside.png looks like it is inside the root.
       await fs.writeFile(path.join(tempDir, 'outside.png'), Buffer.alloc(4096, 0));
       await fs.symlink(tempDir, path.join(root, 'docs', 'assets'));
 
@@ -278,8 +261,6 @@ describe('loadImageMetadata — symlink-aware root confinement', () => {
   it.skipIf(symlinksUnavailable)(
     'keeps allowing symlinks inside the root that also RESOLVE inside the root',
     async () => {
-      // Legit repo layouts symlink shared asset dirs/files around inside
-      // the checkout — those must keep stat-ing normally.
       await fs.writeFile(path.join(root, 'shared', 'real.png'), Buffer.alloc(1024, 0));
       await fs.symlink(
         path.join('..', 'shared', 'real.png'),
@@ -300,8 +281,6 @@ describe('loadImageMetadata — symlink-aware root confinement', () => {
   it.skipIf(symlinksUnavailable)(
     'reports a dangling in-root symlink as exists:false, like any missing file',
     async () => {
-      // fs.realpath throws ENOENT here; the missing-file path must stay
-      // exactly as strong as before — exists:false, no error escaping.
       await fs.symlink(
         path.join(root, 'shared', 'gone.png'),
         path.join(root, 'docs', 'dangling.png')
@@ -338,12 +317,8 @@ describe('loadImageMetadata — per-file ref cap', () => {
     const metadata = await loadImageMetadata(doc, lines.join('\n'), root);
 
     expect(metadata?.images?.size).toBe(MAX_IMAGE_REFS_PER_FILE);
-    // Within the cap: recorded (missing on disk here, so exists:false).
     expect(metadata?.images?.get('./img-0.png')).toMatchObject({ exists: false });
-    // Beyond the cap: ABSENT — not falsely recorded as exists:false.
-    // max-image-size treats a missing map entry as "no metadata, skip",
-    // identical to its exists:false handling, so omission never fabricates
-    // a "missing image" fact for a ref that was simply never checked.
+    // Refs past the limit are left out, not recorded as missing.
     expect(metadata?.images?.has(`./img-${MAX_IMAGE_REFS_PER_FILE}.png`)).toBe(false);
     expect(metadata?.images?.has(`./img-${total - 1}.png`)).toBe(false);
   });

@@ -4,9 +4,7 @@ import * as path from 'path';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 
 import { validate } from '../config/validate.js';
-// `RecheckConfig` and `ValidationError` appear in public signatures, so a
-// consumer must be able to name both from the package root `../index.js`
-// alone, without reaching into the internal `../types/index.js` barrel.
+// Both types must be importable from the package root `../index.js`.
 import {
   lintContent,
   lintFiles,
@@ -28,9 +26,7 @@ const config: RecheckConfig = {
 
 describe('public API', () => {
   it('exposes ValidationError as a usable type from the package root', () => {
-    // Type-level-only assertion: this must compile. A failed
-    // `resolveRecheckConfig` call reports `ValidationError[]`, so a consumer
-    // handling that failure must be able to name the type.
+    // Type-only check: this must compile.
     const error: ValidationError = {
       message: 'Unknown assertion type "foo"',
       path: 'rule.assertions.foo',
@@ -61,9 +57,7 @@ describe('public API', () => {
     expect(problems).toEqual([]);
   });
 
-  // The off-rule is filtered out of the RUN list, but its name is still
-  // CONFIGURED -- a directive suppressing it is a deliberate no-op, not a
-  // typo, so it must not surface an "unknown rule" warning.
+  // The off rule is not run, but its name is configured, so a directive naming it must not warn as unknown.
   it('lintContent does not warn for a directive naming a configured severity:off rule', async () => {
     const offConfig: RecheckConfig = {
       'recheck/disabled-rule': {
@@ -86,11 +80,7 @@ describe('public API', () => {
     expect(problems[0].message).toContain('no-such-rule');
   });
 
-  // Regression for the array-form all/raw scope bug: `scope: ['all']` used to
-  // fall through to ordinary name predicates (extractScopes never emits
-  // segments named 'all'/'raw'), so the rule silently reported NOTHING while
-  // the identical `scope: all` reported findings — and the config still
-  // validated. Both forms must report identically, byte-for-byte.
+  // `scope: ['all']` once reported nothing while `scope: all` reported findings. Both must give identical results.
   it("lintContent reports identical findings for scope: all and scope: ['all']", async () => {
     const content = '# Heading\n\nThis line has a TODO marker.\n';
     const configWithScope = (scope: string | string[]): RecheckConfig => ({
@@ -102,7 +92,7 @@ describe('public API', () => {
       },
     });
     const bare = await lintContent(content, configWithScope('all'));
-    expect(bare.length).toBeGreaterThan(0); // sanity: the rule fires unscoped
+    expect(bare.length).toBeGreaterThan(0);
     const array = await lintContent(content, configWithScope(['all']));
     expect(JSON.stringify(array)).toBe(JSON.stringify(bare));
   });
@@ -133,21 +123,16 @@ describe('public API', () => {
         assertions: { pattern: { tokens: ['TODO'] } },
       },
     });
-    // Named-scope array ORs its entries: heading.h1 + paragraph only.
+    // Named scopes are combined: heading.h1 and paragraph only.
     const named = await lintContent(content, configWithScope(['heading.h1', 'paragraph']));
     expect(named.map((p) => p.line)).toEqual([1, 3]);
-    // Negation array: every segment except code — the code-block TODO
-    // (line 6) must not be reported, everything else still is.
+    // Negation: everything except code, so the code-block TODO (line 6) is not reported.
     const negated = await lintContent(content, configWithScope(['~code']));
     expect(negated.length).toBeGreaterThan(0);
     expect(negated.every((p) => p.line === 1 || p.line === 3)).toBe(true);
   });
 
-  // `scope: 'heading & all'` used to VALIDATE and then compile to a
-  // predicate matching segments literally named 'all' — which never exist —
-  // so the rule silently reported nothing (0 findings where scope: heading
-  // reported 1). lintContent validates its config, so it must reject the
-  // selector loudly instead of running a rule that can never fire.
+  // `scope: 'heading & all'` once validated but matched nothing. It must now be rejected.
   it('lintContent rejects all/raw as a conjunction term instead of silently reporting nothing', async () => {
     const badConfig: RecheckConfig = {
       'recheck/no-todo': {
@@ -162,10 +147,7 @@ describe('public API', () => {
     );
   });
 
-  // `scope: ['~all']` used to compile to a predicate that matched EVERY
-  // segment (no segment is named 'all', so the negation was always true) —
-  // silently meaning "everything" when the set-theoretic reading of ~all is
-  // "nothing". It must be rejected loudly.
+  // `scope: ['~all']` once matched every segment. It must now be rejected.
   it('lintContent rejects ~all instead of silently matching every segment', async () => {
     const badConfig: RecheckConfig = {
       'recheck/no-todo': {
@@ -178,11 +160,8 @@ describe('public API', () => {
     await expect(lintContent('# TODO\n', badConfig)).rejects.toThrow(/not meaningful/);
   });
 
-  // Config-driven callers must keep hitting VALIDATION's unknown-scope
-  // check first (the "Invalid recheck configuration" wrapper), never
-  // compileSelector's own compile-time throw ("Invalid scope selector") —
-  // locks that the compile-time unknown-term rejection stays a bypass-path
-  // backstop and changes nothing in the config pipeline.
+  // Config callers must get the validation error ("Invalid recheck configuration"), not the
+  // compile-time one ("Invalid scope selector"), which is only a backstop.
   it('lintContent rejects unknown selector terms at validation, before compilation', async () => {
     const badConfig: RecheckConfig = {
       'recheck/no-todo': {
@@ -200,7 +179,6 @@ describe('public API', () => {
     );
     expect(error.message).toMatch(/^Invalid recheck configuration:/);
     expect(error.message).toMatch(/unknown scope "ALL"/);
-    // compileSelector's own throw must never be what config callers see.
     expect(error.message).not.toMatch(/Invalid scope selector/);
   });
 
@@ -211,14 +189,9 @@ describe('public API', () => {
     );
   });
 
-  // Lock the legit compound-negation selector end-to-end (the spec's own
-  // example) so the all/raw-term rejection can't over-reach. Note the
-  // selector filters by segment NAME: heading and blockquote text is
-  // excluded under its own scope name, but both ALSO surface via the
-  // derived `summary` segments (`summary` mirrors every prose kind —
-  // headings included), and blockquote text via `sentence` too; neither
-  // `~blockquote` nor `~heading` excludes those derived names, so the
-  // heading TODO (line 1) and blockquote TODO (line 3) are still reported.
+  // A valid compound negation selector must still work. Heading and blockquote text also appear in the
+  // derived `summary` and `sentence` segments, which these negations do not exclude, so the TODOs on
+  // lines 1 and 3 are still reported.
   it("lintContent still honors '~blockquote & ~heading' end-to-end", async () => {
     const content =
       '# A TODO heading\n\n> A TODO quote.\n\nA TODO paragraph.\n\n```\nTODO in code\n```\n';
@@ -243,9 +216,7 @@ describe('public API', () => {
         assertions: { 'max-image-size': { maxSizeKB: 100 } },
       },
     };
-    // lintContent has no disk access, so the caller (mirroring what lintFiles
-    // does internally via loadImageMetadata) must supply metadata for
-    // max-image-size to have anything to check against.
+    // `lintContent` does not read the disk, so the metadata for max-image-size must be passed in.
     const metadata = {
       images: new Map([
         ['./images/large.png', { path: './images/large.png', size: 150 * 1024, exists: true }],
@@ -262,11 +233,8 @@ describe('public API', () => {
   });
 });
 
-// The Markdoc config tests exercise the real config path for the two Markdoc
-// rules: a user's `RecheckConfig` through `normalizeConfig` into the runner and
-// out to the rules. Other Markdoc rule tests hand the runner a pre-built schema
-// and skip config validation, so nothing else covers the keys a user actually
-// writes.
+// These tests use the real config path for the two Markdoc rules. Other Markdoc tests pass a
+// ready-made schema and skip config validation.
 
 /** The two rules, in the `recheck/<name>` config form a user writes. */
 const RULES: RecheckRules = {
@@ -282,11 +250,10 @@ const RULES: RecheckRules = {
   },
 };
 
-// The Realm schema declares `img` self-closing, so a properly paired
-// open/close reports only when a schema actually reached the rules. An
-// unclosed `{% img %}` reports either way, so it cannot tell the two apart.
+// The Realm schema declares `img` self-closing, so a paired open/close only reports when a schema
+// reached the rules. An unclosed `{% img %}` reports either way.
 const SELF_CLOSING_MISUSE = '{% img src="a.png" %}\ncaption\n{% /img %}\n';
-// Grammar-level, schema-independent: a bareword attribute value.
+// A bareword attribute value is a grammar error, whatever the schema.
 const GRAMMAR_VIOLATION = '{% widget name=star /%}\n';
 
 const lint = (content: string, config: RecheckConfig) => lintContent(content, config);
@@ -427,7 +394,7 @@ describe('lintFiles', () => {
 
   it('loads image metadata from disk so max-image-size can flag oversized images', async () => {
     const imagePath = path.join(tempDir, 'large.png');
-    await fs.writeFile(imagePath, Buffer.alloc(2048, 0)); // 2KB
+    await fs.writeFile(imagePath, Buffer.alloc(2048, 0));
 
     const mdPath = path.join(tempDir, 'doc.md');
     await fs.writeFile(mdPath, '# Doc\n\n![Large image](./large.png)\n');
@@ -440,8 +407,7 @@ describe('lintFiles', () => {
       },
     };
 
-    // root: image metadata is confined to the lint root (default cwd);
-    // these fixtures live under os.tmpdir(), so the root must be passed.
+    // Image metadata is limited to the lint root (default cwd), and these fixtures are in os.tmpdir().
     const { problems } = await lintFiles([mdPath], config, { root: tempDir });
 
     expect(problems).toHaveLength(1);
@@ -449,21 +415,16 @@ describe('lintFiles', () => {
   });
 
   it('flags oversized inline AND reference-style images end-to-end (extractImageReferences <-> max-image-size key parity)', async () => {
-    // Proves FIX B's core/files.ts extraction (which builds the
-    // fileMetadata.images Map keys) and FIX A's max-image-size rule (which
-    // looks images up in that same Map) agree on exactly the same
-    // destination strings for both inline and reference-style syntax --
-    // the "same normalization on both sides" requirement. A key mismatch
-    // here would silently make oversized reference-style images (or, if
-    // the mismatch went the other way, inline ones) un-flaggable.
+    // The file scan and the max-image-size rule must use the same keys for inline and reference-style
+    // images, or one kind would never be flagged.
     const inlineImagePath = path.join(tempDir, 'inline-large.png');
-    await fs.writeFile(inlineImagePath, Buffer.alloc(2048, 0)); // 2KB
+    await fs.writeFile(inlineImagePath, Buffer.alloc(2048, 0));
 
     const refImagePath = path.join(tempDir, 'ref-large.png');
-    await fs.writeFile(refImagePath, Buffer.alloc(2048, 0)); // 2KB
+    await fs.writeFile(refImagePath, Buffer.alloc(2048, 0));
 
     const smallImagePath = path.join(tempDir, 'small.png');
-    await fs.writeFile(smallImagePath, Buffer.alloc(512, 0)); // 0.5KB
+    await fs.writeFile(smallImagePath, Buffer.alloc(512, 0));
 
     const mdPath = path.join(tempDir, 'doc.md');
     await fs.writeFile(
@@ -500,7 +461,7 @@ describe('lintFiles', () => {
 
   it('does not flag images within the size limit', async () => {
     const imagePath = path.join(tempDir, 'small.png');
-    await fs.writeFile(imagePath, Buffer.alloc(512, 0)); // 0.5KB
+    await fs.writeFile(imagePath, Buffer.alloc(512, 0));
 
     const mdPath = path.join(tempDir, 'doc.md');
     await fs.writeFile(mdPath, '# Doc\n\n![Small image](./small.png)\n');
@@ -533,7 +494,7 @@ describe('lintFiles', () => {
 
     const withoutFix = await lintFiles([mdPath], config);
     expect(withoutFix.fixedFiles.size).toBe(0); // fixes aren't computed without opts.fix
-    expect(await fs.readFile(mdPath, 'utf8')).toBe(original); // unchanged on disk
+    expect(await fs.readFile(mdPath, 'utf8')).toBe(original);
 
     const withFix = await lintFiles([mdPath], config, { fix: true });
     expect(withFix.fixedFiles.get(mdPath)).toBe('# Doc\nTrailing spaces here\n');
@@ -541,18 +502,8 @@ describe('lintFiles', () => {
   });
 
   it('converges ul-style + no-hard-tabs + no-trailing-spaces in a single lintFiles({fix:true}) call', async () => {
-    // Regression for FIX 3: this fixture previously needed 3 separate --fix
-    // passes to fully converge (whole-line no-hard-tabs fixes discarded
-    // sibling fixes on the same line; see core/__tests__/runner.test.ts for the
-    // isolated runRules-level repro). lintFiles must loop internally until a
-    // pass produces zero fixes so callers get a fully-fixed file in one call.
-    //
-    // `strict: true` on no-trailing-spaces: the tab->2-spaces fix from
-    // no-hard-tabs leaves exactly 2 trailing spaces, which MD009's default
-    // `brSpaces: 2` semantics treat as an intentional Markdown hard line
-    // break (not flagged). `strict: true` restores "flag ALL trailing
-    // whitespace" so this fixture still exercises the same-line multi-rule
-    // fix conflict it was designed for.
+    // This fixture used to need 3 `--fix` passes. `lintFiles` must repeat until nothing changes.
+    // `strict: true` stops the 2 trailing spaces left by the tab fix from counting as a Markdown line break.
     const mdPath = path.join(tempDir, 'doc.md');
     await fs.writeFile(mdPath, '* bullet one\t\n');
 
@@ -578,8 +529,7 @@ describe('lintFiles', () => {
     const fixedContent = fixedFiles.get(mdPath);
     expect(fixedContent).toBe('- bullet one\n');
 
-    // A fresh lint of the fixed file must report zero problems from the
-    // three rules above — nothing left to fix.
+    // A fresh lint of the fixed file must report nothing.
     const { problems } = await lintFiles([mdPath], config);
     expect(problems).toEqual([]);
   });
@@ -623,9 +573,7 @@ describe('lintFiles', () => {
   it.skipIf(process.getuid?.() === 0 || process.platform === 'win32')(
     'reports unreadable files in skippedFiles so callers can detect incomplete coverage',
     async () => {
-      // The warn callback alone gives a programmatic caller (e.g. a security
-      // review consuming lint results) no signal that a file was silently
-      // dropped from coverage — the returned skippedFiles list is that signal.
+      // The warn callback alone does not tell a programmatic caller that a file was left out. skippedFiles does.
       const goodPath = path.join(tempDir, 'good.md');
       await fs.writeFile(goodPath, 'Clean content.\n');
 

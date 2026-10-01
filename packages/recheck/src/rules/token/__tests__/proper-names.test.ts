@@ -38,9 +38,7 @@ describe('proper-names (MD044)', () => {
   });
 
   it('honors htmlElements: false by not flagging a name inside an HTML tag/attribute (e.g. an href)', async () => {
-    // htmlElements gates the htmlFlowData/htmlTextData scanned types (the
-    // tag markup itself, e.g. a path in href="..."), not the tag's visible
-    // text content (which is always plain `data` and always scanned).
+    // `htmlElements` controls whether tag markup (e.g. an href) is scanned, not the visible text.
     const hNoHtml = tokenRuleHarness('proper-names', {
       names: ['GitHub'],
       htmlElements: false,
@@ -62,7 +60,6 @@ describe('proper-names (MD044)', () => {
     expect(await hMeta.fix('Use node.js and .net and c++ here.\n')).toBe(
       'Use Node.js and .NET and C++ here.\n'
     );
-    // `.` is literal, not "any character".
     expect(await hMeta.lint('Use nodexjs here.\n')).toEqual([]);
   });
 

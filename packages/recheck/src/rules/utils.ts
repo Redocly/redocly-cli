@@ -6,23 +6,10 @@ import type { ScopedSegment, TextRange } from '../scopes/types.js';
 import type { NormalizedRule } from '../types/index.js';
 
 /**
- * Every span of `segment.content` a prose rule must not match inside: the
- * segment's inline code spans, plus the markdoc tag spans masking blanked out
- * of it.
- *
- * Both are text that is present in the source but isn't prose, and both have to
- * be excluded the same way — by discarding a match that overlaps them, never by
- * scanning a substitute string. These rules run an arbitrary user-supplied
- * regex, and a masked run is still characters to it: a blanked tag reads as
- * whitespace to `\s+` and as ordinary content to any negated class, either of
- * which lets one match span a tag and merge the real text on both sides of it.
- * A swap pair `alpha\s+beta` matched clean across `alpha {% partial /%} beta`,
- * and `--fix` then collapsed the tag out of the document.
- *
- * One helper rather than a call per rule, so a rule added later inherits the
- * full exclusion set by asking for it instead of re-deriving half of it.
- * `includeCode` turns the code-span half off; the markdoc half has no opt-out,
- * because a tag is markup, never the prose a rule was pointed at.
+ * Ranges of `segment.content` that prose rules must not match inside: inline code spans and
+ * masked markdoc tag spans. Matches that overlap them are discarded instead of scanning a
+ * blanked-out copy, because a user regex would read a blanked tag as whitespace and could
+ * match across it. `includeCode` turns off the inline code part.
  */
 export function nonProseRanges(segment: ScopedSegment, includeCode?: boolean): TextRange[] {
   const code = includeCode ? [] : inlineCodeRanges(segment.content);
@@ -31,9 +18,7 @@ export function nonProseRanges(segment: ScopedSegment, includeCode?: boolean): T
   return code.length === 0 ? masked : [...code, ...masked];
 }
 
-/**
- * Check if a file matches a pattern using multiple strategies
- */
+/** Checks if a file matches a pattern, trying the basename, the relative path and path suffixes. */
 function matchesFilePattern(pattern: string, basename: string, normalizedPath: string): boolean {
   // Try basename match first (for simple patterns like "*.md")
   if (picomatch.isMatch(basename, pattern)) return true;

@@ -55,8 +55,7 @@ describe('markdoc.extend.tagsFile', () => {
         assertions: { 'markdoc-attributes': {} },
       },
     };
-    // size="large" violates the FILE's enum but satisfies the INLINE one;
-    // inline wins, so no problem is reported.
+    // "large" is not in the file's enum but is in the inline one. Inline wins.
     const problems = await lintContent(
       '{% my-widget size="large" /%}\n{% /my-widget %}\n',
       config,
@@ -108,8 +107,6 @@ describe('markdoc.extend.tagsFile', () => {
   });
 
   it('tagsFile is not read when markdoc parsing is off', async () => {
-    // A config error for a missing file must NOT appear: the file is only
-    // loaded when the markdoc option enables parsing.
     const result = await validate(
       { 'recheck/x': { severity: 'warn', message: 'm', assertions: { 'no-trailing-spaces': {} } } },
       { configDir: dir }
@@ -118,11 +115,8 @@ describe('markdoc.extend.tagsFile', () => {
   });
 
   it('a structurally invalid markdoc block never triggers the tagsFile read', async () => {
-    // The file load must run only after structural validation passes: a
-    // config that fails AJV should surface exactly its structural errors,
-    // never a file-read error for a tagsFile it happens to reference.
-    // Reordering the load ahead of the structural short-circuit would leak
-    // a "could not read" error here.
+    // Only the structural errors should show, not a "could not read" error
+    // for the missing file.
     const result = await validate(
       {
         markdoc: { schema: 'bogus', extend: { tagsFile: './definitely-missing.yaml' } },

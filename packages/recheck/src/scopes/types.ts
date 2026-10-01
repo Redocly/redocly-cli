@@ -17,26 +17,15 @@ export interface ScopedSegment {
   endColumn: number;
   tokens: Token[]; // backing tokens (≥1)
   /**
-   * The verbatim source slice this segment covers, set only when `content` is
-   * not that slice — that is, when a prose scope had markdoc tag spans blanked
-   * out of it by `maskProse` in scopes/extractor.ts. Always the same length as
-   * `content`, so an offset means the same thing in both.
-   *
-   * `content` is the prose view: what a rule should scan, split into words, or
-   * measure. `sourceText ?? content` is the source view: what a rule should
-   * quote in `Problem.text`, `Problem.match`, or a message. Quoting the masked
-   * view instead shows the user a run of blanks where their tag is.
+   * The original source text, set only when `content` differs from it, i.e. when markdoc tag
+   * spans were masked. Same length as `content`. Use `content` to scan text and
+   * `sourceText ?? content` to quote text in messages.
    */
   sourceText?: string;
   /**
-   * The spans of `content` that masking blanked, when it did. Rules that
-   * reject a match rather than rewrite text need these: a user-supplied regex
-   * runs against `content`, and no mask character can stop an arbitrary
-   * pattern (a negated class like `[^,]+`, or `\s+` against a blank mask) from
-   * matching straight through a masked run and merging the text on either side
-   * of a tag into one bogus match. Such a match has to be discarded after the
-   * fact, by overlap — the same treatment inline code spans get, for the same
-   * reason. `nonProseRanges` in rules/utils.ts bundles both sets.
+   * The spans of `content` that were masked. A user regex can match straight through a masked
+   * run, so such matches must be discarded afterwards. `nonProseRanges` in rules/utils.ts
+   * combines these with inline code spans.
    */
   maskedRanges?: TextRange[];
   metadata?: {

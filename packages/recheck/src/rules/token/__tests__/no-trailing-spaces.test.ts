@@ -13,7 +13,7 @@ describe('no-trailing-spaces (MD009)', () => {
     const problems = await h.lint('Text text text\ntrailing   \nMore text\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(2);
-    expect(problems[0].column).toBe(9); // "trailing" is 8 chars, +1
+    expect(problems[0].column).toBe(9);
     expect(problems[0].message).toContain('Expected: 0 or 2; Actual: 3');
   });
 
@@ -47,14 +47,12 @@ describe('no-trailing-spaces (MD009)', () => {
       listItemEmptyLines: true,
     });
     expect(await hList.lint(md)).toEqual([]);
-    // Without the option, the blank indented line (3 trailing spaces, past
-    // the default 2-space brSpaces allowance) is flagged.
     expect(await h.lint(md)).not.toEqual([]);
   });
 
   it('strict: flags allowed brSpaces trailing spaces outside of paragraphs (e.g. after headings)', async () => {
     const md = '# Heading  \n\nText\n';
-    expect(await h.lint(md)).toEqual([]); // not strict: 2 trailing spaces allowed everywhere
+    expect(await h.lint(md)).toEqual([]);
     const hStrict = tokenRuleHarness('no-trailing-spaces', { strict: true });
     const problems = await hStrict.lint(md);
     expect(problems.some((p) => p.line === 1)).toBe(true);

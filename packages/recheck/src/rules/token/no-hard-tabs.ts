@@ -1,15 +1,7 @@
 import { filterByTypes } from '../../parser/index.js';
 // Ported from markdownlint's lib/md010.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// This id also used to belong to a pre-parity native scope rule with its
-// own `skipCodeBlocks` option and a `spacesPerTab` default of 2 (removed in
-// PR #24801, along with the translation layer that used to accept the old
-// option name) — that scope rule's registry entry was deleted, so
-// `no-hard-tabs` in a config now always resolves straight to this token
-// rule (no alias needed; `resolveAssertion` is scope-first, and there is no
-// longer a scope rule under this name to shadow it). `spacesPerTab` here
-// defaults to upstream MD010's own default of 1, not the old rule's 2 —
-// configs relying on the old default must set `spacesPerTab: 2` explicitly.
+// `spacesPerTab` defaults to 1, like markdownlint.
 import type { TokenRule } from '../types.js';
 import { getDescendantsByType, hasOverlap, type FileRange } from './helpers.js';
 

@@ -8,16 +8,13 @@ import type { NormalizedRule, CapitalizationAssertion } from '../../../types/ind
 import type { ScopeRuleContext } from '../../types.js';
 import { capitalization } from '../capitalization.js';
 
-// `ScopeRule.fix` is optional at the type level (only assertions that
-// implement it set it); `capitalization` always does, so this is a test-only
-// helper to call it without a forbidden non-null assertion.
+// `fix` is optional on `ScopeRule`; this checks it exists so tests can call it.
 function requireFix(): NonNullable<typeof capitalization.fix> {
   if (!capitalization.fix) throw new Error('expected capitalization.fix to be defined');
   return capitalization.fix;
 }
 
-// Builds a ScopeRuleContext filtered to the given scope predicate -- the same
-// helper as occurrence.test.ts's and consistency.test.ts's buildScopedContext.
+// Builds a rule context with only the segments whose scope matches the filter.
 function buildScopedContext(
   content: string,
   scopeFilter: (scope: string) => boolean
@@ -126,16 +123,12 @@ describe('capitalization assertion', () => {
       expect(problems).toHaveLength(1);
 
       const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
-      // Surrounding real words are title-cased; `configFile`'s internal
-      // casing is untouched -- not `ConfigFile` or `Configfile`.
+      // `configFile` keeps its casing.
       expect(fixedFiles.get('t.md')).toBe('## The `configFile` Option\n');
     });
 
     it('skips a multi-line segment entirely -- neither a problem nor a fix, symmetric', async () => {
-      // Soft-wrapped two-line paragraph: startLine (1) !== endLine (2).
-      // If evaluated as if single-line, $title would clearly rewrite this
-      // ('the'/'great'/'escape'/'story' -> 'The'/'Great'/'Escape'/'Story'),
-      // proving the skip below is deliberate, not incidental.
+      // Two-line paragraph: skipped even though $title would rewrite it.
       const content = 'the great\nescape story\n';
       const rule = capitalizationRule(MESSAGE, { match: '$title' }, 'paragraph');
       const ctx = buildScopedContext(content, (scope) => scope === 'paragraph');
@@ -150,13 +143,8 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // Medium Bugbot finding: BACKTICK_SPAN_RE only recognized SINGLE-backtick
-  // spans (`` `[^`\n]*` ``). A CommonMark multi-backtick span (` ``code`` `)
-  // splits into two adjacent EMPTY single-backtick pairs under that regex
-  // (the two backticks at each end each look like their own complete pair),
-  // leaving the span's real content completely unfrozen in between -- a
-  // $-style fix can then rewrite the "protected" identifier's casing.
-  describe('multi-backtick code spans (medium Bugbot finding)', () => {
+  // Multi-backtick spans (``code``) must be protected like single ones.
+  describe('multi-backtick code spans', () => {
     it('$title freezes a double-backtick span -- inner camelCase survives, surrounding words are title-cased', async () => {
       const content = '## the ``configFile`` option\n';
       const rule = capitalizationRule(MESSAGE, { match: '$title' });
@@ -165,9 +153,6 @@ describe('capitalization assertion', () => {
       expect(problems).toHaveLength(1);
 
       const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
-      // Old regex only froze the two adjacent backtick pairs at each end,
-      // leaving 'configFile' unfrozen in between -- $title would flatten it
-      // to 'Configfile'. It must survive verbatim.
       expect(fixedFiles.get('t.md')).toBe('## The ``configFile`` Option\n');
     });
 
@@ -183,12 +168,7 @@ describe('capitalization assertion', () => {
     });
 
     it('freezes a double-backtick span whose content itself contains a literal backtick -- the motivating CommonMark case', async () => {
-      // ``configFile ` x`` is a single CommonMark code span: a 2-backtick
-      // delimiter around content ('configFile ` x') that itself contains a
-      // single (unpaired-length) backtick. Old regex's first match was the
-      // two ADJACENT backticks at the very start (an empty pair), then a
-      // second match from the embedded single backtick to the first of the
-      // closing pair -- leaving 'configFile' exposed and re-cased by $title.
+      // ``configFile ` x`` is one code span even though it contains a single backtick.
       const content = '## the ``configFile ` x`` option\n';
       const rule = capitalizationRule(MESSAGE, { match: '$title' });
 
@@ -228,10 +208,7 @@ describe('capitalization assertion', () => {
     });
 
     it('leaves an exception word and an ALL-CAPS word alone mid-sentence', async () => {
-      // 'the' needs capitalizing (first word); 'GitHub' (exception) and
-      // 'API' (already ALL-CAPS in the source) must both survive the fix
-      // exactly as written, not get lowered like an ordinary mid-sentence
-      // word would.
+      // 'GitHub' (exception) and 'API' (all caps) must stay as written.
       const content = '## the GitHub API guide\n';
       const rule = capitalizationRule(MESSAGE, { match: '$sentence', exceptions: ['GitHub'] });
 
@@ -240,9 +217,7 @@ describe('capitalization assertion', () => {
     });
 
     it('freezes a backtick-delimited code span -- its content is neither flagged nor rewritten', async () => {
-      // Mirrors the $title freeze test: 'Option' must be lowercased
-      // ($sentence lowers every non-first word), but `configFile` inside
-      // backticks must survive verbatim -- not `configfile`.
+      // Mirrors the $title test: `configFile` in backticks stays as written.
       const content = '## The `configFile` Option\n';
       const rule = capitalizationRule(MESSAGE, { match: '$sentence' });
 
@@ -254,11 +229,8 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // Both causes are one mistake: "first word" was decided by token index,
-  // not by where a sentence starts. They pull in opposite directions.
   describe('$sentence sentence-initial position', () => {
-    // An ordinal prefix pushed the opening word to index 1+, so it got
-    // lowercased.
+    // A prefix like '1.' must not make the next word lowercase.
     it.each([
       ['## Step 1. Configure the project\n', 'a "Step N." prefix'],
       ['## 1. Configure the project\n', 'a bare ordinal prefix'],
@@ -269,12 +241,7 @@ describe('capitalization assertion', () => {
       expect(problems).toEqual([]);
     });
 
-    // A colon is NOT a sentence break, and this locks that in. Google and
-    // Microsoft both say to lowercase after a colon unless a complete
-    // sentence follows, and nothing here can tell a sentence from a
-    // fragment. Treating ':' as a break cleared 19 findings across
-    // docs/realm and raised 5 fresh ones on headings that were already
-    // correct -- see SENTENCE_BREAK_RE in title-case.ts.
+    // A colon does not start a new sentence. Style guides say to lowercase after a colon unless a full sentence follows.
     it.each([
       ['## Cost vs. value\n', 'vs.'],
       ['## Monthly vs. annual schedules\n', 'vs. mid-heading'],
@@ -326,8 +293,7 @@ describe('capitalization assertion', () => {
       expect(fixedFiles.get('t.md')).toBe('## Step 1. Configure the whole project\n');
     });
 
-    // A dot with no space is not a sentence end -- without this the fix
-    // above would break every dotted identifier written outside backticks.
+    // A dot with no space is not a sentence end.
     it.each([
       ['## Call element.focus() on the node\n', 'a dotted method reference'],
       ['## The v2.0 migration guide\n', 'a version number'],
@@ -337,8 +303,7 @@ describe('capitalization assertion', () => {
       expect(problems).toEqual([]);
     });
 
-    // The opposite direction: a masked code span was invisible, so the word
-    // after it became index 0 and got capitalized.
+    // A code span at the start must not make the next word capitalized.
     it.each([
       ['## `--rule` filtering\n', 'a leading code span'],
       ['## `element.focus()` and the DOM\n', 'a leading code span with a dotted call'],
@@ -410,8 +375,6 @@ describe('capitalization assertion', () => {
     );
   });
 
-  // The whole token is the name, so it was corrupted ANYWHERE in a heading,
-  // not only at the front.
   describe('vendor extension tokens', () => {
     it.each([
       ['## x-codeSamples reference\n', 'at the front'],
@@ -448,7 +411,6 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // Registered as an accepted risk -- see proper-nouns.ts and its test.
   describe('curl in the built-in vocabulary', () => {
     it.each([
       ['## curl examples\n', '$sentence'],
@@ -468,12 +430,7 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // Medium Bugbot finding (title-case.test.ts has the focused unit tests):
-  // $title used to ignore a whole-compound exceptions entry (e.g.
-  // 'e-commerce') because it routed hyphenated words into per-part handling
-  // before ever consulting `exceptions`, while $sentence already treats a
-  // hyphenated compound as one token and honored it correctly. Both
-  // documented `$`-styles must agree on identical input.
+  // $title must honor a whole-word exception like 'e-commerce', as $sentence does.
   describe('$title and $sentence agree on a whole-compound exception', () => {
     it('$title preserves the compound as-written via fix', async () => {
       const content = '## the e-commerce platform\n';
@@ -492,11 +449,7 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // A dotted exceptions entry ('Node.js') can never survive $sentence's
-  // per-word tokenizer (SENTENCE_WORD_RE splits on the dot) any more than it
-  // can survive $title's WORD_RE, so both style functions have to agree on
-  // phrase-exception protection via the shared exception plan
-  // (title-case.ts's buildExceptionPlan) rather than two independent lookups.
+  // A dotted exception like 'Node.js' must be protected under $sentence and $title alike.
   describe('phrase (multi-word / dotted) exceptions', () => {
     it('preserves an already-as-written dotted exception under $sentence', async () => {
       const content = '# Install Node.js first\n';
@@ -507,9 +460,7 @@ describe('capitalization assertion', () => {
       expect(problems).toEqual([]);
     });
 
-    // A phrase exception restores to its as-written form ('Node.js'), exactly
-    // like a single-word exception, so a mismatched-case input necessarily
-    // produces a problem and a fix rather than being left alone.
+    // A phrase exception is restored to its written form, like a single-word exception.
     it('enforces the as-written casing of a mismatched-case dotted exception under $sentence, like a single-word exception', async () => {
       const content = '# Install node.js first\n';
       const rule = capitalizationRule(MESSAGE, { match: '$sentence', exceptions: ['Node.js'] });
@@ -522,10 +473,7 @@ describe('capitalization assertion', () => {
     });
 
     it('does not match a phrase across a sentence boundary', async () => {
-      // The split 'node. js' is deliberate and cannot be written 'node.js':
-      // that IS a contiguous match, which is the sibling test above. Here the
-      // period and space break contiguity, so the phrase must not be masked
-      // and 'js' is cased as the ordinary word that opens the next sentence.
+      // 'node. js' with a space is not a match for 'Node.js', so 'js' is just the first word of a new sentence.
       const content = '# Use node. js is fine\n';
       const rule = capitalizationRule(MESSAGE, { match: '$sentence', exceptions: ['Node.js'] });
       const ctx = buildScopedContext(content, (scope) => scope.startsWith('heading.'));
@@ -546,24 +494,16 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // #25610: a phrase exception used to be masked out of the text BEFORE word
-  // position was computed, so it stopped counting as a word and its neighbour
-  // inherited its first/last treatment. That produced two faces of one bug:
-  // $sentence force-capitalized the word after a LEADING phrase as if it were
-  // sentence-initial, and $title force-capitalized the word before a TRAILING
-  // phrase as if it were the last word. Both are fixed by tokenizing with each
-  // phrase as ONE token that occupies a position (title-case.ts's recaseWords);
-  // title-case.test.ts holds the focused unit tests, these drive the real rule.
+  // A phrase exception counts as one word when deciding which word is first or last.
   describe('phrase exceptions and word position (#25610)', () => {
     it('$sentence does not flag a heading opening with a phrase followed by correct lowercase prose', async () => {
       const content = '## VS Code actions for teams\n';
       const rule = capitalizationRule(MESSAGE, { match: '$sentence', exceptions: ['VS Code'] });
 
-      // Was 1 problem, with --fix rewriting 'actions' to 'Actions'.
       const { problems } = await runRules([{ path: 't.md', content }], [rule]);
       expect(problems).toEqual([]);
 
-      // --fix must be a no-op, and stay one on a second pass.
+      // --fix must change nothing, even on a second pass.
       const first = await runRules([{ path: 't.md', content }], [rule], { fix: true });
       expect(first.fixedFiles.has('t.md')).toBe(false);
       const { fixedFiles } = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
@@ -571,9 +511,7 @@ describe('capitalization assertion', () => {
     });
 
     it('$sentence still flags a genuinely wrong capital after a leading phrase, and fixes only that', async () => {
-      // Proves the fix did not simply stop checking text that opens with a
-      // phrase: 'Actions' is a real sentence-case violation and must be fixed,
-      // while 'VS Code' keeps its as-written casing.
+      // 'Actions' is still wrong and must be fixed; 'VS Code' keeps its casing.
       const content = '## VS Code Actions for teams\n';
       const rule = capitalizationRule(MESSAGE, { match: '$sentence', exceptions: ['VS Code'] });
 
@@ -583,14 +521,11 @@ describe('capitalization assertion', () => {
       const { fixedFiles } = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
       const converged = fixedFiles.get('t.md') ?? content;
       expect(converged).toBe('## VS Code actions for teams\n');
-      // Second pass: converged output must re-lint clean.
       const relint = await runRules([{ path: 't.md', content: converged }], [rule]);
       expect(relint.problems).toEqual([]);
     });
 
     it('$title (AP) handles the real last word when the phrase is LAST, keeping the phrase as-written', async () => {
-      // Was '## A Guide To Node.js' -- the mask left 'to' as the last word,
-      // and AP capitalizes the last word unconditionally.
       const content = '## a guide to Node.js\n';
       const rule = capitalizationRule(MESSAGE, { match: '$title', exceptions: ['Node.js'] });
 
@@ -602,8 +537,6 @@ describe('capitalization assertion', () => {
     });
 
     it('$title (AP) handles a phrase that is both FIRST and LAST', async () => {
-      // Was '## Node.js And VS Code': both phrases masked away left 'and' as
-      // the only remaining word, so it counted as first AND last at once.
       const content = '## Node.js and VS Code\n';
       const rule = capitalizationRule(MESSAGE, {
         match: '$title',
@@ -618,9 +551,7 @@ describe('capitalization assertion', () => {
     });
 
     it('$title (AP) still corrects both the first and last word around a MIDDLE phrase', async () => {
-      // Regression guard for the other direction: a mid-heading phrase never
-      // moved first/last, and must not start doing so now that it takes an
-      // index. Both edge words here are wrong and must still be fixed.
+      // Words around a phrase in the middle are still checked as first and last.
       const content = '## to VS Code up\n';
       const rule = capitalizationRule(MESSAGE, { match: '$title', exceptions: ['VS Code'] });
 
@@ -632,8 +563,7 @@ describe('capitalization assertion', () => {
     });
 
     it('leaves single-word exceptions unaffected -- they resolve by lookup, not position', async () => {
-      // No phrase entry at all, so nothing occupies an index: identical
-      // behavior before and after the position fix, under both `$`-styles.
+      // No phrase exceptions, only single-word ones.
       for (const [match, content, expected] of [
         ['$title', '## a guide to github\n', '## A Guide to GitHub\n'],
         ['$sentence', '## A guide to github\n', '## A guide to GitHub\n'],
@@ -668,8 +598,7 @@ describe('capitalization assertion', () => {
     });
 
     it('freezes a backtick-delimited code span -- its content is neither flagged nor rewritten', async () => {
-      // Mirrors the $title freeze test: 'The'/'Option' are lowercased, but
-      // `configFile` inside backticks survives verbatim -- not `configfile`.
+      // Mirrors the $title test: `configFile` in backticks stays as written.
       const content = '## The `configFile` Option\n';
       const rule = capitalizationRule(MESSAGE, { match: '$lower' });
 
@@ -700,8 +629,7 @@ describe('capitalization assertion', () => {
     });
 
     it('freezes a backtick-delimited code span -- its content is neither flagged nor rewritten', async () => {
-      // Mirrors the $title freeze test: 'the'/'option' are uppercased, but
-      // `configFile` inside backticks survives verbatim -- not `CONFIGFILE`.
+      // Mirrors the $title test: `configFile` in backticks stays as written.
       const content = '## the `configFile` option\n';
       const rule = capitalizationRule(MESSAGE, { match: '$upper' });
 
@@ -713,13 +641,7 @@ describe('capitalization assertion', () => {
     });
 
     it('reports but does NOT fix a segment whose case mapping is not length-preserving (ß -> SS)', async () => {
-      // 'ß'.toUpperCase() === 'SS' grows the text by one character, so
-      // restoreBacktickSpans's position-based splice math no longer lines
-      // up with the original offsets -- a derived "corrected" text could
-      // splice the frozen span back at the wrong position. The violation is
-      // still real (the heading is not upper-case), so it IS reported --
-      // but detection-only, with no fix, and the code span must survive
-      // any output verbatim.
+      // 'ß'.toUpperCase() is 'SS', which changes the text length. The problem is still reported, but without a fix, and the code span stays as written.
       const content = '## the ß option `code`\n';
       const rule = capitalizationRule(MESSAGE, { match: '$upper' });
 
@@ -729,7 +651,6 @@ describe('capitalization assertion', () => {
 
       expect(problems).toHaveLength(1);
       expect(fixes).toEqual([]);
-      // No rewrite at all: the file is untouched, code span intact.
       expect(fixedFiles.size).toBe(0);
     });
   });
@@ -747,7 +668,6 @@ describe('capitalization assertion', () => {
       const fixes = await requireFix()(rule, 'test.md', ctx);
       expect(fixes).toEqual([]);
 
-      // Confirmed through the full runner too, not just the direct call.
       const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
       expect(fixedFiles.has('t.md')).toBe(false);
     });
@@ -883,9 +803,6 @@ describe('capitalization assertion', () => {
     });
   });
 
-  // TECHNICAL_PROPER_NOUNS (src/data/proper-nouns.ts) is unioned into
-  // `exceptions` by default. These prove it really is a union rather than a
-  // second, independent code path, plus the `builtinVocabulary: false` opt-out.
   describe('built-in technical proper-noun vocabulary', () => {
     it('protects a built-in noun under $sentence with no exceptions configured', async () => {
       const content = '# Deploy with OpenAPI today\n';
@@ -937,11 +854,7 @@ describe('capitalization assertion', () => {
       expect(problems).toEqual([]);
     });
   });
-  // Under `markdoc: true` a prose segment's `content` is the source with every
-  // tag span blanked out, and `sourceText` is the verbatim slice alongside it.
-  // Detection has to read the masked view (a tag's words are not the heading's
-  // words), but the report has to read the source view, or the user is shown a
-  // hole where their tag is.
+  // With `markdoc: true`, tags are blanked out of the checked text but the report uses the original source text.
   describe('markdoc-masked segments', () => {
     function maskedContext(content: string, scope: string): ScopeRuleContext {
       const tree = parseMarkdown(content, { markdoc: true });
@@ -967,8 +880,7 @@ describe('capitalization assertion', () => {
     });
 
     it('does not let the tag text influence the casing decision', async () => {
-      // 'partial' and 'file' are inside the tag; a correctly-cased heading
-      // around them must not be flagged just because they are lowercase.
+      // 'partial' and 'file' are inside the tag, so the lowercase words must not be flagged.
       const ctx = maskedContext('# The {% partial file="x" /%} Guide\n', 'heading.h1');
       const problems = await capitalization.execute(
         capitalizationRule('bad: %s (%s)', { match: '$title' }),

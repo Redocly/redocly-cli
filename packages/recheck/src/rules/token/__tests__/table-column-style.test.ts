@@ -107,7 +107,6 @@ describe('table-column-style (MD060)', () => {
         style: 'compact',
         alignedDelimiter: true,
       });
-      // Delimiter row misaligned with header despite compact-correct cell spacing.
       const md = '| Character | Meaning |\n| --- | ---- |\n| Y | Yes |\n';
       const problems = await hCompactAligned.lint(md);
       expect(problems.some((p) => p.message.includes('option "aligned_delimiter"'))).toBe(true);
@@ -124,12 +123,8 @@ describe('table-column-style (MD060)', () => {
   });
 
   it('under "any" style, reports the fewest-issue style when no style matches exactly', async () => {
-    // One row (`Y`) is one-space-off from tight in a way that's the closest
-    // match to "tight" (single extra space), so with the default "any"
-    // style, "tight"'s one issue should be picked over "compact"'s.
     const md = '|Character|Meaning|\n|---|---|\n| Y|Yes|\n';
     const problems = await h.lint(md);
-    // "compact" would report 11 issues for this table; "tight" reports 1.
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(3);
     expect(problems[0].message).toContain('space to the right for style "tight"');

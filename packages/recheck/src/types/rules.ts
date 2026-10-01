@@ -55,22 +55,11 @@ export interface NormalizedRule {
 }
 
 /**
- * A config as a user writes it: rule entries keyed by rule name, plus the
- * four engine-level keys that are not rules. `config/schema.ts` lists those
- * four alongside the rule keys, and `config/validate.ts` reads and strips
- * them before rule iteration.
- *
- * A rule entry is `Partial<BaseRule>` because a config that `extends` a
- * preset may set one field of a preset rule and inherit the rest (see
- * `resolveExtends` in config/validate.ts). `severity`, `message` and
- * `assertions` are required on the MERGED rule, which the JSON schema
- * enforces at load time. `validate` fills a missing token rule message
- * before that check.
- *
- * The index signature is keyed on a template literal, not `string`: every
- * rule name contains a `/` (namespace/rule) and no engine-level key does,
- * so this keeps a rule entry from typing as a bare string or array and
- * keeps a misspelled engine key from typing as a rule.
+ * A config as a user writes it: rule entries keyed by rule name, plus the engine-level keys
+ * that are not rules. A rule entry is `Partial<BaseRule>` because a config that `extends` a
+ * preset can set only some fields of a preset rule. `severity`, `message` and `assertions`
+ * are required on the merged rule (the JSON schema checks this). Rule names always contain a
+ * `/` and engine-level keys never do, which the index signature relies on.
  */
 export type RecheckConfig = {
   extends?: string[];

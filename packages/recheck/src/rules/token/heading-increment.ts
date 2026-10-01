@@ -13,8 +13,7 @@ export const headingIncrement: TokenRule = {
     frontMatterTitle: '^\\s*"?title"?\\s*[:=]',
   },
   check(ctx) {
-    // A front matter title counts as the document's implicit h1 — see
-    // frontMatterHasTitle's doc comment (upstream `front_matter_title`).
+    // A front matter title counts as an h1.
     let previous = frontMatterHasTitle(ctx.tree, ctx.config.frontMatterTitle) ? 1 : 0;
     for (const heading of filterByTypes(ctx.tree, ['atxHeading', 'setextHeading'])) {
       const level = getHeadingLevel(heading);

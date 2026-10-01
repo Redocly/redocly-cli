@@ -16,10 +16,8 @@ describe('no-empty-headings', () => {
     expect(await h.lint('#\n')).toHaveLength(1);
   });
 
-  // Deviation from the plan's guessed example (`## ****`): micromark parses
-  // `****` as literal text, not empty emphasis, so that heading genuinely
-  // HAS text content and is correctly not reported. An HTML-only heading is
-  // the real "renders to nothing" case, since getHeadingText drops htmlText.
+  // `****` is literal text, not empty emphasis, so it is not reported. HTML-only content
+  // renders to nothing.
   it('flags a heading whose only content is HTML', async () => {
     expect(await h.lint('## <span></span>\n')).toHaveLength(1);
   });
@@ -36,10 +34,8 @@ describe('no-empty-headings', () => {
     expect(await h.lint('# `config.yaml`\n')).toEqual([]);
   });
 
-  // Setext coverage needs a heading that IS a setextHeading token and IS
-  // empty. A whitespace-only line before `===` yields NO heading token at
-  // all (a blank line forms no paragraph for the underline to promote), so
-  // the reachable case is HTML-only content, which getHeadingText drops.
+  // A blank line before `===` makes no heading, so use HTML-only content for an empty setext
+  // heading.
   it('flags an empty setext heading at its own line', async () => {
     const problems = await h.lint('Intro paragraph.\n\n<span></span>\n===\n');
     expect(problems).toHaveLength(1);

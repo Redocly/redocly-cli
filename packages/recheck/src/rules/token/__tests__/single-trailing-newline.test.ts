@@ -13,8 +13,6 @@ describe('single-trailing-newline (MD047)', () => {
     const problems = await h.lint('# Heading\n\nNo newline at EOF');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(3);
-    // Upstream range is [lastLine.length, 1] (1-based column at the end of
-    // the last line, i.e. where the missing newline would be inserted).
     expect(problems[0].column).toBe('No newline at EOF'.length);
   });
 

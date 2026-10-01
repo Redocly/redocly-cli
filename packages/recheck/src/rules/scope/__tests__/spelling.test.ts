@@ -11,10 +11,7 @@ import type { NormalizedRule, SpellingAssertion } from '../../../types/index.js'
 import type { ScopeRuleContext } from '../../types.js';
 import { spelling, formatSuggestionSuffix } from '../spelling.js';
 
-// Builds a ScopeRuleContext filtered to the given scope predicate, matching
-// the recipe in src/rules/CONTRIBUTING.md's "Testing" section for scoped
-// rules -- same helper as occurrence.test.ts's/consistency.test.ts's/
-// capitalization.test.ts's buildScopedContext.
+// Builds a rule context with only the segments whose scope matches the filter.
 function buildScopedContext(
   content: string,
   scopeFilter: (scope: string) => boolean
@@ -98,20 +95,12 @@ describe('spelling assertion', () => {
 
     const problems = await spelling.execute(rule, 'test.md', ctx);
 
-    // Both 'redocly' (lowercase, vocab has 'Redocly') and 'ACMESOFT'
-    // (vocab has 'Acmesoft') must match case-insensitively.
+    // 'redocly' and 'ACMESOFT' must match the vocab entries 'Redocly' and 'Acmesoft' regardless of case.
     expect(problems).toEqual([]);
   });
 
   it('flags an unrecognized word absent from `vocab`', async () => {
-    // 'redocly' used to be this test's stand-in for "a real-ish word the
-    // dictionary doesn't know and vocab doesn't list" -- but Task 8's fix
-    // wave (see task-8-report.md) added 'Redocly' to the built-in
-    // TECHNICAL_PROPER_NOUNS vocabulary, which `spelling` unions in by
-    // default (builtinVocabulary: true), so 'redocly' is no longer
-    // unrecognized here. 'acmesoft' (already this file's fictional-company
-    // stand-in, see the `vocab` test above) is not in that built-in list and
-    // keeps this test's original intent.
+    // 'acmesoft' is not in the built-in vocabulary. 'redocly' is, so it cannot be used here.
     const content = 'Welcome to acmesoft software.\n';
     const ctx = buildScopedContext(content, isProseScope);
     const rule = spellingRule('Unknown word "%s"%s', { vocab: ['other-word'] });
@@ -161,12 +150,7 @@ describe('spelling assertion', () => {
     expect(problems.map((p) => p.match)).toEqual(['Xyzqqq']);
   });
 
-  // Verified against the actual extractor (see spelling.ts's own doc
-  // comment): a `paragraph` segment's `content` retains inline code spans
-  // as raw source text (backticks and all) -- extractScopes does not strip
-  // them. This masks those spans out (same length-preserving technique as
-  // capitalization.ts's freezeBacktickSpans) before tokenizing, so a
-  // misspelling INSIDE backticks is silent.
+  // Inline code stays in a paragraph's `content`, so those spans are masked before checking and a misspelling inside backticks is not reported.
   it('does not flag a misspelling inside an inline code span', async () => {
     const content = 'Set the `wrold` option to enable this.\n';
     const ctx = buildScopedContext(content, isProseScope);
@@ -188,12 +172,8 @@ describe('spelling assertion', () => {
     expect(problems[0].match).toBe('wrold');
   });
 
-  // Medium Bugbot finding: BACKTICK_SPAN_RE only recognized SINGLE-backtick
-  // spans (`` `[^`\n]*` ``), the same masking approach capitalization.ts
-  // uses. A CommonMark multi-backtick span (` ``wrold`` `) splits into two
-  // adjacent EMPTY single-backtick pairs under that regex, leaving the
-  // misspelling inside completely unmasked and flaggable.
-  describe('multi-backtick code spans (medium Bugbot finding)', () => {
+  // Multi-backtick spans (``wrold``) must be masked too.
+  describe('multi-backtick code spans', () => {
     it('does not flag a misspelling inside a double-backtick span', async () => {
       const content = 'Set the ``wrold`` option to enable this.\n';
       const ctx = buildScopedContext(content, isProseScope);
@@ -216,10 +196,7 @@ describe('spelling assertion', () => {
     });
 
     it('does not flag a misspelling inside a double-backtick span whose content itself contains a literal backtick -- the motivating CommonMark case', async () => {
-      // ``wrold ` inside`` is a single CommonMark code span: a 2-backtick
-      // delimiter around content that itself contains one backtick. Old
-      // regex's first match was the two adjacent backticks at the very
-      // start (an empty pair), leaving 'wrold' exposed as a real token.
+      // ``wrold ` inside`` is one code span that contains a single backtick.
       const content = 'Set the ``wrold ` inside`` option.\n';
       const ctx = buildScopedContext(content, isProseScope);
       const rule = spellingRule('Unknown word "%s"%s', {});
@@ -230,11 +207,7 @@ describe('spelling assertion', () => {
     });
   });
 
-  // Code blocks are never checked "by construction" of the scope
-  // architecture, not something spelling.ts special-cases: a fenced code
-  // block is a `scope: 'code'` segment, entirely separate from the prose
-  // scopes this test (like a realistic config) scopes to. It never reaches
-  // `ctx.segments` in the first place.
+  // A fenced code block is a `code` scope segment, so it is never part of the prose segments.
   it('never sees a fenced code block when scoped to prose (misspelling inside stays unreported)', async () => {
     const content =
       'This is fine prose.\n\n```js\nconst wrold = 1; // recieve\n```\n\nMore fine prose.\n';
@@ -246,15 +219,7 @@ describe('spelling assertion', () => {
     expect(problems).toEqual([]);
   });
 
-  // `/\p{L}+(?:['’]\p{L}+)?/gu` can never itself capture a digit (\p{L}
-  // excludes \p{Nd}), so a digit-adjacent identifier like 'config2' still
-  // tokenizes to its letter-only PREFIX ('config') as a separate match --
-  // that part is unavoidable, by construction of the regex. What IS
-  // resolved (see the digit-adjacency guard tests below): that fragment is
-  // now skipped rather than checked as its own word, because the (masked)
-  // segment text immediately after its end is a digit ('2'). A purely
-  // numeric token ('42') contributes no token at all (no letters to
-  // match).
+  // The word pattern matches letters only, so 'config2' gives the fragment 'config'. That fragment is skipped because a digit follows it. A number like '42' has no letters, so it gives no word.
   it('a digit-adjacent identifier tokenizes to its letter-only prefix, which is now skipped rather than flagged', async () => {
     const content = 'Run config2 now, not 42 times.\n';
     const ctx = buildScopedContext(content, isProseScope);
@@ -265,15 +230,7 @@ describe('spelling assertion', () => {
     expect(problems).toEqual([]);
   });
 
-  // Digit-ADJACENCY GUARD: WORD_RE still can never itself capture a digit,
-  // but each match is now also checked against the (masked) segment text
-  // immediately before its start and immediately after its end -- if
-  // either neighbor is a digit, the match is a truncated fragment of a
-  // digit-bearing identifier (not a standalone word) and is skipped. This
-  // mitigates the false-positive class from common digit-bearing
-  // identifiers: 'sha256' -> 'sha', 'utf8' -> 'utf', 'oauth2' -> 'oauth',
-  // 'es6' -> 'es', and 'log4j' -> BOTH 'log' (digit after) and 'j' (digit
-  // before) -- all skipped now instead of flagged as unknown words.
+  // A word touching a digit is a fragment of an identifier, so it is skipped: 'sha256', 'utf8', 'oauth2', 'es6', and both 'log' and 'j' in 'log4j'.
   it('does not flag letter-run fragments of common digit-bearing identifiers (sha256, utf8, oauth2, es6, log4j)', async () => {
     const content =
       'Hash it with sha256, encode as utf8, authenticate via oauth2, target es6, and log with log4j.\n';
@@ -285,12 +242,7 @@ describe('spelling assertion', () => {
     expect(problems).toEqual([]);
   });
 
-  // Control: the digit-adjacency guard must only suppress fragments that
-  // actually touch a digit -- a genuine, non-digit-adjacent misspelling
-  // elsewhere in the very same sentence must still be flagged. Guards
-  // that are too broad (e.g. accidentally skipping the whole segment, or
-  // every token once ANY digit-adjacent token is seen) would silently
-  // swallow this real finding.
+  // A real misspelling in the same sentence must still be flagged.
   it('still flags a genuine standalone misspelling alongside digit-adjacent identifiers in the same sentence', async () => {
     const content = 'Using sha256 and utf8, this is a wrold of possibilities.\n';
     const ctx = buildScopedContext(content, isProseScope);
@@ -301,10 +253,7 @@ describe('spelling assertion', () => {
     expect(problems.map((p) => p.match)).toEqual(['wrold']);
   });
 
-  // Leading-digit case: the neighbor check must look BEFORE the match too,
-  // not only after it -- a fragment like 'fast' in '2fast' has a digit
-  // immediately preceding its start (not following its end), which is a
-  // distinct code path from the trailing-digit cases above.
+  // The digit can also come before the word, as in '2fast'.
   it('does not flag a fragment with a leading digit neighbor (e.g. "2fast")', async () => {
     const content = 'This is 2fast for me.\n';
     const ctx = buildScopedContext(content, isProseScope);
@@ -315,11 +264,7 @@ describe('spelling assertion', () => {
     expect(problems).toEqual([]);
   });
 
-  // "can use the dev-dep dictionary-en files copied to a tmp dir as the
-  // custom pair" -- dictionary-en's own default export already IS the raw
-  // `{aff, dic}` byte content (see spelling.ts's `loadDictionary` doc
-  // comment for its v4 export shape), so "copying" it just means writing
-  // that same content out to a tmp `.aff`/`.dic` pair.
+  // The `dictionary-en` package exports the raw `{aff, dic}` content, so the test writes it to a temporary `.aff` and `.dic` pair.
   it('loads a custom dictionary from a `dictionary` path (built from the dictionary-en dev dependency)', async () => {
     const dictionaryEn = (await import('dictionary-en')).default;
     const dir = await makeTmpDir();
@@ -376,9 +321,7 @@ describe('spelling assertion', () => {
   });
 
   it('the fallback message has exactly two %s placeholders, both substituted (word, suggestion suffix)', async () => {
-    // 'zzzzqqqqxxxx' is verified (via a real nspell + dictionary-en probe)
-    // to have zero suggestions, so this also locks in the '' (empty
-    // suffix) branch deterministically, without mocking the speller.
+    // 'zzzzqqqqxxxx' has no suggestions, so this covers the empty suffix case.
     const content = 'The zzzzqqqqxxxx thing is broken.\n';
     const ctx = buildScopedContext(content, isProseScope);
     const rule = spellingRule(undefined, {});
@@ -405,15 +348,7 @@ describe('spelling assertion', () => {
     expect(problems[0].message).toBe('Unknown word "wrold" — did you mean: wold, world?');
   });
 
-  // High-severity Bugbot finding: a missing/unreadable custom `dictionary`
-  // path used to make `loadSpeller` reject, and `execute()` swallowed that
-  // rejection and returned `[]` -- fail CLOSED, silently. A caller that
-  // reaches execute() directly (bypassing validate()'s new dictionary-file
-  // check below), or a TOCTOU where the file disappears between validate()
-  // and this run, must instead fail LOUDLY: exactly one visible problem per
-  // file, using runner.ts's existing internalError convention -- never zero
-  // (silent) and never one-per-word (which would happen if the rejection
-  // were caught per-word instead of once for the whole rule/file).
+  // A missing or unreadable custom `dictionary` must give one visible problem per file, not zero and not one per word.
   it('a bogus dictionary path fails loudly via runRules: exactly one internal-error problem naming the dictionary failure', async () => {
     const content = 'This is a wrold of possibilities with several other words too.\n';
     const rule: NormalizedRule = {
@@ -433,41 +368,22 @@ describe('spelling assertion', () => {
     expect(problems[0].message).toMatch(/dictionary/i);
   });
 
-  // Layer 1 of the same finding: the module-level spellerCache stored the
-  // in-flight promise BEFORE it settled and never evicted it on rejection,
-  // so every later call for the same cache key replayed the same dead
-  // rejection forever -- spelling silently disabled for the process
-  // lifetime. A transient failure (file unreadable for a moment, then
-  // readable) must instead retry cleanly on the next call.
-  // A companion, spy-based test asserting the exact retry-attempt COUNT
-  // lives in config/__tests__/spelling-peer-dependencies.test.ts (it mocks
-  // 'node:fs/promises' itself, which that file's existing `vi.doMock`/fresh-
-  // reimport infrastructure supports; a plain `vi.spyOn` on this file's
-  // static `import * as fs from 'node:fs/promises'` cannot work here --
-  // Vitest cannot redefine a real ESM namespace export). This test instead
-  // proves the end-to-end, real-filesystem behavior: the dictionary files
-  // are genuinely absent for the first call (real ENOENT, no mocking) and
-  // genuinely present for the second.
+  // A failed dictionary load must not be cached: a later call retries. The dictionary files are really missing on the first call and present on the second.
   describe('speller cache eviction on rejected load', () => {
     it('evicts a rejected load: a later call with the same dictionary key retries once the files exist', async () => {
       const dictionaryEn = (await import('dictionary-en')).default;
       const dir = await makeTmpDir();
       const base = path.join(dir, 'custom');
-      // Deliberately NOT writing the .aff/.dic files yet -- the first load
-      // must reject with a real ENOENT.
+      // The .aff and .dic files are not written yet, so the first load fails.
 
       const content = 'This is a wrold of possibilities.\n';
       const ctx = buildScopedContext(content, isProseScope);
       const rule = spellingRule('Unknown word "%s"%s', { dictionary: base });
 
-      // First call: the files don't exist -> execute() must surface the
-      // failure (rethrow), not cache a silently-resolved `[]`.
+      // The first call must report the failure and not cache an empty result.
       await expect(spelling.execute(rule, 'a.md', ctx)).rejects.toThrow();
 
-      // The files now become available (simulating a transient failure
-      // clearing). If the rejected promise were still cached under this
-      // dictionary key, this second call would replay the SAME rejection
-      // instead of retrying -- spelling would stay silently broken forever.
+      // The files now exist. A cached failure would be replayed instead of retrying.
       await fs.writeFile(`${base}.aff`, dictionaryEn.aff);
       await fs.writeFile(`${base}.dic`, dictionaryEn.dic);
 
@@ -513,11 +429,7 @@ describe('spelling assertion', () => {
       expect(result.errors).toEqual([]);
     });
 
-    // Bugbot finding, layer 2: validate() previously only checked that
-    // `dictionary` was a non-empty STRING -- never that the `.aff`/`.dic`
-    // files it names actually exist and are readable. A missing pair used
-    // to pass validation cleanly and only fail (silently, per the finding)
-    // the first time a file was linted.
+    // validate() must also check that the `.aff` and `.dic` files exist, not only that `dictionary` is a string.
     it('rejects a dictionary path whose .aff/.dic files do not exist, naming the resolved paths', async () => {
       const dir = await makeTmpDir();
       const base = path.join(dir, 'missing-custom');
@@ -530,11 +442,7 @@ describe('spelling assertion', () => {
       expect(messages).toContain(`${base}.dic`);
     });
 
-    // The resolution rule for a RELATIVE dictionary path must be identical
-    // at validate() time and at execute()/runtime time (see
-    // resolveDictionaryPaths, shared between spelling.ts and validate.ts) --
-    // both resolve relative to process.cwd(), not the config file's
-    // directory.
+    // A relative dictionary path is resolved from process.cwd() both when validating and when running, not from the config file's directory.
     it('resolves a relative dictionary path against process.cwd(), same as execute() does', async () => {
       const dictionaryEn = (await import('dictionary-en')).default;
       const dir = await makeTmpDir();
@@ -611,13 +519,7 @@ describe('spelling assertion', () => {
     });
   });
 
-  // Task 8 (Phase 4): TECHNICAL_PROPER_NOUNS (src/data/proper-nouns.ts) is
-  // unioned into the accepted-word set (alongside `vocab`) by default --
-  // these prove the union and the `builtinVocabulary: false` opt-out that
-  // restores strict pre-built-in behavior. Multi-token entries are split
-  // into their individual word-level parts (see spelling.ts's
-  // BUILTIN_VOCAB_WORDS) -- a per-word spell check has no way to accept a
-  // whole phrase atomically the way `capitalization`'s phrase matching does.
+  // The built-in proper nouns are accepted by default, and `builtinVocabulary: false` turns that off. Multi-word entries are split into single words, because the spell check works one word at a time.
   describe('built-in technical proper-noun vocabulary', () => {
     it('accepts a built-in noun with no vocab configured', async () => {
       const content = 'Deploy with OpenAPI and pnpm today.\n';

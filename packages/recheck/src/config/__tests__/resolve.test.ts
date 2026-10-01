@@ -265,8 +265,7 @@ describe('resolveRecheckConfig', () => {
 
   it('forwards engine warnings to the warn callback', async () => {
     const warnings: string[] = [];
-    // A heading-scoped pattern token that starts with `^#` makes validate()
-    // warn (see validate.ts's warnStalePatternPrefix).
+    // A heading-scoped pattern token that starts with `^#` makes validate() warn.
     const result = await resolveRecheckConfig({
       block: {
         rules: {

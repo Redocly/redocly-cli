@@ -22,16 +22,12 @@ export const blanksAroundLists: TokenRule = {
   check(ctx) {
     const { lines } = ctx;
 
-    // Only *top-level* lists: stop descending into a token's children once
-    // it is itself a list (or an htmlFlow block, matching upstream) so a
-    // nested sublist isn't independently reported as needing its own
-    // surrounding blank lines -- that's the parent list's job.
+    // Only top-level lists, so a nested list is not reported on its own.
     const topLevelLists = filterByPredicate(ctx.tree, isList, (token) =>
       isList(token) || token.type === 'htmlFlow' ? [] : token.children
     );
 
     for (const list of topLevelLists) {
-      // Look for a blank line above the list.
       const firstLineNumber = list.startLine;
       if (!isBlankLine(lines[firstLineNumber - 2])) {
         ctx.onError({
@@ -45,11 +41,8 @@ export const blanksAroundLists: TokenRule = {
         });
       }
 
-      // Find the "visual" end of the list: its last non-"structural"
-      // (indentation/blank-line/container-prefix) descendant's end line,
-      // walked via the tree rather than list.endLine so a trailing
-      // listItemIndent on an otherwise-empty final line doesn't push the
-      // expected "below" blank-line check past the list's real content.
+      // Use the last content token instead of list.endLine, which can include a
+      // trailing indent on an empty line.
       const flattenedChildren = filterByPredicate(
         list.children,
         (token) => !nonContentTokens.has(token.type),
@@ -60,7 +53,6 @@ export const blanksAroundLists: TokenRule = {
           ? flattenedChildren[flattenedChildren.length - 1].endLine
           : list.endLine;
 
-      // Look for a blank line below the list.
       const lastLineNumber = endLine;
       if (!isBlankLine(lines[lastLineNumber])) {
         ctx.onError({

@@ -1,8 +1,7 @@
 // Ported from markdownlint's lib/md051.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// Extends upstream MD051 with the opt-in `crossFile` option: relative link
-// and image targets must exist on disk, and a `file.md#anchor` fragment
-// must exist in the target. Upstream never validates other files.
+// Adds the opt-in `crossFile` option: relative link and image targets must exist on disk,
+// and a `file.md#anchor` fragment must exist in the target file.
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname, join, resolve, sep } from 'node:path';
 import picomatch from 'picomatch';
@@ -20,7 +19,7 @@ import {
   toWellFormedString,
 } from './helpers.js';
 
-/** Recursive-descendant type filter (any depth), matching upstream's `filterByTypes(tokens, types)` semantics -- distinct from `getDescendantsByType`'s single-type-per-depth path walk, which is the wrong shape here since `resourceDestinationString`/`definitionDestinationString` nest under a literal/raw alternation this call site doesn't want to spell out. */
+/** Finds descendants of the given types at any depth. */
 function descendantsOfType(children: Token[], type: string): Token[] {
   return filterByPredicate(children, (token) => token.type === type);
 }
@@ -33,11 +32,7 @@ const lineFragmentRe = /^#(?:L\d+(?:C\d+)?-L\d+(?:C\d+)?|L\d+)$/;
 const childrenExclude = new Set(['image', 'reference', 'resource', 'markdocTag']);
 const tokensInclude = new Set(['characterEscapeValue', 'codeTextData', 'data', 'mathTextData']);
 
-/**
- * Converts a Markdown heading into an HTML fragment according to the rules
- * used by GitHub. Ported verbatim (including the exact allowed-character
- * regex source comment) from upstream's `convertHeadingToHTMLFragment`.
- */
+/** Converts a heading into an HTML fragment the way GitHub does. */
 function convertHeadingToHTMLFragment(headingText: Token): string {
   const inlineText = filterByPredicate(
     headingText.children,
@@ -51,9 +46,7 @@ function convertHeadingToHTMLFragment(headingText: Token): string {
     encodeURIComponent(
       toWellFormedString(
         inlineText
-          // Markdoc tag markers never render, so they never slug. With
-          // markdoc parsing on, the tag subtree is excluded above; with it
-          // off, the raw {% ... %} text is stripped here.
+          // Markdoc tags are not rendered, so they are left out of the slug.
           .replace(/\{%-?[\s\S]*?-?%\}/g, '')
           .trim()
           .toLowerCase()
@@ -77,20 +70,11 @@ function unescapeStringTokenText(token: Token): string {
 }
 
 /** Anchors a document exposes: heading slugs, `{#anchors}`, and HTML id/name anchors. */
-// Mirrors the theme's client-side enhanceDetails (theme/src/core/utils/
-// details.ts), which ids EVERY <details> element in DOM order -- raw HTML
-// blocks and `{% accordion %}` tags alike, since the accordion component
-// renders a <details> whose <summary> text is its title attribute
-// (theme/src/markdoc/components/Accordion/Accordion.tsx). A <details>
-// without an explicit id gets one derived from its <summary> text --
-// whitespace collapsed to hyphens (leading and trailing included, exactly
-// like the browser's textContent), lowercased, punctuation kept -- and a
-// duplicate takes a -<index> suffix over the shared index space. Explicit
-// ids never enter the duplicate set, matching the theme. An accordion
-// whose title is not a string literal renders an id lint cannot compute:
-// it takes an index but yields no anchor. Ids store URI-encoded, the form
-// link lookups use. Matches inside code blocks are skipped: the theme only
-// ids live elements, never rendered examples.
+// Like the theme, every <details> element gets an id, including `{% accordion %}` tags.
+// Without an explicit id, the id comes from the <summary> text: whitespace becomes hyphens,
+// text is lowercased, punctuation is kept. A duplicate gets a `-<index>` suffix.
+// An accordion whose title is not a string literal takes an index but gives no anchor.
+// Matches inside code blocks are skipped.
 type DetailsSource = {
   offset: number;
   explicitId?: string;
@@ -98,8 +82,7 @@ type DetailsSource = {
   unknowable?: boolean;
 };
 
-// Drops `<...>` tag spans and keeps the text between them, the way the
-// runtime reads a summary's textContent.
+// Drops `<...>` tags and keeps the text between them.
 function stripTags(html: string): string {
   let out = '';
   let index = 0;
@@ -210,8 +193,7 @@ function collectFragments(tree: TokenTree, content: string): Map<string, number>
     }
   }
 
-  // includeHtmlFlow: true matches upstream md051.mjs, so anchors inside
-  // block-level HTML (`<div id="x">`) count too, not just inline HTML.
+  // Also match block-level HTML such as `<div id="x">`, not just inline HTML.
   for (const token of filterByTypes(tree, ['htmlText'], true)) {
     const htmlTagInfo = getHtmlTagInfo(token);
     if (htmlTagInfo && !htmlTagInfo.close) {
@@ -235,8 +217,7 @@ const targetCache = new Map<string, TargetEntry>();
 
 const MISSING: TargetEntry = { mtimeMs: -1, exists: false, fragments: null };
 
-// Anchors and existence of one on-disk file, cached by (path, mtime) so a
-// run reads each target once and edits invalidate naturally.
+// Anchors of one on-disk file, cached by path and mtime so each file is read once per run.
 function resolveTargetFile(absolutePath: string, markdoc: boolean): TargetEntry {
   let stats;
   try {
@@ -251,8 +232,7 @@ function resolveTargetFile(absolutePath: string, markdoc: boolean): TargetEntry 
   if (stats.isFile() && ['.md', '.markdown'].includes(extname(absolutePath).toLowerCase())) {
     try {
       const targetContent = readFileSync(absolutePath, 'utf8');
-      // Comment-cleared, matching the in-file path: a <details> inside an
-      // HTML comment never renders and must not produce an anchor.
+      // A <details> inside an HTML comment never renders, so it gives no anchor.
       fragments = collectFragments(
         parseMarkdown(targetContent, { markdoc }),
         clearHtmlCommentText(targetContent)
@@ -266,9 +246,8 @@ function resolveTargetFile(absolutePath: string, markdoc: boolean): TargetEntry 
   return entry;
 }
 
-// Resolves a link target the way the Realm router does: an extensionless
-// path also tries `<path>.md`, and a directory reads its `index.md` for
-// anchors.
+// Resolves a link target like the Realm router: an extensionless path also tries `<path>.md`,
+// and a directory uses its `index.md`.
 function resolveTarget(absolutePath: string, markdoc: boolean): TargetEntry {
   let stats;
   try {
@@ -291,10 +270,8 @@ function resolveTarget(absolutePath: string, markdoc: boolean): TargetEntry {
   return resolveTargetFile(absolutePath, markdoc);
 }
 
-// Site root for `/x/y` links: one root, or a map from source-directory
-// prefix to that directory's root, for a monorepo with several docs
-// projects. Paths resolve against the working directory. The longest
-// matching prefix wins, and files under no prefix keep the skip.
+// Site root for `/x/y` links: one root, or a map from source-directory prefix to root
+// for monorepos. The longest matching prefix wins; files under no prefix are skipped.
 function rootDirFor(option: unknown, filePath: string): string {
   if (typeof option === 'string') return option;
   if (!isPlainObject(option)) return '';
@@ -321,8 +298,7 @@ function checkLinkFragments(ctx: Parameters<TokenRule['check']>[0]) {
   const ignoredPattern = String(ctx.config.ignoredPattern ?? '');
   const ignoredPatternRe = new RegExp(ignoredPattern || '^$');
   const rootDir = rootDirFor(ctx.config.rootDir, ctx.filePath);
-  // Destinations to skip entirely -- routes a renderer generates from data,
-  // with no file on disk to validate against.
+  // Destinations to skip: routes generated from data have no file to check.
   const ignoredTargets = Array.isArray(ctx.config.ignoredTargets)
     ? (ctx.config.ignoredTargets as string[])
     : [];
@@ -345,8 +321,7 @@ function checkLinkFragments(ctx: Parameters<TokenRule['check']>[0]) {
     const isAbsolute = rawDestination.startsWith('/');
     if (isAbsolute && rootDir === '') return;
     const destinationPath = rawDestination.split('#')[0].split('?')[0];
-    // Leading ./ and ../ segments never match a glob's `**`, so patterns
-    // also test against the destination with those segments removed.
+    // `**` never matches leading ./ or ../, so also test the destination without them.
     const dotless = destinationPath.replace(/^(\.\.\/|\.\/)+/, '');
     if (
       ignoredTargets.length > 0 &&
@@ -400,7 +375,6 @@ function checkLinkFragments(ctx: Parameters<TokenRule['check']>[0]) {
     }
   };
 
-  // Process link and definition fragments
   const parentChilds: [string, string][] = [
     ['link', 'resourceDestinationString'],
     ['definition', 'definitionDestinationString'],

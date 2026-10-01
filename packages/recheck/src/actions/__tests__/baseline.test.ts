@@ -1,4 +1,3 @@
-// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';

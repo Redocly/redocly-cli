@@ -6,15 +6,8 @@ import type { TokenRule } from '../../types.js';
 import { formatTokenMessage } from '../messages.js';
 
 /**
- * Builds a `NormalizedRule` around one assertion id with no explicit
- * `message`, so every test exercises the rule's own `defaults.message`
- * fallback rather than a hand-written test message that could mask a bug in
- * that default. `message` is optional on `NormalizedRule` specifically so
- * this harness — and preset registration — can omit it.
- *
- * `runnerOptions` defaults to `{}`, which leaves `markdoc` off: no
- * `markdocTag` tokens exist and `ctx.markdoc` stays absent. Only the markdoc
- * rule tests pass `{ markdoc: true, markdocSchema }`.
+ * Runs one rule with no `message` set, so tests use the rule's default message.
+ * Markdoc is off unless `runnerOptions` turns it on.
  */
 export const tokenRuleHarness = (
   ruleName: string,
@@ -40,18 +33,7 @@ export const tokenRuleHarness = (
   };
 };
 
-/**
- * Escape hatch for a token rule whose id collides with a still-registered
- * legacy scope rule: `resolveAssertion` is scope-first, so a `tokenRuleHarness`
- * test would silently exercise the scope rule instead of the token rule under
- * test. This harness calls `TokenRule.check()` directly, bypassing the
- * resolver, while still formatting messages through `formatTokenMessage` so
- * `.message` assertions match the real pipeline.
- *
- * No rule needs it today: `no-trailing-spaces` and `no-hard-tabs` used to
- * collide with legacy scope rules, but those were removed, so both are tested
- * through `tokenRuleHarness`.
- */
+/** Like `tokenRuleHarness`, but calls `TokenRule.check()` directly without the rule resolver. */
 export function tokenRuleUnitHarness(rule: TokenRule, options: Record<string, unknown> = {}) {
   const build = (md: string) => {
     const tree = parseMarkdown(md);

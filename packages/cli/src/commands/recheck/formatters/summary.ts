@@ -2,9 +2,6 @@ import { logger } from '@redocly/openapi-core';
 import type { Summary } from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 
-/**
- * Emit summary in requested format to file or through the logger
- */
 export async function printSummary(
   summary: Summary,
   format: 'json' | 'text',

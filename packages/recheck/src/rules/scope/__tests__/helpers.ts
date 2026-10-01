@@ -3,10 +3,7 @@ import { parseMarkdown } from '../../../parser/index.js';
 import type { ScopedSegment } from '../../../scopes/types.js';
 import type { ScopeRuleContext } from '../../types.js';
 
-/**
- * Build a whole-file ScopedSegment, matching the runner's behavior for
- * unscoped rules (see wholeFileSegment in src/core/runner.ts).
- */
+/** Builds a segment that covers the whole file, like the runner does for unscoped rules. */
 export function wholeFileSegment(content: string): ScopedSegment {
   const lines = content.split(newLineRe);
   return {
@@ -20,10 +17,7 @@ export function wholeFileSegment(content: string): ScopedSegment {
   };
 }
 
-/**
- * Build a ScopeRuleContext for a whole-file (unscoped) rule from raw markdown
- * content — the common case in migrated assertion tests.
- */
+/** Builds a rule context for an unscoped rule from raw markdown. */
 export function buildWholeFileContext(content: string): ScopeRuleContext {
   return {
     segments: [wholeFileSegment(content)],

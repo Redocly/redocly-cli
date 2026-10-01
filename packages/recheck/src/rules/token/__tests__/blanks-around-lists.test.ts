@@ -44,11 +44,8 @@ describe('blanks-around-lists (MD032)', () => {
   });
 
   it('fixes a missing blank line below by inserting one', async () => {
-    // A plain unindented line immediately after the last list item is a
-    // lazy-continuation line (part of the list per CommonMark, per
-    // doc/md032.md's own "not a violation" example) -- it does NOT trigger
-    // this rule. Use a thematic break instead, which is never absorbed as
-    // list content and so unambiguously ends the list right where it sits.
+    // A plain line after the list would be a lazy continuation, so use a thematic break to
+    // end the list.
     const fixed = await h.fix('Text\n\n* List item\n* List item\n***\n');
     expect(fixed).toBe('Text\n\n* List item\n* List item\n\n***\n');
   });
@@ -63,10 +60,7 @@ describe('blanks-around-lists (MD032)', () => {
   });
 
   it('inserts a blockquote-prefixed blank line below a list nested in a blockquote', async () => {
-    // As with the top-level "below" case, an unindented follow-on line
-    // would be absorbed as a lazy-continuation paragraph line even inside
-    // a blockquote -- use a thematic break so the list unambiguously ends
-    // where it sits.
+    // Same here: use a thematic break to end the list.
     const md = '> Some text\n>\n> * List item\n> * List item\n> ***\n';
     const fixed = await h.fix(md);
     expect(fixed).toBe('> Some text\n>\n> * List item\n> * List item\n>\n> ***\n');

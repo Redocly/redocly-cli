@@ -1,9 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 import { getBreakdownStats, type Problem } from '@redocly/recheck';
 
-/**
- * Output problems in JSON format through the logger
- */
 export function outputJsonFormat(
   problems: Problem[],
   fileCount: number,

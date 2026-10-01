@@ -11,24 +11,14 @@ export const requiredHeadings: TokenRule = {
   defaults: {
     message: 'Required heading structure',
     matchCase: false,
-    // `headings` is declared here with an `undefined` value (rather than
-    // omitted) purely so validate()'s accepted-option allowlist -- built
-    // from `Object.keys(tokenRule.defaults)` -- knows it's a real,
-    // supported option (Object.keys includes keys whose value is
-    // `undefined`). It has NO literal default VALUE: `Array.isArray`
-    // below is `false` for `undefined` exactly like it is for a missing
-    // key, so this changes no behavior. See the check() comment for why an
-    // explicit `headings: []` must still be treated differently.
+    // Declared as `undefined` so it is an accepted option.
     headings: undefined,
   },
   check(ctx) {
     const requiredHeadingsList = ctx.config.headings;
     if (!Array.isArray(requiredHeadingsList)) {
-      // Not configured (or configured with a non-array value): nothing to
-      // check, matching upstream (params.config.headings is undefined
-      // unless the user sets it — an explicit `headings: []` is a real,
-      // meaningful "expect a document with no headings" configuration, not
-      // the same as leaving the option unset).
+      // Not configured: nothing to check. An explicit `headings: []` is different: it means
+      // the document must have no headings.
       return;
     }
     const matchCase = !!ctx.config.matchCase;

@@ -1,3 +1,2 @@
-// Fixture for markdoc-schema.test.ts: a module that exports neither a named
-// `tags` map nor a default object carrying one.
+// Fixture for markdoc-schema.test.ts: a module with no `tags` export.
 export const nodes = {};

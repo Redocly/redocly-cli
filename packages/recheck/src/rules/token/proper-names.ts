@@ -71,14 +71,8 @@ export const properNames: TokenRule = {
           ) {
             let autolinkRanges: FileRange[] = [];
             if (!scannedTokens.has(token)) {
-              // Deliberately parsed without `{ markdoc: true }`. A well-formed
-              // tag is already split out as its own `markdocTag` sibling
-              // upstream, so tag text rarely reaches this sub-parse; and when
-              // `{% ... %}` text did not tokenize upstream (an unterminated or
-              // degenerate span, or one inside code or HTML), treating it as
-              // prose is what's wanted. The flag is not a no-op here: turning
-              // it on would suppress autolinks nested inside a tag, as in
-              // `{% a href=http://x.com %}`.
+              // Parsed without `{ markdoc: true }` on purpose: with it on, autolinks inside a tag
+              // such as `{% a href=http://x.com %}` would be hidden.
               autolinkRanges = filterByTypes(parseMarkdown(token.text), ['literalAutolink']).map(
                 (tok) => ({
                   startLine: lineNumber,

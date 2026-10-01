@@ -38,7 +38,6 @@ import type { RecheckAction, RecheckArgv } from './types.js';
 const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
-// An API description is a YAML or JSON file whose root parses as a known spec.
 function isApiDescription(path: string): boolean {
   if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return false;
   try {
@@ -50,8 +49,7 @@ function isApiDescription(path: string): boolean {
   }
 }
 
-// A block with no settings and no rules means recheck is not configured.
-// A block of the wrong type counts as configured. The engine then reports the error.
+// A block of the wrong type counts as configured, so the engine can report the error.
 function hasRecheckConfig(block: Config['recheck']): boolean {
   if (!isPlainObject(block)) return true;
   const { rules, ...settings } = block;

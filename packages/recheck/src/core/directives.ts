@@ -37,10 +37,7 @@ export function parseDirectives(
     let m: RegExpExecArray | null;
     while ((m = DIRECTIVE_RE.exec(token.text)) !== null) {
       const kind = m[1] as DirectiveKind;
-      // An htmlFlow token can span several source lines (an HTML block
-      // swallows everything up to the next blank line), so the directive's
-      // line is token.startLine plus the line breaks before the match
-      // (newLineRe: a CRLF pair counts as one break).
+      // An HTML block can span several lines, so add the line breaks before the match.
       const breaksBeforeMatch = token.text.slice(0, m.index).match(newLineRe)?.length ?? 0;
       const directiveLine = token.startLine + breaksBeforeMatch;
       const rules = m[2].trim() ? m[2].trim().split(/\s+/).map(short) : [];
@@ -54,8 +51,6 @@ export function parseDirectives(
             match: r,
             ruleName: 'recheck-directive',
             severity: 'warn',
-            // Engine-generated diagnostic (like runner.ts's internalError) —
-            // no user message template, so no formatTemplate.
             message: `Inline directive names unknown rule "${r}" — check for a typo; it disables nothing.`,
           });
         }
@@ -66,9 +61,7 @@ export function parseDirectives(
   }
   events.sort((a, b) => a.line - b.line);
 
-  // Replay events to answer isSuppressed(rule, line): a rule is suppressed at
-  // `line` if the latest disable/enable event at or before `line` (or a
-  // disable-next-line targeting exactly `line`) leaves it disabled.
+  // Replay the events up to `line` to see whether the rule is disabled there.
   const isSuppressed = (ruleName: string, line: number): boolean => {
     const r = short(ruleName);
     let allDisabled = false;

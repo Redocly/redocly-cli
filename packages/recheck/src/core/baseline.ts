@@ -56,10 +56,9 @@ export function parseBaseline(content: string, sourcePath: string): BaselineFile
   return parsed;
 }
 
-/** Builds a baseline from a run's error findings. `toKey` maps a Problem's
- *  file to the config-relative form stored in the baseline. */
+/** Builds a baseline from the error findings. `toKey` gives the file name stored in the baseline. */
 export function buildBaseline(problems: Problem[], toKey: (file: string) => string): BaselineFile {
-  // Prototype-free maps, so a file or rule named `__proto__` is a plain key.
+  // No prototype, so a file or rule named `__proto__` is an ordinary key.
   const files: Record<string, Record<string, number>> = Object.create(null);
   for (const problem of problems) {
     if (problem.severity !== 'error') continue;
@@ -70,8 +69,7 @@ export function buildBaseline(problems: Problem[], toKey: (file: string) => stri
   return { version: 1, files };
 }
 
-/** Sorted keys throughout, so regeneration over unchanged input is
- *  byte-identical and diffs read as pay-downs. */
+/** Writes the baseline with sorted keys, so unchanged input gives identical output. */
 export function serializeBaseline(baseline: BaselineFile): string {
   const files: Record<string, Record<string, number>> = {};
   for (const file of Object.keys(baseline.files).sort()) {
@@ -92,11 +90,8 @@ export interface CompareOptions {
   /** Maps a Problem.file to the config-relative key the baseline stores. */
   toKey: (file: string) => string;
   /**
-   * Config-relative roots this run walked exhaustively, when it did. A
-   * baseline entry under one of these roots is in scope even when its file
-   * no longer exists -- that is how a deleted file's zombie entry turns
-   * stale. Leave unset for `--changed-only` runs, which walk nothing
-   * exhaustively.
+   * Config-relative folders that were fully scanned. Baseline entries under them count as
+   * seen even if the file was deleted, so they turn stale. Leave unset for `--changed-only`.
    */
   scanRoots?: string[];
 }
@@ -107,10 +102,9 @@ function underRoot(key: string, root: string): boolean {
 }
 
 /**
- * Applies the baseline to a run's problems. Errors only: warnings and info
- * pass through untouched. Staleness is scoped to what this run saw — a
- * (file, rule) entry is only judged when the file was scanned and the rule
- * ran, so `--rule`, `--changed-only`, and narrower paths never false-alarm.
+ * Applies the baseline to the problems. Only errors are affected. An entry is checked for
+ * staleness only if its file was scanned and its rule ran, so `--rule`, `--changed-only` and
+ * narrower paths do not cause false alarms.
  */
 export function compareToBaseline(
   problems: Problem[],
@@ -154,9 +148,8 @@ export function compareToBaseline(
     }
   }
 
-  // Stale detection: judged only inside what this run saw. A file counts as
-  // seen when it was scanned, or when it sits under an exhaustively walked
-  // root and simply was not found -- the deleted-file case.
+  // A file counts as seen if it was scanned, or if it is under a fully scanned folder
+  // and was not found (a deleted file).
   const scannedKeys = new Set(options.scannedFiles.map(options.toKey));
   const staleProblems: Problem[] = [];
   for (const [file, rules] of Object.entries(baseline.files)) {

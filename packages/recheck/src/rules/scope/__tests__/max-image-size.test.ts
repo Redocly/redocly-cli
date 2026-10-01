@@ -115,7 +115,6 @@ describe('max-image-size', () => {
         './images/medium.png': { size: 75 * 1024, exists: true }, // 75KB
       });
 
-      // Should pass with 100KB limit
       const problems100 = await maxImageSize.execute(
         createRule(100),
         'test.md',
@@ -123,7 +122,6 @@ describe('max-image-size', () => {
       );
       expect(problems100).toHaveLength(0);
 
-      // Should fail with 50KB limit
       const problems50 = await maxImageSize.execute(
         createRule(50),
         'test.md',
@@ -147,7 +145,6 @@ describe('max-image-size', () => {
         './images/document.pdf': { size: 150 * 1024, exists: true }, // 150KB
       });
 
-      // Only check PNG and SVG files
       const problems = await maxImageSize.execute(
         createRule(100, ['png', 'svg']),
         'test.md',
@@ -297,10 +294,6 @@ describe('max-image-size', () => {
   });
 
   describe('reference-style images', () => {
-    // The old regex (`!\[([^\]]*)\]\(([^)\s]+)(?:[^\)]*)?\)`) required a
-    // literal `(...)` destination right after the label, so it never
-    // matched `![alt][ref]`/`![alt][]`/`![alt]` syntax at all -- these are
-    // net-new detection, not a behavior change to an existing case.
     it('should detect an oversized full reference-style image (![alt][ref])', async () => {
       const content = `# Test Document
 
@@ -389,13 +382,7 @@ describe('max-image-size', () => {
   });
 
   describe('AST-derived positions', () => {
-    // A regex applied line-by-line can never match an image whose label
-    // soft-wraps across a source line (there's no single line containing
-    // both the opening `![` and the closing `)`) -- the old
-    // `extractImageReferences` silently missed this case entirely. Reading
-    // image tokens from the tree finds it, and reports at the token's true
-    // (possibly mid-line) start position rather than a synthetic line-1
-    // guess.
+    // An image whose label wraps onto the next line is found, and reported at the position where it starts.
     it('should detect an oversized image whose label wraps across source lines', async () => {
       const content = `Some prefix text ![alt
 text](./images/big.png) more text.
@@ -426,8 +413,7 @@ text](./images/big.png) more text.
 ![Large image](./images/large.png)
 `;
       const tree = parseMarkdown(content);
-      // Scope to headings only -- the image lives in the paragraph below,
-      // so nothing in ctx.segments overlaps its token.
+      // Only headings are in scope, but the image is in the paragraph below.
       const segments = extractScopes(tree, content).filter((s) => s.scope.startsWith('heading.'));
       const ctx: ScopeRuleContext = {
         segments,

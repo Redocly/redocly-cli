@@ -1,28 +1,16 @@
 import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
- * `recheck/markdoc` — the four Recheck-original Markdoc rules bundled into one
- * `extends`-able preset. Unlike `recheck/markdown`/`recheck/prose` they have
- * no markdownlint counterpart and no schema-derived word list; they validate
- * Markdoc TAG syntax itself (`{% tag attr="value" %}`), so they are
- * unreachable unless the caller also turns on `markdoc: true` (or its object
- * form) in the SAME config — config/validate.ts warns about that mistake.
+ * `recheck/markdoc`: rules that check Markdoc tag syntax, such as
+ * `{% tag attr="value" %}`. They only run when `markdoc` is also enabled in
+ * the same config.
  *
- * `markdoc-attributes` is genuinely MIXED: configured `error` here for the
- * structural cases (missing required, enum, wrong type, duplicate), while the
- * rule itself downgrades its "unknown attribute" reports to `warn` via a
- * per-report severity override that wins over this rule-level value. Same
- * reasoning behind `markdoc-unknown-tag` being `warn` outright — a typo in a
- * NAME is less certain than a violation of a tag's own declared shape.
+ * `markdoc-attributes` is `error`, but the rule reports unknown attributes as
+ * `warn`, the same as `markdoc-unknown-tag`: a mistyped name is less certain
+ * than a tag used against its own declared shape.
  *
- * Every rule is `fix: false`. That matches each `TokenRule`'s own `fixable:
- * false`, but is set explicitly here because the "no rule in %s is fixable"
- * test guard reads the CONFIG's `fix` field, not the rule's capability.
- *
- * `message` mirrors each rule's own `defaults.message`: `'%s'` everywhere
- * except `markdoc-syntax`, because every `onError` call already supplies the
- * complete sentence via `context` or `detail`. Independent wording here would
- * only drift from the strings each rule's tests pin with `toBe`.
+ * `fix` is `false` explicitly because the "no rule is fixable" check reads the
+ * config, not the rule. Messages come from each rule's own report text.
  */
 const MARKDOC_SYNTAX: BaseRule = {
   severity: 'error',
@@ -70,19 +58,8 @@ export const MARKDOC_PRESET_RULE_NAMES = [
 ] as const;
 
 /**
- * One entry per distinct `ctx.onError`/`reports.push` call site across the four
- * rule files — a per-VIOLATION coverage gate rather than a per-rule one, since
- * a per-rule gate leaves individual message variants untested. So this list
- * separates a bareword PRIMARY value (grammar-level) from a bareword named
- * attribute, and names a close tag carrying attributes, a self-closing tag
- * paired with an explicit close, a positional primary on a tag that declares no
- * `primary` attribute, and the duplicate-attribute walk.
- *
- * Two tests in config/__tests__/preset-markdoc.test.ts enforce this list
- * together: one fails if a class listed here never fires on the shared
- * fixture, the other counts real report call sites in the four rule files and
- * asserts the total equals this list's length — so a new report site with no
- * entry here fails immediately instead of shipping untested.
+ * One entry per kind of violation the four rule files report. Tests check that
+ * each kind fires on the shared fixture and that no report site is missing.
  */
 export const MARKDOC_VIOLATION_CLASSES = [
   // markdoc-syntax.ts

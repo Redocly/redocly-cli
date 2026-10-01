@@ -1,18 +1,8 @@
 import { filterByTypes } from '../../parser/index.js';
 import type { MarkdocAttributeSchema } from '../../parser/markdoc/schema.js';
-// Schema-aware attribute validation for tags `markdoc-unknown-tag` already
-// accepts as known (that rule owns the tag NAME itself). Detection-only.
-// Re-parses each tag's text via `parseMarkdocSpan` because the child tokens
-// structure.ts synthesizes carry positions but no `valueKind`/`value`/
-// `dynamic` data.
-//
-// Only `tag-open`/`tag-self-closing` kinds are checked: close tags carry no
-// attributes in Markdoc's grammar, and annotation/variable/function/malformed
-// spans have no tag name to look up a schema with. Annotations are a known v1
-// gap -- real Markdoc does check their attributes against the node they attach
-// to, but no per-annotation schema is modeled here. Unknown tags are skipped
-// too: upstream reports `tag-undefined` and no attribute errors for them, so
-// adding attribute reports on top of `markdoc-unknown-tag`'s would be noise.
+// Checks the attributes of known tags against the schema (`markdoc-unknown-tag` checks the
+// tag name). Only open and self-closing tags are checked: close tags have no attributes, and
+// other spans have no tag name to look up. Annotations are not checked.
 import {
   parseMarkdocSpan,
   type MarkdocAttribute,
@@ -22,15 +12,8 @@ import type { Token } from '../../parser/types.js';
 import type { TokenRule } from '../types.js';
 
 /**
- * Real Markdoc merges `{ ...globalAttributes, ...schema.attributes }` before
- * validating, so `class`/`id` are never unknown -- but a tag that declares one
- * itself wins that merge and has it value-checked like any other attribute
- * (four realm tags declare their own `id`: `input`, `step`, `tabs`, `toggle`).
- * The carve-out below therefore fires only when the tag's own schema has no
- * entry for the name, which is also why `.x`/`#x` shortcuts are always
- * schema-valid. The global case can't be value-checked at all: Markdoc's
- * `Class`/`Id` validators are custom classes, out of reach for a
- * statics-only schema -- see `MarkdocAttributeSchema`'s `dynamic` comment.
+ * `class` and `id` are allowed on every tag. A tag that declares its own `class` or `id`
+ * is checked like any other attribute.
  */
 const GLOBAL_ATTRIBUTE_NAMES: ReadonlySet<string> = new Set(['class', 'id']);
 
@@ -38,14 +21,7 @@ interface AttributeReport {
   line: number;
   column: number;
   context: string;
-  /**
-   * "Unknown attribute" is fixed at `warn`, while every other violation this
-   * rule reports (missing required, enum, wrong type, duplicate) takes the
-   * rule's configured severity (`error` in the `recheck/markdoc` preset). A
-   * rule's config severity is necessarily ONE value, so the two "is not a
-   * known attribute of" push sites set this field explicitly and every other
-   * push site leaves it unset (`info.severity ?? rule.severity`).
-   */
+  /** "Unknown attribute" is always `warn`; other reports use the rule's configured severity. */
   severity?: 'warn';
 }
 
@@ -67,13 +43,7 @@ function formatEnum(values: readonly string[]): string {
   return values.map((value) => `"${value}"`).join(', ');
 }
 
-/**
- * Type + enum ("matches") checks for one already-known, non-dynamic,
- * non-opaque attribute value -- shared by named attributes and the positional
- * primary, which real Markdoc validates identically. Upstream treats the two
- * checks as independent (a wrong-type value that also fails `matches` reports
- * both), so this pushes up to two reports rather than short-circuiting.
- */
+/** Checks the type and the enum of one attribute value. Both are reported if both fail. */
 function checkValue(
   attrName: string,
   valueKind: MarkdocValueKind,
@@ -98,10 +68,7 @@ function checkValue(
   }
 }
 
-/** Value kinds this rule cannot statically check: `variable`/`function` are
- * opaque at parse time, and `bareword` is already `markdoc-syntax`'s report --
- * a type/enum verdict on a value that isn't legal Markdoc would contradict
- * that rule's "quote the value" advice. */
+/** Value kinds that cannot be checked: variables and functions, and barewords (reported by `markdoc-syntax`). */
 function isOpaqueOrSyntaxOwned(kind: MarkdocValueKind): boolean {
   return kind === 'variable' || kind === 'function' || kind === 'bareword';
 }
@@ -110,20 +77,15 @@ export const markdocAttributes: TokenRule = {
   name: 'markdoc-attributes',
   tags: ['markdoc'],
   fixable: false,
-  // Bare placeholder: every `onError` call supplies the complete sentence
-  // via `context`.
   defaults: {
     message: '%s',
   },
   check(ctx) {
-    if (!ctx.markdoc) return; // flag off -- no markdocTag tokens exist at all
+    if (!ctx.markdoc) return; // markdoc parsing is off
     const { schema } = ctx.markdoc;
-    if (!schema) return; // `schema: false` -- nothing to validate attributes against
+    if (!schema) return; // `schema: false`
 
-    // One tag can produce reports from four independent checks (primary,
-    // per-attribute, missing-required, duplicate) run in whatever order is
-    // convenient to compute, so reports are collected and sorted at the end
-    // to leave this rule in document order rather than check order.
+    // Checks run in different orders, so sort the reports into document order at the end.
     const reports: AttributeReport[] = [];
 
     for (const token of filterByTypes(ctx.tree, ['markdocTag'])) {
@@ -131,23 +93,18 @@ export const markdocAttributes: TokenRule = {
 
       const nameChild = token.children.find((child) => child.type === 'markdocTagName');
       const tagName = nameChild?.text;
-      if (!tagName) continue; // defensive only: both kinds always carry a name child
+      if (!tagName) continue;
 
       const tagSchema = schema.tags[tagName];
-      if (!tagSchema) continue; // unknown tag -- markdoc-unknown-tag's report, not this rule's
+      if (!tagSchema) continue; // unknown tag, reported by markdoc-unknown-tag
 
       const attributes = tagSchema.attributes ?? {};
       const parsed = parseMarkdocSpan(token.text);
-      // Defensive only: `token.markdocKind` came from this same parse.
       if (parsed.kind !== 'tag-open' && parsed.kind !== 'tag-self-closing') continue;
 
-      // ---- primary: Markdoc's positional value slot, validated against the
-      // schema attribute literally named `primary`. Checked before the
-      // named-attribute loop only because its span offset is always earlier;
-      // the final sort makes that ordering non-load-bearing.
+      // Primary: the positional value, checked against the schema attribute named `primary`.
       let primaryPresent = false;
-      // Hoisted out of the branch below: the duplicate-attribute walk needs
-      // this position too.
+      // Also used by the duplicate-attribute check below.
       const primaryToken = token.children.find((child) => child.type === 'markdocTagPrimary');
       if (parsed.primary) {
         primaryPresent = true;
@@ -156,9 +113,7 @@ export const markdocAttributes: TokenRule = {
           const position = primaryToken ?? token;
           const primarySchema = attributes.primary;
           if (!primarySchema) {
-            // Upstream treats a primary value on a tag that declares no
-            // `primary` attribute like any other undeclared name, so this is
-            // the "unknown attribute" class -- `warn`, per AttributeReport.
+            // A primary value on a tag with no `primary` attribute is an unknown attribute (`warn`).
             reports.push({
               line: position.startLine,
               column: position.startColumn,
@@ -171,18 +126,11 @@ export const markdocAttributes: TokenRule = {
         }
       }
 
-      // ---- named attributes. Real Markdoc validates the MERGED
-      // last-write-wins attributes object, not the raw source list, so
-      // `{% t a=1 a=2 %}` with `a` undeclared reports `attribute-undefined`
-      // once, not twice. `lastByName` reproduces that collapse: the
-      // unknown/type/enum checks below fire once per NAME, on the last
-      // occurrence's value and position. The separate duplicate pass further
-      // down still walks every raw occurrence, since it needs the repetition
-      // this map erases.
+      // Named attributes. Markdoc keeps only the last value of a repeated name, so
+      // `{% t a=1 a=2 %}` with `a` undeclared reports one unknown attribute.
+      // The duplicate check below still walks every occurrence.
       const attributeTokens = token.children.filter((child) => child.type === 'markdocAttribute');
-      // `index` is carried alongside the pair so the value-position lookup in
-      // the loop is an O(1) array read rather than an `indexOf` scan per
-      // entry -- otherwise O(n²) for a long attribute list.
+      // `index` lets the loop find the value position without scanning.
       const lastByName = new Map<
         string,
         { attribute: MarkdocAttribute; index: number; position: Token }
@@ -200,11 +148,8 @@ export const markdocAttributes: TokenRule = {
         const { attribute, index: attributeIndex, position: nameTokenPos } = entry;
         const attrSchema = attributes[attrName];
         if (!attrSchema) {
-          // `class`/`id` are never "unknown" when the tag itself declares no
-          // entry for the name; a tag that does declare its own takes the
-          // ordinary declared-attribute path (see `GLOBAL_ATTRIBUTE_NAMES`).
+          // `class` and `id` are never unknown.
           if (GLOBAL_ATTRIBUTE_NAMES.has(attrName)) continue;
-          // `warn` -- the "unknown attribute" class, per AttributeReport.
           reports.push({
             line: nameTokenPos.startLine,
             column: nameTokenPos.startColumn,
@@ -213,11 +158,10 @@ export const markdocAttributes: TokenRule = {
           });
           continue;
         }
-        if (attrSchema.dynamic) continue; // value checks skip dynamic attributes (see schema.ts)
+        if (attrSchema.dynamic) continue; // dynamic values cannot be checked
         if (isOpaqueOrSyntaxOwned(attribute.valueKind)) continue;
 
-        // Value checks report at the value's own position, not the name's --
-        // the same split `markdoc-syntax` uses for its bareword check.
+        // Value checks report at the value's position, not the name's.
         const attributeToken = attributeTokens[attributeIndex];
         const valueTokenPos =
           attributeToken?.children.find((child) => child.type === 'markdocAttributeValue') ??
@@ -233,18 +177,9 @@ export const markdocAttributes: TokenRule = {
         );
       }
 
-      // ---- missing required. Unlike the type/enum checks above, this runs
-      // even for `dynamic` attributes: upstream enforces `required` purely on
-      // absence, independent of `type`/`matches`/a tag-level `validate()`.
-      // The realm schema has attributes that are both `required` and
-      // `dynamic` (`diagram.file`, `diagram.type`, `code-snippet.file`), so
-      // skipping those would silently diverge from upstream. (`partial.file`
-      // carries no `required` in the composed schema at all.)
-      //
-      // Presence folds three sources: named attributes, the positional
-      // primary (any value kind -- even a `bareword`, whose shape is
-      // `markdoc-syntax`'s report; it still occupies the slot, so `required`
-      // is satisfied and nothing double-reports), and class/id shortcuts.
+      // Missing required. This also runs for `dynamic` attributes, because Markdoc checks
+      // `required` only by absence. A positional primary (even a bareword) or a class/id
+      // shortcut counts as present.
       const presentNames = new Set<string>(lastByName.keys());
       if (primaryPresent) presentNames.add('primary');
       for (const shortcut of parsed.shortcuts ?? []) presentNames.add(shortcut.kind);
@@ -258,22 +193,9 @@ export const markdocAttributes: TokenRule = {
         });
       }
 
-      // ---- duplicate-attribute. One pass over the positional primary, every
-      // named attribute and every shortcut IN SOURCE ORDER, replicating real
-      // Markdoc's own parser, the only place it raises this error:
-      //
-      // - The positional primary, a named attribute and an `id` shortcut all
-      //   go through one branch upstream, which checks whether the name is
-      //   already set, reports if so, then marks it set either way. The
-      //   primary always sits at the lowest offset, so it can only ever be
-      //   the item something else collides WITH, never the collider.
-      // - A `class` shortcut takes a separate branch that never checks -- it
-      //   only merges into the `class` map -- so class shortcuts never
-      //   collide with each other.
-      // - Hence an order-dependent asymmetry: `{% t .a class="b" %}` reports
-      //   a duplicate, while `{% t class="b" .a %}` reports nothing. Walking
-      //   in true source order reproduces both verdicts; direction-agnostic
-      //   set membership would not.
+      // Duplicate attributes. Walk the primary, named attributes and shortcuts in source order,
+      // like Markdoc's parser. `class` shortcuts never collide with each other, so
+      // `{% t .a class="b" %}` reports a duplicate but `{% t class="b" .a %}` does not.
       const shortcutTokens = token.children.filter((child) => child.type === 'markdocShortcut');
       const duplicateItems: DuplicateItem[] = [
         ...(parsed.primary

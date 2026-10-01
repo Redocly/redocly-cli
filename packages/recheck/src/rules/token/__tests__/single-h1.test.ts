@@ -48,15 +48,7 @@ describe('single-h1 (MD025)', () => {
   });
 
   it('still flags a second top-level heading when frontmatter has no title key (regression)', async () => {
-    // Upstream strips YAML frontmatter out of the token stream entirely
-    // before scanning (see markdownlint's removeFrontMatter/frontMatterLines
-    // handling) -- frontmatter with no recognized title is simply invisible
-    // to the "is the first heading actually first" check. Recheck's parser
-    // keeps a `yaml` token in the tree instead, so without treating it as
-    // non-content here, frontmatter-with-no-title before the first h1 was
-    // wrongly read as "content precedes the first heading", making
-    // `hasTopLevelHeading` false and silently suppressing a real duplicate
-    // top-level-heading violation.
+    // Front matter without a title must not count as content before the first h1.
     const problems = await h.lint('---\nproducts:\n  - Redoc\n---\n# H1 one\n\n# H1 two\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(7);

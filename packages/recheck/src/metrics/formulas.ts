@@ -1,6 +1,5 @@
 import type { TextStatistics } from './statistics.js';
 
-/** The six supported readability formulas, all computed from a `TextStatistics`. */
 export type ReadabilityFormula =
   | 'flesch-reading-ease'
   | 'flesch-kincaid-grade'
@@ -14,16 +13,9 @@ function round2(value: number): number {
 }
 
 /**
- * Computes a readability score from pre-computed `TextStatistics` using the
- * standard published definition for `formula` (cited per-case below),
- * rounded to 2 decimals.
- *
- * Contract: every one of these formulas divides by `words` and/or
- * `sentences`, so a stats object with 0 words or 0 sentences (e.g. an empty
- * or non-prose input) would otherwise produce NaN/Infinity. Rather than
- * propagate that, `computeReadability` returns `0` for every formula in
- * that case -- callers (e.g. the `metric` assertion) should treat that 0 as
- * "not enough text to score", not as a genuine "perfectly readable" result.
+ * Computes a readability score from text statistics, rounded to 2 decimals.
+ * Returns 0 when there are no words or no sentences, which means "not enough
+ * text to score", not "perfectly readable".
  */
 export function computeReadability(formula: ReadabilityFormula, stats: TextStatistics): number {
   const { words, sentences, syllables, characters, complexWords } = stats;
@@ -52,12 +44,8 @@ export function computeReadability(formula: ReadabilityFormula, stats: TextStati
     }
     case 'smog': {
       // McLaughlin, G.H. (1969). "SMOG Grading -- a New Readability
-      // Formula." Journal of Reading, 12(8), 639-646. Canonically requires
-      // sampling 30 sentences (10 each from the start/middle/end of a
-      // document) for validity; like most software implementations (e.g.
-      // the widely-used `textstat`/`text-readability` ports), this applies
-      // the same formula directly to whatever sentence count is available
-      // rather than refusing to score shorter text.
+      // Formula." Journal of Reading, 12(8), 639-646. The original samples 30
+      // sentences. Like most implementations, this scales to however many there are.
       return round2(1.043 * Math.sqrt(complexWords * (30 / sentences)) + 3.1291);
     }
     case 'coleman-liau': {

@@ -1,6 +1,4 @@
-// Fixture for markdoc-schema.test.ts: shares `widget` with module-a.ts,
-// defined IDENTICALLY -- exercises the merge's identical-duplicate tolerance
-// (case 2), alongside a tag of its own no other fixture defines.
+// Fixture for markdoc-schema.test.ts: defines `widget` exactly like module-a.ts, plus a tag of its own.
 export const tags = {
   widget: {
     selfClosing: true,

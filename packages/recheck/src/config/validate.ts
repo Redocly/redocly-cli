@@ -29,9 +29,7 @@ const ajv = new (Ajv as any)({
 });
 (addFormats as any)(ajv); // mismatching AJV typing due to fork
 ajv.addSchema(RECHECK_CONFIG_SCHEMA, 'recheck-config');
-// Compiled once so `markdoc.extend.tagsFile` entries get exactly the same
-// per-tag shape check a config's own inline `extend.tags` gets from the
-// schema above, without recompiling on every validate() call.
+// Compiled once, to check the tags read from `markdoc.extend.tagsFile`.
 const validateMarkdocTagShape = ajv.compile(MARKDOC_TAG_SCHEMA);
 
 /**
@@ -47,12 +45,7 @@ function validateStructure(config: any): ValidationError[] {
 
   if (!valid && validate.errors) {
     return validate.errors.map((error: any) => {
-      // AJV's own `additionalProperties` message ("must NOT have additional
-      // properties") never names the offending key in `error.message`
-      // itself — it's only available on `error.params.additionalProperty`.
-      // Naming it here is what turns a schema-illegal key (e.g. the removed
-      // `autoFixable`) into an actionable, greppable error rather than a
-      // "which property?" guessing game.
+      // AJV does not name the unknown key in its message, so add it.
       const extra =
         error.keyword === 'additionalProperties' && error.params?.additionalProperty
           ? ` (unknown property "${error.params.additionalProperty}")`
@@ -82,13 +75,7 @@ function validateAssertions(rule: BaseRule, name: string, errors: ValidationErro
   for (const assertionType of Object.keys(rule.assertions)) {
     let resolved;
     try {
-      // Delegates to the same registry runRules() uses to dispatch
-      // assertions (rules/registry.ts resolveAssertion), rather than a
-      // hand-maintained list of known assertion ids duplicated here. Every
-      // scope AND token rule (including every markdownlint-ported rule
-      // registered via src/rules/token/index.ts) is "known" the moment
-      // it's registered, so this can't silently drift out of sync the way
-      // a hardcoded switch/case list did per rule-porting batch.
+      // Same lookup the runner uses, so every registered rule is known here.
       resolved = resolveAssertion(assertionType);
     } catch {
       errors.push({
@@ -98,26 +85,15 @@ function validateAssertions(rule: BaseRule, name: string, errors: ValidationErro
       continue;
     }
 
-    // Scope-rule assertions (pattern, occurrence, swap, ...) each have their
-    // own dedicated per-assertion validator below; token rules (the 53
-    // markdownlint-ported rules) had no option checking at all until now --
-    // see validateTokenRuleOptions.
+    // Scope assertions have their own validators below. Token rules are checked here.
     if (resolved.kind === 'token') {
       validateTokenRuleOptions(rule, name, assertionType, resolved.rule, errors);
     }
   }
 }
 
-// A misspelled option on a ported (token) rule used to validate clean and
-// silently no-op -- invisible in a 100-rule style-guide config. Each token
-// rule's own `defaults` object is the schema of record: it's the exact set
-// of keys the rule reads off `ctx.config` (see e.g. rules/token/line-length.ts
-// `defaults: { message, lineLength, codeBlocks, tables, headings, ... }`).
-// `message` is always allowed because every token rule's `defaults` includes
-// it (verified for all 53 ported rules) -- this is distinct from the
-// RULE-level `message`/`severity`/`scope`/`fix`/`link`/`excludes`/
-// `appliesTo`/`exceptions`/`assertions` keys, which are not assertion
-// options and are validated elsewhere (schema.ts / validateAssertions).
+// A misspelled option on a token rule would otherwise be silently ignored.
+// The rule's `defaults` list every option it accepts.
 function validateTokenRuleOptions(
   rule: BaseRule,
   name: string,
@@ -140,13 +116,8 @@ function validateTokenRuleOptions(
 }
 
 /**
- * Shared guard for every per-assertion option validator below: returns the
- * assertion's options when they are a plain object, `undefined` when the
- * assertion isn't configured on this rule, and pushes an "options must be
- * an object" error for anything else. The JSON schema can't catch this
- * shape mistake (`assertions` values are `additionalProperties: true`), so
- * without it e.g. `occurrence: "oops"` validates cleanly and misbehaves at
- * lint time.
+ * Returns the assertion's options if they are a plain object, or `undefined` if it is not set.
+ * Reports an error for any other value, which the JSON schema cannot catch.
  */
 function requireOptionsObject(
   rule: BaseRule,
@@ -169,21 +140,10 @@ function requireOptionsObject(
   return config;
 }
 
-// `negate` is included here (rather than left to fall through to the
-// generic "unknown option" error below) so a config that sets it gets ONE
-// specific, actionable message -- see the dedicated check in
-// validatePatternOptions, not a redundant generic one alongside it.
+// `negate` is listed so it gets its own error message below.
 const PATTERN_OPTION_KEYS = new Set(['tokens', 'ignoreCase', 'nonword', 'includeCode', 'negate']);
 
-/**
- * Rejects the removed `pattern` option `negate`. Git history shows it never
- * functioned in ANY version of the engine — the check always sat inside the
- * match-iteration loop, so `negate: true` reported nothing, ever, and a
- * pattern's ABSENCE never reported either. Rather than silently ignoring a
- * config key that reads like it inverts the rule, validation fails loudly;
- * existence checks ("flag when a pattern is absent") are planned as a
- * Vale-parity feature.
- */
+/** Validates the `pattern` options. `negate` is rejected because it never worked. */
 function validatePatternOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
   const patternConfig = requireOptionsObject(rule, name, 'pattern', errors);
   if (!patternConfig) return;
@@ -206,16 +166,7 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
     });
   }
 
-  // `tokens`, `ignoreCase`, and `nonword` used to have no type check at all --
-  // `tokens: "ab"` (a string, not an array) validated
-  // clean, then pattern.ts's `for (const token of tokens)` iterated the
-  // STRING CHARACTER BY CHARACTER ('a' and 'b' each compiled as their own
-  // regex), and `ignoreCase: "yes"` (any non-empty string is truthy)
-  // silently flipped case-sensitivity on a typo. `tokens` is required (not
-  // `tokens?:` -- see PatternAssertion in types/assertions.ts) and, like
-  // `swap`'s `pairs` and `consistency`'s `either`, an EMPTY tokens array can
-  // never report anything, so both shape and non-emptiness are checked here
-  // -- same reasoning as validateSwapOptions/validateConsistencyOptions.
+  // An empty `tokens` array can never report anything, so it is an error too.
   const { tokens, ignoreCase, nonword } = patternConfig as {
     tokens?: unknown;
     ignoreCase?: unknown;
@@ -247,9 +198,6 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
     });
   }
 
-  // Default `false`: a match inside inline code is skipped, by range, not
-  // by masking the text (see rules/scope/pattern.ts), matching swap's
-  // `includeCode` option.
   const includeCode = patternConfig.includeCode;
   if (includeCode !== undefined && typeof includeCode !== 'boolean') {
     errors.push({
@@ -259,12 +207,7 @@ function validatePatternOptions(rule: BaseRule, name: string, errors: Validation
   }
 }
 
-/**
- * Validates the `occurrence` assertion's options. Omitting BOTH `min` and
- * `max` is an error — an occurrence assertion with no bound can never
- * report anything — and so is an inverted range (`min` > `max`), which no
- * count can satisfy.
- */
+/** Validates the `occurrence` options. Needs `min` or `max`, and `min` must not exceed `max`. */
 const OCCURRENCE_OPTION_KEYS = new Set(['pattern', 'min', 'max', 'ignoreCase']);
 
 function validateOccurrenceOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
@@ -292,12 +235,6 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
     });
   }
 
-  // `min`/`max` used to have no type check at all --
-  // `occurrence: { pattern: ",", max: "two" }` used to validate clean, then
-  // occurrence.ts's `count > "two"` is NaN-false (a number is never `>` a
-  // non-numeric string), so a max-bounded rule NEVER fires. Every sibling
-  // numeric validator (`metric`, `length`, `list-length`) already checks
-  // this; occurrence didn't.
   if (min !== undefined && typeof min !== 'number') {
     errors.push({
       message: 'Occurrence option "min" must be a number',
@@ -319,10 +256,7 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
     });
   }
 
-  // A missing/empty/non-string `pattern` silently compiles to an
-  // always-matching empty pattern in occurrence.ts's execute() — a
-  // max-bounded rule then floods every segment with false positives and a
-  // min-only rule can never fire. Reject loudly instead.
+  // An empty pattern would match everywhere.
   if (typeof pattern !== 'string' || pattern.length === 0) {
     errors.push({
       message: 'Occurrence requires a non-empty string "pattern"',
@@ -331,12 +265,7 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
   }
 }
 
-/**
- * Validates the `repetition` assertion's options. Both are optional
- * (defaults `\w+` / `true` -- see rules/scope/repetition.ts), but when
- * present `pattern` must be a non-empty string (an empty one compiles to an
- * always-matching zero-width regex) and `ignoreCase` a boolean.
- */
+/** Validates the `repetition` options. Both are optional. */
 const REPETITION_OPTION_KEYS = new Set(['pattern', 'ignoreCase']);
 
 function validateRepetitionOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
@@ -369,13 +298,7 @@ function validateRepetitionOptions(rule: BaseRule, name: string, errors: Validat
   }
 }
 
-/**
- * Validates the `consistency` assertion's options. `either` is required and
- * must be a non-empty object mapping one non-empty variant string to
- * another -- with no pairs the assertion can never report anything, and an
- * empty-string key would reach consistency.ts's scan loop as a zero-width
- * regex.
- */
+/** Validates the `consistency` options. `either` needs at least one pair of variants. */
 const CONSISTENCY_OPTION_KEYS = new Set(['either', 'ignoreCase']);
 
 function validateConsistencyOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
@@ -431,13 +354,7 @@ function validateConsistencyOptions(rule: BaseRule, name: string, errors: Valida
   }
 }
 
-/**
- * Validates the `conditional` assertion's options. Both `first` and
- * `second` are required, non-empty strings. Deliberately does NOT check
- * that they compile as regexes: like `pattern`'s `tokens`, they are raw
- * user patterns and an invalid one silently produces zero problems at
- * runtime (see conditional.ts).
- */
+/** Validates the `conditional` options. `first` and `second` are required strings. */
 const CONDITIONAL_OPTION_KEYS = new Set(['first', 'second', 'ignoreCase']);
 
 function validateConditionalOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
@@ -481,17 +398,7 @@ function validateConditionalOptions(rule: BaseRule, name: string, errors: Valida
   }
 }
 
-/**
- * Validates the `capitalization` assertion's options. `match` is required
- * and must be a non-empty string (a `$`-style or a custom regex — an
- * invalid regex is deliberately NOT rejected here; it silently produces
- * zero problems at runtime, like `pattern`'s `tokens`). `style` is accepted
- * alongside ANY `match` value, not just `$title` (the only one it affects)
- * — setting it elsewhere is a documented harmless no-op. `exceptions`
- * entries must be non-empty strings or they'd silently never match in the
- * exception lookup. `builtinVocabulary` (default `true`, see
- * ../data/proper-nouns.ts) must be a boolean when present.
- */
+/** Validates the `capitalization` options. `match` is required. */
 const CAPITALIZATION_OPTION_KEYS = new Set(['match', 'exceptions', 'style', 'builtinVocabulary']);
 
 function validateCapitalizationOptions(
@@ -554,13 +461,7 @@ function validateCapitalizationOptions(
   }
 }
 
-/**
- * Validates the `metric` assertion's options. `formula` is required and
- * must be one of the six formulas `computeReadability` supports -- an
- * unrecognized value would otherwise throw at lint time. At least one of
- * `min`/`max` is required, and an inverted range (`min` > `max`) is an
- * error -- same reasoning as `occurrence` above.
- */
+/** Validates the `metric` options. `formula` is required, and `min` or `max` is needed. */
 const METRIC_OPTION_KEYS = new Set(['formula', 'min', 'max']);
 const METRIC_FORMULAS = new Set([
   'flesch-reading-ease',
@@ -623,21 +524,8 @@ function validateMetricOptions(rule: BaseRule, name: string, errors: ValidationE
 }
 
 /**
- * Shared `min`/`max` integer-range check for `length` and `list-length`:
- * both measure a COUNT
- * that can never be negative (characters/words/sentences/list items), so a
- * bound of `min: 0` (or any `min <= 0`) can NEVER be violated by a real
- * count -- "must have at least 0 words" is vacuously true for every
- * document -- and a negative `max` (e.g. `max: -1`) is violated by EVERY
- * real count, since no count is ever less than a negative number. Neither is
- * a meaningful bound; both are silent no-op/always-fire footguns. `min` must
- * therefore be a positive integer and `max` a non-negative integer when
- * present (`max: 0` is a real, meaningful "must be empty" bound, unlike a
- * negative one). Fractional bounds (`min: 2.5`) are also rejected: both
- * assertions always measure whole units, so a fractional bound could never
- * be matched exactly either. Only runs when the value is ALREADY a number --
- * a wrong-typed value is reported once by the caller's own type check, not
- * duplicated here.
+ * Checks `min` and `max` for `length` and `list-length`. Counts cannot be negative, so `min` must
+ * be a positive integer and `max` a non-negative integer. Wrong types are reported by the caller.
  */
 function validateCountBounds(
   name: string,
@@ -666,24 +554,8 @@ function validateCountBounds(
 }
 
 /**
- * Validates the `list-length` assertion's options (rules/token/list-length.ts
- * -- a Recheck-original TOKEN rule, not a markdownlint port). Unlike the
- * scope-assertion validators above (occurrence, metric, ...), the generic
- * `validateTokenRuleOptions` already rejects an unknown option name for every
- * token rule -- derived from `Object.keys(rule.defaults)`, which declares
- * both `min` and `max` (see list-length.ts's doc comment on its `max:
- * undefined` default) -- so this only adds the type/range checks that
- * mirror validateOccurrenceOptions/validateMetricOptions: `min`/`max` must be
- * numbers when present, an inverted range (`min` > `max`) is an error -- no
- * item count could ever satisfy it -- and `min`/`max`
- * must additionally be a positive/non-negative INTEGER, per
- * validateCountBounds above: unlike occurrence/metric, list-length's counts
- * can never be negative, so `min: 0` can never fire and `max: -1` always
- * fires, neither a meaningful bound. Omitting BOTH `min` and `max` is
- * deliberately NOT an error here, unlike occurrence/metric: list-length's own
- * `defaults.min` is 2, so an empty `list-length: {}` is already a complete,
- * meaningful configuration (flag any list under 2 items), not a no-op
- * assertion with nothing to check.
+ * Validates the `list-length` options. `min` and `max` are optional, because the rule has a
+ * default `min` of 2.
  */
 function validateListLengthOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
   const listLengthConfig = requireOptionsObject(rule, name, 'list-length', errors);
@@ -715,14 +587,7 @@ function validateListLengthOptions(rule: BaseRule, name: string, errors: Validat
   validateCountBounds(name, 'list-length', min, max, errors);
 }
 
-/**
- * Validates the `spelling` assertion's options. All are optional — an
- * empty `spelling: {}` is valid (default dictionary). When present,
- * `dictionary` must be a non-empty string, and `vocab`/`ignore` arrays of
- * non-empty strings — an empty-string `ignore` pattern would compile to an
- * always-matching regex, silencing every word. `builtinVocabulary` (default
- * `true`, see ../data/proper-nouns.ts) must be a boolean when present.
- */
+/** Validates the `spelling` options. All are optional. */
 const SPELLING_OPTION_KEYS = new Set(['dictionary', 'vocab', 'ignore', 'builtinVocabulary']);
 
 function validateSpellingOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
@@ -782,14 +647,7 @@ function validateSpellingOptions(rule: BaseRule, name: string, errors: Validatio
   }
 }
 
-/**
- * Validates the `length` assertion's options. `unit` is required and must be
- * one of `'characters' | 'words' | 'sentences'` -- an unrecognized value
- * would otherwise reach `length.ts`'s `measure()` and fall through to the
- * word-tokenizer branch silently, scoring the wrong thing with no error.
- * At least one of `min`/`max` is required, and an inverted range (`min` >
- * `max`) is an error -- same reasoning as `occurrence`/`metric` above.
- */
+/** Validates the `length` options. `unit` is required, and `min` or `max` is needed. */
 const LENGTH_OPTION_KEYS = new Set(['unit', 'min', 'max']);
 const LENGTH_UNITS = new Set(['characters', 'words', 'sentences']);
 
@@ -843,21 +701,10 @@ function validateLengthOptions(rule: BaseRule, name: string, errors: ValidationE
     });
   }
 
-  // `min: 0` (never
-  // violated -- a segment can't have fewer than 0 characters/words/
-  // sentences) and a negative `max` (always violated) are silent no-op/
-  // always-fire footguns, same reasoning as list-length's identical check
-  // above -- see validateCountBounds's doc comment.
   validateCountBounds(name, 'length', min, max, errors);
 }
 
-/**
- * Validates each find -> replace entry under `swap.pairs`: the KEY must be
- * a non-empty string (an empty one escapes to a zero-width pattern in
- * swap.ts's findMatches, same hazard as consistency's `either` keys); the
- * VALUE must be a string, possibly empty -- an empty replacement is a
- * legitimate "delete this word" swap.
- */
+/** Validates the entries of `swap.pairs`. A replacement may be empty, which deletes the match. */
 function validateSwapPairEntries(
   entries: [string, unknown][],
   name: string,
@@ -882,15 +729,8 @@ function validateSwapPairEntries(
 }
 
 /**
- * Validates the `swap` assertion's options. Exactly one shape is accepted
- * -- the only one swap.ts's findMatches actually consumes:
- *
- *   `{ ignoreCase?, wordBoundary?, keysAreRegex?, pairs: {find: replace} }`
- *
- * The legacy "direct" top-level shape (`swap: { he: they }`) is rejected
- * with a migration hint: findMatches only ever reads `options.pairs`, so
- * direct entries validated fine but were silently inert -- rejecting them
- * turns that no-op into an actionable config error.
+ * Validates the `swap` options. Find and replace entries must be under `pairs`.
+ * Entries at the top level are rejected because they would be ignored.
  */
 const SWAP_RESERVED_KEYS = new Set([
   'ignoreCase',
@@ -956,25 +796,8 @@ function validateSwapOptions(rule: BaseRule, name: string, errors: ValidationErr
 }
 
 /**
- * Missing-peer validation for `spelling`: `nspell` and `dictionary-en` are
- * OPTIONAL peer dependencies, so a config that enables `spelling` without
- * them installed must fail here with an actionable install command rather
- * than as a bare "Cannot find module" the first time a file is linted.
- * Runs per spelling rule so a mix of default-dictionary and
- * custom-dictionary rules gets the right install command for each; a
- * config with no `spelling` assertion never reaches an `import()` call at
- * all, keeping validate() lazy about the peers.
- *
- * ALSO validates that a custom `dictionary`
- * path actually names a readable `.aff`/`.dic` pair: the check above only
- * ever checked whether `nspell` itself imports, never whether the FILES a
- * `dictionary` option points at exist — so a missing/unreadable custom
- * dictionary used to pass validation cleanly and only fail (silently: see
- * spelling.ts's `loadSpeller`/`spellerCache`) the first time a file was
- * linted, disabling spelling for the rest of the process. Resolved via
- * `resolveDictionaryPaths`, SHARED with spelling.ts's own
- * `readCustomDictionary`, so validate() and the runtime can never disagree
- * about which files a `dictionary` path names.
+ * Checks that the optional `nspell` and `dictionary-en` packages are installed when `spelling`
+ * is used, and that a custom `dictionary` points to readable `.aff` and `.dic` files.
  */
 async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<ValidationError[]> {
   const errors: ValidationError[] = [];
@@ -995,8 +818,7 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
       missingPeer = true;
     }
 
-    // A custom-dictionary rule never touches `dictionary-en` (see
-    // spelling.ts's loadDictionary), so its absence must not fail it.
+    // A custom dictionary does not use `dictionary-en`.
     if (!hasCustomDictionary) {
       try {
         await import('dictionary-en');
@@ -1011,18 +833,15 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
       const message =
         `The spelling assertion requires the optional peer dependenc${hasCustomDictionary ? 'y' : 'ies'} ` +
         `${peerNames} — run \`${installCommand}\` to enable it.`;
-      // Each distinct message is reported once, at the first offending
-      // rule's path; a mixed config still reports both install commands.
+      // Report each message once, at the first rule that needs it.
       if (!reportedMessages.has(message)) {
         reportedMessages.add(message);
         errors.push({ message, path: `${rule.name}.assertions.spelling` });
       }
     }
 
-    // Independent of the peer-import check above: even when `nspell`
-    // imports fine, a custom `dictionary` option may still name files that
-    // don't exist or aren't readable. Dedupe by the raw dictionary path
-    // string so several rules sharing one bad path only report once.
+    // Even with `nspell` installed, a custom dictionary may point to missing files.
+    // Report each path once.
     if (hasCustomDictionary && !reportedDictionaryPaths.has(dictionaryPath)) {
       reportedDictionaryPaths.add(dictionaryPath);
       const { aff, dic } = resolveDictionaryPaths(dictionaryPath);
@@ -1049,20 +868,9 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
 }
 
 /**
- * Warns about a config that extends the `recheck/markdoc` preset without
- * turning markdoc parsing on. The preset's four rules only look at
- * `ctx.markdoc`, which the runner populates only when parsing is enabled, so
- * such a config ships four rule entries that can never report. That is dead
- * weight rather than a broken config, so this goes to the `warn` callback (the
- * validation result carries only errors, no warnings) and `isValid` stays
- * `true`.
- *
- * Reads the raw, pre-`resolveExtends` `extends` array rather than the merged
- * config: post-merge, the four rule keys the preset contributes are
- * indistinguishable from a user hand-writing the same `recheck/markdoc-*` keys
- * directly, which is a legitimate way to opt into only some of them and is not
- * what this warning is about. The literal `"recheck/markdoc"` entry in
- * `extends` is the one unambiguous signal that the preset itself was requested.
+ * Warns when a config extends `recheck/markdoc` but has markdoc parsing off, because the
+ * preset's rules cannot report then. Goes to `warn`, so `isValid` stays `true`.
+ * Reads the raw `extends` list, because after merging, preset rules look like user rules.
  */
 function warnStaleMarkdocPreset(
   extendsList: unknown,
@@ -1078,16 +886,8 @@ function warnStaleMarkdocPreset(
 }
 
 /**
- * Reads, parses, and shape-checks `markdoc.extend.tagsFile`, resolved
- * relative to `configDir`. Returns the file's tags (already validated per
- * entry against the same `MARKDOC_TAG_SCHEMA` inline `extend.tags` uses) plus
- * any config errors; a non-empty error list means the caller must treat
- * markdoc as disabled for this call, the same as any other structurally
- * invalid markdoc shape.
- *
- * Deliberately does not touch the filesystem unless `raw` actually names a
- * `tagsFile` -- a config with markdoc off, or with only inline `extend.tags`,
- * must never probe for a file it never referenced.
+ * Reads and checks `markdoc.extend.tagsFile`, relative to `configDir`. Returns the tags and any
+ * errors. Does not touch the file system when there is no `tagsFile`.
  */
 async function loadMarkdocTagsFile(
   raw: boolean | MarkdocUserConfig | undefined,
@@ -1144,26 +944,14 @@ async function loadMarkdocTagsFile(
     fileTags[tagName] = tagValue as MarkdocTagSchema;
   }
 
-  // Any per-tag shape failure invalidates the whole file's contribution --
-  // partially trusting a file that failed its own shape check would silently
-  // merge an unvalidated tag into the resolved schema.
+  // One bad tag invalidates the whole file.
   if (errors.length > 0) return { errors };
   return { fileTags, errors: [] };
 }
 
 /**
- * Stale-pattern warning: a `pattern` assertion token that starts
- * with the literal characters `^#` almost always indicates a config
- * written for the pre-AST line-based scope extractor, where segment
- * content still included the raw `#` heading marker. After the AST
- * migration, non-`raw`/non-`all` scopes (e.g. `heading`, `sentence`,
- * `paragraph`) hand `pattern` only the semantic TEXT of the segment — the
- * literal markup is already stripped — so a token anchored on `^#` can
- * never match and the rule silently does nothing. `scope: raw` (and the
- * default `scope: all`, which also sees full raw file content) are exempt:
- * both still see literal markup, so `^#` is a legitimate anchor there.
- * This exact silent-death case was found in the repo's own recheck.yaml
- * after the AST migration.
+ * Warns about a `pattern` token that starts with `^#` in a scope other than `raw` or `all`.
+ * Those scopes pass only the text without markup, so the token can never match.
  */
 function warnStalePatternPrefix(
   rule: BaseRule,
@@ -1175,11 +963,7 @@ function warnStalePatternPrefix(
 
   const scopeEntries =
     rule.scope === undefined ? [] : Array.isArray(rule.scope) ? rule.scope : [rule.scope];
-  // Each scope entry may itself be a `&`-joined selector clause (e.g.
-  // '~blockquote & ~heading') — split and check every term, since ANY
-  // non-raw/non-all term in the selector means some matched segments will
-  // be semantic-text-only. Parsed via the selector module's own tokenizer
-  // so this check can't drift from how compileSelector reads the entry.
+  // A scope entry can join terms with `&`, so check every term.
   const scopeTerms = scopeEntries.flatMap((entry) =>
     typeof entry === 'string' ? tokenizeSelector(entry).map(({ term }) => term) : []
   );
@@ -1198,19 +982,9 @@ function warnStalePatternPrefix(
 }
 
 /**
- * Vale parity: `metric` rules are ALWAYS summary-scoped — readability is a
- * whole-document score over the document's prose, which is exactly what the
- * `summary` scope segments carry (see scopes/extractor.ts). Any rule whose
- * assertions include `metric` gets `scope: 'summary'` forced here, so the
- * runner hands metric.ts the summary segments and the rule never re-extracts
- * scopes itself. A config that EXPLICITLY set some other scope gets a
- * warning that the scope is ignored — a warning, not an error, because the
- * rule still behaves correctly; ValidationResult has no warning channel
- * (only errors), so this uses the `warn` callback via `warnOnce`, the
- * `warnStalePatternPrefix` precedent above. Explicitness comes from
- * `hasExplicitScope` (captured BEFORE schema validation): AJV `useDefaults`
- * injects `scope: 'all'` onto every rule that omitted it, so post-schema the
- * two cases are indistinguishable.
+ * Forces `scope: summary` on rules with a `metric` assertion, because readability is scored over
+ * the whole document's prose. Warns if the user set another scope.
+ * `hasExplicitScope` is needed because AJV adds `scope: all` to rules without one.
  */
 function normalizeMetricScope(
   rule: BaseRule,
@@ -1235,12 +1009,7 @@ function normalizeMetricScope(
   return 'summary';
 }
 
-/**
- * Validates a rule's `scope` field against the full scope vocabulary and
- * selector syntax (optional `~` negation, `&`-joined terms). AJV only
- * checks the structural shape (string, or array of strings); this is the
- * term-level check that gives a helpful message naming the bad term.
- */
+/** Checks each term of a rule's `scope` against the scope vocabulary and selector syntax. */
 function validateScope(rule: BaseRule, name: string, errors: ValidationError[]): void {
   if (rule.scope === undefined) return;
   const entries = Array.isArray(rule.scope) ? rule.scope : [rule.scope];
@@ -1252,14 +1021,7 @@ function validateScope(rule: BaseRule, name: string, errors: ValidationError[]):
         path: `${name}.scope`,
       });
     }
-    // `all`/`raw` as a TERM inside a compound or negated selector expression
-    // (`heading & all`, `~all`, `~code & ~raw`) is the within-entry variant
-    // of the array-mixing mistake rejected below: the conjunction form
-    // compiles to a predicate that can never match (silently reporting
-    // nothing), the negated form to one that matches every segment. The
-    // shared helper (scopes/selector.ts) is also what makes compileSelector
-    // throw on these shapes, so validation and compilation reject exactly
-    // the same inputs.
+    // `all` or `raw` inside a compound or negated selector never matches or matches everything.
     for (const problem of wholeDocumentKeywordProblems(entry)) {
       errors.push({
         message: `Invalid scope — ${problem}`,
@@ -1268,13 +1030,7 @@ function validateScope(rule: BaseRule, name: string, errors: ValidationError[]):
     }
   }
 
-  // `all`/`raw` are whole-document keywords, not segment names — the
-  // extractor never emits segments with those scopes, so combining either
-  // with any other array entry (e.g. `scope: [all, code]`) can only ever
-  // silently match nothing for the `all`/`raw` part. A single-element array
-  // (`scope: ['all']`) is fine — compileSelector normalizes it to the bare
-  // string's whole-document semantics — but a mix is a config mistake that
-  // must fail loudly rather than validate and then report zero findings.
+  // `all` and `raw` cover the whole document, so they cannot be mixed with other scopes.
   if (entries.length > 1) {
     for (const entry of entries) {
       if (typeof entry !== 'string') continue; // caught by schema
@@ -1292,12 +1048,8 @@ function validateScope(rule: BaseRule, name: string, errors: ValidationError[]):
 }
 
 /**
- * Per-assertion `%s` message-placeholder caps. `metric` passes four values
- * (formula, score, min, max); `length` passes three (size, unit, bound --
- * see rules/scope/length.ts's FALLBACK_MAX/FALLBACK_MIN); every other
- * assertion passes at most two. A rule's cap is the largest among its
- * configured assertions, so a message can never declare more slots than its
- * assertion will ever fill.
+ * The most `%s` placeholders a message may have. `metric` fills four and `length` three. Other
+ * assertions fill two. A rule gets the highest cap of its assertions.
  */
 const MESSAGE_PLACEHOLDER_CAPS: Record<string, number> = {
   metric: 4,
@@ -1325,9 +1077,7 @@ function validateSemantics(
   const errors: ValidationError[] = [];
   const rules: NormalizedRule[] = [];
 
-  // Dedupes the stale-pattern warning below to once per distinct message
-  // for this whole validate() call — a config with the same stale pattern
-  // shape on more than one rule only warns once per load.
+  // Each distinct warning is shown once.
   const warnedMessages = new Set<string>();
   const warnOnce = (message: string) => {
     if (warnedMessages.has(message)) return;
@@ -1337,16 +1087,10 @@ function validateSemantics(
 
   for (const [key, rule] of Object.entries(config)) {
     try {
-      // Derive name and shortName
       const name = key;
       const shortName = key.replace(/^recheck\//, '');
 
-      // Validate message placeholder count against the rule's own
-      // per-assertion cap (see MESSAGE_PLACEHOLDER_CAPS above). `rule.message`
-      // is required by the JSON schema (see schema.ts `required`) so it is
-      // always a string by the time a config passes AJV structural
-      // validation; the `?? ''` only satisfies the now-optional
-      // NormalizedRule/BaseRule type.
+      // `message` is required by the schema, so `?? ''` only satisfies the type.
       const placeholderCount = ((rule.message ?? '').match(/%s/g) || []).length;
       const placeholderCap = messagePlaceholderCap(rule);
       if (placeholderCount > placeholderCap) {
@@ -1356,10 +1100,8 @@ function validateSemantics(
         });
       }
 
-      // Assertions validation
       validateAssertions(rule, name, errors);
 
-      // Removed `pattern` options (negate) must fail loudly, not no-op
       validatePatternOptions(rule, name, errors);
 
       validateOccurrenceOptions(rule, name, errors);
@@ -1373,14 +1115,10 @@ function validateSemantics(
       validateSwapOptions(rule, name, errors);
       validateLengthOptions(rule, name, errors);
 
-      // Scope vocabulary/selector-syntax validation
       validateScope(rule, name, errors);
 
-      // Stale `^#`-prefixed pattern token vs. non-raw/non-all scope
       warnStalePatternPrefix(rule, name, warnOnce);
 
-      // Create normalized rule. `metric` rules are forced to
-      // `scope: summary` (see normalizeMetricScope above).
       const normalizedRule: NormalizedRule = {
         ...rule,
         scope: normalizeMetricScope(rule, name, rulesWithExplicitScope.has(name), warnOnce),
@@ -1484,10 +1222,8 @@ function tokenDefaultMessage(assertionId: string): string | undefined {
 }
 
 /**
- * Full validation pipeline. `options.configDir` (default `process.cwd()`) is
- * where a relative `markdoc.extend.tagsFile` resolves from -- the directory
- * containing the config file, so a project's `tagsFile: ./tags.yaml` behaves
- * the same regardless of the caller's own working directory.
+ * Validates a config. `options.configDir` (default `process.cwd()`) is where a relative
+ * `markdoc.extend.tagsFile` resolves from.
  */
 export async function validate(
   config: any,
@@ -1496,34 +1232,16 @@ export async function validate(
   isValid: boolean;
   errors: ValidationError[];
   rules: NormalizedRule[];
-  // Opt-in Markdoc tokenization flag plus its resolved schema, normalized by
-  // `resolveMarkdocConfig` from either the boolean shorthand or the object
-  // form. `enabled` is `true` only for the literal `true` or an object with a
-  // `schema` (including `schema: false`, which still parses and pairs); any
-  // other value, including an invalid shape that structural validation already
-  // rejects, normalizes to disabled. `schema` is the resolved schema to
-  // validate tags and attributes against, or `null` when there is none.
+  // `enabled` is true for `markdoc: true` or an object with a `schema` (including `schema: false`).
+  // `schema` is null when there is none.
   markdoc: { enabled: boolean; schema: MarkdocSchema | null };
-  /** The config's top-level `baseline` path, as written (config-relative). */
+  /** The `baseline` path, as written. */
   baselinePath?: string;
 }> {
   const warn = options?.warn ?? (() => {});
 
-  // Resolve `extends` presets before schema validation of rules: the
-  // merged (preset + user) config is what gets schema/semantic-validated,
-  // so patternProperties only ever sees real `<namespace>/<rule>` rule keys
-  // (`recheck/*` and, since the style-guide presets were added, `google/*`,
-  // `microsoft/*`, and other preset-namespaced ids -- see schema.ts).
-  // `extends` itself is schema-legal at the top level (see schema.ts) but
-  // is stripped here — it is not a rule and must not reach rule iteration.
-  // `resolveExtends` only fails to merge the UNRESOLVABLE preset name(s) it
-  // reports in `extendsErrors` — every other preset and all of the user's
-  // own top-level rule keys still land in `resolvedConfig` — so structure
-  // and semantic validation below still run against everything that DID
-  // resolve, instead of being skipped just because one `extends` entry
-  // named an unknown preset. An unknown preset used to short-circuit semantic
-  // validation entirely, hiding e.g. an unknown assertion id elsewhere in the
-  // same config.
+  // Expand presets first, so the schema checks the merged config. An unknown preset name does
+  // not stop the other rules from being validated.
   const hasExtends = isPlainObject(config) && 'extends' in config;
   const { config: mergedConfig, errors: extendsErrors } = hasExtends
     ? resolveExtends(config)
@@ -1532,12 +1250,7 @@ export async function validate(
     ? fillDefaultMessages(mergedConfig)
     : mergedConfig;
 
-  // Which rules carry an EXPLICIT `scope`, recorded before validateStructure
-  // runs: AJV `useDefaults` mutates the config in place, injecting
-  // `scope: 'all'` onto every rule that omitted it, so this is the only
-  // point where "configured" and "defaulted" scopes are distinguishable —
-  // normalizeMetricScope needs the distinction to warn only about scopes a
-  // user actually wrote.
+  // Remember which rules set `scope` themselves, because AJV fills in `scope: 'all'` on the rest.
   const rulesWithExplicitScope = new Set(
     isPlainObject(resolvedConfig)
       ? Object.entries(resolvedConfig)
@@ -1555,21 +1268,13 @@ export async function validate(
   );
 
   const structureErrors = validateStructure(resolvedConfig);
-  // `markdoc`, like `extends`, is an engine-level flag rather than a rule, so
-  // it is read here before being stripped from rule iteration below.
-  // `resolveMarkdocConfig` is defensive about the shape it is handed, so this
-  // is safe to call even when `structureErrors` is about to report the same
-  // value as invalid (e.g. `{ schema: 'bogus' }`).
+  // `markdoc` is a setting, not a rule. Read it here and remove it before the rules are checked.
   const rawMarkdoc = (resolvedConfig as { markdoc?: unknown } | null | undefined)?.markdoc as
     | boolean
     | MarkdocUserConfig
     | undefined;
   let { enabled: markdocEnabled, schema: markdocSchema } = resolveMarkdocConfig(rawMarkdoc);
-  // The stale-preset warning is independent of structure and semantic
-  // validity, so it runs here rather than after an error-return path below
-  // could short-circuit it. Calling `warn` directly is enough: unlike
-  // `warnStalePatternPrefix`, which runs once per rule and needs the deduping
-  // `warnOnce`, this fires at most once per `validate()` call.
+  // Runs before the early return below, so the warning is not skipped.
   warnStaleMarkdocPreset(
     hasExtends ? (config as { extends?: unknown }).extends : undefined,
     markdocEnabled,
@@ -1584,18 +1289,13 @@ export async function validate(
     };
   }
 
-  // Only reached once structural validation passed, so `rawMarkdoc`'s shape
-  // (including `extend.tagsFile`, when present) is already known-good --
-  // safe to resolve and read the file now. `loadMarkdocTagsFile` itself
-  // never touches the filesystem when there's no `tagsFile` to load.
+  // The shape is valid by now, so it is safe to read `tagsFile`.
   const { fileTags, errors: tagsFileErrors } = await loadMarkdocTagsFile(
     rawMarkdoc,
     options?.configDir ?? process.cwd()
   );
   if (tagsFileErrors.length > 0) {
-    // Degrade exactly like any other invalid markdoc shape: a broken
-    // tagsFile leaves no trustworthy schema for markdoc rules to run
-    // against for this call.
+    // A broken tags file leaves no schema to check tags against, so turn markdoc off.
     markdocEnabled = false;
     markdocSchema = null;
   } else if (fileTags) {
@@ -1609,10 +1309,7 @@ export async function validate(
     ));
   }
 
-  // Then validate semantics of everything that resolved successfully.
-  // `markdoc` is stripped first, exactly as `extends` is stripped in
-  // resolveExtends, so rule iteration in validateSemantics never sees it.
-  // Structural validation passed, so every rule entry is complete.
+  // Then check the rules. `markdoc` is removed first because it is not a rule.
   const {
     markdoc: _markdoc,
     excludes: globalExcludes,
@@ -1628,8 +1325,7 @@ export async function validate(
     warn,
     rulesWithExplicitScope
   );
-  // Merged ahead of each rule's own list rather than replacing it: a rule
-  // that already excludes a path keeps doing so.
+  // Added before each rule's own list, so a rule keeps the paths it already excludes.
   const rules = globalExcludes?.length
     ? validatedRules.map((rule) => ({
         ...rule,

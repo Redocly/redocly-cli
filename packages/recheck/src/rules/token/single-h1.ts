@@ -29,29 +29,16 @@ export const singleH1: TokenRule = {
     );
     if (matchingHeadings.length === 0) return;
 
-    // A front matter title counts as the document's top-level heading — see
-    // frontMatterHasTitle's doc comment (upstream `front_matter_title`).
+    // A front matter title counts as the top-level heading.
     const foundFrontMatterTitle = frontMatterHasTitle(ctx.tree, ctx.config.frontMatterTitle);
 
     let hasTopLevelHeading = foundFrontMatterTitle;
     if (!hasTopLevelHeading) {
       const firstMatch = matchingHeadings[0];
-      // Walk TOP-LEVEL tokens only (`ctx.tree.children`), matching
-      // upstream: `params.parsers.micromark.tokens` (what md025.mjs slices)
-      // is the document's top-level sibling list, not a depth-first
-      // flattening. Using `ctx.tree.flat` here would also include
-      // descendants of the first top-level token -- e.g. an `htmlFlow`
-      // HTML-comment block's `htmlFlowData` child, which `isHtmlFlowComment`
-      // only recognizes on the top-level `htmlFlow` token itself.
+      // Look at top-level tokens only. Descendants (like the `htmlFlowData` child of an `htmlFlow`
+      // comment) would confuse `isHtmlFlowComment`.
       const previousTokens = ctx.tree.children.slice(0, ctx.tree.children.indexOf(firstMatch));
-      // See getFrontmatterEndLine's doc comment: recheck's parser keeps
-      // frontmatter as real tokens in the tree (unlike upstream, which
-      // strips it out before tokenizing), so every token through the end
-      // of the frontmatter block must be treated as non-content here too
-      // — otherwise frontmatter with no recognized title before the first
-      // heading was wrongly read as "content precedes the first heading",
-      // making `hasTopLevelHeading` false and silently suppressing a real
-      // duplicate top-level-heading violation.
+      // Frontmatter is part of the tree here, so tokens up to its end are not content either.
       const frontmatterEndLine = getFrontmatterEndLine(ctx.tree);
       hasTopLevelHeading = previousTokens.every(
         (token) =>

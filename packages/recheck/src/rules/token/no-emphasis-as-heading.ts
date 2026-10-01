@@ -24,12 +24,7 @@ export const noEmphasisAsHeading: TokenRule = {
   check(ctx) {
     const punctuation = String(ctx.config.punctuation ?? allPunctuation);
     const punctuationRe = new RegExp(`[${punctuation}]$`);
-    // Upstream permits paragraphs that are either top-level or inside a
-    // top-level htmlFlow (lines 34-37 of md036.mjs). Since Task 12 htmlFlow
-    // reparse, paragraphs marked inHtmlFlow are excluded by default;
-    // includeHtmlFlow: true (third arg) re-includes them. The filter checks
-    // parent chains: include if parent is content AND either (no grandparent
-    // = top-level) OR (grandparent is htmlFlow with no great-grandparent).
+    // Like upstream, match paragraphs that are top-level or inside a top-level htmlFlow.
     const paragraphTokens = filterByTypes(ctx.tree, ['paragraph'], true).filter(
       (token) =>
         token.parent?.type === 'content' &&

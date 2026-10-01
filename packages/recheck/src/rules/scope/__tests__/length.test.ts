@@ -7,9 +7,7 @@ import type { NormalizedRule, LengthAssertion } from '../../../types/index.js';
 import type { ScopeRuleContext } from '../../types.js';
 import { length } from '../length.js';
 
-// Builds a ScopeRuleContext filtered to the given scope predicate; there is no
-// higher-level runner helper, so tests build the context directly and call
-// length.execute().
+// Builds a rule context with only the segments whose scope matches the filter.
 function buildScopedContext(
   content: string,
   scopeFilter: (scope: string) => boolean
@@ -69,8 +67,7 @@ describe('length assertion', () => {
   });
 
   it('does not count a leading bold label toward a sentence word count', async () => {
-    // House style writes '**Label:** Description.' — the label is structure,
-    // not part of the sentence being measured.
+    // '**Label:** Description.' is common; the label is not counted as part of the sentence.
     const content = '**Setup:** One two three four five.\n';
     const rule = lengthRule(undefined, 'sentence', { unit: 'words', max: 5 });
     const ctx = buildScopedContext(content, (scope) => scope === 'sentence');
@@ -101,8 +98,7 @@ describe('length assertion', () => {
     expect(problems).toHaveLength(1);
   });
 
-  // Headings are emitted as heading.h1..h6 only; there is no bare 'heading'
-  // scope to match against.
+  // Headings only have scopes heading.h1 to heading.h6, there is no plain 'heading'.
   it('flags a segment under min', async () => {
     const content = '# Hi\n';
     const rule = lengthRule(undefined, 'heading.h1', { unit: 'words', min: 2 });
@@ -125,9 +121,7 @@ describe('length assertion', () => {
     expect(problems[0].column).toBe(4);
   });
 
-  // Zero matching segments (e.g. no heading at all) means nothing to
-  // check, not a min-violation of an imaginary empty segment — same
-  // convention as occurrence (see occurrence.test.ts).
+  // No matching segments means nothing to check, so there is no min violation.
   it('reports zero problems when the scope matches no segment at all, even for a min-bounded rule', async () => {
     const content = 'Just a paragraph, no heading anywhere.\n';
     const rule = lengthRule(undefined, 'heading.h1', { unit: 'words', min: 2 });
@@ -139,9 +133,7 @@ describe('length assertion', () => {
     expect(problems).toEqual([]);
   });
 
-  // Same recipe as buildScopedContext, but with `markdoc: true` -- a masked
-  // segment's `maskedRanges` only exists when the parse knows about Markdoc
-  // tags.
+  // Same as buildScopedContext, but parses Markdoc tags so segments know their masked ranges.
   function buildMarkdocContext(
     content: string,
     scopeFilter: (scope: string) => boolean
@@ -152,9 +144,7 @@ describe('length assertion', () => {
   }
 
   describe('markdoc masking (flag on): `characters` excludes the masked tag span', () => {
-    // A masked markdoc tag span is blanked to same-width spaces rather than
-    // removed, so a raw `content.length` counts the invisible tag along with
-    // the real prose: 36 characters for the 10 a reader actually sees.
+    // A masked tag is replaced by spaces of the same width, so `content.length` would count it: 36 characters instead of the 10 a reader sees.
     const content = '# Head text {% #averylonganchorname %}\n';
 
     it("sanity: the segment's masked content is 36 characters, 26 of them the tag", () => {
@@ -200,8 +190,7 @@ describe('length assertion', () => {
       const over = lengthRule(undefined, 'heading.h1', { unit: 'words', max: 1 });
       const ctx = buildMarkdocContext(content, (scope) => scope === 'heading.h1');
 
-      // "Head text" is 2 words; the tag's own name and attribute text was
-      // never tokenized as words either way.
+      // "Head text" is 2 words; the tag's name and attributes are not counted.
       expect(await length.execute(under, 'test.md', ctx)).toEqual([]);
       const problems = await length.execute(over, 'test.md', ctx);
       expect(problems).toHaveLength(1);
@@ -335,12 +324,7 @@ describe('length assertion', () => {
       });
     });
 
-    // Final-review fix (Item 5's "while there" follow-up): a segment's
-    // character/word/sentence count can never be negative, so `min: 0` (or
-    // less) can never be violated by a real segment, and a negative `max`
-    // is violated by every real segment -- neither is a meaningful bound.
-    // Both are now rejected, same reasoning (and same shared
-    // validateCountBounds helper) as list-length's identical fix.
+    // `min: 0` can never be violated and a negative `max` is always violated, so both are rejected.
     describe('validation rejects a non-positive min, a negative max, and non-integer bounds', () => {
       it('rejects min: 0 (can never be violated by a real segment)', async () => {
         const result = await validate(lengthConfig({ unit: 'words', min: 0 }));
@@ -388,9 +372,7 @@ describe('length assertion', () => {
     });
   });
 
-  // length's fallback messages carry three `%s` placeholders (size, unit,
-  // bound). The token-rule single-placeholder constraint does not apply to
-  // scope rules, which build Problem.message themselves via formatTemplate.
+  // The fallback messages have three `%s` placeholders: size, unit and bound.
   describe('message placeholder cap is 3', () => {
     it('a 3-placeholder custom message validates', async () => {
       const result = await validate({

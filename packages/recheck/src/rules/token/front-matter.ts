@@ -10,9 +10,7 @@ import { isPlainObject } from '../../utils/is-plain-object.js';
 import type { TokenRule } from '../types.js';
 import { fileMatchesAnyPattern } from '../utils.js';
 
-// Built-in schemas selectable by name, so a project gets one without
-// vendoring a copy that goes stale. Same shape as `markdoc: { schema:
-// realm }`, which names its built-in the same way.
+// Built-in schemas that can be selected by name.
 const BUILT_IN_SCHEMAS: Record<string, Record<string, unknown>> = {
   realm: REALM_FRONT_MATTER_SCHEMA,
 };
@@ -33,9 +31,8 @@ type SchemaMapping = {
 type ValidatorEntry = { validate: ValidateFunction } | { failure: string };
 const validatorCache = new WeakMap<object, ValidatorEntry>();
 
-// A schema that cannot load or compile must fail at the RULE's severity on
-// every matching file -- a thrown error would surface as an internal
-// warning, and warnings do not fail the run.
+// A schema that cannot load or compile is reported at the rule's severity.
+// A thrown error would only be a warning and would not fail the run.
 function validatorFor(mapping: SchemaMapping): ValidatorEntry {
   const cached = validatorCache.get(mapping);
   if (cached) return cached;
@@ -80,9 +77,7 @@ function buildValidator(mapping: SchemaMapping): ValidatorEntry {
     };
   }
 
-  // `strict` closes the schema without the author restating its
-  // properties. An explicit `additionalProperties` in the schema itself
-  // stays authoritative.
+  // `strict` rejects unknown keys, unless the schema sets `additionalProperties` itself.
   const compiled =
     mapping.strict === true && !('additionalProperties' in schema)
       ? { ...schema, additionalProperties: false }
@@ -99,9 +94,8 @@ function buildValidator(mapping: SchemaMapping): ValidatorEntry {
   }
 }
 
-// A value that fails every branch of `anyOf`/`oneOf` produces one error per
-// branch plus the summary error, so one wrong value would report three
-// times. Keep the summary and drop the branch errors at the same path.
+// A value that fails `anyOf`/`oneOf` gives one error per branch plus a summary.
+// Keep the summary and drop the branch errors at the same path.
 function collapseBranchErrors(errors: ErrorObject[]): ErrorObject[] {
   const branchPaths = new Set(
     errors
@@ -124,8 +118,8 @@ function pointerSegments(instancePath: string): string[] {
     .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'));
 }
 
-// The front matter line that opens the error's top-level key, so a nested
-// error still points at a real line. Keys may be quoted in the source.
+// Finds the line of a top-level key, so a nested error still points at a line.
+// The key may be quoted.
 function lineForKey(key: string, valueLines: Token[], blockStartLine: number): number {
   const candidates = [`${key}:`, `'${key}':`, `"${key}":`];
   for (const line of valueLines) {
@@ -180,8 +174,7 @@ export const frontMatter: TokenRule = {
     if (validate(data)) return;
     for (const error of collapseBranchErrors(validate.errors ?? [])) {
       const segments = pointerSegments(error.instancePath);
-      // additionalProperties errors sit on the object; the offending key is
-      // in params, and that key's line is the useful one.
+      // For additionalProperties the error is on the object; the extra key is in params.
       const extraKey =
         error.keyword === 'additionalProperties'
           ? (error.params as { additionalProperty?: string }).additionalProperty

@@ -16,11 +16,7 @@ import type {
 import { presets } from '../presets/index.js';
 import { validate } from '../validate.js';
 
-// Same namespace-check reasoning as preset-google.test.ts: this preset's
-// rule keys are `microsoft/<rule>`, not `recheck/<rule>`, so
-// `NormalizedRule.shortName` (which only strips a LEADING `recheck/`
-// prefix) never touches them -- `shortName === name === the raw config
-// key` for every rule here, same as recheck/google.
+// The rule keys here are `microsoft/<rule>`, not `recheck/<rule>`, so `shortName` equals the full key.
 describe('recheck/microsoft preset namespace', () => {
   it('every rule key in the preset is namespaced microsoft/<rule>, not recheck/<rule>', () => {
     const keys = Object.keys(presets['recheck/microsoft']);
@@ -33,27 +29,7 @@ describe('recheck/microsoft preset namespace', () => {
   });
 });
 
-// =============================================================================
-// Detection-only by design (2026-07-30): five adversarial probes of this
-// preset's (and recheck/google's) previously-fixable pairs, across three
-// rounds of narrowing the fix-safety criterion, found a RISING corruption
-// rate on genuinely correct prose (the last round: 18 of 29 probed pairs,
-// 62%) spanning every category once believed safe -- including spelling and
-// hyphenation. The project decision: remove auto-fix from this preset
-// entirely, not narrow the criterion again. See microsoft.ts's own
-// "DETECTION-ONLY BY DESIGN" header note and
-// `presets/microsoft/PROVENANCE.md`'s "Detection-only" section for the full
-// history.
-//
-// This is the PERMANENT GUARANTEE the brief asks for: derived from the LIVE
-// preset object (`presets['recheck/microsoft']`), not a hand-maintained list
-// of rule names -- the same inversion the per-pair coverage gate already
-// uses. A future contributor adding a new rule, or a new pair to an
-// existing rule, and omitting `fix: false` cannot silently reintroduce
-// fixing here: `buildMicrosoftPreset()`'s own blanket override (microsoft.ts)
-// already prevents that at the source, and this test proves the RETURNED
-// object reflects it.
-// =============================================================================
+// No rule may be fixable. This reads the live preset, so a new rule cannot bring fixing back.
 describe('recheck/microsoft preset is detection-only (Step 1 permanent guarantee)', () => {
   it('no rule in the live preset is fixable', () => {
     const preset = presets['recheck/microsoft'];
@@ -74,10 +50,7 @@ function fixture(name: string): string {
 }
 
 describe('recheck/microsoft preset fixtures', () => {
-  // Catches the Vale failure mode: a rule that ships but can never fire.
-  // Every rule key the preset registers must appear at least once in the
-  // reported rule-name set when linting a document that deliberately
-  // violates every one of them.
+  // A rule that ships but can never fire would go unnoticed otherwise.
   it('reports every rule the preset ships', async () => {
     const violations = await readFile(fixture('microsoft-violations.md'), 'utf8');
     const problems = await lintContent(violations, { extends: ['recheck/microsoft'] });
@@ -86,13 +59,7 @@ describe('recheck/microsoft preset fixtures', () => {
     expect([...shipped].filter((r) => !reported.has(r))).toEqual([]);
   });
 
-  // The other half of the acceptance gate: compliant prose -- including the
-  // guide's OWN approved examples ("Microsoft's" referring to the company,
-  // a spaced en-dash UI timestamp, first-mention acronym carve-outs, and
-  // the developer-audience terms header/context menu/disk/directory) --
-  // must produce zero findings. A false positive here means either the
-  // fixture secretly violates the guide (fix the fixture) or the rule is
-  // noisier than judged (move it out of the preset).
+  // Compliant prose, including the guide's own approved examples, must produce no findings.
   it("reports nothing on compliant prose, including the guide's own approved examples", async () => {
     const md = await readFile(fixture('microsoft-clean.md'), 'utf8');
     const problems = await lintContent(md, { extends: ['recheck/microsoft'] });
@@ -100,22 +67,11 @@ describe('recheck/microsoft preset fixtures', () => {
   });
 });
 
-// =============================================================================
-// Per-PAIR coverage gate (mirrors preset-google.test.ts's identical gate,
-// added there after nine corrupting pairs shipped behind a green per-RULE
-// gate -- four of which were found only after this gate was added). One
-// firing pair per rule is not enough: every OTHER pair in a multi-pair swap
-// rule must independently be proven to fire too, or a corrupting pair (a
-// case-only no-op, a substring collision, a dead lookbehind) can ship
-// invisibly. The trigger document is generated from the LIVE preset object,
-// not a hand-maintained fixture, so it cannot silently drift as pairs are
-// added or removed.
-// =============================================================================
+// Checks every swap pair, not only every rule. The trigger document is built from the live preset,
+// so it follows added or removed pairs.
 
-// `keysAreRegex: true` pairs store a regex SOURCE as their key, not literal
-// text (e.g. `\bvs\.` requires embedding the text "vs.", not the four
-// characters `\bvs\.` themselves). A future regex pair added here without a
-// matching entry fails the test below LOUDLY, naming the exact missing key.
+// Regex keys (`keysAreRegex`) need literal trigger text, for example `vs.` for `\bvs\.`. A regex key
+// without an entry fails the test and is named.
 const REGEX_KEY_EXAMPLES: Record<string, Record<string, string>> = {
   'microsoft/versus-in-text': {
     '\\bvs\\.': 'vs.',
@@ -277,31 +233,19 @@ const REGEX_KEY_EXAMPLES: Record<string, Record<string, string>> = {
   },
 };
 
-// A `keysAreRegex: true` rule can still carry keys that are plain literal
-// text under the hood (e.g. `microsoft/no-click`'s `click on`, which has no
-// regex metacharacters at all). Only keys containing characters that
-// signal deliberate regex syntax need a registered translation above;
-// anything else is safe to embed directly.
+// Some keys of a `keysAreRegex` rule are plain text (for example `click on`). Only keys with regex
+// syntax need an entry above.
 const RAW_REGEX_SYNTAX = /[\\()?!^$|{}[\]]/;
 
 interface CoverageCase {
   ruleName: string;
-  /** The raw config key, exactly as it appears under `pairs` — what's reported in a failure message. */
+  /** The raw config key, as shown in failure messages. */
   configKey: string;
-  /** The literal text to embed in the generated document and look for in the reported `match`. */
+  /** The literal text to put in the document and find in the reported `match`. */
   example: string;
-  /**
-   * `consistency` only: a variant that must appear EARLIER in the document
-   * than `example` so `example` (the config key's own variant) is the one
-   * consistency.ts reports as "losing".
-   */
+  /** `consistency` only: a variant placed earlier in the document, so `example` is the one reported. */
   preamble?: string;
-  /**
-   * True when the OWNING rule is scoped to `heading` only (e.g.
-   * `microsoft/vs-in-headings`) — its trigger text must be embedded in an
-   * actual heading line, not an ordinary paragraph, or the rule's own scope
-   * filter would never see it.
-   */
+  /** True when the rule only looks at headings, so the trigger text must be in a heading line. */
   headingOnly?: boolean;
 }
 
@@ -339,18 +283,12 @@ describe('recheck/microsoft preset per-pair coverage', () => {
       }
     }
 
-    // A missing regex-example entry is itself a coverage failure -- fail
-    // here, with the exact key named, rather than silently skipping it.
+    // A regex key without an example fails here, with the key named.
     expect(missingExamples).toEqual([]);
-    expect(cases.length).toBeGreaterThan(150); // sanity: this preset ships 190+ pairs
+    expect(cases.length).toBeGreaterThan(150);
 
-    // One paragraph per case (plus an earlier preamble paragraph for
-    // `consistency` cases) -- paragraphs never merge across a blank line,
-    // so no two cases' trigger text can overlap or shadow each other.
-    // `headingOnly` cases (rules scoped strictly to `heading`, e.g.
-    // `microsoft/vs-in-headings`) are embedded as their own heading line
-    // instead -- a heading-scoped rule's scope filter never sees paragraph
-    // text, so a paragraph-embedded trigger would silently never fire.
+    // One paragraph per case, plus an earlier paragraph for `consistency` cases, so trigger texts cannot
+    // overlap. `headingOnly` cases go in a heading line, because heading rules never see paragraph text.
     const blocks: string[] = [];
     cases.forEach((c, i) => {
       if (c.preamble !== undefined) {
@@ -388,35 +326,9 @@ describe('recheck/microsoft preset per-pair coverage', () => {
   });
 });
 
-// =============================================================================
-// Per-TOKEN coverage for `pattern`-based rules.
-// The per-pair coverage test above only walks `swap.pairs`/`consistency.either`
-// -- a `pattern` rule's tokens were never individually exercised until this
-// gate existed, only proven to fire ONCE for the whole rule (the "reports
-// every rule" gate). A token that ships but can never fire is exactly as
-// invisible there as an unreachable swap pair was before the per-pair gate
-// existed.
-//
-// Task-10 fix wave B / Step 2: the gate USED TO iterate
-// `Object.entries(PATTERN_TOKEN_EXAMPLES)` directly -- so a brand-new
-// `pattern` rule added to the preset, or a token quietly deleted from an
-// existing one, was invisible here even though the rest of the gate looked
-// green. Before this fix, `PATTERN_TOKEN_EXAMPLES` covered only 2 of the
-// preset's 24 `pattern` rules (32 of 67 tokens); the reviewer proved the gap
-// by deleting 7 tokens from `microsoft/az-no-replacement` and watching every
-// gate stay green. The loop below now iterates the LIVE preset object
-// (`Object.entries(preset)`) and requires EVERY rule with a `pattern`
-// assertion to have an entry in the map at all -- the same inversion that
-// made the per-pair gate (above) real. An uncovered rule or token now FAILS
-// the gate, named exactly, instead of being silently skipped.
-//
-// Every token is regex source (unlike a swap key, which is only regex when
-// `keysAreRegex` is set), so an example can't always be derived from the key
-// itself the way a plain swap key can -- each one is hand-registered below,
-// keyed by its EXACT token string so an edit to the token in the preset
-// itself fails this test loudly (a stale example silently testing nothing)
-// rather than silently passing.
-// =============================================================================
+// Checks every token of the `pattern` rules, not only that each rule fires once. The loop reads the
+// live preset and requires an entry for every `pattern` rule, so a new rule or a removed token fails
+// the test. Each example is registered by its exact token string, so a changed token fails too.
 
 const PATTERN_TOKEN_EXAMPLES: Record<string, Record<string, string>> = {
   'microsoft/capitalize-after-heading-colon': {
@@ -582,13 +494,9 @@ const PATTERN_TOKEN_EXAMPLES: Record<string, Record<string, string>> = {
   },
 };
 
-// Embedding overrides for tokens whose scope or match shape doesn't fit the
-// generic "sample text with X inside it" paragraph wrapper below (a
-// heading-only scope, a list-item/table/alt scope, or a fragment match that
-// needs specific surrounding characters, like an uppercase letter after two
-// spaces, or a single em dash standing alone in a table cell). Keyed by
-// `${ruleName}\u0000${token}`; anything NOT in this map falls back to the
-// plain paragraph wrapper.
+// Overrides for tokens that do not fit the paragraph wrapper below (heading-only scope, list-item,
+// table or alt scope, or text that needs specific surrounding characters). Keyed by
+// `${ruleName}\u0000${token}`.
 const CUSTOM_TOKEN_BLOCKS: Record<string, (index: number) => string> = {
   'microsoft/capitalize-after-heading-colon\u0000:\\s+[a-z]': (i) =>
     `## Coverage heading ${i}: quick reference`,
@@ -624,12 +532,7 @@ describe('recheck/microsoft preset per-pair coverage (pattern tokens)', () => {
     const expectations: Array<{ ruleName: string; token: string; example: string }> = [];
     let index = 0;
 
-    // Drift check inverted (fix wave B / Step 2): iterate the LIVE preset's
-    // `pattern` rules, not PATTERN_TOKEN_EXAMPLES's own keys. A rule shipped
-    // with a `pattern` assertion and NO entry at all in the map below is a
-    // coverage failure in its own right, named exactly -- this is exactly
-    // what let 22 of 24 pattern rules (35 of 67 tokens) go completely
-    // unchecked before this fix.
+    // Loop over the live preset's `pattern` rules. A rule with no entry in the map below fails the test.
     for (const [ruleName, rule] of Object.entries(preset)) {
       const patternOptions = rule.assertions?.['pattern'] as PatternAssertion | undefined;
       if (!patternOptions?.tokens) continue;
@@ -672,12 +575,9 @@ describe('recheck/microsoft preset per-pair coverage (pattern tokens)', () => {
       }
     }
 
-    // A rule with no registered examples at all, or a drifted token list
-    // (added, removed, or edited without updating the map above), is itself
-    // a coverage failure -- fail here, named exactly, rather than silently
-    // testing a stale token that can never fire (or skipping a whole rule).
+    // A rule with no examples, or a token list that changed without updating the map, fails here.
     expect(missing).toEqual([]);
-    expect(expectations.length).toBeGreaterThanOrEqual(67); // sanity: this preset ships 67+ pattern tokens
+    expect(expectations.length).toBeGreaterThanOrEqual(67);
 
     const doc = ['# Pattern token coverage', '', blocks.join('\n\n')].join('\n');
     const problems = await lintContent(doc, { extends: ['recheck/microsoft'] });
@@ -704,16 +604,9 @@ describe('recheck/microsoft preset per-pair coverage (pattern tokens)', () => {
   });
 });
 
-// Final-review fix (Item 3): `microsoft/no-blank-table-cell` is narrowed,
-// deliberately, to the em-dash case only -- a truly blank cell can never be
-// reported by a `pattern` assertion (its content is the empty string, and
-// pattern.ts's zero-width-match guard skips any match against '' no matter
-// how the token is written; see microsoft.ts's doc comment on this rule for
-// the full reasoning). These tests demonstrate the CHOSEN resolution
-// end-to-end: the em-dash case still fires, a real blank cell honestly does
-// NOT, and the rewritten token (`^\s*(?:—\s*)?$`, not the old
-// `^\s*(?:—)?\s*$`) no longer pays a quadratic cost on a long
-// whitespace-only cell.
+// `microsoft/no-blank-table-cell` only reports the em dash case, because a `pattern` token cannot
+// match an empty cell. These tests check that the em dash still fires, a real blank cell does not,
+// and the token stays fast on a long whitespace-only cell.
 describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 3)', () => {
   it('still reports a cell containing exactly an em dash', async () => {
     const doc = '| Field | Description |\n| --- | --- |\n| name | — |\n';
@@ -723,13 +616,8 @@ describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 
     expect(matches[0].match).toBe('—');
   });
 
-  // The claim this rule's message/PROVENANCE entry no longer makes: a
-  // genuinely empty cell (no content between the pipes at all) is NOT
-  // reported. This is the honest boundary of the chosen resolution, pinned
-  // here so a future change that tries to "fix" this by tightening the
-  // token doesn't ship a claim the architecture still can't back up (see the
-  // rule's doc comment in microsoft.ts for why a `pattern` token structurally
-  // cannot do this).
+  // A cell with no content between the pipes is not reported, because a `pattern` token cannot match
+  // an empty string.
   it('does NOT report a genuinely blank cell (empty content between the pipes)', async () => {
     const doc = '| Field | Description |\n| --- | --- |\n| name |  |\n';
     const problems = await lintContent(doc, { extends: ['recheck/microsoft'] });
@@ -744,23 +632,8 @@ describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 
     expect(matches).toEqual([]);
   });
 
-  // Direct engine-level perf check for the quadratic-pattern fix. A real
-  // table.cell segment is always pre-trimmed by the extractor (see
-  // scopes/extractor.ts's `tableRow` case), so it can never itself carry a
-  // long whitespace RUN that fails to match -- this test bypasses that
-  // guarantee deliberately, feeding pattern.execute() the adversarial input
-  // directly, because the token being fixed is a plain string the engine
-  // ships and could be reused or reached by another path; its own
-  // worst-case cost is worth pinning regardless of whether table.cell
-  // happens to prevent reaching it today. 32KB of whitespace followed by
-  // one disqualifying character never satisfies `^\s*(?:—\s*)?$` (there's
-  // no em dash and the trailing 'x' blocks `$`), which is exactly the shape
-  // that made the OLD token (`^\s*(?:—)?\s*$` -- two INDEPENDENTLY
-  // backtracking `\s*` groups either side of the optional em dash)
-  // quadratic: measured 615ms on this exact input on this machine (the
-  // review's number, 632ms, is the same order of magnitude). Folding the
-  // trailing `\s*` inside the optional group removes the ambiguity, so the
-  // new token resolves the same non-match in well under a millisecond.
+  // Runs `pattern.execute()` directly on 32KB of whitespace followed by `x`, which never matches
+  // `^\s*(?:—\s*)?$`. The old token `^\s*(?:—)?\s*$` took over 600ms on this input.
   it('the live token completes in linear time on a 32KB non-matching whitespace run (no quadratic backtracking)', async () => {
     const rule: NormalizedRule = {
       ...presets['recheck/microsoft']['microsoft/no-blank-table-cell'],
@@ -788,29 +661,14 @@ describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 
     const problems = await pattern.execute(rule, 'test.md', ctx);
     const elapsed = performance.now() - start;
 
-    // No match either way -- the trailing 'x' means neither em dash nor
-    // blank -- the point of this test is the TIMING, not the finding.
+    // There is no match either way. This test measures time, not findings.
     expect(problems).toEqual([]);
     expect(elapsed).toBeLessThan(100);
   });
 });
 
-// =============================================================================
-// Fix safety, RETIRED into detection-only proof (2026-07-30): this describe
-// block used to check that every fixable pair's fix was both safe and
-// idempotent. Now that the preset is detection-only by design (no rule in
-// `recheck/microsoft` auto-fixes -- see the "is detection-only" describe
-// block near the top of this file, and microsoft.ts's own "DETECTION-ONLY
-// BY DESIGN" header note), there is no fix left to prove safe: every case
-// below that used to demonstrate a REAL rewrite now demonstrates the
-// opposite, that `--fix` leaves the text completely alone while detection
-// still fires. Kept as its own describe block (not deleted) because "this
-// input must never be rewritten" is exactly the assertion worth keeping --
-// same reasoning as preset-google-fix-wave-c.test.ts's rewrite.
-// =============================================================================
-
-// Same convergence loop the CLI's `--fix` uses (see
-// preset-google-fix-wave-c.test.ts's identical helper).
+// Runs fixes until the text stops changing, like the CLI's `--fix`. Each case below must stay
+// unchanged and must still be reported.
 async function fixTwice(content: string) {
   const { rules } = await validate({ extends: ['recheck/microsoft'] });
   const pass1 = await runRulesUntilStable([{ path: 'x.md', content }], rules);
@@ -839,12 +697,7 @@ describe('recheck/microsoft preset fix safety (now: detection-only, nothing ever
     expect(afterPass1).toBe(content);
   });
 
-  // POSTURE CHANGE (detection-only task): `tooltip-capitalization` used to
-  // be a real, safe fix (not a no-op) -- "ToolTip"'s internal mixed casing
-  // doesn't match applyMatchCase's simple ALL-CAPS/Capitalized heuristics,
-  // so it round-tripped correctly and idempotently. It is now detection-only
-  // like every other rule in this preset: `--fix`, twice, must leave the
-  // genuine violation completely unchanged, while detection still fires.
+  // `tooltip-capitalization` only detects, so `--fix`, run twice, must leave the violation unchanged.
   it('tooltip-capitalization no longer rewrites "ToolTip" to "tooltip", but still detects it', async () => {
     const content = 'Hover over the ToolTip to see more details.\n';
     const { afterPass1, afterPass2 } = await fixTwice(content);
@@ -855,15 +708,7 @@ describe('recheck/microsoft preset fix safety (now: detection-only, nothing ever
     expect(problems.some((p) => p.ruleName === 'microsoft/tooltip-capitalization')).toBe(true);
   });
 
-  // no-click's anchoring must not corrupt the hyphenated compounds or the
-  // unrelated "clickstream"/"clickthrough" terms it was designed to leave
-  // alone -- fixed twice, to prove both correctness and idempotency. This
-  // rule was already detection-only pre-existing (`fix: false`, see
-  // "anchor gaps closed" below), so this case is unaffected by the
-  // detection-only change; kept here as the near-miss half of the pair with
-  // `tooltip-capitalization` immediately above (a real fix that went away)
-  // and the genuine-violation case in "anchor gaps closed" (a detection
-  // that was always there).
+  // `no-click` must not touch hyphenated compounds or the unrelated words "clickstream" and "clickthrough".
   it('no-click leaves double-click, right-click, clickstream, and clickthrough untouched', async () => {
     const content =
       'Double-click the icon, or right-click for more options. ' +
@@ -874,39 +719,20 @@ describe('recheck/microsoft preset fix safety (now: detection-only, nothing ever
   });
 });
 
-// =============================================================================
-// Task-10 fix wave B acceptance gate 1: every corruption string named in
-// Step 3 (us-spelling inflection collapse) and Step 4 (~15 Tier-1 pairs
-// rewriting correct prose) of task-10-fixB-brief.md, run through --fix
-// TWICE, must come out either byte-identical (the term was dropped,
-// anchored away, or demoted to detection-only) or CORRECTED WITHOUT
-// CORRUPTION (the inflection-aware us-spelling fixes). Several of the
-// original defects only appeared on the SECOND --fix pass, so a single-pass
-// check would have been insufficient evidence.
-// =============================================================================
+// Phrases that were once rewritten wrongly, run through `--fix` twice (some problems only showed on
+// the second pass). Each must stay unchanged.
 
 describe('recheck/microsoft fix wave B: Step 3 (us-spelling inflections) no longer collapse', () => {
-  // POSTURE CHANGE (detection-only task, 2026-07-30): these five
-  // inflections used to be genuinely, safely auto-fixed -- the whole point
-  // of fix wave B's Step 3 was splitting `us-spelling`'s alternation-group
-  // keys so each inflection maps to its own correct output instead of
-  // collapsing onto whichever form the config happened to name (see the
-  // preset file header's "FIX WAVE B" note). That correctness proof is now
-  // moot: `microsoft/us-spelling`, like every other rule in this preset, is
-  // detection-only by design. `--fix`, twice, must leave each one completely
-  // UNCHANGED; detection must still fire against the correct rule.
+  // `us-spelling` only detects, so `--fix`, run twice, must leave each inflection unchanged while the
+  // rule still reports it.
   const noLongerFixes: Array<[string, string]> = [
     ['The team is modelling the traffic pattern.\n', 'microsoft/us-spelling'],
     ['The job was cancelling when the timeout occurred.\n', 'microsoft/us-spelling'],
     ['The request was authorised by the admin.\n', 'microsoft/us-spelling'],
     ['Authorisation happens before the redirect.\n', 'microsoft/us-spelling'],
     ['Customisation of the theme is optional.\n', 'microsoft/us-spelling'],
-    // FIX-POSTURE CHANGE WAVE 2 (proper-noun axis): `centre`/`catalogue`
-    // moved to `microsoft/us-spelling-detect` (fix: false, pre-existing
-    // before the detection-only change) -- "Centre County, Pennsylvania"
-    // and "Bell Centre" are real place/venue names spelled with "Centre",
-    // and "Catalogue of Life" is a real, commonly cited species database
-    // spelled with "Catalogue"; none of the three would survive a blind fix.
+    // `centre` and `catalogue` are in `microsoft/us-spelling-detect`, because "Centre County", "Bell
+    // Centre" and "Catalogue of Life" are real names.
     ['Both centres report the same latency.\n', 'microsoft/us-spelling-detect'],
     ['The two catalogues are merged nightly.\n', 'microsoft/us-spelling-detect'],
   ];
@@ -924,10 +750,7 @@ describe('recheck/microsoft fix wave B: Step 3 (us-spelling inflections) no long
 });
 
 describe('recheck/microsoft fix wave B: Step 4 corrupting pairs no longer rewrite correct prose', () => {
-  // Every string is CORRECT prose as written -- `--fix`, twice, must leave
-  // each one completely UNCHANGED (whether because the pair was dropped,
-  // anchored away from this exact phrasing, or demoted to a non-fixable
-  // pattern/`fix: false` rule).
+  // Each string is correct prose. `--fix`, run twice, must leave it unchanged.
   const unchanged: string[] = [
     'Mount the SMB share to access the network files.\n',
     'The exit code is 1 when the command fails.\n',
@@ -952,16 +775,8 @@ describe('recheck/microsoft fix wave B: Step 4 corrupting pairs no longer rewrit
     expect(afterPass2).toBe(afterPass1);
   });
 
-  // POSTURE CHANGE (fix-posture task): `exit`/`launch`/`boot` (az-lifecycle-
-  // verbs), `blade` (az-ui-nouns), `beta` (az-judgment-words), `in addition`
-  // (simple-words), and `print out` (az-real-replacements) all flipped to
-  // `fix: false` -- anchoring away from a noun-compound collision reduces
-  // false fixes, but every one of these is still a different-word
-  // substitution, not a same-word normalization, so the posture change
-  // applies regardless of how well-anchored the pair is. The mirror check
-  // now proves the OPPOSITE of "still fixes": `--fix` must leave the
-  // genuine violation completely UNCHANGED, while detection (the rule
-  // firing at all) must still hold.
+  // These pairs replace a word with a different word, so they only detect. `--fix` must leave the
+  // violation unchanged and the rule must still report it.
   const stillDetectsButNoLongerFixes: Array<[string, string]> = [
     ['Exit the application when you finish.\n', 'microsoft/az-lifecycle-verbs'],
     ['Launch the app to begin the tour.\n', 'microsoft/az-lifecycle-verbs'],
@@ -984,13 +799,8 @@ describe('recheck/microsoft fix wave B: Step 4 corrupting pairs no longer rewrit
   );
 });
 
-// =============================================================================
-// Task-10 fix wave B acceptance gate 2: the nine previously-passing
-// substring/homograph collision probes named in the brief -- none of them
-// are targeted by ANY rule in this preset (see PROVENANCE.md's "Excluded
-// candidates" table), so this wave's edits must not have accidentally
-// introduced a new collision for any of them.
-// =============================================================================
+// Words that no rule in this preset targets (see PROVENANCE.md, "Excluded candidates"). Edits must
+// not start matching them.
 
 describe('recheck/microsoft fix wave B acceptance gate 2: collision probes stay clean', () => {
   const probes: string[] = [
@@ -1011,19 +821,9 @@ describe('recheck/microsoft fix wave B acceptance gate 2: collision probes stay 
   });
 });
 
-// =============================================================================
-// Task-10 fix wave C acceptance gate 1: a `CONFIRMED` verifier verdict only
-// establishes that the guide discusses a term -- it does not establish that a
-// blind textual substitution is safe. Every pair below was reclassified from
-// a fixable swap to detection-only (or fix:false) because its own live-page
-// quote is a caution against conflation ("as well as"), scoped to a narrower
-// context than shipped ("or greater/higher/lower", "visit"), sense-scoped
-// with a common unrelated noun/adjective sense ("leverage", "glyph"), or has
-// no single replacement stated at all ("de facto"/"ad hoc"/"vis-a-vis").
-// `--fix`, twice, must leave every one of these completely UNCHANGED -- the
-// corruption is gone because the rule no longer touches the text, not
-// because the text happens to already match the target.
-// =============================================================================
+// These pairs only detect. The guide's quote warns against mixing terms, covers a narrower context,
+// has an unrelated common meaning, or gives no single replacement. `--fix`, run twice, must leave each
+// one unchanged.
 
 describe('recheck/microsoft fix wave C: reclassified pairs no longer corrupt correct prose', () => {
   const unchanged: string[] = [
@@ -1047,9 +847,8 @@ describe('recheck/microsoft fix wave C: reclassified pairs no longer corrupt cor
     expect(afterPass2).toBe(afterPass1);
   });
 
-  // Acceptance item 3: a pair reclassified to detection-only must still
-  // CATCH its genuine violation -- "it stopped corrupting" and "it stopped
-  // working" look identical from a green `unchanged` suite above alone.
+  // Each pair must still report its genuine violation, so a rule that stopped rewriting did not also
+  // stop detecting.
   const stillDetects: Array<[string, string]> = [
     ['As well as being fast, the API is reliable.\n', 'microsoft/az-grammar-usage-detect'],
     ['A score of 80 or higher is required to pass.\n', 'microsoft/az-grammar-usage-detect'],
@@ -1078,12 +877,7 @@ describe('recheck/microsoft fix wave C: reclassified pairs no longer corrupt cor
   });
 });
 
-// =============================================================================
-// Task-10 fix wave C acceptance gate 2: anchor gaps found while auditing the
-// already-anchored pairs from fix wave B -- these stay FIXABLE, just with a
-// wider exclusion list, so both directions are checked: the near-miss must
-// stay unchanged, and the genuine violation must still fix correctly.
-// =============================================================================
+// Near-misses of already-anchored pairs must stay unchanged.
 
 describe('recheck/microsoft fix wave C: anchor gaps closed without disabling genuine fixes', () => {
   const unchanged: string[] = [
@@ -1102,20 +896,7 @@ describe('recheck/microsoft fix wave C: anchor gaps closed without disabling gen
     expect(afterPass2).toBe(afterPass1);
   });
 
-  // POSTURE CHANGE (fix-posture task): `hang`/`hangs` (az-state-failure),
-  // `print out` (az-real-replacements), and `click` (no-click) all flipped
-  // to `fix: false` -- a wider anchor reduces false fixes, it doesn't turn
-  // a word-choice substitution into a same-word normalization.
-  //
-  // POSTURE CHANGE (detection-only task, 2026-07-30): `an SQL` -> `a SQL`
-  // (article-before-acronym) used to be the one pair in this describe block
-  // that survived BOTH posture changes -- grammatical article agreement has
-  // no unrelated-sense risk, so it kept fixing correctly through the
-  // fix-posture change above. It does not survive the detection-only
-  // change: every rule in this preset, including this one, is now
-  // `fix: false` regardless of how safe the pair looks. Moved into the
-  // "still detects but no longer fixes" bucket below rather than kept as
-  // its own "still fixes" case.
+  // These pairs only detect: `--fix` must leave them unchanged and the rule must still report them.
   const stillDetectsButNoLongerFixes: Array<[string, string]> = [
     ['The application hangs when the request queue overflows.\n', 'microsoft/az-state-failure'],
     ['Print out the invoice before mailing it.\n', 'microsoft/az-real-replacements'],
@@ -1135,18 +916,9 @@ describe('recheck/microsoft fix wave C: anchor gaps closed without disabling gen
   );
 });
 
-// =============================================================================
-// Fix-posture wave 2 acceptance gate: the proper-noun axis. A pair keeps
-// `fix: true` only if the avoid-term also cannot occur as part of a real
-// organization, product, brand, or place name -- "USA Gymnastics" (the US
-// national governing body), "U.S. Bank"/"U.S. Steel" (real US companies),
-// "U.S.A. Track and Field" (a national governing body), "Bell Centre"/
-// "Centre County, Pennsylvania" (real place/venue names spelled with
-// "Centre"), and the OpenAPI/JSON Schema `boolean` type keyword (a Q2
-// unrelated-legitimate-sense finding surfaced by the same sweep) all
-// demonstrate the risk. `--fix`, twice, must leave every one of these
-// completely unchanged, and detection must still fire.
-// =============================================================================
+// Terms that can be part of a real organization, product or place name ("USA Gymnastics", "U.S.
+// Bank", "Bell Centre", the `boolean` type keyword) must not be rewritten. `--fix`, run twice, must
+// leave them unchanged and the rule must still report them.
 
 describe('recheck/microsoft fix-posture wave 2: proper-noun axis', () => {
   const unchangedAndStillDetected: Array<[string, string]> = [
@@ -1170,18 +942,8 @@ describe('recheck/microsoft fix-posture wave 2: proper-noun axis', () => {
     }
   );
 
-  // Every rule reclassified this wave must still be able to FIRE (detect) on
-  // a genuine violation elsewhere in the same rule (no rule went dead): the
-  // remaining `microsoft/us-spelling` and `microsoft/az-case-fixable` pairs
-  // (not moved to the proper-noun/detect-only sibling) still report.
-  //
-  // POSTURE CHANGE (detection-only task, 2026-07-30): both of these used to
-  // be "still fixes correctly" cases -- the whole point of this wave's
-  // proper-noun split was proving the pairs that DIDN'T move still worked.
-  // Detection-only makes the fixing half of that moot: neither pair
-  // auto-fixes any more, same as everything else in this preset. Detection
-  // is what's left to prove, so these now assert "leaves it unchanged,
-  // still reports."
+  // The remaining pairs of `microsoft/us-spelling` and `microsoft/az-case-fixable` must still report,
+  // so no rule is dead.
   it('microsoft/us-spelling no longer fixes a pair NOT moved to the proper-noun sibling, but still detects it', async () => {
     const content = 'The request was authorised by the admin.\n';
     const { afterPass1, afterPass2 } = await fixTwice(content);
@@ -1201,24 +963,9 @@ describe('recheck/microsoft fix-posture wave 2: proper-noun axis', () => {
   });
 });
 
-// =============================================================================
-// Consistency engine guard (fix-posture task, Step 2): reproduces the exact
-// corruption named in the brief -- "it's" expands to EITHER "it is" OR "it
-// has", so `consistency`'s old first-seen-wins fix logic collapsed the two
-// ("It is fine. ... it's been growing for hours." -> "it is been growing
-// for hours."). `microsoft/contraction-consistency` ships this exact
-// `"it's": "it is"` pair. In the shipped preset this was masked only by an
-// accidental interaction with the unrelated `microsoft/use-contractions`
-// rule (which ships `'it is': "it's"`, rewriting the damage back to "it's"
-// in a later fix pass) -- setting THAT rule to `severity: off` is the
-// reproduction recipe the brief names, so it belongs in this test. The
-// consistency engine's own word-count guard (rules/scope/consistency.ts)
-// now makes this safe independent of the preset's detection-only change:
-// even a user who overrides `microsoft/contraction-consistency` back to
-// `fix: true` (a user's own config always wins over the preset, per this
-// package's README) can no longer trigger the corruption, because the pair
-// itself (1 word vs. 2) fails the guard at the engine level.
-// =============================================================================
+// `microsoft/contraction-consistency` pairs "it's" with "it is", but "it's" can also mean "it has".
+// The old fix turned "it's been growing" into "it is been growing". The engine now refuses such pairs,
+// so this cannot happen even if a user turns fixing back on.
 
 describe("consistency engine guard: the it's/it is corruption no longer reproduces", () => {
   it("with microsoft/use-contractions off (the reproduction config), the it's/it is pair detects but never rewrites", async () => {
@@ -1234,20 +981,16 @@ describe("consistency engine guard: the it's/it is corruption no longer reproduc
     const pass2 = await runRulesUntilStable([{ path: 'x.md', content: afterPass1 }], rules);
     const afterPass2 = pass2.fixedFiles.get('x.md') ?? afterPass1;
 
-    expect(afterPass1).toBe(content); // no corruption -- unchanged, even before the second pass
-    expect(afterPass2).toBe(afterPass1); // idempotent
+    expect(afterPass1).toBe(content);
+    expect(afterPass2).toBe(afterPass1);
 
     const problems = await lintContent(content, config);
     expect(problems.some((p) => p.ruleName === 'microsoft/contraction-consistency')).toBe(true);
   });
 
-  // Direct proof that the ENGINE guard, not just this preset's blanket
-  // `fix: false`, is what stops the corruption: force `fix: true` back onto
-  // `microsoft/contraction-consistency` specifically (a user's own config
-  // key always overrides the preset's, per this package's README), with
-  // `microsoft/use-contractions` still off. If the guard lived only in the
-  // preset (Step 1), this would corrupt again; because the guard lives in
-  // `consistency.ts` itself (Step 2), it still does not.
+  // Forces `fix: true` on `microsoft/contraction-consistency` (a user's config overrides the preset)
+  // with `microsoft/use-contractions` still off. The guard in `consistency.ts` must still prevent the
+  // corruption.
   it('still does not rewrite even with fix: true forced back onto contraction-consistency specifically', async () => {
     const content = "It is fine. Traffic has been steady, but it's been growing for hours.\n";
     const config = {
@@ -1258,7 +1001,7 @@ describe("consistency engine guard: the it's/it is corruption no longer reproduc
 
     const { rules } = await validate(config);
     const resolvedRule = rules.find((r) => r.shortName === 'microsoft/contraction-consistency');
-    expect(resolvedRule?.fix).toBe(true); // sanity: the override really took effect
+    expect(resolvedRule?.fix).toBe(true);
 
     const { fixedFiles } = await runRulesUntilStable([{ path: 'x.md', content }], rules);
     expect(fixedFiles.get('x.md') ?? content).toBe(content);

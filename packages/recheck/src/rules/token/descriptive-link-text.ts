@@ -26,14 +26,7 @@ export const descriptiveLinkText: TokenRule = {
   },
   check(ctx) {
     const configuredProhibited = ctx.config.prohibitedTexts;
-    // Matches upstream's `config.prohibited_texts || defaultProhibitedTexts`
-    // (md059.mjs): an explicitly configured empty array is truthy in JS, so
-    // it is used as-is (yielding an empty Set below, which disables the
-    // rule) rather than falling back to the defaults -- only a missing/
-    // non-array value falls back. Mirrors the other array-option rules in
-    // this batch (e.g. reference-links-images's ignoredLabels), which all
-    // use a plain `Array.isArray(...) ? ... : defaults` with no additional
-    // length check.
+    // An empty array is used as is and turns the rule off; only a missing value uses the defaults.
     const prohibitedTexts = new Set(
       (Array.isArray(configuredProhibited)
         ? configuredProhibited.map(String)

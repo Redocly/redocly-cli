@@ -14,14 +14,9 @@ describe('no-space-in-emphasis (MD037)', () => {
   it('flags bold asterisk markers with a leading and trailing space, exact line/column', async () => {
     const problems = await h.lint('Here is some ** bold ** text.\n');
     expect(problems).toHaveLength(2);
-    // "Here is some ** bold ** text." -- first "**" ends at column 16.
     expect(problems[0].line).toBe(1);
     expect(problems[0].column).toBe(16);
-    // match includes the whitespace run plus one char of context on each
-    // side (matches upstream's addError context construction verbatim).
     expect(problems[0].match).toBe('** b');
-    // second "**" starts at column 22; column is adjusted back by the
-    // matched whitespace-run length so it points at the first space.
     expect(problems[1].line).toBe(1);
     expect(problems[1].column).toBe(21);
     expect(problems[1].match).toBe('d **');
@@ -49,7 +44,7 @@ describe('no-space-in-emphasis (MD037)', () => {
   });
 
   it('does not flag mid-word bare asterisks used as plain text, or a lone unpaired marker', async () => {
-    // "a*b*c" parses as real emphasis (a, *b*, c) -- no bare marker at all.
+    // "a*b*c" is real emphasis, so there is no bare marker.
     expect(await h.lint('a*b*c and a single * asterisk alone.\n')).toEqual([]);
   });
 
@@ -66,8 +61,6 @@ describe('no-space-in-emphasis (MD037)', () => {
   });
 
   it('flags spaced bare markers that appear alongside real nested emphasis', async () => {
-    // The pair of bare "*" tokens (mid-paragraph, unpaired with real
-    // emphasis) that surround " not " should be flagged.
     const problems = await h.lint('Real *text* here, but * not * this pair.\n');
     expect(problems).toHaveLength(2);
   });
@@ -87,14 +80,7 @@ describe('no-space-in-emphasis (MD037)', () => {
   });
 
   it('does not treat a bare "*" inside a BLOCK-level HTML table cell as an emphasis marker (regression)', async () => {
-    // Regression: found via the Task 12 differential parity harness on
-    // mdn-content -- an HTML `<table>` with `<code>*</code>` cells (common
-    // in "operator reference" docs) is block-level HTML (`htmlFlow`), which
-    // now reparses its content as inline (see parser/index.ts's
-    // `reparseHtmlFlow`). A lone `*` char in that reparsed content is a
-    // bare `data` token, matching this rule's marker-detection shape, but
-    // it's HTML table markup, not a markdown emphasis marker. Matches
-    // upstream's own `!inHtmlFlow(child)` check in md037.mjs.
+    // In block-level HTML (`<table>` with `<code>*</code>`), a lone `*` is not an emphasis marker.
     const md = '<table>\n<tr><td><code>*</code></td><td>Multiply</td></tr>\n</table>\n';
     expect(await h.lint(md)).toEqual([]);
   });

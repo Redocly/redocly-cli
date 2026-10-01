@@ -21,17 +21,13 @@ export const noInlineHtml: TokenRule = {
   },
   check(ctx) {
     const allowedElements = toLowerCaseStringArray(ctx.config.allowedElements);
-    // If not defined, use allowedElements for backward compatibility
-    // (matches upstream: `table_allowed_elements || allowed_elements`).
+    // If not defined, use allowedElements (same as upstream).
     const tableAllowedElements = toLowerCaseStringArray(
       (ctx.config.tableAllowedElements as unknown[] | undefined)?.length
         ? ctx.config.tableAllowedElements
         : ctx.config.allowedElements
     );
-    // includeHtmlFlow: true -- matches upstream's own
-    // `filterByTypesCached(['htmlText'], true)` in md033.mjs, so this rule
-    // sees tags inside block-level HTML (<details>, <div>, etc.), not just
-    // genuinely inline HTML.
+    // Also match tags inside block-level HTML (<details>, <div>, etc.).
     for (const token of filterByTypes(ctx.tree, ['htmlText'], true)) {
       const htmlTagInfo = getHtmlTagInfo(token);
       if (htmlTagInfo && !htmlTagInfo.close) {

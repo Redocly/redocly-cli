@@ -1,16 +1,6 @@
 import { filterByTypes } from '../../parser/index.js';
 // Ported from markdownlint's lib/md042.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// Upstream resolves reference-style link destinations via a shared,
-// document-wide `getReferenceLinkImageData()` cache (lib/cache.mjs +
-// helpers/helpers.cjs) that indexes every `[label]: destination` definition
-// once per lint run. Batch 5 (Task 9) ported that full helper into
-// helpers.ts (needed by link-fragments/reference-links-images/
-// link-image-reference-definitions/link-image-style) -- this rule now
-// calls it too instead of the narrower rule-local `buildDefinitionDestinations`
-// it originally used (removed; its label -> destination lookup is exactly
-// `getReferenceLinkImageData(tree).definitions`'s `[1]` element, so no
-// behavior changed, just the source of the map).
 import type { Token } from '../../parser/types.js';
 import type { TokenRule } from '../types.js';
 import { getDescendantsByType, getReferenceLinkImageData, normalizeReference } from './helpers.js';

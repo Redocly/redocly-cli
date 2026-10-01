@@ -14,10 +14,8 @@ function fixture(name: string): string {
   return path.join(dir, 'fixtures', name);
 }
 
-// Expected severities: syntax and pairing are errors, unknown-tag is a warning,
-// and attributes is configured as an error but downgrades an unknown attribute
-// to a warning per report. That last split isn't visible on the static config
-// object, so it is asserted end-to-end further down.
+// `markdoc-attributes` is configured as an error, but reports an unknown attribute as a warning.
+// That is only visible in the lint results, so it is checked further down.
 describe('recheck/markdoc preset shape', () => {
   const preset = presets['recheck/markdoc'];
 
@@ -52,16 +50,11 @@ describe('recheck/markdoc preset shape', () => {
   });
 });
 
-// Every violation CLASS must fire at least once on markdoc-violations.md, not
-// merely every RULE — per-rule coverage is too coarse to catch a rule that stops
-// reporting one of its several violation shapes. Driven by the exported
-// `MARKDOC_VIOLATION_CLASSES` list, so a class with no matcher below (or a
-// matcher with no class) fails immediately rather than drifting.
+// Every violation class must be reported at least once, not just every rule. A class without a
+// matcher below, or a matcher without a class, fails the test.
 describe('markdoc-violations.md: per-violation-class coverage gate', () => {
-  // One matcher per MARKDOC_VIOLATION_CLASSES entry, keyed by the same id.
-  // `unknown-attr` and `primary-unknown-attribute` share the substring "is not a
-  // known attribute of", so `unknown-attr` excludes the primary-quoted form to
-  // keep the two distinguishable.
+  // One matcher per MARKDOC_VIOLATION_CLASSES entry, with the same id. `unknown-attr` excludes the
+  // primary-quoted form, because both messages contain "is not a known attribute of".
   const CLASS_MATCHERS: Record<string, (message: string) => boolean> = {
     malformed: (m) => m.includes('expected an attribute name'),
     'close-tag-attributes': (m) => m.includes('must not carry attributes'),
@@ -82,8 +75,7 @@ describe('markdoc-violations.md: per-violation-class coverage gate', () => {
     'duplicate-attribute': (m) => m.includes('is already set earlier on this tag'),
   };
 
-  // Every test below wants the same fixture linted with the same config, and
-  // none of them mutate `problems`, so lint once instead of four times.
+  // Lint the fixture once. The tests below only read the problems.
   let problems: Problem[];
   beforeAll(async () => {
     const content = await readFile(fixture('markdoc-violations.md'), 'utf8');
@@ -113,13 +105,10 @@ describe('markdoc-violations.md: per-violation-class coverage gate', () => {
 
     const isUnknownAttribute = (p: Problem) => p.message.includes('is not a known attribute of');
     for (const p of attributeProblems) {
-      // The message is wrapped in a template literal rather than passed as a
-      // bare property access because oxlint only accepts a string or template
-      // literal as expect()'s custom message.
+      // The message is in a template literal because oxlint only allows a string or template literal there.
       expect(p.severity, `${p.message}`).toBe(isUnknownAttribute(p) ? 'warn' : 'error');
     }
-    // Both sides of the split must actually be exercised by the fixture,
-    // otherwise the loop above could pass on a one-sided sample.
+    // The fixture must produce both kinds, or the loop above proves nothing.
     expect(attributeProblems.some((p) => isUnknownAttribute(p) && p.severity === 'warn')).toBe(
       true
     );
@@ -143,16 +132,10 @@ describe('markdoc-violations.md: per-violation-class coverage gate', () => {
   });
 });
 
-// The gate above proves every LISTED class fires; it cannot notice a class that
-// was never listed. So count report call sites in the rule sources and require
-// the total to match the list length, making a new unlisted call site fail here
-// instead of shipping untested.
-//
-// The formula is pushes + onErrors - emitLoops. Most of the rule files collect
-// into a local `reports` array and flush it with a single loop at the end; that
-// flush is a mechanism rather than a violation class, so it is subtracted back
-// out. markdoc-syntax.ts calls `ctx.onError` directly and has nothing to
-// subtract. The one formula covers both styles.
+// The test above only checks the listed classes. This one counts report calls in the rule sources
+// and compares the total to the list length, so a new unlisted violation class fails here.
+// Most rules collect problems in a `reports` array and flush it in one loop. That loop is not a
+// class, so it is subtracted. `markdoc-syntax.ts` reports directly and has none to subtract.
 describe('MARKDOC_VIOLATION_CLASSES matches actual report call sites in source', () => {
   const ruleDir = path.join(dir, '..', '..', 'rules', 'token');
   const RULE_FILES = [
@@ -193,16 +176,13 @@ describe('markdoc-clean.md reports zero findings', () => {
       extends: ['recheck/markdown', 'recheck/markdoc'],
       markdoc: true,
     });
-    // recheck/markdown's structural rules may still have opinions about this
-    // fixture's plain markdown, so only the four markdoc rules are checked.
+    // Only the four markdoc rules are checked. `recheck/markdown` may report other things here.
     const markdocProblems = problems.filter((p) => p.ruleName.startsWith('recheck/markdoc-'));
     expect(markdocProblems).toEqual([]);
   });
 });
 
-// The two presets have disjoint rule keys -- the markdoc rules are
-// Recheck-original and not part of recheck/markdown's parity set -- so stacking
-// them must resolve without collisions and leave each preset's severities alone.
+// The two presets have no rule keys in common, so stacking them keeps every severity.
 describe('composition: extends [recheck/markdown, recheck/markdoc]', () => {
   it('resolves with every rule key from both presets present, no collisions', () => {
     const { config, errors } = resolveExtends({
@@ -249,9 +229,8 @@ describe('composition: extends [recheck/markdown, recheck/markdoc]', () => {
   });
 });
 
-// Extending recheck/markdoc without turning markdoc parsing on still validates,
-// but warns, because the four rules can never fire that way. Uses the same
-// `warn` callback as the other stale-config warnings.
+// Extending recheck/markdoc without turning markdoc parsing on is valid but warns, because the
+// four rules would never fire.
 describe('stale-preset warning: recheck/markdoc extended with markdoc off', () => {
   it('warns when markdoc is absent entirely', async () => {
     const warnings: string[] = [];

@@ -1,16 +1,11 @@
 import { filterByTypes } from '../../parser/index.js';
 // Ported from markdownlint's lib/md024.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// `respectSections` is a Recheck extension ported from the legacy scope
-// rule (src/rules/scope/no-duplicate-headings.ts)'s section-stack logic —
-// additive alongside upstream's `siblingsOnly`, defaulting to `false` so
-// the rule matches upstream behavior exactly until a user opts in.
+// `respectSections` is a Recheck extension. It is off by default, so the rule matches markdownlint.
 import type { TokenRule } from '../types.js';
 import { getHeadingLevel, getHeadingText } from './helpers.js';
 
-// Legacy common-headings list from the deleted
-// `src/rules/scope/no-duplicate-headings.ts` scope rule — ported verbatim
-// as the additive `ignoreCommonHeadings` Recheck extension (Task 11).
+// Headings skipped when `ignoreCommonHeadings` is on.
 const COMMON_HEADINGS = new Set<string>([
   'introduction',
   'overview',
@@ -39,11 +34,7 @@ export const noDuplicateHeading: TokenRule = {
     message: 'Multiple headings with the same content',
     siblingsOnly: false,
     respectSections: false,
-    // Additive Recheck extensions ported from the legacy scope rule.
-    // Upstream MD024 has no equivalent option for either. Both default to
-    // upstream-faithful values (case-sensitive comparison, no common-
-    // headings skip-list) so a plain `no-duplicate-heading` config with no
-    // options behaves identically to upstream MD024.
+    // Recheck extensions with no markdownlint equivalent. The defaults match markdownlint.
     caseSensitive: true,
     ignoreCommonHeadings: false,
   },
@@ -53,13 +44,7 @@ export const noDuplicateHeading: TokenRule = {
     const caseSensitive = ctx.config.caseSensitive !== false;
     const ignoreCommonHeadings = !!ctx.config.ignoreCommonHeadings;
 
-    // Sets, not arrays (upstream MD024 uses `.includes()` over growing
-    // arrays): membership checks here run once per heading against every
-    // previously seen key, so array buckets make the rule O(N^2) in the
-    // heading count — pathological inputs (tens of thousands of headings)
-    // took seconds in the rule alone. Set semantics are otherwise identical:
-    // first occurrence inserts, later occurrences test true (SameValueZero
-    // string equality, exactly what `.includes()` used).
+    // Sets keep lookups fast in documents with many headings.
     const knownContents: Set<string>[] = [new Set(), new Set()];
     let lastLevel = 1;
     let knownContent = knownContents[lastLevel];

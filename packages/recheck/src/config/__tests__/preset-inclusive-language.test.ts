@@ -6,11 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { lintContent } from '../../index.js';
 import { presets } from '../presets/index.js';
 
-// Same namespace-check reasoning as preset-google.test.ts/
-// preset-microsoft.test.ts: this preset's rule keys are `inclusive-
-// language/<rule>`, not `recheck/<rule>`, so `NormalizedRule.shortName`
-// (which only strips a LEADING `recheck/` prefix) never touches them --
-// `shortName === name === the raw config key` for every rule here.
+// The rule keys here are `inclusive-language/<rule>`, not `recheck/<rule>`, so `shortName` equals the full key.
 describe('recheck/inclusive-language preset namespace', () => {
   it('every rule key in the preset is namespaced inclusive-language/<rule>, not recheck/<rule>', () => {
     const keys = Object.keys(presets['recheck/inclusive-language']);
@@ -30,7 +26,7 @@ function fixture(name: string): string {
 }
 
 describe('recheck/inclusive-language preset fixtures', () => {
-  // Catches the Vale failure mode: a rule that ships but can never fire.
+  // A rule that ships but can never fire would go unnoticed otherwise.
   it('reports every rule the preset ships', async () => {
     const violations = await readFile(fixture('inclusive-language-violations.md'), 'utf8');
     const problems = await lintContent(violations, { extends: ['recheck/inclusive-language'] });

@@ -6,13 +6,7 @@ import { getDescendantsByType, getParentOfType } from './helpers.js';
 
 type BulletStyle = 'asterisk' | 'dash' | 'plus';
 type ConfiguredStyle = BulletStyle | 'consistent' | 'sublist';
-// `expectedStyle` only ever actually holds 'consistent' (the "not yet
-// observed" sentinel, before the first item is seen) or a real
-// `BulletStyle` -- even in 'sublist' mode, it's reassigned from
-// `nestingStyles[nesting]` (a `BulletStyle`) before use, never from the
-// literal string 'sublist' itself. This is a narrower type than
-// `ConfiguredStyle` specifically to exclude 'sublist' at the
-// `styleToMarker`/comparison call sites below.
+// Either 'consistent' (no item seen yet) or a real `BulletStyle`; never 'sublist'.
 type ExpectedStyle = BulletStyle | 'consistent';
 
 const markerToStyle = (marker: string): BulletStyle =>
@@ -24,13 +18,7 @@ const differentItemStyle = (style: BulletStyle): BulletStyle =>
 
 const validStyles = new Set(['asterisk', 'consistent', 'dash', 'plus', 'sublist']);
 
-/**
- * Resolves the raw configured style string to a `ConfiguredStyle`, falling
- * back to 'dash' for an unrecognized value -- matches upstream's `let
- * expectedStyle = validStyles.has(style) ? style : "dash";`. Kept separate
- * from the loop's mutable `expectedStyle` (which narrows out 'sublist')
- * so the fallback logic isn't duplicated inline.
- */
+/** Resolves the configured style string, falling back to 'dash' for an unknown value. */
 function resolveConfiguredStyle(style: string): ConfiguredStyle {
   return validStyles.has(style) ? (style as ConfiguredStyle) : 'dash';
 }
@@ -46,11 +34,7 @@ export const ulStyle: TokenRule = {
   check(ctx) {
     const style = String(ctx.config.style ?? 'consistent');
     const configuredStyle = resolveConfiguredStyle(style);
-    // Seed with 'dash' when the configured style is 'sublist', mirroring
-    // upstream's own dead initial value in that mode: sublist mode always
-    // reassigns `expectedStyle` from `nestingStyles[nesting]` (a real
-    // `BulletStyle`) before the first comparison, so this initial 'dash'
-    // is never actually read in that mode.
+    // 'dash' is only a placeholder for 'sublist' mode; it is replaced before the first comparison.
     let expectedStyle: ExpectedStyle = configuredStyle === 'sublist' ? 'dash' : configuredStyle;
     const nestingStyles: BulletStyle[] = [];
 

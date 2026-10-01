@@ -1,8 +1,5 @@
 import type { Problem, RuleBreakdown, Summary } from '../types/index.js';
 
-/**
- * Generate breakdown statistics by rule
- */
 export function getBreakdownStats(problems: Problem[]): RuleBreakdown {
   const breakdown: RuleBreakdown = {};
 
@@ -29,9 +26,6 @@ export function getBreakdownStats(problems: Problem[]): RuleBreakdown {
   return breakdown;
 }
 
-/**
- * Build summary object from problems and file count
- */
 export function buildSummary(
   problems: Problem[],
   fileCount: number,

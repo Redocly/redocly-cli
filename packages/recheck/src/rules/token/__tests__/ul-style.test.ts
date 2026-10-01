@@ -57,9 +57,7 @@ describe('ul-style (MD004)', () => {
   });
 
   it('fixes sublist style by inserting the derived per-depth marker', async () => {
-    // differentItemStyle('asterisk') is 'dash' (upstream: dash unless the
-    // parent is dash/plus), so a nested level matching its 'asterisk'
-    // parent is fixed to 'dash', not 'plus'.
+    // A nested level that matches its asterisk parent is fixed to 'dash', not 'plus'.
     const sublist = tokenRuleHarness('ul-style', { style: 'sublist' });
     const fixed = await sublist.fix('* Item 1\n  * Nested\n');
     expect(fixed).toBe('* Item 1\n  - Nested\n');

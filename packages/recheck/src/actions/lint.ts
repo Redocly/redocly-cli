@@ -24,15 +24,13 @@ export interface LintRunReport {
   ruleCount: number;
   disabledRuleCount: number;
   filesFound: number;
-  // Set only when `changedOnly` is on: how many of the found files the list kept,
-  // and whether a list was provided at all.
+  // Only set with `changedOnly`: how many found files are on the changed list.
   changedFilter?: { provided: boolean; matched: number };
   unreadableFiles: string[];
   scannedFileCount: number;
   problems: Problem[];
   fixes?: { applied: Fix[]; skippedCount: number };
   baseline?: { matched: number; new: number; stale: number };
-  // True when no file was linted and the run ended before the rules ran.
   empty: boolean;
 }
 
@@ -42,9 +40,6 @@ export type LintRunResult =
   | { status: 'failed'; message: string; report: LintRunReport }
   | ({ status: 'completed' } & LintRunReport);
 
-/**
- * Run recheck on files under one or more roots
- */
 export async function runLint(
   paths: string | string[] = '.',
   config: ResolvedRecheckConfig,
@@ -83,9 +78,8 @@ export async function runLint(
     let files = await discoverFilesForRoots(roots);
     report.filesFound = files.length;
 
-    // With an active baseline on an exhaustive walk, zero files still go
-    // through the gate: deleting the last baselined files turns their
-    // entries stale. Changed-only runs are not exhaustive and prove nothing.
+    // With a baseline, still compare when no files are found: deleting the last
+    // baselined files makes their entries stale. Changed-only runs skip this.
     if (files.length === 0 && !(config.baselinePath && !options.changedOnly)) {
       return { status: 'completed', ...report };
     }
@@ -123,8 +117,7 @@ export async function runLint(
     report.scannedFileCount = fileInputs.length;
     report.empty = false;
 
-    // Pre-applyFilters names, so severity:off rules are included — see
-    // RunnerOptions.knownRuleNames.
+    // Includes rules set to `off`, so a directive that turns one off is not reported as unknown.
     const runnerOptions = {
       knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
       markdoc: config.markdoc,
@@ -160,8 +153,7 @@ export async function runLint(
         scannedFiles: fileInputs.map((file) => file.path),
         executedRules: new Set(rulesToRun.map((rule) => rule.name)),
         toKey,
-        // A changed-only run walks nothing exhaustively, so a missing file
-        // proves nothing there; a plain run walked every root in full.
+        // A changed-only run does not scan every file, so a missing file means nothing there.
         scanRoots: options.changedOnly ? undefined : roots.map(toKey),
       });
       report.problems = comparison.problems;

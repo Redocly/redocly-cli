@@ -77,13 +77,7 @@ describe('extractScopes — block scopes', () => {
     expect(byScope(segs, 'table.cell').map((s) => s.content)).toEqual(['', '2']);
   });
 
-  // Regression: table cell segments set `content` to the cell's
-  // trimmed text but took startColumn/endColumn from the FULL cell token
-  // (which includes the leading '|' and padding), so scope rules mapping a
-  // match index back through segment.startColumn (swap/pattern's
-  // toSourceColumn) reported a column LEFT of the real text — and a swap
-  // --fix then rewrote the pipe/padding instead of the matched word. Cell
-  // segments must anchor on the trimmed content itself.
+  // Cells anchor on the trimmed text, not the whole cell token (which includes the leading '|' and padding).
   describe('table cell segment positions anchor on the trimmed content', () => {
     it('anchors padded header and body cells on their text, not the pipe', () => {
       const segs = extract('| word   | colour |\n| ------ | ------ |\n| padded |  colour here |\n');
@@ -115,9 +109,7 @@ describe('extractScopes — block scopes', () => {
     });
 
     it('counts columns in UTF-16 code units for multi-byte text before the match', () => {
-      // '😀' is one astral code point = TWO code units; micromark columns,
-      // offsetToLineColumn, and Fix.editColumn all count code units, so the
-      // segment start must too: 'a😀b colour' spans columns 3..14 (11 units).
+      // '😀' is two UTF-16 code units, and columns count code units: 'a😀b colour' spans columns 3..14.
       const segs = extract('| a😀b colour | z |\n| ----------- | - |\n| x | y |\n');
       const headers = byScope(segs, 'table.header');
       expect(headers[0].content).toBe('a😀b colour');
@@ -125,9 +117,7 @@ describe('extractScopes — block scopes', () => {
     });
 
     it('keeps cell-token positions for empty and whitespace-only cells', () => {
-      // No `tableContent` token exists, so there is no text to anchor on;
-      // empty content trivially satisfies the alignment invariant at any
-      // position, and no swap/pattern match can ever land inside ''.
+      // No `tableContent` token, so there is no text to anchor on.
       const segs = extract('| a | b |\n| - | - |\n|| x |\n|   | y |\n');
       const cells = byScope(segs, 'table.cell');
       expect(cells.map((s) => [s.startLine, s.startColumn, s.content])).toEqual([
@@ -176,43 +166,17 @@ describe('extractScopes — nested code stays out of sentence scope', () => {
   });
 });
 
-// INVARIANT (content/position alignment): scope rules map a match found in
-// segment.content back to the source through the segment's start position —
-// swap.ts/pattern.ts compute `offsetToLineColumn(segment.content, matchIndex)`
-// and then `toSourceColumn`: on content line 1 the source column is
-// `startColumn + localColumn - 1`, on every later content line it is the
-// local column itself. That arithmetic is only correct when, for every line
-// of segment.content, the source text AT that position IS the content line:
-//   - content line 1 appears in source line `startLine` starting at column
-//     `startColumn`;
-//   - content line k (k > 1) appears in source line `startLine + k - 1`
-//     starting at column 1.
-// Every segment kind must satisfy this, or a rule scoped to it reports
-// columns off the real text and --fix edits the wrong bytes (this class of
-// bug has now appeared three times: CRLF mapping, list-marker stripping,
-// table-cell trimming).
+// Scope rules map a match in `segment.content` back to the source using the segment's start
+// position. That only works when content line 1 appears at `startLine` / `startColumn` and
+// content line k (k > 1) appears at line `startLine + k - 1`, column 1. Every segment kind
+// must satisfy this.
 //
-// EXEMPTIONS: none, but there are two classes of conforming segment.
+// Under `markdoc: true`, a prose segment's `content` has tag spans blanked in place (same
+// length and lines). It keeps the original text in `sourceText` and the blanked spans in
+// `maskedRanges`: `sourceText ?? content` must match the source, and `content` may differ
+// from `sourceText` only inside `maskedRanges`.
 //
-// (1) Verbatim: `content` is the source slice at the recorded position --
-// paragraph, code, blockquote, list-item, frontmatter, html, comment, heading
-// via its text token, alt/link via labelText, markdoc.tag, plus the
-// trim-adjusted table.header/table.cell anchors and the start-adjusted
-// sentence/summary spans.
-//
-// (2) Positional but masked: under `markdoc: true` a prose segment's `content`
-// is the source slice with every markdoc tag span blanked in place. Masking is
-// length- and line-preserving, which is what the arithmetic above needs: every
-// character outside a blanked tag keeps its offset, line, and column. Such a
-// segment carries the verbatim slice as `sourceText` and the blanked spans as
-// `maskedRanges`, so the check below has two halves -- `sourceText ?? content`
-// must align with the source exactly, and `content` may differ from
-// `sourceText` only inside `maskedRanges` and only by being the mask character.
-//
-// A future semantic (non-positional) segment kind must be exempted HERE with
-// a justification showing how rules consume its positions (the way
-// semantic-line-breaks re-reads raw source lines itself instead of trusting
-// segment content offsets).
+// A segment kind that is not positional would have to be exempted here, with a reason.
 const ALIGNMENT_EXEMPT_SCOPES = new Set<string>([]);
 
 const MASK_CHAR = ' ';
@@ -301,10 +265,7 @@ describe('extractScopes — content/position alignment invariant', () => {
     expect(alignmentViolations(md)).toEqual([]);
   });
 
-  // The same invariant with `markdoc: true`, where the prose scopes carry
-  // masked content. Every prose shape below holds a tag in a different position
-  // — leading, medial, trailing, inside a soft-wrapped line, inside a table
-  // cell — because each exercises a different piece of the offset arithmetic.
+  // The same check with `markdoc: true`, with a tag in a different position in each prose shape.
   const taggedMd = [
     '# Heading colour {% #anchor %} one',
     '',
@@ -375,9 +336,6 @@ describe('extractScopes — inline and derived scopes', () => {
     expect(links[0].content).toBe('the docs');
   });
 
-  // `summary` is the document's prose: every scope kind whose content is
-  // human-readable text — paragraphs, list items, blockquotes, headings
-  // (all levels), and table header/body cells.
   it('emits summary segments mirroring all prose scope kinds (paragraph, list-item, blockquote, heading, table cells)', () => {
     const segs = extract(
       '# H\n\nBody para.\n\n- item one\n\n> quoted\n\n| head |\n| --- |\n| cell |\n'
@@ -407,11 +365,7 @@ describe('extractScopes — inline and derived scopes', () => {
     expect(sentences[1].startLine).toBe(3);
   });
 
-  // Regression lock: sentence derivation stays sourced from EXACTLY
-  // paragraph/list-item/blockquote. `summary` widening to headings/table
-  // cells (SUMMARY vs SENTENCE source split) must never leak into the
-  // sentence scope — `scope: sentence` rules (e.g. the repo's own
-  // oxford-comma) depend on it.
+  // `summary` includes headings and table cells, but `sentence` must not.
   it('derives no sentence segments from headings or table cells', () => {
     const segs = extract('# One here. Two there.\n\n| Cell one. | Cell two. |\n| --- | --- |\n');
     expect(byScope(segs, 'sentence')).toEqual([]);
@@ -428,11 +382,7 @@ describe('extractScopes — inline and derived scopes', () => {
   });
 });
 
-// Locks the walker's exact segment ordering and positions on a fixture
-// covering every scope kind: captured from the original recursive `walk`
-// implementation, and must stay byte-identical after the explicit-stack
-// (iterative) conversion — pre-order traversal, children in document order,
-// derived summary/sentence segments appended in source order.
+// Pins the exact segment order and positions on a fixture that covers every scope kind.
 describe('extractScopes — full segment array on a rich fixture (ordering lock)', () => {
   const md = [
     '---',
@@ -514,10 +464,7 @@ describe('extractScopes — full segment array on a rich fixture (ordering lock)
       ['list-item', 18, 4, 18, 15, 'ordered two'],
       ['code', 20, 1, 22, 4, '```js\nconst x = 1;\n```'],
       ['code', 24, 1, 24, 18, '    indented code'],
-      // Table cell positions anchor on the trimmed cell text (see the
-      // alignment-invariant suite below), not the full cell token — the
-      // original recursive walker anchored on the cell token (its leading
-      // '|'), which put scope-rule matches left of the real text.
+      // Table cell positions anchor on the trimmed cell text, not the whole cell token.
       ['table.header', 26, 3, 26, 5, 'H1'],
       ['table.header', 26, 8, 26, 10, 'H2'],
       ['table.cell', 28, 3, 28, 5, 'c1'],
@@ -570,10 +517,7 @@ describe('extractScopes — full segment array on a rich fixture (ordering lock)
   });
 });
 
-// Hardening: `walk` was call-stack recursive, so deeply nested input
-// (micromark parses 10,000 nested blockquotes in well under 100ms, and
-// survives 100,000+) blew the stack inside extractScopes long before
-// micromark's own limits. The walker must be iterative.
+// Deeply nested input must not overflow the stack.
 describe('extractScopes — deeply nested input does not overflow the stack', () => {
   it('handles 10,000 nested blockquotes', () => {
     const md = '>'.repeat(10_000) + ' text\n';
@@ -582,11 +526,7 @@ describe('extractScopes — deeply nested input does not overflow the stack', ()
   });
 });
 
-// Regression: the sentence position mapping split segment content
-// with a bare '\n' (and measured the last piece's length for the column),
-// so on a CR-only file a soft-wrapped paragraph's second sentence stayed on
-// startLine 1 with a column counted straight through the '\r'. Sentence
-// positions must be identical across LF / CRLF / CR twins.
+// Sentence positions must be the same for LF, CRLF and CR line endings.
 describe('extractScopes — sentence positions across line endings', () => {
   for (const [label, ending] of [
     ['LF', '\n'],
@@ -685,15 +625,12 @@ describe('prose scopes structurally exclude markdoc tags', () => {
     expect(byScope(segs, 'paragraph')[0].content).toBe(expectedContent);
     expect(byScope(segs, 'summary')[0].content).toBe(expectedContent);
     expect(byScope(segs, 'sentence')[0].content).toBe(expectedContent);
-    // Blanked, not shortened: content length still matches the source slice,
-    // so every later position in the segment stays aligned with the source.
+    // Blanked, not shortened: the length still matches the source.
     expect(expectedContent).toHaveLength(md.length - 1); // -1 for the trailing \n
     expect(byScope(segs, 'paragraph')[0].content).not.toContain('{%');
   });
 
-  // A rule reporting "word N of the sentence" must name the same word whether
-  // or not an inline tag precedes it: the tag holds position in the segment
-  // without ever being read as prose.
+  // A rule reporting "word N of the sentence" must name the same word with or without a tag before it.
   it('position stability: words/positions around an inline tag match the same sentence with an equal-width placeholder', () => {
     const tagText = '{% partial file="x" /%}';
     const tagged = `Alpha ${tagText} beta gamma.\n`;
@@ -728,8 +665,7 @@ describe('prose scopes structurally exclude markdoc tags', () => {
     const md = '| a | b |\n| - | - |\n| {% x %} y | z |\n';
     const cells = byScope(extractOn(md), 'table.cell');
     expect(cells.map((s) => s.content)).toEqual(['y', 'z']);
-    // 'y' still anchors on its own true column: masking then trimming folds the
-    // blanked tag into the leading-trim count, exactly like real padding.
+    // 'y' keeps its true column: the blanked tag is trimmed like padding.
     const y = cells[0];
     expect(md.split(newLineRe)[y.startLine - 1].slice(y.startColumn - 1, y.endColumn - 1)).toBe(
       'y'
@@ -757,17 +693,13 @@ describe('prose scopes structurally exclude markdoc tags', () => {
   it('flag off: byte-identical to today for the same content minus the tag syntax (regression guard)', () => {
     const md = 'Alpha {% partial file="x" /%} beta gamma.\n';
     const segs = extractOff(md);
-    // With the flag off there are no markdocTag tokens, so the tag syntax reads
-    // as ordinary text and nothing is masked.
+    // With the flag off the tag reads as plain text and nothing is masked.
     expect(byScope(segs, 'paragraph')[0].content).toBe(md.trimEnd());
     expect(byScope(segs, 'markdoc.tag')).toEqual([]);
   });
 });
 
-// Masking is applied in one place, so this enumerates the extractor's own
-// definition of prose — SUMMARY_BLOCK_SOURCES plus the heading levels — and
-// demands a fixture for every member. Adding a prose scope without masking it
-// fails here rather than shipping a scope that leaks tag syntax into summaries.
+// Every prose scope (`SUMMARY_BLOCK_SOURCES` plus the heading levels) needs a masking fixture.
 describe('every prose scope masks (enumerated from the extractor itself)', () => {
   const FIXTURES: Record<string, string> = {
     paragraph: 'alpha {% x /%} beta.\n',
@@ -798,7 +730,6 @@ describe('every prose scope masks (enumerated from the extractor itself)', () =>
       if (segment === undefined) throw new Error(`no ${scope} segment produced`);
       expect(segment.content).not.toContain('{%');
       expect(segment.content).not.toContain('%}');
-      // Masked, not shortened, and the verbatim slice is carried alongside.
       expect(segment.sourceText).toBeDefined();
       expect(segment.sourceText).toContain('{%');
       expect(segment.sourceText?.length).toBe(segment.content.length);
@@ -817,8 +748,6 @@ describe('every prose scope masks (enumerated from the extractor itself)', () =>
   });
 });
 
-// `alt` and `link` are deliberate exceptions to masking. Pinned in both
-// directions so the decision has to be re-made rather than drifted into.
 describe('alt and link labels are deliberately NOT masked', () => {
   it('keeps a tag verbatim inside link text', () => {
     const segment = byScope(extractOn('[label {% x /%} more](https://e.com)\n'), 'link')[0];
@@ -836,24 +765,19 @@ describe('alt and link labels are deliberately NOT masked', () => {
   it('neither reaches summary, so no tag syntax leaks into the prose view', () => {
     const segs = extractOn('![label {% x /%} more](i.png)\n');
     const summaries = byScope(segs, 'summary');
-    expect(summaries.length).toBeGreaterThan(0); // the loop below must not be vacuous
+    expect(summaries.length).toBeGreaterThan(0);
     for (const summary of summaries) {
       expect(summary.content).not.toContain('{%');
     }
   });
 });
 
-// A prose segment whose whole text was a tag carries no prose at all. It used
-// to be emitted inconsistently — a table cell trimmed itself to '' while a
-// heading kept a run of blanks — and either way downstream rules were handed an
-// empty segment whose `length` counted the invisible tag's characters.
 describe('a segment masking leaves proseless is not emitted', () => {
   it('drops a heading that is nothing but a tag', () => {
     const segs = extractOn('# {% #anchor %}\n');
     expect(byScope(segs, 'heading.h1')).toEqual([]);
     expect(byScope(segs, 'summary')).toEqual([]);
-    // The tag is still reachable: markdoc.tag is sourced from the token list,
-    // not from the prose walk.
+    // The tag is still reachable: markdoc.tag comes from the token list.
     expect(byScope(segs, 'markdoc.tag').map((s) => s.content)).toEqual(['{% #anchor %}']);
   });
 
@@ -871,15 +795,12 @@ describe('a segment masking leaves proseless is not emitted', () => {
   });
 
   it('still emits genuinely empty cells, which masking had nothing to do with', () => {
-    // Suppression is gated on masking having happened, so an `||` cell keeps
-    // the '' segment it has always produced.
+    // An `||` cell is not masked, so it keeps its '' segment.
     const segs = extractOn('| a | b |\n| - | - |\n|| x |\n');
     expect(byScope(segs, 'table.cell').map((s) => s.content)).toEqual(['', 'x']);
   });
 });
 
-// `lineColumnToOffset` has a multi-line branch — walking line endings to find
-// the offset of a later line — that a single-line container never reaches.
 describe('masking a tag on a later line of a multi-line container', () => {
   const maskOf = (md: string, scope: string) => byScope(extractOn(md), scope)[0];
 
@@ -903,8 +824,7 @@ describe('masking a tag on a later line of a multi-line container', () => {
     const segment = maskOf(md, 'paragraph');
     expect(segment.content.split(newLineRe)[1]).toBe('second          line');
     expect(segment.content).not.toContain('{%');
-    // Same offsets as the LF twin: '\r\n' is one line ending to newLineRe,
-    // but two characters in the slice, so the range shifts by exactly one.
+    // '\r\n' is one line ending but two characters in the slice, so the range shifts by one.
     expect(segment.maskedRanges).toEqual([{ start: 24, end: 32 }]);
   });
 
@@ -916,8 +836,6 @@ describe('masking a tag on a later line of a multi-line container', () => {
   });
 
   it('positions surrounding words identically to an equal-width placeholder', () => {
-    // Position stability again, but on a later line, where the offset comes
-    // from the multi-line branch rather than plain column arithmetic.
     const tag = '{% x /%}';
     const tagged = `first line\nsecond ${tag} word\n`;
     const placeholder = `first line\nsecond ${' '.repeat(tag.length)} word\n`;
@@ -940,11 +858,8 @@ describe('markdoc.tag segment sourcing', () => {
   });
 
   it('a tag written inside an HTML block produces no markdoc.tag segment today', () => {
-    // `reparseHtmlFlow` re-tokenizes an htmlFlow block's own text without the
-    // Markdoc syntax extension, so a `{% ... %}` span written inside a block
-    // HTML region never becomes a `markdocTag` token at all. Pinning that here
-    // means the assertion breaks if it ever starts recognizing them, forcing a
-    // decision about whether `markdoc.tag` should include them.
+    // `reparseHtmlFlow` does not use the Markdoc syntax extension, so a tag inside an HTML
+    // block is never a `markdocTag` token.
     const segs = extractOn('<div>x {% a /%} y</div>\n');
     expect(byScope(segs, 'markdoc.tag')).toEqual([]);
   });

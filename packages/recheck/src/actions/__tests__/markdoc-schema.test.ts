@@ -1,4 +1,3 @@
-// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as yaml from 'js-yaml';
 import * as fs from 'node:fs';
 import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';

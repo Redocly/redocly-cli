@@ -3,10 +3,8 @@ import type { Problem, NormalizedRule, OccurrenceAssertion } from '../../types/i
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
 
-// Vale-parity `occurrence` check: counts regex matches within each segment
-// (not per-line, unlike `pattern`) and flags the whole segment when the
-// count falls outside `[min, max]`. Detection-only — the violation is the
-// segment's total count, so there's no single match position to anchor a fix.
+// Counts regex matches in each segment (not per line, unlike `pattern`) and
+// flags the segment when the count is outside `[min, max]`. It has no autofix.
 const execute = async (
   rule: NormalizedRule,
   file: string,
@@ -23,12 +21,7 @@ const execute = async (
   }
 
   for (const segment of ctx.segments) {
-    // Exclude zero-width matches (e.g. a pattern like `a*` over text with
-    // no 'a'): matchAll's iterator advances past each one automatically
-    // (unlike a raw exec() loop, there's no hang to guard against), but an
-    // empty-text match is still a match at every position in the segment
-    // -- counting it would inflate the total so `max` bounds always
-    // violate and `min` is trivially satisfied.
+    // Ignore empty matches (e.g. `a*` on text without 'a'); they match at every position.
     const count = [...segment.content.matchAll(regex)].filter((m) => m[0].length > 0).length;
     const tooFew = o.min !== undefined && count < o.min;
     const tooMany = o.max !== undefined && count > o.max;
@@ -39,7 +32,7 @@ const execute = async (
       file,
       line: segment.startLine,
       column: segment.startColumn,
-      // newLineRe, not '\n': a bare split leaves a trailing '\r' on CRLF content.
+      // Split on newLineRe so CRLF content does not keep a trailing '\r'.
       text: segment.content.split(newLineRe)[0] ?? '',
       match: o.pattern,
       ruleName: rule.name,

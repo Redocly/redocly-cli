@@ -34,8 +34,6 @@ describe('markdoc-pairing', () => {
   });
 
   it('an orphaned close from a malformed (blockquote multi-line) open still reports the softer wording', async () => {
-    // The open tag here is malformed rather than absent, so the message must
-    // not claim more than that no well-formed open was found.
     const src =
       '{% before %}\nx\n{% /before %}\n\n' +
       '> {% multi\n> attr="a" %}\n> body\n> {% /multi %}\n\n' +
@@ -79,9 +77,7 @@ describe('markdoc-pairing', () => {
       {},
       { markdoc: true, markdocSchema: null }
     );
-    // Without a schema there is no self-closing set to compare against, so
-    // "img" is just an ordinary unclosed tag: the unclosed check still fires
-    // (it is schema-independent), but never with the self-closing wording.
+    // Without a schema, `img` is just an unclosed tag.
     const unclosedProblems = await noSchema.lint('{% img %}\ntext\n');
     expect(unclosedProblems).toHaveLength(1);
     expect(unclosedProblems[0].message).toContain('never closed');
@@ -95,9 +91,7 @@ describe('markdoc-pairing', () => {
     expect(problems).toEqual([]);
   });
 
-  // Violations come from five separate buckets walked one after another, so
-  // without an explicit sort they emerge out of document order. This fixture
-  // puts one violation from four buckets on deliberately out-of-order lines.
+  // Violations are collected in separate groups, so check they come out sorted by line.
   describe('reports come out in document order, not bucket order', () => {
     it('interleaves the buckets correctly', async () => {
       const source = [
@@ -115,11 +109,8 @@ describe('markdoc-pairing', () => {
         '',
       ].join('\n');
       const problems = await h.lint(source);
-      // Lines 5 and 6 both appear because `crossed` holds one entry per
-      // crossed pair, so outer and inner each report.
+      // Lines 5 and 6 both appear because each of the crossed tags reports.
       expect(problems.map((problem) => problem.line)).toEqual([1, 3, 5, 6, 10]);
-      // Confirms these really come from four different buckets, so the
-      // ordering above is not just one bucket's internal order.
       expect(
         problems.map((problem) => problem.message.replace(/^"[^"]*" ?/, '').slice(0, 23))
       ).toEqual([
@@ -145,9 +136,7 @@ describe('markdoc-pairing', () => {
     });
   });
 
-  // The runner resolves the self-closing set once per run and hands it to the
-  // rule on `ctx.markdoc.selfClosingTags` instead of the rule re-deriving it
-  // per file; these pin the observable behavior that set drives.
+  // The runner passes the self-closing tags to the rule as `ctx.markdoc.selfClosingTags`.
   describe('consumes the runner-provided self-closing set', () => {
     it('a schema-declared self-closing tag written without /%} reports', async () => {
       const problems = await h.lint('{% img %}\ntext\n');

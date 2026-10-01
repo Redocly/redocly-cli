@@ -6,7 +6,6 @@ import { tokenRuleHarness } from './harness.js';
 
 const SCHEMA: MarkdocSchema = {
   tags: {
-    // A generic mix of attribute shapes, reused by most single-purpose tests.
     t: {
       attributes: {
         a: { type: 'string' },
@@ -16,8 +15,7 @@ const SCHEMA: MarkdocSchema = {
         dyn: { type: 'string', dynamic: true, enum: ['x'] },
       },
     },
-    // Declares no attributes, so a report on this tag can only mean the
-    // shortcut/global-attribute carve-out failed.
+    // Declares no attributes, to test the class/id shortcuts.
     empty: {},
     p: {
       attributes: {
@@ -73,7 +71,6 @@ describe('markdoc-attributes', () => {
   });
 
   it('skips an entirely UNKNOWN tag -- markdoc-unknown-tag owns that, not this rule', async () => {
-    // Real Markdoc never attribute-checks an undefined tag's node either.
     expect(await h.lint('{% ghost foo=1 bar="x" req=1 /%}\n')).toEqual([]);
   });
 
@@ -93,8 +90,7 @@ describe('markdoc-attributes', () => {
     });
 
     it('is satisfied by a class/id shortcut when the required name is class/id (schema fold)', async () => {
-      // No real schema attribute is both required and named class/id, so the
-      // fold can only be exercised against a synthetic schema.
+      // No real schema has a required attribute named class/id, so use a made-up schema.
       const req: MarkdocSchema = {
         tags: { rt: { attributes: { id: { type: 'string', required: true } } } },
       };
@@ -107,9 +103,8 @@ describe('markdoc-attributes', () => {
     });
 
     it('fires even when the required attribute is ALSO dynamic', async () => {
-      // `diagram` has a tag-level `validate()`, which marks every one of its
-      // attributes dynamic -- but `file` and `type` are also `required`, and
-      // `required` is enforced purely by presence, independently of `dynamic`.
+      // `diagram` makes all its attributes dynamic, but `required` only checks that the
+      // attribute is present.
       const problems = await realm.lint('{% diagram /%}\n');
       expect(problems).toHaveLength(2);
       expect(problems.map((p) => p.message)).toEqual([
@@ -171,9 +166,7 @@ describe('markdoc-attributes', () => {
     });
 
     it('the real img.align (validate()-carrying tag: ALL attributes dynamic) never enum-reports', async () => {
-      // img's tag-level validate() forces every attribute dynamic, so
-      // align's real enum goes unchecked -- the accepted cost of skipping
-      // value checks on dynamic attributes.
+      // `img` makes all its attributes dynamic, so the `align` enum is not checked.
       expect(await realm.lint('{% img align="not-a-real-value" /%}\n')).toEqual([]);
     });
 
@@ -230,8 +223,6 @@ describe('markdoc-attributes', () => {
   });
 
   describe('the `primaryPresent` fold against the real realm schema', () => {
-    // `slot` declares its primary as `required` in the real composed schema,
-    // so an ordinary `{% slot "name" %}` must satisfy it.
     it('a literal primary satisfies "slot"\'s required primary -- no false positive', async () => {
       expect(await realm.lint('{% slot "name" %}\nbody\n{% /slot %}\n')).toEqual([]);
     });
@@ -244,8 +235,6 @@ describe('markdoc-attributes', () => {
   });
 
   it('close tags carry no attributes -- markdoc-attributes never checks them', async () => {
-    // `req` is satisfied on the open tag, so anything reported here could
-    // only have come from the close tag's own attribute list.
     const problems = await h.lint('{% t req="x" %}\nbody\n{% /t badattr=1 %}\n');
     expect(problems).toEqual([]);
   });
@@ -261,10 +250,8 @@ describe('markdoc-attributes', () => {
   });
 
   describe('a tag declaring its OWN class/id is value-checked, not short-circuited as global (I1)', () => {
-    // Real Markdoc spreads `{ ...globalAttributes, ...schema.attributes }`, so
-    // a tag's own `id`/`class` declaration wins over the global one and is
-    // value-checked like any other attribute. Four Realm tags declare their
-    // own `id`: `input`, `step`, `tabs`, `toggle`.
+    // A tag's own `id`/`class` overrides the global one and is value-checked. Four Realm
+    // tags declare `id`: `input`, `step`, `tabs`, `toggle`.
     it('step declares its own required string "id" -- a numeric id is type-checked, not ignored as global', async () => {
       const problems = await realm.lint('{% step id=123 heading="h" %}\nbody\n{% /step %}\n');
       expect(problems).toHaveLength(1);
@@ -317,9 +304,8 @@ describe('markdoc-attributes', () => {
     });
 
     it('REVERSED order (class="..." attribute then a class shortcut) reports NOTHING', async () => {
-      // This order-dependent asymmetry is real upstream Markdoc behavior, not
-      // an approximation: the class-shortcut branch never checks for a prior
-      // value, unlike the id-shortcut and named-attribute branches.
+      // This order dependence matches real Markdoc: a class shortcut never checks for an
+      // earlier value.
       expect(await h.lint('{% empty class="two" .one /%}\n')).toEqual([]);
     });
 
@@ -332,11 +318,8 @@ describe('markdoc-attributes', () => {
     });
 
     describe('the positional primary participates in the walk too (M1)', () => {
-      // Upstream synthesizes a positional value as a `primary` attribute and
-      // runs it through the same check-then-set branch as any named one, so a
-      // positional primary followed by `primary=` really is a duplicate. Only
-      // that one direction is grammatically possible: a positional value can
-      // only appear first (`{% p primary="y" "x" %}` is a parse error).
+      // A positional value is the `primary` attribute, so a later `primary=` is a
+      // duplicate. A positional value can only come first.
       it('positional primary alone reports no duplicate', async () => {
         expect(await h.lint('{% p 3 /%}\n')).toEqual([]);
       });
@@ -354,8 +337,7 @@ describe('markdoc-attributes', () => {
   });
 
   it('reports intra-tag violations in ascending document order, not check order', async () => {
-    // The three reports land at column 1 (missing "req", which has no more
-    // specific position), column 6 ("zzz"), and column 14 (the bad enum value).
+    // Columns: 1 (missing "req"), 6 ("zzz") and 14 (the bad enum value).
     const problems = await h.lint('{% t zzz=1 e="bad" /%}\n');
     expect(problems).toHaveLength(3);
     expect(problems.map((p) => p.column)).toEqual(

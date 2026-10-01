@@ -3,15 +3,6 @@ import { describe, expect, it } from 'vitest';
 import type { NormalizedRule } from '../../types/index.js';
 import { runRules, runRulesUntilStable } from '../runner.js';
 
-// Regression fixture for CRLF handling: the runner used to build ctx.lines
-// via content.split('\n'), leaving a trailing '\r' on every line of a CRLF
-// file. That made no-trailing-spaces (trimEnd-based) flag nearly every
-// line, turned a hard-break's intentional two trailing spaces into three
-// "trailing" characters, and let --fix mangle the file. Upstream
-// markdownlint splits with newLineRe (/\r\n?|\n/) and rejoins fixed
-// content with the file's own preferred line ending — the runner and
-// applyFixesToContent must mirror that.
-
 const noTrailingSpaces: NormalizedRule = {
   name: 'recheck/no-trailing-spaces',
   shortName: 'no-trailing-spaces',
@@ -28,10 +19,8 @@ const noDuplicateHeading: NormalizedRule = {
   assertions: { 'no-duplicate-heading': {} },
 };
 
-// Clean lines (must NOT be flagged), one genuinely dirty line (3 trailing
-// spaces), and a hard-break line (exactly 2 trailing spaces — an
-// intentional Markdown hard break under MD009's default brSpaces: 2, so it
-// must NOT be flagged and --fix must NOT touch it).
+// Three trailing spaces on "dirty line" are an error. The two on "hard break" are a Markdown
+// hard break and must be left alone.
 const CRLF_FIXTURE = '# Title\r\n\r\nclean line\r\ndirty line   \r\nhard break  \r\nlast line\r\n';
 
 describe('CRLF line endings (runner + fixer)', () => {

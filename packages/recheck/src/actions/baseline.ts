@@ -18,9 +18,8 @@ export interface BaselineRunResult {
 }
 
 /**
- * Runs the full configured rule set and writes the baseline file: one count
- * per file per rule, errors only, sorted for stable diffs. See
- * core/baseline.ts for the format and the lint gate's semantics.
+ * Runs all configured rules and writes the baseline file: the error count for each
+ * file and rule. The format is in core/baseline.ts.
  */
 export async function generateBaseline(
   paths: string | string[] = '.',

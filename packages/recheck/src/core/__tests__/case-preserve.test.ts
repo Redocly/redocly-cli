@@ -22,9 +22,6 @@ describe('applyMatchCase', () => {
     expect(applyMatchCase('bEhAvIoUr', 'behavior')).toBe('behavior');
   });
 
-  // `applyMatchCase` shouting multi-word replacements is a real hazard
-  // across presets (`GCP` -> `GOOGLE CLOUD`, `AKA`/`VICE VERSA`/`C/O`),
-  // always via this same helper -- pinned directly here.
   describe('multi-word replacements are not shouted', () => {
     it('all-caps match + multi-word replacement: left as authored, not shouted', () => {
       expect(applyMatchCase('AKA', 'also known as')).toBe('also known as');

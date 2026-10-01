@@ -36,7 +36,6 @@ describe('no-hard-tabs (MD010)', () => {
     });
     const md = '```text\n\tcode with a tab\n```\n';
     expect(await hIgnore.lint(md)).toEqual([]);
-    // A different language is still flagged.
     const md2 = '```js\n\tcode with a tab\n```\n';
     expect((await hIgnore.lint(md2)).some((p) => p.line === 2)).toBe(true);
   });

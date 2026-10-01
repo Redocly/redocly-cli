@@ -10,11 +10,7 @@ import { swap } from '../swap.js';
 import { buildWholeFileContext } from './helpers.js';
 
 describe('swap assertion', () => {
-  // Task 1 (Phase 4): prose rules must not lint code -- a swap like
-  // master -> primary would otherwise fire inside `git checkout master`,
-  // the usage Google's style guide explicitly sanctions in code font.
-  // Default behavior masks inline code spans before scanning; `includeCode:
-  // true` opts back into scanning them.
+  // Prose rules must not lint code. By default inline code spans are masked before scanning; `includeCode: true` scans them.
   describe('includeCode option (inline-code masking)', () => {
     async function runSwap(content: string, options: SwapAssertion) {
       const rule: NormalizedRule = {
@@ -52,16 +48,8 @@ describe('swap assertion', () => {
     });
   });
 
-  // Task 1 (Phase 4), fix wave 1: masking substitutes a same-length run of
-  // `\0` for a code span's real characters, and `\0` is not whitespace or
-  // a comma. A negated-class regex key (keysAreRegex: true) like
-  // `[^\s,]+` treats that run as ordinary "not comma, not whitespace" text
-  // and matches straight through it, merging text before and after the
-  // span -- including the comma the class exists to react to -- into one
-  // bogus match. Range filtering (running the regex against the
-  // unmodified content, then discarding any match whose span overlaps a
-  // code span) has no such hole.
-  describe('range filtering for matches overlapping code spans (Task 1 fix wave 1)', () => {
+  // Masking replaces a code span with `\0` characters, which a negated class like `[^\s,]+` matches straight through. So matches are found on the original text and any match overlapping a code span is dropped.
+  describe('range filtering for matches overlapping code spans', () => {
     async function runSwap(content: string, options: SwapAssertion) {
       const rule: NormalizedRule = {
         name: 'test-swap',
@@ -75,9 +63,7 @@ describe('swap assertion', () => {
     }
 
     it('does not report a negated-class-key match that would span a code span', async () => {
-      // Masking turns 'a`,`b' into 'a\0\0\0b'; [^\s,]+ matches that whole
-      // run as ONE match (index 0, length 5) -- a match that spans
-      // straight through the code span's own comma.
+      // Masking would turn 'a`,`b' into one 5-character match for `[^\s,]+`, which spans the code span's comma.
       const problems = await runSwap('a`,`b', {
         pairs: { '[^\\s,]+': 'X' },
         keysAreRegex: true,
@@ -125,10 +111,7 @@ describe('swap assertion', () => {
   });
 
   it("reports the true column for a match on a heading segment's first line", async () => {
-    // Regression for FIX 6(c): a heading segment's content excludes the
-    // '## ' marker, so its startColumn (4 here) must be added when the
-    // match falls on the segment's first line — otherwise the reported
-    // column is relative to the segment content, not the source line.
+    // A heading's content starts after the '## ', so the column needs the segment's start column.
     const content = '## Heading colour\n';
     const rule: NormalizedRule = {
       name: 'test-swap',
@@ -153,12 +136,7 @@ describe('swap assertion', () => {
     expect(problems[0].column).toBe(12);
   });
 
-  // Regression (Bugbot): table cell segments carried TRIMMED content but
-  // the full cell token's startColumn (at the leading '|'), so a match's
-  // column mapped back LEFT of the real text and --fix rewrote the
-  // pipe/padding instead of the matched word — e.g. fixing
-  // '| padded | colour |' produced '| padded color ur |'. Columns must land
-  // exactly on the matched text and --fix must replace only that word.
+  // Table cell content is trimmed, so the column must point at the real text and not at the '|'. --fix must replace only the matched word.
   describe('table cell segments — trimmed content maps to true source columns', () => {
     const tableSwapRule = (scope: string | string[]): NormalizedRule => ({
       name: 'test-swap',
@@ -241,13 +219,7 @@ describe('swap assertion', () => {
     });
   });
 
-  // Regression (Bugbot): findMatches computed line/column with a bare
-  // '\n' split / lastIndexOf('\n'), so on a CR-only file every match
-  // landed on line 1 with a column counted from the start of the FILE --
-  // and --fix then edited that wrong position (inserting the replacement
-  // into line 1 while leaving the actual match untouched). Positions and
-  // fixes must be identical across LF / CRLF / CR twins, with the file's
-  // own line endings preserved by the applier.
+  // Line numbers, columns and fixes must be the same for LF, CRLF and CR files, and line endings must be kept.
   describe('line-ending-aware position mapping', () => {
     const swapRule: NormalizedRule = {
       name: 'test-swap',
@@ -276,16 +248,7 @@ describe('swap assertion', () => {
     }
   });
 
-  // Defense in depth: validate() rejects an empty-string pair key (see the
-  // "validation" describe block below), but a caller can still build a
-  // NormalizedRule programmatically and hand it straight to runRules(),
-  // bypassing validate() entirely -- same bypass path as consistency.test.ts's
-  // own zero-width guard test. Without a guard in findMatches's exec loop,
-  // the empty key escapes to the zero-width pattern '' (or '\b\b' with
-  // wordBoundary): a global regex's lastIndex never advances past a
-  // zero-length match, so the loop spins forever. The explicit timeout below
-  // is what turns a stuck run into a reported (failing) test rather than a
-  // CI job that hangs until it's killed.
+  // An empty pair key must not hang the scan, even if validate() was skipped. The timeout makes a hang fail the test.
   describe('zero-width match guard (defense in depth against an empty pair key)', () => {
     it(
       'completes without hanging and reports no problems for an empty key, even bypassing validate()',
@@ -308,11 +271,7 @@ describe('swap assertion', () => {
     );
   });
 
-  // Phase 4, Task 3: with `ignoreCase: true`, a swap match's casing can
-  // differ from the configured key -- a sentence-initial "Behaviour" used
-  // to be replaced by literal "behavior", silently lowercasing the start of
-  // the sentence. --fix must apply the MATCHED text's observed casing to
-  // the replacement instead of inserting the configured replacement as-is.
+  // With `ignoreCase`, the fix keeps the casing of the matched text, so 'Behaviour' becomes 'Behavior', not 'behavior'.
   describe('case-preserving fixes (ignoreCase)', () => {
     async function runSwapFix(content: string, options: SwapAssertion) {
       const rule: NormalizedRule = {
@@ -381,28 +340,20 @@ describe('swap assertion', () => {
       expect(fixedFiles.get('t.md')).toBe('The blocklist entry.\n');
     });
 
-    // Regression: an invalid regex KEY used to throw out of findMatches and
-    // crash the WHOLE rule via the runner's internalError path -- so the
-    // valid `colour` pair below was never reported at all. An invalid key
-    // must no-op only itself, matching pattern.ts's/occurrence.ts's
-    // ignore-invalid-regex convention.
+    // An invalid regex key must be ignored, so the valid `colour` pair is still reported.
     it('no-ops an invalid regex KEY while other pairs still match and fix', async () => {
       const { problems, fixedFiles } = await runRules(
         [{ path: 't.md', content: 'A colour here.\n' }],
         [regexSwapRule({ '[invalid': 'x', colour: 'color' })],
         { fix: true }
       );
-      // No recheck/internal-error problem -- only the valid pair's finding.
       expect(problems.map((problem) => [problem.ruleName, problem.match])).toEqual([
         ['test-swap-regex', 'colour'],
       ]);
       expect(fixedFiles.get('t.md')).toBe('A color here.\n');
     });
 
-    // The exec loop's lastIndex guard (same intent as repetition.ts's) is
-    // what keeps a zero-width-CAPABLE regex key from spinning forever once
-    // keysAreRegex hands user regexes straight to `new RegExp`. The explicit
-    // timeout turns a stuck run into a failing test, not a hung CI job.
+    // A regex key that can match nothing must not hang the scan. The timeout makes a hang fail the test.
     it(
       'completes without hanging for a zero-width-capable regex key',
       { timeout: 2000 },
@@ -412,22 +363,13 @@ describe('swap assertion', () => {
           't.md',
           buildWholeFileContext('ba')
         );
-        // '' at offset 0 and '' at offset 2 are zero-width -- the guard
-        // advances lastIndex past them but must NOT record them; only the
-        // real 'a' match at offset 1 is a genuine finding.
+        // The empty matches at offsets 0 and 2 are skipped; only the real 'a' at offset 1 is reported.
         expect(problems).toHaveLength(1);
         expect(problems[0].match).toBe('a');
       }
     );
 
-    // High-severity Bugbot finding: the zero-width guard above stopped the
-    // loop from hanging but still RECORDED the empty match at every
-    // position it passed through. Under --fix each recording became a
-    // zero-length insert (deleteCount 0), so a pattern like 'a*' against
-    // text with no 'a' at all rewrote the file at EVERY character offset.
-    // An empty-text match is semantically meaningless for swap (there's
-    // nothing to "find" or replace), so it must be skipped entirely, not
-    // just loop-guarded.
+    // An empty match must not be reported, or --fix would insert text at every position.
     it('reports zero problems and zero fixes for a zero-width-only match (no `a` in the text)', async () => {
       const { problems, fixedFiles } = await runRules(
         [{ path: 't.md', content: 'bbb here\n' }],
@@ -438,9 +380,7 @@ describe('swap assertion', () => {
       expect(fixedFiles.size).toBe(0);
     });
 
-    // Guard must not swallow GENUINE findings alongside zero-width
-    // positions: 'a+' can never match zero-width, so every real run of
-    // 'a' characters is still reported and fixed normally.
+    // 'a+' cannot match an empty string, so real runs of 'a' are still reported and fixed.
     it('still reports and fixes real matches for a pattern that can never be zero-width (a+)', async () => {
       const { problems, fixedFiles } = await runRules(
         [{ path: 't.md', content: 'aaa here\n' }],
@@ -451,9 +391,7 @@ describe('swap assertion', () => {
       expect(fixedFiles.get('t.md')).toBe('x here\n');
     });
 
-    // Idempotency: a zero-width-capable pattern must converge to zero
-    // fixes on a second pass over already-fixed content, same as the
-    // overlapping-pairs idempotency check above.
+    // A second pass over fixed content must find nothing more.
     it('is idempotent under runRulesUntilStable for a zero-width-capable pattern', async () => {
       const content = 'aaa here, also a and bbb.\n';
       const rule = regexSwapRule({ 'a*': 'x' }, { wordBoundary: false });
@@ -467,17 +405,9 @@ describe('swap assertion', () => {
     });
   });
 
-  // Regression (root-config corruption): compound pairs like 'he/she' and
-  // 's/he' overlap their standalone sub-keys ('he', 'she'). findMatches used
-  // to emit ALL of them; the fix applier's rightmost-first overlap-skip then
-  // dropped the compound (widest) match and applied both flanking sub-matches,
-  // so --fix turned 'he/she' into 'they/they' and 's/he' into 's/they'.
-  // findMatches must de-overlap by source span first: when two matches
-  // overlap, the LONGER wins (ties: the earlier-starting one), so compound
-  // pairs win by construction for any user config.
+  // 'he/she' and 's/he' overlap their parts 'he' and 'she'. Of two overlapping matches the longer one wins (the earlier one on a tie), so --fix does not turn 'he/she' into 'they/they'.
   describe('overlapping pairs -- longest source span wins', () => {
-    // Mirrors the root recheck.yaml inclusion rule's flags exactly
-    // (keysAreRegex + wordBoundary + ignoreCase).
+    // Same flags as the inclusion rule in the root recheck.yaml.
     const inclusionRule = (): NormalizedRule => ({
       name: 'test-inclusion',
       shortName: 'swap',
@@ -535,8 +465,7 @@ describe('swap assertion', () => {
         [inclusionRule()],
         { fix: true }
       );
-      // ('was' agreement is the config's business, not the engine's -- this
-      // pins span mechanics only.)
+      // Only the span matters here; the grammar of 'they was' is not checked.
       expect(fixedFiles.get('t.md')).toBe('And they was there.\n');
     });
 
@@ -616,12 +545,7 @@ describe('swap assertion', () => {
       expect(result.errors).toEqual([]);
     });
 
-    // The pre-re-architecture "direct" shape (`swap: { he: they }`) was
-    // NEVER consumed by the engine after the re-architecture — findMatches
-    // reads pairs exclusively from `options.pairs`, so direct entries were
-    // silently inert (a rule that validates but can never report anything).
-    // Rejecting the shape with a migration hint is what surfaces that
-    // misconfiguration instead of hiding it.
+    // The old direct shape (`swap: { he: they }`) is ignored by the engine, which only reads `options.pairs`. It is rejected so the mistake is visible.
     it('rejects the direct top-level pairs shape with a migration hint (recheck/inclusion-gender-culture-style)', async () => {
       const result = await validate(swapConfig({ he: 'they', his: 'their' }));
 
@@ -629,7 +553,7 @@ describe('swap assertion', () => {
       const messages = result.errors.map((error) => error.message);
       expect(messages.some((m) => m.includes('"he"'))).toBe(true);
       expect(messages.some((m) => m.includes('"his"'))).toBe(true);
-      // The error must tell the user HOW to migrate, not just reject.
+      // The error must say how to fix the config.
       expect(messages.some((m) => m.includes('move find -> replace entries under "pairs:"'))).toBe(
         true
       );
@@ -686,12 +610,7 @@ describe('swap assertion', () => {
       expect(result.errors.some((error) => error.message.includes('"he"'))).toBe(true);
     });
 
-    // Regression guard: an empty-string KEY escapes (in swap.ts's
-    // findMatches) to the zero-width pattern '' (or '\b\b' with
-    // wordBoundary), which never advances a global regex's lastIndex and
-    // hangs the scan loop forever (see the "zero-width match guard" describe
-    // block above for the direct-execution side of this). Validation must
-    // reject this at config load time, same as consistency's `either` keys.
+    // An empty key would hang the scan, so validation must reject it, like `either` keys in `consistency`.
     it('rejects a "pairs" entry whose key is an empty string', async () => {
       const result = await validate(swapConfig({ pairs: { '': 'x' } }));
 
@@ -721,11 +640,7 @@ describe('swap assertion', () => {
     });
 
     it('rejects a reserved key (ignoreCase) with no "pairs" at all, even with other keys present', async () => {
-      // `options.pairs` is what findMatches actually reads (rules/scope/
-      // swap.ts) -- a same-level "direct pair" key like `he` here is never
-      // applied, so this config can never swap anything: `he` is an
-      // unknown-option error (with the move-under-pairs hint) and the
-      // missing `pairs` is its own error.
+      // Pairs are only read from `options.pairs`. `he` is an unknown option and `pairs` is missing, so both are errors.
       const result = await validate(swapConfig({ ignoreCase: true, he: 'they' }));
 
       expect(result.isValid).toBe(false);

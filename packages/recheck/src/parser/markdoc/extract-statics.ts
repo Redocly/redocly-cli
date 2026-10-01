@@ -1,24 +1,9 @@
-// The single implementation of "a real Markdoc tag map -> recheck's
-// statics-only MarkdocSchema". Two callers share it and must never define
-// "what counts as a static facet" two different ways:
-//   - `scripts/generate-markdoc-schema.mjs`, which resolves Realm's composed
-//     built-in schema (markdoc + portal + theme) for the committed
-//     `src/data/markdoc-realm-schema.ts`, and re-exports these functions
-//     unchanged so its own drift test keeps working.
-//   - `src/actions/markdoc-schema.ts`, the `redocly recheck --generate-markdoc-schema`
-//     command, which extracts statics from a project's own schema module(s).
+// Turns a real Markdoc tag map into recheck's `MarkdocSchema`, keeping only what can
+// be checked statically. Used by the generator for the built-in `realm` schema (in the
+// Redocly monorepo) and by `src/actions/markdoc-schema.ts`.
 //
-// Lives under `src/` (not `scripts/`) so the built CLI can import it at
-// runtime: `scripts/`'s own generator imports `@redocly/theme` and
-// `@redocly/portal`, both devDependencies-only, and this module must stay
-// free of any such import so requiring it from a published package never
-// drags those in.
-//
-// Raw tag/attribute shapes are typed loosely here rather than imported from
-// `@markdoc/markdoc` (also a devDependency-only): this module's declaration
-// file ships with the published package, and a type-only import still leaves
-// a reference downstream consumers' own type-checking would need
-// `@markdoc/markdoc` installed to resolve.
+// The raw types below are loose on purpose, so this file does not import
+// `@markdoc/markdoc`, which is only a dev dependency.
 
 import type { MarkdocAttributeSchema, MarkdocTagSchema, MarkdocSchema } from './schema.js';
 
@@ -39,13 +24,8 @@ export interface RawMarkdocTag {
 
 export type RawMarkdocTagMap = Record<string, RawMarkdocTag>;
 
-// The three attribute-type constructors recheck's own format can represent
-// (see MarkdocAttributeSchema's doc comment in ./schema.ts). Every other
-// upstream type -- `Object`, `Array`, a union like `[String, Number]`, a
-// custom class implementing `CustomAttributeTypeInterface` (`RelativePath`,
-// `PartialFile`, ...), or no `type` at all (`debug`'s bare `{ value: {} }`) --
-// has no faithful single-primitive representative, so it's recorded
-// `dynamic: true` instead of guessing.
+// The attribute types recheck can represent. Any other type (`Object`, `Array`, a union,
+// a custom class, or no type) is marked `dynamic: true`.
 const PRIMITIVE_TYPE_NAMES = new Map<unknown, MarkdocAttributeSchema['type']>([
   [String, 'string'],
   [Number, 'number'],
@@ -53,22 +33,10 @@ const PRIMITIVE_TYPE_NAMES = new Map<unknown, MarkdocAttributeSchema['type']>([
 ]);
 
 /**
- * Converts one raw Markdoc attribute definition into recheck's
- * `MarkdocAttributeSchema`.
+ * Converts one raw Markdoc attribute into a `MarkdocAttributeSchema`.
  *
- * `tagHasValidate` forces `dynamic: true` regardless of this attribute's own
- * type. A tag-level `validate()` -- for example `img`'s src/srcSet/images
- * mutual-exclusivity check, `code-snippet`'s from/after and to/before checks,
- * or `diagram`'s type/align re-checks -- can read and reject any of the tag's
- * attributes for reasons this generator can't discover from the schema object
- * alone, since that would mean analyzing an arbitrary JS function body. So
- * every attribute of a `validate()`-carrying tag is conservatively marked
- * dynamic, even one with a plain `String`/`Number`/`Boolean` type and a
- * `matches` array (`img.align`, `diagram.type`).
- *
- * Recorded facets (`required`, `default`, `enum`) are kept even when dynamic:
- * `dynamic` only tells a value-checking rule to skip them, it doesn't make the
- * facet itself unknown.
+ * If the tag has a `validate()` function (`tagHasValidate`), every attribute is marked
+ * `dynamic`, because that function could reject any of them.
  */
 export function extractAttribute(
   rawAttribute: RawMarkdocAttribute,
@@ -77,42 +45,20 @@ export function extractAttribute(
   const rawType = rawAttribute.type;
   const primitiveName =
     typeof rawType === 'function' ? PRIMITIVE_TYPE_NAMES.get(rawType) : undefined;
-  // `type` is non-optional in MarkdocAttributeSchema, and 'string' is the
-  // placeholder for anything non-primitive. It's a faithful placeholder
-  // rather than an arbitrary one: every custom attribute type in
-  // packages/theme (RelativePath, PartialFile, CodeSnippetFile, ...)
-  // implements `validate(value: string)`, so the wire value is always a
-  // string even when the class does extra work with it. A dynamic attribute
-  // is never value-checked anyway -- only the presence of `type` satisfies
-  // the interface.
+  // `type` is required, so use 'string' for anything that is not a primitive.
+  // That is fine because dynamic attributes are never checked by type.
   const out: MarkdocAttributeSchema = { type: primitiveName ?? 'string' };
 
   if (rawAttribute.required === true) out.required = true;
-  // `MarkdocAttributeSchema.default` can only hold a JSON primitive, and some
-  // defaults aren't one: `connect-mcp`'s `options` attribute defaults to an
-  // array (`['cursor', 'vscode', 'copy']`), which the interface has no slot
-  // for. Recording it would produce a schema that doesn't type-check against
-  // its own interface, so drop it rather than guess a representation.
-  // Nothing is lost: a non-primitive default always pairs with a
-  // non-primitive `type`, so the attribute is already `dynamic: true` and no
-  // value check reads its default.
+  // `default` can only be a string, number or boolean, so other defaults (like an array)
+  // are dropped. Those attributes are already `dynamic`.
   const defaultType = typeof rawAttribute.default;
   if (defaultType === 'string' || defaultType === 'number' || defaultType === 'boolean') {
     out.default = rawAttribute.default as string | number | boolean;
   }
-  // Markdoc's `matches` isn't always an array -- it can also be a RegExp or a
-  // predicate function -- and even when it is an array, its entries aren't
-  // guaranteed to be strings. `MarkdocAttributeSchema.enum` is
-  // `readonly string[]`, so:
-  //   - A non-array `matches` can't be represented as an enum at all, so it
-  //     falls back to `dynamic: true` like a class-typed attribute or a
-  //     `validate()`-carrying tag. Don't guess at a constraint this can't
-  //     statically resolve.
-  //   - An array `matches` with non-string entries is representable, just not
-  //     verbatim, so coerce it with `String(...)` rather than marking it
-  //     dynamic. The enum value check compares a parsed attribute literal's
-  //     source text against the declared enum -- a string comparison either
-  //     way -- so a coerced `'1'`/`'true'` is exactly what it needs.
+  // `matches` can also be a RegExp or a function. Those become `dynamic`.
+  // Array entries that are not strings are converted with `String(...)`, since the
+  // enum check compares text.
   if (rawAttribute.matches !== undefined) {
     if (Array.isArray(rawAttribute.matches)) {
       if (rawAttribute.matches.length > 0) {
@@ -128,13 +74,8 @@ export function extractAttribute(
 }
 
 /**
- * Composes three raw Markdoc tag maps in caller-chosen precedence order
- * (later arguments win a name collision) and converts every tag to recheck's
- * statics-only `MarkdocSchema`. Both callers share this precedence-then-convert
- * shape: the built-in generator composes markdoc + portal + theme in Realm's
- * own override order; the `recheck --generate-markdoc-schema` action extracts one
- * project module's tags at a time and passes empty maps for the other two, so
- * the composition is a no-op and only that module's tags come out.
+ * Merges three raw tag maps and converts them to a `MarkdocSchema`. Theme tags win
+ * over portal tags, which win over Markdoc's built-in tags.
  */
 export function extractStatics(
   themeTagMap: RawMarkdocTagMap,

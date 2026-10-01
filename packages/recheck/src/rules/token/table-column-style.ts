@@ -12,17 +12,7 @@ interface Column {
   effective: number;
 }
 
-/**
- * Gets a list of table cell divider columns for a row. Upstream calls
- * `filterByTypes(row.children, ["tableCellDivider"])`, but with a plain
- * (non-flat-cached) array upstream's `filterByTypes` falls back to a
- * *recursive* descendant scan (see `helpers/micromark-helpers.cjs`'s
- * `filterByTypes`'s `flatTokensSymbol` check) -- `tableCellDivider` tokens
- * are nested several levels under a row's `tableHeader`/`tableData`/
- * `tableDelimiter` cell children, not direct children of the row itself
- * (confirmed via a tree dump), so this must use the recursive
- * `filterByPredicate` helper rather than a shallow `.filter(...)`.
- */
+/** Gets the table cell divider columns of a row. They are nested below the row, so this searches recursively. */
 function getTableDividerColumns(lines: readonly string[], row: Token): Column[] {
   return filterByPredicate(row.children, (token) => token.type === 'tableCellDivider').map(
     (divider) => ({
@@ -32,11 +22,7 @@ function getTableDividerColumns(lines: readonly string[], row: Token): Column[] 
   );
 }
 
-/**
- * Checks the specified table rows for consistency with the "aligned" style:
- * every row's divider columns (by effective/visual width) must be a subset
- * of the header row's divider columns.
- */
+/** Checks that every row's divider columns (by visual width) are a subset of the header row's, for the "aligned" style. */
 function checkStyleAligned(
   lines: readonly string[],
   rows: readonly Token[],
@@ -78,10 +64,7 @@ export const tableColumnStyle: TokenRule = {
     const { lines } = ctx;
 
     for (const table of filterByTypes(ctx.tree, ['table'])) {
-      // Upstream calls `filterByTypes(table.children, [...])`, which (per
-      // the same non-flat-cached fallback noted on `getTableDividerColumns`
-      // above) recursively descends through `tableHead`/`tableBody` to find
-      // row tokens, rather than only scanning `table`'s direct children.
+      // Rows are nested under `tableHead` and `tableBody`, so search recursively.
       const rows = filterByPredicate(
         table.children,
         (token) => token.type === 'tableDelimiterRow' || token.type === 'tableRow'

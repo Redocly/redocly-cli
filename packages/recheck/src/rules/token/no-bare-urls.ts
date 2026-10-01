@@ -4,15 +4,7 @@ import type { Token } from '../../parser/types.js';
 import type { TokenRule } from '../types.js';
 import { filterByPredicate, getHtmlTagInfo } from './helpers.js';
 
-/**
- * Ignores the content of inline HTML tags (e.g. `<a href="...">TEXT</a>`),
- * matching upstream's `transformChildren` callback: walks a token's direct
- * children, and whenever it finds an unclosed opening tag, skips every
- * child up to (and including) its matching closing tag. Recheck's
- * `filterByPredicate`'s `transformChildren` signature is `(token: Token)
- * => Token[]` (transform a node into the children to descend into), so
- * this reads `token.children` rather than taking an array directly.
- */
+/** Skips the content of inline HTML tags such as `<a href="...">TEXT</a>`. */
 function ignoreHtmlTagContent(token: Token): Token[] {
   const children = token.children;
   const result: Token[] = [];
@@ -54,14 +46,8 @@ export const noBareUrls: TokenRule = {
     const literalAutolinks = filterByPredicate(
       ctx.tree,
       (token) => {
-        // `!token.inHtmlFlow` -- matches upstream's own `!inHtmlFlow(token)`
-        // check in this exact predicate (md034.mjs): a bare URL inside an
-        // HTML attribute value (e.g. `<a href="https://example.com">`) is
-        // reparsed as `literalAutolink` text once htmlFlow content gets
-        // subtokenized (see parser/index.ts's `reparseHtmlFlow`), but it's
-        // never a real markdown-prose bare URL -- it's the attribute value
-        // of a real HTML tag, which upstream (and by extension MD033) is
-        // the rule responsible for, not this one.
+        // A bare URL inside an HTML attribute value (e.g. `<a href="https://example.com">`) is
+        // not prose. `no-inline-html` handles it.
         if (token.type !== 'literalAutolink' || token.inHtmlFlow) return false;
         // Detect and ignore https://github.com/micromark/micromark/issues/164
         const siblings = token.parent?.children;

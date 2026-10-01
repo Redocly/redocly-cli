@@ -1,27 +1,17 @@
-// Ported from markdownlint's helpers/micromark-helpers.cjs
+// Ported from markdownlint's helpers/micromark-helpers.cjs and helpers/helpers.cjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// `isBlankLine` is ported from markdownlint's helpers/helpers.cjs (same
-// project/license) since markdownlint splits its token helpers and its
-// generic string helpers across two files; Recheck keeps both here because
-// every ported rule needs both.
 import { newLineRe } from '../../core/line-endings.js';
 import { filterByTypes } from '../../parser/index.js';
 import type { Token, TokenTree } from '../../parser/types.js';
 
-/**
- * Adds a range of numbers (inclusive of both bounds) to a set.
- */
+/** Adds the numbers from `start` to `end` (both included) to a set. */
 export function addRangeToSet(set: Set<number>, start: number, end: number): void {
   for (let i = start; i <= end; i++) {
     set.add(i);
   }
 }
 
-/**
- * A line/column range within a file (1-based, inclusive of both ends).
- * Shares field names with `Token`'s start/end line/column so a `Token` can
- * be passed directly wherever a `FileRange` is expected.
- */
+/** A line/column range in a file (1-based, both ends included). A `Token` can be used as one. */
 export interface FileRange {
   startLine: number;
   startColumn: number;
@@ -38,10 +28,7 @@ function positionLessThanOrEqual(
   return lineA < lineB || (lineA === lineB && columnA <= columnB);
 }
 
-/**
- * Returns whether two ranges (or Tokens) overlap anywhere. Ported from
- * markdownlint's helpers/helpers.cjs `hasOverlap`.
- */
+/** Returns whether two ranges (or tokens) overlap. */
 export function hasOverlap(rangeA: FileRange, rangeB: FileRange): boolean {
   const lte = positionLessThanOrEqual(
     rangeA.startLine,
@@ -60,17 +47,9 @@ export function hasOverlap(rangeA: FileRange, rangeB: FileRange): boolean {
 }
 
 /**
- * Filter a token tree, or an arbitrary token array (accepted so
- * `blanksAroundLists`/MD032 can start the walk from `list.children`
- * instead of the whole tree), by predicate — walking depth-first. Ported
- * from upstream's `filterByPredicate(tokens, allowed, transformChildren)`:
- * `transformChildren`, when given, replaces a token's own `children` array
- * for traversal purposes only (the returned `result` array is unaffected) —
- * upstream uses this to redirect traversal into htmlFlow subtokens, and
- * MD032 uses it to stop descending into nested lists (so only *top-level*
- * lists are returned) and to skip "non-content" token subtrees entirely.
- * Omitting `transformChildren` walks every real child, matching every
- * batch 1/2 caller's usage (none needed it before MD032).
+ * Returns the tokens that match `predicate`, searching depth first. It accepts a
+ * token tree or an array of tokens. `transformChildren` can change which children
+ * are searched for a token, for example to skip nested lists.
  */
 export function filterByPredicate(
   tree: TokenTree | Token[],
@@ -100,16 +79,8 @@ export function filterByPredicate(
 }
 
 /**
- * Gets a list of nested token descendants by type path. Each path element
- * matches one depth of descent and may be a single type or (per upstream's
- * own signature, `helpers/helpers.cjs`'s shared `getDescendantsByType`) an
- * array of alternative types to match at that depth — used by batch 5's
- * `link-image-style` (MD054) for `resourceDestination`'s
- * literal/raw-destination split and `autolink`'s email/protocol split.
- * Earlier batches (see `getHeadingText` below) predate this and call once
- * per alternative instead, merging results themselves; both styles coexist
- * since neither is wrong, but new callers needing an alternation can now
- * use a single call.
+ * Gets nested descendants by type path. Each path item matches one level and can
+ * be one type or an array of alternative types.
  */
 export function getDescendantsByType(
   token: Token,
@@ -125,9 +96,7 @@ export function getDescendantsByType(
   return tokens;
 }
 
-/**
- * Gets the nearest parent of one of the specified types for a token.
- */
+/** Gets the nearest parent with one of the given types. */
 export function getParentOfType(token: Token, types: readonly string[]): Token | null {
   let current: Token | null = token;
   while ((current = current.parent) && !types.includes(current.type)) {
@@ -136,12 +105,7 @@ export function getParentOfType(token: Token, types: readonly string[]): Token |
   return current;
 }
 
-/**
- * Gets the heading level of an atx or setext heading token. Matches
- * upstream: looks for a direct child of type `atxHeadingSequence` or
- * `setextHeadingLine` (the setext underline is a direct child of
- * `setextHeading`, not nested further) and reads its level from the text.
- */
+/** Gets the level (1-6) of an atx or setext heading. */
 export function getHeadingLevel(heading: Token): number {
   let level = 1;
   const headingSequence = heading.children.find((child) =>
@@ -156,12 +120,7 @@ export function getHeadingLevel(heading: Token): number {
   return level;
 }
 
-/**
- * Gets the heading style of an atx or setext heading token: `'setext'` for
- * setext headings, `'atx'` for a plain atx heading (one `atxHeadingSequence`
- * child), or `'atx_closed'` for a closed atx heading (a trailing
- * `atxHeadingSequence` closing marker as a second direct-child sequence).
- */
+/** Returns 'setext', 'atx', or 'atx_closed' (an atx heading with closing `#` marks). */
 export function getHeadingStyle(heading: Token): 'setext' | 'atx' | 'atx_closed' {
   if (heading.type === 'setextHeading') {
     return 'setext';
@@ -172,13 +131,7 @@ export function getHeadingStyle(heading: Token): 'setext' | 'atx' | 'atx_closed'
   return atxHeadingSequenceLength === 1 ? 'atx' : 'atx_closed';
 }
 
-/**
- * Gets the heading text of an atx or setext heading token. Descends into
- * `atxHeadingText`/`setextHeadingText` (nested arbitrarily deep under the
- * heading, e.g. inside inline containers) and concatenates all non-htmlText
- * descendant text, collapsing internal newlines (setext headings can span
- * multiple lines) to single spaces.
- */
+/** Gets the heading text, with newlines (setext headings can span lines) turned into spaces. */
 export function getHeadingText(heading: Token): string {
   const textTokens = [
     ...getDescendantsByType(heading, ['atxHeadingText']),
@@ -191,13 +144,7 @@ export function getHeadingText(heading: Token): string {
     .replace(newLineRe, ' ');
 }
 
-/**
- * Gets the blockquote prefix text (if any) for the specified line number,
- * e.g. `"> "` for a line inside a single-level blockquote. Upstream filters
- * a flat token list by type via `filterByTypes`; Recheck's `TokenTree`
- * already carries a flat list (`tree.flat`), so this takes the tree
- * directly rather than a pre-filtered token array.
- */
+/** Gets the blockquote prefix of a line, e.g. `"> "`, repeated `count` times on separate lines. */
 export function getBlockQuotePrefixText(tree: TokenTree, lineNumber: number, count = 1): string {
   return tree.flat
     .filter((token) => token.type === 'blockQuotePrefix' || token.type === 'linePrefix')
@@ -209,11 +156,7 @@ export function getBlockQuotePrefixText(tree: TokenTree, lineNumber: number, cou
     .repeat(count);
 }
 
-/**
- * Returns true iff the input line is blank (contains nothing, whitespace,
- * blockquote markers, or HTML comments (unclosed start/end comments
- * allowed)). Ported from markdownlint's helpers/helpers.cjs `isBlankLine`.
- */
+/** True if the line is empty or only has whitespace, `>` marks or HTML comments. */
 export function isBlankLine(line: string): boolean {
   const startComment = '<!--';
   const endComment = '-->';
@@ -222,10 +165,10 @@ export function isBlankLine(line: string): boolean {
       const start = s.indexOf(startComment);
       const end = s.indexOf(endComment);
       if (end !== -1 && (start === -1 || end < start)) {
-        // Unmatched end comment is first
+        // Unmatched end comment first
         s = s.slice(end + endComment.length);
       } else if (start !== -1 && end !== -1) {
-        // Start comment is before end comment
+        // Start comment before end comment
         s = s.slice(0, start) + s.slice(end + endComment.length);
       } else if (start !== -1 && end === -1) {
         // Unmatched start comment is last
@@ -239,12 +182,7 @@ export function isBlankLine(line: string): boolean {
   return !line || !line.trim() || !removeComments(line).replace(/>/g, '').trim();
 }
 
-/**
- * Set of token types that do not contain document content (used to skip
- * over "non-content" tokens — indentation, blank lines, container prefixes
- * — when scanning for a document's first meaningful token). Ported from
- * markdownlint's helpers/micromark-helpers.cjs `nonContentTokens`.
- */
+/** Token types that are not document content (indentation, blank lines, container prefixes). */
 export const nonContentTokens = new Set<string>([
   'blockQuoteMarker',
   'blockQuotePrefix',
@@ -261,20 +199,8 @@ export const nonContentTokens = new Set<string>([
 ]);
 
 /**
- * Returns the last line number (1-based, inclusive) of the document's YAML
- * frontmatter block, or 0 if there is none.
- *
- * Upstream markdownlint slices frontmatter out of `content` entirely
- * before tokenizing (see markdownlint's `removeFrontMatter`) — every
- * rule's `params.lines`/token stream is already frontmatter-free, with
- * `frontMatterLines.length` added back only when reporting an error's line
- * number. Recheck's parser instead keeps a `yaml` token (and all its
- * descendant tokens — `yamlFence`, `yamlValue`, etc. — individually
- * present in `tree.flat`, a full depth-first flattening) as real content.
- * Rules that scan `ctx.lines` by index, or walk `ctx.tree.flat` from the
- * top of the document looking for the first "real" token, must skip every
- * line up to and including this one to match upstream's behavior — see
- * first-line-h1.ts, single-h1.ts, and line-length.ts for call sites.
+ * Returns the last line (1-based) of the YAML front matter, or 0 if there is none.
+ * The parser keeps front matter in the tree, so rules that scan from the top must skip it.
  */
 export function getFrontmatterEndLine(tree: TokenTree): number {
   const frontmatter = tree.flat.find((token) => token.type === 'yaml');
@@ -282,46 +208,10 @@ export function getFrontmatterEndLine(tree: TokenTree): number {
 }
 
 /**
- * Returns true iff the document's YAML front matter contains a title — i.e.
- * the `pattern` regex matches at least one of the front matter block's lines.
- *
- * WHY THIS EXISTS: it ports upstream markdownlint's `front_matter_title`
- * rule option (implemented there by helpers/helpers.cjs's own
- * `frontMatterHasTitle`), which exists on exactly three upstream rules —
- * MD001 (our heading-increment), MD025 (single-h1), and MD041
- * (first-line-h1); see
- * https://github.com/DavidAnson/markdownlint/blob/main/doc/md001.md.
- * When the front matter declares a title, it counts as the document's
- * implicit top-level (h1) heading:
- * - heading-increment then expects the first body heading to be an h2;
- * - single-h1 treats it as the document's one H1, so EVERY body h1 is a
- *   violation;
- * - first-line-h1 is satisfied by it outright and checks nothing else.
- *
- * The default pattern is `^\s*"?title"?\s*[:=]`: a `title` key, optionally
- * double-quoted, followed by `:` (YAML) or `=` (TOML-style front matter),
- * matched case-insensitively. Each of the three rules declares that default
- * in its own `defaults` object — exactly as each upstream rule declares its
- * own default — and this helper only encapsulates the matching.
- *
- * CONTRACT: `pattern` is the raw config value (`ctx.config.frontMatterTitle`);
- * configuring the empty string `''` (or a nullish value) disables the
- * behavior entirely — this helper then always returns false — matching
- * upstream's documented "specify `""` for `front_matter_title`" opt-out.
- *
- * Upstream builds the regex with the `i` flag only and tests it against each
- * front matter LINE individually (`frontMatterLines.some(...)`), where
- * `frontMatterLines` is the whole regex-matched front matter block —
- * INCLUDING both delimiter fence lines — split on line endings (see
- * markdownlint's `removeFrontMatter`). Recheck's parser keeps that same
- * block as one `yaml` token (see getFrontmatterEndLine's doc comment above)
- * whose text spans opening fence through closing fence with no trailing
- * newline, so splitting it on `newLineRe` reproduces upstream's lines
- * exactly, and the regex is tested per line here too. (Testing the whole
- * block with `im` instead is NOT equivalent: a custom pattern containing a
- * literal `\n`, or one where `\s*`/`[\s\S]*` can absorb a line ending —
- * e.g. `author:.*\s*title` — would match across lines, which upstream
- * never does.)
+ * True if one line of the front matter matches `pattern` (the `frontMatterTitle` option).
+ * A front matter title counts as the h1 for `heading-increment`, `single-h1` and
+ * `first-line-h1`. An empty or missing pattern turns this off. The pattern is
+ * tested on each line separately, so it cannot match across lines.
  */
 export function frontMatterHasTitle(tree: TokenTree, pattern: unknown): boolean {
   const frontMatterTitle = String(pattern ?? '');
@@ -332,12 +222,7 @@ export function frontMatterHasTitle(tree: TokenTree, pattern: unknown): boolean 
   return frontmatter.text.split(newLineRe).some((line) => frontMatterTitleRe.test(line));
 }
 
-/**
- * Returns true iff the token is an HTML comment (`<!-- ... -->`) that is
- * valid per the CommonMark spec (comment body doesn't start with `>` or
- * `->`, and doesn't end with `-`). Ported from markdownlint's
- * helpers/micromark-helpers.cjs `isHtmlFlowComment`.
- */
+/** True for a valid CommonMark HTML comment token (`<!-- ... -->`). */
 export function isHtmlFlowComment(token: Token): boolean {
   const { text, type } = token;
   if (type === 'htmlFlow' && text.startsWith('<!--') && text.endsWith('-->')) {
@@ -357,29 +242,15 @@ const trailingSpaceRe = / +[\r\n]/g;
 const replaceTrailingSpace = (s: string) => s.replace(notCrLfRe, safeCommentCharacter);
 
 /**
- * Replaces the content of valid CommonMark HTML comments with the `.`
- * "safe" character, preserving every line/column position in the rest of
- * the document (never removes characters, never touches `\r`/`\n`).
- * Ported from markdownlint's helpers/helpers.cjs `clearHtmlCommentText`.
- *
- * This is upstream's OWN pre-processing pass -- run once, globally, before
- * `params.lines` is computed -- so that rules doing plain text/line
- * scanning (as opposed to token-tree scanning) never see real content
- * inside an HTML comment: trailing whitespace inside a comment isn't
- * "trailing whitespace" (MD009), a tab inside a comment isn't a "hard
- * tab" (MD010), reversed-link syntax inside a comment isn't a broken link
- * (MD011), etc. Token-tree-based scanning (e.g. MD033/MD037, which read
- * `params.parsers.micromark.tokens`) is unaffected -- those tokens are
- * built from the ORIGINAL, uncleared content upstream, matching how
- * recheck's own token tree (`ctx.tree`) is never cleared either; only
- * `ctx.lines` (see core/runner.ts) uses this cleared text.
+ * Replaces the text inside HTML comments with `.`, keeping all positions. Rules
+ * that scan lines then ignore comment content. The token tree is not cleared.
  */
 export function clearHtmlCommentText(text: string): string {
   let i = 0;
   while ((i = text.indexOf(htmlCommentBegin, i)) !== -1) {
     const j = text.indexOf(htmlCommentEnd, i + 2);
     if (j === -1) {
-      // Unterminated comments are treated as text.
+      // An unterminated comment is plain text.
       break;
     }
     if (j > i + htmlCommentBegin.length) {
@@ -412,35 +283,21 @@ export function clearHtmlCommentText(text: string): string {
 
 const docfxTabSyntaxRe = /^#tab\//;
 
-/**
- * Returns true iff the heading is a DocFX tab heading (an atx heading whose
- * entire text is a single link with a `#tab/...` destination) — see
- * https://dotnet.github.io/docfx/docs/markdown.html?tabs=linux%2Cdotnet#tabs.
- * Ported from markdownlint's helpers/micromark-helpers.cjs `isDocfxTab`.
- */
-// Regular expression for identifying an HTML entity at the end of a line.
-// Ported from markdownlint's helpers/helpers.cjs `endOfLineHtmlEntityRe`.
+// An HTML entity at the end of a line.
 export const endOfLineHtmlEntityRe =
   /&(?:#\d+|#[xX][\da-fA-F]+|[a-zA-Z]{2,31}|blk\d{2}|emsp1[34]|frac\d{2}|sup\d|there4);$/;
 
-// Regular expression for identifying a GitHub emoji code at the end of a
-// line. Ported from markdownlint's helpers/helpers.cjs `endOfLineGemojiCodeRe`.
+// A GitHub emoji code at the end of a line.
 export const endOfLineGemojiCodeRe =
   /:(?:[abmovx]|[-+]1|100|1234|(?:1st|2nd|3rd)_place_medal|8ball|clock\d{1,4}|e-mail|non-potable_water|o2|t-rex|u5272|u5408|u55b6|u6307|u6708|u6709|u6e80|u7121|u7533|u7981|u7a7a|[a-z]{2,15}2?|[a-z]{1,14}(?:_[a-z\d]{1,16})+):$/;
 
-// All punctuation characters (normal and full-width). Ported from
-// markdownlint's helpers/helpers.cjs `allPunctuation`.
+// Punctuation characters, normal and full-width.
 export const allPunctuation = '.,;:!?。，；：！？';
 
-// All punctuation characters without question mark (normal and
-// full-width). Ported from markdownlint's helpers/helpers.cjs
-// `allPunctuationNoQuestion`.
+// The same, without the question mark.
 export const allPunctuationNoQuestion = allPunctuation.replace(/[?？]/gu, '');
 
-/**
- * Escapes a string for safe use inside a RegExp character class/pattern.
- * Ported from markdownlint's helpers/helpers.cjs `escapeForRegExp`.
- */
+/** Escapes a string for use in a RegExp. */
 export function escapeForRegExp(str: string): string {
   return str.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
 }
@@ -448,23 +305,14 @@ export function escapeForRegExp(str: string): string {
 const loneSurrogateRe = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 
 /**
- * Replaces lone (unpaired) surrogate code units with U+FFFD, matching the
- * behavior of `String.prototype.toWellFormed()` (ES2024). Recheck's
- * `tsconfig.json` targets ES2021 (shared across the whole package, not
- * something this rule port should widen), so `link-fragments` (MD051) —
- * the only upstream rule using `.toWellFormed()` (on heading/fragment text
- * before `encodeURIComponent`, which throws on lone surrogates) — calls
- * this instead of the native method.
+ * Replaces unpaired surrogates with U+FFFD, like `String.prototype.toWellFormed()`,
+ * which the package's ES2021 target does not have.
  */
 export function toWellFormedString(str: string): string {
   return str.replace(loneSurrogateRe, '�');
 }
 
-/**
- * HTML tag information: whether it's a closing tag and its (lowercased-by-
- * caller-if-needed) name. Ported from markdownlint's
- * helpers/micromark-helpers.cjs `getHtmlTagInfo`.
- */
+/** Whether an HTML tag is a closing tag, and its name. */
 export interface HtmlTagInfo {
   close: boolean;
   name: string;
@@ -472,12 +320,7 @@ export interface HtmlTagInfo {
 
 const htmlTagNameRe = /^<([^!>][^/\s>]*)/;
 
-/**
- * Gets information about the tag in an HTML token (an `htmlText` token's
- * opening `<tag ...>` or closing `</tag>`), or `null` if the token's text
- * doesn't start with a recognizable tag (e.g. an HTML comment). Ported from
- * markdownlint's helpers/micromark-helpers.cjs `getHtmlTagInfo`.
- */
+/** Gets the tag info of an `htmlText` token, or `null` if it has no tag (e.g. a comment). */
 export function getHtmlTagInfo(token: Token): HtmlTagInfo | null {
   if (token.type === 'htmlText') {
     const match = htmlTagNameRe.exec(token.text);
@@ -490,23 +333,15 @@ export function getHtmlTagInfo(token: Token): HtmlTagInfo | null {
   return null;
 }
 
-/**
- * Builds a RegExp for matching the specified HTML attribute (e.g. `alt=`,
- * `id=`) within a raw HTML tag's text, capturing its (optionally quoted)
- * value. Ported from markdownlint's helpers/helpers.cjs `getHtmlAttributeRe`.
- */
+/** Builds a RegExp that captures the value of an HTML attribute such as `alt=`. */
 export function getHtmlAttributeRe(name: string): RegExp {
   return new RegExp(`\\s${name}\\s*=\\s*['"]?([^'"\\s>]*)`, 'iu');
 }
 
-/**
- * Truncates long text for use in error context, keeping the start, end, or
- * both ends depending on which end(s) matter. Ported from markdownlint's
- * helpers/helpers.cjs `ellipsify`.
- */
+/** Shortens long text for error context, keeping the start, the end, or both. */
 export function ellipsify(text: string, start?: boolean, end?: boolean): string {
   if (text.length <= 30) {
-    // Nothing to do
+    // Short enough
   } else if (start && end) {
     text = text.slice(0, 15) + '...' + text.slice(-15);
   } else if (end) {
@@ -517,6 +352,7 @@ export function ellipsify(text: string, start?: boolean, end?: boolean): string 
   return text;
 }
 
+/** True for a DocFX tab heading: an atx heading that is only a link to `#tab/...`. */
 export function isDocfxTab(heading: Token | null | undefined): boolean {
   if (heading?.type === 'atxHeading') {
     const headingTexts = getDescendantsByType(heading, ['atxHeadingText']);
@@ -525,13 +361,8 @@ export function isDocfxTab(heading: Token | null | undefined): boolean {
       headingTexts[0].children.length === 1 &&
       headingTexts[0].children[0].type === 'link'
     ) {
-      // `resourceDestinationString` nests several levels deep under the
-      // link (link > resource > resourceDestination >
-      // resourceDestinationRaw/Literal > resourceDestinationString), not
-      // as a direct child of the link -- matches upstream's own
-      // `filterByTypes(..., ["resourceDestinationString"])`, which walks
-      // to any depth, so this must use the recursive descendant helper
-      // (`filterByPredicate`) rather than a direct `.children.filter(...)`.
+      // `resourceDestinationString` is nested several levels below the link, so search all
+      // descendants.
       const resourceDestinationStrings = filterByPredicate(
         headingTexts[0].children[0].children,
         (child) => child.type === 'resourceDestinationString'
@@ -549,53 +380,27 @@ export function normalizeReference(s: string): string {
   return s.toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
-/** One usage site of a reference/shortcut label: `[lineIndex, columnIndex, length]` (0-based line/column), matching upstream's `number[][]` shape exactly so MD052's line/column math ports verbatim. */
+/** One use of a reference label: `[lineIndex, columnIndex, length]`, all 0-based. */
 export type ReferenceDatum = [lineIndex: number, columnIndex: number, length: number];
 
 export interface GetReferenceLinkImageDataResult {
-  /** Normalized label -> usage sites, for "full"/"collapsed" reference syntax (`[text][label]`, `[label][]`). */
+  /** Uses of full and collapsed references (`[text][label]`, `[label][]`), by normalized label. */
   references: Map<string, ReferenceDatum[]>;
-  /** Normalized label -> usage sites, for "shortcut" syntax (`[label]`) and footnote calls (`[^label]`). */
+  /** Uses of shortcut references (`[label]`) and footnote calls (`[^label]`), by normalized label. */
   shortcuts: Map<string, ReferenceDatum[]>;
-  /** Normalized label -> `[lineIndex, destinationText]` for each `[label]: destination` (or footnote `[^label]: ...`) definition. */
+  /** `[lineIndex, destination]` of each definition, by normalized label. */
   definitions: Map<string, [number, string]>;
-  /** `[label, lineIndex]` for each definition after the first one seen for that label. */
+  /** `[label, lineIndex]` for each definition after the first one with that label. */
   duplicateDefinitions: [string, number][];
 }
 
 /**
- * Returns information about reference-style links/images and their
- * definitions across the whole document: which labels are defined, which
- * are used (split into "full/collapsed" `references` vs "shortcut"
- * `shortcuts`, since shortcut syntax is ambiguous with plain bracketed
- * text), and which definitions are duplicates. Ported from markdownlint's
- * helpers/helpers.cjs `getReferenceLinkImageData` (there, cached per-lint-
- * run by lib/cache.mjs; Recheck's token rules have no shared per-run cache
- * — see no-empty-links.ts's doc comment for the established precedent — so
- * each of MD051/052/053/054 calls this fresh over the same tree).
+ * Finds reference-style links and images and their definitions in the whole file:
+ * which labels are defined, which are used, and which definitions are duplicates.
  *
- * DEVIATION: upstream additionally detects reference syntax that fails to
- * resolve to any definition at all (`undefinedReferenceShortcut/Collapsed/
- * Full`) by monkeypatching micromark's internal `labelEnd` tokenizer
- * (lib/micromark-parse.mjs) to synthesize tokens when label resolution
- * backtracks to failure. Recheck's parser (src/parser/index.ts) is a much
- * thinner micromark wrapper with no equivalent hook, and reproducing that
- * shim correctly is a parser-level change out of scope for a rule port.
- * Without it, an *undefined* reference/shortcut never becomes a `link`/
- * `image`/`gfmFootnoteCall` token in Recheck's tree in the first place —
- * it decomposes into plain `data` tokens — so there is no token for this
- * function to inspect for that case via the token-shape path alone.
- * `scanUndefinedReferences` below is a conservative, best-effort text-scan
- * fallback (restricted to direct `data`/`lineEnding` children of a single
- * container, requiring non-nested single-bracket-depth text with no `]`
- * inside — mirroring the upstream shim's own `!text.includes("]")` guard)
- * so MD052 (whose entire purpose is detecting undefined references) is not
- * a permanent no-op; it is not a byte-for-byte port of the shim and may
- * miss or mis-slice pathological/multi-line cases the real shim handles
- * via micromark's own backtracking state. MD053's `duplicateDefinitions`/
- * `definitions` and MD054's `definitions` lookups don't depend on this
- * fallback at all (they only need successfully-resolved usages), so this
- * deviation is fully scoped to MD052.
+ * Unlike markdownlint, undefined references are not tokens in our tree, so
+ * `scanUndefinedReferences` finds them with a plain text scan. It can miss some
+ * multi-line cases. Only `reference-links-images` needs undefined references.
  */
 export function getReferenceLinkImageData(tree: TokenTree): GetReferenceLinkImageDataResult {
   const references = new Map<string, ReferenceDatum[]>();
@@ -612,8 +417,7 @@ export function getReferenceLinkImageData(tree: TokenTree): GetReferenceLinkImag
     dictionary.set(reference, existing);
   };
 
-  // Matches upstream's own token text, filtering out blockQuotePrefix
-  // children (a label can span blockquote-prefixed lines).
+  // Join the child text, skipping blockquote prefixes (a label can span quoted lines).
   const getText = (token: Token | undefined): string =>
     token?.children
       .filter((c) => c.type !== 'blockQuotePrefix')
@@ -685,33 +489,16 @@ export function getReferenceLinkImageData(tree: TokenTree): GetReferenceLinkImag
 }
 
 export interface ImageDestination {
-  /** The `image` token itself — use its position/text for reporting. */
+  /** The image token, for reporting its position. */
   token: Token;
-  /**
-   * The image's destination exactly as written in the source: either the
-   * inline `(path "title")` destination (raw or angle-bracket literal), or
-   * the resolved reference/collapsed/shortcut definition's destination.
-   */
+  /** The destination as written: the inline `(path "title")` one, or the one from the matching definition. */
   destination: string;
 }
 
 /**
- * Resolves every `image` token in the tree to its destination path/URL —
- * both inline syntax (`![alt](path "title")`, including angle-bracket
- * literal destinations) and reference syntax (`![alt][ref]`, `![alt][]`,
- * `![alt]`), the latter resolved through `getReferenceLinkImageData`'s
- * `definitions` map the same way `link-image-style.ts` (MD054) resolves a
- * reference link/image's destination for its autolink-eligibility check.
- * An image whose reference never resolves to a definition never becomes an
- * `image` token in the first place (see `getReferenceLinkImageData`'s
- * DEVIATION note above) — there's no token to report for those here,
- * matching every other AST-based rule's treatment of the same tree.
- *
- * Shared by `rules/scope/max-image-size.ts` (the rule that flags oversized
- * images) and `core/files.ts`'s `extractImageReferences` (the on-disk
- * metadata loader): a single extraction pass so both sides always agree on
- * exactly which destination string keys a given image's on-disk stats in
- * `ScopeRuleContext.fileMetadata.images`.
+ * Finds the destination path or URL of every image, for both inline `![alt](path)`
+ * and reference `![alt][ref]` syntax. Used by `max-image-size` and when loading
+ * image files, so both use the same destination strings.
  */
 export function getImageDestinations(tree: TokenTree): ImageDestination[] {
   const { definitions } = getReferenceLinkImageData(tree);
@@ -739,53 +526,15 @@ export function getImageDestinations(tree: TokenTree): ImageDestination[] {
 
 const undefinedReferenceTextChildTypes = new Set(['data', 'lineEnding']);
 
-// Matches a single bracket-depth-1 span with no embedded `]`, optionally
-// immediately followed by a second such span (the "full"/"collapsed"
-// reference's own label) -- e.g. `[text][label]`, `[label][]`, `[label]`.
-// Mirrors upstream's shim constraints (`!text.includes("]")`,
-// adjacency-only pairing) closely enough for ordinary single-line prose.
+// A `[text]` span with no `]` inside, optionally followed by a second `[...]`.
+// Matches `[text][label]`, `[label][]` and `[label]`.
 const undefinedReferenceRe = /\[([^[\]]*)\](?:\[([^[\]]*)\])?/g;
 
 /**
- * Best-effort fallback (see `getReferenceLinkImageData`'s DEVIATION note)
- * for finding bracket-delimited text that *looks like* a reference or
- * shortcut link/image but didn't resolve to a real `link`/`image`/
- * `gfmFootnoteCall` token (no matching definition, or no definition at
- * all) -- so there is no such token in Recheck's tree to inspect directly.
- * Reconstructs each inline container's (paragraph, heading text, table
- * cell, etc.) *plain-text* content by concatenating runs of its direct
- * `data`/`lineEnding` children, breaking a run whenever a non-text child
- * (a real `link`/`image`/`gfmFootnoteCall`, a code span, emphasis, an
- * escape, etc.) is encountered -- so a real link/image token no longer
- * hides the plain text around it (see FINDING 2 below), but text is never
- * bridged *across* one of those tokens either, since that would splice
- * unrelated brackets together. Each run is regex-scanned independently,
- * mapping match offsets back to line/column via each source token's own
- * span. This intentionally never looks *inside* a non-text child itself --
- * exactly the cases upstream's own `!text.includes("]")` / bracket-depth-1
- * guards are built to approximate -- so escaped brackets, code-span
- * brackets, and brackets inside a resolved link's title are never
- * revisited here (they already live inside a different token type
- * entirely, see helpers.ts's `getReferenceLinkImageData` module doc for
- * confirmed parser shapes).
- *
- * FINDING 1: a candidate label that trims to empty (e.g. the `" "` between
- * a task-list checkbox's brackets, `[ ]`) is never a real reference or
- * shortcut -- mirrors upstream's own `labelEnd` tokenizer shim, which only
- * synthesizes an `undefinedReference*` token when
- * `text.trim().length > 0` (see markdownlint's lib/micromark-parse.mjs).
- * Skipping these also means `reference-links-images`' `ignoredLabels`
- * flow is unaffected: an empty label is discarded before it ever reaches
- * `addReferenceToDictionary`, so it can never collide with (or need) an
- * ignored-label entry.
- *
- * FINDING 2: previously this function required a container's *entire*
- * child list to be `data`/`lineEnding` before scanning it at all, so a
- * paragraph mixing plain bracket text with so much as one real link (e.g.
- * `[undef] and [real](url)`) was skipped in full -- silently dropping the
- * plain-text `[undef]` alongside it. Segmenting into runs (rather than
- * requiring whole-container purity) fixes this while still never reading
- * through a real inline token.
+ * Finds bracketed text that looks like a reference link or image but has no
+ * definition, so it is not a link token. Runs of plain text in each container
+ * are scanned separately, so text is never joined across a real link, code span
+ * or other token. Empty labels like the `[ ]` of a task list are ignored.
  */
 function scanUndefinedReferences(
   tree: TokenTree,
@@ -795,10 +544,7 @@ function scanUndefinedReferences(
     token.children.some((child) => undefinedReferenceTextChildTypes.has(child.type))
   );
   for (const container of containers) {
-    // Split the container's children into runs of contiguous `data`/
-    // `lineEnding` children, broken by any other (non-text) child -- each
-    // run is scanned independently so text never bridges across a real
-    // link/image/code-span/etc. token.
+    // Split the children into runs of consecutive text tokens.
     let run: Token[] = [];
     const runs: Token[][] = [];
     for (const child of container.children) {
@@ -812,9 +558,7 @@ function scanUndefinedReferences(
     if (run.length > 0) runs.push(run);
 
     for (const textRun of runs) {
-      // Build the run's full text plus a per-character line/column map (a
-      // `lineEnding` child contributes a single `\n` to the text so
-      // offsets stay aligned).
+      // Join the run's text and record the line and column of each character.
       const positions: { line: number; column: number }[] = [];
       let text = '';
       for (const child of textRun) {

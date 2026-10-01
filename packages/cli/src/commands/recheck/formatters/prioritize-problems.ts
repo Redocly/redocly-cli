@@ -6,9 +6,7 @@ const SEVERITY_ORDER: Record<string, number> = {
   info: 0,
 };
 
-/**
- * Prioritize problems by severity (error > warn > info) and cap to a limit if provided.
- */
+// Sorts by severity (error, warn, info), then by file, line and column. Keeps at most `limit` problems.
 export function prioritizeProblems(problems: Problem[], limit?: number): Problem[] {
   if (problems.length === 0) return [];
 
@@ -17,7 +15,6 @@ export function prioritizeProblems(problems: Problem[], limit?: number): Problem
     const rightSeverity = SEVERITY_ORDER[right.severity] ?? 0;
     if (rightSeverity !== leftSeverity) return rightSeverity - leftSeverity;
 
-    // Stable-ish tiebreaker: file then line then column
     if (left.file !== right.file) return left.file.localeCompare(right.file);
     if (left.line !== right.line) return left.line - right.line;
     return left.column - right.column;

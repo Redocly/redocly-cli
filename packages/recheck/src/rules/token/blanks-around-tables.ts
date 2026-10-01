@@ -15,7 +15,6 @@ export const blanksAroundTables: TokenRule = {
     const { lines } = ctx;
 
     for (const table of filterByTypes(ctx.tree, ['table'])) {
-      // Look for a blank line above the table.
       const firstLineNumber = table.startLine;
       if (!isBlankLine(lines[firstLineNumber - 2])) {
         ctx.onError({
@@ -29,7 +28,6 @@ export const blanksAroundTables: TokenRule = {
         });
       }
 
-      // Look for a blank line below the table.
       const lastLineNumber = table.endLine;
       if (!isBlankLine(lines[lastLineNumber])) {
         ctx.onError({

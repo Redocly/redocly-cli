@@ -31,10 +31,7 @@ describe('list-length', () => {
     expect(await hMax.lint(md)).toEqual([]);
   });
 
-  // The arbiter test: a nested sublist is its own subject, distinct from
-  // blanks-around-lists (MD032), which folds nested lists into their
-  // parent by design. The two-item parent must NOT be reported; only the
-  // one-item child, at its own startLine, should be.
+  // A nested list is checked on its own. Only the one-item child is reported.
   it('evaluates a nested sublist as its own list', async () => {
     const md = '- parent one\n- parent two\n  - lone child\n';
     const problems = await h.lint(md);
@@ -59,24 +56,14 @@ describe('list-length', () => {
     expect(await hMin3.lint('- one\n- two\n- three\n')).toEqual([]);
   });
 
-  // `min: 0` passes straight through the RULE's own arithmetic (`ctx.config.min
-  // ?? 2` only falls back to the literal default 2 when `min` is
-  // null/undefined, and `0` is neither), so this pins the mechanical
-  // fallback behavior of list-length.ts's check() itself when reached
-  // directly (tokenRuleHarness bypasses validate() entirely). validate()
-  // itself now REJECTS `min: 0` (see the "validate — list-length options"
-  // describe block below) precisely because this is its real runtime
-  // effect: no floor at all, since a real item count is never violated by
-  // it.
+  // `min: 0` means no minimum. validate() rejects it, but the rule itself must still behave.
   it('treats an explicit min of 0 as no floor (a single-item list is not flagged) -- rule-level behavior, bypassing validate()', async () => {
     const hMin0 = tokenRuleHarness('list-length', { min: 0 });
     expect(await hMin0.lint('- only item\n')).toEqual([]);
   });
 
-  // Same bypass-validate() caveat as above: `max === undefined` is the only
-  // guard in list-length.ts's check(), so a negative `max` passes through
-  // as a literal negative number and every real list (count is always >= 1)
-  // exceeds it. validate() now rejects this shape too.
+  // A negative `max` flags every list. validate() rejects it, but the rule itself must still
+  // behave.
   it('treats a negative max as "every list is too long" (even a single-item list is flagged) -- rule-level behavior, bypassing validate()', async () => {
     const hMaxNeg = tokenRuleHarness('list-length', { min: 0, max: -1 });
     const problems = await hMaxNeg.lint('- only item\n');
@@ -101,11 +88,6 @@ describe('validate — list-length options', () => {
     expect(result.isValid).toBe(true);
     expect(result.errors).toEqual([]);
   });
-
-  // The present-but-undefined option-acceptance test (max is declared in
-  // `defaults` with value `undefined`, same as line-length/required-headings)
-  // lives in src/config/__tests__/validate.test.ts's "validate — unknown
-  // options on token rules" describe block, alongside its siblings.
 
   it('rejects a non-number min', async () => {
     const result = await validate(listLengthConfig({ min: '2' }));
@@ -141,15 +123,6 @@ describe('validate — list-length options', () => {
     expect(result.errors).toEqual([]);
   });
 
-  // Final-review fix (Item 5's "while there" follow-up): validateListLengthOptions
-  // USED to only check type (must be a number) and the min <= max
-  // relationship, with no `>= 0` floor -- so 0 and negative bounds were both
-  // "valid" as far as validate() was concerned, even though a list's item
-  // count can never be negative, which makes `min: 0` never violated (see
-  // the `list-length` describe block above: "treats an explicit min of 0 as
-  // no floor") and a negative `max` always violated ("treats a negative max
-  // as 'every list is too long'"). Neither is a meaningful bound, so
-  // validate() now rejects both -- see validateCountBounds in validate.ts.
   it('rejects an explicit min of 0 (can never be violated by a real item count)', async () => {
     const result = await validate(listLengthConfig({ min: 0 }));
     expect(result.isValid).toBe(false);

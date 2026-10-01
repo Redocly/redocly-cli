@@ -1,38 +1,10 @@
 #!/usr/bin/env node
-// Task 12 of Phase 4: generates the four copy-pasteable example configs
-// under packages/recheck/examples/ from the four style-guide presets
-// (recheck/google, recheck/microsoft, recheck/inclusive-language,
-// recheck/plain-language). See .superpowers/sdd/task-12-brief.md and
-// task-12-resolutions.md for the shape this file implements.
+// Generates the example configs in packages/recheck/examples/ from the style-guide presets.
+// Each file has an attribution header, the `extends` block to paste, override examples as comments,
+// the full resolved rule set, and then the hand-written appendix from examples/appendices/.
 //
-// Each generated example has four parts, in this order:
-//   1. An attribution header (source, license, sync date) as YAML comments.
-//   2. "What to paste" — the two-to-four-line `extends` block, the actual
-//      adoption cost. This is the only LIVE (parseable) content most readers
-//      need.
-//   3. "How to tune it" — override patterns verified to work today, as YAML
-//      comments (not live: these are illustrations of what to add to YOUR
-//      config, not a silent modification of this one).
-//   4. "Full expansion (reference)" — the preset's entire resolved rule set,
-//      alphabetized, rendered as real (live) YAML. Reading it answers "what
-//      am I actually getting" without running the tool; because every value
-//      here is identical to what `extends` already resolves to, copying the
-//      whole file is equivalent to just the two-line extends block above —
-//      redundant, not broken, which is why it's "reference," not "paste
-//      this too."
-// A hand-maintained appendix (examples/appendices/<name>.appendix.yaml) is
-// then appended verbatim — NOISY candidates the guide states but this
-// preset doesn't enforce, and a checklist of content that needs a human,
-// not a linter.
-//
-// Usage:
-//   node scripts/generate-examples.mjs          regenerate all four files
-//   node scripts/generate-examples.mjs --check  exit 1 if any file would
-//                                                change; writes nothing
-//
-// Requires the package to have already been built: this script (and the
-// drift test that imports renderExample()/examplePath() from it) reads the
-// BUILT lib/, since a plain .mjs file can't import .ts sources directly.
+// Usage: node scripts/generate-examples.mjs [--check]  (--check exits 1 if a file is out of date)
+// Needs a built package: it reads the compiled lib/.
 
 import * as yaml from 'js-yaml';
 import { spawnSync } from 'node:child_process';
@@ -61,20 +33,8 @@ function appendixPath(name) {
   return path.join(packageRoot, 'examples', 'appendices', `${name}.appendix.yaml`);
 }
 
-// The repo's pre-commit hook runs `oxfmt --write` over every staged file,
-// YAML included (see the root package.json's lint-staged config), and
-// oxfmt has its own opinion on quote style for at least one edge case
-// js-yaml's `dump()` doesn't match by default (a bundled swap pair whose
-// replacement is a single straight-quote character: js-yaml emits the
-// single-quoted, doubled-escape form `''''`; oxfmt prefers `"'"` instead,
-// to avoid the escape). Left unreconciled, the hook would silently rewrite
-// the committed file on every commit that touches it, permanently
-// diverging from this script's own raw output and breaking the drift test
-// for anyone who regenerates without then also running oxfmt by hand.
-// Running oxfmt here — inside renderExample() itself, the one function
-// both the CLI and the drift test call — makes the committed file and a
-// fresh render identical by construction, instead of hoping the two
-// formatters never disagree.
+// The pre-commit hook formats staged YAML with `oxfmt`, which writes some quotes differently from
+// js-yaml. Running oxfmt here makes a fresh render match the committed file.
 function findOxfmtBinary() {
   let dir = packageRoot;
   for (;;) {
@@ -127,10 +87,7 @@ async function loadLib() {
   }
 }
 
-// Stable per-rule key order for the "Full expansion" section. Only keys a
-// rule actually has are emitted (BaseRule/NormalizedRule fields are mostly
-// optional) — `name`/`shortName` are skipped since the rule's own top-level
-// key already encodes the name.
+// Key order for the "Full expansion" section. Only keys a rule has are written, and `name` is skipped.
 const RULE_FIELD_ORDER = [
   'severity',
   'message',
@@ -176,10 +133,7 @@ function section(title) {
   return `${rule}\n# ${title}\n${rule}`;
 }
 
-// -----------------------------------------------------------------------
-// Attribution headers (mirrors each preset's PROVENANCE.md header exactly —
-// see packages/recheck/presets/<name>/PROVENANCE.md for the full citation).
-// -----------------------------------------------------------------------
+// Attribution headers, copied from each preset's PROVENANCE.md.
 
 function renderHeader(name) {
   const lines = {
@@ -270,9 +224,7 @@ function renderHeader(name) {
   return lines[name].join('\n');
 }
 
-// -----------------------------------------------------------------------
-// "What to paste" — the actual adoption cost.
-// -----------------------------------------------------------------------
+// "What to paste" section.
 
 function renderWhatToPaste(name) {
   const extendsYaml = {
@@ -334,9 +286,7 @@ function renderWhatToPaste(name) {
   return [...notes, '', extendsYaml].join('\n');
 }
 
-// -----------------------------------------------------------------------
-// "How to tune it" — verified override patterns, as comments (not live).
-// -----------------------------------------------------------------------
+// "How to tune it" section: override examples as comments.
 
 function renderHowToTune(name, rules) {
   const s = section('How to tune it');
@@ -612,9 +562,7 @@ function renderHowToTune(name, rules) {
   ].join('\n');
 }
 
-// -----------------------------------------------------------------------
-// "Full expansion (reference)" — the resolved rule set, alphabetized.
-// -----------------------------------------------------------------------
+// "Full expansion (reference)" section: the resolved rules, sorted by name.
 
 function renderFullExpansion(presetId, rules) {
   const sorted = [...rules].sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
@@ -639,9 +587,7 @@ function renderFullExpansion(presetId, rules) {
   ].join('\n');
 }
 
-// -----------------------------------------------------------------------
-// Public entry point shared by the CLI path and the drift test.
-// -----------------------------------------------------------------------
+// Entry point shared by the CLI and the drift test.
 
 export async function renderExample(name) {
   if (!PRESET_NAMES.includes(name)) {
@@ -665,10 +611,6 @@ export async function renderExample(name) {
   const raw = [header, whatToPaste, howToTune, fullExpansion, appendix].join('\n\n') + '\n';
   return formatWithOxfmt(raw);
 }
-
-// -----------------------------------------------------------------------
-// CLI entry point.
-// -----------------------------------------------------------------------
 
 async function main() {
   const check = process.argv.includes('--check');

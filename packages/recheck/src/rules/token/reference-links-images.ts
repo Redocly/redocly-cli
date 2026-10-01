@@ -1,10 +1,6 @@
 // Ported from markdownlint's lib/md052.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// Relies on `getReferenceLinkImageData` (helpers.ts) -- see that function's
-// own doc comment for the DEVIATION note on undefined-reference detection
-// (Recheck's parser has no equivalent to upstream's `labelEnd` tokenizer
-// shim, so a best-effort text-scan fallback is used instead of a byte-for-
-// byte port).
+// Undefined references are found with a text scan, which only approximates upstream.
 import type { TokenRule } from '../types.js';
 import { getReferenceLinkImageData } from './helpers.js';
 

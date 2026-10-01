@@ -12,10 +12,7 @@ function fixture(name: string): string {
   return path.join(dir, 'fixtures', name);
 }
 
-/**
- * Returns every (file, line, column) position hit by 2+ distinct rule names --
- * a literal "this exact span was reported more than once" finding.
- */
+/** Finds positions (file, line, column) that two or more different rules report. */
 function duplicatePositions(
   problems: { file: string; line: number; column: number; ruleName: string }[]
 ) {
@@ -32,15 +29,8 @@ function duplicatePositions(
   return [...byPosition.entries()].filter(([, rules]) => rules.size > 1);
 }
 
-// `preset-google.test.ts` and `preset-microsoft.test.ts` each carry their own
-// single-preset copy of this guarantee. This block is the shared, list-driven
-// version, so a new detection-only preset joins the array below instead of
-// getting a whole new describe block.
-//
-// The non-triviality floor is per-preset because one shared bound cannot fit
-// both the large word-list presets and `recheck/markdoc`, which has exactly
-// four rules: a bound low enough for markdoc would let a word-list preset
-// shrink to a couple of rules and still pass.
+// The single-preset test files each repeat this check. This list-driven version covers every
+// detection-only preset. The minimum rule count is per preset because `recheck/markdoc` has only four rules.
 const DETECTION_ONLY_PRESET_NAMES = [
   'recheck/google',
   'recheck/microsoft',
@@ -74,11 +64,8 @@ describe('word-list/style-guide presets are detection-only by design', () => {
   );
 });
 
-// `extends` must resolve without id collisions and must preserve each preset's
-// own severities through the merge; a preset whose warnings silently become
-// errors via composition is a real defect. Stacked presets merge by rule key,
-// so namespacing every composable preset's keys (`google/...`,
-// `inclusive-language/...`) is what makes stacking safe.
+// Stacked presets merge by rule key, so each preset's keys are namespaced. Composing them must not lose
+// keys or change any severity.
 describe('composition: extends [recheck/markdown, recheck/google, recheck/inclusive-language]', () => {
   it('resolves without id collisions: every rule key from all three presets is present, with no key stolen from another', () => {
     const { config, errors } = resolveExtends({
@@ -90,9 +77,7 @@ describe('composition: extends [recheck/markdown, recheck/google, recheck/inclus
     const googleKeys = Object.keys(presets['recheck/google']);
     const inclusiveKeys = Object.keys(presets['recheck/inclusive-language']);
 
-    // No overlap between any two of the three presets' own key sets --
-    // this is the namespacing guarantee itself, checked directly rather
-    // than assumed.
+    // The key sets of the three presets must not overlap.
     const allKeySets = [markdownKeys, googleKeys, inclusiveKeys];
     for (let i = 0; i < allKeySets.length; i++) {
       for (let j = i + 1; j < allKeySets.length; j++) {
@@ -101,8 +86,7 @@ describe('composition: extends [recheck/markdown, recheck/google, recheck/inclus
       }
     }
 
-    // Every key from every preset survives into the merged config -- a
-    // real collision would mean one preset's rule count silently shrinks.
+    // Every key survives the merge.
     const mergedKeys = new Set(Object.keys(config));
     for (const key of [...markdownKeys, ...googleKeys, ...inclusiveKeys]) {
       expect(mergedKeys.has(key), `expected merged config to contain "${key}"`).toBe(true);
@@ -117,12 +101,7 @@ describe('composition: extends [recheck/markdown, recheck/google, recheck/inclus
       extends: ['recheck/markdown', 'recheck/google', 'recheck/inclusive-language'],
     });
 
-    // Every single rule from every preset, not just a spot sample: the
-    // merged severity must equal the preset's own configured severity for
-    // every rule key, since none of these three presets' rule keys
-    // collide (proven above) -- so `resolveExtends` never even reaches its
-    // per-key merge logic for any of them; this asserts the (structurally
-    // guaranteed, but worth proving directly) outcome.
+    // Every rule keeps its preset's severity. No keys overlap, so nothing is merged per key.
     for (const [presetName, preset] of Object.entries({
       'recheck/markdown': presets['recheck/markdown'],
       'recheck/google': presets['recheck/google'],
@@ -138,12 +117,7 @@ describe('composition: extends [recheck/markdown, recheck/google, recheck/inclus
   });
 });
 
-// Stacking `plain-language` onto `recheck/microsoft` is the interesting case
-// because both ship `length` on the paragraph scope: `microsoft/paragraph-
-// length` in sentences against `plain-language/paragraph-max-words` in words
-// and `plain-language/paragraph-sentence-count` in sentences. Every rule key is
-// distinct, so the per-key merge never runs and all three keep their own
-// options instead of one clobbering another.
+// Both presets ship `length` on the paragraph scope, but with different keys. Each keeps its own options.
 describe('composition: extends [recheck/microsoft, recheck/plain-language] (both ship length)', () => {
   it("both presets' length-backed rules survive independently, each with its own unit/max intact", () => {
     const { config, errors } = resolveExtends({
@@ -159,9 +133,7 @@ describe('composition: extends [recheck/microsoft, recheck/plain-language] (both
     expect(plainMaxWords).toBeDefined();
     expect(plainSentenceCount).toBeDefined();
 
-    // Each retains its OWN preset's original options -- proving the merge
-    // didn't average, overwrite, or otherwise cross-contaminate the three
-    // independently-keyed `length` rules.
+    // Each rule keeps the options of its own preset.
     expect(microsoftParagraph).toMatchObject({
       scope: 'paragraph',
       assertions: { length: { unit: 'sentences', max: 7 } },
@@ -199,13 +171,8 @@ describe('composition: extends [recheck/microsoft, recheck/plain-language] (both
   });
 });
 
-// "Same file, same line, same span, flagged by more than one rule" is real
-// noise a user stacking a composable preset onto a flagship can hit, so it is
-// counted rather than assumed small. Each fixture below is a preset's own
-// "every rule fires" violations fixture, linted under a stacked config.
-//
-// The counts are asserted exactly so a future rule addition that reintroduces a
-// removed duplicate, or drops a currently-accepted one, is caught here.
+// Stacked presets can report the same span twice. The counts are exact, so a change that adds or
+// removes a duplicate is noticed. Each fixture is the preset's violations fixture.
 describe('duplicate findings across stacked presets (measured, not assumed)', () => {
   it("markdown+google+inclusive-language: 11 duplicate positions, all from inclusive-language rules already covered by google (by construction -- see inclusive-language.ts's COMPOSITION note)", async () => {
     const content = await readFile(fixture('inclusive-language-violations.md'), 'utf8');
@@ -214,10 +181,7 @@ describe('duplicate findings across stacked presets (measured, not assumed)', ()
     });
     const dupes = duplicatePositions(problems);
     expect(dupes).toHaveLength(11);
-    // Every duplicate pairs a `google/*` rule with an `inclusive-language/*`
-    // rule (never two `google/*` rules with each other, and `recheck/markdown`
-    // contributes none) -- confirms the source of the overlap is exactly the
-    // intersection design, not an unrelated collision.
+    // Every duplicate pairs a `google/*` rule with an `inclusive-language/*` rule.
     for (const [, rules] of dupes) {
       const names = [...rules];
       expect(names.some((n) => n.startsWith('google/'))).toBe(true);
@@ -248,11 +212,7 @@ describe('duplicate findings across stacked presets (measured, not assumed)', ()
     });
     const dupes = duplicatePositions(problems);
     expect(dupes).toHaveLength(3);
-    // Each remaining duplicate is either the accepted paragraph-length
-    // overlap (both plain-language rules on the same paragraph) or a
-    // coincidental "has not"/"is not" substring collision with
-    // google/use-contractions -- documented, not silently reintroduced
-    // flagship-equivalent content.
+    // Each duplicate is a paragraph-length overlap or a "has not"/"is not" match for google/use-contractions.
     const flattened = dupes.flatMap(([, rules]) => [...rules]);
     expect(flattened.filter((n) => n === 'plain-language/paragraph-max-words')).toHaveLength(1);
     expect(flattened.filter((n) => n === 'plain-language/paragraph-sentence-count')).toHaveLength(
@@ -280,11 +240,7 @@ describe('duplicate findings across stacked presets (measured, not assumed)', ()
     );
   });
 
-  // Regression guard for the two removed pairs themselves: `in order to`
-  // and `utilize`/`utilization` must not be reintroduced into
-  // plain-language's shipped rules, since both are already identically
-  // covered by BOTH flagships (google/in-order-to + microsoft/simple-words;
-  // google/utilize + microsoft/simple-words).
+  // `in order to` and `utilize`/`utilization` are already covered by both google and microsoft.
   it('plain-language does not re-ship "in order to" or "utilize"/"utilization" (already covered by both flagships)', () => {
     const preset = presets['recheck/plain-language'];
     const allPairKeys = new Set<string>();

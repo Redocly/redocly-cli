@@ -13,9 +13,6 @@ interface SarifRule {
   helpUri?: string;
 }
 
-/**
- * Build SARIF format object from problems
- */
 export function buildSarif(problems: Problem[]): Record<string, unknown> {
   const rulesMap = new Map<string, SarifRule>();
   for (const problem of problems) {
@@ -59,9 +56,6 @@ export function buildSarif(problems: Problem[]): Record<string, unknown> {
   };
 }
 
-/**
- * Output problems in SARIF format through the logger
- */
 export function outputSarifFormat(problems: Problem[]): void {
   logger.output(`${JSON.stringify(buildSarif(problems), null, 2)}\n`);
 }

@@ -4,101 +4,47 @@ import type { NormalizedRule, Problem, Fix, ConsistencyAssertion } from '../../t
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
 
-// One occurrence of the LOSING variant, at its absolute source position,
-// plus the winner it should be rewritten to. execute() and fix() both
-// consume this exact list, so they agree by construction.
+// One occurrence of the losing variant, with the winner it should become.
+// Used by both execute() and fix().
 interface ConsistencySite {
   line: number; // absolute source line
   column: number; // absolute source column
   text: string; // the losing match, as written in the source
   lineText: string; // the full segment-content line containing the match
-  winner: string; // the first-seen variant, AS WRITTEN in the `either` config
-  // Same-word-count guard (see wordCount() below): false means this PAIR's
-  // key/value cross a word-count boundary, so fix() must skip this site even
-  // though execute() still reports it. Carried per-site (not just per-pair)
-  // so fix() can filter the shared collectMatches() output with no
-  // re-derivation.
+  winner: string; // the first-seen variant, as written in the `either` config
+  // False when the pair has a different number of words on each side (see
+  // wordCount()). The problem is reported but not fixed.
   fixable: boolean;
 }
 
-// Mechanical proxy for "is this pair a same-word normalization (safe to
-// rewrite blindly) or a substitution that can expand ambiguously (not
-// safe)?" -- same shape as applyMatchCase's multi-word guard in
-// case-preserve.ts: a checkable structural property (word count) that
-// correlates with the semantic hazard, rather than an attempt to
-// understand the words themselves. `colour`/`color` is one word either
-// way. `it's`/`it is` is one word vs. two -- and that word-count jump is
-// exactly where the ambiguity lives: `it's` expands to EITHER "it is" OR
-// "it has", so picking "it is" as the winner and rewriting every "it's" to
-// it is flat wrong whenever the source meant "it has" (see this file's
-// fix() doc comment and the bug this guard closes: "It is fine. ... it's
-// been growing for hours." -> "it is been growing for hours."). Splitting
-// on whitespace is deliberately simple -- like applyMatchCase's `/\s/`
-// check, it does not try to be a linguistic word tokenizer, just a cheap,
-// reliable signal for "the replacement isn't shaped like the match
-// any more."
-//
-// KNOWN EDGE, not fixed here (false positive, accepted cost): this guard
-// cannot distinguish "crosses a word boundary AND is ambiguous" (`it's` ->
-// EITHER "it is" or "it has") from "crosses a word boundary but has only
-// ONE possible expansion" (`don't` -> always "do not", never anything
-// else). `microsoft/contraction-consistency` ships exactly this shape
-// alongside `it's`/`it is`: `don't`/`do not`, `won't`/`will not`, and
-// `isn't`/`is not` are each a single, unambiguous contraction/expansion
-// pair (1 word vs. 2), and this guard blocks fixing all three, same as it
-// blocks `it's`/`it is` -- even though, unlike `it's`, none of them has a
-// second meaning a blind rewrite could pick wrong. `can't`/`cannot` is the
-// one pair in that same rule the guard does NOT block, only because
-// "cannot" happens to be written as one word rather than two ("can not"
-// would trip the guard identically, despite being just as unambiguous as
-// "do not"). Word count is a proxy for "may be ambiguous," not a test of
-// ambiguity itself, so it necessarily also catches unambiguous pairs that
-// merely happen to differ in word count -- the same shape as
-// applyMatchCase's own accepted edge (a hyphen-only replacement counts as
-// "one word" and still gets shouted). Narrowing further (e.g. a hand-listed
-// exception for "known-unambiguous" contractions) would repeat the exact
-// per-pair-criterion pattern this whole change retires elsewhere in this
-// package -- so the false positive is accepted, not patched, and recorded
-// here so it is a known trade-off rather than an undocumented side effect.
+// Counts words so we can skip fixing pairs like `it's` / `it is`. `it's` can mean
+// "it is" or "it has", so a blind rewrite can be wrong. This also blocks safe pairs
+// like `don't` / `do not`; that is accepted.
 function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
-// On the segment's first line, segment.content starts mid-source-line (e.g.
-// a heading's content excludes the '## ' marker), so segment.startColumn
-// must be added -- see pattern.ts's toSourceColumn.
+// On the first line, `segment.content` can start in the middle of the source line
+// (a heading's content skips the '## '), so add `startColumn`.
 function toSourceColumn(segment: { startColumn: number }, localLine: number, localColumn: number) {
   return localLine === 1 ? segment.startColumn + (localColumn - 1) : localColumn;
 }
 
-// Fallback when a programmatically-built rule has no `message` (validate()
-// requires one). %s slots: matched text, then the first-seen winner.
+// Used when the rule has no `message`. The two `%s` are the matched text and the
+// first-seen variant.
 const FALLBACK_MESSAGE = 'Inconsistent spelling: "%s" conflicts with first-seen "%s".';
 
-// Shared by execute() and fix(). For each `either` pair, scans ALL segments
-// for BOTH variants (regex-escaped literals with \b word boundaries, like
-// `swap` keys), maps every match to its absolute source position, then:
-//
-// 1. Dedupes by `line:column:variant` BEFORE deciding the winner:
-//    overlapping scopes (e.g. `[paragraph, sentence]`) match the same
-//    source occurrence once per covering segment, double-counting it and
-//    scrambling which variant looks 'first'.
-// 2. Sorts by (line, column): the winner is the first match in SOURCE
-//    ORDER, file-wide -- not collection order, which scans the pair's key
-//    before its value and would always crown the key.
-//
-// Every later match of the OTHER (losing) variant yields one site.
+// Shared by execute() and fix(). For each `either` pair, finds both variants in all
+// segments. The variant that appears first in the file wins, and every later
+// match of the other variant is a site. Matches found twice through overlapping
+// scopes are counted once.
 function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): ConsistencySite[] {
   const options = (rule.assertions['consistency'] ?? {}) as ConsistencyAssertion;
   const flags = options.ignoreCase ? 'gi' : 'g';
   const sites: ConsistencySite[] = [];
 
   for (const [key, value] of Object.entries(options.either ?? {})) {
-    // Same-word-count guard, computed once per PAIR (not per occurrence):
-    // whichever variant wins first-seen, a fix is only offered when the key
-    // and value are the same number of words. See wordCount()'s doc comment
-    // above for why a word-count mismatch (e.g. `it's` vs. `it is`) is
-    // exactly where a contraction's ambiguous expansion lives.
+    // Only offer a fix when both sides have the same number of words.
     const fixable = wordCount(key) === wordCount(String(value));
 
     interface VariantMatch {
@@ -112,13 +58,10 @@ function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): Consistenc
     const matches: VariantMatch[] = [];
 
     for (const variant of [key, String(value)]) {
-      // An empty variant (only reachable when a caller bypasses validate())
-      // would escape to the zero-width `\b\b`, matching nearly every
-      // position and spuriously winning as "first-seen". Skip it.
+      // An empty variant would match almost everywhere. Skip it.
       if (variant.length === 0) continue;
 
-      // Same escaping as swap keys: variants are literals, so regex
-      // metacharacters (e.g. 'e.g.') must not act as syntax.
+      // Variants are plain text, so escape regex characters like the dots in 'e.g.'.
       const escaped = variant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(`\\b${escaped}\\b`, flags);
       for (const segment of ctx.segments) {
@@ -127,10 +70,6 @@ function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): Consistenc
         regex.lastIndex = 0;
         let match: RegExpExecArray | null;
         while ((match = regex.exec(segment.content)) !== null) {
-          // No zero-width guard needed (unlike swap/conditional/repetition):
-          // the empty-variant skip above guarantees `escaped` is a non-empty
-          // literal, and \b...\b only adds zero-width assertions around it,
-          // so `match[0]` can never be empty here.
           const local = offsetToLineColumn(segment.content, match.index);
           const line = segment.startLine + local.line - 1;
           const column = toSourceColumn(segment, local.line, local.column);
@@ -165,8 +104,7 @@ function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): Consistenc
     }
   }
 
-  // Pairs are processed one at a time, so multi-pair results arrive grouped
-  // by pair; re-sort so problems/fixes read in source order.
+  // Sites are grouped by pair, so sort them into source order.
   sites.sort((a, b) => a.line - b.line || a.column - b.column);
   return sites;
 }
@@ -190,11 +128,7 @@ const execute = async (
 };
 
 const fix = async (rule: NormalizedRule, file: string, ctx: ScopeRuleContext): Promise<Fix[]> => {
-  // Same-word-count guard (see wordCount()'s doc comment above): a
-  // different-word-count pair (e.g. `it's`/`it is`) still gets REPORTED by
-  // execute() above -- collectMatches() doesn't distinguish the two
-  // functions -- but must never be auto-fixed, so it's filtered out here,
-  // after collection, rather than skipped during collection itself.
+  // Pairs with a different word count are reported by execute() but not fixed.
   return collectMatches(rule, ctx)
     .filter((site) => site.fixable)
     .map((site) => ({
@@ -203,14 +137,8 @@ const fix = async (rule: NormalizedRule, file: string, ctx: ScopeRuleContext): P
       lineNumber: site.line,
       editColumn: site.column,
       deleteCount: site.text.length,
-      // Apply the MATCHED text's observed casing to the winner, not the
-      // winner as authored in config: with `ignoreCase: true`, a
-      // sentence-initial 'Behaviour' would otherwise be replaced by the
-      // literal (lowercase-first) authored winner 'behavior', silently
-      // lowercasing the start of the sentence -- the exact hazard
-      // applyMatchCase exists to prevent, and swap.ts:177 already guards
-      // against for the `swap` assertion. `consistency` shares the same
-      // ignoreCase/fix shape, so it needs the same guard.
+      // Keep the casing of the matched text, so with `ignoreCase` a sentence-initial
+      // 'Behaviour' becomes 'Behavior', not 'behavior'.
       insertText: applyMatchCase(site.text, site.winner),
     }));
 };

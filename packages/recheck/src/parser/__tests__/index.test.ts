@@ -45,24 +45,8 @@ describe('parseMarkdown', () => {
   });
 
   describe('htmlFlow reparse (block HTML exposes htmlText tags, like upstream)', () => {
-    // Regression: upstream markdownlint reparses every htmlFlow (block
-    // HTML) token's raw text as inline content (see its
-    // lib/micromark-parse.mjs shim), splicing in real `htmlText` tokens
-    // for each tag -- e.g. so MD033 no-inline-html sees `<details>` even
-    // though it's a block-level HTML element, not inline. Recheck's parser
-    // previously left `htmlFlow` tokens with only `htmlFlowData` children
-    // (raw, untagged text), which made `no-inline-html` (and any other
-    // rule filtering for `htmlText`) blind to an entire class of common
-    // real-world HTML (<details>, <summary>, <div align="center">, etc.).
-    //
-    // `filterByTypes`'s third argument (`includeHtmlFlow`) must be `true`
-    // to see this reparsed content -- it defaults to `false`, matching
-    // upstream's own `filterByTypes(tokens, types, htmlFlow)` default, so
-    // that rules NOT explicitly opting in (e.g. MD038 no-space-in-code)
-    // don't spuriously match synthetic content from inside an HTML block
-    // (a code span's backticks inside <details> is not a "real" inline
-    // code span the same way a top-level one is) -- see the dedicated
-    // `filterByTypes includeHtmlFlow` suite below for that default itself.
+    // Tags inside block HTML only show up when `filterByTypes` is called with `includeHtmlFlow` set
+    // to true.
 
     it('exposes a single-line htmlFlow block tag as an htmlText token', () => {
       const tree = parseMarkdown('<div align="center">\n\nBody\n\n</div>\n');
@@ -113,10 +97,7 @@ describe('parseMarkdown', () => {
     });
 
     it('excludes a codeText span inside an htmlFlow block by default (regression: MD038 false positive)', () => {
-      // A backtick code span inside a <details> block was wrongly flagged by
-      // MD038 no-space-in-code once the parser started reparsing htmlFlow
-      // content. Upstream's own MD038 uses `filterByTypesCached(['codeText'])`
-      // with no `true` flag, so it never sees code spans inside HTML blocks.
+      // The padded code span inside <details> must not be reported by no-space-in-code.
       const tree = parseMarkdown('<details>\n<summary>` padded `</summary>\n</details>\n');
       expect(filterByTypes(tree, ['codeText'])).toHaveLength(0);
       expect(filterByTypes(tree, ['codeText'], true).length).toBeGreaterThan(0);
@@ -129,10 +110,8 @@ describe('parseMarkdown', () => {
     });
 
     it('does not throw on a huge contiguous htmlFlow block (argument-spread stack limit)', () => {
-      // One HTML block of tens of thousands of lines reparses into a flat list
-      // too large to append via spread arguments, which overflows the call
-      // stack somewhere between 30k and 40k lines. The parser must fall back to
-      // a slower append rather than throw.
+      // Spreading this many tokens into `push` overflows the call stack (somewhere between 30k and
+      // 40k lines).
       const huge = '<div>\n' + '<span>x</span>\n'.repeat(45_000) + '</div>\n';
       const tree = parseMarkdown(huge);
       expect(filterByTypes(tree, ['htmlText'], true).length).toBeGreaterThan(0);
@@ -140,8 +119,7 @@ describe('parseMarkdown', () => {
   });
 });
 
-// The block-HTML region is here so `inHtmlFlow` is genuinely populated
-// somewhere in the compared shape, not merely absent on both sides.
+// Includes block HTML so that `inHtmlFlow` is set on some tokens.
 const TAGGED = [
   '{% admonition type="info" %}',
   'Be careful here.',
@@ -155,8 +133,7 @@ const TAGGED = [
   '',
 ].join('\n');
 
-// 4-space-indented prose and a tag pair: the construct the flag-on extension
-// changes by disabling `codeIndented`. Flag-off must still see it unchanged.
+// Indented text and indented tags. The Markdoc option turns off indented code.
 const INDENTED = [
   'Before.',
   '',
@@ -184,9 +161,7 @@ interface ShapeNode {
   children: ShapeNode[];
 }
 
-// Strips parent back-references so deep-equal comparison terminates. The
-// optional `inHtmlFlow` and `markdocKind` fields are included so identity
-// comparisons actually cover them.
+// Drops `parent` so the trees can be compared. Keeps `inHtmlFlow` and `markdocKind`.
 function shape(tree: ReturnType<typeof parseMarkdown>): ShapeNode[] {
   const strip = (t: any): ShapeNode => ({
     type: t.type,
@@ -206,7 +181,7 @@ function flatten(nodes: ShapeNode[]): ShapeNode[] {
   return nodes.flatMap((node) => [node, ...flatten(node.children)]);
 }
 
-/** Deep clone differing from its input in exactly one field, cleared everywhere. */
+// Copy of the nodes with one field cleared on every node.
 function cleared(nodes: ShapeNode[], field: 'inHtmlFlow' | 'markdocKind'): ShapeNode[] {
   return nodes.map((node) => ({
     ...node,
@@ -231,9 +206,7 @@ describe('markdoc flag plumbing', () => {
     );
   });
 
-  // The test above would pass on `type` alone, so it says nothing about the
-  // two optional fields. This one requires each to be populated in the fixture
-  // and requires clearing it -- and nothing else -- to change the comparison.
+  // The test above could pass on `type` alone, so check the two optional fields too.
   it('the comparator genuinely compares inHtmlFlow and markdocKind', () => {
     const tagged = shape(parseMarkdown(TAGGED, { markdoc: true }));
     const nodes = flatten(tagged);
@@ -243,9 +216,7 @@ describe('markdoc flag plumbing', () => {
     expect(tagged).not.toEqual(cleared(tagged, 'markdocKind'));
   });
 
-  // The flag-on extension disables `codeIndented` because Markdoc's own
-  // tokenizer disables indented code unconditionally. That must not leak into
-  // a flagless parse.
+  // Markdoc turns off indented code, but that must not affect a parse without the option.
   describe('indented content: the disable is confined to the flag-on path', () => {
     it('flag omitted and flag false stay byte-identical', () => {
       expect(shape(parseMarkdown(INDENTED))).toEqual(
@@ -268,8 +239,7 @@ describe('markdoc flag plumbing', () => {
     });
   });
 
-  // Likewise `setextUnderline`, because Markdoc's tokenizer disables
-  // `lheading` unconditionally alongside indented code.
+  // Same for setext headings, which Markdoc also turns off.
   describe('setext headings: the disable is confined to the flag-on path', () => {
     const SETEXT = 'Title\n=====\n\nTitle\n-----\n';
 

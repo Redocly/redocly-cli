@@ -14,11 +14,8 @@ import {
 const headingTagNameRe = /^h[1-6]$/;
 
 /**
- * Finds the first descendant of `token` with the given type, at any depth
- * (depth-first, pre-order). Explicit-stack DFS rather than call-stack
- * recursion: this runs over `htmlFlow` tokens whose reparsed subtree depth
- * tracks the block's own (attacker-controlled) markdown nesting, so
- * recursion depth must not track document nesting depth.
+ * Finds the first descendant of `token` with the given type, at any depth.
+ * Uses a loop instead of recursion so deeply nested input cannot overflow the stack.
  */
 function findDescendantByType(token: Token, type: string): Token | null {
   const stack: Token[] = [];
@@ -32,14 +29,7 @@ function findDescendantByType(token: Token, type: string): Token | null {
   return null;
 }
 
-/**
- * Gets the HTML tag name of an htmlFlow token's first tag, via its
- * (Task 12-added) reparsed `htmlText` descendants — same approach as
- * upstream's own `getHtmlFlowTagName`, which reads off a nested `htmlText`
- * descendant since its parser subtokenizes htmlFlow content the same way
- * (the reparsed content nests `htmlText` under intermediate `content`/
- * `paragraph` wrapper tokens, not as a direct child).
- */
+/** Returns the name of the first HTML tag in an htmlFlow token. */
 function getHtmlFlowTagName(token: Token): string | null {
   if (token.type !== 'htmlFlow') return null;
   const firstHtmlText = findDescendantByType(token, 'htmlText');
@@ -62,29 +52,15 @@ export const firstLineH1: TokenRule = {
     const allowPreamble = !!ctx.config.allowPreamble;
     const level = Number(ctx.config.level ?? 1);
 
-    // A front matter title counts as the document's top-level heading, fully
-    // satisfying this rule — see frontMatterHasTitle's doc comment (upstream
-    // `front_matter_title`).
+    // A front matter title counts as the top-level heading.
     if (frontMatterHasTitle(ctx.tree, ctx.config.frontMatterTitle)) return;
 
-    // See getFrontmatterEndLine's doc comment: recheck's parser keeps
-    // frontmatter as real tokens in the tree (unlike upstream, which
-    // strips it out before tokenizing), so every token through the end of
-    // the frontmatter block must be skipped here too — otherwise
-    // frontmatter with no recognized title (no `frontMatterTitle` match,
-    // e.g. no `title:` key at all) is wrongly treated as containing the
-    // document's "first line" content, tripping `!allowPreamble` even
-    // when a valid heading immediately follows the frontmatter block.
+    // Front matter is part of the tree, so skip its tokens. Otherwise front matter
+    // without a title would count as content before the heading.
     const frontmatterEndLine = getFrontmatterEndLine(ctx.tree);
 
-    // Walk TOP-LEVEL tokens only (`ctx.tree.children`), matching upstream:
-    // `params.parsers.micromark.tokens` (what md041.mjs iterates) is the
-    // document's top-level sibling list, not a depth-first flattening. Using
-    // `ctx.tree.flat` here would also visit descendants of the first
-    // top-level token -- e.g. an `htmlFlow` HTML-comment block's
-    // `htmlFlowData` child -- which `isHtmlFlowComment` only recognizes on
-    // the top-level `htmlFlow` token itself, not its children, wrongly
-    // treating the comment's inner text as the document's "first line".
+    // Only top-level tokens: `ctx.tree.flat` would also visit the inside of an
+    // HTML comment, which isHtmlFlowComment does not recognize.
     let errorLineNumber = 0;
     for (const token of ctx.tree.children) {
       const { startLine, type } = token;

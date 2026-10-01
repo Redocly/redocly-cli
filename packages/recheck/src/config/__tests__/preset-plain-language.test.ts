@@ -6,8 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { lintContent } from '../../index.js';
 import { presets } from '../presets/index.js';
 
-// Same namespace-check reasoning as preset-google.test.ts/
-// preset-microsoft.test.ts/preset-inclusive-language.test.ts.
+// The rule keys here are `plain-language/<rule>`, not `recheck/<rule>`, so `shortName` equals the full key.
 describe('recheck/plain-language preset namespace', () => {
   it('every rule key in the preset is namespaced plain-language/<rule>, not recheck/<rule>', () => {
     const keys = Object.keys(presets['recheck/plain-language']);
@@ -42,15 +41,7 @@ describe('recheck/plain-language preset fixtures', () => {
   });
 });
 
-// `metric` completeness guard (Task 11 controller resolutions §4): this
-// preset ships NO `metric` rule (no live federal page states a grade level
-// or readability score -- see plain-language.ts's file header and
-// PROVENANCE.md's "THE NUMBER" section), so `metric` stays a documented
-// opt-in and DOCUMENTED_OPT_IN_ASSERTIONS/the README's "Opt-in prose
-// assertions" section are UNCHANGED by this preset. This is a sanity check
-// that the preset itself doesn't quietly reintroduce a `metric` assertion,
-// which would silently violate the completeness guard's XOR invariant in
-// presets.test.ts.
+// This preset ships no `metric` rule, so `metric` stays an opt-in assertion documented in the README.
 describe('recheck/plain-language does not ship a metric rule', () => {
   it('no rule in the preset carries a metric assertion', () => {
     const preset = presets['recheck/plain-language'];

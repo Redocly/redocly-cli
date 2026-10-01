@@ -37,8 +37,6 @@ describe('emphasis-style (MD049)', () => {
   });
 
   it('does not flag mid-word underscore emphasis when style is underscore (intraword restriction)', async () => {
-    // Emphasis within a word is restricted to asterisk to avoid unwanted
-    // emphasis for words containing internal underscores.
     expect(await hUnderscore.lint('like_this_one\n')).toEqual([]);
   });
 

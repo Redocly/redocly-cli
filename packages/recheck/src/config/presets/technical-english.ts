@@ -1,44 +1,30 @@
 import type { RecheckRules } from '../../types/index.js';
 
 /**
- * `recheck/technical-english` — an original rule set that helps writers
+ * `recheck/technical-english`: an original rule set that helps writers
  * follow the principles of ASD-STE100 Simplified Technical English.
  *
  * ASD-STE100 Simplified Technical English is a Copyright and a Trade Mark
  * of ASD, Brussels, Belgium. This preset is an independent work: ASD and
  * the STEMG do not review, validate, approve, certify, or endorse it. It
- * reproduces no part of the standard — not its text and not its dictionary.
- * Each rule implements a publicly documented writing principle in Recheck's
- * own vocabulary. Provenance, the STEMG correspondence, and the list of
- * deliberate omissions: packages/recheck/presets/technical-english/
- * PROVENANCE.md.
+ * reproduces no part of the standard, neither its text nor its dictionary.
+ * See packages/recheck/presets/technical-english/PROVENANCE.md for the
+ * sources and the list of omissions.
  *
- * WHAT DOESN'T SHIP, AND WHY:
- *
- *   - NO approved-word dictionary. The STE dictionary is part of the
- *     copyrighted standard; encoding it would reproduce the standard in
- *     part. The standard's Special Usage Rights grant reproduction rights
- *     only to a closed list of aerospace and defense organizations, which
- *     a public npm package distributes past — so a dictionary rule needs
- *     written authority from an ASD officer (see PROVENANCE.md). For
- *     general word-choice checking, compose with `recheck/plain-language`
- *     (public-domain source, similar intent).
- *   - NO noun-cluster rule (the standard limits noun clusters to three).
- *     Counting nouns needs part-of-speech tagging; any regex approximation
- *     would flag ordinary prose constantly.
- *   - NO present-tense rule. `will` is a legitimate word in changelogs,
- *     roadmaps, and promises; a tense rule would fight real documentation.
- *   - NO one-instruction-per-sentence rule. Not reliably detectable;
- *     the sentence-length rule is the closest proxy.
+ * Left out on purpose:
+ * - The approved-word dictionary, because it is part of the copyrighted standard.
+ *   Use `recheck/plain-language` for word choice instead.
+ * - The noun-cluster rule, because it needs part-of-speech tagging.
+ * - A present-tense rule, because `will` is fine in changelogs and roadmaps.
+ * - One instruction per sentence, because it cannot be detected reliably.
+ *   The sentence-length rule is the closest check.
  */
 export function buildTechnicalEnglishPreset(): RecheckRules {
   const rules: RecheckRules = {};
   const SITE = 'https://www.asd-ste100.org';
 
-  // The standard's best-known numeric principle: procedural sentences stay
-  // within 20 words, descriptive sentences within 25. A linter cannot tell
-  // a procedure from a description, so the default enforces the lenient
-  // bound; a procedures-only project tightens max to 20 in its own config.
+  // The standard allows 20 words in procedures and 25 in descriptions. A linter
+  // cannot tell them apart, so this uses 25. Set max to 20 for procedures only.
   rules['technical-english/sentence-length'] = {
     severity: 'warn',
     scope: 'sentence',
@@ -48,7 +34,6 @@ export function buildTechnicalEnglishPreset(): RecheckRules {
     assertions: { length: { unit: 'words', max: 25 } },
   };
 
-  // Paragraphs stay within six sentences.
   rules['technical-english/paragraph-length'] = {
     severity: 'warn',
     scope: 'paragraph',
@@ -58,10 +43,8 @@ export function buildTechnicalEnglishPreset(): RecheckRules {
     assertions: { length: { unit: 'sentences', max: 6 } },
   };
 
-  // Use the active voice. A heuristic (be-verb followed by a participle),
-  // so it ships at `info`: visible, never blocking. The participle
-  // alternation covers regular -ed forms plus the common irregulars; the
-  // irregular list is ordinary linguistic knowledge, not standard content.
+  // Looks for a form of "be" followed by a participle. It is only a guess, so
+  // the severity is `info`.
   rules['technical-english/passive-voice'] = {
     severity: 'info',
     scope: 'sentence',
@@ -77,8 +60,7 @@ export function buildTechnicalEnglishPreset(): RecheckRules {
     },
   };
 
-  // Detection-only by design, matching the other style presets: no rule in
-  // this preset auto-fixes, ever.
+  // Like the other style presets, this one only reports and never auto-fixes.
   for (const rule of Object.values(rules)) {
     (rule as { fix?: boolean }).fix = false;
   }

@@ -4,37 +4,8 @@ import { runRulesUntilStable } from '../../core/runner.js';
 import { lintContent } from '../../index.js';
 import { validate } from '../validate.js';
 
-// =============================================================================
-// Acceptance evidence item 1 (preset-detection-only-brief.md): every
-// corruption string named in the brief -- drawn from the fifth and final
-// adversarial probe, which found 18 of 29 probed pairs (62%) still
-// corrupting genuinely correct prose after three prior rounds of narrowing
-// the fix-safety criterion -- run through `--fix`, must come out COMPLETELY
-// UNCHANGED. The brief calls this "a trivially satisfiable gate -- that is
-// the point": with both `recheck/google` and `recheck/microsoft` fully
-// detection-only (see google.ts's/microsoft.ts's "DETECTION-ONLY BY DESIGN"
-// header notes), no rule in either preset can rewrite anything, so every
-// one of these must be a no-op regardless of which specific pair or preset
-// it came from.
-//
-// Rounds 1-4's own named corruptions (the `us-spelling` inflection
-// collapse, the ~15 Tier-1 pairs, `as well as`/`or greater`, `DMZ`/`the
-// ask`/`home directory`/`spec`/`click-through`, the proper-noun-axis
-// findings) already have dedicated "no longer rewrites, but still detects"
-// regression tests in preset-microsoft.test.ts's "fix wave B"/"fix wave
-// C"/"fix-posture wave 2" describe blocks and preset-google-fix-wave-c.test.ts
-// (both rewritten by this same change -- see their own file-header notes).
-// This file is round 5's own acceptance evidence, not a duplicate of
-// those -- each sentence below is a full, natural rendering of a fragment
-// quoted in the brief, reconstructed to be grammatical while preserving the
-// exact corrupting phrase.
-//
-// Every sentence is run through BOTH presets together (`extends:
-// ['recheck/google', 'recheck/microsoft']`): which preset a given pair
-// happens to live in is incidental to the point being proven here (nothing
-// fixes, anywhere), and running both together is strictly stronger evidence
-// than picking the "right" one for each line.
-// =============================================================================
+// Sentences that the google and microsoft presets used to rewrite wrongly. Both presets only
+// detect now, so running `--fix` with both presets together must leave each sentence unchanged.
 
 async function fixTwice(content: string) {
   const config = { extends: ['recheck/google', 'recheck/microsoft'] };
@@ -46,14 +17,9 @@ async function fixTwice(content: string) {
   return { afterPass1, afterPass2 };
 }
 
-// Each case: [content, rule that would have fired the corrupting fix, what
-// the OLD (pre-detection-only) behavior used to rewrite it to -- recorded
-// for the historical evidence, not asserted directly, since asserting a
-// NEGATIVE ("did not become X") is weaker than asserting the POSITIVE
-// ("is byte-identical to the input") already checked below].
+// Each case: [content, the rule that must still report it, what the old fix rewrote it to].
 const round5Corruptions: Array<[string, string, string]> = [
-  // Brief's own two headline examples (category axes previously believed
-  // safe: an inverted meaning, and hyphenation).
+  // Fixes that changed the meaning or the hyphenation.
   [
     'No SQL is used here.\n',
     'google/acronym-forms',
@@ -64,7 +30,6 @@ const round5Corruptions: Array<[string, string, string]> = [
     'google/compound-forms',
     '"Please read-only the introduction..." -- hyphenation corrupts an adverb + object into a nonsense adjective',
   ],
-  // The rest of the brief's own eight-line corruption block.
   [
     'Pass -w/--watch to enable file watching.\n',
     'google/no-slash-abbrev',
@@ -95,8 +60,7 @@ const round5Corruptions: Array<[string, string, string]> = [
     'google/compound-forms',
     '"...wildcard Weekend" -- a proper-noun event name lowercased and joined',
   ],
-  // Additional round-5 corruptions beyond the brief's own quoted eight,
-  // recovered from the probe's full "18 of 29" finding.
+  // More sentences that the old fixes corrupted.
   [
     'Review the code base classes before merging the change.\n',
     'google/compound-forms',
@@ -145,14 +109,11 @@ describe('preset-detection-only acceptance evidence: round-5 probe corruptions n
     async (content, _ruleName, _oldCorruption) => {
       const { afterPass1, afterPass2 } = await fixTwice(content);
       expect(afterPass1).toBe(content);
-      expect(afterPass2).toBe(afterPass1); // idempotent
+      expect(afterPass2).toBe(afterPass1);
     }
   );
 
-  // Acceptance item 3's own concern applied here too: a rule that neither
-  // fixes nor reports is dead weight. Every rule named above must still
-  // detect its corresponding sentence -- proving these are truly
-  // "detection-only", not "silently disabled".
+  // The rules must still report the sentences, so they are detection-only and not disabled.
   it('every rule implicated above still detects its corresponding sentence', async () => {
     const config = { extends: ['recheck/google', 'recheck/microsoft'] };
     for (const [content, ruleName] of round5Corruptions) {

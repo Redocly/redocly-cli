@@ -68,9 +68,6 @@ describe('no-duplicate-heading (MD024)', () => {
   });
 
   it('scales to thousands of headings with exact first-occurrence-wins counts', async () => {
-    // Guards the Set-based dedup buckets (previously O(N^2) array
-    // `.includes()` scans) against semantic drift at scale: 2,000 headings,
-    // every 4th drawn from a 7-value duplicate pool, the rest unique.
     const lines: string[] = [];
     for (let i = 0; i < 2000; i++) {
       const level = (i % 3) + 1;
@@ -79,12 +76,9 @@ describe('no-duplicate-heading (MD024)', () => {
     }
     const md = lines.join('\n') + '\n';
 
-    // Default mode: one global bucket — 500 pool headings, 7 distinct pool
-    // texts, so all but the first occurrence of each are flagged.
     const problems = await h.lint(md);
     expect(problems).toHaveLength(500 - 7);
 
-    // Every flagged line is a pool heading (never a unique one).
     expect(problems.every((p) => p.match.startsWith('Duplicate pool '))).toBe(true);
   });
 });

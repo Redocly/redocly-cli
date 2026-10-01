@@ -72,7 +72,6 @@ describe('getParentOfType', () => {
   it('looks past intermediate ancestors that do not match', () => {
     const tree = parseMarkdown('- > quoted text\n');
     const [data] = filterByTypes(tree, ['data']);
-    // data -> paragraph -> content -> blockQuote -> content -> listItem -> listUnordered
     const parent = getParentOfType(data, ['listUnordered']);
     expect(parent?.type).toBe('listUnordered');
   });
@@ -120,10 +119,6 @@ describe('getHeadingText', () => {
   it('extracts atx heading text across inline formatting, keeping markers (upstream only strips htmlText)', () => {
     const tree = parseMarkdown('# Title *em* text\n');
     const [heading] = filterByTypes(tree, ['atxHeading']);
-    // getHeadingText joins the raw .text of each non-htmlText child of
-    // atxHeadingText; it does not recursively strip inline emphasis
-    // markers, matching upstream's behavior exactly (verified against
-    // markdownlint's micromark-helpers.cjs getHeadingText).
     expect(getHeadingText(heading)).toBe('Title *em* text');
   });
 
@@ -168,9 +163,7 @@ describe('getBlockQuotePrefixText', () => {
 
   it('returns just a newline for a line outside any blockquote (upstream always appends "\\n")', () => {
     const tree = parseMarkdown('a\nb\n');
-    // No blockQuotePrefix/linePrefix tokens on line 1, so the joined prefix
-    // text is '' — but upstream unconditionally concats '\n' afterward, so
-    // the result is a bare newline rather than an empty string.
+    // There is no prefix, but a newline is still appended.
     expect(getBlockQuotePrefixText(tree, 1)).toBe('\n');
   });
 
@@ -203,18 +196,9 @@ describe('isBlankLine', () => {
 });
 
 describe('clearHtmlCommentText', () => {
-  // Task 12: found via the differential parity harness against
-  // markdownlint on mdn-content -- MD009/no-trailing-spaces and
-  // MD012/no-multiple-blanks were flagging trailing whitespace and blank
-  // lines INSIDE an HTML comment block (e.g. embedded Mermaid diagram
-  // source), which upstream never sees because it clears comment content
-  // before any line-based rule scans `params.lines`.
-
   it('replaces comment content characters with the safe "." character, preserving spaces and length', () => {
     const input = '<!-- hello world -->';
     const cleared = clearHtmlCommentText(input);
-    // Non-space, non-CRLF characters become '.'; plain (non-trailing)
-    // spaces are left as real spaces.
     expect(cleared).toBe('<!-- ..... ..... -->');
     expect(cleared.length).toBe(input.length);
   });
@@ -222,9 +206,7 @@ describe('clearHtmlCommentText', () => {
   it('preserves plain (non-trailing) spaces but clears trailing-space-before-newline runs', () => {
     const input = '<!--\n   \nreal content\n-->';
     const cleared = clearHtmlCommentText(input);
-    // Every space immediately before a newline is itself replaced (not
-    // just the non-space characters), eliminating it as "trailing
-    // whitespace" for line-scanning rules like MD009.
+    // Spaces before a newline are replaced too, so they are not trailing whitespace.
     expect(cleared).not.toMatch(/ +\n/);
     expect(cleared.split('\n')[1]).toBe('...');
   });
@@ -249,8 +231,7 @@ describe('clearHtmlCommentText', () => {
   });
 
   it('clears a block-level comment even when its body would otherwise look invalid', () => {
-    // isBlock (comment is alone on its line, nothing but whitespace
-    // precedes it) always wins over the >/->/-- validity checks.
+    // A comment alone on its line is always cleared.
     const input = '\n<!-- >still cleared -- as a block -->\n';
     const cleared = clearHtmlCommentText(input);
     expect(cleared).not.toContain('still cleared');
@@ -306,10 +287,7 @@ describe('frontMatterHasTitle', () => {
     expect(frontMatterHasTitle(tree, null)).toBe(false);
   });
 
-  // Upstream (helpers/helpers.cjs frontMatterHasTitle) builds the regex with
-  // flag `i` only and tests it against each front matter LINE individually,
-  // so no pattern can ever match across a line ending. Both fixtures below
-  // are oracle-checked against live markdownlint (MD041 fires: no title).
+  // The pattern is tested on each line, so it cannot match across lines.
   it('never matches a pattern whose literal \\n would bridge two lines', () => {
     const tree = parseMarkdown('---\ntitle: X\ndescription: Y\n---\n\nBody\n');
     expect(frontMatterHasTitle(tree, 'title:.*\\ndescription')).toBe(false);
@@ -321,8 +299,6 @@ describe('frontMatterHasTitle', () => {
   });
 
   it('tests the delimiter fence lines too (upstream frontMatterLines include them)', () => {
-    // Oracle-checked: upstream's frontMatterLines are the whole regex-matched
-    // block split on line endings, fences included, so `^---$` finds a title.
     const tree = parseMarkdown('---\nauthor: A\n---\n\nBody\n');
     expect(frontMatterHasTitle(tree, '^---$')).toBe(true);
   });

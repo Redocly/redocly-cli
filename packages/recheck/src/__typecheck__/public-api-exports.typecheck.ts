@@ -1,13 +1,5 @@
-// Compile-only regression fixture (NOT a *.test.ts / __tests__ file — those
-// are excluded from this package's tsconfig.json `include`, so vitest's
-// loose esbuild transpilation would let a broken type-only import pass
-// silently; see FIX 2 in the Phase 2 final review). This file's only job is
-// to fail `npm run typecheck` if `RecheckConfig` or `ValidationError`
-// stop being resolvable from the package's public root (`../index.js`)
-// alone — both appear in public signatures (`lintContent`/`lintFiles` take
-// a `RecheckConfig`; a rejected `validate()` call reports `ValidationError[]`),
-// so a consumer importing only `@redocly/recheck` must be able to name them
-// without reaching into internal `../types/*` barrels.
+// Type-only check, not run by vitest. `npm run typecheck` fails if a public type
+// can no longer be imported from the package root (`../index.js`).
 import {
   resolveRecheckConfig,
   runLint,

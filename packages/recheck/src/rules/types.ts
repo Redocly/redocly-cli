@@ -5,7 +5,7 @@ import type { ScopedSegment } from '../scopes/types.js';
 import type { Fix, NormalizedRule, Problem, RuleSeverity } from '../types/index.js';
 
 export interface ScopeRuleContext {
-  segments: ScopedSegment[]; // ALL segments matching the rule's scope (whole file)
+  segments: ScopedSegment[]; // all segments matching the rule's scope
   content: string; // full file content
   tree: TokenTree;
   fileMetadata?: { images: Map<string, { path: string; size: number; exists: boolean }> };
@@ -25,19 +25,8 @@ export interface TokenRuleOnErrorInfo {
   context?: string;
   fixInfo?: Omit<Fix, 'file' | 'ruleName'>;
   /**
-   * Per-report severity override, unset almost everywhere: every other token
-   * rule reports at the single severity its config entry specifies.
-   * `markdoc-attributes` is the one rule that needs it, because the severity
-   * belongs to the kind of violation rather than to the rule — a missing
-   * required attribute or an enum violation is an error, while an unknown
-   * attribute is only a warning — and one rule-level `severity` cannot express
-   * both. Set only on the unknown-attribute reports, where it wins over
-   * whatever severity the rule is configured at.
-   *
-   * Excludes `'off'`: this field may only lower a report to a severity that
-   * still reports. Disabling a rule is `severity: 'off'` in the config, which
-   * is rule-wide; letting a single report opt out of `off` would let a rule
-   * keep reporting through a config that turned it off.
+   * Overrides the rule's severity for this report. Used by `markdoc-attributes` for unknown
+   * attributes, which are only warnings. `'off'` is not allowed.
    */
   severity?: Exclude<RuleSeverity, 'off'>;
 }
@@ -50,22 +39,12 @@ export interface TokenRuleContext {
   config: Record<string, unknown>;
   onError(info: TokenRuleOnErrorInfo): void;
   /**
-   * Markdoc schema and pairing, computed once per file by the runner the same
-   * way `lines` is, and only when `RunnerOptions.markdoc` is on. Absent
-   * entirely otherwise, in which case no `markdocTag` tokens exist for a rule
-   * to look at either. `schema` is `null` when no schema is configured:
-   * parsing and pairing still run, there is just nothing to check tag and
-   * attribute names against.
+   * Markdoc schema and pairing for the file. Absent when markdoc parsing is off.
+   * `schema` is `null` when no schema is configured.
    */
   markdoc?: {
     schema: MarkdocSchema | null;
-    /**
-     * Tag names the schema declares self-closing, computed once per run by the
-     * runner and empty when no schema is configured. Provided so a rule that
-     * needs the set — `markdoc-pairing`, for its check that a self-closing tag
-     * wasn't given a closing tag — uses the same set the pairing pass was
-     * given, rather than re-deriving it from `schema` on every file.
-     */
+    /** Tag names the schema declares self-closing. Empty when there is no schema. */
     selfClosingTags: ReadonlySet<string>;
     pairing: MarkdocPairing;
   };

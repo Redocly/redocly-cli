@@ -18,13 +18,9 @@ interface RawSwapMatch {
   replacement: string;
 }
 
-// De-overlap matches from DIFFERENT pairs by source span: when two matches
-// overlap, keep the LONGER one (ties: the earlier-starting one; identical
-// spans: first pair in config order, via the sort's stability). Without
-// this, a compound pair like 'he/she' overlapping standalone keys ('he',
-// 'she') emitted all three matches and --fix corrupted 'he/she' to
-// 'they/they'. Zero-width matches have an empty span, so they never
-// overlap anything and pass through unchanged.
+// When matches from different pairs overlap, keep the longest one (then the
+// earliest). Otherwise 'he/she' and the keys 'he' and 'she' would all match,
+// and --fix would turn 'he/she' into 'they/they'.
 function dropOverlappedShorterMatches(raw: RawSwapMatch[]): RawSwapMatch[] {
   const byPriority = [...raw].sort((a, b) => b.match.length - a.match.length || a.index - b.index);
   const kept: RawSwapMatch[] = [];
@@ -39,17 +35,9 @@ function dropOverlappedShorterMatches(raw: RawSwapMatch[]): RawSwapMatch[] {
   return kept.sort((a, b) => a.index - b.index);
 }
 
-// Prose rules must not lint code: a swap like master -> primary would fire
-// inside `git checkout master`, the usage Google's guide explicitly
-// sanctions in code font. The same goes for a markdoc tag's span, which is
-// markup, not prose.
-//
-// `content` is the original segment content -- the regex always runs against it
-// directly, never against a masked stand-in, because an arbitrary user regex
-// such as a negated-class `keysAreRegex` key like `[^\s,]+` can match straight
-// through a masked run. A match whose span overlaps an `excluded` entry (inline
-// code spans and masked markdoc tag spans -- see `nonProseRanges`) is skipped
-// below rather than recorded.
+// Matches that overlap code spans or markdoc tags (`excluded`) are skipped, so
+// `git checkout master` is not flagged. The regex runs on the original content
+// because a key like `[^\s,]+` could match through masked text.
 function findMatches(
   content: string,
   excluded: Array<{ start: number; end: number }>,
@@ -58,10 +46,7 @@ function findMatches(
   const raw: RawSwapMatch[] = [];
   const pairs = options.pairs || {};
   for (const [from, to] of Object.entries(pairs)) {
-    // An empty pair key (only reachable when a caller bypasses validate())
-    // would escape to a zero-width pattern matching nearly every position,
-    // flooding every segment with problems. Skip it, same as
-    // consistency.ts's empty-variant skip.
+    // An empty key would match at every position, so skip it.
     if (String(from).length === 0) continue;
 
     const escaped = options.keysAreRegex
@@ -73,18 +58,12 @@ function findMatches(
     try {
       regex = new RegExp(pattern, flags);
     } catch {
-      // ignore an invalid regex key (reachable via keysAreRegex) -- this
-      // pair only, so the rule's other pairs still run.
+      // Ignore an invalid regex key; the other pairs still run.
       continue;
     }
     let match: RegExpExecArray | null;
     while ((match = regex.exec(content)) !== null) {
-      // A zero-width match (e.g. a `keysAreRegex` pattern like `a*`) never
-      // advances lastIndex on its own -- bump it or the loop hangs. It's
-      // also semantically meaningless for swap (there's no text to find or
-      // replace), so skip recording it too -- otherwise --fix would turn
-      // every such position into a zero-length insert, rewriting the file
-      // at every character offset the pattern passes through.
+      // Skip empty matches (e.g. `a*`) and advance lastIndex so the loop does not hang.
       if (match[0].length === 0) {
         regex.lastIndex++;
         continue;
@@ -101,21 +80,14 @@ function findMatches(
     }
   }
   return dropOverlappedShorterMatches(raw).map(({ index, match, replacement }) => {
-    // offsetToLineColumn (never a bare '\n' split): on a CR-only file a
-    // '\n'-based mapping kept every match on line 1 with a column
-    // counted from the start of the content, so --fix edited the wrong
-    // position entirely.
+    // offsetToLineColumn also handles CR-only line endings.
     const { line, column } = offsetToLineColumn(content, index);
     return { line, column, match, replacement };
   });
 }
 
-// A match's `column` from findMatches() is relative to its own line within
-// segment.content. On the segment's first line, segment.content starts
-// mid-source-line (e.g. a heading segment's content excludes the '## '
-// marker), so segment.startColumn must be added to get the true source
-// column. Matches on later lines start at source column 1, so they're
-// unaffected.
+// On the first line, `segment.content` can start mid-line (a heading excludes
+// its '## '), so add `startColumn` to get the real column.
 function toSourceColumn(segment: { startColumn: number }, localLine: number, localColumn: number) {
   return localLine === 1 ? segment.startColumn + (localColumn - 1) : localColumn;
 }
@@ -134,8 +106,6 @@ const execute = async (
         file,
         line: segment.startLine + found.line - 1,
         column: toSourceColumn(segment, found.line, found.column),
-        // Legacy convention (text === match), kept as-is to avoid changing
-        // swap's reported output.
         text: found.match,
         match: found.match,
         ruleName: rule.name,
@@ -159,15 +129,7 @@ const fix = async (rule: NormalizedRule, file: string, ctx: ScopeRuleContext): P
         lineNumber: segment.startLine + found.line - 1,
         editColumn: toSourceColumn(segment, found.line, found.column),
         deleteCount: found.match.length,
-        // Apply the MATCHED text's observed casing to the replacement,
-        // not the configured replacement literally: with `ignoreCase:
-        // true`, a sentence-initial "Behaviour" would otherwise be
-        // replaced by literal "behavior", silently lowercasing the start
-        // of the sentence. Works the same for a `keysAreRegex` key --
-        // applyMatchCase reads the MATCHED string, not the key -- though a
-        // regex key whose match has internal mixed case (e.g. "bEhAvIoUr")
-        // falls into the "no confident inference" branch and inserts the
-        // replacement exactly as configured, no guessing.
+        // Copy the matched text's capitalization, so "Behaviour" becomes "Behavior".
         insertText: applyMatchCase(found.match, found.replacement),
       });
     }

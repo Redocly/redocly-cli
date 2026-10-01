@@ -7,9 +7,7 @@ import { runRules, runRulesUntilStable, type FileInput } from './core/runner.js'
 import type { MarkdocSchema } from './parser/markdoc/schema.js';
 import type { Problem, RecheckConfig, NormalizedRule, Fix } from './types/index.js';
 
-// Bound how many files lintFiles reads (and loads image metadata for)
-// concurrently. High enough to saturate disk I/O on typical repos, low
-// enough to avoid EMFILE on large ones.
+// How many files `lintFiles` reads at once. Higher values risk EMFILE on large repos.
 const READ_CONCURRENCY = 16;
 
 export { parseMarkdown, filterByTypes } from './parser/index.js';
@@ -30,24 +28,13 @@ export type {
   ResolvedRecheckConfig,
   ResolveResult,
 } from './config/resolve.js';
-// Exposed so callers building their own FileInput[] (e.g. the ai-worker
-// recheck tool) can populate metadata the same way lintFiles does, without
-// reimplementing image-metadata loading.
+// For callers that build their own `FileInput[]` and need image metadata like `lintFiles` loads.
 export { needsImageMetadata, loadImageMetadata, MAX_IMAGE_REFS_PER_FILE } from './core/files.js';
-// Lower-level engine entry point for callers that already have NormalizedRule[]
-// (e.g. from `loadConfig`) and want to run against an explicit file list without
-// lintFiles' own config validation/loading.
+// Lower-level entry points for callers that already have a `NormalizedRule[]`.
 export { runRules, runRulesUntilStable } from './core/runner.js';
 export type { FileInput, RunResult, RunnerOptions } from './core/runner.js';
-// Text statistics + readability formulas (consumed by the `metric` assertion).
 export { computeTextStatistics, computeReadability } from './metrics/index.js';
 export type { TextStatistics, ReadabilityFormula } from './metrics/index.js';
-// Built-in technical/product proper-noun vocabulary (see its own doc comment
-// for the inclusion bar): consumed by default by `capitalization` and
-// `spelling` (the `builtinVocabulary` option on each), and re-exported here
-// so callers can read or extend it directly -- e.g. to build their own
-// tooling around the same list, or to diff their project's `vocab`/
-// `exceptions` against what's already covered for free.
 export { TECHNICAL_PROPER_NOUNS } from './data/proper-nouns.js';
 export { runLint } from './actions/lint.js';
 export type { LintOptions, LintRunReport, LintRunResult } from './actions/lint.js';
@@ -77,33 +64,22 @@ async function normalizeConfig(
       .join('; ');
     throw new Error(`Invalid recheck configuration: ${messages}`);
   }
-  // Mirror the CLI (see commands/run.ts's applyFilters): rules with
-  // `severity: off` must not run at all — not produce problems, and not
-  // (under fix: true) apply fixes. The pre-filter name set still goes to
-  // the runner — see RunnerOptions.knownRuleNames.
+  // Rules with `severity: off` must not run, so they report nothing and apply no fixes.
+  // `knownRuleNames` still includes them, so references to them are not treated as unknown.
   const { enabled } = filterEnabledRules(result.rules);
   return {
     rules: enabled,
     knownRuleNames: new Set(result.rules.map((rule) => rule.name)),
     markdoc: result.markdoc.enabled,
-    // Threaded alongside the boolean flag so the runner can derive
-    // `ctx.markdoc.pairing`'s self-closing set. `null` when no schema is
-    // configured, same as `result.markdoc.schema` itself.
     markdocSchema: result.markdoc.schema,
   };
 }
 
 /**
- * Lints a single in-memory markdown string against a config, with no file I/O.
+ * Lints a markdown string without reading any files.
  *
- * Because there's no disk access here, rules that depend on on-disk facts
- * (e.g. `max-image-size`, which needs image byte size) can't resolve that
- * data themselves. Callers who need those rules to fire must supply the
- * relevant `metadata` up front; `lintFiles` does this automatically since it
- * reads from disk.
- *
- * `opts.warn`, when provided, receives config-validation warnings (e.g. a
- * stale preset `extends`); omitted warnings are dropped, same as `validate()`.
+ * Rules that need file data, such as `max-image-size`, only work if you pass
+ * the `metadata` yourself. `opts.warn` receives config warnings.
  */
 export async function lintContent(
   content: string,
@@ -131,43 +107,23 @@ export async function lintContent(
 /** A file `lintFiles` could not read and therefore did not lint. */
 export interface SkippedFile {
   path: string;
-  /** Why the read failed (the underlying error's message, e.g. EACCES/ENOENT). */
+  /** The error message from the failed read. */
   reason: string;
 }
 
 /**
- * Lints markdown files from disk, optionally writing auto-fixes back.
+ * Lints markdown files from disk, and writes the fixes back when `opts.fix` is set.
  *
- * `config` accepts either a raw `RecheckConfig` (validated and normalized
- * here via `validate()`) or an already-normalized `NormalizedRule[]` — e.g.
- * from `loadConfig()` — for callers that have their own config-loading step
- * and just want to run the engine against a file list. Passing an array
- * skips validation, since the rules are assumed already validated.
+ * `config` is either a `RecheckConfig` or rules that are already validated (for
+ * example from `loadConfig()`), which skips validation.
  *
- * Unreadable files are warned about and skipped rather than failing the
- * whole call — one bad path (permissions, race with a delete, etc.)
- * shouldn't take down linting for the rest of the batch. Every skipped
- * file is also reported in the returned `skippedFiles` (path + reason), so
- * callers that must know their coverage was incomplete — a security review
- * consuming lint results, say — get a programmatic signal, not just a
- * warning. Reads (and any image-metadata loading) run with bounded
- * concurrency via `mapLimit`.
+ * Files that can't be read are skipped with a warning and listed in `skippedFiles`.
  *
- * `opts.root` is the lint root that image-metadata loading is confined to
- * (see `loadImageMetadata`): image refs resolving outside it — lexically or
- * physically, via a symlink planted inside the root — are treated as
- * missing without leaking the target's existence or size. Defaults to
- * `process.cwd()`; pass it explicitly when the linted files live elsewhere
- * (e.g. a checked-out repo under a temp dir).
+ * `opts.root` is the folder that image paths must stay inside. Images outside it
+ * are treated as missing. Defaults to `process.cwd()`.
  *
- * `opts.maxProblems` caps how many problems the run may collect (see
- * `RunnerOptions.maxProblems`): once a file's lint reaches the cap, later
- * files aren't linted at all and the returned `truncated` flag is true, so
- * memory stays bounded on pathological inputs.
- *
- * `opts.warn`, when provided, receives the per-file unreadable-file
- * diagnostic and (for a `RecheckConfig` `config`) config-validation
- * warnings; omitted warnings are dropped.
+ * `opts.maxProblems` stops linting further files once that many problems are found,
+ * and sets `truncated`.
  */
 export async function lintFiles(
   paths: string[],
@@ -185,20 +141,12 @@ export async function lintFiles(
   skippedFiles: SkippedFile[];
   truncated: boolean;
   /**
-   * Proposed fixes that never landed: overlapping edits, plus fixes withheld to
-   * avoid rewriting a Markdoc tag. Already present at runtime via
-   * `{ ...result, skippedFiles }` below; declared here so typed callers can see
-   * it.
+   * Fixes that were not applied because they overlap another fix or would rewrite a Markdoc tag.
    */
   skippedFixes: Fix[];
 }> {
-  // A `NormalizedRule[]` caller has already gone through validate() upstream,
-  // so there is no config here to read a `markdoc` flag from and it stays
-  // disabled for this overload. That is by construction, not an omission: a
-  // bare `NormalizedRule[]` has nowhere to carry a `markdoc`/`markdocSchema`
-  // pair. A caller that wants Markdoc rules and fix protection should call
-  // `resolveRecheckConfig()` and thread the resulting `ResolvedRecheckConfig`
-  // through directly, as the `runLint` action does.
+  // A `NormalizedRule[]` has no Markdoc settings, so Markdoc stays off here.
+  // For Markdoc support, use `resolveRecheckConfig()` and pass its result on, as `runLint` does.
   const { rules, knownRuleNames, markdoc, markdocSchema } = Array.isArray(config)
     ? {
         rules: filterEnabledRules(config).enabled,
@@ -234,11 +182,7 @@ export async function lintFiles(
     else skippedFiles.push(result.skipped);
   }
 
-  // Under fix:true, loop lint → apply fixes → re-lint until a pass produces
-  // zero fixes (capped) so callers get a fully-converged file from a single
-  // lintFiles() call — see runRulesUntilStable for why a single
-  // runRules() pass isn't always enough (e.g. a whole-line fix from one
-  // rule can leave behind an issue another rule already fixed this pass).
+  // With `fix`, repeat until no more fixes apply, because one fix can create a new problem.
   const runnerOptions = { maxProblems: opts?.maxProblems, knownRuleNames, markdoc, markdocSchema };
   const result = opts?.fix
     ? await runRulesUntilStable(files, rules, runnerOptions)

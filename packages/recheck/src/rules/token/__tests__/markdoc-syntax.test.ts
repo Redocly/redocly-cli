@@ -3,10 +3,7 @@ import { describe, it, expect } from 'vitest';
 import type { MarkdocSchema } from '../../../parser/markdoc/schema.js';
 import { tokenRuleHarness } from './harness.js';
 
-// This rule's bareword/malformed/close-attribute checks are grammar-level and
-// must fire identically with or without a schema, so most tests below run with
-// no schema; this one serves only the few that compare schema-on against
-// `schema: false`.
+// Most tests run without a schema; this one is only for the tests that compare schema on and off.
 const SCHEMA: MarkdocSchema = { tags: { img: { selfClosing: true } } };
 
 const h = tokenRuleHarness('markdoc-syntax', {}, { markdoc: true });
@@ -27,34 +24,22 @@ describe('markdoc-syntax', () => {
   });
 
   it('reports an opener missing its own %} whose only reachable close belongs to a later tag', async () => {
-    // `{% admonition` never gets its own `%}`, so the tokenizer's lexical,
-    // un-nested scan for the next literal `%}` swallows through to the
-    // following tag's close, producing one token spanning both lines whose
-    // interior fails to parse. The offence is therefore line 2's `{`, not
-    // line 1's missing `%}` -- upstream Markdoc locates its own parse error
-    // in the same place.
+    // The `%}` that closes the next tag is taken as this tag's end, so the error is on line
+    // 2's `{`.
     const problems = await h.lint('{% admonition\n{% /admonition %}\n');
     expect(problems).toHaveLength(1);
     expect([problems[0].line, problems[0].column]).toEqual([2, 1]);
   });
 
-  // There is no "unterminated" violation class: when no `%}` is reachable
-  // anywhere in the document, the tokenizer emits no tag token at all and the
-  // line stays plain paragraph text. Real Markdoc skips over such a tag the
-  // same way, so reporting nothing is correct rather than a gap.
+  // With no reachable `%}`, the text is not a tag at all, so nothing is reported.
   it('reports nothing for a truly unterminated {% (upstream treats it as literal text)', async () => {
     expect(await h.lint('Text {% admonition\n')).toEqual([]);
     expect(await h.lint('{% admonition\n')).toEqual([]);
     expect(await h.lint('{% admonition\n\nMore prose here.\n')).toEqual([]);
   });
 
-  // The offence's offset travels as `ParsedMarkdocSpan.reasonOffset` and
-  // becomes the report's position, so a reason must never also quote it
-  // span-relatively ("at position 7") next to the absolute document column --
-  // two coordinate systems side by side.
   describe('malformed reports land on the offending character, in document coordinates', () => {
     it('single-line tag: the column is the absolute document column of the offence', async () => {
-      // The scan fails at the `=`, span offset 7, which is document column 8.
       const problems = await h.lint('{% img =broken %}\n');
       expect([problems[0].line, problems[0].column]).toEqual([1, 8]);
     });
@@ -65,14 +50,12 @@ describe('markdoc-syntax', () => {
     });
 
     it('a multi-line tag: the offence resolves onto its own line', async () => {
-      // The offending `=` sits on the tag's THIRD line, so both the line and
-      // the column have to come from the span-relative offset.
+      // The `=` is on the tag's third line.
       const problems = await h.lint('{% img\n  src="a.png"\n  =broken\n%}\n');
       expect([problems[0].line, problems[0].column]).toEqual([3, 3]);
     });
 
     it('falls back to the tag start when the scanner had no single position', async () => {
-      // An empty body carries no `reasonOffset`.
       const problems = await h.lint('{%  %}\n');
       expect(problems).toHaveLength(1);
       expect([problems[0].line, problems[0].column]).toEqual([1, 1]);
@@ -127,8 +110,6 @@ describe('markdoc-syntax', () => {
     expect(problems.some((p) => p.message.includes('quote the value: name="star"'))).toBe(true);
   });
 
-  // The rule's primary check runs after its attribute loop, so without an
-  // explicit sort these two reports come out in descending-column order.
   it('reports intra-tag problems in ascending document order, not check order', async () => {
     const problems = await h.lint('{% widget star name=star %}\nx\n{% /widget %}\n');
     expect(problems).toHaveLength(2);
@@ -137,9 +118,8 @@ describe('markdoc-syntax', () => {
     expect(problems[1].message).toContain('quote the value: name="star"');
   });
 
-  // A close tag's attributes must be deleted, not repaired, so the bareword
-  // loop is skipped once the close-attribute report has fired -- otherwise one
-  // tag gets two contradictory fixes at once.
+  // A close tag's attributes are deleted, so skip the bareword advice to avoid two conflicting
+  // fixes.
   it('a close tag with a BAREWORD attribute reports only the close-attribute problem', async () => {
     const problems = await h.lint('{% t %}\nx\n{% /t a=b %}\n');
     expect(problems).toHaveLength(1);
@@ -169,10 +149,8 @@ describe('markdoc-syntax', () => {
   });
 
   it('does not report trim markers, glued attributes, or duplicate attributes', async () => {
-    // `{%- -%}` trim markers are stripped silently; `a=1b=2` glues into two
-    // legitimate numeric attributes; `.a .a` is a legitimate duplicate class
-    // shortcut merge. None is a grammar-level violation, and duplicate
-    // detection belongs to the markdoc-attributes rule.
+    // Trim markers, glued attributes (`a=1b=2`) and a repeated class shortcut are valid
+    // syntax. Duplicates are checked by markdoc-attributes.
     const problems = await h.lint('{%- t a=1b=2 .a .a -%}\nx\n{%- /t -%}\n');
     expect(problems).toEqual([]);
   });

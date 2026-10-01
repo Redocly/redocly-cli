@@ -1,19 +1,4 @@
-// PR #24801 removed the pre-parity native rules' deprecated compatibility
-// layer entirely: the 4 legacy assertion ids (`max-line-length`,
-// `bullet-style`, `no-duplicate-headings`, `no-broken-fragment-links`), the
-// `translateLegacyOptions` option-translation layer that used to accept
-// their old camelCase option names, the deprecation warnings, and the
-// deprecated `autoFixable` config key. This file used to prove old-id +
-// old-options equivalence with new-id + translated-options (see git
-// history for that version) — those rules stopped existing, so the tests
-// below prove the removal instead: each old id/key now fails config
-// validation with a plain, actionable error rather than silently working
-// or warning.
-//
-// `single-h1`/`first-line-h1` keep their upstream markdownlint synonym
-// aliases (`single-title`/`first-line-heading`) permanently and
-// warning-free — those are parity surface, not part of this deprecation,
-// and are covered by each rule's own test file, not here.
+// Removed assertion ids and config keys must fail config validation.
 import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
@@ -29,10 +14,6 @@ describe('removed legacy assertion ids fail validation (PR #24801)', () => {
     };
   }
 
-  // One test covering the whole class of removed ids, not one per rule —
-  // each used to be a deprecated alias for a markdownlint-parity token
-  // rule; all four now behave identically to any other unrecognized
-  // assertion id.
   it.each([
     ['max-line-length', { maxLength: 80 }],
     ['bullet-style', { style: '-' }],
@@ -70,12 +51,6 @@ describe('removed "autoFixable" config key fails validation (PR #24801)', () => 
   });
 });
 
-// Start-clean cleanup (recheck cleanup pass): `enabled` was schema-legal but
-// inert in the engine (filterEnabledRules only ever checks `severity`) while
-// the parity translator DID honor it — a semantic mismatch between what the
-// schema accepted and what actually ran. Removed the same way `autoFixable`
-// was: an unknown-property error naming it, rather than silently doing
-// nothing (or, worse, only affecting parity comparisons).
 describe('removed "enabled" config key fails validation', () => {
   it('a rule setting "enabled" fails with an unknown-property error naming it', async () => {
     const result = await validate({

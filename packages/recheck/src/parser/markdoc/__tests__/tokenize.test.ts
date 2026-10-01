@@ -92,16 +92,13 @@ describe('all six MarkdocTagKind values, plus malformed', () => {
   });
 
   it('malformed interior span: markdocKind is malformed, no name/attribute children synthesized', () => {
-    // The tokenizer only recognizes the `{%` / `%}` boundaries. The interior
-    // fails to parse here, and that is pinned as 'malformed' rather than
-    // throwing or keeping a partial name.
+    // The interior fails to parse, so the span is malformed instead of throwing or keeping a
+    // partial name.
     const tag = types('{% img =broken %}\n')[0];
     expect(tag.markdocKind).toBe('malformed');
     expect(tag.children.some((c) => c.type === 'markdocTagName')).toBe(false);
     expect(tag.children.some((c) => c.type === 'markdocAttribute')).toBe(false);
-    // Markers survive a failed interior parse because they come from the raw
-    // text's fixed-width delimiters. The filter is needed because micromark's
-    // own children coexist untouched in the same array.
+    // The `{%` and `%}` markers are still there. The filter skips micromark's own children.
     expect(tag.children.filter((c) => c.type.startsWith('markdoc')).map((c) => c.type)).toEqual([
       'markdocTagMarker',
       'markdocTagMarker',
@@ -135,7 +132,7 @@ describe('primary value and shortcut synthesis (amended token model)', () => {
     const tag = types('{% if $flag .wide #main %}\nx\n{% /if %}\n')[0];
     const shortcuts = tag.children.filter((c) => c.type === 'markdocShortcut');
     expect(shortcuts.map((s) => s.text)).toEqual(['.wide', '#main']);
-    // Positions are real, not both collapsed onto the tag's own start.
+    // The two shortcuts have different positions.
     expect(shortcuts[0].startColumn).not.toBe(shortcuts[1].startColumn);
   });
 
@@ -171,12 +168,9 @@ describe('boundaries and adjacency', () => {
     expect(tags[0].markdocKind).toBe('tag-open');
   });
 
-  // A multi-line token's text is sliced by absolute document offsets, so a
-  // blockquote's literal `> ` continuation prefixes land inside the token
-  // text, where they read as attribute garbage and classify the whole span
-  // 'malformed'. This affects any multi-line construct, not just markdocTag,
-  // and predates markdoc support. List items are unaffected: their
-  // continuation is plain indentation, which is invisible here.
+  // The text of a multi-line token includes the `> ` at the start of each blockquote line,
+  // so the tag is malformed. This is not specific to Markdoc. List items are fine,
+  // because their continuation is only indentation.
   it('a MULTI-LINE tag inside a blockquote is classified malformed (inherited from buildTree slicing -- see comment above)', () => {
     const tag = types('> {% code-snippet\n> file="a.ts"\n> language="ts" %}\n')[0];
     expect(tag.text).toContain('> file');
@@ -196,10 +190,7 @@ describe('boundaries and adjacency', () => {
 });
 
 describe('HTML comments containing Markdoc-like text', () => {
-  // HTML comments are opaque to every sibling construct, markdoc included.
-  // In block position the parser's htmlFlow reparse skips comments entirely
-  // and never adds markdoc syntax; inline, micromark's htmlText construct
-  // consumes the whole comment as one atomic run.
+  // Nothing inside an HTML comment is tokenized, including Markdoc tags.
   it('block-position HTML comment: {% %} inside it does not tokenize', () => {
     expect(types('<!-- {% admonition %} -->\n')).toHaveLength(0);
   });
@@ -217,18 +208,15 @@ describe('position stability around inline tags (the #25610 regression class)', 
     const before = flatData.find((t) => t.text === 'One two ');
     const after = flatData.find((t) => t.text === ' three four.');
     expect(before?.startColumn).toBe(1);
-    // The tag is a real positioned token, not a same-length mask, so the
-    // trailing data starts exactly where the tag ends.
+    // The text after the tag starts right where the tag ends.
     const tag = types(source)[0];
     expect(after?.startColumn).toBe(tag.endColumn);
   });
 });
 
 describe('long tags: no scan-length ceiling', () => {
-  // Any fixed per-attempt scan cap would silently detokenize a long tag. The
-  // sizes below are modelled on the largest tags in this repo's docs (a
-  // 317-character single-line one, a 1,895-character multi-line one) but are
-  // synthesized, so editing the docs cannot move the goalposts.
+  // A scan length limit would stop long tags from being tokenized. These sizes are similar to the
+  // longest real tags.
   const attributes = (count: number, indent = '') =>
     Array.from(
       { length: count },
@@ -274,10 +262,7 @@ describe('long tags: no scan-length ceiling', () => {
 });
 
 describe('trailing whitespace after the close marker stays outside the tag token', () => {
-  // The token's text must always end with a literal `%}`: the span parser
-  // gates on exactly that, and the close marker is sliced off the last two
-  // characters. A token carrying `"...%} "` would classify malformed and
-  // emit a `"} "` marker child.
+  // The token text must end with `%}`. If it ended with `%} `, the tag would be malformed.
   for (const [label, source] of [
     ['one trailing space', '{% a %} \n'],
     ['a trailing tab', '{% a %}\t\n'],
@@ -294,17 +279,13 @@ describe('trailing whitespace after the close marker stays outside the tag token
         tags[0].children.filter((c) => c.type === 'markdocTagMarker').map((c) => c.text)
       ).toEqual(['{%', '%}']);
       expect([tags[0].startColumn, tags[0].endColumn]).toEqual([1, 8]);
-      // Flow, not inline: a block tag is a top-level sibling of the tree,
-      // never nested inside a paragraph.
+      // A block tag is at the top level, not inside a paragraph.
       expect(tree.children.some((t) => t.type === 'markdocTag')).toBe(true);
     });
   }
 });
 
-// Markdoc's own tokenizer disables indented code unconditionally, so a
-// 4-space-indented tag line is a tag when Realm compiles it and indented
-// prose is a paragraph -- never a code block. Without matching that, an
-// indented opener never tokenizes and its less-indented close orphans.
+// Markdoc has no indented code, so an indented tag is still a tag and indented text is a paragraph.
 describe('indented tags (Markdoc has no indented code blocks)', () => {
   it('a 4-space-indented tag tokenizes, with the column past the indentation', () => {
     const tags = types('Before.\n\n    {% card %}\n    Body.\n    {% /card %}\n');
@@ -376,9 +357,7 @@ describe('indented tags (Markdoc has no indented code blocks)', () => {
   });
 });
 
-// Markdoc's tokenizer disables setext underlines unconditionally too, so
-// setext headings do not exist in Markdoc at all -- Realm renders a would-be
-// setext heading as ordinary paragraph text.
+// Markdoc has no setext headings, so they become plain paragraphs.
 describe('setext headings (Markdoc has no setext headings)', () => {
   it('flag off: "Title\\n=====\\n" still yields a real setextHeading (byte-identity guard)', () => {
     const flat = parseMarkdown('Title\n=====\n').flat;
@@ -414,28 +393,16 @@ describe('setext headings (Markdoc has no setext headings)', () => {
 });
 
 describe('adversarial performance: thousands of unterminated `{%` stay linear', () => {
-  // Micromark retries the construct at every `{`, and a retry that only gives
-  // up at line-end/EOF has by then rescanned everything from its own start --
-  // O(n^2) unless hopeless candidates are rejected up front, which is what
-  // the `%}` index in syntax.ts is for.
+  // Micromark tries the tag syntax at every `{`. Without the `%}` index in syntax.ts,
+  // each try could scan to the end of the file, which is quadratic.
   //
-  // These assert RATIOS, never absolute milliseconds: under parallel vitest
-  // workers the machine is contended and any wall-clock ceiling is a coin
-  // flip. Two choices keep the ratio itself stable enough for CI:
-  //
-  //   1. The large input is 4x the small one, so a linear parser lands near a
-  //      ratio of 4 and a quadratic one near 16. A ceiling of 10 sits clear
-  //      of both; tighter ceilings were seen to flake under machine load.
-  //   2. Each side's time is the MINIMUM over several runs. Scheduler noise
-  //      can only inflate a CPU-bound measurement, never deflate it, so the
-  //      min is the best estimator of the true cost.
+  // These tests compare timings instead of using fixed limits, because machine load varies.
+  // The large input is 4x the small one, so linear code gives a ratio near 4 and quadratic
+  // code near 16. Each time is the fastest of several runs.
   const RATIO_CEILING = 10;
 
-  // Even the min-of-runs estimator fails on runner load in the contended PR
-  // pipeline (12 test processes on 8 cores). The ratio tests run on every
-  // local test run and, uncontended, in the nightly recheck-perf
-  // workflow (RECHECK_PERF=1). The call-stack test below stays gating: it
-  // asserts behavior, not time.
+  // On shared CI runners these timings are too noisy, so they are skipped there
+  // unless RECHECK_PERF is set.
   const skipTimingInCI = Boolean(process.env.CI) && !process.env.RECHECK_PERF;
 
   function minQuadruplingRatio(small: string, large: string, runs = 5): number {
@@ -444,7 +411,7 @@ describe('adversarial performance: thousands of unterminated `{%` stay linear', 
       parseMarkdown(source, { markdoc: true });
       return performance.now() - started;
     };
-    time(small); // warm the JIT so the first run isn't an outlier
+    time(small); // warm up
     time(large);
     const smallTimes: number[] = [];
     const largeTimes: number[] = [];
@@ -471,19 +438,15 @@ describe('adversarial performance: thousands of unterminated `{%` stay linear', 
   it.skipIf(skipTimingInCI)(
     'a document whose only `%}` is unusable for a block tag also stays linear',
     () => {
-      // Every block attempt reaches a real `%}`, so "is there a close at all"
-      // is not enough to reject these: the index has to know that this close is
-      // unusable in block position because it has trailing content.
+      // Every attempt finds a `%}`, but it has trailing text, so it can't close a block tag.
       const build = (lines: number) => `${'{%\n'.repeat(lines)}%} trailing\n`;
       expect(minQuadruplingRatio(build(4000), build(16000))).toBeLessThan(RATIO_CEILING);
     }
   );
 
   it('tens of thousands of real tags parse without throwing', () => {
-    // Pushing the synthesized children onto `tree.flat` with a spread blows
-    // the call stack. This count sits past where that starts failing (a
-    // spread push survives 30,000 tags and dies at 40,000), so the test
-    // really reproduces the crash rather than just being big.
+    // Spreading this many children into `tree.flat` overflows the call stack
+    // (it fails between 30,000 and 40,000 tags).
     const tagCount = 45000;
     const source = `${Array.from({ length: tagCount }, (_, i) => `{% tag-${i} %}`).join('\n')}\n`;
     let tree: ReturnType<typeof md> | undefined;
@@ -495,23 +458,17 @@ describe('adversarial performance: thousands of unterminated `{%` stay linear', 
   });
 });
 
-// Absolute-ceiling companions to the ratio-based linearity tests above,
-// which catch a quadratic regression that only shows up at
-// real scale rather than in a doubling ratio. The property under test is
-// non-explosion -- finishing at all, comfortably -- not exact speed, so the
-// ceiling is enormous headroom for content this size.
+// Time limits for large inputs. The limit is generous; it only checks that parsing does not blow
+// up.
 const ABSOLUTE_CEILING_MS = 2000;
 
-// Wall-clock assertions measure the machine as much as the code. The PR
-// pipeline runs 12 test processes on 8 cores, where these ceilings fail on
-// runner load alone. They run on every local test run and, uncontended,
-// in the nightly recheck-perf workflow (RECHECK_PERF=1).
+// Skipped on shared CI runners, where timings are too noisy, unless RECHECK_PERF is set.
 const SKIP_TIMING_IN_CI = Boolean(process.env.CI) && !process.env.RECHECK_PERF;
 
 describe.skipIf(SKIP_TIMING_IN_CI)('adversarial performance: absolute ceilings', () => {
   it('5,000 unterminated `{%` openers stay well under the ceiling', () => {
-    // There is no `%}` anywhere in the document. The `%}` index in syntax.ts
-    // is what keeps this from re-scanning from every `{%` to end of document.
+    // There is no `%}` in the document, so the `%}` index in syntax.ts must stop each `{%` from
+    // scanning to the end.
     const source = `${Array.from(
       { length: 5000 },
       (_, i) => `{% opener-${i} still not closed`
@@ -533,8 +490,7 @@ describe.skipIf(SKIP_TIMING_IN_CI)('adversarial performance: absolute ceilings',
   });
 
   it('a 100KB single-line span candidate stays well under the ceiling', () => {
-    // One enormous candidate rather than many small ones, which stresses the
-    // span scanner's quoted-string walk instead of its re-entry.
+    // One huge tag, which tests the string scanning of the span parser.
     const hugeValue = 'x'.repeat(100_000);
     const source = `{% a value="${hugeValue}" %}\n`;
     const started = performance.now();
@@ -547,8 +503,7 @@ describe.skipIf(SKIP_TIMING_IN_CI)('adversarial performance: absolute ceilings',
   });
 
   it('a 100KB single-line candidate that NEVER closes also stays well under the ceiling', () => {
-    // The reject path over a huge span: the repeated `%` characters keep
-    // re-entering the tokenizer's maybe-close state but never reach a `%}`.
+    // The repeated `%` never forms a `%}`, so the tag is rejected.
     const source = `{% ${'%'.repeat(100_000)}\n`;
     const started = performance.now();
     const tree = parseMarkdown(source, { markdoc: true });
@@ -557,13 +512,8 @@ describe.skipIf(SKIP_TIMING_IN_CI)('adversarial performance: absolute ceilings',
     expect(elapsed).toBeLessThan(ABSOLUTE_CEILING_MS);
   });
 
-  // Nothing here drives iteration off a regex match, so a zero-width
-  // `re.exec` loop -- the usual way a scanner stalls -- cannot occur: the
-  // tokenizer consumes exactly one code point per state transition and the
-  // span parser's loops all advance an explicit integer cursor. This can't
-  // prove that negative; it shows the input shape most likely to expose a
-  // stalled scan, thousands of minimal tags with no separating content,
-  // stays fast.
+  // Many tiny tags with nothing between them, the kind of input that would expose a scanner that
+  // gets stuck.
   it('thousands of minimal empty-bodied tags never stall (zero-width-loop impossibility by construction)', () => {
     const source = `${'{%%}'.repeat(5000)}\n`;
     const started = performance.now();

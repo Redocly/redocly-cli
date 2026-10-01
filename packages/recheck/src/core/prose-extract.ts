@@ -1,24 +1,18 @@
-// Whole-document prose extraction shared by the `metric` assertion and the
-// `recheck --readability` action: heading segments excluded, markup stripped,
-// nested spans counted once. Callers compute statistics per block and sum,
-// so a block's end is an unconditional sentence end.
+// Gets the prose text for `metric` and `recheck --readability`: no headings or markup, and
+// nested segments counted once.
 import type { ScopedSegment } from '../scopes/types.js';
 import { BACKTICK_SPAN_RE } from './inline-code.js';
 
-// Markdoc tag-marker spans. Non-greedy, so back-to-back tags strip as
-// separate spans instead of one tag's opener swallowing the prose before
-// the next tag's closer. Only used when markdoc parsing is off; with it on,
-// tag spans arrive pre-masked in `segment.maskedRanges`.
+// Markdoc tags. Non-greedy, so tags next to each other are removed one by one. Only used when
+// Markdoc parsing is off; otherwise tags are already masked in `segment.maskedRanges`.
 const MARKDOC_TAG_RE = /\{%-?[\s\S]*?-?%\}/g;
 
-/** Strips markup that is never readable prose. Exported for direct unit testing. */
+/** Removes Markdoc tags and inline code. */
 export function stripNonProse(text: string): string {
   return text.replace(MARKDOC_TAG_RE, '').replace(BACKTICK_SPAN_RE, '');
 }
 
-// Splices masked tag spans OUT of the content instead of reading through the
-// mask's spaces: a tag flush against text (`<code>{% x %}</code>`) must
-// count as one word, not two.
+// Cuts masked tags out of the text instead of leaving spaces, so `<code>{% x %}</code>` is one word.
 function spliceOutMaskedSpans(segment: ScopedSegment): string {
   const ranges = segment.maskedRanges;
   if (ranges === undefined) return segment.content;
@@ -42,12 +36,8 @@ function spanContains(outer: ScopedSegment, inner: ScopedSegment): boolean {
   );
 }
 
-// Drops segments whose source span is fully nested inside another kept
-// segment's span (a list inside a blockquote emits both), so nested words
-// are never scored twice. Sorted by start ascending with ties broken by
-// span DESCENDING, a container is always visited before anything inside it.
-// Block spans never partially overlap, so after popping ended containers,
-// the stack top is the only span a candidate can nest inside.
+// Drops segments that sit inside another segment, such as a list in a blockquote, so words are
+// not counted twice. Sorted so that a container comes before what it contains.
 function dedupeBySpanContainment(segments: ScopedSegment[]): ScopedSegment[] {
   const ordered = [...segments].sort((a, b) => {
     const byStart = comparePosition(a.startLine, a.startColumn, b.startLine, b.startColumn);
@@ -79,12 +69,12 @@ function dedupeBySpanContainment(segments: ScopedSegment[]): ScopedSegment[] {
 
 /** Builds the prose blocks a readability score reads, from `summary` segments. */
 export function extractProse(segments: ScopedSegment[]): string[] {
-  // Headings read as sentence fragments, so standard tools strip them.
+  // Headings are fragments, so readability tools skip them.
   const proseSegments = segments.filter((segment) => !segment.sourceScope?.startsWith('heading.'));
 
   const deduped = dedupeBySpanContainment(proseSegments);
 
-  // Restore source order; the dedup sort breaks ties by span, not position.
+  // Back to source order.
   deduped.sort((a, b) => a.startLine - b.startLine || a.startColumn - b.startColumn);
 
   return deduped

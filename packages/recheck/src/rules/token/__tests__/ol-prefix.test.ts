@@ -56,8 +56,6 @@ describe('ol-prefix (MD029)', () => {
 
   it('fixes a one_or_ordered list of a 1/1/1 shape by normalizing to all 1s when a later item breaks it', async () => {
     const fixed = await h.fix('1. Do this.\n1. Do that.\n3. Done.\n');
-    // 1/1/x: second value !== 1 is false (it IS 1), so incrementing stays
-    // false and expected stays "one" (1) throughout.
     expect(fixed).toBe('1. Do this.\n1. Do that.\n1. Done.\n');
   });
 
@@ -67,12 +65,8 @@ describe('ol-prefix (MD029)', () => {
   });
 
   it('treats 0-padded numeric text by its numeric value, not a start-at-1 exemption', async () => {
-    // doc/md029.md's "0-prefixing for uniform indentation" example
-    // (08/09/10/11) is NOT actually exempted by the upstream CODE: `style:
-    // ordered` always expects the sequence to start at 1 unless the first
-    // item's *numeric* value is 0 (a literal "0."), so 08/09/10/11 (parsed
-    // as 8/9/10/11) mismatches an expected 1/2/3/4 sequence. Ported
-    // faithfully from the code, not the doc's prose.
+    // The `0`-prefixed example from the markdownlint docs is not exempt in the code: with
+    // `ordered` style the list must start at 1, unless the first value is a literal 0.
     const ordered = tokenRuleHarness('ol-prefix', { style: 'ordered' });
     const problems = await ordered.lint('08. Item\n09. Item\n10. Item\n11. Item\n');
     expect(problems).toHaveLength(4);

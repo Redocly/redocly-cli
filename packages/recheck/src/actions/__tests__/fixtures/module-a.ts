@@ -1,7 +1,4 @@
-// Fixture for markdoc-schema.test.ts: a project's own custom Markdoc tags,
-// in real Markdoc `Config['tags']` shape (String/Boolean constructors, a
-// `matches` array) so extractStatics's real conversion path runs, not a
-// hand-typed stand-in.
+// Fixture for markdoc-schema.test.ts: custom Markdoc tags in the real Markdoc `Config['tags']` shape.
 export const tags = {
   widget: {
     selfClosing: true,

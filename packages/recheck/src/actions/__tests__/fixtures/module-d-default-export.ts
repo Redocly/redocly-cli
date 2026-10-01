@@ -1,5 +1,4 @@
-// Fixture for markdoc-schema.test.ts: the same tag map as a default-exported
-// config object carrying `tags`, the shape the real project schema modules use.
+// Fixture for markdoc-schema.test.ts: tags as a default export with `tags`.
 export default {
   tags: {
     callout: {

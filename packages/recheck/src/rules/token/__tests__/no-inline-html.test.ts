@@ -47,20 +47,11 @@ describe('no-inline-html (MD033)', () => {
   });
 
   it('flags block-level HTML tags like <details>/<summary> (regression, parity with upstream MD033)', async () => {
-    // Regression: `<details>`/`<summary>` (and any other block-level HTML
-    // -- <div>, <details>, etc.) parse as `htmlFlow`, not `htmlText`,
-    // because they start at the beginning of a line. Before the parser
-    // was fixed to reparse htmlFlow blocks as inline content (see
-    // parser/__tests__/parser.test.ts's "htmlFlow reparse" suite), this
-    // rule -- which only ever filtered for `htmlText` -- was completely
-    // blind to block-level HTML, silently missing a very common
-    // real-world pattern (found via the Task 12 differential parity
-    // harness against markdownlint on the monorepo docs corpus).
+    // Block-level HTML at the start of a line is htmlFlow, not htmlText.
     const md = '<details>\n<summary>Click to expand</summary>\n\nBody.\n</details>\n';
     const problems = await h.lint(md);
     const elements = problems.map((p) => p.message.match(/Element: (\w+)/)?.[1]);
     expect(elements).toEqual(expect.arrayContaining(['details', 'summary']));
-    // Closing tags are never flagged (only unclosed opening tags are).
     expect(problems.every((p) => !p.message.includes('Element: /'))).toBe(true);
   });
 });

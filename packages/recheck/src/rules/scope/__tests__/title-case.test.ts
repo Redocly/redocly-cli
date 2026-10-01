@@ -63,14 +63,7 @@ describe('apTitleCase', () => {
     expect(apTitleCase(once)).toBe(once);
   });
 
-  // Medium Bugbot finding: a whole-compound exception entry (e.g.
-  // 'e-commerce') was never checked because transformWord routed any
-  // hyphenated word into per-part handling BEFORE consulting `exceptions`,
-  // so the whole-compound lookup could never hit -- 'e-commerce' still got
-  // rewritten to 'E-Commerce' even though it's listed verbatim in
-  // `exceptions`. $sentence (capitalization.ts's sentenceCase) already
-  // treats a hyphenated compound as one token and honors this correctly, so
-  // the two documented `$`-styles disagreed on identical input.
+  // A whole-word exception like 'e-commerce' must be honored, as $sentence already does. It was rewritten to 'E-Commerce'.
   it('preserves a whole-compound exception exactly as written, instead of title-casing each hyphen part', () => {
     expect(apTitleCase('the e-commerce platform', ['e-commerce'])).toBe('The e-commerce Platform');
   });
@@ -86,16 +79,7 @@ describe('apTitleCase', () => {
   });
 });
 
-// Task 7 (Phase 4): an exceptions entry containing whitespace or a dot
-// ('VS Code', 'Node.js') can never survive per-word tokenization -- WORD_RE
-// splits on exactly those characters, so a phrase entry's whole-string
-// lookup could never hit. This is the defect that forced 'Node.js'/'VS
-// Code' out of the Phase 3 prose preset's exceptions list as dead config
-// (see git history for that list; Task 8 later moved its surviving entries
-// into the built-in vocabulary, src/data/proper-nouns.ts, where these two
-// are now real, working phrase entries). apTitleCase is exported and called
-// directly here (not just through capitalization.ts), so phrase handling
-// must live in this module's own exception path.
+// An exception with a space or a dot ('VS Code', 'Node.js') must work, even though words are split on those characters.
 describe('phrase (multi-word / dotted) exceptions', () => {
   it('preserves a multi-word exception under $title', () => {
     expect(apTitleCase('deploy with vs code today', ['VS Code'])).toBe('Deploy With VS Code Today');
@@ -107,12 +91,7 @@ describe('phrase (multi-word / dotted) exceptions', () => {
     );
   });
 
-  // Genuinely mixed: the exceptions array itself contains BOTH a
-  // single-word entry ('GitHub') and a phrase entry ('VS Code') at once, and
-  // both must be honored in the same string -- a prior version of this test
-  // passed only a single-word array with no phrase present, which proved
-  // single-word exceptions still work in isolation but not that the two
-  // kinds coexist correctly.
+  // One exceptions array with both a single word ('GitHub') and a phrase ('VS Code'), and both must be honored.
   it('still honors single-word exceptions alongside a phrase list', () => {
     expect(apTitleCase('i use github and vs code daily', ['GitHub', 'VS Code'])).toBe(
       'I Use GitHub and VS Code Daily'
@@ -120,17 +99,10 @@ describe('phrase (multi-word / dotted) exceptions', () => {
   });
 });
 
-// #25610: a phrase exception used to be MASKED out of the text before word
-// position was computed, so it stopped counting as a word and its neighbour
-// inherited its first/last treatment. `$title`'s face of that bug is the LAST
-// word (AP/Chicago capitalize the last word unconditionally, so a trailing
-// phrase promoted the stopword before it); `$sentence`'s is the FIRST word
-// (see capitalization.test.ts). Both came from one cause, and both are fixed
-// by tokenizing the original text with each phrase as ONE token that occupies
-// a position (title-case.ts's recaseWords) instead of masking it away.
+// A phrase exception counts as one word when deciding which word is first or last. Before, it was masked out, so its neighbor was treated as the last (or first) word.
 describe('phrase exceptions and word position (#25610)', () => {
   it('does not promote the stopword before a TRAILING phrase to last-word capitalization', () => {
-    // Was 'A Guide To Node.js': the mask left 'to' as the last word.
+    // The old result was 'A Guide To Node.js'.
     expect(apTitleCase('a guide to Node.js', ['Node.js'])).toBe('A Guide to Node.js');
   });
 
@@ -139,28 +111,23 @@ describe('phrase exceptions and word position (#25610)', () => {
   });
 
   it('handles a phrase that is BOTH first and last, leaving the single real word mid-title', () => {
-    // Was 'Node.js And VS Code': with both phrases masked, 'and' was the only
-    // remaining word and so counted as first AND last at once.
+    // The old result was 'Node.js And VS Code'.
     expect(apTitleCase('Node.js and VS Code', ['Node.js', 'VS Code'])).toBe('Node.js and VS Code');
   });
 
   it('still capitalizes the real first and last words around a MIDDLE phrase', () => {
-    // Regression guard for the other direction: a mid-title phrase never moved
-    // first/last, and must not start doing so now that it occupies an index.
+    // A phrase in the middle must not change which words are first and last.
     expect(apTitleCase('the VS Code guide', ['VS Code'])).toBe('The VS Code Guide');
     expect(apTitleCase('to VS Code up', ['VS Code'])).toBe('To VS Code Up');
   });
 
   it('keeps a LEADING phrase as-written without capitalizing the word after it as first', () => {
-    // 'actions' is mid-title here, so AP capitalizes it as an ordinary word --
-    // the point is that it is not treated as first (which is what makes
-    // $sentence's face of this bug visible; see capitalization.test.ts).
+    // 'actions' is in the middle, so it is capitalized as an ordinary word.
     expect(apTitleCase('VS Code actions for teams', ['VS Code'])).toBe('VS Code Actions for Teams');
   });
 
   it('leaves single-word exceptions unaffected -- they resolve by lookup, not position', () => {
-    // No phrase in `exceptions` at all, so there is nothing to occupy an index:
-    // identical output before and after the position fix.
+    // No phrases in `exceptions`.
     expect(apTitleCase('a guide to github', ['GitHub'])).toBe('A Guide to GitHub');
     expect(apTitleCase('github is great', ['GitHub'])).toBe('GitHub Is Great');
   });
@@ -177,13 +144,7 @@ describe('phrase exceptions and word position (#25610)', () => {
   });
 });
 
-// Adversarial coverage for the phrase tokenizer's position and length math
-// (title-case.ts's findPhraseMatches / tokenizeCasingWords / recaseWords).
-// Every case here produced the SAME output under the previous mask/restore
-// implementation, so the block is a guard that the #25610 fix changed word
-// POSITION and nothing else -- notably that the transform stays
-// length-preserving, which capitalization.ts's collectSites depends on to
-// splice inline-code spans back by offset.
+// Edge cases for phrase matching. The output must keep the same length, because `capitalization` relies on that to put inline code back.
 describe('phrase exception tokenizer -- adversarial position and length cases', () => {
   it('matches a phrase at index 0', () => {
     expect(apTitleCase('VS Code rocks', ['VS Code'])).toBe('VS Code Rocks');
@@ -206,8 +167,7 @@ describe('phrase exception tokenizer -- adversarial position and length cases', 
   });
 
   it('lets the first-listed phrase claim the span when two overlapping phrases are the same length', () => {
-    // 'ab c' and 'b cd' are both 4 chars and overlap in 'ab cd'; the sort is
-    // stable, so 'ab c' claims [0,4) and 'b cd' cannot also match.
+    // 'ab c' and 'b cd' overlap in 'ab cd'. The first one wins.
     expect(apTitleCase('ab cd', ['ab c', 'b cd'])).toBe('ab cD');
   });
 
@@ -221,9 +181,7 @@ describe('phrase exception tokenizer -- adversarial position and length cases', 
   });
 
   it('treats a phrase span as a hard token boundary -- a word never straddles it', () => {
-    // 'xVS Codey' contains a literal 'VS Code' match at [1,8), so 'x' and 'y'
-    // are separate tokens (first and last) rather than one word spanning the
-    // phrase -- which is why BOTH get capitalized.
+    // 'xVS Codey' contains 'VS Code', so 'x' and 'y' are separate words and both are capitalized.
     expect(apTitleCase('xVS Codey', ['VS Code'])).toBe('XVS CodeY');
   });
 
@@ -233,7 +191,7 @@ describe('phrase exception tokenizer -- adversarial position and length cases', 
   });
 
   it('copies a literal \\x01 through verbatim (the old placeholder character is no longer special)', () => {
-    // \x01 is a separator, so 'a' and 'b' are two tokens, not one word.
+    // \x01 separates words, so 'a' and 'b' are two words.
     expect(apTitleCase('a\x01b of c', ['VS Code'])).toBe('A\x01B of C');
     expect(apTitleCase('\x01VS Code\x01', ['VS Code'])).toBe('\x01VS Code\x01');
   });
@@ -255,8 +213,7 @@ describe('phrase exception tokenizer -- adversarial position and length cases', 
   });
 
   it('survives a degenerate bare-space exception entry', () => {
-    // ' ' counts as a phrase (it contains whitespace), so every space becomes
-    // its own token. The real words keep their positions either way.
+    // A single space counts as a phrase, so each space is its own token. The words keep their positions.
     expect(apTitleCase('the cat and the hat', [' '])).toBe('The Cat and the Hat');
   });
 
@@ -266,7 +223,7 @@ describe('phrase exception tokenizer -- adversarial position and length cases', 
 
   it('matches regex metacharacters in an exception entry literally', () => {
     expect(apTitleCase('more a.b*c and text', ['a.b*c'])).toBe('More a.b*c and Text');
-    // ...and does not match what the unescaped pattern would have matched.
+    // The unescaped pattern would have matched 'axbxxc', but this must not.
     expect(apTitleCase('axbxxc and more', ['a.b*c'])).toBe('Axbxxc and More');
   });
 
