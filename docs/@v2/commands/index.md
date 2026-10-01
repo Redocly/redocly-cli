@@ -50,6 +50,7 @@ Reunite platform commands:
 
 - [`login`](login.md) Log in to Reunite.
 - [`logout`](logout.md) Clear your stored credentials.
+- [`git`](git.md) Clone, pull, and push a Redocly-hosted project with git.
 - [`push`](push.md) Push an API description to Reunite.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
 

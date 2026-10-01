@@ -6,6 +6,7 @@ import type { DriftArgv } from './commands/drift/index.js';
 import type { EjectGeneratorCommandArgv } from './commands/eject-generator.js';
 import type { EjectArgv } from './commands/eject.js';
 import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
+import type { GitCloneArgv, GitPullArgv, GitPushArgv } from './commands/git/index.js';
 import type { InspectNodeTypesArgv } from './commands/inspect-node-types.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
 import type { JoinArgv } from './commands/join/types.js';
@@ -54,6 +55,9 @@ export type CommandArgv = (
   | EjectGeneratorCommandArgv
   | IntrospectMcpCommandArgv
   | ScorecardClassicArgv
+  | GitCloneArgv
+  | GitPushArgv
+  | GitPullArgv
 ) &
   VerifyConfigOptions;
 

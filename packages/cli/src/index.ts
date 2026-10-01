@@ -633,6 +633,103 @@ yargs(hideBin(process.argv))
       commandWrapper(handleLogout)(argv);
     }
   )
+  .command('git', 'Work with a Redocly-hosted project as a git remote.', (yargs) =>
+    yargs
+      .env('REDOCLY_CLI_GIT')
+      .command(
+        'clone [directory]',
+        'Clone a Redocly-hosted project.',
+        (yargs) =>
+          yargs
+            .positional('directory', {
+              description: 'Directory to clone into. Defaults to the project.',
+              type: 'string',
+            })
+            .options({
+              organization: {
+                description: 'Organization slug or ID.',
+                alias: 'o',
+                type: 'string',
+                demandOption: true,
+              },
+              project: {
+                description: 'Project slug or ID.',
+                alias: 'p',
+                type: 'string',
+                demandOption: true,
+              },
+              residency: {
+                description: 'Residency of the application. Defaults to `us`.',
+                alias: ['r'],
+                type: 'string',
+              },
+              config: {
+                description: 'Path to the config file.',
+                requiresArg: true,
+                type: 'string',
+              },
+            }),
+        async (argv) => {
+          const { handleGitClone } = await import('./commands/git/index.js');
+          commandWrapper(handleGitClone)(argv);
+        }
+      )
+      .command(
+        'push [refspec..]',
+        'Push to the Redocly-hosted project of the current repository.',
+        (yargs) =>
+          yargs
+            .positional('refspec', {
+              description: 'Remote and refspec arguments passed to git push.',
+              type: 'string',
+              array: true,
+            })
+            .options({
+              force: {
+                description: 'Force the push.',
+                alias: 'f',
+                type: 'boolean',
+              },
+              'set-upstream': {
+                description: 'Set the upstream of the pushed branch.',
+                alias: 'u',
+                type: 'boolean',
+              },
+              config: {
+                description: 'Path to the config file.',
+                requiresArg: true,
+                type: 'string',
+              },
+            }),
+        async (argv) => {
+          const { handleGitPush } = await import('./commands/git/index.js');
+          commandWrapper(handleGitPush)(argv);
+        }
+      )
+      .command(
+        'pull [refspec..]',
+        'Pull from the Redocly-hosted project of the current repository.',
+        (yargs) =>
+          yargs
+            .positional('refspec', {
+              description: 'Remote and refspec arguments passed to git pull.',
+              type: 'string',
+              array: true,
+            })
+            .options({
+              config: {
+                description: 'Path to the config file.',
+                requiresArg: true,
+                type: 'string',
+              },
+            }),
+        async (argv) => {
+          const { handleGitPull } = await import('./commands/git/index.js');
+          commandWrapper(handleGitPull)(argv);
+        }
+      )
+      .demandCommand(1, 'Specify a git subcommand: clone, push, or pull.')
+  )
   .command(
     'preview',
     'Preview Redocly project using one of the product NPM packages.',
