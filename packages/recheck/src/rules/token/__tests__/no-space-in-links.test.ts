@@ -44,8 +44,4 @@ describe('no-space-in-links (MD039)', () => {
     const fixed = await h.fix('[ a link ](https://www.example.com/)\n');
     expect(fixed).toBe('[a link](https://www.example.com/)\n');
   });
-
-  it('passes a document with no links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

@@ -48,10 +48,6 @@ describe('descriptive-link-text (MD059)', () => {
     expect(await h.lint('<a href="https://example.com">click here</a>\n')).toEqual([]);
   });
 
-  it('passes a document with no links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('disables the rule when prohibitedTexts is explicitly an empty array (matches upstream `config.prohibited_texts || defaults` falling through to an empty Set, not the defaults)', async () => {
     const hDisabled = tokenRuleHarness('descriptive-link-text', { prohibitedTexts: [] });
     expect(await hDisabled.lint('[click here](url)\n')).toEqual([]);

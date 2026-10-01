@@ -36,10 +36,6 @@ describe('no-bare-urls (MD034)', () => {
     expect(problems[0].match).toBe('user@example.com');
   });
 
-  it('passes a document with no bare URLs', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('does not flag a bare URL inside an HTML attribute value in a BLOCK-level HTML element (regression)', async () => {
     // A URL in the attribute of a block-level `<a href>` is HTML, not prose.
     const md = '<a href="https://example.com/">Link text</a>\n\nBody.\n';

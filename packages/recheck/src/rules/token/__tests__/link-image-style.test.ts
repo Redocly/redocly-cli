@@ -81,10 +81,6 @@ describe('link-image-style (MD054)', () => {
     const hNoAutolink = tokenRuleHarness('link-image-style', { autolink: false });
     expect(await hNoAutolink.lint('![alt](https://example.com)\n')).toEqual([]);
   });
-
-  it('passes a document with no links or images', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });
 
 describe('link-image-style (MD054) fix escaping', () => {

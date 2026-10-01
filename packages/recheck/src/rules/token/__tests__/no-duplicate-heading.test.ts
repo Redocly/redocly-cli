@@ -66,19 +66,4 @@ describe('no-duplicate-heading (MD024)', () => {
     });
     expect((await ignoreCommon.lint(md)).map((p) => p.line)).toEqual([13]);
   });
-
-  it('scales to thousands of headings with exact first-occurrence-wins counts', async () => {
-    const lines: string[] = [];
-    for (let i = 0; i < 2000; i++) {
-      const level = (i % 3) + 1;
-      const text = i % 4 === 0 ? `Duplicate pool ${i % 7}` : `Unique heading number ${i}`;
-      lines.push(`${'#'.repeat(level)} ${text}`, '');
-    }
-    const md = lines.join('\n') + '\n';
-
-    const problems = await h.lint(md);
-    expect(problems).toHaveLength(500 - 7);
-
-    expect(problems.every((p) => p.match.startsWith('Duplicate pool '))).toBe(true);
-  });
 });

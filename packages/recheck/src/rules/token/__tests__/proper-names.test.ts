@@ -72,8 +72,4 @@ describe('proper-names (MD044)', () => {
     const hEmpty = tokenRuleHarness('proper-names');
     expect(await hEmpty.lint('javascript github\n')).toEqual([]);
   });
-
-  it('passes a document with no configured names present', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

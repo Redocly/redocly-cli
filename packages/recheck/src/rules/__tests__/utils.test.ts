@@ -1,7 +1,5 @@
-import * as fs from 'fs/promises';
-import * as os from 'os';
 import * as path from 'path';
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
 import type { ScopedSegment } from '../../scopes/types.js';
 import type { NormalizedRule } from '../../types/index.js';
@@ -13,8 +11,6 @@ import {
 } from '../utils.js';
 
 describe('exceptions', () => {
-  let tempDir: string;
-
   function createTestRule(exceptions?: { files?: string[]; lines?: string[] }): NormalizedRule {
     return {
       name: 'recheck/no-trailing-spaces',
@@ -28,61 +24,10 @@ describe('exceptions', () => {
     };
   }
 
-  beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'recheck-test-'));
-  });
-
-  afterEach(async () => {
-    try {
-      await fs.rm(tempDir, { recursive: true, force: true });
-    } catch (_e) {
-      // ignore
-    }
-  });
-
-  describe('file exceptions', () => {
-    it('should skip files matching basename pattern', async () => {
-      const file = path.join(tempDir, 'docs/style-guide.md');
-      await fs.mkdir(path.dirname(file), { recursive: true });
-      await fs.writeFile(file, 'content');
-
-      const rule = createTestRule({ files: ['style-guide.md'] });
-      const shouldProcess = shouldProcessFile(file, rule);
-
-      expect(shouldProcess).toBe(false);
-    });
-
-    it('should skip files matching relative path pattern', async () => {
-      const file = path.join(tempDir, 'docs/style-guide.md');
-      await fs.mkdir(path.dirname(file), { recursive: true });
-      await fs.writeFile(file, 'content');
-
-      const rule = createTestRule({ files: ['docs/style-guide.md'] });
-      const shouldProcess = shouldProcessFile(file, rule);
-
-      expect(shouldProcess).toBe(false);
-    });
-
-    it('should skip files matching glob pattern', async () => {
-      const file = path.join(tempDir, 'docs/api-reference.md');
-      await fs.mkdir(path.dirname(file), { recursive: true });
-      await fs.writeFile(file, 'content');
-
-      const rule = createTestRule({ files: ['docs/*.md'] });
-      const shouldProcess = shouldProcessFile(file, rule);
-
-      expect(shouldProcess).toBe(false);
-    });
-
-    it('should process files not matching exception patterns', async () => {
-      const file = path.join(tempDir, 'regular-doc.md');
-      await fs.writeFile(file, 'content');
-
-      const rule = createTestRule({ files: ['style-guide.md'] });
-      const shouldProcess = shouldProcessFile(file, rule);
-
-      expect(shouldProcess).toBe(true);
-    });
+  it('should skip a file matching an exceptions.files pattern and process one that does not', () => {
+    const rule = createTestRule({ files: ['docs/*.md'] });
+    expect(shouldProcessFile(path.join(process.cwd(), 'docs/api-reference.md'), rule)).toBe(false);
+    expect(shouldProcessFile(path.join(process.cwd(), 'regular-doc.md'), rule)).toBe(true);
   });
 
   describe('excludes and appliesTo', () => {

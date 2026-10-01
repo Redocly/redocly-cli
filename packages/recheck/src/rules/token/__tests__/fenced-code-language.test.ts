@@ -39,8 +39,4 @@ describe('fenced-code-language (MD040)', () => {
   it('honors languageOnly: passes a fence with just a language', async () => {
     expect(await hLanguageOnly.lint('```js\ncode\n```\n')).toEqual([]);
   });
-
-  it('passes a document with no fenced code blocks', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

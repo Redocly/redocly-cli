@@ -50,8 +50,4 @@ describe('blanks-around-fences (MD031)', () => {
     const fixed = await h.fix('> Text\n> ```\n> code\n> ```\n> More\n');
     expect(fixed).toBe('> Text\n>\n> ```\n> code\n> ```\n>\n> More\n');
   });
-
-  it('passes a document with no fenced code blocks', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

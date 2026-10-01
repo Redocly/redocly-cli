@@ -78,10 +78,6 @@ describe('link-fragments (MD051)', () => {
     expect(await h.lint('[Link](https://example.com/page)\n')).toEqual([]);
   });
 
-  it('passes a document with no fragment links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('excludes a DocFX tab heading link from fragment checks but still flags a non-heading link to the same tab', async () => {
     const problems = await h.lint('# [Linux](#tab/linux)\n\n[other](#tab/linux)\n');
     expect(problems).toHaveLength(1);

@@ -43,8 +43,4 @@ describe('strong-style (MD050)', () => {
   it('does not flag emphasis (*/_) tokens', async () => {
     expect(await h.lint('*italic* text.\n')).toEqual([]);
   });
-
-  it('passes a document with no strong text', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

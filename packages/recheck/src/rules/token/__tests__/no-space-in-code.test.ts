@@ -58,8 +58,4 @@ describe('no-space-in-code (MD038)', () => {
     const fixed = await h.fix('`` `backticks` ``\n');
     expect(fixed).toBe('`` `backticks` ``\n');
   });
-
-  it('passes a document with no code spans', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

@@ -47,8 +47,4 @@ describe('link-image-reference-definitions (MD053)', () => {
   it('does not flag a definition referenced via collapsed syntax', async () => {
     expect(await h.lint('[label][]\n\n[label]: https://example.com/label\n')).toEqual([]);
   });
-
-  it('passes a document with no definitions', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

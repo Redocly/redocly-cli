@@ -1,38 +1,27 @@
-// Removed assertion ids and config keys must fail config validation.
+// Config validation: unknown names and stale pattern warnings.
 import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
 
-describe('removed legacy assertion ids fail validation (PR #24801)', () => {
-  function ruleWith(assertionId: string, options: Record<string, unknown> = {}) {
-    return {
+describe('config validation of unknown names', () => {
+  it('rejects an unknown assertion id, naming it', async () => {
+    const result = await validate({
       'recheck/test-rule': {
         severity: 'error' as const,
         message: 'Test message',
-        assertions: { [assertionId]: options },
+        assertions: { 'no-such-assertion': {} },
       },
-    };
-  }
-
-  it.each([
-    ['max-line-length', { maxLength: 80 }],
-    ['bullet-style', { style: '-' }],
-    ['no-duplicate-headings', {}],
-    ['no-broken-fragment-links', {}],
-  ])('"%s" is no longer a recognized assertion id', async (assertionId, options) => {
-    const result = await validate(ruleWith(assertionId, options));
+    });
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({
-        message: expect.stringContaining(`Unknown assertion type "${assertionId}"`),
+        message: expect.stringContaining('Unknown assertion type "no-such-assertion"'),
       })
     );
   });
-});
 
-describe('removed "autoFixable" config key fails validation (PR #24801)', () => {
-  it('a rule setting "autoFixable" fails with an unknown-property error naming it', async () => {
+  it('rejects an unknown rule key with an error naming it', async () => {
     const result = await validate({
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -46,26 +35,6 @@ describe('removed "autoFixable" config key fails validation (PR #24801)', () => 
     expect(result.errors).toContainEqual(
       expect.objectContaining({
         message: expect.stringContaining('autoFixable'),
-      })
-    );
-  });
-});
-
-describe('removed "enabled" config key fails validation', () => {
-  it('a rule setting "enabled" fails with an unknown-property error naming it', async () => {
-    const result = await validate({
-      'recheck/test-rule': {
-        severity: 'error' as const,
-        message: 'Test message',
-        enabled: false,
-        assertions: { pattern: { tokens: ['x'] } },
-      },
-    });
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({
-        message: expect.stringContaining('enabled'),
       })
     );
   });

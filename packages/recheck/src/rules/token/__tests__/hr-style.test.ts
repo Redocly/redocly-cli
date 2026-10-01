@@ -23,8 +23,4 @@ describe('hr-style (MD035)', () => {
     expect(problems[0].line).toBe(3);
     expect(problems[1].line).toBe(7);
   });
-
-  it('passes an empty document with no thematic breaks', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

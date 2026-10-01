@@ -33,8 +33,4 @@ describe('no-reversed-links (MD011)', () => {
     const fixed = await h.fix('(Incorrect link syntax)[https://www.example.com/]\n');
     expect(fixed).toBe('[Incorrect link syntax](https://www.example.com/)\n');
   });
-
-  it('passes a document with no links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

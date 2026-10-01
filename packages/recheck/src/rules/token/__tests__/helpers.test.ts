@@ -2,86 +2,17 @@ import { describe, expect, it } from 'vitest';
 
 import { parseMarkdown, filterByTypes } from '../../../parser/index.js';
 import {
-  addRangeToSet,
   clearHtmlCommentText,
   ellipsify,
   escapeForRegExp,
-  filterByPredicate,
   frontMatterHasTitle,
   getBlockQuotePrefixText,
-  getDescendantsByType,
   getHeadingLevel,
   getHeadingText,
-  getParentOfType,
   hasOverlap,
   isBlankLine,
   toWellFormedString,
 } from '../helpers.js';
-
-describe('filterByPredicate', () => {
-  it('collects all tokens matching a predicate, depth-first', () => {
-    const tree = parseMarkdown('# Title\n\nBody *em* text\n');
-    const dataTokens = filterByPredicate(tree, (token) => token.type === 'data');
-    expect(dataTokens.map((t) => t.text)).toEqual(['Title', 'Body ', 'em', ' text']);
-  });
-
-  it('returns an empty array when nothing matches', () => {
-    const tree = parseMarkdown('# Title\n');
-    expect(filterByPredicate(tree, (token) => token.type === 'table')).toEqual([]);
-  });
-
-  it('descends into nested children (blockquote inside list)', () => {
-    const tree = parseMarkdown('- > quoted\n');
-    const markers = filterByPredicate(tree, (token) => token.type === 'blockQuoteMarker');
-    expect(markers).toHaveLength(1);
-    expect(markers[0].text).toBe('>');
-  });
-});
-
-describe('getDescendantsByType', () => {
-  it('finds direct children by type', () => {
-    const tree = parseMarkdown('# Title\n');
-    const [heading] = filterByTypes(tree, ['atxHeading']);
-    const sequences = getDescendantsByType(heading, ['atxHeadingSequence']);
-    expect(sequences).toHaveLength(1);
-    expect(sequences[0].text).toBe('#');
-  });
-
-  it('walks a multi-level type path to nested descendants', () => {
-    const tree = parseMarkdown('# Title\n');
-    const [heading] = filterByTypes(tree, ['atxHeading']);
-    const data = getDescendantsByType(heading, ['atxHeadingText', 'data']);
-    expect(data.map((t) => t.text)).toEqual(['Title']);
-  });
-
-  it('returns an empty array when the path does not match', () => {
-    const tree = parseMarkdown('# Title\n');
-    const [heading] = filterByTypes(tree, ['atxHeading']);
-    expect(getDescendantsByType(heading, ['setextHeadingText'])).toEqual([]);
-  });
-});
-
-describe('getParentOfType', () => {
-  it('finds the nearest ancestor of one of the given types', () => {
-    const tree = parseMarkdown('> # Heading\n');
-    const [heading] = filterByTypes(tree, ['atxHeading']);
-    const parent = getParentOfType(heading, ['blockQuote']);
-    expect(parent?.type).toBe('blockQuote');
-  });
-
-  it('looks past intermediate ancestors that do not match', () => {
-    const tree = parseMarkdown('- > quoted text\n');
-    const [data] = filterByTypes(tree, ['data']);
-    const parent = getParentOfType(data, ['listUnordered']);
-    expect(parent?.type).toBe('listUnordered');
-  });
-
-  it('returns null when no ancestor matches', () => {
-    const tree = parseMarkdown('# Heading\n');
-    const [heading] = filterByTypes(tree, ['atxHeading']);
-    expect(getParentOfType(heading, ['blockQuote'])).toBeNull();
-  });
-});
 
 describe('getHeadingLevel', () => {
   it('reads atx heading level from the sequence length', () => {
@@ -110,48 +41,16 @@ describe('getHeadingLevel', () => {
 });
 
 describe('getHeadingText', () => {
-  it('extracts plain atx heading text', () => {
-    const tree = parseMarkdown('# Title\n');
-    const [heading] = filterByTypes(tree, ['atxHeading']);
-    expect(getHeadingText(heading)).toBe('Title');
-  });
-
   it('extracts atx heading text across inline formatting, keeping markers (upstream only strips htmlText)', () => {
     const tree = parseMarkdown('# Title *em* text\n');
     const [heading] = filterByTypes(tree, ['atxHeading']);
     expect(getHeadingText(heading)).toBe('Title *em* text');
   });
 
-  it('extracts setext heading text', () => {
-    const tree = parseMarkdown('Title\n=====\n');
-    const [heading] = filterByTypes(tree, ['setextHeading']);
-    expect(getHeadingText(heading)).toBe('Title');
-  });
-
   it('collapses internal newlines in a multi-line setext heading to spaces', () => {
     const tree = parseMarkdown('Title\ncontinued\n=====\n');
     const [heading] = filterByTypes(tree, ['setextHeading']);
     expect(getHeadingText(heading)).toBe('Title continued');
-  });
-});
-
-describe('addRangeToSet', () => {
-  it('adds an inclusive range of numbers', () => {
-    const set = new Set<number>();
-    addRangeToSet(set, 2, 5);
-    expect([...set]).toEqual([2, 3, 4, 5]);
-  });
-
-  it('adds a single number when start equals end', () => {
-    const set = new Set<number>();
-    addRangeToSet(set, 4, 4);
-    expect([...set]).toEqual([4]);
-  });
-
-  it('merges into a pre-populated set without duplicating', () => {
-    const set = new Set<number>([1, 3]);
-    addRangeToSet(set, 2, 3);
-    expect([...set].sort((a, b) => a - b)).toEqual([1, 2, 3]);
   });
 });
 

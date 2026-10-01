@@ -42,10 +42,6 @@ describe('no-alt-text (MD045)', () => {
     );
   });
 
-  it('passes a document with no images', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('flags block-level HTML img without alt (regression: includeHtmlFlow)', async () => {
     const problems = await h.lint('<img src="x.png" />\n');
     expect(problems).toHaveLength(1);

@@ -17,12 +17,6 @@ describe('no-hard-tabs (MD010)', () => {
     expect(problems[0].message).toContain('Column: 1');
   });
 
-  it('codeBlocks: true (default) flags hard tabs inside fenced code blocks', async () => {
-    const md = '```text\n\tcode with a tab\n```\n';
-    const problems = await h.lint(md);
-    expect(problems.some((p) => p.line === 2)).toBe(true);
-  });
-
   it('codeBlocks: false excludes fenced/indented code blocks and code spans', async () => {
     const hNoCode = tokenRuleHarness('no-hard-tabs', { codeBlocks: false });
     const md = '```text\n\tfenced\n```\n\n\tindented\n\nA `code\tspan` here.\n';

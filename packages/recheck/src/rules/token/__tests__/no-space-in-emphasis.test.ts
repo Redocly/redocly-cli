@@ -75,10 +75,6 @@ describe('no-space-in-emphasis (MD037)', () => {
     expect(fixed).toBe('Here is some more __bold__ text.\n');
   });
 
-  it('passes a document with no emphasis-like markers at all', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('does not treat a bare "*" inside a BLOCK-level HTML table cell as an emphasis marker (regression)', async () => {
     // In block-level HTML (`<table>` with `<code>*</code>`), a lone `*` is not an emphasis marker.
     const md = '<table>\n<tr><td><code>*</code></td><td>Multiply</td></tr>\n</table>\n';

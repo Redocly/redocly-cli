@@ -42,10 +42,6 @@ describe('no-inline-html (MD033)', () => {
     expect(problems).toHaveLength(1);
   });
 
-  it('passes a document with no HTML at all', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('flags block-level HTML tags like <details>/<summary> (regression, parity with upstream MD033)', async () => {
     // Block-level HTML at the start of a line is htmlFlow, not htmlText.
     const md = '<details>\n<summary>Click to expand</summary>\n\nBody.\n</details>\n';

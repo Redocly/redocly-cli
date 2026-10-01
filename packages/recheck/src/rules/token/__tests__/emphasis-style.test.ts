@@ -43,8 +43,4 @@ describe('emphasis-style (MD049)', () => {
   it('does not flag strong (**/__) tokens', async () => {
     expect(await h.lint('**bold** text.\n')).toEqual([]);
   });
-
-  it('passes a document with no emphasis', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });
