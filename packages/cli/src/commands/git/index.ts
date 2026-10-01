@@ -2,7 +2,12 @@ import { HandledError, logger } from '@redocly/openapi-core';
 import { getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
-import { buildProjectGitUrl, findRedoclyRemote, resolveGitAuthHeader, runGit } from './utils.js';
+import {
+  buildProjectGitUrl,
+  findRedoclyRemote,
+  getCredentialHelperConfig,
+  runGit,
+} from './utils.js';
 
 export type GitCloneArgv = {
   organization: string;
@@ -24,18 +29,20 @@ export type GitPullArgv = {
 const NO_REMOTE_MESSAGE =
   'No Redocly remote found in this repository. Clone a project with `redocly git clone -o <organization> -p <project>`, or add a remote pointing to `<reunite-url>/api/orgs/<organization>/projects/<project>/git`.';
 
+// Clones with the credential helper saved in the repository config, so plain `git` works later.
 export async function handleGitClone({ argv, config, version }: CommandArgs<GitCloneArgv>) {
   const reuniteUrl = getReuniteUrl(config, argv.residency);
   const url = buildProjectGitUrl(reuniteUrl, argv.organization, argv.project);
-  const authHeader = await resolveGitAuthHeader(reuniteUrl, version);
+  const helperConfig = getCredentialHelperConfig(reuniteUrl, version);
 
   logger.info(`Cloning ${argv.organization}/${argv.project} from ${reuniteUrl}\n`);
 
-  const exitCode = await runGit({
-    reuniteUrl,
-    authHeader,
-    args: ['clone', url, argv.directory ?? argv.project],
-  });
+  const exitCode = await runGit([
+    'clone',
+    ...helperConfig.flatMap((entry) => ['--config', entry]),
+    url,
+    argv.directory ?? argv.project,
+  ]);
 
   if (exitCode !== 0) {
     throw new HandledError('git clone failed.');
@@ -65,8 +72,8 @@ async function runInRedoclyRemote(args: string[], version: string) {
     throw new HandledError(NO_REMOTE_MESSAGE);
   }
 
-  const authHeader = await resolveGitAuthHeader(remote.reuniteUrl, version);
-  const exitCode = await runGit({ reuniteUrl: remote.reuniteUrl, authHeader, args });
+  const helperConfig = getCredentialHelperConfig(remote.reuniteUrl, version);
+  const exitCode = await runGit([...helperConfig.flatMap((entry) => ['-c', entry]), ...args]);
 
   if (exitCode !== 0) {
     throw new HandledError(`git ${args[0]} failed.`);

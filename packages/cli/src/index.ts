@@ -728,6 +728,22 @@ yargs(hideBin(process.argv))
           commandWrapper(handleGitPull)(argv);
         }
       )
+      .command(
+        'credential <operation>',
+        false,
+        (yargs) =>
+          yargs.positional('operation', {
+            description: 'Credential helper operation: get, store, or erase.',
+            type: 'string',
+            demandOption: true,
+          }),
+        async (argv) => {
+          const { handleGitCredential } = await import('./commands/git/credential.js');
+          process.stdout.write(
+            await handleGitCredential({ operation: argv.operation, input: process.stdin, version })
+          );
+        }
+      )
       .demandCommand(1, 'Specify a git subcommand: clone, push, or pull.')
   )
   .command(

@@ -1,6 +1,8 @@
 import { HandledError } from '@redocly/openapi-core';
-import { isValidReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
+import { isValidReuniteUrl } from '@redocly/reunite-integration';
 import { spawn, spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import * as path from 'node:path';
 
 export const PROJECT_GIT_URL_PATTERN =
   /^(https?:\/\/[^/]+)\/api\/orgs\/([^/]+)\/projects\/([^/]+)\/git\/?$/;
@@ -48,50 +50,21 @@ export function findRedoclyRemote(cwd: string): RedoclyRemote | null {
   return null;
 }
 
-export async function resolveGitAuthHeader(reuniteUrl: string, version: string): Promise<string> {
-  const apiKey = process.env.REDOCLY_AUTHORIZATION;
+// Git config entries that make `redocly git credential` the only credential helper
+// for the Reunite host. The empty entry clears the helpers configured for all hosts.
+export function getCredentialHelperConfig(reuniteUrl: string, version: string): string[] {
+  const key = `credential.${reuniteUrl}/.helper`;
+  const cli = isOnPath('redocly') ? 'redocly' : `npx --yes @redocly/cli@${version}`;
 
-  if (apiKey) {
-    return `Authorization: Bearer ${apiKey}`;
-  }
-
-  const accessToken = await new RedoclyOAuthClient(version).getAccessToken(reuniteUrl);
-
-  if (accessToken) {
-    return `Cookie: accessToken=${accessToken}`;
-  }
-
-  throw new HandledError(
-    `You are not logged in to ${reuniteUrl}. Run \`redocly login --residency ${reuniteUrl}\` or set the REDOCLY_AUTHORIZATION environment variable.`
-  );
+  return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true ${cli} git credential`];
 }
 
-// Passes the credential to git through GIT_CONFIG_* variables, so it never appears in a
-// process list or a git config file, and only for requests to the Reunite host.
-export async function runGit({
-  reuniteUrl,
-  authHeader,
-  args,
-}: {
-  reuniteUrl: string;
-  authHeader: string;
-  args: string[];
-}): Promise<number> {
-  assertGitVersion();
-
-  const configCount = Number(process.env.GIT_CONFIG_COUNT) || 0;
-  const env: NodeJS.ProcessEnv = {
-    ...process.env,
-    GIT_TERMINAL_PROMPT: '0',
-    GIT_CONFIG_COUNT: String(configCount + 2),
-    [`GIT_CONFIG_KEY_${configCount}`]: `http.${reuniteUrl}/.extraHeader`,
-    [`GIT_CONFIG_VALUE_${configCount}`]: authHeader,
-    [`GIT_CONFIG_KEY_${configCount + 1}`]: `credential.${reuniteUrl}/.helper`,
-    [`GIT_CONFIG_VALUE_${configCount + 1}`]: '',
-  };
-
+export async function runGit(args: string[]): Promise<number> {
   return new Promise((resolve, reject) => {
-    const child = spawn('git', args, { stdio: 'inherit', env });
+    const child = spawn('git', args, {
+      stdio: 'inherit',
+      env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
+    });
 
     child.on('error', (error: NodeJS.ErrnoException) => {
       reject(
@@ -102,18 +75,12 @@ export async function runGit({
   });
 }
 
-const MIN_GIT_VERSION = [2, 31];
+function isOnPath(command: string): boolean {
+  const extensions = process.platform === 'win32' ? ['.cmd', '.exe'] : [''];
 
-function assertGitVersion() {
-  const result = spawnSync('git', ['--version'], { encoding: 'utf-8' });
-  assertGitInstalled(result.error);
-
-  const [, major = 0, minor = 0] = (result.stdout?.match(/(\d+)\.(\d+)/) ?? []).map(Number);
-  if (major < MIN_GIT_VERSION[0] || (major === MIN_GIT_VERSION[0] && minor < MIN_GIT_VERSION[1])) {
-    throw new HandledError(
-      `Redocly git commands need git ${MIN_GIT_VERSION.join('.')} or later. Found: ${result.stdout?.trim()}.`
-    );
-  }
+  return (process.env.PATH ?? '')
+    .split(path.delimiter)
+    .some((dir) => dir && extensions.some((ext) => existsSync(path.join(dir, command + ext))));
 }
 
 function assertGitInstalled(error: (Error & { code?: string }) | undefined) {
