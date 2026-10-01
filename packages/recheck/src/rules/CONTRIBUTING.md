@@ -227,8 +227,6 @@ Token rules are markdownlint-style structural rules (headings, lists, links, tab
    });
    ```
 
-   Use `tokenRuleUnitHarness` instead (invokes `TokenRule.check()` directly, bypassing `resolveAssertion`) only if your rule's id collides with a still-registered legacy scope rule id — see its doc comment in `harness.ts` for why that matters and when it no longer does.
-
 1. **Attribution header** — if porting an existing markdownlint rule (the common case), open the file with a comment naming the upstream source, matching the convention every existing token rule uses:
 
    ```ts
