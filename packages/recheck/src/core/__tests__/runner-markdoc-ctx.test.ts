@@ -2,7 +2,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { MarkdocSchema } from '../../parser/markdoc/schema.js';
-import { registerTokenRules, clearTokenRulesForTests } from '../../rules/registry.js';
+import { registerTokenRules } from '../../rules/registry.js';
 import type { TokenRule, TokenRuleContext } from '../../rules/types.js';
 import type { NormalizedRule } from '../../types/index.js';
 import { runRules } from '../runner.js';
@@ -46,7 +46,6 @@ const ruleFor = (shortName: string): NormalizedRule => ({
 
 describe('runner: ctx.markdoc', () => {
   beforeEach(() => {
-    clearTokenRulesForTests();
     registerTokenRules([markdocProbe, plainProbe]);
     seen = undefined;
   });
@@ -113,7 +112,6 @@ describe('runner: ctx.markdoc', () => {
 
     it('the skipped pairing is a fresh object per file, never a shared one', async () => {
       const captured: NonNullable<TokenRuleContext['markdoc']>['pairing'][] = [];
-      clearTokenRulesForTests();
       registerTokenRules([
         {
           ...plainProbe,

@@ -209,16 +209,10 @@ Token rules are markdownlint-style structural rules (headings, lists, links, tab
 1. **Test with the harness** — use `tokenRuleHarness` from [`token/__tests__/harness.ts`](token/__tests__/harness.ts) in a new `src/rules/token/__tests__/my-rule.test.ts`:
 
    ```ts
-   import { beforeAll, describe, expect, it } from 'vitest';
-   import { clearTokenRulesForTests, registerTokenRules } from '../../registry.js';
-   import { myRule } from '../my-rule.js';
+   import { describe, expect, it } from 'vitest';
    import { tokenRuleHarness } from './harness.js';
 
    describe('my-rule (MDxxx)', () => {
-     beforeAll(() => {
-       clearTokenRulesForTests();
-       registerTokenRules([myRule]);
-     });
      const h = tokenRuleHarness('my-rule');
 
      it('passes clean input', async () => {

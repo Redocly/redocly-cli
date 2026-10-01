@@ -217,21 +217,6 @@ const markdocTokenRules: TokenRule[] = [
   markdocAttributes,
 ];
 
-/**
- * Rules with no markdownlint counterpart. They are not in the `recheck/markdown`
- * preset. The preset and registry tests use this list.
- */
-export const RECHECK_ORIGINAL_TOKEN_RULE_NAMES = [
-  'front-matter',
-  'no-duplicate-link-destinations',
-  'no-empty-headings',
-  'list-length',
-  'markdoc-syntax',
-  'markdoc-pairing',
-  'markdoc-unknown-tag',
-  'markdoc-attributes',
-] as const;
-
 export const allTokenRules: TokenRule[] = [
   ...batch1TokenRules,
   ...batch2TokenRules,

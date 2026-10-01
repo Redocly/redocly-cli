@@ -7,7 +7,7 @@ import { runRules } from '../../core/runner.js';
 import { TECHNICAL_PROPER_NOUNS } from '../../data/proper-nouns.js';
 import { lintContent } from '../../index.js';
 import { scopeRules } from '../../rules/registry.js';
-import { allTokenRules, RECHECK_ORIGINAL_TOKEN_RULE_NAMES } from '../../rules/token/index.js';
+import { allTokenRules } from '../../rules/token/index.js';
 import { presets, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { resolveExtends, validate } from '../validate.js';
 
@@ -16,7 +16,16 @@ describe('extends presets', () => {
   // without a matching preset entry (or the reverse) fails. Both the number and the names are compared.
   // Rules that Recheck added itself have no markdownlint equivalent, so they are not in
   // `recheck/markdown`. They are listed here instead. A token rule in neither place fails the test.
-  const RECHECK_ORIGINAL_TOKEN_RULES = RECHECK_ORIGINAL_TOKEN_RULE_NAMES;
+  const RECHECK_ORIGINAL_TOKEN_RULES = [
+    'front-matter',
+    'no-duplicate-link-destinations',
+    'no-empty-headings',
+    'list-length',
+    'markdoc-syntax',
+    'markdoc-pairing',
+    'markdoc-unknown-tag',
+    'markdoc-attributes',
+  ];
 
   it('markdown preset contains exactly one entry per registered token rule (no rule can be forgotten)', () => {
     const markdown = presets['recheck/markdown'];

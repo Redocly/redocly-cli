@@ -27,7 +27,6 @@ export const scopeRules: Record<string, ScopeRule> = {
   spelling,
   length,
 };
-export const tokenRules: TokenRule[] = [];
 
 export function getScopeRule(id: string): ScopeRule {
   const rule = scopeRules[id];
@@ -43,18 +42,11 @@ const tokenRulesByName = new Map<string, TokenRule>();
 
 export function registerTokenRules(rules: TokenRule[]): void {
   for (const rule of rules) {
-    // Registering the same rule object twice has no effect.
-    if (!tokenRules.includes(rule)) tokenRules.push(rule);
     tokenRulesByName.set(rule.name, rule);
     for (const alias of rule.aliases ?? []) {
       tokenRulesByName.set(alias, rule);
     }
   }
-}
-
-export function clearTokenRulesForTests(): void {
-  tokenRules.length = 0;
-  tokenRulesByName.clear();
 }
 
 export function resolveAssertion(id: string): ResolvedAssertion {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { registerTokenRules, clearTokenRulesForTests } from '../../rules/registry.js';
+import { registerTokenRules } from '../../rules/registry.js';
 import type { TokenRule } from '../../rules/types.js';
 import type { NormalizedRule } from '../../types/index.js';
 import { runRules, runRulesUntilStable } from '../runner.js';
@@ -39,7 +39,6 @@ const rule = (overrides: Partial<NormalizedRule> = {}): NormalizedRule => ({
 
 describe('runner token-rule dispatch', () => {
   beforeEach(() => {
-    clearTokenRulesForTests();
     registerTokenRules([testTokenRule]);
   });
 
