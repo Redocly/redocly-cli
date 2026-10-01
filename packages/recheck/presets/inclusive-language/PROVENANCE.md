@@ -132,7 +132,7 @@ that flagship's own preset too.
 
 Measured directly with `lintContent` over this preset's own violations
 fixture (`inclusive-language-violations.md`, which exercises all 11 shipped
-rules), stacked onto each flagship in turn (see `preset-composition.test.ts`'s
+rules), stacked onto each flagship in turn (see `presets.test.ts`'s
 "duplicate findings" describe block for the live, asserted counts):
 
 | Stacked with        | Total problems | Duplicate positions | Rules that duplicate                                                                                                  | Rules that are net-new                                                                  |

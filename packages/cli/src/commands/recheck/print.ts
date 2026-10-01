@@ -108,9 +108,7 @@ export async function printLintRun(
   if (result.status === 'baseline-missing') {
     printPreamble(result.report);
     logger.info(`${red(`❌ Baseline file not found: ${result.baselinePath}`)}\n`);
-    logger.info(
-      `   Run \`redocly recheck --generate-baseline\` to create it, or remove the \`baseline\` key from the recheck block.\n`
-    );
+    logger.info(`   Run \`redocly recheck --generate-baseline\` to create it.\n`);
     return 1;
   }
   if (result.status === 'failed') {
