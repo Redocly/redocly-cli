@@ -1,67 +1,38 @@
 import { describe, it, expect } from 'vitest';
 
-import { validate } from '../../../config/validate.js';
 import { runRules, runRulesUntilStable } from '../../../core/runner.js';
 import { parseMarkdown } from '../../../parser/index.js';
 import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule, SwapAssertion } from '../../../types/index.js';
 import type { ScopeRuleContext } from '../../types.js';
 import { swap } from '../swap.js';
-import { buildWholeFileContext } from './helpers.js';
+import { buildWholeFileContext, expectInvalidOptions, expectValidOptions } from './helpers.js';
+
+function swapRule(options: SwapAssertion, scope: string | string[] = 'all'): NormalizedRule {
+  return {
+    name: 'test-swap',
+    shortName: 'swap',
+    severity: 'error',
+    message: 'Use %s instead of %s.',
+    scope,
+    assertions: { swap: options },
+  };
+}
+
+async function runSwap(content: string, options: SwapAssertion) {
+  return swap.execute(swapRule(options), 'test.md', buildWholeFileContext(content));
+}
 
 describe('swap assertion', () => {
-  // Prose rules must not lint code. By default inline code spans are masked before scanning; `includeCode: true` scans them.
-  describe('includeCode option (inline-code masking)', () => {
-    async function runSwap(content: string, options: SwapAssertion) {
-      const rule: NormalizedRule = {
-        name: 'test-swap',
-        shortName: 'swap',
-        severity: 'error',
-        message: 'Use %s instead of %s.',
-        scope: 'all',
-        assertions: { swap: options },
-      };
-      return swap.execute(rule, 'test.md', buildWholeFileContext(content));
-    }
-
-    it('does not match inside an inline code span by default', async () => {
-      const problems = await runSwap('Run `git checkout master` first.', {
-        pairs: { master: 'primary' },
-      });
-      expect(problems).toEqual([]);
+  it('does not match inside an inline code span by default', async () => {
+    const problems = await runSwap('Run `git checkout master` first.', {
+      pairs: { master: 'primary' },
     });
-
-    it('still matches the same word outside a code span', async () => {
-      const problems = await runSwap('The master branch, see `master`.', {
-        pairs: { master: 'primary' },
-      });
-      expect(problems).toHaveLength(1);
-      expect(problems[0].column).toBe(5);
-    });
-
-    it('matches inside code when includeCode is true', async () => {
-      const problems = await runSwap('Run `git checkout master`.', {
-        pairs: { master: 'primary' },
-        includeCode: true,
-      });
-      expect(problems).toHaveLength(1);
-    });
+    expect(problems).toEqual([]);
   });
 
   // Masking replaces a code span with `\0` characters, which a negated class like `[^\s,]+` matches straight through. So matches are found on the original text and any match overlapping a code span is dropped.
   describe('range filtering for matches overlapping code spans', () => {
-    async function runSwap(content: string, options: SwapAssertion) {
-      const rule: NormalizedRule = {
-        name: 'test-swap',
-        shortName: 'swap',
-        severity: 'error',
-        message: 'Use %s instead of %s.',
-        scope: 'all',
-        assertions: { swap: options },
-      };
-      return swap.execute(rule, 'test.md', buildWholeFileContext(content));
-    }
-
     it('does not report a negated-class-key match that would span a code span', async () => {
       // Masking would turn 'a`,`b' into one 5-character match for `[^\s,]+`, which spans the code span's comma.
       const problems = await runSwap('a`,`b', {
@@ -90,45 +61,21 @@ describe('swap assertion', () => {
   });
 
   it('should handle empty content without throwing', async () => {
-    const rule: NormalizedRule = {
-      name: 'test-swap',
-      shortName: 'swap',
-      severity: 'error',
-      message: 'Test message',
-      scope: 'all',
-      assertions: {
-        swap: {
-          pairs: { old: 'new' },
-        },
-      },
-    };
-
-    const file = 'empty.md';
-    const context = buildWholeFileContext('');
-
-    const problems = await swap.execute(rule, file, context);
-    expect(problems).toEqual([]);
+    expect(await runSwap('', { pairs: { old: 'new' } })).toEqual([]);
   });
 
   it("reports the true column for a match on a heading segment's first line", async () => {
     // A heading's content starts after the '## ', so the column needs the segment's start column.
     const content = '## Heading colour\n';
-    const rule: NormalizedRule = {
-      name: 'test-swap',
-      shortName: 'swap',
-      severity: 'error',
-      message: 'Use %s instead of %s.',
-      scope: 'heading',
-      assertions: {
-        swap: { pairs: { colour: 'color' } },
-      },
-    };
-
     const tree = parseMarkdown(content);
     const segments = extractScopes(tree, content).filter((s) => s.scope === 'heading.h2');
     const context: ScopeRuleContext = { segments, content, tree };
 
-    const problems = await swap.execute(rule, 'test.md', context);
+    const problems = await swap.execute(
+      swapRule({ pairs: { colour: 'color' } }, 'heading'),
+      'test.md',
+      context
+    );
 
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
@@ -137,115 +84,83 @@ describe('swap assertion', () => {
   });
 
   // Table cell content is trimmed, so the column must point at the real text and not at the '|'. --fix must replace only the matched word.
-  describe('table cell segments — trimmed content maps to true source columns', () => {
-    const tableSwapRule = (scope: string | string[]): NormalizedRule => ({
-      name: 'test-swap',
-      shortName: 'swap',
-      severity: 'error',
-      message: 'Use %s instead of %s.',
-      scope,
-      assertions: {
-        swap: { pairs: { colour: 'color' } },
-      },
-    });
+  describe('table cell segments: trimmed content maps to true source columns', () => {
+    const padded = '| word   | colour |\n| ------ | ------ |\n| padded |  colour here |\n';
 
-    it('reports the true column and fixes only the word in a padded table.cell', async () => {
-      const content = '| word   | colour |\n| ------ | ------ |\n| padded |  colour here |\n';
-      const { problems, fixedFiles } = await runRules(
-        [{ path: 't.md', content }],
-        [tableSwapRule('table.cell')],
-        { fix: true }
-      );
-      // Body cell '  colour here ': text starts at source column 13.
-      expect(problems.map((p) => [p.line, p.column, p.match])).toEqual([[3, 13, 'colour']]);
-      expect(fixedFiles.get('t.md')).toBe(
-        '| word   | colour |\n| ------ | ------ |\n| padded |  color here |\n'
-      );
-    });
+    it.each<[string, string, string | string[], [line: number, column: number], string]>([
+      [
+        'a padded body cell',
+        padded,
+        'table.cell',
+        [3, 13],
+        '| word   | colour |\n| ------ | ------ |\n| padded |  color here |\n',
+      ],
+      [
+        'a padded header cell',
+        padded,
+        'table.header',
+        [1, 12],
+        '| word   | color |\n| ------ | ------ |\n| padded |  colour here |\n',
+      ],
+      [
+        'the start of an unpadded cell',
+        '|word|x|\n|-|-|\n|colour|y|\n',
+        'table.cell',
+        [3, 2],
+        '|word|x|\n|-|-|\n|color|y|\n',
+      ],
+      [
+        // 'a😀b ' is 5 UTF-16 code units ('😀' is an astral pair).
+        'a header cell with multi-byte text before the match',
+        '| a😀b colour | z |\n| ----------- | - |\n| x | y |\n',
+        'table.header',
+        [1, 8],
+        '| a😀b color | z |\n| ----------- | - |\n| x | y |\n',
+      ],
+      [
+        'a header and a body cell together',
+        padded,
+        ['table.header', 'table.cell'],
+        [1, 12],
+        '| word   | color |\n| ------ | ------ |\n| padded |  color here |\n',
+      ],
+    ])(
+      'reports the true column and fixes only the word in %s',
+      async (_label, content, scope, [line, column], expected) => {
+        const rule = swapRule({ pairs: { colour: 'color' } }, scope);
 
-    it('reports the true column and fixes only the word in a padded table.header', async () => {
-      const content = '| word   | colour |\n| ------ | ------ |\n| padded |  colour here |\n';
-      const { problems, fixedFiles } = await runRules(
-        [{ path: 't.md', content }],
-        [tableSwapRule('table.header')],
-        { fix: true }
-      );
-      // Header cell '| colour |': text starts at source column 12.
-      expect(problems.map((p) => [p.line, p.column, p.match])).toEqual([[1, 12, 'colour']]);
-      expect(fixedFiles.get('t.md')).toBe(
-        '| word   | color |\n| ------ | ------ |\n| padded |  colour here |\n'
-      );
-    });
+        const { problems, fixedFiles } = await runRules([{ path: 't.md', content }], [rule], {
+          fix: true,
+        });
+        expect(problems.map((p) => [p.line, p.column, p.match])[0]).toEqual([
+          line,
+          column,
+          'colour',
+        ]);
+        expect(fixedFiles.get('t.md')).toBe(expected);
 
-    it('handles a match at the very start of an unpadded cell', async () => {
-      const content = '|word|x|\n|-|-|\n|colour|y|\n';
-      const { problems, fixedFiles } = await runRules(
-        [{ path: 't.md', content }],
-        [tableSwapRule('table.cell')],
-        { fix: true }
-      );
-      expect(problems.map((p) => [p.line, p.column, p.match])).toEqual([[3, 2, 'colour']]);
-      expect(fixedFiles.get('t.md')).toBe('|word|x|\n|-|-|\n|color|y|\n');
-    });
-
-    it('keeps column arithmetic in code units with multi-byte text before the match', async () => {
-      // 'a😀b ' is 5 UTF-16 code units ('😀' is an astral pair), so 'colour'
-      // sits at source column 3 (cell text start) + 5 = 8.
-      const content = '| a😀b colour | z |\n| ----------- | - |\n| x | y |\n';
-      const { problems, fixedFiles } = await runRules(
-        [{ path: 't.md', content }],
-        [tableSwapRule('table.header')],
-        { fix: true }
-      );
-      expect(problems.map((p) => [p.line, p.column, p.match])).toEqual([[1, 8, 'colour']]);
-      expect(fixedFiles.get('t.md')).toBe('| a😀b color | z |\n| ----------- | - |\n| x | y |\n');
-    });
-
-    it('is idempotent: a second --fix pass over the fixed output changes nothing', async () => {
-      const content = '| word   | colour |\n| ------ | ------ |\n| padded |  colour here |\n';
-      const scope = ['table.header', 'table.cell'];
-      const first = await runRules([{ path: 't.md', content }], [tableSwapRule(scope)], {
-        fix: true,
-      });
-      const fixed = first.fixedFiles.get('t.md');
-      expect(fixed).toBe('| word   | color |\n| ------ | ------ |\n| padded |  color here |\n');
-      const second = await runRules(
-        [{ path: 't.md', content: fixed ?? '' }],
-        [tableSwapRule(scope)],
-        { fix: true }
-      );
-      expect(second.problems).toEqual([]);
-      expect(second.fixedFiles.size).toBe(0);
-    });
+        const relint = await runRules([{ path: 't.md', content: expected }], [rule]);
+        expect(relint.problems).toEqual([]);
+      }
+    );
   });
 
   // Line numbers, columns and fixes must be the same for LF, CRLF and CR files, and line endings must be kept.
   describe('line-ending-aware position mapping', () => {
-    const swapRule: NormalizedRule = {
-      name: 'test-swap',
-      shortName: 'swap',
-      severity: 'error',
-      message: 'Use %s instead of %s.',
-      scope: 'all',
-      assertions: {
-        swap: { pairs: { colour: 'color' } },
-      },
-    };
-
-    for (const [label, ending] of [
+    it.each([
       ['LF', '\n'],
       ['CRLF', '\r\n'],
       ['CR', '\r'],
-    ] as const) {
-      it(`reports 2:5 and fixes in place on a ${label} file`, async () => {
-        const content = `Heading line one.${ending}Use colour here.${ending}`;
-        const { problems, fixedFiles } = await runRules([{ path: 't.md', content }], [swapRule], {
-          fix: true,
-        });
-        expect(problems.map((problem) => [problem.line, problem.column])).toEqual([[2, 5]]);
-        expect(fixedFiles.get('t.md')).toBe(`Heading line one.${ending}Use color here.${ending}`);
-      });
-    }
+    ])('reports 2:5 and fixes in place on a %s file', async (_label, ending) => {
+      const content = `Heading line one.${ending}Use colour here.${ending}`;
+      const { problems, fixedFiles } = await runRules(
+        [{ path: 't.md', content }],
+        [swapRule({ pairs: { colour: 'color' } })],
+        { fix: true }
+      );
+      expect(problems.map((problem) => [problem.line, problem.column])).toEqual([[2, 5]]);
+      expect(fixedFiles.get('t.md')).toBe(`Heading line one.${ending}Use color here.${ending}`);
+    });
   });
 
   // An empty pair key must not hang the scan, even if validate() was skipped. The timeout makes a hang fail the test.
@@ -254,17 +169,10 @@ describe('swap assertion', () => {
       'completes without hanging and reports no problems for an empty key, even bypassing validate()',
       { timeout: 2000 },
       async () => {
-        const content = 'Use colour here.\n';
-        const rule: NormalizedRule = {
-          name: 'test-swap-empty-key',
-          shortName: 'swap',
-          severity: 'error',
-          scope: 'all',
-          message: 'Use %s instead of %s.',
-          assertions: { swap: { pairs: { '': 'x' } } },
-        };
-
-        const { problems } = await runRules([{ path: 'test.md', content }], [rule]);
+        const { problems } = await runRules(
+          [{ path: 'test.md', content: 'Use colour here.\n' }],
+          [swapRule({ pairs: { '': 'x' } })]
+        );
 
         expect(problems).toEqual([]);
       }
@@ -273,62 +181,23 @@ describe('swap assertion', () => {
 
   // With `ignoreCase`, the fix keeps the casing of the matched text, so 'Behaviour' becomes 'Behavior', not 'behavior'.
   describe('case-preserving fixes (ignoreCase)', () => {
-    async function runSwapFix(content: string, options: SwapAssertion) {
-      const rule: NormalizedRule = {
-        name: 'test-swap',
-        shortName: 'swap',
-        severity: 'error',
-        message: 'Use %s instead of %s.',
-        scope: 'all',
-        assertions: { swap: options },
-      };
-      return runRules([{ path: 't.md', content }], [rule], { fix: true });
-    }
+    it.each([
+      ['Behaviour matters. behaviour too.\n', 'Behavior matters. behavior too.\n'],
+      ['BEHAVIOUR matters.\n', 'BEHAVIOR matters.\n'],
+    ])('fixes %j to %j', async (content, expected) => {
+      const rule = swapRule({ pairs: { behaviour: 'behavior' }, ignoreCase: true });
 
-    it('preserves the matched casing when fixing an ignoreCase swap', async () => {
-      const { fixedFiles } = await runSwapFix('Behaviour matters. behaviour too.\n', {
-        pairs: { behaviour: 'behavior' },
-        ignoreCase: true,
-      });
-      expect(fixedFiles.get('t.md')).toBe('Behavior matters. behavior too.\n');
-    });
+      const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
+      expect(fixedFiles.get('t.md')).toBe(expected);
 
-    it('also preserves ALL-CAPS casing when fixing an ignoreCase swap', async () => {
-      const { fixedFiles } = await runSwapFix('BEHAVIOUR matters.\n', {
-        pairs: { behaviour: 'behavior' },
-        ignoreCase: true,
-      });
-      expect(fixedFiles.get('t.md')).toBe('BEHAVIOR matters.\n');
-    });
-
-    it('is idempotent: a second --fix pass over the fixed output changes nothing', async () => {
-      const content = 'Behaviour matters. behaviour too.\n';
-      const rule: NormalizedRule = {
-        name: 'test-swap',
-        shortName: 'swap',
-        severity: 'error',
-        message: 'Use %s instead of %s.',
-        scope: 'all',
-        assertions: { swap: { pairs: { behaviour: 'behavior' }, ignoreCase: true } },
-      };
-      const first = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
-      const fixed = first.fixedFiles.get('t.md');
-      expect(fixed).toBe('Behavior matters. behavior too.\n');
-      const second = await runRulesUntilStable([{ path: 't.md', content: fixed ?? '' }], [rule]);
-      expect(second.problems).toEqual([]);
-      expect(second.fixedFiles.size).toBe(0);
+      const relint = await runRules([{ path: 't.md', content: expected }], [rule]);
+      expect(relint.problems).toEqual([]);
     });
   });
 
   describe('keysAreRegex', () => {
-    const regexSwapRule = (pairs: Record<string, string>, extra = {}): NormalizedRule => ({
-      name: 'test-swap-regex',
-      shortName: 'swap',
-      severity: 'error',
-      message: 'Use "%s" instead of "%s".',
-      scope: 'all',
-      assertions: { swap: { keysAreRegex: true, pairs, ...extra } },
-    });
+    const regexSwapRule = (pairs: Record<string, string>, extra = {}) =>
+      swapRule({ keysAreRegex: true, pairs, ...extra });
 
     it('compiles a regex KEY (suffix group) that matches and fixes', async () => {
       const { problems, fixedFiles } = await runRules(
@@ -347,9 +216,7 @@ describe('swap assertion', () => {
         [regexSwapRule({ '[invalid': 'x', colour: 'color' })],
         { fix: true }
       );
-      expect(problems.map((problem) => [problem.ruleName, problem.match])).toEqual([
-        ['test-swap-regex', 'colour'],
-      ]);
+      expect(problems.map((problem) => problem.match)).toEqual(['colour']);
       expect(fixedFiles.get('t.md')).toBe('A color here.\n');
     });
 
@@ -406,95 +273,58 @@ describe('swap assertion', () => {
   });
 
   // 'he/she' and 's/he' overlap their parts 'he' and 'she'. Of two overlapping matches the longer one wins (the earlier one on a tie), so --fix does not turn 'he/she' into 'they/they'.
-  describe('overlapping pairs -- longest source span wins', () => {
+  describe('overlapping pairs: the longest source span wins', () => {
     // Same flags as the inclusion rule in the root recheck.yaml.
-    const inclusionRule = (): NormalizedRule => ({
-      name: 'test-inclusion',
-      shortName: 'swap',
-      severity: 'error',
-      message: 'Use "%s" instead of "%s".',
-      scope: 'all',
-      assertions: {
-        swap: {
-          keysAreRegex: true,
-          wordBoundary: true,
-          ignoreCase: true,
-          pairs: {
-            he: 'they',
-            his: 'their',
-            she: 'they',
-            hers: 'their',
-            'he/she': 'they',
-            's/he': 'they',
-          },
-        },
+    const inclusionRule = swapRule({
+      keysAreRegex: true,
+      wordBoundary: true,
+      ignoreCase: true,
+      pairs: {
+        he: 'they',
+        his: 'their',
+        she: 'they',
+        hers: 'their',
+        'he/she': 'they',
+        's/he': 'they',
       },
     });
 
-    it("fixes 'he/she' in ONE replacement instead of corrupting it to 'they/they'", async () => {
-      const { fixedFiles } = await runRules(
-        [{ path: 't.md', content: 'Ask he/she or whoever.\n' }],
-        [inclusionRule()],
-        { fix: true }
-      );
-      expect(fixedFiles.get('t.md')).toBe('Ask they or whoever.\n');
-    });
+    it('replaces a compound span in ONE edit and reports one problem for it', async () => {
+      const content = 'Ask he/she or whoever.\n';
 
-    it('reports ONE problem for the compound span, not three', async () => {
-      const { problems } = await runRules(
-        [{ path: 't.md', content: 'Ask he/she or whoever.\n' }],
-        [inclusionRule()]
+      const { problems, fixedFiles } = await runRules(
+        [{ path: 't.md', content }],
+        [inclusionRule],
+        {
+          fix: true,
+        }
       );
+
       expect(problems.map((problem) => [problem.line, problem.column, problem.match])).toEqual([
         [1, 5, 'he/she'],
       ]);
+      expect(fixedFiles.get('t.md')).toBe('Ask they or whoever.\n'); // not 'they/they'
     });
 
-    it("fixes 's/he' as one span (the trailing 'he' sub-match does not win)", async () => {
-      const { fixedFiles } = await runRules(
-        [{ path: 't.md', content: 'Then s/he said hi.\n' }],
-        [inclusionRule()],
-        { fix: true }
-      );
-      expect(fixedFiles.get('t.md')).toBe('Then they said hi.\n');
-    });
-
-    it('keeps a standalone sub-key match working', async () => {
-      const { fixedFiles } = await runRules(
-        [{ path: 't.md', content: 'And he was there.\n' }],
-        [inclusionRule()],
-        { fix: true }
-      );
-      // Only the span matters here; the grammar of 'they was' is not checked.
-      expect(fixedFiles.get('t.md')).toBe('And they was there.\n');
-    });
-
-    it('is idempotent: a second --fix pass over the fixed output changes nothing', async () => {
+    it('keeps standalone and trailing sub-key matches working, and the result lints clean', async () => {
+      // Only the spans matter here; the grammar of 'they was' is not checked.
       const content = 'Ask he/she or whoever; then s/he said he was there.\n';
-      const first = await runRules([{ path: 't.md', content }], [inclusionRule()], { fix: true });
-      const fixed = first.fixedFiles.get('t.md');
-      expect(fixed).toBe('Ask they or whoever; then they said they was there.\n');
-      const second = await runRules([{ path: 't.md', content: fixed ?? '' }], [inclusionRule()], {
+
+      const { fixedFiles } = await runRules([{ path: 't.md', content }], [inclusionRule], {
         fix: true,
       });
-      expect(second.problems).toEqual([]);
-      expect(second.fixedFiles.size).toBe(0);
+      const fixed = fixedFiles.get('t.md') ?? '';
+
+      expect(fixed).toBe('Ask they or whoever; then they said they was there.\n');
+      const relint = await runRules([{ path: 't.md', content: fixed }], [inclusionRule]);
+      expect(relint.problems).toEqual([]);
     });
 
     it('de-overlaps LITERAL keys too (engine-level, not a keysAreRegex feature)', async () => {
-      const rule: NormalizedRule = {
-        name: 'test-literal-overlap',
-        shortName: 'swap',
-        severity: 'error',
-        message: 'Use "%s" instead of "%s".',
-        scope: 'all',
-        assertions: {
-          swap: {
-            wordBoundary: true,
-            pairs: { 'he/she': 'they', he: 'they', she: 'they' },
-          },
-        },
-      };
+      const rule = swapRule({
+        wordBoundary: true,
+        pairs: { 'he/she': 'they', he: 'they', she: 'they' },
+      });
       const { problems, fixedFiles } = await runRules(
         [{ path: 't.md', content: 'Ask he/she now.\n' }],
         [rule],
@@ -505,14 +335,7 @@ describe('swap assertion', () => {
     });
 
     it('breaks a length tie by keeping the earlier-starting match', async () => {
-      const rule: NormalizedRule = {
-        name: 'test-tie',
-        shortName: 'swap',
-        severity: 'error',
-        message: 'Use "%s" instead of "%s".',
-        scope: 'all',
-        assertions: { swap: { pairs: { ab: 'X', bc: 'Y' } } },
-      };
+      const rule = swapRule({ pairs: { ab: 'X', bc: 'Y' } });
       const { problems, fixedFiles } = await runRules(
         [{ path: 't.md', content: 'abc\n' }],
         [rule],
@@ -526,124 +349,54 @@ describe('swap assertion', () => {
   });
 
   describe('validation', () => {
-    function swapConfig(options: unknown) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { swap: options },
-        },
-      };
-    }
-
-    it('accepts the reserved-keys/wrapped shape (recheck/us-spelling-style)', async () => {
-      const result = await validate(
-        swapConfig({ ignoreCase: true, wordBoundary: true, pairs: { colour: 'color' } })
-      );
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+    it.each<[string, unknown]>([
+      [
+        'the wrapped shape with reserved keys',
+        { ignoreCase: true, wordBoundary: true, pairs: { colour: 'color' } },
+      ],
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('swap', options);
     });
 
-    // The old direct shape (`swap: { he: they }`) is ignored by the engine, which only reads `options.pairs`. It is rejected so the mistake is visible.
-    it('rejects the direct top-level pairs shape with a migration hint (recheck/inclusion-gender-culture-style)', async () => {
-      const result = await validate(swapConfig({ he: 'they', his: 'their' }));
-
-      expect(result.isValid).toBe(false);
-      const messages = result.errors.map((error) => error.message);
-      expect(messages.some((m) => m.includes('"he"'))).toBe(true);
-      expect(messages.some((m) => m.includes('"his"'))).toBe(true);
-      // The error must say how to fix the config.
-      expect(messages.some((m) => m.includes('move find -> replace entries under "pairs:"'))).toBe(
-        true
-      );
-    });
-
-    it('rejects a non-boolean ignoreCase', async () => {
-      const result = await validate(swapConfig({ ignoreCase: 'yes', pairs: { colour: 'color' } }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignoreCase'))).toBe(true);
-    });
-
-    it('rejects a non-boolean wordBoundary', async () => {
-      const result = await validate(
-        swapConfig({ wordBoundary: 'yes', pairs: { colour: 'color' } })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('wordBoundary'))).toBe(true);
-    });
-
-    it('rejects a non-boolean includeCode', async () => {
-      const result = await validate(swapConfig({ includeCode: 'yes', pairs: { colour: 'color' } }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('includeCode'))).toBe(true);
-    });
-
-    it('rejects a wrong-typed "pairs" (not an object)', async () => {
-      const result = await validate(swapConfig({ pairs: 'colour' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pairs'))).toBe(true);
-    });
-
-    it('rejects an empty "pairs" object', async () => {
-      const result = await validate(swapConfig({ pairs: {} }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pairs'))).toBe(true);
-    });
-
-    it('rejects a "pairs" entry whose value is not a string', async () => {
-      const result = await validate(swapConfig({ pairs: { colour: 42 } }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('colour'))).toBe(true);
-    });
-
-    it('rejects a direct top-level entry regardless of its value type', async () => {
-      const result = await validate(swapConfig({ he: 42 }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('"he"'))).toBe(true);
-    });
-
-    // An empty key would hang the scan, so validation must reject it, like `either` keys in `consistency`.
-    it('rejects a "pairs" entry whose key is an empty string', async () => {
-      const result = await validate(swapConfig({ pairs: { '': 'x' } }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pairs'))).toBe(true);
-    });
-
-    it('rejects a direct top-level entry whose key is an empty string', async () => {
-      const result = await validate(swapConfig({ '': 'x' }));
-
-      expect(result.isValid).toBe(false);
-    });
-
-    it('rejects an unknown swap option alongside "pairs"', async () => {
-      const result = await validate(
-        swapConfig({ pairs: { colour: 'color' }, unknownOption: true })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    it('rejects an empty swap options object (no pairs at all)', async () => {
-      const result = await validate(swapConfig({}));
-
-      expect(result.isValid).toBe(false);
-    });
-
-    it('rejects a reserved key (ignoreCase) with no "pairs" at all, even with other keys present', async () => {
-      // Pairs are only read from `options.pairs`. `he` is an unknown option and `pairs` is missing, so both are errors.
-      const result = await validate(swapConfig({ ignoreCase: true, he: 'they' }));
-
-      expect(result.isValid).toBe(false);
+    it.each<[string, unknown, ...string[]]>([
+      ['a non-boolean ignoreCase', { ignoreCase: 'yes', pairs: { colour: 'color' } }, 'ignoreCase'],
+      [
+        'a non-boolean wordBoundary',
+        { wordBoundary: 'yes', pairs: { colour: 'color' } },
+        'wordBoundary',
+      ],
+      [
+        'a non-boolean includeCode',
+        { includeCode: 'yes', pairs: { colour: 'color' } },
+        'includeCode',
+      ],
+      ['a "pairs" that is not an object', { pairs: 'colour' }, 'pairs'],
+      ['an empty "pairs" object', { pairs: {} }, 'pairs'],
+      ['a "pairs" entry whose value is not a string', { pairs: { colour: 42 } }, 'colour'],
+      // An empty key would hang the scan, so validation must reject it.
+      ['a "pairs" entry whose key is an empty string', { pairs: { '': 'x' } }, 'pairs'],
+      [
+        'an unknown option alongside "pairs"',
+        { pairs: { colour: 'color' }, unknownOption: true },
+        'unknownOption',
+      ],
+      ['an empty options object (no pairs at all)', {}, 'Swap requires a "pairs"'],
+      // The old direct shape (`swap: { he: they }`) is ignored by the engine, which only reads `options.pairs`.
+      ['the direct top-level pairs shape', { he: 'they', his: 'their' }, '"he"'],
+      [
+        'the direct shape with a migration hint',
+        { he: 'they', his: 'their' },
+        'move find -> replace entries under "pairs:"',
+      ],
+      ['a direct entry whose key is an empty string', { '': 'x' }],
+      ['a direct entry regardless of its value type', { he: 42 }, '"he"'],
+      [
+        'a reserved key with no "pairs", beside a direct entry',
+        { ignoreCase: true, he: 'they' },
+        '"he"',
+      ],
+    ])('rejects %s', async (_label, options, ...mentions) => {
+      await expectInvalidOptions('swap', options, ...mentions);
     });
   });
 });

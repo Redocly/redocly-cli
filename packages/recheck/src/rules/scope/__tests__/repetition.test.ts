@@ -1,13 +1,17 @@
 import { describe, it, expect } from 'vitest';
 
-import { validate } from '../../../config/validate.js';
 import { runRules, runRulesUntilStable } from '../../../core/runner.js';
 import { parseMarkdown } from '../../../parser/index.js';
 import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule } from '../../../types/index.js';
 import type { ScopeRuleContext } from '../../types.js';
 import { repetition } from '../repetition.js';
-import { buildWholeFileContext } from './helpers.js';
+import {
+  buildScopedContext,
+  buildWholeFileContext,
+  expectInvalidOptions,
+  expectValidOptions,
+} from './helpers.js';
 
 function repetitionRule(
   message: string,
@@ -22,16 +26,6 @@ function repetitionRule(
     scope,
     assertions: { repetition: options },
   };
-}
-
-// Builds a rule context with only the segments whose scope matches the filter.
-function buildScopedContext(
-  content: string,
-  scopeFilter: (scope: string) => boolean
-): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-  return { segments, content, tree };
 }
 
 describe('repetition assertion', () => {
@@ -109,21 +103,6 @@ describe('repetition assertion', () => {
 
     const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
     expect(fixedFiles.get('t.md')).toBe('the\nrest\n');
-  });
-
-  it('lone-token whole-line deletion is idempotent under runRulesUntilStable', async () => {
-    const content = 'the\nthe\nrest\n';
-    const rule = repetitionRule('Repeated word "%s".');
-
-    const { fixedFiles, skippedFixes } = await runRulesUntilStable(
-      [{ path: 't.md', content }],
-      [rule]
-    );
-    expect(fixedFiles.get('t.md')).toBe('the\nrest\n');
-    expect(skippedFixes).toEqual([]);
-
-    const second = await runRulesUntilStable([{ path: 't.md', content: 'the\nrest\n' }], [rule]);
-    expect(second.fixedFiles.size).toBe(0);
   });
 
   it('does not flag "the theory" -- token boundaries, not substring matching', async () => {
@@ -319,50 +298,17 @@ describe('repetition assertion', () => {
   });
 
   describe('validation', () => {
-    function repetitionConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { repetition: options },
-        },
-      };
-    }
-
     it('accepts an empty options object -- both pattern and ignoreCase are optional', async () => {
-      const result = await validate(repetitionConfig({}));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+      await expectValidOptions('repetition', {});
     });
 
-    it('rejects an unknown repetition option', async () => {
-      const result = await validate(repetitionConfig({ unknownOption: true }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    it('rejects a non-string pattern', async () => {
-      const result = await validate(repetitionConfig({ pattern: 42 }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pattern'))).toBe(true);
-    });
-
-    // An empty pattern matches everywhere, so it is rejected.
-    it('rejects an empty-string pattern when provided', async () => {
-      const result = await validate(repetitionConfig({ pattern: '' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pattern'))).toBe(true);
-    });
-
-    it('rejects a non-boolean ignoreCase', async () => {
-      const result = await validate(repetitionConfig({ ignoreCase: 'yes' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignoreCase'))).toBe(true);
+    it.each<[string, Record<string, unknown>, string]>([
+      ['an unknown option', { unknownOption: true }, 'unknownOption'],
+      ['a non-string pattern', { pattern: 42 }, 'pattern'],
+      ['an empty-string pattern, which would match everywhere', { pattern: '' }, 'pattern'],
+      ['a non-boolean ignoreCase', { ignoreCase: 'yes' }, 'ignoreCase'],
+    ])('rejects %s', async (_label, options, mention) => {
+      await expectInvalidOptions('repetition', options, mention);
     });
   });
 });

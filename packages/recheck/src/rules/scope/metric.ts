@@ -1,11 +1,8 @@
-import { extractProse, stripNonProse } from '../../core/prose-extract.js';
+import { extractProse } from '../../core/prose-extract.js';
 import { computeTextStatistics, computeReadability } from '../../metrics/index.js';
 import type { NormalizedRule, Problem, MetricAssertion } from '../../types/index.js';
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
-
-// Re-exported for the tests; the code lives in core/prose-extract.ts.
-export { stripNonProse };
 
 const FALLBACK_MESSAGE = 'Readability (%s) is %s; expected between %s and %s.';
 

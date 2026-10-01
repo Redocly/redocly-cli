@@ -1,26 +1,24 @@
 import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
+import { stripNonProse } from '../../../core/prose-extract.js';
 import { runRules } from '../../../core/runner.js';
 import { computeTextStatistics, computeReadability } from '../../../metrics/index.js';
 import { parseMarkdown } from '../../../parser/index.js';
 import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule, MetricAssertion } from '../../../types/index.js';
 import type { ScopeRuleContext } from '../../types.js';
-import { metric, stripNonProse } from '../metric.js';
+import { metric } from '../metric.js';
+import { buildScopedContext, expectInvalidOptions, expectValidOptions } from './helpers.js';
 
 // `metric` uses `ctx.segments`, and the runner gives it the `summary` segments (the prose). Tests that call execute() directly must build a context with those segments.
 function buildMetricContext(content: string): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => segment.scope === 'summary');
-  return { segments, content, tree };
+  return buildScopedContext(content, (scope) => scope === 'summary');
 }
 
 // Same, but parses Markdoc tags so segments know their masked ranges.
 function buildMarkdocMetricContext(content: string): ScopeRuleContext {
-  const tree = parseMarkdown(content, { markdoc: true });
-  const segments = extractScopes(tree, content).filter((segment) => segment.scope === 'summary');
-  return { segments, content, tree };
+  return buildScopedContext(content, (scope) => scope === 'summary', { markdoc: true });
 }
 
 function metricRule(
@@ -467,146 +465,68 @@ describe('metric assertion', () => {
   });
 
   describe('stripNonProse', () => {
-    it('removes a Markdoc tag-marker span, keeping surrounding prose', () => {
-      expect(stripNonProse('{% admonition type="info" %}Some text{% /admonition %}')).toBe(
-        'Some text'
-      );
-    });
-
-    it('removes each of two tag markers independently, keeping the prose between them', () => {
-      expect(stripNonProse('{% tag %}\ntext\n{% /tag %}')).toBe('\ntext\n');
-    });
-
-    it('removes the whitespace-trim tag variant ({%- ... -%})', () => {
-      expect(stripNonProse('{%- foo -%}bar')).toBe('bar');
-    });
-
-    it('leaves a tag-marker-only string empty', () => {
-      expect(stripNonProse('{% admonition type="info" %}')).toBe('');
-    });
-
-    it('removes a single-backtick inline code span, dropping its content', () => {
-      expect(stripNonProse('a `code` b')).toBe('a  b');
-    });
-
-    it('removes a multi-backtick-delimited inline code span (no embedded backtick)', () => {
-      expect(stripNonProse('Say ``like this`` please.')).toBe('Say  please.');
-    });
-
-    // ``code ` x`` is one span with a single backtick inside. The closing run must have the same length as the opening run.
-    it('removes a multi-backtick span whose content itself contains a literal backtick', () => {
-      expect(stripNonProse('a ``code ` x`` b')).toBe('a  b');
-    });
-
-    it('leaves plain prose with no markup untouched', () => {
-      expect(stripNonProse('Plain prose, nothing to strip.')).toBe(
-        'Plain prose, nothing to strip.'
-      );
+    it.each([
+      [
+        'a Markdoc tag-marker span, keeping surrounding prose',
+        '{% admonition type="info" %}Some text{% /admonition %}',
+        'Some text',
+      ],
+      ['each of two tag markers independently', '{% tag %}\ntext\n{% /tag %}', '\ntext\n'],
+      ['the whitespace-trim tag variant', '{%- foo -%}bar', 'bar'],
+      ['a tag-marker-only string, leaving it empty', '{% admonition type="info" %}', ''],
+      ['a single-backtick inline code span, dropping its content', 'a `code` b', 'a  b'],
+      ['a multi-backtick inline code span', 'Say ``like this`` please.', 'Say  please.'],
+      // ``code ` x`` is one span with a single backtick inside. The closing run must have the same length as the opening run.
+      ['a multi-backtick span containing a literal backtick', 'a ``code ` x`` b', 'a  b'],
+      [
+        'nothing from plain prose',
+        'Plain prose, nothing to strip.',
+        'Plain prose, nothing to strip.',
+      ],
+    ])('removes %s', (_label, text, expected) => {
+      expect(stripNonProse(text)).toBe(expected);
     });
   });
 
   describe('config validation', () => {
-    function metricConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error' as const,
-          message: 'Test message',
-          assertions: { metric: options },
-        },
-      };
-    }
-
-    it('errors when formula is missing', async () => {
-      const result = await validate(metricConfig({ min: 1 }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('formula'))).toBe(true);
-    });
-
-    it('errors when formula is not one of the six recognized values', async () => {
-      const result = await validate(metricConfig({ formula: 'bogus-formula', min: 1 }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('formula'))).toBe(true);
-    });
-
-    it('accepts every one of the six recognized formula values', async () => {
-      const formulas = [
+    it.each<[string, Record<string, unknown>]>([
+      ['only min', { formula: 'flesch-reading-ease', min: 30 }],
+      ['only max', { formula: 'flesch-reading-ease', max: 30 }],
+      ['min === max (an exact-score bound)', { formula: 'flesch-reading-ease', min: 30, max: 30 }],
+      ...[
         'flesch-reading-ease',
         'flesch-kincaid-grade',
         'gunning-fog',
         'smog',
         'coleman-liau',
         'automated-readability',
-      ];
-      for (const formula of formulas) {
-        const result = await validate(metricConfig({ formula, min: 1 }));
-        expect(result.errors).toEqual([]);
-        expect(result.isValid).toBe(true);
-      }
+      ].map((formula): [string, Record<string, unknown>] => [
+        `formula ${formula}`,
+        { formula, min: 1 },
+      ]),
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('metric', options);
     });
 
-    it('errors when neither min nor max is set, mentioning min/max', async () => {
-      const result = await validate(metricConfig({ formula: 'flesch-reading-ease' }));
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('min') && error.message.includes('max')
-        )
-      ).toBe(true);
-    });
-
-    it('accepts metric with only min set', async () => {
-      const result = await validate(metricConfig({ formula: 'flesch-reading-ease', min: 30 }));
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('accepts metric with only max set', async () => {
-      const result = await validate(metricConfig({ formula: 'flesch-reading-ease', max: 30 }));
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('rejects an unknown metric option', async () => {
-      const result = await validate(
-        metricConfig({ formula: 'flesch-reading-ease', min: 30, unknownOption: true })
-      );
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    it('errors when min is not a number', async () => {
-      const result = await validate(metricConfig({ formula: 'flesch-reading-ease', min: '30' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('min'))).toBe(true);
-    });
-
-    it('errors when max is not a number', async () => {
-      const result = await validate(metricConfig({ formula: 'flesch-reading-ease', max: '30' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('max'))).toBe(true);
-    });
-
-    // An inverted range (min > max) flags every file, so it is rejected.
-    describe('validation rejects metric with min > max', () => {
-      it('errors when min exceeds max, mentioning both bounds', async () => {
-        const result = await validate(
-          metricConfig({ formula: 'flesch-reading-ease', min: 60, max: 30 })
-        );
-        expect(result.isValid).toBe(false);
-        expect(
-          result.errors.some(
-            (error) => error.message.includes('min') && error.message.includes('max')
-          )
-        ).toBe(true);
-      });
-
-      it('still accepts min === max (an exact-score bound)', async () => {
-        const result = await validate(
-          metricConfig({ formula: 'flesch-reading-ease', min: 30, max: 30 })
-        );
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toEqual([]);
-      });
+    it.each<[string, Record<string, unknown>, ...string[]]>([
+      ['a missing formula', { min: 1 }, 'formula'],
+      [
+        'a formula outside the six recognized values',
+        { formula: 'bogus-formula', min: 1 },
+        'formula',
+      ],
+      ['neither min nor max', { formula: 'flesch-reading-ease' }, 'min', 'max'],
+      [
+        'an unknown option',
+        { formula: 'flesch-reading-ease', min: 30, unknownOption: true },
+        'unknownOption',
+      ],
+      ['a non-number min', { formula: 'flesch-reading-ease', min: '30' }, 'min'],
+      ['a non-number max', { formula: 'flesch-reading-ease', max: '30' }, 'max'],
+      // An inverted range flags every file.
+      ['min greater than max', { formula: 'flesch-reading-ease', min: 60, max: 30 }, 'min', 'max'],
+    ])('rejects %s', async (_label, options, ...mentions) => {
+      await expectInvalidOptions('metric', options, ...mentions);
     });
   });
 });

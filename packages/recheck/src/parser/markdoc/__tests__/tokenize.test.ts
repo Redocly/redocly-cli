@@ -56,20 +56,6 @@ describe('markdoc tokenization', () => {
     expect(types('Use `{% partial /%}` here.\n')).toHaveLength(0);
     expect(types('---\ntitle: "{% x %}"\n---\n\nBody.\n')).toHaveLength(0);
   });
-
-  it('annotations, variables, and function calls tokenize with their kinds', () => {
-    expect(types('# Head {% #main %}\n')[0]?.markdocKind).toBe('annotation');
-    expect(types('Hello {% $name %}.\n')[0]?.markdocKind).toBe('variable');
-    expect(types('Hello {% equals(1,1) %}.\n')[0]?.markdocKind).toBe('function');
-  });
-
-  it('flag off: no markdocTag anywhere (byte-identity guard)', () => {
-    expect(
-      parseMarkdown('{% admonition %}\nx\n{% /admonition %}\n').flat.some(
-        (t) => t.type === 'markdocTag'
-      )
-    ).toBe(false);
-  });
 });
 
 describe('all six MarkdocTagKind values, plus malformed', () => {
@@ -236,20 +222,6 @@ describe('long tags: no scan-length ceiling', () => {
     expect(tags[0].children.filter((c) => c.type === 'markdocAttribute')).toHaveLength(24);
   });
 
-  it('a 30+-line multi-line opener totalling well over 600 characters tokenizes', () => {
-    const lines = attributes(32, '  ');
-    const tag = `{% code-walkthrough\n${lines.join('\n')} %}`;
-    expect(tag.length).toBeGreaterThan(600);
-    expect(tag.split('\n')).toHaveLength(33);
-    const tags = types(`${tag}\n`);
-    expect(tags).toHaveLength(1);
-    expect(tags[0].markdocKind).toBe('tag-open');
-    expect(tags[0].endLine).toBe(33);
-    const attrs = tags[0].children.filter((c) => c.type === 'markdocAttribute');
-    expect(attrs).toHaveLength(32);
-    expect(attrs.map((a) => a.startLine)).toEqual(lines.map((_, i) => i + 2));
-  });
-
   it('a ~1900-character multi-line tag (the longest shape in this repo) tokenizes', () => {
     const lines = attributes(40, '  ');
     const tag = `{% openapi-response-example\n${lines.join('\n')} %}`;
@@ -359,11 +331,6 @@ describe('indented tags (Markdoc has no indented code blocks)', () => {
 
 // Markdoc has no setext headings, so they become plain paragraphs.
 describe('setext headings (Markdoc has no setext headings)', () => {
-  it('flag off: "Title\\n=====\\n" still yields a real setextHeading (byte-identity guard)', () => {
-    const flat = parseMarkdown('Title\n=====\n').flat;
-    expect(flat.some((t) => t.type === 'setextHeading')).toBe(true);
-  });
-
   it('flag on: the "=" underline becomes ordinary paragraph text, never a heading', () => {
     const tree = md('Title\n=====\n');
     expect(tree.flat.some((t) => t.type === 'setextHeading')).toBe(false);

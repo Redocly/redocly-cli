@@ -1,21 +1,9 @@
 import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
-import { parseMarkdown } from '../../../parser/index.js';
-import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule, LengthAssertion } from '../../../types/index.js';
-import type { ScopeRuleContext } from '../../types.js';
 import { length } from '../length.js';
-
-// Builds a rule context with only the segments whose scope matches the filter.
-function buildScopedContext(
-  content: string,
-  scopeFilter: (scope: string) => boolean
-): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-  return { segments, content, tree };
-}
+import { buildScopedContext, expectInvalidOptions, expectValidOptions } from './helpers.js';
 
 function lengthRule(
   message: string | undefined,
@@ -134,14 +122,8 @@ describe('length assertion', () => {
   });
 
   // Same as buildScopedContext, but parses Markdoc tags so segments know their masked ranges.
-  function buildMarkdocContext(
-    content: string,
-    scopeFilter: (scope: string) => boolean
-  ): ScopeRuleContext {
-    const tree = parseMarkdown(content, { markdoc: true });
-    const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-    return { segments, content, tree };
-  }
+  const buildMarkdocContext = (content: string, scopeFilter: (scope: string) => boolean) =>
+    buildScopedContext(content, scopeFilter, { markdoc: true });
 
   describe('markdoc masking (flag on): `characters` excludes the masked tag span', () => {
     // A masked tag is replaced by spaces of the same width, so `content.length` would count it: 36 characters instead of the 10 a reader sees.
@@ -234,141 +216,35 @@ describe('length assertion', () => {
   });
 
   describe('validation', () => {
-    function lengthConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error' as const,
-          message: 'Test message',
-          assertions: { length: options },
-        },
-      };
-    }
-
-    it('errors when unit is missing, mentioning unit', async () => {
-      const result = await validate(lengthConfig({ max: 150 }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unit'))).toBe(true);
+    it.each<[string, Record<string, unknown>]>([
+      ['unit characters', { unit: 'characters', max: 150 }],
+      ['unit words', { unit: 'words', max: 150 }],
+      ['unit sentences', { unit: 'sentences', max: 150 }],
+      ['only min', { unit: 'words', min: 2 }],
+      ['only max', { unit: 'words', max: 10 }],
+      ['min === max (an exact-size requirement)', { unit: 'words', min: 5, max: 5 }],
+      // `max: 0` is a meaningful "must be empty" bound, unlike a negative max.
+      ['max: 0 alone', { unit: 'characters', max: 0 }],
+      ['a positive integer min and a non-negative integer max', { unit: 'words', min: 1, max: 10 }],
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('length', options);
     });
 
-    it('errors when unit is not one of the three literals', async () => {
-      const result = await validate(lengthConfig({ unit: 'paragraphs', max: 150 }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unit'))).toBe(true);
-    });
-
-    it('accepts each of the three unit values', async () => {
-      for (const unit of ['characters', 'words', 'sentences']) {
-        const result = await validate(lengthConfig({ unit, max: 150 }));
-        expect(result.errors).toEqual([]);
-        expect(result.isValid).toBe(true);
-      }
-    });
-
-    it('errors when neither min nor max is set, mentioning min/max', async () => {
-      const result = await validate(lengthConfig({ unit: 'characters' }));
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('min') && error.message.includes('max')
-        )
-      ).toBe(true);
-    });
-
-    it('accepts length with only min set', async () => {
-      const result = await validate(lengthConfig({ unit: 'words', min: 2 }));
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('accepts length with only max set', async () => {
-      const result = await validate(lengthConfig({ unit: 'words', max: 10 }));
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('rejects an unknown length option', async () => {
-      const result = await validate(
-        lengthConfig({ unit: 'characters', max: 150, unknownOption: true })
-      );
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    it('errors when min is not a number', async () => {
-      const result = await validate(lengthConfig({ unit: 'words', min: '2' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('min'))).toBe(true);
-    });
-
-    it('errors when max is not a number', async () => {
-      const result = await validate(lengthConfig({ unit: 'words', max: '10' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('max'))).toBe(true);
-    });
-
-    describe('validation rejects length with min > max', () => {
-      it('errors when min exceeds max, mentioning both bounds', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', min: 10, max: 2 }));
-        expect(result.isValid).toBe(false);
-        expect(
-          result.errors.some(
-            (error) => error.message.includes('min') && error.message.includes('max')
-          )
-        ).toBe(true);
-      });
-
-      it('still accepts min === max (an exact-size requirement)', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', min: 5, max: 5 }));
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toEqual([]);
-      });
-    });
-
-    // `min: 0` can never be violated and a negative `max` is always violated, so both are rejected.
-    describe('validation rejects a non-positive min, a negative max, and non-integer bounds', () => {
-      it('rejects min: 0 (can never be violated by a real segment)', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', min: 0 }));
-        expect(result.isValid).toBe(false);
-        expect(
-          result.errors.some(
-            (error) => error.message.includes('min') && error.message.includes('positive')
-          )
-        ).toBe(true);
-      });
-
-      it('rejects a negative max (always violated by every real segment)', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', max: -1 }));
-        expect(result.isValid).toBe(false);
-        expect(
-          result.errors.some(
-            (error) => error.message.includes('max') && error.message.includes('non-negative')
-          )
-        ).toBe(true);
-      });
-
-      it('rejects a non-integer min', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', min: 2.5 }));
-        expect(result.isValid).toBe(false);
-        expect(result.errors.some((error) => error.message.includes('min'))).toBe(true);
-      });
-
-      it('rejects a non-integer max', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', max: 10.5 }));
-        expect(result.isValid).toBe(false);
-        expect(result.errors.some((error) => error.message.includes('max'))).toBe(true);
-      });
-
-      it('still accepts max: 0 alone (a real, meaningful "must be empty" bound, unlike a negative max)', async () => {
-        const result = await validate(lengthConfig({ unit: 'characters', max: 0 }));
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toEqual([]);
-      });
-
-      it('still accepts a positive integer min and a non-negative integer max', async () => {
-        const result = await validate(lengthConfig({ unit: 'words', min: 1, max: 10 }));
-        expect(result.isValid).toBe(true);
-        expect(result.errors).toEqual([]);
-      });
+    it.each<[string, Record<string, unknown>, ...string[]]>([
+      ['a missing unit', { max: 150 }, 'unit'],
+      ['a unit outside the three literals', { unit: 'paragraphs', max: 150 }, 'unit'],
+      ['neither min nor max', { unit: 'characters' }, 'min', 'max'],
+      ['an unknown option', { unit: 'characters', max: 150, unknownOption: true }, 'unknownOption'],
+      ['a non-number min', { unit: 'words', min: '2' }, 'min'],
+      ['a non-number max', { unit: 'words', max: '10' }, 'max'],
+      ['min greater than max', { unit: 'words', min: 10, max: 2 }, 'min', 'max'],
+      // `min: 0` can never be violated and a negative `max` is always violated.
+      ['min: 0', { unit: 'words', min: 0 }, 'min', 'positive'],
+      ['a negative max', { unit: 'words', max: -1 }, 'max', 'non-negative'],
+      ['a non-integer min', { unit: 'words', min: 2.5 }, 'min'],
+      ['a non-integer max', { unit: 'words', max: 10.5 }, 'max'],
+    ])('rejects %s', async (_label, options, ...mentions) => {
+      await expectInvalidOptions('length', options, ...mentions);
     });
   });
 

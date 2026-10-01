@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
 
-import { validate } from '../../../config/validate.js';
 import { runRules } from '../../../core/runner.js';
-import { parseMarkdown } from '../../../parser/index.js';
-import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule } from '../../../types/index.js';
-import type { ScopeRuleContext } from '../../types.js';
 import { conditional } from '../conditional.js';
-import { buildWholeFileContext } from './helpers.js';
+import {
+  buildScopedContext,
+  buildWholeFileContext,
+  expectInvalidOptions,
+  expectValidOptions,
+} from './helpers.js';
 
 function conditionalRule(
   message: string | undefined,
@@ -22,17 +23,6 @@ function conditionalRule(
     scope,
     assertions: { conditional: options },
   };
-}
-
-// Builds a rule context with only the segments whose scope matches the filter.
-// `content` is still the whole file.
-function buildScopedContext(
-  content: string,
-  scopeFilter: (scope: string) => boolean
-): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-  return { segments, content, tree };
 }
 
 const MESSAGE = '"%s" appears but "%s" was never introduced.';
@@ -258,90 +248,29 @@ describe('conditional assertion', () => {
   });
 
   describe('validation', () => {
-    function conditionalConfig(options: unknown) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { conditional: options },
-        },
-      };
-    }
-
     it('accepts a well-formed config', async () => {
-      const result = await validate(
-        conditionalConfig({ first: 'TODO', second: 'DONE', ignoreCase: true })
-      );
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+      await expectValidOptions('conditional', { first: 'TODO', second: 'DONE', ignoreCase: true });
     });
 
-    it('rejects a config missing "first"', async () => {
-      const result = await validate(conditionalConfig({ second: 'DONE' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('first'))).toBe(true);
-    });
-
-    it('rejects a config missing "second"', async () => {
-      const result = await validate(conditionalConfig({ first: 'TODO' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('second'))).toBe(true);
-    });
-
-    it('rejects an empty string "first"', async () => {
-      const result = await validate(conditionalConfig({ first: '', second: 'DONE' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('first'))).toBe(true);
-    });
-
-    it('rejects an empty string "second"', async () => {
-      const result = await validate(conditionalConfig({ first: 'TODO', second: '' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('second'))).toBe(true);
-    });
-
-    it('rejects a non-string "first"', async () => {
-      const result = await validate(conditionalConfig({ first: 42, second: 'DONE' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('first'))).toBe(true);
-    });
-
-    it('rejects a non-string "second"', async () => {
-      const result = await validate(conditionalConfig({ first: 'TODO', second: 42 }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('second'))).toBe(true);
-    });
-
-    it('rejects a config missing both "first" and "second"', async () => {
-      const result = await validate(conditionalConfig({}));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.length).toBeGreaterThanOrEqual(2);
-    });
-
-    it('rejects an unknown conditional option', async () => {
-      const result = await validate(
-        conditionalConfig({ first: 'TODO', second: 'DONE', unknownOption: true })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    it('rejects a non-boolean ignoreCase', async () => {
-      const result = await validate(
-        conditionalConfig({ first: 'TODO', second: 'DONE', ignoreCase: 'yes' })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignoreCase'))).toBe(true);
+    it.each<[string, unknown, string]>([
+      ['a config missing "first"', { second: 'DONE' }, 'first'],
+      ['a config missing "second"', { first: 'TODO' }, 'second'],
+      ['an empty string "first"', { first: '', second: 'DONE' }, 'first'],
+      ['an empty string "second"', { first: 'TODO', second: '' }, 'second'],
+      ['a non-string "first"', { first: 42, second: 'DONE' }, 'first'],
+      ['a non-string "second"', { first: 'TODO', second: 42 }, 'second'],
+      [
+        'an unknown option',
+        { first: 'TODO', second: 'DONE', unknownOption: true },
+        'unknownOption',
+      ],
+      [
+        'a non-boolean ignoreCase',
+        { first: 'TODO', second: 'DONE', ignoreCase: 'yes' },
+        'ignoreCase',
+      ],
+    ])('rejects %s', async (_label, options, mention) => {
+      await expectInvalidOptions('conditional', options, mention);
     });
   });
 });

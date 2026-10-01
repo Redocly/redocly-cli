@@ -378,101 +378,63 @@ describe('parseMarkdocSpan', () => {
 
     // Only one whitespace character may separate the primary from the attributes. One space, tab or
     // newline is fine; two spaces, or a newline plus indentation, is an error. Other gaps are not
-    // limited.
+    // limited. Line endings are not normalized, so a CRLF pair counts as one whitespace unit.
     describe('whitespace between the primary and the attribute list', () => {
-      it('two spaces after the primary is malformed', () => {
-        const s = parseMarkdocSpan('{% t 1  x="y" %}');
-        expect(s.kind).toBe('malformed');
-        expect(s.reason).toBeTruthy();
+      it.each([
+        ['exactly one newline', '{% image "a.png"\nwidth=100 %}', 'tag-open', ['width']],
+        ['one tab', '{% t 1\tx="y" %}', 'tag-open', ['x']],
+        [
+          'unbounded whitespace before the primary and between attributes',
+          '{% t   1 x="y"  z=2 %}',
+          'tag-open',
+          ['x', 'z'],
+        ],
+        ['trailing whitespace after a lone primary', '{% t 1  %}', 'tag-open', []],
+        ['a self-closing marker after extra whitespace', '{% t 1  /%}', 'tag-self-closing', []],
+        [
+          'a CRLF pair after the primary',
+          '{% image "a.png"\r\nwidth=100 %}',
+          'tag-open',
+          ['width'],
+        ],
+        [
+          'a CRLF pair after a variable primary',
+          '{% if $flag\r\nother=1 %}',
+          'tag-open',
+          ['other'],
+        ],
+        [
+          'a CRLF pair before a self-closing tag attribute',
+          '{% if $flag\r\nx=1 /%}',
+          'tag-self-closing',
+          ['x'],
+        ],
+        ['a lone CR after the primary', '{% t 1\rx=1 %}', 'tag-open', ['x']],
+      ])('parses %s', (_label, text, kind, attributeNames) => {
+        const s = parseMarkdocSpan(text);
+        expect(s.kind).toBe(kind);
+        expect(s.primary).toBeDefined();
+        expect(s.attributes.map((a) => a.name)).toEqual(attributeNames);
       });
 
-      it('a newline plus indentation after the primary is malformed', () => {
-        const s = parseMarkdocSpan('{% image "a.png"\n  width=100 %}');
-        expect(s.kind).toBe('malformed');
-        expect(s.reason).toBeTruthy();
-      });
-
-      it('exactly one newline after the primary parses', () => {
-        const s = parseMarkdocSpan('{% image "a.png"\nwidth=100 %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.primary).toMatchObject({ valueKind: 'string', value: 'a.png' });
-        expect(s.attributes[0]).toMatchObject({ name: 'width', value: 100 });
-      });
-
-      it('one tab after the primary parses', () => {
-        const s = parseMarkdocSpan('{% t 1\tx="y" %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.attributes[0]).toMatchObject({ name: 'x', value: 'y' });
-      });
-
-      it('unbounded whitespace before the primary and between attributes parses', () => {
-        const s = parseMarkdocSpan('{% t   1 x="y"  z=2 %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.primary).toMatchObject({ valueKind: 'number', value: 1 });
-        expect(s.attributes.map((a) => a.name)).toEqual(['x', 'z']);
-      });
-
-      it('trailing whitespace after a primary with no attributes parses', () => {
-        const s = parseMarkdocSpan('{% t 1  %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.primary).toMatchObject({ valueKind: 'number', value: 1 });
-      });
-
-      it('a self-closing marker after extra whitespace parses', () => {
-        const s = parseMarkdocSpan('{% t 1  /%}');
-        expect(s.kind).toBe('tag-self-closing');
-        expect(s.primary).toMatchObject({ valueKind: 'number', value: 1 });
-      });
-
-      // Line endings are not normalized, so span text can contain CRLF. A CRLF counts as one
-      // whitespace unit.
-      it('a CRLF pair after the primary counts as one whitespace unit and parses', () => {
-        const s = parseMarkdocSpan('{% image "a.png"\r\nwidth=100 %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.primary).toMatchObject({ valueKind: 'string', value: 'a.png' });
-        expect(s.attributes[0]).toMatchObject({ name: 'width', value: 100 });
-      });
-
-      it('a CRLF pair before a bareword identifier attribute also counts as one unit', () => {
-        const s = parseMarkdocSpan('{% if $flag\r\nother=1 %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.attributes[0]).toMatchObject({ name: 'other', value: 1 });
-      });
-
-      it('a CRLF pair before a self-closing tag attribute counts as one unit', () => {
-        const s = parseMarkdocSpan('{% if $flag\r\nx=1 /%}');
-        expect(s.kind).toBe('tag-self-closing');
-        expect(s.attributes[0]).toMatchObject({ name: 'x', value: 1 });
-      });
-
-      it('a lone CR after the primary still parses (unchanged from before)', () => {
-        const s = parseMarkdocSpan('{% t 1\rx=1 %}');
-        expect(s.kind).toBe('tag-open');
-        expect(s.attributes[0]).toMatchObject({ name: 'x', value: 1 });
-      });
-
-      it('two consecutive CRLF pairs after the primary is malformed (two whitespace units)', () => {
-        const s = parseMarkdocSpan('{% t 1\r\n\r\nx=1 %}');
-        expect(s.kind).toBe('malformed');
-        expect(s.reason).toContain('only one whitespace character');
-      });
-
-      it('two lone CRs after the primary is malformed (two whitespace units)', () => {
-        const s = parseMarkdocSpan('{% t 1\r\rx=1 %}');
+      it.each([
+        ['two spaces after the primary', '{% t 1  x="y" %}'],
+        ['a newline plus indentation after the primary', '{% image "a.png"\n  width=100 %}'],
+        ['two consecutive CRLF pairs after the primary', '{% t 1\r\n\r\nx=1 %}'],
+        ['two lone CRs after the primary', '{% t 1\r\rx=1 %}'],
+      ])('rejects %s as more than one whitespace unit', (_label, text) => {
+        const s = parseMarkdocSpan(text);
         expect(s.kind).toBe('malformed');
         expect(s.reason).toContain('only one whitespace character');
       });
 
       // Form feed and vertical tab are not Markdoc whitespace, so they are rejected by the normal
       // attribute scan, not the one-whitespace check.
-      it('a form feed after the primary is malformed, not counted as whitespace', () => {
-        const s = parseMarkdocSpan('{% t 1\fx=1 %}');
-        expect(s.kind).toBe('malformed');
-        expect(s.reason).not.toContain('only one whitespace character');
-      });
-
-      it('a vertical tab after the primary is malformed, not counted as whitespace', () => {
-        const s = parseMarkdocSpan('{% t 1\vx=1 %}');
+      it.each([
+        ['a form feed', '{% t 1\fx=1 %}'],
+        ['a vertical tab', '{% t 1\vx=1 %}'],
+      ])('rejects %s after the primary without counting it as whitespace', (_label, text) => {
+        const s = parseMarkdocSpan(text);
         expect(s.kind).toBe('malformed');
         expect(s.reason).not.toContain('only one whitespace character');
       });
@@ -481,25 +443,17 @@ describe('parseMarkdocSpan', () => {
 
   // No spaces are allowed around `=`. Whitespace only separates one attribute from the next.
   describe('spaces around an attribute "="', () => {
-    it('spaces on both sides of "=" are malformed', () => {
-      const s = parseMarkdocSpan('{% t a = 1 %}');
+    it.each([
+      ['spaces on both sides of "="', '{% t a = 1 %}'],
+      ['a space after "="', '{% t a= 1 %}'],
+      ['a space before "="', '{% t a =1 %}'],
+    ])('rejects %s', (_label, text) => {
+      const s = parseMarkdocSpan(text);
       expect(s.kind).toBe('malformed');
       expect(s.reason).toContain("no spaces around an attribute's '='");
     });
 
-    it('a space after "=" is malformed', () => {
-      const s = parseMarkdocSpan('{% t a= 1 %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toContain("no spaces around an attribute's '='");
-    });
-
-    it('a space before "=" is malformed', () => {
-      const s = parseMarkdocSpan('{% t a =1 %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toContain("no spaces around an attribute's '='");
-    });
-
-    it('the unspaced spelling still parses', () => {
+    it('still parses the unspaced spelling', () => {
       const s = parseMarkdocSpan('{% t a=1 %}');
       expect(s.kind).toBe('tag-open');
       expect(s.attributes[0]).toMatchObject({ name: 'a', valueKind: 'number', value: 1 });
@@ -507,8 +461,6 @@ describe('parseMarkdocSpan', () => {
 
     // A name with no `=` at all is a different error, so it keeps the plain message.
     it('a name with no "=" at all reports the plain missing-"=" reason', () => {
-      const s = parseMarkdocSpan('{% t a %}');
-      expect(s.primary).toMatchObject({ valueKind: 'bareword', value: 'a' });
       const missing = parseMarkdocSpan('{% t a=1 b %}');
       expect(missing.kind).toBe('malformed');
       expect(missing.reason).not.toContain('no spaces');
@@ -581,19 +533,6 @@ describe('parseMarkdocSpan', () => {
       expect(s.shortcuts).toEqual([{ kind: 'class', name: 'wide', start: 17, end: 22 }]);
     });
 
-    // Items after the first need whitespace between them, so both of these are errors.
-    it('adjacent shortcuts with no separating whitespace are malformed (id after class)', () => {
-      const s = parseMarkdocSpan('{% t .a#b %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-    });
-
-    it('adjacent shortcuts with no separating whitespace are malformed (class after class)', () => {
-      const s = parseMarkdocSpan('{% t .a.b %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-    });
-
     // The number takes only one fraction (`1.5`), so `.5` is left and read as a class shortcut.
     it('a decimal primary followed immediately by a numeric class name (number greed)', () => {
       const text = '{% t 1.5.5 %}';
@@ -603,32 +542,36 @@ describe('parseMarkdocSpan', () => {
       expect(s.shortcuts).toEqual([{ kind: 'class', name: '5', start: 8, end: 10 }]);
     });
 
+    // Items after the first need whitespace between them. A sigil must be followed by an identifier.
+    // Close tags do not take shortcuts. No value starts with a sigil, and a shortcut takes the whole
+    // name, so `=1` is left and fails the attribute name scan.
+    it.each([
+      ['adjacent shortcuts: id after class', '{% t .a#b %}'],
+      ['adjacent shortcuts: class after class', '{% t .a.b %}'],
+      ['a shortcut on a close tag', '{% /t .a %}'],
+      ['a sigil in attribute-value position', '{% t x=.foo %}'],
+      ['an attribute value directly followed by a shortcut', '{% t b=1.a %}'],
+      ['a shortcut directly followed by "=value"', '{% t .ab=1 %}'],
+    ])('rejects %s', (_label, text) => {
+      const s = parseMarkdocSpan(text);
+      expect(s.kind).toBe('malformed');
+      expect(s.reason).toBeTruthy();
+    });
+
+    it.each(['.', '#'])('rejects a bare "%s" with no name, at the sigil', (sigil) => {
+      const s = parseMarkdocSpan(`{% t ${sigil} %}`);
+      expect(s.kind).toBe('malformed');
+      expect(s.reason).toContain(`expected an identifier after "${sigil}"`);
+      expect(s.reasonOffset).toBe(5);
+    });
+
     // Digit-leading shortcut names are valid, like tag and attribute names.
-    it('a digit-leading class name', () => {
-      const s = parseMarkdocSpan('{% t .1x %}');
-      expect(s.shortcuts).toEqual([{ kind: 'class', name: '1x', start: 5, end: 8 }]);
-    });
-
-    it('a digit-leading id name', () => {
-      const s = parseMarkdocSpan('{% t #1x %}');
-      expect(s.shortcuts).toEqual([{ kind: 'id', name: '1x', start: 5, end: 8 }]);
-    });
-
-    // A sigil must be followed by an identifier.
-    it('a bare "." with no name is malformed', () => {
-      const s = parseMarkdocSpan('{% t . %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-      expect(s.reason).toContain('expected an identifier after "."');
-      expect(s.reasonOffset).toBe(5);
-    });
-
-    it('a bare "#" with no name is malformed', () => {
-      const s = parseMarkdocSpan('{% t # %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-      expect(s.reason).toContain('expected an identifier after "#"');
-      expect(s.reasonOffset).toBe(5);
+    it.each([
+      ['.1x', 'class'],
+      ['#1x', 'id'],
+    ])('accepts the digit-leading shortcut %s', (shortcut, kind) => {
+      const s = parseMarkdocSpan(`{% t ${shortcut} %}`);
+      expect(s.shortcuts).toEqual([{ kind, name: '1x', start: 5, end: 8 }]);
     });
 
     it('a shortcut in a self-closing tag', () => {
@@ -636,20 +579,6 @@ describe('parseMarkdocSpan', () => {
       const s = parseMarkdocSpan(text);
       expect(s.kind).toBe('tag-self-closing');
       expect(s.shortcuts).toEqual([{ kind: 'class', name: 'a', start: 5, end: 7 }]);
-    });
-
-    // Markdoc close tags have no attributes. Here they may, but shortcuts are still not recognized,
-    // so this is malformed.
-    it('a close tag with a shortcut stays malformed (close-tag behavior unchanged)', () => {
-      const s = parseMarkdocSpan('{% /t .a %}');
-      expect(s.kind).toBe('malformed');
-    });
-
-    // No value starts with a sigil, so this stays malformed.
-    it('a sigil in attribute-value position is malformed, not a shortcut', () => {
-      const s = parseMarkdocSpan('{% t x=.foo %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
     });
 
     it('a wide gap between two shortcuts still parses (TagAttributesTail allows _+)', () => {
@@ -692,20 +621,6 @@ describe('parseMarkdocSpan', () => {
       const s = parseMarkdocSpan('{% t#a %}');
       expect(s.kind).toBe('tag-open');
       expect(s.shortcuts).toEqual([{ kind: 'id', name: 'a', start: 4, end: 6 }]);
-    });
-
-    // A number ends where the sigil begins, but a separator is still required.
-    it('an attribute value directly followed by a shortcut with no whitespace is malformed', () => {
-      const s = parseMarkdocSpan('{% t b=1.a %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-    });
-
-    // The shortcut takes the whole name, so `=1` is left and fails the attribute name scan.
-    it('a shortcut directly followed by "=value" with no whitespace is malformed', () => {
-      const s = parseMarkdocSpan('{% t .ab=1 %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
     });
 
     it('a single span mixing primary, attributes, and shortcuts', () => {
@@ -807,94 +722,60 @@ describe('parseMarkdocSpan', () => {
 
   // `@foo` is a variable like `$foo`, tail included.
   describe('@-prefixed variables', () => {
-    it('a bare @ variable is accepted', () => {
-      expect(parseMarkdocSpan('{% @foo %}').kind).toBe('variable');
+    it.each([
+      ['a bare @ variable', '{% @foo %}'],
+      ['a dotted @ variable', '{% @foo.bar %}'],
+      ['a bracket-indexed @ variable', '{% @foo["a"] %}'],
+      ['a digit-leading @ variable name (Identifier is uniform)', '{% @1x %}'],
+      // A trailing `/` is ignored, as with `{% $foo/%}`. Markdoc rejects both.
+      ['a trailing self-close marker (ledgered divergence from upstream)', '{% @foo/%}'],
+    ])('accepts %s', (_label, text) => {
+      expect(parseMarkdocSpan(text).kind).toBe('variable');
     });
 
-    it('a dotted @ variable is accepted', () => {
-      expect(parseMarkdocSpan('{% @foo.bar %}').kind).toBe('variable');
-    });
-
-    it('a bracket-indexed @ variable is accepted', () => {
-      expect(parseMarkdocSpan('{% @foo["a"] %}').kind).toBe('variable');
-    });
-
-    it('a digit-leading @ variable name is accepted (Identifier is uniform)', () => {
-      expect(parseMarkdocSpan('{% @1x %}').kind).toBe('variable');
-    });
-
-    it('a bare "@" with no identifier is malformed', () => {
-      const s = parseMarkdocSpan('{% @ %}');
+    it.each([
+      [
+        'a bare "@" with no identifier',
+        '{% @ %}',
+        'variable interpolation is missing a name after "@"',
+      ],
+      ['a trailing dot with no following identifier', '{% @foo. %}', ''],
+    ])('rejects %s', (_label, text, reason) => {
+      const s = parseMarkdocSpan(text);
       expect(s.kind).toBe('malformed');
-      expect(s.reason).toContain('variable interpolation is missing a name after "@"');
+      expect(s.reason).toContain(reason);
     });
 
-    it('a trailing dot with no following identifier is malformed', () => {
-      const s = parseMarkdocSpan('{% @foo. %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-    });
-
-    // A trailing `/` is ignored, as with `{% $foo/%}`. Markdoc rejects both.
-    it('a trailing self-close marker is ignored, unlike upstream (ledgered divergence)', () => {
-      expect(parseMarkdocSpan('{% @foo/%}').kind).toBe('variable');
-    });
-
-    it('an @ variable in attribute VALUE position is captured raw', () => {
-      const text = '{% t x=@foo %}';
-      const s = parseMarkdocSpan(text);
-      const a = s.attributes[0];
-      expect(a).toMatchObject({ valueKind: 'variable', value: '@foo' });
-      expect(text.slice(a.valueStart, a.valueEnd)).toBe('@foo');
-    });
-
-    it('a dotted @ variable in attribute VALUE position is captured raw', () => {
-      const text = '{% t x=@foo.bar %}';
-      const s = parseMarkdocSpan(text);
-      const a = s.attributes[0];
-      expect(a).toMatchObject({ valueKind: 'variable', value: '@foo.bar' });
-      expect(text.slice(a.valueStart, a.valueEnd)).toBe('@foo.bar');
-    });
-
-    it('an @ variable named-attribute value (non-primary slot) is captured raw', () => {
-      const text = '{% if condition=@flag %}';
-      const s = parseMarkdocSpan(text);
-      const a = s.attributes[0];
-      expect(a).toMatchObject({ name: 'condition', valueKind: 'variable', value: '@flag' });
+    it.each([
+      ['{% t x=@foo %}', 'x', '@foo'],
+      ['{% t x=@foo.bar %}', 'x', '@foo.bar'],
+      ['{% if condition=@flag %}', 'condition', '@flag'],
+    ])('captures the @ variable value of %s raw', (text, name, value) => {
+      const a = parseMarkdocSpan(text).attributes[0];
+      expect(a).toMatchObject({ name, valueKind: 'variable', value });
+      expect(text.slice(a.valueStart, a.valueEnd)).toBe(value);
     });
   });
 
   // A bare function call is its own form, not a tag followed by `(`.
   describe('bare function interpolation', () => {
-    it('a simple function call is accepted', () => {
-      expect(parseMarkdocSpan('{% equals(1,1) %}').kind).toBe('function');
-    });
-
-    it('a function call with no arguments is accepted', () => {
-      expect(parseMarkdocSpan('{% fn() %}').kind).toBe('function');
-    });
-
-    it('nested function calls are accepted', () => {
-      expect(parseMarkdocSpan('{% default(concat($a,"b"),1) %}').kind).toBe('function');
-    });
-
-    it('a named function argument is accepted (interior stays opaque either way)', () => {
-      expect(parseMarkdocSpan('{% fn(a=1) %}').kind).toBe('function');
-    });
-
-    it('a digit-leading function name is accepted (Identifier is uniform)', () => {
-      expect(parseMarkdocSpan('{% 1x() %}').kind).toBe('function');
-    });
-
-    // Span texts from the Redocly docs.
-    it('every corpus span text parses as a function', () => {
-      const corpus = [
-        '{% default($user.email, "Redocker") %}',
+    it.each([
+      ['a simple call', '{% equals(1,1) %}'],
+      ['a call with no arguments', '{% fn() %}'],
+      ['nested calls', '{% default(concat($a,"b"),1) %}'],
+      ['a named argument (the interior stays opaque either way)', '{% fn(a=1) %}'],
+      ['a digit-leading function name (Identifier is uniform)', '{% 1x() %}'],
+      // Span texts from the Redocly docs.
+      ['a corpus call', '{% default($user.email, "Redocker") %}'],
+      [
+        'a corpus call with several arguments',
         '{% concat($frontmatter.data.firstName, " ", $frontmatter.data.lastName) %}',
-      ];
-      for (const text of corpus) {
-        expect(parseMarkdocSpan(text).kind).toBe('function');
-      }
+      ],
+      // Markdoc rejects both of these. Function contents are only checked for balanced brackets here.
+      ['a trailing comma in the arguments (ledgered divergence)', '{% fn(1,) %}'],
+      ['a trailing self-close marker (ledgered divergence)', '{% fn(1)/%}'],
+    ])('accepts %s', (_label, text) => {
+      expect(parseMarkdocSpan(text).kind).toBe('function');
     });
 
     it('the parsed shape carries no internals, matching the variable kind', () => {
@@ -902,34 +783,15 @@ describe('parseMarkdocSpan', () => {
       expect(s).toEqual({ kind: 'function', name: null, attributes: [], nameStart: 0, nameEnd: 0 });
     });
 
-    // The `(` must directly follow the name. With a space it is read as a tag, which fails.
-    it('a space before the opening paren is malformed (Function never engages)', () => {
-      const s = parseMarkdocSpan('{% fn (1) %}');
+    it.each([
+      // The `(` must directly follow the name. With a space it is read as a tag, which fails.
+      ['a space before the opening paren', '{% fn (1) %}'],
+      ['unterminated parentheses', '{% fn(1 %}'],
+      ['trailing content after the call', '{% fn(1) junk %}'],
+    ])('rejects %s', (_label, text) => {
+      const s = parseMarkdocSpan(text);
       expect(s.kind).toBe('malformed');
       expect(s.reason).toBeTruthy();
-    });
-
-    it('unterminated parentheses are malformed', () => {
-      const s = parseMarkdocSpan('{% fn(1 %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-    });
-
-    it('trailing content after the call is malformed (no fallback to a tag reading)', () => {
-      const s = parseMarkdocSpan('{% fn(1) junk %}');
-      expect(s.kind).toBe('malformed');
-      expect(s.reason).toBeTruthy();
-    });
-
-    // Markdoc rejects a trailing comma in function arguments. Function contents are only checked
-    // for balanced brackets here, so it parses.
-    it('a trailing comma in the argument list is accepted here (ledgered divergence)', () => {
-      expect(parseMarkdocSpan('{% fn(1,) %}').kind).toBe('function');
-    });
-
-    // A trailing `/` is ignored here, as for a variable. Markdoc rejects it.
-    it('a trailing self-close marker is ignored, unlike upstream (ledgered divergence)', () => {
-      expect(parseMarkdocSpan('{% fn(1)/%}').kind).toBe('function');
     });
   });
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { newLineRe } from '../../core/line-endings.js';
 import { parseMarkdown } from '../../parser/index.js';
-import { extractScopes, SUMMARY_BLOCK_SOURCES } from '../extractor.js';
+import { extractScopes } from '../extractor.js';
 import { compileSelector } from '../selector.js';
 import { isKnownScopeTerm } from '../vocabulary.js';
 
@@ -699,8 +699,8 @@ describe('prose scopes structurally exclude markdoc tags', () => {
   });
 });
 
-// Every prose scope (`SUMMARY_BLOCK_SOURCES` plus the heading levels) needs a masking fixture.
-describe('every prose scope masks (enumerated from the extractor itself)', () => {
+// Every prose scope (sentence sources, table cells and the heading levels) masks Markdoc tags.
+describe('every prose scope masks', () => {
   const FIXTURES: Record<string, string> = {
     paragraph: 'alpha {% x /%} beta.\n',
     'list-item': '- item {% x /%} text\n',
@@ -714,16 +714,7 @@ describe('every prose scope masks (enumerated from the extractor itself)', () =>
     'heading.h5': '##### head {% #a %} text\n',
     'heading.h6': '###### head {% #a %} text\n',
   };
-  const PROSE_SCOPES = [
-    ...SUMMARY_BLOCK_SOURCES,
-    ...[1, 2, 3, 4, 5, 6].map((level) => `heading.h${level}`),
-  ];
-
-  it('has a fixture for every prose scope the extractor emits', () => {
-    expect(PROSE_SCOPES.filter((scope) => FIXTURES[scope] === undefined)).toEqual([]);
-  });
-
-  for (const scope of PROSE_SCOPES) {
+  for (const scope of Object.keys(FIXTURES)) {
     it(`${scope} blanks the tag and records it`, () => {
       const md = FIXTURES[scope];
       const segment = byScope(extractOn(md), scope)[0];

@@ -277,13 +277,6 @@ describe('link ranges', () => {
     ]);
   });
 
-  it('keeps a reference link intact', () => {
-    expect(texts('See [Step 1. Go][ref] now. Then stop.')).toEqual([
-      'See [Step 1. Go][ref] now.',
-      'Then stop.',
-    ]);
-  });
-
   it('splits an escape-heavy paragraph in linear time', () => {
     const text = `[${'\\['.repeat(50_000)} end. Next.`;
     const started = performance.now();

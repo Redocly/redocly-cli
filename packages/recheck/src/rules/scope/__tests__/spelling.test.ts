@@ -5,21 +5,9 @@ import { describe, it, expect, afterEach } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
 import { runRules } from '../../../core/runner.js';
-import { parseMarkdown } from '../../../parser/index.js';
-import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule, SpellingAssertion } from '../../../types/index.js';
-import type { ScopeRuleContext } from '../../types.js';
-import { spelling, formatSuggestionSuffix } from '../spelling.js';
-
-// Builds a rule context with only the segments whose scope matches the filter.
-function buildScopedContext(
-  content: string,
-  scopeFilter: (scope: string) => boolean
-): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-  return { segments, content, tree };
-}
+import { spelling } from '../spelling.js';
+import { buildScopedContext, expectInvalidOptions, expectValidOptions } from './helpers.js';
 
 function spellingRule(
   message: string | undefined,
@@ -55,12 +43,19 @@ afterEach(async () => {
 });
 
 describe('spelling assertion', () => {
-  it('flags a misspelled word with up to three suggestions in the message', async () => {
+  const MESSAGE = 'Unknown word "%s"%s';
+
+  async function misspelled(content: string, options: SpellingAssertion = {}) {
+    const ctx = buildScopedContext(content, isProseScope);
+    const problems = await spelling.execute(spellingRule(MESSAGE, options), 'test.md', ctx);
+    return problems.map((problem) => problem.match);
+  }
+
+  it('flags a misspelled word with suggestions in the message and its position', async () => {
     const content = 'This is a wrold of possibilities.\n';
     const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
 
-    const problems = await spelling.execute(rule, 'test.md', ctx);
+    const problems = await spelling.execute(spellingRule(MESSAGE, {}), 'test.md', ctx);
 
     expect(problems).toHaveLength(1);
     expect(problems[0].match).toBe('wrold');
@@ -70,198 +65,107 @@ describe('spelling assertion', () => {
     expect(problems[0].column).toBe(11);
   });
 
-  it('reports nothing for correctly spelled prose', async () => {
-    const content = 'This is a world of possibilities.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  it('honors a `vocab` list (case-insensitive), built here from a one-word-per-line tmp file', async () => {
-    const dir = await makeTmpDir();
-    const vocabFile = path.join(dir, 'vocab.txt');
-    await fs.writeFile(vocabFile, 'Redocly\nAcmesoft\n', 'utf8');
-    const vocabWords = (await fs.readFile(vocabFile, 'utf8'))
-      .split('\n')
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
-
-    const content = 'Welcome to redocly, powered by ACMESOFT tech.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', { vocab: vocabWords });
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    // 'redocly' and 'ACMESOFT' must match the vocab entries 'Redocly' and 'Acmesoft' regardless of case.
-    expect(problems).toEqual([]);
-  });
-
-  it('flags an unrecognized word absent from `vocab`', async () => {
+  it.each<[string, string, SpellingAssertion, string[]]>([
+    ['correctly spelled prose', 'This is a world of possibilities.\n', {}, []],
+    // `vocab` entries match regardless of case.
+    [
+      'a word in `vocab`, in any case',
+      'Welcome to redocly, powered by ACMESOFT tech.\n',
+      { vocab: ['Redocly', 'Acmesoft'] },
+      [],
+    ],
     // 'acmesoft' is not in the built-in vocabulary. 'redocly' is, so it cannot be used here.
-    const content = 'Welcome to acmesoft software.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', { vocab: ['other-word'] });
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems.map((p) => p.match)).toEqual(['acmesoft']);
-  });
-
-  it('skips tokens matching an `ignore` regex', async () => {
-    const content = 'Contact Acmesoft for details.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', { ignore: ['\\bAcme\\w*'] });
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  it('an invalid `ignore` regex is silently skipped (same convention as pattern.ts)', async () => {
-    const content = 'This is a wrold of possibilities.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', { ignore: ['(unterminated'] });
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems.map((p) => p.match)).toEqual(['wrold']);
-  });
-
-  it('skips ALL-CAPS tokens (length >= 2), even when the speller does not recognize them', async () => {
-    const content = 'The XYZQQQ system is running.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  it('does not skip a capitalized (not ALL-CAPS) misspelling', async () => {
-    const content = 'Xyzqqq is not a word.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems.map((p) => p.match)).toEqual(['Xyzqqq']);
-  });
-
-  // Inline code stays in a paragraph's `content`, so those spans are masked before checking and a misspelling inside backticks is not reported.
-  it('does not flag a misspelling inside an inline code span', async () => {
-    const content = 'Set the `wrold` option to enable this.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  it('still flags a real misspelling alongside a frozen inline code span in the same segment', async () => {
-    const content = 'Set the `wrold` option, it is a wrold-class feature.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toHaveLength(1);
-    expect(problems[0].match).toBe('wrold');
-  });
-
-  // Multi-backtick spans (``wrold``) must be masked too.
-  describe('multi-backtick code spans', () => {
-    it('does not flag a misspelling inside a double-backtick span', async () => {
-      const content = 'Set the ``wrold`` option to enable this.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', {});
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toEqual([]);
-    });
-
-    it('still flags the same misspelling when it occurs OUTSIDE the double-backtick span (control)', async () => {
-      const content = 'Set the ``wrold`` option, but wrold outside is flagged.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', {});
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toHaveLength(1);
-      expect(problems[0].match).toBe('wrold');
-    });
-
-    it('does not flag a misspelling inside a double-backtick span whose content itself contains a literal backtick -- the motivating CommonMark case', async () => {
-      // ``wrold ` inside`` is one code span that contains a single backtick.
-      const content = 'Set the ``wrold ` inside`` option.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', {});
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toEqual([]);
-    });
-  });
-
-  // A fenced code block is a `code` scope segment, so it is never part of the prose segments.
-  it('never sees a fenced code block when scoped to prose (misspelling inside stays unreported)', async () => {
-    const content =
-      'This is fine prose.\n\n```js\nconst wrold = 1; // recieve\n```\n\nMore fine prose.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  // The word pattern matches letters only, so 'config2' gives the fragment 'config'. That fragment is skipped because a digit follows it. A number like '42' has no letters, so it gives no word.
-  it('a digit-adjacent identifier tokenizes to its letter-only prefix, which is now skipped rather than flagged', async () => {
-    const content = 'Run config2 now, not 42 times.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  // A word touching a digit is a fragment of an identifier, so it is skipped: 'sha256', 'utf8', 'oauth2', 'es6', and both 'log' and 'j' in 'log4j'.
-  it('does not flag letter-run fragments of common digit-bearing identifiers (sha256, utf8, oauth2, es6, log4j)', async () => {
-    const content =
-      'Hash it with sha256, encode as utf8, authenticate via oauth2, target es6, and log with log4j.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
-  });
-
-  // A real misspelling in the same sentence must still be flagged.
-  it('still flags a genuine standalone misspelling alongside digit-adjacent identifiers in the same sentence', async () => {
-    const content = 'Using sha256 and utf8, this is a wrold of possibilities.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems.map((p) => p.match)).toEqual(['wrold']);
-  });
-
-  // The digit can also come before the word, as in '2fast'.
-  it('does not flag a fragment with a leading digit neighbor (e.g. "2fast")', async () => {
-    const content = 'This is 2fast for me.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule('Unknown word "%s"%s', {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toEqual([]);
+    [
+      'a word absent from `vocab`',
+      'Welcome to acmesoft software.\n',
+      { vocab: ['other-word'] },
+      ['acmesoft'],
+    ],
+    [
+      'a token matching an `ignore` regex',
+      'Contact Acmesoft for details.\n',
+      { ignore: ['\\bAcme\\w*'] },
+      [],
+    ],
+    // An invalid `ignore` regex is skipped, same convention as pattern.ts.
+    [
+      'an invalid `ignore` regex',
+      'This is a wrold of possibilities.\n',
+      { ignore: ['(unterminated'] },
+      ['wrold'],
+    ],
+    ['an ALL-CAPS token the speller does not know', 'The XYZQQQ system is running.\n', {}, []],
+    ['a capitalized misspelling, which is not ALL-CAPS', 'Xyzqqq is not a word.\n', {}, ['Xyzqqq']],
+    // Inline code stays in a paragraph's `content`, so those spans are masked before checking.
+    [
+      'a misspelling inside an inline code span',
+      'Set the `wrold` option to enable this.\n',
+      {},
+      [],
+    ],
+    [
+      'a misspelling beside a frozen inline code span',
+      'Set the `wrold` option, it is a wrold-class feature.\n',
+      {},
+      ['wrold'],
+    ],
+    [
+      'a misspelling inside a double-backtick span',
+      'Set the ``wrold`` option to enable this.\n',
+      {},
+      [],
+    ],
+    // ``wrold ` inside`` is one code span that contains a single backtick.
+    [
+      'a misspelling inside a span containing a literal backtick',
+      'Set the ``wrold ` inside`` option.\n',
+      {},
+      [],
+    ],
+    // A word touching a digit is a fragment of an identifier, so it is skipped: both 'log' and 'j' in 'log4j'.
+    [
+      'letter-run fragments of digit-bearing identifiers',
+      'Hash it with sha256, encode as utf8, authenticate via oauth2, target es6, and log with log4j.\n',
+      {},
+      [],
+    ],
+    [
+      'a genuine misspelling beside digit-adjacent identifiers',
+      'Using sha256 and utf8, this is a wrold of possibilities.\n',
+      {},
+      ['wrold'],
+    ],
+    ['a fragment with a leading digit neighbor', 'This is 2fsat for me.\n', {}, []],
+    // A fenced code block is a `code` scope segment, so it is never part of the prose segments.
+    [
+      'a fenced code block when scoped to prose',
+      'This is fine prose.\n\n```js\nconst wrold = 1; // recieve\n```\n\nMore fine prose.\n',
+      {},
+      [],
+    ],
+    // The built-in proper nouns are accepted by default. Multi-word entries are split into single words.
+    ['a built-in noun with no vocab configured', 'Deploy with OpenAPI and pnpm today.\n', {}, []],
+    ['a multi-token built-in entry', 'Deploy with Node.js and VS Code today.\n', {}, []],
+    [
+      'the built-ins alongside the rule’s own vocab',
+      'Deploy with OpenAPI and Acmesoft today.\n',
+      { vocab: ['Acmesoft'] },
+      [],
+    ],
+    [
+      'a built-in noun when builtinVocabulary is false',
+      'Deploy with OpenAPI today.\n',
+      { builtinVocabulary: false },
+      ['OpenAPI'],
+    ],
+    [
+      'the rule’s own vocab when builtinVocabulary is false',
+      'Deploy with Acmesoft today.\n',
+      { vocab: ['Acmesoft'], builtinVocabulary: false },
+      [],
+    ],
+  ])('on %s reports %j', async (_label, content, options, expected) => {
+    expect(await misspelled(content, options)).toEqual(expected);
   });
 
   // The `dictionary-en` package exports the raw `{aff, dic}` content, so the test writes it to a temporary `.aff` and `.dic` pair.
@@ -304,36 +208,11 @@ describe('spelling assertion', () => {
     }
   });
 
-  describe('formatSuggestionSuffix', () => {
-    it('returns an empty string for zero suggestions', () => {
-      expect(formatSuggestionSuffix([])).toBe('');
-    });
-
-    it('formats one suggestion', () => {
-      expect(formatSuggestionSuffix(['world'])).toBe(' — did you mean: world?');
-    });
-
-    it('formats up to three suggestions, comma-joined', () => {
-      expect(formatSuggestionSuffix(['wold', 'world', 'wild'])).toBe(
-        ' — did you mean: wold, world, wild?'
-      );
-    });
-  });
-
-  it('the fallback message has exactly two %s placeholders, both substituted (word, suggestion suffix)', async () => {
-    // 'zzzzqqqqxxxx' has no suggestions, so this covers the empty suffix case.
-    const content = 'The zzzzqqqqxxxx thing is broken.\n';
-    const ctx = buildScopedContext(content, isProseScope);
-    const rule = spellingRule(undefined, {});
-
-    const problems = await spelling.execute(rule, 'test.md', ctx);
-
-    expect(problems).toHaveLength(1);
-    expect(problems[0].message).toBe('Unknown word "zzzzqqqqxxxx"');
-  });
-
-  it('fallback message parity via direct runRules (no vi mocking)', async () => {
-    const content = 'This is a wrold of possibilities.\n';
+  // The two `%s` slots are the word and the suggestion suffix, which is empty when there are no suggestions.
+  it.each([
+    ['This is a wrold of possibilities.\n', 'Unknown word "wrold" — did you mean: wold, world?'],
+    ['The zzzzqqqqxxxx thing is broken.\n', 'Unknown word "zzzzqqqqxxxx"'],
+  ])('uses the fallback message for a rule without `message` on %j', async (content, expected) => {
     const rule: NormalizedRule = {
       name: 'recheck/spelling-check',
       shortName: 'spelling-check',
@@ -345,7 +224,7 @@ describe('spelling assertion', () => {
     const { problems } = await runRules([{ path: 't.md', content }], [rule]);
 
     expect(problems).toHaveLength(1);
-    expect(problems[0].message).toBe('Unknown word "wrold" — did you mean: wold, world?');
+    expect(problems[0].message).toBe(expected);
   });
 
   // A missing or unreadable custom `dictionary` must give one visible problem per file, not zero and not one per word.
@@ -405,10 +284,25 @@ describe('spelling assertion', () => {
       };
     }
 
-    it('accepts an empty spelling config (all-default)', async () => {
-      const result = await validate(spellingRuleConfig({}));
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+    it.each<[string, Record<string, unknown>]>([
+      ['an empty config (all-default)', {}],
+      ['builtinVocabulary: true', { builtinVocabulary: true }],
+      ['builtinVocabulary: false', { builtinVocabulary: false }],
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('spelling', options);
+    });
+
+    it.each<[string, Record<string, unknown>, string]>([
+      ['an unknown option', { bogus: true }, 'bogus'],
+      ['an empty-string dictionary', { dictionary: '' }, 'dictionary'],
+      ['a non-string dictionary', { dictionary: 42 }, 'dictionary'],
+      ['a non-array vocab', { vocab: 'not-an-array' }, 'vocab'],
+      ['a vocab array with an empty-string entry', { vocab: ['ok', ''] }, 'vocab'],
+      ['a non-array ignore', { ignore: 'not-an-array' }, 'ignore'],
+      ['an ignore array with a non-string entry', { ignore: [123] }, 'ignore'],
+      ['a non-boolean builtinVocabulary', { builtinVocabulary: 'yes' }, 'builtinVocabulary'],
+    ])('rejects %s', async (_label, options, mention) => {
+      await expectInvalidOptions('spelling', options, mention);
     });
 
     it('accepts dictionary/vocab/ignore together when the dictionary files actually exist', async () => {
@@ -458,120 +352,6 @@ describe('spelling assertion', () => {
       } finally {
         process.chdir(originalCwd);
       }
-    });
-
-    it('rejects an unknown spelling option', async () => {
-      const result = await validate(spellingRuleConfig({ bogus: true }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('bogus'))).toBe(true);
-    });
-
-    it('rejects an empty-string dictionary', async () => {
-      const result = await validate(spellingRuleConfig({ dictionary: '' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('dictionary'))).toBe(true);
-    });
-
-    it('rejects a non-string dictionary', async () => {
-      const result = await validate(spellingRuleConfig({ dictionary: 42 }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('dictionary'))).toBe(true);
-    });
-
-    it('rejects a non-array vocab', async () => {
-      const result = await validate(spellingRuleConfig({ vocab: 'not-an-array' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('vocab'))).toBe(true);
-    });
-
-    it('rejects a vocab array with an empty-string entry', async () => {
-      const result = await validate(spellingRuleConfig({ vocab: ['ok', ''] }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('vocab'))).toBe(true);
-    });
-
-    it('rejects a non-array ignore', async () => {
-      const result = await validate(spellingRuleConfig({ ignore: 'not-an-array' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignore'))).toBe(true);
-    });
-
-    it('rejects an ignore array with a non-string entry', async () => {
-      const result = await validate(spellingRuleConfig({ ignore: [123] }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignore'))).toBe(true);
-    });
-
-    it('accepts builtinVocabulary: true/false', async () => {
-      const trueResult = await validate(spellingRuleConfig({ builtinVocabulary: true }));
-      expect(trueResult.isValid).toBe(true);
-      expect(trueResult.errors).toEqual([]);
-
-      const falseResult = await validate(spellingRuleConfig({ builtinVocabulary: false }));
-      expect(falseResult.isValid).toBe(true);
-      expect(falseResult.errors).toEqual([]);
-    });
-
-    it('rejects a non-boolean builtinVocabulary', async () => {
-      const result = await validate(spellingRuleConfig({ builtinVocabulary: 'yes' }));
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('builtinVocabulary'))).toBe(true);
-    });
-  });
-
-  // The built-in proper nouns are accepted by default, and `builtinVocabulary: false` turns that off. Multi-word entries are split into single words, because the spell check works one word at a time.
-  describe('built-in technical proper-noun vocabulary', () => {
-    it('accepts a built-in noun with no vocab configured', async () => {
-      const content = 'Deploy with OpenAPI and pnpm today.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', {});
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toEqual([]);
-    });
-
-    it('splits a multi-token built-in entry into its individual word parts', async () => {
-      const content = 'Deploy with Node.js and VS Code today.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', {});
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toEqual([]);
-    });
-
-    it('composes the built-ins with the rule’s own vocab rather than replacing them', async () => {
-      const content = 'Deploy with OpenAPI and Acmesoft today.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', { vocab: ['Acmesoft'] });
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toEqual([]);
-    });
-
-    it('builtinVocabulary: false restores strict behavior: an unlisted built-in noun IS flagged', async () => {
-      const content = 'Deploy with OpenAPI today.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', { builtinVocabulary: false });
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems.map((p) => p.match)).toEqual(['OpenAPI']);
-    });
-
-    it('builtinVocabulary: false still honors the rule’s own vocab', async () => {
-      const content = 'Deploy with Acmesoft today.\n';
-      const ctx = buildScopedContext(content, isProseScope);
-      const rule = spellingRule('Unknown word "%s"%s', {
-        vocab: ['Acmesoft'],
-        builtinVocabulary: false,
-      });
-
-      const problems = await spelling.execute(rule, 'test.md', ctx);
-
-      expect(problems).toEqual([]);
     });
   });
 });

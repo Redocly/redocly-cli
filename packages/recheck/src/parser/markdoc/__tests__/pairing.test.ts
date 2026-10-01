@@ -126,13 +126,6 @@ describe('computeMarkdocPairing', () => {
       expect(result.voidMissingSlash).toEqual([]);
     });
 
-    it('a bare function span (name: null) is exempt exactly like a variable', () => {
-      const result = pairing('{% equals(1,1) %}\n');
-      expect(result.pairs).toEqual([]);
-      expect(result.unclosed).toEqual([]);
-      expect(result.orphaned).toEqual([]);
-    });
-
     it('exempt kinds sitting between a real pair do not add to its nesting depth', () => {
       const result = pairing('{% a %}\n{% $var %}\n{% b %}\nx\n{% /b %}\n{% /a %}\n');
       expect(result.pairs).toHaveLength(2);

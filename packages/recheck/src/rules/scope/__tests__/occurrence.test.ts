@@ -1,22 +1,9 @@
 import { describe, it, expect } from 'vitest';
 
-import { validate } from '../../../config/validate.js';
 import { runRules } from '../../../core/runner.js';
-import { parseMarkdown } from '../../../parser/index.js';
-import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule } from '../../../types/index.js';
-import type { ScopeRuleContext } from '../../types.js';
 import { occurrence } from '../occurrence.js';
-
-// Builds a rule context with only the segments whose scope matches the filter.
-function buildScopedContext(
-  content: string,
-  scopeFilter: (scope: string) => boolean
-): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-  return { segments, content, tree };
-}
+import { buildScopedContext, expectInvalidOptions, expectValidOptions } from './helpers.js';
 
 function occurrenceRule(
   message: string,
@@ -136,163 +123,30 @@ describe('occurrence assertion', () => {
     expect(problems).toEqual([]);
   });
 
-  describe('validation rejects occurrence with neither min nor max', () => {
-    function occurrenceConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { occurrence: options },
-        },
-      };
-    }
-
-    it('errors when neither min nor max is set, mentioning min/max', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '[.!?]' }));
-
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('min') && error.message.includes('max')
-        )
-      ).toBe(true);
+  describe('validation', () => {
+    it.each<[string, Record<string, unknown>]>([
+      ['only max', { pattern: '[.!?]', max: 3 }],
+      ['only min', { pattern: '[.!?]', min: 1 }],
+      ['min === max (an exact-count requirement)', { pattern: '[.!?]', min: 3, max: 3 }],
+      ['numeric min and max', { pattern: ',', min: 1, max: 3 }],
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('occurrence', options);
     });
 
-    it('accepts occurrence with only max set', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '[.!?]', max: 3 }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('accepts occurrence with only min set', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '[.!?]', min: 1 }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('rejects an unknown occurrence option', async () => {
-      const result = await validate(
-        occurrenceConfig({ pattern: '[.!?]', max: 3, unknownOption: true })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-  });
-
-  // Without a `pattern`, the empty regex matches everywhere: a rule with `max` flags every segment and a rule with `min` never fires.
-  describe('validation rejects occurrence with a missing/invalid pattern', () => {
-    function occurrenceConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { occurrence: options },
-        },
-      };
-    }
-
-    it('errors when pattern is missing, mentioning pattern', async () => {
-      const result = await validate(occurrenceConfig({ min: 1 }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pattern'))).toBe(true);
-    });
-
-    it('errors when pattern is an empty string, mentioning pattern', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '', max: 3 }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pattern'))).toBe(true);
-    });
-
-    it('errors when pattern is not a string, mentioning pattern', async () => {
-      const result = await validate(occurrenceConfig({ pattern: 42, max: 3 }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('pattern'))).toBe(true);
-    });
-
-    it('still accepts occurrence with a valid non-empty string pattern', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '[.!?]', max: 3 }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-  });
-
-  // An inverted range (min > max) flags every segment, so it is rejected.
-  describe('validation rejects occurrence with min > max', () => {
-    function occurrenceConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { occurrence: options },
-        },
-      };
-    }
-
-    it('errors when min exceeds max, mentioning both bounds', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '[.!?]', min: 5, max: 3 }));
-
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('min') && error.message.includes('max')
-        )
-      ).toBe(true);
-    });
-
-    it('still accepts min === max (an exact-count requirement)', async () => {
-      const result = await validate(occurrenceConfig({ pattern: '[.!?]', min: 3, max: 3 }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-  });
-
-  // A non-numeric `min` or `max` (like "two") makes the comparison always false, so it is rejected.
-  describe('validation rejects non-number min/max', () => {
-    function occurrenceConfig(options: Record<string, unknown>) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { occurrence: options },
-        },
-      };
-    }
-
-    it("rejects a non-number max (the brief's exact repro)", async () => {
-      const result = await validate(occurrenceConfig({ pattern: ',', max: 'two' }));
-
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('max') && error.message.includes('number')
-        )
-      ).toBe(true);
-    });
-
-    it('rejects a non-number min', async () => {
-      const result = await validate(occurrenceConfig({ pattern: ',', min: '2' }));
-
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('min') && error.message.includes('number')
-        )
-      ).toBe(true);
-    });
-
-    it('still accepts numeric min/max', async () => {
-      const result = await validate(occurrenceConfig({ pattern: ',', min: 1, max: 3 }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+    it.each<[string, Record<string, unknown>, ...string[]]>([
+      ['neither min nor max', { pattern: '[.!?]' }, 'min', 'max'],
+      ['an unknown option', { pattern: '[.!?]', max: 3, unknownOption: true }, 'unknownOption'],
+      // Without a `pattern`, the empty regex matches everywhere: `max` flags every segment and `min` never fires.
+      ['a missing pattern', { min: 1 }, 'pattern'],
+      ['an empty pattern', { pattern: '', max: 3 }, 'pattern'],
+      ['a non-string pattern', { pattern: 42, max: 3 }, 'pattern'],
+      // An inverted range flags every segment.
+      ['min greater than max', { pattern: '[.!?]', min: 5, max: 3 }, 'min', 'max'],
+      // A non-numeric bound makes the comparison always false.
+      ['a non-number max', { pattern: ',', max: 'two' }, 'max', 'number'],
+      ['a non-number min', { pattern: ',', min: '2' }, 'min', 'number'],
+    ])('rejects %s', async (_label, options, ...mentions) => {
+      await expectInvalidOptions('occurrence', options, ...mentions);
     });
   });
 

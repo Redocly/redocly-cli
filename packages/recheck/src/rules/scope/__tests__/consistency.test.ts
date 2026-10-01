@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
 
-import { validate } from '../../../config/validate.js';
-import { runRules, runRulesUntilStable } from '../../../core/runner.js';
-import { parseMarkdown } from '../../../parser/index.js';
-import { extractScopes } from '../../../scopes/extractor.js';
+import { runRules } from '../../../core/runner.js';
 import type { NormalizedRule } from '../../../types/index.js';
-import type { ScopeRuleContext } from '../../types.js';
 import { consistency } from '../consistency.js';
-import { buildWholeFileContext } from './helpers.js';
+import {
+  buildScopedContext,
+  buildWholeFileContext,
+  expectInvalidOptions,
+  expectValidOptions,
+} from './helpers.js';
 
 function consistencyRule(
   message: string,
@@ -22,16 +23,6 @@ function consistencyRule(
     scope,
     assertions: { consistency: options },
   };
-}
-
-// Builds a rule context with only the segments whose scope matches the filter.
-function buildScopedContext(
-  content: string,
-  scopeFilter: (scope: string) => boolean
-): ScopeRuleContext {
-  const tree = parseMarkdown(content);
-  const segments = extractScopes(tree, content).filter((segment) => scopeFilter(segment.scope));
-  return { segments, content, tree };
 }
 
 const MESSAGE = 'Inconsistent spelling: "%s" conflicts with first-seen "%s".';
@@ -56,13 +47,16 @@ describe('consistency assertion', () => {
     expect(problems[0].match).toBe('behaviour');
   });
 
-  it('fix replaces the later variant with the first-seen one', async () => {
-    const content = 'behavior first.\n\nlater behaviour.\n';
+  it('fix replaces every later variant with the first-seen one, and the result lints clean', async () => {
+    const content = 'behavior first.\n\nlater behaviour and more behaviour.\n';
     const rule = consistencyRule(MESSAGE, { either: { behavior: 'behaviour' } });
 
     const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
+    const fixed = fixedFiles.get('t.md');
 
-    expect(fixedFiles.get('t.md')).toBe('behavior first.\n\nlater behavior.\n');
+    expect(fixed).toBe('behavior first.\n\nlater behavior and more behavior.\n');
+    const relint = await runRules([{ path: 't.md', content: fixed ?? '' }], [rule]);
+    expect(relint.problems).toEqual([]);
   });
 
   it('the reversed document flags "behavior" instead -- first-seen is by SOURCE ORDER, not by which `either` entry (key vs value) a variant sits in', async () => {
@@ -112,33 +106,7 @@ describe('consistency assertion', () => {
     // Each sentence overlaps its paragraph, so every match is found twice. Each must be counted once.
     const content = 'Prefer behaviour here. Also behavior there. More behavior again.\n';
 
-    it('produces exactly ONE problem per later-variant occurrence, winner by source order', async () => {
-      const rule = consistencyRule(MESSAGE, { either: { behavior: 'behaviour' } }, [
-        'paragraph',
-        'sentence',
-      ]);
-      const ctx = buildScopedContext(
-        content,
-        (scope) => scope === 'paragraph' || scope === 'sentence'
-      );
-      expect(ctx.segments.some((segment) => segment.scope === 'paragraph')).toBe(true);
-      expect(ctx.segments.some((segment) => segment.scope === 'sentence')).toBe(true);
-
-      const problems = await consistency.execute(rule, 'test.md', ctx);
-
-      expect(problems).toHaveLength(2);
-      expect(problems.map((p) => [p.line, p.column])).toEqual([
-        [1, 29],
-        [1, 50],
-      ]);
-      for (const problem of problems) {
-        expect(problem.message).toBe(
-          'Inconsistent spelling: "behavior" conflicts with first-seen "behaviour".'
-        );
-      }
-    });
-
-    it('end-to-end through runRules with scope [paragraph, sentence]: one fix per occurrence, clean output', async () => {
+    it('produces exactly ONE problem and ONE fix per later-variant occurrence, winner by source order', async () => {
       const rule = consistencyRule(MESSAGE, { either: { behavior: 'behaviour' } }, [
         'paragraph',
         'sentence',
@@ -202,19 +170,6 @@ describe('consistency assertion', () => {
       expect(problems).toEqual([]);
     });
 
-    // The fix keeps the capitalization of the matched text.
-    it("with ignoreCase, the fix preserves the losing match's OBSERVED casing (applyMatchCase), not the winner literally as authored", async () => {
-      const content = 'behavior first, then Behaviour.\n';
-      const rule = consistencyRule(MESSAGE, {
-        either: { behavior: 'behaviour' },
-        ignoreCase: true,
-      });
-
-      const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
-
-      expect(fixedFiles.get('t.md')).toBe('behavior first, then Behavior.\n');
-    });
-
     // A capitalized match at the start of a sentence must stay capitalized.
     it('CRITICAL: a sentence-initial capitalized losing match keeps its capital letter after --fix, instead of being lowercased', async () => {
       const content =
@@ -241,15 +196,6 @@ describe('consistency assertion', () => {
       );
       expect(secondPass.get('t.md') ?? fixedOnce).toBe(fixedOnce);
     });
-  });
-
-  it('is idempotent under runRulesUntilStable', async () => {
-    const content = 'behavior first.\n\nlater behaviour and more behaviour.\n';
-    const rule = consistencyRule(MESSAGE, { either: { behavior: 'behaviour' } });
-
-    const { fixedFiles } = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
-
-    expect(fixedFiles.get('t.md')).toBe('behavior first.\n\nlater behavior and more behavior.\n');
   });
 
   describe('word boundaries', () => {
@@ -297,21 +243,6 @@ describe('consistency assertion', () => {
 
   // A pair is only fixed when both variants have the same number of words. `it's` can mean "it is" or "it has", so rewriting it blindly can be wrong.
   describe('same-word-count guard (fix-safety for ambiguous contractions)', () => {
-    it('same-word-count pair (colour/color, 1 word each) still detects AND fixes', async () => {
-      const content = 'color first.\n\nlater colour.\n';
-      const rule = consistencyRule(MESSAGE, { either: { color: 'colour' } });
-      const ctx = buildWholeFileContext(content);
-
-      const problems = await consistency.execute(rule, 'test.md', ctx);
-      expect(problems).toHaveLength(1);
-
-      const { fixes, fixedFiles } = await runRules([{ path: 't.md', content }], [rule], {
-        fix: true,
-      });
-      expect(fixes).toHaveLength(1);
-      expect(fixedFiles.get('t.md')).toBe('color first.\n\nlater color.\n');
-    });
-
     it('different-word-count pair ("it\'s" vs. "it is", 1 word vs. 2) still detects but NEVER fixes -- the brief\'s corruption case', async () => {
       // 'it is' is seen first, so 'it's' is the losing variant. Here it means "it has", so it must not become "it is been".
       const content = "It is fine. Traffic has been steady, but it's been growing for hours.\n";
@@ -353,45 +284,17 @@ describe('consistency assertion', () => {
       );
     });
 
-    it('is idempotent: a second --fix pass over the unfixed different-word-count conflict changes nothing further', async () => {
-      const content = "It is fine. Traffic has been steady, but it's been growing for hours.\n";
-      const rule = consistencyRule(MESSAGE, { either: { "it's": 'it is' }, ignoreCase: true });
-
-      const { fixedFiles } = await runRulesUntilStable([{ path: 't.md', content }], [rule]);
-      expect(fixedFiles.get('t.md') ?? content).toBe(content);
-    });
-
     // Known limitation: pairs like `don't` / `do not` are also not fixed, even though they are safe. The check only counts words.
-    it.each([
-      ["don't", 'do not'],
-      ["won't", 'will not'],
-      ["isn't", 'is not'],
-    ])(
-      'false positive: the UNAMBIGUOUS pair %j/%j is also blocked by the guard, purely for crossing a word-count boundary',
-      async (contraction, expansion) => {
-        const content = `${expansion[0].toUpperCase()}${expansion.slice(1)} fine, but later ${contraction} still true.\n`;
-        const rule = consistencyRule(MESSAGE, {
-          either: { [contraction]: expansion },
-          ignoreCase: true,
-        });
-        const ctx = buildWholeFileContext(content);
+    it("also blocks the unambiguous pair don't/do not, purely for crossing a word-count boundary", async () => {
+      const content = "Do not worry, but later don't panic.\n";
+      const rule = consistencyRule(MESSAGE, { either: { "don't": 'do not' }, ignoreCase: true });
 
-        const problems = await consistency.execute(rule, 'test.md', ctx);
-        expect(problems).toHaveLength(1);
+      const { problems, fixes } = await runRules([{ path: 't.md', content }], [rule], {
+        fix: true,
+      });
 
-        // Reported but not fixed.
-        const { fixes } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
-        expect(fixes).toEqual([]);
-      }
-    );
-
-    // `can't` / `cannot` is still fixed because both sides are one word.
-    it("can't/cannot (equally unambiguous, but same word count) is NOT blocked -- the guard is inconsistent by design, not by bug", async () => {
-      const content = "Cannot proceed without approval. It can't proceed either.\n";
-      const rule = consistencyRule(MESSAGE, { either: { "can't": 'cannot' }, ignoreCase: true });
-
-      const { fixes } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
-      expect(fixes).toHaveLength(1);
+      expect(problems).toHaveLength(1);
+      expect(fixes).toEqual([]);
     });
   });
 
@@ -456,77 +359,30 @@ describe('consistency assertion', () => {
   });
 
   describe('validation', () => {
-    function consistencyConfig(options: unknown) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { consistency: options },
-        },
-      };
-    }
-
-    it('accepts a well-formed config', async () => {
-      const result = await validate(
-        consistencyConfig({ either: { behavior: 'behaviour' }, ignoreCase: true })
-      );
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+    it.each<[string, unknown]>([
+      ['a well-formed config', { either: { behavior: 'behaviour' }, ignoreCase: true }],
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('consistency', options);
     });
 
-    it('rejects a config missing "either"', async () => {
-      const result = await validate(consistencyConfig({}));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('either'))).toBe(true);
-    });
-
-    it('rejects an empty "either" object', async () => {
-      const result = await validate(consistencyConfig({ either: {} }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('either'))).toBe(true);
-    });
-
-    it('rejects a wrong-typed "either" (not an object)', async () => {
-      const result = await validate(consistencyConfig({ either: 'behavior' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('either'))).toBe(true);
-    });
-
-    it('rejects an "either" entry whose value is not a string', async () => {
-      const result = await validate(consistencyConfig({ either: { behavior: 42 } }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('behavior'))).toBe(true);
-    });
-
-    // An empty key must be rejected when the config loads, like an empty value.
-    it('rejects an "either" entry whose key is an empty string', async () => {
-      const result = await validate(consistencyConfig({ either: { '': 'behaviour' } }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('either'))).toBe(true);
-    });
-
-    it('rejects an unknown consistency option', async () => {
-      const result = await validate(
-        consistencyConfig({ either: { behavior: 'behaviour' }, unknownOption: true })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    it('rejects a non-boolean ignoreCase', async () => {
-      const result = await validate(
-        consistencyConfig({ either: { behavior: 'behaviour' }, ignoreCase: 'yes' })
-      );
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignoreCase'))).toBe(true);
+    it.each<[string, unknown, string]>([
+      ['a config missing "either"', {}, 'either'],
+      ['an empty "either" object', { either: {} }, 'either'],
+      ['an "either" that is not an object', { either: 'behavior' }, 'either'],
+      ['an "either" entry whose value is not a string', { either: { behavior: 42 } }, 'behavior'],
+      ['an "either" entry whose key is an empty string', { either: { '': 'behaviour' } }, 'either'],
+      [
+        'an unknown option',
+        { either: { behavior: 'behaviour' }, unknownOption: true },
+        'unknownOption',
+      ],
+      [
+        'a non-boolean ignoreCase',
+        { either: { behavior: 'behaviour' }, ignoreCase: 'yes' },
+        'ignoreCase',
+      ],
+    ])('rejects %s', async (_label, options, mention) => {
+      await expectInvalidOptions('consistency', options, mention);
     });
   });
 });

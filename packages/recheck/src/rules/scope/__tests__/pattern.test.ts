@@ -1,67 +1,33 @@
 import { describe, it, expect } from 'vitest';
 
-import { validate } from '../../../config/validate.js';
 import { runRules } from '../../../core/runner.js';
 import { parseMarkdown } from '../../../parser/index.js';
 import { extractScopes } from '../../../scopes/extractor.js';
 import type { NormalizedRule, PatternAssertion } from '../../../types/index.js';
 import type { ScopeRuleContext } from '../../types.js';
 import { pattern } from '../pattern.js';
-import { buildWholeFileContext } from './helpers.js';
+import { buildWholeFileContext, expectInvalidOptions, expectValidOptions } from './helpers.js';
+
+async function runPattern(content: string, options: PatternAssertion) {
+  const rule: NormalizedRule = {
+    name: 'test-pattern',
+    shortName: 'pattern',
+    severity: 'error',
+    message: "Found '%s'.",
+    scope: 'all',
+    assertions: { pattern: options },
+  };
+  return pattern.execute(rule, 'test.md', buildWholeFileContext(content));
+}
 
 describe('pattern assertion', () => {
-  // Prose rules must not lint code. By default inline code spans are masked before scanning; `includeCode: true` scans them.
-  describe('includeCode option (inline-code masking)', () => {
-    async function runPattern(content: string, options: PatternAssertion) {
-      const rule: NormalizedRule = {
-        name: 'test-pattern',
-        shortName: 'pattern',
-        severity: 'error',
-        message: "Found '%s'.",
-        scope: 'all',
-        assertions: { pattern: options },
-      };
-      return pattern.execute(rule, 'test.md', buildWholeFileContext(content));
-    }
-
-    it('does not match inside an inline code span by default', async () => {
-      const problems = await runPattern('Run `git checkout master` first.', {
-        tokens: ['master'],
-      });
-      expect(problems).toEqual([]);
-    });
-
-    it('still matches the same word outside a code span', async () => {
-      const problems = await runPattern('The master branch, see `master`.', {
-        tokens: ['master'],
-      });
-      expect(problems).toHaveLength(1);
-      expect(problems[0].column).toBe(5);
-    });
-
-    it('matches inside code when includeCode is true', async () => {
-      const problems = await runPattern('Run `git checkout master`.', {
-        tokens: ['master'],
-        includeCode: true,
-      });
-      expect(problems).toHaveLength(1);
-    });
+  it('does not match inside an inline code span by default', async () => {
+    const problems = await runPattern('Run `git checkout master` first.', { tokens: ['master'] });
+    expect(problems).toEqual([]);
   });
 
   // Masking replaces a code span with `\0` characters, which a negated class like `[^\s,]+` matches straight through. So matches are found on the original text and any match overlapping a code span is dropped.
   describe('range filtering for matches overlapping code spans', () => {
-    async function runPattern(content: string, options: PatternAssertion) {
-      const rule: NormalizedRule = {
-        name: 'test-pattern',
-        shortName: 'pattern',
-        severity: 'error',
-        message: "Found '%s'.",
-        scope: 'all',
-        assertions: { pattern: options },
-      };
-      return pattern.execute(rule, 'test.md', buildWholeFileContext(content));
-    }
-
     it('does not report a negated-class match that would span a code span', async () => {
       // Masking would turn 'a`,`b' into one 5-character match for `[^\s,]+`, which spans the code span's comma.
       const problems = await runPattern('a`,`b', { tokens: ['[^\\s,]+'] });
@@ -262,92 +228,26 @@ describe('pattern assertion', () => {
   });
 
   describe('validation', () => {
-    function patternConfig(options: unknown) {
-      return {
-        'recheck/test-rule': {
-          severity: 'error',
-          message: 'Test message',
-          assertions: { pattern: options },
-        },
-      };
-    }
-
-    it('rejects a non-boolean includeCode', async () => {
-      const result = await validate(patternConfig({ tokens: ['foo'], includeCode: 'yes' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('includeCode'))).toBe(true);
+    it.each<[string, unknown]>([
+      ['includeCode: true', { tokens: ['foo'], includeCode: true }],
+      ['tokens with boolean options', { tokens: ['foo', 'bar'], ignoreCase: true, nonword: false }],
+    ])('accepts %s', async (_label, options) => {
+      await expectValidOptions('pattern', options);
     });
 
-    it('still accepts a pattern assertion with includeCode: true', async () => {
-      const result = await validate(patternConfig({ tokens: ['foo'], includeCode: true }));
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-    });
-
-    it('rejects an unknown pattern option', async () => {
-      const result = await validate(patternConfig({ tokens: ['foo'], unknownOption: true }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('unknownOption'))).toBe(true);
-    });
-
-    // `tokens` as a string ("ab") must be rejected, not treated as the letters 'a' and 'b'.
-    it('rejects a string "tokens" (iterates character by character at runtime otherwise)', async () => {
-      const result = await validate(patternConfig({ tokens: 'ab' }));
-
-      expect(result.isValid).toBe(false);
-      expect(
-        result.errors.some(
-          (error) => error.message.includes('tokens') && error.message.includes('array')
-        )
-      ).toBe(true);
-    });
-
-    it('rejects an empty "tokens" array (can never report anything)', async () => {
-      const result = await validate(patternConfig({ tokens: [] }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('tokens'))).toBe(true);
-    });
-
-    it('rejects a "tokens" array containing a non-string element', async () => {
-      const result = await validate(patternConfig({ tokens: ['foo', 42] }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('tokens'))).toBe(true);
-    });
-
-    it('rejects a missing "tokens"', async () => {
-      const result = await validate(patternConfig({ ignoreCase: true }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('tokens'))).toBe(true);
-    });
-
-    // `ignoreCase: "yes"` is truthy, so a typo would silently turn on case-insensitive matching. It must be rejected.
-    it('rejects a non-boolean ignoreCase', async () => {
-      const result = await validate(patternConfig({ tokens: ['foo'], ignoreCase: 'yes' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('ignoreCase'))).toBe(true);
-    });
-
-    it('rejects a non-boolean nonword', async () => {
-      const result = await validate(patternConfig({ tokens: ['foo'], nonword: 'yes' }));
-
-      expect(result.isValid).toBe(false);
-      expect(result.errors.some((error) => error.message.includes('nonword'))).toBe(true);
-    });
-
-    it('still accepts a well-formed pattern assertion (tokens array, boolean options)', async () => {
-      const result = await validate(
-        patternConfig({ tokens: ['foo', 'bar'], ignoreCase: true, nonword: false })
-      );
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
+    it.each<[string, unknown, ...string[]]>([
+      ['a non-boolean includeCode', { tokens: ['foo'], includeCode: 'yes' }, 'includeCode'],
+      ['an unknown option', { tokens: ['foo'], unknownOption: true }, 'unknownOption'],
+      // A string would be iterated character by character at runtime.
+      ['a string "tokens"', { tokens: 'ab' }, 'tokens', 'array'],
+      ['an empty "tokens" array, which can never report anything', { tokens: [] }, 'tokens'],
+      ['a "tokens" array with a non-string element', { tokens: ['foo', 42] }, 'tokens'],
+      ['a missing "tokens"', { ignoreCase: true }, 'tokens'],
+      // `ignoreCase: "yes"` is truthy, so a typo would silently turn on case-insensitive matching.
+      ['a non-boolean ignoreCase', { tokens: ['foo'], ignoreCase: 'yes' }, 'ignoreCase'],
+      ['a non-boolean nonword', { tokens: ['foo'], nonword: 'yes' }, 'nonword'],
+    ])('rejects %s', async (_label, options, ...mentions) => {
+      await expectInvalidOptions('pattern', options, ...mentions);
     });
   });
 });

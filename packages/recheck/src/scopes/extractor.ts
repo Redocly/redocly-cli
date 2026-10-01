@@ -215,9 +215,8 @@ function shiftSpans(
 }
 
 // `summary` is the document's prose: the sentence sources plus headings and table cells.
-// This set also decides which scopes get markdoc-masked. It is exported so tests can check
-// that every member has a masking fixture.
-export const SUMMARY_BLOCK_SOURCES = new Set([...SENTENCE_SOURCES, 'table.header', 'table.cell']);
+// This set also decides which scopes get markdoc-masked.
+const SUMMARY_BLOCK_SOURCES = new Set([...SENTENCE_SOURCES, 'table.header', 'table.cell']);
 
 // Headings arrive as `heading.h1` to `heading.h6`, never a bare 'heading'.
 export function isSummarySource(scope: string): boolean {

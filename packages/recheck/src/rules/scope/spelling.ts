@@ -98,7 +98,7 @@ function toSourceColumn(segment: ScopedSegment, lineNumber: number, column: numb
 }
 
 /** Returns `''` for no suggestions, or `' — did you mean: a, b, c?'`. */
-export function formatSuggestionSuffix(suggestions: string[]): string {
+function formatSuggestionSuffix(suggestions: string[]): string {
   if (suggestions.length === 0) return '';
   return ` — did you mean: ${suggestions.join(', ')}?`;
 }

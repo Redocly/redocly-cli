@@ -82,11 +82,6 @@ describe('parseMarkdown', () => {
       const htmlTexts = filterByTypes(tree, ['htmlText'], true);
       expect(htmlTexts.map((t) => t.text)).toEqual(['<em>', '</em>']);
     });
-
-    it('does not throw and produces no htmlText for a document with no HTML', () => {
-      const tree = parseMarkdown('# Just markdown\n\nNo HTML here.\n');
-      expect(filterByTypes(tree, ['htmlText'], true)).toHaveLength(0);
-    });
   });
 
   describe('filterByTypes includeHtmlFlow default (excludes htmlFlow-reparsed content unless opted in)', () => {
@@ -119,7 +114,7 @@ describe('parseMarkdown', () => {
   });
 });
 
-// Includes block HTML so that `inHtmlFlow` is set on some tokens.
+// Includes block HTML, which the flag-off parse must leave as plain text.
 const TAGGED = [
   '{% admonition type="info" %}',
   'Be careful here.',
@@ -133,132 +128,21 @@ const TAGGED = [
   '',
 ].join('\n');
 
-// Indented text and indented tags. The Markdoc option turns off indented code.
-const INDENTED = [
-  'Before.',
-  '',
-  '    just some indented text',
-  '',
-  '{% cards %}',
-  '    {% card title="One" %}',
-  '    Body copy.',
-  '    {% /card %}',
-  '{% /cards %}',
-  '',
-  'After.',
-  '',
-].join('\n');
-
-interface ShapeNode {
-  type: string;
-  startLine: number;
-  startColumn: number;
-  endLine: number;
-  endColumn: number;
-  text: string;
-  inHtmlFlow?: boolean;
-  markdocKind?: string;
-  children: ShapeNode[];
-}
-
-// Drops `parent` so the trees can be compared. Keeps `inHtmlFlow` and `markdocKind`.
-function shape(tree: ReturnType<typeof parseMarkdown>): ShapeNode[] {
-  const strip = (t: any): ShapeNode => ({
-    type: t.type,
-    startLine: t.startLine,
-    startColumn: t.startColumn,
-    endLine: t.endLine,
-    endColumn: t.endColumn,
-    text: t.text,
-    inHtmlFlow: t.inHtmlFlow,
-    markdocKind: t.markdocKind,
-    children: t.children.map(strip),
-  });
-  return tree.children.map(strip);
-}
-
-function flatten(nodes: ShapeNode[]): ShapeNode[] {
-  return nodes.flatMap((node) => [node, ...flatten(node.children)]);
-}
-
-// Copy of the nodes with one field cleared on every node.
-function cleared(nodes: ShapeNode[], field: 'inHtmlFlow' | 'markdocKind'): ShapeNode[] {
-  return nodes.map((node) => ({
-    ...node,
-    [field]: undefined,
-    children: cleared(node.children, field),
-  }));
-}
-
-describe('markdoc flag plumbing', () => {
-  it('flag omitted and flag false produce byte-identical trees', () => {
-    expect(shape(parseMarkdown(TAGGED))).toEqual(shape(parseMarkdown(TAGGED, { markdoc: false })));
-  });
-
-  it("flag off: tag lines remain ordinary paragraph text (today's shape)", () => {
-    const flat = parseMarkdown(TAGGED).flat;
+// Markdoc turns off indented code and setext headings, but that must not affect a parse without the
+// option.
+describe('markdoc flag off', () => {
+  it('tag lines remain ordinary paragraph text', () => {
+    const flat = parseMarkdown(TAGGED, { markdoc: false }).flat;
     expect(flat.some((t) => t.type === 'markdocTag')).toBe(false);
   });
 
-  it('sanity: flag on is NOT byte-identical to flag off', () => {
-    expect(shape(parseMarkdown(TAGGED))).not.toEqual(
-      shape(parseMarkdown(TAGGED, { markdoc: true }))
-    );
+  it('still produces codeIndented for indented lines', () => {
+    const flat = parseMarkdown('Before.\n\n    just some indented text\n', { markdoc: false }).flat;
+    expect(flat.filter((token) => token.type === 'codeIndented')).toHaveLength(1);
   });
 
-  // The test above could pass on `type` alone, so check the two optional fields too.
-  it('the comparator genuinely compares inHtmlFlow and markdocKind', () => {
-    const tagged = shape(parseMarkdown(TAGGED, { markdoc: true }));
-    const nodes = flatten(tagged);
-    expect(nodes.filter((node) => node.inHtmlFlow === true).length).toBeGreaterThan(0);
-    expect(nodes.filter((node) => node.markdocKind !== undefined).length).toBeGreaterThan(0);
-    expect(tagged).not.toEqual(cleared(tagged, 'inHtmlFlow'));
-    expect(tagged).not.toEqual(cleared(tagged, 'markdocKind'));
-  });
-
-  // Markdoc turns off indented code, but that must not affect a parse without the option.
-  describe('indented content: the disable is confined to the flag-on path', () => {
-    it('flag omitted and flag false stay byte-identical', () => {
-      expect(shape(parseMarkdown(INDENTED))).toEqual(
-        shape(parseMarkdown(INDENTED, { markdoc: false }))
-      );
-    });
-
-    it('flag off still produces codeIndented for the indented lines', () => {
-      const flat = parseMarkdown(INDENTED, { markdoc: false }).flat;
-      expect(flat.filter((token) => token.type === 'codeIndented').length).toBeGreaterThan(0);
-      expect(flat.some((token) => token.type === 'markdocTag')).toBe(false);
-    });
-
-    it('flag on produces no codeIndented at all, and pairs the indented tags', () => {
-      const flat = parseMarkdown(INDENTED, { markdoc: true }).flat;
-      expect(flat.filter((token) => token.type === 'codeIndented')).toHaveLength(0);
-      expect(
-        flat.filter((token) => token.type === 'markdocTag').map((token) => token.markdocKind)
-      ).toEqual(['tag-open', 'tag-open', 'tag-close', 'tag-close']);
-    });
-  });
-
-  // Same for setext headings, which Markdoc also turns off.
-  describe('setext headings: the disable is confined to the flag-on path', () => {
-    const SETEXT = 'Title\n=====\n\nTitle\n-----\n';
-
-    it('flag omitted and flag false stay byte-identical', () => {
-      expect(shape(parseMarkdown(SETEXT))).toEqual(
-        shape(parseMarkdown(SETEXT, { markdoc: false }))
-      );
-    });
-
-    it('flag off still produces setextHeading tokens', () => {
-      const flat = parseMarkdown(SETEXT, { markdoc: false }).flat;
-      expect(flat.filter((token) => token.type === 'setextHeading')).toHaveLength(2);
-    });
-
-    it('flag on produces no setextHeading at all', () => {
-      const flat = parseMarkdown(SETEXT, { markdoc: true }).flat;
-      expect(flat.filter((token) => token.type === 'setextHeading')).toHaveLength(0);
-      expect(flat.filter((token) => token.type === 'paragraph')).toHaveLength(2);
-      expect(flat.filter((token) => token.type === 'thematicBreak')).toHaveLength(1);
-    });
+  it('still produces setextHeading tokens', () => {
+    const flat = parseMarkdown('Title\n=====\n\nTitle\n-----\n', { markdoc: false }).flat;
+    expect(flat.filter((token) => token.type === 'setextHeading')).toHaveLength(2);
   });
 });

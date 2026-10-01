@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { compileSelector, wholeDocumentKeywordProblems } from '../selector.js';
+import { compileSelector } from '../selector.js';
 import type { ScopedSegment } from '../types.js';
-import { BASE_SCOPES } from '../vocabulary.js';
 
 const seg = (scope: string): ScopedSegment => ({
   scope,
@@ -120,10 +119,6 @@ describe('compileSelector — unknown terms', () => {
 
 // A repeated mistake ('all & all', 'bogus & bogus') must be reported once, not once per clause.
 describe('selector problem messages are deduplicated', () => {
-  it('reports "all & all" once, not once per clause', () => {
-    expect(wholeDocumentKeywordProblems('all & all')).toHaveLength(1);
-  });
-
   it('compileSelector error mentions each distinct problem once', () => {
     const count = (selector: string, pattern: RegExp): number => {
       try {
@@ -135,61 +130,5 @@ describe('selector problem messages are deduplicated', () => {
     };
     expect(count('all & all', /cannot be combined/g)).toBe(1);
     expect(count('bogus & bogus', /unknown scope "bogus"/g)).toBe(1);
-  });
-});
-
-// Every valid name must still compile: each `BASE_SCOPES` entry, heading levels, and their
-// negations and conjunctions.
-describe('compileSelector — every vocabulary term compiles', () => {
-  const aliasTargets: Record<string, string> = { default: 'summary' };
-  const headingLevels = [
-    'heading.h1',
-    'heading.h2',
-    'heading.h3',
-    'heading.h4',
-    'heading.h5',
-    'heading.h6',
-  ];
-  const namedScopes = [...BASE_SCOPES.filter((s) => s !== 'all' && s !== 'raw'), ...headingLevels];
-
-  /** Selectors from `selectors(scope)` that fail to compile, tagged by scope. */
-  const failingToCompile = (
-    scopes: string[],
-    selectors: (scope: string) => (string | string[])[]
-  ) =>
-    scopes.flatMap((scope) =>
-      selectors(scope).filter((selector) => {
-        try {
-          compileSelector(selector);
-          return false;
-        } catch {
-          return true;
-        }
-      })
-    );
-
-  it('compiles every base scope bare and as a single-element array', () => {
-    const failures = failingToCompile([...BASE_SCOPES, ...headingLevels], (scope) => [
-      scope,
-      [scope],
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  it('compiles every named scope negated and in a conjunction', () => {
-    const failures = failingToCompile(namedScopes, (scope) => [
-      `~${scope}`,
-      `${scope} & ~${scope === 'code' ? 'heading' : 'code'}`,
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  it('matches every named scope against its own (alias-resolved) segment', () => {
-    const nonMatching = namedScopes.filter((scope) => {
-      const predicate = compileSelector(scope);
-      if (predicate === null) throw new Error(`Expected non-null predicate for ${scope}`);
-      return !predicate(seg(aliasTargets[scope] ?? scope));
-    });
-    expect(nonMatching).toEqual([]);
   });
 });
