@@ -22,6 +22,7 @@ When a command is run, the following data is collected:
 - names of lint rules that reported errors, warnings, or ignored problems
 - Arazzo x-security authentication types
 - for `generate-client` and `eject-generator`: which built-in generators and toolkit helpers are used, coarse outcome categories, and the toolkit versions involved — never file contents, paths, or names you chose
+- for `bundle`: how many overlays are applied — never their paths or contents
 - platform (Linux, macOS, Windows)
 - anonymous ID (a randomly generated identifier that doesn't contain personal information)
 - command execution time

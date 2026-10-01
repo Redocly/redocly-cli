@@ -1,5 +1,30 @@
 # @redocly/client-generator
 
+## 0.4.20
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 0.4.19
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 0.4.18
+
+### Patch Changes
+
+- Fixed the `codeSamples` overlay so it applies to paths that contain a quote and to path items defined in `components.pathItems`, and adds the samples of a path item that several paths share only once.
+- Updated @redocly/openapi-core to v2.56.0.
+
+## 0.4.17
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.55.0.
+
 ## 0.4.16
 
 ### Patch Changes

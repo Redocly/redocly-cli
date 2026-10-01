@@ -14,6 +14,7 @@ function createMatchedOperation(): MatchedOperation {
       requestParameters: [],
       requestBodyContent: {},
       requestBodyRequired: false,
+      responseStatuses: [],
       responseBodyContent: {},
       security: undefined,
       securitySchemes: {},
@@ -55,6 +56,7 @@ function createContext(
     matchedOperation: createMatchedOperation(),
     matchMode: 'strict-host',
     hostCompatibleWithSpecServers: true,
+    cookies: {},
     validateSchema: () => ({ valid: true, errors: [] }),
   };
 }

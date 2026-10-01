@@ -119,7 +119,7 @@ The `--project-dir` option is designed to help manage multiple projects by reduc
 
 ## Tips on using `eject`
 
-- Use `eject` when your customization needs outgrow [styling](https://redocly.com/docs/realm/style/how-to/customize-styles) or [configuration](https://redocly.com/docs/realm/config) capabilities.
+- Use `eject` when your customization needs outgrow [styling](https://redocly.com/docs/realm/branding/customize-styles) or [configuration](https://redocly.com/docs/realm/config) capabilities.
 
 - A list of ejectable components is printed when no component is found by the `eject` command.
 
