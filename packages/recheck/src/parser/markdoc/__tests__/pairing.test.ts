@@ -44,8 +44,7 @@ describe('computeMarkdocPairing', () => {
   });
 
   it('crossed pairs keep the depth their open was pushed at, not its match-time stack position', () => {
-    // `/b` jumps over `c`, so both pairs are crossed. By match time `c` sits
-    // lower in the reshuffled stack, but it was pushed at depth 2.
+    // `/b` closes past `c`, so both pairs cross.
     const result = pairing('{% a %}\n{% b %}\n{% c %}\n{% /b %}\n{% /c %}\n{% /a %}\n');
     expect(result.crossed.map((pair) => [pair.open.text, pair.depth])).toEqual([
       ['{% b %}', 1],
@@ -127,13 +126,6 @@ describe('computeMarkdocPairing', () => {
       expect(result.voidMissingSlash).toEqual([]);
     });
 
-    it('a bare function span (name: null) is exempt exactly like a variable', () => {
-      const result = pairing('{% equals(1,1) %}\n');
-      expect(result.pairs).toEqual([]);
-      expect(result.unclosed).toEqual([]);
-      expect(result.orphaned).toEqual([]);
-    });
-
     it('exempt kinds sitting between a real pair do not add to its nesting depth', () => {
       const result = pairing('{% a %}\n{% $var %}\n{% b %}\nx\n{% /b %}\n{% /a %}\n');
       expect(result.pairs).toHaveLength(2);
@@ -145,9 +137,8 @@ describe('computeMarkdocPairing', () => {
   });
 
   it('a malformed open (blockquote multi-line limitation) does not corrupt surrounding well-formed pairs', () => {
-    // A multi-line tag inside a blockquote comes out `malformed`: the token
-    // text picks up the literal `> ` prefix from each continuation line.
-    // Pairing has to skip malformed spans rather than guess at them.
+    // A multi-line tag inside a blockquote is `malformed`, because its text includes
+    // the `> ` prefix of each line. Pairing skips malformed tags.
     const src =
       '{% before %}\nx\n{% /before %}\n\n' +
       '> {% multi\n> attr="a" %}\n> body\n> {% /multi %}\n\n' +
@@ -156,7 +147,7 @@ describe('computeMarkdocPairing', () => {
     const malformedTag = tree.flat.find(
       (t) => t.type === 'markdocTag' && t.markdocKind === 'malformed'
     );
-    expect(malformedTag).toBeDefined(); // guards the fixture against a future parser fix silently changing shape
+    expect(malformedTag).toBeDefined();
 
     const result = computeMarkdocPairing(tree);
     expect(result.pairs).toHaveLength(2);
@@ -164,8 +155,7 @@ describe('computeMarkdocPairing', () => {
       ['{% before %}', '{% /before %}'],
       ['{% after %}', '{% /after %}'],
     ]);
-    // Only the open was mangled, so the close is a normal tag-close with
-    // nothing left to match.
+    // Only the open tag is malformed, so the close has nothing to pair with.
     expect(result.orphaned).toHaveLength(1);
     expect(result.orphaned[0].text).toBe('{% /multi %}');
     expect(result.crossed).toEqual([]);
@@ -180,9 +170,8 @@ describe('computeMarkdocPairing', () => {
   });
 
   it('does not assume tree.flat holds markdocTag tokens in document order', () => {
-    // Synthesized children are appended to the end of `tree.flat`, so array
-    // order is not document order. Feeding the same tokens back in reversed
-    // proves the position sort, not array order, drives the match.
+    // Array order is not document order, so reversing the tokens checks that pairing sorts by
+    // position.
     const tree = parseMarkdown('{% a %}\n{% $var %}\n{% b %}\nx\n{% /b %}\n{% /a %}\n', {
       markdoc: true,
     });

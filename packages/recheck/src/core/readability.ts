@@ -1,7 +1,4 @@
 import { computeTextStatistics, computeReadability } from '../metrics/index.js';
-// Document-level readability. The `readability` command reports these
-// numbers and the `metric` assertion gates on them; both read the same
-// prose (core/prose-extract.ts) and formulas (metrics/).
 import { parseMarkdown } from '../parser/index.js';
 import { extractScopes } from '../scopes/extractor.js';
 import { extractProse } from './prose-extract.js';
@@ -14,8 +11,8 @@ export interface DocumentReadability {
   /** Flesch-Kincaid grade level. Null when there is no prose. */
   fleschKincaidGrade: number | null;
   /**
-   * Automated Readability Index, a grade level from exact character counts --
-   * no syllable heuristic. Null when there is no prose.
+   * Automated Readability Index, a grade level based on character counts. Null when there is no
+   * prose.
    */
   automatedReadabilityIndex: number | null;
 }
@@ -28,7 +25,7 @@ export function computeDocumentReadability(
   const segments = extractScopes(tree, content).filter((segment) => segment.scope === 'summary');
   const blocks = extractProse(segments);
 
-  // Per block and summed, so a block's end is an unconditional sentence end.
+  // Count each block separately so the end of a block always ends a sentence.
   const stats = blocks.map(computeTextStatistics).reduce(
     (sum, one) => ({
       words: sum.words + one.words,

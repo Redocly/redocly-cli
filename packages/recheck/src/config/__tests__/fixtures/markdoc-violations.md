@@ -1,7 +1,6 @@
 # Markdoc violations fixture
 
-Every section below exercises exactly one violation class from
-`MARKDOC_VIOLATION_CLASSES` (config/presets/markdoc.ts), in isolation, so
+Every section below exercises exactly one violation class, in isolation, so
 `preset-markdoc.test.ts` can enumerate them one by one. See that file's own
 comments for why each snippet doesn't ALSO trip a neighboring class.
 

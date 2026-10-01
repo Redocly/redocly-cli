@@ -11,8 +11,6 @@ const fix = (partial: Partial<Fix>): Fix => ({
   ...partial,
 });
 
-// Most tests only care about the fixed content; classification tests below
-// use the full { content, applied, skipped } result.
 const apply = (content: string, fixes: Fix[]): string =>
   applyFixesToContent(content, fixes).content;
 
@@ -59,14 +57,9 @@ describe('applyFixesToContent', () => {
       fix({ editColumn: 2, deleteCount: 3, insertText: 'OVERLAP' }), // overlaps cols 2-4
     ];
     const output = apply('abcdef\n', fixes);
-    // Rightmost (col 2) applies first; the overlapping col-1 fix is skipped:
     expect(output).toBe('aOVERLAPef\n');
   });
 
-  // Mirrors upstream markdownlint's applyFixes: input is split with
-  // newLineRe (/\r\n?|\n/) and rejoined with the file's preferred line
-  // ending (getPreferredLineEnding), so a CRLF file stays CRLF after --fix
-  // and insertText '\n's are written using the file's own ending.
   describe('line endings', () => {
     it('preserves CRLF line endings on edits', () => {
       expect(
@@ -101,10 +94,6 @@ describe('applyFixesToContent', () => {
     });
   });
 
-  // Every input fix must land in exactly one of `applied`/`skipped`, so
-  // callers (the runner, and through it the CLI's "Auto-fixed N" report)
-  // can tell what actually changed the file apart from what was silently
-  // dropped by overlap resolution.
   describe('applied vs skipped classification', () => {
     it('classifies the overlap loser as skipped and the winner as applied', () => {
       const loser = fix({ editColumn: 1, deleteCount: 3, insertText: 'XYZ' });
@@ -133,8 +122,7 @@ describe('applyFixesToContent', () => {
     });
 
     it('classifies an exact duplicate as applied when its twin landed', () => {
-      // Two rules proposing byte-identical edits: only one edit lands in
-      // the content, but BOTH intents are satisfied — neither is "skipped".
+      // Identical edits from two rules: one edit lands, and neither fix counts as skipped.
       const twinA = fix({ editColumn: 6, deleteCount: 2 });
       const twinB = fix({ editColumn: 6, deleteCount: 2, ruleName: 'recheck/y' });
       const result = applyFixesToContent('hello  \nworld\n', [twinA, twinB]);
@@ -144,7 +132,6 @@ describe('applyFixesToContent', () => {
     });
 
     it('classifies a collapsed insert-only + delete-only pair at one position as applied', () => {
-      // Upstream's collapse step merges these into a single replacement.
       const insertOnly = fix({ editColumn: 2, insertText: 'X' });
       const deleteOnly = fix({ editColumn: 2, deleteCount: 1 });
       const result = applyFixesToContent('abc\n', [insertOnly, deleteOnly]);
@@ -234,8 +221,7 @@ describe('fixable marking narrows to what --fix can repair', () => {
       assertions: { consistency: { either: { "it's": 'it is' } } },
     };
 
-    // "it is" is seen first and wins; the "it's" finding cannot be fixed
-    // because the replacement crosses a word-count boundary.
+    // "it is" comes first and wins. The "it's" fix would change the word count, so it is not fixable.
     const content = "Say it is fine today, because later it's been growing.\n";
     const { problems } = await runRules([{ path: 'a.md', content }], [rule]);
     expect(problems).toHaveLength(1);

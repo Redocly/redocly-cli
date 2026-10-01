@@ -16,7 +16,9 @@ describe('no-duplicate-heading (MD024)', () => {
   });
 
   it('siblingsOnly allows the same text under different parents', async () => {
-    const siblingsOnly = tokenRuleHarness('no-duplicate-heading', { siblingsOnly: true });
+    const siblingsOnly = tokenRuleHarness('no-duplicate-heading', {
+      siblingsOnly: true,
+    });
     const md = '# Change log\n\n## 1.0.0\n\n### Features\n\n## 2.0.0\n\n### Features\n';
     expect(await siblingsOnly.lint(md)).toEqual([]);
   });
@@ -28,36 +30,40 @@ describe('no-duplicate-heading (MD024)', () => {
   });
 
   it('respectSections allows same text in different sections by full path', async () => {
-    const respectSections = tokenRuleHarness('no-duplicate-heading', { respectSections: true });
+    const respectSections = tokenRuleHarness('no-duplicate-heading', {
+      respectSections: true,
+    });
     const md = '# A\n\n## Common\n\n# B\n\n## Common\n';
     expect(await respectSections.lint(md)).toEqual([]);
   });
 
   it('respectSections still flags true duplicates within the same section', async () => {
-    const respectSections = tokenRuleHarness('no-duplicate-heading', { respectSections: true });
+    const respectSections = tokenRuleHarness('no-duplicate-heading', {
+      respectSections: true,
+    });
     const md = '# A\n\n## Common\n\n## Common\n';
     const problems = await respectSections.lint(md);
     expect(problems).toHaveLength(1);
   });
 
-  it('scales to thousands of headings with exact first-occurrence-wins counts', async () => {
-    // Guards the Set-based dedup buckets (previously O(N^2) array
-    // `.includes()` scans) against semantic drift at scale: 2,000 headings,
-    // every 4th drawn from a 7-value duplicate pool, the rest unique.
-    const lines: string[] = [];
-    for (let i = 0; i < 2000; i++) {
-      const level = (i % 3) + 1;
-      const text = i % 4 === 0 ? `Duplicate pool ${i % 7}` : `Unique heading number ${i}`;
-      lines.push(`${'#'.repeat(level)} ${text}`, '');
-    }
-    const md = lines.join('\n') + '\n';
+  it('caseSensitive: false treats headings differing only in case as duplicates', async () => {
+    const md = '# Foo\n\n## foo\n';
+    expect(await h.lint(md)).toEqual([]);
+    const insensitive = tokenRuleHarness('no-duplicate-heading', {
+      caseSensitive: false,
+    });
+    const problems = await insensitive.lint(md);
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(3);
+  });
 
-    // Default mode: one global bucket — 500 pool headings, 7 distinct pool
-    // texts, so all but the first occurrence of each are flagged.
-    const problems = await h.lint(md);
-    expect(problems).toHaveLength(500 - 7);
-
-    // Every flagged line is a pool heading (never a unique one).
-    expect(problems.every((p) => p.match.startsWith('Duplicate pool '))).toBe(true);
+  it('ignoreCommonHeadings skips boilerplate headings (listed names match case-insensitively) but still flags others', async () => {
+    const md =
+      '# Doc\n\n## Examples\n\n## Examples\n\n## Getting Started\n\n## Getting Started\n\n## Other\n\n## Other\n';
+    expect((await h.lint(md)).map((p) => p.line)).toEqual([5, 9, 13]);
+    const ignoreCommon = tokenRuleHarness('no-duplicate-heading', {
+      ignoreCommonHeadings: true,
+    });
+    expect((await ignoreCommon.lint(md)).map((p) => p.line)).toEqual([13]);
   });
 });

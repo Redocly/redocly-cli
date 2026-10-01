@@ -6,9 +6,6 @@ function output(line: string): void {
   logger.output(`${line}\n`);
 }
 
-/**
- * Display detailed statistics through the logger
- */
 export function showDetailedStats(fileCount: number, problems: Problem[]): void {
   output(cyan('\n📊 Summary Statistics:'));
   output(`   ${fileCount} markdown file(s) scanned`);
@@ -19,7 +16,6 @@ export function showDetailedStats(fileCount: number, problems: Problem[]): void 
   if (Object.keys(breakdown).length > 0) {
     output('\n   Breakdown by rule:');
 
-    // Sort rules by total count (descending)
     const sortedRules = Object.entries(breakdown).sort(
       ([, left], [, right]) => right.total - left.total
     );

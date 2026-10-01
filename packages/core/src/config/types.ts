@@ -143,12 +143,8 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
 
-  /** The `recheck` block; the blocks of shared config files merge into it by rule key. */
   recheck?: RecheckConfig;
-  /**
-   * Set by the config bundler: the `recheck/*` presets from `extends`, in order.
-   * A repeated name keeps its last listing.
-   */
+  // Set by the config bundler: the `recheck/*` presets from `extends`.
   recheckExtends?: string[];
 };
 
@@ -299,10 +295,7 @@ export type RawUniversalApiConfig = ApiConfig &
 export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
   ClientGeneratorApiConfig & {
-    /**
-     * The root `recheck/*` presets, then the presets of this api.
-     * A repeated name keeps its last listing.
-     */
+    // The root `recheck/*` presets, then the presets of this api.
     recheckExtends?: string[];
   };
 

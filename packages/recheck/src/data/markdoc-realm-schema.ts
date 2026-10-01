@@ -1,28 +1,12 @@
-// Generated file -- do not hand-edit. Regenerate with
-// the generator script in the Redocly monorepo after packages/theme's or packages/portal's
-// tag maps, or @markdoc/markdoc's built-in tags, change.
+// Generated file, do not edit by hand. Regenerate it with the generator script in
+// the Redocly monorepo when the tag maps in packages/theme or packages/portal, or
+// the built-in tags in @markdoc/markdoc, change.
 //
-// The built-in `realm` schema: a statics-only view of the COMPOSED Markdoc
-// configuration Realm registers, from three sources in Realm's own precedence
-// order -- `@markdoc/markdoc`'s built-in tags, overridden by
-// `packages/portal`'s, overridden in turn by `packages/theme`'s tag map. That
-// order is why `partial.selfClosing` below is `true` even though theme's
-// partial.ts never restates it: theme spreads markdoc's built-in `partial` and
-// overrides only its `file` attribute. NOT included: a project's own custom
-// tags, and `schemaDefinition`, which Realm registers inline in its markdoc
-// options rather than in the tag module this generator imports
-// (`markdoc-unknown-tag` carries it as a known exception).
-//
-// Only statically checkable facts survive: `selfClosing`, attribute names,
-// primitive types, `required`, `default`, and Markdoc's `matches` (renamed
-// `enum`, coerced to strings). Tags with a `validate()`, class-typed
-// attributes, and a non-array `matches` are marked `dynamic: true` rather than
-// guessed at.
-//
-// The drift test reads whatever `packages/theme/lib/` currently holds, so it
-// cannot catch a STALE theme build -- the generator refuses to run against one
-// instead (see `assertThemeBuildIsFresh`). `packages/portal`'s tags come
-// straight from TypeScript source, always fresh.
+// This is the `realm` schema: the Markdoc tags Realm registers, with only the facts
+// that can be checked statically (`selfClosing`, attribute names, primitive types,
+// `required`, `default`, and `matches` renamed to `enum`). Tags with a `validate()`
+// function, class-typed attributes, or a non-array `matches` are marked
+// `dynamic: true`. Custom tags from a project and `schemaDefinition` are not included.
 
 import type { MarkdocSchema } from '../parser/markdoc/schema.js';
 

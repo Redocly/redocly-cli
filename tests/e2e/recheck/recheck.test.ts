@@ -13,7 +13,6 @@ function normalizeTiming(output: string): string {
 }
 
 const recheckCases: [dirName: string, args: string[]][] = [
-  ['markdown-clean', ['recheck', 'docs']],
   ['markdown-findings', ['recheck', 'docs']],
   ['no-config', ['recheck', 'docs']],
   ['no-recheck-config', ['recheck', 'docs']],

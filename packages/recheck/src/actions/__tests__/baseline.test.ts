@@ -1,4 +1,3 @@
-// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
@@ -176,16 +175,16 @@ describe('generateBaseline', () => {
     expect(baselineRun.apiDescriptionCount).toBe(1);
     expect(baselineRun.errorCount).toBe(0);
     expect(baselineRun.baselinedFileCount).toBe(0);
-    const written = await readWrittenBaseline(baselineRun.outPath);
-    expect(written.files[baselineKeyMapper(dir)(apiFile)]).toBeUndefined();
+    expect((await readWrittenBaseline(baselineRun.outPath)).files).toEqual({});
 
     // The baseline is discovered by presence, so the config resolves again
     // now that the file exists.
     const configWithBaseline = await resolveConfig(dir, {}, ['recheck/markdown']);
     const result = await runLint([], configWithBaseline, { embeddedInputs, isIgnored });
-    expect(result.status).toBe('completed');
-    if (result.status !== 'completed') return;
-    expect(result.baseline).toEqual({ matched: 0, new: 0, stale: 0 });
-    expect(result.problems.filter((problem) => problem.severity === 'error')).toHaveLength(0);
+    expect(result).toMatchObject({
+      status: 'completed',
+      baseline: { matched: 0, new: 0, stale: 0 },
+      problems: [],
+    });
   });
 });

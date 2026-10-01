@@ -9,12 +9,7 @@ const defaultLines = 1;
 
 type LinesGetter = (heading: Token) => number;
 
-/**
- * Upstream's `getLinesFunction`: `linesAbove`/`linesBelow` config can be a
- * single number applied to every heading level, or a `number[6]` (one
- * entry per heading level 1-6, missing/short entries fall back to the
- * default of 1).
- */
+/** `linesAbove` and `linesBelow` can be one number, or an array with one number per level. */
 function getLinesFunction(linesParam: unknown): LinesGetter {
   if (Array.isArray(linesParam)) {
     const linesArray = new Array(6).fill(defaultLines) as number[];
@@ -28,15 +23,8 @@ function getLinesFunction(linesParam: unknown): LinesGetter {
 }
 
 /**
- * Gets a 0-based line's text for the "lines above" scan. Upstream strips
- * front matter out of `params.lines` entirely and only reconstructs it via
- * a separate `frontMatterLines` array for negative indices; Recheck keeps
- * front matter in-band as a real `yaml` token occupying real line numbers
- * in `ctx.lines`. To preserve upstream's documented default ("front matter
- * is ignored" — i.e. no blank line is required between it and the first
- * heading), a line that falls inside the yaml token's span is treated as
- * blank (returns `''`) unless `includeFrontMatter` is set, in which case
- * its real text is returned like any other line.
+ * Returns the text of a 0-based line. Front matter lines count as blank unless
+ * `includeFrontMatter` is set, so no blank line is needed after front matter.
  */
 function getLineAbove(
   lines: string[],

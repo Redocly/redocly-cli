@@ -48,10 +48,8 @@ import type { RecheckAction, RecheckArgv } from './types.js';
 const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
-// A requested path is an API description ('api'), a same-extension file that
-// failed to parse as YAML/JSON ('unreadable-api'), or neither ('not-api').
-// A parse failure stays an API description, not a Markdown page: the caller
-// must fail the run instead of silently linting it as a page.
+// A YAML or JSON file that does not parse is 'unreadable-api', not a page:
+// the run must fail instead of linting it as Markdown.
 type ApiPathClassification = 'api' | 'unreadable-api' | 'not-api';
 
 function classifyApiPath(path: string): ApiPathClassification {
@@ -77,8 +75,7 @@ function classifyApiPath(path: string): ApiPathClassification {
   return 'api';
 }
 
-// A block with no settings and no rules means recheck is not configured.
-// A block of the wrong type counts as configured. The engine then reports the error.
+// A block of the wrong type counts as configured, so the engine can report the error.
 function hasRecheckConfig(block: Config['recheck']): boolean {
   if (!isPlainObject(block)) return true;
   const { rules, ...settings } = block;
@@ -340,7 +337,6 @@ async function runAction(
     isIgnored,
   });
   const exitCode = await printLintRun(result, toLintPresentation(argv), timer);
-  // An API description that failed to parse fails the gate even when the
-  // lint action otherwise found nothing to report.
+  // An API description that could not be read fails the run, even when lint found nothing.
   return failureCount > 0 && exitCode === 0 ? 1 : exitCode;
 }

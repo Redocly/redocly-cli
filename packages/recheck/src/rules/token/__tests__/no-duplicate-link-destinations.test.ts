@@ -27,8 +27,6 @@ describe('no-duplicate-link-destinations', () => {
   });
 
   it('compares against the FIRST text, so a later repeat of it is still flagged', async () => {
-    // 'one' is first; 'two' mismatches (flagged); 'one' again matches the
-    // first text and is not flagged.
     const problems = await h.lint('[one](/a)\n\n[two](/a)\n\n[one](/a)\n');
     expect(problems.map((p) => p.line)).toEqual([3]);
   });

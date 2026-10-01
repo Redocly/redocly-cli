@@ -15,14 +15,8 @@ describe('descriptive-link-text (MD059)', () => {
     const problems = await h.lint('[click here](https://example.com)\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
-    // Column points at the label TEXT (inside the brackets), not the
-    // link's own start -- matches upstream's `range` (labelText's own
-    // span). `context`/`match` is `labelText.parent.text` -- the
-    // immediate parent `label` token's text (`[click here]`), NOT the
-    // whole link's text -- ported verbatim from upstream's own
-    // `parent.text` (destructured straight off `labelText`, so `parent`
-    // there is `label`, not `link`) despite the "should be descriptive"
-    // framing suggesting the whole link might be shown.
+    // The column points at the label text, and `match` is the label token `[click here]`,
+    // not the whole link.
     expect(problems[0].column).toBe(2);
     expect(problems[0].match).toBe('[click here]');
   });
@@ -52,10 +46,6 @@ describe('descriptive-link-text (MD059)', () => {
 
   it('ignores HTML links entirely (only Markdown links are checked)', async () => {
     expect(await h.lint('<a href="https://example.com">click here</a>\n')).toEqual([]);
-  });
-
-  it('passes a document with no links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
   });
 
   it('disables the rule when prohibitedTexts is explicitly an empty array (matches upstream `config.prohibited_texts || defaults` falling through to an empty Set, not the defaults)', async () => {

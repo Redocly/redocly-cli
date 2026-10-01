@@ -36,13 +36,8 @@ export {
   clearPluginsCache,
   getPluginCacheVersion,
   ConfigValidationError,
-  RECHECK_PLUGIN_ID,
   isRecheckPreset,
-  mergeRecheckRule,
   mergeRecheckRules,
-  mergeRecheckBlocks,
-  type RecheckRules,
-  type RecheckRuleEntry,
   Config, // FIXME: export it as a type
   type RawUniversalConfig,
   type RawUniversalApiConfig,

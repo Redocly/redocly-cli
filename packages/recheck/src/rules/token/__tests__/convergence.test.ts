@@ -1,57 +1,27 @@
-// PR #24801 removed the pre-parity native rules' deprecated compatibility
-// layer entirely: the 4 legacy assertion ids (`max-line-length`,
-// `bullet-style`, `no-duplicate-headings`, `no-broken-fragment-links`), the
-// `translateLegacyOptions` option-translation layer that used to accept
-// their old camelCase option names, the deprecation warnings, and the
-// deprecated `autoFixable` config key. This file used to prove old-id +
-// old-options equivalence with new-id + translated-options (see git
-// history for that version) — those rules stopped existing, so the tests
-// below prove the removal instead: each old id/key now fails config
-// validation with a plain, actionable error rather than silently working
-// or warning.
-//
-// `single-h1`/`first-line-h1` keep their upstream markdownlint synonym
-// aliases (`single-title`/`first-line-heading`) permanently and
-// warning-free — those are parity surface, not part of this deprecation,
-// and are covered by each rule's own test file, not here.
+// Config validation: unknown names and stale pattern warnings.
 import { describe, it, expect } from 'vitest';
 
 import { validate } from '../../../config/validate.js';
 
-describe('removed legacy assertion ids fail validation (PR #24801)', () => {
-  function ruleWith(assertionId: string, options: Record<string, unknown> = {}) {
-    return {
+describe('config validation of unknown names', () => {
+  it('rejects an unknown assertion id, naming it', async () => {
+    const result = await validate({
       'recheck/test-rule': {
         severity: 'error' as const,
         message: 'Test message',
-        assertions: { [assertionId]: options },
+        assertions: { 'no-such-assertion': {} },
       },
-    };
-  }
-
-  // One test covering the whole class of removed ids, not one per rule —
-  // each used to be a deprecated alias for a markdownlint-parity token
-  // rule; all four now behave identically to any other unrecognized
-  // assertion id.
-  it.each([
-    ['max-line-length', { maxLength: 80 }],
-    ['bullet-style', { style: '-' }],
-    ['no-duplicate-headings', {}],
-    ['no-broken-fragment-links', {}],
-  ])('"%s" is no longer a recognized assertion id', async (assertionId, options) => {
-    const result = await validate(ruleWith(assertionId, options));
+    });
 
     expect(result.isValid).toBe(false);
     expect(result.errors).toContainEqual(
       expect.objectContaining({
-        message: expect.stringContaining(`Unknown assertion type "${assertionId}"`),
+        message: expect.stringContaining('Unknown assertion type "no-such-assertion"'),
       })
     );
   });
-});
 
-describe('removed "autoFixable" config key fails validation (PR #24801)', () => {
-  it('a rule setting "autoFixable" fails with an unknown-property error naming it', async () => {
+  it('rejects an unknown rule key with an error naming it', async () => {
     const result = await validate({
       'recheck/test-rule': {
         severity: 'error' as const,
@@ -65,32 +35,6 @@ describe('removed "autoFixable" config key fails validation (PR #24801)', () => 
     expect(result.errors).toContainEqual(
       expect.objectContaining({
         message: expect.stringContaining('autoFixable'),
-      })
-    );
-  });
-});
-
-// Start-clean cleanup (recheck cleanup pass): `enabled` was schema-legal but
-// inert in the engine (filterEnabledRules only ever checks `severity`) while
-// the parity translator DID honor it — a semantic mismatch between what the
-// schema accepted and what actually ran. Removed the same way `autoFixable`
-// was: an unknown-property error naming it, rather than silently doing
-// nothing (or, worse, only affecting parity comparisons).
-describe('removed "enabled" config key fails validation', () => {
-  it('a rule setting "enabled" fails with an unknown-property error naming it', async () => {
-    const result = await validate({
-      'recheck/test-rule': {
-        severity: 'error' as const,
-        message: 'Test message',
-        enabled: false,
-        assertions: { pattern: { tokens: ['x'] } },
-      },
-    });
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({
-        message: expect.stringContaining('enabled'),
       })
     );
   });

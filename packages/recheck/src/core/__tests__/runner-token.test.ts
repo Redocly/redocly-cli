@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { registerTokenRules, clearTokenRulesForTests } from '../../rules/registry.js';
+import { registerTokenRules } from '../../rules/registry.js';
 import type { TokenRule } from '../../rules/types.js';
 import type { NormalizedRule } from '../../types/index.js';
 import { runRules, runRulesUntilStable } from '../runner.js';
@@ -39,7 +39,6 @@ const rule = (overrides: Partial<NormalizedRule> = {}): NormalizedRule => ({
 
 describe('runner token-rule dispatch', () => {
   beforeEach(() => {
-    clearTokenRulesForTests();
     registerTokenRules([testTokenRule]);
   });
 
@@ -85,12 +84,8 @@ describe('runner token-rule dispatch', () => {
   });
 
   it('gives token rules comment-cleared ctx.lines, not the raw file', async () => {
-    // Upstream markdownlint clears HTML comment content out of
-    // `params.lines` globally, once, before ANY rule scans it (see
-    // rules/token/helpers.ts's `clearHtmlCommentText` doc comment) --
-    // matches core/runner.ts's `commentClearedLines` wiring. A synthetic
-    // rule that echoes back ctx.lines[0] should see the cleared text, not
-    // the original trailing-whitespace-bearing comment line.
+    // Like markdownlint, the runner clears HTML comment text from `ctx.lines` before any rule
+    // sees it.
     registerTokenRules([
       {
         ...testTokenRule,
@@ -107,16 +102,13 @@ describe('runner token-rule dispatch', () => {
     });
     const md = '<!--   \nstuff\n-->\n';
     const { problems } = await runRules([{ path: 'a.md', content: md }], [echoRule]);
-    // The raw first line has 3 trailing spaces after "<!--"; the cleared
-    // version replaces them (trailing-space-before-newline is cleared to
-    // the safe character too), so no trailing whitespace survives.
+    // The raw line has trailing spaces after "<!--". The cleared line has none.
     expect(problems[0].message).not.toContain('<!--   "');
     expect(problems[0].message).toContain('<!--...');
   });
 
   it('returns only genuinely applied fixes in `fixes` and surfaces the rest as `skippedFixes`', async () => {
-    // Two overlapping fixInfos in one pass: only one can land; the runner
-    // must not report the dropped one as applied.
+    // Of two overlapping fixes only one lands. The other must not be reported as applied.
     registerTokenRules([
       {
         ...testTokenRule,
@@ -151,10 +143,8 @@ describe('runner token-rule dispatch', () => {
   });
 
   it('runRulesUntilStable leaves skippedFixes pending only when passes are capped', async () => {
-    // A pathological rule that always proposes two same-position inserts:
-    // each pass applies one and skips the other, forever — so the
-    // convergence loop exhausts MAX_FIX_PASSES (5) and the final pass's
-    // skipped fix is still genuinely pending.
+    // This rule always proposes two inserts at the same position. One lands per pass, so the
+    // fix passes run out and the last skipped fix is still pending.
     registerTokenRules([
       {
         ...testTokenRule,
@@ -180,15 +170,14 @@ describe('runner token-rule dispatch', () => {
       [{ path: 'a.md', content: 'x\n' }],
       [neverStable]
     );
-    // One fix applied per pass, five passes; the last pass's loser is
-    // still unapplied after the cap.
+    // One fix lands per pass over five passes, and the last pass leaves one skipped.
     expect(fixes).toHaveLength(5);
     expect(skippedFixes).toHaveLength(1);
   });
 
   it('a per-report severity override lands even though the rule is configured at a different severity', async () => {
-    // markdoc-attributes relies on this: its "unknown attribute" reports must
-    // stay `warn` even when the rule itself is configured at `severity: error`.
+    // For example, markdoc-attributes reports unknown attributes as `warn` even when the rule
+    // is set to `error`.
     registerTokenRules([
       {
         ...testTokenRule,

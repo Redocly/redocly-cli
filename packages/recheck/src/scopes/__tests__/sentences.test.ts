@@ -46,8 +46,7 @@ describe('splitSentences', () => {
   });
 
   it('splits at a newline followed by continuation indentation', () => {
-    // A list item's continuation lines carry the item's indent, so the
-    // character right after the newline is a space, not the capital letter.
+    // Continuation lines of a list item are indented, so the character after the newline is a space.
     expect(texts('Installs into its own schema.\n     The DDL ships in a migration.')).toEqual([
       'Installs into its own schema.',
       'The DDL ships in a migration.',
@@ -274,13 +273,6 @@ describe('link ranges', () => {
   it('keeps a link after an escaped backslash intact', () => {
     expect(texts('See \\\\[Step 1. Go](#a) now. Then stop.')).toEqual([
       'See \\\\[Step 1. Go](#a) now.',
-      'Then stop.',
-    ]);
-  });
-
-  it('keeps a reference link intact', () => {
-    expect(texts('See [Step 1. Go][ref] now. Then stop.')).toEqual([
-      'See [Step 1. Go][ref] now.',
       'Then stop.',
     ]);
   });

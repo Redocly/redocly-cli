@@ -22,21 +22,16 @@ export type MarkdocSchemaResult =
   | { status: 'load-error'; message: string }
   | { status: 'write-error'; outPath: string; message: string };
 
-/** One `--from` module's extracted tags, alongside the argument the user typed for it (used in every message and the regenerate header — never the resolved path, which is a per-machine detail). */
+// `source` is the `--from` argument as typed, not the resolved path, so messages and the header are the same on every machine.
 interface ExtractedModule {
   source: string;
   tags: Record<string, MarkdocTagSchema>;
 }
 
 /**
- * Dynamic-imports one `--from` module, resolved relative to `cwd`, and pulls
- * its tags map. The two real project schema modules this command targets
- * (docs/realm, docs/intranet) export a default object carrying `tags` rather
- * than a named export, so both forms are accepted.
- *
- * An import failure is rethrown as one actionable line rather than a raw
- * stack trace: the overwhelmingly likely cause is a TypeScript source file
- * handed to plain Node, which has no way to run it.
+ * Imports one `--from` module and returns its tags. Accepts a named `tags` export
+ * or a default export with `tags`. If the import fails, throws a short message:
+ * the usual cause is a TypeScript file that Node cannot run.
  */
 async function loadModuleTags(fromArg: string, cwd: string): Promise<RawMarkdocTagMap> {
   const resolvedUrl = pathToFileURL(path.resolve(cwd, fromArg)).href;
@@ -65,12 +60,8 @@ async function loadModuleTags(fromArg: string, cwd: string): Promise<RawMarkdocT
 }
 
 /**
- * Merges each module's extracted statics in command-line order, tolerating an
- * identical duplicate (deep-equal via JSON.stringify — extracted statics are
- * plain data by construction, so this is a faithful equality check) but
- * rejecting a genuine conflict. Two `--from` modules disagreeing about one
- * tag's shape means at least one of them is wrong about that tag, so this
- * picks neither rather than silently letting command-line order decide.
+ * Merges the tags of all modules. A tag defined twice with the same shape is fine.
+ * A tag defined twice with different shapes is a conflict, and neither one wins.
  */
 function mergeExtracted(modules: ExtractedModule[]): {
   merged: Record<string, MarkdocTagSchema>;
@@ -96,7 +87,7 @@ function mergeExtracted(modules: ExtractedModule[]): {
   return { merged, conflicts };
 }
 
-/** Renders the `markdoc.extend.tagsFile` YAML: a flat tag-name -> MarkdocTagSchema map, no wrapping `tags:` key — that's the shape `config/validate.ts`'s `loadMarkdocTagsFile` reads. */
+// Renders the YAML for `markdoc.extend.tagsFile`: a flat map of tag name to schema, with no top-level `tags:` key.
 function renderYaml(
   merged: Record<string, MarkdocTagSchema>,
   fromArgs: string[],
@@ -111,14 +102,8 @@ function renderYaml(
 }
 
 /**
- * Generates a `markdoc.extend.tagsFile` YAML file (tag-name -> MarkdocTagSchema)
- * from one or more project schema modules, so a project's own custom Markdoc
- * tags get the same static value-checking recheck's built-in `realm` schema
- * gets. Each module is extracted in isolation — empty base maps passed to
- * `extractStatics` — so the file it produces carries ONLY that project's own
- * tags, never built-ins; those come from `schema: 'realm'` at lint time
- * instead, and layering them in here would make them impossible to tell
- * apart from a project's real customizations.
+ * Generates a `markdoc.extend.tagsFile` YAML file from one or more project schema
+ * modules. The file holds only the project's own tags, not the built-in ones.
  */
 export async function generateMarkdocSchema(
   options: MarkdocSchemaOptions
@@ -159,8 +144,7 @@ export async function generateMarkdocSchema(
   try {
     await writeFile(outPath, rendered, 'utf8');
   } catch (error) {
-    // A typo'd --output path should read as a one-line diagnosis, not a stack
-    // trace; creating missing directories silently would mask the typo.
+    // Missing directories are not created, so a typo in --output is reported.
     const detail = error instanceof Error ? error.message : String(error);
     return { status: 'write-error', outPath, message: detail };
   }

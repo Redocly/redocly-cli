@@ -1,92 +1,59 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveRecheckConfig } from '../../config/resolve.js';
+import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
 import { lintEmbeddedInputs, type EmbeddedInput } from '../embedded.js';
 
-async function rules() {
-  const result = await resolveRecheckConfig({
-    extends: ['recheck/markdown'],
-    configDir: process.cwd(),
-  });
+async function resolve(preset = 'recheck/markdown'): Promise<ResolvedRecheckConfig> {
+  const result = await resolveRecheckConfig({ extends: [preset], configDir: process.cwd() });
   if (!result.success) throw new Error('config');
   return result.config;
 }
 
-function input(content: string, overrides: Partial<EmbeddedInput> = {}): EmbeddedInput {
-  return {
+function lint(config: ResolvedRecheckConfig, content: string) {
+  const input: EmbeddedInput = {
     file: '/api/openapi.yaml',
     pointer: '#/info/description',
     content,
     mapPosition: (line, column) => ({ line: line + 40, column: column + 8 }),
-    ...overrides,
   };
+  return lintEmbeddedInputs([input], config.descriptionRules, {
+    knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
+    markdoc: false,
+    markdocSchema: null,
+  });
 }
 
 describe('lintEmbeddedInputs', () => {
-  it('drops document-shape rules from every preset prefix, not only recheck/', async () => {
-    const result = await resolveRecheckConfig({
-      extends: ['recheck/google'],
-      configDir: process.cwd(),
-    });
-    if (!result.success) throw new Error('config');
-    const { problems } = await lintEmbeddedInputs(
-      [input('A description with no heading at all.\n')],
-      result.config.descriptionRules,
-      {
-        knownRuleNames: new Set(result.config.rules.map((rule) => rule.name)),
-        markdoc: false,
-        markdocSchema: null,
-      }
-    );
-    expect(problems.map((problem) => problem.ruleName)).not.toContain('google/single-h1');
-    expect(problems.map((problem) => problem.ruleName)).not.toContain('google/first-line-h1');
-  });
+  // On a page, this text breaks `first-line-h1` under both presets.
+  it.each(['recheck/markdown', 'recheck/google'])(
+    'drops document-shape rules under %s',
+    async (preset) => {
+      const { problems } = await lint(await resolve(preset), 'Plain text without a heading.\n');
+      expect(problems).toEqual([]);
+    }
+  );
 
   it('remaps positions and carries the pointer', async () => {
-    const config = await rules();
-    const { problems } = await lintEmbeddedInputs(
-      [input(`Intro.\n${'lorem ipsum dolor sit amet '.repeat(6).trim()}\n`)],
-      config.descriptionRules,
-      {
-        knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
-        markdoc: false,
-        markdocSchema: null,
-      }
+    const { problems } = await lint(
+      await resolve(),
+      `Intro.\n${'lorem ipsum dolor sit amet '.repeat(6).trim()}\n`
     );
-    const long = problems.find((problem) => problem.ruleName === 'recheck/line-length');
-    expect(long).toBeDefined();
-    expect(long!.line).toBe(42);
-    expect(long!.column).toBeGreaterThan(8);
-    expect(long!.file).toBe('/api/openapi.yaml');
-    expect(long!.pointer).toBe('#/info/description');
-  });
-
-  it('drops document-shape rules for embedded content', async () => {
-    const config = await rules();
-    const { problems } = await lintEmbeddedInputs(
-      [input('Plain text without a heading.\n')],
-      config.descriptionRules,
-      {
-        knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
-        markdoc: false,
-        markdocSchema: null,
-      }
-    );
-    expect(problems.map((problem) => problem.ruleName)).not.toContain('recheck/first-line-h1');
+    expect(problems).toEqual([
+      expect.objectContaining({
+        ruleName: 'recheck/line-length',
+        file: '/api/openapi.yaml',
+        pointer: '#/info/description',
+        line: 42,
+        column: 89,
+      }),
+    ]);
   });
 
   it('counts fixable findings without applying fixes', async () => {
-    const config = await rules();
-    const { problems, fixableCount } = await lintEmbeddedInputs(
-      [input('Trailing spaces here.   \n')],
-      config.descriptionRules,
-      {
-        knownRuleNames: new Set(config.rules.map((rule) => rule.name)),
-        markdoc: false,
-        markdocSchema: null,
-      }
-    );
-    expect(fixableCount).toBe(problems.filter((problem) => problem.fixable).length);
-    expect(fixableCount).toBeGreaterThan(0);
+    const { problems, fixableCount } = await lint(await resolve(), 'Trailing spaces here.   \n');
+    expect(problems.map((problem) => [problem.ruleName, problem.fixable])).toEqual([
+      ['recheck/no-trailing-spaces', true],
+    ]);
+    expect(fixableCount).toBe(1);
   });
 });

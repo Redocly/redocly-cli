@@ -8,10 +8,8 @@ import { runRules } from '../../core/runner.js';
 import { DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
 import { resolveRecheckConfig } from '../resolve.js';
 
-// Proves the README's opt-in prose assertions snippet is a real, working
-// `redocly.yaml` example. It covers the three assertions no preset ships:
-// `conditional`, `metric`, `spelling` (see DOCUMENTED_OPT_IN_ASSERTIONS in
-// presets/index.ts). It reads README.md straight off disk.
+// Checks that the opt-in prose assertions snippet in the README is a working `redocly.yaml` example.
+// It covers the three assertions that no preset ships: `conditional`, `metric` and `spelling`.
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const readmePath = path.join(dir, '../../../README.md');
 const readmeDir = path.dirname(readmePath);
@@ -32,9 +30,7 @@ function extractOptInSnippet(): string {
   return fenceMatch[1];
 }
 
-// The snippet is a `redocly.yaml` document (root `extends` plus a `recheck`
-// block), so resolving it takes the same two pieces `resolveRecheckConfig`
-// takes at runtime: the `recheck/*` names from `extends`, and the block.
+// Resolves the snippet like the runtime does: the `recheck/*` names from `extends`, plus the block.
 async function resolveOptInSnippet(snippet: string) {
   const doc = yaml.load(snippet) as { extends?: string[]; recheck?: unknown };
   const extendsList = (doc.extends ?? []).filter((name) => name.startsWith('recheck/'));
@@ -42,20 +38,6 @@ async function resolveOptInSnippet(snippet: string) {
 }
 
 describe('README "Opt-in prose assertions" snippet', () => {
-  it('section exists and its yaml fence mentions every documented opt-in', () => {
-    const snippet = extractOptInSnippet();
-    for (const assertionId of DOCUMENTED_OPT_IN_ASSERTIONS) {
-      expect(snippet, `snippet should exercise "${assertionId}"`).toContain(`${assertionId}:`);
-    }
-  });
-
-  it('parses as valid YAML', () => {
-    const snippet = extractOptInSnippet();
-    expect(() => yaml.load(snippet)).not.toThrow();
-    const parsed = yaml.load(snippet);
-    expect(parsed).toBeTypeOf('object');
-  });
-
   it('validates cleanly as a recheck config (assembled from the README snippet, not hand-copied)', async () => {
     const snippet = extractOptInSnippet();
     const result = await resolveOptInSnippet(snippet);
@@ -69,15 +51,8 @@ describe('README "Opt-in prose assertions" snippet', () => {
     }
   });
 
-  // Guards the metric snippet's MESSAGE, not just its YAML validity: metric
-  // substitutes up to FOUR positional values -- formula name, computed
-  // score, min ('-∞' when unset), max ('∞' when unset), in that order
-  // (see rules/scope/metric.ts). An earlier
-  // snippet revision read 'Readability score is %s (expected >= %s).',
-  // which rendered the FORMULA NAME where the score belongs ("Readability
-  // score is flesch-reading-ease ...") -- valid config, garbage output.
-  // Rendering a real problem through runRules is what catches that class of
-  // edit; resolving the config alone cannot.
+  // The message is checked too, not just the YAML. `metric` fills in four values in this order:
+  // formula name, score, min, max. An earlier snippet put the formula name where the score belongs.
   it('renders the metric snippet message in the documented positional order (formula, score, min, max)', async () => {
     const snippet = extractOptInSnippet();
     const result = await resolveOptInSnippet(snippet);
@@ -88,8 +63,7 @@ describe('README "Opt-in prose assertions" snippet', () => {
     const metricRules = result.config.rules.filter((rule) => 'metric' in rule.assertions);
     expect(metricRules).toHaveLength(1);
 
-    // Dense, polysyllabic prose scoring far below the snippet's `min: 30`
-    // Flesch reading-ease floor, so the rule genuinely fires.
+    // Dense prose that scores below the snippet's `min: 30`, so the rule fires.
     const content =
       'Extraordinarily sophisticated organizational considerations necessitate ' +
       'comprehensive interdisciplinary collaboration methodologies throughout ' +

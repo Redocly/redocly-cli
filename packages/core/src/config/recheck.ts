@@ -2,31 +2,26 @@ import type { RecheckConfig } from '@redocly/config';
 
 import { isPlainObject } from '../utils/is-plain-object.js';
 
-/** The plugin id that Recheck presets use in `extends`; a custom plugin cannot take it. */
+/** The plugin id of Recheck presets in `extends`. A custom plugin cannot use it. */
 export const RECHECK_PLUGIN_ID = 'recheck';
 
-/** A rule entry of the `recheck` block: a severity string or a rule object. */
 export type RecheckRuleEntry = NonNullable<RecheckConfig['rules']>[string];
 export type RecheckRules = Record<string, RecheckRuleEntry>;
 
-/** True for an `extends` entry that names a Recheck preset, such as `recheck/markdown`. */
+/** Checks if an `extends` entry is a Recheck preset, such as `recheck/markdown`. */
 export function isRecheckPreset(name: string): boolean {
   return name.startsWith(`${RECHECK_PLUGIN_ID}/`);
 }
 
-/**
- * Keeps each preset name once at its last listed position, because a later preset wins.
- * The input does not change.
- */
+/** Keeps each preset name once, at its last position, because a later preset wins. */
 export function orderRecheckPresets(names: string[]): string[] {
   return names.filter((name, index) => names.indexOf(name, index + 1) === -1);
 }
 
 /**
  * Merges one rule entry on top of another. A severity string sets `severity`.
- * An object sets its own keys and merges `assertions` per assertion id. An
- * object on a severity string keeps that severity. Any other value replaces
- * the entry. The inputs do not change.
+ * An object sets its own keys and merges `assertions` by id.
+ * Any other value replaces the entry.
  */
 export function mergeRecheckRule(base: unknown, override: unknown): unknown {
   const baseRule = typeof base === 'string' && isPlainObject(override) ? { severity: base } : base;
@@ -40,7 +35,7 @@ export function mergeRecheckRule(base: unknown, override: unknown): unknown {
   return merged;
 }
 
-/** Merges `override` on top of `base` by rule key. The inputs do not change. */
+/** Merges `override` on top of `base` by rule key. */
 export function mergeRecheckRules(base?: unknown, override?: unknown): RecheckRules {
   const merged: Record<string, unknown> = isPlainObject(base) ? { ...base } : {};
   if (isPlainObject(override)) {
@@ -48,15 +43,13 @@ export function mergeRecheckRules(base?: unknown, override?: unknown): RecheckRu
       merged[key] = mergeRecheckRule(merged[key], entry);
     }
   }
-  // Both maps hold the rule entries of a `recheck` block.
   return merged as RecheckRules;
 }
 
 /**
- * Merges one `recheck` block on top of another: `rules` by rule key, the other
- * keys assigned. A base that is not an object stays as it is. An override that
- * is not an object replaces the block. The engine then reports the wrong type.
- * The inputs do not change.
+ * Merges one `recheck` block on top of another: `rules` by rule key, other keys
+ * are replaced. If the override is not an object, it replaces the block so the
+ * engine can report the wrong type.
  */
 export function mergeRecheckBlocks(base: RecheckConfig, override: unknown): RecheckConfig {
   if (!isPlainObject(base)) return base;

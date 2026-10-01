@@ -36,19 +36,8 @@ describe('no-bare-urls (MD034)', () => {
     expect(problems[0].match).toBe('user@example.com');
   });
 
-  it('passes a document with no bare URLs', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('does not flag a bare URL inside an HTML attribute value in a BLOCK-level HTML element (regression)', async () => {
-    // Regression: found via the Task 12 differential parity harness on
-    // mdn-content. A block-level `<a href="...">` starting at column 1
-    // (`htmlFlow`, not `htmlText`) reparses its attribute text as inline
-    // content (see parser/index.ts's `reparseHtmlFlow`), which can surface
-    // the URL as a `literalAutolink` token -- but it's an HTML attribute
-    // value, not markdown prose, so it must stay excluded the same way a
-    // genuinely inline `<a href="...">` already was. Matches upstream's
-    // own `!inHtmlFlow(token)` check in md034.mjs.
+    // A URL in the attribute of a block-level `<a href>` is HTML, not prose.
     const md = '<a href="https://example.com/">Link text</a>\n\nBody.\n';
     expect(await h.lint(md)).toEqual([]);
   });

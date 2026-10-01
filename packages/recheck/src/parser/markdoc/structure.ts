@@ -1,27 +1,14 @@
-// Post-parse structuring pass for `markdocTag` tokens: the micromark extension
-// in `syntax.ts` recognizes span boundaries only, and this pass parses each
-// span's own text via the pure `parseMarkdocSpan` scanner (span.ts) and
-// synthesizes child tokens (open/close markers, tag name, primary value,
-// attributes, class/id shortcuts) with document-absolute positions, mutating
-// the tree in place the way `reparseHtmlFlow` (parser/index.ts) does for HTML.
-//
-// There is no `content` parameter: every `markdocTag` token's own `.text` is
-// already the exact span text, so there is nothing left to re-slice from the
-// surrounding document.
+// The micromark extension in `syntax.ts` only finds where a `{% ... %}` span starts
+// and ends. This pass parses each span's text and adds child tokens to the tree
+// (markers, tag name, attributes, shortcuts) with positions in the whole document.
 import { offsetToLineColumn } from '../../core/line-endings.js';
 import type { Token, TokenTree } from '../types.js';
 import { parseMarkdocSpan, type MarkdocAttribute } from './span.js';
 
 /**
- * Maps a 0-based offset into `tagToken.text` to an absolute document line and
- * column. Only line 1 of the span inherits `startColumn` as its column origin,
- * because every later line starts at column 1 of the real document.
- * `offsetToLineColumn` (core/line-endings.ts) is the shared CRLF/CR/LF-aware
- * mapper, so this file counts lines the same way the tokenizer does.
- *
- * Exported so a rule holding a span-relative offset but no synthesized child
- * token to borrow a position from can reuse this instead of re-deriving the
- * same math.
+ * Converts a 0-based offset into `tagToken.text` to a line and column in the
+ * document. Only the first line of the span starts at `startColumn`; later lines
+ * start at column 1.
  */
 export function offsetToPosition(
   tagToken: Token,
@@ -35,10 +22,8 @@ export function offsetToPosition(
 }
 
 /**
- * Builds a synthesized child token spanning `[start, end)` of `tagToken`'s own
- * text. Offsets are always relative to the tag, even for a grandchild like
- * `markdocAttributeValue`, whose structural `parent` is the `markdocAttribute`
- * wrapper rather than the tag itself.
+ * Builds a child token for `[start, end)` of `tagToken`'s text. Offsets are always
+ * relative to the tag, even when `parent` is the attribute token.
  */
 function synthesize(
   tagToken: Token,
@@ -62,13 +47,9 @@ function synthesize(
 }
 
 /**
- * Boundaries of the opening (`{%`/`{%-`) and closing (`%}`/`-%}`) markers within
- * a span's own text. `ParsedMarkdocSpan` carries no marker offsets, and
- * re-deriving them here needs no parsing: the tokenizer in `syntax.ts` only ever
- * emits a `markdocTag` whose text starts with a literal `{%` and ends with a
- * literal `%}`, so slicing those two fixed-width delimiters plus an optional
- * trim `-` is safe. This mirrors `parseMarkdocSpan`'s own `{%-`/`-%}` stripping
- * (span.ts), so a change there must be mirrored here too.
+ * Finds the end of the opening marker (`{%` or `{%-`) and the start of the closing
+ * marker (`%}` or `-%}`). The tokenizer only produces spans that start with `{%`
+ * and end with `%}`. Keep in sync with how `parseMarkdocSpan` strips the `-`.
  */
 function markerBounds(text: string): { openEnd: number; closeStart: number } {
   let openEnd = 2; // past the leading '{%'
@@ -78,7 +59,7 @@ function markerBounds(text: string): { openEnd: number; closeStart: number } {
   return { openEnd, closeStart };
 }
 
-/** One non-attribute child to synthesize, described by its span-relative `[start, end)` bounds. */
+/** A child token without nested tokens, given by offsets into the span. */
 interface SimpleChild {
   kind: 'simple';
   type: string;
@@ -98,14 +79,9 @@ function startOf(item: PendingChild): number {
 }
 
 /**
- * Re-tokenizes every `markdocTag` token's own text via `parseMarkdocSpan` and
- * appends the resulting children -- open/close markers, tag name, primary value,
- * attributes (each wrapping a name/value pair), and class/id shortcuts -- both
- * under the tag token itself in source order and into `tree.flat`, which is
- * appended to rather than globally re-sorted (the same convention
- * `reparseHtmlFlow` follows). Only ever called behind `ParseOptions.markdoc`,
- * and flag-off parses produce no `markdocTag` tokens at all, so flag-off output
- * is untouched.
+ * Parses the text of every `markdocTag` token and adds its children (markers, tag
+ * name, primary value, attributes, shortcuts) under the tag in source order. The
+ * new tokens are also appended to `tree.flat`.
  */
 export function structureMarkdocTags(tree: TokenTree): void {
   const appended: Token[] = [];
@@ -122,8 +98,7 @@ export function structureMarkdocTags(tree: TokenTree): void {
       { kind: 'simple', type: 'markdocTagMarker', start: closeStart, end: token.text.length },
     ];
 
-    // Annotation, variable, function, and malformed spans carry no tag name, so
-    // none of them gets a name child.
+    // Annotations, variables, functions and malformed spans have no tag name.
     if (parsed.name !== null) {
       pending.push({
         kind: 'simple',
@@ -146,8 +121,7 @@ export function structureMarkdocTags(tree: TokenTree): void {
       pending.push({ kind: 'attribute', attribute });
     }
 
-    // Shortcuts are only present for named tag-open and self-closing spans, and
-    // are absent rather than empty for every other kind.
+    // Only opening and self-closing tags with a name have shortcuts.
     for (const shortcut of parsed.shortcuts ?? []) {
       pending.push({
         kind: 'simple',
@@ -157,9 +131,7 @@ export function structureMarkdocTags(tree: TokenTree): void {
       });
     }
 
-    // Markers sit at the fixed extremes and name/primary/attributes/shortcuts
-    // can never overlap each other, so sorting by start offset alone reproduces
-    // the document order micromark uses for a token's `children` array.
+    // The pieces never overlap, so sorting by start offset gives source order.
     pending.sort((a, b) => startOf(a) - startOf(b));
 
     for (const item of pending) {
@@ -197,10 +169,6 @@ export function structureMarkdocTags(tree: TokenTree): void {
     }
   }
 
-  // Pushed one at a time rather than spread as arguments: `push(...appended)`
-  // throws `RangeError: Maximum call stack size exceeded` once `appended`
-  // outgrows the engine's argument limit, which a document with tens of
-  // thousands of tags reaches, and this pass must never throw on a large
-  // document.
+  // Not `push(...appended)`: it throws a RangeError when there are too many items.
   for (const token of appended) tree.flat.push(token);
 }

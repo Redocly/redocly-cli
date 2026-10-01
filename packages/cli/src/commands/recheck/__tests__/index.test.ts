@@ -1,5 +1,6 @@
 import { AbortFlowError, createConfig, Source, type Config } from '@redocly/openapi-core';
 import type { RecheckBlock } from '@redocly/recheck';
+import { cyan } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -40,9 +41,18 @@ describe('handleRecheck', () => {
     recheckExtends: string[] = [],
     parsed?: unknown
   ): Promise<void> {
-    const argv: RecheckArgv = { format: 'table', paths: [path.join(dir, 'docs')] };
+    const argv: RecheckArgv = {
+      format: 'table',
+      paths: [path.join(dir, 'docs')],
+    };
     const document = parsed === undefined ? undefined : { parsed };
-    const config = { ...configFixture, recheck, recheckExtends, configPath, document } as Config;
+    const config = {
+      ...configFixture,
+      recheck,
+      recheckExtends,
+      configPath,
+      document,
+    } as Config;
     return handleRecheck({ argv, config, version: 'test' });
   }
 
@@ -57,7 +67,10 @@ describe('handleRecheck', () => {
 
   it('runs only the rules of the block', async () => {
     const rules = {
-      'recheck/single-h1': { severity: 'error' as const, assertions: { 'single-h1': {} } },
+      'recheck/single-h1': {
+        severity: 'error' as const,
+        assertions: { 'single-h1': {} },
+      },
     };
     await expect(run({ rules }, path.join(dir, 'redocly.yaml'))).rejects.toThrow(AbortFlowError);
     const report = output.stdout.join('');
@@ -101,11 +114,59 @@ describe('handleRecheck', () => {
     ]);
   });
 
-  it('lints an API whose internal $ref pointer is missing and warns about the skipped $ref', async () => {
-    const apiPath = path.join(dir, 'openapi.yaml');
-    await fs.writeFile(
-      apiPath,
-      `openapi: 3.1.0
+  describe('run options', () => {
+    function runWith(argvOverrides: Partial<RecheckArgv>): Promise<void> {
+      const argv: RecheckArgv = {
+        format: 'table',
+        paths: [path.join(dir, 'docs')],
+        ...argvOverrides,
+      };
+      const config = {
+        ...configFixture,
+        recheck: { rules: {} },
+        recheckExtends: ['recheck/markdown'],
+        configPath: path.join(dir, 'redocly.yaml'),
+        document: undefined,
+      } as Config;
+      return handleRecheck({ argv, config, version: 'test' });
+    }
+
+    it('runs only the rules named by --rule', async () => {
+      await expect(runWith({ rule: ['single-h1'] })).rejects.toThrow(AbortFlowError);
+      const report = output.stdout.join('');
+      expect(report).toContain('single-h1');
+      expect(report).not.toContain('blanks-around-headings');
+    });
+
+    it('skips the rules named by --skip-rule', async () => {
+      await expect(runWith({ 'skip-rule': ['single-h1'] })).rejects.toThrow(AbortFlowError);
+      const report = output.stdout.join('');
+      expect(report).toContain('blanks-around-headings');
+      expect(report).not.toContain('single-h1');
+    });
+
+    it('rewrites the files and reports the fixes with --fix', async () => {
+      const file = path.join(dir, 'docs', 'index.md');
+      // The run still reports the findings it fixed, so it exits 1.
+      await expect(runWith({ fix: true, rule: ['blanks-around-headings'] })).rejects.toThrow(
+        AbortFlowError
+      );
+      expect(await fs.readFile(file, 'utf8')).toBe('# One\n\n# Two\n');
+      expect(output.stderr.join('')).toContain('Auto-fixed');
+    });
+
+    it('fails the run with the engine message for an unknown --rule', async () => {
+      await expect(runWith({ rule: ['no-such-rule'] })).rejects.toThrow(AbortFlowError);
+      expect(output.stderr.join('')).toContain(
+        'no rule in this configuration matches "no-such-rule"'
+      );
+    });
+
+    it('lints an API with a missing internal $ref pointer and warns about the skipped $ref', async () => {
+      const apiPath = path.join(dir, 'openapi.yaml');
+      await fs.writeFile(
+        apiPath,
+        `openapi: 3.1.0
 info:
   title: Museum
   version: 1.0.0
@@ -116,21 +177,30 @@ components:
     Pet:
       $ref: '#/components/schemas/Missing'
 `
-    );
-    const config = await createConfig(
-      { extends: ['recheck/markdown'] },
-      { configPath: path.join(dir, 'redocly.yaml') }
-    );
-    const argv: RecheckArgv = { format: 'table', paths: [apiPath] };
+      );
+      const config = await createConfig(
+        { extends: ['recheck/markdown'] },
+        { configPath: path.join(dir, 'redocly.yaml') }
+      );
+      const argv: RecheckArgv = { format: 'table', paths: [apiPath] };
 
-    await handleRecheck({ argv, config, version: 'test' });
+      await handleRecheck({ argv, config, version: 'test' });
 
-    const stderr = output.stderr.join('');
-    expect(output.stderr).toContain(
-      `Could not resolve $ref #/components/schemas/Missing from ${apiPath}; its descriptions are skipped.\n`
-    );
-    expect(stderr).not.toContain('Could not read API description');
-    expect(stderr).toContain('1 API description(s)');
+      expect(output.stderr.slice(0, 2)).toEqual([
+        `Could not resolve $ref #/components/schemas/Missing from ${apiPath}; its descriptions are skipped.\n`,
+        `${cyan('🏃 Running recheck on: 1 API description(s)')}\n`,
+      ]);
+    });
+
+    it('applies the baseline file next to redocly.yaml once generated', async () => {
+      await runWith({ 'generate-baseline': true });
+      expect(await fs.readFile(path.join(dir, '.redocly.recheck-baseline.yaml'), 'utf8')).toContain(
+        'recheck/single-h1'
+      );
+      output.stderr.length = 0;
+      await expect(runWith({})).resolves.toBeUndefined();
+      expect(output.stderr.join('')).toMatch(/Baseline: \d+ matched, 0 new, 0 stale/);
+    });
   });
 
   describe('per-API recheck settings', () => {
@@ -152,7 +222,9 @@ components:
     });
 
     it('warns about a per-API preset when the root config has no recheck settings', async () => {
-      const parsed = { apis: { main: { root: 'openapi.yaml', extends: ['recheck/markdown'] } } };
+      const parsed = {
+        apis: { main: { root: 'openapi.yaml', extends: ['recheck/markdown'] } },
+      };
       await run({ rules: {} }, path.join(dir, 'redocly.yaml'), [], parsed);
       expect(output.stderr).toEqual([PER_API_WARNING, NO_CONFIG_NOTICE]);
       expect(output.stdout).toEqual([]);
@@ -180,9 +252,15 @@ describe('toEmbeddedInputs', () => {
 
     const { inputs, remoteSkipped } = toEmbeddedInputs([remote, local]);
 
-    expect(inputs).toHaveLength(1);
     expect(remoteSkipped).toBe(1);
-    expect(inputs[0].file).toBe(local.source.absoluteRef);
+    expect(inputs).toEqual([
+      {
+        file: local.source.absoluteRef,
+        pointer: '#/description',
+        content: 'text',
+        mapPosition: expect.any(Function),
+      },
+    ]);
   });
 });
 

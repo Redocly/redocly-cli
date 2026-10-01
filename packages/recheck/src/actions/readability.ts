@@ -37,7 +37,7 @@ function median(values: number[]): number | null {
   return Math.round(value * 100) / 100;
 }
 
-/** Scores readability per file plus medians. Never gates: the caller exits 0 whenever it ran. */
+/** Scores readability per file and overall. It never fails the run. */
 export async function runReadability(
   paths: string | string[] = '.',
   config: ResolvedRecheckConfig,

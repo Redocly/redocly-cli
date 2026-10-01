@@ -1,9 +1,9 @@
-import { buildSummary, type Problem } from '@redocly/recheck';
+import type { Problem } from '@redocly/recheck';
+import { stripVTControlCharacters } from 'node:util';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { generateReport } from '../../formatters/index.js';
-import { printSummary } from '../../formatters/summary.js';
-import { captureLogger } from '../capture-logger.js';
+import { captureLogger } from '../../__tests__/capture-logger.js';
+import { generateReport } from '../index.js';
 
 const ERROR: Problem = {
   file: 'docs/index.md',
@@ -31,6 +31,10 @@ const INFO: Problem = {
   severity: 'info',
   message: 'Prefer the active voice.',
 };
+
+function problem(overrides: Partial<Problem> = {}): Problem {
+  return { ...ERROR, line: 1, ...overrides };
+}
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -80,21 +84,54 @@ describe('generateReport', () => {
   });
 });
 
-describe('printSummary', () => {
-  it('prints a text summary on stderr', async () => {
+describe('generateReport with the table format', () => {
+  const HIDDEN = 'more problems hidden > increase with `--max-problems N`\n';
+
+  function plain(lines: string[]): string {
+    return stripVTControlCharacters(lines.join(''));
+  }
+
+  it('counts every problem, prints the rows up to maxProblems, and reports the rest on stderr', () => {
     const { stderr, stdout } = captureLogger();
 
-    await printSummary(buildSummary([ERROR, WARNING], 2), 'text', undefined);
+    generateReport([problem(), problem({ line: 2 })], 1, {
+      format: 'table',
+      maxProblems: 1,
+    });
 
-    expect(stderr.join('')).toBe(
-      '\nFiles scanned: 2\n' +
-        'Total issues: 2\n' +
-        'Errors: 1, Warnings: 1, Info: 0\n' +
-        '\n' +
-        'Breakdown by rule:\n' +
-        'recheck/line-length: 1 (errors: 1, warnings: 0, info: 0)\n' +
-        'recheck/no-todos: 1 (errors: 0, warnings: 1, info: 0)\n'
-    );
-    expect(stdout).toEqual([]);
+    const printed = plain(stdout);
+    expect(printed).toContain('docs/index.md:1:1');
+    expect(printed).not.toContain('docs/index.md:2:1');
+    expect(printed).toContain('Found 2 issue(s):');
+    expect(printed).toContain('\n   2 error(s)\n');
+    expect(printed).not.toContain('more problems hidden');
+    expect(plain(stderr)).toContain(`< ... 1 ${HIDDEN}`);
+  });
+
+  it('prints the counts and no rows when maxProblems is 0', () => {
+    const { stderr, stdout } = captureLogger();
+
+    generateReport([problem(), problem({ line: 2 })], 1, {
+      format: 'table',
+      maxProblems: 0,
+    });
+
+    const printed = plain(stdout);
+    expect(printed).not.toContain('No issues found!');
+    expect(printed).not.toContain('docs/index.md:');
+    expect(printed).toContain('Found 2 issue(s):');
+    expect(printed).toContain('\n   2 error(s)\n');
+    expect(plain(stderr)).toContain(`< ... 2 ${HIDDEN}`);
+  });
+
+  it('prints every problem and no hidden count without maxProblems', () => {
+    const { stderr, stdout } = captureLogger();
+
+    generateReport([problem(), problem({ line: 2 })], 1, { format: 'table' });
+
+    const printed = plain(stdout);
+    expect(printed).toContain('docs/index.md:1:1');
+    expect(printed).toContain('docs/index.md:2:1');
+    expect(plain([...stdout, ...stderr])).not.toContain('more problems hidden');
   });
 });

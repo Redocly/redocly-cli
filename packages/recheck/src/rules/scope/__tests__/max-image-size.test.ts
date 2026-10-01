@@ -51,27 +51,6 @@ describe('max-image-size', () => {
   }
 
   describe('image size validation', () => {
-    it('should not report problems for images within size limit', async () => {
-      const content = `# Test Document
-
-![Small image](./images/small.png)
-![Another small image](./images/tiny.jpg)
-`;
-
-      const fileMetadata = createFileMetadata({
-        './images/small.png': { size: 50 * 1024, exists: true }, // 50KB
-        './images/tiny.jpg': { size: 30 * 1024, exists: true }, // 30KB
-      });
-
-      const problems = await maxImageSize.execute(
-        createRule(100),
-        'test.md',
-        buildContext(content, fileMetadata)
-      );
-
-      expect(problems).toHaveLength(0);
-    });
-
     it('should report problems for images exceeding size limit', async () => {
       const content = `# Test Document
 
@@ -115,7 +94,6 @@ describe('max-image-size', () => {
         './images/medium.png': { size: 75 * 1024, exists: true }, // 75KB
       });
 
-      // Should pass with 100KB limit
       const problems100 = await maxImageSize.execute(
         createRule(100),
         'test.md',
@@ -123,7 +101,6 @@ describe('max-image-size', () => {
       );
       expect(problems100).toHaveLength(0);
 
-      // Should fail with 50KB limit
       const problems50 = await maxImageSize.execute(
         createRule(50),
         'test.md',
@@ -147,7 +124,6 @@ describe('max-image-size', () => {
         './images/document.pdf': { size: 150 * 1024, exists: true }, // 150KB
       });
 
-      // Only check PNG and SVG files
       const problems = await maxImageSize.execute(
         createRule(100, ['png', 'svg']),
         'test.md',
@@ -157,6 +133,51 @@ describe('max-image-size', () => {
       expect(problems).toHaveLength(2); // PNG and SVG flagged, PDF ignored
       expect(problems[0].message).toContain('./images/large.png');
       expect(problems[1].message).toContain('./images/large.svg');
+    });
+  });
+
+  describe('defaults and limit boundary', () => {
+    it('flags an image only when it is strictly larger than the limit', async () => {
+      const content = '![At limit](./at.png)\n\n![Over limit](./over.png)\n';
+      const fileMetadata = createFileMetadata({
+        './at.png': { size: 100 * 1024, exists: true },
+        './over.png': { size: 100 * 1024 + 1, exists: true },
+      });
+
+      const problems = await maxImageSize.execute(
+        createRule(100),
+        'test.md',
+        buildContext(content, fileMetadata)
+      );
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0].message).toContain('./over.png');
+    });
+
+    it('without `extensions`, checks the default image types case-insensitively and ignores others', async () => {
+      const content = [
+        '![Upper](./shout.PNG)',
+        '',
+        '![Pdf](./manual.pdf)',
+        '',
+        '![None](./no-extension)',
+        '',
+      ].join('\n');
+      const big = { size: 150 * 1024, exists: true };
+      const fileMetadata = createFileMetadata({
+        './shout.PNG': big,
+        './manual.pdf': big,
+        './no-extension': big,
+      });
+
+      const problems = await maxImageSize.execute(
+        createRule(100),
+        'test.md',
+        buildContext(content, fileMetadata)
+      );
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0].message).toContain('./shout.PNG');
     });
   });
 
@@ -192,8 +213,11 @@ describe('max-image-size', () => {
 ![Another external](http://example.com/other.gif)
 `;
 
+      // Metadata exists for the external images too, so only the URL check can skip them.
       const fileMetadata = createFileMetadata({
+        'https://example.com/image.png': { size: 150 * 1024, exists: true },
         './images/local.jpg': { size: 150 * 1024, exists: true },
+        'http://example.com/other.gif': { size: 150 * 1024, exists: true },
       });
 
       const problems = await maxImageSize.execute(
@@ -236,7 +260,7 @@ describe('max-image-size', () => {
 `;
 
       const fileMetadata = createFileMetadata({
-        './images/missing.png': { size: 0, exists: false },
+        './images/missing.png': { size: 150 * 1024, exists: false },
         './images/real.jpg': { size: 150 * 1024, exists: true },
       });
 
@@ -252,18 +276,12 @@ describe('max-image-size', () => {
   });
 
   describe('reference-style images', () => {
-    // The old regex (`!\[([^\]]*)\]\(([^)\s]+)(?:[^\)]*)?\)`) required a
-    // literal `(...)` destination right after the label, so it never
-    // matched `![alt][ref]`/`![alt][]`/`![alt]` syntax at all -- these are
-    // net-new detection, not a behavior change to an existing case.
-    it('should detect an oversized full reference-style image (![alt][ref])', async () => {
-      const content = `# Test Document
-
-![Large image][big]
-
-[big]: ./images/large.png
-`;
-
+    it.each([
+      ['full', '![Large image][big]', 'big'],
+      ['collapsed', '![large][]', 'large'],
+      ['shortcut', '![large]', 'large'],
+    ])('should detect an oversized %s reference-style image (%s)', async (_kind, image, label) => {
+      const content = `# Test Document\n\n${image}\n\n[${label}]: ./images/large.png\n`;
       const fileMetadata = createFileMetadata({
         './images/large.png': { size: 150 * 1024, exists: true },
       });
@@ -283,50 +301,6 @@ describe('max-image-size', () => {
       });
     });
 
-    it('should detect an oversized collapsed reference-style image (![alt][])', async () => {
-      const content = `# Test Document
-
-![large][]
-
-[large]: ./images/large.png
-`;
-
-      const fileMetadata = createFileMetadata({
-        './images/large.png': { size: 150 * 1024, exists: true },
-      });
-
-      const problems = await maxImageSize.execute(
-        createRule(100),
-        'test.md',
-        buildContext(content, fileMetadata)
-      );
-
-      expect(problems).toHaveLength(1);
-      expect(problems[0].message).toContain('./images/large.png');
-    });
-
-    it('should detect an oversized shortcut reference-style image (![alt])', async () => {
-      const content = `# Test Document
-
-![large]
-
-[large]: ./images/large.png
-`;
-
-      const fileMetadata = createFileMetadata({
-        './images/large.png': { size: 150 * 1024, exists: true },
-      });
-
-      const problems = await maxImageSize.execute(
-        createRule(100),
-        'test.md',
-        buildContext(content, fileMetadata)
-      );
-
-      expect(problems).toHaveLength(1);
-      expect(problems[0].message).toContain('./images/large.png');
-    });
-
     it('should not flag a reference-style image whose label has no matching definition', async () => {
       const content = `# Test Document
 
@@ -344,13 +318,7 @@ describe('max-image-size', () => {
   });
 
   describe('AST-derived positions', () => {
-    // A regex applied line-by-line can never match an image whose label
-    // soft-wraps across a source line (there's no single line containing
-    // both the opening `![` and the closing `)`) -- the old
-    // `extractImageReferences` silently missed this case entirely. Reading
-    // image tokens from the tree finds it, and reports at the token's true
-    // (possibly mid-line) start position rather than a synthetic line-1
-    // guess.
+    // An image whose label wraps onto the next line is found, and reported at the position where it starts.
     it('should detect an oversized image whose label wraps across source lines', async () => {
       const content = `Some prefix text ![alt
 text](./images/big.png) more text.
@@ -381,8 +349,7 @@ text](./images/big.png) more text.
 ![Large image](./images/large.png)
 `;
       const tree = parseMarkdown(content);
-      // Scope to headings only -- the image lives in the paragraph below,
-      // so nothing in ctx.segments overlaps its token.
+      // Only headings are in scope, but the image is in the paragraph below.
       const segments = extractScopes(tree, content).filter((s) => s.scope.startsWith('heading.'));
       const ctx: ScopeRuleContext = {
         segments,

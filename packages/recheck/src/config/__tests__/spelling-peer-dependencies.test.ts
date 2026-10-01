@@ -3,23 +3,9 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-// This file is DELIBERATELY separate from spelling.test.ts (which exercises
-// the real nspell/dictionary-en dev dependencies): every test here mocks
-// module resolution for 'nspell'/'dictionary-en', and mixing that with
-// tests that expect the REAL modules in the same file risks module-cache
-// ordering flakiness. Nothing in this file ever imports the real nspell.
-//
-// `vi.doMock` (not the hoisted `vi.mock`) is the right tool here: every
-// import this suite cares about is a runtime DYNAMIC `import('nspell')` /
-// `import('dictionary-en')` (see spelling.ts's `loadSpeller` and
-// validate.ts's peer-availability check) — never a static top-of-file
-// import — so registering the mock at the START of each test (before the
-// dynamic import executes) is sufficient; nothing needs hoisting.
-// `vi.resetModules()` before AND after each test clears the module
-// registry so a fresh `import('../validate.js')` always re-resolves
-// 'nspell'/'dictionary-en' through the CURRENT mock (or lack of one),
-// rather than reusing a cached real (or stale-mocked) module from a
-// previous test.
+// These tests mock `nspell` and `dictionary-en`, so they are separate from spelling.test.ts, which
+// uses the real packages. `vi.doMock` is enough because the code loads both with a dynamic
+// `import()`. `vi.resetModules()` makes each test import them again through the current mock.
 
 async function freshValidate() {
   const mod = await import('../validate.js');
@@ -123,7 +109,6 @@ describe('spelling: MISSING-PEER validation', () => {
           error.message.includes('npm i nspell dictionary-en') && error.message.includes('spelling')
       )
     ).toBe(true);
-    // Never a bare module-not-found bubbling up as the whole story.
     expect(result.errors.some((error) => /cannot find module/i.test(error.message))).toBe(false);
   });
 
@@ -173,12 +158,8 @@ describe('spelling: MISSING-PEER validation', () => {
     expect(result.errors).toEqual([]);
   });
 
-  // Item 14 (pre-PR cleanup): a config with SEVERAL spelling rules missing
-  // the same peers used to report one identical peer-missing error per
-  // rule — pure noise, since the fix (one install command) is the same for
-  // all of them. Each DISTINCT message is reported exactly once; a mixed
-  // config (default-dictionary rule + custom-dictionary rule) still gets
-  // both distinct install commands.
+  // Several spelling rules that miss the same peers report each distinct message once. A mixed
+  // config (default and custom dictionary) still gets both install commands.
   it('reports one deduped error when several spelling rules are missing the same peers', async () => {
     vi.doMock('nspell', () => {
       throw new Error("Cannot find module 'nspell'");
@@ -208,11 +189,7 @@ describe('spelling: MISSING-PEER validation', () => {
       throw new Error("Cannot find module 'nspell'");
     });
 
-    // The custom dictionary's files must actually EXIST here: this test is
-    // about the peer-dependency install-command messages, not the (separate)
-    // dictionary-file-existence check added alongside it -- a bogus,
-    // nonexistent path would add a third, unrelated error and break the
-    // `toHaveLength(2)` assertion below.
+    // The custom dictionary files must exist, or the file check would add a third error.
     const dictionaryEn = (await import('dictionary-en')).default;
     const dir = await makeTmpDir();
     const base = path.join(dir, 'custom');
@@ -242,10 +219,8 @@ describe('spelling: MISSING-PEER validation', () => {
     );
   });
 
-  // Bugbot finding, layer 2: the custom-dictionary install-command test above
-  // deliberately keeps a bogus path (nspell itself is mocked missing there,
-  // so the file-existence check is irrelevant to it); THIS describe block is
-  // dedicated to the new file-existence check itself.
+  // The test above uses a bogus path because the mocked nspell never reads it. These tests cover
+  // the file check itself.
   describe('spelling: custom dictionary FILE-EXISTENCE validation', () => {
     it('reports an actionable error naming the resolved .aff/.dic paths when they do not exist', async () => {
       vi.doMock('nspell', () => ({ default: () => ({ correct: () => true, suggest: () => [] }) }));
@@ -280,13 +255,9 @@ describe('spelling: MISSING-PEER validation', () => {
   });
 });
 
-// Item 15 (pre-PR cleanup): spelling.ts's module-level spellerCache must
-// make repeated execute() calls with the SAME dictionary config reuse one
-// speller instance. The observable is the `nspell(dictionary)` constructor
-// call count — parsing the dictionary is the expensive "load" the cache
-// exists to avoid (a module-registry import of 'dictionary-en' is cached by
-// the runtime itself either way, so import counts can't distinguish a cache
-// hit from a miss).
+// The speller is cached, so repeated `execute()` calls with the same dictionary config build one
+// speller. The test counts calls to the `nspell(dictionary)` constructor, because the runtime
+// caches the `dictionary-en` import itself and import counts cannot show a cache hit.
 describe('spelling: speller cache reuse', () => {
   it('two execute() calls with the same dictionary config trigger exactly one dictionary load', async () => {
     const nspellConstructor = vi.fn(() => ({ correct: () => true, suggest: () => [] }));
@@ -319,14 +290,8 @@ describe('spelling: speller cache reuse', () => {
   });
 });
 
-// High-severity Bugbot finding: spellerCache stored the in-flight promise
-// BEFORE it settled and never evicted it on rejection -- every later call
-// for the same cache key replayed the same dead rejection forever, so
-// spelling was silently disabled for the rest of the process after one
-// failed load. A later call after the failure clears must retry fresh
-// instead. Mocking 'node:fs/promises' itself (rather than a real tmp dir)
-// lets this test flip failure on/off deterministically across two calls
-// within the SAME test, without relying on real filesystem timing.
+// A failed dictionary load must not stay in the cache. A later call retries the load. The test
+// mocks 'node:fs/promises' so the read can fail on the first call and work on the second.
 describe('spelling: cache eviction on rejected load', () => {
   it('evicts a rejected load so a later call with the same dictionary key attempts a fresh load instead of replaying the failure', async () => {
     let shouldFail = true;
@@ -336,10 +301,7 @@ describe('spelling: cache eviction on rejected load', () => {
       const actual = await vi.importActual<typeof fs>('node:fs/promises');
       return {
         ...actual,
-        // The dictionary path below is deliberately bogus (never a real
-        // file on disk), so "success" here means resolving with SOME bytes
-        // -- not delegating to the real readFile, which would still ENOENT.
-        // nspell itself is mocked too, so the actual byte content is unused.
+        // The dictionary path is not a real file, so a successful read has to return some bytes.
         readFile: vi.fn(() => {
           readAttempts += 1;
           if (shouldFail) return Promise.reject(new Error('simulated transient read failure'));
@@ -369,22 +331,19 @@ describe('spelling: cache eviction on rejected load', () => {
       assertions: { spelling: { dictionary: '/tmp/does-not-matter/custom' } },
     };
 
-    // First load: the (mocked) custom dictionary read fails -> execute()
-    // must surface the failure (rethrow) rather than caching a resolved [].
+    // First load: the read fails, so `execute()` must throw and not cache an empty result.
     await expect(
       spelling.execute(rule, 'a.md', buildCtx('First document prose.\n'))
     ).rejects.toThrow();
     const attemptsAfterFirstFailure = readAttempts;
     expect(attemptsAfterFirstFailure).toBeGreaterThan(0);
 
-    // The failure clears; a SECOND call with the IDENTICAL dictionary key
-    // must attempt a fresh load (more readFile calls), not reuse the cached
-    // rejected promise, and must succeed.
+    // The failure is gone: the second call with the same dictionary must load again and succeed.
     shouldFail = false;
     const problems = await spelling.execute(rule, 'b.md', buildCtx('Second document prose.\n'));
 
     expect(readAttempts).toBeGreaterThan(attemptsAfterFirstFailure);
-    expect(problems).toEqual([]); // the nspell mock reports everything 'correct'
-    expect(nspellConstructor).toHaveBeenCalledTimes(1); // only the successful load builds a speller
+    expect(problems).toEqual([]);
+    expect(nspellConstructor).toHaveBeenCalledTimes(1);
   });
 });

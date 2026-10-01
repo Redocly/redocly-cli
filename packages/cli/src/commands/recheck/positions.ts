@@ -10,7 +10,7 @@ function leadingSpaces(line: string): number {
 }
 
 // Turns a line and column inside a description's string value into the
-// position in the source file (Decision D of Redocly/redocly#26970).
+// position in the source file.
 export function createPositionMapper(source: Source, pointer: string): PositionMapper {
   const { start, end = { line: start.line, col: start.col + 1 } } = getLineColLocation({
     source,

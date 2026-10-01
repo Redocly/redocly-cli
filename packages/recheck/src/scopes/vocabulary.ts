@@ -1,15 +1,8 @@
 import { dedupeProblems, tokenizeSelector } from './selector.js';
 
-// Canonical list of scope names recognized by the extractor/selector. Schema
-// validation (src/config/schema.ts) and semantic validation
-// (src/config/validate.ts) both derive from this list so they can't drift
-// from what extractScopes()/compileSelector() actually support.
-//
-// 'all' and 'raw' are special-cased selector keywords (they bypass
-// filtering entirely — see compileSelector) rather than segment scopes, but
-// they're valid values for the `scope` config field, so they're included
-// here too. 'default' is a permanent alias for 'summary' (see
-// scopes/selector.ts ALIASES).
+// Scope names recognized by the extractor and selector. Config schema and validation use this
+// list too. 'all' and 'raw' are selector keywords, not segment scopes, but are valid `scope`
+// values. 'default' is an alias for 'summary'.
 export const BASE_SCOPES = [
   'all',
   'raw',
@@ -34,26 +27,20 @@ export const BASE_SCOPES = [
 const HEADING_LEVEL_PATTERN = /^heading\.h[1-6]$/;
 
 /**
- * True when `term` (already stripped of any leading `~` negation and
- * surrounding whitespace) is a recognized scope name — either an exact
- * base-vocabulary match or a `heading.h1`-`heading.h6` level selector.
+ * True when `term` (without `~` or whitespace) is a known scope name: a base scope or
+ * `heading.h1` to `heading.h6`.
  */
 export function isKnownScopeTerm(term: string): boolean {
   return (BASE_SCOPES as readonly string[]).includes(term) || HEADING_LEVEL_PATTERN.test(term);
 }
 
 /**
- * Validates a single scope string, which may be a bare scope name or a
- * selector clause of `&`-joined (optionally `~`-negated) terms, e.g.
- * `'~blockquote & ~heading'`. Returns a list of problems found (empty when
- * valid) — each problem names the offending term/clause for a helpful error
- * message.
+ * Validates one scope selector, e.g. `'~blockquote & ~heading'`. Returns a message for each
+ * problem found, or an empty list when valid.
  */
 export function validateScopeSelector(raw: string): string[] {
   const problems: string[] = [];
-  // Parses via the selector module's own tokenizer (the one compileSelector
-  // compiles with) so validation and compilation can never disagree about
-  // where a term starts or ends.
+  // Uses the same tokenizer as compileSelector, so both agree on where a term starts and ends.
   for (const { clause, term } of tokenizeSelector(raw)) {
     if (clause === '') {
       problems.push(`empty clause in scope selector "${raw}"`);
@@ -67,7 +54,6 @@ export function validateScopeSelector(raw: string): string[] {
       problems.push(`unknown scope "${term}" in scope selector "${raw}"`);
     }
   }
-  // Order-preserving: a selector repeating the same bad clause ('bogus &
-  // bogus') yields the identical message once per clause — report it once.
+  // A repeated bad clause ('bogus & bogus') would give the same message twice.
   return dedupeProblems(problems);
 }

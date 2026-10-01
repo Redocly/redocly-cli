@@ -11,12 +11,10 @@ describe('line-length (MD013)', () => {
 
   it('flags a violation with exact line/column (column is maxLength+1)', async () => {
     const hShort = tokenRuleHarness('line-length', { lineLength: 20 });
-    // 25 non-whitespace-terminated chars -> exempted (last run replaced with
-    // '#' before length check) unless it also has internal whitespace.
     const problems = await hShort.lint('This line has spaces beyond the limit\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
-    expect(problems[0].column).toBe(21); // maxLength (20) + 1
+    expect(problems[0].column).toBe(21);
     expect(problems[0].message).toContain('Expected: 20; Actual: 37');
   });
 
@@ -97,18 +95,12 @@ describe('line-length (MD013)', () => {
       '[ref]: https://example.com/another/very/long/path/that/exceeds/the/limit/for/sure',
       '',
     ].join('\n');
-    // Normal mode: the link-only line is exempted (per doc/md013.md).
     const hNormal = tokenRuleHarness('line-length', { lineLength: 20 });
     const normalProblems = await hNormal.lint(md);
     expect(normalProblems.some((p) => p.line === 3)).toBe(false);
     expect(normalProblems.some((p) => p.line === 5)).toBe(false);
 
-    // Strict mode: per md013.mjs's actual gate (`strict || (... &&
-    // !linkOnlyLineNumbers...)`), `strict` short-circuits the link-only
-    // exemption -- only the (unconditional) definition-line exemption
-    // still applies. This is a documented upstream doc/code discrepancy;
-    // the code (source of truth for this port) always flags link-only
-    // lines under `strict`.
+    // In strict mode, link-only lines are flagged; only the definition line stays exempt.
     const hStrict = tokenRuleHarness('line-length', { lineLength: 20, strict: true });
     const strictProblems = await hStrict.lint(md);
     expect(strictProblems.some((p) => p.line === 3)).toBe(true);
@@ -125,21 +117,13 @@ describe('line-length (MD013)', () => {
       strict: true,
     });
     const problems = await hCustom.lint(md);
-    // Heading and code-block lines exempted by their own higher limits; the
-    // body line is still flagged by the base lineLength.
     expect(problems.map((p) => p.line)).toEqual([3]);
   });
 
   it('does not flag long YAML frontmatter lines (regression)', async () => {
-    // Upstream markdownlint slices frontmatter out of the content entirely
-    // before any rule sees `params.lines` (see markdownlint's
-    // removeFrontMatter) -- a long `description:` value in frontmatter is
-    // structurally invisible to MD013, no matter how long. Recheck's
-    // parser keeps frontmatter as real lines in `ctx.lines` instead, so a
-    // long frontmatter value line was wrongly flagged as a line-length
-    // violation even though upstream would never see it.
+    // Front matter lines are not checked, however long.
     const hShort = tokenRuleHarness('line-length', { lineLength: 20 });
-    const longDescription = Array(10).fill('word').join(' '); // has internal spaces, so not exempted by the trailing-run rule
+    const longDescription = Array(10).fill('word').join(' ');
     const md = `---\ndescription: ${longDescription}\n---\n# Heading\n\nShort line.\n`;
     expect(await hShort.lint(md)).toEqual([]);
   });

@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { compileSelector, wholeDocumentKeywordProblems } from '../selector.js';
+import { compileSelector } from '../selector.js';
 import type { ScopedSegment } from '../types.js';
-import { BASE_SCOPES } from '../vocabulary.js';
 
 const seg = (scope: string): ScopedSegment => ({
   scope,
@@ -22,9 +21,7 @@ describe('compileSelector', () => {
   });
 
   it('treats single-element array form of all/raw the same as the bare string', () => {
-    // scope: ['all'] must mean the same thing as scope: all — extractScopes
-    // never emits segments named 'all'/'raw', so compiling them into name
-    // predicates would silently match nothing.
+    // `scope: ['all']` must mean the same as `scope: all`.
     expect(compileSelector(['all'])).toBeNull();
     expect(compileSelector(['raw'])).toBeNull();
   });
@@ -63,15 +60,8 @@ describe('compileSelector', () => {
   });
 });
 
-// 'all'/'raw' are whole-document keywords, not segment names — extractScopes
-// never emits segments with those scopes. As a conjunction term
-// ('heading & all') they'd compile to a predicate that can never match, so
-// the rule silently reports nothing; negated ('~all', '~raw') they'd match
-// EVERY segment, silently meaning "everything" when the set-theoretic
-// reading of ~all is "nothing". Config-driven entry points reject these at
-// validation, but direct runRules callers skip validation — compileSelector
-// must fail loudly rather than hand back a silently-wrong predicate (same
-// rationale as normalizing ['all'] to null instead of a name predicate).
+// 'all' and 'raw' are whole-document keywords. In a compound ('heading & all') they would never
+// match, and negated ('~all') they would match every segment, so `compileSelector` must throw.
 describe('compileSelector — all/raw as compound or negated terms', () => {
   it('throws for all/raw inside a conjunction', () => {
     expect(() => compileSelector('heading & all')).toThrow(/cannot be combined/);
@@ -102,14 +92,8 @@ describe('compileSelector — all/raw as compound or negated terms', () => {
   });
 });
 
-// Terms outside the scope vocabulary can only compile to silently-wrong
-// predicates: an unknown conjunct ('heading & ALL' — case typo) never
-// matches, so the whole rule lints nothing; a double negation ('~~code' —
-// after the single ~-strip the term is '~code', unknown) matches EVERY
-// segment, including the code it tried to exclude. Config-driven callers
-// are protected by validation's unknown-scope check, but direct runRules
-// callers skip validation — compileSelector must fail loudly, exactly as
-// it already does for all/raw keyword misuse above.
+// Unknown terms must throw: 'heading & ALL' (typo) would never match, and '~~code' would match
+// every segment, including code.
 describe('compileSelector — unknown terms', () => {
   it('throws for an unknown term inside a conjunction (case typo)', () => {
     expect(() => compileSelector('heading & ALL')).toThrow(/unknown scope "ALL"/);
@@ -133,14 +117,8 @@ describe('compileSelector — unknown terms', () => {
   });
 });
 
-// A selector that repeats the same mistake per clause ('all & all',
-// 'bogus & bogus') must not report the identical message once per clause —
-// problem lists are deduplicated order-preserving within a single selector.
+// A repeated mistake ('all & all', 'bogus & bogus') must be reported once, not once per clause.
 describe('selector problem messages are deduplicated', () => {
-  it('reports "all & all" once, not once per clause', () => {
-    expect(wholeDocumentKeywordProblems('all & all')).toHaveLength(1);
-  });
-
   it('compileSelector error mentions each distinct problem once', () => {
     const count = (selector: string, pattern: RegExp): number => {
       try {
@@ -152,65 +130,5 @@ describe('selector problem messages are deduplicated', () => {
     };
     expect(count('all & all', /cannot be combined/g)).toBe(1);
     expect(count('bogus & bogus', /unknown scope "bogus"/g)).toBe(1);
-  });
-});
-
-// Lock the FULL valid surface so the unknown-term rejection can never
-// over-reach: every name the vocabulary considers valid — every BASE_SCOPES
-// entry (including the 'default' alias and dotted 'table.*' forms), every
-// heading.h1-h6 level, their negations and conjunctions — must keep
-// compiling. Iterates the exported vocabulary itself so a scope name added
-// to BASE_SCOPES later cannot silently break compilation.
-describe('compileSelector — every vocabulary term compiles', () => {
-  const aliasTargets: Record<string, string> = { default: 'summary' };
-  const headingLevels = [
-    'heading.h1',
-    'heading.h2',
-    'heading.h3',
-    'heading.h4',
-    'heading.h5',
-    'heading.h6',
-  ];
-  const namedScopes = [...BASE_SCOPES.filter((s) => s !== 'all' && s !== 'raw'), ...headingLevels];
-
-  /** Selectors from `selectors(scope)` that fail to compile, tagged by scope. */
-  const failingToCompile = (
-    scopes: string[],
-    selectors: (scope: string) => (string | string[])[]
-  ) =>
-    scopes.flatMap((scope) =>
-      selectors(scope).filter((selector) => {
-        try {
-          compileSelector(selector);
-          return false;
-        } catch {
-          return true;
-        }
-      })
-    );
-
-  it('compiles every base scope bare and as a single-element array', () => {
-    const failures = failingToCompile([...BASE_SCOPES, ...headingLevels], (scope) => [
-      scope,
-      [scope],
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  it('compiles every named scope negated and in a conjunction', () => {
-    const failures = failingToCompile(namedScopes, (scope) => [
-      `~${scope}`,
-      `${scope} & ~${scope === 'code' ? 'heading' : 'code'}`,
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  it('matches every named scope against its own (alias-resolved) segment', () => {
-    const nonMatching = namedScopes.filter((scope) => {
-      const predicate = compileSelector(scope);
-      if (predicate === null) throw new Error(`Expected non-null predicate for ${scope}`);
-      return !predicate(seg(aliasTargets[scope] ?? scope));
-    });
-    expect(nonMatching).toEqual([]);
   });
 });

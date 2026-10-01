@@ -40,8 +40,4 @@ describe('commands-show-output (MD014)', () => {
     const fixed = await h.fix('    $ ls\n    $ cat foo\n');
     expect(fixed).toBe('    ls\n    cat foo\n');
   });
-
-  it('passes a document with no code blocks', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

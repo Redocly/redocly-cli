@@ -51,11 +51,8 @@ describe('parseDirectives', () => {
   });
 
   describe('directive line anchoring inside a multi-line htmlFlow token', () => {
-    // An HTML block (e.g. a `<div>` wrapper) swallows every line up to the
-    // next blank line into ONE htmlFlow token, so a directive on the
-    // token's second line used to inherit token.startLine -- anchoring it a
-    // line too early: disable-next-line suppressed its OWN line instead of
-    // the one after it.
+    // An HTML block is one token up to the next blank line. The directive on its second line
+    // must be anchored at line 2, not at the first line of the block.
     it('disable-next-line on the second line of an HTML block suppresses the line after it', () => {
       const d = parse(
         '<div>\n<!-- recheck-disable-next-line oxford-comma -->\nflagged text\n</div>\n'
@@ -80,8 +77,6 @@ describe('parseDirectives', () => {
     });
   });
 
-  // Plain CRLF coverage (no multi-line block involved): the directive
-  // machinery itself must be line-ending agnostic.
   it('disable-next-line works in a CRLF file', () => {
     const d = parse('<!-- recheck-disable-next-line oxford-comma -->\r\nflagged\r\nnot this\r\n');
     expect(d.isSuppressed('recheck/oxford-comma', 2)).toBe(true);

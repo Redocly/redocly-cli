@@ -1514,10 +1514,8 @@ the three axes above treated as clean:
 
 Full round-5 acceptance evidence (these sentences and more, run through
 `--fix` twice and confirmed byte-identical) lives in
-`src/config/__tests__/preset-detection-only-acceptance.test.ts`, plus the
-per-preset regression suites in `preset-microsoft.test.ts` and
-`preset-google-fix-wave-c.test.ts` (both rewritten by this change to assert
-"unchanged" where they used to assert a real rewrite). The `consistency`
+`src/config/__tests__/presets.test.ts` (the "detection-only" contract), plus the
+per-preset suites in `preset-microsoft.test.ts` and `preset-google.test.ts`. The `consistency`
 engine bug this same change fixed — `it's`/`it is` collapsing into one
 meaning via first-seen-wins, live since Phase 1 and reproduced exactly by
 this preset's `microsoft/contraction-consistency` rule with

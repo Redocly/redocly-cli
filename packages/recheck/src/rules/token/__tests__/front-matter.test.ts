@@ -114,8 +114,7 @@ describe('front-matter assertion', () => {
     });
 
     it('allows project-specific keys by default', async () => {
-      // Redocly's own docs carry `products`/`plans` and read them back
-      // through `$frontmatter` in Markdoc templates.
+      // Pages can have extra keys like `products` that Markdoc templates read.
       const md = '---\nproducts:\n  - realm\nplans:\n  - enterprise\n---\n\nBody.\n';
       expect(await lint('docs/realm/page.md', md, realmRule)).toEqual([]);
     });

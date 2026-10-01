@@ -8,10 +8,7 @@ interface LinkOccurrence {
   startLine: number;
 }
 
-// Destination extraction mirrors `getImageDestinations` in helpers.ts (same
-// token shapes, same reference-definition fallback) but for `link` rather
-// than `image` tokens. Kept local rather than exported from helpers because
-// this rule is its only consumer.
+// Like `getImageDestinations` in helpers.ts, but for `link` tokens.
 function collectLinks(tree: Parameters<typeof getReferenceLinkImageData>[0]): LinkOccurrence[] {
   const { definitions } = getReferenceLinkImageData(tree);
   const occurrences: LinkOccurrence[] = [];
@@ -25,9 +22,7 @@ function collectLinks(tree: Parameters<typeof getReferenceLinkImageData>[0]): Li
       'resourceDestinationString',
     ])[0]?.text;
 
-    // Explicit annotation: with `noUncheckedIndexedAccess` off, `[0]?.text`
-    // infers as `string`, which would reject the reference-definition
-    // fallback below.
+    // Annotated because `[0]?.text` is inferred as `string`, which would reject the fallback below.
     let destination: string | undefined = inlineDestination;
     if (destination === undefined) {
       // Reference (`[text][label]`) or shortcut (`[label]`) link: the
@@ -44,16 +39,10 @@ function collectLinks(tree: Parameters<typeof getReferenceLinkImageData>[0]): Li
   return occurrences;
 }
 
-// Recheck-original rule (no markdownlint equivalent, so it sits outside the
-// parity comparison). Linking one destination from several DIFFERENT link
-// texts is both an accessibility problem — screen-reader users listing a
-// page's links hear the same target described inconsistently — and a
-// maintenance smell, since the two texts drift apart over time.
-//
-// Repeating the SAME text for the same destination is ordinary prose (a
-// page may reasonably link "the style guide" twice) and is not reported.
-// Only the second and later occurrences are flagged: the first is the one
-// the others should have matched.
+// Recheck-original rule (no markdownlint equivalent). Linking one destination with several
+// different link texts confuses screen-reader users, and the texts drift apart over time.
+// The same text for the same destination is fine and not reported. Only the second and
+// later links are flagged.
 export const noDuplicateLinkDestinations: TokenRule = {
   name: 'no-duplicate-link-destinations',
   tags: ['links', 'accessibility'],

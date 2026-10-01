@@ -44,15 +44,13 @@ describe('resolveMarkdocConfig', () => {
       schema: 'realm',
       extend: { tags: { icon: { attributes: { name: { type: 'string', required: true } } } } },
     });
-    // Whole-tag replace: the built-in `icon`'s `selfClosing: true` is
-    // dropped, not merged with the new attributes.
+    // The new tag replaces the built-in `icon`, so its `selfClosing: true` is dropped.
     expect(result.schema?.tags['icon']).toEqual({
       attributes: { name: { type: 'string', required: true } },
     });
   });
   it('a malformed object shape defensively normalizes to disabled', () => {
-    // Config validation already rejects this shape earlier; this function
-    // only has to not throw if one slips through.
+    // Config validation rejects this earlier. It must not throw if it still gets through.
     expect(resolveMarkdocConfig({ schema: 'bogus' } as any)).toEqual({
       enabled: false,
       schema: null,

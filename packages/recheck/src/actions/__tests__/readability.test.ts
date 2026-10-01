@@ -1,4 +1,3 @@
-// Output formatting is tested in packages/cli/src/commands/recheck/__tests__/print.test.ts.
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
@@ -59,6 +58,63 @@ describe('runReadability', () => {
     expect(result.summary.files).toBe(2);
     expect(result.summary.scored).toBe(2);
     expect(result.summary.medianFleschReadingEase).not.toBeNull();
+  });
+
+  it('takes medians over scored files only; a file with no prose is listed but unscored', async () => {
+    await fs.writeFile(path.join(tempDir, 'a.md'), '# A\n\nThe cat sat on the mat. It was warm.\n');
+    await fs.writeFile(
+      path.join(tempDir, 'b.md'),
+      '# B\n\nThis endpoint returns a list of users. Each user carries an identifier.\n'
+    );
+    await fs.writeFile(path.join(tempDir, 'code-only.md'), '```js\nconst a = 1;\n```\n');
+
+    const result = await runReadability(tempDir, await resolveConfig(tempDir), {});
+
+    const byName = new Map(result.rows.map((row) => [path.basename(row.file), row]));
+    expect(result.rows.map((row) => path.basename(row.file))).toEqual([
+      'a.md',
+      'b.md',
+      'code-only.md',
+    ]);
+    expect(byName.get('code-only.md')?.fleschReadingEase).toBeNull();
+    expect(result.summary.files).toBe(3);
+    expect(result.summary.scored).toBe(2);
+
+    // Two scored files: the median is their mean, rounded to two decimals.
+    const [a, b] = [byName.get('a.md'), byName.get('b.md')];
+    expect(result.summary.medianFleschReadingEase).toBe(
+      Math.round((((a?.fleschReadingEase ?? NaN) + (b?.fleschReadingEase ?? NaN)) / 2) * 100) / 100
+    );
+  });
+
+  it('reports null medians when no file has prose to score', async () => {
+    await fs.writeFile(path.join(tempDir, 'code-only.md'), '```js\nconst a = 1;\n```\n');
+
+    const result = await runReadability(tempDir, await resolveConfig(tempDir), {});
+
+    expect(result.summary).toEqual({
+      files: 1,
+      scored: 0,
+      medianFleschReadingEase: null,
+      medianFleschKincaidGrade: null,
+      medianAutomatedReadabilityIndex: null,
+    });
+  });
+
+  it('with changedOnly, scores only the files named in the changed list', async () => {
+    const kept = path.join(tempDir, 'kept.md');
+    await fs.writeFile(kept, '# Kept\n\nThe cat sat on the mat.\n');
+    await fs.writeFile(path.join(tempDir, 'other.md'), '# Other\n\nThe dog ran home.\n');
+    const changedListPath = path.join(tempDir, 'changed.txt');
+    await fs.writeFile(changedListPath, `${kept}\n`);
+
+    const result = await runReadability(tempDir, await resolveConfig(tempDir), {
+      changedOnly: true,
+      changedListPath,
+    });
+
+    expect(result.filesFound).toBe(1);
+    expect(result.rows.map((row) => row.file)).toEqual([kept]);
   });
 
   // chmod 000 does not stop root (or Windows) from reading the file.

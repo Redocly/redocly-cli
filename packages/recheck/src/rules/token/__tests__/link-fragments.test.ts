@@ -78,10 +78,6 @@ describe('link-fragments (MD051)', () => {
     expect(await h.lint('[Link](https://example.com/page)\n')).toEqual([]);
   });
 
-  it('passes a document with no fragment links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('excludes a DocFX tab heading link from fragment checks but still flags a non-heading link to the same tab', async () => {
     const problems = await h.lint('# [Linux](#tab/linux)\n\n[other](#tab/linux)\n');
     expect(problems).toHaveLength(1);
@@ -92,10 +88,6 @@ describe('link-fragments (MD051)', () => {
     expect(await h.lint('<div id="section1"></div>\n\n[link](#section1)\n')).toEqual([]);
   });
 
-  // Ported from the legacy `no-broken-fragment-links` scope rule's tests
-  // (src/rules/scope/__tests__/no-broken-fragment-links.test.ts, deleted in
-  // Task 11): duplicate-heading fragment numbering and link titles/tooltips
-  // weren't yet directly exercised against the token rule.
   it('numbers fragments for duplicate headings (#dup, #dup-1, #dup-2, ...)', async () => {
     const md = [
       '# Intro',

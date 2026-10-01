@@ -4,11 +4,7 @@ import { red, green, yellow, cyan } from 'colorette';
 
 import { showDetailedStats } from './statistics.js';
 
-/**
- * Output problems in table format through the logger.
- * The header, counts, and stats count all `problems`.
- * The table prints only the rows of `shown`.
- */
+// The header, counts and stats cover all `problems`. The table lists only the rows in `shown`.
 export function outputTableFormat(
   problems: Problem[],
   fileCount: number,
@@ -23,7 +19,6 @@ export function outputTableFormat(
     return;
   }
 
-  // Table format
   logger.output(`${cyan(`\n📋 Found ${problems.length} issue(s):\n`)}\n`);
 
   for (const problem of shown) {
@@ -32,7 +27,8 @@ export function outputTableFormat(
     const location = `${problem.file}:${problem.line}:${problem.column}`;
     const ruleDisplay = problem.ruleName.replace('recheck/', '');
 
-    // `--fix` never rewrites a description, so a pointer problem has no marker.
+    // `--fix` never rewrites an API description, so a problem with a pointer
+    // gets no marker and no count.
     const fixMark = problem.fixable && problem.pointer === undefined ? green(' [fixable]') : '';
 
     logger.output(
@@ -40,8 +36,6 @@ export function outputTableFormat(
     );
   }
 
-  // A problem with a pointer sits inside an API description, which `--fix`
-  // never rewrites, so it does not count towards what `--fix` would repair.
   const fixableCount = problems.filter(
     (problem) => problem.fixable && problem.pointer === undefined
   ).length;
@@ -49,7 +43,6 @@ export function outputTableFormat(
     logger.output(`${green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`)}\n`);
   }
 
-  // Summary
   const errorCount = problems.filter((problem) => problem.severity === 'error').length;
   const warnCount = problems.filter((problem) => problem.severity === 'warn').length;
   const infoCount = problems.filter((problem) => problem.severity === 'info').length;
@@ -59,7 +52,6 @@ export function outputTableFormat(
   if (warnCount > 0) logger.output(`${yellow(`   ${warnCount} warning(s)`)}\n`);
   if (infoCount > 0) logger.output(`${cyan(`   ${infoCount} info message(s)`)}\n`);
 
-  // Show detailed statistics if requested
   if (showStats) {
     showDetailedStats(fileCount, problems);
   }

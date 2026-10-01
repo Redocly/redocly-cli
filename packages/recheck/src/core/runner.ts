@@ -15,10 +15,8 @@ import { parseDirectives } from './directives.js';
 import { newLineRe } from './line-endings.js';
 import { markdocTagSpans, protectMarkdocTags, type MarkdocTagSpan } from './markdoc-tags.js';
 
-// Assertions embedded markdown cannot support: they assert whole-document
-// shape, or resolve anchors embedded content does not carry (document-level
-// and renderer-generated ones such as Redoc's `#section/...` deep links).
-// Matched by assertion id, so a rule under any preset prefix is covered.
+// Assertions that don't work on embedded markdown, because they check the whole document
+// or links to anchors that embedded content doesn't have.
 const EMBEDDED_UNSUPPORTED_RULES = new Set([
   'single-h1',
   'first-line-h1',
@@ -30,42 +28,28 @@ const EMBEDDED_UNSUPPORTED_RULES = new Set([
 export interface RunnerOptions {
   fix?: boolean;
   /**
-   * Lint each input as embedded markdown rather than a whole document:
-   * a leading `---` parses as content instead of front matter, and
-   * EMBEDDED_UNSUPPORTED_RULES drop from the run, even when configured.
+   * Lint each input as embedded markdown instead of a whole document. A leading `---`
+   * is content, not front matter, and the rules in EMBEDDED_UNSUPPORTED_RULES are skipped.
    */
   embedded?: boolean;
   /**
-   * Cap on the total problems a run may collect, enforced BETWEEN files:
-   * once a file's lint pushes the total to (or past) the cap, that file's
-   * overflow is truncated and NO further file is linted at all — so a
-   * pathological input set can't ballon memory past cap + one file's worth
-   * of problems. Runs that hit the cap report `truncated: true` on their
-   * RunResult. Omit for unbounded collection (the default).
+   * Maximum number of problems to collect. Once a file reaches the cap, its extra
+   * problems are dropped and no more files are linted, and `truncated` is set.
+   * No limit by default.
    */
   maxProblems?: number;
   /**
-   * FULL set of configured rule names, used only to decide which inline
-   * directive names get an "unknown rule" warning (see core/directives.ts).
-   * Callers filter `severity: off` rules out of `rules` before runRules, so
-   * without this a directive suppressing an off-rule — a deliberate no-op,
-   * not a typo — would warn as unknown. Defaults to the names of `rules`
-   * (correct for callers that never pre-filter).
+   * All configured rule names, used to warn about unknown rule names in inline
+   * directives. Pass this when `rules` has the `severity: off` rules removed, so
+   * a directive that names one of them is not reported as unknown. Defaults to the
+   * names in `rules`.
    */
   knownRuleNames?: Set<string>;
-  /**
-   * Opt-in Markdoc tokenization, passed through to every `parseMarkdown` call
-   * this run makes. Defaults to disabled, matching `parseMarkdown`'s own
-   * default, which leaves the parse byte-identical.
-   */
+  /** Parse Markdoc tags. Off by default. */
   markdoc?: boolean;
   /**
-   * The resolved schema used to derive `ctx.markdoc.pairing`'s self-closing
-   * set; only meaningful alongside `markdoc: true`. `null` or omitted means no
-   * schema: parsing and pairing still run, every rule reading
-   * `ctx.markdoc.schema` sees `null`, and no tag name counts as self-closing,
-   * so an unclosed one lands in `pairing.unclosed` rather than
-   * `voidMissingSlash`.
+   * The Markdoc schema, used with `markdoc: true`. Without one, tags are still parsed and
+   * paired, `ctx.markdoc.schema` is `null`, and no tag counts as self-closing.
    */
   markdocSchema?: MarkdocSchema | null;
 }
@@ -79,27 +63,14 @@ export interface FileInput {
 export interface RunResult {
   problems: Problem[];
   fixedFiles: Map<string, string>;
-  /**
-   * Flat list of the fixes that GENUINELY landed in `fixedFiles`, for
-   * reporting. Proposed fixes dropped by the applier's overlap resolution
-   * are NOT here — they're in `skippedFixes` (see applyFixesToContent's
-   * applied/skipped classification).
-   */
+  /** The fixes that were applied to `fixedFiles`. */
   fixes: Fix[];
   /**
-   * Proposed fixes that could not be applied (overlapping edits,
-   * out-of-range lines). For runRulesUntilStable this holds only the fixes
-   * still pending after the final pass — a fix skipped in one pass but
-   * re-proposed and applied in a later pass is (correctly) reported in
-   * `fixes` instead.
+   * Fixes that could not be applied, such as overlapping edits. For
+   * `runRulesUntilStable`, only the fixes still skipped after the last pass.
    */
   skippedFixes: Fix[];
-  /**
-   * True when `RunnerOptions.maxProblems` cut the run short: problems were
-   * dropped past the cap and/or later files were never linted. Always false
-   * for uncapped runs, and for capped runs whose problem count never
-   * exceeded the cap with files left over.
-   */
+  /** True when `maxProblems` cut the run short. */
   truncated: boolean;
 }
 
@@ -117,33 +88,14 @@ function wholeFileSegment(content: string): ScopedSegment {
 }
 
 /**
- * Returns a stateful filter that drops exact duplicate SCOPE-rule findings
- * — same rule, file, position, and message — keeping the first occurrence
- * so ordering stays otherwise stable.
+ * Returns a filter that drops repeated scope rule findings (same rule, file, position
+ * and message) and keeps the first one.
  *
- * Overlapping scope segments make duplicates legitimate scope-rule output:
- * extractScopes emits paragraph + summary + sentence segments over the
- * same source span, so a selector matching several of those kinds (a
- * negation like `~code` matches every non-excluded segment; a plain array
- * can mix overlapping kinds like `[paragraph, sentence]`) hands a scope
- * rule the same text once per segment and one underlying match gets
- * reported once per segment. Same-position findings whose MESSAGES differ
- * (e.g. a pattern token matching more text in the paragraph segment than
- * in its sentence sub-segment) are genuinely distinct reports and all
- * survive.
+ * Scope segments overlap (a paragraph, its summary and its sentences cover the same
+ * text), so one match can be reported once per segment.
  *
- * TOKEN-rule findings are exempt on purpose: upstream markdownlint can
- * genuinely report the same (rule, file, line, column, message) twice —
- * MD032/blanks-around-lists emits its blank-above error and its
- * blank-below error both AT a single-line list's only line when neither
- * neighbor is blank — and the parity harness counts those doubles, so
- * deduping them would break markdownlint parity (51 MD032 findings lost
- * over the monorepo-docs corpus).
- *
- * Fix proposals need no deduplication here — applyFixesToContent's own
- * duplicate/collapse steps already drop identical edits. O(n) via a Set
- * of NUL-joined identity keys (NUL cannot appear in any key field, so
- * keys never collide across field boundaries).
+ * Token rule findings are not filtered, because markdownlint can report the same
+ * finding twice and we match its output.
  */
 function createFindingDeduper(): (problem: Problem) => boolean {
   const seen = new Set<string>();
@@ -187,27 +139,14 @@ export async function runRules(
   }
   const problems: Problem[] = [];
   const fixesByFile = new Map<string, Fix[]>();
-  // Per-file markdoc tag spans, collected while each file's tree is still
-  // in hand and consumed once by the fix pass below. Only populated for a
-  // fixing run — nothing else needs them.
+  // Markdoc tag spans of each file, only collected when fixing. Used to protect tags from fixes.
   const tagSpansByFile = new Map<string, MarkdocTagSpan[]>();
-  // Scope-rule findings dedup here — in runRules, where every entry point's
-  // problems converge (lintFiles, lintContent, the CLI run/validate
-  // commands, and runRulesUntilStable's first pass all flow through
-  // runRules) — so no caller sees inflated duplicates from overlapping
-  // scope segments.
   const isFirstOccurrence = createFindingDeduper();
 
   const selectors = new Map(rules.map((rule) => [rule.name, compileSelector(rule.scope)]));
   const knownRuleNames = options.knownRuleNames ?? new Set(rules.map((r) => r.name));
 
-  // Perf: extractScopes() walks the whole tree building every scope's
-  // segment list, but that work is entirely wasted when every configured
-  // rule resolves to a TOKEN rule (which reads `tree`/`lines` directly and
-  // never touches `ctx.segments`) -- a common shape for a markdownlint-
-  // parity-only config. Resolving each rule's assertion kind doesn't depend
-  // on file content, so this only needs to run once, up front, rather than
-  // per file.
+  // Skip `extractScopes` when every rule is a token rule, since those don't use segments.
   const hasScopeRules = rules.some((rule) =>
     Object.keys(rule.assertions).some((assertionId) => {
       try {
@@ -218,15 +157,8 @@ export async function runRules(
     })
   );
 
-  // Same shape as `hasScopeRules` above and for the same reason:
-  // `computeMarkdocPairing` walks every `markdocTag` token maintaining a
-  // nesting stack, and that work is wasted when no active rule can read
-  // `ctx.markdoc.pairing`. The `markdoc` tag is the marker every pairing- or
-  // schema-aware rule carries, and assertion resolution doesn't depend on file
-  // content, so this is one pass over the config up front rather than per
-  // file. Only the pairing computation is skipped — `ctx.markdoc` is still
-  // provided whenever the flag is on, so a rule that only reads
-  // `ctx.markdoc.schema` is unaffected.
+  // Skip the tag pairing when no rule uses it. Rules that use it have the `markdoc` tag.
+  // `ctx.markdoc` is still provided, so rules that only read the schema keep working.
   const hasMarkdocRules = rules.some((rule) =>
     Object.keys(rule.assertions).some((assertionId) => {
       try {
@@ -238,9 +170,7 @@ export async function runRules(
     })
   );
 
-  // The schema and its self-closing set don't vary per file, so they are
-  // resolved once here rather than inside the loop and handed to rules on
-  // `ctx.markdoc`, so no rule re-derives the set for every file.
+  // The same for every file, so work it out once.
   const markdocSchema = options.markdocSchema ?? null;
   const markdocSelfClosingTags = markdocSchema
     ? selfClosingTagNames(markdocSchema)
@@ -249,9 +179,7 @@ export async function runRules(
   let truncated = false;
 
   for (const { path, content, metadata } of files) {
-    // Enforced BETWEEN files (see RunnerOptions.maxProblems): at the cap,
-    // remaining files are never parsed or linted, so memory stays bounded
-    // by the cap plus a single file's worth of problems.
+    // At the problem limit, skip the remaining files.
     if (options.maxProblems !== undefined && problems.length >= options.maxProblems) {
       truncated = true;
       break;
@@ -260,36 +188,19 @@ export async function runRules(
       markdoc: options.markdoc === true,
       embedded: options.embedded === true,
     });
-    // Unknown-rule-name warnings surface even on a file-disabled file: they
-    // flag a typo in the directive itself, not a suppressed rule finding.
+    // Unknown rule names are reported even if the whole file is disabled.
     const directives = parseDirectives(tree, path, knownRuleNames);
     problems.push(...directives.warnings);
     if (directives.fileDisabled) continue;
     if (options.fix) tagSpansByFile.set(path, markdocTagSpans(tree, content));
     const allSegments = hasScopeRules ? extractScopes(tree, content) : [];
-    // newLineRe (not '\n'): CRLF files must yield ending-free lines here —
-    // token rules index into ctx.lines assuming exactly what upstream
-    // markdownlint gives them (newLineRe-split lines with no '\r' left on).
+    // Split with newLineRe, not '\n', so CRLF files have no '\r' left on the lines.
     const fileLines = content.split(newLineRe);
-    // Matches upstream markdownlint's own pipeline -- it runs
-    // `clearHtmlCommentText` once, globally, before splitting into
-    // `params.lines` (see clearHtmlCommentText's doc comment). Token
-    // rules that scan `ctx.lines` by index (MD009/no-trailing-spaces,
-    // MD010/no-hard-tabs, MD011/no-reversed-links, MD012/no-multiple-
-    // blanks, etc.) get this cleared text instead of the raw file, so
-    // whitespace/content INSIDE an HTML comment is never mistaken for
-    // real document content. Line/column positions are identical to the
-    // raw file (the transform only substitutes characters, never
-    // inserts/removes any, and never touches `\r`/`\n`), so `fileLines`
-    // (raw) is still exactly what's needed for `Problem.text`/error
-    // context construction and for `shouldSkipLine`'s exception-comment
-    // matching below -- only token rules' internal scanning logic reads
-    // the cleared version.
+    // Token rules read lines with HTML comment text blanked out, so content inside a
+    // comment is not checked. Positions are the same as in the raw `fileLines`, which
+    // are used for `Problem.text` and for skipping lines.
     const commentClearedLines = clearHtmlCommentText(content).split(newLineRe);
-    // `ctx.markdoc`, computed once per file like `commentClearedLines` above.
-    // Left undefined rather than empty when markdoc parsing is off, so a rule
-    // can bail with `if (!ctx.markdoc) return;` instead of having to tell
-    // "off" apart from "on, with nothing to report".
+    // Undefined when Markdoc parsing is off, so a rule can check `if (!ctx.markdoc) return;`.
     const markdocCtx =
       options.markdoc === true
         ? {
@@ -307,10 +218,7 @@ export async function runRules(
       const lineExcepted = (line: number) => shouldSkipLine(fileLines[line - 1] ?? '', rule);
       const problemAllowed = (line: number) =>
         !lineExcepted(line) && !directives.isSuppressed(rule.name, line);
-      // Lazy + cached per rule: a rule whose assertions are ALL token-kind
-      // never needs its scope segments filtered at all, and a rule with
-      // more than one scope-kind assertion only needs the filter computed
-      // once (the result is identical across that rule's own assertions).
+      // Filtered on first use and reused by the rule's other assertions.
       let segments: ScopedSegment[] | null = null;
 
       for (const assertionId of Object.keys(rule.assertions)) {
@@ -328,12 +236,8 @@ export async function runRules(
           }
           const scopeRule = resolved.rule;
           const ctx = { segments, content, tree, fileMetadata: metadata };
-          // Same predicate the fix branch below uses, minus `options.fix`, so
-          // a plain run can say which findings `--fix` would have rewritten.
-          // A rule that sets `fixable` per problem can only narrow it: a
-          // detection-only site (capitalization's custom-regex mode, a
-          // consistency pair with different word counts) stays unmarked even
-          // though the rule as a whole can fix.
+          // Whether `--fix` could fix this rule's findings. A rule can still mark
+          // individual problems as not fixable.
           const canFix = Boolean(scopeRule.fixable && scopeRule.fix && rule.fix !== false);
           try {
             const ruleProblems = await scopeRule.execute(rule, path, ctx);
@@ -375,15 +279,11 @@ export async function runRules(
               text: fileLines[info.line - 1] ?? '',
               match: info.context ?? '',
               ruleName: rule.name,
-              // `info.severity` lets a single rule report at more than one
-              // severity. `markdoc-attributes` is the only current user: a
-              // missing required attribute or an enum violation is an error,
-              // while an unknown attribute is only a warning. Every other
-              // token rule falls back to the config's rule-level severity.
+              // A rule can set its own severity per finding. Otherwise the configured severity is
+              // used.
               severity: info.severity ?? rule.severity,
               message: formatTokenMessage(rule.message, tokenRule, info),
-              // Per-finding, not per-rule: a fixable token rule still emits
-              // findings it has no fixInfo for.
+              // Some findings of a fixable rule have no fix.
               fixable: Boolean(tokenRule.fixable && rule.fix !== false && info.fixInfo),
             });
             if (options.fix && tokenRule.fixable && rule.fix !== false && info.fixInfo) {
@@ -406,7 +306,7 @@ export async function runRules(
     }
   }
 
-  // The final linted file may have pushed past the cap; drop the overflow.
+  // The last file may have gone over the limit.
   if (options.maxProblems !== undefined && problems.length > options.maxProblems) {
     problems.length = options.maxProblems;
     truncated = true;
@@ -419,12 +319,8 @@ export async function runRules(
     for (const [path, fileFixes] of fixesByFile) {
       const original = files.find((file) => file.path === path);
       if (original && fileFixes.length > 0) {
-        // The gate every proposed edit passes before it can touch a file: a
-        // fix may not rewrite a markdoc tag's bytes. `protectMarkdocTags`
-        // restores the tag into an otherwise-valid edit where it can, and
-        // drops the edit where it cannot. Placed here, at the single point
-        // where a run's fixes converge, so scope rules, token rules, and any
-        // rule added later inherit it without knowing it exists.
+        // Fixes must not change a Markdoc tag. `protectMarkdocTags` keeps the tag
+        // in the edit where it can, and drops the edit otherwise.
         const guarded = protectMarkdocTags(
           fileFixes,
           tagSpansByFile.get(path) ?? [],
@@ -432,10 +328,7 @@ export async function runRules(
         );
         skippedFixes.push(...guarded.dropped);
         const { content, applied, skipped } = applyFixesToContent(original.content, guarded.fixes);
-        // Only record content when an edit actually landed — a file whose
-        // every proposed fix was skipped is byte-identical, and reporting
-        // it as "fixed" would make callers rewrite it (and convergence
-        // loops spin) for nothing.
+        // Only report the file as fixed if an edit was applied.
         if (applied.length > 0) fixedFiles.set(path, content);
         fixes.push(...applied);
         skippedFixes.push(...skipped);
@@ -446,29 +339,16 @@ export async function runRules(
   return { problems, fixedFiles, fixes, skippedFixes, truncated };
 }
 
-// Cap on convergence passes for runRulesUntilStable — a safety net against
-// a pathological/buggy rule whose fix() never stabilizes; five passes is
-// far more than any real fixture needs (see fix-idempotency tests).
+// Maximum number of fix passes, in case a rule's fixes never settle.
 const MAX_FIX_PASSES = 5;
 
 /**
- * Runs rules with fix:true repeatedly (lint → apply fixes → re-lint the
- * fixed content) until a pass produces zero fixes, capped at
- * MAX_FIX_PASSES. runRules() itself is single-pass by design (library
- * callers that need convergence should loop, as this helper does). This is
- * what public API's lintFiles() and the CLI's run
- * command use so a single --fix invocation fully converges instead of
- * requiring the user to re-run --fix multiple times.
+ * Runs the rules with fixes, then runs them again on the fixed content, until no more
+ * fixes apply or MAX_FIX_PASSES is reached. A single `--fix` run then fixes everything.
  *
- * The returned `problems` are from the FIRST pass (matching prior
- * single-pass behavior: --fix reports the issues it found/fixed, not the
- * post-fix state) while `fixedFiles` reflects the final, fully-converged
- * content. `fixes` is the flat list of every fix genuinely applied across
- * all passes; `skippedFixes` holds only the fixes still pending after the
- * final pass. A fix skipped mid-run (overlap) is normally re-proposed
- * against the fixed content and applied by a later pass — it then counts
- * in `fixes`, not `skippedFixes` — so a non-empty `skippedFixes` here
- * means the run hit MAX_FIX_PASSES with conflicting edits unresolved.
+ * `problems` come from the first pass, so they are the problems that were found before
+ * fixing. `fixedFiles` has the final content. `skippedFixes` has only the fixes still
+ * skipped after the last pass.
  */
 export async function runRulesUntilStable(
   files: FileInput[],
@@ -488,9 +368,7 @@ export async function runRulesUntilStable(
 
   for (let pass = 1; pass < MAX_FIX_PASSES && fixedFiles.size > 0; pass++) {
     const nextPass = await runRules(currentFiles, rules, { ...options, fix: true });
-    // Only the latest pass's skips can still be pending: anything skipped
-    // earlier was either re-proposed (and shows up again here) or its
-    // underlying issue is gone.
+    // Fixes skipped in earlier passes are either proposed again in this pass or no longer needed.
     skippedFixes = nextPass.skippedFixes;
     if (nextPass.fixedFiles.size === 0) break;
 
@@ -509,8 +387,6 @@ export async function runRulesUntilStable(
     fixedFiles,
     fixes: allFixes,
     skippedFixes,
-    // `problems` come from the first pass, so its truncation flag is the one
-    // that describes them (later passes only converge fixes).
     truncated: firstPass.truncated,
   };
 }

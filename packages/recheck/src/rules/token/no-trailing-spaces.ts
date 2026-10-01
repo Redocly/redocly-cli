@@ -1,13 +1,6 @@
 import { filterByTypes } from '../../parser/index.js';
 // Ported from markdownlint's lib/md009.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// This id also used to belong to a pre-parity native scope rule with its
-// own `skipCodeBlocks` option (removed in PR #24801, along with the
-// translation layer that used to accept it here as `codeBlocks: false`) —
-// that scope rule's registry entry was deleted, so `no-trailing-spaces` in
-// a config now always resolves straight to this token rule (no alias
-// needed; `resolveAssertion` is scope-first, and there is no longer a
-// scope rule under this name to shadow it).
 import type { TokenRule } from '../types.js';
 import { addRangeToSet } from './helpers.js';
 

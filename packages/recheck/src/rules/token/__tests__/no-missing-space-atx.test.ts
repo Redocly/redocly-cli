@@ -9,7 +9,7 @@ describe('no-missing-space-atx (MD018)', () => {
     expect(await h.lint('# Heading 1\n\n## Heading 2\n')).toEqual([]);
   });
 
-  it('flags a missing space with position and context', async () => {
+  it('flags a missing space with position', async () => {
     const problems = await h.lint('#Heading 1\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);

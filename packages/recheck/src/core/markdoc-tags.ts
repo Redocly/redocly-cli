@@ -4,26 +4,16 @@ import type { Fix } from '../types/index.js';
 import { newLineRe } from './line-endings.js';
 
 /**
- * The character `scopes/extractor.ts` blanks a markdoc tag's span with when
- * building prose content. A SPACE, deliberately, and not
- * `core/inline-code.ts`'s `\0` sentinel:
- *
- * - Recheck's prose model must read a tag's span as a GAP, and the word
- *   tokenizers, `String.prototype.trim`, and the sentence splitter all agree on
- *   whitespace, so a space makes every one of them treat the tag as absent.
- * - A user-supplied regex must NOT read it as a gap, and no sentinel can give
- *   that: `\0` stops `\s+` from crossing a tag, but a negated class (`[^,]+`)
- *   walks straight through it either way. Regex rules therefore have to reject
- *   a match by RANGE, after the fact, against the unmodified text — see
- *   `ScopedSegment.maskedRanges` and `nonProseRanges` in `rules/utils.ts`.
+ * The character that replaces a Markdoc tag in prose text (see `scopes/extractor.ts`). It is a
+ * space, so word splitting and sentence splitting treat the tag as a gap. A user regex cannot rely
+ * on this, so regex rules check match ranges instead (`ScopedSegment.maskedRanges`,
+ * `nonProseRanges` in `rules/utils.ts`).
  */
 export const MARKDOC_TAG_MASK_CHAR = ' ';
 
 /**
- * One markdoc tag's verbatim source bytes on ONE line. A block tag whose
- * attributes are broken across lines (`{% table\n  x=1 %}`) contributes one
- * entry per line it covers, so every entry is a plain single-line span that a
- * `Fix` — itself always confined to one line — can be compared against directly.
+ * The source text of one Markdoc tag on one line. A tag that spans several lines gives one entry
+ * per line, because a `Fix` is always on a single line.
  */
 export interface MarkdocTagSpan {
   /** 1-based source line. */
@@ -37,14 +27,8 @@ export interface MarkdocTagSpan {
 }
 
 /**
- * Every markdoc tag's source span in `content`, split per line (see
- * `MarkdocTagSpan`). Empty for a flag-off parse, since no `markdocTag` tokens
- * exist in the tree at all, so `--fix` behaves byte-identically.
- *
- * Uses `filterByTypes` rather than a raw `tree.flat.filter` so htmlFlow-reparsed
- * tokens are excluded on the same terms as for every other consumer: they
- * duplicate positions already covered by their `htmlFlow` parent, and treating a
- * duplicate as a protected span would block fixes on a line with no real tag.
+ * The source span of every Markdoc tag in `content`, split by line. Empty when Markdoc parsing is
+ * off. Uses `filterByTypes` to skip tokens that repeat the position of their `htmlFlow` parent.
  */
 export function markdocTagSpans(tree: TokenTree, content: string): MarkdocTagSpan[] {
   const tags = filterByTypes(tree, ['markdocTag']);
@@ -69,38 +53,23 @@ export function markdocTagSpans(tree: TokenTree, content: string): MarkdocTagSpa
 }
 
 export interface ProtectedFixes {
-  /** Fixes safe to apply — tag-overlapping ones with their tags restored. */
+  /** Fixes that are safe to apply. */
   fixes: Fix[];
-  /** Fixes that could not be made tag-safe, for the caller's skipped list. */
+  /** Fixes that could not be made safe. The caller reports them as skipped. */
   dropped: Fix[];
 }
 
 /**
- * The choke point that keeps `--fix` from rewriting a markdoc tag's bytes.
+ * Keeps `--fix` from changing Markdoc tags. Prose text has tags masked, so a fix that replaces a
+ * whole span would write the mask over the real tag and delete it. Every fix passes through here:
  *
- * Prose scope content is masked (see `MARKDOC_TAG_MASK_CHAR`), which breaks the
- * precondition every whole-span rewriter relied on: `ScopedSegment.content` used
- * to be a verbatim source slice, so a rule replacing its whole span writes the
- * mask back over the real source and DELETES the tag. Rather than teach each such
- * rule to splice its own tags back, every fix from every rule passes through here
- * once, on its way to `applyFixesToContent`:
+ * - A fix that does not touch a tag is kept as is.
+ * - A fix that replaces text with the same number of characters keeps its place, and the original
+ *   tag text is copied back in.
+ * - Any other fix that touches a tag is dropped and reported as skipped.
  *
- * - No tag on the fix's line, or no overlap with one: passes through untouched.
- *   This is the only path a flag-off run can take, so flag-off byte-identity is
- *   structural, not a special case.
- * - Overlap where the fix replaces its span with the SAME number of characters:
- *   each overlapped tag's original bytes are spliced back at their own offsets.
- *   Length preservation is what makes those offsets meaningful, and it is the
- *   same contract `restoreInlineCode` (core/inline-code.ts) already relies on.
- * - Anything else — a length-changing replacement, a fix that cuts a tag in half,
- *   a whole-line rewrite (`deleteCount: -1`) on a line with a tag — is DROPPED
- *   and reported as skipped, since there is no position to splice into without
- *   inventing one.
- *
- * A fix that turns out to change nothing once its tags are restored is dropped
- * too: it only matched mask characters, and letting it through would report a
- * byte-identical file as fixed and make `runRulesUntilStable` re-propose it on
- * every pass.
+ * A fix that changes nothing once the tags are restored is dropped too. Otherwise it would be
+ * reported as fixed and proposed again on every pass of `runRulesUntilStable`.
  */
 export function protectMarkdocTags(
   fixes: Fix[],

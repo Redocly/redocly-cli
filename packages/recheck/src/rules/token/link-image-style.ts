@@ -1,11 +1,6 @@
 import { filterByTypes } from '../../parser/index.js';
 // Ported from markdownlint's lib/md054.mjs
 // (https://github.com/DavidAnson/markdownlint, MIT © David Anson).
-// Relies on `getReferenceLinkImageData` (helpers.ts) for its `definitions`
-// map only (to resolve a full/collapsed/shortcut reference's destination
-// for the url_inline/autolink-eligibility check) -- unaffected by that
-// helper's undefined-reference DEVIATION note, since an undefined
-// reference has no destination to resolve here regardless.
 import type { TokenRule } from '../types.js';
 import { getDescendantsByType, getReferenceLinkImageData } from './helpers.js';
 

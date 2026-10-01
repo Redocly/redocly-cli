@@ -263,7 +263,6 @@ export type BuiltInOas3DecoratorId = (typeof builtInOas3Decorators)[number];
 const builtInDecorators = [...builtInOas3Decorators, ...builtInOas2Decorators] as const;
 type BuiltInDecoratorId = (typeof builtInDecorators)[number];
 
-// The `recheck` node type comes from the @redocly/config schema. The bundler sets `recheckExtends`.
 const configGovernanceProperties: Record<
   Exclude<keyof RawGovernanceConfig, 'recheck' | 'recheckExtends'>,
   NodeType['properties'][string]

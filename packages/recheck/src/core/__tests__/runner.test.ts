@@ -141,21 +141,11 @@ describe('runRules', () => {
   });
 });
 
-// Regression (Bugbot): extractScopes emits OVERLAPPING segments over the
-// same source text (paragraph + its summary copy + its sentence spans), so
-// a selector matching several of those kinds — a negation like `~code`
-// (which matches every non-excluded segment) or a plain array mixing
-// overlapping kinds like `[paragraph, sentence]` — handed a scope rule the
-// same text several times and reported one underlying match once per
-// segment. The runner now collapses exact duplicate SCOPE-rule findings
-// (same ruleName, file, line, column, and message), keeping the first
-// occurrence so ordering stays stable. Token-rule findings are exempt:
-// upstream markdownlint legitimately reports same-position duplicates
-// (see the MD032 test below) and parity totals count them. Fix proposals
-// were never affected — applyFixesToContent already drops duplicate edits.
+// Overlapping segments (paragraph, summary, sentences) can report the same scope-rule finding
+// several times, so the runner keeps only the first. Token-rule findings are not deduplicated,
+// because markdownlint also reports duplicates at one position.
 describe('runRules finding deduplication', () => {
-  // paragraph + summary + 2 sentence segments over line 1; a fenced code
-  // block (lines 3-5) that `~code` must keep excluding.
+  // Line 1 gives paragraph, summary and two sentence segments. The code block must stay excluded.
   const proseDoc = 'Alpha beta gamma. Delta epsilon zeta.\n\n```\nbeta\n```\n';
   const patternRule = (scope: string | string[], tokens: string[]) =>
     rule({ scope, message: "Found '%s'.", assertions: { pattern: { tokens } } });
@@ -165,12 +155,10 @@ describe('runRules finding deduplication', () => {
       [{ path: 'd.md', content: proseDoc }],
       [patternRule(['~code'], ['beta'])]
     );
-    // One finding for the prose occurrence (previously three: paragraph,
-    // summary, sentence), and none for the code-block occurrence on line 4.
+    // One finding for the prose, none for the code block on line 4.
     expect(problems).toHaveLength(1);
     expect(problems[0]).toMatchObject({ line: 1, column: 7, message: "Found 'beta'." });
-    // Keep-first: the surviving finding is the paragraph segment's — its
-    // `text` is the full source line, not the trimmed sentence span.
+    // The paragraph's finding is kept, so `text` is the whole line.
     expect(problems[0].text).toBe('Alpha beta gamma. Delta epsilon zeta.');
   });
 
@@ -183,10 +171,7 @@ describe('runRules finding deduplication', () => {
   });
 
   it('keeps same-position findings whose messages differ', async () => {
-    // A greedy token matches MORE text in the paragraph segment than in its
-    // sentence sub-segment, so the two findings share a position but embed
-    // different match text in their messages — those are genuinely distinct
-    // reports and both must survive, in stable order.
+    // The two findings are at the same position, but their messages differ, so both stay.
     const { problems } = await runRules(
       [{ path: 'd.md', content: proseDoc }],
       [patternRule(['paragraph', 'sentence'], ['Alpha[^\\n]*'])]
@@ -198,8 +183,7 @@ describe('runRules finding deduplication', () => {
   });
 
   it('deduplicates across assertion kinds only when findings are truly identical', async () => {
-    // Same rule, two files: identical text/positions in different files
-    // must NOT collapse — file is part of the identity key.
+    // The same finding in two files is not a duplicate.
     const { problems } = await runRules(
       [
         { path: 'a.md', content: 'Alpha beta.\n' },
@@ -211,15 +195,9 @@ describe('runRules finding deduplication', () => {
   });
 
   it('keeps token-rule same-position duplicates (MD032 parity)', async () => {
-    // A single-line list with non-blank neighbors on BOTH sides: upstream
-    // MD032/blanks-around-lists reports its blank-above error and its
-    // blank-below error both AT the list's only line, with identical
-    // context — two genuinely separate findings at one position. The
-    // markdownlint parity harness counts both, so token-rule findings must
-    // bypass the scope-finding dedup (a blanket dedup lost 51 MD032
-    // findings over the monorepo-docs corpus). The line below the list is
-    // a code fence because a plain paragraph line would lazily continue
-    // the list item instead of ending the list.
+    // A one-line list between non-blank lines gets two MD032 findings at one position, and both
+    // must stay. The line after the list is a code fence, because a paragraph line would
+    // continue the list item.
     const doc = 'Text above\n- item\n~~~\ncode\n~~~\n';
     const { problems } = await runRules(
       [{ path: 'a.md', content: doc }],
@@ -229,9 +207,7 @@ describe('runRules finding deduplication', () => {
   });
 });
 
-// Tracks which files a rule actually executed against, so cap tests can
-// assert that files past the cap were never linted at all (memory for their
-// problems is never allocated), not merely that their problems got dropped.
+// Records which files the rule ran on, to check that files past the cap are never linted.
 const executedFiles: string[] = [];
 scopeRules['test-track-files'] = {
   id: 'test-track-files',
@@ -266,10 +242,10 @@ describe('runRules — maxProblems cap', () => {
 
     expect(problems).toHaveLength(10);
     expect(truncated).toBe(true);
-    // a.md contributes all 7 problems, b.md only the 3 that fit the cap.
+    // a.md gives all 7 problems, and b.md only the 3 that fit.
     expect(problems.filter((p) => p.file === 'a.md')).toHaveLength(7);
     expect(problems.filter((p) => p.file === 'b.md')).toHaveLength(3);
-    // c.md was never linted at all — not just filtered out afterwards.
+    // c.md was not linted at all.
     expect(executedFiles).toEqual(['a.md', 'b.md']);
   });
 
@@ -306,15 +282,9 @@ describe('runRules — maxProblems cap', () => {
   });
 });
 
-// Task 1 (Phase 3): inline `<!-- recheck-disable* -->` HTML-comment
-// directives (core/directives.ts), wired into runRules at every
-// `lineExcepted` filter site so a directive suppresses a rule's findings
-// (and, under --fix, its fixes) exactly like an `exceptions.lines` match
-// does. See directives.test.ts for parseDirectives' own unit coverage;
-// these tests only check the runner wiring itself.
+// Inline `<!-- recheck-disable* -->` directives. See directives.test.ts for the parser tests.
 describe('runRules — inline directives', () => {
-  // A real fixable token rule (no-trailing-spaces) named `oxford-comma` so a
-  // directive's short name ('oxford-comma') matches it.
+  // A fixable token rule named `oxford-comma`, so that directive name matches it.
   const oxfordComma = () =>
     rule({
       name: 'recheck/oxford-comma',
@@ -323,8 +293,7 @@ describe('runRules — inline directives', () => {
     });
 
   it('disable-next-line suppresses a problem AND its fix under --fix, leaving other lines untouched', async () => {
-    // Line 3 is targeted by the disable-next-line on line 2; line 4 has the
-    // same defect and must still be flagged and fixed.
+    // Line 3 is suppressed. Line 4 has the same defect and must still be flagged and fixed.
     const md =
       'keep me\n' +
       '<!-- recheck-disable-next-line oxford-comma -->\n' +
@@ -345,12 +314,7 @@ describe('runRules — inline directives', () => {
     );
   });
 
-  // The SCOPE-rule fix filter site (runner.ts's scope branch of
-  // `problemAllowed`) — the token-rule test above can't reach it, since
-  // token fixes flow through a different filter site. `swap` is a real
-  // fixable scope rule, so a directive must suppress both its problem AND
-  // its proposed fix for the targeted line, while another line's identical
-  // defect is still flagged and fixed.
+  // Same as above for a scope rule. A directive must suppress both the problem and its fix.
   it('disable-next-line suppresses a fixable SCOPE rule problem AND its fix, other lines still fixed', async () => {
     const usSpelling: NormalizedRule = {
       name: 'recheck/us-spelling',
@@ -405,12 +369,8 @@ describe('runRules — inline directives', () => {
   });
 
   describe('knownRuleNames option', () => {
-    // Callers (the CLI, lintContent/lintFiles) filter severity:off rules
-    // out of the run list BEFORE runRules, so a directive naming an
-    // off-rule would read as "unknown rule" if the default (names derived
-    // from the run list) were the only source of truth. Passing the full
-    // configured name set keeps those directives silently fine --
-    // suppressing an off rule is a no-op, not a typo.
+    // Rules with severity `off` are removed before `runRules`, so a directive naming one would look
+    // like an unknown rule. `knownRuleNames` lists all configured rules, so it does not warn.
     it('does not warn for a directive naming a rule in knownRuleNames but absent from the run list', async () => {
       const md = 'text\n<!-- recheck-disable muted-rule -->\n';
       const { problems } = await runRules([{ path: 'a.md', content: md }], [oxfordComma()], {

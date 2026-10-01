@@ -13,10 +13,9 @@ interface RepeatedPair {
   second: Token;
 }
 
-// Tokenizes `segment.content` with `options.pattern` (default `\w+`) and
-// pairs adjacent tokens whose only separator is whitespace with at most one
-// line break (a blank line never pairs across paragraphs), matched
-// case-insensitively unless `ignoreCase: false`. Shared by execute() and fix().
+// Splits the content into tokens with `options.pattern` (default `\w+`) and
+// pairs equal neighbours separated only by whitespace, with at most one line
+// break (never across a blank line).
 function findRepeatedPairs(
   segment: { content: string },
   options: RepetitionAssertion
@@ -31,9 +30,7 @@ function findRepeatedPairs(
   const tokens: Token[] = [];
   let match: RegExpExecArray | null;
   while ((match = tokenRe.exec(segment.content)) !== null) {
-    // A pattern that can match empty (e.g. `\w*`) must advance lastIndex or
-    // the loop hangs; the empty token itself is skipped -- an empty "word"
-    // can't meaningfully repeat.
+    // Skip empty matches and advance lastIndex so the loop does not hang.
     if (match[0].length === 0) {
       tokenRe.lastIndex++;
       continue;
@@ -41,8 +38,7 @@ function findRepeatedPairs(
     tokens.push({ text: match[0], index: match.index });
   }
 
-  // Defaults TRUE (unlike every other assertion): 'The the' is the common
-  // typo this check exists to catch.
+  // Case is ignored by default, so 'The the' is caught.
   const ignoreCase = options.ignoreCase !== false;
 
   const pairs: RepeatedPair[] = [];
@@ -61,9 +57,8 @@ function findRepeatedPairs(
   return pairs;
 }
 
-// On the segment's first line, segment.content starts mid-source-line (e.g.
-// a heading's content excludes the '## ' marker), so segment.startColumn
-// must be added -- see pattern.ts's toSourceColumn.
+// On the first line, `segment.content` can start mid-line (a heading excludes
+// its '## '), so add `startColumn` to get the real column.
 function toSourceColumn(segment: { startColumn: number }, localLine: number, localColumn: number) {
   return localLine === 1 ? segment.startColumn + (localColumn - 1) : localColumn;
 }
@@ -79,7 +74,7 @@ const execute = async (
   for (const segment of ctx.segments) {
     const contentLines = segment.content.split(newLineRe);
     for (const { second } of findRepeatedPairs(segment, options)) {
-      // Reported at the SECOND token's position -- exactly what fix() removes.
+      // Reported at the second token, which is what fix() removes.
       const { line: localLine, column: localColumn } = offsetToLineColumn(
         segment.content,
         second.index
@@ -103,7 +98,7 @@ const execute = async (
 const fix = async (rule: NormalizedRule, file: string, ctx: ScopeRuleContext): Promise<Fix[]> => {
   const options = rule.assertions['repetition'] as RepetitionAssertion;
   const fixes: Fix[] = [];
-  // Full source lines, for the lone-token whole-line-deletion check below.
+  // Full source lines, used to check whether the token is alone on its line.
   const fileLines = ctx.content.split(newLineRe);
 
   for (const segment of ctx.segments) {
@@ -112,8 +107,7 @@ const fix = async (rule: NormalizedRule, file: string, ctx: ScopeRuleContext): P
       const secondPos = offsetToLineColumn(segment.content, second.index);
 
       if (firstPos.line === secondPos.line) {
-        // Same-line pair: delete the gap plus the second token, so the
-        // first token survives verbatim, casing included ('The the' -> 'The').
+        // Same line: delete the gap and the second token, so 'The the' becomes 'The'.
         const gapLength = second.index - (first.index + first.text.length);
         fixes.push({
           file,
@@ -123,23 +117,17 @@ const fix = async (rule: NormalizedRule, file: string, ctx: ScopeRuleContext): P
           deleteCount: gapLength + second.text.length,
         });
       } else {
-        // Cross-line (hard-wrapped) pair: a single Fix can only edit one
-        // source line (see core/auto-fix.ts), so only the second token's
-        // line is rewritten -- deleting the token plus the whitespace run
-        // following it on that line.
+        // Different lines: a fix can only edit one line, so delete the second
+        // token and the whitespace after it on its line.
         const lineNumber = segment.startLine + secondPos.line - 1;
         const editColumn = toSourceColumn(segment, secondPos.line, secondPos.column);
 
-        // Checked against the full SOURCE line, not the segment-content
-        // slice: a segment can end mid-line (e.g. a sentence segment), and
-        // whole-line deletion must never eat source text outside it.
+        // Check the full source line; a segment can end mid-line.
         const sourceLine = fileLines[lineNumber - 1] ?? '';
         const beforeToken = sourceLine.slice(0, editColumn - 1);
         const afterOnSourceLine = sourceLine.slice(editColumn - 1 + second.text.length);
         if (/^\s*$/.test(beforeToken) && /^\s*$/.test(afterOnSourceLine)) {
-          // The duplicate token is alone on its line -- deleting just the
-          // token would leave an empty line behind, so delete the whole
-          // line instead (deleteCount: -1, see core/auto-fix.ts).
+          // The token is alone on its line, so delete the whole line (deleteCount: -1).
           fixes.push({
             file,
             ruleName: rule.name,

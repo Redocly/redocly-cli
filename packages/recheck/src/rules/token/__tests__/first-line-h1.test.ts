@@ -32,16 +32,7 @@ describe('first-line-h1 (MD041)', () => {
   });
 
   it('skips frontmatter with no title key and still finds the heading right after it', async () => {
-    // Regression: upstream markdownlint strips YAML frontmatter out of the
-    // token stream entirely before scanning for the first heading (see
-    // markdownlint's removeFrontMatter + frontMatterLines offsetting).
-    // Recheck's parser keeps a `yaml` token in the tree instead, so this
-    // rule must explicitly treat a leading `yaml` token as non-content —
-    // without that, frontmatter with no recognized title key (e.g. no
-    // `title:` key at all) was wrongly treated as the "first line", which
-    // is neither a heading nor an HTML heading tag, so `!allowPreamble`
-    // fired a false positive at line 1 even though a valid `# Heading`
-    // immediately follows the frontmatter.
+    // Front matter without a title must not count as content before the heading.
     const md = '---\nproducts:\n  - Redoc\n---\n# Access control\n\nBody.\n';
     expect(await h.lint(md)).toEqual([]);
   });
@@ -54,11 +45,7 @@ describe('first-line-h1 (MD041)', () => {
   });
 
   it('matches upstream per-line frontMatterTitle semantics (no newline bridging)', async () => {
-    // Oracle-checked against live markdownlint MD041: with
-    // `front_matter_title: "author:.*\\s*title"` this fixture FIRES at line 6
-    // ("Some plain text body.") because upstream tests the pattern against
-    // each front matter line individually — `\s*` can never absorb the line
-    // ending between `author: X` and `title: My Document`.
+    // The pattern is tested on each front matter line, so `\s*` cannot join two lines.
     const bridged = tokenRuleHarness('first-line-h1', {
       frontMatterTitle: 'author:.*\\s*title',
     });

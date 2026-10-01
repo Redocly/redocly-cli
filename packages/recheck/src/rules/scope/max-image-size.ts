@@ -10,13 +10,7 @@ function getFileExtension(filePath: string): string {
   return lastDot === -1 ? '' : filePath.substring(lastDot + 1).toLowerCase();
 }
 
-// `ctx.segments` is a single synthetic `scope: 'all'` segment (see
-// `wholeFileSegment` in core/runner.ts) exactly when the rule is unscoped
-// (the default) — `extractScopes` itself never emits a segment with that
-// scope name, so this check is an unambiguous whole-file-vs-scoped
-// discriminator, matching the convention documented for scope rules in
-// rules/CONTRIBUTING.md ("Unscoped rules (`scope: all`, the default):
-// `ctx.segments` is a single whole-file segment with `scope: 'all'`").
+// An unscoped rule (the default) gets a single segment with `scope: 'all'`.
 function isWholeFile(segments: ScopedSegment[]): boolean {
   return segments.length === 1 && segments[0].scope === 'all';
 }
@@ -35,18 +29,14 @@ const execute = async (
   );
   const maxSizeBytes = maxSizeKB * 1024;
 
-  // Reference-style destinations (`![alt][ref]`) resolve against
-  // definitions anywhere in the document, so resolution always runs over
-  // the whole tree; only the resulting image tokens are scope-filtered
-  // below, matching how every other scope rule narrows to `ctx.segments`
-  // without re-deriving cross-references itself.
+  // Reference-style images (`![alt][ref]`) can point to definitions anywhere in the file,
+  // so look at the whole tree and filter by scope afterwards.
   const wholeFile = isWholeFile(ctx.segments);
   const images = getImageDestinations(ctx.tree).filter(
     ({ token }) => wholeFile || ctx.segments.some((segment) => hasOverlap(segment, token))
   );
 
-  // newLineRe (never a bare '\n'): these lines feed Problem.text, and a
-  // '\n' split of CRLF content would leave a trailing '\r' on each one.
+  // Split on newLineRe so CRLF content does not keep a trailing '\r'.
   const lines = ctx.content.split(newLineRe);
 
   for (const { token, destination } of images) {

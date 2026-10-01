@@ -18,7 +18,6 @@ describe('table-pipe-style (MD055)', () => {
   it('flags a table inconsistent about leading/trailing pipes, with exact line/column', async () => {
     const md = '| Header | Header |\n| ------ | ------\n  Cell   | Cell   |\n';
     const problems = await h.lint(md);
-    // Delimiter row is missing its trailing pipe; body row is missing its leading pipe.
     expect(problems).toHaveLength(2);
     expect(problems[0]).toMatchObject({ line: 2, column: 17 });
     expect(problems[0].message).toContain('Missing trailing pipe');
@@ -30,7 +29,6 @@ describe('table-pipe-style (MD055)', () => {
     const h2 = tokenRuleHarness('table-pipe-style', { style: 'leading_only' });
     const md = '| Header | Header |\n| ------ | ------ |\n| Cell   | Cell   |\n';
     const problems = await h2.lint(md);
-    // Every row has a trailing pipe, which is unexpected under leading_only.
     expect(problems.length).toBeGreaterThan(0);
     expect(
       problems.every((p) => p.message.includes('Unexpected') && p.message.includes('trailing'))

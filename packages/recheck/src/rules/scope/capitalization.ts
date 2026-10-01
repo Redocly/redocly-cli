@@ -13,39 +13,19 @@ import {
   recaseWords,
 } from './title-case.js';
 
-// Fallback when a programmatically-built rule has no `message` (validate()
-// requires one). %s slots: the segment's first line, then the `match` value.
+// Used when the rule has no `message`. The two `%s` are the segment's first line
+// and the `match` value.
 const FALLBACK_MESSAGE = '"%s" should use %s capitalization.';
 
 const DOLLAR_STYLES = new Set(['$title', '$sentence', '$lower', '$upper']);
 type DollarStyle = '$title' | '$sentence' | '$lower' | '$upper';
 
-// Inline code spans (e.g. '## the `configFile` option') must never be
-// flagged or rewritten by the `$`-styles: they're masked out with the
-// shared, length-preserving maskInlineCode/restoreInlineCode pair
-// (core/inline-code.ts) -- see there for the CommonMark span-recognition
-// and offset-preservation contract. Segments here are always single-line
-// by the time masking runs (see collectSites' multi-line skip below),
-// matching BACKTICK_SPAN_RE's own single-line content restriction.
+// Inline code spans (like `configFile` in a heading) are masked out so the `$`
+// styles never flag or change them.
 
-// $sentence
-//
-// Sentence case doesn't need AP/Chicago's stopword lists, so it isn't
-// implemented via title-case.ts's apTitleCase/chicagoTitleCase: only the
-// FIRST word is capitalized, every other word is lowercased -- unless it's an
-// exception (as-written) or already ALL-CAPS (left alone), the same carve-outs
-// those two use.
-//
-// It does share title-case.ts's tokenization and exception handling, though:
-// `buildExceptionPlan` is the SAME exception decision apTitleCase/
-// chicagoTitleCase make (see its doc comment for why this must not be a second
-// independent map -- a dotted/multi-word entry like 'Node.js' or 'VS Code'
-// cannot survive per-word splitting under either style, so both must agree on
-// treating it as a phrase), and `recaseWords` is the same tokenizer, which is
-// what makes each phrase ONE token that counts toward word position. $sentence
-// only supplies its own per-word casing rule below.
-// Follows `startsSentence`, not `index === 0`: a heading can carry more than
-// one sentence (`Step 1. Configure the project`). recaseWords decides where.
+// Sentence case: only the first word of each sentence is capitalized and the rest
+// is lowercased. Words that are exceptions or already ALL-CAPS are left as they are.
+// Uses the same exception handling and word splitting as the title case styles.
 function sentenceCase(text: string, exceptions: string[]): string {
   const { wordMap, phrases } = buildExceptionPlan(exceptions);
   return recaseWords(text, phrases, (word, _index, _total, startsSentence) => {
@@ -79,26 +59,20 @@ function applyDollarStyle(
 
 interface CapitalizationSite {
   segment: ScopedSegment;
-  // The text the segment SHOULD be; equals `segment.content` for
-  // detection-only sites (see collectSites).
+  // The text the segment should have. Same as `segment.content` when there is no fix.
   corrected: string;
   fixable: boolean;
 }
 
-// Shared by execute() and fix() so problems and fixes can never disagree
-// about which segments are flagged.
-//
-// Multi-line segments are skipped by BOTH for the `$`-styles, not just by
-// fix(): a `Fix` can only rewrite one line, so a flagged multi-line segment
-// would have no corresponding fix. Custom regex `match` mode never produces
-// a fix regardless, so multi-line segments are still checked there.
+// Shared by execute() and fix() so they flag the same segments. The `$` styles skip
+// multi-line segments because a fix can only change one line. A custom regex
+// `match` never has fixes, so it checks multi-line segments too.
 function collectSites(rule: NormalizedRule, ctx: ScopeRuleContext): CapitalizationSite[] {
   const options = (rule.assertions['capitalization'] ?? {}) as CapitalizationAssertion;
   const sites: CapitalizationSite[] = [];
 
   if (!DOLLAR_STYLES.has(options.match)) {
-    // Custom regex: the WHOLE segment text must satisfy it. Detection-only
-    // -- there's no transform to derive a fix from.
+    // Custom regex: the whole segment text must match. There is no fix for this.
     let regex: RegExp;
     try {
       regex = new RegExp(options.match ?? '');
@@ -114,29 +88,22 @@ function collectSites(rule: NormalizedRule, ctx: ScopeRuleContext): Capitalizati
 
   const style = options.match as DollarStyle;
   const titleStyle = options.style ?? 'ap';
-  // Users should not re-author the industry's proper-noun list in every
-  // config; the built-ins are UNIONED with the rule's own `exceptions`
-  // (rather than the rule's list replacing them) so a preset-configured list
-  // and a user list compose, and a user override of `exceptions` can never
-  // accidentally drop the common vocabulary. `builtinVocabulary: false`
-  // opts back into the pre-built-in strict/closed behavior. See
-  // ../../data/proper-nouns.ts for the vocabulary and its inclusion bar.
+  // The built-in proper nouns are added to the rule's own `exceptions`.
+  // `builtinVocabulary: false` turns them off.
   const exceptions =
     options.builtinVocabulary === false
       ? (options.exceptions ?? [])
       : [...TECHNICAL_PROPER_NOUNS, ...(options.exceptions ?? [])];
 
   for (const segment of ctx.segments) {
-    // Multi-line: symmetric skip, see doc comment above.
+    // Skip multi-line segments, see above.
     if (segment.startLine !== segment.endLine) continue;
 
     const masked = maskInlineCode(segment.content);
     const transformedMasked = applyDollarStyle(style, masked, titleStyle, exceptions);
 
-    // Non-length-preserving case mapping (e.g. 'ß'.toUpperCase() === 'SS'):
-    // restoreInlineCode's splice assumes casing-only changes, so shifted
-    // offsets would splice masked spans back at the wrong position. A length
-    // change still proves a violation, so report it -- detection-only, no fix.
+    // Some case changes alter the length (like 'ß' to 'SS'), which would break
+    // `restoreInlineCode`. Report the problem without a fix.
     if (transformedMasked.length !== masked.length) {
       sites.push({ segment, corrected: segment.content, fixable: false });
       continue;
@@ -157,12 +124,8 @@ const execute = async (
 ): Promise<Problem[]> => {
   const options = (rule.assertions['capitalization'] ?? {}) as CapitalizationAssertion;
   return collectSites(rule, ctx).map(({ segment, fixable }) => {
-    // Report the source, not the prose view: a segment whose markdoc tags were
-    // masked out carries a run of blanks where `{% partial /%}` sits in the
-    // file, and echoing that back in `match` or the message would show the user
-    // a hole in their own heading. `sourceText` is the verbatim slice and is the
-    // same length as `content`, so nothing else shifts. Detection still runs on
-    // `content`, so a tag influences the report but never the casing decision.
+    // Report the original text. `content` has blanks where Markdoc tags were
+    // masked out, and the message should not show those.
     const sourceText = segment.sourceText ?? segment.content;
     // newLineRe, not '\n': a bare split leaves a trailing '\r' on CRLF content.
     const firstLine = sourceText.split(newLineRe)[0] ?? '';

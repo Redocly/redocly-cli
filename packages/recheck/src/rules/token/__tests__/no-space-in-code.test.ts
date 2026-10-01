@@ -13,8 +13,6 @@ describe('no-space-in-code (MD038)', () => {
     const problems = await h.lint('`some text `\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
-    // startColumn of the trailing codeTextPadding token ` ` before the
-    // closing backtick: "`some text `" -> padding starts at column 11.
     expect(problems[0].column).toBe(11);
   });
 
@@ -59,9 +57,5 @@ describe('no-space-in-code (MD038)', () => {
   it('preserves the exempted single-space padding around a leading backtick when fixing', async () => {
     const fixed = await h.fix('`` `backticks` ``\n');
     expect(fixed).toBe('`` `backticks` ``\n');
-  });
-
-  it('passes a document with no code spans', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
   });
 });

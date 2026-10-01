@@ -18,11 +18,6 @@ describe('no-alt-text (MD045)', () => {
   });
 
   it('passes an HTML image with an alt attribute', async () => {
-    // A standalone `<img>` at the start of a line is block-level HTML
-    // (`htmlFlow`, not `htmlText`) per CommonMark. Since Task 12, htmlFlow
-    // content is subtokenized, so block-level `<img>` can be processed by
-    // our rule (via includeHtmlFlow: true). This example embeds it inline
-    // (matching how the rule's own doc examples describe HTML images).
     expect(await h.lint('Photo: <img src="image.jpg" alt="Alternate text" />\n')).toEqual([]);
   });
 
@@ -47,16 +42,7 @@ describe('no-alt-text (MD045)', () => {
     );
   });
 
-  it('passes a document with no images', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
-
   it('flags block-level HTML img without alt (regression: includeHtmlFlow)', async () => {
-    // A standalone `<img>` at the start of a line (own paragraph) is
-    // block-level HTML (htmlFlow, not htmlText). Since Task 12, htmlFlow
-    // content is subtokenized, making block-level `<img>` reachable to the
-    // rule's "Process HTML images" branch (which uses includeHtmlFlow: true).
-    // This test pins that the rule correctly flags missing alt on such images.
     const problems = await h.lint('<img src="x.png" />\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);

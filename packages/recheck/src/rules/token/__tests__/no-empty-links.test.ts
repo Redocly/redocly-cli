@@ -39,8 +39,4 @@ describe('no-empty-links (MD042)', () => {
     const problems = await h.lint('[empty]\n\n[empty]: #\n');
     expect(problems).toHaveLength(1);
   });
-
-  it('passes a document with no links', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

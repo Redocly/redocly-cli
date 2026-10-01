@@ -8,9 +8,7 @@ import { computeTextStatistics, type TextStatistics } from '../statistics.js';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
-// A fixed, arbitrarily-chosen stats object -- NOT derived from any real
-// prose -- so each formula can be checked against its own published
-// definition by plain arithmetic, independent of computeTextStatistics.
+// Made-up statistics, so each formula can be checked by hand without computeTextStatistics.
 const fixedStats: TextStatistics = {
   words: 100,
   sentences: 5,
@@ -20,12 +18,9 @@ const fixedStats: TextStatistics = {
 };
 
 describe('computeReadability -- each formula against its published definition', () => {
-  // Expected values below are hand-computed directly from each formula's
-  // canonical definition (cited inline) applied to `fixedStats`, rounded to
-  // 2 decimals -- e.g. flesch-reading-ease:
-  //   206.835 - 1.015*(100/5) - 84.6*(150/100)
-  //   = 206.835 - 20.3 - 126.9 = 59.635 -> 59.64
-  // See formulas.ts for the same citations against each `case`.
+  // Expected values are worked out by hand from each formula, rounded to 2 decimals.
+  // For example flesch-reading-ease: 206.835 - 1.015*(100/5) - 84.6*(150/100) = 59.635, which
+  // rounds to 59.64.
 
   it('flesch-reading-ease: Flesch (1948)', () => {
     // 206.835 - 1.015*(words/sentences) - 84.6*(syllables/words)
@@ -58,9 +53,7 @@ describe('computeReadability -- each formula against its published definition', 
     expect(computeReadability('automated-readability', fixedStats)).toBe(11.18);
   });
 
-  // Documented division-by-zero contract: 0 words or 0 sentences returns 0
-  // for every formula rather than NaN/Infinity (every formula divides by
-  // one or both).
+  // Every formula divides by words or sentences, so zero must give 0, not NaN or Infinity.
   const allFormulas: ReadabilityFormula[] = [
     'flesch-reading-ease',
     'flesch-kincaid-grade',
@@ -95,29 +88,8 @@ describe('computeReadability -- each formula against its published definition', 
   });
 });
 
-// --- Readability fixture suite (hand-derived) --------------------------------
-//
-// Rebilly's Lexi (https://github.com/Rebilly/lexi) is NOT on npm -- the
-// unrelated npm package literally named "lexi" must not be depended on.
-// This suite was meant to vendor Lexi's own test-derived expected readability
-// values as a real oracle. On inspection (see fixtures/expected.json's
-// "provenance" block, and task-7-report.md), Lexi's repo does NOT contain
-// any hand-verifiable real formula output: its src/readability.ts delegates
-// every score to the separate 'text-readability' npm package, and Lexi's own
-// unit tests mock that package out entirely (fixed stub values), while its
-// one unmocked integration test only compares two inputs to each other, never
-// to an absolute expected number. There is nothing genuine to vendor as a
-// "Lexi-derived" numeric expected value for any of our six formulas.
-//
-// Per the brief's own fallback clause, expected stats/scores in
-// fixtures/expected.json are therefore HAND-COMPUTED from the published
-// formula definitions and this task's documented syllable heuristic, via a
-// standalone oracle script independent of src/metrics (committed at
-// tools/derive-expected.mjs next to this suite; see also task-7-report.md)
-// -- NOT fabricated as if sourced from Lexi. One of the two fixture texts
-// (wikipedia-non-euclidean.txt) is still genuinely vendored FROM Lexi's own
-// repo (its test-data/new/test-document.md, used there as CLI demo prose)
-// for a real-world prose sample, with full attribution in expected.json.
+// Expected values in fixtures/expected.json are computed by tools/derive-expected.mjs,
+// not by the code under test.
 interface FixtureExpectation {
   id: string;
   file: string;

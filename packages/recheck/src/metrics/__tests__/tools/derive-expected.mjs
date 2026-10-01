@@ -1,34 +1,12 @@
-// Standalone oracle script that derives the expected values in
-// ../fixtures/expected.json — an INDEPENDENT re-implementation of the
-// documented statistics/formula spec (the Task 7 brief; see also
-// task-7-report.md), used only to hand-compute fixture expectations.
+// Standalone script that computes the expected values in ../fixtures/expected.json.
+// It re-implements the statistics and formulas separately from src/metrics, so the
+// expected numbers do not come from the code under test. Nothing imports it.
 //
-// PROVENANCE. This suite originally attempted to vendor expected
-// readability values from Rebilly's Lexi (https://github.com/Rebilly/lexi,
-// commit 963486e671c1) — on inspection its repo contains no real numeric
-// formula output to vendor (its own tests mock the 'text-readability'
-// package out entirely), so per the brief's fallback clause the expected
-// values are hand-computed from each formula's published definition and
-// this package's documented syllable heuristic instead. Full detail lives
-// in ../fixtures/expected.json's "provenance" block. This file is NOT part
-// of src/metrics and is never imported by it (or by any test): it exists so
-// the "expected" numbers come from a second, separately-typed
-// implementation of the same documented spec rather than from the code
-// under test itself, and so the derivation stays reproducible.
+// Run from packages/recheck: node src/metrics/__tests__/tools/derive-expected.mjs
+// The printed values must match expected.json.
 //
-// HOW TO RUN (from packages/recheck):
-//   node src/metrics/__tests__/tools/derive-expected.mjs
-// It reads the fixture texts from ../fixtures/*.txt and prints each
-// fixture's stats and six scores; the printed values must match the
-// corresponding entries in ../fixtures/expected.json exactly (the test
-// suite asserts stats exactly and scores within ±0.1).
-//
-// SCOPE NOTE. The sentence splitter below is a SIMPLIFIED independent
-// implementation — valid ONLY for fixtures with no abbreviations, decimals,
-// ordinal enumerators, or code spans (verified by inspection for both
-// current fixtures). If a future fixture needs any of that, extend this
-// script deliberately; do not silently reuse src/scopes/sentences.ts, which
-// would defeat the independent-oracle purpose.
+// The sentence splitter is simplified: it only works for text without abbreviations,
+// decimals, numbered lists or code spans, which holds for the current fixtures.
 
 import { readFileSync } from 'fs';
 import * as path from 'path';
@@ -40,10 +18,7 @@ function tokenizeWords(prose) {
   return prose.split(/\s+/).filter((token) => /[A-Za-z0-9]/.test(token));
 }
 
-// The documented syllable heuristic (see ../../statistics.ts): count
-// [aeiouy]+ vowel groups of the lowercased, punctuation-stripped word
-// (hyphens/apostrophes kept as syllable boundaries), subtract one for a
-// silent trailing 'e' unless the word ends in 'le', minimum 1.
+// Same syllable heuristic as statistics.ts.
 function countSyllables(word) {
   const clean = word.toLowerCase().replace(/[^a-z'-]/g, '');
   const groups = clean.match(/[aeiouy]+/g) ?? [];
@@ -52,9 +27,8 @@ function countSyllables(word) {
   return Math.max(1, count);
 }
 
-// Simplified independent sentence splitter — see SCOPE NOTE above. Splits
-// after '.', '!', or '?' when followed by whitespace + an uppercase
-// letter/quote/bracket, or at end of string.
+// Splits after '.', '!' or '?' when followed by whitespace and an uppercase
+// letter, quote or bracket, or at the end of the text.
 function splitSentencesNaive(text) {
   const spans = [];
   let start = 0;
@@ -94,8 +68,6 @@ function round2(v) {
   return Math.round((v + Number.EPSILON) * 100) / 100;
 }
 
-// Each formula from its published definition (citations in
-// ../../formulas.ts against each case).
 function computeScores(stats) {
   const { words, sentences, syllables, characters, complexWords } = stats;
   const fre = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
@@ -122,6 +94,6 @@ for (const file of fixtureFiles) {
   const text = readFileSync(path.join(dir, '../fixtures', file), 'utf8');
   const stats = computeTextStatistics(text);
   const scores = computeScores(stats);
-  // oxlint-disable-next-line eslint/no-console -- standalone oracle script; console output is its entire purpose (see file header).
+  // oxlint-disable-next-line eslint/no-console -- standalone script that prints its results
   console.log(JSON.stringify({ id: file.replace(/\.txt$/, ''), file, stats, scores }, null, 2));
 }

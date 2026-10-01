@@ -1,22 +1,20 @@
-// Covers the `ctx.markdoc` the runner builds for a token rule, using probe
-// rules that record what they were handed. The behavior of the real Markdoc
-// rules is covered elsewhere.
+// Checks the `ctx.markdoc` that the runner passes to token rules, using probe rules.
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import type { MarkdocSchema } from '../../parser/markdoc/schema.js';
-import { registerTokenRules, clearTokenRulesForTests } from '../../rules/registry.js';
+import { registerTokenRules } from '../../rules/registry.js';
 import type { TokenRule, TokenRuleContext } from '../../rules/types.js';
 import type { NormalizedRule } from '../../types/index.js';
 import { runRules } from '../runner.js';
 
 const SCHEMA: MarkdocSchema = { tags: { img: { selfClosing: true }, box: { selfClosing: true } } };
 
-/** A document with one unclosed tag, so a real pairing pass has something to find. */
+/** A document with one unclosed tag. */
 const UNCLOSED = '{% admonition %}\ntext\n';
 
 let seen: TokenRuleContext['markdoc'];
 
-/** The `tags: ['markdoc']` marker is what the runner keys the pairing computation off. */
+/** The `markdoc` tag tells the runner to compute tag pairing. */
 const markdocProbe: TokenRule = {
   name: 'probe-markdoc',
   tags: ['markdoc'],
@@ -27,7 +25,7 @@ const markdocProbe: TokenRule = {
   },
 };
 
-/** Identical, minus the `markdoc` tag. */
+/** The same rule without the `markdoc` tag. */
 const plainProbe: TokenRule = {
   name: 'probe-plain',
   tags: ['test'],
@@ -48,7 +46,6 @@ const ruleFor = (shortName: string): NormalizedRule => ({
 
 describe('runner: ctx.markdoc', () => {
   beforeEach(() => {
-    clearTokenRulesForTests();
     registerTokenRules([markdocProbe, plainProbe]);
     seen = undefined;
   });
@@ -76,9 +73,8 @@ describe('runner: ctx.markdoc', () => {
     expect(seen?.selfClosingTags.size).toBe(0);
   });
 
-  // Nothing can read the pairing result unless an active rule carries
-  // `tags: ['markdoc']`, so the runner skips that pass otherwise. `ctx.markdoc`
-  // is still present either way, because `schema` remains readable.
+  // The runner skips the pairing pass unless an active rule has `tags: ['markdoc']`.
+  // `ctx.markdoc` is always set, because `schema` can still be read.
   describe('pairing is computed only when an active rule carries tags: [markdoc]', () => {
     it('computes it for a markdoc-tagged rule', async () => {
       await runRules([{ path: 'a.md', content: UNCLOSED }], [ruleFor('probe-markdoc')], {
@@ -116,7 +112,6 @@ describe('runner: ctx.markdoc', () => {
 
     it('the skipped pairing is a fresh object per file, never a shared one', async () => {
       const captured: NonNullable<TokenRuleContext['markdoc']>['pairing'][] = [];
-      clearTokenRulesForTests();
       registerTokenRules([
         {
           ...plainProbe,

@@ -1,28 +1,31 @@
+import { readFile } from 'fs/promises';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
 import { describe, expect, it } from 'vitest';
 
 import { runRules } from '../../core/runner.js';
 import { TECHNICAL_PROPER_NOUNS } from '../../data/proper-nouns.js';
 import { lintContent } from '../../index.js';
 import { scopeRules } from '../../rules/registry.js';
-import { allTokenRules, RECHECK_ORIGINAL_TOKEN_RULE_NAMES } from '../../rules/token/index.js';
-import type { ScopeRule } from '../../rules/types.js';
+import { allTokenRules } from '../../rules/token/index.js';
 import { presets, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
-import { registerPresetRules } from '../presets/markdown.js';
-import { PROSE_PRESET_ASSERTIONS, buildProsePreset } from '../presets/prose.js';
-import { validate } from '../validate.js';
+import { resolveExtends, validate } from '../validate.js';
 
 describe('extends presets', () => {
-  // Binds the `recheck/markdown` preset to the token-rule registry so a new or
-  // renamed token rule landing without a matching preset entry (or vice versa)
-  // fails immediately. Both length and set equality are checked, so a
-  // same-count-but-different-membership drift is caught too.
-  //
-  // Recheck-original token rules have no markdownlint counterpart and are
-  // deliberately absent from `recheck/markdown`, which means the markdownlint
-  // parity rules rather than every token rule we ship. Listing them here is the
-  // explicit opt-in: the guard still fails on a token rule in NEITHER the parity
-  // preset nor this list, so a rule cannot be forgotten silently.
-  const RECHECK_ORIGINAL_TOKEN_RULES = RECHECK_ORIGINAL_TOKEN_RULE_NAMES;
+  // Binds the `recheck/markdown` preset to the token-rule registry, so a new or renamed token rule
+  // without a matching preset entry (or the reverse) fails. Both the number and the names are compared.
+  // Rules that Recheck added itself have no markdownlint equivalent, so they are not in
+  // `recheck/markdown`. They are listed here instead. A token rule in neither place fails the test.
+  const RECHECK_ORIGINAL_TOKEN_RULES = [
+    'front-matter',
+    'no-duplicate-link-destinations',
+    'no-empty-headings',
+    'list-length',
+    'markdoc-syntax',
+    'markdoc-pairing',
+    'markdoc-unknown-tag',
+    'markdoc-attributes',
+  ];
 
   it('markdown preset contains exactly one entry per registered token rule (no rule can be forgotten)', () => {
     const markdown = presets['recheck/markdown'];
@@ -47,23 +50,13 @@ describe('extends presets', () => {
     }
   });
 
-  it('expands recheck/minimal into normalized rules', async () => {
-    const result = await validate({ extends: ['recheck/minimal'] });
-    expect(result.isValid).toBe(true);
-    expect(result.rules.map((r) => r.shortName)).toContain('no-trailing-spaces');
-  });
-
   it('user entries override preset entries by rule key', async () => {
     const result = await validate({
       extends: ['recheck/minimal'],
       'recheck/no-trailing-spaces': { severity: 'off' },
     });
-    // Current validate() behavior: normalization does not drop severity:off
-    // rules — that filtering (filterEnabledRules) happens later, at lint
-    // time, for callers that want to skip disabled rules. validate()'s
-    // normalized `rules` output always includes every configured rule,
-    // carrying whatever severity it resolved to. So the merged rule is
-    // still present here, just with severity overridden to "off".
+    // `validate()` keeps rules with severity `off` and only changes their severity. Filtering them out
+    // happens later, at lint time.
     expect(result.isValid).toBe(true);
     const rule = result.rules.find((r) => r.shortName === 'no-trailing-spaces');
     expect(rule).toBeDefined();
@@ -109,326 +102,40 @@ describe('extends presets', () => {
     ]);
   });
 
-  it('config without extends is unaffected', async () => {
-    const result = await validate({
-      'recheck/test-rule': {
-        severity: 'error',
-        message: 'Test message',
-        assertions: { pattern: { tokens: ['foo'] } },
-      },
-    });
-    expect(result.isValid).toBe(true);
-    expect(result.rules.map((r) => r.shortName)).toEqual(['test-rule']);
-  });
-
-  it('a preset entry whose assertion id cannot resolve produces a clear validation error at load, not a throw', async () => {
-    // A hand-built preset-shaped entry, not part of any shipped preset, so the
-    // unresolvable-id error path can be exercised without planting a broken
-    // name in real config. The id is deliberately fictitious rather than a
-    // not-yet-implemented rule name, so it can never start resolving later.
-    const result = await validate({
-      'recheck/not-a-real-rule': {
-        severity: 'error',
-        message: 'Not a real rule.',
-        assertions: { 'not-a-real-rule': {} },
-      },
-    });
-    expect(result.isValid).toBe(false);
-    expect(result.errors.some((error) => error.message.includes('not-a-real-rule'))).toBe(true);
-  });
-
-  it('markdown preset includes the batch-1 heading rules, batch-2 whitespace/line rules, batch-3 list rules, batch-4 code/inline rules, batch-5 link/image/emphasis rules, and batch-6 blockquote/table rules, registered incrementally by each batch', async () => {
-    const markdown = presets['recheck/markdown'];
-    expect(Object.keys(markdown).sort()).toEqual(
+  it('markdown-relaxed is recheck/markdown with exactly the markdownlint relaxed-style rules turned off', () => {
+    const relaxedOff = new Set(
       [
-        'heading-increment',
-        'heading-style',
-        'no-missing-space-atx',
-        'no-multiple-space-atx',
-        'no-missing-space-closed-atx',
-        'no-multiple-space-closed-atx',
-        'blanks-around-headings',
-        'heading-start-left',
-        'no-duplicate-heading',
-        'single-h1',
-        'no-trailing-punctuation',
-        'no-emphasis-as-heading',
-        'first-line-h1',
-        'required-headings',
         'no-trailing-spaces',
         'no-hard-tabs',
         'no-multiple-blanks',
-        'line-length',
-        'single-trailing-newline',
-        'hr-style',
-        'ul-style',
-        'list-indent',
-        'ul-indent',
-        'ol-prefix',
-        'list-marker-space',
-        'blanks-around-lists',
-        'no-reversed-links',
-        'commands-show-output',
-        'blanks-around-fences',
-        'no-space-in-emphasis',
-        'no-space-in-code',
-        'no-space-in-links',
-        'fenced-code-language',
-        'no-empty-links',
-        'code-block-style',
-        'code-fence-style',
-        'no-inline-html',
-        'no-bare-urls',
-        'proper-names',
-        'no-alt-text',
-        'emphasis-style',
-        'strong-style',
-        'link-fragments',
-        'reference-links-images',
-        'link-image-reference-definitions',
-        'link-image-style',
-        'descriptive-link-text',
         'no-multiple-space-blockquote',
         'no-blanks-blockquote',
-        'table-pipe-style',
-        'table-column-count',
-        'blanks-around-tables',
-        'table-column-style',
-      ]
-        .map((name) => `recheck/${name}`)
-        .sort()
+        'line-length',
+        'ul-indent',
+        'no-inline-html',
+        'no-bare-urls',
+        'fenced-code-language',
+        'first-line-h1',
+      ].map((name) => `recheck/${name}`)
     );
-    // Validation fills each entry's message from the token rule's own
-    // defaults.message — no hand-maintained message map for ported rules.
-    const validated = await validate({ extends: ['recheck/markdown'] });
-    expect(validated.isValid).toBe(true);
-    const messages = new Map(validated.rules.map((rule) => [rule.name, rule.message]));
-    expect(messages.get('recheck/heading-increment')).toBe(
-      'Heading levels should only increment by one level at a time.'
-    );
-    // single-trailing-newline has no legacy scope-id collision, so its
-    // message is also derived from defaults.message with no override.
-    expect(messages.get('recheck/single-trailing-newline')).toBe(
-      'Files should end with a single newline character.'
-    );
-    // These ids resolve straight to their token rules and derive their message
-    // from `defaults.message`, so the preset needs no explicit override.
-    expect(messages.get('recheck/no-trailing-spaces')).toBe('Trailing spaces');
-    expect(messages.get('recheck/no-hard-tabs')).toBe('Hard tabs');
-    // Batch-3 list rules have no legacy scope-id collision (the legacy
-    // `bullet-style` id is distinct from `ul-style`), so all six derive
-    // their message from defaults.message with no override needed either.
-    expect(messages.get('recheck/ul-style')).toBe('Unordered list style');
-    expect(messages.get('recheck/blanks-around-lists')).toBe(
-      'Lists should be surrounded by blank lines'
-    );
-    // Batch-4 rules have no legacy scope-id collision, so all ten derive
-    // their message from defaults.message with no override needed.
-    expect(messages.get('recheck/no-reversed-links')).toBe('Reversed link syntax');
-    expect(messages.get('recheck/no-space-in-emphasis')).toBe('Spaces inside emphasis markers');
-    expect(messages.get('recheck/no-empty-links')).toBe('No empty links');
-    // Batch-5 rules have no legacy scope-id collision either (`link-fragments`
-    // is a new id, distinct from the legacy `no-broken-fragment-links` scope
-    // rule it replaces), so all eleven derive their message from
-    // defaults.message with no override needed.
-    expect(messages.get('recheck/no-inline-html')).toBe('Inline HTML');
-    expect(messages.get('recheck/link-fragments')).toBe('Link fragments should be valid');
-    expect(messages.get('recheck/link-image-style')).toBe('Link and image style');
-    // Batch-6 rules (the final batch) have no legacy scope-id collision
-    // either, so all six derive their message from defaults.message with
-    // no override needed.
-    expect(messages.get('recheck/no-multiple-space-blockquote')).toBe(
-      'Multiple spaces after blockquote symbol'
-    );
-    expect(messages.get('recheck/no-blanks-blockquote')).toBe('Blank line inside blockquote');
-    expect(messages.get('recheck/table-pipe-style')).toBe('Table pipe style');
-    expect(messages.get('recheck/table-column-count')).toBe('Table column count');
-    expect(messages.get('recheck/blanks-around-tables')).toBe(
-      'Tables should be surrounded by blank lines'
-    );
-    expect(messages.get('recheck/table-column-style')).toBe('Table column style');
-  });
-
-  it('markdown-relaxed preset turns off no-inline-html and no-bare-urls (upstream "no-inline-html"/"no-bare-urls": false) and leaves the other nine batch-5 rules untouched', () => {
-    // relaxed.json disables exactly these two; none of the other nine batch-5
-    // rules appear there, so they must come through at their base severity.
+    const markdown = presets['recheck/markdown'];
     const relaxed = presets['recheck/markdown-relaxed'];
-    expect(relaxed['recheck/no-inline-html'].severity).toBe('off');
-    expect(relaxed['recheck/no-bare-urls'].severity).toBe('off');
-    expect(relaxed['recheck/proper-names']).toEqual(
-      presets['recheck/markdown']['recheck/proper-names']
-    );
-    expect(relaxed['recheck/no-alt-text']).toEqual(
-      presets['recheck/markdown']['recheck/no-alt-text']
-    );
-    expect(relaxed['recheck/emphasis-style']).toEqual(
-      presets['recheck/markdown']['recheck/emphasis-style']
-    );
-    expect(relaxed['recheck/strong-style']).toEqual(
-      presets['recheck/markdown']['recheck/strong-style']
-    );
-    expect(relaxed['recheck/link-fragments']).toEqual(
-      presets['recheck/markdown']['recheck/link-fragments']
-    );
-    expect(relaxed['recheck/reference-links-images']).toEqual(
-      presets['recheck/markdown']['recheck/reference-links-images']
-    );
-    expect(relaxed['recheck/link-image-reference-definitions']).toEqual(
-      presets['recheck/markdown']['recheck/link-image-reference-definitions']
-    );
-    expect(relaxed['recheck/link-image-style']).toEqual(
-      presets['recheck/markdown']['recheck/link-image-style']
-    );
-    expect(relaxed['recheck/descriptive-link-text']).toEqual(
-      presets['recheck/markdown']['recheck/descriptive-link-text']
-    );
+    expect(Object.keys(relaxed).sort()).toEqual(Object.keys(markdown).sort());
+    for (const [key, rule] of Object.entries(markdown)) {
+      expect(relaxed[key], key).toEqual(relaxedOff.has(key) ? { ...rule, severity: 'off' } : rule);
+    }
   });
 
-  it('markdown-relaxed preset turns off fenced-code-language (upstream "fenced-code-language": false) and leaves the other nine batch-4 rules untouched', () => {
-    // relaxed.json disables only fenced-code-language (MD040); none of the
-    // other nine batch-4 rules appear there.
-    const relaxed = presets['recheck/markdown-relaxed'];
-    expect(relaxed['recheck/fenced-code-language'].severity).toBe('off');
-    expect(relaxed['recheck/no-reversed-links']).toEqual(
-      presets['recheck/markdown']['recheck/no-reversed-links']
-    );
-    expect(relaxed['recheck/commands-show-output']).toEqual(
-      presets['recheck/markdown']['recheck/commands-show-output']
-    );
-    expect(relaxed['recheck/blanks-around-fences']).toEqual(
-      presets['recheck/markdown']['recheck/blanks-around-fences']
-    );
-    expect(relaxed['recheck/no-space-in-emphasis']).toEqual(
-      presets['recheck/markdown']['recheck/no-space-in-emphasis']
-    );
-    expect(relaxed['recheck/no-space-in-code']).toEqual(
-      presets['recheck/markdown']['recheck/no-space-in-code']
-    );
-    expect(relaxed['recheck/no-space-in-links']).toEqual(
-      presets['recheck/markdown']['recheck/no-space-in-links']
-    );
-    expect(relaxed['recheck/no-empty-links']).toEqual(
-      presets['recheck/markdown']['recheck/no-empty-links']
-    );
-    expect(relaxed['recheck/code-block-style']).toEqual(
-      presets['recheck/markdown']['recheck/code-block-style']
-    );
-    expect(relaxed['recheck/code-fence-style']).toEqual(
-      presets['recheck/markdown']['recheck/code-fence-style']
-    );
-  });
-
-  it('minimal preset contains exactly the five planned rules, with no-reversed-links and no-empty-links now registered by batch 4', async () => {
-    const minimal = presets['recheck/minimal'];
-    expect(Object.keys(minimal).sort()).toEqual(
-      [
-        'no-trailing-spaces',
-        'no-hard-tabs',
-        'single-trailing-newline',
-        'no-reversed-links',
-        'no-empty-links',
-      ]
-        .map((name) => `recheck/${name}`)
-        .sort()
-    );
-    const validated = await validate({ extends: ['recheck/minimal'] });
-    expect(validated.isValid).toBe(true);
-    const messages = new Map(validated.rules.map((rule) => [rule.name, rule.message]));
-    expect(messages.get('recheck/no-reversed-links')).toBe('Reversed link syntax');
-    expect(messages.get('recheck/no-empty-links')).toBe('No empty links');
-  });
-
-  it('markdown-relaxed preset computes overrides on top of markdown preset, activating the first-line-h1 override now that it is registered', () => {
-    // markdown-relaxed is computed: the base markdown preset plus a static
-    // override map derived from relaxed.json, which disables first-line-h1.
-    const relaxed = presets['recheck/markdown-relaxed'];
-    expect(relaxed['recheck/first-line-h1'].severity).toBe('off');
-    // Every other batch-1 rule is carried over from the base preset
-    // unchanged (relaxed.json does not otherwise touch heading rules).
-    expect(relaxed['recheck/heading-increment']).toEqual(
-      presets['recheck/markdown']['recheck/heading-increment']
-    );
-  });
-
-  it('markdown-relaxed preset turns off the batch-2 whitespace rules (upstream "whitespace" tag) and line-length (upstream "line_length")', () => {
-    // relaxed.json disables the "whitespace" tag (MD009/MD010/MD012 all
-    // carry it upstream) and "line_length" (MD013, Recheck id
-    // `line-length`).
-    const relaxed = presets['recheck/markdown-relaxed'];
-    expect(relaxed['recheck/no-trailing-spaces'].severity).toBe('off');
-    expect(relaxed['recheck/no-hard-tabs'].severity).toBe('off');
-    expect(relaxed['recheck/no-multiple-blanks'].severity).toBe('off');
-    expect(relaxed['recheck/line-length'].severity).toBe('off');
-    // hr-style and single-trailing-newline are untouched by relaxed.json.
-    expect(relaxed['recheck/hr-style']).toEqual(presets['recheck/markdown']['recheck/hr-style']);
-    expect(relaxed['recheck/single-trailing-newline']).toEqual(
-      presets['recheck/markdown']['recheck/single-trailing-newline']
-    );
-  });
-
-  it('markdown-relaxed preset turns off ul-indent (upstream "ul-indent": false) and leaves the other five batch-3 list rules untouched', () => {
-    // relaxed.json disables only ul-indent (MD007); the other five batch-3 list
-    // rules (ul-style, list-indent, ol-prefix, list-marker-space,
-    // blanks-around-lists) do not appear there.
-    const relaxed = presets['recheck/markdown-relaxed'];
-    expect(relaxed['recheck/ul-indent'].severity).toBe('off');
-    expect(relaxed['recheck/ul-style']).toEqual(presets['recheck/markdown']['recheck/ul-style']);
-    expect(relaxed['recheck/list-indent']).toEqual(
-      presets['recheck/markdown']['recheck/list-indent']
-    );
-    expect(relaxed['recheck/ol-prefix']).toEqual(presets['recheck/markdown']['recheck/ol-prefix']);
-    expect(relaxed['recheck/list-marker-space']).toEqual(
-      presets['recheck/markdown']['recheck/list-marker-space']
-    );
-    expect(relaxed['recheck/blanks-around-lists']).toEqual(
-      presets['recheck/markdown']['recheck/blanks-around-lists']
-    );
-  });
-
-  it('markdown-relaxed preset turns off the batch-6 blockquote whitespace rules (upstream "whitespace" tag) and leaves the four table rules untouched', () => {
-    // relaxed.json disables the "whitespace" tag. MD027
-    // (no-multiple-space-blockquote) and MD028 (no-blanks-blockquote) both
-    // carry it upstream (alongside blockquote/indentation), joining the
-    // same tag-driven override group as the batch-2 whitespace rules. None
-    // of the four table rules (table-pipe-style/table-column-count/
-    // blanks-around-tables/table-column-style) carry the whitespace tag or
-    // appear in relaxed.json at all, so they stay at the base preset's
-    // error severity in markdown-relaxed too.
-    const relaxed = presets['recheck/markdown-relaxed'];
-    expect(relaxed['recheck/no-multiple-space-blockquote'].severity).toBe('off');
-    expect(relaxed['recheck/no-blanks-blockquote'].severity).toBe('off');
-    expect(relaxed['recheck/table-pipe-style']).toEqual(
-      presets['recheck/markdown']['recheck/table-pipe-style']
-    );
-    expect(relaxed['recheck/table-column-count']).toEqual(
-      presets['recheck/markdown']['recheck/table-column-count']
-    );
-    expect(relaxed['recheck/blanks-around-tables']).toEqual(
-      presets['recheck/markdown']['recheck/blanks-around-tables']
-    );
-    expect(relaxed['recheck/table-column-style']).toEqual(
-      presets['recheck/markdown']['recheck/table-column-style']
-    );
-  });
-
-  it('never mutates the shared preset registry across validate() calls', async () => {
-    // Capture the exact structure before any validation
-    const minimalBefore = presets['recheck/minimal'];
-    const hardTabsBefore = minimalBefore['recheck/no-hard-tabs'];
-    const hardTabsBeforeStr = JSON.stringify(hardTabsBefore);
-
-    // First validate call — this will trigger AJV's useDefaults, mutating the preset
-    await validate({ extends: ['recheck/minimal'] });
-
-    // At this point, if mutation happened, hardTabsBefore would have been mutated in place
-    const hardTabsAfterFirst = presets['recheck/minimal']['recheck/no-hard-tabs'];
-    const hardTabsAfterFirstStr = JSON.stringify(hardTabsAfterFirst);
-
-    // Second validate call to prove registry is still dirty
-    await validate({ extends: ['recheck/minimal'], 'recheck/no-hard-tabs': { severity: 'warn' } });
-
-    // The strings should still match, proving no mutation happened
-    expect(hardTabsAfterFirstStr).toBe(hardTabsBeforeStr);
+  it('recheck/minimal expands to its five rules', async () => {
+    const result = await validate({ extends: ['recheck/minimal'] });
+    expect(result.isValid).toBe(true);
+    expect(result.rules.map((rule) => rule.shortName).sort()).toEqual([
+      'no-empty-links',
+      'no-hard-tabs',
+      'no-reversed-links',
+      'no-trailing-spaces',
+      'single-trailing-newline',
+    ]);
   });
 
   it('rejects extends with non-array value as validation error', async () => {
@@ -437,14 +144,8 @@ describe('extends presets', () => {
     expect(result.errors.some((e) => e.message.includes('"extends" must be an array'))).toBe(true);
   });
 
-  // Bugbot #3639013360: an unresolvable `extends` entry used to short-
-  // circuit validate() entirely, before semantic validation of the rest of
-  // the config ever ran — so an unknown assertion id elsewhere in the same
-  // config went unreported. `resolveExtends` only fails to merge the
-  // unresolvable preset name itself; every other preset and all of the
-  // user's own top-level rule keys still land in the merged config, so
-  // semantic validation must still run against them and report both
-  // problems together.
+  // An unresolvable `extends` entry must not stop validation of the rest of the config. Errors from
+  // the other rules, such as an unknown assertion id, are reported together with it.
   it('reports an unknown assertion id alongside an unknown preset name in the same config (both errors, not just one)', async () => {
     const result = await validate({
       extends: ['recheck/no-such-preset'],
@@ -470,15 +171,10 @@ describe('extends presets', () => {
 });
 
 describe('recheck/prose preset', () => {
-  // The preset contents are EXACT: `repetition`
-  // (defaults), `consistency` (four US/UK variant pairs), `capitalization`
-  // ($sentence, headings only — changed from $title/AP by product decision
-  // 2026-07-29) — all at severity `warn` (a lighter touch
-  // than `recheck/markdown`'s `error`, since these are style suggestions,
-  // not structural violations). `occurrence`/`conditional`/`metric`/
-  // `spelling` are deliberately NOT included — see the
-  // "registry <-> preset completeness" describe block below, which pins
-  // that omission as a documented opt-in rather than an oversight.
+  // The preset contents are exact: `repetition`, `consistency` (four US/UK spelling pairs) and
+  // `capitalization` (`$sentence`, headings only), all at severity `warn`. `occurrence`, `conditional`,
+  // `metric` and `spelling` are left out on purpose and documented as opt-in, see the "registry <->
+  // preset completeness" tests below.
   it('contains exactly repetition, consistency, and capitalization — nothing else', () => {
     const prose = presets['recheck/prose'];
     expect(Object.keys(prose).sort()).toEqual(
@@ -486,46 +182,9 @@ describe('recheck/prose preset', () => {
     );
   });
 
-  // The preset's prose rules are scoped to `summary` — the canonical
-  // all-prose scope (paragraph, heading, list-item, blockquote, and table
-  // cells) — so they can never touch code blocks or frontmatter
-  // (capitalization is heading-only already); 'never rewrites code
-  // samples' is part of the preset's README contract.
-  it('repetition uses default options at severity warn, scoped to summary (all prose)', () => {
-    const rule = presets['recheck/prose']['recheck/repetition'];
-    expect(rule.severity).toBe('warn');
-    expect(rule.assertions).toEqual({ repetition: {} });
-    expect(rule.scope).toBe('summary');
-    expect(rule.message?.length).toBeGreaterThan(0);
-  });
-
-  it('consistency declares the four US/UK variant pairs, case-insensitively, at severity warn, scoped to summary (all prose)', () => {
-    const rule = presets['recheck/prose']['recheck/consistency'];
-    expect(rule.severity).toBe('warn');
-    expect(rule.scope).toBe('summary');
-    expect(rule.assertions).toEqual({
-      consistency: {
-        either: {
-          behavior: 'behaviour',
-          color: 'colour',
-          license: 'licence',
-          organize: 'organise',
-        },
-        ignoreCase: true,
-      },
-    });
-    expect(rule.message?.length).toBeGreaterThan(0);
-  });
-
-  // Consistency engine guard (fix-posture task, Step 2): `consistency.ts`
-  // only auto-fixes a pair when its two variants have the same word count
-  // (see rules/scope/consistency.ts's wordCount() doc comment -- the same
-  // shape as applyMatchCase's multi-word guard in case-preserve.ts). All
-  // four of this preset's pairs are British/American SPELLING variants,
-  // never a word-count-crossing substitution like `it's`/`it is`, so the
-  // guard must be a complete no-op here: proven two ways below -- first
-  // structurally (every pair really is one word on both sides), then
-  // behaviorally (an actual --fix run still rewrites a real conflict).
+  // `consistency.ts` only auto-fixes a pair when both variants have the same word count. All four
+  // pairs here are one-word spelling variants, so the guard changes nothing. This is checked on the
+  // pairs themselves and with a real `--fix` run.
   it("consistency's engine guard does not affect recheck/prose: all four pairs are same-word-count", () => {
     const rule = presets['recheck/prose']['recheck/consistency'];
     const either = (rule.assertions.consistency as { either: Record<string, string> }).either;
@@ -542,22 +201,18 @@ describe('recheck/prose preset', () => {
     expect(fixedFiles.get('x.md')).toBe('The color palette is set.\n\nUse the same color again.\n');
   });
 
-  // Without `ignoreCase: true`, a capitalized variant opening a sentence
-  // ("Colour") matches neither the lowercase key nor the value, so it is never
-  // counted as first-seen and never flagged later -- defeating the rule for any
-  // document whose first mention happens to be capitalized.
+  // Without `ignoreCase: true`, a capitalized variant at the start of a sentence ("Colour") would
+  // match neither the key nor the value, and the rule would miss it.
   it('consistency flags a capitalized, sentence-initial variant against a later lowercase one (ignoreCase)', async () => {
     const problems = await lintContent('Colour is used here.\n\nlater color appears.\n', {
       extends: ['recheck/prose'],
     });
     const consistencyProblems = problems.filter((p) => p.ruleName === 'recheck/consistency');
-    expect(consistencyProblems.length).toBeGreaterThan(0);
+    expect(consistencyProblems).toHaveLength(1);
   });
 
-  // A fix must carry over the losing match's own casing rather than inserting
-  // the authored winner literally, or a capitalized match opening a sentence
-  // ("Behavior") gets rewritten to a lowercase winner ("behaviour") and
-  // silently lowercases the sentence start. Run twice to confirm idempotence.
+  // A fix must keep the casing of the text it replaces, so "Behavior" at the start of a sentence
+  // becomes "Behaviour", not "behaviour". Run twice to check the result is stable.
   it('CLI --fix repro: a sentence-initial capitalized losing match is fixed to the capitalized winner, not lowercased (idempotent)', async () => {
     const content =
       'We spell it colour and behaviour throughout this document.\n\n' +
@@ -583,50 +238,16 @@ describe('recheck/prose preset', () => {
     expect(secondPass.get('x.md') ?? fixedOnce).toBe(fixedOnce);
   });
 
-  // Product decision 2026-07-29: the preset default is SENTENCE case, not
-  // AP title case — Redocly's own documentation style guide, this repo's
-  // CLAUDE.md ('Headings use sentence case without ending punctuation'),
-  // Google's developer documentation style guide, and Microsoft's writing
-  // style guide all mandate sentence case for headings. `style` is dropped
-  // entirely rather than left at 'ap': applyDollarStyle only consults it in
-  // the `$title` branch (rules/scope/capitalization.ts), so carrying it
-  // alongside `$sentence` would be dead config the README already
-  // documents as a no-op.
-  // The preset ships no `exceptions` key of its own: `capitalization` unions
-  // `TECHNICAL_PROPER_NOUNS` into `exceptions` by default, leaving `match` as
-  // this rule's only option here.
-  it('capitalization enforces $sentence with no title-case style key, scoped to headings, at severity warn', () => {
-    const rule = presets['recheck/prose']['recheck/capitalization'];
-    expect(rule.severity).toBe('warn');
-    expect(rule.scope).toBe('heading');
-    expect(rule.message?.length).toBeGreaterThan(0);
-
-    const options = rule.assertions.capitalization as {
-      match: string;
-      exceptions?: string[];
-      style?: string;
-    };
-    expect(options.match).toBe('$sentence');
-    expect(Object.keys(options).sort()).toEqual(['match']);
-    expect(options.style).toBeUndefined();
-    expect(options.exceptions).toBeUndefined();
-  });
-
-  // Since the preset carries no `exceptions` of its own, this pins the
-  // vocabulary `capitalization` falls back on: a future edit must not quietly
-  // empty or de-alphabetize the list that keeps '$sentence' headings from
-  // flagging every mixed-case proper noun. `proper-nouns.test.ts` covers the
-  // list's general shape; what matters here is that these specific words stay
-  // protected. The length floor is a floor, not a target.
+  // The preset has no `exceptions`, so this pins the vocabulary that `capitalization` falls back on.
+  // These words must stay protected, or `$sentence` headings would flag every proper noun. The length
+  // is a minimum, not a target.
   it('the built-in technical proper-noun vocabulary is non-empty and protects the carried-over required words', () => {
     expect(Array.isArray(TECHNICAL_PROPER_NOUNS)).toBe(true);
     expect(TECHNICAL_PROPER_NOUNS.length).toBeGreaterThanOrEqual(15);
     for (const word of ['OpenAPI', 'AsyncAPI', 'GraphQL', 'macOS', 'iOS', 'npm', 'Redocly']) {
       expect(TECHNICAL_PROPER_NOUNS, `vocabulary should protect "${word}"`).toContain(word);
     }
-    // Sorted case-insensitively, matching how every other fixed word list
-    // in this package is written (title-case.ts's stopword lists,
-    // prose.ts's `consistency.either` pairs).
+    // Sorted case-insensitively, like the other word lists in this package.
     const sorted = [...TECHNICAL_PROPER_NOUNS].sort((a, b) =>
       a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0
     );
@@ -636,9 +257,8 @@ describe('recheck/prose preset', () => {
     );
   });
 
-  // Matching is phrase-aware, so multi-token vocabulary entries are live rather
-  // than dead config. Asserted end to end through the real preset rather than by
-  // presence in the list alone, since only the round trip proves they work.
+  // Matching handles phrases, so multi-word entries work. This is tested through the real preset, not
+  // only by checking the list.
   it('permits multi-token vocabulary entries (whitespace and dotted) and both actually survive the $sentence round trip', async () => {
     const whitespaceEntry = TECHNICAL_PROPER_NOUNS.find((n) => /\s/.test(n) && !n.includes('.'));
     const dottedEntry = TECHNICAL_PROPER_NOUNS.find((n) => n.includes('.'));
@@ -659,15 +279,9 @@ describe('recheck/prose preset', () => {
     }
   });
 
-  // #25610: the test above only covers a phrase entry in the MIDDLE of a
-  // heading. A LEADING one used to be a guaranteed false positive under every
-  // preset that ships `capitalization: $sentence` with the built-in vocabulary
-  // unioned in (recheck/prose, and recheck/google + recheck/microsoft through
-  // it), because phrase masking removed the entry before "first word" was
-  // computed, promoting the next real word to sentence-initial. Every
-  // multi-token entry the vocabulary ships is driven through the real preset
-  // pipeline in first position -- derived from TECHNICAL_PROPER_NOUNS rather
-  // than hardcoded, so a seventh phrase entry is covered the day it lands.
+  // A phrase at the start of a heading used to be flagged wrongly, because phrase masking removed it
+  // before the first word was found. Every multi-word entry is tested in first position. The entries
+  // come from TECHNICAL_PROPER_NOUNS, so a new phrase is covered automatically.
   it('permits EVERY multi-token vocabulary entry in leading position under recheck/prose (#25610)', async () => {
     const phraseEntries = TECHNICAL_PROPER_NOUNS.filter((n) => /[\s.]/.test(n));
     expect(
@@ -685,15 +299,6 @@ describe('recheck/prose preset', () => {
     }
   });
 
-  // `fix: false` (honored by the runner as `rule.fix !== false`, see
-  // core/runner.ts) even though `capitalization` is registered `fixable`
-  // for the four `$`-styles: a sentence-case auto-fix would lowercase any
-  // proper noun not yet in the exceptions list, silently damaging content.
-  it('capitalization opts out of auto-fix with fix: false', () => {
-    const rule = presets['recheck/prose']['recheck/capitalization'];
-    expect(rule.fix).toBe(false);
-  });
-
   it('an exception-protected heading ("Use OpenAPI descriptions") produces no capitalization finding', async () => {
     const problems = await lintContent('## Use OpenAPI descriptions\n', {
       extends: ['recheck/prose'],
@@ -709,8 +314,7 @@ describe('recheck/prose preset', () => {
     expect(capitalizationProblems[0].severity).toBe('warn');
   });
 
-  // ALL-CAPS words (2+ letters) are preserved by sentenceCase itself, with
-  // no exceptions entry needed — an acronym-only heading must stay clean.
+  // ALL-CAPS words (2+ letters) are kept by sentenceCase, so a heading of acronyms stays clean.
   it('an ALL-CAPS acronym heading is unaffected', async () => {
     const problems = await lintContent('## Configure CORS for the API and CDN\n', {
       extends: ['recheck/prose'],
@@ -718,9 +322,7 @@ describe('recheck/prose preset', () => {
     expect(problems.filter((p) => p.ruleName === 'recheck/capitalization')).toEqual([]);
   });
 
-  // The behavioral half of `fix: false`: a --fix run over a heading the
-  // rule genuinely flags must emit NO fix and leave the file byte-identical,
-  // even though the same rule/style pair is fixable outside the preset.
+  // A `--fix` run over a heading the rule flags must produce no fix and leave the file unchanged.
   it('emits no fix for a flagged heading under --fix, despite the rule being inherently fixable', async () => {
     const content = '## Use The API Now\n';
     const result = await validate({ extends: ['recheck/prose'] });
@@ -735,24 +337,13 @@ describe('recheck/prose preset', () => {
     expect(run.fixes).toEqual([]);
     expect(run.fixedFiles.size).toBe(0);
 
-    // Sanity: the SAME rule without `fix: false` does emit a fix, proving
-    // the empty result above comes from the opt-out and not from the rule
-    // being unfixable for `$sentence`.
+    // The same rule without `fix: false` does produce a fix, so the empty result comes from the opt-out.
     const fixable = await runRules(
       [{ path: 'headings.md', content }],
       [{ ...capitalizationRule[0], fix: undefined }],
       { fix: true }
     );
     expect(fixable.fixes).toHaveLength(1);
-  });
-
-  it('every rule message satisfies the schema (non-empty, at most 2 %s placeholders)', () => {
-    const prose = presets['recheck/prose'];
-    for (const [name, rule] of Object.entries(prose)) {
-      expect(rule.message, `${name} message`).toBeTruthy();
-      const placeholderCount = (rule.message?.match(/%s/g) ?? []).length;
-      expect(placeholderCount, `${name} placeholder count`).toBeLessThanOrEqual(2);
-    }
   });
 
   it('expands via extends into normalized rules with the right severities', async () => {
@@ -778,84 +369,34 @@ describe('recheck/prose preset', () => {
     const repetitionProblems = problems.filter((p) => p.ruleName === 'recheck/repetition');
     const consistencyProblems = problems.filter((p) => p.ruleName === 'recheck/consistency');
 
-    // Code fence + frontmatter contribute NOTHING (lines 2, 8, 9)...
+    // The code fence and frontmatter (lines 2, 8, 9) are not scanned...
     expect(repetitionProblems.every((p) => p.line === 12)).toBe(true);
     expect(consistencyProblems).toEqual([]);
-    // ...while the genuine paragraph repeat on line 12 is still flagged.
+    // ...but the repeated paragraph on line 12 is still reported.
     expect(repetitionProblems.length).toBeGreaterThan(0);
   });
 
-  it('composes with recheck/markdown, the README-documented one-liner replacing markdownlint + Vale', async () => {
-    const result = await validate({ extends: ['recheck/markdown', 'recheck/prose'] });
-    expect(result.isValid).toBe(true);
-    const shortNames = result.rules.map((r) => r.shortName);
-    expect(shortNames).toContain('heading-increment'); // from recheck/markdown
-    expect(shortNames).toContain('repetition'); // from recheck/prose
-    expect(shortNames).toContain('consistency');
-    expect(shortNames).toContain('capitalization');
-  });
+  // AJV's `useDefaults` changes the object it validates (for example it adds `scope: 'all'`).
+  // `resolveExtends` clones each preset rule first, so the shared registry stays clean.
+  it('validate() never mutates the shared preset registry, so a later config does not see an earlier one', async () => {
+    const before = JSON.stringify(presets);
 
-  // AJV's useDefaults mutates the object it validates in place (e.g.
-  // injecting `scope: 'all'` onto a rule that omitted it) — resolveExtends
-  // guards against this polluting the shared preset registry by
-  // structuredClone-ing each preset rule before merging (see
-  // config/presets/index.ts). The equivalent recheck/minimal case (above)
-  // pins the same precedent; here it's proven specifically for
-  // recheck/prose, AND for two INDEPENDENT configs that both extend it —
-  // neither call may leak mutated state into the other via the shared
-  // registry object.
-  it('never mutates the shared recheck/prose registry entry across validate() calls, and two configs extending it never share state', async () => {
-    const repetitionBefore = presets['recheck/prose']['recheck/repetition'];
-    const repetitionBeforeStr = JSON.stringify(repetitionBefore);
-    const capitalizationBefore = presets['recheck/prose']['recheck/capitalization'];
-    const capitalizationBeforeStr = JSON.stringify(capitalizationBefore);
-
-    // First config: extends recheck/prose plus a severity override on one rule.
-    const first = await validate({
-      extends: ['recheck/prose'],
+    await validate({
+      extends: Object.keys(presets),
       'recheck/capitalization': { severity: 'error' },
     });
-    expect(first.isValid).toBe(true);
+    expect(JSON.stringify(presets)).toBe(before);
 
-    // The shared registry entry must be untouched by the first call's
-    // AJV useDefaults pass (it operates on resolveExtends's clone, not
-    // the original).
-    expect(JSON.stringify(presets['recheck/prose']['recheck/repetition'])).toBe(
-      repetitionBeforeStr
-    );
-    expect(JSON.stringify(presets['recheck/prose']['recheck/capitalization'])).toBe(
-      capitalizationBeforeStr
-    );
-
-    // Second, independent config extending the same preset with no
-    // override — must resolve the preset's OWN default severity ('warn'),
-    // not 'error' leaked from the first call's override.
-    const second = await validate({ extends: ['recheck/prose'] });
-    expect(second.isValid).toBe(true);
-    const secondCapitalization = second.rules.find((r) => r.shortName === 'capitalization');
-    expect(secondCapitalization?.severity).toBe('warn');
-
-    // And the first call's own resolved rule really did get 'error' — proving
-    // the two calls' results are independent objects, not aliases of the
-    // same mutated preset entry.
-    const firstCapitalization = first.rules.find((r) => r.shortName === 'capitalization');
-    expect(firstCapitalization?.severity).toBe('error');
+    const later = await validate({ extends: ['recheck/prose'] });
+    expect(later.rules.find((rule) => rule.shortName === 'capitalization')?.severity).toBe('warn');
   });
 });
 
 describe('registry <-> preset completeness (native scope-rule assertions)', () => {
-  // Every assertion in the live `scopeRules` registry must be accounted for
-  // exactly one way: shipped inside some preset, or deliberately left out and
-  // exported as a documented opt-in (`DOCUMENTED_OPT_IN_ASSERTIONS`), in which
-  // case the README must carry a copy-paste snippet for it. The candidate set
-  // is derived from the live registry rather than a hardcoded list, so a new
-  // assertion landing with no preset/opt-in decision fails here instead of
-  // passing silently.
-  //
-  // This guard covers scope rules only. Token rules live in a separate
-  // registry (`allTokenRules`) and are out of its candidate set by design, so
-  // it says nothing about whether the markdoc rules or
-  // `no-duplicate-link-destinations` are accounted for anywhere.
+  // Every assertion in the live `scopeRules` registry must either ship in a preset or be exported as
+  // a documented opt-in (`DOCUMENTED_OPT_IN_ASSERTIONS`) with a README snippet. The list comes from
+  // the registry, so a new assertion without a decision fails here. This covers scope rules only,
+  // not token rules (`allTokenRules`).
   const PRE_EXISTING_GENERIC_ASSERTIONS = [
     'swap',
     'pattern',
@@ -863,108 +404,22 @@ describe('registry <-> preset completeness (native scope-rule assertions)', () =
     'max-image-size',
   ] as const;
 
-  // These four are general-purpose string/pattern utilities or single-purpose
-  // format checks rather than prose-style assertions, so the preset-or-opt-in
-  // policy does not apply to them.
-  function candidateAssertionIds(): string[] {
-    return Object.keys(scopeRules).filter(
+  it('every non-generic scope-rule assertion is either shipped in a preset or a documented opt-in, never neither and never both', () => {
+    const shippedIds = new Set(
+      Object.values(presets).flatMap((preset) =>
+        Object.values(preset).flatMap((rule) => Object.keys(rule.assertions))
+      )
+    );
+    const optInIds = new Set<string>(DOCUMENTED_OPT_IN_ASSERTIONS);
+    const candidates = Object.keys(scopeRules).filter(
       (id) => !(PRE_EXISTING_GENERIC_ASSERTIONS as readonly string[]).includes(id)
     );
-  }
-
-  function assertionIdsShippedInAnyPreset(): Set<string> {
-    const ids = new Set<string>();
-    for (const preset of Object.values(presets)) {
-      for (const rule of Object.values(preset)) {
-        for (const assertionId of Object.keys(rule.assertions)) {
-          ids.add(assertionId);
-        }
-      }
-    }
-    return ids;
-  }
-
-  // Shared with the mutation test below so both exercise the identical check; a
-  // hand-duplicated copy could pass while the real guard was broken.
-  function assertCompleteness(ids: readonly string[]): void {
-    const shippedIds = assertionIdsShippedInAnyPreset();
-    const optInIds = new Set<string>(DOCUMENTED_OPT_IN_ASSERTIONS);
-    for (const id of ids) {
-      const isShipped = shippedIds.has(id);
-      const isOptIn = optInIds.has(id);
-      if (isShipped === isOptIn) {
-        throw new Error(
-          `"${id}" must be either shipped in a preset or a documented opt-in, not both/neither (shipped=${isShipped}, optIn=${isOptIn})`
-        );
-      }
-    }
-  }
-
-  // Without this, an empty `scopeRules` (a broken import, say) would make the
-  // completeness check below pass vacuously.
-  it('the live scopeRules registry has at least one non-generic candidate assertion to check completeness for', () => {
-    expect(candidateAssertionIds().length).toBeGreaterThan(0);
-  });
-
-  it('every non-generic scope-rule assertion registered in scopeRules is either shipped in a preset or a documented opt-in — never neither, never both', () => {
-    expect(() => assertCompleteness(candidateAssertionIds())).not.toThrow();
-  });
-
-  // The shipped side is derived from ALL presets, not just `recheck/prose`:
-  // `recheck/google` ships scope-rule assertions too.
-  it('assertions shipped in any preset, plus documented opt-ins, together account for exactly the live registry (minus pre-existing generic assertions), with no overlap', () => {
-    const candidates = candidateAssertionIds();
-    const shippedIds = assertionIdsShippedInAnyPreset();
-    const shipped = candidates.filter((id) => shippedIds.has(id));
-
-    const combined = [...new Set([...shipped, ...DOCUMENTED_OPT_IN_ASSERTIONS])].sort();
-    expect(combined).toEqual(candidates.sort());
-
-    const overlap = shipped.filter((id) =>
-      (DOCUMENTED_OPT_IN_ASSERTIONS as readonly string[]).includes(id)
-    );
-    expect(overlap).toEqual([]);
-  });
-
-  it('buildProsePreset() only ever ships assertions from PROSE_PRESET_ASSERTIONS', () => {
-    const prose = buildProsePreset();
-    for (const rule of Object.values(prose)) {
-      for (const assertionId of Object.keys(rule.assertions)) {
-        expect(PROSE_PRESET_ASSERTIONS).toContain(assertionId);
-      }
-    }
-  });
-
-  // Patches the live `scopeRules` record with an assertion that has no
-  // preset/opt-in decision, standing in for a future scope rule landing without
-  // one. This is what proves the completeness check reads the real registry
-  // rather than a hardcoded snapshot of it. Restored in `finally` so the fake id
-  // cannot leak into another test.
-  it('a fake assertion registered in the live scopeRules registry with no preset/opt-in decision is caught, not silently passed', () => {
-    const fakeId = '__mutation_proof_fake_assertion__';
-    expect(scopeRules[fakeId]).toBeUndefined(); // not already present, or this proves nothing
-    const mutableScopeRules = scopeRules as Record<string, ScopeRule>;
-    mutableScopeRules[fakeId] = {
-      id: fakeId,
-      fixable: false,
-      execute: async () => [],
-    };
-    try {
-      expect(candidateAssertionIds()).toContain(fakeId);
-      expect(() => assertCompleteness(candidateAssertionIds())).toThrow(fakeId);
-    } finally {
-      delete mutableScopeRules[fakeId];
-    }
-    expect(scopeRules[fakeId]).toBeUndefined();
-    expect(() => assertCompleteness(candidateAssertionIds())).not.toThrow();
+    const undecided = candidates.filter((id) => shippedIds.has(id) === optInIds.has(id));
+    expect(undecided).toEqual([]);
   });
 });
 
 describe('preset data', () => {
-  it('carries no derived message for a token rule', () => {
-    expect(presets['recheck/markdown']['recheck/line-length']).not.toHaveProperty('message');
-  });
-
   it('validates every preset alone, with a message on every rule', async () => {
     for (const id of Object.keys(presets)) {
       const result = await validate({ extends: [id] });
@@ -976,14 +431,162 @@ describe('preset data', () => {
   });
 });
 
-describe('registerPresetRules', () => {
-  it('adds a message only when the rule name has one', () => {
-    expect(registerPresetRules(['a'], { a: 'A' })).toEqual({
-      'recheck/a': { severity: 'error', message: 'A', assertions: { a: {} } },
+const fixturesDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
+
+function readFixture(name: string): Promise<string> {
+  return readFile(path.join(fixturesDir, name), 'utf8');
+}
+
+// The preset namespace is part of the public rule key (`google/<rule>`), and these presets only detect:
+// a style guide must not rewrite prose. `single-h1` and `first-line-h1` in the Google preset check
+// opposite things about the first heading, so it needs two violation fixtures.
+const STYLE_PRESETS = [
+  {
+    id: 'recheck/google',
+    namespace: 'google',
+    violations: ['google-violations.md', 'google-violations-single-h1.md'],
+    clean: 'google-clean.md',
+  },
+  {
+    id: 'recheck/microsoft',
+    namespace: 'microsoft',
+    violations: ['microsoft-violations.md'],
+    clean: 'microsoft-clean.md',
+  },
+  {
+    id: 'recheck/inclusive-language',
+    namespace: 'inclusive-language',
+    violations: ['inclusive-language-violations.md'],
+    clean: 'inclusive-language-clean.md',
+  },
+  {
+    id: 'recheck/plain-language',
+    namespace: 'plain-language',
+    violations: ['plain-language-violations.md'],
+    clean: 'plain-language-clean.md',
+  },
+  {
+    id: 'recheck/technical-english',
+    namespace: 'technical-english',
+    violations: ['technical-english-violations.md'],
+    clean: 'technical-english-clean.md',
+  },
+] as const;
+
+describe.each(STYLE_PRESETS)('$id', ({ id, namespace, violations, clean }) => {
+  it('namespaces every rule key as <namespace>/<rule>', () => {
+    for (const key of Object.keys(presets[id])) {
+      expect(key.startsWith(`${namespace}/`), key).toBe(true);
+    }
+  });
+
+  it('is detection-only: no rule is fixable and --fix rewrites nothing', async () => {
+    expect(
+      Object.entries(presets[id])
+        .filter(([, rule]) => rule.fix !== false)
+        .map(([key]) => key)
+    ).toEqual([]);
+
+    const { rules } = await validate({ extends: [id] });
+    const files = await Promise.all(
+      violations.map(async (name) => ({ path: name, content: await readFixture(name) }))
+    );
+    const run = await runRules(files, rules, { fix: true });
+    expect(run.fixes).toEqual([]);
+    expect(run.skippedFixes).toEqual([]);
+    expect(run.fixedFiles.size).toBe(0);
+  });
+
+  // A rule that ships but can never fire would go unnoticed otherwise.
+  it('reports every rule it ships on its violations fixtures', async () => {
+    const reported = new Set<string>();
+    for (const name of violations) {
+      for (const problem of await lintContent(await readFixture(name), { extends: [id] })) {
+        reported.add(problem.ruleName);
+      }
+    }
+    expect(Object.keys(presets[id]).filter((key) => !reported.has(key))).toEqual([]);
+  });
+
+  it('reports nothing on compliant prose', async () => {
+    expect(await lintContent(await readFixture(clean), { extends: [id] })).toEqual([]);
+  });
+});
+
+describe('recheck/markdoc preset', () => {
+  it('is detection-only', () => {
+    for (const rule of Object.values(presets['recheck/markdoc'])) {
+      expect(rule.fix).toBe(false);
+    }
+  });
+});
+
+// Stacked presets merge by rule key, so each preset namespaces its keys. Composing them must not lose
+// or merge any key, and every rule must keep its own options and severity.
+describe('stacking presets', () => {
+  it.each([
+    [['recheck/markdown', 'recheck/google', 'recheck/inclusive-language']],
+    [['recheck/markdown', 'recheck/prose']],
+    [['recheck/markdown', 'recheck/markdoc']],
+    [['recheck/microsoft', 'recheck/plain-language']],
+  ])('%j keeps every rule of every preset unchanged', (ids) => {
+    const { config, errors } = resolveExtends({ extends: ids });
+    expect(errors).toEqual([]);
+
+    const ruleCount = ids.reduce((count, id) => count + Object.keys(presets[id]).length, 0);
+    expect(Object.keys(config)).toHaveLength(ruleCount);
+    for (const id of ids) {
+      for (const [key, rule] of Object.entries(presets[id])) {
+        expect(config[key], `${id} ${key}`).toEqual(rule);
+      }
+    }
+  });
+});
+
+// Stacked presets can report the same span twice. The counts are exact, so a change that adds or
+// removes a duplicate is noticed. Each fixture is the violations fixture of the second preset.
+function duplicatePositions(
+  problems: { file: string; line: number; column: number; ruleName: string }[]
+) {
+  const byPosition = new Map<string, Set<string>>();
+  for (const problem of problems) {
+    const key = `${problem.file}:${problem.line}:${problem.column}`;
+    byPosition.set(key, (byPosition.get(key) ?? new Set()).add(problem.ruleName));
+  }
+  return [...byPosition.values()].filter((rules) => rules.size > 1);
+}
+
+describe('duplicate findings across stacked presets', () => {
+  it('markdown + google + inclusive-language: 11, each pairing a google rule with an inclusive-language rule', async () => {
+    const problems = await lintContent(await readFixture('inclusive-language-violations.md'), {
+      extends: ['recheck/markdown', 'recheck/google', 'recheck/inclusive-language'],
     });
-    // `toStrictEqual` fails on a `message` key, even when its value is undefined.
-    expect(registerPresetRules(['b'])).toStrictEqual({
-      'recheck/b': { severity: 'error', assertions: { b: {} } },
-    });
+    const dupes = duplicatePositions(problems);
+    expect(dupes).toHaveLength(11);
+    for (const rules of dupes) {
+      const names = [...rules];
+      expect(names.some((name) => name.startsWith('google/'))).toBe(true);
+      expect(names.some((name) => name.startsWith('inclusive-language/'))).toBe(true);
+    }
+  });
+
+  it.each([
+    ['recheck/microsoft', 'inclusive-language-violations.md', 'recheck/inclusive-language', 8],
+    ['recheck/google', 'plain-language-violations.md', 'recheck/plain-language', 3],
+    ['recheck/microsoft', 'plain-language-violations.md', 'recheck/plain-language', 3],
+  ])('%s + %s fixture with %s: %i duplicate positions', async (first, fixture, second, count) => {
+    const problems = await lintContent(await readFixture(fixture), { extends: [first, second] });
+    expect(duplicatePositions(problems)).toHaveLength(count);
+  });
+
+  // `in order to` and `utilize`/`utilization` are already covered by both google and microsoft.
+  it('plain-language does not re-ship "in order to" or "utilize"/"utilization"', () => {
+    const swapKeys = Object.values(presets['recheck/plain-language']).flatMap((rule) =>
+      Object.keys((rule.assertions['swap'] as { pairs?: Record<string, string> })?.pairs ?? {})
+    );
+    const lowercased = new Set(swapKeys.map((key) => key.toLowerCase()));
+    for (const covered of ['in order to', 'utilize', 'utilization']) {
+      expect(lowercased.has(covered), covered).toBe(false);
+    }
   });
 });

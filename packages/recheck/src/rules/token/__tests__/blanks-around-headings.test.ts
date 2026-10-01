@@ -11,10 +11,9 @@ describe('blanks-around-headings (MD022)', () => {
 
   it('flags a heading missing a blank line above and below', async () => {
     const problems = await h.lint('# Heading 1\nSome text\n\nSome more text\n## Heading 2\n');
-    expect(problems.length).toBeGreaterThanOrEqual(2);
-    const aboveProblem = problems.find((p) => p.line === 5);
-    expect(aboveProblem).toBeDefined();
-    expect(aboveProblem?.message).toContain('Above');
+    expect(problems.map((p) => p.line)).toEqual([1, 5]);
+    expect(problems[0].message).toContain('Below');
+    expect(problems[1].message).toContain('Above');
   });
 
   it('ignores front matter directly before the first heading by default', async () => {
@@ -22,7 +21,9 @@ describe('blanks-around-headings (MD022)', () => {
   });
 
   it('requires a blank line after front matter when includeFrontMatter is true', async () => {
-    const strict = tokenRuleHarness('blanks-around-headings', { includeFrontMatter: true });
+    const strict = tokenRuleHarness('blanks-around-headings', {
+      includeFrontMatter: true,
+    });
     const problems = await strict.lint('---\ntitle: T\n---\n## Heading\n\ntext\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].message).toContain('Above');

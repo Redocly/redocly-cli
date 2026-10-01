@@ -16,7 +16,6 @@ export const noAltText: TokenRule = {
     message: 'Images should have alternate text (alt text)',
   },
   check(ctx) {
-    // Process Markdown images
     for (const image of filterByTypes(ctx.tree, ['image'])) {
       const labelTexts = getDescendantsByType(image, ['label', 'labelText']);
       if (labelTexts.some((labelText) => labelText.text.length === 0)) {
@@ -29,10 +28,7 @@ export const noAltText: TokenRule = {
       }
     }
 
-    // Process HTML images. includeHtmlFlow: true -- matches upstream's own
-    // `filterByTypesCached(['htmlText'], true)` in md045.mjs, so this rule
-    // sees `<img>` tags inside block-level HTML, not just genuinely inline
-    // HTML.
+    // Also match `<img>` tags inside block-level HTML.
     for (const htmlText of filterByTypes(ctx.tree, ['htmlText'], true)) {
       const { startColumn, startLine, text } = htmlText;
       const htmlTagInfo = getHtmlTagInfo(htmlText);

@@ -34,7 +34,9 @@ describe('list-indent (MD005)', () => {
 
   it('flags and fixes a misaligned ordered list item', async () => {
     const problems = await h.lint('1. Item\n2. Item\n  3. Bad\n');
-    expect(problems.length).toBeGreaterThanOrEqual(1);
+    expect(problems).toHaveLength(1);
+    expect(problems[0].line).toBe(3);
+    expect(problems[0].message).toContain('Expected: 0; Actual: 2');
     const fixed = await h.fix('1. Item\n2. Item\n  3. Bad\n');
     expect(fixed).toBe('1. Item\n2. Item\n3. Bad\n');
   });

@@ -10,13 +10,13 @@ const UNSUPPORTED = [
   'recheck/link-fragments',
 ];
 
-// Excluded by corpus measurement (#26424).
+// Too noisy for API descriptions.
 const MEASURED_OUT = ['recheck/line-length', 'recheck/ul-indent'];
 
 /**
- * `recheck/api-descriptions` — the markdown rules that apply to embedded
- * markdown, such as an OpenAPI `description` field. Derived from
- * `recheck/markdown` by exclusion. Use with the runner's `embedded` option.
+ * `recheck/api-descriptions`: the markdown preset minus the rules that do not
+ * fit embedded markdown, such as an OpenAPI `description`. Use with the
+ * `embedded` option.
  */
 export function buildApiDescriptionsPreset(): RecheckRules {
   const rules = buildMarkdownPreset();

@@ -849,10 +849,8 @@ preset's own criteria treated as clean:
 
 Full round-5 acceptance evidence (every sentence above, and more, run
 through `--fix` twice and confirmed byte-identical) lives in
-`src/config/__tests__/preset-detection-only-acceptance.test.ts`, plus the
-per-preset regression suites in `preset-google-fix-wave-c.test.ts` and
-`preset-microsoft.test.ts` (both rewritten by this change to assert
-"unchanged" where they used to assert a real rewrite).
+`src/config/__tests__/presets.test.ts` (the "detection-only" contract), plus the
+per-preset suites in `preset-google.test.ts` and `preset-microsoft.test.ts`.
 
 #### The conclusion this decision rests on
 

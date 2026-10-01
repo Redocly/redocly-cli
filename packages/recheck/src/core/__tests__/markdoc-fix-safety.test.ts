@@ -5,11 +5,6 @@ import type { Fix, NormalizedRule } from '../../types/index.js';
 import { markdocTagSpans, protectMarkdocTags } from '../markdoc-tags.js';
 import { runRules } from '../runner.js';
 
-// Under `markdoc: true` prose scope content is masked, which broke the
-// precondition whole-span rewriters relied on: `ScopedSegment.content` used to
-// be a verbatim source slice, so a whole-span rewrite wrote the mask back over
-// the real source and deleted the tag.
-
 const capitalization = (scope: string): NormalizedRule =>
   ({
     name: 'probe/cap',
@@ -33,9 +28,8 @@ async function runFix(md: string, rule: NormalizedRule, markdoc = true) {
   return { ...result, fixed: result.fixedFiles.get('f.md') ?? md };
 }
 
-// One entry per prose container shape a tag can sit in. `tag` is the exact
-// byte sequence that must survive; every fixture also holds "colour", which
-// both rules must still rewrite — so no test can pass by refusing to fix.
+// One entry per kind of prose block that can hold a tag. `tag` must survive --fix, and each
+// fixture also has "colour", which the rules must still rewrite.
 const SHAPES: Array<{ name: string; scope: string; md: string; tag: string }> = [
   {
     name: 'heading',
@@ -75,7 +69,6 @@ describe('--fix never rewrites a markdoc tag', () => {
     it(`${shape.name}: a whole-segment capitalization fix keeps the tag byte-identical`, async () => {
       const { fixed } = await runFix(shape.md, capitalization(shape.scope));
       expect(fixed).toContain(shape.tag);
-      // The tag was restored into the rewrite, not spared by skipping the fix.
       expect(fixed).toContain('Colour');
       expect(fixed).not.toBe(shape.md);
     });
@@ -111,10 +104,7 @@ describe('--fix never rewrites a markdoc tag', () => {
 });
 
 describe('an edit merely abutting a tag is not mistaken for one that overlaps it', () => {
-  // Overlap is a half-open-interval comparison, so an edit that merely touches
-  // a tag at either boundary shares no character with it and must still apply.
-  // The SHAPES fixtures above all straddle the tag or sit well clear of it, so
-  // neither boundary is exercised there.
+  // An edit that only touches the edge of a tag does not overlap it and must still apply.
   const boundarySwap = (): NormalizedRule =>
     ({
       name: 'probe/boundary-swap',
@@ -138,10 +128,8 @@ describe('an edit merely abutting a tag is not mistaken for one that overlaps it
 });
 
 describe('a swap key cannot match across a masked tag', () => {
-  // The mask is length-preserving blanks, so `alpha\s+beta` used to match
-  // straight across `alpha {% partial /%} beta`, reporting a phantom problem
-  // and collapsing the tag out of the document on --fix. Matches overlapping a
-  // masked range are now rejected by range instead.
+  // A key like `alpha\s+beta` must not match across a tag. The match would report a problem
+  // that is not in the text, and --fix would delete the tag.
   const acrossRule = (key: string): NormalizedRule =>
     ({
       name: 'probe/across',
@@ -160,8 +148,7 @@ describe('a swap key cannot match across a masked tag', () => {
   });
 
   it('a negated-class key does not match across a tag either', async () => {
-    // A sentinel mask character could not have stopped this one: `[^.]+`
-    // treats any mask character as ordinary content and walks through it.
+    // `[^.]+` would also walk through a mask character, so a sentinel would not help.
     const result = await runFix(md, acrossRule('alpha[^.]+beta'));
     expect(result.problems).toEqual([]);
     expect(result.fixed).toBe(md);
@@ -188,7 +175,7 @@ describe('capitalization reports quote real source, not mask characters', () => 
     expect(problems[0].match).toBe('head text {% #main %}');
     expect(problems[0].text).toBe('head text {% #main %}');
     expect(problems[0].message).toContain('{% #main %}');
-    expect(problems[0].match).not.toMatch(/ {3}/); // no run of blanks where the tag is
+    expect(problems[0].match).not.toMatch(/ {3}/);
   });
 
   it('a sentence segment carved out of masked prose quotes its own source slice', async () => {
@@ -223,7 +210,7 @@ describe('protectMarkdocTags (the fix-layer choke point)', () => {
   it('is a pass-through when the document has no tags (the flag-off path)', () => {
     const proposed = [fix({ deleteCount: 5, insertText: 'ALPHA' })];
     const result = protectMarkdocTags(proposed, [], md);
-    expect(result.fixes).toBe(proposed); // same array, untouched
+    expect(result.fixes).toBe(proposed);
     expect(result.dropped).toEqual([]);
   });
 
@@ -261,22 +248,15 @@ describe('protectMarkdocTags (the fix-layer choke point)', () => {
   });
 
   it('drops a fix that changes nothing once its tag is restored', () => {
-    // Only mask characters changed, so restoring the tag makes the edit
-    // byte-identical to what is already there; applying it would report a file
-    // as fixed when it is not.
+    // The edit only replaces mask characters, so after restoring the tag it changes nothing.
     const proposed = [fix({ editColumn: 7, deleteCount: 8, insertText: '        ' })];
     const result = protectMarkdocTags(proposed, spansFor(md), md);
     expect(result.fixes).toEqual([]);
     expect(result.dropped).toEqual(proposed);
   });
 
-  // Neither `swap` nor `capitalization` can reach the runner's drop path:
-  // `swap` rejects matches overlapping a masked range before proposing a fix,
-  // and `capitalization` always proposes a length-preserving whole-segment
-  // replacement, which gets spliced rather than dropped. `no-hard-tabs` scans
-  // lines directly and is markdoc-unaware, so it fixes a tab inside a tag's
-  // attribute value; at `spacesPerTab: 2` that replacement changes length and
-  // cannot be spliced, so it has to be dropped.
+  // `swap` and `capitalization` never produce a fix that gets dropped. `no-hard-tabs` ignores
+  // tags, and with `spacesPerTab: 2` its fix inside a tag changes the length, so it is dropped.
   const tabRule = {
     name: 'probe/hard-tabs',
     severity: 'error',
@@ -289,7 +269,7 @@ describe('protectMarkdocTags (the fix-layer choke point)', () => {
   it('reports a dropped fix through the runner as skipped, not applied', async () => {
     const result = await runRules([{ path: 'f.md', content: tabbedTag }], [tabRule], {
       fix: true,
-      markdoc: true, // flag on: the tag's bytes must survive
+      markdoc: true,
     });
     expect(result.fixedFiles.get('f.md')).toBeUndefined();
     expect(result.fixes).toEqual([]);
@@ -300,7 +280,7 @@ describe('protectMarkdocTags (the fix-layer choke point)', () => {
   it('flag off, the same fix is unprotected and lands (the byte-identity companion)', async () => {
     const result = await runRules([{ path: 'f.md', content: tabbedTag }], [tabRule], {
       fix: true,
-      markdoc: false, // flag off: there is no protection to apply
+      markdoc: false,
     });
     expect(result.fixedFiles.get('f.md')).toBe('alpha {% partial file="a  b" /%} beta\n');
     expect(result.skippedFixes).toEqual([]);

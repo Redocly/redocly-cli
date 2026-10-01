@@ -18,6 +18,18 @@ describe('heading-increment (MD001)', () => {
     const problems = await h.lint('---\ntitle: T\n---\n\n### deep\n');
     expect(problems).toHaveLength(1);
   });
+  it('honors a custom frontMatterTitle pattern, and "" disables the front matter title', async () => {
+    const md = '---\nname: T\n---\n\n### deep\n';
+    expect(await h.lint(md)).toEqual([]);
+    const custom = tokenRuleHarness('heading-increment', {
+      frontMatterTitle: '^name:',
+    });
+    expect(await custom.lint(md)).toHaveLength(1);
+    const disabled = tokenRuleHarness('heading-increment', {
+      frontMatterTitle: '',
+    });
+    expect(await disabled.lint('---\ntitle: T\n---\n\n### deep\n')).toEqual([]);
+  });
   it('allows any first heading level without frontmatter title', async () => {
     expect(await h.lint('### start\n\n#### next\n')).toEqual([]);
   });

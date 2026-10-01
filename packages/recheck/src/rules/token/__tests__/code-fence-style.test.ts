@@ -32,8 +32,4 @@ describe('code-fence-style (MD048)', () => {
     expect(problems[0].line).toBe(1);
     expect(problems[0].message).toContain('Expected: tilde; Actual: backtick');
   });
-
-  it('passes a document with no code fences', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

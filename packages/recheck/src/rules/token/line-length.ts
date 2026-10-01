@@ -14,23 +14,7 @@ export const lineLength: TokenRule = {
   defaults: {
     message: 'Line length',
     lineLength: 80,
-    // headingLineLength/codeBlockLineLength are declared here with an
-    // `undefined` value (rather than omitted entirely) so validate()'s
-    // accepted-option allowlist -- built from `Object.keys(tokenRule.defaults)`
-    // -- knows about them (Object.keys includes keys whose value is
-    // `undefined`; it's only OWN ENUMERABLE PRESENCE that matters, not
-    // truthiness). They intentionally have NO literal *value* default here
-    // (unlike upstream's doc table, which lists 80 for clarity): both fall
-    // back to whatever `lineLength` resolves to, and Recheck's runner
-    // pre-merges `defaults` into `ctx.config` before user options
-    // (`{...tokenRule.defaults, ...assertionOptions}`), so a literal `80`
-    // here would permanently shadow a user-configured `lineLength` override
-    // for headings/code blocks. An explicit `undefined` default doesn't
-    // have that problem -- the user's spread always wins when they set a
-    // value, and `ctx.config.headingLineLength`/`codeBlockLineLength` stay
-    // `undefined` (falling through to `lineLengthOption` below, exactly
-    // like today) when they don't -- matching upstream's own
-    // `params.config.heading_line_length === undefined` fallback check.
+    // Declared as `undefined` so they are accepted options. They fall back to `lineLength` unless set.
     headingLineLength: undefined,
     codeBlockLineLength: undefined,
     strict: false,
@@ -77,11 +61,7 @@ export const lineLength: TokenRule = {
         linkOnlyLineNumbers.add(lineNumber);
       }
     }
-    // Narrow port of upstream's getReferenceLinkImageData().definitionLineIndices:
-    // only the `definition`/`gfmFootnoteDefinition` token line ranges feed that
-    // array (see helpers.cjs around getReferenceLinkImageData's `definition`
-    // case) -- the label-string token types populate `definitions`, not
-    // `definitionLineIndices`, so they're not needed here.
+    // Only `definition` and `gfmFootnoteDefinition` tokens count as definition lines.
     const definitionLineIndices = new Set<number>();
     for (const definition of filterByTypes(ctx.tree, ['definition', 'gfmFootnoteDefinition'])) {
       for (let line = definition.startLine; line <= definition.endLine; line++) {
@@ -89,11 +69,7 @@ export const lineLength: TokenRule = {
       }
     }
 
-    // See getFrontmatterEndLine's doc comment: upstream markdownlint slices
-    // frontmatter out of `params.lines` entirely before any rule runs, so
-    // MD013 never sees frontmatter lines no matter how long. Recheck's
-    // parser keeps frontmatter as real lines in `ctx.lines` instead, so
-    // they must be excluded here explicitly.
+    // Frontmatter lines are part of `ctx.lines` here, so skip them explicitly.
     const frontmatterEndLine = getFrontmatterEndLine(ctx.tree);
 
     for (let lineIndex = 0; lineIndex < ctx.lines.length; lineIndex++) {

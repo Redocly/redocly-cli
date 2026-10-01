@@ -22,7 +22,7 @@ export function generateReport(
 ): void {
   const { format, showStats, maxProblems, baseline } = options;
   const limited = typeof maxProblems === 'number';
-  // The stats show tied rules in list order. The full list must have the order of the rows.
+  // The stats list tied rules in this order, so the table rows must use the same order.
   const ordered = limited ? prioritizeProblems(problems) : problems;
   const prioritized = limited && maxProblems >= 0 ? ordered.slice(0, maxProblems) : ordered;
 

@@ -48,9 +48,7 @@ describe('markdoc-unknown-tag', () => {
   });
 
   it('reports the matching open only ONCE -- never doubles up on the close tag', async () => {
-    // Real Markdoc raises exactly one tag-undefined error per unknown tag
-    // node, located at the open; checking the close too would double-report
-    // the same name.
+    // Only the open tag is reported, not the close tag.
     const problems = await h.lint('{% widget %}\ntext\n{% /widget %}\n');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
@@ -83,9 +81,7 @@ describe('markdoc-unknown-tag', () => {
   });
 
   it('treats "schemaDefinition" as a documented known-unknown, never reported', async () => {
-    // Realm registers "schemaDefinition" inline in markdoc-options.ts, outside
-    // the composition the schema generator can import, so it never appears in
-    // schema.tags and has to be tolerated by name instead.
+    // Realm registers "schemaDefinition" outside its schema, so it is allowed by name.
     expect(MARKDOC_REALM_SCHEMA.tags.schemaDefinition).toBeUndefined();
     const problems = await realm.lint('{% schemaDefinition schemaRef="#/foo" /%}\n');
     expect(problems).toEqual([]);
@@ -98,10 +94,7 @@ describe('markdoc-unknown-tag', () => {
   });
 
   it('a custom tag declared via extend.tags reaches this rule as KNOWN', async () => {
-    // Production resolves the `markdoc` config key through
-    // resolveMarkdocConfig before the runner sees it, so building the schema
-    // the same way here (rather than hand-assembling a merged object) is what
-    // proves extend.tags actually reaches the rule.
+    // Resolve the `markdoc` config the way production does.
     const { schema } = resolveMarkdocConfig({
       schema: 'realm',
       extend: { tags: { 'my-widget': { attributes: { id: { type: 'string', required: true } } } } },

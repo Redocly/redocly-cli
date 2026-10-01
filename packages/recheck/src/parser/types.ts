@@ -9,22 +9,10 @@ export interface Token {
   text: string; // source text of the token
   children: Token[];
   parent: Token | null;
-  // True for tokens produced by reparsing an `htmlFlow` (block HTML)
-  // token's own text as inline content (see parser/index.ts's
-  // `reparseHtmlFlow`) -- i.e. synthetic descendants that don't come from
-  // the document's normal top-level tokenization. Mirrors upstream
-  // markdownlint's `htmlFlowSymbol` marker (helpers/shared.cjs), which its
-  // own `filterByTypes(tokens, types, htmlFlow)` helper uses to exclude
-  // this content by default (see parser/index.ts's `filterByTypes`) --
-  // most rules only care about genuinely top-level/inline tokens, and
-  // without this distinction, e.g. a code span's backticks inside a
-  // `<details>` block would spuriously match a plain `filterByTypes(tree,
-  // ['codeText'])` scan the same as a real inline code span would.
-  // Undefined (falsy) for every normal, non-reparsed token.
+  // True for tokens created by parsing the text of a block HTML token as inline
+  // content. `filterByTypes` skips these by default.
   inHtmlFlow?: boolean;
-  // Set only on `markdocTag` tokens: the kind `parseMarkdocSpan` classified
-  // the span's text as, or `'malformed'`. Undefined for every other token, and
-  // moot when markdoc parsing is off, since no `markdocTag` tokens exist then.
+  // Only set on `markdocTag` tokens: what kind of span this is.
   markdocKind?: MarkdocTagKind | 'malformed';
 }
 

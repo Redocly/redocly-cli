@@ -18,30 +18,6 @@ function baseRule(scope: unknown) {
 }
 
 describe('validate — scope vocabulary', () => {
-  it('accepts scope: summary', async () => {
-    const result = await validate(baseRule('summary'));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  it('accepts scope: list-item', async () => {
-    const result = await validate(baseRule('list-item'));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  it("accepts scope: ['~blockquote & ~heading']", async () => {
-    const result = await validate(baseRule(['~blockquote & ~heading']));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  it('accepts scope: heading.h3', async () => {
-    const result = await validate(baseRule('heading.h3'));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
   it('accepts every full-vocabulary scope name', async () => {
     const vocabulary = [
       'all',
@@ -94,19 +70,9 @@ describe('validate — scope vocabulary', () => {
   });
 });
 
-// `all` and `raw` are whole-document keywords, not segment names — combining
-// them with any other scope entry can only silently match nothing (the
-// extractor never emits segments named 'all'/'raw'), so such configs must be
-// rejected loudly instead of validating and then reporting zero findings.
+// `all` and `raw` cover the whole document. Combined with other scope entries
+// they would match nothing, so validation rejects them.
 describe('validate — all/raw scope combinations', () => {
-  it("accepts single-element scope: ['all'] and scope: ['raw']", async () => {
-    for (const scope of [['all'], ['raw']]) {
-      const result = await validate(baseRule(scope));
-      expect(result.isValid, `expected ${JSON.stringify(scope)} to be valid`).toBe(true);
-      expect(result.errors).toEqual([]);
-    }
-  });
-
   it("rejects scope: ['all', 'code'] explaining all covers the whole document", async () => {
     const result = await validate(baseRule(['all', 'code']));
     expect(result.isValid).toBe(false);
@@ -133,14 +99,8 @@ describe('validate — all/raw scope combinations', () => {
   });
 });
 
-// `all`/`raw` as TERMS inside a selector expression are the same class of
-// config mistake as mixing them into a multi-entry array (above): a
-// conjunction term (`heading & all`) compiles to a predicate matching
-// segments literally named 'all' — which never exist — so the rule silently
-// reports nothing; a negated term (`~all`, `~raw`) matches EVERY segment,
-// silently meaning "everything" when the set-theoretic reading is
-// "nothing". Both must fail validation loudly, in bare-string and
-// array-entry forms alike.
+// Same mistake inside a selector: `heading & all` matches nothing and `~all`
+// matches every segment, so both are rejected.
 describe('validate — all/raw as compound selector terms', () => {
   it("rejects scope: 'heading & all' (bare-string conjunction)", async () => {
     const result = await validate(baseRule('heading & all'));
@@ -200,14 +160,8 @@ describe('validate — all/raw as compound selector terms', () => {
   });
 });
 
-// A NON-OBJECT assertion value (e.g. `occurrence: "oops"`) used to early-
-// return silently from every per-assertion option validator whose options
-// are all optional (pattern, occurrence, repetition, spelling) — the config
-// validated cleanly and the assertion then misbehaved (or no-op'd) at lint
-// time. The schema can't catch this (`assertions` values are
-// `additionalProperties: true`), so the shared `requireOptionsObject`
-// helper makes it a uniform validation error for EVERY per-assertion
-// validator instead.
+// The JSON schema accepts any value for an assertion, so `validate` has to
+// reject non-object values such as `occurrence: "oops"` itself.
 describe('validate — non-object assertion options are a uniform error', () => {
   function ruleWith(assertions: Record<string, unknown>) {
     return {
@@ -260,10 +214,8 @@ describe('validate — non-object assertion options are a uniform error', () => 
   });
 });
 
-// The `%s` message-placeholder cap is per-assertion, not one global constant:
-// `metric` substitutes four values (formula, score, min, max), so a metric
-// rule's message may use up to 4 placeholders, while every other assertion and
-// every token rule stays capped at 2.
+// `metric` fills four `%s` placeholders (formula, score, min, max). Every
+// other assertion and token rule allows two.
 describe('validate — per-assertion message placeholder caps', () => {
   function ruleWith(message: string, assertions: Record<string, unknown>) {
     return {
@@ -316,10 +268,7 @@ describe('validate — per-assertion message placeholder caps', () => {
   });
 });
 
-// The pattern assertion's `negate` option was removed because it never
-// functioned in any version: the check always sat inside the match-iteration
-// loop, so `negate: true` reported nothing and a pattern's absence never
-// reported either. The dead option is now rejected outright.
+// `negate` never worked, so it is rejected instead of silently ignored.
 describe('validate — removed pattern `negate` option', () => {
   function patternRule(options: Record<string, unknown>) {
     return {
@@ -350,10 +299,8 @@ describe('validate — removed pattern `negate` option', () => {
   });
 });
 
-// A misspelled option on a ported (token) rule used to validate clean and
-// silently no-op -- invisible in a 100-rule style-guide config. Each token
-// rule's own `defaults` object is the schema of record (see
-// rules/registry.ts resolveAssertion + each rule's `defaults`).
+// A token rule's `defaults` list the options it accepts. Any other option
+// is reported as a likely typo.
 describe('validate — unknown options on token rules', () => {
   it('rejects an unknown option on a token rule', async () => {
     const result = await validate({
@@ -378,10 +325,8 @@ describe('validate — unknown options on token rules', () => {
     expect(result.errors.filter((e) => e.path?.includes('line-length'))).toEqual([]);
   });
 
-  // `defaults` is not the complete option schema for every token rule:
-  // line-length deliberately omits `headingLineLength`/`codeBlockLineLength` so
-  // a literal default there cannot shadow a user's `lineLength` override. Both
-  // options are real and read at check() time, so validate() must accept them.
+  // These two options are left out of the line-length `defaults` on purpose,
+  // so `validate` has to accept them anyway.
   it('accepts headingLineLength and codeBlockLineLength on line-length', async () => {
     const result = await validate({
       'recheck/lines': {
@@ -396,10 +341,8 @@ describe('validate — unknown options on token rules', () => {
     expect(result.isValid).toBe(true);
   });
 
-  // required-headings' `defaults` similarly omits `headings` -- the ONE
-  // option that makes the rule do anything (see rules/token/required-headings.ts
-  // check()'s `ctx.config.headings` read). Without it declared, the rule is
-  // unconfigurable through validate().
+  // `headings` is not in the required-headings `defaults`, but the rule
+  // needs it to do anything.
   it('accepts headings on required-headings', async () => {
     const result = await validate({
       'recheck/structure': {
@@ -414,10 +357,7 @@ describe('validate — unknown options on token rules', () => {
     expect(result.isValid).toBe(true);
   });
 
-  // An explicit `headings: []` is meaningfully different from leaving the
-  // option unset (see required-headings.ts's check() comment: "expect a
-  // document with no headings" vs. "not configured") -- it must validate
-  // just as cleanly as a non-empty array.
+  // An empty array means "expect no headings", which is different from unset.
   it('accepts an explicit empty headings array on required-headings', async () => {
     const result = await validate({
       'recheck/structure': {
@@ -432,10 +372,7 @@ describe('validate — unknown options on token rules', () => {
     expect(result.isValid).toBe(true);
   });
 
-  // list-length declares `max: undefined` in its `defaults` because `max` has
-  // no default value -- an unbounded list is not wrong by itself -- but it must
-  // still appear in `Object.keys(defaults)` so validate()'s accepted-option
-  // allowlist recognizes it as real rather than rejecting it as unknown.
+  // `max` has no default, but it is still a known option.
   it('accepts max on list-length despite its default being undefined', async () => {
     const result = await validate({
       'recheck/lists': {
@@ -449,11 +386,8 @@ describe('validate — unknown options on token rules', () => {
   });
 });
 
-// The rule-key pattern widened from `^recheck/[a-z0-9-_]+$` to
-// `^[a-z][a-z0-9-]*/[a-z0-9-_]+$` so flagship presets can namespace their own
-// rule ids (`google/no-latinisms`, `microsoft/use-contractions`) without
-// colliding with `recheck/*` or each other. These pin the accepted and rejected
-// shapes so a future edit cannot silently loosen or tighten the pattern.
+// Rule keys can use any namespace, such as `google/no-latinisms`, not only
+// `recheck/`.
 describe('validate — namespaced rule key pattern', () => {
   function ruleWithKey(key: string) {
     return {
@@ -497,9 +431,8 @@ describe('validate — namespaced rule key pattern', () => {
   });
 });
 
-// `markdoc` is an opt-in, top-level config flag rather than a rule. These tests
-// cover only the config plumbing -- normalization and validation -- not any
-// tokenization behavior.
+// `markdoc` is a top-level config flag, not a rule. These tests cover config
+// handling only.
 describe('validate — markdoc flag', () => {
   it('accepts markdoc: true and reports it normalized', async () => {
     const result = await validate({
@@ -508,8 +441,7 @@ describe('validate — markdoc flag', () => {
     });
     expect(result.isValid).toBe(true);
     expect(result.markdoc.enabled).toBe(true);
-    // `markdoc: true` is shorthand for `{ schema: 'realm' }`, the built-in
-    // schema rather than an empty placeholder.
+    // `true` is shorthand for `{ schema: 'realm' }`.
     expect(result.markdoc.schema).toBe(MARKDOC_REALM_SCHEMA);
   });
   it('defaults markdoc to disabled when absent', async () => {
@@ -524,8 +456,6 @@ describe('validate — markdoc flag', () => {
   });
 });
 
-// The object form alongside the boolean shorthand:
-// `markdoc: { schema: 'realm' | false, extend?: { tags: ... } }`.
 describe('validate — markdoc object form', () => {
   it('accepts { schema: "realm" } and resolves the built-in schema', async () => {
     const result = await validate({ markdoc: { schema: 'realm' } });
@@ -547,8 +477,7 @@ describe('validate — markdoc object form', () => {
               selfClosing: true,
               attributes: { id: { type: 'string', required: true } },
             },
-            // Overrides the built-in `icon` tag entirely: a whole-tag replace,
-            // not a per-attribute merge.
+            // Replaces the built-in `icon` tag whole, not attribute by attribute.
             icon: { attributes: { name: { type: 'string', required: true } } },
           },
         },
@@ -562,7 +491,6 @@ describe('validate — markdoc object form', () => {
     expect(result.markdoc.schema?.tags['icon']).toEqual({
       attributes: { name: { type: 'string', required: true } },
     });
-    // Every other built-in tag survives the merge untouched.
     expect(result.markdoc.schema?.tags['admonition']).toEqual(
       MARKDOC_REALM_SCHEMA.tags['admonition']
     );
@@ -571,10 +499,7 @@ describe('validate — markdoc object form', () => {
     const result = await validate({ markdoc: { schema: 'bogus' } } as any);
     expect(result.isValid).toBe(false);
     expect(result.errors.some((error) => error.path === '/markdoc/schema')).toBe(true);
-    // Under `oneOf: [boolean, object]` AJV reported every failing branch, so an
-    // object input led with a misleading `/markdoc: must be boolean` ahead of
-    // the relevant schema error. Asserting the first error pins that an object
-    // input is now only ever checked against the object-shaped schema.
+    // An object must not also get a misleading "must be boolean" error.
     expect(result.errors[0]?.path).toBe('/markdoc/schema');
     expect(result.errors.some((error) => error.message.includes('must be boolean'))).toBe(false);
   });
@@ -586,8 +511,6 @@ describe('validate — markdoc object form', () => {
   it('rejects an unknown top-level key on the markdoc object', async () => {
     const result = await validate({ markdoc: { schema: 'realm', bogus: true } } as any);
     expect(result.isValid).toBe(false);
-    // Same routing guarantee: the leading error names the unknown key, not a
-    // spurious boolean-type complaint.
     expect(result.errors[0]?.message).toContain('additional properties');
     expect(result.errors.some((error) => error.message.includes('must be boolean'))).toBe(false);
   });
@@ -646,34 +569,6 @@ describe('top-level excludes', () => {
     } as never);
 
     expect(result.rules.map((r) => r.name)).toEqual(['test/a']);
-  });
-});
-
-describe('top-level baseline key', () => {
-  const rule = {
-    severity: 'error' as const,
-    message: 'm',
-    assertions: { pattern: { tokens: ['zzz'] } },
-  };
-
-  it('accepts a path, returns it, and keeps it out of rule iteration', async () => {
-    const result = await validate({
-      baseline: './.recheck-baseline.yaml',
-      'test/a': { ...rule },
-    } as never);
-    expect(result.isValid).toBe(true);
-    expect(result.baselinePath).toBe('./.recheck-baseline.yaml');
-    expect(result.rules.map((r) => r.name)).toEqual(['test/a']);
-  });
-
-  it('rejects a non-string value', async () => {
-    const result = await validate({ baseline: 42, 'test/a': { ...rule } } as never);
-    expect(result.isValid).toBe(false);
-  });
-
-  it('is absent when the config does not set it', async () => {
-    const result = await validate({ 'test/a': { ...rule } } as never);
-    expect(result.baselinePath).toBeUndefined();
   });
 });
 

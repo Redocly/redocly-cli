@@ -12,8 +12,7 @@ import {
 function rule(name: string, overrides: Partial<NormalizedRule> = {}): NormalizedRule {
   return {
     name,
-    // Same derivation config/validate.ts uses: strip only the `recheck/`
-    // prefix, so a rule from another namespace keeps it.
+    // Only `recheck/` is stripped, so other namespaces keep their prefix.
     shortName: name.replace(/^recheck\//, ''),
     severity: 'error',
     message: 'm',
@@ -69,11 +68,8 @@ describe('filterByRuleNames', () => {
   });
 
   it('a namespaced rule needs its namespace — the bare name does not match it', () => {
-    // `shortName` strips only `recheck/`, so the report prints
-    // "google/passive-voice". Matching the last path segment instead would
-    // make one bare name select several rules: 20 bare names are shared
-    // across the shipped presets (`no-trailing-punctuation` is in `recheck/`,
-    // `google/`, and `microsoft/`).
+    // Matching only the last path segment would let one bare name select several rules, because
+    // names like `no-trailing-punctuation` exist in more than one preset.
     expect(() => filterByRuleNames(RULES, ['passive-voice'])).toThrow(UnknownRuleNameError);
   });
 
@@ -88,8 +84,7 @@ describe('filterByRuleNames', () => {
   });
 
   it('throws on a name no rule matches, naming it and what is available', () => {
-    // A misspelled name must not narrow the run to nothing: a silent empty
-    // run reports "no issues found", which looks the same as a clean document set.
+    // A silent empty run would look the same as a clean result.
     const call = () => filterByRuleNames(RULES, ['us-speling']);
     expect(call).toThrow(UnknownRuleNameError);
 
@@ -122,8 +117,7 @@ describe('applyFilters composition', () => {
   });
 
   it('a rule excluded by tags is not resurrected by --rule', () => {
-    // --rule narrows; it never widens. Filtering to the `voice` tag drops
-    // us-spelling, so naming it afterwards can only fail to match.
+    // --rule only narrows the selection. `us-spelling` is already removed by the tag filter.
     expect(() => applyFilters(RULES, { tags: ['voice'], rules: ['us-spelling'] })).toThrow(
       UnknownRuleNameError
     );

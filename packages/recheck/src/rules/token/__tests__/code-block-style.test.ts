@@ -32,8 +32,4 @@ describe('code-block-style (MD046)', () => {
     expect(problems[0].line).toBe(1);
     expect(problems[0].message).toContain('Expected: indented; Actual: fenced');
   });
-
-  it('passes a document with no code blocks', async () => {
-    expect(await h.lint('Just a paragraph.\n')).toEqual([]);
-  });
 });

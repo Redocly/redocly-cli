@@ -6,12 +6,8 @@ import type { TokenRule, TokenRuleContext } from '../types.js';
 import { getHeadingStyle } from './helpers.js';
 
 /**
- * Shared by MD019 (`no-multiple-space-atx`) and MD021
- * (`no-multiple-space-closed-atx`) — upstream ports both from the single
- * `md019-md021.mjs` file's `validateHeadingSpaces` helper. `delta` is the
- * scan direction: `1` scans forward from the start of the heading's
- * children (the opening `#` sequence), `-1` scans backward from the end
- * (the closing `#` sequence, atx_closed only).
+ * Shared by `no-multiple-space-atx` and `no-multiple-space-closed-atx`. `delta` is the scan
+ * direction: `1` from the start of the heading, `-1` from the end (closed atx only).
  */
 export function validateHeadingSpaces(ctx: TokenRuleContext, heading: Token, delta: 1 | -1): void {
   const { children, startLine, text } = heading;

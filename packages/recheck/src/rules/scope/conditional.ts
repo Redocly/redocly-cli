@@ -3,15 +3,14 @@ import type { NormalizedRule, Problem, ConditionalAssertion } from '../../types/
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
 
-// On the segment's first line, segment.content starts mid-source-line (e.g.
-// a heading's content excludes the '## ' marker), so segment.startColumn
-// must be added -- see pattern.ts's toSourceColumn.
+// On the first line, `segment.content` can start in the middle of the source line
+// (a heading's content skips the '## '), so add `startColumn`.
 function toSourceColumn(segment: { startColumn: number }, localLine: number, localColumn: number) {
   return localLine === 1 ? segment.startColumn + (localColumn - 1) : localColumn;
 }
 
-// Fallback when a programmatically-built rule has no `message` (validate()
-// requires one). %s slots: the `first` match, then the missing `second` pattern.
+// Used when the rule has no `message`. The two `%s` are the `first` match and the
+// `second` pattern.
 const FALLBACK_MESSAGE = '"%s" appears but "%s" was never introduced.';
 
 interface ConditionalSite {
@@ -22,13 +21,8 @@ interface ConditionalSite {
   second: string; // the `second` pattern the site was checked against
 }
 
-// `second` only counts as "present" via a real, non-empty match -- a bare
-// `.test()`/`.exec()` truthiness check would also succeed on a zero-width
-// match (e.g. a `second` pattern like 'x*', '.*', '\b'), which "matches"
-// at every position even with no literal occurrence anywhere in the file,
-// silently satisfying the rule. Mirrors the zero-width skip `first`'s own
-// exec loop uses below: advance lastIndex past an empty match instead of
-// treating it as a hit, or the loop would also hang.
+// Empty matches (like from 'x*') do not count, because they match at every
+// position even when the text is not there.
 function secondHasNonEmptyMatch(secondRe: RegExp, content: string): boolean {
   secondRe.lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -42,18 +36,10 @@ function secondHasNonEmptyMatch(secondRe: RegExp, content: string): boolean {
   return false;
 }
 
-// Vale-parity `conditional` check (detection-only): if `first` matches
-// anywhere within the rule's scoped segments, `second` must exist somewhere
-// in the whole file -- tested against `ctx.content` (the full raw file),
-// NOT `ctx.segments`, so a `second` match outside the rule's own scope
-// (e.g. inside a code block) still satisfies it. When `second` is absent
-// file-wide, every `first` match becomes a problem, deduped by absolute
-// source position: overlapping scopes (e.g. `[paragraph, sentence]`) match
-// the same source occurrence once per covering segment.
-//
-// Both `first` and `second` are raw user regex patterns (like `pattern`'s
-// `tokens`, not escaped literals); an invalid regex in either one silently
-// produces zero problems rather than crashing the run.
+// If `first` matches in the scoped segments, `second` must appear somewhere in the
+// whole file (`ctx.content`, even outside the scope). Otherwise every `first` match
+// is a problem. Matches found twice through overlapping scopes are reported once.
+// `first` and `second` are regexes; an invalid one produces no problems.
 function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): ConditionalSite[] {
   const options = (rule.assertions['conditional'] ?? {}) as ConditionalAssertion;
   const flags = options.ignoreCase ? 'gi' : 'g';
@@ -64,7 +50,6 @@ function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): Conditiona
   } catch {
     return [];
   }
-  // Tested against the whole file, not ctx.segments -- see doc comment above.
   if (secondHasNonEmptyMatch(secondRe, ctx.content)) return [];
 
   let firstRe: RegExp;
@@ -83,11 +68,7 @@ function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): Conditiona
     firstRe.lastIndex = 0;
     let match: RegExpExecArray | null;
     while ((match = firstRe.exec(segment.content)) !== null) {
-      // Zero-width match (e.g. a `first` pattern like `x*`): advance
-      // lastIndex or the loop hangs, and skip recording it -- an empty-text
-      // match has no real `first` occurrence to report, and without this
-      // `continue` every position the pattern passed through became its own
-      // spammy problem.
+      // Skip empty matches and move on, or the loop never ends.
       if (match[0].length === 0) {
         firstRe.lastIndex++;
         continue;

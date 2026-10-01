@@ -13,18 +13,11 @@ describe('single-trailing-newline (MD047)', () => {
     const problems = await h.lint('# Heading\n\nNo newline at EOF');
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(3);
-    // Upstream range is [lastLine.length, 1] (1-based column at the end of
-    // the last line, i.e. where the missing newline would be inserted).
     expect(problems[0].column).toBe('No newline at EOF'.length);
   });
 
-  it('flags a file ending with multiple blank lines (not a single newline)', async () => {
-    // Splitting on '\n' means a file ending in "\n\n" has a trailing empty
-    // last line, which IS blank -- so this is actually fine per isBlankLine.
-    // Use a case where the last line has content followed by no newline.
-    const problems = await h.lint('Text\nMore text');
-    expect(problems).toHaveLength(1);
-    expect(problems[0].line).toBe(2);
+  it('does not flag extra trailing blank lines (only a missing final newline is reported)', async () => {
+    expect(await h.lint('Text\n\n\n')).toEqual([]);
   });
 
   it('fixes a missing trailing newline by appending one', async () => {

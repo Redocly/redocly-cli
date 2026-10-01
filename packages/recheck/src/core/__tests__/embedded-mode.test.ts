@@ -53,10 +53,6 @@ describe('embedded mode', () => {
 describe('recheck/api-descriptions preset', () => {
   const preset = presets['recheck/api-descriptions'];
 
-  it('is registered', () => {
-    expect(preset).toBeDefined();
-  });
-
   it('carries no rule embedded markdown cannot support, and none the corpus measurements excluded', () => {
     const excluded = [
       'recheck/single-h1',

@@ -300,7 +300,7 @@ Source: `https://digital.gov/guides/plain-language/principles/avoid-jargon`
 A composable preset that duplicates a flagship's own findings on the same
 span is noise, not value — measured directly with `lintContent` over this
 preset's own violations fixture, stacked onto each flagship in turn (see
-`preset-composition.test.ts`'s "duplicate findings" describe block for the
+`presets.test.ts`'s "duplicate findings" describe block for the
 live, asserted counts).
 
 Stacking `recheck/plain-language` onto `recheck/google` originally produced
