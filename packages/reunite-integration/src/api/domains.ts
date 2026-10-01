@@ -47,12 +47,21 @@ function withHttpsValidation<Fn extends (...args: any[]) => string>(fn: Fn) {
   return (...args: Parameters<Fn>) => {
     const url = fn(...args);
 
-    if (!url.startsWith('https://')) {
+    if (!url.startsWith('https://') && !isLocalhostUrl(url)) {
       throw new InvalidReuniteUrlError();
     }
 
     return url;
   };
+}
+
+function isLocalhostUrl(url: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(url);
+    return protocol === 'http:' && (hostname === 'localhost' || hostname === '127.0.0.1');
+  } catch {
+    return false;
+  }
 }
 
 export class InvalidReuniteUrlError extends Error {
