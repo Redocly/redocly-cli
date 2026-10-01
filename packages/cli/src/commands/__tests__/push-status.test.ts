@@ -85,7 +85,7 @@ describe('handlePushStatus()', () => {
       pushId: 'test-push-id',
       version,
       onSunsetWarning: expect.any(Function),
-      onSlugResolved: expect.any(Function),
+      onSlugDeprecated: expect.any(Function),
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -216,7 +216,7 @@ describe('handlePushStatus()', () => {
         pushId: 'test-push-id',
         version,
         onSunsetWarning: expect.any(Function),
-        onSlugResolved: expect.any(Function),
+        onSlugDeprecated: expect.any(Function),
         buildType: 'preview',
         maxExecutionTime: undefined,
         retryIntervalMs: undefined,

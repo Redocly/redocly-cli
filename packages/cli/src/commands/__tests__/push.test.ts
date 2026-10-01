@@ -74,7 +74,7 @@ describe('handlePush()', () => {
       version,
       onUploadStart: expect.any(Function),
       onSunsetWarning: expect.any(Function),
-      onSlugResolved: expect.any(Function),
+      onSlugDeprecated: expect.any(Function),
     });
     expect(process.stderr.write).toHaveBeenCalledWith('Uploading to remote-mount-path 1 file:\n');
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');

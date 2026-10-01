@@ -4,7 +4,7 @@ import * as path from 'node:path';
 
 import { ReuniteApi, type SunsetWarning } from './api/index.js';
 import type { UpsertRemoteResponse } from './api/types.js';
-import { resolveProjectRef, type ResolvedProjectRef } from './resolve-project-ref.js';
+import { resolveProjectRef, type ProjectRefResolution } from './resolve-project-ref.js';
 
 export type FileToUpload = { name: string; path: string };
 
@@ -33,11 +33,11 @@ export type PushOptions = {
   onUploadStart?: (remote: UpsertRemoteResponse) => void;
   // Called after the push with the most urgent sunset warning the Reunite API sent, if any.
   onSunsetWarning?: (warning: SunsetWarning) => void;
-  // Called when the organization or the project was given as a slug and had to be looked up.
-  onSlugResolved?: (resolved: ResolvedProjectRef) => void;
+  // Called when the organization or the project was given as a slug.
+  onSlugDeprecated?: (resolution: ProjectRefResolution) => void;
 };
 
-export type PushResult = ResolvedProjectRef & {
+export type PushResult = Pick<ProjectRefResolution, 'organizationId' | 'projectId'> & {
   pushId: string;
 };
 
@@ -54,7 +54,7 @@ export async function pushFiles({
   replace,
   onUploadStart,
   onSunsetWarning,
-  onSlugResolved,
+  onSlugDeprecated,
 }: PushOptions): Promise<PushResult> {
   const client = new ReuniteApi({ domain, apiKey, command: 'push', version });
 
@@ -62,7 +62,7 @@ export async function pushFiles({
     const { organizationId, projectId } = await resolveProjectRef(client, {
       organization,
       project,
-      onSlugResolved,
+      onSlugDeprecated,
     });
     const projectDefaultBranch = await client.remotes.getDefaultBranch(organizationId, projectId);
     const remote = await client.remotes.upsert(organizationId, projectId, {

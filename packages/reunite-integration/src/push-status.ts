@@ -1,6 +1,6 @@
 import { ReuniteApi, type SunsetWarning } from './api/index.js';
 import type { PushResponse } from './api/types.js';
-import { resolveProjectRef, type ResolvedProjectRef } from './resolve-project-ref.js';
+import { resolveProjectRef, type ProjectRefResolution } from './resolve-project-ref.js';
 import { retryUntilConditionMet } from './utils/retry-until-condition-met.js';
 
 const DEFAULT_MAX_EXECUTION_TIME = 1200; // 20 min
@@ -18,8 +18,8 @@ export type PushStatusOptions = {
   version?: string;
   // Called after the request with the most urgent sunset warning the Reunite API sent, if any.
   onSunsetWarning?: (warning: SunsetWarning) => void;
-  // Called when the organization or the project was given as a slug and had to be looked up.
-  onSlugResolved?: (resolved: ResolvedProjectRef) => void;
+  // Called when the organization or the project was given as a slug.
+  onSlugDeprecated?: (resolution: ProjectRefResolution) => void;
 };
 
 export type WaitForDeploymentOptions = PushStatusOptions & {
@@ -85,7 +85,7 @@ function reportSunsetWarning(client: ReuniteApi, { onSunsetWarning }: PushStatus
 
 function getPush(
   client: ReuniteApi,
-  { organizationId, projectId }: ResolvedProjectRef,
+  { organizationId, projectId }: ProjectRefResolution,
   pushId: string
 ) {
   return client.remotes.getPush({ organizationId, projectId, pushId });

@@ -119,13 +119,13 @@ describe('pushFiles()', () => {
       slug: 'docs',
       name: 'Docs',
     });
-    const onSlugResolved = vi.fn();
+    const onSlugDeprecated = vi.fn();
 
     const result = await pushFiles({
       ...options,
       organization: 'acme',
       project: 'docs',
-      onSlugResolved,
+      onSlugDeprecated,
     });
 
     expect(organizations.findBySlug).toHaveBeenCalledWith('acme');
@@ -139,9 +139,10 @@ describe('pushFiles()', () => {
       expect.anything(),
       expect.anything()
     );
-    expect(onSlugResolved).toHaveBeenCalledWith({
+    expect(onSlugDeprecated).toHaveBeenCalledWith({
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      resolved: true,
     });
     expect(result).toEqual({
       pushId: 'test-id',

@@ -40,7 +40,7 @@ export {
   isProjectId,
   resolveProjectRef,
   type ProjectRef,
-  type ResolvedProjectRef,
+  type ProjectRefResolution,
   type ResolveProjectRefOptions,
 } from './resolve-project-ref.js';
 export {

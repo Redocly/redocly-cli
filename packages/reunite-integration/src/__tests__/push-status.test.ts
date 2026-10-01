@@ -102,18 +102,19 @@ describe('getPushStatus()', () => {
       slug: 'docs',
       name: 'Docs',
     });
-    const onSlugResolved = vi.fn();
+    const onSlugDeprecated = vi.fn();
 
-    await getPushStatus({ ...options, organization: 'acme', project: 'docs', onSlugResolved });
+    await getPushStatus({ ...options, organization: 'acme', project: 'docs', onSlugDeprecated });
 
     expect(remotes.getPush).toHaveBeenCalledWith({
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
       pushId: 'test-push-id',
     });
-    expect(onSlugResolved).toHaveBeenCalledWith({
+    expect(onSlugDeprecated).toHaveBeenCalledWith({
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      resolved: true,
     });
   });
 });

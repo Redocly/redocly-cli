@@ -23,18 +23,18 @@ describe('resolveProjectRef()', () => {
   });
 
   it('keeps ids without calling the API', async () => {
-    const onSlugResolved = vi.fn();
+    const onSlugDeprecated = vi.fn();
 
     const result = await resolveProjectRef(client, {
       organization: ORG_ID,
       project: PROJECT_ID,
-      onSlugResolved,
+      onSlugDeprecated,
     });
 
-    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID });
+    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
     expect(organizations.findBySlug).not.toHaveBeenCalled();
     expect(organizations.findProjectBySlug).not.toHaveBeenCalled();
-    expect(onSlugResolved).not.toHaveBeenCalled();
+    expect(onSlugDeprecated).not.toHaveBeenCalled();
   });
 
   it('looks up slugs and reports the resolved ids', async () => {
@@ -44,18 +44,18 @@ describe('resolveProjectRef()', () => {
       slug: 'docs',
       name: 'Docs',
     });
-    const onSlugResolved = vi.fn();
+    const onSlugDeprecated = vi.fn();
 
     const result = await resolveProjectRef(client, {
       organization: 'acme',
       project: 'docs',
-      onSlugResolved,
+      onSlugDeprecated,
     });
 
     expect(organizations.findBySlug).toHaveBeenCalledWith('acme');
     expect(organizations.findProjectBySlug).toHaveBeenCalledWith(ORG_ID, 'docs');
-    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID });
-    expect(onSlugResolved).toHaveBeenCalledWith(result);
+    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
+    expect(onSlugDeprecated).toHaveBeenCalledWith(result);
   });
 
   it('looks up only the value that is a slug', async () => {
@@ -69,7 +69,32 @@ describe('resolveProjectRef()', () => {
 
     expect(organizations.findBySlug).not.toHaveBeenCalled();
     expect(organizations.findProjectBySlug).toHaveBeenCalledWith(ORG_ID, 'docs');
-    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID });
+    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
+  });
+
+  it('passes the slugs through when the API key may not look them up', async () => {
+    organizations.findBySlug.mockResolvedValue({ id: ORG_ID, slug: 'acme', name: 'Acme' });
+    organizations.findProjectBySlug.mockRejectedValue(
+      new ReuniteApiError('Missing required organization permissions.', 403)
+    );
+    const onSlugDeprecated = vi.fn();
+
+    const result = await resolveProjectRef(client, {
+      organization: 'acme',
+      project: 'docs',
+      onSlugDeprecated,
+    });
+
+    expect(result).toEqual({ organizationId: 'acme', projectId: 'docs', resolved: false });
+    expect(onSlugDeprecated).toHaveBeenCalledWith(result);
+  });
+
+  it('lets other lookup errors through', async () => {
+    organizations.findBySlug.mockRejectedValue(new ReuniteApiError('Bad Gateway.', 502));
+
+    await expect(
+      resolveProjectRef(client, { organization: 'acme', project: 'docs' })
+    ).rejects.toThrow('Bad Gateway.');
   });
 
   it('fails with a pointer to the settings page when the organization slug is unknown', async () => {

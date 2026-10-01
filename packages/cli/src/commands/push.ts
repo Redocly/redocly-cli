@@ -94,7 +94,7 @@ export async function handlePush({
         );
       },
       onSunsetWarning: (warning) => sunsetWarnings.push(warning),
-      onSlugResolved: printSlugDeprecation,
+      onSlugDeprecated: printSlugDeprecation,
     });
     pushId = push.pushId;
     organizationId = push.organizationId;

@@ -12,6 +12,7 @@ import {
   type PushResponse,
   type ScorecardItem,
   type SunsetWarning,
+  type ProjectRefResolution,
 } from '@redocly/reunite-integration';
 import * as colors from 'colorette';
 
@@ -65,7 +66,7 @@ export async function handlePushStatus({
       pushId,
       version,
       onSunsetWarning: (warning: SunsetWarning) => sunsetWarnings.push(warning),
-      onSlugResolved: printSlugDeprecation,
+      onSlugDeprecated: printSlugDeprecation,
     };
     const waitOptions = {
       ...statusOptions,
@@ -136,13 +137,13 @@ export function handleReuniteError(
 export function printSlugDeprecation({
   organizationId,
   projectId,
-}: {
-  organizationId: string;
-  projectId: string;
-}): void {
-  logger.warn(
-    `Organization and project slugs are deprecated. Use the ids instead: --organization ${organizationId} --project ${projectId}\n`
-  );
+  resolved,
+}: ProjectRefResolution): void {
+  const hint = resolved
+    ? `Use the ids instead: --organization ${organizationId} --project ${projectId}`
+    : 'The API key is not allowed to look the ids up (it needs the "org.organizations.read" and "org.project.view" permissions). Find them in the organization and project settings in Reunite.';
+
+  logger.warn(`Organization and project slugs are deprecated. ${hint}\n`);
 }
 
 // Prints the most urgent of the sunset warnings a command collected, once.
