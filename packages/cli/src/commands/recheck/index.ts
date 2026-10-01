@@ -190,6 +190,7 @@ async function collectEmbeddedInputs(
       if (error instanceof UnresolvedRefError) unreadableFiles.push(...error.files);
       continue;
     }
+    for (const message of collected.unresolvedPointers) logger.warn(`${message}\n`);
     for (const file of collected.files) apiFiles.add(file);
     for (const description of collected.descriptions) {
       const key = `${description.source.absoluteRef}${description.pointer}`;

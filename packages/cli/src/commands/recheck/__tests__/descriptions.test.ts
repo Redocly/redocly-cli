@@ -144,6 +144,67 @@ components:
     });
   });
 
+  it('keeps the descriptions when an internal pointer is missing', async () => {
+    const dir = fixture({
+      'openapi.yaml': `openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+  description: Welcome to the museum.
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: '#/components/schemas/Missing'
+`,
+    });
+    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
+    const { descriptions, unresolvedPointers, files } = await collectDescriptions(
+      join(dir, 'openapi.yaml'),
+      config
+    );
+    expect(descriptions.map((entry) => entry.pointer)).toEqual(['#/info/description']);
+    expect(unresolvedPointers).toHaveLength(1);
+    expect(unresolvedPointers[0]).toContain('#/components/schemas/Missing');
+    expect(files).toEqual([join(dir, 'openapi.yaml')]);
+  });
+
+  it('keeps the descriptions when an external file loads but its pointer is missing', async () => {
+    const dir = fixture({
+      'openapi.yaml': `openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+  description: Welcome to the museum.
+paths:
+  /tickets:
+    get:
+      description: Lists the tickets.
+      responses:
+        '200':
+          description: Tickets.
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas.yaml#/Missing
+`,
+      'schemas.yaml': SCHEMAS,
+    });
+    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
+    const { descriptions, unresolvedPointers, files } = await collectDescriptions(
+      join(dir, 'openapi.yaml'),
+      config
+    );
+    expect(descriptions.map((entry) => entry.pointer)).toEqual([
+      '#/info/description',
+      '#/paths/~1tickets/get/description',
+      '#/paths/~1tickets/get/responses/200/description',
+    ]);
+    expect(unresolvedPointers).toHaveLength(1);
+    expect(unresolvedPointers[0]).toContain('./schemas.yaml#/Missing');
+    expect(files).toEqual([join(dir, 'openapi.yaml'), join(dir, 'schemas.yaml')]);
+  });
+
   it('names the unread target by the same split the walker uses when the file name has a hash', async () => {
     const dir = fixture({
       'openapi.yaml': `openapi: 3.1.0

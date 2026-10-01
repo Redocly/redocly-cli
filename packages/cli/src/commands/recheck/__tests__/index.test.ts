@@ -1,4 +1,4 @@
-import { AbortFlowError, Source, type Config } from '@redocly/openapi-core';
+import { AbortFlowError, createConfig, Source, type Config } from '@redocly/openapi-core';
 import type { RecheckBlock } from '@redocly/recheck';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
@@ -99,6 +99,38 @@ describe('handleRecheck', () => {
       'The recheck configuration is not valid:\n',
       '  recheck: `recheck` must be an object\n',
     ]);
+  });
+
+  it('lints an API whose internal $ref pointer is missing and warns about the skipped $ref', async () => {
+    const apiPath = path.join(dir, 'openapi.yaml');
+    await fs.writeFile(
+      apiPath,
+      `openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+  description: Welcome to the museum.
+paths: {}
+components:
+  schemas:
+    Pet:
+      $ref: '#/components/schemas/Missing'
+`
+    );
+    const config = await createConfig(
+      { extends: ['recheck/markdown'] },
+      { configPath: path.join(dir, 'redocly.yaml') }
+    );
+    const argv: RecheckArgv = { format: 'table', paths: [apiPath] };
+
+    await handleRecheck({ argv, config, version: 'test' });
+
+    const stderr = output.stderr.join('');
+    expect(output.stderr).toContain(
+      `Could not resolve $ref #/components/schemas/Missing from ${apiPath}; its descriptions are skipped.\n`
+    );
+    expect(stderr).not.toContain('Could not read API description');
+    expect(stderr).toContain('1 API description(s)');
   });
 
   describe('per-API recheck settings', () => {

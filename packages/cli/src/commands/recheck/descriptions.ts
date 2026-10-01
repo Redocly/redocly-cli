@@ -20,8 +20,8 @@ export interface CollectedDescription {
   text: string;
 }
 
-// Thrown when a local `$ref` target is missing or does not parse; `files`
-// holds the absolute paths of those targets.
+// Thrown when a local `$ref` target file could not be read or parsed; `files`
+// holds the absolute paths of those files.
 export class UnresolvedRefError extends Error {
   constructor(
     message: string,
@@ -35,6 +35,8 @@ export interface CollectedDescriptions {
   descriptions: CollectedDescription[];
   // Absolute paths of the root document and every local $ref source it resolved.
   files: string[];
+  // One message for each local $ref whose pointer is missing in a file that loaded.
+  unresolvedPointers: string[];
 }
 
 // Walks one API document, external $ref files included, and returns every
@@ -55,16 +57,24 @@ export async function collectDescriptions(
     externalRefResolver: resolver,
   });
 
-  // Throws for a local $ref target that is missing or does not parse.
-  // Without this check, the walk skips that file and reports nothing.
+  // A local $ref target file that cannot be read or parsed throws after the loop.
+  // A missing pointer in a file that loaded gives a warning, and the collection continues.
+  // Without this check, the walk skips both and reports nothing.
   const brokenRefs: string[] = [];
   const brokenTargets = new Set<string>();
+  const unresolvedPointers: string[] = [];
   for (const [refId, resolvedRef] of resolvedRefMap) {
-    if (resolvedRef.resolved) continue;
+    if (resolvedRef.resolved && resolvedRef.node !== undefined) continue;
     const separatorIndex = refId.indexOf('::');
     const sourceFile = refId.slice(0, separatorIndex);
     const ref = refId.slice(separatorIndex + 2);
     if (isAbsoluteUrl(sourceFile) || isAbsoluteUrl(ref)) continue;
+    if (resolvedRef.document !== undefined) {
+      unresolvedPointers.push(
+        `Could not resolve $ref ${ref} from ${sourceFile}; its descriptions are skipped.`
+      );
+      continue;
+    }
     brokenRefs.push(
       `Could not resolve $ref ${ref} from ${sourceFile}: ${resolvedRef.error?.message ?? 'unknown error'}`
     );
@@ -112,5 +122,5 @@ export async function collectDescriptions(
     if (absoluteRef !== undefined && !isAbsoluteUrl(absoluteRef)) files.add(absoluteRef);
   }
 
-  return { descriptions: collected, files: [...files] };
+  return { descriptions: collected, files: [...files], unresolvedPointers };
 }
