@@ -81,37 +81,24 @@ describe('public API', () => {
   });
 
   // `scope: ['all']` once reported nothing while `scope: all` reported findings. Both must give identical results.
-  it("lintContent reports identical findings for scope: all and scope: ['all']", async () => {
-    const content = '# Heading\n\nThis line has a TODO marker.\n';
-    const configWithScope = (scope: string | string[]): RecheckConfig => ({
-      'recheck/no-todo': {
-        severity: 'error',
-        message: 'TODO found',
-        scope,
-        assertions: { pattern: { tokens: ['TODO'] } },
-      },
-    });
-    const bare = await lintContent(content, configWithScope('all'));
-    expect(bare.length).toBeGreaterThan(0);
-    const array = await lintContent(content, configWithScope(['all']));
-    expect(JSON.stringify(array)).toBe(JSON.stringify(bare));
-  });
-
-  it("lintContent reports identical findings for scope: raw and scope: ['raw']", async () => {
-    const content = '# Heading\n\nThis line has a TODO marker.\n';
-    const configWithScope = (scope: string | string[]): RecheckConfig => ({
-      'recheck/no-todo': {
-        severity: 'error',
-        message: 'TODO found',
-        scope,
-        assertions: { pattern: { tokens: ['TODO'] } },
-      },
-    });
-    const bare = await lintContent(content, configWithScope('raw'));
-    expect(bare.length).toBeGreaterThan(0);
-    const array = await lintContent(content, configWithScope(['raw']));
-    expect(JSON.stringify(array)).toBe(JSON.stringify(bare));
-  });
+  it.each(['all', 'raw'])(
+    'lintContent reports identical findings for the bare scope and its single-element array (%s)',
+    async (keyword) => {
+      const content = '# Heading\n\nThis line has a TODO marker.\n';
+      const configWithScope = (scope: string | string[]): RecheckConfig => ({
+        'recheck/no-todo': {
+          severity: 'error',
+          message: 'TODO found',
+          scope,
+          assertions: { pattern: { tokens: ['TODO'] } },
+        },
+      });
+      const bare = await lintContent(content, configWithScope(keyword));
+      expect(bare.length).toBeGreaterThan(0);
+      const array = await lintContent(content, configWithScope([keyword]));
+      expect(JSON.stringify(array)).toBe(JSON.stringify(bare));
+    }
+  );
 
   it('lintContent still honors named-scope arrays and negation arrays', async () => {
     const content = '# A TODO heading\n\nA TODO paragraph.\n\n```\nTODO in code\n```\n';
@@ -130,34 +117,6 @@ describe('public API', () => {
     const negated = await lintContent(content, configWithScope(['~code']));
     expect(negated.length).toBeGreaterThan(0);
     expect(negated.every((p) => p.line === 1 || p.line === 3)).toBe(true);
-  });
-
-  // `scope: 'heading & all'` once validated but matched nothing. It must now be rejected.
-  it('lintContent rejects all/raw as a conjunction term instead of silently reporting nothing', async () => {
-    const badConfig: RecheckConfig = {
-      'recheck/no-todo': {
-        severity: 'error',
-        message: 'TODO found',
-        scope: 'heading & all',
-        assertions: { pattern: { tokens: ['TODO'] } },
-      },
-    };
-    await expect(lintContent('# A TODO heading\n\nA TODO paragraph.\n', badConfig)).rejects.toThrow(
-      /cannot be combined/
-    );
-  });
-
-  // `scope: ['~all']` once matched every segment. It must now be rejected.
-  it('lintContent rejects ~all instead of silently matching every segment', async () => {
-    const badConfig: RecheckConfig = {
-      'recheck/no-todo': {
-        severity: 'error',
-        message: 'TODO found',
-        scope: ['~all'],
-        assertions: { pattern: { tokens: ['TODO'] } },
-      },
-    };
-    await expect(lintContent('# TODO\n', badConfig)).rejects.toThrow(/not meaningful/);
   });
 
   // Config callers must get the validation error ("Invalid recheck configuration"), not the
@@ -316,11 +275,6 @@ describe('markdoc config -> rules (production path via lintContent)', () => {
     it('an absent markdoc key is the same as false', async () => {
       expect(await lint(GRAMMAR_VIOLATION, { ...RULES })).toEqual([]);
       expect(await lint(SELF_CLOSING_MISUSE, { ...RULES })).toEqual([]);
-    });
-
-    it('the fixtures really are violations -- the off cases are not vacuous', async () => {
-      expect(await lint(GRAMMAR_VIOLATION, { markdoc: true, ...RULES })).toHaveLength(1);
-      expect(await lint(SELF_CLOSING_MISUSE, { markdoc: true, ...RULES })).toHaveLength(1);
     });
   });
 

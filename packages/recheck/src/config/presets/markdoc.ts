@@ -48,38 +48,3 @@ export function buildMarkdocPreset(): RecheckRules {
     'recheck/markdoc-attributes': MARKDOC_ATTRIBUTES,
   };
 }
-
-/** The preset's rule keys, so tests can assert "exactly these four". */
-export const MARKDOC_PRESET_RULE_NAMES = [
-  'recheck/markdoc-syntax',
-  'recheck/markdoc-pairing',
-  'recheck/markdoc-unknown-tag',
-  'recheck/markdoc-attributes',
-] as const;
-
-/**
- * One entry per kind of violation the four rule files report. Tests check that
- * each kind fires on the shared fixture and that no report site is missing.
- */
-export const MARKDOC_VIOLATION_CLASSES = [
-  // markdoc-syntax.ts
-  'malformed',
-  'close-tag-attributes',
-  'primary-bareword',
-  'attribute-bareword',
-  // markdoc-pairing.ts
-  'unclosed',
-  'orphaned',
-  'crossed',
-  'void-missing-slash',
-  'self-closing-with-close',
-  // markdoc-unknown-tag.ts
-  'unknown-tag',
-  // markdoc-attributes.ts
-  'primary-unknown-attribute',
-  'wrong-type',
-  'enum',
-  'unknown-attr',
-  'missing-required',
-  'duplicate-attribute',
-] as const;

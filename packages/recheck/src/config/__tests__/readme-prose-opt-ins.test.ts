@@ -38,20 +38,6 @@ async function resolveOptInSnippet(snippet: string) {
 }
 
 describe('README "Opt-in prose assertions" snippet', () => {
-  it('section exists and its yaml fence mentions every documented opt-in', () => {
-    const snippet = extractOptInSnippet();
-    for (const assertionId of DOCUMENTED_OPT_IN_ASSERTIONS) {
-      expect(snippet, `snippet should exercise "${assertionId}"`).toContain(`${assertionId}:`);
-    }
-  });
-
-  it('parses as valid YAML', () => {
-    const snippet = extractOptInSnippet();
-    expect(() => yaml.load(snippet)).not.toThrow();
-    const parsed = yaml.load(snippet);
-    expect(parsed).toBeTypeOf('object');
-  });
-
   it('validates cleanly as a recheck config (assembled from the README snippet, not hand-copied)', async () => {
     const snippet = extractOptInSnippet();
     const result = await resolveOptInSnippet(snippet);

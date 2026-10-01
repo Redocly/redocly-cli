@@ -10,8 +10,6 @@ const MINIMAL_PRESET_RULES = [
   'no-empty-links',
 ];
 
-const MINIMAL_PRESET_MESSAGES: Record<string, string> = {};
-
 export function buildMinimalPreset(): RecheckRules {
-  return registerPresetRules(MINIMAL_PRESET_RULES, MINIMAL_PRESET_MESSAGES);
+  return registerPresetRules(MINIMAL_PRESET_RULES);
 }

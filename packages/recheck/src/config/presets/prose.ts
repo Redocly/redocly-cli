@@ -11,8 +11,6 @@ import type { BaseRule, RecheckRules } from '../../types/index.js';
  * `occurrence`, `conditional`, `metric` and `spelling` are opt-in, because
  * their settings depend on the project.
  */
-export const PROSE_PRESET_ASSERTIONS = ['repetition', 'consistency', 'capitalization'] as const;
-
 /**
  * Prose-only scope. Without it these rules would run on the whole file,
  * and `--fix` could rewrite code samples or front matter.

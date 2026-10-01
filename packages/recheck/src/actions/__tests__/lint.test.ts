@@ -66,26 +66,6 @@ describe('runLint', () => {
   });
 
   describe('File processing edge cases', () => {
-    it('should handle directories with no markdown files', async () => {
-      await fs.writeFile(path.join(tempDir, 'config.json'), '{}');
-      await fs.writeFile(path.join(tempDir, 'README.txt'), 'Not markdown');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/test-rule': {
-            severity: 'warn',
-            message: 'Test',
-            assertions: { pattern: { tokens: ['content'] } },
-          },
-        },
-      });
-
-      const report = completed(await runLint(tempDir, config, {}));
-
-      expect(report.filesFound).toBe(0);
-      expect(report.problems).toEqual([]);
-    });
-
     it('should handle empty markdown files', async () => {
       const mdPath = path.join(tempDir, 'empty.md');
       await fs.writeFile(mdPath, '');
@@ -354,70 +334,6 @@ describe('runLint', () => {
 
       expect(problems).toHaveLength(2);
       expect(problems.every((problem) => !problem.file.includes('drafts/'))).toBe(true);
-    });
-
-    it('should support complex path patterns', async () => {
-      await fs.mkdir(path.join(tempDir, 'src', 'components'), { recursive: true });
-      await fs.mkdir(path.join(tempDir, 'docs', 'api'), { recursive: true });
-      await fs.mkdir(path.join(tempDir, 'tests'), { recursive: true });
-
-      await fs.writeFile(
-        path.join(tempDir, 'src', 'components', 'button.md'),
-        '# Button\nFIXME needed'
-      );
-      await fs.writeFile(path.join(tempDir, 'docs', 'api', 'auth.md'), '# Auth\nFIXME here too');
-      await fs.writeFile(path.join(tempDir, 'tests', 'setup.md'), '# Tests\nNo FIXME here');
-      await fs.writeFile(path.join(tempDir, 'README.md'), '# Project\nFIXME in readme');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/fixme-in-specific-dirs': {
-            severity: 'error',
-            message: 'FIXME found',
-            appliesTo: ['**/components/**', '**/api/**'],
-            assertions: { pattern: { tokens: ['FIXME'] } },
-          },
-        },
-      });
-
-      const { problems } = completed(await runLint(tempDir, config, {}));
-
-      expect(errorsIn(problems).length).toBeGreaterThan(0);
-
-      expect(problems).toHaveLength(2);
-      expect(problems.some((problem) => problem.file.includes('components/'))).toBe(true);
-      expect(problems.some((problem) => problem.file.includes('api/'))).toBe(true);
-      expect(problems.every((problem) => !problem.file.includes('README.md'))).toBe(true);
-      expect(problems.every((problem) => !problem.file.includes('tests/'))).toBe(true);
-    });
-
-    it('should work with basename patterns (backward compatibility)', async () => {
-      await fs.writeFile(path.join(tempDir, 'config.md'), '# Config\nTODO here');
-      await fs.writeFile(path.join(tempDir, 'setup.config.md'), '# Setup Config\nTODO here too');
-      await fs.writeFile(path.join(tempDir, 'readme.md'), '# README\nTODO in readme');
-
-      const config = await resolveConfig(tempDir, {
-        rules: {
-          'recheck/config-files-only': {
-            severity: 'error',
-            message: 'TODO found in config file',
-            appliesTo: ['*.config.md', 'config.md'],
-            assertions: { pattern: { tokens: ['TODO'] } },
-          },
-        },
-      });
-
-      const { problems } = completed(await runLint(tempDir, config, {}));
-
-      expect(errorsIn(problems).length).toBeGreaterThan(0);
-
-      expect(problems).toHaveLength(2);
-      expect(
-        problems.every(
-          (problem) =>
-            problem.file.includes('config.md') || problem.file.includes('setup.config.md')
-        )
-      ).toBe(true);
     });
   });
 

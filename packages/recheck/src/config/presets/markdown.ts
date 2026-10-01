@@ -1,31 +1,20 @@
 import type { BaseRule, RecheckRules } from '../../types/index.js';
 
 /**
- * Builds one `recheck/<name>` entry for each rule name, with
- * `severity: 'error'` and empty assertion options.
- *
- * An entry has a `message` only when `messages` names one. `validate` gives a
- * token rule the message from its `defaults`. A scope rule has no `defaults`,
- * so it needs an explicit message here.
+ * Builds one `recheck/<name>` entry for each token rule name, with
+ * `severity: 'error'` and empty assertion options. `validate` gives each entry
+ * the message from the token rule's own `defaults`.
  */
-export function registerPresetRules(
-  names: string[],
-  messages: Record<string, string> = {}
-): RecheckRules {
+export function registerPresetRules(names: string[]): RecheckRules {
   const config: RecheckRules = {};
   for (const name of names) {
     const rule: BaseRule = { severity: 'error', assertions: { [name]: {} } };
-    if (messages[name]) rule.message = messages[name];
     config[`recheck/${name}`] = rule;
   }
   return config;
 }
 
-/**
- * Rule (short) names in the `recheck/markdown` preset. `validate` gives each
- * token rule the message from its own `defaults.message`. List a name in
- * MARKDOWN_PRESET_MESSAGES only for a scope rule or to change the wording.
- */
+/** Rule (short) names in the `recheck/markdown` preset. */
 export const MARKDOWN_PRESET_RULES: string[] = [
   'heading-increment',
   'heading-style',
@@ -82,12 +71,6 @@ export const MARKDOWN_PRESET_RULES: string[] = [
   'table-column-style',
 ];
 
-/**
- * Explicit messages for markdown preset rules, keyed by short rule name.
- * Empty today: every rule in MARKDOWN_PRESET_RULES is a token rule.
- */
-export const MARKDOWN_PRESET_MESSAGES: Record<string, string> = {};
-
 export function buildMarkdownPreset(): RecheckRules {
-  return registerPresetRules(MARKDOWN_PRESET_RULES, MARKDOWN_PRESET_MESSAGES);
+  return registerPresetRules(MARKDOWN_PRESET_RULES);
 }

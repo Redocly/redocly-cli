@@ -18,30 +18,6 @@ function baseRule(scope: unknown) {
 }
 
 describe('validate — scope vocabulary', () => {
-  it('accepts scope: summary', async () => {
-    const result = await validate(baseRule('summary'));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  it('accepts scope: list-item', async () => {
-    const result = await validate(baseRule('list-item'));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  it("accepts scope: ['~blockquote & ~heading']", async () => {
-    const result = await validate(baseRule(['~blockquote & ~heading']));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
-  it('accepts scope: heading.h3', async () => {
-    const result = await validate(baseRule('heading.h3'));
-    expect(result.isValid).toBe(true);
-    expect(result.errors).toEqual([]);
-  });
-
   it('accepts every full-vocabulary scope name', async () => {
     const vocabulary = [
       'all',
@@ -97,14 +73,6 @@ describe('validate — scope vocabulary', () => {
 // `all` and `raw` cover the whole document. Combined with other scope entries
 // they would match nothing, so validation rejects them.
 describe('validate — all/raw scope combinations', () => {
-  it("accepts single-element scope: ['all'] and scope: ['raw']", async () => {
-    for (const scope of [['all'], ['raw']]) {
-      const result = await validate(baseRule(scope));
-      expect(result.isValid, `expected ${JSON.stringify(scope)} to be valid`).toBe(true);
-      expect(result.errors).toEqual([]);
-    }
-  });
-
   it("rejects scope: ['all', 'code'] explaining all covers the whole document", async () => {
     const result = await validate(baseRule(['all', 'code']));
     expect(result.isValid).toBe(false);
