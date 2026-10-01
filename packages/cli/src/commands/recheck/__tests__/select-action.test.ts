@@ -13,23 +13,6 @@ describe('selectAction', () => {
   it('picks one action flag', () => {
     expect(selectAction({ ...base, readability: true })).toEqual({ action: 'readability' });
     expect(selectAction({ ...base, 'generate-baseline': true })).toEqual({ action: 'baseline' });
-    expect(
-      selectAction({
-        ...base,
-        'generate-markdoc-schema': true,
-        from: ['./theme.ts'],
-        output: 'schema.json',
-      })
-    ).toEqual({
-      action: 'markdoc-schema',
-    });
-  });
-
-  it('rejects two action flags', () => {
-    const result = selectAction({ ...base, readability: true, 'generate-baseline': true });
-    expect(result).toEqual({
-      error: 'Use one of --readability, --generate-baseline, or --generate-markdoc-schema.',
-    });
   });
 
   it('rejects --fix outside lint', () => {

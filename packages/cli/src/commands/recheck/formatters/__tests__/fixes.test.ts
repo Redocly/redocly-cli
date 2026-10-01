@@ -24,6 +24,7 @@ describe('reportFixes', () => {
       fix({ lineNumber: 2, deleteCount: -1, insertText: 'new' }),
       fix({ lineNumber: 3, deleteCount: 2, insertText: 'x' }),
       fix({ lineNumber: 4, insertText: 'y' }),
+      fix({ lineNumber: 6, deleteCount: 3 }),
       fix({ file: 'docs/b.md', lineNumber: 5 }),
     ]);
 
@@ -35,6 +36,7 @@ describe('reportFixes', () => {
         '     ✓ Line 2 (recheck/rule): replaced line with "new"\n',
         '     ✓ Line 3 (recheck/rule): replaced 2 character(s) with "x"\n',
         '     ✓ Line 4 (recheck/rule): inserted "y"\n',
+        '     ✓ Line 6 (recheck/rule): removed 3 character(s)\n',
         '\n   docs/b.md:\n',
         '     ✓ Line 5 (recheck/rule): applied fix\n',
       ].join('')

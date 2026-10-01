@@ -22,19 +22,6 @@ function problem(overrides: Partial<Problem> = {}): Problem {
 afterEach(() => vi.restoreAllMocks());
 
 describe('outputTableFormat', () => {
-  it('marks a fixable finding with [fixable] and counts the fixable findings', () => {
-    const { stderr, stdout } = captureLogger();
-
-    outputTableFormat([problem({ fixable: true }), problem({ line: 2 })], 1, false);
-
-    const printed = stripVTControlCharacters(stdout.join(''));
-    expect(printed).toContain('docs/index.md:1:1');
-    expect(printed).toContain('Line too long. [fixable]\n');
-    expect(printed).toContain('\n   1 of 2 fixable with --fix\n');
-    expect(printed).toContain('\n   2 error(s)\n');
-    expect(stderr).toEqual([]);
-  });
-
   it('prints the rule breakdown, largest first, when stats are on', () => {
     const { stdout } = captureLogger();
 

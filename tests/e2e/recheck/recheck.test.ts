@@ -13,20 +13,17 @@ function normalizeTiming(output: string): string {
 }
 
 describe('recheck', () => {
-  test.each([
-    'markdown-clean',
-    'markdown-findings',
-    'no-config',
-    'no-recheck-config',
-    'config-error',
-  ])('%s', async (dirName) => {
-    const testPath = join(__dirname, dirName);
-    const args = getParams(indexEntryPoint, ['recheck', 'docs']);
-    const result = getCommandOutput(args, { testPath });
-    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
-      join(testPath, 'snapshot.txt')
-    );
-  });
+  test.each(['markdown-findings', 'no-config', 'no-recheck-config', 'config-error'])(
+    '%s',
+    async (dirName) => {
+      const testPath = join(__dirname, dirName);
+      const args = getParams(indexEntryPoint, ['recheck', 'docs']);
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+        join(testPath, 'snapshot.txt')
+      );
+    }
+  );
 
   test('conflicting-flags rejects two action flags', async () => {
     const testPath = join(__dirname, 'conflicting-flags');

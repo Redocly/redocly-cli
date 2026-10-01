@@ -13,7 +13,7 @@ interface SarifRule {
   helpUri?: string;
 }
 
-export function buildSarif(problems: Problem[]): Record<string, unknown> {
+function buildSarif(problems: Problem[]): Record<string, unknown> {
   const rulesMap = new Map<string, SarifRule>();
   for (const problem of problems) {
     if (!rulesMap.has(problem.ruleName)) {

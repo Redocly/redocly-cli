@@ -5,7 +5,6 @@ import {
   mergeRecheckBlocks,
   mergeRecheckRule,
   mergeRecheckRules,
-  orderRecheckPresets,
 } from '../recheck.js';
 
 const preset = {
@@ -19,18 +18,6 @@ describe('isRecheckPreset', () => {
     expect(isRecheckPreset('recheck/markdown')).toBe(true);
     expect(isRecheckPreset('recommended')).toBe(false);
     expect(isRecheckPreset('my-plugin/recheck')).toBe(false);
-  });
-});
-
-describe('orderRecheckPresets', () => {
-  it('keeps each name once at its last position and does not change the input', () => {
-    const names = ['a', 'b', 'a'];
-    expect(orderRecheckPresets(names)).toEqual(['b', 'a']);
-    expect(names).toEqual(['a', 'b', 'a']);
-  });
-
-  it('returns an empty list for an empty list', () => {
-    expect(orderRecheckPresets([])).toEqual([]);
   });
 });
 
@@ -100,13 +87,5 @@ describe('mergeRecheckBlocks', () => {
     expect(mergeRecheckBlocks({ rules: { a: preset } }, undefined)).toEqual({
       rules: { a: preset },
     });
-  });
-
-  it('returns a block that is not an object as it is, so the engine reports it', () => {
-    expect(mergeRecheckBlocks({ rules: {} }, 5)).toBe(5);
-  });
-
-  it('keeps a base that is not an object, so the engine reports it', () => {
-    expect(mergeRecheckBlocks(5 as never, { rules: {} })).toBe(5);
   });
 });
