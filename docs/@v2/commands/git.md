@@ -24,7 +24,7 @@ Have the following ready:
 ## Command usage
 
 ```bash
-redocly git clone --organization <organization> --project <project> [directory] [--residency <residency>]
+redocly git clone <organization>/<project> [directory] [--residency <residency>]
 redocly git push [--force] [--set-upstream] [refspec...]
 redocly git pull [refspec...]
 ```
@@ -39,14 +39,13 @@ they find the Reunite remote among the repository's remotes and use the credenti
 
 Clones the project into `directory`, sets `origin` to the project's Reunite git URL, and saves the credential helper in the repository's git configuration.
 
-| Option             | Type    | Description                                                                                                   |
-| ------------------ | ------- | ------------------------------------------------------------------------------------------------------------- |
-| directory          | string  | Directory to clone into. The default value is the `--project` value.                                          |
-| --organization, -o | string  | **REQUIRED.** Organization slug or ID.                                                                        |
-| --project, -p      | string  | **REQUIRED.** Project slug or ID.                                                                             |
-| --residency, -r    | string  | Residency of the application. The supported values are: `us`, `eu`, or a full URL. The default value is `us`. |
-| --config           | string  | Specify the path to the [configuration file](../configuration/index.md).                                      |
-| --help             | boolean | Display help.                                                                                                 |
+| Option               | Type    | Description                                                                                                     |
+| -------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| organization/project | string  | **REQUIRED.** Organization and project slugs or IDs, separated by a slash, for example `acme/developer-portal`. |
+| directory            | string  | Directory to clone into. The default value is the project slug or ID.                                           |
+| --residency, -r      | string  | Residency of the application. The supported values are: `us`, `eu`, or a full URL. The default value is `us`.   |
+| --config             | string  | Specify the path to the [configuration file](../configuration/index.md).                                        |
+| --help               | boolean | Display help.                                                                                                   |
 
 ### push
 
@@ -111,7 +110,7 @@ When a push is not allowed, git reports each ref as rejected and shows the reaso
 
 ```bash
 redocly login
-redocly git clone -o acme -p developer-portal
+redocly git clone acme/developer-portal
 cd developer-portal
 git switch -c update-quickstart
 # edit files, then commit
@@ -127,7 +126,7 @@ Set `REDOCLY_AUTHORIZATION` to an API key to clone, pull, and push without an in
 
 ```bash
 export REDOCLY_AUTHORIZATION=<api-key>
-redocly git clone -o acme -p developer-portal
+redocly git clone acme/developer-portal
 ```
 
 ## Resources

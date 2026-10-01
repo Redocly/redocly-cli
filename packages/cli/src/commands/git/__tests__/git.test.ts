@@ -53,7 +53,7 @@ describe('redocly git', () => {
   describe('clone', () => {
     it('clones the project git URL with the credential helper saved in the repository', async () => {
       await handleGitClone(
-        commandArgs<GitCloneArgv>({ organization: 'acme', project: 'docs', directory: 'my-docs' })
+        commandArgs<GitCloneArgv>({ project: 'acme/docs', directory: 'my-docs' })
       );
 
       expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
@@ -69,7 +69,7 @@ describe('redocly git', () => {
     });
 
     it('clones into a directory named after the project by default', async () => {
-      await handleGitClone(commandArgs<GitCloneArgv>({ organization: 'acme', project: 'docs' }));
+      await handleGitClone(commandArgs<GitCloneArgv>({ project: 'acme/docs' }));
 
       expect(runGit).toHaveBeenCalledWith([
         'clone',
@@ -86,9 +86,19 @@ describe('redocly git', () => {
       vi.mocked(runGit).mockResolvedValue(128);
 
       await expect(
-        handleGitClone(commandArgs<GitCloneArgv>({ organization: 'acme', project: 'docs' }))
+        handleGitClone(commandArgs<GitCloneArgv>({ project: 'acme/docs' }))
       ).rejects.toBeInstanceOf(HandledError);
     });
+
+    it.each(['docs', 'acme/', '/docs', 'acme/docs/extra'])(
+      'rejects %s, which is not <organization>/<project>',
+      async (project) => {
+        await expect(handleGitClone(commandArgs<GitCloneArgv>({ project }))).rejects.toThrow(
+          'Specify the project as `<organization>/<project>`'
+        );
+        expect(runGit).not.toHaveBeenCalled();
+      }
+    );
   });
 
   describe('push', () => {

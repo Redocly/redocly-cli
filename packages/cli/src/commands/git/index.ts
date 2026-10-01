@@ -10,7 +10,7 @@ import {
 } from './utils.js';
 
 export type GitCloneArgv = {
-  organization: string;
+  // `<organization>/<project>`
   project: string;
   directory?: string;
   residency?: string;
@@ -27,21 +27,28 @@ export type GitPullArgv = {
 };
 
 const NO_REMOTE_MESSAGE =
-  'No Redocly remote found in this repository. Clone a project with `redocly git clone -o <organization> -p <project>`, or add a remote pointing to `<reunite-url>/api/orgs/<organization>/projects/<project>/git`.';
+  'No Redocly remote found in this repository. Clone a project with `redocly git clone <organization>/<project>`, or add a remote pointing to `<reunite-url>/api/orgs/<organization>/projects/<project>/git`.';
 
 // Clones with the credential helper saved in the repository config, so plain `git` works later.
 export async function handleGitClone({ argv, config, version }: CommandArgs<GitCloneArgv>) {
+  const [organization, project, ...rest] = argv.project.split('/');
+  if (!organization || !project || rest.length > 0) {
+    throw new HandledError(
+      `Specify the project as \`<organization>/<project>\`, for example \`acme/developer-portal\`. Got: \`${argv.project}\`.`
+    );
+  }
+
   const reuniteUrl = getReuniteUrl(config, argv.residency);
-  const url = buildProjectGitUrl(reuniteUrl, argv.organization, argv.project);
+  const url = buildProjectGitUrl(reuniteUrl, organization, project);
   const helperConfig = getCredentialHelperConfig(reuniteUrl, version);
 
-  logger.info(`Cloning ${argv.organization}/${argv.project} from ${reuniteUrl}\n`);
+  logger.info(`Cloning ${organization}/${project} from ${reuniteUrl}\n`);
 
   const exitCode = await runGit([
     'clone',
     ...helperConfig.flatMap((entry) => ['--config', entry]),
     url,
-    argv.directory ?? argv.project,
+    argv.directory ?? project,
   ]);
 
   if (exitCode !== 0) {
