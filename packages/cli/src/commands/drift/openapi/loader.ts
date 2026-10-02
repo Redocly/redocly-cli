@@ -32,7 +32,7 @@ const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options'
 
 type HttpMethod = (typeof HTTP_METHODS)[number];
 
-const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
+const PARAMETER_LOCATIONS = new Set(['query', 'querystring', 'header', 'path', 'cookie']);
 
 // Response keys are status codes, status ranges such as `2XX`, or `default`;
 // anything else in the responses map is a specification extension.
@@ -88,6 +88,7 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       required: Boolean(entry.required) || location === 'path',
       style: typeof entry.style === 'string' ? entry.style : undefined,
       schema: entry.schema,
+      content: location === 'querystring' ? extractMediaSchemas(entry.content) : undefined,
     });
   }
 

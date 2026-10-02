@@ -1,0 +1,157 @@
+┏━ Drift Report
+┃ Run: <uuid>
+┃ Spec: ./tests/e2e/drift/fixtures/querystring-openapi.yaml
+┃ Traffic: ./tests/e2e/drift/fixtures/traffic-querystring.ndjson
+┃ Match mode: strict-host
+┃ Traffic format: auto (auto-detect)
+┃ Exchanges: total=11 documented=11 undocumented=0
+┃ Findings: total=11 error=9 warning=2 info=0
+┃ Problems: total=11
+┗ Duration: <ms>ms
+
+Types (1)
+  • schema-consistency: 11 problems / 11 findings
+
+Problems by type (showing first 11 of 11)
+
+◉ schema-consistency (11 problems shown / 11 total, 11 findings)
+▲ WARN #1 → Undocumented query parameter in traffic: "page"
+  ↳ sample exchange=1 GET /events (200) listEvents
+
+    http://api.example.com/events?status=archived&limit=ten&page=2
+
+    spec: querystring-openapi.yaml
+
+    details: {"operationPathTemplate":"/events"}
+
+✖ ERROR #2 → Invalid querystring parameter "filters": Request field "status" has a value outside allowed enum values.
+  ↳ sample exchange=1 GET /events (200) listEvents
+
+    http://api.example.com/events?status=archived&limit=ten&page=2
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/properties/status/enum
+    dataPath= /status
+
+    schema: Request field "status" has a value outside allowed enum values.
+    path: /status
+    actual: "archived"
+
+✖ ERROR #3 → Invalid querystring parameter "filters": Request field "limit" must be integer.
+  ↳ sample exchange=1 GET /events (200) listEvents
+
+    http://api.example.com/events?status=archived&limit=ten&page=2
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/properties/limit/type
+    dataPath= /limit
+
+    schema: Request field "limit" must be integer.
+    path: /limit
+    expected: type "integer"
+    actual: "ten"
+
+✖ ERROR #4 → Missing required querystring parameter: "filters"
+  ↳ sample exchange=2 GET /events (200) listEvents
+
+    http://api.example.com/events
+
+    spec: querystring-openapi.yaml
+
+    details: {"operationPathTemplate":"/events"}
+
+▲ WARN #5 → Undocumented query parameter in traffic: "debug"
+  ↳ sample exchange=3 GET /events (400) listEvents
+
+    http://api.example.com/events?status=scheduled&debug=1
+
+    spec: querystring-openapi.yaml
+
+    details: {"operationPathTemplate":"/events"}
+
+✖ ERROR #6 → Invalid querystring parameter "options": Request has undocumented field "verbose".
+  ↳ sample exchange=4 GET /events/export (200) exportEvents
+
+    http://api.example.com/events/export?format=xml&verbose=1
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/additionalProperties
+    dataPath= /verbose
+
+    schema: Request has undocumented field "verbose".
+    path: /verbose
+    expected: no additional undocumented properties
+    actual: "1"
+
+✖ ERROR #7 → Invalid querystring parameter "options": Request field "format" has a value outside allowed enum values.
+  ↳ sample exchange=4 GET /events/export (200) exportEvents
+
+    http://api.example.com/events/export?format=xml&verbose=1
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/properties/format/enum
+    dataPath= /format
+
+    schema: Request field "format" has a value outside allowed enum values.
+    path: /format
+    actual: "xml"
+
+✖ ERROR #8 → Invalid querystring parameter "query": Request is missing required field "term".
+  ↳ sample exchange=6 GET /search (200) search
+
+    http://api.example.com/search?%7B%22size%22%3A%22big%22%7D
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/required
+    dataPath= /term
+
+    schema: Request is missing required field "term".
+    path: /term
+    expected: required field "term"
+    actual: [missing]
+
+✖ ERROR #9 → Invalid querystring parameter "query": Request field "size" must be integer.
+  ↳ sample exchange=6 GET /search (200) search
+
+    http://api.example.com/search?%7B%22size%22%3A%22big%22%7D
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/properties/size/type
+    dataPath= /size
+
+    schema: Request field "size" must be integer.
+    path: /size
+    expected: type "integer"
+    actual: "big"
+
+✖ ERROR #10 → Invalid querystring parameter "query": Request field "root" must be object.
+  ↳ sample exchange=7 GET /search (200) search
+
+    http://api.example.com/search?not-json
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/type
+
+    schema: Request field "root" must be object.
+    path: /
+    expected: type "object"
+    actual: "not-json"
+
+✖ ERROR #11 → Invalid querystring parameter "text": Request schema mismatch at "root": must NOT have more than 5 characters
+  ↳ sample exchange=9 GET /echo (200) echo
+
+    http://api.example.com/echo?caf%C3%A9%20au%20lait
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/maxLength
+
+    schema: Request schema mismatch at "root": must NOT have more than 5 characters
+    path: /
+    actual: "café au lait"
+
+API coverage
+  operations         ████████████████████  100%    5/5
+  parameters         ████████████████████  100%    5/5
+  schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a    0/0
+  response codes     ████████████████████  100%    6/6
+

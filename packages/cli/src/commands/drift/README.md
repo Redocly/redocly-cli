@@ -84,3 +84,8 @@ Every documented item is an entry that is either covered or missing:
 - Builtin `schema-consistency` skips request-side checks (required parameters, required body, request-body schema) when the response is a `4xx` client error.
   The server rejected the request, so validating it against the operation's success-path contract would report the server's own correct rejection as drift.
 - Builtin `schema-consistency` understands `deepObject`-style query parameters: traffic keys like `name[property]=value` are matched to the documented parameter and validated against its object schema instead of being reported as undocumented.
+- Builtin `schema-consistency` understands `in: querystring` parameters: the whole query string is read as one value and validated against the schema of the parameter's `content` media type.
+  `application/x-www-form-urlencoded` is parsed into an object keyed by query key (repeated keys become arrays), a JSON media type is parsed as JSON, and any other media type is validated as the decoded raw string.
+  For a form-urlencoded schema, the keys under `properties` count as the documented query parameters, so other keys are reported as undocumented unless the schema sets `additionalProperties` (with `false`, the schema check reports them as errors instead).
+  For other media types the per-key check is skipped, since the schema covers the whole value.
+  Encoding objects (`explode`, `style: deepObject`) on a querystring media type are not honored yet, and the properties of its schema are not counted as schema properties in coverage.

@@ -14,7 +14,12 @@ import {
   isJsonMime,
 } from '../../utils/http.js';
 import { resolveResponseKey } from '../../utils/openapi.js';
-import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
+import {
+  getActualParameterValue,
+  parseDeepObjectQueryKey,
+  resolveParameterSchema,
+  resolveQuerystringContent,
+} from '../../utils/parameters.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
@@ -213,11 +218,12 @@ function validateParameter(
   context: RuleContext,
   findings: Finding[]
 ): void {
-  if (actualValue === undefined || actualValue === null || !parameter.schema) {
+  const schema = resolveParameterSchema(parameter);
+  if (actualValue === undefined || actualValue === null || schema === undefined) {
     return;
   }
 
-  const result = context.validateSchema(parameter.schema, actualValue, { coerce: true });
+  const result = context.validateSchema(schema, actualValue, { coerce: true, target: 'request' });
   if (result.valid) {
     return;
   }
@@ -259,9 +265,21 @@ function createUndocumentedParameterFindings(
     cookie: new Set<string>(),
   };
   const deepObjectQueryParams = new Set<string>();
+  let checkQueryKeys = true;
 
   for (const parameter of matchedOperation.operation.requestParameters) {
-    if (parameter.in === 'header') {
+    if (parameter.in === 'querystring') {
+      const content = resolveQuerystringContent(parameter);
+      const schema =
+        content?.mediaType === 'application/x-www-form-urlencoded' ? content.schema : undefined;
+      if (isPlainObject(schema) && schema.additionalProperties === undefined) {
+        for (const key of Object.keys(isPlainObject(schema.properties) ? schema.properties : {})) {
+          paramsByLocation.query.add(key);
+        }
+      } else {
+        checkQueryKeys = false;
+      }
+    } else if (parameter.in === 'header') {
       paramsByLocation.header.add(parameter.name.toLowerCase());
     } else if (parameter.in === 'query' || parameter.in === 'cookie') {
       paramsByLocation[parameter.in].add(parameter.name);
@@ -271,7 +289,10 @@ function createUndocumentedParameterFindings(
     }
   }
 
-  for (const name of new Set(context.exchange.request.query.keys())) {
+  const queryKeys = checkQueryKeys
+    ? new Set(context.exchange.request.query.keys())
+    : new Set<string>();
+  for (const name of queryKeys) {
     if (paramsByLocation.query.has(name)) {
       continue;
     }

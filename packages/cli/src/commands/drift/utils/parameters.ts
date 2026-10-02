@@ -1,6 +1,7 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
 import type { NormalizedRequest, OpenApiParameter } from '../types/index.js';
+import { isJsonMime, normalizeContentType, parseUrl, safeDecodeURIComponent } from './http.js';
 
 export function parseCookies(headerValue: string | undefined): Record<string, string> {
   if (!headerValue) {
@@ -47,6 +48,48 @@ function getDeepObjectParameterValue(
   return objectValue;
 }
 
+export function resolveQuerystringContent(
+  parameter: OpenApiParameter
+): { mediaType: string; schema: unknown } | undefined {
+  const entry = Object.entries(parameter.content ?? {})[0];
+  return entry ? { mediaType: normalizeContentType(entry[0]), schema: entry[1] } : undefined;
+}
+
+export function resolveParameterSchema(parameter: OpenApiParameter): unknown {
+  return parameter.content ? resolveQuerystringContent(parameter)?.schema : parameter.schema;
+}
+
+function getQuerystringValue(parameter: OpenApiParameter, request: NormalizedRequest): unknown {
+  const mediaType = resolveQuerystringContent(parameter)?.mediaType;
+  if (mediaType === 'application/x-www-form-urlencoded') {
+    const keys = [...new Set(request.query.keys())];
+    if (keys.length === 0) {
+      return undefined;
+    }
+    return Object.fromEntries(
+      keys.map((key) => {
+        const values = request.query.getAll(key);
+        return [key, values.length > 1 ? values : values[0]];
+      })
+    );
+  }
+
+  const rawQuery = safeDecodeURIComponent(parseUrl(request.url).search.slice(1));
+  if (rawQuery === '') {
+    return undefined;
+  }
+
+  if (isJsonMime(mediaType)) {
+    try {
+      return JSON.parse(rawQuery);
+    } catch {
+      return rawQuery;
+    }
+  }
+
+  return rawQuery;
+}
+
 export function getActualParameterValue(
   parameter: OpenApiParameter,
   request: NormalizedRequest,
@@ -70,6 +113,8 @@ export function getActualParameterValue(
       }
       return values[0];
     }
+    case 'querystring':
+      return getQuerystringValue(parameter, request);
     case 'header':
       return request.headers[parameter.name.toLowerCase()];
     case 'cookie':

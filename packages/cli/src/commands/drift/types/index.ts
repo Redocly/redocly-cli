@@ -91,10 +91,11 @@ export interface OpenApiServer {
 
 export interface OpenApiParameter {
   name: string;
-  in: 'query' | 'header' | 'path' | 'cookie';
+  in: 'query' | 'querystring' | 'header' | 'path' | 'cookie';
   required: boolean;
   style?: string;
   schema?: unknown;
+  content?: Record<string, unknown>;
 }
 
 export interface OpenApiOperation {

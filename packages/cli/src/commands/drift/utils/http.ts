@@ -139,6 +139,14 @@ export function parseUrl(input: string): URL {
   }
 }
 
+export function safeDecodeURIComponent(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 export function getPathWithoutTrailingSlash(pathname: string): string {
   if (pathname.length > 1 && pathname.endsWith('/')) {
     return pathname.slice(0, -1);
