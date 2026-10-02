@@ -38,7 +38,6 @@ export const typedRecheckBlock: RecheckBlock = {
 };
 
 export const typedRecheckBlockInput: RecheckBlockInput = {
-  extends: ['recheck/markdown'],
   block: typedRecheckBlock,
   configDir: '/project',
 };

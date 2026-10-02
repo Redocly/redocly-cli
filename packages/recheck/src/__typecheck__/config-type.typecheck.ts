@@ -18,6 +18,5 @@ export const ruleKeyNoSlash: RecheckConfig = {
 };
 
 export const okConfig: RecheckConfig = {
-  extends: ['recheck/markdown'],
   'recheck/line-length': {},
 };

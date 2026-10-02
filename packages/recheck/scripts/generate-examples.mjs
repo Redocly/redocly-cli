@@ -75,7 +75,8 @@ async function formatWithOxfmt(content) {
 async function loadLib() {
   try {
     const { validate } = await import('../lib/config/validate.js');
-    return { validate };
+    const { presets } = await import('../lib/presets.js');
+    return { validate, presets };
   } catch (error) {
     if (error && error.code === 'ERR_MODULE_NOT_FOUND') {
       throw new Error(
@@ -593,9 +594,10 @@ export async function renderExample(name) {
   if (!PRESET_NAMES.includes(name)) {
     throw new Error(`generate-examples: unknown preset name "${name}"`);
   }
-  const { validate } = await loadLib();
+  const { validate, presets } = await loadLib();
   const presetId = `recheck/${name}`;
-  const { isValid, errors, rules } = await validate({ extends: [presetId] });
+  // Validation writes defaults into the rule entries, so validate a copy of the shared preset.
+  const { isValid, errors, rules } = await validate(structuredClone(presets[presetId]));
   if (!isValid) {
     throw new Error(
       `generate-examples: ${presetId} failed to resolve/validate: ${JSON.stringify(errors, null, 2)}`

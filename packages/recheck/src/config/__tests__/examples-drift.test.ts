@@ -32,8 +32,9 @@ describe('example config drift', () => {
   it('every example validates as a standalone config', async () => {
     for (const name of PRESET_NAMES) {
       const onDisk = await readFile(examplePath(name), 'utf8');
-      const parsed = yaml.load(onDisk);
-      const result = await validate(parsed);
+      // The example lists the full rule set, so it is valid without its `extends` line.
+      const { extends: _extends, ...rules } = yaml.load(onDisk) as Record<string, unknown>;
+      const result = await validate(rules);
       expect(result.isValid, `examples/${name}.yaml: ${JSON.stringify(result.errors)}`).toBe(true);
     }
   });

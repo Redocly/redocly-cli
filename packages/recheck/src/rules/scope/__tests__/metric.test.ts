@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
+import { presetConfig } from '../../../__tests__/preset-block.js';
 import { validate } from '../../../config/validate.js';
 import { stripNonProse } from '../../../core/prose-extract.js';
 import { runRules } from '../../../core/runner.js';
@@ -270,14 +271,15 @@ describe('metric assertion', () => {
 
   // A message can use all four `%s` values: formula, score, min and max.
   it('a 4-placeholder custom metric message validates and renders all four values end-to-end (extends + runRules)', async () => {
-    const result = await validate({
-      extends: ['recheck/minimal'],
-      'recheck/readability-floor': {
-        severity: 'error',
-        message: 'Score for %s is %s (bounds: %s to %s).',
-        assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
-      },
-    });
+    const result = await validate(
+      await presetConfig(['recheck/minimal'], {
+        'recheck/readability-floor': {
+          severity: 'error',
+          message: 'Score for %s is %s (bounds: %s to %s).',
+          assertions: { metric: { formula: 'flesch-reading-ease', min: 1000 } },
+        },
+      })
+    );
     expect(result.isValid).toBe(true);
     expect(result.errors).toEqual([]);
 

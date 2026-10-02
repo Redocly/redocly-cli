@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { presetConfig } from '../../__tests__/preset-block.js';
 import { presets } from '../../config/presets/index.js';
 import { validate } from '../../config/validate.js';
 import { parseMarkdown, filterByTypes } from '../../parser/index.js';
@@ -22,10 +23,11 @@ describe('embedded mode', () => {
   });
 
   it('hard-disables document-shape rules even when the config names them', async () => {
-    const rules = await normalizedRules({
-      extends: ['recheck/markdown'],
-      'recheck/single-h1': { severity: 'error' },
-    });
+    const rules = await normalizedRules(
+      await presetConfig(['recheck/markdown'], {
+        'recheck/single-h1': { severity: 'error' },
+      })
+    );
     // Two h1s, no leading h1, no trailing newline — and one trailing space.
     const md = 'Intro text. \n# One\n# Two';
     const { problems } = await runRules([{ path: 'frag.md', content: md }], rules, {
@@ -43,7 +45,7 @@ describe('embedded mode', () => {
   });
 
   it('keeps those rules active without the flag', async () => {
-    const rules = await normalizedRules({ extends: ['recheck/markdown'] });
+    const rules = await normalizedRules(await presetConfig(['recheck/markdown']));
     const md = '# One\n\n# Two\n';
     const { problems } = await runRules([{ path: 'doc.md', content: md }], rules, {});
     expect(problems.map((problem) => problem.ruleName)).toContain('recheck/single-h1');
@@ -75,7 +77,7 @@ describe('recheck/api-descriptions preset', () => {
   });
 
   it('lints a realistic description cleanly end to end', async () => {
-    const result = await validate({ extends: ['recheck/api-descriptions'] });
+    const result = await validate(await presetConfig(['recheck/api-descriptions']));
     if (!result.isValid) throw new Error(JSON.stringify(result.errors));
     const md =
       'Filters the collection items.\n\nFor more information, see [Rate limits](#section/Rate-limits).\n';
@@ -86,7 +88,7 @@ describe('recheck/api-descriptions preset', () => {
   });
 
   it('still reports real findings in embedded markdown', async () => {
-    const result = await validate({ extends: ['recheck/api-descriptions'] });
+    const result = await validate(await presetConfig(['recheck/api-descriptions']));
     if (!result.isValid) throw new Error(JSON.stringify(result.errors));
     const md = 'Trailing space here. \nAnd a second line.\n';
     const { problems } = await runRules([{ path: 'frag.md', content: md }], result.rules, {

@@ -4,9 +4,10 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, expect, it } from 'vitest';
 
+import { presetBlock } from '../../__tests__/preset-block.js';
 import { runRules } from '../../core/runner.js';
 import { DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
-import { resolveRecheckConfig } from '../resolve.js';
+import { resolveRecheckConfig, type RecheckBlock } from '../resolve.js';
 
 // Checks that the opt-in prose assertions snippet in the README is a working `redocly.yaml` example.
 // It covers the three assertions that no preset ships: `conditional`, `metric` and `spelling`.
@@ -32,9 +33,12 @@ function extractOptInSnippet(): string {
 
 // Resolves the snippet like the runtime does: the `recheck/*` names from `extends`, plus the block.
 async function resolveOptInSnippet(snippet: string) {
-  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: unknown };
+  const doc = yaml.load(snippet) as { extends?: string[]; recheck?: RecheckBlock };
   const extendsList = (doc.extends ?? []).filter((name) => name.startsWith('recheck/'));
-  return resolveRecheckConfig({ extends: extendsList, block: doc.recheck, configDir: readmeDir });
+  return resolveRecheckConfig({
+    block: await presetBlock(extendsList, doc.recheck),
+    configDir: readmeDir,
+  });
 }
 
 describe('README "Opt-in prose assertions" snippet', () => {
