@@ -227,12 +227,9 @@ const Replacement: NodeType = {
   },
 };
 
-// action parameters are passed to the workflow that `workflowId` references,
-// so an action without `workflowId` allows every field except `parameters`
-const allowedActionFields: NodeType['allowed'] = (value) =>
-  value.workflowId === undefined
-    ? Object.keys(value).filter((field) => field !== 'parameters')
-    : undefined;
+// action parameters are passed to the workflow that `workflowId` references
+const requiredActionFields: NodeType['required'] = (value) =>
+  value?.parameters === undefined ? ['type', 'name'] : ['type', 'name', 'workflowId'];
 
 const SuccessActionObject: NodeType = {
   ...Arazzo1Types.SuccessActionObject,
@@ -240,7 +237,7 @@ const SuccessActionObject: NodeType = {
     ...Arazzo1Types.SuccessActionObject.properties,
     parameters: 'Parameters',
   },
-  allowed: allowedActionFields,
+  required: requiredActionFields,
 };
 
 const FailureActionObject: NodeType = {
@@ -249,7 +246,7 @@ const FailureActionObject: NodeType = {
     ...Arazzo1Types.FailureActionObject.properties,
     parameters: 'Parameters',
   },
-  allowed: allowedActionFields,
+  required: requiredActionFields,
 };
 
 export const Arazzo1_1Types: Record<string, NodeType> = {

@@ -485,12 +485,12 @@ describe('Arazzo 1.1 lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters",
+              "pointer": "#/workflows/0/steps/0/onSuccess/0",
               "reportOnKey": true,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The field \`parameters\` is not allowed here.",
+          "message": "The field \`workflowId\` must be present on this level.",
           "ruleId": "struct",
           "severity": "error",
           "suggest": [],
@@ -499,12 +499,12 @@ describe('Arazzo 1.1 lint', () => {
           "from": undefined,
           "location": [
             {
-              "pointer": "#/workflows/0/steps/0/onFailure/0/parameters",
+              "pointer": "#/workflows/0/steps/0/onFailure/0",
               "reportOnKey": true,
               "source": "arazzo.yaml",
             },
           ],
-          "message": "The field \`parameters\` is not allowed here.",
+          "message": "The field \`workflowId\` must be present on this level.",
           "ruleId": "struct",
           "severity": "error",
           "suggest": [],
