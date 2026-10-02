@@ -254,6 +254,38 @@ describe('handlePushStatus()', () => {
       expect(result?.production).toEqual(pushResponseStub.status.production);
     });
 
+    it('resolves slugs once and waits for the production deployment with the ids', async () => {
+      const resolution = {
+        organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
+        projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+        resolved: true,
+      };
+      vi.mocked(waitForDeployment).mockImplementation(async ({ onSlugDeprecated }) => {
+        onSlugDeprecated?.(resolution);
+        return { ...pushResponseStub, isMainBranch: true };
+      });
+
+      await handlePushStatus({ argv: { ...argv, wait: true }, config, version });
+
+      expect(waitForDeployment).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          organization: resolution.organizationId,
+          project: resolution.projectId,
+          onSlugDeprecated: undefined,
+          buildType: 'production',
+        })
+      );
+      const notices = vi
+        .mocked(process.stderr.write)
+        .mock.calls.filter(([text]) => String(text).includes('slugs are deprecated'));
+      expect(notices).toEqual([
+        [
+          `Organization and project slugs are deprecated. Use the ids instead: --organization ${resolution.organizationId} --project ${resolution.projectId}\n`,
+        ],
+      ]);
+    });
+
     it('warns when the push has no changes', async () => {
       vi.mocked(waitForDeployment).mockResolvedValue({ ...pushResponseStub, hasChanges: false });
 
