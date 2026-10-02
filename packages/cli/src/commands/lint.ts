@@ -2,28 +2,21 @@ import {
   formatProblems,
   getTotals,
   lint,
-  lintConfig,
   pluralize,
-  ConfigValidationError,
   logger,
-  type Config,
-  type Exact,
   type OutputFormat,
   AbortFlowError,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
-import type { Arguments } from 'yargs';
 
-import type { CommandArgv, Totals } from '../types.js';
-import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
+import type { Totals } from '../types.js';
 import {
   checkIfRulesetExist,
   formatPath,
   getExecutionTime,
   getFallbackApisOrExit,
   handleError,
-  printConfigLintTotals,
   printLintTotals,
   printUnusedWarnings,
 } from '../utils/miscellaneous.js';
@@ -138,45 +131,5 @@ export async function handleLint({
 
   if (!(totals.errors === 0 || argv['generate-ignore-file'])) {
     throw new AbortFlowError('Lint failed.');
-  }
-}
-
-export async function handleLintConfig(argv: Exact<CommandArgv>, version: string, config: Config) {
-  if (argv['lint-config'] === 'off' || config.document === undefined) {
-    return;
-  }
-
-  if (
-    argv.format === 'json' ||
-    argv.format === 'junit' ||
-    argv.format === 'checkstyle' ||
-    argv.format === 'sarif'
-  ) {
-    // these are single-document formats, so a separate config-lint document would break the output
-    return;
-  }
-
-  const command = argv ? getCommandNameFromArgs(argv as Arguments) : undefined;
-
-  const problems = await lintConfig({
-    config,
-    severity: argv['lint-config'] || 'warn',
-  });
-
-  const fileTotals = getTotals(problems);
-
-  formatProblems(problems, {
-    // These are config problems, and config output has no `table` format (the `recheck` default).
-    format: argv.format === 'table' ? undefined : argv.format,
-    maxProblems: argv['max-problems'],
-    totals: fileTotals,
-    version,
-    command: 'check-config',
-  });
-
-  printConfigLintTotals(fileTotals, command);
-
-  if (fileTotals.errors > 0) {
-    throw new ConfigValidationError();
   }
 }
