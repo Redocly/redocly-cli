@@ -54,14 +54,14 @@ export async function runStep({
   const { stepId, onFailure, onSuccess, workflowId: targetWorkflowRef, parameters } = step;
 
   const failureActionsToRun = (onFailure || workflow?.failureActions || []).map(
-    (action) => resolveReusableComponentItem(action, ctx) as OnFailureObject
+    (action) => resolveReusableComponentItem(action, ctx, 'failureActions') as OnFailureObject
   );
   const successActionsToRun = (onSuccess || workflow?.successActions || []).map(
-    (action) => resolveReusableComponentItem(action, ctx) as OnSuccessObject
+    (action) => resolveReusableComponentItem(action, ctx, 'successActions') as OnSuccessObject
   );
 
   const resolvedParameters = parameters?.map(
-    (parameter) => resolveReusableComponentItem(parameter, ctx) as ResolvedParameter
+    (parameter) => resolveReusableComponentItem(parameter, ctx, 'parameters') as ResolvedParameter
   );
 
   if (targetWorkflowRef) {
@@ -197,7 +197,11 @@ export async function runStep({
   if (resolvedParameters && resolvedParameters.length) {
     // When the step in context does not specify a workflowId the `in` field MUST be specified.
     const parameterWithoutIn = resolvedParameters.find((parameter: Parameter) => {
-      const resolvedParameter = resolveReusableComponentItem(parameter, ctx) as ResolvedParameter;
+      const resolvedParameter = resolveReusableComponentItem(
+        parameter,
+        ctx,
+        'parameters'
+      ) as ResolvedParameter;
       return !('in' in resolvedParameter);
     });
 
@@ -324,7 +328,7 @@ export async function runStep({
       }
       try {
         const actionParameters = action.parameters.map((parameter) =>
-          resolveReusableComponentItem(parameter, ctx)
+          resolveReusableComponentItem(parameter, ctx, 'parameters')
         );
         // action parameters always map to workflow inputs, so the spec forbids any `in` on them,
         // including locations that respect doesn't send, such as `querystring`
