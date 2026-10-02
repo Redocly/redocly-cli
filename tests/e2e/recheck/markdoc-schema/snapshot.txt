@@ -1,0 +1,2 @@
+
+Wrote ./tests/e2e/recheck/markdoc-schema/schema.yaml

@@ -264,7 +264,7 @@ const builtInDecorators = [...builtInOas3Decorators, ...builtInOas2Decorators] a
 type BuiltInDecoratorId = (typeof builtInDecorators)[number];
 
 const configGovernanceProperties: Record<
-  keyof RawGovernanceConfig,
+  Exclude<keyof RawGovernanceConfig, 'recheck'>,
   NodeType['properties'][string]
 > = {
   extends: {

@@ -93,7 +93,8 @@ describe('handleLint', () => {
           format: 'codeframe',
           'lint-config': 'off',
         },
-        '2.0.0'
+        '2.0.0',
+        undefined
       );
       expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
@@ -112,7 +113,8 @@ describe('handleLint', () => {
           format: 'codeframe',
           'lint-config': 'off',
         },
-        '2.0.0'
+        '2.0.0',
+        undefined
       );
     });
 

@@ -1,0 +1,259 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import * as path from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
+
+import { presetBlock } from '../../__tests__/preset-block.js';
+import { DEFAULT_BASELINE_FILE, resolveRecheckConfig } from '../resolve.js';
+
+const configDir = '/tmp/project';
+
+describe('resolveRecheckConfig', () => {
+  it('validates a block that already holds preset rules', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown']),
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.config.rules.length).toBeGreaterThan(40);
+    expect(result.config.rules.some((rule) => rule.name === 'recheck/heading-style')).toBe(true);
+  });
+
+  it('applies a block rule object over the preset', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], {
+        rules: { 'recheck/heading-style': { severity: 'warn' } },
+      }),
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const rule = result.config.rules.find((r) => r.name === 'recheck/heading-style');
+    expect(rule?.severity).toBe('warn');
+  });
+
+  it('turns a severity shorthand without a preset into a rule the engine validates', async () => {
+    const result = await resolveRecheckConfig({
+      block: { rules: { 'custom/x': 'off' } },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0]).toEqual({
+      path: 'recheck.rules.custom/x',
+      message: "must have required property 'message'",
+    });
+  });
+
+  it('reports a bad block setting at its block path', async () => {
+    const result = await resolveRecheckConfig({ block: { excludes: 'x' }, configDir });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].path).toBe('recheck.excludes');
+    expect(result.errors[0].message).toMatch(/^must be array/);
+  });
+
+  it('reports a markdoc tagsFile error at its block path without repeating it', async () => {
+    const result = await resolveRecheckConfig({
+      block: { markdoc: { schema: 'realm', extend: { tagsFile: 'missing-tags.yaml' } } },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].path).toBe('recheck.markdoc.extend.tagsFile');
+    expect(result.errors[0].message).toMatch(/^could not read "/);
+  });
+
+  it('reports an unknown block key at the block root', async () => {
+    const result = await resolveRecheckConfig({ block: { nope: 1 }, configDir });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].path).toBe('recheck');
+    expect(result.errors[0].message).toContain('unknown property "nope"');
+  });
+
+  it('normalizes the severity shorthand', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], { rules: { 'recheck/heading-style': 'off' } }),
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const rule = result.config.rules.find((r) => r.name === 'recheck/heading-style');
+    expect(rule?.severity).toBe('off');
+  });
+
+  describe('default baseline discovery', () => {
+    const tempDirs: string[] = [];
+
+    function makeConfigDir(withBaselineFile: boolean): string {
+      const dir = mkdtempSync(path.join(tmpdir(), 'recheck-baseline-'));
+      tempDirs.push(dir);
+      if (withBaselineFile) {
+        writeFileSync(path.join(dir, DEFAULT_BASELINE_FILE), 'version: 1\nfiles: {}\n', 'utf8');
+      }
+      return dir;
+    }
+
+    afterEach(() => {
+      for (const dir of tempDirs.splice(0)) rmSync(dir, { recursive: true, force: true });
+    });
+
+    it('picks up the default baseline file next to redocly.yaml', async () => {
+      const dir = makeConfigDir(true);
+      const result = await resolveRecheckConfig({
+        block: await presetBlock(['recheck/markdown']),
+        configDir: dir,
+      });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.config.baselinePath).toBe(path.resolve(dir, DEFAULT_BASELINE_FILE));
+    });
+
+    it('leaves the baseline path undefined when no default file exists', async () => {
+      const dir = makeConfigDir(false);
+      const result = await resolveRecheckConfig({
+        block: await presetBlock(['recheck/markdown']),
+        configDir: dir,
+      });
+      expect(result.success).toBe(true);
+      if (!result.success) return;
+      expect(result.config.baselinePath).toBeUndefined();
+    });
+  });
+
+  it('rejects a `baseline` key in the block', async () => {
+    const result = await resolveRecheckConfig({
+      block: { ...(await presetBlock(['recheck/markdown'])), baseline: './custom-baseline.yaml' },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message:
+          '`recheck.baseline` is not supported; the command reads `.redocly.recheck-baseline.yaml` next to `redocly.yaml`.',
+        path: 'recheck.baseline',
+      },
+    ]);
+  });
+
+  it('enables markdoc with the built-in realm schema for `markdoc: true`', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], { markdoc: true }),
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.config.markdoc).toBe(true);
+    expect(result.config.markdocSchema).not.toBeNull();
+  });
+
+  it('keeps apiDescriptions rules raw for the API path', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], {
+        apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
+      }),
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.config.apiDescriptionRules).toEqual({ 'recheck/line-length': 'off' });
+  });
+
+  it('merges the block on top of the presets with the core merge', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], {
+        rules: { 'recheck/line-length': { assertions: { 'line-length': { lineLength: 120 } } } },
+      }),
+      configDir,
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const rule = result.config.rules.find((entry) => entry.name === 'recheck/line-length');
+    expect(rule?.severity).toBe('error');
+    expect(rule?.assertions['line-length']).toEqual({ lineLength: 120 });
+    expect(typeof rule?.message).toBe('string');
+  });
+
+  it('rejects extends inside the block with a pointer to the root', async () => {
+    const result = await resolveRecheckConfig({
+      block: { extends: ['recheck/markdown'] },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors[0].message).toContain('root `extends`');
+  });
+
+  it('rejects a non-object `rules` block instead of silently ignoring it', async () => {
+    const result = await resolveRecheckConfig({
+      block: { rules: 'typo' },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      { message: '`recheck.rules` must be an object', path: 'recheck.rules' },
+    ]);
+  });
+
+  it('rejects a non-object `recheck` block instead of silently ignoring it', async () => {
+    const result = await resolveRecheckConfig({
+      block: 'recheck/markdown',
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([{ message: '`recheck` must be an object', path: 'recheck' }]);
+  });
+
+  it('resolves an absent `recheck` block to an empty object', async () => {
+    const result = await resolveRecheckConfig({ configDir });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.config.rules).toEqual([]);
+  });
+
+  it('surfaces engine validation errors', async () => {
+    const result = await resolveRecheckConfig({
+      block: {
+        rules: {
+          'custom/bad': {
+            severity: 'error',
+            message: 'x',
+            assertions: { 'no-such-assertion': {} },
+          },
+        },
+      },
+      configDir,
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    const error = result.errors.find((e) => e.message.includes('Unknown assertion type'));
+    expect(error?.path).toBe('recheck.rules.custom/bad.assertions.no-such-assertion');
+    expect(error?.message).toBe('Unknown assertion type "no-such-assertion"');
+  });
+
+  it('forwards engine warnings to the warn callback', async () => {
+    const warnings: string[] = [];
+    // A heading-scoped pattern token that starts with `^#` makes validate() warn.
+    const result = await resolveRecheckConfig({
+      block: {
+        rules: {
+          'custom/heading-pattern': {
+            severity: 'error',
+            message: 'x',
+            scope: 'heading',
+            assertions: { pattern: { tokens: ['^#+ \\w*ing'] } },
+          },
+        },
+      },
+      configDir,
+      warn: (message) => warnings.push(message),
+    });
+    expect(result.success).toBe(true);
+    expect(warnings.some((message) => message.includes("starts with '^#'"))).toBe(true);
+  });
+});
