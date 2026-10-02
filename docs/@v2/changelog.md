@@ -7,6 +7,29 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.58.0 (2026-10-02)
+
+### Minor Changes
+
+- Added the `--coverage` and `--coverage-output` options to the experimental `drift` command.
+  `--coverage` prints how much of the OpenAPI description the recorded traffic exercised.
+  `--coverage-output` lists the covered and missing items of every operation in a JSON file.
+
+  Fixed the `schema-consistency` rule of the `drift` command so that a required property marked `readOnly` or `writeOnly` through `allOf` is no longer reported as missing.
+
+  Fixed the `schema-consistency` rule of the `drift` command so that a response body is validated against the response documented for its status code: an exact status match without `content` is no longer validated against the `default` (or `2XX`-style) response schema.
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+- Updated @redocly/recheck to v2.58.0.
+
 ## 2.57.0 (2026-09-30)
 
 ### Minor Changes
