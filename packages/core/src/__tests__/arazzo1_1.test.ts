@@ -435,4 +435,81 @@ describe('Arazzo 1.1 lint', () => {
 
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
+
+  it('reports action parameters without a workflowId', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cafe workflows
+          version: 1.0.0
+        sourceDescriptions:
+          - name: cafe-api
+            type: openapi
+            url: cafe.yaml
+        workflows:
+          - workflowId: place-order
+            steps:
+              - stepId: create-order
+                operationId: cafe-api.createOrder
+                successCriteria:
+                  - condition: $statusCode == 201
+                onSuccess:
+                  - name: load-order
+                    type: goto
+                    stepId: load-order
+                    parameters:
+                      - name: orderId
+                        value: $response.body#/id
+                onFailure:
+                  - name: stop
+                    type: end
+                    parameters:
+                      - name: reason
+                        value: $statusCode
+              - stepId: load-order
+                operationId: cafe-api.getOrderById
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({ rules: { struct: 'error' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`workflowId\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+        {
+          "from": undefined,
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onFailure/0",
+              "reportOnKey": true,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The field \`workflowId\` must be present on this level.",
+          "ruleId": "struct",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

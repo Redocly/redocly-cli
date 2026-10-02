@@ -234,6 +234,39 @@ describe('runWorkflow', () => {
     expect(ctx.$workflows.test.outputs).toEqual({ test: 'test' });
   });
 
+  it('should apply the passed inputs to this workflow run only', async () => {
+    const workflow = {
+      workflowId: 'test',
+      inputs: { type: 'object', properties: { search: { type: 'string' } } },
+      outputs: { search: '$inputs.search' },
+      steps: [],
+    } as unknown as Workflow;
+
+    const ctx = {
+      workflows: [workflow],
+      executedSteps: [],
+      $workflows: { test: { steps: {}, inputs: { search: 'from-cli' } } },
+      $steps: {},
+      $outputs: {},
+      severity: DEFAULT_SEVERITY_CONFIGURATION,
+      options: {
+        verbose: false,
+        filePath: fileName,
+        logger,
+      },
+    } as unknown as TestContext;
+
+    await runWorkflow({
+      workflowInput: workflow,
+      ctx,
+      inputs: { search: 'from-action' },
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(ctx.$outputs?.test).toEqual({ search: 'from-action' });
+    expect(ctx.$workflows.test.inputs).toEqual({ search: 'from-cli' });
+  });
+
   it('should return if workflow does not have steps', async () => {
     const apiClient = {
       fetchResult: vi.fn(),

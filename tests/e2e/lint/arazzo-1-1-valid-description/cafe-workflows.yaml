@@ -101,6 +101,7 @@ workflows:
             type: retry
             retryAfter: 2
             retryLimit: 3
+            workflowId: notify-customer
             parameters:
               - name: orderId
                 value: $steps.create-order.outputs.orderId
