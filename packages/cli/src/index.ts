@@ -481,7 +481,8 @@ yargs(hideBin(process.argv))
         }),
     async (argv) => {
       const { handleRecheck } = await import('./commands/recheck/index.js');
-      commandWrapper(handleRecheck)(argv);
+      const { recheckPresetsPlugin } = await import('@redocly/recheck/presets');
+      commandWrapper(handleRecheck, { plugins: [recheckPresetsPlugin] })(argv);
     }
   )
   .command(

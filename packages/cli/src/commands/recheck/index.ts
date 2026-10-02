@@ -2,7 +2,6 @@ import {
   AbortFlowError,
   detectSpec,
   isPlainObject,
-  isRecheckPreset,
   isString,
   logger,
   parseYaml,
@@ -18,6 +17,7 @@ import {
   type LintOptions,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
+import { presets } from '@redocly/recheck/presets';
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, extname } from 'node:path';
 
@@ -62,10 +62,10 @@ function warnAboutPerApiRecheck(config: Config): void {
   if (!isPlainObject(raw) || !isPlainObject(raw.apis)) return;
   for (const [alias, api] of Object.entries(raw.apis)) {
     if (!isPlainObject(api)) continue;
-    const presets = Array.isArray(api.extends)
-      ? api.extends.filter(isString).filter(isRecheckPreset)
+    const recheckPresets = Array.isArray(api.extends)
+      ? api.extends.filter(isString).filter((name) => name.startsWith('recheck/'))
       : [];
-    if ('recheck' in api || presets.length > 0) {
+    if ('recheck' in api || recheckPresets.length > 0) {
       logger.warn(
         `Recheck settings under apis.${alias} are not used; the command reads the root config.\n`
       );
@@ -112,9 +112,8 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
   }
 
   warnAboutPerApiRecheck(config);
-  let presets = config.recheckExtends;
-  const block = config.recheck;
-  if (presets.length === 0 && !hasRecheckConfig(block)) {
+  let block = config.recheck;
+  if (!hasRecheckConfig(block)) {
     if (config.configPath) {
       logger.info(
         'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
@@ -122,11 +121,10 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
       return;
     }
     logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
-    presets = [DEFAULT_PRESET];
+    block = { rules: presets[DEFAULT_PRESET] };
   }
   const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
-    extends: presets,
     block,
     configDir,
     warn: (message) => logger.warn(`${message}\n`),

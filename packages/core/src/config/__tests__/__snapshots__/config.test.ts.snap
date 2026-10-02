@@ -50,7 +50,6 @@ Config {
   "recheck": {
     "rules": {},
   },
-  "recheckExtends": [],
   "resolve": {
     "http": {
       "customFetch": undefined,

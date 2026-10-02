@@ -144,14 +144,9 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   openrpc1Decorators?: Record<string, DecoratorConfig>;
 
   recheck?: RecheckConfig;
-  // Set by the config bundler: the `recheck/*` presets from `extends`.
-  recheckExtends?: string[];
 };
 
-export type ResolvedGovernanceConfig = Omit<
-  RawGovernanceConfig,
-  'extends' | 'plugins' | 'recheckExtends'
->;
+export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
 
 export type PreprocessorsConfig = {
   oas3?: Oas3DecoratorsSet;
@@ -294,10 +289,7 @@ export type RawUniversalApiConfig = ApiConfig &
 
 export type ResolvedApiConfig = ApiConfig &
   Required<ResolvedGovernanceConfig> &
-  ClientGeneratorApiConfig & {
-    // The root `recheck/*` presets, then the presets of this api.
-    recheckExtends?: string[];
-  };
+  ClientGeneratorApiConfig;
 
 export type RawUniversalConfig = Omit<RedoclyConfig, 'apis' | 'plugins'> &
   RawGovernanceConfig & {
@@ -314,7 +306,6 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
     plugins?: string[];
     /** Per-api keys, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
-    recheckExtends?: string[];
     overlays?: string[];
   };
 

@@ -13,11 +13,6 @@ export function isRecheckPreset(name: string): boolean {
   return name.startsWith(`${RECHECK_PLUGIN_ID}/`);
 }
 
-/** Keeps each preset name once, at its last position, because a later preset wins. */
-export function orderRecheckPresets(names: string[]): string[] {
-  return names.filter((name, index) => names.indexOf(name, index + 1) === -1);
-}
-
 /**
  * Merges one rule entry on top of another. A severity string sets `severity`.
  * An object sets its own keys and merges `assertions` by id.
