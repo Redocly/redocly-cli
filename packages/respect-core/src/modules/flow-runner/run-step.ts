@@ -394,7 +394,8 @@ export async function runStep({
         const targetStep = action.stepId ? action.stepId : undefined;
 
         if (type === 'retry') {
-          const { retryAfter, retryLimit = 0 } = action;
+          // the spec retries a step once when the action has no `retryLimit`
+          const { retryAfter, retryLimit = 1 } = action;
           retriesLeft = retriesLeft ?? retryLimit;
           step.retriesLeft = retriesLeft;
           if (retriesLeft === 0) {
@@ -436,11 +437,14 @@ export async function runStep({
                 `Step ${targetStep} not found in workflow ${workflowId}`
               );
             }
+            // pass the retries left, as for a target workflow, so a target step
+            // with its own retry action can't start a new round of retries
             await runStep({
               step: stepToRun,
               ctx: targetCtx,
               workflowId,
               executedStepsCount,
+              retriesLeft: retriesLeft - 1,
             });
           }
 
@@ -530,6 +534,12 @@ function getWorkflowInputs({
 
   return parameters.filter(isParameterWithoutIn).reduce(
     (acc, parameter: ParameterWithoutIn) => {
+      // the spec forbids duplicates; the lint step that reports them is skipped with `skipLint`
+      if (Object.hasOwn(acc, parameter.name)) {
+        throw new Error(
+          `Parameter ${parameter.name} is listed more than once, directly or through a reference.`
+        );
+      }
       acc[parameter.name] = evaluateRuntimeExpressionPayload({
         payload: parameter.value,
         context: expressionContext,
