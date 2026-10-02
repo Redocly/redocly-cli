@@ -5,8 +5,6 @@ import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.j
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
 import type {
-  ListResponse,
-  OrganizationResponse,
   ProjectResponse,
   ProjectSourceResponse,
   PushResponse,
@@ -126,11 +124,12 @@ abstract class ResourceApi {
   }
 }
 
-class OrganizationsApi extends ResourceApi {
-  async findBySlug(slug: string): Promise<OrganizationResponse | undefined> {
+class ProjectsApi extends ResourceApi {
+  // Both segments accept an id or a slug; the response carries the ids.
+  async find(organization: string, project: string): Promise<ProjectResponse | undefined> {
     try {
       const response = await this.client.request(
-        `${this.domain}/api/orgs/${encodeURIComponent(slug)}`,
+        `${this.domain}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(project)}`,
         {
           timeout: DEFAULT_FETCH_TIMEOUT,
           method: 'GET',
@@ -145,40 +144,7 @@ class OrganizationsApi extends ResourceApi {
         return undefined;
       }
 
-      return await this.getParsedResponse<OrganizationResponse>(response);
-    } catch (err) {
-      const message = `Failed to fetch organization. ${err.message}`;
-
-      if (err instanceof ReuniteApiError) {
-        throw new ReuniteApiError(message, err.status);
-      }
-
-      throw new Error(message);
-    }
-  }
-
-  async findProjectBySlug(
-    organizationId: string,
-    slug: string
-  ): Promise<ProjectResponse | undefined> {
-    const query = new URLSearchParams({ filter: `slug:${slug}`, limit: '1' });
-
-    try {
-      const response = await this.client.request(
-        `${this.domain}/api/orgs/${organizationId}/projects?${query}`,
-        {
-          timeout: DEFAULT_FETCH_TIMEOUT,
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${this.apiKey}`,
-          },
-        }
-      );
-
-      const { data } = await this.getParsedResponse<ListResponse<ProjectResponse>>(response);
-
-      return data[0];
+      return await this.getParsedResponse<ProjectResponse>(response);
     } catch (err) {
       const message = `Failed to fetch project. ${err.message}`;
 
@@ -363,7 +329,7 @@ class RemotesApi extends ResourceApi {
 export class ReuniteApi {
   private apiClient: ReuniteApiClient;
 
-  public organizations: OrganizationsApi;
+  public projects: ProjectsApi;
   public remotes: RemotesApi;
 
   constructor({
@@ -379,7 +345,7 @@ export class ReuniteApi {
   }) {
     this.apiClient = new ReuniteApiClient(command, version);
 
-    this.organizations = new OrganizationsApi(this.apiClient, domain, apiKey);
+    this.projects = new ProjectsApi(this.apiClient, domain, apiKey);
     this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
   }
 

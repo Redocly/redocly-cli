@@ -23,9 +23,8 @@ const remotes = {
   upsert: vi.fn(),
   getDefaultBranch: vi.fn(),
 };
-const organizations = {
-  findBySlug: vi.fn(),
-  findProjectBySlug: vi.fn(),
+const projects = {
+  find: vi.fn(),
 };
 
 const options: PushOptions = {
@@ -56,7 +55,7 @@ describe('pushFiles()', () => {
     remotes.push.mockResolvedValue({ id: 'test-id' });
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
-      this.organizations = organizations;
+      this.projects = projects;
       this.getSunsetWarning = vi.fn();
     });
     vi.mocked(slash).mockImplementation((filePath) => filePath);
@@ -104,20 +103,15 @@ describe('pushFiles()', () => {
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
     });
-    expect(organizations.findBySlug).not.toHaveBeenCalled();
-    expect(organizations.findProjectBySlug).not.toHaveBeenCalled();
+    expect(projects.find).not.toHaveBeenCalled();
   });
 
   it('resolves organization and project slugs before pushing and reports it', async () => {
-    organizations.findBySlug.mockResolvedValue({
-      id: 'org_01hksn7dgmb6jpak0tzzepreq1',
-      slug: 'acme',
-      name: 'Acme',
-    });
-    organizations.findProjectBySlug.mockResolvedValue({
+    projects.find.mockResolvedValue({
       id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
       slug: 'docs',
       name: 'Docs',
+      uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
     });
     const onSlugDeprecated = vi.fn();
 
@@ -128,11 +122,7 @@ describe('pushFiles()', () => {
       onSlugDeprecated,
     });
 
-    expect(organizations.findBySlug).toHaveBeenCalledWith('acme');
-    expect(organizations.findProjectBySlug).toHaveBeenCalledWith(
-      'org_01hksn7dgmb6jpak0tzzepreq1',
-      'docs'
-    );
+    expect(projects.find).toHaveBeenCalledWith('acme', 'docs');
     expect(remotes.push).toHaveBeenCalledWith(
       'org_01hksn7dgmb6jpak0tzzepreq1',
       'prj_01hksn7dhbmf3nby0aeax6bkvf',
@@ -183,7 +173,7 @@ describe('pushFiles()', () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
-      this.organizations = organizations;
+      this.projects = projects;
       this.getSunsetWarning = vi.fn(() => sunsetWarning);
     });
     const onSunsetWarning = vi.fn();
@@ -197,7 +187,7 @@ describe('pushFiles()', () => {
     const sunsetWarning = { sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true };
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
-      this.organizations = organizations;
+      this.projects = projects;
       this.getSunsetWarning = vi.fn(() => sunsetWarning);
     });
     remotes.push.mockRejectedValue(new ReuniteApiError('Gone.', 410));

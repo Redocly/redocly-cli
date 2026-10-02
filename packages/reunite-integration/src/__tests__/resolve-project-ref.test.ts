@@ -3,9 +3,15 @@ import { isOrganizationId, isProjectId, resolveProjectRef } from '../resolve-pro
 
 const ORG_ID = 'org_01hksn7dgmb6jpak0tzzepreq1';
 const PROJECT_ID = 'prj_01hksn7dhbmf3nby0aeax6bkvf';
+const PROJECT = {
+  id: PROJECT_ID,
+  slug: 'docs',
+  name: 'Docs',
+  uri: `https://app.cloud.redocly.com/api/orgs/${ORG_ID}/projects/${PROJECT_ID}`,
+};
 
-const organizations = { findBySlug: vi.fn(), findProjectBySlug: vi.fn() };
-const client = { organizations } as unknown as ReuniteApi;
+const projects = { find: vi.fn() };
+const client = { projects } as unknown as ReuniteApi;
 
 describe('isOrganizationId() / isProjectId()', () => {
   it('accepts Reunite ids and rejects slugs', () => {
@@ -32,18 +38,12 @@ describe('resolveProjectRef()', () => {
     });
 
     expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
-    expect(organizations.findBySlug).not.toHaveBeenCalled();
-    expect(organizations.findProjectBySlug).not.toHaveBeenCalled();
+    expect(projects.find).not.toHaveBeenCalled();
     expect(onSlugDeprecated).not.toHaveBeenCalled();
   });
 
   it('looks up slugs and reports the resolved ids', async () => {
-    organizations.findBySlug.mockResolvedValue({ id: ORG_ID, slug: 'acme', name: 'Acme' });
-    organizations.findProjectBySlug.mockResolvedValue({
-      id: PROJECT_ID,
-      slug: 'docs',
-      name: 'Docs',
-    });
+    projects.find.mockResolvedValue(PROJECT);
     const onSlugDeprecated = vi.fn();
 
     const result = await resolveProjectRef(client, {
@@ -52,29 +52,22 @@ describe('resolveProjectRef()', () => {
       onSlugDeprecated,
     });
 
-    expect(organizations.findBySlug).toHaveBeenCalledWith('acme');
-    expect(organizations.findProjectBySlug).toHaveBeenCalledWith(ORG_ID, 'docs');
+    expect(projects.find).toHaveBeenCalledWith('acme', 'docs');
     expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
     expect(onSlugDeprecated).toHaveBeenCalledWith(result);
   });
 
-  it('looks up only the value that is a slug', async () => {
-    organizations.findProjectBySlug.mockResolvedValue({
-      id: PROJECT_ID,
-      slug: 'docs',
-      name: 'Docs',
-    });
+  it('looks up a mix of an id and a slug', async () => {
+    projects.find.mockResolvedValue(PROJECT);
 
     const result = await resolveProjectRef(client, { organization: ORG_ID, project: 'docs' });
 
-    expect(organizations.findBySlug).not.toHaveBeenCalled();
-    expect(organizations.findProjectBySlug).toHaveBeenCalledWith(ORG_ID, 'docs');
+    expect(projects.find).toHaveBeenCalledWith(ORG_ID, 'docs');
     expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
   });
 
   it('passes the slugs through when the API key may not look them up', async () => {
-    organizations.findBySlug.mockResolvedValue({ id: ORG_ID, slug: 'acme', name: 'Acme' });
-    organizations.findProjectBySlug.mockRejectedValue(
+    projects.find.mockRejectedValue(
       new ReuniteApiError('Missing required organization permissions.', 403)
     );
     const onSlugDeprecated = vi.fn();
@@ -90,37 +83,34 @@ describe('resolveProjectRef()', () => {
   });
 
   it('lets other lookup errors through', async () => {
-    organizations.findBySlug.mockRejectedValue(new ReuniteApiError('Bad Gateway.', 502));
+    projects.find.mockRejectedValue(new ReuniteApiError('Bad Gateway.', 502));
 
     await expect(
       resolveProjectRef(client, { organization: 'acme', project: 'docs' })
     ).rejects.toThrow('Bad Gateway.');
   });
 
-  it('fails with a pointer to the settings page when the organization slug is unknown', async () => {
-    organizations.findBySlug.mockResolvedValue(undefined);
+  it('fails with a pointer to the settings pages when the slugs are unknown', async () => {
+    projects.find.mockResolvedValue(undefined);
 
     await expect(
-      resolveProjectRef(client, { organization: 'nope', project: 'docs' })
+      resolveProjectRef(client, { organization: 'acme', project: 'nope' })
     ).rejects.toThrow(
       new ReuniteApiError(
-        'Organization "nope" was not found. Use the organization ID from the organization settings in Reunite.',
+        'Project "nope" was not found in organization "acme". Use the IDs from the organization and project settings in Reunite.',
         404
       )
     );
-    expect(organizations.findProjectBySlug).not.toHaveBeenCalled();
   });
 
-  it('fails with a pointer to the settings page when the project slug is unknown', async () => {
-    organizations.findProjectBySlug.mockResolvedValue(undefined);
+  it('fails when the project URI carries no organization id', async () => {
+    projects.find.mockResolvedValue({
+      ...PROJECT,
+      uri: 'https://app.cloud.redocly.com/api/projects',
+    });
 
     await expect(
-      resolveProjectRef(client, { organization: ORG_ID, project: 'nope' })
-    ).rejects.toThrow(
-      new ReuniteApiError(
-        'Project "nope" was not found. Use the project ID from the project settings in Reunite.',
-        404
-      )
-    );
+      resolveProjectRef(client, { organization: 'acme', project: 'docs' })
+    ).rejects.toThrow('Could not read the organization ID from the project URI');
   });
 });

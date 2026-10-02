@@ -2,6 +2,7 @@ import { ReuniteApiError, type ReuniteApi } from './api/api-client.js';
 
 const ORGANIZATION_ID_PATTERN = /^org_[0-9abcdefghjkmnpqrstvwxyz]{26}$/;
 const PROJECT_ID_PATTERN = /^prj_[0-9abcdefghjkmnpqrstvwxyz]{26}$/;
+const ORGANIZATION_ID_IN_URI = /\/orgs\/(org_[0-9abcdefghjkmnpqrstvwxyz]{26})\/projects\//;
 const DENIED_STATUSES = [401, 403];
 
 export type ProjectRef = {
@@ -50,14 +51,22 @@ async function lookUp(
   project: string
 ): Promise<ProjectRefResolution> {
   try {
-    const organizationId = isOrganizationId(organization)
-      ? organization
-      : await findOrganizationId(client, organization);
-    const projectId = isProjectId(project)
-      ? project
-      : await findProjectId(client, organizationId, project);
+    const found = await client.projects.find(organization, project);
 
-    return { organizationId, projectId, resolved: true };
+    if (!found) {
+      throw new ReuniteApiError(
+        `Project "${project}" was not found in organization "${organization}". Use the IDs from the organization and project settings in Reunite.`,
+        404
+      );
+    }
+
+    const organizationId = found.uri.match(ORGANIZATION_ID_IN_URI)?.[1];
+
+    if (!organizationId) {
+      throw new Error(`Could not read the organization ID from the project URI "${found.uri}".`);
+    }
+
+    return { organizationId, projectId: found.id, resolved: true };
   } catch (err) {
     if (err instanceof ReuniteApiError && DENIED_STATUSES.includes(err.status)) {
       return { organizationId: organization, projectId: project, resolved: false };
@@ -65,34 +74,4 @@ async function lookUp(
 
     throw err;
   }
-}
-
-async function findOrganizationId(client: ReuniteApi, slug: string): Promise<string> {
-  const organization = await client.organizations.findBySlug(slug);
-
-  if (!organization) {
-    throw new ReuniteApiError(
-      `Organization "${slug}" was not found. Use the organization ID from the organization settings in Reunite.`,
-      404
-    );
-  }
-
-  return organization.id;
-}
-
-async function findProjectId(
-  client: ReuniteApi,
-  organizationId: string,
-  slug: string
-): Promise<string> {
-  const project = await client.organizations.findProjectBySlug(organizationId, slug);
-
-  if (!project) {
-    throw new ReuniteApiError(
-      `Project "${slug}" was not found. Use the project ID from the project settings in Reunite.`,
-      404
-    );
-  }
-
-  return project.id;
 }

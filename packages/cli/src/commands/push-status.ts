@@ -141,7 +141,7 @@ export function printSlugDeprecation({
 }: ProjectRefResolution): void {
   const hint = resolved
     ? `Use the ids instead: --organization ${organizationId} --project ${projectId}`
-    : 'The API key is not allowed to look the ids up (it needs the "org.organizations.read" and "org.project.view" permissions). Find them in the organization and project settings in Reunite.';
+    : 'The API key is not allowed to look the ids up (it needs the "org.project.read" permission). Find them in the organization and project settings in Reunite.';
 
   logger.warn(`Organization and project slugs are deprecated. ${hint}\n`);
 }

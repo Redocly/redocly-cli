@@ -17,8 +17,6 @@ export {
 export type {
   DeploymentStatus,
   DeploymentStatusResponse,
-  ListResponse,
-  OrganizationResponse,
   ProjectResponse,
   ProjectSourceResponse,
   PushResponse,
