@@ -15,12 +15,19 @@ env:
   CI: true
   REDOCLY_TELEMETRY: off
 
+# One run per pull request at a time. A new push cancels the run of the old commit.
+concurrency:
+  group: stress-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   compare-output:
     # A fork pull request gets a read-only token and cannot comment, so same-repository pull requests only.
+    # A `labeled` event counts only for the stress test label itself, not for every label added later.
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository &&
-      contains(github.event.pull_request.labels.*.name, 'test-major-changes')
+      contains(github.event.pull_request.labels.*.name, 'test-major-changes') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'test-major-changes')
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
