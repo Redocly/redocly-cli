@@ -1,0 +1,11 @@
+{"request":{"method":"GET","url":"http://api.example.com/events?status=scheduled&limit=10&tags=a&tags=b","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/events?status=archived&limit=ten&page=2","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/events","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/events?status=scheduled&debug=1","headers":{"host":"api.example.com"}},"response":{"status":400,"headers":{"content-type":"application/json"},"body":"{}"}}
+{"request":{"method":"GET","url":"http://api.example.com/events/export?format=xml&verbose=1","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"text/csv"},"body":""}}
+{"request":{"method":"GET","url":"http://api.example.com/search?%7B%22term%22%3A%22caf%C3%A9%22%2C%22size%22%3A5%7D","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/search?%7B%22size%22%3A%22big%22%7D","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/search?not-json","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/echo?caf%C3%A9","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"text/plain"},"body":"café"}}
+{"request":{"method":"GET","url":"http://api.example.com/echo?caf%C3%A9%20au%20lait","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"text/plain"},"body":"café au lait"}}
+{"request":{"method":"GET","url":"http://api.example.com/legacy?filter=%7B%22a%22%3A1%7D","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}

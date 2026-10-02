@@ -1,0 +1,109 @@
+openapi: 3.2.0
+info:
+  title: Drift Querystring API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /events:
+    get:
+      operationId: listEvents
+      parameters:
+        - name: filters
+          in: querystring
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                required:
+                  - id
+                  - status
+                properties:
+                  id:
+                    type: string
+                    readOnly: true
+                  status:
+                    type: string
+                    enum:
+                      - scheduled
+                      - canceled
+                  limit:
+                    type: integer
+                  tags:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        '200':
+          description: A list of events.
+        '400':
+          description: Bad request.
+  /events/export:
+    get:
+      operationId: exportEvents
+      parameters:
+        - name: options
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  format:
+                    type: string
+                    enum:
+                      - csv
+                      - json
+      responses:
+        '200':
+          description: The export.
+  /search:
+    get:
+      operationId: search
+      parameters:
+        - name: query
+          in: querystring
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - term
+                properties:
+                  term:
+                    type: string
+                  size:
+                    type: integer
+      responses:
+        '200':
+          description: Search results.
+  /echo:
+    get:
+      operationId: echo
+      parameters:
+        - name: text
+          in: querystring
+          content:
+            text/plain:
+              schema:
+                type: string
+                maxLength: 5
+      responses:
+        '200':
+          description: The echoed text.
+  /legacy:
+    get:
+      operationId: legacyFilter
+      parameters:
+        - name: filter
+          in: query
+          content:
+            application/json:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: Filtered items.
