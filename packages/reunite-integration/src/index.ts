@@ -34,8 +34,6 @@ export {
   type PushResult,
 } from './push.js';
 export {
-  isOrganizationId,
-  isProjectId,
   resolveProjectRef,
   type ProjectRef,
   type ProjectRefResolution,

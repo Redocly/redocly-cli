@@ -53,6 +53,12 @@ describe('pushFiles()', () => {
     remotes.getDefaultBranch.mockResolvedValue('test-default-branch');
     remotes.upsert.mockResolvedValue({ id: 'test-remote-id', mountPath: 'remote-mount-path' });
     remotes.push.mockResolvedValue({ id: 'test-id' });
+    projects.find.mockResolvedValue({
+      id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      slug: 'docs',
+      name: 'Docs',
+      uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
+    });
     vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
       this.remotes = remotes;
       this.projects = projects;
@@ -103,16 +109,13 @@ describe('pushFiles()', () => {
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
     });
-    expect(projects.find).not.toHaveBeenCalled();
+    expect(projects.find).toHaveBeenCalledWith(
+      'org_01hksn7dgmb6jpak0tzzepreq1',
+      'prj_01hksn7dhbmf3nby0aeax6bkvf'
+    );
   });
 
   it('resolves organization and project slugs before pushing and reports it', async () => {
-    projects.find.mockResolvedValue({
-      id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
-      slug: 'docs',
-      name: 'Docs',
-      uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
-    });
     const onSlugDeprecated = vi.fn();
 
     const result = await pushFiles({
@@ -132,7 +135,6 @@ describe('pushFiles()', () => {
     expect(onSlugDeprecated).toHaveBeenCalledWith({
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
-      resolved: true,
     });
     expect(result).toEqual({
       pushId: 'test-id',

@@ -1,5 +1,5 @@
 import { ReuniteApiError, type ReuniteApi } from '../api/api-client.js';
-import { isOrganizationId, isProjectId, resolveProjectRef } from '../resolve-project-ref.js';
+import { resolveProjectRef } from '../resolve-project-ref.js';
 
 const ORG_ID = 'org_01hksn7dgmb6jpak0tzzepreq1';
 const PROJECT_ID = 'prj_01hksn7dhbmf3nby0aeax6bkvf';
@@ -13,22 +13,12 @@ const PROJECT = {
 const projects = { find: vi.fn() };
 const client = { projects } as unknown as ReuniteApi;
 
-describe('isOrganizationId() / isProjectId()', () => {
-  it('accepts Reunite ids and rejects slugs', () => {
-    expect(isOrganizationId(ORG_ID)).toBe(true);
-    expect(isOrganizationId('acme')).toBe(false);
-    expect(isOrganizationId('org_acme')).toBe(false);
-    expect(isProjectId(PROJECT_ID)).toBe(true);
-    expect(isProjectId('docs')).toBe(false);
-  });
-});
-
 describe('resolveProjectRef()', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    projects.find.mockResolvedValue(PROJECT);
   });
 
-  it('keeps ids without calling the API', async () => {
+  it('looks the project up and keeps ids without a notice', async () => {
     const onSlugDeprecated = vi.fn();
 
     const result = await resolveProjectRef(client, {
@@ -37,13 +27,12 @@ describe('resolveProjectRef()', () => {
       onSlugDeprecated,
     });
 
-    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
-    expect(projects.find).not.toHaveBeenCalled();
+    expect(projects.find).toHaveBeenCalledWith(ORG_ID, PROJECT_ID);
+    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID });
     expect(onSlugDeprecated).not.toHaveBeenCalled();
   });
 
-  it('looks up slugs and reports the resolved ids', async () => {
-    projects.find.mockResolvedValue(PROJECT);
+  it('reports slugs with the ids from the lookup', async () => {
     const onSlugDeprecated = vi.fn();
 
     const result = await resolveProjectRef(client, {
@@ -53,20 +42,24 @@ describe('resolveProjectRef()', () => {
     });
 
     expect(projects.find).toHaveBeenCalledWith('acme', 'docs');
-    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
+    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID });
     expect(onSlugDeprecated).toHaveBeenCalledWith(result);
   });
 
-  it('looks up a mix of an id and a slug', async () => {
-    projects.find.mockResolvedValue(PROJECT);
+  it('reports a slug given next to an id', async () => {
+    const onSlugDeprecated = vi.fn();
 
-    const result = await resolveProjectRef(client, { organization: ORG_ID, project: 'docs' });
+    const result = await resolveProjectRef(client, {
+      organization: ORG_ID,
+      project: 'docs',
+      onSlugDeprecated,
+    });
 
-    expect(projects.find).toHaveBeenCalledWith(ORG_ID, 'docs');
-    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID, resolved: true });
+    expect(result).toEqual({ organizationId: ORG_ID, projectId: PROJECT_ID });
+    expect(onSlugDeprecated).toHaveBeenCalledWith(result);
   });
 
-  it('passes the slugs through when the API key may not look them up', async () => {
+  it('keeps the given values when the API key may not look the project up', async () => {
     projects.find.mockRejectedValue(
       new ReuniteApiError('Missing required organization permissions.', 403)
     );
@@ -78,8 +71,8 @@ describe('resolveProjectRef()', () => {
       onSlugDeprecated,
     });
 
-    expect(result).toEqual({ organizationId: 'acme', projectId: 'docs', resolved: false });
-    expect(onSlugDeprecated).toHaveBeenCalledWith(result);
+    expect(result).toEqual({ organizationId: 'acme', projectId: 'docs' });
+    expect(onSlugDeprecated).not.toHaveBeenCalled();
   });
 
   it('lets other lookup errors through', async () => {
@@ -90,7 +83,7 @@ describe('resolveProjectRef()', () => {
     ).rejects.toThrow('Bad Gateway.');
   });
 
-  it('fails with a pointer to the settings pages when the slugs are unknown', async () => {
+  it('fails with a pointer to the settings pages when the project is unknown', async () => {
     projects.find.mockResolvedValue(undefined);
 
     await expect(

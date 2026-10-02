@@ -98,7 +98,6 @@ export async function handlePushStatus({
       push = await waitForDeployment({
         ...waitOptions,
         ...projectRef,
-        onSlugDeprecated: undefined,
         buildType: 'production',
         onRetry: showProgress('production'),
       });
@@ -140,16 +139,10 @@ export function handleReuniteError(
   throw new HandledError(`${message} Reason: ${error.message}\n`);
 }
 
-export function printSlugDeprecation({
-  organizationId,
-  projectId,
-  resolved,
-}: ProjectRefResolution): void {
-  const hint = resolved
-    ? `Use the ids instead: --organization ${organizationId} --project ${projectId}`
-    : 'The API key is not allowed to look the ids up (it needs the "org.project.read" permission). Find them in the organization and project settings in Reunite.';
-
-  logger.warn(`Organization and project slugs are deprecated. ${hint}\n`);
+export function printSlugDeprecation({ organizationId, projectId }: ProjectRefResolution): void {
+  logger.warn(
+    `Organization and project slugs are deprecated. Use the ids instead: --organization ${organizationId} --project ${projectId}\n`
+  );
 }
 
 // Prints the most urgent of the sunset warnings a command collected, once.

@@ -258,12 +258,15 @@ describe('handlePushStatus()', () => {
       const resolution = {
         organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
         projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
-        resolved: true,
       };
-      vi.mocked(waitForDeployment).mockImplementation(async ({ onSlugDeprecated }) => {
-        onSlugDeprecated?.(resolution);
-        return { ...pushResponseStub, isMainBranch: true };
-      });
+      vi.mocked(waitForDeployment).mockImplementation(
+        async ({ organization, onSlugDeprecated }) => {
+          if (organization !== resolution.organizationId) {
+            onSlugDeprecated?.(resolution);
+          }
+          return { ...pushResponseStub, isMainBranch: true };
+        }
+      );
 
       await handlePushStatus({ argv: { ...argv, wait: true }, config, version });
 
@@ -272,7 +275,6 @@ describe('handlePushStatus()', () => {
         expect.objectContaining({
           organization: resolution.organizationId,
           project: resolution.projectId,
-          onSlugDeprecated: undefined,
           buildType: 'production',
         })
       );

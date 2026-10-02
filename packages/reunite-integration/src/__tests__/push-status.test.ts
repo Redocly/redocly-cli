@@ -63,6 +63,12 @@ function withDeployStatus(
 }
 
 beforeEach(() => {
+  projects.find.mockResolvedValue({
+    id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+    slug: 'docs',
+    name: 'Docs',
+    uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
+  });
   vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
     this.remotes = remotes;
     this.projects = projects;
@@ -90,14 +96,8 @@ describe('getPushStatus()', () => {
     expect(result).toBe(pushResponseStub);
   });
 
-  it('resolves slugs once and reports it', async () => {
+  it('resolves slugs and reports it', async () => {
     remotes.getPush.mockResolvedValue(pushResponseStub);
-    projects.find.mockResolvedValue({
-      id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
-      slug: 'docs',
-      name: 'Docs',
-      uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
-    });
     const onSlugDeprecated = vi.fn();
 
     await getPushStatus({ ...options, organization: 'acme', project: 'docs', onSlugDeprecated });
@@ -110,7 +110,6 @@ describe('getPushStatus()', () => {
     expect(onSlugDeprecated).toHaveBeenCalledWith({
       organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
       projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
-      resolved: true,
     });
   });
 });
