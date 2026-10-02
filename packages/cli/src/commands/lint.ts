@@ -166,6 +166,7 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   const fileTotals = getTotals(problems);
 
   formatProblems(problems, {
+    // These are config problems, and config output has no `table` format (the `recheck` default).
     format: argv.format === 'table' ? undefined : argv.format,
     maxProblems: argv['max-problems'],
     totals: fileTotals,
