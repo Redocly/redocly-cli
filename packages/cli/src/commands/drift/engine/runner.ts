@@ -26,6 +26,7 @@ export async function runTrafficValidation(options: RunnerOptions): Promise<Runn
     activeRules: options.activeRules,
     server: options.server,
     minSeverity: options.minSeverity,
+    coverage: options.coverage,
   });
 
   let supportedTrafficFileCount = 0;
