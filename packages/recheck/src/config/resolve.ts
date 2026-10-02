@@ -112,9 +112,7 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
       errors: [{ message: '`recheck.rules` must be an object', path: 'recheck.rules' }],
     };
   }
-  // Validation fills schema defaults in place; the clone keeps the caller's
-  // block untouched.
-  const validation = await validate(toEngineConfig(structuredClone(block)), {
+  const validation = await validate(toEngineConfig(block), {
     configDir: input.configDir,
     warn: input.warn,
   });

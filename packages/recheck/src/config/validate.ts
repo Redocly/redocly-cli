@@ -1187,8 +1187,10 @@ export async function validate(
 }> {
   const warn = options?.warn ?? (() => {});
 
+  // Validation writes defaults into the rules, and core passes preset rules through by
+  // reference, so work on a copy.
   const resolvedConfig = isPlainObject(config)
-    ? fillDefaultMessages(config as Record<string, Partial<BaseRule>>)
+    ? fillDefaultMessages(structuredClone(config) as Record<string, Partial<BaseRule>>)
     : config;
 
   // Remember which rules set `scope` themselves, because AJV fills in `scope: 'all'` on the rest.
