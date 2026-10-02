@@ -40,7 +40,7 @@
     "@redocly/ajv": "^8.18.3",
     "@redocly/openapi-core": "2.57.0",
     "ajv-formats": "^3.0.1",
-    "js-yaml": "^4.3.1",
+    "js-yaml": "^5.4.1",
     "micromark": "^4.0.2",
     "micromark-extension-directive": "^4.0.0",
     "micromark-extension-frontmatter": "^2.0.0",
