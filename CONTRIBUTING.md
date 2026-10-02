@@ -271,6 +271,12 @@ Several of these tests run a local HTTP server and assert on its request log.
 On a machine with many cores, vitest runs enough of them in parallel to occasionally reset a connection — a failure that says nothing about the code under test.
 Reading a server's log goes through `serverLog()` in `tests/e2e/generate-client/helpers.ts`, which retries for that reason; if you see an isolated `ECONNRESET` or `fetch failed`, re-run the file before investigating.
 
+### Stress tests
+
+The stress test compares the lint output of a pull request with the output of its fork point from `main` on three production API descriptions: Rebilly, GitHub, and Okta.
+It runs in CI when a pull request has the `test-major-changes` label and posts the result as a comment.
+Add the label to a pull request that changes core linting logic, and see [tests/stress/README.md](./tests/stress/README.md) to run the same comparison locally.
+
 ### Smoke tests
 
 Smokes are for testing the CLI in different environments.

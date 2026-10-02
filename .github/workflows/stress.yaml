@@ -1,0 +1,91 @@
+name: Stress test on production specs
+
+# Compares the lint output of a pull request with the output of its fork point from main
+# on Rebilly, GitHub, and Okta. Runs only on pull requests with the `test-major-changes` label.
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [labeled, unlabeled, synchronize]
+
+env:
+  CI: true
+  REDOCLY_TELEMETRY: off
+
+jobs:
+  compare-output:
+    # A fork pull request gets a read-only token and cannot comment, so same-repository pull requests only.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      contains(github.event.pull_request.labels.*.name, 'test-major-changes')
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          # The pull request head, not the merge commit, so the fork point from main can be found.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install pnpm for Rebilly/api-definitions
+        uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4.2.0
+        with:
+          run_install: false
+          version: 11.22.0
+
+      - name: Build the pull request
+        run: |
+          npm ci
+          npm run compile
+
+      - name: Build the fork point from main
+        run: |
+          fork_point=$(git merge-base origin/main HEAD)
+          echo "Fork point: $fork_point"
+          git worktree add ../base "$fork_point"
+          cd ../base
+          npm ci
+          npm run compile
+
+      - name: Lint with both builds
+        run: |
+          bash tests/stress/run.sh ../base/packages/cli/lib/index.js tests/stress/out/base
+          bash tests/stress/run.sh packages/cli/lib/index.js tests/stress/out/head
+
+      - name: Compare the output
+        id: compare
+        # The report is posted before the job fails, so the comment and the red check appear together.
+        continue-on-error: true
+        run: node tests/stress/compare.mjs tests/stress/out/base tests/stress/out/head tests/stress/out/report.md
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          file-path: tests/stress/out/report.md
+          comment-tag: stress-test
+
+      - name: Fail when the output differs
+        if: steps.compare.outcome == 'failure'
+        run: exit 1
+
+  report-removed-label:
+    # The compare-output check stays on the commit after the label is removed. This run replaces it.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.action == 'unlabeled' &&
+      !contains(github.event.pull_request.labels.*.name, 'test-major-changes')
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    steps:
+      - name: Write the report
+        run: |
+          printf '## Stress test on production specs\n\nSkipped: the `test-major-changes` label was removed.\n' > report.md
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          file-path: report.md
+          comment-tag: stress-test
