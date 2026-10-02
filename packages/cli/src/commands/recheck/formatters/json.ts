@@ -4,7 +4,8 @@ import { getBreakdownStats, type Problem } from '@redocly/recheck';
 export function outputJsonFormat(
   problems: Problem[],
   fileCount: number,
-  baseline?: { matched: number; new: number; stale: number }
+  baseline?: { matched: number; new: number; stale: number },
+  shown: Problem[] = problems
 ): void {
   const report = {
     summary: {
@@ -13,7 +14,7 @@ export function outputJsonFormat(
       ...(baseline === undefined ? {} : { baseline }),
       breakdown: getBreakdownStats(problems),
     },
-    issues: problems,
+    issues: shown,
   };
 
   logger.output(`${JSON.stringify(report, null, 2)}\n`);

@@ -82,6 +82,17 @@ describe('generateReport', () => {
       issues: [ERROR],
     });
   });
+
+  it('counts every problem in the JSON summary and lists the issues up to maxProblems', () => {
+    const { stdout } = captureLogger();
+
+    generateReport([problem(), problem({ line: 2 })], 1, { format: 'json', maxProblems: 1 });
+
+    const report = JSON.parse(stdout[0]);
+    expect(report.summary.totalIssues).toBe(2);
+    expect(report.summary.breakdown['recheck/line-length'].total).toBe(2);
+    expect(report.issues).toEqual([problem()]);
+  });
 });
 
 describe('generateReport with the table format', () => {
