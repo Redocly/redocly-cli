@@ -8,7 +8,7 @@ Requires the `Contact` info object defined in your API.
 
 | Overlay | Compatibility |
 | ------- | ------------- |
-| 1.0     | ✅            |
+| 1.x     | ✅            |
 
 ```mermaid
 flowchart TD

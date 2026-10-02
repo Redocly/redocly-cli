@@ -20,17 +20,6 @@ Root ==> Paths
 style Paths fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
 
-List of HTTP verbs:
-
-- `get`
-- `head`
-- `post`
-- `put`
-- `patch`
-- `delete`
-- `options`
-- `trace`
-
 ## API design principles
 
 API designers generally fall into either a REST or RPC type.
@@ -42,6 +31,17 @@ If you're aiming to design RESTful resources, then consider this rule your frien
 To reduce false positives, use the `splitIntoWords` option.
 Imagine a world-famous rock band, the Redockers, and they have an API powering their music tour with one resource "posters".
 With the `splitIntoWords` option enabled, "posters" is identified as a resource and does not trigger a false positive, even though it contains the word `post`.
+
+The rule checks paths for these HTTP verbs:
+
+- `get`
+- `head`
+- `post`
+- `put`
+- `patch`
+- `delete`
+- `options`
+- `trace`
 
 ## Configuration
 

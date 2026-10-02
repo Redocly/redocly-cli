@@ -24,7 +24,7 @@ Checks that only specification-permitted properties are used next to a `$ref`.
 
 | Overlay | Compatibility |
 | ------- | ------------- |
-| 1.2     | ✅            |
+| 1.x     | ✅            |
 
 ## API design principles
 
@@ -46,11 +46,11 @@ Action fields such as `update`, `copy`, and `remove` belong in the reusable acti
 
 ## Configuration
 
-To configure the rule, add it to the `rules` object in your configuration file, and set the desired [severity](../../rules.md#severity-settings).
-
 | Option   | Type   | Description                                                                               |
 | -------- | ------ | ----------------------------------------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+
+To configure the rule, add it to the `rules` object in your configuration file, and set the desired [severity](../../rules.md#severity-settings).
 
 An example configuration:
 

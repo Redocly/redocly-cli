@@ -106,4 +106,4 @@ schema:
 
 - [Rule source for OAS 2.0](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas2/boolean-parameter-prefixes.ts)
 - [Rule source for OAS 3.0, 3.1, and 3.2](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/boolean-parameter-prefixes.ts)
-- [OpenAPI Parameter](https://redocly.com/docs/openapi-visual-reference/parameter/) docs
+- [OpenAPI Parameter docs](https://redocly.com/docs/openapi-visual-reference/parameter/)

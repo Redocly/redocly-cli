@@ -19,6 +19,10 @@ The `minLength` keyword constrains string values. When a property of type `strin
 
 ## Configuration
 
+| Option   | Type   | Description                                                                              |
+| -------- | ------ | ---------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+
 To configure the rule, add it to the `rules` object in your configuration file.
 Set the desired [severity](../../rules.md#severity-settings) for the rule.
 
@@ -27,10 +31,6 @@ rules:
   required-string-property-missing-min-length:
     severity: error
 ```
-
-| Option   | Type   | Description                                                                              |
-| -------- | ------ | ---------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
 
 An example configuration:
 

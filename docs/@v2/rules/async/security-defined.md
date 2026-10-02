@@ -114,7 +114,7 @@ components:
 
 ## Related rules
 
-- [security-defined](../oas/security-defined.md) — equivalent rule for OpenAPI.
+- [security-defined for OpenAPI](../oas/security-defined.md)
 
 ## Resources
 

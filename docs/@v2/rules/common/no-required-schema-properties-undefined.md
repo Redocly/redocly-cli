@@ -18,6 +18,10 @@ Ensures there are no required schema properties that are undefined.
 | 2.6      | ✅            |
 | 3.0      | ✅            |
 
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.x    | ✅            |
+
 ```mermaid
 flowchart TD
 
@@ -25,10 +29,6 @@ Root ==> Components ==> Schemas
 
 style Schemas fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
-
-| Arazzo | Compatibility |
-| ------ | ------------- |
-| 1.0    | ✅            |
 
 ## API design principles
 

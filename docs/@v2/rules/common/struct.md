@@ -26,10 +26,6 @@ Ensures that your API document conforms to structural requirements of [OpenAPI s
 | ------- | ------------- |
 | 1.x     | ✅            |
 
-The default setting for this rule (in the `spec`, `recommended`, and `minimal` configuration) is `error`.
-
-This is an essential rule that should not be turned off except in rare and special cases.
-
 ## API design principles
 
 It's important to conform to the specification so that tools work with your API document. Doing so makes writing and maintenance of API descriptions easier.
@@ -39,6 +35,10 @@ It's important to conform to the specification so that tools work with your API 
 | Option   | Type   | Description                                               |
 | -------- | ------ | --------------------------------------------------------- |
 | severity | string | Possible values: `off`, `warn`, `error`. Default `error`. |
+
+The default setting for this rule (in the `spec`, `recommended`, and `minimal` configuration) is `error`.
+
+This is an essential rule that should not be turned off except in rare and special cases.
 
 An example configuration:
 

@@ -13,6 +13,14 @@ Requires that the tags all have a non-empty `description`.
 | 3.1 | ✅            |
 | 3.2 | ✅            |
 
+## API design principles
+
+Verifies that each tag has a description because documentation!
+Did we say documentation?
+Documentation!
+
+Remember folks, we use docs-as-code to write the docs, but the docs are the product, and your product should have a description.
+
 ```yaml Object structure
 tags:
   - name: string
@@ -28,17 +36,11 @@ tags:
     description: Endpoints used for integrations with customers.
 ```
 
-The default setting for this rule (in the built-in `recommended` configuration) is `warn`.
-
-## API design principles
-
-Verifies that each tag has a description because documentation!
-Did we say documentation?
-Documentation!
-
-Remember folks, we use docs-as-code to write the docs, but the docs are the product, and your product should have a description.
-
 ## Configuration
+
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 To configure the rule, add it to the `rules` object in your configuration file.
 Set the desired [severity](../../rules.md#severity-settings) for the rule.
@@ -48,9 +50,7 @@ rules:
   tag-description: error
 ```
 
-| Option   | Type   | Description                                                                              |
-| -------- | ------ | ---------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `off` (in `recommended` configuration). |
+The default setting for this rule (in the built-in `recommended` configuration) is `warn`.
 
 An example configuration:
 

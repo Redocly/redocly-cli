@@ -7,18 +7,6 @@ slug: /docs/cli/rules/oas/no-ambiguous-paths
 Ensures there are no ambiguous paths in your API descriptions.
 When this rule is enabled, templated paths that support the same HTTP methods should not have ambiguous resolution.
 
-According to the OpenAPI specification:
-
-> The following paths are considered identical and invalid:
->
->      /pets/{petId}
->      /pets/{name}
->
-> The following may lead to ambiguous resolution:
->
->      /{entity}/me
->      /books/{id}
-
 | OAS | Compatibility |
 | --- | ------------- |
 | 2.0 | ✅            |
@@ -45,6 +33,18 @@ Consistent and predictable behavior is desirable for APIs, because it speeds up 
 
 Ambiguity can creep in when a single path can satisfy two different path items.
 Such paths are considered ambiguous and should be avoided, because API users and tools have no way of knowing which path is actually used.
+
+According to the OpenAPI specification:
+
+> The following paths are considered identical and invalid:
+>
+>      /pets/{petId}
+>      /pets/{name}
+>
+> The following may lead to ambiguous resolution:
+>
+>      /{entity}/me
+>      /books/{id}
 
 ## Configuration
 

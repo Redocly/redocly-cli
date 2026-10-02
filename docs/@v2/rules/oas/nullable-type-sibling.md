@@ -8,7 +8,10 @@ Ensures that all schemas with `nullable` field have a `type` field explicitly se
 
 | OAS | Compatibility |
 | --- | ------------- |
+| 2.0 | ❌            |
 | 3.0 | ✅            |
+| 3.1 | ❌            |
+| 3.2 | ❌            |
 
 ## API design principles
 

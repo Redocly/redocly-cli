@@ -6,7 +6,7 @@ A step must use only one of its mutually exclusive operation fields.
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 The Arazzo specification defines several fields that point a step to the operation or workflow it executes.
 These fields are mutually exclusive: a step must reference exactly one of them.

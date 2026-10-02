@@ -1,0 +1,28 @@
+# Checks the structure of the rule reference pages in docs/@v2/rules against
+# .recheck/templates/rule.md, and their front matter against a schema.
+# Needs a recheck build with the document-template rule; run it from the
+# repository root: recheck docs/@v2/rules --config recheck.yaml
+# The pages use Markdoc tags, such as the admonition on a deprecated rule.
+markdoc: true
+
+recheck/document-template:
+  severity: error
+  message: 'Does not match the template: %s'
+  assertions:
+    document-template:
+      templates:
+        - files: ['docs/@v2/rules/*/*.md']
+          template: .recheck/templates/rule.md
+
+recheck/front-matter:
+  severity: error
+  message: 'Front matter: %s'
+  assertions:
+    front-matter:
+      schemas:
+        - files: ['docs/@v2/rules/*/*.md']
+          schema:
+            type: object
+            properties:
+              slug: { type: string, pattern: '^/docs/cli/(v[0-9]+/)?rules/' }
+            additionalProperties: false

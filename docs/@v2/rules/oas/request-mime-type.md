@@ -4,6 +4,8 @@ slug: /docs/cli/rules/oas/request-mime-type
 
 # request-mime-type
 
+Limits the media types that requests can use to the ones listed in `allowedValues`.
+
 | OAS | Compatibility |
 | --- | ------------- |
 | 2.0 | ✅            |

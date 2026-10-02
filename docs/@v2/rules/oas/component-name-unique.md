@@ -130,7 +130,10 @@ components:
           type: string
 ```
 
-## Relates rules
+## Related rules
+
+- [no-unused-components](./no-unused-components.md)
+
+## Resources
 
 - [Rule source](https://github.com/Redocly/redocly-cli/blob/main/packages/core/src/rules/oas3/component-name-unique.ts)
-- [no-unused-components](./no-unused-components.md)

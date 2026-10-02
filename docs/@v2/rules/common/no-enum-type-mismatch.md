@@ -14,6 +14,15 @@ The same check applies to the value of `const`.
 | 3.1 | ✅            |
 | 3.2 | ✅            |
 
+| AsyncAPI | Compatibility |
+| -------- | ------------- |
+| 2.6      | ✅            |
+| 3.0      | ✅            |
+
+| Arazzo | Compatibility |
+| ------ | ------------- |
+| 1.x    | ✅            |
+
 ```mermaid
 flowchart TD
 
@@ -32,15 +41,6 @@ end
 
 style Schema fill:#codaf9,stroke:#0044d4,stroke-width:5px
 ```
-
-| AsyncAPI | Compatibility |
-| -------- | ------------- |
-| 2.6      | ✅            |
-| 3.0      | ✅            |
-
-| Arazzo | Compatibility |
-| ------ | ------------- |
-| 1.0    | ✅            |
 
 ## API design principles
 

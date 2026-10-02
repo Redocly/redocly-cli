@@ -4,6 +4,8 @@ slug: /docs/cli/rules/oas/response-mime-type
 
 # response-mime-type
 
+Limits the media types that responses can use to the ones listed in `allowedValues`.
+
 | OAS | Compatibility |
 | --- | ------------- |
 | 2.0 | ✅            |

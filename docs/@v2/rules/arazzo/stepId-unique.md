@@ -6,7 +6,7 @@ Requires the `stepId` to be unique amongst all steps described in the workflow.
 | ------ | ------------- |
 | 1.x    | ✅            |
 
-## Design principles
+## API design principles
 
 The steps in a workflow each have a required `stepId` field and this must be unique in order to conform with the specification.
 This rule catches any accidental duplication of `stepId` values so that the workflow is valid.

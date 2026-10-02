@@ -20,11 +20,7 @@ Ensures that schemas do not use both `maximum` and `exclusiveMaximum` (or both `
 
 | Arazzo | Compatibility |
 | ------ | ------------- |
-| 1.0    | ✅            |
-
-In OpenAPI Specification version 3.1, `exclusiveMaximum` and `exclusiveMinimum` changed from booleans to numbers (aligning with JSON Schema draft 2020-12). This means a schema can accidentally specify both `maximum: 10` and `exclusiveMaximum: 10`, creating conflicting constraints.
-
-The default setting for this rule (in the built-in `recommended` configuration) is `warn`.
+| 1.x    | ✅            |
 
 ## API design principles
 
@@ -37,7 +33,13 @@ Pick one:
 
 The same applies to `minimum` and `exclusiveMinimum`.
 
+In OpenAPI Specification version 3.1, `exclusiveMaximum` and `exclusiveMinimum` changed from booleans to numbers (aligning with JSON Schema draft 2020-12). This means a schema can accidentally specify both `maximum: 10` and `exclusiveMaximum: 10`, creating conflicting constraints.
+
 ## Configuration
+
+| Option   | Type   | Description                                                                               |
+| -------- | ------ | ----------------------------------------------------------------------------------------- |
+| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 
 To configure the rule, add it to the `rules` object in your configuration file.
 Set the desired [severity](../../rules.md#severity-settings) for the rule.
@@ -47,9 +49,7 @@ rules:
   no-mixed-number-range-constraints: error
 ```
 
-| Option   | Type   | Description                                                                               |
-| -------- | ------ | ----------------------------------------------------------------------------------------- |
-| severity | string | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
+The default setting for this rule (in the built-in `recommended` configuration) is `warn`.
 
 An example configuration:
 
