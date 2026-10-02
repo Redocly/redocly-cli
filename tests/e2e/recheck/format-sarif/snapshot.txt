@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "version": "<version>",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "recheck",
+          "informationUri": "https://redocly.com",
+          "rules": [
+            {
+              "id": "recheck/blanks-around-headings",
+              "shortDescription": {
+                "text": "blanks-around-headings"
+              }
+            },
+            {
+              "id": "recheck/single-h1",
+              "shortDescription": {
+                "text": "single-h1"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "recheck/blanks-around-headings",
+          "level": "error",
+          "message": {
+            "text": "Headings should be surrounded by blank lines (Expected: 1; Actual: 0; Below)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/index.md"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "recheck/blanks-around-headings",
+          "level": "error",
+          "message": {
+            "text": "Headings should be surrounded by blank lines (Expected: 1; Actual: 0; Above)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/index.md"
+                },
+                "region": {
+                  "startLine": 2,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "recheck/single-h1",
+          "level": "error",
+          "message": {
+            "text": "Multiple top-level headings in the same document"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "docs/index.md"
+                },
+                "region": {
+                  "startLine": 2,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+
+🏃 Running recheck on: docs
+   Disabled 1 rule(s) (severity: off)
+
+🔧 Running 52 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 3
+
+❌ Found 3 error(s). Exiting with code 1.
+   Completed in <time>
