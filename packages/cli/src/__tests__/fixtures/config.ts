@@ -59,7 +59,6 @@ export const configFixture: Config = {
     graphql: {},
   },
   recheck: { rules: {} },
-  recheckExtends: [],
   resolveIgnore: vi.fn(),
   addProblemToIgnore: vi.fn(),
   extendTypes: vi.fn(),
