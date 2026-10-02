@@ -20,6 +20,7 @@ function createMatchedOperation(requestParameters?: OpenApiParameter[]): Matched
       requestParameters: requestParameters ?? [{ name: 'filter', in: 'query', required: true }],
       requestBodyContent: {},
       requestBodyRequired: false,
+      responseStatuses: [],
       responseBodyContent: {},
       security: undefined,
       securitySchemes: {},
@@ -67,6 +68,7 @@ function createContext(
     matchMode: 'strict-host',
     hostCompatibleWithSpecServers: true,
     ignoreHeaders: options.ignoreHeaders ? parseHeaderIgnoreList(options.ignoreHeaders) : undefined,
+    cookies: {},
     validateSchema: () => ({ valid: true, errors: [] }),
   };
 }
@@ -171,5 +173,36 @@ describe('schema-consistency deepObject query parameter check', () => {
       findings.filter((finding) => finding.message.startsWith('Missing required query parameter'))
     ).toHaveLength(0);
     expect(validatedValues).toEqual([{ id: 'acme', name: 'acme' }]);
+  });
+});
+
+describe('schema-consistency response schema lookup', () => {
+  const rule = new SchemaConsistencyRule();
+
+  it('does not validate the body against the default response when the exact status is documented without content', () => {
+    const validatedSchemas: unknown[] = [];
+    const context = createContext(404);
+    const matchedOperation = createMatchedOperation();
+    matchedOperation.operation.responseStatuses = ['200', '404', 'default'];
+    matchedOperation.operation.responseBodyContent = {
+      '200': { 'application/json': { type: 'object' } },
+      default: { 'application/json': { type: 'object', required: ['code'] } },
+    };
+    context.matchedOperation = matchedOperation;
+    context.exchange.response = {
+      status: 404,
+      headers: { 'content-type': 'application/json' },
+      contentType: 'application/json',
+      bodyText: '{"message":"not found"}',
+      bodyJson: { message: 'not found' },
+    };
+    context.validateSchema = (schema) => {
+      validatedSchemas.push(schema);
+      return { valid: true, errors: [] };
+    };
+
+    rule.analyze(context);
+
+    expect(validatedSchemas).toEqual([]);
   });
 });
