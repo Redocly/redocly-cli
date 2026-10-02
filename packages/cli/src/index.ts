@@ -182,6 +182,11 @@ yargs(hideBin(process.argv))
             type: 'string',
             default: '_',
           },
+          'file-name-conflicts-severity': {
+            description: 'Severity level for file name conflicts.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
           config: {
             description: 'Path to the config file.',
             requiresArg: true,
