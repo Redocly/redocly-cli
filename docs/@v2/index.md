@@ -38,6 +38,12 @@ Publish a subset of endpoints, or use decorators to enhance your existing OpenAP
 Check that your API is up to standard on every revision. Our ready-made rulesets, built-in and configurable rules let you compose the API standards that fit each of your APIs.
 {% /card %}
 
+{% card title="Markdown and prose linting"
+    to="./recheck"
+  %}
+Lint the Markdown of your docs for structure, prose style, and Markdoc tags with one command, with presets from the Google and Microsoft style guides.
+{% /card %}
+
 {% card
     title="Generate SDK client"
     to="./commands/generate-client"
