@@ -16,6 +16,183 @@ jobs:
             docs/**/*.md
             cookbook/**/*.md
 
+  recheck:
+    name: recheck
+    runs-on: blacksmith-4vcpu-ubuntu-2404
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      REDOCLY_TELEMETRY: off
+      RECHECK: node packages/cli/lib/index.js recheck --config docs/redocly.yaml
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Compile
+        run: npm run compile
+
+      # Diff against the live merge-base of the PR head and the base branch.
+      # `github.sha` is the auto-merge commit on the current base tip, so a
+      # diff against the stale base sha would list files other PRs changed.
+      - name: Changed Markdown files
+        id: diff
+        run: |
+          git fetch origin ${{ github.base_ref }} --quiet
+          git diff --name-only origin/${{ github.base_ref }}...${{ github.event.pull_request.head.sha }} \
+            | grep -E '^(docs|cookbook)/.*\.md$' > changed.txt || true
+          # A deleted file makes the command fail, so keep only files that still exist.
+          while read -r file; do [ -f "$file" ] && echo "$file"; done < changed.txt > docs-changed.txt
+          echo "Changed Markdown files: $(wc -l < docs-changed.txt)"
+          echo "count=$(wc -l < docs-changed.txt)" >> "$GITHUB_OUTPUT"
+
+      # Annotates the changed files, every severity, and writes the summary the
+      # comment below reads. It never gates: the full-tree step does.
+      - name: Annotate changed files
+        id: recheck
+        if: steps.diff.outputs.count != '0'
+        continue-on-error: true
+        run: |
+          exit_code=0
+          xargs $RECHECK --format=github-actions --summary json --summary-path recheck-summary.json < docs-changed.txt || exit_code=$?
+          echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
+          exit $exit_code
+
+      # Runs over the whole tree, not just changed files, because deleting a
+      # file or renaming a heading breaks links in files a PR never touched.
+      # Errors gate; warnings and info stay visible in the summary comment.
+      # --max-problems lists errors first, so the cap only trims the backlog
+      # of warnings and info from unchanged files.
+      - name: Full docs tree must stay error-free
+        run: $RECHECK docs cookbook --format=github-actions --max-problems 50
+
+      # Scores every changed file on this PR and on the merge-base so the
+      # comment can show the readability change per file. Both sides run from
+      # detached worktrees: the workspace is the auto-merge commit, so scoring
+      # it would blend base-branch edits into the "This PR" column. Both read
+      # the workspace config, because the merge-base may not have one.
+      - name: Readability of changed files
+        if: steps.diff.outputs.count != '0'
+        continue-on-error: true
+        run: |
+          score() {
+            git worktree add --detach "$1" "$2"
+            (
+              cd "$1"
+              while read -r file; do [ -f "$file" ] && echo "$file"; done < "$GITHUB_WORKSPACE/docs-changed.txt" \
+                | xargs node "$GITHUB_WORKSPACE/packages/cli/lib/index.js" recheck --config "$GITHUB_WORKSPACE/docs/redocly.yaml" --readability --format=json \
+                > "$GITHUB_WORKSPACE/$3"
+            ) || true
+          }
+          score /tmp/head-tree ${{ github.event.pull_request.head.sha }} readability-head.json
+          score /tmp/base-tree "$(git merge-base origin/${{ github.base_ref }} ${{ github.event.pull_request.head.sha }})" readability-base.json
+
+      # Posts one comment per PR and updates it on every run. A PR from a fork
+      # has a read-only token, so a failed comment does not fail the job.
+      - name: Summary comment
+        if: always() && steps.diff.outcome == 'success'
+        continue-on-error: true
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            const changedCount = Number('${{ steps.diff.outputs.count }}');
+            const exitCode = '${{ steps.recheck.outputs.exit_code }}';
+            const runUrl = '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}';
+
+            let summary = null;
+            try {
+              if (fs.existsSync('recheck-summary.json')) summary = JSON.parse(fs.readFileSync('recheck-summary.json', 'utf8'));
+            } catch (error) {
+              console.log('Failed to read summary file:', error.message);
+            }
+
+            const lines = ['## 📝 Recheck Summary', ''];
+            if (changedCount === 0) {
+              lines.push('ℹ️ **No Markdown files changed** under `docs/` or `cookbook/`.');
+            } else if (!summary) {
+              lines.push('🔧 **Recheck failed to run** on the changed files.');
+              lines.push('');
+              lines.push(`Check the [workflow logs](${runUrl}) for details.`);
+            } else {
+              const { totalErrors = 0, totalWarnings = 0, totalInfo = 0, filesScanned = 0, breakdown = {} } = summary;
+              const statusEmoji = totalErrors > 0 ? '❌' : totalWarnings > 0 ? '⚠️' : '✅';
+              const statusMessage = totalErrors > 0 ? 'Errors found' : totalWarnings > 0 ? 'Warnings found' : 'All good!';
+              lines.push(`${statusEmoji} **${statusMessage}** • Scanned ${filesScanned} changed file(s)`);
+              lines.push('');
+              if (totalErrors > 0 || totalWarnings > 0 || totalInfo > 0) {
+                lines.push(`- **${totalErrors}** error(s)`);
+                lines.push(`- **${totalWarnings}** warning(s)`);
+                lines.push(`- **${totalInfo}** info`);
+                lines.push('');
+                lines.push('### 📋 Findings by rule');
+                lines.push('');
+                for (const [rule, counts] of Object.entries(breakdown)) {
+                  const icons = [counts.errors > 0 && '🔴', counts.warnings > 0 && '🟡', counts.info > 0 && '🔵'].filter(Boolean).join(' ');
+                  lines.push(`${icons} **${rule.replace('recheck/', '')}**: ${counts.errors} errors, ${counts.warnings} warnings, ${counts.info} info`);
+                }
+                lines.push('');
+                lines.push('Errors fail the full-tree check. Warnings and info are a worklist and do not block the PR.');
+              } else {
+                lines.push('🎉 No findings in the changed files.');
+              }
+            }
+
+            // Readability of changed files, head versus merge-base. The table shows
+            // the Automated Readability Index: a grade level, so lower is easier.
+            const parseScores = (path) => {
+              const scores = {};
+              if (!fs.existsSync(path)) return scores;
+              try {
+                for (const row of JSON.parse(fs.readFileSync(path, 'utf8')).files ?? []) {
+                  if (row.automatedReadabilityIndex !== null) scores[row.file] = row.automatedReadabilityIndex;
+                }
+              } catch (error) {
+                console.log(`Could not parse ${path}:`, error.message);
+              }
+              return scores;
+            };
+            const headScores = parseScores('readability-head.json');
+            const baseScores = parseScores('readability-base.json');
+            const rows = Object.keys(headScores).sort().map((file) => {
+              const before = baseScores[file];
+              const after = headScores[file];
+              const change = before === undefined
+                ? 'new file'
+                : Math.abs(after - before) < 0.05
+                  ? '±0'
+                  : after < before
+                    ? `🟢 ${(after - before).toFixed(1)} easier`
+                    : `🔴 +${(after - before).toFixed(1)} harder`;
+              return `| ${file} | ${before === undefined ? '—' : before.toFixed(1)} | ${after.toFixed(1)} | ${change} |`;
+            });
+            if (rows.length > 0) {
+              lines.push('');
+              lines.push('### 📖 Readability of changed files');
+              lines.push('');
+              lines.push('Automated Readability Index (ARI): a U.S. grade level. Lower is easier to read.');
+              lines.push('');
+              lines.push('| File | Base | This PR | Change |');
+              lines.push('|---|---:|---:|---:|');
+              const MAX_ROWS = 20;
+              lines.push(...rows.slice(0, MAX_ROWS));
+              if (rows.length > MAX_ROWS) lines.push(`| …and ${rows.length - MAX_ROWS} more files | | | |`);
+            }
+
+            const tag = '<!-- recheck-summary -->';
+            const { owner, repo, number } = context.issue;
+            const body = `${tag}\n${lines.join('\n')}`;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number: number });
+            const previous = comments.data.find((comment) => comment.body && comment.body.includes(tag));
+            if (previous) await github.rest.issues.updateComment({ owner, repo, comment_id: previous.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number: number, body });
+
   vale:
     name: vale action
     runs-on: blacksmith-4vcpu-ubuntu-2404
