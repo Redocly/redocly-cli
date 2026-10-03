@@ -1,42 +1,296 @@
-# Markdown linting for the docs and cookbook, run by `redocly recheck` in CI.
-# The rule settings mirror .markdownlint.yaml so both tools agree.
-# This file lives here, not in the repository root, because a root redocly.yaml
-# changes the CLI package's unit tests.
+# Markdown linting for docs/ and cookbook/, run by `redocly recheck` in CI
+# (.github/workflows/docs-tests.yaml). This file lives here, not in the
+# repository root, because a root redocly.yaml changes the CLI package's unit
+# tests. The rules are ported from the Redocly monorepo's recheck.yaml, with
+# severities set from a measurement of this tree on 2026-10-03: a rule at zero
+# findings gates at error, a rule with a backlog reports at warn until the
+# backlog is cleared, then steps up to error.
 extends:
   - recheck/markdown
   - recheck/markdoc
+  - recheck/plain-language
+  - recheck/technical-english
+  - recheck/inclusive-language
 
 recheck:
   markdoc: true
   rules:
-    # The docs use semantic line breaks, so line length is not enforced.
-    recheck/line-length: off
-    recheck/ul-style: off
-    recheck/no-duplicate-heading:
+    # -- Ported from .markdownlint.yaml so the two tools agree --
+    recheck/line-length: off # MD013; readable-line-length below governs
+    recheck/ul-style: off # MD004; bullet-style-dash below governs
+    recheck/ol-prefix: off # MD029
+    recheck/list-marker-space: off # MD030
+    recheck/no-inline-html: off # MD033
+    recheck/no-bare-urls: off # MD034
+    recheck/no-emphasis-as-heading: off # MD036
+    recheck/first-line-h1: off # MD041
+    recheck/code-block-style: off # MD046
+    recheck/blanks-around-headings: off # blank_lines
+    recheck/blanks-around-fences: off # blank_lines
+    recheck/blanks-around-lists: off # blank_lines
+    recheck/no-multiple-blanks: off # blank_lines
+    # MD024 siblings_only: no-duplicate-headings below runs the same assertion
+    # with respectSections, so duplicates report once.
+    recheck/no-duplicate-heading: off
+    # no-broken-fragment-links below runs the same assertion across files.
+    recheck/link-fragments: off
+    recheck/single-h1: # MD025 front_matter_title: ''
       severity: error
+      assertions:
+        single-h1: { frontMatterTitle: '' }
+    recheck/no-trailing-punctuation: # MD026
+      severity: error
+      assertions:
+        no-trailing-punctuation: { punctuation: '.,;:。，；:' }
+
+    # -- recheck/plain-language: the word-choice and structure rules at zero
+    # findings gate at error. excess-intensifiers (36) and
+    # paragraph-sentence-count (9) stay at the preset's warn until cleared. --
+    plain-language/filler-phrases: error
+    plain-language/an-amount-of: error
+    plain-language/complex-words: error
+    plain-language/redundant-pairs: error
+    plain-language/double-negative-phrases: error
+    plain-language/jargon-terms: error
+    plain-language/double-negative-patterns: error
+    plain-language/paragraph-max-words: error
+
+    # -- recheck/technical-english stays at the preset defaults: sentence-length
+    # (425) and paragraph-length (18) at warn as the visible worklist,
+    # passive-voice (1157) at info. --
+
+    recheck/us-spelling:
+      severity: error
+      message: 'Use the US spelling "%s" instead of British "%s".'
+      link: https://docs.microsoft.com/en-us/style-guide/word-choice/use-us-spelling-avoid-non-english-words
+      assertions:
+        swap:
+          ignoreCase: true
+          wordBoundary: true
+          pairs:
+            aeon: eon
+            aeroplane: airplane
+            ageing: aging
+            aluminium: aluminum
+            anaemia: anemia
+            anaesthesia: anesthesia
+            analyse: analyze
+            annexe: annex
+            apologise: apologize
+            behaviour: behavior
+            busses: buses
+            calibre: caliber
+            cancelled: canceled
+            cancellation: cancelation
+            catalogue: catalog
+            categorise: categorize
+            categorised: categorized
+            categorises: categorizes
+            categorising: categorizing
+            centre: center
+            cheque: check
+            civilisation: civilization
+            civilise: civilize
+            colour: color
+            cosy: cozy
+            cypher: cipher
+            dependant: dependent
+            defence: defense
+            distil: distill
+            draught: draft
+            encyclopaedia: encyclopedia
+            enquiry: inquiry
+            enrol: enroll
+            enrolment: enrollment
+            enthral: enthrall
+            expiry: expiration
+            favourite: favorite
+            fibre: fiber
+            fillet: filet
+            flavour: flavor
+            furore: furor
+            fulfil: fulfill
+            gaol: jail
+            humour: humor
+            honour: honor
+            initialled: initialed
+            initialling: initialing
+            instil: instill
+            jewellery: jewelry
+            labelling: labeling
+            labelled: labeled
+            labour: labor
+            libellous: libelous
+            licence: license
+            likeable: likable
+            liveable: livable
+            lustre: luster
+            manoeuvre: maneuver
+            marvellous: marvelous
+            matt: matte
+            meagre: meager
+            metre: meter
+            modelling: modeling
+            moustache: mustache
+            neighbour: neighbor
+            normalise: normalize
+            offence: offense
+            organise: organize
+            organisation: organization
+            orientated: oriented
+            paralyse: paralyze
+            plough: plow
+            pretence: pretense
+            programme: program
+            pyjamas: pajamas
+            rateable: ratable
+            realise: realize
+            recognise: recognize
+            reconnoitre: reconnoiter
+            rumour: rumor
+            sabre: saber
+            saleable: salable
+            saltpetre: saltpeter
+            sceptic: skeptic
+            sepulchre: sepulcher
+            signalling: signaling
+            sizeable: sizable
+            skilful: skillful
+            sombre: somber
+            smoulder: smolder
+            speciality: specialty
+            spectre: specter
+            splendour: splendor
+            standardise: standardize
+            standardised: standardized
+            sulphur: sulfur
+            theatre: theater
+            travelled: traveled
+            traveller: traveler
+            travelling: traveling
+            unshakeable: unshakable
+            wilful: willful
+            yoghurt: yogurt
+
+    recheck/inclusion-gender-culture:
+      severity: error
+      message: 'Use inclusive language. Consider "%s" instead of "%s".'
+      assertions:
+        swap:
+          keysAreRegex: true
+          wordBoundary: true
+          ignoreCase: true
+          pairs:
+            he: they
+            his: their
+            she: they
+            hers: their
+            'blacklist(?:ed|ing|s)?': blocklist
+            'whitelist(?:ed|ing|s)?': allowlist
+            master: primary
+            slave: replica
+            he/she: they
+            s/he: they
+      exceptions:
+        lines:
+          # 'master' as a git branch segment inside URLs we do not control.
+          - '/master/'
+
+    # Four headings still start with a gerund; warn until they are reworded.
+    recheck/no-gerund-headings:
+      severity: warn
+      scope: heading
+      message: 'Do not start headings with a gerund.'
+      assertions:
+        pattern:
+          ignoreCase: true
+          tokens:
+            - "^\\w*ing\\b"
+      exceptions:
+        lines:
+          - Breaking
+          - Contributing
+          - Monitoring
+          - Naming
+          - Routing
+          - Settings
+          - String
+          - Testing
+          - Training
+          - Troubleshooting
+
+    recheck/oxford-comma:
+      severity: error
+      scope: sentence
+      message: "Use the Oxford comma in '%s'."
+      assertions:
+        pattern:
+          tokens:
+            - '(?:[^\s,]+,){1,} \w+ (?:and|or) \w+[.?!]'
+
+    # 22 lines over the limit; warn until they are split.
+    recheck/readable-line-length:
+      severity: warn
+      message: 'Keep lines under %s characters.'
+      assertions:
+        line-length:
+          lineLength: 400
+          codeBlocks: false
+          tables: false
+
+    recheck/no-trailing-spaces:
+      severity: error
+      message: 'Remove trailing spaces.'
+      assertions:
+        no-trailing-spaces:
+          codeBlocks: false
+
+    recheck/bullet-style-dash:
+      severity: error
+      message: "Use '-' for unordered list bullets."
+      assertions:
+        ul-style:
+          style: dash
+
+    # 628 findings; warn until the docs are rewrapped one sentence per line.
+    recheck/semantic-line-breaks:
+      severity: warn
+      message: 'Use semantic line breaks (%s mode).'
+      assertions:
+        semantic-line-breaks:
+          mode: sentence
+          ignoreCodeBlocks: true
+          ignoreTables: true
+
+    recheck/no-hard-tabs:
+      severity: error
+      message: 'Use spaces instead of tabs.'
+      assertions:
+        no-hard-tabs:
+          codeBlocks: false
+          spacesPerTab: 2
+
+    recheck/no-duplicate-headings:
+      severity: error
+      message: 'Duplicate heading "%s".'
       assertions:
         no-duplicate-heading:
-          siblingsOnly: true
-    # Pages keep the title under a nested `seo.title`, which the default pattern does not match.
-    recheck/single-h1:
+          caseSensitive: false
+          ignoreCommonHeadings: false
+          respectSections: true
+
+    recheck/no-broken-fragment-links:
       severity: error
+      message: 'Broken link fragment: %s'
       assertions:
-        single-h1:
-          frontMatterTitle: ''
-    recheck/no-trailing-punctuation:
-      severity: error
+        link-fragments:
+          crossFile: true
+
+    # Three images are over the limit; warn until they are compressed.
+    recheck/optimize-images:
+      severity: warn
+      message: 'Image too large: %s'
       assertions:
-        no-trailing-punctuation:
-          punctuation: '.,;:。，；:'
-    recheck/ol-prefix: off
-    recheck/list-marker-space: off
-    recheck/no-inline-html: off
-    recheck/no-bare-urls: off
-    recheck/no-emphasis-as-heading: off
-    # Pages start with metadata, not a heading.
-    recheck/first-line-h1: off
-    recheck/code-block-style: off
-    recheck/blanks-around-headings: off
-    recheck/blanks-around-fences: off
-    recheck/blanks-around-lists: off
-    recheck/no-multiple-blanks: off
+        max-image-size:
+          maxSizeKB: 100
+          extensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']
