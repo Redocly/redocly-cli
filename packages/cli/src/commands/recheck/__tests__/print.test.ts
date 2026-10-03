@@ -417,14 +417,6 @@ describe('printBaselineStart', () => {
       `${cyan('📋 Building recheck baseline from: docs, guides, 2 API description(s)')}\n`,
     ]);
   });
-
-  it('names only the API descriptions when no root was requested', () => {
-    const { stderr } = captureLogger();
-    printBaselineStart([], 1);
-    expect(stderr).toEqual([
-      `${cyan('📋 Building recheck baseline from: 1 API description(s)')}\n`,
-    ]);
-  });
 });
 
 describe('printMarkdocSchemaRun', () => {

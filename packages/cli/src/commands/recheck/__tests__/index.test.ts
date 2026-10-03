@@ -1,4 +1,4 @@
-import { AbortFlowError, createConfig, Source, type Config } from '@redocly/openapi-core';
+import { AbortFlowError, createConfig, type Config } from '@redocly/openapi-core';
 import type { RecheckBlock } from '@redocly/recheck';
 import { recheckPresetsPlugin } from '@redocly/recheck/presets';
 import { cyan } from 'colorette';
@@ -8,7 +8,7 @@ import * as path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { configFixture } from '../../../__tests__/fixtures/config.js';
-import { handleRecheck, toEmbeddedInputs, withoutReadFiles } from '../index.js';
+import { handleRecheck } from '../index.js';
 import type { RecheckArgv } from '../types.js';
 import { captureLogger } from './capture-logger.js';
 
@@ -161,7 +161,7 @@ describe('handleRecheck', () => {
       );
     });
 
-    it('lints an API with a missing internal $ref pointer and warns about the skipped $ref', async () => {
+    it('skips the descriptions of a remote $ref file and counts them', async () => {
       const apiPath = path.join(dir, 'openapi.yaml');
       await fs.writeFile(
         apiPath,
@@ -173,22 +173,31 @@ info:
 paths: {}
 components:
   schemas:
-    Pet:
-      $ref: '#/components/schemas/Missing'
+    Ticket:
+      $ref: https://example.com/schemas.yaml#/Ticket
 `
       );
-      const config = await createConfig(
-        { extends: ['recheck/markdown'] },
-        { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('Ticket:\n  type: object\n  description: A ticket for one visit.\n')
       );
-      const argv: RecheckArgv = { format: 'table', paths: [apiPath] };
 
-      await handleRecheck({ argv, config, version: 'test' });
+      await runWith({ paths: [apiPath] });
 
-      expect(output.stderr.slice(0, 2)).toEqual([
-        `Could not resolve $ref #/components/schemas/Missing from ${apiPath}; its descriptions are skipped.\n`,
-        `${cyan('🏃 Running recheck on: 1 API description(s)')}\n`,
-      ]);
+      expect(output.stderr).toContain(
+        'Skipped 1 description(s) in remote $ref files; only local files are linted.\n'
+      );
+      expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
+    });
+
+    // The e2e snapshots show the message but not the exit code.
+    it.each<[string, Partial<RecheckArgv>]>([
+      ['lint', {}],
+      ['baseline', { 'generate-baseline': true }],
+    ])('fails the %s run when an API description does not parse', async (_action, argv) => {
+      const apiPath = path.join(dir, 'broken.yaml');
+      await fs.writeFile(apiPath, 'title: [t');
+      await expect(runWith({ paths: [apiPath], ...argv })).rejects.toThrow(AbortFlowError);
+      expect(output.stderr.join('')).toContain(`Could not read API description ${apiPath}`);
     });
 
     it('applies the baseline file next to redocly.yaml once generated', async () => {
@@ -233,40 +242,5 @@ components:
       await runWithApi({ extends: ['recommended'] });
       expect(output.stderr.join('')).not.toContain('Recheck settings under apis.');
     });
-  });
-});
-
-describe('toEmbeddedInputs', () => {
-  it('skips a description reached through a remote $ref and counts it', () => {
-    const remote = {
-      source: new Source('https://example.com/schemas.yaml', 'description: text\n'),
-      pointer: '#/description',
-      text: 'text',
-    };
-    const local = {
-      source: new Source(path.join(os.tmpdir(), 'schemas.yaml'), 'description: text\n'),
-      pointer: '#/description',
-      text: 'text',
-    };
-
-    const { inputs, remoteSkipped } = toEmbeddedInputs([remote, local]);
-
-    expect(remoteSkipped).toBe(1);
-    expect(inputs).toEqual([
-      {
-        file: local.source.absoluteRef,
-        pointer: '#/description',
-        content: 'text',
-        mapPosition: expect.any(Function),
-      },
-    ]);
-  });
-});
-
-describe('withoutReadFiles', () => {
-  it('keeps a file out of the unreadable list when another API read it', () => {
-    const shared = '/api/schemas.yaml';
-    const missing = '/api/missing.yaml';
-    expect(withoutReadFiles([missing, shared, shared], new Set([shared]))).toEqual([missing]);
   });
 });

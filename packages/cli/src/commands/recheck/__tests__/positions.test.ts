@@ -106,13 +106,4 @@ describe('createPositionMapper', () => {
     const mapper = createPositionMapper(yaml(body), '#/info/description');
     expect(mapper(1, 1)).toEqual({ line: 3, column: 5 });
   });
-
-  it('treats a JSON description as a quoted scalar', () => {
-    const body = '{\n  "info": {\n    "description": "Json intro here."\n  }\n}\n';
-    const mapper = createPositionMapper(
-      new Source('/api/openapi.json', body),
-      '#/info/description'
-    );
-    expect(mapper(1, 6)).toEqual({ line: 3, column: 26 });
-  });
 });

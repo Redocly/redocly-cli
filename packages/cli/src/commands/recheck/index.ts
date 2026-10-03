@@ -131,7 +131,7 @@ function configuredApiPaths(config: Config, configDir: string): string[] {
 // A description reached through a remote `$ref` has a URL as its
 // `source.absoluteRef`. Baseline keys and the changed-file filter need a
 // local path, so such a description is counted and skipped.
-export function toEmbeddedInputs(descriptions: CollectedDescription[]): {
+function toEmbeddedInputs(descriptions: CollectedDescription[]): {
   inputs: EmbeddedInput[];
   remoteSkipped: number;
 } {
@@ -150,12 +150,6 @@ export function toEmbeddedInputs(descriptions: CollectedDescription[]): {
     });
   }
   return { inputs, remoteSkipped };
-}
-
-// A file one API could not reach through a `$ref` but another API read is
-// scanned, not unreadable, so its baseline entries still apply.
-export function withoutReadFiles(unreadableFiles: string[], readFiles: Set<string>): string[] {
-  return [...new Set(unreadableFiles.filter((file) => !readFiles.has(file)))];
 }
 
 async function collectEmbeddedInputs(
@@ -206,7 +200,9 @@ async function collectEmbeddedInputs(
     inputs,
     failureCount,
     apiFiles: [...apiFiles],
-    unreadableFiles: withoutReadFiles(unreadableFiles, apiFiles),
+    // A file one API could not reach through a `$ref` but another API read is
+    // scanned, not unreadable, so its baseline entries still apply.
+    unreadableFiles: unreadableFiles.filter((file) => !apiFiles.has(file)),
   };
 }
 

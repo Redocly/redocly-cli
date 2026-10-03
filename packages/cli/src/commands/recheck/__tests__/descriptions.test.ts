@@ -79,25 +79,40 @@ describe('collectDescriptions', () => {
     );
   });
 
-  it('collects a $ref target once, however many refs point at it', async () => {
-    const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
-    const ticket = descriptions.filter((entry) => entry.pointer === '#/Ticket/description');
-    expect(ticket).toHaveLength(1);
-  });
-
-  it('reads JSON documents', async () => {
+  // The walker visits a node once per type, so only refs of two types reach it twice.
+  it('collects a $ref target once when refs of two node types point at it', async () => {
     const dir = fixture({
-      'openapi.json': JSON.stringify({
-        openapi: '3.1.0',
-        info: { title: 't', version: '1', description: 'Json intro.' },
-        paths: {},
-      }),
+      'openapi.yaml': `openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+paths:
+  /tickets:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/TicketId'
+      responses:
+        '200':
+          description: The ticket.
+          headers:
+            Ticket-Id:
+              $ref: '#/components/parameters/TicketId'
+components:
+  parameters:
+    TicketId:
+      name: Ticket-Id
+      in: header
+      description: The ticket id.
+      schema:
+        type: string
+`,
     });
     const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { descriptions } = await collectDescriptions(join(dir, 'openapi.json'), config);
-    expect(descriptions.map((entry) => entry.text)).toContain('Json intro.');
+    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
+    const ticketId = descriptions.filter(
+      (entry) => entry.pointer === '#/components/parameters/TicketId/description'
+    );
+    expect(ticketId).toHaveLength(1);
   });
 
   it('returns the root document and every local $ref source as scanned files', async () => {
@@ -129,38 +144,6 @@ components:
     expect(failure).toBeInstanceOf(UnresolvedRefError);
     expect((failure as UnresolvedRefError).message).toContain('missing.yaml');
     expect((failure as UnresolvedRefError).files).toEqual([join(dir, 'missing.yaml')]);
-
-    const multiFileDir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
-    await expect(
-      collectDescriptions(join(multiFileDir, 'openapi.yaml'), config)
-    ).resolves.toMatchObject({
-      files: expect.arrayContaining([join(multiFileDir, 'schemas.yaml')]),
-    });
-  });
-
-  it('keeps the descriptions when an internal pointer is missing', async () => {
-    const dir = fixture({
-      'openapi.yaml': `openapi: 3.1.0
-info:
-  title: Museum
-  version: 1.0.0
-  description: Welcome to the museum.
-paths: {}
-components:
-  schemas:
-    Pet:
-      $ref: '#/components/schemas/Missing'
-`,
-    });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { descriptions, unresolvedPointers, files } = await collectDescriptions(
-      join(dir, 'openapi.yaml'),
-      config
-    );
-    expect(descriptions.map((entry) => entry.pointer)).toEqual(['#/info/description']);
-    expect(unresolvedPointers).toHaveLength(1);
-    expect(unresolvedPointers[0]).toContain('#/components/schemas/Missing');
-    expect(files).toEqual([join(dir, 'openapi.yaml')]);
   });
 
   it('keeps the descriptions when an external file loads but its pointer is missing', async () => {

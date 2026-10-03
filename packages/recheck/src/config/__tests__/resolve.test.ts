@@ -251,7 +251,7 @@ describe('resolveRecheckConfig', () => {
         apiDescriptions: {
           rules: {
             'recheck/line-length': 'off',
-            'recheck/no-trailing-spaces': { severity: 'warn' },
+            'recheck/no-trailing-spaces': { severity: 'warn', message: 'Shorter.' },
           },
         },
       }),
@@ -260,12 +260,13 @@ describe('resolveRecheckConfig', () => {
     expect(result.success).toBe(true);
     if (!result.success) return;
     const pages = new Map(result.config.rules.map((rule) => [rule.name, rule.severity]));
-    const descriptions = new Map(
-      result.config.descriptionRules.map((rule) => [rule.name, rule.severity])
-    );
+    const descriptions = new Map(result.config.descriptionRules.map((rule) => [rule.name, rule]));
     expect(pages.get('recheck/line-length')).not.toBe('off');
-    expect(descriptions.get('recheck/line-length')).toBe('off');
-    expect(descriptions.get('recheck/no-trailing-spaces')).toBe('warn');
+    expect(descriptions.get('recheck/line-length')?.severity).toBe('off');
+    expect(descriptions.get('recheck/no-trailing-spaces')).toMatchObject({
+      severity: 'warn',
+      message: 'Shorter.',
+    });
     expect(result.config.descriptionRules).toHaveLength(result.config.rules.length);
   });
 
@@ -317,24 +318,6 @@ describe('resolveRecheckConfig', () => {
         path: 'recheck.apiDescriptions.rules.recheck/line-length',
       },
     ]);
-  });
-
-  it('applies an apiDescriptions rule-object override with a valid severity', async () => {
-    const result = await resolveRecheckConfig({
-      block: await presetBlock(['recheck/markdown'], {
-        apiDescriptions: {
-          rules: { 'recheck/line-length': { severity: 'warn', message: 'Shorter.' } },
-        },
-      }),
-      configDir: process.cwd(),
-    });
-    expect(result.success).toBe(true);
-    if (!result.success) return;
-    const descriptions = new Map(result.config.descriptionRules.map((rule) => [rule.name, rule]));
-    expect(descriptions.get('recheck/line-length')).toMatchObject({
-      severity: 'warn',
-      message: 'Shorter.',
-    });
   });
 
   it('rejects a non-object apiDescriptions block', async () => {

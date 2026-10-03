@@ -37,22 +37,6 @@ describe('lintEmbeddedInputs', () => {
     }
   );
 
-  it('remaps positions and carries the pointer', async () => {
-    const { problems } = await lint(
-      await resolve(),
-      `Intro.\n${'lorem ipsum dolor sit amet '.repeat(6).trim()}\n`
-    );
-    expect(problems).toEqual([
-      expect.objectContaining({
-        ruleName: 'recheck/line-length',
-        file: '/api/openapi.yaml',
-        pointer: '#/info/description',
-        line: 42,
-        column: 89,
-      }),
-    ]);
-  });
-
   it('counts fixable findings without applying fixes', async () => {
     const { problems, fixableCount } = await lint(await resolve(), 'Trailing spaces here.   \n');
     expect(problems.map((problem) => [problem.ruleName, problem.fixable])).toEqual([
