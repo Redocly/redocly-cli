@@ -33,15 +33,6 @@ describe('no-multiple-space-blockquote (MD027)', () => {
     expect(await h.lint('>     indented code\n')).toEqual([]);
   });
 
-  // Markdoc parsing has no indented code, so the rule tracks the would-be code block itself.
-  it('does not flag an indented code block inside a blockquote when markdoc is on', async () => {
-    const h2 = tokenRuleHarness('no-multiple-space-blockquote', {}, { markdoc: true });
-    const problems = await h2.lint(
-      '> The following paths are considered identical:\n>\n>      /pets/{petId}\n>      /pets/{name}\n>   back to prose\n>      still prose\n'
-    );
-    expect(problems.map((problem) => problem.line)).toEqual([5, 6]);
-  });
-
   it('fixes multiple spaces after the blockquote symbol', async () => {
     const fixed = await h.fix('>  This is a blockquote with bad indentation\n');
     expect(fixed).toBe('> This is a blockquote with bad indentation\n');

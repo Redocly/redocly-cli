@@ -11,13 +11,17 @@ According to the OpenAPI specification:
 
 > The following paths are considered identical and invalid:
 >
->      /pets/{petId}
->      /pets/{name}
+> ```text
+> /pets/{petId}
+> /pets/{name}
+> ```
 >
 > The following may lead to ambiguous resolution:
 >
->      /{entity}/me
->      /books/{id}
+> ```text
+> /{entity}/me
+> /books/{id}
+> ```
 
 | OAS | Compatibility |
 | --- | ------------- |
