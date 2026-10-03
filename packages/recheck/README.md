@@ -40,7 +40,13 @@ The standalone `recheck` binary and the `recheck.yaml` file are not part of this
 ### Opt-in prose assertions
 
 `conditional`, `metric`, and `spelling` have no single right default.
-Add them explicitly under `recheck.rules`:
+Add them explicitly under `recheck.rules`.
+
+`metric` scores the prose of a whole file and reports once when the score is outside `min` and `max`.
+Its `formula` is a readability formula (`flesch-reading-ease`, `flesch-kincaid-grade`, `gunning-fog`, `smog`, `coleman-liau`, `automated-readability`) or a size formula (`word-count`, `sentence-count`, `reading-time`).
+`reading-time` is minutes at `wordsPerMinute`, default 200, rounded to one decimal.
+Size formulas count what a person reads: code blocks, front matter, headings, and Markdoc tags are left out.
+Use one as a page-size budget, such as a word cap on agent skills:
 
 ```yaml
 extends:
@@ -61,6 +67,15 @@ recheck:
         metric:
           formula: flesch-reading-ease
           min: 30
+    recheck/skill-size-budget:
+      severity: error
+      message: 'Document %s is %s; expected between %s and %s.'
+      appliesTo:
+        - '.claude/skills/**/SKILL.md'
+      assertions:
+        metric:
+          formula: word-count
+          max: 1500
     recheck/us-spelling-check:
       severity: warn
       message: 'Unknown word "%s"%s'
