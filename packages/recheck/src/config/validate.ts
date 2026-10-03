@@ -459,8 +459,11 @@ function validateCapitalizationOptions(
   }
 }
 
-/** Validates the `metric` options. `formula` is required, and `min` or `max` is needed. */
-const METRIC_OPTION_KEYS = new Set(['formula', 'min', 'max']);
+/**
+ * Validates the `metric` options. `formula` is required, and `min` or `max` is needed.
+ * `wordsPerMinute` is only valid with `reading-time`.
+ */
+const METRIC_OPTION_KEYS = new Set(['formula', 'min', 'max', 'wordsPerMinute']);
 const METRIC_FORMULAS = new Set([
   'flesch-reading-ease',
   'flesch-kincaid-grade',
@@ -468,6 +471,9 @@ const METRIC_FORMULAS = new Set([
   'smog',
   'coleman-liau',
   'automated-readability',
+  'word-count',
+  'sentence-count',
+  'reading-time',
 ]);
 
 function validateMetricOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
@@ -483,13 +489,32 @@ function validateMetricOptions(rule: BaseRule, name: string, errors: ValidationE
     }
   }
 
-  const { formula, min, max } = metricConfig as { formula?: unknown; min?: unknown; max?: unknown };
+  const { formula, min, max, wordsPerMinute } = metricConfig as {
+    formula?: unknown;
+    min?: unknown;
+    max?: unknown;
+    wordsPerMinute?: unknown;
+  };
 
   if (typeof formula !== 'string' || !METRIC_FORMULAS.has(formula)) {
     errors.push({
       message: `Metric requires "formula" to be one of ${[...METRIC_FORMULAS].join(', ')}`,
       path: `${name}.assertions.metric.formula`,
     });
+  }
+
+  if (wordsPerMinute !== undefined) {
+    if (typeof wordsPerMinute !== 'number' || !(wordsPerMinute > 0)) {
+      errors.push({
+        message: 'Metric option "wordsPerMinute" must be a positive number',
+        path: `${name}.assertions.metric.wordsPerMinute`,
+      });
+    } else if (formula !== 'reading-time') {
+      errors.push({
+        message: 'Metric option "wordsPerMinute" only applies to formula "reading-time"',
+        path: `${name}.assertions.metric.wordsPerMinute`,
+      });
+    }
   }
 
   if (min === undefined && max === undefined) {
