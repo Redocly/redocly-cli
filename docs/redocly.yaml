@@ -1,0 +1,42 @@
+# Markdown linting for the docs and cookbook, run by `redocly recheck` in CI.
+# The rule settings mirror .markdownlint.yaml so both tools agree.
+# This file lives here, not in the repository root, because a root redocly.yaml
+# changes the CLI package's unit tests.
+extends:
+  - recheck/markdown
+  - recheck/markdoc
+
+recheck:
+  markdoc: true
+  rules:
+    # The docs use semantic line breaks, so line length is not enforced.
+    recheck/line-length: off
+    recheck/ul-style: off
+    recheck/no-duplicate-heading:
+      severity: error
+      assertions:
+        no-duplicate-heading:
+          siblingsOnly: true
+    # Pages keep the title under a nested `seo.title`, which the default pattern does not match.
+    recheck/single-h1:
+      severity: error
+      assertions:
+        single-h1:
+          frontMatterTitle: ''
+    recheck/no-trailing-punctuation:
+      severity: error
+      assertions:
+        no-trailing-punctuation:
+          punctuation: '.,;:。，；:'
+    recheck/ol-prefix: off
+    recheck/list-marker-space: off
+    recheck/no-inline-html: off
+    recheck/no-bare-urls: off
+    recheck/no-emphasis-as-heading: off
+    # Pages start with metadata, not a heading.
+    recheck/first-line-h1: off
+    recheck/code-block-style: off
+    recheck/blanks-around-headings: off
+    recheck/blanks-around-fences: off
+    recheck/blanks-around-lists: off
+    recheck/no-multiple-blanks: off
