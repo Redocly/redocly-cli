@@ -75,7 +75,8 @@ jobs:
       # Scores every changed file on this PR and on the merge-base so the
       # comment can show the readability change per file. Both sides run from
       # detached worktrees: the workspace is the auto-merge commit, so scoring
-      # it would blend base-branch edits into the "This PR" column.
+      # it would blend base-branch edits into the "This PR" column. Both read
+      # the workspace config, because the merge-base may not have one.
       - name: Readability of changed files
         if: steps.diff.outputs.count != '0'
         continue-on-error: true
@@ -85,7 +86,7 @@ jobs:
             (
               cd "$1"
               while read -r file; do [ -f "$file" ] && echo "$file"; done < "$GITHUB_WORKSPACE/docs-changed.txt" \
-                | xargs node "$GITHUB_WORKSPACE/packages/cli/lib/index.js" recheck --config docs/redocly.yaml --readability --format=json \
+                | xargs node "$GITHUB_WORKSPACE/packages/cli/lib/index.js" recheck --config "$GITHUB_WORKSPACE/docs/redocly.yaml" --readability --format=json \
                 > "$GITHUB_WORKSPACE/$3"
             ) || true
           }
