@@ -77,7 +77,7 @@ For example, `'~blockquote & ~heading'` selects everything except blockquotes an
 `all` and `raw` cover the whole file, so they cannot be combined with another scope.
 
 Prose scopes never include inline code, and when [Markdoc parsing](./markdoc.md) is on, they do not include the tag syntax either.
-Set `includeCode: true` on `swap` or `pattern` to match inside inline code.
+Set `includeCode: true` on `swap`, `pattern`, `repetition`, or `consistency` to match inside inline code.
 
 ## Assertions
 
@@ -180,10 +180,11 @@ assertions:
   repetition: {}
 ```
 
-| Option       | Type    | Required | Description                                                                           |
-| ------------ | ------- | -------- | ------------------------------------------------------------------------------------- |
-| `pattern`    | string  | No       | The regex that defines a word. Default `\w+`.                                         |
-| `ignoreCase` | boolean | No       | Compare without regard to case. Default `true`, because "The the" is the common typo. |
+| Option        | Type    | Required | Description                                                                           |
+| ------------- | ------- | -------- | ------------------------------------------------------------------------------------- |
+| `pattern`     | string  | No       | The regex that defines a word. Default `\w+`.                                         |
+| `ignoreCase`  | boolean | No       | Compare without regard to case. Default `true`, because "The the" is the common typo. |
+| `includeCode` | boolean | No       | Also look for repeats inside inline code spans. Default `false`.                      |
 
 Message placeholders: the repeated word.
 
@@ -202,10 +203,11 @@ assertions:
       color: colour
 ```
 
-| Option       | Type    | Required | Description                                      |
-| ------------ | ------- | -------- | ------------------------------------------------ |
-| `either`     | object  | Yes      | Pairs of variants. Each pair has its own winner. |
-| `ignoreCase` | boolean | No       | Match without regard to case. Default `false`.   |
+| Option        | Type    | Required | Description                                           |
+| ------------- | ------- | -------- | ----------------------------------------------------- |
+| `either`      | object  | Yes      | Pairs of variants. Each pair has its own winner.      |
+| `ignoreCase`  | boolean | No       | Match without regard to case. Default `false`.        |
+| `includeCode` | boolean | No       | Also match inside inline code spans. Default `false`. |
 
 Message placeholders: the later variant, then the variant that appeared first.
 
