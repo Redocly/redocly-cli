@@ -1,6 +1,7 @@
 import {
   AbortFlowError,
   detectSpec,
+  isAbsoluteUrl,
   isPlainObject,
   isString,
   logger,
@@ -14,14 +15,23 @@ import {
   runLint,
   runReadability,
   Timer,
+  type EmbeddedInput,
   type LintOptions,
+  type NormalizedRule,
+  type Problem,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { presets } from '@redocly/recheck/presets';
 import { readFileSync, statSync } from 'node:fs';
-import { dirname, extname } from 'node:path';
+import { dirname, extname, resolve } from 'node:path';
 
 import type { CommandArgs } from '../../wrapper.js';
+import {
+  collectDescriptions,
+  UnresolvedRefError,
+  type CollectedDescription,
+} from './descriptions.js';
+import { createPositionMapper } from './positions.js';
 import {
   printBaselineRun,
   printBaselineStart,
@@ -38,15 +48,31 @@ import type { RecheckAction, RecheckArgv } from './types.js';
 const DEFAULT_PRESET = 'recheck/markdown';
 const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
-function isApiDescription(path: string): boolean {
-  if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return false;
+// A YAML or JSON file that does not parse is 'unreadable-api', not a page:
+// the run must fail instead of linting it as Markdown.
+type ApiPathClassification = 'api' | 'unreadable-api' | 'not-api';
+
+function classifyApiPath(path: string): ApiPathClassification {
+  if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return 'not-api';
+  let isFile: boolean;
   try {
-    if (!statSync(path).isFile()) return false;
-    detectSpec(parseYaml(readFileSync(path, 'utf8')));
-    return true;
+    isFile = statSync(path).isFile();
   } catch {
-    return false;
+    return 'not-api';
   }
+  if (!isFile) return 'not-api';
+  let parsed: unknown;
+  try {
+    parsed = parseYaml(readFileSync(path, 'utf8'));
+  } catch {
+    return 'unreadable-api';
+  }
+  try {
+    detectSpec(parsed);
+  } catch {
+    return 'not-api';
+  }
+  return 'api';
 }
 
 // A block of the wrong type counts as configured, so the engine can report the error.
@@ -89,6 +115,110 @@ function toLintPresentation(argv: RecheckArgv): LintPresentation {
     maxProblems: argv['max-problems'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
+  };
+}
+
+// APIs from the `apis` block, resolved against the config directory; remote
+// roots stay out. Two aliases may share one root, which walks once.
+function configuredApiPaths(config: Config, configDir: string): string[] {
+  const paths = Object.values(config.resolvedConfig.apis ?? {})
+    .map((api) => api.root)
+    .filter((root): root is string => typeof root === 'string' && !isAbsoluteUrl(root))
+    .map((root) => resolve(configDir, root));
+  return [...new Set(paths)];
+}
+
+// A description reached through a remote `$ref` has a URL as its
+// `source.absoluteRef`. Baseline keys and the changed-file filter need a
+// local path, so such a description is counted and skipped.
+function toEmbeddedInputs(descriptions: CollectedDescription[]): {
+  inputs: EmbeddedInput[];
+  remoteSkipped: number;
+} {
+  const inputs: EmbeddedInput[] = [];
+  let remoteSkipped = 0;
+  for (const { source, pointer, text } of descriptions) {
+    if (isAbsoluteUrl(source.absoluteRef)) {
+      remoteSkipped++;
+      continue;
+    }
+    inputs.push({
+      file: source.absoluteRef,
+      pointer,
+      content: text,
+      mapPosition: createPositionMapper(source, pointer),
+    });
+  }
+  return { inputs, remoteSkipped };
+}
+
+async function collectEmbeddedInputs(
+  apiPaths: string[],
+  config: Config
+): Promise<{
+  inputs: EmbeddedInput[];
+  failureCount: number;
+  apiFiles: string[];
+  unreadableFiles: string[];
+}> {
+  const descriptions: CollectedDescription[] = [];
+  const apiFiles = new Set<string>();
+  const unreadableFiles: string[] = [];
+  let failureCount = 0;
+  // Two APIs may `$ref` the same file, so the descriptions of that file are
+  // deduplicated across every API, not within one.
+  const seen = new Set<string>();
+  for (const apiPath of apiPaths) {
+    let collected;
+    try {
+      collected = await collectDescriptions(apiPath, config);
+    } catch (error) {
+      logger.error(
+        `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}\n`
+      );
+      failureCount++;
+      unreadableFiles.push(resolve(apiPath));
+      if (error instanceof UnresolvedRefError) unreadableFiles.push(...error.files);
+      continue;
+    }
+    for (const message of collected.unresolvedPointers) logger.warn(`${message}\n`);
+    for (const file of collected.files) apiFiles.add(file);
+    for (const description of collected.descriptions) {
+      const key = `${description.source.absoluteRef}${description.pointer}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      descriptions.push(description);
+    }
+  }
+  const { inputs, remoteSkipped } = toEmbeddedInputs(descriptions);
+  if (remoteSkipped > 0) {
+    logger.info(
+      `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.\n`
+    );
+  }
+  return {
+    inputs,
+    failureCount,
+    apiFiles: [...apiFiles],
+    // A file one API could not reach through a `$ref` but another API read is
+    // scanned, not unreadable, so its baseline entries still apply.
+    unreadableFiles: unreadableFiles.filter((file) => !apiFiles.has(file)),
+  };
+}
+
+// True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
+// pointer. The rule key is the full name or the short name the report prints.
+function ignoredBy(config: Config, rules: NormalizedRule[]): (problem: Problem) => boolean {
+  const fullNameByShortName = new Map(rules.map((rule) => [rule.shortName, rule.name]));
+  return (problem) => {
+    const pointer = problem.pointer;
+    if (pointer === undefined) return false;
+    const ignoredRules = config.ignore?.[problem.file];
+    if (ignoredRules === undefined) return false;
+    return Object.entries(ignoredRules).some(
+      ([key, pointers]) =>
+        (fullNameByShortName.get(key) ?? key) === problem.ruleName && pointers.has(pointer)
+    );
   };
 }
 
@@ -137,37 +267,70 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     throw new AbortFlowError('Recheck failed.');
   }
 
-  const exitCode = await runAction(selected.action, argv, resolved.config);
+  const exitCode = await runAction(selected.action, argv, resolved.config, config, configDir);
   if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
 }
 
 async function runAction(
   action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
-  resolved: ResolvedRecheckConfig
+  resolved: ResolvedRecheckConfig,
+  config: Config,
+  configDir: string
 ): Promise<number> {
-  const requested = argv.paths && argv.paths.length > 0 ? argv.paths : ['.'];
+  const explicit = argv.paths !== undefined && argv.paths.length > 0;
+  const requested = explicit ? argv.paths! : ['.'];
   const roots: string[] = [];
-  for (const path of requested) {
-    if (isApiDescription(path)) {
-      logger.warn(`API descriptions are linted from the next release; skipped ${path}\n`);
-    } else {
-      roots.push(path);
-    }
+  const apiPaths: string[] = [];
+  for (const requestedPath of requested) {
+    const classification = classifyApiPath(requestedPath);
+    (classification === 'not-api' ? roots : apiPaths).push(requestedPath);
   }
-  if (roots.length === 0) return 0;
+  if (!explicit) apiPaths.push(...configuredApiPaths(config, configDir));
 
   if (action === 'readability') {
+    if (apiPaths.length > 0) {
+      logger.warn(
+        `Readability scores cover Markdown files only; skipped ${apiPaths.length} API description(s).\n`
+      );
+    }
+    if (roots.length === 0) {
+      logger.info('No Markdown files to score.\n');
+      return 0;
+    }
     printReadabilityStart(roots);
     const result = await runReadability(roots, resolved, {});
     return printReadabilityRun(result, { format: argv.format === 'json' ? 'json' : 'table' });
   }
+
+  const {
+    inputs: embeddedInputs,
+    failureCount,
+    apiFiles,
+    unreadableFiles,
+  } = await collectEmbeddedInputs(apiPaths, config);
+  // A baseline built from a partial set of descriptions would hide findings.
+  if (action === 'baseline' && failureCount > 0) {
+    logger.error(
+      `Baseline not written: the run could not read ${failureCount} API description(s).\n`
+    );
+    return 1;
+  }
+  const isIgnored = ignoredBy(config, resolved.rules);
   if (action === 'baseline') {
-    printBaselineStart(roots);
-    return printBaselineRun(await generateBaseline(roots, resolved));
+    printBaselineStart(roots, embeddedInputs.length);
+    return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
   }
   const timer = new Timer();
-  printLintStart(roots);
-  const result = await runLint(roots, resolved, toLintOptions(argv));
-  return printLintRun(result, toLintPresentation(argv), timer);
+  printLintStart(roots, embeddedInputs.length);
+  const result = await runLint(roots, resolved, {
+    ...toLintOptions(argv),
+    embeddedInputs,
+    apiFiles,
+    unreadableFiles,
+    isIgnored,
+  });
+  const exitCode = await printLintRun(result, toLintPresentation(argv), timer);
+  // An API description that could not be read fails the run, even when lint found nothing.
+  return failureCount > 0 && exitCode === 0 ? 1 : exitCode;
 }
