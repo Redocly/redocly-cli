@@ -16,21 +16,36 @@ export const noMultipleSpaceBlockquote: TokenRule = {
   check(ctx) {
     const listItems = ctx.config.listItems;
     const includeListItems = listItems === undefined ? true : !!listItems;
+    // With Markdoc parsing there is no `codeIndented` token (Markdoc has no indented code),
+    // so track what CommonMark would read as an indented code block: a line indented four
+    // or more columns past the blockquote marker that starts a block, and the indented
+    // lines right after it. markdownlint skips those lines too.
+    let inIndentedCode = false;
     for (const token of ctx.tree.flat) {
-      if (token.type !== 'linePrefix') continue;
       const parent = token.parent;
-      const codeIndented = parent?.type === 'codeIndented';
       const siblings = parent ? parent.children : ctx.tree.children;
       const index = siblings.indexOf(token);
-      if (codeIndented) continue;
+      if (token.type === 'blockQuotePrefix') {
+        if (siblings[index + 1]?.type !== 'linePrefix') inIndentedCode = false;
+        continue;
+      }
+      if (token.type !== 'linePrefix') continue;
+      if (parent?.type === 'codeIndented') continue;
       if (siblings[index - 1]?.type !== 'blockQuotePrefix') continue;
+      const { startColumn, startLine, endColumn, text } = token;
+      if (ctx.markdoc && endColumn - startColumn >= 4) {
+        if (parent?.type === 'blockQuote' || inIndentedCode) {
+          inIndentedCode = true;
+          continue;
+        }
+      }
+      inIndentedCode = false;
       if (
         !includeListItems &&
         (listTypes.includes(siblings[index + 1]?.type ?? '') || getParentOfType(token, listTypes))
       ) {
         continue;
       }
-      const { startColumn, startLine, text } = token;
       ctx.onError({
         line: startLine,
         column: startColumn,
