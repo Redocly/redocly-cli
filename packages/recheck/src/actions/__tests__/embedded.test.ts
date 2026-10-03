@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
+import { presetBlock } from '../../__tests__/preset-block.js';
 import { resolveRecheckConfig, type ResolvedRecheckConfig } from '../../config/resolve.js';
 import { lintEmbeddedInputs, type EmbeddedInput } from '../embedded.js';
 
 async function resolve(preset = 'recheck/markdown'): Promise<ResolvedRecheckConfig> {
-  const result = await resolveRecheckConfig({ extends: [preset], configDir: process.cwd() });
+  const result = await resolveRecheckConfig({
+    block: await presetBlock([preset]),
+    configDir: process.cwd(),
+  });
   if (!result.success) throw new Error('config');
   return result.config;
 }

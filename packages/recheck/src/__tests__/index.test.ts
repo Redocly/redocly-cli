@@ -1,8 +1,10 @@
+import { createConfig } from '@redocly/openapi-core';
 import * as fs from 'fs/promises';
 import * as os from 'os';
 import * as path from 'path';
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
 
+import { presets } from '../config/presets/index.js';
 import { validate } from '../config/validate.js';
 // Both types must be importable from the package root `../index.js`.
 import {
@@ -14,6 +16,7 @@ import {
   type RecheckRules,
   type ValidationError,
 } from '../index.js';
+import { recheckPresetsPlugin } from '../presets.js';
 
 const config: RecheckConfig = {
   'recheck/no-gerund-headings': {
@@ -216,6 +219,20 @@ const SELF_CLOSING_MISUSE = '{% img src="a.png" %}\ncaption\n{% /img %}\n';
 const GRAMMAR_VIOLATION = '{% widget name=star /%}\n';
 
 const lint = (content: string, config: RecheckConfig) => lintContent(content, config);
+
+describe('shared preset data', () => {
+  // Core's merge passes preset rule objects through by reference, and validation writes
+  // defaults (such as `scope: 'all'`) into the rules it checks.
+  it('lintContent leaves the presets unchanged', async () => {
+    const before = JSON.stringify(presets['recheck/google']);
+    const config = await createConfig(
+      { extends: ['recheck/google'] },
+      { plugins: [recheckPresetsPlugin] }
+    );
+    await lintContent('# Title\n\nSome text.\n', config.recheck.rules as RecheckConfig);
+    expect(JSON.stringify(presets['recheck/google'])).toBe(before);
+  });
+});
 
 describe('markdoc config -> rules (production path via lintContent)', () => {
   describe('markdoc: true', () => {

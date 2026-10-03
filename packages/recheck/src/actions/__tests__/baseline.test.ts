@@ -3,6 +3,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { presetBlock } from '../../__tests__/preset-block.js';
 import {
   DEFAULT_BASELINE_FILE,
   resolveRecheckConfig,
@@ -30,9 +31,12 @@ function descriptionInput(apiFile: string): EmbeddedInput {
 async function resolveConfig(
   configDir: string,
   block: Record<string, unknown> = {},
-  extendsList?: string[]
+  extendsList: string[] = []
 ): Promise<ResolvedRecheckConfig> {
-  const result = await resolveRecheckConfig({ extends: extendsList, block, configDir });
+  const result = await resolveRecheckConfig({
+    block: await presetBlock(extendsList, block),
+    configDir,
+  });
   if (!result.success) {
     throw new Error(
       `config resolution failed: ${result.errors.map((error) => error.message).join('; ')}`

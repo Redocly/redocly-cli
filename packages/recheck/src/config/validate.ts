@@ -1,5 +1,4 @@
 import Ajv from '@redocly/ajv';
-import { mergeRecheckRules } from '@redocly/openapi-core';
 import addFormats from 'ajv-formats';
 import * as yaml from 'js-yaml';
 import * as fs from 'node:fs/promises';
@@ -19,7 +18,6 @@ import { tokenizeSelector, wholeDocumentKeywordProblems } from '../scopes/select
 import { validateScopeSelector } from '../scopes/vocabulary.js';
 import type { RecheckRules, NormalizedRule, ValidationError, BaseRule } from '../types/index.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import { presets } from './presets/index.js';
 import { RECHECK_CONFIG_SCHEMA, MARKDOC_TAG_SCHEMA } from './schema.js';
 
 const ajv = new (Ajv as any)({
@@ -868,19 +866,27 @@ async function checkSpellingPeerDependencies(rules: NormalizedRule[]): Promise<V
 }
 
 /**
- * Warns when a config extends `recheck/markdoc` but has markdoc parsing off, because the
- * preset's rules cannot report then. Goes to `warn`, so `isValid` stays `true`.
- * Reads the raw `extends` list, because after merging, preset rules look like user rules.
+ * Warns when a rule that needs Markdoc parsing is on while `markdoc` is off, because
+ * such a rule cannot report then. Goes to `warn`, so `isValid` stays `true`.
  */
-function warnStaleMarkdocPreset(
-  extendsList: unknown,
+function warnMarkdocRulesWithoutParsing(
+  config: unknown,
   markdocEnabled: boolean,
   warnOnce: (message: string) => void
 ): void {
-  if (markdocEnabled || !Array.isArray(extendsList)) return;
-  if (!extendsList.includes('recheck/markdoc')) return;
+  if (markdocEnabled || !isPlainObject(config)) return;
+  const names = Object.entries(config)
+    .filter(
+      ([, rule]) =>
+        isPlainObject(rule) &&
+        rule.severity !== 'off' &&
+        isPlainObject(rule.assertions) &&
+        Object.keys(rule.assertions).some((id) => id.startsWith('markdoc-'))
+    )
+    .map(([name]) => name);
+  if (names.length === 0) return;
   warnOnce(
-    'recheck: config extends "recheck/markdoc" but "markdoc" parsing is off — its four rules ' +
+    `recheck: ${names.join(', ')} need Markdoc parsing, but "markdoc" parsing is off, so they ` +
       'can never fire; set "markdoc: true" (or an object form) to enable them.'
   );
 }
@@ -1138,63 +1144,6 @@ function validateSemantics(
   return { errors, rules };
 }
 
-/**
- * Resolves the `extends` key of a raw config into merged rule entries.
- * The schema has not validated these entries yet.
- *
- * Presets apply in listed order.
- * A later preset and the user's own keys merge by rule key.
- * The result has no `extends` key, because `extends` is not a rule.
- *
- * An unknown preset name gives a ValidationError that names the preset.
- * This function does not throw on bad user input.
- */
-export function resolveExtends(config: Record<string, unknown>): {
-  config: Record<string, Partial<BaseRule>>;
-  errors: ValidationError[];
-} {
-  const { extends: extendsList, ...rest } = config;
-  // The schema checks these entries after the merge.
-  const userRules = rest as Record<string, Partial<BaseRule>>;
-
-  if (extendsList === undefined) {
-    return { config: userRules, errors: [] };
-  }
-
-  // `extends` must be an array of preset names.
-  if (!Array.isArray(extendsList)) {
-    return {
-      config: userRules,
-      errors: [
-        {
-          message: '"extends" must be an array of preset names',
-          path: 'extends',
-        },
-      ],
-    };
-  }
-
-  const errors: ValidationError[] = [];
-
-  let merged: Record<string, unknown> = {};
-  for (const name of extendsList) {
-    const preset = Object.hasOwn(presets, name) ? presets[name] : undefined;
-    if (!preset) {
-      errors.push({
-        message: `Unknown preset "${name}" in "extends" — expected one of: ${Object.keys(presets).join(', ')}`,
-        path: 'extends',
-      });
-      continue;
-    }
-    // Validation writes defaults into the entries, so clone the shared preset.
-    merged = mergeRecheckRules(merged, structuredClone(preset));
-  }
-  merged = mergeRecheckRules(merged, userRules);
-
-  // Core's merge returns the entries of a recheck block; the engine reads them as partial rules.
-  return { config: merged as Record<string, Partial<BaseRule>>, errors };
-}
-
 // A token rule's message comes from its defaults; a scope rule must name one.
 function fillDefaultMessages(
   rules: Record<string, Partial<BaseRule>>
@@ -1238,15 +1187,11 @@ export async function validate(
 }> {
   const warn = options?.warn ?? (() => {});
 
-  // Expand presets first, so the schema checks the merged config. An unknown preset name does
-  // not stop the other rules from being validated.
-  const hasExtends = isPlainObject(config) && 'extends' in config;
-  const { config: mergedConfig, errors: extendsErrors } = hasExtends
-    ? resolveExtends(config)
-    : { config: config as Record<string, Partial<BaseRule>>, errors: [] as ValidationError[] };
-  const resolvedConfig = isPlainObject(mergedConfig)
-    ? fillDefaultMessages(mergedConfig)
-    : mergedConfig;
+  // Validation writes defaults into the rules, and core passes preset rules through by
+  // reference, so work on a copy.
+  const resolvedConfig = isPlainObject(config)
+    ? fillDefaultMessages(structuredClone(config) as Record<string, Partial<BaseRule>>)
+    : config;
 
   // Remember which rules set `scope` themselves, because AJV fills in `scope: 'all'` on the rest.
   const rulesWithExplicitScope = new Set(
@@ -1254,11 +1199,7 @@ export async function validate(
       ? Object.entries(resolvedConfig)
           .filter(
             ([key, rule]) =>
-              key !== 'extends' &&
-              key !== 'markdoc' &&
-              key !== 'excludes' &&
-              isPlainObject(rule) &&
-              'scope' in rule
+              key !== 'markdoc' && key !== 'excludes' && isPlainObject(rule) && 'scope' in rule
           )
           .map(([key]) => key)
       : []
@@ -1272,15 +1213,11 @@ export async function validate(
     | undefined;
   let { enabled: markdocEnabled, schema: markdocSchema } = resolveMarkdocConfig(rawMarkdoc);
   // Runs before the early return below, so the warning is not skipped.
-  warnStaleMarkdocPreset(
-    hasExtends ? (config as { extends?: unknown }).extends : undefined,
-    markdocEnabled,
-    warn
-  );
+  warnMarkdocRulesWithoutParsing(resolvedConfig, markdocEnabled, warn);
   if (structureErrors.length > 0) {
     return {
       isValid: false,
-      errors: [...extendsErrors, ...structureErrors],
+      errors: structureErrors,
       rules: [],
       markdoc: { enabled: markdocEnabled, schema: markdocSchema },
     };
@@ -1330,7 +1267,7 @@ export async function validate(
 
   const peerErrors = await checkSpellingPeerDependencies(rules);
 
-  const errors = [...extendsErrors, ...semanticErrors, ...peerErrors, ...tagsFileErrors];
+  const errors = [...semanticErrors, ...peerErrors, ...tagsFileErrors];
   return {
     isValid: errors.length === 0,
     errors,

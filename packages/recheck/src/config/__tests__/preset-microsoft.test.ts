@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { presetConfig } from '../../__tests__/preset-block.js';
 import { lintContent } from '../../index.js';
 import { pattern } from '../../rules/scope/pattern.js';
 import type { ScopeRuleContext } from '../../rules/types.js';
@@ -430,7 +431,7 @@ describe('recheck/microsoft preset per-pair coverage (pattern tokens)', () => {
     expect(expectations.length).toBeGreaterThanOrEqual(67);
 
     const doc = ['# Pattern token coverage', '', blocks.join('\n\n')].join('\n');
-    const problems = await lintContent(doc, { extends: ['recheck/microsoft'] });
+    const problems = await lintContent(doc, await presetConfig(['recheck/microsoft']));
     const reportedByRule = new Map<string, Set<string>>();
     for (const p of problems) {
       let matched = reportedByRule.get(p.ruleName);
@@ -460,7 +461,7 @@ describe('recheck/microsoft preset per-pair coverage (pattern tokens)', () => {
 describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 3)', () => {
   it('still reports a cell containing exactly an em dash', async () => {
     const doc = '| Field | Description |\n| --- | --- |\n| name | — |\n';
-    const problems = await lintContent(doc, { extends: ['recheck/microsoft'] });
+    const problems = await lintContent(doc, await presetConfig(['recheck/microsoft']));
     const matches = problems.filter((p) => p.ruleName === 'microsoft/no-blank-table-cell');
     expect(matches).toHaveLength(1);
     expect(matches[0].match).toBe('—');
@@ -470,14 +471,14 @@ describe('recheck/microsoft no-blank-table-cell: narrowed to em-dash only (Item 
   // an empty string.
   it('does NOT report a genuinely blank cell (empty content between the pipes)', async () => {
     const doc = '| Field | Description |\n| --- | --- |\n| name |  |\n';
-    const problems = await lintContent(doc, { extends: ['recheck/microsoft'] });
+    const problems = await lintContent(doc, await presetConfig(['recheck/microsoft']));
     const matches = problems.filter((p) => p.ruleName === 'microsoft/no-blank-table-cell');
     expect(matches).toEqual([]);
   });
 
   it('does NOT report a whitespace-only cell either (trims to the same empty content)', async () => {
     const doc = '| Field | Description |\n| --- | --- |\n| name |     |\n';
-    const problems = await lintContent(doc, { extends: ['recheck/microsoft'] });
+    const problems = await lintContent(doc, await presetConfig(['recheck/microsoft']));
     const matches = problems.filter((p) => p.ruleName === 'microsoft/no-blank-table-cell');
     expect(matches).toEqual([]);
   });
@@ -534,7 +535,7 @@ describe('recheck/microsoft collision probes: words no rule targets stay clean',
   ];
 
   it.each(probes)('reports nothing for %j', async (content) => {
-    const problems = await lintContent(content, { extends: ['recheck/microsoft'] });
+    const problems = await lintContent(content, await presetConfig(['recheck/microsoft']));
     expect(problems).toEqual([]);
   });
 });

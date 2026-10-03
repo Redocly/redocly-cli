@@ -9,6 +9,10 @@
     ".": {
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js"
+    },
+    "./presets": {
+      "types": "./lib/presets.d.ts",
+      "import": "./lib/presets.js"
     }
   },
   "engines": {

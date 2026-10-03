@@ -62,7 +62,6 @@ export interface NormalizedRule {
  * `/` and engine-level keys never do, which the index signature relies on.
  */
 export type RecheckConfig = {
-  extends?: string[];
   excludes?: string[];
   markdoc?: boolean | MarkdocUserConfig;
   [ruleName: `${string}/${string}`]: Partial<BaseRule>;

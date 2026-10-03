@@ -1,15 +1,19 @@
+import { createConfig } from '@redocly/openapi-core';
 import { readFile } from 'fs/promises';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, expect, it } from 'vitest';
 
+import { presetConfig } from '../../__tests__/preset-block.js';
 import { runRules } from '../../core/runner.js';
 import { TECHNICAL_PROPER_NOUNS } from '../../data/proper-nouns.js';
 import { lintContent } from '../../index.js';
+import { recheckPresetsPlugin } from '../../presets.js';
 import { scopeRules } from '../../rules/registry.js';
 import { allTokenRules } from '../../rules/token/index.js';
 import { presets, DOCUMENTED_OPT_IN_ASSERTIONS } from '../presets/index.js';
-import { resolveExtends, validate } from '../validate.js';
+import { resolveRecheckConfig } from '../resolve.js';
+import { validate } from '../validate.js';
 
 describe('extends presets', () => {
   // Binds the `recheck/markdown` preset to the token-rule registry, so a new or renamed token rule
@@ -51,10 +55,11 @@ describe('extends presets', () => {
   });
 
   it('user entries override preset entries by rule key', async () => {
-    const result = await validate({
-      extends: ['recheck/minimal'],
-      'recheck/no-trailing-spaces': { severity: 'off' },
-    });
+    const result = await validate(
+      await presetConfig(['recheck/minimal'], {
+        'recheck/no-trailing-spaces': { severity: 'off' },
+      })
+    );
     // `validate()` keeps rules with severity `off` and only changes their severity. Filtering them out
     // happens later, at lint time.
     expect(result.isValid).toBe(true);
@@ -64,26 +69,21 @@ describe('extends presets', () => {
   });
 
   it('user assertion option overrides preset option while preserving other preset options', async () => {
-    const result = await validate({
-      extends: ['recheck/minimal'],
-      'recheck/no-hard-tabs': {
-        severity: 'error',
-        message: 'Custom tabs message.',
-        assertions: { 'no-hard-tabs': { spacesPerTab: 4 } },
-      },
-    });
+    const result = await validate(
+      await presetConfig(['recheck/minimal'], {
+        'recheck/no-hard-tabs': {
+          severity: 'error',
+          message: 'Custom tabs message.',
+          assertions: { 'no-hard-tabs': { spacesPerTab: 4 } },
+        },
+      })
+    );
     expect(result.isValid).toBe(true);
     const rule = result.rules.find((r) => r.shortName === 'no-hard-tabs');
     expect(rule).toBeDefined();
     if (!rule) throw new Error('expected rule to be defined');
     expect(rule.message).toBe('Custom tabs message.');
     expect((rule.assertions['no-hard-tabs'] as any).spacesPerTab).toBe(4);
-  });
-
-  it('rejects unknown preset names as validation errors', async () => {
-    const result = await validate({ extends: ['recheck/nope'] });
-    expect(result.isValid).toBe(false);
-    expect(result.errors[0].message).toContain('recheck/nope');
   });
 
   it('registers all eleven presets', () => {
@@ -127,7 +127,7 @@ describe('extends presets', () => {
   });
 
   it('recheck/minimal expands to its five rules', async () => {
-    const result = await validate({ extends: ['recheck/minimal'] });
+    const result = await validate(await presetConfig(['recheck/minimal']));
     expect(result.isValid).toBe(true);
     expect(result.rules.map((rule) => rule.shortName).sort()).toEqual([
       'no-empty-links',
@@ -136,37 +136,6 @@ describe('extends presets', () => {
       'no-trailing-spaces',
       'single-trailing-newline',
     ]);
-  });
-
-  it('rejects extends with non-array value as validation error', async () => {
-    const result = await validate({ extends: 'recheck/minimal' });
-    expect(result.isValid).toBe(false);
-    expect(result.errors.some((e) => e.message.includes('"extends" must be an array'))).toBe(true);
-  });
-
-  // An unresolvable `extends` entry must not stop validation of the rest of the config. Errors from
-  // the other rules, such as an unknown assertion id, are reported together with it.
-  it('reports an unknown assertion id alongside an unknown preset name in the same config (both errors, not just one)', async () => {
-    const result = await validate({
-      extends: ['recheck/no-such-preset'],
-      'recheck/test-rule': {
-        severity: 'error',
-        message: 'Test message',
-        assertions: { 'no-such-assertion': {} },
-      },
-    });
-
-    expect(result.isValid).toBe(false);
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({
-        message: expect.stringContaining('Unknown preset "recheck/no-such-preset"'),
-      })
-    );
-    expect(result.errors).toContainEqual(
-      expect.objectContaining({
-        message: expect.stringContaining('Unknown assertion type "no-such-assertion"'),
-      })
-    );
   });
 });
 
@@ -196,7 +165,7 @@ describe('recheck/prose preset', () => {
 
   it('recheck/prose consistency still auto-fixes a genuine same-word-count conflict end-to-end', async () => {
     const content = 'The color palette is set.\n\nUse the same colour again.\n';
-    const { rules } = await validate({ extends: ['recheck/prose'] });
+    const { rules } = await validate(await presetConfig(['recheck/prose']));
     const { fixedFiles } = await runRules([{ path: 'x.md', content }], rules, { fix: true });
     expect(fixedFiles.get('x.md')).toBe('The color palette is set.\n\nUse the same color again.\n');
   });
@@ -204,9 +173,10 @@ describe('recheck/prose preset', () => {
   // Without `ignoreCase: true`, a capitalized variant at the start of a sentence ("Colour") would
   // match neither the key nor the value, and the rule would miss it.
   it('consistency flags a capitalized, sentence-initial variant against a later lowercase one (ignoreCase)', async () => {
-    const problems = await lintContent('Colour is used here.\n\nlater color appears.\n', {
-      extends: ['recheck/prose'],
-    });
+    const problems = await lintContent(
+      'Colour is used here.\n\nlater color appears.\n',
+      await presetConfig(['recheck/prose'], {})
+    );
     const consistencyProblems = problems.filter((p) => p.ruleName === 'recheck/consistency');
     expect(consistencyProblems).toHaveLength(1);
   });
@@ -217,7 +187,7 @@ describe('recheck/prose preset', () => {
     const content =
       'We spell it colour and behaviour throughout this document.\n\n' +
       'Behavior of the parser matters. Color is fine.\n';
-    const { rules } = await validate({ extends: ['recheck/prose'] });
+    const { rules } = await validate(await presetConfig(['recheck/prose']));
 
     const { fixedFiles: firstPass } = await runRules([{ path: 'x.md', content }], rules, {
       fix: true,
@@ -269,9 +239,10 @@ describe('recheck/prose preset', () => {
     expect(dottedEntry, 'vocabulary should contain at least one dotted entry').toBeDefined();
 
     for (const entry of [whitespaceEntry, dottedEntry] as string[]) {
-      const problems = await lintContent(`# Deploy with ${entry} today\n`, {
-        extends: ['recheck/prose'],
-      });
+      const problems = await lintContent(
+        `# Deploy with ${entry} today\n`,
+        await presetConfig(['recheck/prose'], {})
+      );
       expect(
         problems.filter((p) => p.ruleName === 'recheck/capitalization'),
         `"${entry}" should survive the $sentence round trip unmodified`
@@ -291,7 +262,7 @@ describe('recheck/prose preset', () => {
 
     for (const entry of phraseEntries) {
       const content = `# ${entry} configuration for teams\n`;
-      const problems = await lintContent(content, { extends: ['recheck/prose'] });
+      const problems = await lintContent(content, await presetConfig(['recheck/prose']));
       expect(
         problems.filter((p) => p.ruleName === 'recheck/capitalization'),
         `"${entry}" in leading position should produce no capitalization finding`
@@ -300,14 +271,18 @@ describe('recheck/prose preset', () => {
   });
 
   it('an exception-protected heading ("Use OpenAPI descriptions") produces no capitalization finding', async () => {
-    const problems = await lintContent('## Use OpenAPI descriptions\n', {
-      extends: ['recheck/prose'],
-    });
+    const problems = await lintContent(
+      '## Use OpenAPI descriptions\n',
+      await presetConfig(['recheck/prose'], {})
+    );
     expect(problems.filter((p) => p.ruleName === 'recheck/capitalization')).toEqual([]);
   });
 
   it('a title-cased heading ("Use The API Now") IS flagged as a sentence-case violation', async () => {
-    const problems = await lintContent('## Use The API Now\n', { extends: ['recheck/prose'] });
+    const problems = await lintContent(
+      '## Use The API Now\n',
+      await presetConfig(['recheck/prose'])
+    );
     const capitalizationProblems = problems.filter((p) => p.ruleName === 'recheck/capitalization');
     expect(capitalizationProblems).toHaveLength(1);
     expect(capitalizationProblems[0].message).toContain('$sentence');
@@ -316,16 +291,17 @@ describe('recheck/prose preset', () => {
 
   // ALL-CAPS words (2+ letters) are kept by sentenceCase, so a heading of acronyms stays clean.
   it('an ALL-CAPS acronym heading is unaffected', async () => {
-    const problems = await lintContent('## Configure CORS for the API and CDN\n', {
-      extends: ['recheck/prose'],
-    });
+    const problems = await lintContent(
+      '## Configure CORS for the API and CDN\n',
+      await presetConfig(['recheck/prose'], {})
+    );
     expect(problems.filter((p) => p.ruleName === 'recheck/capitalization')).toEqual([]);
   });
 
   // A `--fix` run over a heading the rule flags must produce no fix and leave the file unchanged.
   it('emits no fix for a flagged heading under --fix, despite the rule being inherently fixable', async () => {
     const content = '## Use The API Now\n';
-    const result = await validate({ extends: ['recheck/prose'] });
+    const result = await validate(await presetConfig(['recheck/prose']));
     expect(result.isValid).toBe(true);
     const capitalizationRule = result.rules.filter((r) => r.shortName === 'capitalization');
     expect(capitalizationRule).toHaveLength(1);
@@ -347,7 +323,7 @@ describe('recheck/prose preset', () => {
   });
 
   it('expands via extends into normalized rules with the right severities', async () => {
-    const result = await validate({ extends: ['recheck/prose'] });
+    const result = await validate(await presetConfig(['recheck/prose']));
     expect(result.isValid).toBe(true);
     const byShortName = new Map(result.rules.map((r) => [r.shortName, r]));
     expect(byShortName.get('repetition')?.severity).toBe('warn');
@@ -364,7 +340,7 @@ describe('recheck/prose preset', () => {
       '# Heading\n\n' +
       '```\nthe the\ncolour then color\n```\n\n' +
       'Prose with the the repeat.\n';
-    const problems = await lintContent(md, { extends: ['recheck/prose'] });
+    const problems = await lintContent(md, await presetConfig(['recheck/prose']));
 
     const repetitionProblems = problems.filter((p) => p.ruleName === 'recheck/repetition');
     const consistencyProblems = problems.filter((p) => p.ruleName === 'recheck/consistency');
@@ -377,17 +353,21 @@ describe('recheck/prose preset', () => {
   });
 
   // AJV's `useDefaults` changes the object it validates (for example it adds `scope: 'all'`).
-  // `resolveExtends` clones each preset rule first, so the shared registry stays clean.
-  it('validate() never mutates the shared preset registry, so a later config does not see an earlier one', async () => {
+  // Core's merge keeps references to the shared preset rules, so resolving must not change them.
+  it('resolving a config never mutates the shared presets, so a later config does not see an earlier one', async () => {
     const before = JSON.stringify(presets);
 
-    await validate({
-      extends: Object.keys(presets),
-      'recheck/capitalization': { severity: 'error' },
-    });
+    const config = await createConfig(
+      {
+        extends: Object.keys(presets),
+        recheck: { rules: { 'recheck/capitalization': { severity: 'error' } } },
+      },
+      { plugins: [recheckPresetsPlugin] }
+    );
+    await resolveRecheckConfig({ block: config.recheck, configDir: process.cwd() });
     expect(JSON.stringify(presets)).toBe(before);
 
-    const later = await validate({ extends: ['recheck/prose'] });
+    const later = await validate(await presetConfig(['recheck/prose']));
     expect(later.rules.find((rule) => rule.shortName === 'capitalization')?.severity).toBe('warn');
   });
 });
@@ -422,7 +402,7 @@ describe('registry <-> preset completeness (native scope-rule assertions)', () =
 describe('preset data', () => {
   it('validates every preset alone, with a message on every rule', async () => {
     for (const id of Object.keys(presets)) {
-      const result = await validate({ extends: [id] });
+      const result = await validate(await presetConfig([id]));
       expect(result.errors, id).toEqual([]);
       for (const rule of result.rules) {
         expect(rule.message, `${id} ${rule.name}`).toBeTruthy();
@@ -487,7 +467,7 @@ describe.each(STYLE_PRESETS)('$id', ({ id, namespace, violations, clean }) => {
         .map(([key]) => key)
     ).toEqual([]);
 
-    const { rules } = await validate({ extends: [id] });
+    const { rules } = await validate(await presetConfig([id]));
     const files = await Promise.all(
       violations.map(async (name) => ({ path: name, content: await readFixture(name) }))
     );
@@ -501,7 +481,7 @@ describe.each(STYLE_PRESETS)('$id', ({ id, namespace, violations, clean }) => {
   it('reports every rule it ships on its violations fixtures', async () => {
     const reported = new Set<string>();
     for (const name of violations) {
-      for (const problem of await lintContent(await readFixture(name), { extends: [id] })) {
+      for (const problem of await lintContent(await readFixture(name), await presetConfig([id]))) {
         reported.add(problem.ruleName);
       }
     }
@@ -509,7 +489,7 @@ describe.each(STYLE_PRESETS)('$id', ({ id, namespace, violations, clean }) => {
   });
 
   it('reports nothing on compliant prose', async () => {
-    expect(await lintContent(await readFixture(clean), { extends: [id] })).toEqual([]);
+    expect(await lintContent(await readFixture(clean), await presetConfig([id]))).toEqual([]);
   });
 });
 
@@ -529,9 +509,8 @@ describe('stacking presets', () => {
     [['recheck/markdown', 'recheck/prose']],
     [['recheck/markdown', 'recheck/markdoc']],
     [['recheck/microsoft', 'recheck/plain-language']],
-  ])('%j keeps every rule of every preset unchanged', (ids) => {
-    const { config, errors } = resolveExtends({ extends: ids });
-    expect(errors).toEqual([]);
+  ])('%j keeps every rule of every preset unchanged', async (ids) => {
+    const config: Record<string, unknown> = await presetConfig(ids);
 
     const ruleCount = ids.reduce((count, id) => count + Object.keys(presets[id]).length, 0);
     expect(Object.keys(config)).toHaveLength(ruleCount);
@@ -558,9 +537,10 @@ function duplicatePositions(
 
 describe('duplicate findings across stacked presets', () => {
   it('markdown + google + inclusive-language: 11, each pairing a google rule with an inclusive-language rule', async () => {
-    const problems = await lintContent(await readFixture('inclusive-language-violations.md'), {
-      extends: ['recheck/markdown', 'recheck/google', 'recheck/inclusive-language'],
-    });
+    const problems = await lintContent(
+      await readFixture('inclusive-language-violations.md'),
+      await presetConfig(['recheck/markdown', 'recheck/google', 'recheck/inclusive-language'], {})
+    );
     const dupes = duplicatePositions(problems);
     expect(dupes).toHaveLength(11);
     for (const rules of dupes) {
@@ -575,7 +555,10 @@ describe('duplicate findings across stacked presets', () => {
     ['recheck/google', 'plain-language-violations.md', 'recheck/plain-language', 3],
     ['recheck/microsoft', 'plain-language-violations.md', 'recheck/plain-language', 3],
   ])('%s + %s fixture with %s: %i duplicate positions', async (first, fixture, second, count) => {
-    const problems = await lintContent(await readFixture(fixture), { extends: [first, second] });
+    const problems = await lintContent(
+      await readFixture(fixture),
+      await presetConfig([first, second])
+    );
     expect(duplicatePositions(problems)).toHaveLength(count);
   });
 

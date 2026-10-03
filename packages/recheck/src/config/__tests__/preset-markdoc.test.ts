@@ -3,6 +3,7 @@ import * as path from 'path';
 import { fileURLToPath } from 'url';
 import { describe, expect, it, beforeAll } from 'vitest';
 
+import { presetConfig } from '../../__tests__/preset-block.js';
 import { lintContent } from '../../index.js';
 import type { Problem } from '../../types/index.js';
 import { presets } from '../presets/index.js';
@@ -42,10 +43,12 @@ describe('markdoc-violations.md: per-violation-class coverage gate', () => {
   let problems: Problem[];
   beforeAll(async () => {
     const content = await readFile(fixture('markdoc-violations.md'), 'utf8');
-    problems = await lintContent(content, {
-      extends: ['recheck/markdoc'],
-      markdoc: true,
-    });
+    problems = await lintContent(
+      content,
+      await presetConfig(['recheck/markdoc'], {
+        markdoc: true,
+      })
+    );
   });
 
   it('every violation class fires at least once on the shared fixture, and every rule reports', () => {
@@ -94,19 +97,23 @@ describe('markdoc-violations.md: per-violation-class coverage gate', () => {
 describe('markdoc-clean.md reports zero findings', () => {
   it('realistic tagged prose (admonition/tabs/tab/partial/img, all correct) reports nothing', async () => {
     const content = await readFile(fixture('markdoc-clean.md'), 'utf8');
-    const problems = await lintContent(content, {
-      extends: ['recheck/markdoc'],
-      markdoc: true,
-    });
+    const problems = await lintContent(
+      content,
+      await presetConfig(['recheck/markdoc'], {
+        markdoc: true,
+      })
+    );
     expect(problems).toEqual([]);
   });
 
   it('reports nothing even under a stacked extends (recheck/markdown + recheck/markdoc)', async () => {
     const content = await readFile(fixture('markdoc-clean.md'), 'utf8');
-    const problems = await lintContent(content, {
-      extends: ['recheck/markdown', 'recheck/markdoc'],
-      markdoc: true,
-    });
+    const problems = await lintContent(
+      content,
+      await presetConfig(['recheck/markdown', 'recheck/markdoc'], {
+        markdoc: true,
+      })
+    );
     // Only the four markdoc rules are checked. `recheck/markdown` may report other things here.
     const markdocProblems = problems.filter((p) => p.ruleName.startsWith('recheck/markdoc-'));
     expect(markdocProblems).toEqual([]);
@@ -115,40 +122,22 @@ describe('markdoc-clean.md reports zero findings', () => {
 
 describe('composition: extends [recheck/markdown, recheck/markdoc]', () => {
   it('resolves end-to-end via validate() with markdoc: true, and a markdoc rule actually fires', async () => {
-    const result = await validate({
-      extends: ['recheck/markdown', 'recheck/markdoc'],
-      markdoc: true,
-    });
+    const result = await validate(
+      await presetConfig(['recheck/markdown', 'recheck/markdoc'], {
+        markdoc: true,
+      })
+    );
     expect(result.isValid).toBe(true);
     expect(result.markdoc.enabled).toBe(true);
     expect(result.rules.some((r) => r.name === 'recheck/markdoc-attributes')).toBe(true);
 
     const content = await readFile(fixture('markdoc-violations.md'), 'utf8');
-    const problems = await lintContent(content, {
-      extends: ['recheck/markdown', 'recheck/markdoc'],
-      markdoc: true,
-    });
+    const problems = await lintContent(
+      content,
+      await presetConfig(['recheck/markdown', 'recheck/markdoc'], {
+        markdoc: true,
+      })
+    );
     expect(problems.some((p) => p.ruleName === 'recheck/markdoc-attributes')).toBe(true);
-  });
-});
-
-// Extending recheck/markdoc without turning markdoc parsing on is valid but warns, because the
-// four rules would never fire.
-describe('stale-preset warning: recheck/markdoc extended with markdoc off', () => {
-  it.each([
-    ['markdoc is absent', { extends: ['recheck/markdoc'] }, true],
-    ['markdoc is false', { extends: ['recheck/markdoc'], markdoc: false }, true],
-    ['markdoc is true', { extends: ['recheck/markdoc'], markdoc: true }, false],
-    ['the config does not extend recheck/markdoc', { extends: ['recheck/markdown'] }, false],
-    ['the config has no extends', {}, false],
-  ])('when %s', async (_label, config, shouldWarn) => {
-    const warnings: string[] = [];
-    const result = await validate(config, { warn: (message) => warnings.push(message) });
-    expect(result.isValid).toBe(true);
-    expect(
-      warnings.some((message) =>
-        message.includes('extends "recheck/markdoc" but "markdoc" parsing is off')
-      )
-    ).toBe(shouldWarn);
   });
 });

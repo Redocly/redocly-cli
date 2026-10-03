@@ -1,5 +1,6 @@
 import { AbortFlowError, createConfig, Source, type Config } from '@redocly/openapi-core';
 import type { RecheckBlock } from '@redocly/recheck';
+import { recheckPresetsPlugin } from '@redocly/recheck/presets';
 import { cyan } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
@@ -38,7 +39,6 @@ describe('handleRecheck', () => {
   function run(
     recheck: RecheckBlock,
     configPath: string | undefined,
-    recheckExtends: string[] = [],
     parsed?: unknown
   ): Promise<void> {
     const argv: RecheckArgv = {
@@ -49,7 +49,6 @@ describe('handleRecheck', () => {
     const config = {
       ...configFixture,
       recheck,
-      recheckExtends,
       configPath,
       document,
     } as Config;
@@ -57,9 +56,12 @@ describe('handleRecheck', () => {
   }
 
   it('runs the rules of a preset from the root extends', async () => {
-    await expect(
-      run({ rules: {} }, path.join(dir, 'redocly.yaml'), ['recheck/markdown'])
-    ).rejects.toThrow(AbortFlowError);
+    const config = await createConfig(
+      { extends: ['recheck/markdown'] },
+      { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
+    );
+    const argv: RecheckArgv = { format: 'table', paths: [path.join(dir, 'docs')] };
+    await expect(handleRecheck({ argv, config, version: 'test' })).rejects.toThrow(AbortFlowError);
     const report = output.stdout.join('');
     expect(report).toContain('single-h1');
     expect(report).toContain('blanks-around-headings');
@@ -115,19 +117,16 @@ describe('handleRecheck', () => {
   });
 
   describe('run options', () => {
-    function runWith(argvOverrides: Partial<RecheckArgv>): Promise<void> {
+    async function runWith(argvOverrides: Partial<RecheckArgv>): Promise<void> {
       const argv: RecheckArgv = {
         format: 'table',
         paths: [path.join(dir, 'docs')],
         ...argvOverrides,
       };
-      const config = {
-        ...configFixture,
-        recheck: { rules: {} },
-        recheckExtends: ['recheck/markdown'],
-        configPath: path.join(dir, 'redocly.yaml'),
-        document: undefined,
-      } as Config;
+      const config = await createConfig(
+        { extends: ['recheck/markdown'] },
+        { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
+      );
       return handleRecheck({ argv, config, version: 'test' });
     }
 
@@ -180,7 +179,7 @@ components:
       );
       const config = await createConfig(
         { extends: ['recheck/markdown'] },
-        { configPath: path.join(dir, 'redocly.yaml') }
+        { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
       );
       const argv: RecheckArgv = { format: 'table', paths: [apiPath] };
 
@@ -208,7 +207,7 @@ components:
 
     function runWithApi(api: Record<string, unknown>): Promise<void> {
       const parsed = { apis: { main: { root: 'openapi.yaml', ...api } } };
-      return run(SETTINGS_ONLY, path.join(dir, 'redocly.yaml'), [], parsed);
+      return run(SETTINGS_ONLY, path.join(dir, 'redocly.yaml'), parsed);
     }
 
     it('warns once about a recheck block under an API', async () => {
@@ -225,7 +224,7 @@ components:
       const parsed = {
         apis: { main: { root: 'openapi.yaml', extends: ['recheck/markdown'] } },
       };
-      await run({ rules: {} }, path.join(dir, 'redocly.yaml'), [], parsed);
+      await run({ rules: {} }, path.join(dir, 'redocly.yaml'), parsed);
       expect(output.stderr).toEqual([PER_API_WARNING, NO_CONFIG_NOTICE]);
       expect(output.stdout).toEqual([]);
     });

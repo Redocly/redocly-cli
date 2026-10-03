@@ -27,8 +27,6 @@ export interface ResolvedRecheckConfig {
 }
 
 export interface RecheckBlockInput {
-  // The `recheck/*` entries from `extends` of redocly.yaml, in order.
-  extends?: string[];
   // The `recheck` block of redocly.yaml, as parsed.
   block?: unknown;
   configDir: string;
@@ -46,13 +44,9 @@ const ENGINE_SETTINGS = new Set(['excludes', 'markdoc']);
 
 // The block nests rules under `rules`; the engine's own config shape keeps
 // rule entries at the top level beside `excludes` and `markdoc`.
-function toEngineConfig(
-  block: Record<string, unknown>,
-  extendsList: string[] | undefined
-): Record<string, unknown> {
+function toEngineConfig(block: Record<string, unknown>): Record<string, unknown> {
   const { rules, apiDescriptions: _apiDescriptions, ...rest } = block;
   const engineConfig: Record<string, unknown> = { ...rest };
-  if (extendsList && extendsList.length > 0) engineConfig.extends = extendsList;
   if (isPlainObject(rules)) {
     for (const [name, entry] of Object.entries(rules)) {
       engineConfig[name] =
@@ -130,14 +124,13 @@ function applyDescriptionOverrides(
 function toBlockPath(enginePath: string | undefined): string {
   if (!enginePath || enginePath === '/') return 'recheck';
   // Schema errors give a JSON pointer.
-  // The engine's own checks give `<rule key>.<option>` or `extends`.
+  // The engine's own checks give `<rule key>.<option>`.
   const segments = enginePath.startsWith('/')
     ? enginePath
         .split('/')
         .slice(1)
         .map((segment) => segment.replace(/~1/g, '/').replace(/~0/g, '~'))
     : [enginePath];
-  if (segments[0] === 'extends') return segments.join('.');
   return ENGINE_SETTINGS.has(segments[0])
     ? `recheck.${segments.join('.')}`
     : `recheck.rules.${segments.join('.')}`;
@@ -206,9 +199,7 @@ export async function resolveRecheckConfig(input: RecheckBlockInput): Promise<Re
     }
     if (errors.length > 0) return { success: false, errors };
   }
-  // Validation fills schema defaults in place; the clone keeps the caller's
-  // block untouched.
-  const validation = await validate(toEngineConfig(structuredClone(block), input.extends), {
+  const validation = await validate(toEngineConfig(block), {
     configDir: input.configDir,
     warn: input.warn,
   });

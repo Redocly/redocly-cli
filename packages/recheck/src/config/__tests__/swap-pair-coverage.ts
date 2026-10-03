@@ -1,3 +1,4 @@
+import { presetConfig } from '../../__tests__/preset-block.js';
 import { lintContent } from '../../index.js';
 import type { ConsistencyAssertion, SwapAssertion } from '../../types/index.js';
 import { presets } from '../presets/index.js';
@@ -72,9 +73,10 @@ export async function unreportedPairs(
         : `Coverage case ${index}: sample text with ${coverageCase.example} inside it.`
     );
   });
-  const problems = await lintContent(['# Per-pair coverage', '', blocks.join('\n\n')].join('\n'), {
-    extends: [presetId],
-  });
+  const problems = await lintContent(
+    ['# Per-pair coverage', '', blocks.join('\n\n')].join('\n'),
+    await presetConfig([presetId])
+  );
 
   const reported = new Set(
     problems.map((problem) => `${problem.ruleName}\u0000${problem.match.toLowerCase()}`)

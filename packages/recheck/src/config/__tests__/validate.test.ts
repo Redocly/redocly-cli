@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
+import { presetConfig } from '../../__tests__/preset-block.js';
 import { MARKDOC_REALM_SCHEMA } from '../../data/markdoc-realm-schema.js';
 import { resolveAssertion } from '../../rules/registry.js';
 import { validate } from '../validate.js';
@@ -572,6 +573,41 @@ describe('top-level excludes', () => {
   });
 });
 
+describe('markdoc rules without markdoc parsing', () => {
+  const rule = { severity: 'error' as const, assertions: { 'markdoc-syntax': {} } };
+
+  it.each([
+    ['markdoc is absent', {}, true],
+    ['markdoc is false', { markdoc: false }, true],
+    ['markdoc is true', { markdoc: true }, false],
+  ])(
+    'warns when a markdoc rule is on but markdoc parsing is off: %s',
+    async (_name, settings, warns) => {
+      const warnings: string[] = [];
+      const result = await validate(
+        { ...settings, 'recheck/markdoc-syntax': { ...rule } },
+        { warn: (message) => void warnings.push(message) }
+      );
+      expect(result.isValid).toBe(true);
+      expect(warnings.some((message) => message.includes('"markdoc" parsing is off'))).toBe(warns);
+    }
+  );
+
+  it('does not warn for a markdoc rule that is off', async () => {
+    const warnings: string[] = [];
+    await validate(
+      { 'recheck/markdoc-syntax': { ...rule, severity: 'off' } },
+      { warn: (message) => void warnings.push(message) }
+    );
+    expect(warnings).toEqual([]);
+  });
+
+  it('rejects an `extends` key', async () => {
+    const result = await validate({ extends: ['recheck/markdown'] });
+    expect(result.isValid).toBe(false);
+  });
+});
+
 describe('default messages', () => {
   function tokenDefaultMessage(id: string): unknown {
     const resolved = resolveAssertion(id);
@@ -579,7 +615,9 @@ describe('default messages', () => {
   }
 
   it('fills the token rule default when a preset entry has no message', async () => {
-    const result = await validate({ extends: ['recheck/markdown'] }, { configDir: process.cwd() });
+    const result = await validate(await presetConfig(['recheck/markdown']), {
+      configDir: process.cwd(),
+    });
     expect(result.isValid).toBe(true);
     const rule = result.rules.find((entry) => entry.name === 'recheck/line-length');
     expect(rule?.message).toBeTypeOf('string');
@@ -597,7 +635,7 @@ describe('default messages', () => {
 
   it('keeps an explicit message', async () => {
     const result = await validate(
-      { extends: ['recheck/markdown'], 'recheck/line-length': { message: 'Too long' } },
+      await presetConfig(['recheck/markdown'], { 'recheck/line-length': { message: 'Too long' } }),
       { configDir: process.cwd() }
     );
     expect(result.rules.find((entry) => entry.name === 'recheck/line-length')?.message).toBe(

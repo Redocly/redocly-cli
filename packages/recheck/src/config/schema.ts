@@ -30,11 +30,6 @@ export const RECHECK_CONFIG_SCHEMA = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   type: 'object',
   properties: {
-    // Preset names, expanded in validate.ts before validation. Not a rule.
-    extends: {
-      type: 'array',
-      items: { type: 'string', minLength: 1 },
-    },
     // Applies to every rule, before each rule's own `excludes`. Not a rule.
     excludes: {
       type: 'array',
