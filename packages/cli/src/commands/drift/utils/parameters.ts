@@ -1,7 +1,7 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
 import type { NormalizedRequest, OpenApiParameter } from '../types/index.js';
-import { isJsonMime, normalizeContentType, parseUrl, safeDecodeURIComponent } from './http.js';
+import { isJsonMime, parseUrl } from './http.js';
 
 export function parseCookies(headerValue: string | undefined): Record<string, string> {
   if (!headerValue) {
@@ -48,20 +48,8 @@ function getDeepObjectParameterValue(
   return objectValue;
 }
 
-export function resolveQuerystringContent(
-  parameter: OpenApiParameter
-): { mediaType: string; schema: unknown } | undefined {
-  const entry = Object.entries(parameter.content ?? {})[0];
-  return entry ? { mediaType: normalizeContentType(entry[0]), schema: entry[1] } : undefined;
-}
-
-export function resolveParameterSchema(parameter: OpenApiParameter): unknown {
-  return parameter.content ? resolveQuerystringContent(parameter)?.schema : parameter.schema;
-}
-
 function getQuerystringValue(parameter: OpenApiParameter, request: NormalizedRequest): unknown {
-  const mediaType = resolveQuerystringContent(parameter)?.mediaType;
-  if (mediaType === 'application/x-www-form-urlencoded') {
+  if (parameter.mediaType === 'application/x-www-form-urlencoded') {
     const keys = [...new Set(request.query.keys())];
     if (keys.length === 0) {
       return undefined;
@@ -74,12 +62,17 @@ function getQuerystringValue(parameter: OpenApiParameter, request: NormalizedReq
     );
   }
 
-  const rawQuery = safeDecodeURIComponent(parseUrl(request.url).search.slice(1));
+  let rawQuery = parseUrl(request.url).search.slice(1);
   if (rawQuery === '') {
     return undefined;
   }
+  try {
+    rawQuery = decodeURIComponent(rawQuery);
+  } catch {
+    // Malformed percent-encoding: validate the query as it appears in the traffic.
+  }
 
-  if (isJsonMime(mediaType)) {
+  if (isJsonMime(parameter.mediaType)) {
     try {
       return JSON.parse(rawQuery);
     } catch {

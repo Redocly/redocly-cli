@@ -14,12 +14,7 @@ import {
   isJsonMime,
 } from '../../utils/http.js';
 import { resolveResponseKey } from '../../utils/openapi.js';
-import {
-  getActualParameterValue,
-  parseDeepObjectQueryKey,
-  resolveParameterSchema,
-  resolveQuerystringContent,
-} from '../../utils/parameters.js';
+import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
@@ -218,14 +213,12 @@ function validateParameter(
   context: RuleContext,
   findings: Finding[]
 ): void {
-  const schema = resolveParameterSchema(parameter);
-  if (actualValue === undefined || actualValue === null || schema === undefined) {
+  if (actualValue === undefined || !parameter.schema) {
     return;
   }
 
-  const content = parameter.in === 'querystring' ? resolveQuerystringContent(parameter) : undefined;
-  const result = context.validateSchema(schema, actualValue, {
-    coerce: !isJsonMime(content?.mediaType),
+  const result = context.validateSchema(parameter.schema, actualValue, {
+    coerce: !isJsonMime(parameter.mediaType),
     target: 'request',
   });
   if (result.valid) {
@@ -298,10 +291,11 @@ function createUndocumentedParameterFindings(
 
   for (const parameter of matchedOperation.operation.requestParameters) {
     if (parameter.in === 'querystring') {
-      const content = resolveQuerystringContent(parameter);
+      // OpenAPI forbids `in: query` next to `in: querystring`, so the query set holds only form keys.
       if (
-        content?.mediaType !== 'application/x-www-form-urlencoded' ||
-        !collectFormSchemaKeys(content.schema, paramsByLocation.query)
+        parameter.mediaType !== 'application/x-www-form-urlencoded' ||
+        !collectFormSchemaKeys(parameter.schema, paramsByLocation.query) ||
+        paramsByLocation.query.size === 0
       ) {
         checkQueryKeys = false;
       }
@@ -315,10 +309,8 @@ function createUndocumentedParameterFindings(
     }
   }
 
-  const queryKeys = checkQueryKeys
-    ? new Set(context.exchange.request.query.keys())
-    : new Set<string>();
-  for (const name of queryKeys) {
+  const queryKeys = checkQueryKeys ? context.exchange.request.query.keys() : [];
+  for (const name of new Set(queryKeys)) {
     if (paramsByLocation.query.has(name)) {
       continue;
     }
@@ -450,7 +442,7 @@ export class SchemaConsistencyRule implements TrafficRule {
           context.cookies
         );
 
-        if (parameter.required && (actualValue === undefined || actualValue === null)) {
+        if (parameter.required && actualValue === undefined) {
           findings.push({
             ruleId: this.id,
             severity: 'error',

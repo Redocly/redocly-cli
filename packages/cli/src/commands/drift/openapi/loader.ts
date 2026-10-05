@@ -25,7 +25,7 @@ import type {
   OpenApiServer,
 } from '../types/index.js';
 import { listOpenApiFiles } from '../utils/files.js';
-import { compileOpenApiPath } from '../utils/http.js';
+import { compileOpenApiPath, normalizeContentType } from '../utils/http.js';
 import { ensureLeadingSlash, resolveServerUrl, type ServerVariable } from '../utils/openapi.js';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
@@ -82,13 +82,19 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       continue;
     }
 
+    // A querystring parameter describes the whole query with its first media type.
+    const querystringContent =
+      location === 'querystring'
+        ? Object.entries(extractMediaSchemas(entry.content))[0]
+        : undefined;
+
     normalized.push({
       name: String(entry.name ?? ''),
       in: location,
       required: Boolean(entry.required) || location === 'path',
       style: typeof entry.style === 'string' ? entry.style : undefined,
-      schema: entry.schema,
-      content: location === 'querystring' ? extractMediaSchemas(entry.content) : undefined,
+      schema: querystringContent ? querystringContent[1] : entry.schema,
+      mediaType: querystringContent ? normalizeContentType(querystringContent[0]) : undefined,
     });
   }
 

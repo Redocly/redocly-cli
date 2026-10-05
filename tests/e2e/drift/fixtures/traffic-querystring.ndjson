@@ -11,3 +11,5 @@
 {"request":{"method":"GET","url":"http://api.example.com/echo?caf%C3%A9","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"text/plain"},"body":"café"}}
 {"request":{"method":"GET","url":"http://api.example.com/echo?caf%C3%A9%20au%20lait","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"text/plain"},"body":"café au lait"}}
 {"request":{"method":"GET","url":"http://api.example.com/legacy?filter=%7B%22a%22%3A1%7D","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/search?null","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/notes?author=ann&pinned=true","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}

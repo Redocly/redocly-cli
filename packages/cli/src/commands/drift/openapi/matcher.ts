@@ -6,7 +6,7 @@ import type {
   OpenApiServer,
   OpenApiIndex,
 } from '../types/index.js';
-import { getPathWithoutTrailingSlash, safeDecodeURIComponent } from '../utils/http.js';
+import { getPathWithoutTrailingSlash } from '../utils/http.js';
 
 interface CandidateMatch {
   score: number;
@@ -40,6 +40,14 @@ function hostMatches(operationServer: OpenApiServer, requestHost: string | undef
   return operationServer.host === requestHost.toLowerCase();
 }
 
+function decodePathParam(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 function scoreCandidate(
   operation: OpenApiOperation,
   server: OpenApiServer,
@@ -58,7 +66,7 @@ function extractPathParams(
     const paramName = operation.pathParams[index];
     const paramValue = pathMatch[index + 1];
     if (paramName && paramValue !== undefined) {
-      params[paramName] = safeDecodeURIComponent(paramValue);
+      params[paramName] = decodePathParam(paramValue);
     }
   }
   return params;

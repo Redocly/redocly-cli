@@ -95,7 +95,7 @@ export interface OpenApiParameter {
   required: boolean;
   style?: string;
   schema?: unknown;
-  content?: Record<string, unknown>;
+  mediaType?: string;
 }
 
 export interface OpenApiOperation {

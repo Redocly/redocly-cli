@@ -4,17 +4,17 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-querystring.ndjson
 ┃ Match mode: strict-host
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=13 documented=13 undocumented=0
-┃ Findings: total=13 error=10 warning=3 info=0
+┃ Exchanges: total=15 documented=15 undocumented=0
+┃ Findings: total=14 error=11 warning=3 info=0
 ┃ Problems: total=12
 ┗ Duration: <ms>ms
 
 Types (1)
-  • schema-consistency: 12 problems / 13 findings
+  • schema-consistency: 12 problems / 14 findings
 
 Problems by type (showing first 12 of 12)
 
-◉ schema-consistency (12 problems shown / 12 total, 13 findings)
+◉ schema-consistency (12 problems shown / 12 total, 14 findings)
 ▲ WARN #1 → Undocumented query parameter in traffic: "page"
   ↳ sample exchange=1 GET /events (200) listEvents
 
@@ -133,7 +133,7 @@ Problems by type (showing first 12 of 12)
     expected: type "integer"
     actual: "big"
 
-✖ ERROR #11 → Invalid querystring parameter "query": Request field "root" must be object.
+✖ ERROR #11 ×2 → Invalid querystring parameter "query": Request field "root" must be object.
   ↳ sample exchange=9 GET /search (200) search
 
     http://api.example.com/search?not-json
@@ -159,8 +159,8 @@ Problems by type (showing first 12 of 12)
     actual: "café au lait"
 
 API coverage
-  operations         ████████████████████  100%    6/6
-  parameters         ████████████████████  100%    6/6
+  operations         ████████████████████  100%    7/7
+  parameters         ████████████████████  100%    7/7
   schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a    0/0
-  response codes     ████████████████████  100%    7/7
+  response codes     ████████████████████  100%    8/8
 

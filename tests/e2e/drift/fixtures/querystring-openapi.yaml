@@ -122,6 +122,19 @@ paths:
       responses:
         '200':
           description: The echoed text.
+  /notes:
+    get:
+      operationId: listNotes
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: The notes.
   /legacy:
     get:
       operationId: legacyFilter

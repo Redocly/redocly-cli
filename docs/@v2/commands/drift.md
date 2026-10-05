@@ -20,8 +20,12 @@ The `drift` command reports:
 
 Query parameters are checked key by key.
 When an operation documents the whole query string with an `in: querystring` parameter, the query is read as one value instead and validated against the schema of the parameter's `content` media type:
-`application/x-www-form-urlencoded` is parsed into an object keyed by query key, a JSON media type is parsed as JSON, and any other media type is validated as the raw string.
-For a form-urlencoded schema, the keys under `properties`, including those inside `allOf`, `oneOf`, and `anyOf`, are the documented query parameters, so other keys are reported as undocumented unless the schema sets `additionalProperties`.
+`application/x-www-form-urlencoded` is parsed into an object keyed by query key, a JSON media type is parsed as JSON, and any other media type is validated as the percent-decoded string.
+Form and string values are converted to the schema types before validation, and a JSON value is validated as is.
+For a form-urlencoded schema, the keys under `properties`, including those inside `allOf`, `oneOf`, and `anyOf`, are the documented query parameters, and other keys are reported as undocumented warnings.
+Keys are not checked when the schema has no `properties` or sets `additionalProperties`.
+With `additionalProperties: false`, an extra key is reported as a schema error instead.
+`encoding` objects on the media type are not supported yet, and the properties of a querystring schema are not counted in `--coverage`.
 
 Spec loading reuses the same engine as the other commands (`@redocly/openapi-core`), and schema validation reuses the bundled `@redocly/ajv`, so there are no extra runtime dependencies.
 

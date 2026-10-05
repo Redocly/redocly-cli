@@ -264,7 +264,7 @@ export class CoverageCollector {
 
     for (const parameter of operation.requestParameters) {
       const actualValue = getActualParameterValue(parameter, exchange.request, pathParams, cookies);
-      if (actualValue !== undefined && actualValue !== null) {
+      if (actualValue !== undefined) {
         markEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in });
       }
     }
