@@ -15,6 +15,9 @@ concurrency:
 env:
   REDOCLY_TELEMETRY: 'off'
 
+# Every job stays on GitHub-hosted runners. release and release-snapshot publish through npm
+# trusted publishing (OIDC), which doesn't support self-hosted runners such as Blacksmith, and the
+# rest of this workflow runs too rarely for faster runners to matter.
 jobs:
   release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
