@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed the generated PHP client failing with `Undefined constant "OPERATIONS"` when OPcache preload is enabled.
+Fixed an issue where the generated PHP client failed with `Undefined constant "OPERATIONS"` when OPcache preload was enabled.
