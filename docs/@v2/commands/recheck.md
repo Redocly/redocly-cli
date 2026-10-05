@@ -31,28 +31,28 @@ Use at most one of them in a run.
 
 ## Options
 
-| Option                    | Type     | Description                                                                                                                       |
-| ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| paths                     | [string] | Files or directories to lint. Default value is the current directory.                                                             |
-| --check                   | boolean  | Fail when the generated schema differs from the file in `--output`. Use with `--generate-markdoc-schema`.                         |
-| --config                  | string   | Path to the [configuration file](../configuration/index.md).                                                                      |
-| --fix                     | boolean  | Apply fixes to the Markdown files. Alias: `-f`.                                                                                   |
-| --format                  | string   | Format for the report.<br />**Possible values:** `table`, `json`, `sarif`, `github-actions`. Default value is `table`.            |
-| --from                    | [string] | Module paths to read Markdoc tags from. Use with `--generate-markdoc-schema`.                                                     |
-| --generate-baseline       | boolean  | Write a baseline file from the current errors.                                                                                    |
-| --generate-markdoc-schema | boolean  | Generate a Markdoc tag schema from theme modules. Needs `--from` and `--output`.                                                  |
-| --help                    | boolean  | Show help.                                                                                                                        |
-| --lint-config             | string   | Specify the severity level for the configuration file.<br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`. |
-| --max-problems            | number   | Maximum number of problems in the report; applies to every format.                                                                |
-| --output                  | string   | Output file for the generated schema.                                                                                             |
-| --readability             | boolean  | Report readability scores instead of lint findings.                                                                               |
-| --rule                    | [string] | Run only these rules. Alias: `-r`.                                                                                                |
-| --skip-rule               | [string] | Skip these rules.                                                                                                                 |
-| --stats                   | boolean  | Print statistics per rule. Alias: `-s`.                                                                                           |
-| --summary                 | string   | Print a summary of the run.<br />**Possible values:** `json`, `text`.                                                             |
-| --summary-path            | string   | Write the summary to this file.                                                                                                   |
-| --tags                    | [string] | Run only rules with these tags.                                                                                                   |
-| --version                 | boolean  | Show version number.                                                                                                              |
+| Option                    | Type     | Description                                                                                                                                             |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| paths                     | [string] | Files or directories to lint. Default value is the current directory.                                                                                   |
+| --check                   | boolean  | Fail when the generated schema differs from the file in `--output`. Use with `--generate-markdoc-schema`.                                               |
+| --config                  | string   | Path to the [configuration file](../configuration/index.md).                                                                                            |
+| --fix                     | boolean  | Apply fixes to the Markdown files. Alias: `-f`.                                                                                                         |
+| --format                  | string   | Format for the report.<br />**Possible values:** `table`, `json`, `sarif`, `github-actions`. Default value is `table`.                                  |
+| --from                    | [string] | Module paths to read Markdoc tags from. Use with `--generate-markdoc-schema`.                                                                           |
+| --generate-baseline       | boolean  | Write a baseline file from the current errors.                                                                                                          |
+| --generate-markdoc-schema | boolean  | Generate a Markdoc tag schema from theme modules. Needs `--from` and `--output`.                                                                        |
+| --help                    | boolean  | Show help.                                                                                                                                              |
+| --lint-config             | string   | Specify the severity level for the configuration file.<br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                       |
+| --max-problems            | number   | Maximum number of problems in the report; applies to every format.<br />The summary counts in the `table` and `json` formats still cover every problem. |
+| --output                  | string   | Output file for the generated schema.                                                                                                                   |
+| --readability             | boolean  | Report readability scores instead of lint findings.                                                                                                     |
+| --rule                    | [string] | Run only these rules. Alias: `-r`.                                                                                                                      |
+| --skip-rule               | [string] | Skip these rules.                                                                                                                                       |
+| --stats                   | boolean  | Print statistics per rule. Alias: `-s`.                                                                                                                 |
+| --summary                 | string   | Print a summary of the run.<br />**Possible values:** `json`, `text`.                                                                                   |
+| --summary-path            | string   | Write the summary to this file.                                                                                                                         |
+| --tags                    | [string] | Run only rules with these tags.                                                                                                                         |
+| --version                 | boolean  | Show version number.                                                                                                                                    |
 
 ## Examples
 
