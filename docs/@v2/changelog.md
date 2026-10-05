@@ -7,6 +7,14 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.58.1 (2026-10-05)
+
+### Patch Changes
+
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+- Updated @redocly/openapi-core to v2.58.1.
+- Updated @redocly/reunite-integration to v2.58.1.
+
 ## 2.58.0 (2026-10-05)
 
 ### Minor Changes
