@@ -19,8 +19,8 @@ The `drift` command reports:
 - baseline security issues (opt-in OWASP API risk heuristics)
 
 Query parameters are checked key by key.
-When an operation documents the whole query string with an `in: querystring` parameter, the query is read as one value instead and validated against the schema of the parameter's `content` media type:
-`application/x-www-form-urlencoded` is parsed into an object keyed by query key, a JSON media type is parsed as JSON, and any other media type is validated as the percent-decoded string.
+When an operation documents the entire query string with an `in: querystring` parameter, the query is read as one value instead and validated against the schema of the parameter's `content` media type:
+`application/x-www-form-urlencoded` is parsed into an object keyed by query key, a JSON media type is parsed as JSON, and all other media types are validated as the percent-decoded string.
 Form and string values are converted to the schema types before validation, and a JSON value is validated as is.
 For a form-urlencoded schema, the keys under `properties`, including those inside `allOf`, `oneOf`, and `anyOf`, are the documented query parameters, and other keys are reported as undocumented warnings.
 Keys are not checked when the schema has no `properties` or sets `additionalProperties`.
