@@ -36,7 +36,7 @@ Channels, operations, and components are split from the root API description int
 - `components/` - schemas, messages, securitySchemes, servers, serverVariables, parameters, replies, replyAddresses, correlationIds, messageTraits, operationTraits, tags, externalDocs, serverBindings, channelBindings, operationBindings, and messageBindings are each split into subdirectories
 
 Components, paths, webhooks, channels, and operations are written to files named after them.
-When two of them would share one file, the second file gets a `-2` suffix.
+When several of them would share one file, every later file gets a numbered suffix: `-2`, `-3`, and so on.
 That happens when names differ only by case, which a case-insensitive file system treats as one file name, or when names become equal after `/` is replaced with the separator.
 Code samples in one language for the same operation are saved the same way.
 
@@ -85,13 +85,13 @@ pet.yaml: split processed in 33ms
 
 ### Configure file name conflicts
 
-When two components, paths, webhooks, channels, or operations have names that differ only by case, such as `User` and `user`, they would share one file on a case-insensitive file system.
-By default, Redocly CLI warns about these conflicts and saves the second one to a file with a `-2` suffix, for example `user-2.yaml`.
+When components, paths, webhooks, channels, or operations have names that differ only by case, such as `User` and `user`, they would share one file on a case-insensitive file system.
+By default, Redocly CLI warns about these conflicts and saves every later one to a file with a numbered suffix, for example `user-2.yaml`.
 
 You can adjust how the CLI handles these conflicts with the `--file-name-conflicts-severity` option:
 
-- `off`: Saves the second file with a `-2` suffix without a warning.
-- `warn` (default): Shows a warning and saves the second file with a `-2` suffix.
+- `off`: Saves the later files with a numbered suffix without a warning.
+- `warn` (default): Shows a warning and saves the later files with a numbered suffix.
 - `error`: Treats conflicts as errors; the split fails and no files are created.
 
 For example, to fail the split instead of saving files with a suffix:
