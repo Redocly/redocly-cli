@@ -22,6 +22,7 @@ When a command is run, the following data is collected:
 - names of lint rules that reported errors, warnings, or ignored problems
 - Arazzo x-security authentication types
 - for `generate-client` and `eject-generator`: which built-in generators and toolkit helpers are used, coarse outcome categories, and the toolkit versions involved — never file contents, paths, or names you chose
+- for `bundle`: how many overlays are applied — never their paths or contents
 - platform (Linux, macOS, Windows)
 - anonymous ID (a randomly generated identifier that doesn't contain personal information)
 - command execution time
@@ -32,3 +33,8 @@ Values such as file names, organization IDs, and URLs are removed, replaced by j
 ## Opt out of data collection
 
 To opt out, set the `REDOCLY_TELEMETRY` environment variable to `off`, or set `telemetry: off` in the `redocly.yaml` configuration file.
+
+## Requests to Reunite
+
+The `login`, `push`, and `push-status` commands send the CLI version, the command name, and the value of the `REDOCLY_ENVIRONMENT` environment variable in the `user-agent` header of their requests to Reunite.
+The `REDOCLY_TELEMETRY` setting does not apply to this header.

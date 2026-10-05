@@ -103,6 +103,12 @@ describe('handlePush()', () => {
     );
   });
 
+  it('passes the replace flag to the push', async () => {
+    await handlePush({ argv: { ...argv, replace: true }, config, version });
+
+    expect(pushFiles).toHaveBeenCalledWith(expect.objectContaining({ replace: true }));
+  });
+
   it('reports a Reunite API error as a handled error', async () => {
     vi.mocked(pushFiles).mockRejectedValue(new ReuniteApiError('Deprecated.', 412));
 

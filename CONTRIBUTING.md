@@ -15,7 +15,7 @@ Issue comments and discussion replies are expected to be written in the contribu
   - [Built-in rules changes](#built-in-rules-changes)
   - [Update Redoc](#update-redoc)
   - [Arguments usage](#arguments-usage)
-  - [Exit codes](#exit-codes)
+  - [Error handling and exit codes](#error-handling-and-exit-codes)
   - [Local source code usage](#local-source-code-usage)
 - [Tests](#tests)
 - [Contribute documentation](#contribute-documentation)
@@ -89,6 +89,8 @@ Notice that the extra `--` is required to pass arguments to the CLI rather than 
 
 Format your code with `npm run format` before committing.
 
+To find unused files, exports, and dependencies, run `npx knip` (configured in `knip.jsonc`).
+
 Check the [Tests section](#tests) for the test commands reference.
 
 There are some other scripts available in the `scripts` section of the `package.json` file.
@@ -137,6 +139,25 @@ To make changes to documentation:
 1. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
 1. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
+### Recheck engine
+
+Recheck is the markdown and prose linting engine in `packages/recheck`.
+To add or change a lint rule, see [`packages/recheck/src/rules/CONTRIBUTING.md`](packages/recheck/src/rules/CONTRIBUTING.md).
+
+The example configs in `packages/recheck/examples/*.yaml` are generated from the presets.
+When you change a preset, the generator, or an appendix in `examples/appendices/`, regenerate them and commit the result:
+
+```bash
+npm run compile
+node packages/recheck/scripts/generate-examples.mjs
+```
+
+The generator reads the built `lib/`, so compile first.
+If you skip this step, `examples-drift.test.ts` fails.
+
+`packages/recheck/src/data/markdoc-realm-schema.ts` is generated from the Realm theme source in the Redocly monorepo.
+Regenerate it there with `scripts/generate-markdoc-schema.mjs` pointed at this checkout, and copy the result over.
+
 ### Update Redoc
 
 When updating Redoc, recompute the subresource integrity [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
@@ -173,9 +194,15 @@ Please use it to provide arguments that are common for all the commands, for a s
 It could be used for providing arguments for both **cli** and **core** packages.
 Please refer to the [configuration file](https://redocly.com/docs/cli/configuration/) documentation for more details.
 
-### Exit codes
+### Error handling and exit codes
 
-The application maintains the following exit codes.
+Every command wrapped in `commandWrapper` handles three main types of errors ([source](./packages/core/src/utils/error.ts)):
+
+- Technical errors that don't require a message to the user (`AbortFlowError`)
+- Known errors that originate on our side, with full details included in the error message (`HandledError` or errors converted to it)
+- Unknown errors that originate either on our side or in the user's code, requiring extra detail such as a stack trace (all other errors)
+
+The application maintains the following exit codes:
 
 | Exit code | Description               |
 | --------- | ------------------------- |
@@ -359,15 +386,15 @@ npx markdownlint-cli2 "docs/**/*.md"
 
 ### Markdown link checking
 
-We use [`mlc`](https://github.com/becheran/mlc) to check the links in the `docs/` folder.
+We use [`markdown-link-check`](https://github.com/tcort/markdown-link-check) to check the links in our docs.
 This tool runs automatically on every pull request, but you can also run it locally if you want to.
-Visit the project homepage to find the installation instructions for your platform, and then run the command like this:
+Run this from the project root:
 
 ```bash
-mlc docs/
+npx markdown-link-check --config .markdown-link-check.json docs
 ```
 
-The tool only checks links within the local docs (it can't check links to other docs sections that are present when we publish all products under https://redocly.com/docs), and doesn't currently check anchors.
+Use relative file paths when pointing to local files, and absolute links when pointing to external ones.
 Take care when renaming pages or titles.
 
 ## Contribute to the Cookbook
@@ -407,7 +434,7 @@ To add an entry:
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of five packages - CLI, core, respect-core, reunite-integration, and client-generator. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of six packages - CLI, core, respect-core, reunite-integration, client-generator, and recheck. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
@@ -427,6 +454,8 @@ To add an entry:
   - **`packages/reunite-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 
   - **`packages/client-generator`**: contains the client and SDK generators.
+
+  - **`packages/recheck`**: contains the Recheck markdown and prose linting engine.
 
 - **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
 

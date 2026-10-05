@@ -30,6 +30,38 @@ export function isMultipartBody(op: OperationModel): boolean {
   return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
 }
 
+// Media types, or families ending in `/` or `-`, whose bodies are bytes rather than text or
+// JSON. The same list @redocly/respect-core applies when it reads a response.
+const BINARY_CONTENT_TYPE_PREFIXES = [
+  'application/octet-stream',
+  'application/pdf',
+  'image/',
+  'audio/',
+  'video/',
+  'font/',
+  'application/x-font-',
+  'application/zip',
+  'application/x-zip-compressed',
+  'application/gzip',
+  'application/x-gzip',
+  'application/x-bzip2',
+  'application/x-tar',
+  'application/x-rar-compressed',
+  'application/x-7z-compressed',
+  'application/vnd.openxmlformats-officedocument',
+  'application/vnd.ms-excel',
+  'application/vnd.ms-powerpoint',
+  'application/msword',
+  'application/x-shockwave-flash',
+];
+
+/** Whether a body of this content type is bytes (archives, PDF, images, media) — decoded as a Blob, not JSON or text. */
+export function isBinaryContentType(contentType: string): boolean {
+  const mediaType = contentType.split(';')[0].trim().toLowerCase();
+
+  return BINARY_CONTENT_TYPE_PREFIXES.some((prefix) => mediaType.startsWith(prefix));
+}
+
 /** One piece of a parsed server-URL template: literal text, or a declared variable's name. */
 export type ServerUrlPart = { kind: 'literal'; value: string } | { kind: 'variable'; name: string };
 

@@ -13,38 +13,6 @@ export type UpsertRemoteResponse = {
   projectId: string;
 };
 
-export type ListRemotesResponse = {
-  object: 'list';
-  page: {
-    endCursor: string;
-    startCursor: string;
-    haxNextPage: boolean;
-    hasPrevPage: boolean;
-    limit: number;
-    total: number;
-  };
-  items: Remote[];
-};
-
-export type Remote = {
-  mountPath: string;
-  type: string;
-  autoSync: boolean;
-  autoMerge: boolean;
-  createdAt: string;
-  updatedAt: string;
-  providerType: string;
-  namespaceId: string;
-  repositoryId: string;
-  projectId: string;
-  mountBranchName: string;
-  contentPath: string;
-  credentialId: string;
-  branchName: string;
-  contentType: string;
-  id: string;
-};
-
 export type PushResponse = {
   id: string;
   remoteId: string;

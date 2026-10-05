@@ -22,7 +22,7 @@ See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) 
 ## Command usage
 
 ```bash
-REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizationSlug> --project <projectSlug> --mount-path <mountPath> --branch <branch> --message <message> --author <'Author Name <author-email@example.com>'> [--commit-sha <sha>] [--commit-url <url>] [--created-at <commitCreationDate>] [--repository <repositoryId> ] [--namespace <repositoryOrg>] [--default-branch <repositoryDefaultBranch>] [--domain <domain>] [--wait-for-deployment] [--continue-on-deploy-failures] [--max-execution-time <timeInSeconds>] [--lint-config <warn | error | off>] [--verbose]
+REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizationSlug> --project <projectSlug> --mount-path <mountPath> --branch <branch> --message <message> --author <'Author Name <author-email@example.com>'> [--commit-sha <sha>] [--commit-url <url>] [--created-at <commitCreationDate>] [--repository <repositoryId> ] [--namespace <repositoryOrg>] [--default-branch <repositoryDefaultBranch>] [--domain <domain>] [--wait-for-deployment] [--continue-on-deploy-failures] [--replace] [--max-execution-time <timeInSeconds>] [--lint-config <warn | error | off>] [--verbose]
 
 ```
 
@@ -48,6 +48,7 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --max-execution-time          |  number  | Maximum wait time for deployment completion in seconds (used in conjunction with the `--wait-for-deployment` option). Default value is `1200`.                                         |
 | --wait-for-deployment         | boolean  | Waits until the build is completed if it is in progress. Behaves the same as `push-status` command when passed. See [push-status](./push-status.md) command. Default value is `false`. |
 | --continue-on-deploy-failures | boolean  | Prevents the command from returning a non-zero exit code when the deployment fails. Default value is `false`.                                                                          |
+| --replace                     | boolean  | Removes the files under the `--mount-path` that are not part of this push. Default value is `false`.                                                                                   |
 | --verbose                     | boolean  | Verbose output. Default value is `false`.                                                                                                                                              |
 | --help                        | boolean  | Help output for the command.                                                                                                                                                           |
 
@@ -89,6 +90,30 @@ redocly push docs/push.yaml \
 ```
 
 The command returns when the deployment is completed.
+
+### Push files and remove the ones deleted from the source
+
+The following command pushes the contents of the `docs` folder.
+It also removes the files under the `docs/push` mount path that are not part of this push, for example, files deleted from the source repository since the previous push:
+
+```bash
+REDOCLY_AUTHORIZATION=<api-key> \
+redocly push docs \
+          --organization redocly \
+          --project 'push-docs' \
+          --mount-path 'docs/push' \
+          --branch "docs/push-info" \
+          --author "User <user@example.com>" \
+          --message "Sync docs" \
+          --replace
+```
+
+Without `--replace`, the pushed files are added to the mount path and the files that already exist there are kept.
+
+{% admonition type="warning" name="Push each mount path from one source" %}
+With `--replace`, each push removes the files that earlier pushes added to the same mount path.
+If several pipelines or commands push to one mount path, push all of their files in a single `push` command.
+{% /admonition %}
 
 ### Push files from a GitHub action to the `push-docs` project in the `Docs` organization and wait until it is deployed
 

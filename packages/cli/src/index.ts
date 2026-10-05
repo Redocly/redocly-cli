@@ -13,7 +13,6 @@ import yargs, { type Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import type { BuildDocsArgv } from './commands/build-docs/types.js';
-import { handleBundle } from './commands/bundle.js';
 import type { ReportFormat } from './commands/drift/engine/reporter.js';
 import { type DriftArgv } from './commands/drift/index.js';
 import type { FindingSeverity, MatchMode, TrafficFormat } from './commands/drift/types/index.js';
@@ -22,33 +21,20 @@ import {
   handleEjectGenerator,
   type EjectGeneratorCommandArgv,
 } from './commands/eject-generator.js';
-import { handleEject, type EjectArgv } from './commands/eject.js';
-import {
-  handleGenerateArazzo,
-  type GenerateArazzoCommandArgv,
-} from './commands/generate-arazzo/index.js';
-import {
-  handleGenerateClient,
-  type GenerateClientCommandArgv,
-} from './commands/generate-client.js';
+import type { EjectArgv } from './commands/eject.js';
+import type { GenerateArazzoCommandArgv } from './commands/generate-arazzo/index.js';
+import type { GenerateClientCommandArgv } from './commands/generate-client.js';
 import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
-import { handleInspectNodeTypes } from './commands/inspect-node-types.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
-import { handleJoin } from './commands/join/index.js';
-import { handleLint } from './commands/lint.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
-import { previewProject } from './commands/preview-project/index.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
-import { handleRespect, type RespectArgv } from './commands/respect/index.js';
+import { type RecheckFormat } from './commands/recheck/types.js';
+import type { RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
-import { handleScore } from './commands/score/index.js';
 import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
-import { handleSplit } from './commands/split/index.js';
-import { handleStats } from './commands/stats/index.js';
-import { handleTranslations } from './commands/translations.js';
 import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
@@ -86,7 +72,8 @@ yargs(hideBin(process.argv))
             default: 'stylish' as OutputFormat,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleStats } = await import('./commands/stats/index.js');
       commandWrapper(handleStats)(argv);
     }
   )
@@ -135,7 +122,8 @@ yargs(hideBin(process.argv))
           }
           return true;
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleInspectNodeTypes } = await import('./commands/inspect-node-types.js');
       commandWrapper(handleInspectNodeTypes)(argv);
     }
   )
@@ -168,7 +156,8 @@ yargs(hideBin(process.argv))
             type: 'string' as const,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleScore } = await import('./commands/score/index.js');
       commandWrapper(handleScore)(argv);
     }
   )
@@ -206,7 +195,8 @@ yargs(hideBin(process.argv))
           },
         })
         .demandOption('api'),
-    (argv) => {
+    async (argv) => {
+      const { handleSplit } = await import('./commands/split/index.js');
       commandWrapper(handleSplit)(argv);
     }
   )
@@ -257,7 +247,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleJoin } = await import('./commands/join/index.js');
       commandWrapper(handleJoin)(argv);
     }
   )
@@ -407,6 +398,11 @@ yargs(hideBin(process.argv))
             type: 'boolean',
             default: false,
           },
+          replace: {
+            description: 'Remove the files under the mount path that are not part of this push.',
+            type: 'boolean',
+            default: false,
+          },
           verbose: {
             type: 'boolean',
             default: false,
@@ -420,6 +416,73 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handlePush } = await import('./commands/push.js');
       commandWrapper(handlePush)(argv);
+    }
+  )
+  .command(
+    'recheck [paths..]',
+    'Lint Markdown prose and structure from the recheck block in redocly.yaml.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_RECHECK')
+        .positional('paths', {
+          array: true,
+          type: 'string',
+          describe: 'Files or directories to lint. Default: the current directory.',
+        })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['table', 'json', 'sarif', 'github-actions'] as ReadonlyArray<RecheckFormat>,
+            default: 'table' as RecheckFormat,
+          },
+          tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
+          rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
+          'skip-rule': { description: 'Skip these rules.', array: true, type: 'string' },
+          stats: { description: 'Print rule statistics.', alias: 's', type: 'boolean' },
+          fix: { description: 'Apply fixes to Markdown files.', alias: 'f', type: 'boolean' },
+          'max-problems': {
+            description: 'Maximum number of problems in the report.',
+            type: 'number',
+          },
+          summary: {
+            description: 'Print a run summary.',
+            choices: ['json', 'text'] as ReadonlyArray<'json' | 'text'>,
+            type: 'string',
+          },
+          'summary-path': { description: 'Write the summary to a file.', type: 'string' },
+          readability: {
+            description: 'Report readability scores instead of linting.',
+            type: 'boolean',
+          },
+          'generate-baseline': {
+            description: 'Write the baseline file from the current findings.',
+            type: 'boolean',
+          },
+          'generate-markdoc-schema': {
+            description: 'Generate a Markdoc tag schema from theme modules.',
+            type: 'boolean',
+          },
+          from: {
+            description: 'Module paths to read Markdoc tags from (with --generate-markdoc-schema).',
+            array: true,
+            type: 'string',
+          },
+          output: { description: 'Output file for the generated schema.', type: 'string' },
+          check: {
+            description: 'Fail if the generated schema differs from --output.',
+            type: 'boolean',
+          },
+        }),
+    async (argv) => {
+      const { handleRecheck } = await import('./commands/recheck/index.js');
+      const { recheckPresetsPlugin } = await import('@redocly/recheck/presets');
+      commandWrapper(handleRecheck, { plugins: [recheckPresetsPlugin] })(argv);
     }
   )
   .command(
@@ -482,7 +545,8 @@ yargs(hideBin(process.argv))
             type: 'string',
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleLint } = await import('./commands/lint.js');
       commandWrapper(handleLint)(argv);
     }
   )
@@ -513,6 +577,12 @@ yargs(hideBin(process.argv))
             description: 'Ignore certain decorators.',
             array: true,
             type: 'string',
+          },
+          overlay: {
+            description: 'Overlay file to apply. Repeat to apply several, in order.',
+            array: true,
+            type: 'string',
+            requiresArg: true,
           },
           dereferenced: {
             alias: 'd',
@@ -572,7 +642,8 @@ yargs(hideBin(process.argv))
           }
           return true;
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleBundle } = await import('./commands/bundle.js');
       commandWrapper(handleBundle)(argv);
     }
   )
@@ -666,12 +737,13 @@ yargs(hideBin(process.argv))
           default: 'warn' as RuleSeverity,
         },
       }),
-    (argv) => {
+    async (argv) => {
       if (process.argv.some((arg) => arg.startsWith('--source-dir'))) {
         logger.error(
           'Option --source-dir is deprecated and will be removed soon. Use --project-dir instead.\n'
         );
       }
+      const { previewProject } = await import('./commands/preview-project/index.js');
       commandWrapper(previewProject)(argv);
     }
   )
@@ -757,7 +829,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleTranslations } = await import('./commands/translations.js');
       commandWrapper(handleTranslations)(argv);
     }
   )
@@ -797,7 +870,8 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
         }),
-    (argv) => {
+    async (argv) => {
+      const { handleEject } = await import('./commands/eject.js');
       commandWrapper(handleEject)(argv as Arguments<EjectArgv>);
     }
   )
@@ -890,6 +964,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
+      const { handleRespect } = await import('./commands/respect/index.js');
       commandWrapper(handleRespect)(argv as Arguments<RespectArgv>);
     }
   )
@@ -945,6 +1020,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
+      const { handleGenerateArazzo } = await import('./commands/generate-arazzo/index.js');
       commandWrapper(handleGenerateArazzo)(argv as Arguments<GenerateArazzoCommandArgv>);
     }
   )
@@ -1051,6 +1127,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
+      const { handleGenerateClient } = await import('./commands/generate-client.js');
       commandWrapper(handleGenerateClient)(argv as Arguments<GenerateClientCommandArgv>);
     }
   )
@@ -1325,6 +1402,17 @@ yargs(hideBin(process.argv))
           server: {
             describe:
               'Server URL the traffic was captured against: only requests under it are considered, and the rest of their URL is treated as the API path. It replaces the description servers and the remaining path is matched against the description paths directly. Mutually exclusive with --match-mode.',
+            type: 'string',
+          },
+          coverage: {
+            describe:
+              'Print how much of the description the traffic exercised: operations, parameters, schema properties, and response codes.',
+            type: 'boolean',
+            default: false,
+          },
+          'coverage-output': {
+            describe:
+              'Write a detailed JSON coverage report (per operation, with covered and missing items) to this file.',
             type: 'string',
           },
           config: { describe: 'Path to the config file.', type: 'string' },
