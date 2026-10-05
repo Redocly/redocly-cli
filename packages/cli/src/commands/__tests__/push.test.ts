@@ -41,7 +41,7 @@ describe('handlePush()', () => {
     vi.mocked(collectFilesToPush).mockReturnValue([{ name: 'test-file', path: '/abs/test-file' }]);
     vi.mocked(pushFiles).mockImplementation(async ({ onUploadStart }) => {
       onUploadStart?.({ mountPath: 'remote-mount-path' } as UpsertRemoteResponse);
-      return { pushId: 'test-id' };
+      return { pushId: 'test-id', organizationId: 'test-org', projectId: 'test-project' };
     });
   });
 
@@ -74,6 +74,7 @@ describe('handlePush()', () => {
       version,
       onUploadStart: expect.any(Function),
       onSunsetWarning: expect.any(Function),
+      onSlugDeprecated: expect.any(Function),
     });
     expect(process.stderr.write).toHaveBeenCalledWith('Uploading to remote-mount-path 1 file:\n');
     expect(process.stderr.write).toHaveBeenCalledWith('Push ID: test-id\n');
@@ -160,7 +161,7 @@ describe('handlePush()', () => {
   it('prints the sunset warning reported by the upload even when the wait fails', async () => {
     vi.mocked(pushFiles).mockImplementation(async ({ onSunsetWarning }) => {
       onSunsetWarning?.({ sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true });
-      return { pushId: 'test-id' };
+      return { pushId: 'test-id', organizationId: 'test-org', projectId: 'test-project' };
     });
     vi.mocked(waitForDeployment).mockRejectedValue(new Error('Timeout exceeded.'));
 
