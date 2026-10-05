@@ -85,6 +85,7 @@ describe('handlePushStatus()', () => {
       pushId: 'test-push-id',
       version,
       onSunsetWarning: expect.any(Function),
+      onSlugDeprecated: expect.any(Function),
     });
     expect(process.stdout.write).toHaveBeenCalledTimes(1);
     expect(process.stdout.write).toHaveBeenCalledWith(
@@ -215,6 +216,7 @@ describe('handlePushStatus()', () => {
         pushId: 'test-push-id',
         version,
         onSunsetWarning: expect.any(Function),
+        onSlugDeprecated: expect.any(Function),
         buildType: 'preview',
         maxExecutionTime: undefined,
         retryIntervalMs: undefined,
@@ -250,6 +252,40 @@ describe('handlePushStatus()', () => {
       const [[previewOptions], [productionOptions]] = vi.mocked(waitForDeployment).mock.calls;
       expect(productionOptions.startTime).toBe(previewOptions.startTime);
       expect(result?.production).toEqual(pushResponseStub.status.production);
+    });
+
+    it('resolves slugs once and waits for the production deployment with the ids', async () => {
+      const resolution = {
+        organizationId: 'org_01hksn7dgmb6jpak0tzzepreq1',
+        projectId: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+      };
+      vi.mocked(waitForDeployment).mockImplementation(
+        async ({ organization, onSlugDeprecated }) => {
+          if (organization !== resolution.organizationId) {
+            onSlugDeprecated?.(resolution);
+          }
+          return { ...pushResponseStub, isMainBranch: true };
+        }
+      );
+
+      await handlePushStatus({ argv: { ...argv, wait: true }, config, version });
+
+      expect(waitForDeployment).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({
+          organization: resolution.organizationId,
+          project: resolution.projectId,
+          buildType: 'production',
+        })
+      );
+      const notices = vi
+        .mocked(process.stderr.write)
+        .mock.calls.filter(([text]) => String(text).includes('slugs are deprecated'));
+      expect(notices).toEqual([
+        [
+          `Organization and project slugs are deprecated. Use the ids instead: --organization ${resolution.organizationId} --project ${resolution.projectId}\n`,
+        ],
+      ]);
     });
 
     it('warns when the push has no changes', async () => {
