@@ -1,4 +1,4 @@
-import type { ApiConfig, RedoclyConfig } from '@redocly/config';
+import type { ApiConfig, RecheckConfig, RedoclyConfig } from '@redocly/config';
 import type { JSONSchema } from 'json-schema-to-ts';
 
 import type {
@@ -142,6 +142,8 @@ export type RawGovernanceConfig<T extends 'built-in' | undefined = undefined> = 
   arazzo1_1Decorators?: Record<string, DecoratorConfig>;
   overlay1Decorators?: Record<string, DecoratorConfig>;
   openrpc1Decorators?: Record<string, DecoratorConfig>;
+
+  recheck?: RecheckConfig;
 };
 
 export type ResolvedGovernanceConfig = Omit<RawGovernanceConfig, 'extends' | 'plugins'>;
@@ -302,8 +304,9 @@ export type ResolvedConfig = Omit<RawUniversalConfig, 'apis' | 'plugins'> &
   ResolvedGovernanceConfig & {
     apis?: Record<string, ResolvedApiConfig>;
     plugins?: string[];
-    /** Per-api key, present after `forAlias` flattens an api entry into the root shape. */
+    /** Per-api keys, present after `forAlias` flattens an api entry into the root shape. */
     clientOutput?: string;
+    overlays?: string[];
   };
 
 export type IgnoreConfig = Record<string, Record<string, Set<string>>>;

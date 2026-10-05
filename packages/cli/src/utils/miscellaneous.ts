@@ -18,9 +18,9 @@ import {
   type Exact,
   type Async3Definition,
   type Async2Definition,
+  type Plugin,
 } from '@redocly/openapi-core';
 import { blue, gray, green, red, yellow } from 'colorette';
-import { hasMagic, glob } from 'glob';
 import * as fs from 'node:fs';
 import { basename, dirname, extname, join, resolve, relative } from 'node:path';
 import * as process from 'node:process';
@@ -64,7 +64,7 @@ export async function getFallbackApisOrExit(
   return res;
 }
 
-function getConfigDirectory(config: Config) {
+export function getConfigDirectory(config: Config) {
   return config.configPath ? dirname(config.configPath) : process.cwd();
 }
 
@@ -103,6 +103,7 @@ export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint 
 }
 
 async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
+  const { hasMagic, glob } = await import('glob');
   return (
     await Promise.all(
       argApis.map(async (aliasOrPath) => {
@@ -432,12 +433,14 @@ export function printUnusedWarnings(config: Config) {
 
 export async function loadConfigAndHandleErrors(
   argv: Exact<CommandArgv>,
-  version: string
+  version: string,
+  plugins?: Plugin[]
 ): Promise<Config> {
   try {
     const config = await loadConfig({
       configPath: argv.config,
       customExtends: argv.extends as string[] | undefined,
+      plugins,
     });
     await handleLintConfig(argv, version, config);
     return config;

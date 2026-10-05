@@ -14,6 +14,8 @@
           page: commands/bundle.md
         - label: check-config
           page: commands/check-config.md
+        - label: recheck
+          page: commands/recheck.md
         - label: drift
           page: commands/drift.md
         - label: eject
@@ -78,6 +80,8 @@
           page: guides/hide-apis.md
         - label: Replace the servers URL
           page: guides/replace-servers-url.md
+        - label: Apply overlays
+          page: guides/apply-overlays.md
         - label: Enforce response contents
           page: guides/response-contains-property.md
         - page: guides/lint-asyncapi.md
@@ -231,6 +235,7 @@
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md
             - page: configuration/reference/preprocessors.md
+            - page: configuration/reference/recheck.md
             - page: configuration/reference/resolve.md
             - page: configuration/reference/rules.md
     - group: Custom plugins

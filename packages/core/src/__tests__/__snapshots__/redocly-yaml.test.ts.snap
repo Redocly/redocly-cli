@@ -436,6 +436,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Decorators": "Decorators",
       "overlay1Preprocessors": "Preprocessors",
       "overlay1Rules": "Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
@@ -546,6 +552,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "client": "Client",
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
+      "consent": "rootRedoclyConfigSchema.consent",
       "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": "Decorators",
       "developerOnboarding": "rootRedoclyConfigSchema.developerOnboarding",
@@ -1824,6 +1831,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "SelectorObject",
           "Actions",
           "Action",
+          "ReusableActions",
+          "ReusableAction",
+          "ReusableActionFields",
           "Method",
           "MethodList",
           "ContentDescriptor",
@@ -1976,6 +1986,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
+      "consent": "rootRedoclyConfigSchema.consent",
       "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": {
         "type": "object",
@@ -3020,6 +3031,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "overlay1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.overlay1Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": {
         "type": "object",
       },
@@ -9038,6 +9055,42 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.consent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "expires": {
+        "type": "number",
+      },
+      "mode": {
+        "enum": [
+          "auto",
+          "opt-in",
+          "opt-out",
+          "none",
+          "onetrust",
+          "cookiebot",
+          "trustarc",
+          "tcf",
+        ],
+        "type": "string",
+      },
+      "privacyPolicyUrl": {
+        "type": "string",
+      },
+      "settingsLink": {
+        "enum": [
+          "auto",
+          "footer",
+          "none",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.corsProxy": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -10496,6 +10549,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.env_additionalProperties.colorMode",
+      "consent": "rootRedoclyConfigSchema.env_additionalProperties.consent",
       "corsProxy": "rootRedoclyConfigSchema.env_additionalProperties.corsProxy",
       "decorators": {
         "type": "object",
@@ -11534,6 +11588,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "overlay1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.overlay1Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": {
         "type": "object",
       },
@@ -17548,6 +17608,42 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "type": "string",
         },
         "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.consent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "expires": {
+        "type": "number",
+      },
+      "mode": {
+        "enum": [
+          "auto",
+          "opt-in",
+          "opt-out",
+          "none",
+          "onetrust",
+          "cookiebot",
+          "trustarc",
+          "tcf",
+        ],
+        "type": "string",
+      },
+      "privacyPolicyUrl": {
+        "type": "string",
+      },
+      "settingsLink": {
+        "enum": [
+          "auto",
+          "footer",
+          "none",
+        ],
+        "type": "string",
       },
     },
     "required": undefined,
@@ -25047,6 +25143,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async": {
         "type": "boolean",
       },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
+      },
       "crossorigin": {
         "type": "string",
       },
@@ -25098,6 +25201,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "async": {
         "type": "boolean",
+      },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
       },
       "crossorigin": {
         "type": "string",
@@ -32632,6 +32742,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async": {
         "type": "boolean",
       },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
+      },
       "crossorigin": {
         "type": "string",
       },
@@ -32683,6 +32800,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "async": {
         "type": "boolean",
+      },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
       },
       "crossorigin": {
         "type": "string",
@@ -39084,6 +39208,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async": {
         "type": "boolean",
       },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
+      },
       "crossorigin": {
         "type": "string",
       },
@@ -39135,6 +39266,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "async": {
         "type": "boolean",
+      },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
       },
       "crossorigin": {
         "type": "string",

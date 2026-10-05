@@ -247,8 +247,15 @@ function evaluateExpressionsInString(
     // For dollar expressions, include the leading $ when passing to evaluateRuntimeExpression
     const evaluatedValue = evaluateRuntimeExpression(exprToEvaluate, context, logger);
 
-    // Return evaluated value or the original match if undefined
-    return evaluatedValue !== undefined ? evaluatedValue : match;
+    // Keeping the expression text would send it as a literal value, so fail instead
+    if (evaluatedValue === undefined) {
+      throw new Error(
+        `Runtime expression '${exprToEvaluate}' has no value. \n` +
+          'Check that it references a step or workflow that has already run and sets this output, or an input that is provided.'
+      );
+    }
+
+    return evaluatedValue;
   });
 }
 
