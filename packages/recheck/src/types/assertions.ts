@@ -47,6 +47,8 @@ export interface OccurrenceAssertion {
 export interface RepetitionAssertion {
   pattern?: string;
   ignoreCase?: boolean;
+  /** Whether inline code spans (`` `like this` ``) are scanned for repeats. Default `false`. */
+  includeCode?: boolean;
 }
 
 // Each `either` entry's key and value are two variants, matched as literal words. The variant
@@ -54,6 +56,8 @@ export interface RepetitionAssertion {
 export interface ConsistencyAssertion {
   either: Record<string, string>;
   ignoreCase?: boolean;
+  /** Whether inline code spans (`` `like this` ``) are scanned for variants. Default `false`. */
+  includeCode?: boolean;
 }
 
 // If `first` matches in the scoped segments, `second` must match somewhere in the whole file
