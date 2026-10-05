@@ -121,7 +121,7 @@ export function formatProblems(
     case 'codeframe':
       for (let i = 0; i < problems.length; i++) {
         const problem = problems[i];
-        if (command === 'bundle' || command === 'split') {
+        if (command === 'bundle' || command === 'check-config' || command === 'split') {
           logger.info(`${formatCodeframe(problem, i)}\n`);
         } else {
           logger.output(`${formatCodeframe(problem, i)}\n`);

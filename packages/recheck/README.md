@@ -15,7 +15,11 @@ recheck:
 ```
 
 Run it with `npx @redocly/cli recheck`.
-Its documentation is the [recheck command page](../../docs/@v2/commands/recheck.md).
+Its documentation is the [Markdown and prose linting](../../docs/@v2/recheck/index.md) section and the [recheck command page](../../docs/@v2/commands/recheck.md).
+
+Two agent skills for AI coding assistants ship in [`skills/`](./skills): `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+Install them with `npx skills add https://redocly.com`, or copy them from `node_modules/@redocly/recheck/skills/` into your project's `.claude/skills/`.
+The repository keeps the same files under [`.claude/skills/`](../../.claude/skills), which is where the website publishes them from, so change both copies together.
 
 ## Programmatic use
 
