@@ -34,6 +34,6 @@
     "lib"
   ],
   "devDependencies": {
-    "@redocly/config": "^0.59.0"
+    "@redocly/config": "^0.61.1"
   }
 }
