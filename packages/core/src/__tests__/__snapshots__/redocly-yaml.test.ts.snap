@@ -2180,6 +2180,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.access.rbac.reunite",
       "teamFolders": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -2924,6 +2925,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "folders": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -10752,6 +10754,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.reunite",
       "teamFolders": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -11496,6 +11499,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "folders": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -19433,6 +19437,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items",
       "label": {
         "type": "string",
@@ -19494,6 +19499,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "srcSet",
     ],
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -19539,6 +19557,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -19605,6 +19624,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "srcSet",
     ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -20669,6 +20701,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items",
       "label": {
         "type": "string",
@@ -20730,6 +20763,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "srcSet",
     ],
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -20775,6 +20821,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -20841,6 +20888,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "srcSet",
     ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -23233,6 +23293,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.env_additionalProperties.rbac.reunite",
       "teamFolders": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -24000,6 +24061,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "inputs": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.inputs",
       "path": {
+        "format": "uri-reference",
         "pattern": "^(?!\\/|\\.\\./)",
         "type": "string",
       },
@@ -25496,6 +25558,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "path": {
+        "format": "uri-reference",
         "type": "string",
       },
     },
@@ -28230,6 +28293,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items",
       "label": {
         "type": "string",
@@ -28291,6 +28355,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "srcSet",
     ],
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -28336,6 +28413,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -28402,6 +28480,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "srcSet",
     ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -29301,6 +29392,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items",
       "label": {
         "type": "string",
@@ -29362,6 +29454,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "srcSet",
     ],
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -29407,6 +29512,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -29473,6 +29579,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "srcSet",
     ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -33533,6 +33652,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.footer.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.footer.items_items.items",
       "label": {
         "type": "string",
@@ -33594,6 +33714,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "srcSet",
     ],
   },
+  "rootRedoclyConfigSchema.footer.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.footer.items_items.items": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -33639,6 +33772,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.footer.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -33705,6 +33839,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "srcSet",
     ],
+  },
+  "rootRedoclyConfigSchema.footer.items_items.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.footer.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -34769,6 +34916,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.navbar.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.navbar.items_items.items",
       "label": {
         "type": "string",
@@ -34830,6 +34978,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "srcSet",
     ],
   },
+  "rootRedoclyConfigSchema.navbar.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.navbar.items_items.items": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -34875,6 +35036,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
+      "includeByMetadata": "rootRedoclyConfigSchema.navbar.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -34941,6 +35103,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "srcSet",
     ],
+  },
+  "rootRedoclyConfigSchema.navbar.items_items.items_items.includeByMetadata": {
+    "additionalProperties": {
+      "items": {
+        "type": "string",
+      },
+      "type": "array",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.navbar.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -37333,6 +37508,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.rbac.reunite",
       "teamFolders": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -38100,6 +38276,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "inputs": "rootRedoclyConfigSchema.reunite.jobs_items.inputs",
       "path": {
+        "format": "uri-reference",
         "pattern": "^(?!\\/|\\.\\./)",
         "type": "string",
       },
@@ -39596,6 +39773,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "path": {
+        "format": "uri-reference",
         "type": "string",
       },
     },
