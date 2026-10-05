@@ -17,7 +17,7 @@ env:
 
 jobs:
   build-and-unit:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -38,7 +38,7 @@ jobs:
 
   e2e:
     # Everything under tests/e2e EXCEPT generate-client, which has its own job below.
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -55,7 +55,7 @@ jobs:
     # generate-client e2e bars, which compile real Python, Go, PHP, and TypeScript output
     # (including big real-world descriptions) — the slowest tests we have, needing
     # toolchains nothing else does. Adding a language bar here cannot slow the shared e2e job.
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     strategy:
       fail-fast: false
       matrix:
@@ -87,7 +87,7 @@ jobs:
     # The examples gitignore their generated clients (only zero-install-quickstart commits
     # its canonical copy), so this job regenerates every client and type-checks the
     # hand-written consumer code against it.
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -102,7 +102,7 @@ jobs:
         run: npm run typecheck:examples -w @redocly/client-generator
 
   code-style-check:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0

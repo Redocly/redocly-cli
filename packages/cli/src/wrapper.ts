@@ -9,6 +9,7 @@ import {
   type CollectSpecData,
   type Exact,
   type NormalizedProblem,
+  type Plugin,
   type SpecVersion,
   AbortFlowError,
   HandledError,
@@ -16,12 +17,13 @@ import {
 import type { Arguments } from 'yargs';
 
 import { bundleTelemetry } from './commands/bundle.js';
+import { loadAndCheckConfig } from './commands/check-config.js';
 import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
 } from './utils/client-generator-telemetry.js';
-import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
+import type { ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
   sendTelemetry,
@@ -41,7 +43,8 @@ export type CommandArgs<T extends CommandArgv> = {
 };
 
 export function commandWrapper<T extends CommandArgv>(
-  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
+  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>,
+  options: { plugins?: Plugin[] } = {}
 ) {
   return async (argv: Arguments<T>) => {
     const startedAt = performance.now();
@@ -111,7 +114,7 @@ export function commandWrapper<T extends CommandArgv>(
       if (argv.config && !doesYamlFileExist(argv.config)) {
         throw new HandledError('Please provide a valid path to the configuration file.');
       }
-      config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
+      config = await loadAndCheckConfig(argv as Exact<T>, version, options.plugins);
       telemetry = config.resolvedConfig.telemetry;
       code = 1;
       if (typeof commandHandler === 'function') {

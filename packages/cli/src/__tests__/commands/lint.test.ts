@@ -1,6 +1,5 @@
 import {
   lint,
-  lintConfig,
   getTotals,
   formatProblems,
   logger,
@@ -14,14 +13,14 @@ import { performance } from 'perf_hooks';
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
-import { handleLint, handleLintConfig, type LintArgv } from '../../commands/lint.js';
+import { loadAndCheckConfig } from '../../commands/check-config.js';
+import { handleLint, type LintArgv } from '../../commands/lint.js';
 import type { VerifyConfigOptions } from '../../types.js';
 import {
   getFallbackApisOrExit,
   getExecutionTime,
   printUnusedWarnings,
   handleError,
-  loadConfigAndHandleErrors,
   checkIfRulesetExist,
 } from '../../utils/miscellaneous.js';
 import { commandWrapper } from '../../wrapper.js';
@@ -67,7 +66,8 @@ describe('handleLint', () => {
     });
 
     vi.mock('../../utils/miscellaneous.js');
-    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
+    vi.mock('../../commands/check-config.js');
+    vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
@@ -85,15 +85,16 @@ describe('handleLint', () => {
       );
     });
 
-    it('should call loadConfigAndHandleErrors and getFallbackApisOrExit', async () => {
+    it('should call loadAndCheckConfig and getFallbackApisOrExit', async () => {
       await commandWrapper(handleLint)(argvMock);
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith(
+      expect(loadAndCheckConfig).toHaveBeenCalledWith(
         {
           apis: ['openapi.yaml'],
           format: 'codeframe',
           'lint-config': 'off',
         },
-        '2.0.0'
+        '2.0.0',
+        undefined
       );
       expect(getFallbackApisOrExit).toHaveBeenCalled();
     });
@@ -104,7 +105,7 @@ describe('handleLint', () => {
         config: 'redocly.yaml',
         extends: ['some/path'],
       });
-      expect(loadConfigAndHandleErrors).toHaveBeenCalledWith(
+      expect(loadAndCheckConfig).toHaveBeenCalledWith(
         {
           apis: ['openapi.yaml'],
           config: 'redocly.yaml',
@@ -112,7 +113,8 @@ describe('handleLint', () => {
           format: 'codeframe',
           'lint-config': 'off',
         },
-        '2.0.0'
+        '2.0.0',
+        undefined
       );
     });
 
@@ -265,7 +267,7 @@ describe('handleLint', () => {
     });
 
     it('should call exit with 0 if no errors', async () => {
-      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
         return configFixture;
       });
       await commandWrapper(handleLint)(argvMock);
@@ -281,7 +283,7 @@ describe('handleLint', () => {
     });
 
     it('should suggest recommended fallback if there is no config', async () => {
-      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
         return await loadConfig({});
       });
       await commandWrapper(handleLint)(argvMock);
@@ -293,7 +295,7 @@ describe('handleLint', () => {
     });
 
     it('should not suggest recommended fallback if --extends is provided', async () => {
-      vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+      vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
         return await loadConfig({});
       });
       await commandWrapper(handleLint)({ ...argvMock, extends: ['some/path'] });
@@ -303,38 +305,5 @@ describe('handleLint', () => {
         )} configuration by default.\n\n`
       );
     });
-  });
-});
-
-describe('handleLintConfig', () => {
-  const configWithDocument = { ...configFixture, document: { parsed: {} } } as any;
-
-  it.each(['json', 'junit', 'checkstyle'] as const)(
-    'should not print config lint results for the single-document %s format',
-    async (format) => {
-      vi.mocked(lintConfig).mockResolvedValue(['config-problem'] as any);
-      vi.mocked(formatProblems).mockClear();
-
-      await handleLintConfig(
-        { ...argvMock, 'lint-config': 'warn', format } as any,
-        '2.0.0',
-        configWithDocument
-      );
-
-      expect(formatProblems).not.toHaveBeenCalled();
-    }
-  );
-
-  it('should print config lint results for text formats', async () => {
-    vi.mocked(lintConfig).mockResolvedValue([] as any);
-    vi.mocked(formatProblems).mockClear();
-
-    await handleLintConfig(
-      { ...argvMock, 'lint-config': 'warn', format: 'stylish' } as any,
-      '2.0.0',
-      configWithDocument
-    );
-
-    expect(formatProblems).toHaveBeenCalledWith([], expect.objectContaining({ format: 'stylish' }));
   });
 });

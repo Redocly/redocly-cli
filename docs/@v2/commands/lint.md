@@ -493,6 +493,8 @@ The `lint` command also validates the configuration file.
 You can set severity level by using the `--lint-config` option.
 This option accepts one of the following values: `warn`,`error`, or `off`.
 Default value is `warn`.
+Configuration file problems are printed to `stderr` in the `codeframe` format.
+The `--format` option does not apply to them, so machine-readable output such as `json` stays intact.
 
 ```bash
 redocly lint --lint-config=off

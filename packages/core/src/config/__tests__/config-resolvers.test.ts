@@ -355,7 +355,7 @@ describe('resolveConfig', () => {
   it('should resolve `recommended-strict` ruleset correctly', async () => {
     const expectedStrict = JSON.parse(JSON.stringify(recommended)) as Omit<
       RawGovernanceConfig,
-      'extends' | 'plugins'
+      'extends' | 'plugins' | 'recheck'
     >;
     for (const section of Object.values(expectedStrict)) {
       for (let ruleName in section) {

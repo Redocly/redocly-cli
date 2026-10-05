@@ -1,0 +1,51 @@
+{
+  "provenance": {
+    "source": "The expected values were worked out by hand from the published formulas (see formulas.ts) and the syllable counting in statistics.ts. Rebilly's Lexi (https://github.com/Rebilly/lexi) has no real expected scores to reuse.",
+    "howToRegenerate": "Run ../tools/derive-expected.mjs. It does not call the code under test, and its output matches every value below.",
+    "fixtureTextProvenance": {
+      "wikipedia-non-euclidean.txt": "One paragraph copied from Lexi's test-data (MIT license), commit 963486e671c11353b0a31c0a132b28a4c129ddbc. It is an excerpt of the Simple English Wikipedia article 'Non-Euclidean geometry' (CC BY-SA). The markdown heading and link syntax were removed; the words are unchanged.",
+      "committee-proposals.txt": "Written for these tests. It has a different sentence and word mix and a non-trivial complexWords count."
+    },
+    "toleranceNote": "Scores are compared with a tolerance of 0.1. The stats are exact."
+  },
+  "fixtures": [
+    {
+      "id": "wikipedia-non-euclidean",
+      "file": "wikipedia-non-euclidean.txt",
+      "stats": {
+        "words": 46,
+        "sentences": 4,
+        "syllables": 99,
+        "characters": 265,
+        "complexWords": 18
+      },
+      "scores": {
+        "flesch-reading-ease": 13.09,
+        "flesch-kincaid-grade": 14.29,
+        "gunning-fog": 20.25,
+        "smog": 15.25,
+        "coleman-liau": 15.5,
+        "automated-readability": 11.45
+      }
+    },
+    {
+      "id": "committee-proposals",
+      "file": "committee-proposals.txt",
+      "stats": {
+        "words": 32,
+        "sentences": 4,
+        "syllables": 84,
+        "characters": 234,
+        "complexWords": 17
+      },
+      "scores": {
+        "flesch-reading-ease": -23.36,
+        "flesch-kincaid-grade": 18.51,
+        "gunning-fog": 24.45,
+        "smog": 14.91,
+        "coleman-liau": 23.5,
+        "automated-readability": 17.01
+      }
+    }
+  ]
+}

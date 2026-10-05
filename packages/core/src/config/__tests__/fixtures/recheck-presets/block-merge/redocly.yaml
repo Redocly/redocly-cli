@@ -1,0 +1,9 @@
+extends:
+  - ./block-base.yaml
+recheck:
+  rules:
+    recheck/line-length:
+      assertions:
+        line-length:
+          max: 120
+  markdoc: true

@@ -4,18 +4,15 @@ import {
   parseYaml,
   stringifyYaml,
   isAbsoluteUrl,
-  loadConfig,
   isEmptyObject,
   isNotEmptyArray,
   isNotEmptyObject,
   pluralize,
-  ConfigValidationError,
   logger,
   HandledError,
   type Config,
   type Oas3Definition,
   type Oas2Definition,
-  type Exact,
   type Async3Definition,
   type Async2Definition,
 } from '@redocly/openapi-core';
@@ -27,14 +24,7 @@ import * as readline from 'node:readline';
 import { Writable } from 'node:stream';
 import { performance } from 'perf_hooks';
 
-import { handleLintConfig } from '../commands/lint.js';
-import {
-  outputExtensions,
-  type Totals,
-  type Entrypoint,
-  type OutputExtension,
-  type CommandArgv,
-} from '../types.js';
+import { outputExtensions, type Totals, type Entrypoint, type OutputExtension } from '../types.js';
 
 export type ExitCode = 0 | 1 | 2;
 
@@ -309,8 +299,6 @@ export function handleError(e: Error, ref: string): never {
     }
     case SyntaxError:
       throw new HandledError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
-    case ConfigValidationError:
-      throw new HandledError(e.message);
     default: {
       throw new HandledError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
@@ -352,18 +340,6 @@ export function printLintTotals(totals: Totals, definitionsCount: number) {
   }
 
   logger.info('\n');
-}
-
-export function printConfigLintTotals(totals: Totals, command?: string | number): void {
-  if (totals.errors > 0) {
-    logger.error(`❌ Your config has ${totals.errors} ${pluralize('error', totals.errors)}.\n`);
-  } else if (totals.warnings > 0) {
-    logger.warn(
-      `⚠️ Your config has ${totals.warnings} ${pluralize('warning', totals.warnings)}.\n`
-    );
-  } else if (command === 'check-config') {
-    logger.info(green('✅  Your config is valid.\n'));
-  }
 }
 
 export function getOutputFileName({
@@ -427,22 +403,6 @@ export function printUnusedWarnings(config: Config) {
 
   if (rules.length || preprocessors.length) {
     logger.warn(`Check the spelling and verify the added plugin prefix.\n`);
-  }
-}
-
-export async function loadConfigAndHandleErrors(
-  argv: Exact<CommandArgv>,
-  version: string
-): Promise<Config> {
-  try {
-    const config = await loadConfig({
-      configPath: argv.config,
-      customExtends: argv.extends as string[] | undefined,
-    });
-    await handleLintConfig(argv, version, config);
-    return config;
-  } catch (e) {
-    handleError(e, '');
   }
 }
 
