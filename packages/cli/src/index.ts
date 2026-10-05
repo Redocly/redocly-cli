@@ -271,13 +271,13 @@ yargs(hideBin(process.argv))
         .implies('max-execution-time', 'wait')
         .option({
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             required: true,
             alias: 'p',
@@ -332,13 +332,13 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             alias: 'p',
             required: true,
