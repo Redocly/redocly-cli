@@ -5,9 +5,8 @@ import {
   StatsAsync2,
   StatsAsync3,
   StatsOAS,
+  HandledError,
 } from '@redocly/openapi-core';
-
-import { exitWithError } from '../../utils/error.js';
 
 export function resolveStatsVisitorAndAccumulator(specVersion: SpecVersion) {
   const statsAccumulatorOAS: OASStatsAccumulator = {
@@ -51,7 +50,7 @@ export function resolveStatsVisitorAndAccumulator(specVersion: SpecVersion) {
       statsVisitor = StatsOAS(statsAccumulator);
       break;
     default:
-      return exitWithError(`Unsupported spec version: ${specVersion}.`);
+      throw new HandledError(`Unsupported spec version: ${specVersion}.`);
   }
 
   return { statsVisitor, statsAccumulator };

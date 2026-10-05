@@ -20,12 +20,9 @@ exports[`should not follow the default behavior to break and return if onFailure
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -54,12 +51,9 @@ exports[`should not follow the default behavior to break and return if onFailure
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -87,12 +81,9 @@ exports[`should not follow the default behavior to break and return if onFailure
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 

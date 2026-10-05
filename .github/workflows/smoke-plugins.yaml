@@ -12,6 +12,10 @@ env:
   REDOCLY_TELEMETRY: off
 
 jobs:
+  # prepare-smoke-plugins hands tests/smoke/plugins/ to the run jobs through actions/cache. Blacksmith serves that cache
+  # from its own backend, so every job in the handoff must run on the same provider. They stay on
+  # GitHub-hosted runners because the Windows jobs do: Blacksmith Windows is in beta and queued for
+  # up to 2 minutes (Redocly/redocly-cli#3168).
   prepare-smoke-plugins:
     runs-on: ubuntu-latest
     steps:

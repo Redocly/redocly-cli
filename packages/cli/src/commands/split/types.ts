@@ -7,7 +7,6 @@ import type {
   Async3Definition,
 } from '@redocly/openapi-core';
 
-import type { VerifyConfigOptions } from '../../types.js';
 import type {
   ASYNCAPI2_COMPONENT_NAMES,
   ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES,
@@ -54,4 +53,4 @@ export type SplitArgv = {
   api: string;
   outDir: string;
   separator: string;
-} & VerifyConfigOptions;
+};

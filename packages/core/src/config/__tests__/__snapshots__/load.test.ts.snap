@@ -36,6 +36,9 @@ Config {
     "openrpc1": {},
     "overlay1": {},
   },
+  "recheck": {
+    "rules": {},
+  },
   "resolve": {
     "http": {
       "customFetch": undefined,
@@ -78,6 +81,9 @@ Config {
         "overlay1Preprocessors": {},
         "overlay1Rules": {},
         "preprocessors": {},
+        "recheck": {
+          "rules": {},
+        },
         "root": "resources/pets.yaml",
         "rules": {
           "no-empty-servers": "error",

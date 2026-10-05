@@ -1,5 +1,133 @@
 # @redocly/cli
 
+## 2.57.0
+
+### Minor Changes
+
+- Added `const` checking to the `no-enum-type-mismatch` rule: a `const` value must conform to the schema's `type`, the same way every `enum` value does.
+
+  **Note**: linting output may include new errors for schemas whose `const` value doesn't match their `type`.
+
+### Patch Changes
+
+- Fixed an issue where `no-enum-type-mismatch` dropped violations and reported a wrong location when `type` was written as an array.
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 2.56.1
+
+### Patch Changes
+
+- Improved overall startup performance.
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 2.56.0
+
+### Minor Changes
+
+- Added support for applying Overlay documents to the `bundle` command output.
+  Pass overlays with the new `--overlay` option or list them under `overlays` for an API in `redocly.yaml`.
+- Added support for linting Overlay 1.1 and 1.2 documents, including the `copy` action field, the `$self` field, and reusable actions in `components.actions`.
+  The `spec-ref-siblings` rule now checks the fields next to a reusable action `$ref` in Overlay documents.
+
+### Patch Changes
+
+- Fixed an issue where `respect` failed with an unexpected error when a step used an `operationId` without the `$sourceDescriptions.<name>.` prefix and the Arazzo file also listed an `arazzo` source description.
+  Such `operationId`s are looked up in the `openapi` source descriptions only.
+- Updated `undici` to the `6.29.0` version.
+- Updated @redocly/client-generator to v0.4.18.
+- Updated @redocly/openapi-core to v2.56.0.
+- Updated @redocly/respect-core to v2.56.0.
+- Updated @redocly/reunite-integration to v2.56.0.
+
+## 2.55.0
+
+### Minor Changes
+
+- Added the `--replace` option to the `push` command.
+  `--replace` removes the files under the mount path that are not part of the push.
+
+### Patch Changes
+
+- Fixed `respect` so known secrets are masked in non-JSON request bodies, such as `application/x-www-form-urlencoded` token requests.
+- Fixed `respect` so a step fails with a clear error when a runtime expression embedded in a string has no value, such as `Bearer {$outputs.accessToken}`.
+- Updated @redocly/openapi-core to v2.55.0.
+- Updated @redocly/respect-core to v2.55.0.
+- Updated @redocly/reunite-integration to v2.55.0.
+- Fixed an issue where the `workflow-dependsOn` rule reported a duplicate when different workflows listed the same workflow in `dependsOn`.
+
+## 2.54.3
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Added the value of the `REDOCLY_ENVIRONMENT` environment variable to the `user-agent` header of the `login`, `push`, and `push-status` requests.
+- Updated @redocly/client-generator to v0.4.16.
+- Updated @redocly/reunite-integration to v2.54.3.
+
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+- Updated @redocly/reunite-integration to v2.54.2.
+
+## 2.54.1
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.54.1.
+
+## 2.54.0
+
+### Patch Changes
+
+- Updated the `login` command to prevent it from passing the authorization URL through a shell.
+
+  The `login` command no longer waits for the browser launcher to exit.
+
+- Fixed the `push --wait-for-deployment` error message, which reported a failed or timed-out deployment as a file upload failure.
+- Fixed the `push-status --wait` command printing the Reunite API sunset warning twice for pushes to the main branch, and the `push` and `push-status` commands dropping the warning when the deployment or the request failed.
+- Updated @redocly/reunite-integration to v2.54.0.
+
+## 2.53.3
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/respect-core to v2.53.3.
+
+## 2.53.2
+
+### Patch Changes
+
+- Added `start` and `end` line and column positions to each problem location in the `--format=json` lint output.
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 2.53.1
+
+### Patch Changes
+
+- Added a deprecation warning to the `build-docs` command about the upcoming switch to Redoc 3.
+
+## 2.53.0
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
+## 2.52.1
+
+### Patch Changes
+
+- Updated `redoc` to the `2.5.4` version to fix accessibility problems in the HTML produced by `build-docs`.
+  Added the `lang` attribute to the default `build-docs` template.
+
 ## 2.52.0
 
 ### Minor Changes

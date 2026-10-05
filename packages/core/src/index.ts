@@ -9,6 +9,7 @@ export { isTruthy } from './utils/is-truthy.js';
 export { keysOf } from './utils/keys-of.js';
 export { pause } from './utils/pause.js';
 export { pluralize } from './utils/pluralize.js';
+export { capitalize } from './utils/capitalize.js';
 export { readFileFromUrl } from './utils/read-file-from-url.js';
 export { slash } from './utils/slash.js';
 export { regexFromString } from './utils/regex-from-string.js';
@@ -128,7 +129,7 @@ export { bundleDocument, type ComponentNamesStrategy } from './bundle/bundle-doc
 export { mapTypeToComponent } from './bundle/bundle-visitor.js';
 export { type Assertions, type Assertion } from './rules/common/assertions/index.js';
 export { logger, type LoggerInterface } from './logger.js';
-export { HandledError } from './utils/error.js';
+export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';
 export type { CollectSpecData, Exact } from './utils/types.js';

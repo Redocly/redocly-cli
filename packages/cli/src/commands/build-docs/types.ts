@@ -1,5 +1,3 @@
-import type { VerifyConfigOptions } from '../../types.js';
-
 export type SpecType = 'openapi' | 'asyncapi' | 'graphql';
 
 export type BuildDocsOptions = {
@@ -29,4 +27,4 @@ export type BuildDocsArgv = {
   graphql?: string | Record<string, unknown>;
   disableTelemetry?: boolean;
   inlineBundle: boolean;
-} & VerifyConfigOptions;
+};

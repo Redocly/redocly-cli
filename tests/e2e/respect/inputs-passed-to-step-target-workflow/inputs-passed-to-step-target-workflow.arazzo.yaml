@@ -20,7 +20,7 @@ workflows:
           type: string
     steps:
       - stepId: health-workflow
-        workflowId: $sourceDescriptions.clients.client-registration
+        workflowId: $sourceDescriptions.clients.order-attempt
         parameters:
           - name: custom_price
             value: 800

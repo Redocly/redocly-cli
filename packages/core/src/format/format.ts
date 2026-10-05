@@ -268,14 +268,19 @@ export function formatProblems(
       problems: problems.map((p) => {
         const problem: Record<string, unknown> = {
           ...p,
-          location: p.location.map((location: LocationObject) => ({
-            ...location,
-            source: {
-              ref: isAbsoluteUrl(location.source.absoluteRef)
-                ? location.source.absoluteRef
-                : path.relative(cwd, location.source.absoluteRef),
-            },
-          })),
+          location: p.location.map((location: LocationObject) => {
+            const { start, end } = getLineColLocation(location);
+            return {
+              ...location,
+              start,
+              end,
+              source: {
+                ref: isAbsoluteUrl(location.source.absoluteRef)
+                  ? location.source.absoluteRef
+                  : path.relative(cwd, location.source.absoluteRef),
+              },
+            };
+          }),
           from: p.from
             ? {
                 ...p.from,

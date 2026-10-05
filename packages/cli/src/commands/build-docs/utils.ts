@@ -1,4 +1,4 @@
-import { logger, type Config } from '@redocly/openapi-core';
+import { HandledError, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -8,7 +8,6 @@ import { createElement } from 'react';
 import { renderToString } from 'react-dom/server';
 import { logoFromSpec, prepareApiDocs, RedoclyApiDocsStandalone, ServerStyleSheet } from 'redoc';
 
-import { exitWithError } from '../../utils/error.js';
 import type { BuildDocsOptions, SpecType } from './types.js';
 
 const DEFAULT_TEMPLATE_SOURCE = `<!DOCTYPE html>
@@ -52,11 +51,10 @@ export function getObjectOrJSON(
         }
       } catch (e) {
         logger.error(
-          `Encountered error:\n\n${specOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.`
+          `Encountered error:\n\n${specOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.\n`
         );
-        exitWithError(e);
+        throw new HandledError(e instanceof Error ? e.message : String(e));
       }
-      break;
     default: {
       if (config?.configPath) {
         logger.info(`Found ${config.configPath} and using '${specType}' options\n`);
@@ -68,7 +66,6 @@ export function getObjectOrJSON(
       return {};
     }
   }
-  return {};
 }
 
 export async function getPageHTML(

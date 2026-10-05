@@ -199,9 +199,15 @@ export async function runWorkflow({
 
   const workflowSteps = workflow.steps.slice(fromStepIndex);
 
-  // clean $steps ctx before running workflow steps
-  ctx.$steps = {};
-
+  // Reset $steps before running workflow steps.
+  // A goto to a step in this workflow keeps the outputs of steps that already ran.
+  if (!fromStepId) {
+    ctx.$steps = {};
+  } else {
+    for (const stepToReset of workflowSteps) {
+      delete ctx.$steps[stepToReset.stepId];
+    }
+  }
   for (const step of workflowSteps) {
     try {
       const stepResult = await runStep({
@@ -363,6 +369,7 @@ export async function resolveWorkflowContext(
   // executing external workflow should not mutate the original context
   // only outputs are transferred to the parent workflow
   // creating the new ctx for the external workflow or recreate current ctx for local workflow
+  // the secrets set is shared, so secrets learned in the external workflow stay masked in the parent
   return testDescription
     ? await createTestContext(
         testDescription,
@@ -377,7 +384,8 @@ export async function resolveWorkflowContext(
           skip: undefined,
           config,
         },
-        ctx.apiClient
+        ctx.apiClient,
+        ctx.secretsSet
       )
     : {
         ...ctx,

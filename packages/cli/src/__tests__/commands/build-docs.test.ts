@@ -1,11 +1,12 @@
-import { bundle, createConfig } from '@redocly/openapi-core';
+import { bundle, createConfig, HandledError } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import { prepareApiDocs } from 'redoc';
 
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
-import { getPageHTML } from '../../commands/build-docs/utils.js';
+import { getObjectOrJSON, getPageHTML } from '../../commands/build-docs/utils.js';
+import type * as miscellaneous from '../../utils/miscellaneous.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
 vi.mock('redoc', () => ({
@@ -23,7 +24,10 @@ vi.mock('redoc', () => ({
   },
 }));
 vi.mock('node:fs');
-vi.mock('../../utils/miscellaneous.js');
+vi.mock('../../utils/miscellaneous.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof miscellaneous>()),
+  getFallbackApisOrExit: vi.fn(),
+}));
 vi.mock('react-dom/server', () => ({
   renderToString: vi.fn(),
 }));
@@ -171,5 +175,15 @@ describe('build-docs', () => {
     expect(vi.mocked(renderToString).mock.lastCall?.[0]).toMatchObject({
       props: { telemetryConfig: { disabled: false } },
     });
+  });
+
+  it('reports an invalid --openapi value with the parse error only', async () => {
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
+    const redoclyConfig = await createConfig({});
+
+    expect(() => getObjectOrJSON('not json', redoclyConfig, 'openapi')).toThrow(HandledError);
+    expect(() => getObjectOrJSON('not json', redoclyConfig, 'openapi')).toThrow(
+      /^Unexpected token/
+    );
   });
 });

@@ -1,14 +1,15 @@
 import { logger } from '@redocly/openapi-core';
+import { RedoclyOAuthClient } from '@redocly/reunite-integration';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-import { RedoclyOAuthClient } from '../../../auth/oauth-client.js';
-import * as errorUtils from '../../../utils/error.js';
-import { handleLoginAndFetchToken } from '../auth/login-handler.js';
+import { handleLoginAndFetchToken } from '../login-handler.js';
 
-vi.mock('../../../auth/oauth-client.js');
-vi.mock('../../../reunite/api/index.js', () => ({
+vi.mock('@redocly/reunite-integration', () => ({
+  RedoclyOAuthClient: vi.fn(),
   getReuniteUrl: vi.fn(() => 'https://www.test.com'),
 }));
+
+const version = '1.2.3';
 
 describe('handleLoginAndFetchToken', () => {
   const mockConfig = {
@@ -30,16 +31,14 @@ describe('handleLoginAndFetchToken', () => {
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(logger, 'error').mockImplementation(() => {});
-    vi.spyOn(errorUtils, 'exitWithError').mockImplementation(() => {
-      throw new Error('exitWithError called');
-    });
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
   });
 
   it('should return existing access token when available', async () => {
     const testToken = 'existing-token';
     mockOAuthClient.getAccessToken.mockResolvedValue(testToken);
 
-    const result = await handleLoginAndFetchToken(mockConfig, false);
+    const result = await handleLoginAndFetchToken(mockConfig, version, false);
 
     expect(result).toBe(testToken);
     expect(mockOAuthClient.getAccessToken).toHaveBeenCalledTimes(1);
@@ -50,7 +49,7 @@ describe('handleLoginAndFetchToken', () => {
     const testToken = 'existing-token';
     mockOAuthClient.getAccessToken.mockResolvedValue(testToken);
 
-    await handleLoginAndFetchToken(mockConfig, true);
+    await handleLoginAndFetchToken(mockConfig, version, true);
 
     expect(logger.info).toHaveBeenCalledWith('Using existing access token.\n');
   });
@@ -60,7 +59,7 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValueOnce(null).mockResolvedValueOnce(newToken);
     mockOAuthClient.login.mockResolvedValue(undefined);
 
-    const result = await handleLoginAndFetchToken(mockConfig, false);
+    const result = await handleLoginAndFetchToken(mockConfig, version, false);
 
     expect(result).toBe(newToken);
     expect(mockOAuthClient.login).toHaveBeenCalled();
@@ -72,7 +71,7 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValueOnce(null).mockResolvedValueOnce(newToken);
     mockOAuthClient.login.mockResolvedValue(undefined);
 
-    await handleLoginAndFetchToken(mockConfig, true);
+    await handleLoginAndFetchToken(mockConfig, version, true);
 
     expect(logger.warn).toHaveBeenCalledWith(
       'No valid access token found or refresh token expired. Attempting login...\n'
@@ -84,12 +83,8 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValue(null);
     mockOAuthClient.login.mockRejectedValue(loginError);
 
-    await expect(handleLoginAndFetchToken(mockConfig, false)).rejects.toThrow(
-      'exitWithError called'
-    );
-
-    expect(errorUtils.exitWithError).toHaveBeenCalledWith(
-      expect.stringContaining('Login failed. Please try again or check your connection')
+    await expect(handleLoginAndFetchToken(mockConfig, version, false)).rejects.toThrow(
+      'Login failed. Please try again or check your connection'
     );
   });
 
@@ -98,7 +93,7 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValue(null);
     mockOAuthClient.login.mockRejectedValue(loginError);
 
-    await expect(handleLoginAndFetchToken(mockConfig, true)).rejects.toThrow();
+    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow();
 
     expect(logger.error).toHaveBeenCalledWith('❌ Login failed.\n');
     expect(logger.error).toHaveBeenCalledWith('Error details: Network error\n');

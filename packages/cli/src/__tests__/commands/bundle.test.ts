@@ -9,7 +9,7 @@ import {
 import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
-import { type BundleArgv, handleBundle } from '../../commands/bundle.js';
+import { type BundleArgv, bundleTelemetry, handleBundle } from '../../commands/bundle.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
@@ -59,6 +59,18 @@ describe('bundle', () => {
     vi.mocked(getOutputFileName).mockImplementation(
       ((await vi.importActual('../../utils/miscellaneous.js')) as any).getOutputFileName
     );
+  });
+
+  it('counts the overlays it applies for telemetry', async () => {
+    delete bundleTelemetry.bundle_overlays_count;
+
+    await handleBundle({
+      argv: { apis: ['foo.yaml', 'bar.yaml'], overlay: ['public.yaml', 'branding.yaml'] },
+      config: configFixture,
+      version: 'test',
+    });
+
+    expect(bundleTelemetry.bundle_overlays_count).toBe(4);
   });
 
   it('bundles definitions', async () => {

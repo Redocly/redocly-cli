@@ -31,29 +31,28 @@ workflows:
           - condition: $statusCode == 200
         outputs:
           menu: $response.body
-  - workflowId: client-registration
+  - workflowId: order-attempt
     description: >-
-      This workflow demonstrates how to register an OAuth2 client and retrieve a menu item photo description.
+      This workflow demonstrates how to attempt an order and retrieve a menu item photo description.
     steps:
-      - stepId: create-client
+      - stepId: create-order
         description: >-
-          Try to register a new OAuth2 client without the required `name` field.
-        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
+          Try to create an order without a bearer token.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders/post'
         requestBody:
           payload:
-            clientName: respect-e2e-client
+            customerName: respect-e2e-customer
         successCriteria:
-          - condition: $statusCode == 400
+          - condition: $statusCode == 401
           - context: $response.body
-            condition: "$[?@.title == 'Validation failed']"
+            condition: "$[?@.title == 'Bearer token is required']"
             type: jsonpath
           - context: $response.body
-            condition: '$[?@.status == 400]'
+            condition: '$[?@.status == 401]'
             type:
               type: jsonpath
               version: draft-goessner-dispatch-jsonpath-00
         outputs:
-          errorField: $response.body#/details/errors/0/path/0
           errorTitle: $response.body#/title
 
       - stepId: get-menu-item-photo
@@ -68,8 +67,8 @@ workflows:
             name: Accept
             value: text/plain
           - in: header
-            name: x-error-field
-            value: $steps.create-client.outputs.errorField
+            name: x-error-title
+            value: $steps.create-order.outputs.errorTitle
         successCriteria:
           - condition: $statusCode == 200
           - condition: $response.body == 'A classic Italian tiramisu layered with mascarpone and espresso'

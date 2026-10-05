@@ -9,13 +9,13 @@ import {
   type Config,
   type Exact,
   type OutputFormat,
+  AbortFlowError,
 } from '@redocly/openapi-core';
 import { blue, gray } from 'colorette';
 import { performance } from 'perf_hooks';
 import type { Arguments } from 'yargs';
 
-import type { CommandArgv, Totals, VerifyConfigOptions } from '../types.js';
-import { AbortFlowError } from '../utils/error.js';
+import type { CommandArgv, Totals } from '../types.js';
 import { getCommandNameFromArgs } from '../utils/get-command-name-from-args.js';
 import {
   checkIfRulesetExist,
@@ -37,7 +37,7 @@ export type LintArgv = {
   'generate-ignore-file'?: boolean;
   'skip-rule'?: string[];
   'skip-preprocessor'?: string[];
-} & VerifyConfigOptions;
+};
 
 export async function handleLint({
   argv,
@@ -146,7 +146,12 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
     return;
   }
 
-  if (argv.format === 'json' || argv.format === 'junit' || argv.format === 'checkstyle') {
+  if (
+    argv.format === 'json' ||
+    argv.format === 'junit' ||
+    argv.format === 'checkstyle' ||
+    argv.format === 'sarif'
+  ) {
     // these are single-document formats, so a separate config-lint document would break the output
     return;
   }
@@ -161,7 +166,8 @@ export async function handleLintConfig(argv: Exact<CommandArgv>, version: string
   const fileTotals = getTotals(problems);
 
   formatProblems(problems, {
-    format: argv.format,
+    // These are config problems, and config output has no `table` format (the `recheck` default).
+    format: argv.format === 'table' ? undefined : argv.format,
     maxProblems: argv['max-problems'],
     totals: fileTotals,
     version,

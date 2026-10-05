@@ -1,7 +1,6 @@
 import { getLineColLocation, logger, xmlEscape } from '@redocly/openapi-core';
+import type { ScorecardProblem } from '@redocly/reunite-integration';
 import { bold, cyan, white } from 'colorette';
-
-import type { ScorecardProblem } from '../types.js';
 
 export function printScorecardResultsAsCheckstyle(
   path: string,

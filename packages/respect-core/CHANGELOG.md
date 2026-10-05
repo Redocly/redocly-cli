@@ -1,5 +1,89 @@
 # @redocly/respect-core
 
+## 2.57.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 2.56.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 2.56.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` failed with an unexpected error when a step used an `operationId` without the `$sourceDescriptions.<name>.` prefix and the Arazzo file also listed an `arazzo` source description.
+  Such `operationId`s are looked up in the `openapi` source descriptions only.
+- Updated @redocly/openapi-core to v2.56.0.
+
+## 2.55.0
+
+### Patch Changes
+
+- Fixed `respect` so known secrets are masked in non-JSON request bodies, such as `application/x-www-form-urlencoded` token requests.
+- Fixed `respect` so a step fails with a clear error when a runtime expression embedded in a string has no value, such as `Bearer {$outputs.accessToken}`.
+- Updated @redocly/openapi-core to v2.55.0.
+
+## 2.54.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.3.
+
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+
+## 2.54.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.1.
+
+## 2.54.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.0.
+
+## 2.53.3
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/openapi-core to v2.53.3.
+
+## 2.53.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 2.53.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.1.
+
+## 2.53.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
+## 2.52.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.1.
+
 ## 2.52.0
 
 ### Patch Changes

@@ -58,7 +58,7 @@ The factory types live in `visitors.ts`, one set per spec flavor: `Oas3Rule`, `O
 State that spans nodes lives in the factory scope, so it is fresh for every document walk.
 Collect in `enter` hooks and report in `leave`, often `Root.leave`, when every `$ref` is resolved.
 
-When you author a rule, read the `redocly-lint-rules` skill first.
+When you author a rule, read the [`redocly-lint-rules` skill](../skills/redocly-lint-rules/SKILL.md) first.
 Its plugin section covers pitfalls that apply to built-in rules too: raw versus resolved children, the context fields, and how to prove a rule with a violating and a conforming fixture.
 
 ```ts

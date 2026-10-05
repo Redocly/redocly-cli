@@ -22,12 +22,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -54,12 +51,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -89,12 +83,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -107,7 +98,7 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
-  Running workflow reusable-components.arazzo.yaml / client-registration 
+  Running workflow reusable-components.arazzo.yaml / order-attempt 
  
   ✓ GET /menu - step list-menu-items 
 
@@ -127,12 +118,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -141,9 +129,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
     ✓ content-type check
     ✓ schema check
  
-  ✓ POST /oauth2/register - step create-client 
+  ✓ POST /orders - step create-order 
 
-    Request URL: https://api.cafe.redocly.com/oauth2/register
+    Request URL: https://api.cafe.redocly.com/orders
     Request Headers:
       content-type: application/json
       accept: application/json, application/problem+json
@@ -161,33 +149,20 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       } 
  
 
-    Response status code: 400
+    Response status code: 401
     Response time: <test> ms
     Response Headers: <response headers test>
     Response Size: <test> bytes
     Response Body:
       {
         "type": "about:blank",
-        "title": "Validation failed",
-        "status": 400,
-        "instance": "/oauth2/register",
-        "details": {
-          "errors": [
-            {
-              "code": "invalid_type",
-              "expected": "string",
-              "received": "undefined",
-              "path": [
-                "name"
-              ],
-              "message": "Required"
-            }
-          ]
-        }
+        "title": "Bearer token is required",
+        "status": 401,
+        "instance": "/orders"
       } 
  
-    ✓ success criteria check - $statusCode == 400
-    ✓ status code check - $statusCode in [201, 400, 500]
+    ✓ success criteria check - $statusCode == 401
+    ✓ status code check - $statusCode in [201, 400, 401, 403, 500]
     ✓ content-type check
     ✓ schema check
  
@@ -212,12 +187,9 @@ exports[`should use inputs from CLI and env to map with resolved refs 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 

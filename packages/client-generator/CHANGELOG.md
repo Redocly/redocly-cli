@@ -1,5 +1,85 @@
 # @redocly/client-generator
 
+## 0.4.20
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 0.4.19
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 0.4.18
+
+### Patch Changes
+
+- Fixed the `codeSamples` overlay so it applies to paths that contain a quote and to path items defined in `components.pathItems`, and adds the samples of a path item that several paths share only once.
+- Updated @redocly/openapi-core to v2.56.0.
+
+## 0.4.17
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.55.0.
+
+## 0.4.16
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Updated @redocly/openapi-core to v2.54.3.
+
+## 0.4.15
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+
+## 0.4.14
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.1.
+
+## 0.4.13
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.0.
+
+## 0.4.12
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.3.
+
+## 0.4.11
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 0.4.10
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.1.
+
+## 0.4.9
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
+## 0.4.8
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.1.
+
 ## 0.4.7
 
 ### Patch Changes

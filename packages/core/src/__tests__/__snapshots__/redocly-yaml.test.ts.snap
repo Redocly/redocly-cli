@@ -436,6 +436,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Decorators": "Decorators",
       "overlay1Preprocessors": "Preprocessors",
       "overlay1Rules": "Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
@@ -546,6 +552,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "client": "Client",
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
+      "consent": "rootRedoclyConfigSchema.consent",
       "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": "Decorators",
       "developerOnboarding": "rootRedoclyConfigSchema.developerOnboarding",
@@ -1824,6 +1831,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "SelectorObject",
           "Actions",
           "Action",
+          "ReusableActions",
+          "ReusableAction",
+          "ReusableActionFields",
           "Method",
           "MethodList",
           "ContentDescriptor",
@@ -1976,6 +1986,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
+      "consent": "rootRedoclyConfigSchema.consent",
       "corsProxy": "rootRedoclyConfigSchema.corsProxy",
       "decorators": {
         "type": "object",
@@ -3020,6 +3031,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "overlay1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.overlay1Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": {
         "type": "object",
       },
@@ -8869,6 +8886,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "content": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "dismissible": {
         "type": "boolean",
@@ -9033,6 +9051,42 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "type": "string",
         },
         "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.consent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "expires": {
+        "type": "number",
+      },
+      "mode": {
+        "enum": [
+          "auto",
+          "opt-in",
+          "opt-out",
+          "none",
+          "onetrust",
+          "cookiebot",
+          "trustarc",
+          "tcf",
+        ],
+        "type": "string",
+      },
+      "privacyPolicyUrl": {
+        "type": "string",
+      },
+      "settingsLink": {
+        "enum": [
+          "auto",
+          "footer",
+          "none",
+        ],
+        "type": "string",
       },
     },
     "required": undefined,
@@ -10495,6 +10549,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "codeSnippet": "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.env_additionalProperties.colorMode",
+      "consent": "rootRedoclyConfigSchema.env_additionalProperties.consent",
       "corsProxy": "rootRedoclyConfigSchema.env_additionalProperties.corsProxy",
       "decorators": {
         "type": "object",
@@ -11533,6 +11588,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "overlay1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.overlay1Rules",
+      "overlays": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
       "preprocessors": {
         "type": "object",
       },
@@ -17382,6 +17443,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "content": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "dismissible": {
         "type": "boolean",
@@ -17546,6 +17608,42 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "type": "string",
         },
         "type": "array",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.consent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "expires": {
+        "type": "number",
+      },
+      "mode": {
+        "enum": [
+          "auto",
+          "opt-in",
+          "opt-out",
+          "none",
+          "onetrust",
+          "cookiebot",
+          "trustarc",
+          "tcf",
+        ],
+        "type": "string",
+      },
+      "privacyPolicyUrl": {
+        "type": "string",
+      },
+      "settingsLink": {
+        "enum": [
+          "auto",
+          "footer",
+          "none",
+        ],
+        "type": "string",
       },
     },
     "required": undefined,
@@ -19273,6 +19371,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -19325,6 +19424,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -19375,6 +19475,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -19433,6 +19534,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -20278,9 +20380,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "favicon": {
         "type": "string",
+        "uiHint": "file",
       },
       "image": {
         "type": "string",
+        "uiHint": "file",
       },
       "link": {
         "type": "string",
@@ -20493,6 +20597,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -20545,6 +20650,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -20595,6 +20701,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -20653,6 +20760,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -23806,6 +23914,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "jobs": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs",
+      "mcpServers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers",
     },
     "required": undefined,
   },
@@ -23974,6 +24083,49 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "event",
     ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "headers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties.headers",
+      "type": {
+        "enum": [
+          "http",
+        ],
+        "type": "string",
+      },
+      "url": {
+        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties.headers": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.rules": {
     "additionalProperties": [Function],
@@ -24991,6 +25143,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async": {
         "type": "boolean",
       },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
+      },
       "crossorigin": {
         "type": "string",
       },
@@ -25042,6 +25201,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "async": {
         "type": "boolean",
+      },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
       },
       "crossorigin": {
         "type": "string",
@@ -25200,6 +25366,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
     },
     "required": [
@@ -25214,9 +25381,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "image": {
         "type": "string",
+        "uiHint": "file",
       },
       "jsonLd": {
         "type": "object",
@@ -27982,6 +28151,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -28034,6 +28204,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -28084,6 +28255,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -28142,6 +28314,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -28899,9 +29072,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "favicon": {
         "type": "string",
+        "uiHint": "file",
       },
       "image": {
         "type": "string",
+        "uiHint": "file",
       },
       "link": {
         "type": "string",
@@ -29037,6 +29212,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -29089,6 +29265,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -29139,6 +29316,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -29197,6 +29375,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -32563,6 +32742,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async": {
         "type": "boolean",
       },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
+      },
       "crossorigin": {
         "type": "string",
       },
@@ -32614,6 +32800,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "async": {
         "type": "boolean",
+      },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
       },
       "crossorigin": {
         "type": "string",
@@ -32772,6 +32965,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
     },
     "required": [
@@ -33242,6 +33436,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -33294,6 +33489,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.footer.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -33344,6 +33540,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -33402,6 +33599,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.footer.items_items.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -34247,9 +34445,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "favicon": {
         "type": "string",
+        "uiHint": "file",
       },
       "image": {
         "type": "string",
+        "uiHint": "file",
       },
       "link": {
         "type": "string",
@@ -34462,6 +34662,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -34514,6 +34715,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.navbar.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -34564,6 +34766,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "directory": {
         "type": "string",
+        "uiHint": "file",
       },
       "disconnect": {
         "type": "boolean",
@@ -34622,6 +34825,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
       "rbac": "rootRedoclyConfigSchema.navbar.items_items.items_items.rbac",
       "selectFirstItemOnExpand": {
@@ -37775,6 +37979,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "jobs": "rootRedoclyConfigSchema.reunite.jobs",
+      "mcpServers": "rootRedoclyConfigSchema.reunite.mcpServers",
     },
     "required": undefined,
   },
@@ -37943,6 +38148,49 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "event",
     ],
+  },
+  "rootRedoclyConfigSchema.reunite.mcpServers": {
+    "additionalProperties": "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "headers": "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties.headers",
+      "type": {
+        "enum": [
+          "http",
+        ],
+        "type": "string",
+      },
+      "url": {
+        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties.headers": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
   },
   "rootRedoclyConfigSchema.rules": {
     "additionalProperties": [Function],
@@ -38960,6 +39208,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async": {
         "type": "boolean",
       },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
+      },
       "crossorigin": {
         "type": "string",
       },
@@ -39011,6 +39266,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "async": {
         "type": "boolean",
+      },
+      "consent": {
+        "enum": [
+          "analytics",
+          "marketing",
+        ],
+        "type": "string",
       },
       "crossorigin": {
         "type": "string",
@@ -39169,6 +39431,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "page": {
         "type": "string",
+        "uiHint": "file",
       },
     },
     "required": [
@@ -39183,9 +39446,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "image": {
         "type": "string",
+        "uiHint": "file",
       },
       "jsonLd": {
         "type": "object",

@@ -1,0 +1,57 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`should keep earlier step outputs addressable when a goto action targets a step in the same workflow 1`] = `
+"──────────────────────────────────────────────────────────────────────────────── 
+ 
+  Running workflow goto-step-keeps-outputs.arazzo.yaml / goto-keeps-outputs 
+ 
+  ✓ GET /menu - step list-menu-items 
+    ✓ success criteria check - $statusCode == 200
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  ✗ GET /menu - step failing-step 
+    ✗ success criteria check - $statusCode == 999
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+  Running failure action goto-cleanup for the step failing-step 
+ 
+  ✓ GET /menu - step cleanup 
+    ✓ success criteria check - $statusCode == 200
+    ✓ success criteria check - $steps.list-menu-items.outputs.menuItems != null
+    ✓ status code check - $statusCode in [200, 400, 500]
+    ✓ content-type check
+    ✓ schema check
+ 
+ 
+
+  Failed tests info:
+
+  Workflow name: goto-keeps-outputs
+ 
+    stepId - failing-step 
+    ✗ success criteria check 
+      Checking simple criteria: {"condition":"$statusCode == 999"}
+       
+  Summary for goto-step-keeps-outputs.arazzo.yaml
+  
+  Workflows: 1 failed, 1 total
+  Steps: 2 passed, 1 failed, 3 total
+  Checks: 12 passed, 1 failed, 13 total
+  Time: <test>ms 
+ 
+ 
+┌─────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
+│ Filename                                                                    │ Workflows  │ Passed  │ Failed  │ Warnings │
+├─────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
+│ x goto-step-keeps-outputs.arazzo.yaml                                       │ 1          │ 0       │ 1       │ -        │
+└─────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
+ 
+
+ Tests exited with error 
+
+"
+`;

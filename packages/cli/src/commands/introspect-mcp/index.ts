@@ -1,9 +1,15 @@
-import { isPlainObject, logger, parseYaml, stringifyYaml } from '@redocly/openapi-core';
+import {
+  isPlainObject,
+  logger,
+  parseYaml,
+  stringifyYaml,
+  HandledError,
+  AbortFlowError,
+} from '@redocly/openapi-core';
 import { blue, gray, yellow } from 'colorette';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import { type CommandArgs } from '../../wrapper.js';
 import { describeXMcpChanges } from './check.js';
 import { introspectMcpServer, type McpTarget } from './introspect.js';
@@ -23,12 +29,12 @@ function parseHeaders(rawHeaders: string[] = []): Record<string, string> {
   for (const rawHeader of rawHeaders) {
     const separatorIndex = rawHeader.indexOf(':');
     if (separatorIndex === -1) {
-      exitWithError(`Invalid header "${rawHeader}". Use the "Name: value" format.`);
+      throw new HandledError(`Invalid header "${rawHeader}". Use the "Name: value" format.`);
     }
     const name = rawHeader.slice(0, separatorIndex).trim();
     const value = rawHeader.slice(separatorIndex + 1).trim();
     if (!name || !value) {
-      exitWithError(`Invalid header "${rawHeader}". Use the "Name: value" format.`);
+      throw new HandledError(`Invalid header "${rawHeader}". Use the "Name: value" format.`);
     }
     headers[name] = value;
   }
@@ -63,7 +69,7 @@ function splitCommand(rawCommand: string): string[] {
     }
   }
   if (openQuote) {
-    exitWithError(`Unclosed ${openQuote} quote in --command.`);
+    throw new HandledError(`Unclosed ${openQuote} quote in --command.`);
   }
   if (partStarted || currentPart) {
     commandParts.push(currentPart);
@@ -75,7 +81,7 @@ function resolveTarget(argv: IntrospectMcpCommandArgv): McpTarget {
   if (argv.command) {
     const [command, ...args] = splitCommand(argv.command);
     if (!command) {
-      exitWithError('The --command option cannot be empty.');
+      throw new HandledError('The --command option cannot be empty.');
     }
     return { kind: 'stdio', command, args };
   }
@@ -83,7 +89,7 @@ function resolveTarget(argv: IntrospectMcpCommandArgv): McpTarget {
   try {
     url = new URL(argv['server-url'] ?? '');
   } catch {
-    exitWithError(`Invalid MCP server URL: ${argv['server-url']}.`);
+    throw new HandledError(`Invalid MCP server URL: ${argv['server-url']}.`);
   }
   return { kind: 'http', url, headers: parseHeaders(argv.header) };
 }
@@ -111,12 +117,12 @@ export async function handleIntrospectMcp({
     try {
       document = parseYaml(readFileSync(outputFile, 'utf-8'));
     } catch (error) {
-      exitWithError(
+      throw new HandledError(
         `Failed to parse ${outputFile}: ${error instanceof Error ? error.message : String(error)}`
       );
     }
     if (!isPlainObject(document)) {
-      exitWithError(`Expected ${outputFile} to contain an OpenAPI description object.`);
+      throw new HandledError(`Expected ${outputFile} to contain an OpenAPI description object.`);
     }
     existingDocument = document;
   }
@@ -125,7 +131,7 @@ export async function handleIntrospectMcp({
 
   if (argv.check) {
     if (!existingDocument) {
-      exitWithError(
+      throw new HandledError(
         `Cannot check ${outputFile} - the file does not exist. Run the command without --check to create it.`
       );
     }

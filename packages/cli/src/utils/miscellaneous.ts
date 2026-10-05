@@ -18,9 +18,9 @@ import {
   type Exact,
   type Async3Definition,
   type Async2Definition,
+  type Plugin,
 } from '@redocly/openapi-core';
 import { blue, gray, green, red, yellow } from 'colorette';
-import { hasMagic, glob } from 'glob';
 import * as fs from 'node:fs';
 import { basename, dirname, extname, join, resolve, relative } from 'node:path';
 import * as process from 'node:process';
@@ -36,7 +36,6 @@ import {
   type OutputExtension,
   type CommandArgv,
 } from '../types.js';
-import { exitWithError } from './error.js';
 
 export type ExitCode = 0 | 1 | 2;
 
@@ -55,24 +54,23 @@ export async function getFallbackApisOrExit(
     for (const { path } of filteredInvalidEntrypoints) {
       logger.warn(`\n${formatPath(path)} ${red(`does not exist or is invalid.\n\n`)}`);
     }
-    exitWithError('Please provide a valid path.');
+    throw new HandledError('Please provide a valid path.');
   }
   if (res.length === 0) {
-    exitWithError(
+    throw new HandledError(
       'No APIs were provided. Specify an API via the command argument or define one in your config.'
     );
   }
   return res;
 }
 
-function getConfigDirectory(config: Config) {
+export function getConfigDirectory(config: Config) {
   return config.configPath ? dirname(config.configPath) : process.cwd();
 }
 
 function isApiPathValid(apiPath: string): string | void {
   if (!apiPath.trim()) {
-    exitWithError('Path cannot be empty.');
-    return;
+    throw new HandledError('Path cannot be empty.');
   }
   return fs.existsSync(apiPath) || isAbsoluteUrl(apiPath) ? apiPath : undefined;
 }
@@ -105,6 +103,7 @@ export function getAliasOrPath(config: Config, aliasOrPath: string): Entrypoint 
 }
 
 async function expandGlobsInEntrypoints(argApis: string[], config: Config) {
+  const { hasMagic, glob } = await import('glob');
   return (
     await Promise.all(
       argApis.map(async (aliasOrPath) => {
@@ -300,26 +299,21 @@ export function handleError(e: Error, ref: string): never {
       throw e;
     }
     case ResolveError:
-      exitWithError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
-      break;
+      throw new HandledError(`Failed to resolve API description at ${ref}:\n\n  - ${e.message}`);
     case YamlParseError:
-      exitWithError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
-      break;
+      throw new HandledError(`Failed to parse API description at ${ref}:\n\n  - ${e.message}`);
     case CircularJSONNotSupportedError: {
-      exitWithError(
+      throw new HandledError(
         `Detected circular reference which can't be converted to JSON.\n` +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
       );
-      break;
     }
     case SyntaxError:
-      exitWithError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
-      break;
+      throw new HandledError(`Syntax error: ${e.message} ${e.stack?.split('\n\n')?.[0]}`);
     case ConfigValidationError:
-      exitWithError(e.message);
-      break;
+      throw new HandledError(e.message);
     default: {
-      exitWithError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
+      throw new HandledError(`Something went wrong when processing ${ref}:\n\n  - ${e.message}`);
     }
   }
 }
@@ -439,12 +433,14 @@ export function printUnusedWarnings(config: Config) {
 
 export async function loadConfigAndHandleErrors(
   argv: Exact<CommandArgv>,
-  version: string
+  version: string,
+  plugins?: Plugin[]
 ): Promise<Config> {
   try {
     const config = await loadConfig({
       configPath: argv.config,
       customExtends: argv.extends as string[] | undefined,
+      plugins,
     });
     await handleLintConfig(argv, version, config);
     return config;
@@ -551,7 +547,7 @@ export function checkIfRulesetExist(rules: typeof Config.prototype.rules) {
   };
 
   if (isEmptyObject(ruleset)) {
-    exitWithError(
+    throw new HandledError(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
     );
   }
@@ -567,11 +563,4 @@ export function formatPath(path: string) {
     return path;
   }
   return relative(process.cwd(), path);
-}
-
-export function capitalize(s: string) {
-  if (s?.length > 0) {
-    return s[0].toUpperCase() + s.slice(1);
-  }
-  return s;
 }

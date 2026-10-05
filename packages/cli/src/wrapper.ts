@@ -3,23 +3,25 @@ import {
   doesYamlFileExist,
   isPlainObject,
   logger,
-  HandledError,
   getMajorSpecVersion,
   isGraphqlRef,
   type Config,
   type CollectSpecData,
   type Exact,
   type NormalizedProblem,
+  type Plugin,
   type SpecVersion,
+  AbortFlowError,
+  HandledError,
 } from '@redocly/openapi-core';
 import type { Arguments } from 'yargs';
 
-import type { CommandArgv } from './types.js';
+import { bundleTelemetry } from './commands/bundle.js';
+import type { CommandArgv, VerifyConfigOptions } from './types.js';
 import {
   ejectGeneratorTelemetry,
   generateClientTelemetry,
 } from './utils/client-generator-telemetry.js';
-import { AbortFlowError, exitWithError } from './utils/error.js';
 import { loadConfigAndHandleErrors, type ExitCode } from './utils/miscellaneous.js';
 import { version } from './utils/package.js';
 import {
@@ -32,7 +34,7 @@ import {
 export type CollectResults = (results: NormalizedProblem[]) => void;
 
 export type CommandArgs<T extends CommandArgv> = {
-  argv: T;
+  argv: T & VerifyConfigOptions;
   config: Config;
   version: string;
   collectSpecData?: CollectSpecData;
@@ -40,7 +42,8 @@ export type CommandArgs<T extends CommandArgv> = {
 };
 
 export function commandWrapper<T extends CommandArgv>(
-  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>
+  commandHandler?: (wrapperArgs: CommandArgs<T>) => Promise<unknown>,
+  options: { plugins?: Plugin[] } = {}
 ) {
   return async (argv: Arguments<T>) => {
     const startedAt = performance.now();
@@ -108,9 +111,9 @@ export function commandWrapper<T extends CommandArgv>(
 
     try {
       if (argv.config && !doesYamlFileExist(argv.config)) {
-        exitWithError('Please provide a valid path to the configuration file.');
+        throw new HandledError('Please provide a valid path to the configuration file.');
       }
-      config = await loadConfigAndHandleErrors(argv as Exact<T>, version);
+      config = await loadConfigAndHandleErrors(argv as Exact<T>, version, options.plugins);
       telemetry = config.resolvedConfig.telemetry;
       code = 1;
       if (typeof commandHandler === 'function') {
@@ -148,6 +151,7 @@ export function commandWrapper<T extends CommandArgv>(
           lint_rules_with_ignored_problems: [...lintRulesWithIgnoredProblems],
           generate_client: generateClientTelemetry,
           eject_generator: ejectGeneratorTelemetry,
+          bundle: bundleTelemetry,
         });
       }
       process.once('beforeExit', () => {

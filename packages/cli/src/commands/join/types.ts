@@ -7,8 +7,6 @@ import type {
   SpecVersion,
 } from '@redocly/openapi-core';
 
-import type { VerifyConfigOptions } from '../../types.js';
-
 export type AnyOas3Definition = Oas3Definition | Oas3_1Definition | Oas3_2Definition;
 
 export type JoinDocumentContext = {
@@ -29,4 +27,4 @@ export type JoinArgv = {
   'prefix-components-with-info-prop'?: string;
   'without-x-tag-groups'?: boolean;
   output?: string;
-} & VerifyConfigOptions;
+};

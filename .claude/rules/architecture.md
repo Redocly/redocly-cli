@@ -2,7 +2,7 @@
 
 Where things live, so a change lands in the right package.
 
-This is a TypeScript monorepo with npm workspaces containing four packages:
+This is a TypeScript monorepo with npm workspaces containing five packages:
 
 ## `packages/core` (@redocly/openapi-core)
 
@@ -35,6 +35,24 @@ Validates real API responses against OpenAPI/Arazzo specs.
 
 - `src/run.ts` — Test execution logic.
 - `src/modules/` — Core testing modules, including runtime expression evaluation.
+
+## `packages/reunite-integration` (@redocly/reunite-integration)
+
+Everything that talks to the Redocly platform (Reunite): the API client, authentication, and the
+functions behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
+Keep Reunite API calls and credential handling here, not in `packages/cli`.
+The package is also published so other programs, such as GitHub actions, can call it, so its
+functions take plain options and return data: no `argv`, no spinner, and no printed output.
+Scorecard fetching, target matching, and validation report configuration failures as
+`HandledError` from core, which the CLI wrapper prints without a stack trace.
+The CLI command handler in `packages/cli/src/commands/` maps `argv` to those options, renders the
+result, and maps the remaining errors to `HandledError`.
+
+- `src/api/` — the Reunite API client, residency and domain resolution, and the wire types.
+- `src/auth/` — the OAuth device flow and the encrypted credentials store.
+- `src/push.ts`, `src/push-status.ts` — `pushFiles`, `getPushStatus`, and `waitForDeployment`.
+- `src/scorecard-classic/` — fetching a project's scorecard and plugins, target matching, plugin
+  evaluation, and `validateScorecard`.
 
 ## `packages/client-generator` (@redocly/client-generator)
 

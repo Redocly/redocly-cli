@@ -11,7 +11,6 @@ import { yellow } from 'colorette';
 
 import { handleJoin } from '../../commands/join/index.js';
 import { replace$Refs } from '../../commands/join/utils/replace-$-refs.js';
-import { exitWithError } from '../../utils/error.js';
 import {
   getAndValidateFileExtension,
   getFallbackApisOrExit,
@@ -36,7 +35,6 @@ describe('handleJoin', () => {
 
   beforeEach(() => {
     vi.mock('../../utils/miscellaneous.js');
-    vi.mock('../../utils/error.js');
     vi.mocked(getAndValidateFileExtension).mockImplementation(
       (fileName) => fileName.split('.').pop() as any
     );
@@ -83,21 +81,22 @@ describe('handleJoin', () => {
     vi.resetAllMocks();
   });
 
-  it('should call exitWithError because only one entrypoint', async () => {
-    await handleJoin({ argv: { apis: ['first.yaml'] }, config: {} as any, version: 'cli-version' });
-    expect(exitWithError).toHaveBeenCalledWith(`At least 2 APIs should be provided.`);
+  it('should throw because only one entrypoint', async () => {
+    await expect(
+      handleJoin({ argv: { apis: ['first.yaml'] }, config: {} as any, version: 'cli-version' })
+    ).rejects.toThrow(`At least 2 APIs should be provided.`);
   });
 
-  it('should call exitWithError if glob expands to less than 2 APIs', async () => {
+  it('should throw if glob expands to less than 2 APIs', async () => {
     vi.mocked(getFallbackApisOrExit).mockResolvedValueOnce([{ path: 'first.yaml' }]);
 
-    await handleJoin({
-      argv: { apis: ['*.yaml'] },
-      config: {} as any,
-      version: 'cli-version',
-    });
-
-    expect(exitWithError).toHaveBeenCalledWith(`At least 2 APIs should be provided.`);
+    await expect(
+      handleJoin({
+        argv: { apis: ['*.yaml'] },
+        config: {} as any,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(`At least 2 APIs should be provided.`);
   });
 
   it('should proceed if glob expands to 2 or more APIs', async () => {
@@ -112,74 +111,69 @@ describe('handleJoin', () => {
       config: configFixture,
       version: 'cli-version',
     });
-
-    expect(exitWithError).not.toHaveBeenCalled();
   });
 
-  it('should call exitWithError because passed all 3 options for tags', async () => {
-    await handleJoin({
-      argv: {
-        apis: ['first.yaml', 'second.yaml'],
-        'prefix-tags-with-info-prop': 'something',
-        'without-x-tag-groups': true,
-        'prefix-tags-with-filename': true,
-      },
-      config: {} as any,
-      version: 'cli-version',
-    });
-
-    expect(exitWithError).toHaveBeenCalledWith(
+  it('should throw because passed all 3 options for tags', async () => {
+    await expect(
+      handleJoin({
+        argv: {
+          apis: ['first.yaml', 'second.yaml'],
+          'prefix-tags-with-info-prop': 'something',
+          'without-x-tag-groups': true,
+          'prefix-tags-with-filename': true,
+        },
+        config: {} as any,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(
       `You use prefix-tags-with-filename, prefix-tags-with-info-prop, without-x-tag-groups together.\nPlease choose only one!`
     );
   });
 
-  it('should call exitWithError because passed all 2 options for tags', async () => {
-    await handleJoin({
-      argv: {
-        apis: ['first.yaml', 'second.yaml'],
-        'without-x-tag-groups': true,
-        'prefix-tags-with-filename': true,
-      },
-      config: {} as any,
-      version: 'cli-version',
-    });
-
-    expect(exitWithError).toHaveBeenCalledWith(
+  it('should throw because passed all 2 options for tags', async () => {
+    await expect(
+      handleJoin({
+        argv: {
+          apis: ['first.yaml', 'second.yaml'],
+          'without-x-tag-groups': true,
+          'prefix-tags-with-filename': true,
+        },
+        config: {} as any,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(
       `You use prefix-tags-with-filename, without-x-tag-groups together.\nPlease choose only one!`
     );
   });
 
-  it('should call exitWithError because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
+  it('should throw because Only OpenAPI 3.0 and OpenAPI 3.1 are supported', async () => {
     vi.mocked(detectSpec).mockReturnValueOnce('oas2');
-    await handleJoin({
-      argv: {
-        apis: ['first.yaml', 'second.yaml'],
-      },
-      config: configFixture,
-      version: 'cli-version',
-    });
-    expect(exitWithError).toHaveBeenCalledWith(
-      'Only OpenAPI 3.0, 3.1, and 3.2 are supported: undefined.'
-    );
+    await expect(
+      handleJoin({
+        argv: {
+          apis: ['first.yaml', 'second.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow('Only OpenAPI 3.0, 3.1, and 3.2 are supported: undefined.');
   });
 
-  it('should call exitWithError if mixing OpenAPI 3.0 and 3.1', async () => {
+  it('should throw if mixing OpenAPI 3.0 and 3.1', async () => {
     vi.mocked(detectSpec)
       .mockImplementationOnce(() => 'oas3_0')
       .mockImplementationOnce(() => 'oas3_1')
       .mockImplementationOnce(() => 'oas3_0')
       .mockImplementationOnce(() => 'oas3_1');
-    await handleJoin({
-      argv: {
-        apis: ['first.yaml', 'second.yaml'],
-      },
-      config: configFixture,
-      version: 'cli-version',
-    });
-
-    expect(exitWithError).toHaveBeenCalledWith(
-      'All APIs must use the same OpenAPI version: undefined.'
-    );
+    await expect(
+      handleJoin({
+        argv: {
+          apis: ['first.yaml', 'second.yaml'],
+        },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow('All APIs must use the same OpenAPI version: undefined.');
   });
 
   it('should call writeToFileByExtension function', async () => {

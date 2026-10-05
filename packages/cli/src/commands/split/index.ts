@@ -1,9 +1,8 @@
-import { logger, detectSpec } from '@redocly/openapi-core';
+import { logger, detectSpec, HandledError } from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
 import * as fs from 'node:fs';
 import { performance } from 'perf_hooks';
 
-import { exitWithError } from '../../utils/error.js';
 import {
   printExecutionTime,
   readYaml,
@@ -25,7 +24,7 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   const { api, outDir, separator } = argv;
   const ext = getAndValidateFileExtension(api);
 
-  if (!fs.existsSync(api)) exitWithError(`File ${blue(api)} does not exist.`);
+  if (!fs.existsSync(api)) throw new HandledError(`File ${blue(api)} does not exist.`);
 
   const definition = readYaml(api) as AnyDefinition;
   collectSpecData?.({ parsed: definition });
@@ -48,10 +47,9 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
       splitOASDefinition(definition as AnyOas3Definition, outDir, separator, ext);
       break;
     case 'oas2':
-      exitWithError('OpenAPI 2 is not supported by this command.');
-      break;
+      throw new HandledError('OpenAPI 2 is not supported by this command.');
     default:
-      exitWithError(
+      throw new HandledError(
         'File does not conform to the OpenAPI or AsyncAPI Specification. Version is not specified.'
       );
   }

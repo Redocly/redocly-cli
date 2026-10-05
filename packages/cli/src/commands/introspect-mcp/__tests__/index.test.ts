@@ -6,7 +6,7 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { parseYaml } from '@redocly/openapi-core';
+import { parseYaml, AbortFlowError } from '@redocly/openapi-core';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, type Server as HttpServer } from 'node:http';
 import { type AddressInfo } from 'node:net';
@@ -15,7 +15,6 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
-import { AbortFlowError } from '../../../utils/error.js';
 import type { CommandArgs } from '../../../wrapper.js';
 import { handleIntrospectMcp, type IntrospectMcpCommandArgv } from '../index.js';
 

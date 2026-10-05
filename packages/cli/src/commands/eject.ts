@@ -1,7 +1,6 @@
 import { logger } from '@redocly/openapi-core';
 import { spawn } from 'node:child_process';
 
-import type { VerifyConfigOptions } from '../types.js';
 import { getPlatformSpawnArgs, sanitizePath } from '../utils/platform.js';
 import type { CommandArgs } from '../wrapper.js';
 
@@ -10,7 +9,7 @@ export type EjectArgv = {
   path?: string;
   'project-dir'?: string;
   force: boolean;
-} & VerifyConfigOptions;
+};
 
 export const handleEject = async ({ argv }: CommandArgs<EjectArgv>) => {
   logger.info(`\nLaunching eject using NPX.\n\n`);

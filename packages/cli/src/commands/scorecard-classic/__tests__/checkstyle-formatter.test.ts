@@ -1,7 +1,7 @@
 import * as openapiCore from '@redocly/openapi-core';
+import type { ScorecardProblem } from '@redocly/reunite-integration';
 
 import { printScorecardResultsAsCheckstyle } from '../formatters/checkstyle-formatter.js';
-import type { ScorecardProblem } from '../types.js';
 
 const createMockSource = (absoluteRef: string) => ({
   absoluteRef,

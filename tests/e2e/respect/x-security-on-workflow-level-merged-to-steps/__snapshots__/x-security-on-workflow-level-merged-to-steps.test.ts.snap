@@ -21,12 +21,9 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -62,7 +59,7 @@ exports[`should merge x-security schemes on workflow level to steps 1`] = `
     Response Body:
       {
         "type": "about:blank",
-        "title": "Unauthorized",
+        "title": "Bearer token is required",
         "status": 401,
         "instance": "/orders"
       } 
