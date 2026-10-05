@@ -12,7 +12,7 @@ import {
 
 function consistencyRule(
   message: string,
-  options: { either: Record<string, string>; ignoreCase?: boolean },
+  options: { either: Record<string, string>; ignoreCase?: boolean; includeCode?: boolean },
   scope: string | string[] = 'all'
 ): NormalizedRule {
   return {
@@ -74,6 +74,26 @@ describe('consistency assertion', () => {
 
     const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
     expect(fixedFiles.get('t.md')).toBe('behaviour first.\n\nlater behaviour.\n');
+  });
+
+  it('skips a variant inside an inline code span by default, and reports it with includeCode: true', async () => {
+    // From a preset table that lists both spellings as code: `behavior`/`behaviour`.
+    const content = 'behavior first.\n\n| `behavior`/`behaviour` |\n';
+    const ctx = buildWholeFileContext(content);
+
+    const skipped = await consistency.execute(
+      consistencyRule(MESSAGE, { either: { behavior: 'behaviour' } }),
+      'test.md',
+      ctx
+    );
+    expect(skipped).toEqual([]);
+
+    const reported = await consistency.execute(
+      consistencyRule(MESSAGE, { either: { behavior: 'behaviour' }, includeCode: true }),
+      'test.md',
+      ctx
+    );
+    expect(reported.map((problem) => problem.match)).toEqual(['behaviour']);
   });
 
   it('does not flag a document that only ever uses one variant', async () => {
@@ -380,6 +400,11 @@ describe('consistency assertion', () => {
         'a non-boolean ignoreCase',
         { either: { behavior: 'behaviour' }, ignoreCase: 'yes' },
         'ignoreCase',
+      ],
+      [
+        'a non-boolean includeCode',
+        { either: { behavior: 'behaviour' }, includeCode: 'yes' },
+        'includeCode',
       ],
     ])('rejects %s', async (_label, options, mention) => {
       await expectInvalidOptions('consistency', options, mention);

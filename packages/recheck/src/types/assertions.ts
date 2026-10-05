@@ -47,6 +47,8 @@ export interface OccurrenceAssertion {
 export interface RepetitionAssertion {
   pattern?: string;
   ignoreCase?: boolean;
+  /** Whether inline code spans (`` `like this` ``) are scanned for repeats. Default `false`. */
+  includeCode?: boolean;
 }
 
 // Each `either` entry's key and value are two variants, matched as literal words. The variant
@@ -54,6 +56,8 @@ export interface RepetitionAssertion {
 export interface ConsistencyAssertion {
   either: Record<string, string>;
   ignoreCase?: boolean;
+  /** Whether inline code spans (`` `like this` ``) are scanned for variants. Default `false`. */
+  includeCode?: boolean;
 }
 
 // If `first` matches in the scoped segments, `second` must match somewhere in the whole file
@@ -77,12 +81,18 @@ export interface CapitalizationAssertion {
   builtinVocabulary?: boolean;
 }
 
-// Scores the whole document's prose with a readability formula and flags the file once when
-// the score is outside `[min, max]`. At least one of `min` and `max` is required.
+// Size formulas measure how much prose a document has instead of how readable it is.
+// `reading-time` is minutes at `wordsPerMinute`, rounded to one decimal.
+export type SizeFormula = 'word-count' | 'sentence-count' | 'reading-time';
+
+// Scores the whole document's prose with a readability or size formula and flags the file once
+// when the score is outside `[min, max]`. At least one of `min` and `max` is required.
 export interface MetricAssertion {
-  formula: ReadabilityFormula;
+  formula: ReadabilityFormula | SizeFormula;
   min?: number;
   max?: number;
+  /** Reading speed for `reading-time`, default 200. Not valid with any other formula. */
+  wordsPerMinute?: number;
 }
 
 // Flags words that nspell (Hunspell) does not recognize, with up to three suggestions.
