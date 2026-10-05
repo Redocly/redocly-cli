@@ -22,7 +22,7 @@ See the [Manage API keys](https://redocly.com/docs/realm/setup/how-to/api-keys) 
 ## Command usage
 
 ```bash
-REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizationSlug> --project <projectSlug> --mount-path <mountPath> --branch <branch> --message <message> --author <'Author Name <author-email@example.com>'> [--commit-sha <sha>] [--commit-url <url>] [--created-at <commitCreationDate>] [--repository <repositoryId> ] [--namespace <repositoryOrg>] [--default-branch <repositoryDefaultBranch>] [--domain <domain>] [--wait-for-deployment] [--continue-on-deploy-failures] [--replace] [--max-execution-time <timeInSeconds>] [--lint-config <warn | error | off>] [--verbose]
+REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizationId> --project <projectId> --mount-path <mountPath> --branch <branch> --message <message> --author <'Author Name <author-email@example.com>'> [--commit-sha <sha>] [--commit-url <url>] [--created-at <commitCreationDate>] [--repository <repositoryId> ] [--namespace <repositoryOrg>] [--default-branch <repositoryDefaultBranch>] [--domain <domain>] [--wait-for-deployment] [--continue-on-deploy-failures] [--replace] [--max-execution-time <timeInSeconds>] [--lint-config <warn | error | off>] [--verbose]
 
 ```
 
@@ -31,8 +31,8 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | Option                        |   Type   | Description                                                                                                                                                                            |
 | ----------------------------- | :------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | files                         | [string] | **REQUIRED.** List of folders and/or files to upload.                                                                                                                                  |
-| --organization, -o            |  string  | **REQUIRED.** Organization slug.                                                                                                                                                       |
-| --project, -p                 |  string  | **REQUIRED.** Project slug.                                                                                                                                                            |
+| --organization, -o            |  string  | **REQUIRED.** [Organization ID](#find-ids), for example `org_01h1s5z6vf2mm1mz3hevnn9va7`.                                                                                              |
+| --project, -p                 |  string  | **REQUIRED.** [Project ID](#find-ids), for example `prj_01hh1t9sa6gwfv5naz04gr7ehm`.                                                                                                   |
 | --mount-path, -mp             |  string  | **REQUIRED.** The path where the files are mounted in the project. Cannot be empty or identical to the project path.                                                                   |
 | --branch, -b                  |  string  | **REQUIRED.** The branch files are pushed from.                                                                                                                                        |
 | --author, -a                  |  string  | **REQUIRED.** The author of the push in the format: `'Author Name <author-email@example.com>'`.                                                                                        |
@@ -52,17 +52,28 @@ REDOCLY_AUTHORIZATION=<api-key> redocly push <files> --organization <organizatio
 | --verbose                     | boolean  | Verbose output. Default value is `false`.                                                                                                                                              |
 | --help                        | boolean  | Help output for the command.                                                                                                                                                           |
 
+<details>
+<summary>How to find the organization and project IDs<a id="find-ids"></a></summary>
+
+1. Log in to Reunite.
+2. Open **Organization settings** and copy the **Organization ID**.
+3. Open the project and copy the **Project ID** from **Project settings**.
+
+Organization and project slugs are still accepted and resolved to IDs before the push, but they are deprecated.
+
+</details>
+
 ## Example usage
 
 ### Push files to the `push-docs` project in the default organization
 
-The following command pushes the `index.md` and `docs/push.yaml` files to the project with `push-docs` slug belonging to organization with `redocly` slug:
+The following command pushes the `index.md` and `docs/push.yaml` files to the `push-docs` project in the `redocly` organization, both given by their IDs:
 
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
 redocly push index.md docs/push.yaml \
-          --organization redocly \
-          --project 'push-docs' \
+          --organization org_01h1s5z6vf2mm1mz3hevnn9va7 \
+          --project prj_01hh1t9sa6gwfv5naz04gr7ehm \
           --mount-path 'docs/push' \
           --branch "docs/push-info" \
           --author "User <user@example.com>" \
@@ -80,8 +91,8 @@ This command example does the same as the [previous example](#push-files-to-the-
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
 redocly push docs/push.yaml \
-          --organization default \
-          --project 'push-docs' \
+          --organization org_01h1s5z6vf2mm1mz3hevnn9va7 \
+          --project prj_01hh1t9sa6gwfv5naz04gr7ehm \
           --mount-path 'docs/push' \
           --branch "docs/push-info" \
           --author "User <user@example.com>" \
@@ -99,8 +110,8 @@ It also removes the files under the `docs/push` mount path that are not part of 
 ```bash
 REDOCLY_AUTHORIZATION=<api-key> \
 redocly push docs \
-          --organization redocly \
-          --project 'push-docs' \
+          --organization org_01h1s5z6vf2mm1mz3hevnn9va7 \
+          --project prj_01hh1t9sa6gwfv5naz04gr7ehm \
           --mount-path 'docs/push' \
           --branch "docs/push-info" \
           --author "User <user@example.com>" \

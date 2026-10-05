@@ -4,7 +4,12 @@ import type { Readable } from 'node:stream';
 import { DEFAULT_CLI_VERSION, DEFAULT_FETCH_TIMEOUT } from '../utils/constants.js';
 import fetchWithTimeout, { type FetchWithTimeoutOptions } from '../utils/fetch-with-timeout.js';
 import { getRedoclyEnvironment } from '../utils/redocly-environment.js';
-import type { ProjectSourceResponse, PushResponse, UpsertRemoteResponse } from './types.js';
+import type {
+  ProjectResponse,
+  ProjectSourceResponse,
+  PushResponse,
+  UpsertRemoteResponse,
+} from './types.js';
 
 interface BaseApiClient {
   request(url: string, options: FetchWithTimeoutOptions): Promise<Response>;
@@ -98,11 +103,11 @@ export class ReuniteApiClient implements BaseApiClient {
   }
 }
 
-class RemotesApi {
+abstract class ResourceApi {
   constructor(
-    private client: BaseApiClient,
-    private readonly domain: string,
-    private readonly apiKey: string
+    protected client: BaseApiClient,
+    protected readonly domain: string,
+    protected readonly apiKey: string
   ) {}
 
   protected async getParsedResponse<T>(response: Response): Promise<T> {
@@ -117,7 +122,42 @@ class RemotesApi {
       response.status
     );
   }
+}
 
+class ProjectsApi extends ResourceApi {
+  // Both segments accept an id or a slug; the response carries the ids.
+  async find(organization: string, project: string): Promise<ProjectResponse | undefined> {
+    try {
+      const response = await this.client.request(
+        `${this.domain}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(project)}`,
+        {
+          timeout: DEFAULT_FETCH_TIMEOUT,
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+        }
+      );
+
+      if (response.status === 404) {
+        return undefined;
+      }
+
+      return await this.getParsedResponse<ProjectResponse>(response);
+    } catch (err) {
+      const message = `Failed to fetch project. ${err.message}`;
+
+      if (err instanceof ReuniteApiError) {
+        throw new ReuniteApiError(message, err.status);
+      }
+
+      throw new Error(message);
+    }
+  }
+}
+
+class RemotesApi extends ResourceApi {
   async getDefaultBranch(organizationId: string, projectId: string) {
     try {
       const response = await this.client.request(
@@ -289,6 +329,7 @@ class RemotesApi {
 export class ReuniteApi {
   private apiClient: ReuniteApiClient;
 
+  public projects: ProjectsApi;
   public remotes: RemotesApi;
 
   constructor({
@@ -304,6 +345,7 @@ export class ReuniteApi {
   }) {
     this.apiClient = new ReuniteApiClient(command, version);
 
+    this.projects = new ProjectsApi(this.apiClient, domain, apiKey);
     this.remotes = new RemotesApi(this.apiClient, domain, apiKey);
   }
 
