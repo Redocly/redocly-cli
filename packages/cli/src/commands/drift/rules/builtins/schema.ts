@@ -223,7 +223,11 @@ function validateParameter(
     return;
   }
 
-  const result = context.validateSchema(schema, actualValue, { coerce: true, target: 'request' });
+  const content = parameter.in === 'querystring' ? resolveQuerystringContent(parameter) : undefined;
+  const result = context.validateSchema(schema, actualValue, {
+    coerce: !isJsonMime(content?.mediaType),
+    target: 'request',
+  });
   if (result.valid) {
     return;
   }
@@ -254,6 +258,31 @@ function validateParameter(
   }
 }
 
+function collectFormSchemaKeys(
+  schema: unknown,
+  keys: Set<string>,
+  seen = new Set<unknown>()
+): boolean {
+  if (!isPlainObject(schema) || seen.has(schema)) {
+    return true;
+  }
+  seen.add(schema);
+
+  if (schema.additionalProperties !== undefined) {
+    return false;
+  }
+
+  for (const key of Object.keys(isPlainObject(schema.properties) ? schema.properties : {})) {
+    keys.add(key);
+  }
+
+  return [schema.allOf, schema.oneOf, schema.anyOf].every(
+    (branches) =>
+      !Array.isArray(branches) ||
+      branches.every((branch) => collectFormSchemaKeys(branch, keys, seen))
+  );
+}
+
 function createUndocumentedParameterFindings(
   context: RuleContext,
   matchedOperation: MatchedOperation
@@ -270,13 +299,10 @@ function createUndocumentedParameterFindings(
   for (const parameter of matchedOperation.operation.requestParameters) {
     if (parameter.in === 'querystring') {
       const content = resolveQuerystringContent(parameter);
-      const schema =
-        content?.mediaType === 'application/x-www-form-urlencoded' ? content.schema : undefined;
-      if (isPlainObject(schema) && schema.additionalProperties === undefined) {
-        for (const key of Object.keys(isPlainObject(schema.properties) ? schema.properties : {})) {
-          paramsByLocation.query.add(key);
-        }
-      } else {
+      if (
+        content?.mediaType !== 'application/x-www-form-urlencoded' ||
+        !collectFormSchemaKeys(content.schema, paramsByLocation.query)
+      ) {
         checkQueryKeys = false;
       }
     } else if (parameter.in === 'header') {

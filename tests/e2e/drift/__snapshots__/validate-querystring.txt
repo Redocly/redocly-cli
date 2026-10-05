@@ -4,17 +4,17 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-querystring.ndjson
 ┃ Match mode: strict-host
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=11 documented=11 undocumented=0
-┃ Findings: total=11 error=9 warning=2 info=0
-┃ Problems: total=11
+┃ Exchanges: total=13 documented=13 undocumented=0
+┃ Findings: total=13 error=10 warning=3 info=0
+┃ Problems: total=12
 ┗ Duration: <ms>ms
 
 Types (1)
-  • schema-consistency: 11 problems / 11 findings
+  • schema-consistency: 12 problems / 13 findings
 
-Problems by type (showing first 11 of 11)
+Problems by type (showing first 12 of 12)
 
-◉ schema-consistency (11 problems shown / 11 total, 11 findings)
+◉ schema-consistency (12 problems shown / 12 total, 13 findings)
 ▲ WARN #1 → Undocumented query parameter in traffic: "page"
   ↳ sample exchange=1 GET /events (200) listEvents
 
@@ -96,8 +96,17 @@ Problems by type (showing first 11 of 11)
     path: /format
     actual: "xml"
 
-✖ ERROR #8 → Invalid querystring parameter "query": Request is missing required field "term".
-  ↳ sample exchange=6 GET /search (200) search
+▲ WARN #8 → Undocumented query parameter in traffic: "extra"
+  ↳ sample exchange=5 GET /reports (200) listReports
+
+    http://api.example.com/reports?from=2024-01-01&format=pdf&extra=1
+
+    spec: querystring-openapi.yaml
+
+    details: {"operationPathTemplate":"/reports"}
+
+✖ ERROR #9 → Invalid querystring parameter "query": Request is missing required field "term".
+  ↳ sample exchange=7 GET /search (200) search
 
     http://api.example.com/search?%7B%22size%22%3A%22big%22%7D
 
@@ -110,8 +119,8 @@ Problems by type (showing first 11 of 11)
     expected: required field "term"
     actual: [missing]
 
-✖ ERROR #9 → Invalid querystring parameter "query": Request field "size" must be integer.
-  ↳ sample exchange=6 GET /search (200) search
+✖ ERROR #10 ×2 → Invalid querystring parameter "query": Request field "size" must be integer.
+  ↳ sample exchange=7 GET /search (200) search
 
     http://api.example.com/search?%7B%22size%22%3A%22big%22%7D
 
@@ -124,8 +133,8 @@ Problems by type (showing first 11 of 11)
     expected: type "integer"
     actual: "big"
 
-✖ ERROR #10 → Invalid querystring parameter "query": Request field "root" must be object.
-  ↳ sample exchange=7 GET /search (200) search
+✖ ERROR #11 → Invalid querystring parameter "query": Request field "root" must be object.
+  ↳ sample exchange=9 GET /search (200) search
 
     http://api.example.com/search?not-json
 
@@ -137,8 +146,8 @@ Problems by type (showing first 11 of 11)
     expected: type "object"
     actual: "not-json"
 
-✖ ERROR #11 → Invalid querystring parameter "text": Request schema mismatch at "root": must NOT have more than 5 characters
-  ↳ sample exchange=9 GET /echo (200) echo
+✖ ERROR #12 → Invalid querystring parameter "text": Request schema mismatch at "root": must NOT have more than 5 characters
+  ↳ sample exchange=11 GET /echo (200) echo
 
     http://api.example.com/echo?caf%C3%A9%20au%20lait
 
@@ -150,8 +159,8 @@ Problems by type (showing first 11 of 11)
     actual: "café au lait"
 
 API coverage
-  operations         ████████████████████  100%    5/5
-  parameters         ████████████████████  100%    5/5
+  operations         ████████████████████  100%    6/6
+  parameters         ████████████████████  100%    6/6
   schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a    0/0
-  response codes     ████████████████████  100%    6/6
+  response codes     ████████████████████  100%    7/7
 

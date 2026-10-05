@@ -59,6 +59,34 @@ paths:
       responses:
         '200':
           description: The export.
+  /reports:
+    get:
+      operationId: listReports
+      parameters:
+        - name: range
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      from:
+                        type: string
+                        format: date
+                      to:
+                        type: string
+                        format: date
+                  - type: object
+                    properties:
+                      format:
+                        type: string
+                        enum:
+                          - pdf
+                          - csv
+      responses:
+        '200':
+          description: The reports.
   /search:
     get:
       operationId: search
