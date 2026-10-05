@@ -34,7 +34,7 @@ export function generateReport(
       outputGitHubActionsFormat(prioritized);
       break;
     case 'json':
-      outputJsonFormat(prioritized, fileCount, baseline);
+      outputJsonFormat(ordered, fileCount, baseline, prioritized);
       break;
     default:
       outputTableFormat(ordered, fileCount, showStats, prioritized);
