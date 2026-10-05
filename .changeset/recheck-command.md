@@ -9,3 +9,4 @@ It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`
 Presets merge with the `recheck` blocks in `extends` order, like other presets.
 The engine's actions return data.
 The CLI prints it.
+Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
