@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.4.0 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.4.22 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -85,7 +85,7 @@ export function methodArgs(
 
 /** The shared prologue: resolve auth, build query/url, merge headers. */
 function writeRequestSetup(printer: PhpPrinter, op: OperationModel, args: MethodArgs): void {
-  printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+  printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
   printer.line(
     "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
   );

@@ -594,7 +594,10 @@ describe('phpGenerator (full client assembly)', () => {
     const out = generatePhp();
     expect(out.startsWith('<?php')).toBe(true);
     expect(out).toContain('namespace CafeOrdersApi;');
-    expect(out).toContain('const OPERATIONS = [');
+    // A class constant survives OPcache preload; a file-level const does not.
+    expect(out).toContain('public const OPERATIONS = [');
+    expect(out).not.toContain('\nconst OPERATIONS');
+    expect(out).toContain("self::OPERATIONS['");
     // Not final: PHP suites mock concrete classes (createMock(Client::class)).
     expect(out).toContain('\nclass Client');
     expect(out).not.toContain('final class Client');

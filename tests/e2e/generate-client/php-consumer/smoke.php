@@ -6,9 +6,13 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/client/client.php';
-
 use BaseConsumer\{ApiError, Client, Config, Pet};
+
+// Like a Composer classmap autoloader: the file is loaded only when its classes are
+// not already there, which they are when php.test.ts preloads it through OPcache.
+if (!class_exists(Client::class, false)) {
+    require __DIR__ . '/client/client.php';
+}
 
 $base = $argv[1];
 $client = new Client(new Config(serverUrl: $base));
