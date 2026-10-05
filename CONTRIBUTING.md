@@ -139,6 +139,25 @@ To make changes to documentation:
 1. Add the link to the rule page to the [built-in rules list](docs/@v2/rules/built-in-rules.md) and the [sidebar](docs/@v2/v2.sidebars.yaml).
 1. Update the rulesets pages and [ruleset templates](docs/@v2/rules/ruleset-templates.md).
 
+### Recheck engine
+
+Recheck is the markdown and prose linting engine in `packages/recheck`.
+To add or change a lint rule, see [`packages/recheck/src/rules/CONTRIBUTING.md`](packages/recheck/src/rules/CONTRIBUTING.md).
+
+The example configs in `packages/recheck/examples/*.yaml` are generated from the presets.
+When you change a preset, the generator, or an appendix in `examples/appendices/`, regenerate them and commit the result:
+
+```bash
+npm run compile
+node packages/recheck/scripts/generate-examples.mjs
+```
+
+The generator reads the built `lib/`, so compile first.
+If you skip this step, `examples-drift.test.ts` fails.
+
+`packages/recheck/src/data/markdoc-realm-schema.ts` is generated from the Realm theme source in the Redocly monorepo.
+Regenerate it there with `scripts/generate-markdoc-schema.mjs` pointed at this checkout, and copy the result over.
+
 ### Update Redoc
 
 When updating Redoc, recompute the subresource integrity [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) (`redocStandaloneSri` in [package.ts](./packages/cli/src/utils/package.ts)):
@@ -415,7 +434,7 @@ To add an entry:
 
 - **`docs`**: contains the documentation source files. When changes to the documentation are merged, they automatically get published on the [Redocly docs website](https://redocly.com/docs/cli/).
 
-- **`packages`**: contains the source code. It consists of five packages - CLI, core, respect-core, reunite-integration, and client-generator. The codebase is written in Typescript.
+- **`packages`**: contains the source code. It consists of six packages - CLI, core, respect-core, reunite-integration, client-generator, and recheck. The codebase is written in Typescript.
   - **`packages/cli`**: contains Redocly CLI commands and utils. More details [in the README](./README.md) file.
     - **`packages/cli/src`**: contains CLI package source code.
       - **`packages/cli/src/commands`**: contains CLI commands functions.
@@ -435,6 +454,8 @@ To add an entry:
   - **`packages/reunite-integration`**: contains everything that talks to the Redocly platform (Reunite) - the API client, authentication, and the handlers behind the `push`, `push-status`, `login`, `logout`, and `scorecard-classic` commands.
 
   - **`packages/client-generator`**: contains the client and SDK generators.
+
+  - **`packages/recheck`**: contains the Recheck markdown and prose linting engine.
 
 - **`resources`**: contains some example API descriptions and configuration files that might be useful for testing.
 

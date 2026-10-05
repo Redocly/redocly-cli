@@ -28,6 +28,7 @@ import { type GenerateSpecArgv } from './commands/generate-spec/index.js';
 import type { IntrospectMcpCommandArgv } from './commands/introspect-mcp/index.js';
 import { PRODUCT_PLANS } from './commands/preview-project/constants.js';
 import { type ProxyArgv } from './commands/proxy/index.js';
+import { type RecheckFormat } from './commands/recheck/types.js';
 import type { RespectArgv } from './commands/respect/index.js';
 import { validateMtlsCommandOption } from './commands/respect/mtls/validate-mtls-command-option.js';
 import type {
@@ -265,13 +266,13 @@ yargs(hideBin(process.argv))
         .implies('max-execution-time', 'wait')
         .option({
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             required: true,
             alias: 'p',
@@ -326,13 +327,13 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             alias: 'p',
             required: true,
@@ -415,6 +416,73 @@ yargs(hideBin(process.argv))
     async (argv) => {
       const { handlePush } = await import('./commands/push.js');
       commandWrapper(handlePush)(argv);
+    }
+  )
+  .command(
+    'recheck [paths..]',
+    'Lint Markdown prose and structure from the recheck block in redocly.yaml.',
+    (yargs) =>
+      yargs
+        .env('REDOCLY_CLI_RECHECK')
+        .positional('paths', {
+          array: true,
+          type: 'string',
+          describe: 'Files or directories to lint. Default: the current directory.',
+        })
+        .option({
+          config: { description: 'Path to the config file.', type: 'string' },
+          'lint-config': {
+            description: 'Severity level for config file linting.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
+          format: {
+            description: 'Use a specific output format.',
+            choices: ['table', 'json', 'sarif', 'github-actions'] as ReadonlyArray<RecheckFormat>,
+            default: 'table' as RecheckFormat,
+          },
+          tags: { description: 'Run only rules with these tags.', array: true, type: 'string' },
+          rule: { description: 'Run only these rules.', alias: 'r', array: true, type: 'string' },
+          'skip-rule': { description: 'Skip these rules.', array: true, type: 'string' },
+          stats: { description: 'Print rule statistics.', alias: 's', type: 'boolean' },
+          fix: { description: 'Apply fixes to Markdown files.', alias: 'f', type: 'boolean' },
+          'max-problems': {
+            description: 'Maximum number of problems in the report.',
+            type: 'number',
+          },
+          summary: {
+            description: 'Print a run summary.',
+            choices: ['json', 'text'] as ReadonlyArray<'json' | 'text'>,
+            type: 'string',
+          },
+          'summary-path': { description: 'Write the summary to a file.', type: 'string' },
+          readability: {
+            description: 'Report readability scores instead of linting.',
+            type: 'boolean',
+          },
+          'generate-baseline': {
+            description: 'Write the baseline file from the current findings.',
+            type: 'boolean',
+          },
+          'generate-markdoc-schema': {
+            description: 'Generate a Markdoc tag schema from theme modules.',
+            type: 'boolean',
+          },
+          from: {
+            description: 'Module paths to read Markdoc tags from (with --generate-markdoc-schema).',
+            array: true,
+            type: 'string',
+          },
+          output: { description: 'Output file for the generated schema.', type: 'string' },
+          check: {
+            description: 'Fail if the generated schema differs from --output.',
+            type: 'boolean',
+          },
+        }),
+    async (argv) => {
+      const { handleRecheck } = await import('./commands/recheck/index.js');
+      const { recheckPresetsPlugin } = await import('@redocly/recheck/presets');
+      commandWrapper(handleRecheck, { plugins: [recheckPresetsPlugin] })(argv);
     }
   )
   .command(

@@ -1,0 +1,192 @@
+{
+  "normalization": {
+    "method": "article-body-sha256",
+    "description": "Each digest is sha256 over the UTF-8 bytes of the <article class=\"devsite-article\">...</article> region extracted from the raw HTML response -- NOT the full page. Hashing the full raw HTML is not reproducible: every fetch embeds a per-request <script type=\"application/json\" analytics> blob whose JSON keys serialize in non-deterministic order, a CSP nonce regenerated per request, and an inline feature-flag bootstrap array whose element order also varies per request. None of that reflects the guide's actual content. The <article class=\"devsite-article\"> region contains the guide's rendered content (headings, paragraphs, lists, tables) and excludes all of the above -- verified byte-identical across two consecutive fetches for all 30 pages below. See PROVENANCE.md's 'sources.json normalization' section for the full reproduction method and evidence.",
+    "extractionPattern": "<article class=\"devsite-article\">.*?</article>",
+    "extractionFlags": "dotall, first match",
+    "hashedBytesField": "bytes -- the byte length of the EXTRACTED region (UTF-8), not the raw page. A future re-check with a matching `bytes` but different `sha256` (or vice versa) signals the extraction may have changed shape rather than the content, and should be triaged before treating it as drift.",
+    "fetchMethod": "curl -- confirmed empirically (Fix wave C / Item 4) that a plain Node `fetch()` returns a materially different HTML variant of the same URL than `curl` does (not just the non-deterministic per-request noise described above -- a different response shape from the same server for the same request, attributable to the client). A future re-check must fetch with `curl`, not `fetch()` or another HTTP client, or a client-driven variant could be misread as guide drift."
+  },
+  "pages": [
+    {
+      "url": "https://developers.google.com/style/headings",
+      "fetchedAt": "2026-07-29",
+      "bytes": 25236,
+      "sha256": "676b223e99eea913e8c9f0e157c0a0d6e70622d8d2f655d34b77d07da8cac535"
+    },
+    {
+      "url": "https://developers.google.com/style/periods",
+      "fetchedAt": "2026-07-29",
+      "bytes": 18674,
+      "sha256": "d03856a7f631268b377e48d41011e2a596ee03811608ca375e8bfccde7b3ec0e"
+    },
+    {
+      "url": "https://developers.google.com/style/accessibility",
+      "fetchedAt": "2026-07-29",
+      "bytes": 28786,
+      "sha256": "c79419c7e4c446613b02eb4b1927ea52df874ef79bb6157e8e9097e28588d572"
+    },
+    {
+      "url": "https://developers.google.com/style/lists",
+      "fetchedAt": "2026-07-29",
+      "bytes": 29943,
+      "sha256": "45dd5bc49249431df11b2eda473f96404e4511f40076d63d9f7a0bb1c1765702"
+    },
+    {
+      "url": "https://developers.google.com/style/person",
+      "fetchedAt": "2026-07-29",
+      "bytes": 15672,
+      "sha256": "c25db5b5b3fba57de6a0ceae90d9eaa94565e4d1be8da78aa2bb74e6c6313ce2"
+    },
+    {
+      "url": "https://developers.google.com/style/contractions",
+      "fetchedAt": "2026-07-29",
+      "bytes": 10555,
+      "sha256": "932fea9d2ef6ae4e50a7a6596e1c6beca687b5004e8fc0499de5e3dde7b5d7f4"
+    },
+    {
+      "url": "https://developers.google.com/style/word-list",
+      "fetchedAt": "2026-07-29",
+      "bytes": 265744,
+      "sha256": "3a7a4548ee05ab97303fdee88878a6d8f64f04e8f3c9a481b3c20d732d99fec9"
+    },
+    {
+      "url": "https://developers.google.com/style/timeless-documentation",
+      "fetchedAt": "2026-07-29",
+      "bytes": 15993,
+      "sha256": "1d7286097aeb0d8de6282305db7db6354ff8ca20aceb6523ae77ad424d9ff4ee"
+    },
+    {
+      "url": "https://developers.google.com/style/abbreviations",
+      "fetchedAt": "2026-07-29",
+      "bytes": 22489,
+      "sha256": "89d73ca93921f5243a8b8e30b1668483c33b868352acb7e2eebf04291e219a14"
+    },
+    {
+      "url": "https://developers.google.com/style/slashes",
+      "fetchedAt": "2026-07-29",
+      "bytes": 15576,
+      "sha256": "0bfab0f261e86d07c65c2185f35770f690a405b628191f088f9abe71179f5b4c"
+    },
+    {
+      "url": "https://developers.google.com/style/numbers",
+      "fetchedAt": "2026-07-29",
+      "bytes": 24862,
+      "sha256": "cc227b69caaa189a7f51ea5da7848b42bc10b613e0fb38d781340396decf0514"
+    },
+    {
+      "url": "https://developers.google.com/style/dates-times",
+      "fetchedAt": "2026-07-29",
+      "bytes": 20103,
+      "sha256": "fb62cb89935f5d84d0ec3990b57bba4cd4f7acfb4b67fa847d49ddd5ee987aa3"
+    },
+    {
+      "url": "https://developers.google.com/style/commas",
+      "fetchedAt": "2026-07-29",
+      "bytes": 17596,
+      "sha256": "9008f0b428b66a3b405116976786ba88bda0462b4814add7704c4f68a57b9135"
+    },
+    {
+      "url": "https://developers.google.com/style/dashes",
+      "fetchedAt": "2026-07-29",
+      "bytes": 15316,
+      "sha256": "9103627b4bf7c194060a74f636078732a29c05ba8c7e5121ccb870dc8e9a5cab"
+    },
+    {
+      "url": "https://developers.google.com/style/pronouns",
+      "fetchedAt": "2026-07-29",
+      "bytes": 17699,
+      "sha256": "19429c67d35f0a423ce9de21365aafcba318235f918d7e10d557906e9acda96f"
+    },
+    {
+      "url": "https://developers.google.com/style/cross-references",
+      "fetchedAt": "2026-07-29",
+      "bytes": 33039,
+      "sha256": "be3023804a1841d52074a2a8b432baf66e6c13604e8a045e23759add57dd1075"
+    },
+    {
+      "url": "https://developers.google.com/style/text-formatting",
+      "fetchedAt": "2026-07-29",
+      "bytes": 17455,
+      "sha256": "84c794977bbeaf5b75d8e6ca9de5986a0cdd4ad4ecbb1b740e53ed781d014ce7"
+    },
+    {
+      "url": "https://developers.google.com/style/capitalization",
+      "fetchedAt": "2026-07-29",
+      "bytes": 17794,
+      "sha256": "4b31fc5bd9c60a1ae0b1a650e85b41c913d3497142c136c750424955d40ce538"
+    },
+    {
+      "url": "https://developers.google.com/style/code-in-text",
+      "fetchedAt": "2026-07-29",
+      "bytes": 35658,
+      "sha256": "416df7e082dbd679fa6aed9337c74a9a9956eb6188dfad15b011d8008444705d"
+    },
+    {
+      "url": "https://developers.google.com/style/ui-elements",
+      "fetchedAt": "2026-07-29",
+      "bytes": 43078,
+      "sha256": "d52aed7556c062270544a5f9b90360700a77c129b9aaa1153300c3fd520bb22e"
+    },
+    {
+      "url": "https://developers.google.com/style/procedures",
+      "fetchedAt": "2026-07-29",
+      "bytes": 32253,
+      "sha256": "15f0312be3cfc60d3a3eb4ac95c3b72da5c779c099035dea0ed45213106bdf40"
+    },
+    {
+      "url": "https://developers.google.com/style/inclusive-documentation",
+      "fetchedAt": "2026-07-29",
+      "bytes": 27744,
+      "sha256": "633fac89a8969bce0caf046d0478a22a40453a42729157277e8dab298a85142c"
+    },
+    {
+      "url": "https://developers.google.com/style/tables",
+      "fetchedAt": "2026-07-29",
+      "bytes": 20487,
+      "sha256": "704368a13fd7a53a0224fe4076361ad5ffe7b0869a2f76608f58d0aecf50dd1e"
+    },
+    {
+      "url": "https://developers.google.com/style/hyphens",
+      "fetchedAt": "2026-07-29",
+      "bytes": 24974,
+      "sha256": "e057fb6a0e8e8282c23a888d58467b50c2786a5e6deee3584ae257eedf13ff7f"
+    },
+    {
+      "url": "https://developers.google.com/style/colons",
+      "fetchedAt": "2026-07-29",
+      "bytes": 13625,
+      "sha256": "5eca4d777c3c0a8de729f28bc5898baff38110d50edcfaab70aef87487bdec02"
+    },
+    {
+      "url": "https://developers.google.com/style/tense",
+      "fetchedAt": "2026-07-29",
+      "bytes": 11163,
+      "sha256": "2282860317719650d11396af7a96f0acb0742bb62fe1cd42c59ca3458ec0a47c"
+    },
+    {
+      "url": "https://developers.google.com/style/translation",
+      "fetchedAt": "2026-07-29",
+      "bytes": 27763,
+      "sha256": "a36ab166809c41bdd89c53e4fc52fcd79ab3ed72acd9f360a7f6db894990a4ac"
+    },
+    {
+      "url": "https://developers.google.com/style/future",
+      "fetchedAt": "2026-07-29",
+      "bytes": 9743,
+      "sha256": "edb990cee9f33d0d5d293568ebe98b2960123f1fd41400e012b6f23f71cc1a8a"
+    },
+    {
+      "url": "https://developers.google.com/style/voice",
+      "fetchedAt": "2026-07-29",
+      "bytes": 14209,
+      "sha256": "44c5f24ad9814fe3f613cc8be0a1d70281d09a7167ef0f92c492bde73bdbf52d"
+    },
+    {
+      "url": "https://developers.google.com/style/tone",
+      "fetchedAt": "2026-07-29",
+      "bytes": 17959,
+      "sha256": "e44246ff3f5de71108430271f31f00c4b8a3f3f359e34135f3bfb2a3ffd3e9dd"
+    }
+  ]
+}
