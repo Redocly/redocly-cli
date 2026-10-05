@@ -442,6 +442,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Rules": "Rules",
       "overlays": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -3042,6 +3043,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.overlay1Rules",
       "overlays": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -11616,6 +11618,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.overlay1Rules",
       "overlays": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -19454,6 +19457,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -19580,6 +19584,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -20405,6 +20410,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
+        "format": "uri-reference",
         "type": "string",
       },
       "hreflang": {
@@ -20718,6 +20724,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -20844,6 +20851,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -25287,6 +25295,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -25346,6 +25355,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -28310,6 +28320,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -28436,6 +28447,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -29173,6 +29185,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
+        "format": "uri-reference",
         "type": "string",
       },
       "hreflang": {
@@ -29409,6 +29422,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -29535,6 +29549,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -32963,6 +32978,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -33022,6 +33038,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -33669,6 +33686,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -33795,6 +33813,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -34620,6 +34639,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
+        "format": "uri-reference",
         "type": "string",
       },
       "hreflang": {
@@ -34933,6 +34953,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -35059,6 +35080,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -39502,6 +39524,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -39561,6 +39584,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "type": {
