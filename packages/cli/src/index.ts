@@ -793,10 +793,6 @@ yargs(hideBin(process.argv))
               'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.hideDownloadButtons',
             deprecated: 'use --openapi instead',
           },
-          disableTelemetry: {
-            describe: 'Disable Redoc telemetry in the generated page. The default value is false.',
-            type: 'boolean',
-          },
           inlineBundle: {
             describe:
               'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',

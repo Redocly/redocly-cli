@@ -25,6 +25,5 @@ export type BuildDocsArgv = {
   openapi?: string | Record<string, unknown>;
   asyncapi?: string | Record<string, unknown>;
   graphql?: string | Record<string, unknown>;
-  disableTelemetry?: boolean;
   inlineBundle: boolean;
 };
