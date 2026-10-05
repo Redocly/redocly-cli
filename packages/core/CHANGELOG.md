@@ -1,5 +1,12 @@
 # @redocly/openapi-core
 
+## 2.58.1
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.61.1`.
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+
 ## 2.58.0
 
 ### Minor Changes
