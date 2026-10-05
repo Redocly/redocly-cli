@@ -97,21 +97,26 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   if (!isPlainObject(node) || sourceRef === rootRef || rebased.has(node)) {
     return;
   }
-  for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    const value = node[field];
-    if (
-      !isPlainObject<NormalizedScalarSchema>(schema) ||
-      schema.format !== 'uri-reference' ||
-      !isString(value) ||
-      !value ||
-      URI_SCHEME.test(value) ||
-      path.isAbsolute(value)
-    ) {
-      continue;
+  const rebase = (value: unknown) => {
+    if (!isString(value) || !value || URI_SCHEME.test(value) || path.isAbsolute(value)) {
+      return value;
     }
-    node[field] = isAbsoluteUrl(sourceRef)
+    return isAbsoluteUrl(sourceRef)
       ? new URL(value, sourceRef).href
       : path.relative(path.dirname(rootRef), path.resolve(path.dirname(sourceRef), value));
+  };
+  for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    const value = node[field];
+    if (!isPlainObject<NormalizedScalarSchema>(schema)) {
+      continue;
+    }
+    if (schema.format === 'uri-reference' && isString(value)) {
+      node[field] = rebase(value);
+    } else if (schema.items?.format === 'uri-reference' && Array.isArray(value)) {
+      node[field] = value.map(rebase);
+    } else {
+      continue;
+    }
     // a shared `$ref` target is visited once per node type name, so remember that it was rebased
     rebased.add(node);
   }

@@ -2684,6 +2684,7 @@ describe('loadConfig', () => {
       'one-level': {
         root: 'nested/openapi.yaml',
         output: 'nested/dist/openapi.yaml',
+        overlays: ['nested/overlays/add-servers.yaml'],
         clientOutput: 'nested/client.ts',
         client: { setup: 'nested/setup.mjs', cliOutput: 'nested/cli/index.ts' },
         rules: { 'info-license': 'error', 'operation-description': 'error' },
@@ -2708,6 +2709,8 @@ describe('loadConfig', () => {
       logo: { favicon: 'nested/images/favicon.ico' },
       openapi: { htmlTemplate: 'nested/template.html' },
       navbar: { items: [{ page: 'nested/docs/index.md' }] },
+      catalog: { main: { slug: '/apis/', items: [{ directory: 'nested/apis' }] } },
+      apiFunctions: { folders: ['nested/functions', 'https://example.com/functions'] },
       // the same referenced object reached under a second node type is rebased once
       apis: { 'shared-openapi': { openapi: { htmlTemplate: 'nested/template.html' } } },
     });
@@ -2724,6 +2727,7 @@ describe('loadConfig', () => {
       inline: { root: 'file-paths/openapi.yaml', output: 'file-paths/dist/inline.yaml' },
       'one-level': {
         root: 'file-paths/nested/openapi.yaml',
+        overlays: ['file-paths/nested/overlays/add-servers.yaml'],
         clientOutput: 'file-paths/nested/client.ts',
         client: { setup: 'file-paths/nested/setup.mjs' },
         rules: { 'operation-description': 'error' },
@@ -2744,6 +2748,8 @@ describe('loadConfig', () => {
       logo: { favicon: 'file-paths/nested/images/favicon.ico' },
       openapi: { htmlTemplate: 'file-paths/nested/template.html' },
       navbar: { items: [{ page: 'file-paths/nested/docs/index.md' }] },
+      catalog: { main: { items: [{ directory: 'file-paths/nested/apis' }] } },
+      apiFunctions: { folders: ['file-paths/nested/functions', 'https://example.com/functions'] },
       apis: { 'shared-openapi': { openapi: { htmlTemplate: 'file-paths/nested/template.html' } } },
     });
   });

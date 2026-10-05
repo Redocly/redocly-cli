@@ -31,3 +31,8 @@ openapi:
   $ref: nested/config.yaml#/openapi
 navbar:
   $ref: nested/config.yaml#/navbar
+catalog:
+  main:
+    $ref: nested/config.yaml#/catalog
+apiFunctions:
+  $ref: nested/config.yaml#/apiFunctions

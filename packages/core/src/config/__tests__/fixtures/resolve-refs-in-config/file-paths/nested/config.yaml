@@ -3,6 +3,8 @@ api:
     - ./api-rules.yaml
   root: ./openapi.yaml
   output: dist/openapi.yaml
+  overlays:
+    - ./overlays/add-servers.yaml
   clientOutput: ./client.ts
   client:
     setup: ./setup.mjs
@@ -25,3 +27,11 @@ openapi:
 navbar:
   items:
     - page: ./docs/index.md
+catalog:
+  slug: /apis/
+  items:
+    - directory: ./apis
+apiFunctions:
+  folders:
+    - ./functions
+    - https://example.com/functions

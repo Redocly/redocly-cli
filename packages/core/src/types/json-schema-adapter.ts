@@ -66,6 +66,12 @@ function transformJSONSchemaToNodeType(
     );
   }
 
+  // a single pattern types every entry, the same way additionalProperties does
+  const patternSchemas = Object.values(schema.patternProperties ?? {});
+  if (patternSchemas.length === 1) {
+    schema = { ...schema, additionalProperties: patternSchemas[0] };
+  }
+
   if (
     schema.type === 'string' ||
     schema.type === 'number' ||
