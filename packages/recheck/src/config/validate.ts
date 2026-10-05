@@ -263,8 +263,8 @@ function validateOccurrenceOptions(rule: BaseRule, name: string, errors: Validat
   }
 }
 
-/** Validates the `repetition` options. Both are optional. */
-const REPETITION_OPTION_KEYS = new Set(['pattern', 'ignoreCase']);
+/** Validates the `repetition` options. All are optional. */
+const REPETITION_OPTION_KEYS = new Set(['pattern', 'ignoreCase', 'includeCode']);
 
 function validateRepetitionOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
   const repetitionConfig = requireOptionsObject(rule, name, 'repetition', errors);
@@ -279,7 +279,11 @@ function validateRepetitionOptions(rule: BaseRule, name: string, errors: Validat
     }
   }
 
-  const { pattern, ignoreCase } = repetitionConfig as { pattern?: unknown; ignoreCase?: unknown };
+  const { pattern, ignoreCase, includeCode } = repetitionConfig as {
+    pattern?: unknown;
+    ignoreCase?: unknown;
+    includeCode?: unknown;
+  };
 
   if (pattern !== undefined && (typeof pattern !== 'string' || pattern.length === 0)) {
     errors.push({
@@ -294,10 +298,17 @@ function validateRepetitionOptions(rule: BaseRule, name: string, errors: Validat
       path: `${name}.assertions.repetition.ignoreCase`,
     });
   }
+
+  if (includeCode !== undefined && typeof includeCode !== 'boolean') {
+    errors.push({
+      message: 'Repetition option "includeCode" must be a boolean',
+      path: `${name}.assertions.repetition.includeCode`,
+    });
+  }
 }
 
 /** Validates the `consistency` options. `either` needs at least one pair of variants. */
-const CONSISTENCY_OPTION_KEYS = new Set(['either', 'ignoreCase']);
+const CONSISTENCY_OPTION_KEYS = new Set(['either', 'ignoreCase', 'includeCode']);
 
 function validateConsistencyOptions(rule: BaseRule, name: string, errors: ValidationError[]): void {
   const consistencyConfig = requireOptionsObject(rule, name, 'consistency', errors);
@@ -312,7 +323,11 @@ function validateConsistencyOptions(rule: BaseRule, name: string, errors: Valida
     }
   }
 
-  const { either, ignoreCase } = consistencyConfig as { either?: unknown; ignoreCase?: unknown };
+  const { either, ignoreCase, includeCode } = consistencyConfig as {
+    either?: unknown;
+    ignoreCase?: unknown;
+    includeCode?: unknown;
+  };
 
   if (!isPlainObject(either)) {
     errors.push({
@@ -348,6 +363,13 @@ function validateConsistencyOptions(rule: BaseRule, name: string, errors: Valida
     errors.push({
       message: 'Consistency option "ignoreCase" must be a boolean',
       path: `${name}.assertions.consistency.ignoreCase`,
+    });
+  }
+
+  if (includeCode !== undefined && typeof includeCode !== 'boolean') {
+    errors.push({
+      message: 'Consistency option "includeCode" must be a boolean',
+      path: `${name}.assertions.consistency.includeCode`,
     });
   }
 }

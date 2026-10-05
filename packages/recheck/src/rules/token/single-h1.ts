@@ -19,7 +19,7 @@ export const singleH1: TokenRule = {
   fixable: false,
   defaults: {
     message: 'Multiple top-level headings in the same document',
-    frontMatterTitle: '^\\s*"?title"?\\s*[:=]',
+    frontMatterTitle: '^"?title"?\\s*[:=]',
     level: 1,
   },
   check(ctx) {

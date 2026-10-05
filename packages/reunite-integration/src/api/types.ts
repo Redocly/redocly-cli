@@ -1,3 +1,11 @@
+export type ProjectResponse = {
+  id: string;
+  slug: string;
+  name: string;
+  // Canonical self-link: `${domain}/api/orgs/{organizationId}/projects/{id}`.
+  uri: string;
+};
+
 export type ProjectSourceResponse = {
   branchName: string;
   contentPath: string;
