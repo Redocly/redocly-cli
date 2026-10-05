@@ -97,13 +97,17 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   if (!isPlainObject(node) || sourceRef === rootRef || rebased.has(node)) {
     return;
   }
+  // a shared `$ref` target is visited once per node type name, so remember that it was handled
+  rebased.add(node);
   const rebase = (value: unknown) => {
     if (!isString(value) || !value || URI_SCHEME.test(value) || path.isAbsolute(value)) {
       return value;
     }
-    return isAbsoluteUrl(sourceRef)
-      ? new URL(value, sourceRef).href
-      : path.relative(path.dirname(rootRef), path.resolve(path.dirname(sourceRef), value));
+    if (isAbsoluteUrl(sourceRef)) {
+      return new URL(value, sourceRef).href;
+    }
+    const resolved = path.resolve(path.dirname(sourceRef), value);
+    return path.relative(path.dirname(rootRef), resolved) || '.';
   };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
@@ -114,11 +118,7 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
       node[field] = rebase(value);
     } else if (schema.items?.format === 'uri-reference' && Array.isArray(value)) {
       node[field] = value.map(rebase);
-    } else {
-      continue;
     }
-    // a shared `$ref` target is visited once per node type name, so remember that it was rebased
-    rebased.add(node);
   }
 }
 

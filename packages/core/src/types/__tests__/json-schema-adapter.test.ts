@@ -4,6 +4,7 @@ describe('getNodeTypesFromJSONSchema', () => {
   it('types the entries of an object with a single pattern like additionalProperties', () => {
     const { ctx: types } = getNodeTypesFromJSONSchema('Catalogs', {
       type: 'object',
+      additionalProperties: false,
       patternProperties: {
         '.*': {
           type: 'object',

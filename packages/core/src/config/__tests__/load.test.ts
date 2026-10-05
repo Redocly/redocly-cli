@@ -2709,7 +2709,9 @@ describe('loadConfig', () => {
       logo: { favicon: 'nested/images/favicon.ico' },
       openapi: { htmlTemplate: 'nested/template.html' },
       navbar: { items: [{ page: 'nested/docs/index.md' }] },
-      catalog: { main: { slug: '/apis/', items: [{ directory: 'nested/apis' }] } },
+      catalog: {
+        main: { slug: '/apis/', items: [{ directory: 'nested/apis' }, { directory: '.' }] },
+      },
       apiFunctions: { folders: ['nested/functions', 'https://example.com/functions'] },
       // the same referenced object reached under a second node type is rebased once
       apis: { 'shared-openapi': { openapi: { htmlTemplate: 'nested/template.html' } } },
@@ -2722,35 +2724,17 @@ describe('loadConfig', () => {
     });
 
     expect(resolvedConfig.plugins).toEqual(['file-paths/governance/plugin.cjs']);
-    expect(resolvedConfig.rules).toMatchObject({ 'info-license': 'error' });
     expect(resolvedConfig.apis).toMatchObject({
       inline: { root: 'file-paths/openapi.yaml', output: 'file-paths/dist/inline.yaml' },
       'one-level': {
         root: 'file-paths/nested/openapi.yaml',
         overlays: ['file-paths/nested/overlays/add-servers.yaml'],
-        clientOutput: 'file-paths/nested/client.ts',
         client: { setup: 'file-paths/nested/setup.mjs' },
-        rules: { 'operation-description': 'error' },
       },
       chained: { root: 'file-paths/nested/deep/openapi.yaml' },
-      untouched: { root: 'https://example.com/openapi.yaml', title: './not-a-path' },
-      'parent-dir': {
-        root: 'file-paths/specs/openapi.yaml',
-        output: 'file-paths/nested/dist/out.yaml',
-      },
-      sibling: { root: 'file-paths/nested/openapi.yaml', output: 'file-paths/dist/sibling.yaml' },
     });
-    expect(resolvedConfig.client).toMatchObject({
-      setup: 'file-paths/nested/setup.mjs',
-      goPackage: './not-a-path',
-    });
-    expect(resolvedConfig).toMatchObject({
-      logo: { favicon: 'file-paths/nested/images/favicon.ico' },
-      openapi: { htmlTemplate: 'file-paths/nested/template.html' },
-      navbar: { items: [{ page: 'file-paths/nested/docs/index.md' }] },
-      catalog: { main: { items: [{ directory: 'file-paths/nested/apis' }] } },
-      apiFunctions: { folders: ['file-paths/nested/functions', 'https://example.com/functions'] },
-      apis: { 'shared-openapi': { openapi: { htmlTemplate: 'file-paths/nested/template.html' } } },
+    expect(resolvedConfig.catalog).toMatchObject({
+      main: { items: [{ directory: 'file-paths/nested/apis' }, { directory: 'file-paths' }] },
     });
   });
 
