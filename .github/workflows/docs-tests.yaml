@@ -24,7 +24,7 @@ jobs:
       pull-requests: write
     env:
       REDOCLY_TELEMETRY: off
-      RECHECK: node packages/cli/lib/index.js recheck --config docs/redocly.yaml
+      RECHECK: npx --yes @redocly/cli@2.58.1 recheck --config docs/redocly.yaml
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -32,11 +32,6 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Compile
-        run: npm run compile
 
       # Diff against the live merge-base of the PR head and the base branch.
       # `github.sha` is the auto-merge commit on the current base tip, so a
@@ -86,7 +81,7 @@ jobs:
             (
               cd "$1"
               while read -r file; do [ -f "$file" ] && echo "$file"; done < "$GITHUB_WORKSPACE/docs-changed.txt" \
-                | xargs node "$GITHUB_WORKSPACE/packages/cli/lib/index.js" recheck --config "$GITHUB_WORKSPACE/docs/redocly.yaml" --readability --format=json \
+                | xargs npx --yes @redocly/cli@2.58.1 recheck --config "$GITHUB_WORKSPACE/docs/redocly.yaml" --readability --format=json \
                 > "$GITHUB_WORKSPACE/$3"
             ) || true
           }
