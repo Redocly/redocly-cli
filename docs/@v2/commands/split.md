@@ -36,7 +36,7 @@ Channels, operations, and components are split from the root API description int
 - `components/` - schemas, messages, securitySchemes, servers, serverVariables, parameters, replies, replyAddresses, correlationIds, messageTraits, operationTraits, tags, externalDocs, serverBindings, channelBindings, operationBindings, and messageBindings are each split into subdirectories
 
 Components, paths, webhooks, channels, and operations are written to files named after them.
-When several of them would share one file, every later file gets a numbered suffix: `-2`, `-3`, and so on.
+When several of them would share one file, each later file gets a `-n` suffix, where `n` is its order, for example `user-2.yaml` next to `User.yaml`.
 That happens when names differ only by case, which a case-insensitive file system treats as one file name, or when names become equal after `/` is replaced with the separator.
 Code samples in one language for the same operation are saved the same way.
 
