@@ -511,3 +511,52 @@ describe('ApiClient', () => {
     });
   });
 });
+
+describe('ProjectsApi', () => {
+  const testToken = 'test-token';
+  const testDomain = 'test-domain.com';
+  const apiClient = new ReuniteApi({ domain: testDomain, apiKey: testToken, command: 'push' });
+  const project = {
+    id: 'prj_01hksn7dhbmf3nby0aeax6bkvf',
+    slug: 'docs',
+    name: 'Docs',
+    uri: 'https://test-domain.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
+  };
+
+  it('finds a project by the organization and project slugs in the path', async () => {
+    mockFetchResponse({ ok: true, status: 200, json: vi.fn().mockResolvedValue(project) });
+
+    const result = await apiClient.projects.find('acme', 'docs');
+
+    expect(global.fetch).toHaveBeenCalledWith(
+      `${testDomain}/api/orgs/acme/projects/docs`,
+      expect.objectContaining({
+        method: 'GET',
+        headers: expect.objectContaining({ Authorization: `Bearer ${testToken}` }),
+      })
+    );
+    expect(result).toEqual(project);
+  });
+
+  it('returns nothing when no project matches', async () => {
+    mockFetchResponse({
+      ok: false,
+      status: 404,
+      json: vi.fn().mockResolvedValue({ title: 'Project not found' }),
+    });
+
+    await expect(apiClient.projects.find('acme', 'nope')).resolves.toBeUndefined();
+  });
+
+  it('wraps API errors of the lookup', async () => {
+    mockFetchResponse({
+      ok: false,
+      status: 403,
+      json: vi.fn().mockResolvedValue({ title: 'Forbidden' }),
+    });
+
+    await expect(apiClient.projects.find('acme', 'docs')).rejects.toThrow(
+      new ReuniteApiError('Failed to fetch project. Forbidden.', 403)
+    );
+  });
+});
