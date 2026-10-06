@@ -59,7 +59,6 @@ redocly introspect-mcp <server-url> --output <file> --check
 | --check      | boolean  | Verify the description is up to date with the MCP server instead of writing: report the differences and exit with code `1` when it is not.                                              |
 | --config     | string   | Specify path to the [configuration file](../configuration/index.md).                                                                                                                    |
 | --help       | boolean  | Display help.                                                                                                                                                                           |
-| --version    | boolean  | Display version number.                                                                                                                                                                 |
 
 ## Examples
 

@@ -47,8 +47,7 @@ Many API tools prefer a single file, but `split` and `bundle` allow you to manag
 
 ```bash
 redocly split <api> --outDir=<path>
-redocly split [--help] [--version]
-redocly split --version
+redocly split [--help]
 ```
 
 ## Options
@@ -62,7 +61,6 @@ redocly split --version
 | --lint-config                  | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.                                                                                               |
 | --outDir                       | string  | **REQUIRED.** Path to the directory where you want to save the split files. If the specified directory doesn't exist, it is created automatically.                                                                               |
 | --separator                    | string  | File path separator used while splitting. Default value is `_`. Controls the file names generated in the `paths` folder (e.g. `/users/create` path becomes `user_create.yaml`, root level path `/` becomes `_.yaml`, and so on). |
-| --version                      | boolean | Show version number.                                                                                                                                                                                                             |
 
 ## Examples
 

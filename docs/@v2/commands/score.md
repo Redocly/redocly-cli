@@ -70,7 +70,6 @@ redocly score <api> [--format=<option>]
 | --debug-operation-id | string  | Print a detailed schema breakdown for a specific operation (by `operationId` or `METHOD /path`).                                               |
 | --help               | boolean | Show help.                                                                                                                                     |
 | --lint-config        | string  | Specify the severity level for the configuration file. <br/> **Possible values:** `warn`, `error`, `off`. Default value is `warn`.             |
-| --version            | boolean | Show version number.                                                                                                                           |
 
 ## Examples
 

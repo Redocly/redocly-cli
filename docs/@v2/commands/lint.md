@@ -20,7 +20,6 @@ redocly lint
 redocly lint <apis>...
 redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 redocly lint [--generate-ignore-file] [--help]
-redocly lint --version
 ```
 
 ## Options
@@ -37,7 +36,6 @@ redocly lint --version
 | --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#limit-the-displayed-problems-count). Default value is 100.                                                                           |
 | --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                |
 | --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                        |
-| --version              | boolean  | Show version number.                                                                                                                                                                                        |
 
 ## Examples
 

@@ -8,17 +8,14 @@ You may want to `logout` if you are using a shared work computer or want to [`lo
 ## Usage
 
 ```bash
-redocly logout [--help] [--version]
-
-redocly logout --version
+redocly logout [--help]
 ```
 
 ## Options
 
-| Option    | Type    | Description          |
-| --------- | ------- | -------------------- |
-| --help    | boolean | Show help.           |
-| --version | boolean | Show version number. |
+| Option | Type    | Description |
+| ------ | ------- | ----------- |
+| --help | boolean | Show help.  |
 
 ## Examples
 

@@ -7,7 +7,6 @@ Positionals:
   api  API description file that you want to split           [string] [required]
 
 Options:
-  --version                       Show version number.                 [boolean]
   --help                          Show help.                           [boolean]
   --outDir                        Output directory where files will be saved.
                                                              [string] [required]

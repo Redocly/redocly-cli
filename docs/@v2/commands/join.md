@@ -42,7 +42,6 @@ redocly join first-api.yaml second-api.yaml
 redocly join first-api.yaml second-api.json
 redocly join first-api.yaml second-api.json -o openapi-custom.yaml
 redocly join ./*.yaml
-redocly join --version
 ```
 
 ## Options
@@ -57,7 +56,6 @@ redocly join --version
 | --prefix-components-with-info-prop | string   | Prefix components with property value from info object. See the [resolve conflicting component names](#resolve-conflicting-component-names) section.                                                                                             |
 | --prefix-tags-with-filename        | boolean  | Prefix tags with property value from file name. See the [prefix tags with filename](#prefix-tags-with-filename) section.                                                                                                                         |
 | --prefix-tags-with-info-prop       | string   | Prefix tags with property value from info object. See the [prefix tags with specified info property](#prefix-tags-with-specified-info-property) section.                                                                                         |
-| --version                          | boolean  | Show version number.                                                                                                                                                                                                                             |
 | --without-x-tag-groups             | boolean  | Skip automated `x-tagGroups` creation. See the [avoid tag duplication](#avoid-tag-duplication) section.                                                                                                                                          |
 
 {% admonition type="warning" %}
