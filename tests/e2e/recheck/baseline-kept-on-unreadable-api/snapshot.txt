@@ -1,0 +1,3 @@
+
+Could not read API description broken.yaml: unexpected end of the stream within a flow collection in "./tests/e2e/recheck/baseline-kept-on-unreadable-api/broken.yaml" (1:10)
+Baseline not written: the run could not read 1 API description(s).

@@ -1,6 +1,7 @@
 import { AbortFlowError, createConfig, type Config } from '@redocly/openapi-core';
 import type { RecheckBlock } from '@redocly/recheck';
 import { recheckPresetsPlugin } from '@redocly/recheck/presets';
+import { cyan } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -161,23 +162,71 @@ describe('handleRecheck', () => {
       );
     });
 
-    it('skips an API description and warns', async () => {
-      const api = path.join(dir, 'openapi.yaml');
+    it('skips the descriptions of a remote $ref file and counts them', async () => {
+      const apiPath = path.join(dir, 'openapi.yaml');
       await fs.writeFile(
-        api,
+        apiPath,
         outdent`
-          openapi: 3.0.0
+          openapi: 3.1.0
           info:
-            title: T
+            title: Cafe
             version: 1.0.0
+            description: Welcome to the cafe.
           paths: {}
+          components:
+            schemas:
+              Order:
+                $ref: https://example.com/schemas.yaml#/Order
         `
       );
-      await runWith({ paths: [api] });
-      expect(output.stderr).toEqual([
-        `API descriptions are linted from the next release; skipped ${api}\n`,
-      ]);
-      expect(output.stdout).toEqual([]);
+      vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+        new Response('Order:\n  type: object\n  description: An order for one drink.\n')
+      );
+
+      await runWith({ paths: [apiPath] });
+
+      expect(output.stderr).toContain(
+        'Skipped 1 description(s) in remote $ref files; only local files are linted.\n'
+      );
+      expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
+    });
+
+    // The description is longer than the 80 characters that `line-length` allows.
+    const API_WITH_FINDING = outdent`
+      openapi: 3.1.0
+      info:
+        title: Cafe
+        version: 1.0.0
+        description: Welcome to the cafe, where every order is a small ceremony and no drink is ever rushed.
+      paths: {}
+    `;
+
+    it('lints the descriptions of the API that an alias names', async () => {
+      await fs.writeFile(path.join(dir, 'openapi.yaml'), API_WITH_FINDING);
+      const config = await createConfig(
+        { extends: ['recheck/markdown'], apis: { cafe: { root: 'openapi.yaml' } } },
+        { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
+      );
+      const argv: RecheckArgv = { format: 'table', paths: ['cafe'] };
+
+      await expect(handleRecheck({ argv, config, version: 'test' })).rejects.toThrow(
+        AbortFlowError
+      );
+
+      expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
+      expect(output.stdout.join('')).toContain('line-length');
+      expect(output.stdout.join('')).toContain('openapi.yaml:5:');
+    });
+
+    // The e2e snapshots show the message but not the exit code.
+    it.each<[string, Partial<RecheckArgv>]>([
+      ['lint', {}],
+      ['baseline', { 'generate-baseline': true }],
+    ])('fails the %s run when an API description does not parse', async (_action, argv) => {
+      const apiPath = path.join(dir, 'broken.yaml');
+      await fs.writeFile(apiPath, 'title: [t');
+      await expect(runWith({ paths: [apiPath], ...argv })).rejects.toThrow(AbortFlowError);
+      expect(output.stderr.join('')).toContain(`Could not read API description ${apiPath}`);
     });
 
     it('applies the baseline file next to redocly.yaml once generated', async () => {

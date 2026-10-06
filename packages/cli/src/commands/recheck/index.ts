@@ -1,10 +1,10 @@
 import {
   AbortFlowError,
-  detectSpec,
+  BaseResolver,
+  isAbsoluteUrl,
   isPlainObject,
   isString,
   logger,
-  parseYaml,
   type Config,
 } from '@redocly/openapi-core';
 import {
@@ -15,13 +15,16 @@ import {
   runReadability,
   Timer,
   type LintOptions,
+  type NormalizedRule,
+  type Problem,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { presets } from '@redocly/recheck/presets';
-import { readFileSync, statSync } from 'node:fs';
-import { dirname, extname } from 'node:path';
+import { existsSync } from 'node:fs';
 
+import { getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
+import { collectEmbeddedInputs, isApiDescription } from './descriptions.js';
 import {
   printBaselineRun,
   printBaselineStart,
@@ -36,18 +39,6 @@ import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
 const DEFAULT_PRESET = 'recheck/markdown';
-const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
-
-function isApiDescription(path: string): boolean {
-  if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return false;
-  try {
-    if (!statSync(path).isFile()) return false;
-    detectSpec(parseYaml(readFileSync(path, 'utf8')));
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 // A block of the wrong type counts as configured, so the engine can report the error.
 function hasRecheckConfig(block: Config['recheck']): boolean {
@@ -92,6 +83,22 @@ function toLintPresentation(argv: RecheckArgv): LintPresentation {
   };
 }
 
+// True for a finding that `.redocly.lint-ignore.yaml` lists by file, rule, and
+// pointer. The rule key is the full name or the short name the report prints.
+function ignoredBy(config: Config, rules: NormalizedRule[]): (problem: Problem) => boolean {
+  const fullNameByShortName = new Map(rules.map((rule) => [rule.shortName, rule.name]));
+  return (problem) => {
+    const pointer = problem.pointer;
+    if (pointer === undefined) return false;
+    const ignoredRules = config.ignore?.[problem.file];
+    if (ignoredRules === undefined) return false;
+    return Object.entries(ignoredRules).some(
+      ([key, pointers]) =>
+        (fullNameByShortName.get(key) ?? key) === problem.ruleName && pointers.has(pointer)
+    );
+  };
+}
+
 export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>): Promise<void> {
   const selected = selectAction(argv);
   if ('error' in selected) {
@@ -123,10 +130,9 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
     block = { rules: presets[DEFAULT_PRESET] };
   }
-  const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
     block,
-    configDir,
+    configDir: getConfigDirectory(config),
     warn: (message) => logger.warn(`${message}\n`),
   });
   if (!resolved.success) {
@@ -137,37 +143,91 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     throw new AbortFlowError('Recheck failed.');
   }
 
-  const exitCode = await runAction(selected.action, argv, resolved.config);
+  const exitCode = await runAction(selected.action, argv, resolved.config, config);
   if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
 }
 
 async function runAction(
   action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
-  resolved: ResolvedRecheckConfig
+  resolved: ResolvedRecheckConfig,
+  config: Config
 ): Promise<number> {
-  const requested = argv.paths && argv.paths.length > 0 ? argv.paths : ['.'];
+  const resolver = new BaseResolver(config.resolve);
   const roots: string[] = [];
-  for (const path of requested) {
-    if (isApiDescription(path)) {
-      logger.warn(`API descriptions are linted from the next release; skipped ${path}\n`);
-    } else {
-      roots.push(path);
+  const apiPaths: string[] = [];
+  const requestedPaths = argv.paths ?? [];
+  if (requestedPaths.length === 0) {
+    roots.push('.');
+    // Two aliases may share one root, which is walked once.
+    for (const alias of Object.keys(config.resolvedConfig.apis ?? {})) {
+      const { path } = getAliasOrPath(config, alias);
+      if (!apiPaths.includes(path)) apiPaths.push(path);
+    }
+  } else {
+    for (const requestedPath of requestedPaths) {
+      // An alias from the `apis` block names an API, whatever the extension of its root.
+      // An existing file or folder with the same name wins over the alias.
+      const isAlias =
+        config.resolvedConfig.apis?.[requestedPath] !== undefined && !existsSync(requestedPath);
+      if (isAlias) {
+        apiPaths.push(getAliasOrPath(config, requestedPath).path);
+      } else if (
+        isAbsoluteUrl(requestedPath) ||
+        (await isApiDescription(requestedPath, resolver))
+      ) {
+        apiPaths.push(requestedPath);
+      } else {
+        roots.push(requestedPath);
+      }
     }
   }
-  if (roots.length === 0) return 0;
 
   if (action === 'readability') {
+    if (apiPaths.length > 0) {
+      logger.warn(
+        `Readability scores cover Markdown files only; skipped ${apiPaths.length} API description(s).\n`
+      );
+    }
+    if (roots.length === 0) {
+      logger.info('No Markdown files to score.\n');
+      return 0;
+    }
     printReadabilityStart(roots);
     const result = await runReadability(roots, resolved, {});
     return printReadabilityRun(result, { format: argv.format === 'json' ? 'json' : 'table' });
   }
+
+  const {
+    inputs: embeddedInputs,
+    failureCount,
+    apiFiles,
+    unreadableFiles,
+  } = await collectEmbeddedInputs(apiPaths, config, resolver);
+  const isIgnored = ignoredBy(config, resolved.rules);
+
   if (action === 'baseline') {
-    printBaselineStart(roots);
-    return printBaselineRun(await generateBaseline(roots, resolved));
+    // A baseline built from a partial set of descriptions would hide findings.
+    if (failureCount > 0) {
+      logger.error(
+        `Baseline not written: the run could not read ${failureCount} API description(s).\n`
+      );
+      return 1;
+    }
+    printBaselineStart(roots, embeddedInputs.length);
+    return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
   }
+
   const timer = new Timer();
-  printLintStart(roots);
-  const result = await runLint(roots, resolved, toLintOptions(argv));
-  return printLintRun(result, toLintPresentation(argv), timer);
+  printLintStart(roots, embeddedInputs.length);
+  const result = await runLint(roots, resolved, {
+    ...toLintOptions(argv),
+    embeddedInputs,
+    apiFiles,
+    unreadableFiles,
+    isIgnored,
+  });
+  const exitCode = await printLintRun(result, toLintPresentation(argv), timer);
+  // An API description that could not be read fails the run, even when lint found nothing.
+  return failureCount > 0 && exitCode === 0 ? 1 : exitCode;
 }

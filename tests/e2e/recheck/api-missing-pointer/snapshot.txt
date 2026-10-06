@@ -1,0 +1,17 @@
+
+📋 Found 1 issue(s):
+
+line-length               ./tests/e2e/recheck/api-missing-pointer/openapi.yaml:7:85 Line length (Expected: 80; Actual: 134)
+
+   1 error(s)
+
+Could not resolve $ref #/components/schemas/Missing from ./tests/e2e/recheck/api-missing-pointer/openapi.yaml; its descriptions are skipped.
+🏃 Running recheck on: ., 1 API description(s)
+
+🔧 Running 53 rule(s)...
+   Found 0 markdown file(s)
+
+   Annotations prepared: 1
+
+❌ Found 1 error(s). Exiting with code 1.
+   Completed in <time>

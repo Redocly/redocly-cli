@@ -7,7 +7,7 @@ import {
   type Problem,
   type ReadabilityRunResult,
 } from '@redocly/recheck';
-import { green, yellow } from 'colorette';
+import { cyan, green, yellow } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -15,6 +15,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   printBaselineRun,
+  printBaselineStart,
   printLintRun,
   printMarkdocSchemaRun,
   printReadabilityRun,
@@ -23,11 +24,16 @@ import { captureLogger } from './capture-logger.js';
 
 const EMPTY_REPORT: LintRunReport = {
   roots: ['docs'],
+  apiDescriptionCount: 0,
   ruleCount: 3,
   disabledRuleCount: 0,
   filesFound: 0,
   unreadableFiles: [],
   scannedFileCount: 0,
+  scannedDescriptionFileCount: 0,
+  executedDescriptionRuleCount: 0,
+  descriptionFixesSkipped: 0,
+  suppressedByIgnoreFile: 0,
   empty: true,
   problems: [],
 };
@@ -136,6 +142,44 @@ describe('printLintRun', () => {
     expect(printed).toContain('✅ Auto-fixed 1 issue(s)!');
     expect(printed).toContain('Line 2 (recheck/no-trailing-spaces)');
     expect(printed).toContain('⚠️  2 proposed fix(es) were not applied');
+  });
+
+  it('prints the description fix-skip notice inside the fix block', async () => {
+    const { stderr } = captureLogger();
+    await printLintRun(
+      {
+        status: 'completed',
+        ...LINTED_REPORT,
+        fixes: { applied: [], skippedCount: 0 },
+        descriptionFixesSkipped: 2,
+      },
+      { format: 'table' },
+      new Timer()
+    );
+    const printed = stderr.join('');
+    const noticeAt = printed.indexOf(
+      '   Fixes do not apply inside API descriptions; 2 fixable finding(s) skipped.'
+    );
+    expect(noticeAt).toBeGreaterThan(printed.indexOf('⚠️  No auto-fixable issues found.'));
+    expect(noticeAt).toBeLessThan(printed.indexOf('✅ No errors found!'));
+  });
+
+  it('prints the count of findings the ignore file suppressed before the baseline line', async () => {
+    const { stderr } = captureLogger();
+    await printLintRun(
+      {
+        status: 'completed',
+        ...LINTED_REPORT,
+        suppressedByIgnoreFile: 1,
+        baseline: { matched: 0, new: 0, stale: 0 },
+      },
+      { format: 'table' },
+      new Timer()
+    );
+    const printed = stderr.join('');
+    const suppressedAt = printed.indexOf('   1 finding(s) suppressed by the ignore file.\n');
+    expect(suppressedAt).toBeGreaterThan(-1);
+    expect(suppressedAt).toBeLessThan(printed.indexOf('   Baseline: 0 matched, 0 new, 0 stale'));
   });
 
   it('warns about each unreadable file and the count of skipped files', async () => {
@@ -350,6 +394,7 @@ const BASELINE_RESULT: BaselineRunResult = {
   outPath: '/project/.redocly.recheck-baseline.yaml',
   errorCount: 3,
   baselinedFileCount: 1,
+  apiDescriptionCount: 0,
 };
 
 describe('printBaselineRun', () => {
@@ -360,6 +405,16 @@ describe('printBaselineRun', () => {
       `${yellow('   Warning: Could not read file docs/a.md')}\n`,
       `${yellow('   Warning: Could not read file docs/b.md')}\n`,
       `${green('✅ Wrote /project/.redocly.recheck-baseline.yaml')}\n`,
+    ]);
+  });
+});
+
+describe('printBaselineStart', () => {
+  it('names the API descriptions after the roots', () => {
+    const { stderr } = captureLogger();
+    printBaselineStart(['docs', 'guides'], 2);
+    expect(stderr).toEqual([
+      `${cyan('📋 Building recheck baseline from: docs, guides, 2 API description(s)')}\n`,
     ]);
   });
 });

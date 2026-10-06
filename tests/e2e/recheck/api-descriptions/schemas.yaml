@@ -1,0 +1,7 @@
+Ticket:
+  type: object
+  description: A ticket that is described with a sentence that is also far too long for the line-length rule to let it pass without a finding.
+  properties:
+    id:
+      type: string
+      description: The ticket id.

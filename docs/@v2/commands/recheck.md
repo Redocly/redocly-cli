@@ -5,6 +5,8 @@
 The `recheck` command lints Markdown files for structure and prose problems.
 It checks headings, lists, links, tables, code fences, and whitespace, and the words themselves: banned terms, spelling, repeated words, heading case, sentence length, and readability.
 With `--fix`, it repairs the findings it can.
+`recheck` also lints the `description` fields of API descriptions.
+Each finding reports the file, line, and column of the description in the source.
 
 Rules come from presets such as `recheck/markdown` that you add to the root `extends` of `redocly.yaml`, and from the [`recheck` block](../configuration/reference/recheck.md), which adjusts preset rules and adds your own.
 The [Markdown and prose linting](../recheck/index.md) section explains the presets, the rules, and how to write a prose rule.
@@ -15,6 +17,11 @@ How the command picks its rules:
 - With a `redocly.yaml` that has neither a Recheck preset in `extends` nor a `recheck` block, it checks nothing and says so.
 - It reads the root configuration only.
   Recheck settings under `apis.<name>` are not used, and the command warns about them.
+
+With no paths, the command lints the Markdown files under the current directory and every local API in `apis`.
+It skips a remote API and says so.
+With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
+With an alias from `apis`, the command lints the descriptions of that API.
 
 ## Usage
 
@@ -39,7 +46,7 @@ Use at most one of them in a run.
 
 | Option                    | Type     | Description                                                                                                                                           |
 | ------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| paths                     | [string] | Files or folders to lint. Default value is the current directory. See [Choose files](#choose-files).                                                  |
+| paths                     | [string] | Files, folders, or aliases from `apis` to lint. Default value is the current directory. See [Choose files](#choose-files).                            |
 | --check                   | boolean  | Fail when the generated schema differs from the file in `--output`. Use with `--generate-markdoc-schema`.                                             |
 | --config                  | string   | Path to the [configuration file](../configuration/index.md).                                                                                          |
 | --fix                     | boolean  | Apply fixes to the Markdown files. Alias: `-f`. See [Fix findings](#fix-findings).                                                                    |
@@ -117,8 +124,8 @@ A folder is searched for `.md` and `.markdown` files, and the search skips hidde
 redocly recheck README.md docs guides/intro.md
 ```
 
-A path that is an API description is skipped with a warning.
-The command does not lint the Markdown inside API descriptions yet.
+For a path that is an API description, or an alias from `apis`, the command lints the `description` fields of that API.
+When a file or folder exists with the same name as an alias, the command lints the file or folder.
 
 ### Fix findings
 
@@ -277,6 +284,33 @@ Later runs pick it up automatically and print how many findings matched, how man
 After you fix errors, generate the baseline again and commit the smaller file.
 A stale baseline fails the run, so the file always equals reality.
 [Use a baseline](../recheck/suppress-findings.md#use-a-baseline) describes the file format and the rules of comparison.
+When an API description does not parse, the command writes no baseline and fails.
+
+### Lint API descriptions
+
+```bash
+redocly recheck openapi.yaml
+```
+
+The command lints every `description` in `openapi.yaml` and in the files it references.
+Rules that need a whole document, such as `recheck/single-h1`, do not run on descriptions.
+`--fix` does not change API files.
+It reports how many fixable findings it skipped.
+An API description that does not parse is an error and fails the run.
+
+To suppress one finding without a change to the API file, list it in `.redocly.lint-ignore.yaml` by file, rule, and pointer:
+
+```yaml
+openapi.yaml:
+  recheck/line-length:
+    - '#/info/description'
+```
+
+Key the rule by its full name, such as `recheck/line-length`, or by its short name.
+A local API that references a remote `$ref` makes the command fetch it, the same as `redocly lint`.
+The command lints only descriptions in local files.
+
+To adjust rules for descriptions only, set `apiDescriptions.rules` in the `recheck` block.
 
 ### Check readability
 
