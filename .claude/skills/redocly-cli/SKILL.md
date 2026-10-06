@@ -103,6 +103,8 @@ recheck:
 
 With no `redocly.yaml`, the command uses `recheck/markdown`.
 With a `redocly.yaml` that has neither a preset nor a block, it checks nothing.
+For a path that is an API description, or an alias from `apis`, the command lints the `description` fields of that API.
+An existing file or folder wins over an alias with the same name.
 Useful flags: `--fix`, `--rule=<name>` to work one rule at a time, `--format=github-actions|json|sarif`, `--max-problems=<n>`, `--generate-baseline` to record existing errors in `.redocly.recheck-baseline.yaml` and fail only on new ones, and `--readability` for per-file scores.
 Silence one line with `<!-- recheck-disable-next-line <rule> -->` rather than turning the rule off.
 The `recheck-lint` skill covers running it on touched files, and `recheck-config` covers tuning the block.

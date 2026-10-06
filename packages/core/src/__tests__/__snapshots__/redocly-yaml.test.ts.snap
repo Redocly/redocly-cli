@@ -2580,6 +2580,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "prompt": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "suggestions": {
         "items": {
@@ -3143,6 +3144,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -3473,6 +3475,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
@@ -4546,6 +4549,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -4682,6 +4686,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -4698,6 +4703,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -4719,6 +4725,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4880,15 +4887,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4901,15 +4912,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4922,15 +4937,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4943,15 +4962,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5173,6 +5196,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5251,6 +5275,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -5290,9 +5315,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5394,6 +5421,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5459,18 +5487,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -5489,6 +5521,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -5503,6 +5536,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -5512,12 +5546,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5530,6 +5567,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -5545,6 +5583,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -5572,12 +5611,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -5587,6 +5629,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -5601,9 +5644,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.apis_additionalProperties.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -5611,6 +5656,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.apis_additionalProperties.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -5629,6 +5675,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -5749,9 +5796,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5813,6 +5862,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5840,6 +5890,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5867,6 +5918,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5912,6 +5964,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -5936,6 +5989,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -6057,6 +6111,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -6387,6 +6442,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
@@ -7420,6 +7476,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -7556,6 +7613,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -7572,6 +7630,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -7593,6 +7652,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7754,15 +7814,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7775,15 +7839,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7796,15 +7864,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7817,15 +7889,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8047,6 +8123,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8125,6 +8202,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -8164,9 +8242,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8268,6 +8348,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8333,18 +8414,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -8363,6 +8448,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -8377,6 +8463,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -8386,12 +8473,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8404,6 +8494,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -8419,6 +8510,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -8446,12 +8538,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -8461,6 +8556,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -8475,9 +8571,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -8485,6 +8583,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -8503,6 +8602,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -8623,9 +8723,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8687,6 +8789,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8714,6 +8817,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8741,6 +8845,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8786,6 +8891,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -8810,6 +8916,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -11137,6 +11244,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "prompt": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "suggestions": {
         "items": {
@@ -11700,6 +11808,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -12030,6 +12139,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
@@ -13103,6 +13213,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -13239,6 +13350,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -13255,6 +13367,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -13276,6 +13389,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13437,15 +13551,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13458,15 +13576,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13479,15 +13601,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13500,15 +13626,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13730,6 +13860,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -13808,6 +13939,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -13847,9 +13979,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13951,6 +14085,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -14016,18 +14151,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -14046,6 +14185,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -14060,6 +14200,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -14069,12 +14210,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -14087,6 +14231,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -14102,6 +14247,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -14129,12 +14275,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -14144,6 +14293,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -14158,9 +14308,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -14168,6 +14320,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -14186,6 +14339,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -14306,9 +14460,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14370,6 +14526,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14397,6 +14554,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14424,6 +14582,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14469,6 +14628,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -14493,6 +14653,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14614,6 +14775,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -14944,6 +15106,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
@@ -15977,6 +16140,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -16113,6 +16277,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -16129,6 +16294,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -16150,6 +16316,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16311,15 +16478,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16332,15 +16503,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16353,15 +16528,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16374,15 +16553,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16604,6 +16787,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -16682,6 +16866,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -16721,9 +16906,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16825,6 +17012,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16890,18 +17078,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -16920,6 +17112,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -16934,6 +17127,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -16943,12 +17137,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16961,6 +17158,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -16976,6 +17174,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -17003,12 +17202,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -17018,6 +17220,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -17032,9 +17235,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -17042,6 +17247,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -17060,6 +17266,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -17180,9 +17387,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17244,6 +17453,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17271,6 +17481,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17298,6 +17509,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17343,6 +17555,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -17367,6 +17580,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -19343,6 +19557,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "copyrightText": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "hide": {
         "type": "boolean",
@@ -19655,6 +19870,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -19985,6 +20201,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info.license",
       "termsOfService": {
@@ -20543,6 +20760,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "errorIfForcedExampleNotFound": {
         "type": "boolean",
@@ -21713,6 +21931,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -21849,6 +22068,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -21865,6 +22085,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -21886,6 +22107,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22047,15 +22269,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22068,15 +22294,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22089,15 +22319,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22110,15 +22344,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22340,6 +22578,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -22418,6 +22657,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -22457,9 +22697,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22561,6 +22803,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22626,18 +22869,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -22656,6 +22903,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -22670,6 +22918,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -22679,12 +22928,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22697,6 +22949,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -22712,6 +22965,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -22739,12 +22993,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -22754,6 +23011,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -22768,9 +23026,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -22778,6 +23038,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -22796,6 +23057,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -22916,9 +23178,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -22980,6 +23244,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23007,6 +23272,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23034,6 +23300,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23079,6 +23346,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -23103,6 +23371,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -25412,6 +25681,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "details": "rootRedoclyConfigSchema.env_additionalProperties.seo.llmstxt.details",
       "excludeFiles": {
@@ -25627,6 +25897,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "prompt": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "suggestions": {
         "items": {
@@ -28119,6 +28390,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "copyrightText": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "hide": {
         "type": "boolean",
@@ -28431,6 +28703,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -28761,6 +29034,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
@@ -30292,6 +30566,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -30428,6 +30703,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -30444,6 +30720,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -30465,6 +30742,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30626,15 +30904,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30647,15 +30929,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30668,15 +30954,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30689,15 +30979,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30919,6 +31213,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -30997,6 +31292,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -31036,9 +31332,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -31140,6 +31438,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -31205,18 +31504,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -31235,6 +31538,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -31249,6 +31553,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -31258,12 +31563,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -31276,6 +31584,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -31291,6 +31600,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -31318,12 +31628,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -31333,6 +31646,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -31347,9 +31661,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.theme.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -31357,6 +31673,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.theme.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -31375,6 +31692,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -31495,9 +31813,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31559,6 +31879,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31586,6 +31907,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31613,6 +31935,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31658,6 +31981,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -31682,6 +32006,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -33404,6 +33729,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "copyrightText": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "hide": {
         "type": "boolean",
@@ -33716,6 +34042,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -34046,6 +34373,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.graphql.info.license",
       "termsOfService": {
@@ -34604,6 +34932,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "errorIfForcedExampleNotFound": {
         "type": "boolean",
@@ -35774,6 +36103,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "position": {
         "enum": [
@@ -35910,6 +36240,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -35926,6 +36257,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -35947,6 +36279,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36108,15 +36441,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36129,15 +36466,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36150,15 +36491,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36171,15 +36516,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36401,6 +36750,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -36479,6 +36829,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -36518,9 +36869,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36622,6 +36975,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36687,18 +37041,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -36717,6 +37075,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -36731,6 +37090,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -36740,12 +37100,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36758,6 +37121,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -36773,6 +37137,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -36800,12 +37165,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -36815,6 +37183,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -36829,9 +37198,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -36839,6 +37210,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -36857,6 +37229,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -36977,9 +37350,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37041,6 +37416,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37068,6 +37444,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37095,6 +37472,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37140,6 +37518,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -37164,6 +37543,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -39473,6 +39853,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "details": "rootRedoclyConfigSchema.seo.llmstxt.details",
       "excludeFiles": {
