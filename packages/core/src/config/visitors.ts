@@ -71,7 +71,7 @@ export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
   rootRef: string;
-  rebased: WeakSet<object>;
+  visited: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -92,13 +92,13 @@ const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i;
 
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
-  const { rootRef, rebased } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const { rootRef, visited } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (!isPlainObject(node) || sourceRef === rootRef || rebased.has(node)) {
+  if (!isPlainObject(node) || sourceRef === rootRef || visited.has(node)) {
     return;
   }
-  // a shared `$ref` target is visited once per node type name, so remember that it was handled
-  rebased.add(node);
+  // the walker visits a shared `$ref` target once per node type name
+  visited.add(node);
   const rebase = (value: unknown) => {
     if (!isString(value) || !value || URI_SCHEME.test(value) || path.isAbsolute(value)) {
       return value;
@@ -110,10 +110,10 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     return path.relative(path.dirname(rootRef), resolved) || '.';
   };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    const value = node[field];
     if (!isPlainObject<NormalizedScalarSchema>(schema)) {
       continue;
     }
+    const value = node[field];
     if (schema.format === 'uri-reference' && isString(value)) {
       node[field] = rebase(value);
     } else if (schema.items?.format === 'uri-reference' && Array.isArray(value)) {
@@ -135,7 +135,7 @@ export const configBundlerVisitor = normalizeVisitors(
             replaceRef(node, resolved, ctx);
           },
         },
-        // any node type can declare a file path, so each node is asked for its own type instead of listing types here
+        // every node type can declare file paths, so each node is checked against its own type
         any: {
           leave(node: unknown, ctx: UserContext) {
             rebaseFilePaths(node, ctx);
