@@ -514,7 +514,7 @@ describe('no-invalid-media-type-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on valid example with allowAdditionalProperties and allOf and $ref', async () => {
@@ -565,7 +565,7 @@ describe('no-invalid-media-type-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not on invalid examples', async () => {
@@ -666,7 +666,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report if no schema', async () => {
@@ -698,7 +698,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should work with cross-file $ref', async () => {
@@ -733,7 +733,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not throw for ajv throw', async () => {
@@ -814,7 +814,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report if only externalValue is set', async () => {
@@ -848,7 +848,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report if value is valid and externalValue is also set', async () => {
@@ -885,7 +885,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report invalid value when externalValue is also set', async () => {
@@ -1107,7 +1107,7 @@ describe('no-invalid-media-type-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on invalid dataValue in examples (OAS 3.2)', async () => {
@@ -1218,7 +1218,7 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should validate dataValue referenced via $ref (OAS 3.2)', async () => {
@@ -1307,6 +1307,6 @@ describe('no-invalid-media-type-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-media-type-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

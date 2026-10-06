@@ -1,5 +1,18 @@
 # @redocly/client-generator
 
+## 0.4.24
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.59.0.
+
+## 0.4.23
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client failed with `Undefined constant "OPERATIONS"` when OPcache preload was enabled.
+- Updated @redocly/openapi-core to v2.58.2.
+
 ## 0.4.22
 
 ### Patch Changes

@@ -36,7 +36,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should pass when optional propertyName has defaultMapping (as a JSON Pointer)', async () => {
@@ -69,7 +69,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should pass when required propertyName does not need defaultMapping (when the required property is in the parent schema)', async () => {
@@ -101,7 +101,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should pass when required propertyName does not need defaultMapping (when the required property is in the descendant schema)', async () => {
@@ -140,7 +140,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should fail when propertyName is optional in a descendant oneOf schema', async () => {
@@ -234,7 +234,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should pass when required propertyName does not need defaultMapping (when the required property is in the descendant schema)', async () => {
@@ -264,7 +264,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should fail when optional propertyName lacks defaultMapping', async () => {
@@ -418,7 +418,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should fail for cyclic references where the discriminator property is NOT required (oneOf -> allOf -> oneOf)', async () => {
@@ -618,7 +618,7 @@ describe('spec-discriminator-defaultMapping', () => {
       config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   // it('should pass when there is a combination of the properties and required via allOf (discriminator for inheritance)', async () => {
@@ -673,6 +673,6 @@ describe('spec-discriminator-defaultMapping', () => {
   //     config: await createConfig({ rules: { 'spec-discriminator-defaultMapping': 'error' } }),
   //   });
 
-  //   expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+  //   expect(replaceSourceWithRef(results)).toEqual([]);
   // });
 });

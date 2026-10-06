@@ -44,6 +44,12 @@ A severity string for a key that no preset defines is a configuration error, bec
 - Turn on Markdoc-aware parsing.
   `true` is the same as `{ schema: realm }`.
 
+---
+
+- apiDescriptions
+- [API descriptions object](#api-descriptions-object)
+- Rule overrides that apply only to descriptions inside API documents.
+
 {% /table %}
 
 ### Rules object
@@ -217,6 +223,27 @@ Use a rule object to change a preset rule's options or to add a rule.
 
 {% /table %}
 
+### API descriptions object
+
+{% table %}
+
+- Option
+- Type
+- Description
+
+---
+
+- rules
+- [Rules object](#rules-object)
+- Overrides for rules that are in effect.
+  A severity string changes the severity.
+  A rule object changes the fields it lists.
+  A name that is not in effect is a configuration error.
+
+{% /table %}
+
+Any other key is a configuration error.
+
 ## Examples
 
 ### Adjust preset rules
@@ -298,6 +325,23 @@ recheck:
 ```
 
 The root file's block merges last, so it can tighten or relax what the shared file set.
+
+### Adjust rules for API descriptions
+
+```yaml
+extends:
+  - recheck/markdown
+apis:
+  museum:
+    root: ./openapi.yaml
+recheck:
+  apiDescriptions:
+    rules:
+      recheck/line-length: off
+```
+
+The command lints the `description` fields of `openapi.yaml`.
+`apiDescriptions.rules` turns off line-length checks inside those descriptions and leaves the page rules as they are.
 
 ## Related options
 

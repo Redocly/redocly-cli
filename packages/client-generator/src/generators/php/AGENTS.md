@@ -32,6 +32,11 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
   locations (`id` in the path AND in the query), and PHP rejects a redefined parameter outright. The
   wire name is untouched, so the request is unchanged.
+- **The operation map is a class constant, `Client::OPERATIONS`,** read through
+  `self::OPERATIONS[...]`, never a file-level `const`. OPcache preload keeps classes and
+  functions in shared memory but drops file-level constants, and an autoloader never
+  includes the file again once `Client` exists — so a file-level map is undefined on every
+  request after the first. A class constant is stored with the class.
 - **Naming:** classes PascalCase, properties/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.php)`; reserved words get a trailing underscore.
 - **Enums** are native backed enums (string/int); other scalars stay aliases.
@@ -53,7 +58,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   for query parameters.
 - **Method arguments:** required path params positional, JSON body next, optional query
   params as nullable NAMED arguments, then `?array $headers`, and `?string
-$idempotencyKey` on mutating methods.
+  $idempotencyKey` on mutating methods.
 - **Non-JSON success bodies** (PDFs, images, octet streams) return the raw body as
   `string` — a binary download must never degrade to `void`.
 - **PHPDoc carries what the signature cannot.** PHP's `array` and `\Generator` erase their

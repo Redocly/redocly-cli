@@ -150,18 +150,6 @@ describe('resolveRecheckConfig', () => {
     expect(result.config.markdocSchema).not.toBeNull();
   });
 
-  it('keeps apiDescriptions rules raw for the API path', async () => {
-    const result = await resolveRecheckConfig({
-      block: await presetBlock(['recheck/markdown'], {
-        apiDescriptions: { rules: { 'recheck/line-length': 'off' } },
-      }),
-      configDir,
-    });
-    expect(result.success).toBe(true);
-    if (!result.success) return;
-    expect(result.config.apiDescriptionRules).toEqual({ 'recheck/line-length': 'off' });
-  });
-
   it('merges the block on top of the presets with the core merge', async () => {
     const result = await resolveRecheckConfig({
       block: await presetBlock(['recheck/markdown'], {
@@ -255,5 +243,133 @@ describe('resolveRecheckConfig', () => {
     });
     expect(result.success).toBe(true);
     expect(warnings.some((message) => message.includes("starts with '^#'"))).toBe(true);
+  });
+
+  it('applies apiDescriptions.rules onto the effective rules for descriptions', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], {
+        apiDescriptions: {
+          rules: {
+            'recheck/line-length': 'off',
+            'recheck/no-trailing-spaces': { severity: 'warn', message: 'Shorter.' },
+          },
+        },
+      }),
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    const pages = new Map(result.config.rules.map((rule) => [rule.name, rule.severity]));
+    const descriptions = new Map(result.config.descriptionRules.map((rule) => [rule.name, rule]));
+    expect(pages.get('recheck/line-length')).not.toBe('off');
+    expect(descriptions.get('recheck/line-length')?.severity).toBe('off');
+    expect(descriptions.get('recheck/no-trailing-spaces')).toMatchObject({
+      severity: 'warn',
+      message: 'Shorter.',
+    });
+    expect(result.config.descriptionRules).toHaveLength(result.config.rules.length);
+  });
+
+  it('rejects an apiDescriptions override for a rule that is not in effect', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], {
+        apiDescriptions: { rules: { 'recheck/nope': 'off' } },
+      }),
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors.map((error) => error.path)).toEqual([
+      'recheck.apiDescriptions.rules.recheck/nope',
+    ]);
+  });
+
+  it('rejects an apiDescriptions severity override with an unknown severity', async () => {
+    const result = await resolveRecheckConfig({
+      block: {
+        ...(await presetBlock(['recheck/markdown'])),
+        apiDescriptions: { rules: { 'recheck/line-length': 'eror' } },
+      },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '"recheck/line-length" has an unknown severity "eror"',
+        path: 'recheck.apiDescriptions.rules.recheck/line-length',
+      },
+    ]);
+  });
+
+  it('rejects an apiDescriptions rule-object override with an unknown severity', async () => {
+    const result = await resolveRecheckConfig({
+      block: {
+        ...(await presetBlock(['recheck/markdown'])),
+        apiDescriptions: { rules: { 'recheck/line-length': { severity: 'loud' } } },
+      },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '"recheck/line-length" has an unknown severity "loud"',
+        path: 'recheck.apiDescriptions.rules.recheck/line-length',
+      },
+    ]);
+  });
+
+  it('rejects a non-object apiDescriptions block', async () => {
+    const result = await resolveRecheckConfig({
+      block: { ...(await presetBlock(['recheck/markdown'])), apiDescriptions: 'off' },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      { message: '`recheck.apiDescriptions` must be an object', path: 'recheck.apiDescriptions' },
+    ]);
+  });
+
+  it('rejects an unknown key in the apiDescriptions block', async () => {
+    const result = await resolveRecheckConfig({
+      block: {
+        ...(await presetBlock(['recheck/markdown'])),
+        apiDescriptions: { rule: { 'recheck/line-length': 'off' } },
+      },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '`recheck.apiDescriptions` has unknown keys: rule',
+        path: 'recheck.apiDescriptions',
+      },
+    ]);
+  });
+
+  it('rejects a non-object apiDescriptions.rules block', async () => {
+    const result = await resolveRecheckConfig({
+      block: { ...(await presetBlock(['recheck/markdown'])), apiDescriptions: { rules: 'off' } },
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.errors).toEqual([
+      {
+        message: '`recheck.apiDescriptions.rules` must be an object',
+        path: 'recheck.apiDescriptions.rules',
+      },
+    ]);
+  });
+
+  it('resolves an apiDescriptions block with an empty rules object', async () => {
+    const result = await resolveRecheckConfig({
+      block: await presetBlock(['recheck/markdown'], { apiDescriptions: { rules: {} } }),
+      configDir: process.cwd(),
+    });
+    expect(result.success).toBe(true);
   });
 });

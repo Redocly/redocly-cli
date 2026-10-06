@@ -148,7 +148,7 @@ describe('Arazzo x-security-scheme-required-values', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when required values are missing for Bearer Auth x-security schema', async () => {

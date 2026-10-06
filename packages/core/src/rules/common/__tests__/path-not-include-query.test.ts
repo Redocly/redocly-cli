@@ -62,6 +62,6 @@ describe('Oas3 path-not-include-query', () => {
       config: await createConfig({ rules: { 'path-not-include-query': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

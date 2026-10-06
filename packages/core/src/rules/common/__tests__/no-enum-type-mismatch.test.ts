@@ -34,7 +34,7 @@ describe('Oas3 typed enum', () => {
       config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on enum object if all items match type and enum is nullable', async () => {
@@ -67,7 +67,7 @@ describe('Oas3 typed enum', () => {
       config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on enum object if not all items match type', async () => {
@@ -579,7 +579,7 @@ describe('Oas3.1 typed const', () => {
       config: await createConfig({ rules: { 'no-enum-type-mismatch': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not crash on boolean schemas', async () => {

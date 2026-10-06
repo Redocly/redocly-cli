@@ -30,13 +30,13 @@ Here's a full list of the sorting features:
 Here's the main plugin entrypoint, it's in `sorting.js`:
 
 ```javascript
-import SortTagsAlphabetically from './sort-tags.js';
+import RuleSortMethods from './rule-sort-methods.js';
+import RuleSortProps from './rule-sort-props.js';
 import SortEnumsAlphabetically from './sort-enums.js';
 import SortMethods from './sort-methods.js';
 import SortPropertiesAlphabetically from './sort-props-alpha.js';
 import SortPropertiesRequiredFirst from './sort-props-required.js';
-import RuleSortMethods from './rule-sort-methods.js';
-import RuleSortProps from './rule-sort-props.js';
+import SortTagsAlphabetically from './sort-tags.js';
 
 export default function Sorting() {
   return {
