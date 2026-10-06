@@ -21,7 +21,7 @@ How the command picks its rules:
 With no paths, the command lints the Markdown files under the current directory and every local API in `apis`.
 It skips a remote API and says so.
 With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
-An alias from `apis` lints the descriptions of that API.
+With an alias from `apis`, the command lints the descriptions of that API.
 
 ## Usage
 
@@ -46,7 +46,7 @@ Use at most one of them in a run.
 
 | Option                    | Type     | Description                                                                                                                                           |
 | ------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| paths                     | [string] | Files or folders to lint. Default value is the current directory. See [Choose files](#choose-files).                                                  |
+| paths                     | [string] | Files, folders, or aliases from `apis` to lint. Default value is the current directory. See [Choose files](#choose-files).                            |
 | --check                   | boolean  | Fail when the generated schema differs from the file in `--output`. Use with `--generate-markdoc-schema`.                                             |
 | --config                  | string   | Path to the [configuration file](../configuration/index.md).                                                                                          |
 | --fix                     | boolean  | Apply fixes to the Markdown files. Alias: `-f`. See [Fix findings](#fix-findings).                                                                    |
@@ -124,8 +124,8 @@ A folder is searched for `.md` and `.markdown` files, and the search skips hidde
 redocly recheck README.md docs guides/intro.md
 ```
 
-A path that is an API description is skipped with a warning.
-The command does not lint the Markdown inside API descriptions yet.
+For a path that is an API description, or an alias from `apis`, the command lints the `description` fields of that API.
+When a file or folder exists with the same name as an alias, the command lints the file or folder.
 
 ### Fix findings
 

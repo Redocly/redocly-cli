@@ -20,6 +20,7 @@ import {
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { presets } from '@redocly/recheck/presets';
+import { existsSync } from 'node:fs';
 
 import { getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
@@ -39,27 +40,23 @@ import type { RecheckAction, RecheckArgv } from './types.js';
 
 const DEFAULT_PRESET = 'recheck/markdown';
 
-// A block of the wrong type is not empty, so the engine can report the error.
-function isEmptyRecheckBlock(block: Config['recheck']): boolean {
-  if (!isPlainObject(block)) return false;
+// A block of the wrong type counts as configured, so the engine can report the error.
+function hasRecheckConfig(block: Config['recheck']): boolean {
+  if (!isPlainObject(block)) return true;
   const { rules, ...settings } = block;
-  return Object.keys(settings).length === 0 && Object.keys(rules ?? {}).length === 0;
+  return Object.keys(settings).length > 0 || Object.keys(rules ?? {}).length > 0;
 }
 
 // The command reads the root config only; per-API recheck settings do nothing.
-// The check reads the raw config because the resolved config merges `extends` into the rules.
 function warnAboutPerApiRecheck(config: Config): void {
   const raw = config.document?.parsed;
   if (!isPlainObject(raw) || !isPlainObject(raw.apis)) return;
   for (const [alias, api] of Object.entries(raw.apis)) {
     if (!isPlainObject(api)) continue;
-    let hasRecheckPreset = false;
-    if (Array.isArray(api.extends)) {
-      for (const name of api.extends) {
-        if (isString(name) && name.startsWith('recheck/')) hasRecheckPreset = true;
-      }
-    }
-    if ('recheck' in api || hasRecheckPreset) {
+    const recheckPresets = Array.isArray(api.extends)
+      ? api.extends.filter(isString).filter((name) => name.startsWith('recheck/'))
+      : [];
+    if ('recheck' in api || recheckPresets.length > 0) {
       logger.warn(
         `Recheck settings under apis.${alias} are not used; the command reads the root config.\n`
       );
@@ -123,7 +120,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
 
   warnAboutPerApiRecheck(config);
   let block = config.recheck;
-  if (isEmptyRecheckBlock(block)) {
+  if (!hasRecheckConfig(block)) {
     if (config.configPath) {
       logger.info(
         'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
@@ -169,12 +166,19 @@ async function runAction(
     }
   } else {
     for (const requestedPath of requestedPaths) {
-      // An alias from the `apis` block gives the root file of that API.
-      const { path } = getAliasOrPath(config, requestedPath);
-      if (isAbsoluteUrl(path) || (await isApiDescription(path, resolver))) {
-        apiPaths.push(path);
+      // An alias from the `apis` block names an API, whatever the extension of its root.
+      // An existing file or folder with the same name wins over the alias.
+      const isAlias =
+        config.resolvedConfig.apis?.[requestedPath] !== undefined && !existsSync(requestedPath);
+      if (isAlias) {
+        apiPaths.push(getAliasOrPath(config, requestedPath).path);
+      } else if (
+        isAbsoluteUrl(requestedPath) ||
+        (await isApiDescription(requestedPath, resolver))
+      ) {
+        apiPaths.push(requestedPath);
       } else {
-        roots.push(path);
+        roots.push(requestedPath);
       }
     }
   }

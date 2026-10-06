@@ -74,6 +74,7 @@ const SCHEMAS = outdent`
 describe('isApiDescription', () => {
   it.each([
     ['an API description', 'openapi.yaml', ROOT, true],
+    ['an API description with an upper-case extension', 'openapi.YAML', ROOT, true],
     ['a YAML file that does not parse', 'broken.yaml', 'title: [t', true],
     ['a YAML file that is not an API description', 'notes.yaml', 'title: Notes', false],
     ['a Markdown file', 'index.md', '# Cafe', false],
@@ -201,10 +202,84 @@ describe('collectEmbeddedInputs', () => {
       await configIn(dir),
       new BaseResolver()
     );
+    const root = join(dir, 'openapi.yaml');
     expect(result.failureCount).toBe(1);
     expect(result.inputs).toEqual([]);
-    expect(result.unreadableFiles).toEqual([join(dir, 'openapi.yaml'), join(dir, 'missing.yaml')]);
-    expect(output.stderr.join('')).toContain('Could not resolve $ref ./missing.yaml#/MenuItem');
+    expect(result.unreadableFiles).toEqual([root, join(dir, 'missing.yaml')]);
+    expect(output.stderr).toEqual([
+      `Could not read API description ${root}: Could not resolve $ref ./missing.yaml#/MenuItem from ${root}: ENOENT: no such file or directory '${join(dir, 'missing.yaml')}'\n`,
+    ]);
+  });
+
+  it('names the file with the missing pointer at the end of a $ref chain', async () => {
+    const dir = fixture({
+      'openapi.yaml': outdent`
+        openapi: 3.1.0
+        info:
+          title: Cafe
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            MenuItem:
+              $ref: './b.yaml#/Foo'
+      `,
+      'b.yaml': outdent`
+        Foo:
+          $ref: './c.yaml#/Bar'
+      `,
+      'c.yaml': outdent`
+        Other:
+          type: string
+      `,
+    });
+    const { failureCount } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
+    );
+    expect(failureCount).toBe(0);
+    expect(output.stderr).toEqual([
+      `Could not resolve $ref ./b.yaml#/Foo from ${join(dir, 'openapi.yaml')}: a pointer is missing in ${join(dir, 'c.yaml')}; its descriptions are skipped.\n`,
+    ]);
+  });
+
+  // The walker reports a $ref chain as one $ref with the error of its last hop.
+  it('names the broken file at the end of a $ref chain', async () => {
+    const dir = fixture({
+      'openapi.yaml': outdent`
+        openapi: 3.1.0
+        info:
+          title: Cafe
+          version: 1.0.0
+        paths: {}
+        components:
+          schemas:
+            MenuItem:
+              $ref: './b.yaml#/Foo'
+      `,
+      'b.yaml': outdent`
+        Foo:
+          $ref: './c.yaml#/Bar'
+      `,
+      'c.yaml': 'title: [t',
+    });
+    const { failureCount, unreadableFiles } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
+    );
+    expect(failureCount).toBe(1);
+    expect(unreadableFiles).toEqual([
+      join(dir, 'openapi.yaml'),
+      join(dir, 'b.yaml'),
+      join(dir, 'c.yaml'),
+    ]);
+    const [message] = output.stderr;
+    expect(message).toContain(
+      `Could not resolve $ref ./b.yaml#/Foo from ${join(dir, 'openapi.yaml')}`
+    );
+    expect(message).toContain(join(dir, 'c.yaml'));
   });
 
   it('keeps the descriptions and warns once when an external file loads but its pointer is missing', async () => {
@@ -276,11 +351,18 @@ describe('collectEmbeddedInputs', () => {
 
   it('keeps a remote file out of the API files when a local $ref chains into it', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response('Order:\n  type: object\n  description: An order for one drink.\n')
+      new Response(outdent`
+        Order:
+          type: object
+          description: An order for one drink.
+      `)
     );
     const dir = fixture({
       'openapi.yaml': ROOT,
-      'schemas.yaml': 'Order:\n  $ref: https://example.com/schemas.yaml#/Order\n',
+      'schemas.yaml': outdent`
+        Order:
+          $ref: https://example.com/schemas.yaml#/Order
+      `,
     });
     const { apiFiles, failureCount } = await collectEmbeddedInputs(
       [join(dir, 'openapi.yaml')],
@@ -288,7 +370,7 @@ describe('collectEmbeddedInputs', () => {
       new BaseResolver()
     );
     expect(failureCount).toBe(0);
-    expect(apiFiles).not.toContain('https://example.com/schemas.yaml');
+    expect(apiFiles).toEqual([join(dir, 'openapi.yaml')]);
   });
 
   it('skips a remote API without reading it', async () => {
