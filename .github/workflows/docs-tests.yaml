@@ -26,9 +26,9 @@ jobs:
       REDOCLY_TELEMETRY: off
       # The `--prefix /tmp` flag keeps npx outside the repository root, which
       # declares @redocly/cli as a workspace. When the workspace version equals
-      # the pin, npx does not download the release and fails with
+      # the latest release, npx does not download it and fails with
       # "redocly: command not found".
-      RECHECK: npx --prefix /tmp --yes @redocly/cli@2.58.1 recheck --config docs/redocly.yaml
+      RECHECK: npx --prefix /tmp --yes @redocly/cli@latest recheck --config docs/redocly.yaml
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
