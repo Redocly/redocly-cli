@@ -15,9 +15,9 @@ For that purpose, you can write a simple `JavaScript` script code similar to the
 ```javascript
 /* reorder.js */
 
+import { parseYaml, stringifyYaml } from '@redocly/openapi-core';
 // Import the necessary modules
 import fs from 'fs';
-import { parseYaml, stringifyYaml } from '@redocly/openapi-core';
 
 // Define the function to reorder the properties
 const reorder = (root) => {

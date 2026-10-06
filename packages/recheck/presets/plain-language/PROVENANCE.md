@@ -328,7 +328,7 @@ microsoft+plain-language: 3 of 35). These are KEPT, not removed, because
 they are not content-equivalence — each is either:
 
 1. **The accepted paragraph-length overlap** — `plain-language/paragraph-
-max-words` and `plain-language/paragraph-sentence-count` always co-fire
+   max-words` and `plain-language/paragraph-sentence-count` always co-fire
    on the same long paragraph (that's two independently-sourced numbers,
    words vs. sentences, both real); against `recheck/microsoft`
    specifically, `microsoft/paragraph-length` (a DIFFERENT number, 7

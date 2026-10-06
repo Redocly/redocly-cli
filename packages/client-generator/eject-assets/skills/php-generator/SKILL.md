@@ -59,7 +59,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   for query parameters.
 - **Method arguments:** required path params positional, JSON body next, optional query
   params as nullable NAMED arguments, then `?array $headers`, and `?string
-$idempotencyKey` on mutating methods.
+  $idempotencyKey` on mutating methods.
 - **Non-JSON success bodies** (PDFs, images, octet streams) return the raw body as
   `string` — a binary download must never degrade to `void`.
 - **PHPDoc carries what the signature cannot.** PHP's `array` and `\Generator` erase their

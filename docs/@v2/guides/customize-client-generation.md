@@ -253,6 +253,7 @@ Or register a generator **inline** with the programmatic API and select it by na
 
 ```ts
 import { generateClient } from '@redocly/client-generator';
+
 import responseMap from './tools/response-map-generator.ts';
 
 await generateClient({

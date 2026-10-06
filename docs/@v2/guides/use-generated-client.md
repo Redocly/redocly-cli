@@ -162,6 +162,7 @@ The custom command lives in a file that you own:
 
 ```ts
 import type { CustomCommand } from '@redocly/client-generator';
+
 import { runCli, SOURCES } from './src/cafe.ts'; // the composed entry exports its sources and the engine
 
 const login: CustomCommand = {
@@ -636,6 +637,7 @@ If your application already has a configured HTTP layer, pass it to the client i
 
 ```ts
 import axios from 'axios';
+
 import { configure } from './client.ts';
 
 // One adapter, and every generated call goes through your instance:
