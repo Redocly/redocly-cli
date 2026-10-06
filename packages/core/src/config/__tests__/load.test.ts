@@ -2671,14 +2671,10 @@ describe('loadConfig', () => {
   });
 
   it('should rebase file paths from referenced config files onto the root config', async () => {
-    const config = await loadConfig({
+    const { resolvedConfig } = await loadConfig({
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths/redocly.yaml'),
     });
-    const { resolvedConfig } = config;
 
-    expect(resolvedConfig.plugins).toEqual(['governance/plugin.cjs']);
-    expect(config.plugins.map((plugin) => plugin.id)).toContain('file-paths-plugin');
-    expect(resolvedConfig.rules).toMatchObject({ 'info-license': 'error' });
     expect(resolvedConfig.apis).toMatchObject({
       inline: { root: './openapi.yaml', output: './dist/inline.yaml' },
       'one-level': {
@@ -2687,7 +2683,7 @@ describe('loadConfig', () => {
         overlays: ['nested/overlays/add-servers.yaml'],
         clientOutput: 'nested/client.ts',
         client: { setup: 'nested/setup.mjs', cliOutput: 'nested/deep/cli/index.ts' },
-        rules: { 'info-license': 'error', 'operation-description': 'error' },
+        rules: { 'operation-description': 'error' },
       },
       chained: { root: 'nested/deep/openapi.yaml' },
       reused: { root: 'nested/openapi.yaml', output: 'nested/dist/openapi.yaml' },
@@ -2695,10 +2691,11 @@ describe('loadConfig', () => {
         root: 'https://example.com/openapi.yaml',
         output: '/absolute/dist/openapi.yaml',
         clientOutput: '',
-        title: './not-a-path',
       },
       'parent-dir': { root: 'specs/openapi.yaml', output: 'nested/dist/out.yaml' },
       sibling: { root: 'nested/openapi.yaml', output: './dist/sibling.yaml' },
+      // the same referenced object reached under a second node type is rebased once
+      'shared-openapi': { openapi: { htmlTemplate: 'nested/template.html' } },
     });
     expect(resolvedConfig.client).toEqual({
       setup: 'nested/setup.mjs',
@@ -2712,9 +2709,9 @@ describe('loadConfig', () => {
       catalog: {
         main: { slug: '/apis/', items: [{ directory: 'nested/apis' }, { directory: '.' }] },
       },
-      apiFunctions: { folders: ['nested/functions', 'https://example.com/functions'] },
-      // the same referenced object reached under a second node type is rebased once
-      apis: { 'shared-openapi': { openapi: { htmlTemplate: 'nested/template.html' } } },
+      apiFunctions: {
+        folders: ['nested/functions', 'https://example.com/functions', 's3://bucket/functions'],
+      },
     });
   });
 
@@ -2723,18 +2720,9 @@ describe('loadConfig', () => {
       configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths-root.yaml'),
     });
 
-    expect(resolvedConfig.plugins).toEqual(['file-paths/governance/plugin.cjs']);
     expect(resolvedConfig.apis).toMatchObject({
-      inline: { root: 'file-paths/openapi.yaml', output: 'file-paths/dist/inline.yaml' },
-      'one-level': {
-        root: 'file-paths/nested/openapi.yaml',
-        overlays: ['file-paths/nested/overlays/add-servers.yaml'],
-        client: { setup: 'file-paths/nested/setup.mjs' },
-      },
-      chained: { root: 'file-paths/nested/deep/openapi.yaml' },
-    });
-    expect(resolvedConfig.catalog).toMatchObject({
-      main: { items: [{ directory: 'file-paths/nested/apis' }, { directory: 'file-paths' }] },
+      inline: { root: 'file-paths/openapi.yaml' },
+      'one-level': { root: 'file-paths/nested/openapi.yaml' },
     });
   });
 

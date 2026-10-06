@@ -2,7 +2,7 @@ import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
 
 import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
-import type { NormalizedScalarSchema } from '../types/index.js';
+import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
@@ -71,7 +71,7 @@ export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
   rootRef: string;
-  visited: WeakSet<object>;
+  rebasedNodes: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -87,18 +87,18 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-// a reference with a scheme is absolute, whatever the scheme (RFC 3986)
+// a reference with a scheme is absolute, whatever the scheme (RFC 3986); isAbsoluteUrl knows only a fixed list
 const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i;
 
 // Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
-  const { rootRef, visited } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
-  if (!isPlainObject(node) || sourceRef === rootRef || visited.has(node)) {
+  if (!isPlainObject(node) || sourceRef === rootRef || rebasedNodes.has(node)) {
     return;
   }
-  // the walker visits a shared `$ref` target once per node type name
-  visited.add(node);
+  // the walker visits a shared `$ref` target once per node type name, so rebase each node once
+  rebasedNodes.add(node);
   const rebase = (value: unknown) => {
     if (!isString(value) || !value || URI_SCHEME.test(value) || path.isAbsolute(value)) {
       return value;
@@ -110,13 +110,13 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     return path.relative(path.dirname(rootRef), resolved) || '.';
   };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    if (!isPlainObject<NormalizedScalarSchema>(schema)) {
+    if (typeof schema === 'function' || isNamedType(schema)) {
       continue;
     }
     const value = node[field];
-    if (schema.format === 'uri-reference' && isString(value)) {
+    if (schema?.format === 'uri-reference' && isString(value)) {
       node[field] = rebase(value);
-    } else if (schema.items?.format === 'uri-reference' && Array.isArray(value)) {
+    } else if (schema?.items?.format === 'uri-reference' && Array.isArray(value)) {
       node[field] = value.map(rebase);
     }
   }

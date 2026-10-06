@@ -217,8 +217,7 @@ Therefore, only the header from the first match is used in the request.
 ### Split up the configuration file
 
 As your config file grows, you may want to split it into multiple parts.
-Splitting a config file is possible by using references in a config similar to how they are used in OpenAPI descriptions.
-File paths written in a referenced file are relative to that file:
+Splitting a config file is possible by using references in a config similar to how they are used in OpenAPI descriptions:
 
 ```yaml
 extends:
@@ -228,6 +227,8 @@ openapi:
 mockServer:
   $ref: ./mockserver.yaml
 ```
+
+File paths written in a referenced file are relative to that file.
 
 {% admonition type="info" %}
 When using the `push` command with a config file that includes `$ref`s, all referenced files are explicitly uploaded using the `--files` option.

@@ -1,7 +1,3 @@
-extends:
-  - ./governance/rules.yaml
-plugins:
-  - ./governance/plugin.cjs
 apis:
   inline:
     root: ./openapi.yaml

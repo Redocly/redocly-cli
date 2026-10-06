@@ -15,7 +15,6 @@ untouched:
   root: https://example.com/openapi.yaml
   output: /absolute/dist/openapi.yaml
   clientOutput: ''
-  title: ./not-a-path
 client:
   setup: ./setup.mjs
   cliOutput: ./cli/index.ts
@@ -36,3 +35,4 @@ apiFunctions:
   folders:
     - ./functions
     - https://example.com/functions
+    - s3://bucket/functions

@@ -1,7 +1,7 @@
 import { getNodeTypesFromJSONSchema } from '../json-schema-adapter.js';
 
 describe('getNodeTypesFromJSONSchema', () => {
-  it('types the entries of an object with a single pattern like additionalProperties', () => {
+  it('types the entries of a single-pattern object like additionalProperties and keeps the format', () => {
     const { ctx: types } = getNodeTypesFromJSONSchema('Catalogs', {
       type: 'object',
       additionalProperties: false,

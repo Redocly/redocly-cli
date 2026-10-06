@@ -56,7 +56,7 @@ export function bundleConfig(
     plugins,
     skipPluginEval,
     rootRef: document.source.absoluteRef,
-    visited: new WeakSet(),
+    rebasedNodes: new WeakSet(),
   };
   const ctx: BundleContext = {
     problems: [],
