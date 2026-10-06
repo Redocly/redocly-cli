@@ -94,14 +94,14 @@ Reunite applies your project role to every git request:
 - Cloning and pulling need read access to every file in the project.
   If your access is limited to some files, use the Reunite editor instead.
 - Pushing needs permission to commit, write access to every file in the project, and an active subscription.
-- Pushing to the default branch needs the permission to edit it, which the project **Admin** role has.
-  With other roles, push a branch and open a pull request in Reunite.
+- Nobody can push to the default branch, also with an API key.
+  Push a branch and open a pull request in Reunite.
 - Creating and deleting branches need the matching branch permissions. The default branch can't be deleted.
 
 When a push is not allowed, git reports each ref as rejected and shows the reason:
 
 ```text
- ! [remote rejected] main -> main (you don't have permission to push to the default branch; push another branch and open a pull request)
+ ! [remote rejected] main -> main (the default branch can't be pushed to; push another branch and open a pull request in Reunite)
 ```
 
 ## Examples
