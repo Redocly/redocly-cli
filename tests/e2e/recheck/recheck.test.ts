@@ -178,6 +178,17 @@ describe('recheck', () => {
     );
   });
 
+  test('alias-vs-folder lints an existing folder as pages when an alias has the same name', async () => {
+    const testPath = join(__dirname, 'alias-vs-folder');
+    const args = getParams(indexEntryPoint, ['recheck', 'docs']);
+    const result = getCommandOutput(args, { testPath });
+    expect(result).toContain('single-h1');
+    expect(result).not.toContain('line-length');
+    await expect(cleanupOutput(normalizeTiming(result))).toMatchFileSnapshot(
+      join(testPath, 'snapshot.txt')
+    );
+  });
+
   test('api-no-descriptions reports no issues for an API without descriptions', async () => {
     const testPath = join(__dirname, 'api-no-descriptions');
     const args = getParams(indexEntryPoint, ['recheck', 'openapi.yaml', '--format=json']);

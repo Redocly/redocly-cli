@@ -191,6 +191,33 @@ describe('handleRecheck', () => {
       expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
     });
 
+    // The description is longer than the 80 characters that `line-length` allows.
+    const API_WITH_FINDING = outdent`
+      openapi: 3.1.0
+      info:
+        title: Cafe
+        version: 1.0.0
+        description: Welcome to the cafe, where every order is a small ceremony and no drink is ever rushed.
+      paths: {}
+    `;
+
+    it('lints the descriptions of the API that an alias names', async () => {
+      await fs.writeFile(path.join(dir, 'openapi.yaml'), API_WITH_FINDING);
+      const config = await createConfig(
+        { extends: ['recheck/markdown'], apis: { cafe: { root: 'openapi.yaml' } } },
+        { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
+      );
+      const argv: RecheckArgv = { format: 'table', paths: ['cafe'] };
+
+      await expect(handleRecheck({ argv, config, version: 'test' })).rejects.toThrow(
+        AbortFlowError
+      );
+
+      expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
+      expect(output.stdout.join('')).toContain('line-length');
+      expect(output.stdout.join('')).toContain('openapi.yaml:5:');
+    });
+
     // The e2e snapshots show the message but not the exit code.
     it.each<[string, Partial<RecheckArgv>]>([
       ['lint', {}],
