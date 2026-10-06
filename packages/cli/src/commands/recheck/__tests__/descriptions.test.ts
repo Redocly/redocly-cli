@@ -1,5 +1,5 @@
-import { BaseResolver, createConfig, type Config } from '@redocly/openapi-core';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { BaseResolver, createConfig, ResolveError, type Config } from '@redocly/openapi-core';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
@@ -80,6 +80,24 @@ describe('isApiDescription', () => {
   ])('returns the right answer for %s', async (_case, name, content, expected) => {
     const dir = fixture({ [name]: content });
     expect(await isApiDescription(join(dir, name), new BaseResolver())).toBe(expected);
+  });
+
+  it('returns true for a YAML file that exists but cannot be read', async () => {
+    const dir = fixture({ 'openapi.yaml': ROOT });
+    const resolver = new BaseResolver();
+    vi.spyOn(resolver, 'loadExternalRef').mockRejectedValue(
+      new ResolveError(new Error('EACCES: permission denied'))
+    );
+    expect(await isApiDescription(join(dir, 'openapi.yaml'), resolver)).toBe(true);
+  });
+
+  it.each([
+    ['a missing file', 'missing.yaml'],
+    ['a folder', 'folder.yaml'],
+  ])('returns false for %s', async (_case, name) => {
+    const dir = fixture({});
+    mkdirSync(join(dir, 'folder.yaml'));
+    expect(await isApiDescription(join(dir, name), new BaseResolver())).toBe(false);
   });
 });
 
@@ -254,6 +272,23 @@ describe('collectEmbeddedInputs', () => {
       new BaseResolver()
     );
     expect(unreadableFiles).toEqual([join(dir, 'openapi.yaml'), join(dir, 'data#v2.yaml')]);
+  });
+
+  it('keeps a remote file out of the API files when a local $ref chains into it', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response('Order:\n  type: object\n  description: An order for one drink.\n')
+    );
+    const dir = fixture({
+      'openapi.yaml': ROOT,
+      'schemas.yaml': 'Order:\n  $ref: https://example.com/schemas.yaml#/Order\n',
+    });
+    const { apiFiles, failureCount } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
+    );
+    expect(failureCount).toBe(0);
+    expect(apiFiles).not.toContain('https://example.com/schemas.yaml');
   });
 
   it('skips a remote API without reading it', async () => {

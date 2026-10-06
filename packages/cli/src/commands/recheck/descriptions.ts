@@ -8,6 +8,7 @@ import {
   normalizeTypes,
   normalizeVisitors,
   parseRef,
+  ResolveError,
   resolveDocument,
   walkDocument,
   YamlParseError,
@@ -17,6 +18,7 @@ import {
   type Source,
 } from '@redocly/openapi-core';
 import type { EmbeddedInput } from '@redocly/recheck';
+import { statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import { createPositionMapper } from './positions.js';
@@ -46,18 +48,19 @@ export interface EmbeddedInputs {
   unreadableFiles: string[];
 }
 
-// A YAML or JSON file that does not parse counts as an API description:
+// A YAML or JSON file that cannot be read or parsed counts as an API description:
 // the run must fail for it instead of linting it as Markdown.
 // The resolver keeps the parsed file, so the walk does not read it again.
 export async function isApiDescription(path: string, resolver: BaseResolver): Promise<boolean> {
   if (!isSupportedExtension(path)) return false;
+  if (!statSync(path, { throwIfNoEntry: false })?.isFile()) return false;
   try {
     const document = await resolver.resolveDocument(null, path, true);
     if (document instanceof Error) throw document;
     detectSpec(document.parsed);
     return true;
   } catch (error) {
-    return error instanceof YamlParseError;
+    return error instanceof ResolveError || error instanceof YamlParseError;
   }
 }
 
@@ -112,7 +115,9 @@ async function walkApi(
         }
         // A missing pointer keeps the location of its file; only an unknown $ref has none.
         if (resolved.location === undefined) return;
-        files.add(resolved.location.source.absoluteRef);
+        // A local $ref can chain into a remote file, which is not linted.
+        const targetFile = resolved.location.source.absoluteRef;
+        if (!isAbsoluteUrl(targetFile)) files.add(targetFile);
         if (resolved.node === undefined) {
           unresolvedPointers.add(
             `Could not resolve $ref ${ref} from ${sourceFile}; its descriptions are skipped.`
