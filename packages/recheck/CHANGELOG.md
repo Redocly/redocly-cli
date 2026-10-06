@@ -1,5 +1,20 @@
 # @redocly/recheck
 
+## 2.59.0
+
+### Minor Changes
+
+- Improved `redocly recheck` to lint the `description` fields of API descriptions.
+  Findings report the source line and column.
+  You can suppress the findings by file, rule, and pointer, or adjust rules for descriptions only.
+
+  **Note:** `ResolvedRecheckConfig` gains a required `descriptionRules` field.
+  Library code that builds that object by hand must set it.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.59.0.
+
 ## 2.58.2
 
 ### Patch Changes
