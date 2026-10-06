@@ -1,5 +1,25 @@
 # @redocly/cli
 
+## 2.59.0
+
+### Minor Changes
+
+- Improved `redocly recheck` to lint the `description` fields of API descriptions.
+  Findings report the source line and column.
+  You can suppress the findings by file, rule, and pointer, or adjust rules for descriptions only.
+
+  **Note:** `ResolvedRecheckConfig` gains a required `descriptionRules` field.
+  Library code that builds that object by hand must set it.
+
+### Patch Changes
+
+- Updated `brace-expansion` to `2.1.7` and `5.0.12`, `dompurify` to `3.4.16`, `fast-uri` to `3.1.8`, and `js-yaml` to `5.4.3` to resolve `CVE-2026-102276`, `CVE-2026-102277`, `CVE-2026-102278`, `CVE-2026-86472`, `GHSA-p98j-92pf-mc4p`, and `GHSA-r3ph-w7gj-g6xm`.
+- Updated `oxfmt` to `0.72.0` and `tinypool` to `2.2.0` to resolve `CVE-2026-104848` and `CVE-2026-104849`.
+- Updated `proxy-addr` to `2.0.8` and `source-map-js` to `1.2.2` to resolve `CVE-2026-90711` and `CVE-2026-93749`.
+- Updated @redocly/openapi-core to v2.59.0.
+- Updated @redocly/recheck to v2.59.0.
+- Updated @redocly/reunite-integration to v2.59.0.
+
 ## 2.58.2
 
 ### Patch Changes
