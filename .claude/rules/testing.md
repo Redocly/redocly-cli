@@ -65,7 +65,7 @@
    If a test sees stale code, compile — do not change the config.
    The one exception is the `client-generators` suite below.
 
-1. Run the full suite (`npm test`) before you open a pull request, and make sure all tests pass in CI.
+1. Run the full suite (`npm test`) after the code change, and make sure all tests pass in CI.
 1. Client generation has its own suite: `npm run client-generators` runs the `tests/e2e/generate-client` bars.
    Run it for any generation change.
    These bars compile real Python, Go, PHP, and TypeScript output, some of it from large real-world descriptions.
