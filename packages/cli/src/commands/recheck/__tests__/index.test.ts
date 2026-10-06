@@ -4,6 +4,7 @@ import { recheckPresetsPlugin } from '@redocly/recheck/presets';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { outdent } from 'outdent';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { configFixture } from '../../../__tests__/fixtures/config.js';
@@ -162,7 +163,16 @@ describe('handleRecheck', () => {
 
     it('skips an API description and warns', async () => {
       const api = path.join(dir, 'openapi.yaml');
-      await fs.writeFile(api, 'openapi: 3.0.0\ninfo:\n  title: T\n  version: 1.0.0\npaths: {}\n');
+      await fs.writeFile(
+        api,
+        outdent`
+          openapi: 3.0.0
+          info:
+            title: T
+            version: 1.0.0
+          paths: {}
+        `
+      );
       await runWith({ paths: [api] });
       expect(output.stderr).toEqual([
         `API descriptions are linted from the next release; skipped ${api}\n`,

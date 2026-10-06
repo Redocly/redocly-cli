@@ -156,7 +156,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when required property is in allOf sibling via anyOf ancestor', async () => {
@@ -193,7 +193,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when parent property is required in a nested schema', async () => {
@@ -331,7 +331,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not cause stack overflow when there are circular references in schemas', async () => {
@@ -374,7 +374,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report undefined property in schema with nested allOf $ref chain', async () => {
@@ -493,7 +493,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report if one or more of the required properties are undefined when used in schema with oneOf keyword', async () => {
@@ -580,7 +580,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should NOT report when required property exists in all anyOf branches', async () => {
@@ -614,7 +614,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when required properties are not declared in all anyOf branches', async () => {
@@ -715,7 +715,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should NOT report when required property is in allOf sibling reached via oneOf parent', async () => {
@@ -748,7 +748,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should work for AsyncAPI 3', async () => {
@@ -986,7 +986,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report a required property defined further down a composed $ref chain', async () => {
@@ -1024,7 +1024,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report a required property defined in an allOf sibling of a referenced composed $ref', async () => {
@@ -1063,7 +1063,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report an undefined required property written next to an inline $ref', async () => {
@@ -1152,7 +1152,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should find a property on a composed hop even when the chain end was already visited', async () => {
@@ -1191,7 +1191,7 @@ describe('no-required-schema-properties-undefined', () => {
       config: await createConfig({ rules: { 'no-required-schema-properties-undefined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should still report a genuinely undefined property in a composed $ref chain', async () => {

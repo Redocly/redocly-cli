@@ -38,5 +38,5 @@ it('should not fail on valid callbacks object', async () => {
     await validateDoc(source, {
       struct: 'error',
     })
-  ).toMatchInlineSnapshot(`[]`);
+  ).toEqual([]);
 });
