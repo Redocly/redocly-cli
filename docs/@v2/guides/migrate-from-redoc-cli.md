@@ -51,12 +51,12 @@ In both cases, the child options should work as before.
 
 ### Update command-line configuration
 
-Replace your existing `--options.theme.*` settings with a new prefix: `--theme.openapi.theme.*`.
+Replace your existing `--options.theme.*` settings with a new prefix: `--openapi.theme.*`.
 
 For example if you used `redoc-cli build --options.theme.sidebar.width='300px' openapi.yaml` then the new command would be:
 
 ```sh
-redocly build-docs --theme.openapi.theme.sidebar.width='300px' openapi.yaml
+redocly build-docs --openapi.theme.sidebar.width='300px' openapi.yaml
 ```
 
 ### Update configuration file

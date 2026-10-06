@@ -1,8 +1,7 @@
-import { createConfig, HandledError } from '@redocly/openapi-core';
+import { bundle, createConfig, HandledError } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
-import { createStore, loadAndBundleSpec } from 'redoc';
-import { type OpenAPISpec } from 'redoc/typings/types/index.js';
+import { prepareApiDocs } from 'redoc';
 
 import { handlerBuildCommand } from '../../commands/build-docs/index.js';
 import { type BuildDocsArgv } from '../../commands/build-docs/types.js';
@@ -10,7 +9,20 @@ import { getObjectOrJSON, getPageHTML } from '../../commands/build-docs/utils.js
 import type * as miscellaneous from '../../utils/miscellaneous.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 
-vi.mock('redoc');
+vi.mock('redoc', () => ({
+  convertSwagger2OpenAPI: vi.fn(async (spec: Record<string, unknown>) => spec),
+  prepareApiDocs: vi.fn(async () => ({ items: [], store: {}, options: {} })),
+  logoFromSpec: vi.fn(),
+  RedoclyApiDocsStandalone: () => null,
+  ServerStyleSheet: class {
+    collectStyles(app: unknown) {
+      return app;
+    }
+    getStyleTags() {
+      return '';
+    }
+  },
+}));
 vi.mock('node:fs');
 vi.mock('../../utils/miscellaneous.js', async (importOriginal) => ({
   ...(await importOriginal<typeof miscellaneous>()),
@@ -25,6 +37,13 @@ vi.mock('handlebars', () => ({
     compile: vi.fn(() => vi.fn(() => '<html></html>')),
   },
 }));
+vi.mock('@redocly/openapi-core', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>;
+  return {
+    ...actual,
+    bundle: vi.fn(async () => ({ bundle: { parsed: { openapi: '3.1.0' } } })),
+  };
+});
 
 const config = {
   output: '',
@@ -33,13 +52,17 @@ const config = {
   templateFileName: '',
   templateOptions: {},
   redocOptions: {},
+  disableTelemetry: true,
+  inlineBundle: false,
 };
 
 describe('build-docs', () => {
-  beforeEach(() => {
-    vi.mocked(loadAndBundleSpec).mockResolvedValue({ openapi: '3.0.0' } as OpenAPISpec);
-    vi.mocked(createStore).mockResolvedValue({ toJS: vi.fn(async () => '{}' as any) } as any);
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
 
+  beforeEach(() => {
     vi.mocked(fs.readFileSync).mockImplementation(() => '');
 
     vi.mocked(getFallbackApisOrExit).mockImplementation(
@@ -48,12 +71,15 @@ describe('build-docs', () => {
   });
 
   it('should return correct html and call function for ssr', async () => {
-    const result = await getPageHTML({}, '../some-path/openapi.yaml', {
-      ...config,
-      redocVersion: '2.0.0',
-    });
+    const result = await getPageHTML(
+      { openapi: '3.1.0' },
+      {
+        ...config,
+        redocVersion: '3.0.0',
+      }
+    );
     expect(renderToString).toHaveBeenCalledTimes(1);
-    expect(createStore).toHaveBeenCalledTimes(1);
+    expect(prepareApiDocs).toHaveBeenCalledTimes(1);
     expect(result).toBe('<html></html>');
   });
 
@@ -67,21 +93,94 @@ describe('build-docs', () => {
         template: '',
         templateOptions: {},
         theme: { openapi: {} },
+        inlineBundle: false,
         api: '../some-path/openapi.yaml',
       } as BuildDocsArgv,
       config: await createConfig({}),
       version: 'cli-version',
     });
-    expect(loadAndBundleSpec).toBeCalledTimes(1);
+    expect(bundle).toBeCalledTimes(1);
     expect(getFallbackApisOrExit).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);
   });
 
-  it('reports an invalid --theme.openapi value with the parse error only', async () => {
+  it('should render a GraphQL schema as SDL without bundling it', async () => {
+    const schema = 'type Query { hello: String }';
+    vi.mocked(fs.lstatSync).mockReturnValue({ isDirectory: () => false } as fs.Stats);
+    vi.mocked(fs.promises.readFile).mockResolvedValue(schema);
+    const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
+    await handlerBuildCommand({
+      argv: {
+        o: '',
+        template: '',
+        templateOptions: {},
+        inlineBundle: false,
+        api: '../some-path/schema.graphql',
+      } as BuildDocsArgv,
+      config: await createConfig({}),
+      version: 'cli-version',
+    });
+    expect(bundle).not.toHaveBeenCalled();
+    expect(prepareApiDocs).toHaveBeenCalledWith(expect.objectContaining({ spec: schema }));
+    expect(vi.mocked(prepareApiDocs).mock.lastCall?.[0]).not.toHaveProperty('specType');
+    expect(processExitMock).toBeCalledTimes(0);
+  });
+
+  it('loads a remote GraphQL schema over HTTP instead of reading it from disk', async () => {
+    const schema = 'type Query { hello: String }';
+    const url = 'https://example.com/schema.graphql';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(schema, { status: 200 }))
+    );
+    const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
+    await handlerBuildCommand({
+      argv: {
+        o: '',
+        template: '',
+        templateOptions: {},
+        inlineBundle: false,
+        api: url,
+      } as BuildDocsArgv,
+      config: await createConfig({}),
+      version: 'cli-version',
+    });
+    expect(bundle).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledWith(url, expect.anything());
+    expect(prepareApiDocs).toHaveBeenCalledWith(expect.objectContaining({ spec: schema }));
+    expect(processExitMock).toBeCalledTimes(0);
+  });
+
+  it('follows the CLI usage-data setting for Redoc telemetry in the page', async () => {
+    vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
+    const argv = {
+      o: '',
+      template: '',
+      templateOptions: {},
+      inlineBundle: false,
+      api: '../some-path/openapi.yaml',
+    } as BuildDocsArgv;
+
+    vi.stubEnv('REDOCLY_TELEMETRY', 'off');
+    await handlerBuildCommand({ argv, config: await createConfig({}), version: 'cli-version' });
+    expect(vi.mocked(renderToString).mock.lastCall?.[0]).toMatchObject({
+      props: { telemetryConfig: { disabled: true } },
+    });
+
+    vi.stubEnv('REDOCLY_TELEMETRY', 'on');
+    await handlerBuildCommand({ argv, config: await createConfig({}), version: 'cli-version' });
+    expect(vi.mocked(renderToString).mock.lastCall?.[0]).toMatchObject({
+      props: { telemetryConfig: { disabled: false } },
+    });
+  });
+
+  it('reports an invalid --openapi value with the parse error only', async () => {
     vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const redoclyConfig = await createConfig({});
 
-    expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(HandledError);
-    expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(/^Unexpected token/);
+    expect(() => getObjectOrJSON('not json', redoclyConfig, 'openapi')).toThrow(HandledError);
+    expect(() => getObjectOrJSON('not json', redoclyConfig, 'openapi')).toThrow(
+      /^Unexpected token/
+    );
   });
 });
