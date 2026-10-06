@@ -34,7 +34,7 @@ const renderCell = (entry, fastest) => {
   const bar = constructBarForChart(entry.median, fastest.median);
   const factor = entry.median / fastest.median;
   if (entry === fastest) {
-    return `${bar} ${factor.toFixed(2)}x (Fastest)`;
+    return `${bar} **${factor.toFixed(2)}x**`;
   }
   const relativeUnc =
     factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
