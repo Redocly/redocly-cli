@@ -7,8 +7,8 @@ api:
     - ./overlays/add-servers.yaml
   clientOutput: ./client.ts
   client:
+    $ref: ./deep/config.yaml#/client
     setup: ./setup.mjs
-    cliOutput: ./cli/index.ts
 chain:
   $ref: ./deep/config.yaml#/api
 untouched:
