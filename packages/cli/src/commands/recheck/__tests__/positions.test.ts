@@ -66,25 +66,25 @@ describe('createPositionMapper', () => {
   });
 
   it('maps a single-line plain scalar exactly', () => {
-    const body = 'info:\n  description: Buy a ticket first.\n';
+    const body = 'info:\n  description: Order a coffee first.\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');
     expect(mapper(1, 5)).toEqual({ line: 2, column: 20 });
   });
 
   it('anchors a multi-line plain scalar to its start', () => {
-    const body = 'info:\n  description: Buy a ticket\n    first.\n';
+    const body = 'info:\n  description: Order a coffee\n    first.\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');
     expect(mapper(1, 5)).toEqual({ line: 2, column: 16 });
   });
 
   it('maps a double-quoted scalar without escapes exactly', () => {
-    const body = 'info:\n  description: "Buy a ticket first."\n';
+    const body = 'info:\n  description: "Order a coffee first."\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');
     expect(mapper(1, 5)).toEqual({ line: 2, column: 21 });
   });
 
   it('anchors a double-quoted scalar with escapes to the value start', () => {
-    const body = 'info:\n  description: "Buy a ticket.\\nThen enter."\n';
+    const body = 'info:\n  description: "Order a coffee.\\nThen pay."\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');
     expect(mapper(2, 3)).toEqual({ line: 2, column: 17 });
   });
@@ -96,7 +96,7 @@ describe('createPositionMapper', () => {
   });
 
   it('ignores a trailing comment when it checks a quoted scalar for escapes', () => {
-    const body = 'info:\n  description: "Buy a ticket first." # see \\d note\n';
+    const body = 'info:\n  description: "Order a coffee first." # see \\d note\n';
     const mapper = createPositionMapper(yaml(body), '#/info/description');
     expect(mapper(1, 5)).toEqual({ line: 2, column: 21 });
   });

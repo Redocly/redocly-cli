@@ -5,6 +5,7 @@ import { cyan } from 'colorette';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
+import { outdent } from 'outdent';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { configFixture } from '../../../__tests__/fixtures/config.js';
@@ -165,20 +166,21 @@ describe('handleRecheck', () => {
       const apiPath = path.join(dir, 'openapi.yaml');
       await fs.writeFile(
         apiPath,
-        `openapi: 3.1.0
-info:
-  title: Museum
-  version: 1.0.0
-  description: Welcome to the museum.
-paths: {}
-components:
-  schemas:
-    Ticket:
-      $ref: https://example.com/schemas.yaml#/Ticket
-`
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Cafe
+            version: 1.0.0
+            description: Welcome to the cafe.
+          paths: {}
+          components:
+            schemas:
+              Order:
+                $ref: https://example.com/schemas.yaml#/Order
+        `
       );
       vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-        new Response('Ticket:\n  type: object\n  description: A ticket for one visit.\n')
+        new Response('Order:\n  type: object\n  description: An order for one drink.\n')
       );
 
       await runWith({ paths: [apiPath] });
