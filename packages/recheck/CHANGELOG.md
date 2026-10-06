@@ -1,5 +1,38 @@
 # @redocly/recheck
 
+## 2.58.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.2.
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.1.
+
+## 2.58.0
+
+### Minor Changes
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+  Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+- Added the `@redocly/recheck` engine package to this repository.
+  It powers the upcoming `redocly recheck` command.
+  `@redocly/recheck/presets` exports the presets as a plugin for `@redocly/openapi-core`.
+
+  **Note:** the standalone `recheck` binary and `recheck.yaml` are removed.
+  Configuration moves to the `recheck` block of `redocly.yaml`, read by the `redocly recheck` command in a later release.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+
 From version 2.x this package lives in the `redocly-cli` repository and releases with Redocly CLI.
 Entries below 2.x come from its previous home.
 

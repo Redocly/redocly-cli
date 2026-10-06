@@ -146,7 +146,7 @@ describe('no-invalid-parameter-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report readOnly property in parameter example', async () => {

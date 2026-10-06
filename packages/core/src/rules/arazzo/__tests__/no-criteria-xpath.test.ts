@@ -123,6 +123,6 @@ describe('Arazzo no-criteria-xpath', () => {
       config: await createConfig({}),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

@@ -1,5 +1,4 @@
 import {
-  type Totals,
   ResolveError,
   YamlParseError,
   HandledError,
@@ -19,7 +18,6 @@ import { fileURLToPath } from 'node:url';
 import {
   getFallbackApisOrExit,
   pathToFilename,
-  printConfigLintTotals,
   langToExt,
   checkIfRulesetExist,
   handleError,
@@ -60,43 +58,6 @@ describe('pathToFilename', () => {
   it('should use correct path separator', () => {
     const processedPath = pathToFilename('/user/createWithList', '_');
     expect(processedPath).toEqual('user_createWithList');
-  });
-});
-
-describe('printConfigLintTotals', () => {
-  const totalProblemsMock: Totals = {
-    errors: 1,
-    warnings: 0,
-    ignored: 0,
-  };
-
-  const redColoretteMocks = vi.mocked(red);
-  const yellowColoretteMocks = vi.mocked(yellow);
-
-  beforeEach(() => {
-    yellowColoretteMocks.mockImplementation((text) => text as string);
-    redColoretteMocks.mockImplementation((text) => text as string);
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-  });
-
-  it('should print errors if such exist', () => {
-    printConfigLintTotals(totalProblemsMock);
-    expect(process.stderr.write).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
-    expect(redColoretteMocks).toHaveBeenCalledWith('❌ Your config has 1 error.\n');
-  });
-
-  it('should print warning if no error', () => {
-    printConfigLintTotals({ ...totalProblemsMock, errors: 0, warnings: 2 });
-    expect(process.stderr.write).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
-    expect(yellowColoretteMocks).toHaveBeenCalledWith('⚠️ Your config has 2 warnings.\n');
-  });
-
-  it('should print nothing if no error and no warnings', () => {
-    const result = printConfigLintTotals({ ...totalProblemsMock, errors: 0 });
-    expect(result).toBeUndefined();
-    expect(process.stderr.write).toHaveBeenCalledTimes(0);
-    expect(yellowColoretteMocks).toHaveBeenCalledTimes(0);
-    expect(redColoretteMocks).toHaveBeenCalledTimes(0);
   });
 });
 

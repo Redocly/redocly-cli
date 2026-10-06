@@ -85,7 +85,7 @@ export function methodArgs(
 
 /** The shared prologue: resolve auth, build query/url, merge headers. */
 function writeRequestSetup(printer: PhpPrinter, op: OperationModel, args: MethodArgs): void {
-  printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+  printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
   printer.line(
     "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
   );

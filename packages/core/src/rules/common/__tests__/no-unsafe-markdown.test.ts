@@ -91,6 +91,6 @@ describe('no-unsafe-markdown', () => {
       config: await createConfig({ rules: { 'no-unsafe-markdown': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

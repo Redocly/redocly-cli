@@ -71,7 +71,7 @@ describe('Oas3 operation-parameters-unique', () => {
       config: await createConfig({ rules: { 'operation-parameters-unique': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when operation with duplicated params', async () => {

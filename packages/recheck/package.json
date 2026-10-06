@@ -1,6 +1,6 @@
 {
   "name": "@redocly/recheck",
-  "version": "2.51.0",
+  "version": "2.58.2",
   "description": "Markdown and prose linting engine for Redocly CLI",
   "type": "module",
   "types": "lib/index.d.ts",
@@ -38,7 +38,7 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.18.3",
-    "@redocly/openapi-core": "2.57.0",
+    "@redocly/openapi-core": "2.58.2",
     "ajv-formats": "^3.0.1",
     "js-yaml": "^4.3.1",
     "micromark": "^4.0.2",
