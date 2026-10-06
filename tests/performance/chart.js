@@ -9,12 +9,11 @@ const calculateMedian = (xs) => {
 const calculateMedianAbsoluteDeviation = (xs, centre) =>
   calculateMedian(xs.map((x) => Math.abs(x - centre)));
 
-const constructBarForChart = (value, min) => {
+const constructBarForChart = (value, min, max) => {
   if (min <= 0) return 'N/A';
-  const slownessFactor = value / min - 1;
-  const maxBarLength = 30;
-  const length = Math.floor(Math.min(1, slownessFactor) * maxBarLength);
-  return '▓' + '▓'.repeat(length);
+  const maxBarLength = 10;
+  const length = max > min ? Math.round(((value - min) / (max - min)) * maxBarLength) : 0;
+  return '▓' + '▓'.repeat(length) + '░'.repeat(maxBarLength - length);
 };
 
 const loadResults = (jsonPath) => {
@@ -30,8 +29,11 @@ const loadResults = (jsonPath) => {
 const findFastest = (results) =>
   [...results.values()].reduce((best, r) => (r.median < best.median ? r : best));
 
-const renderCell = (entry, fastest) => {
-  const bar = constructBarForChart(entry.median, fastest.median);
+const findSlowest = (results) =>
+  [...results.values()].reduce((worst, r) => (r.median > worst.median ? r : worst));
+
+const renderCell = (entry, fastest, slowest) => {
+  const bar = constructBarForChart(entry.median, fastest.median, slowest.median);
   const factor = entry.median / fastest.median;
   if (entry === fastest) {
     return `${bar} ${factor.toFixed(2)}x (Fastest)`;
@@ -49,7 +51,7 @@ const operations = [
 
 const columns = operations.map(({ name, file }) => {
   const data = loadResults(file);
-  return { name, data, fastest: findFastest(data) };
+  return { name, data, fastest: findFastest(data), slowest: findSlowest(data) };
 });
 
 const versions = [...new Set(columns.flatMap((c) => [...c.data.keys()]))];
@@ -58,7 +60,7 @@ const renderRow = (version) =>
   `| ${version} | ${columns
     .map((c) => {
       const entry = c.data.get(version);
-      return entry ? renderCell(entry, c.fastest) : '—';
+      return entry ? renderCell(entry, c.fastest, c.slowest) : '—';
     })
     .join(' | ')} |`;
 
