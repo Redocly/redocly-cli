@@ -35,12 +35,10 @@ describe('bundle', () => {
       const actual = await vi.importActual('@redocly/openapi-core');
       return {
         ...actual,
-        bundle: vi.fn(
-          async (): Promise<any> => ({
-            bundle: { parsed: null },
-            problems: [],
-          })
-        ),
+        bundle: vi.fn(async (): Promise<any> => ({
+          bundle: { parsed: null },
+          problems: [],
+        })),
         getTotals: vi.fn(),
         logger: {
           info: vi.fn(),

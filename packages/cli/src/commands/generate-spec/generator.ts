@@ -705,22 +705,18 @@ function buildDocument(
     const pathItem = (paths[accumulator.template] ??= {});
 
     const parameters: GeneratedParameter[] = [
-      ...Array.from(accumulator.pathParams).map(
-        ([name, param]): GeneratedParameter => ({
-          name,
-          in: 'path',
-          required: true,
-          schema: parameterSchema(param, false),
-        })
-      ),
-      ...Array.from(accumulator.queryParams).map(
-        ([name, param]): GeneratedParameter => ({
-          name,
-          in: 'query',
-          required: false,
-          schema: parameterSchema(param, true),
-        })
-      ),
+      ...Array.from(accumulator.pathParams).map(([name, param]): GeneratedParameter => ({
+        name,
+        in: 'path',
+        required: true,
+        schema: parameterSchema(param, false),
+      })),
+      ...Array.from(accumulator.queryParams).map(([name, param]): GeneratedParameter => ({
+        name,
+        in: 'query',
+        required: false,
+        schema: parameterSchema(param, true),
+      })),
     ];
 
     const operation: GeneratedOperation = {

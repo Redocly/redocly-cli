@@ -34,7 +34,7 @@ describe('Referenceable scalars', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report invalid $ref on example with doNotResolveExamples', async () => {
@@ -68,7 +68,7 @@ describe('Referenceable scalars', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report example value with $ref', async () => {
@@ -102,6 +102,6 @@ describe('Referenceable scalars', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

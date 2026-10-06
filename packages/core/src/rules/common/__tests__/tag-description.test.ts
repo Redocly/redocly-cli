@@ -63,6 +63,6 @@ describe('Oas3 tag-description', () => {
       config: await createConfig({ rules: { 'tag-description': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

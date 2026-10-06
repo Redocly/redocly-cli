@@ -916,17 +916,17 @@ contradicted it; each was moved to a `*-detect` `pattern` sibling,
 - **Moved to detection-only:** `quit`/`deinstall`/`reinitialize`
   (`az-lifecycle-verbs-detect`; G:88 multi-target, G:156/H:52 "(cond.)"),
   `crash`/`lock up` (`az-state-failure-detect`; Step 4), `bottom
-left`/`bottom right` (`az-direction-layout-detect`; G:106, the
+  left`/`bottom right` (`az-direction-layout-detect`; G:106, the
   BottomLeft/BottomRight API-property carve-out), `thank you`
   (`az-geography-detect`; H:62), `hierarchical menu`/`secondary
-menu`/`running head`/`running foot` (`az-ui-nouns-detect`; G:146/H:93),
+  menu`/`running head`/`running foot` (`az-ui-nouns-detect`; G:146/H:93),
   `pound sign` (`az-abbreviations-names-detect`; H:115).
 - **`fix: false`:** `left-hand`/`right-hand` (new rule
   `microsoft/left-hand-right-hand`; G:108 marks these DETECT-ONLY outright
   — no replacement is stated on the live page for the modifier sense, so
   shipping one fixable was itself the defect).
 - **Already detection-only, no change needed:** `backbone`/`natural user
-interface` (G:187/G:190) already ship as `pattern` in
+  interface` (G:187/G:190) already ship as `pattern` in
   `microsoft/az-no-replacement`. `indices` is excluded entirely (see Step
   5's own TOO-RISKY note below), so its math-carve-out marker (G:168) never
   reached a shipped pair either.
@@ -941,7 +941,7 @@ instead of unconditionally.
    (16 rules pre-wave, more after Step 4/5 added new rules) now cites the
    real, live, term-specific page for one of its pairs (verified via
    `curl`, HTTP 200, for every one — see the table below). `microsoft/
-mouse-over`'s slug carried a spurious "-and-"
+   mouse-over`'s slug carried a spurious "-and-"
    (`mouse-and-mouse-interaction-terms`, 404) corrected to
    `mouse-mouse-interaction-terms` (200) — verifier G's own fetch log
    named the correct slug at G:200; the verifier never cited the broken
@@ -1016,13 +1016,13 @@ polysemous for any anchor to meaningfully narrow).
 
 - `case-preserve.ts`'s "KNOWN EDGE" note claimed no shipped pair hit the
   hyphen/dot-joined-replacement shouting gap — false; `spelling-
-hyphenation`'s `ecommerce`→`e-commerce`/`elearning`→`e-learning`/
+  hyphenation`'s `ecommerce`→`e-commerce`/`elearning`→`e-learning`/
   `ebook`→`e-book` all do (comment corrected, no behavior change).
 - `az-case-only`'s claim that all 17 pairs would "silently no-op" was
   verified against the live `applyMatchCase` function directly (not
   re-reasoned by eye): true for only 7 (`Internet`, `Intranet`,
   `Extranet`, `Euro`, `WWW`, `Registry`, `Spam`). The other 10 (`Big
-Data`, `Dark Mode`, `darkmode`, `Devops`, `devops`, `bluetooth`,
+  Data`, `Dark Mode`, `darkmode`, `Devops`, `devops`, `bluetooth`,
   `boolean`, `Javascript`, `javascript`, `World Wide Web`) now ship
   fixable in a new rule, `microsoft/az-case-fixable`, instead of
   reporting forever for no reason.
@@ -1242,7 +1242,7 @@ wrong under `--fix` twice:
    corruption strings above pass axis 1 (each guide page states a plain
    "use Y instead of X" rule) and fail on axis 2 — `DMZ` is also the
    Korean border zone; `the ask` is also the bid/ask market term; `home
-directory` always means the Unix `$HOME` sense in the corrupted
+   directory` always means the Unix `$HOME` sense in the corrupted
    sentence, and the guide's "root directory" target is a genuinely
    different concept (the filesystem's `/`, not a per-user directory);
    `unmark` collides with no listed acceptable alternative for non-

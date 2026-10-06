@@ -73,7 +73,7 @@ describe('Arazzo sourceDescriptions-not-empty', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report an error when sourceDescriptions is empty list.', async () => {
