@@ -2,6 +2,7 @@
 
 1. Write meaningful tests that exercise real behavior — not tests that exist only to raise coverage.
    One focused, clear test is enough.
+   Do not write conditional tests: no `if`, `skipIf`, or `runIf` that decides whether a test or an assertion runs.
 1. A unit test lives in a `__tests__` folder beside the file it tests, and mirrors its name:
    `src/commands/eject-generator.ts` is tested by `src/commands/__tests__/eject-generator.test.ts`.
    Do not rebuild the source tree inside a `__tests__` folder (`src/__tests__/commands/…`) — the
