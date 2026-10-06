@@ -15,15 +15,14 @@ const SERVER_PORT = 3109;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
-const hasOpcache =
-  hasPhp &&
-  spawnSync('php', ['-r', 'exit(extension_loaded("Zend OPcache") ? 0 : 1);']).status === 0;
 
-/** Run smoke.php against the mock server with extra `php` flags in front of it. */
-function runSmoke(phpFlags: string[]): void {
-  const result = spawnSync('php', [...phpFlags, join(consumerDir, 'smoke.php'), SERVER_BASE], {
-    encoding: 'utf-8',
-  });
+/** Run smoke.php against the mock server; `phpFlags` go in front, `smokeArgs` after the URL. */
+function runSmoke(phpFlags: string[], smokeArgs: string[] = []): void {
+  const result = spawnSync(
+    'php',
+    [...phpFlags, join(consumerDir, 'smoke.php'), SERVER_BASE, ...smokeArgs],
+    { encoding: 'utf-8' }
+  );
   expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
   expect(result.stdout).toContain('PHP_SMOKE_OK');
 }
@@ -64,15 +63,14 @@ describe('generate-client php generator (end-to-end)', () => {
     runSmoke([]);
   });
 
-  it.skipIf(!hasOpcache)('the smoke still passes when OPcache has preloaded the client', () => {
+  it.skipIf(!hasPhp)('the smoke still passes when OPcache has preloaded the client', () => {
     // opcache.preload keeps classes and functions in shared memory but drops file-level
     // constants, and the autoloader never includes the file again once Client exists.
-    runSmoke([
-      '-d',
-      'opcache.enable_cli=1',
-      '-d',
-      `opcache.preload=${join(consumerDir, 'preload.php')}`,
-    ]);
+    // The smoke checks that the preload really happened, so this cannot pass vacuously.
+    runSmoke(
+      ['-d', 'opcache.enable_cli=1', '-d', `opcache.preload=${join(consumerDir, 'preload.php')}`],
+      ['preloaded']
+    );
   });
 });
 

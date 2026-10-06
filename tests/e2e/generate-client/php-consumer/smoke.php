@@ -10,7 +10,13 @@ use BaseConsumer\{ApiError, Client, Config, Pet};
 
 // Like a Composer classmap autoloader: the file is loaded only when its classes are
 // not already there, which they are when php.test.ts preloads it through OPcache.
-if (!class_exists(Client::class, false)) {
+// With `preloaded` as the second argument, that must already have happened.
+$preloaded = class_exists(Client::class, false);
+if (($argv[2] ?? null) === 'preloaded' && !$preloaded) {
+    fwrite(STDERR, "expected OPcache to have preloaded the client\n");
+    exit(1);
+}
+if (!$preloaded) {
     require __DIR__ . '/client/client.php';
 }
 
