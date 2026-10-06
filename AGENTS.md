@@ -112,6 +112,9 @@ Naming and reuse:
   A single clear test that exercises the behavior is enough.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
+  When the rule must report no problems, assert `toEqual([])`.
+- Base the API description in a new test on the Redocly Cafe API (`resources/cafe.yaml` or `resources/cafe-split/`) when you can.
+  Copy only the part the test needs.
 - Don't add `console.log` or write to `stdout` / `stderr` directly — it breaks the e2e snapshots.
   Use the `logger` from `@redocly/openapi-core` (see [`CONTRIBUTING.md`](./CONTRIBUTING.md#logging)).
 - A `redocly.yaml` in the repository root affects unit tests in the CLI package.

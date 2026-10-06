@@ -56,7 +56,7 @@ describe('Arazzo parameters-unique', () => {
       config: await createConfig({ rules: {} }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on `parameters` duplication', async () => {

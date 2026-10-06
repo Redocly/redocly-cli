@@ -279,7 +279,7 @@ describe('Oas3 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report response object containing header name upper cased', async () => {
@@ -313,7 +313,7 @@ describe('Oas3 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report response object containing header name in the rule upper cased', async () => {
@@ -347,7 +347,7 @@ describe('Oas3 response-contains-header', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should report even if the response is null', async () => {

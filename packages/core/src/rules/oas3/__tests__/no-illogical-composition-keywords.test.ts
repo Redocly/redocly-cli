@@ -83,7 +83,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report duplicated schemas that are not next to each other', async () => {
@@ -233,7 +233,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should leave the discriminator gap to spec-discriminator-defaultMapping on OAS 3.2', async () => {
@@ -278,7 +278,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should ask for the discriminator property to be declared when no member has it', async () => {
@@ -686,7 +686,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should not crash on boolean schemas used as members or property schemas', async () => {
@@ -726,7 +726,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report when both members declare an empty required list', async () => {
@@ -820,7 +820,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report when an exclusive shared property is not required, without a discriminator', async () => {
@@ -1047,7 +1047,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report members that differ only by `format`', async () => {
@@ -1197,7 +1197,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report when members share a property with no constraint that tells them apart', async () => {
@@ -1361,7 +1361,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
   });
 
@@ -1501,7 +1501,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
   });
 
@@ -1583,7 +1583,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should not report a single-schema allOf declaring a subtype of a discriminated schema', async () => {
@@ -1619,7 +1619,7 @@ describe('Oas3 no-illogical-composition-keywords', () => {
         }),
       });
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report an empty allOf', async () => {

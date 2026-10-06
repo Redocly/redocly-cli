@@ -109,6 +109,6 @@ describe('Oas3 paths-kebab-case', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

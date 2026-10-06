@@ -76,7 +76,7 @@ describe('Arazzo sourceDescription-type', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('accepts asyncapi sourceDescription type in Arazzo 1.1', async () => {

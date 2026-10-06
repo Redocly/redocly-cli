@@ -248,7 +248,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report a response object when schema type is not object', async () => {
@@ -278,7 +278,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report response objects when there is no `names` field specified', async () => {
@@ -320,7 +320,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should not report response objects for 204 status code', async () => {
@@ -354,7 +354,7 @@ describe('Oas3 response-contains-property', () => {
         },
       }),
     });
-    expect(results).toMatchInlineSnapshot(`[]`);
+    expect(results).toEqual([]);
   });
 
   it('should report response objects when there are no properties', async () => {
