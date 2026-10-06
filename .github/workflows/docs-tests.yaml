@@ -24,11 +24,6 @@ jobs:
       pull-requests: write
     env:
       REDOCLY_TELEMETRY: off
-      # The `--prefix /tmp` flag keeps npx outside the repository root, which
-      # declares @redocly/cli as a workspace. When the workspace version equals
-      # the latest release, npx does not download it and fails with
-      # "redocly: command not found".
-      RECHECK: npx --prefix /tmp --yes @redocly/cli@latest recheck
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -36,6 +31,14 @@ jobs:
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Pack and install the CLI
+        run: |
+          npm run pack:prepare
+          npm i -g ./redocly-cli.tgz
+          redocly --version
 
       # Diff against the live merge-base of the PR head and the base branch.
       # `github.sha` is the auto-merge commit on the current base tip, so a
@@ -59,7 +62,7 @@ jobs:
         continue-on-error: true
         run: |
           exit_code=0
-          xargs $RECHECK --config docs/redocly.yaml --format=github-actions --summary json --summary-path recheck-summary.json < docs-changed.txt || exit_code=$?
+          xargs redocly recheck --config docs/redocly.yaml --format=github-actions --summary json --summary-path recheck-summary.json < docs-changed.txt || exit_code=$?
           echo "exit_code=$exit_code" >> "$GITHUB_OUTPUT"
           exit $exit_code
 
@@ -69,7 +72,7 @@ jobs:
       # --max-problems lists errors first, so the cap only trims the backlog
       # of warnings and info from unchanged files.
       - name: Full docs tree must stay error-free
-        run: $RECHECK --config docs/redocly.yaml docs cookbook --format=github-actions --max-problems 50
+        run: redocly recheck --config docs/redocly.yaml docs cookbook --format=github-actions --max-problems 50
 
       # Scores every changed file on this PR and on the merge-base so the
       # comment can show the readability change per file. Both sides run from
@@ -85,7 +88,7 @@ jobs:
             (
               cd "$1"
               while read -r file; do [ -f "$file" ] && echo "$file"; done < "$GITHUB_WORKSPACE/docs-changed.txt" \
-                | xargs $RECHECK --config "$GITHUB_WORKSPACE/docs/redocly.yaml" --readability --format=json \
+                | xargs redocly recheck --config "$GITHUB_WORKSPACE/docs/redocly.yaml" --readability --format=json \
                 > "$GITHUB_WORKSPACE/$3"
             ) || true
           }
