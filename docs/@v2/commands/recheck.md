@@ -19,7 +19,9 @@ How the command picks its rules:
   Recheck settings under `apis.<name>` are not used, and the command warns about them.
 
 With no paths, the command lints the Markdown files under the current directory and every local API in `apis`.
+It skips a remote API and says so.
 With paths, a Markdown file or directory lints as pages, and an API description file lints its descriptions.
+An alias from `apis` lints the descriptions of that API.
 
 ## Usage
 

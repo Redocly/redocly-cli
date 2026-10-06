@@ -191,6 +191,29 @@ describe('handleRecheck', () => {
       expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
     });
 
+    it('lints the descriptions of the API that an alias names', async () => {
+      await fs.writeFile(
+        path.join(dir, 'openapi.yaml'),
+        outdent`
+          openapi: 3.1.0
+          info:
+            title: Cafe
+            version: 1.0.0
+            description: Welcome to the cafe.
+          paths: {}
+        `
+      );
+      const config = await createConfig(
+        { extends: ['recheck/markdown'], apis: { cafe: { root: 'openapi.yaml' } } },
+        { configPath: path.join(dir, 'redocly.yaml'), plugins: [recheckPresetsPlugin] }
+      );
+      const argv: RecheckArgv = { format: 'table', paths: ['cafe'] };
+
+      await handleRecheck({ argv, config, version: 'test' });
+
+      expect(output.stderr).toContain(`${cyan('🏃 Running recheck on: 1 API description(s)')}\n`);
+    });
+
     // The e2e snapshots show the message but not the exit code.
     it.each<[string, Partial<RecheckArgv>]>([
       ['lint', {}],

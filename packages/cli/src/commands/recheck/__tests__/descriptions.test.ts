@@ -1,14 +1,22 @@
-import { createConfig } from '@redocly/openapi-core';
+import { BaseResolver, createConfig, type Config } from '@redocly/openapi-core';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { collectDescriptions, UnresolvedRefError } from '../descriptions.js';
+import { collectEmbeddedInputs, isApiDescription } from '../descriptions.js';
+import { captureLogger } from './capture-logger.js';
 
 const dirs: string[] = [];
+let output: { stderr: string[]; stdout: string[] };
+
+beforeEach(() => {
+  output = captureLogger();
+});
+
 afterEach(() => {
+  vi.restoreAllMocks();
   for (const dir of dirs.splice(0)) rmSync(dir, { recursive: true, force: true });
 });
 
@@ -17,6 +25,10 @@ function fixture(files: Record<string, string>): string {
   dirs.push(dir);
   for (const [name, content] of Object.entries(files)) writeFileSync(join(dir, name), content);
   return dir;
+}
+
+function configIn(dir: string): Promise<Config> {
+  return createConfig({}, { configPath: join(dir, 'redocly.yaml') });
 }
 
 const ROOT = outdent`
@@ -59,17 +71,30 @@ const SCHEMAS = outdent`
         description: The order id.
 `;
 
-describe('collectDescriptions', () => {
-  it('collects every string description, but not summary, with its pointer and owning source', async () => {
+describe('isApiDescription', () => {
+  it.each([
+    ['an API description', 'openapi.yaml', ROOT, true],
+    ['a YAML file that does not parse', 'broken.yaml', 'title: [t', true],
+    ['a YAML file that is not an API description', 'notes.yaml', 'title: Notes', false],
+    ['a Markdown file', 'index.md', '# Cafe', false],
+  ])('returns the right answer for %s', async (_case, name, content, expected) => {
+    const dir = fixture({ [name]: content });
+    expect(await isApiDescription(join(dir, name), new BaseResolver())).toBe(expected);
+  });
+});
+
+describe('collectEmbeddedInputs', () => {
+  it('collects every string description, but not summary, with its pointer and owning file', async () => {
     const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
+    const { inputs } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
+    );
     const root = join(dir, 'openapi.yaml');
     const schemas = join(dir, 'schemas.yaml');
     expect(
-      new Map(
-        descriptions.map((entry) => [`${entry.source.absoluteRef}${entry.pointer}`, entry.text])
-      )
+      new Map(inputs.map((input) => [`${input.file}${input.pointer}`, input.content]))
     ).toEqual(
       new Map([
         [`${root}#/info/description`, 'Welcome to the cafe.\nOrder a coffee first.\n'],
@@ -111,23 +136,34 @@ describe('collectDescriptions', () => {
                 type: string
       `,
     });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { descriptions } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
-    const orderId = descriptions.filter(
-      (entry) => entry.pointer === '#/components/parameters/OrderId/description'
+    const { inputs } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
+    );
+    const orderId = inputs.filter(
+      (input) => input.pointer === '#/components/parameters/OrderId/description'
     );
     expect(orderId).toHaveLength(1);
   });
 
-  it('returns the root document and every local $ref source as scanned files', async () => {
-    const dir = fixture({ 'openapi.yaml': ROOT, 'schemas.yaml': SCHEMAS });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { files } = await collectDescriptions(join(dir, 'openapi.yaml'), config);
-    expect(files).toContain(join(dir, 'openapi.yaml'));
-    expect(files).toContain(join(dir, 'schemas.yaml'));
+  it('reads a $ref file that two APIs share once and collects its descriptions once', async () => {
+    const dir = fixture({ 'a.yaml': ROOT, 'b.yaml': ROOT, 'schemas.yaml': SCHEMAS });
+    const resolver = new BaseResolver();
+    const load = vi.spyOn(resolver, 'loadExternalRef');
+    const { inputs, apiFiles } = await collectEmbeddedInputs(
+      [join(dir, 'a.yaml'), join(dir, 'b.yaml')],
+      await configIn(dir),
+      resolver
+    );
+    const schemaLoads = load.mock.calls.filter(([file]) => file === join(dir, 'schemas.yaml'));
+    expect(schemaLoads).toHaveLength(1);
+    const schemaInputs = inputs.filter((input) => input.file === join(dir, 'schemas.yaml'));
+    expect(schemaInputs).toHaveLength(2);
+    expect(apiFiles).toEqual([join(dir, 'a.yaml'), join(dir, 'schemas.yaml'), join(dir, 'b.yaml')]);
   });
 
-  it('rejects a root whose local $ref target is missing', async () => {
+  it('fails an API whose local $ref target is missing and marks both files unreadable', async () => {
     const dir = fixture({
       'openapi.yaml': outdent`
         openapi: 3.1.0
@@ -142,16 +178,18 @@ describe('collectDescriptions', () => {
               $ref: './missing.yaml#/MenuItem'
       `,
     });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const failure = await collectDescriptions(join(dir, 'openapi.yaml'), config).catch(
-      (error: unknown) => error
+    const result = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
     );
-    expect(failure).toBeInstanceOf(UnresolvedRefError);
-    expect((failure as UnresolvedRefError).message).toContain('missing.yaml');
-    expect((failure as UnresolvedRefError).files).toEqual([join(dir, 'missing.yaml')]);
+    expect(result.failureCount).toBe(1);
+    expect(result.inputs).toEqual([]);
+    expect(result.unreadableFiles).toEqual([join(dir, 'openapi.yaml'), join(dir, 'missing.yaml')]);
+    expect(output.stderr.join('')).toContain('Could not resolve $ref ./missing.yaml#/MenuItem');
   });
 
-  it('keeps the descriptions when an external file loads but its pointer is missing', async () => {
+  it('keeps the descriptions and warns once when an external file loads but its pointer is missing', async () => {
     const dir = fixture({
       'openapi.yaml': outdent`
         openapi: 3.1.0
@@ -170,22 +208,30 @@ describe('collectDescriptions', () => {
                     application/json:
                       schema:
                         $ref: ./schemas.yaml#/Missing
+                '201':
+                  description: Created.
+                  content:
+                    application/json:
+                      schema:
+                        $ref: ./schemas.yaml#/Missing
       `,
       'schemas.yaml': SCHEMAS,
     });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const { descriptions, unresolvedPointers, files } = await collectDescriptions(
-      join(dir, 'openapi.yaml'),
-      config
+    const { inputs, apiFiles, failureCount } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
     );
-    expect(descriptions.map((entry) => entry.pointer)).toEqual([
+    expect(failureCount).toBe(0);
+    expect(inputs.map((input) => input.pointer)).toEqual([
       '#/info/description',
       '#/paths/~1orders/get/description',
       '#/paths/~1orders/get/responses/200/description',
+      '#/paths/~1orders/get/responses/201/description',
     ]);
-    expect(unresolvedPointers).toHaveLength(1);
-    expect(unresolvedPointers[0]).toContain('./schemas.yaml#/Missing');
-    expect(files).toEqual([join(dir, 'openapi.yaml'), join(dir, 'schemas.yaml')]);
+    const warnings = output.stderr.filter((line) => line.includes('./schemas.yaml#/Missing'));
+    expect(warnings).toHaveLength(1);
+    expect(apiFiles).toEqual([join(dir, 'openapi.yaml'), join(dir, 'schemas.yaml')]);
   });
 
   it('names the unread target by the same split the walker uses when the file name has a hash', async () => {
@@ -202,11 +248,27 @@ describe('collectDescriptions', () => {
               $ref: './data#v2.yaml#/MenuItem'
       `,
     });
-    const config = await createConfig({}, { configPath: join(dir, 'redocly.yaml') });
-    const failure = await collectDescriptions(join(dir, 'openapi.yaml'), config).catch(
-      (error: unknown) => error
+    const { unreadableFiles } = await collectEmbeddedInputs(
+      [join(dir, 'openapi.yaml')],
+      await configIn(dir),
+      new BaseResolver()
     );
-    expect(failure).toBeInstanceOf(UnresolvedRefError);
-    expect((failure as UnresolvedRefError).files).toEqual([join(dir, 'data#v2.yaml')]);
+    expect(unreadableFiles).toEqual([join(dir, 'openapi.yaml'), join(dir, 'data#v2.yaml')]);
+  });
+
+  it('skips a remote API without reading it', async () => {
+    const fetch = vi.spyOn(globalThis, 'fetch');
+    const dir = fixture({});
+    const { inputs, failureCount } = await collectEmbeddedInputs(
+      ['https://example.com/openapi.yaml'],
+      await configIn(dir),
+      new BaseResolver()
+    );
+    expect(inputs).toEqual([]);
+    expect(failureCount).toBe(0);
+    expect(fetch).not.toHaveBeenCalled();
+    expect(output.stderr).toEqual([
+      'Skipped remote API description https://example.com/openapi.yaml; only local files are linted.\n',
+    ]);
   });
 });

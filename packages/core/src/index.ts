@@ -67,6 +67,7 @@ export {
   getDir,
   resolvePath,
   escapePointerFragment,
+  parseRef,
   type Location,
 } from './ref-utils.js';
 export { detectSpec, getMajorSpecVersion } from './detect-spec.js';

@@ -1,11 +1,10 @@
 import {
   AbortFlowError,
-  detectSpec,
+  BaseResolver,
   isAbsoluteUrl,
   isPlainObject,
   isString,
   logger,
-  parseYaml,
   type Config,
 } from '@redocly/openapi-core';
 import {
@@ -15,23 +14,16 @@ import {
   runLint,
   runReadability,
   Timer,
-  type EmbeddedInput,
   type LintOptions,
   type NormalizedRule,
   type Problem,
   type ResolvedRecheckConfig,
 } from '@redocly/recheck';
 import { presets } from '@redocly/recheck/presets';
-import { readFileSync, statSync } from 'node:fs';
-import { dirname, extname, resolve } from 'node:path';
 
+import { getAliasOrPath, getConfigDirectory } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
-import {
-  collectDescriptions,
-  UnresolvedRefError,
-  type CollectedDescription,
-} from './descriptions.js';
-import { createPositionMapper } from './positions.js';
+import { collectEmbeddedInputs, isApiDescription } from './descriptions.js';
 import {
   printBaselineRun,
   printBaselineStart,
@@ -46,52 +38,28 @@ import { selectAction } from './select-action.js';
 import type { RecheckAction, RecheckArgv } from './types.js';
 
 const DEFAULT_PRESET = 'recheck/markdown';
-const API_EXTENSIONS = new Set(['.yaml', '.yml', '.json']);
 
-// A YAML or JSON file that does not parse is 'unreadable-api', not a page:
-// the run must fail instead of linting it as Markdown.
-type ApiPathClassification = 'api' | 'unreadable-api' | 'not-api';
-
-function classifyApiPath(path: string): ApiPathClassification {
-  if (!API_EXTENSIONS.has(extname(path).toLowerCase())) return 'not-api';
-  let isFile: boolean;
-  try {
-    isFile = statSync(path).isFile();
-  } catch {
-    return 'not-api';
-  }
-  if (!isFile) return 'not-api';
-  let parsed: unknown;
-  try {
-    parsed = parseYaml(readFileSync(path, 'utf8'));
-  } catch {
-    return 'unreadable-api';
-  }
-  try {
-    detectSpec(parsed);
-  } catch {
-    return 'not-api';
-  }
-  return 'api';
-}
-
-// A block of the wrong type counts as configured, so the engine can report the error.
-function hasRecheckConfig(block: Config['recheck']): boolean {
-  if (!isPlainObject(block)) return true;
+// A block of the wrong type is not empty, so the engine can report the error.
+function isEmptyRecheckBlock(block: Config['recheck']): boolean {
+  if (!isPlainObject(block)) return false;
   const { rules, ...settings } = block;
-  return Object.keys(settings).length > 0 || Object.keys(rules ?? {}).length > 0;
+  return Object.keys(settings).length === 0 && Object.keys(rules ?? {}).length === 0;
 }
 
 // The command reads the root config only; per-API recheck settings do nothing.
+// The check reads the raw config because the resolved config merges `extends` into the rules.
 function warnAboutPerApiRecheck(config: Config): void {
   const raw = config.document?.parsed;
   if (!isPlainObject(raw) || !isPlainObject(raw.apis)) return;
   for (const [alias, api] of Object.entries(raw.apis)) {
     if (!isPlainObject(api)) continue;
-    const recheckPresets = Array.isArray(api.extends)
-      ? api.extends.filter(isString).filter((name) => name.startsWith('recheck/'))
-      : [];
-    if ('recheck' in api || recheckPresets.length > 0) {
+    let hasRecheckPreset = false;
+    if (Array.isArray(api.extends)) {
+      for (const name of api.extends) {
+        if (isString(name) && name.startsWith('recheck/')) hasRecheckPreset = true;
+      }
+    }
+    if ('recheck' in api || hasRecheckPreset) {
       logger.warn(
         `Recheck settings under apis.${alias} are not used; the command reads the root config.\n`
       );
@@ -115,94 +83,6 @@ function toLintPresentation(argv: RecheckArgv): LintPresentation {
     maxProblems: argv['max-problems'],
     summary: argv.summary,
     summaryPath: argv['summary-path'],
-  };
-}
-
-// APIs from the `apis` block, resolved against the config directory; remote
-// roots stay out. Two aliases may share one root, which walks once.
-function configuredApiPaths(config: Config, configDir: string): string[] {
-  const paths = Object.values(config.resolvedConfig.apis ?? {})
-    .map((api) => api.root)
-    .filter((root): root is string => typeof root === 'string' && !isAbsoluteUrl(root))
-    .map((root) => resolve(configDir, root));
-  return [...new Set(paths)];
-}
-
-// A description reached through a remote `$ref` has a URL as its
-// `source.absoluteRef`. Baseline keys and the changed-file filter need a
-// local path, so such a description is counted and skipped.
-function toEmbeddedInputs(descriptions: CollectedDescription[]): {
-  inputs: EmbeddedInput[];
-  remoteSkipped: number;
-} {
-  const inputs: EmbeddedInput[] = [];
-  let remoteSkipped = 0;
-  for (const { source, pointer, text } of descriptions) {
-    if (isAbsoluteUrl(source.absoluteRef)) {
-      remoteSkipped++;
-      continue;
-    }
-    inputs.push({
-      file: source.absoluteRef,
-      pointer,
-      content: text,
-      mapPosition: createPositionMapper(source, pointer),
-    });
-  }
-  return { inputs, remoteSkipped };
-}
-
-async function collectEmbeddedInputs(
-  apiPaths: string[],
-  config: Config
-): Promise<{
-  inputs: EmbeddedInput[];
-  failureCount: number;
-  apiFiles: string[];
-  unreadableFiles: string[];
-}> {
-  const descriptions: CollectedDescription[] = [];
-  const apiFiles = new Set<string>();
-  const unreadableFiles: string[] = [];
-  let failureCount = 0;
-  // Two APIs may `$ref` the same file, so the descriptions of that file are
-  // deduplicated across every API, not within one.
-  const seen = new Set<string>();
-  for (const apiPath of apiPaths) {
-    let collected;
-    try {
-      collected = await collectDescriptions(apiPath, config);
-    } catch (error) {
-      logger.error(
-        `Could not read API description ${apiPath}: ${error instanceof Error ? error.message : String(error)}\n`
-      );
-      failureCount++;
-      unreadableFiles.push(resolve(apiPath));
-      if (error instanceof UnresolvedRefError) unreadableFiles.push(...error.files);
-      continue;
-    }
-    for (const message of collected.unresolvedPointers) logger.warn(`${message}\n`);
-    for (const file of collected.files) apiFiles.add(file);
-    for (const description of collected.descriptions) {
-      const key = `${description.source.absoluteRef}${description.pointer}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      descriptions.push(description);
-    }
-  }
-  const { inputs, remoteSkipped } = toEmbeddedInputs(descriptions);
-  if (remoteSkipped > 0) {
-    logger.info(
-      `Skipped ${remoteSkipped} description(s) in remote $ref files; only local files are linted.\n`
-    );
-  }
-  return {
-    inputs,
-    failureCount,
-    apiFiles: [...apiFiles],
-    // A file one API could not reach through a `$ref` but another API read is
-    // scanned, not unreadable, so its baseline entries still apply.
-    unreadableFiles: unreadableFiles.filter((file) => !apiFiles.has(file)),
   };
 }
 
@@ -243,7 +123,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
 
   warnAboutPerApiRecheck(config);
   let block = config.recheck;
-  if (!hasRecheckConfig(block)) {
+  if (isEmptyRecheckBlock(block)) {
     if (config.configPath) {
       logger.info(
         'No recheck configuration in redocly.yaml; nothing to check. Add a recheck/* preset to extends or a recheck block.\n'
@@ -253,10 +133,9 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     logger.info(`No redocly.yaml found; using ${DEFAULT_PRESET}.\n`);
     block = { rules: presets[DEFAULT_PRESET] };
   }
-  const configDir = dirname(config.configPath ?? 'redocly.yaml');
   const resolved = await resolveRecheckConfig({
     block,
-    configDir,
+    configDir: getConfigDirectory(config),
     warn: (message) => logger.warn(`${message}\n`),
   });
   if (!resolved.success) {
@@ -267,7 +146,7 @@ export async function handleRecheck({ argv, config }: CommandArgs<RecheckArgv>):
     throw new AbortFlowError('Recheck failed.');
   }
 
-  const exitCode = await runAction(selected.action, argv, resolved.config, config, configDir);
+  const exitCode = await runAction(selected.action, argv, resolved.config, config);
   if (exitCode !== 0) throw new AbortFlowError('Recheck failed.');
 }
 
@@ -275,18 +154,30 @@ async function runAction(
   action: Exclude<RecheckAction, 'markdoc-schema'>,
   argv: RecheckArgv,
   resolved: ResolvedRecheckConfig,
-  config: Config,
-  configDir: string
+  config: Config
 ): Promise<number> {
-  const explicit = argv.paths !== undefined && argv.paths.length > 0;
-  const requested = explicit ? argv.paths! : ['.'];
+  const resolver = new BaseResolver(config.resolve);
   const roots: string[] = [];
   const apiPaths: string[] = [];
-  for (const requestedPath of requested) {
-    const classification = classifyApiPath(requestedPath);
-    (classification === 'not-api' ? roots : apiPaths).push(requestedPath);
+  const requestedPaths = argv.paths ?? [];
+  if (requestedPaths.length === 0) {
+    roots.push('.');
+    // Two aliases may share one root, which is walked once.
+    for (const alias of Object.keys(config.resolvedConfig.apis ?? {})) {
+      const { path } = getAliasOrPath(config, alias);
+      if (!apiPaths.includes(path)) apiPaths.push(path);
+    }
+  } else {
+    for (const requestedPath of requestedPaths) {
+      // An alias from the `apis` block gives the root file of that API.
+      const { path } = getAliasOrPath(config, requestedPath);
+      if (isAbsoluteUrl(path) || (await isApiDescription(path, resolver))) {
+        apiPaths.push(path);
+      } else {
+        roots.push(path);
+      }
+    }
   }
-  if (!explicit) apiPaths.push(...configuredApiPaths(config, configDir));
 
   if (action === 'readability') {
     if (apiPaths.length > 0) {
@@ -308,19 +199,21 @@ async function runAction(
     failureCount,
     apiFiles,
     unreadableFiles,
-  } = await collectEmbeddedInputs(apiPaths, config);
-  // A baseline built from a partial set of descriptions would hide findings.
-  if (action === 'baseline' && failureCount > 0) {
-    logger.error(
-      `Baseline not written: the run could not read ${failureCount} API description(s).\n`
-    );
-    return 1;
-  }
+  } = await collectEmbeddedInputs(apiPaths, config, resolver);
   const isIgnored = ignoredBy(config, resolved.rules);
+
   if (action === 'baseline') {
+    // A baseline built from a partial set of descriptions would hide findings.
+    if (failureCount > 0) {
+      logger.error(
+        `Baseline not written: the run could not read ${failureCount} API description(s).\n`
+      );
+      return 1;
+    }
     printBaselineStart(roots, embeddedInputs.length);
     return printBaselineRun(await generateBaseline(roots, resolved, { embeddedInputs, isIgnored }));
   }
+
   const timer = new Timer();
   printLintStart(roots, embeddedInputs.length);
   const result = await runLint(roots, resolved, {
