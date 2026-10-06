@@ -1,6 +1,5 @@
-import type { Oas3Tag, Oas3_2Tag } from 'core/src/typings/openapi.js';
-import type { Oas2Tag } from 'core/src/typings/swagger.js';
-
+import type { Oas3Tag, Oas3_2Tag } from '../../typings/openapi.js';
+import type { Oas2Tag } from '../../typings/swagger.js';
 import { readFileAsStringSync, resolveRelativePath } from '../../utils/yaml-fs-helper.js';
 import type { Oas3Decorator, Oas2Decorator } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';

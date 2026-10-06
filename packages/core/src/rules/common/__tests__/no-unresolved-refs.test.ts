@@ -136,7 +136,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
 
   it('should report on unresolved localr ref', async () => {
@@ -212,7 +212,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
 
   it('should not report on nested refs inside specification extensions', async () => {
@@ -243,7 +243,7 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
 
   it('should not report on nested refs inside specification extensions for 3.1', async () => {
@@ -274,6 +274,6 @@ describe('oas3 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
 });

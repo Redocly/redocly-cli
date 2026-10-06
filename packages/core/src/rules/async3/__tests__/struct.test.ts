@@ -78,6 +78,6 @@ describe('Async3 struct', () => {
       config: await createConfig({ rules: { struct: 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });
