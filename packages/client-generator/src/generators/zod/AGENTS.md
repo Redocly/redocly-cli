@@ -23,7 +23,7 @@ A standalone `<stem>.zod.ts`: one `export const <Name>Schema` per named IR schem
   with no build step, so nothing that needs a transform is emitted: no `enum`, no
   `namespace`, and no constructor parameter properties. `ZodValidationError` therefore
   declares its fields and assigns them in the constructor body — `constructor(readonly
-operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
+  operationId: string)` fails strip-only mode, which is how the generated CLI broke when it
   imported this module.
 
 ## The stage files
