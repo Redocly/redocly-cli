@@ -37,7 +37,7 @@ jobs:
 
       - name: Add more versions to test
         # Run only on the release branch (changeset-release/main):
-
+        if: github.head_ref == 'changeset-release/main'
         run: |
           cd tests/performance/
           cat package.json | jq ".dependencies = $(cat package.json | jq ._historicalVersions)" > package.json
