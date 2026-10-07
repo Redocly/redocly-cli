@@ -1,3 +1,4 @@
+import { logger } from '@redocly/openapi-core';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -220,6 +221,7 @@ describe('eject telemetry (coarse categories only)', () => {
   it('a framework variant records the allowlisted name and a guidance action', async () => {
     // Every generator ejects now; only the tanstack-query framework variants are guidance,
     // since they are that generator with one argument changed.
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
     await handleEjectGenerator({
       ...baseArgs,
       argv: { generator: 'tanstack-query-vue' },
@@ -229,6 +231,9 @@ describe('eject telemetry (coarse categories only)', () => {
       eject_generator_name: 'tanstack-query-vue',
       eject_generator_outcome: 'success',
     });
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("tanstackQueryGenerator('vue')")
+    );
   });
 
   it('a failure we did not account for still records an outcome', async () => {

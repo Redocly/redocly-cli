@@ -26,6 +26,30 @@ import {
 import { commandWrapper } from '../../wrapper.js';
 import { configFixture } from '../fixtures/config.js';
 
+vi.mock('perf_hooks');
+vi.mock('@redocly/openapi-core', async () => {
+  const actual = await vi.importActual('@redocly/openapi-core');
+  return {
+    ...actual,
+    lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
+    lintConfig: vi.fn(async (): Promise<NormalizedProblem[]> => []),
+    getTotals: vi.fn(() => ({ errors: 0, warnings: 0, ignored: 0 }) as Totals),
+    doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+      output: vi.fn(),
+    },
+    formatProblems: vi.fn(),
+  };
+});
+vi.mock('../../utils/miscellaneous.js');
+vi.mock('../../commands/check-config.js');
+vi.mock('../../utils/package.js', () => ({
+  version: '2.0.0',
+}));
+
 const argvMock = {
   apis: ['openapi.yaml'],
   'lint-config': 'off',
@@ -44,37 +68,12 @@ describe('handleLint', () => {
       return process.on(_e, cb);
     });
 
-    vi.mock('perf_hooks');
     vi.spyOn(performance, 'now').mockImplementation(() => 42);
 
-    vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual('@redocly/openapi-core');
-      return {
-        ...actual,
-        lint: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        lintConfig: vi.fn(async (): Promise<NormalizedProblem[]> => []),
-        getTotals: vi.fn(() => ({ errors: 0, warnings: 0, ignored: 0 }) as Totals),
-        doesYamlFileExist: vi.fn((path) => path === 'redocly.yaml'),
-        logger: {
-          info: vi.fn(),
-          warn: vi.fn(),
-          error: vi.fn(),
-          output: vi.fn(),
-        },
-        formatProblems: vi.fn(),
-      };
-    });
-
-    vi.mock('../../utils/miscellaneous.js');
-    vi.mock('../../commands/check-config.js');
     vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );
-
-    vi.mock('../../utils/package.js', () => ({
-      version: '2.0.0',
-    }));
   });
 
   describe('loadConfig and getEntrypoints stage', () => {

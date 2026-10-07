@@ -8,6 +8,11 @@ import { resolveDocument, BaseResolver, type Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { Oas3Types } from '../types/oas3.js';
 
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return { ...actual };
+});
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 describe('collect refs', () => {
@@ -514,10 +519,6 @@ describe('collect refs', () => {
       `,
       path.join(cwd, 'foobar')
     );
-    vi.mock('node:fs', async () => {
-      const actual = await vi.importActual('node:fs');
-      return { ...actual };
-    });
     vi.spyOn(fs, 'lstatSync').mockImplementation((_) => ({ isDirectory: () => true }) as any);
 
     const resolvedRefs = await resolveDocument({
