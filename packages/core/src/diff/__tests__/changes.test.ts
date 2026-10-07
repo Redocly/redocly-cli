@@ -1,8 +1,7 @@
 import { outdent } from 'outdent';
 
 import { replaceSourceWithRefInChanges } from '../../../__tests__/utils.js';
-import { collectChanges } from '../changes.js';
-import { buildDiffTree } from '../diff-tree.js';
+import { compareTrees } from '../diff-tree.js';
 import { nodeTreeOf, treeOf } from './utils.js';
 
 const cafe = (menuItem: string) => outdent`
@@ -14,7 +13,7 @@ const cafe = (menuItem: string) => outdent`
       MenuItem: ${menuItem}
 `;
 
-describe('collectChanges', () => {
+describe('changesOf', () => {
   it('should report every property that differs, at its escaped pointer on each side', async () => {
     const base = await nodeTreeOf(
       cafe("{ type: integer, x-price/unit: cents, description: 'A drink' }")
@@ -23,7 +22,7 @@ describe('collectChanges', () => {
       cafe("{ type: number, x-price/unit: euros, description: 'A drink' }")
     );
 
-    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+    const changes = compareTrees(base, revision);
 
     expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
       [
@@ -61,7 +60,7 @@ describe('collectChanges', () => {
     const base = await nodeTreeOf(cafe('{ type: object }'));
     const revision = await nodeTreeOf(cafe('{ type: object, minProperties: 1 }'));
 
-    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+    const changes = compareTrees(base, revision);
 
     expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
       [
@@ -86,7 +85,7 @@ describe('collectChanges', () => {
     const base = await nodeTreeOf(cafe('{ properties: { price: { type: number, minimum: 0 } } }'));
     const revision = await nodeTreeOf(cafe('{ properties: {} }'));
 
-    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+    const changes = compareTrees(base, revision);
 
     expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
       [
@@ -120,7 +119,7 @@ describe('collectChanges', () => {
       #/components/examples/latte Schema
     `);
 
-    const changes = collectChanges(buildDiffTree(base.get('#/')!, revision.get('#/')!, {}).root);
+    const changes = compareTrees(base.get('#/')!, revision.get('#/')!);
 
     expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
       [
@@ -144,11 +143,11 @@ describe('collectChanges', () => {
     `);
   });
 
-  it('should compare a $ref by where it points', async () => {
+  it('should compare a $ref that does not resolve by where it points', async () => {
     const base = await nodeTreeOf(cafe("{ $ref: '#/components/schemas/Beverage' }"));
     const revision = await nodeTreeOf(cafe("{ $ref: '#/components/schemas/Dessert' }"));
 
-    const changes = collectChanges(buildDiffTree(base.root, revision.root, {}).root);
+    const changes = compareTrees(base, revision);
 
     expect(replaceSourceWithRefInChanges(changes)).toMatchInlineSnapshot(`
       [
@@ -169,10 +168,37 @@ describe('collectChanges', () => {
     `);
   });
 
-  it('should report nothing when the documents are the same', async () => {
-    const { root } = await nodeTreeOf(cafe('{ type: string, enum: [coffee, tea] }'));
+  it('should compare an empty array that is not a node of its own as a value', async () => {
+    const orders = (security: string) =>
+      nodeTreeOf(
+        `openapi: 3.1.0\ninfo: { title: Cafe, version: 1.0.0 }\npaths: {}\nsecurity: ${security}`
+      );
 
-    const changes = collectChanges(buildDiffTree(root, root, {}).root);
+    const changes = compareTrees(
+      await orders('[{ ApiKey: [] }]'),
+      await orders('[{ ApiKey: [], OAuth: [] }]')
+    );
+
+    expect(changes).toMatchObject([
+      { key: '#/security/0', kind: 'modified', property: 'OAuth', revision: { value: [] } },
+    ]);
+  });
+
+  it('should report a list that the walker records as a node once, not as a value too', async () => {
+    const orders = (security: string) =>
+      nodeTreeOf(
+        `openapi: 3.1.0\ninfo: { title: Cafe, version: 1.0.0 }\npaths: {}\nsecurity: ${security}`
+      );
+
+    const changes = compareTrees(await orders('[]'), await orders('[{ ApiKey: [] }]'));
+
+    expect(changes).toMatchObject([{ key: '#/security/0', kind: 'added' }]);
+  });
+
+  it('should report nothing when the documents are the same', async () => {
+    const root = await nodeTreeOf(cafe('{ type: string, enum: [coffee, tea] }'));
+
+    const changes = compareTrees(root, root);
 
     expect(changes).toEqual([]);
   });

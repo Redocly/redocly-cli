@@ -1,30 +1,20 @@
-components
-  ✖ major  modified  schemas/Order · required
-      Properties of `Order` became required: `pickupAt`. (required-properties-added)
-      at revision.yaml:58:17
-  ✖ major  modified  schemas/Order/properties/note · maxLength
-      `maxLength` of `note` changed from '200' to '100'. (string-constraint-changed)
-      at revision.yaml:61:42
-  ✔ minor  added     schemas/Order/properties/pickupAt
-      at revision.yaml:62:19
-  · patch  removed   schemas/MenuItem/properties/price
-      at base.yaml:58:16
-  · patch  modified  schemas/MenuItem/properties/status · enum
-      at revision.yaml:55:39
-
 info
   · patch  modified  version
       at revision.yaml:2:31
 
 GET /menu
-  ✖ major  modified  parameters/{query:limit} · required
+  ✖ major  modified  parameters/0 · required
       `limit` query parameter became required. (parameter-became-required)
       at revision.yaml:12:47
-  ✖ major  removed   parameters/{query:search}
+  ✖ major  removed   parameters/1
       `search` query parameter was removed. (parameter-removed)
       at base.yaml:13:11
   · patch  modified  summary
       at revision.yaml:10:16
+  · patch  removed   responses/200/content/application/json/schema/items/properties/price
+      at base.yaml:58:16
+  · patch  modified  responses/200/content/application/json/schema/items/properties/status · enum
+      at revision.yaml:55:39
 
 /menu/{menuItemId}
   · patch  modified  key
@@ -35,10 +25,18 @@ DELETE /menu/{menuItemId}
       at base.yaml:27:7
 
 GET /menu/{menuItemId}
-  · patch  modified  parameters/{path:0} · name
+  · patch  modified  parameters/0 · name
       at revision.yaml:22:19
 
 POST /orders
+  ✖ major  modified  requestBody/content/application/json/schema · required
+      Properties of `Order` became required: `pickupAt`. (required-properties-added)
+      at revision.yaml:58:17
+  ✖ major  modified  requestBody/content/application/json/schema/properties/note · maxLength
+      `maxLength` of `note` changed from '200' to '100'. (schema-constraint-changed)
+      at revision.yaml:61:42
+  ✔ minor  added     requestBody/content/application/json/schema/properties/pickupAt
+      at revision.yaml:62:19
   · patch  removed   responses/201/headers
       All headers of response `201` were removed. (response-header-removed)
       at base.yaml:39:13

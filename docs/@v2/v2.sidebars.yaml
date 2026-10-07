@@ -261,8 +261,6 @@
       items:
         - label: Custom rules
           page: custom-plugins/custom-rules.md
-        - label: Custom diff rules
-          page: custom-plugins/custom-diff-rules.md
         - label: Custom decorators
           page: custom-plugins/custom-decorators.md
         - label: Custom config

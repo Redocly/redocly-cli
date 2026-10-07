@@ -1,75 +1,78 @@
-import type { NodeEntry, Reference } from '../node-tree/types.js';
-import type { DiffNode, Direction, Directions } from './types.js';
+import { enclosing, fieldOf } from '../node-tree/access.js';
+import type { NodeEntry } from '../node-tree/types.js';
+import { comparedSidesOf } from './diff-node.js';
+import type { DiffNode, Direction } from './types.js';
 
 const bothDirections: Direction[] = ['request', 'response'];
 
-/** Both sides' directions, in one order so that equal sets compare equal. */
-export function mergeDirections(left: Direction[], right: Direction[]): Direction[] {
-  return bothDirections.filter(
-    (direction) => left.includes(direction) || right.includes(direction)
+/** Empty for data that travels neither way, such as `info` or a component nothing references. */
+export function directionsOf(node: DiffNode): Direction[] {
+  const directions = directionsIn(node.revision ? 'revision' : 'base', node, new Set());
+
+  return bothDirections.filter((direction) => directions.includes(direction));
+}
+
+function directionsIn(
+  side: 'base' | 'revision',
+  node: DiffNode,
+  visited: Set<DiffNode>
+): Direction[] {
+  // Each place is asked once, which also ends the climb through a component that references itself.
+  if (visited.has(node)) return [];
+  visited.add(node);
+
+  // Only pairs have children or other places that reach them, so every place climbed has `side`.
+  const own = ownDirection(comparedSidesOf(node)[side]!) ?? ownDirection(node[side]!);
+  if (own) return [own];
+
+  return [node.parent, ...node.referencedBy].flatMap((place) =>
+    place ? directionsIn(side, place, visited) : []
   );
 }
 
-export function opposite(direction: Direction): Direction {
-  return direction === 'request' ? 'response' : 'request';
+function ownDirection(node: NodeEntry): Direction | undefined {
+  switch (node.type.name) {
+    case 'RequestBody':
+    case 'ParameterList':
+      return directionAt(node, 'request');
+    case 'Responses':
+      return directionAt(node, 'response');
+    // "readOnly" data only comes from the API and "writeOnly" data only goes to it (OpenAPI,
+    // Schema Object), wherever the schema is used.
+    case 'Schema':
+      if (fieldOf(node, 'readOnly') === true) return 'response';
+      if (fieldOf(node, 'writeOnly') === true) return 'request';
+      return undefined;
+    // AsyncAPI 3: `receive` means another application produces the message, so its payload is
+    // judged the way a request body is; `send` means this application produces it. An OpenAPI
+    // operation has no `action`, so it says nothing.
+    case 'Operation':
+      return actionDirection(fieldOf(node, 'action'));
+    // A reply answers the operation, so it travels back the other way.
+    case 'OperationReply': {
+      const direction = actionDirection(fieldOf(enclosing(node, 'Operation'), 'action'));
+      return direction && opposite(direction);
+    }
+    default:
+      return undefined;
+  }
 }
 
-/**
- * The way the data in a node travels. The node's position says it first; where it says nothing,
- * the node takes the directions its referenced ancestors are used in, over both documents, so a
- * shared component keeps one direction.
- */
-export function resolveDirections(
-  references: Reference[],
-  diffNodeOf: Map<NodeEntry, DiffNode>,
-  directions: Directions
-): (node: NodeEntry) => Direction[] {
-  const usage = new Map<DiffNode, Direction[]>();
-
-  const directionOf = (node: NodeEntry): Direction[] => {
-    const position = positionOf(node, directions);
-    if (position) return [position];
-
-    let merged: Direction[] = [];
-    for (let current: NodeEntry | null = node; current; current = current.parent) {
-      merged = mergeDirections(merged, usage.get(diffNodeOf.get(current)!) ?? []);
-    }
-    return merged;
-  };
-
-  // A site inside a referenced node borrows that node's usage, so each time a usage widens, the
-  // references made from inside it are taken again. Usage only ever widens, so this ends, and a
-  // reference cycle simply contributes nothing.
-  const madeInside = new Map<DiffNode, Reference[]>();
-  for (const reference of references) {
-    for (let current: NodeEntry | null = reference.from; current; current = current.parent) {
-      const node = diffNodeOf.get(current)!;
-      const made = madeInside.get(node);
-      if (made) made.push(reference);
-      else madeInside.set(node, [reference]);
-    }
-  }
-
-  const pending = [...references];
-  while (pending.length) {
-    const { from, to } = pending.pop()!;
-    const target = diffNodeOf.get(to)!;
-    const known = usage.get(target) ?? [];
-    const widened = mergeDirections(known, directionOf(from));
-    if (widened.length === known.length) continue;
-
-    usage.set(target, widened);
-    for (const reference of madeInside.get(target) ?? []) pending.push(reference);
-  }
-
-  return directionOf;
+// Outside `components`, every `Parameter` sits under a `ParameterList` and every `Response`
+// under `Responses`, so the lists carry the direction. Under a callback or a webhook the API
+// sends the request itself, so it is the other way round.
+function directionAt(node: NodeEntry, direction: Direction): Direction | undefined {
+  if (enclosing(node, 'Components')) return undefined;
+  const sentByApi = enclosing(node, 'CallbacksMap') ?? enclosing(node, 'WebhooksMap');
+  return sentByApi ? opposite(direction) : direction;
 }
 
-function positionOf(node: NodeEntry, directions: Directions): Direction | undefined {
-  for (let current: NodeEntry | null = node; current; current = current.parent) {
-    const rule = directions[current.type];
-    const direction = typeof rule === 'function' ? rule(current) : rule;
-    if (direction) return direction;
-  }
+function actionDirection(action: unknown): Direction | undefined {
+  if (action === 'receive') return 'request';
+  if (action === 'send') return 'response';
   return undefined;
+}
+
+function opposite(direction: Direction): Direction {
+  return direction === 'request' ? 'response' : 'request';
 }

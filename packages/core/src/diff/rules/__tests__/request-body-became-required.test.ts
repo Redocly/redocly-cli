@@ -20,7 +20,7 @@ const cafe = (required: boolean) => outdent`
 
 describe('request-body-became-required', () => {
   it('should report an optional request body that became required', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(false), 'base.yaml'),
       revision: makeDocumentFromString(cafe(true), 'revision.yaml'),
       config: await createConfig({ diff: { 'request-body-became-required': 'major' } }),
@@ -55,7 +55,7 @@ describe('request-body-became-required', () => {
   });
 
   it('should not report a required request body that became optional', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(true), 'base.yaml'),
       revision: makeDocumentFromString(cafe(false), 'revision.yaml'),
       config: await createConfig({ diff: { 'request-body-became-required': 'major' } }),

@@ -5,24 +5,23 @@ import { createConfig } from '../../../config/index.js';
 import { makeDocumentFromString } from '../../../resolve.js';
 import { diffDocuments } from '../../index.js';
 
-const cafe = (apiKey: string) => outdent`
+const cafe = (schemes: string) => outdent`
   openapi: 3.1.0
   info: { title: Cafe, version: 1.0.0 }
   paths: {}
   components:
-    securitySchemes:
-      ApiKey: ${apiKey}
+    securitySchemes: ${schemes}
 `;
+
+const apiKey = 'ApiKey: { type: apiKey, in: header, name: X-Api-Key }';
+const bearer = 'Bearer: { type: http, scheme: bearer }';
 
 describe('security-scheme-changed', () => {
   it('should report a field clients authenticate with', async () => {
-    const result = diffDocuments({
-      base: makeDocumentFromString(
-        cafe('{ type: apiKey, in: header, name: X-Api-Key }'),
-        'base.yaml'
-      ),
+    const result = await diffDocuments({
+      base: makeDocumentFromString(cafe(`{ ${apiKey} }`), 'base.yaml'),
       revision: makeDocumentFromString(
-        cafe('{ type: apiKey, in: header, name: X-Cafe-Key }'),
+        cafe('{ ApiKey: { type: apiKey, in: header, name: X-Cafe-Key } }'),
         'revision.yaml'
       ),
       config: await createConfig({ diff: { 'security-scheme-changed': 'major' } }),
@@ -57,12 +56,12 @@ describe('security-scheme-changed', () => {
   });
 
   it('should report a scheme of another type once, not for every field it drags along', async () => {
-    const result = diffDocuments({
-      base: makeDocumentFromString(
-        cafe('{ type: apiKey, in: header, name: X-Api-Key }'),
-        'base.yaml'
+    const result = await diffDocuments({
+      base: makeDocumentFromString(cafe(`{ ${apiKey} }`), 'base.yaml'),
+      revision: makeDocumentFromString(
+        cafe('{ ApiKey: { type: http, scheme: bearer } }'),
+        'revision.yaml'
       ),
-      revision: makeDocumentFromString(cafe('{ type: http, scheme: bearer }'), 'revision.yaml'),
       config: await createConfig({ diff: { 'security-scheme-changed': 'major' } }),
     });
 
@@ -134,6 +133,106 @@ describe('security-scheme-changed', () => {
             "value": "bearer",
           },
           "verdicts": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report a field that a scheme gains or loses', async () => {
+    const withFormat = 'Bearer: { type: http, scheme: bearer, bearerFormat: JWT }';
+    const gained = await diffDocuments({
+      base: makeDocumentFromString(cafe(`{ ${bearer} }`), 'base.yaml'),
+      revision: makeDocumentFromString(cafe(`{ ${withFormat} }`), 'revision.yaml'),
+      config: await createConfig({ diff: { 'security-scheme-changed': 'major' } }),
+    });
+    const lost = await diffDocuments({
+      base: makeDocumentFromString(cafe(`{ ${withFormat} }`), 'base.yaml'),
+      revision: makeDocumentFromString(cafe(`{ ${bearer} }`), 'revision.yaml'),
+      config: await createConfig({ diff: { 'security-scheme-changed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(gained.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/components/securitySchemes/Bearer",
+            "value": undefined,
+          },
+          "impact": "major",
+          "key": "#/components/securitySchemes/Bearer",
+          "kind": "modified",
+          "property": "bearerFormat",
+          "revision": {
+            "location": "revision.yaml#/components/securitySchemes/Bearer/bearerFormat",
+            "value": "JWT",
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/components/securitySchemes/Bearer/bearerFormat",
+              "message": "\`bearerFormat\` of security scheme \`Bearer\` was set to 'JWT'.",
+              "ruleId": "security-scheme-changed",
+            },
+          ],
+        },
+      ]
+    `);
+    expect(replaceSourceWithRefInChanges(lost.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/components/securitySchemes/Bearer/bearerFormat",
+            "value": "JWT",
+          },
+          "impact": "major",
+          "key": "#/components/securitySchemes/Bearer",
+          "kind": "modified",
+          "property": "bearerFormat",
+          "revision": {
+            "location": "revision.yaml#/components/securitySchemes/Bearer",
+            "value": undefined,
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/components/securitySchemes/Bearer",
+              "message": "\`bearerFormat\` of security scheme \`Bearer\` was removed.",
+              "ruleId": "security-scheme-changed",
+            },
+          ],
+        },
+      ]
+    `);
+  });
+
+  it('should report a security scheme that is gone', async () => {
+    const result = await diffDocuments({
+      base: makeDocumentFromString(cafe(`{ ${apiKey}, ${bearer} }`), 'base.yaml'),
+      revision: makeDocumentFromString(cafe(`{ ${apiKey} }`), 'revision.yaml'),
+      config: await createConfig({ diff: { 'security-scheme-changed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/components/securitySchemes/Bearer",
+            "value": {
+              "scheme": "bearer",
+              "type": "http",
+            },
+          },
+          "impact": "major",
+          "key": "#/components/securitySchemes/Bearer",
+          "kind": "removed",
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "base.yaml#/components/securitySchemes/Bearer",
+              "message": "Security scheme \`Bearer\` was removed.",
+              "ruleId": "security-scheme-changed",
+            },
+          ],
         },
       ]
     `);

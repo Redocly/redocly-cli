@@ -3,7 +3,7 @@ info
       at revision.yaml:2:31
 
 GET /menu
-  ✔ minor  added     parameters/{query:category}
+  ✔ minor  added     parameters/2
       at revision.yaml:14:11
 
 /specials

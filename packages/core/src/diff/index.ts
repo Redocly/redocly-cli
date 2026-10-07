@@ -1,26 +1,27 @@
 import type { Config } from '../config/index.js';
+import { initDiffRules, initRules } from '../config/rules.js';
 import { detectSpec, getMajorSpecVersion } from '../detect-spec.js';
-import { buildNodeTree } from '../node-tree/build.js';
+import { buildNodeTree } from '../node-tree/index.js';
 import { getTypes, type SpecVersion } from '../oas-types.js';
-import type { Document } from '../resolve.js';
+import { BaseResolver, resolveDocument, type Document } from '../resolve.js';
 import { normalizeTypes } from '../types/index.js';
 import { HandledError } from '../utils/error.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import { collectChanges } from './changes.js';
-import { buildDiffTree, typeOf } from './diff-tree.js';
-import { resolveDirections } from './direction.js';
+import { normalizeVisitors } from '../visitors.js';
+import { walkDocument, type WalkContext } from '../walk.js';
+import { typeOf } from './diff-node.js';
+import { compareTrees } from './diff-tree.js';
 import { highestImpact } from './impact.js';
 import { judgeChanges } from './judge.js';
-import { isDiffFamily } from './rules/index.js';
-import { diffSpecs } from './specs/index.js';
 import type { DiffResult, DiffSummary, Impact, JudgedChange } from './types.js';
 
-export function diffDocuments(opts: {
+export async function diffDocuments(opts: {
   base: Document;
   revision: Document;
   config: Config;
-}): DiffResult {
-  const { base, revision, config } = opts;
+  externalRefResolver?: BaseResolver;
+}): Promise<DiffResult> {
+  const { base, revision, config, externalRefResolver = new BaseResolver(config.resolve) } = opts;
 
   const baseVersion = detectSpec(base.parsed);
   const revisionVersion = detectSpec(revision.parsed);
@@ -31,38 +32,18 @@ export function diffDocuments(opts: {
     throw new HandledError(`Cannot compare ${baseVersion} with ${revisionVersion}.`);
   }
 
-  const collect = (document: Document, specVersion: SpecVersion) => {
-    return buildNodeTree({
-      document,
-      types: normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config),
-      specVersion,
-    });
-  };
+  const [baseTree, revisionTree] = await Promise.all([
+    preparedNodeTree(base, baseVersion, config, externalRefResolver),
+    preparedNodeTree(revision, revisionVersion, config, externalRefResolver),
+  ]);
 
-  const { identities, directions } = isDiffFamily(family)
-    ? diffSpecs[family]
-    : { identities: {}, directions: {} };
+  const rules = initDiffRules(config.getDiffRulesForSpecVersion(family), config, revisionVersion);
 
-  const collectedBase = collect(base, baseVersion);
-  const collectedRevision = collect(revision, revisionVersion);
-
-  const references = [...collectedBase.references, ...collectedRevision.references];
-
-  const { root, diffNodeOf } = buildDiffTree(
-    collectedBase.root,
-    collectedRevision.root,
-    identities
+  const changes = judgeChanges(
+    compareTrees(baseTree.root, revisionTree.root),
+    rules,
+    revisionVersion
   );
-
-  const directionOf = resolveDirections(references, diffNodeOf, directions);
-
-  const changes = judgeChanges({
-    changes: collectChanges(root),
-    specVersion: revisionVersion,
-    ruleSets: config.getDiffRulesForSpecVersion(family),
-    impactOf: (ruleId) => config.getDiffImpact(ruleId, revisionVersion),
-    directionOf,
-  });
 
   return {
     files: {
@@ -77,6 +58,54 @@ export function diffDocuments(opts: {
     summary: countByImpact(changes),
     bump: requiredBump(changes),
     changes,
+    problems: [...baseTree.problems, ...revisionTree.problems],
+  };
+}
+
+// Preprocessors change the document first, as they do before lint.
+async function preparedNodeTree(
+  document: Document,
+  specVersion: SpecVersion,
+  config: Config,
+  externalRefResolver: BaseResolver
+) {
+  const rules = config.getRulesForSpecVersion(getMajorSpecVersion(specVersion));
+  const types = normalizeTypes(config.extendTypes(getTypes(specVersion), specVersion), config);
+
+  const ctx: WalkContext = {
+    problems: [],
+    specVersion,
+    config,
+    visitorsData: {},
+  };
+
+  const preprocessors = initRules(rules, config, 'preprocessors', specVersion);
+
+  let resolvedRefMap = await resolveDocument({
+    rootDocument: document,
+    rootType: types.Root,
+    externalRefResolver,
+  });
+
+  if (preprocessors.length > 0) {
+    // Make additional pass to resolve refs defined in preprocessors.
+    walkDocument({
+      document,
+      rootType: types.Root,
+      normalizedVisitors: normalizeVisitors(preprocessors, types),
+      resolvedRefMap,
+      ctx,
+    });
+    resolvedRefMap = await resolveDocument({
+      rootDocument: document,
+      rootType: types.Root,
+      externalRefResolver,
+    });
+  }
+
+  return {
+    root: buildNodeTree({ document, types, resolvedRefMap, ctx }),
+    problems: ctx.problems.map((problem) => config.addProblemToIgnore(problem)),
   };
 }
 

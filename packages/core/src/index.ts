@@ -142,7 +142,7 @@ export {
 } from './diff/types.js';
 export { impactRank, impacts } from './diff/impact.js';
 export { displaySide } from './diff/changes.js';
-export { typeOf } from './diff/diff-tree.js';
+export { nameOf, typeOf } from './diff/diff-node.js';
 export { HandledError, AbortFlowError } from './utils/error.js';
 export { isSupportedExtension } from './utils/is-supported-extension.js';
 export { isBrowser } from './env.js';

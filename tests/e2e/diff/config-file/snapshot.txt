@@ -3,7 +3,7 @@ info
       at revision.yaml:2:31
 
 GET /menu
-  ✔ minor  modified  parameters/{query:limit} · required
+  ✔ minor  modified  parameters/0 · required
       `limit` query parameter became required. (parameter-became-required)
       at revision.yaml:8:47
   · patch  modified  summary

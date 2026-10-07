@@ -17,7 +17,7 @@ const ready = 'orderReady: { address: orders.ready }';
 // A channel is where messages travel, so both sides of it break together.
 describe('channel-removed', () => {
   it('should report a channel that is gone', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(`{ ${placed}, ${ready} }`), 'base.yaml'),
       revision: makeDocumentFromString(cafe(`{ ${placed} }`), 'revision.yaml'),
       config: await createConfig({ diff: { 'channel-removed': 'major' } }),
@@ -49,7 +49,7 @@ describe('channel-removed', () => {
   });
 
   it('should report every channel leaving with the whole map', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(`{ ${placed} }`), 'base.yaml'),
       revision: makeDocumentFromString(cafe(), 'revision.yaml'),
       config: await createConfig({ diff: { 'channel-removed': 'major' } }),
@@ -77,6 +77,39 @@ describe('channel-removed', () => {
               "ruleId": "channel-removed",
             },
           ],
+        },
+      ]
+    `);
+  });
+
+  it('should not report the components channels map', async () => {
+    const withComponents = (components: string) => outdent`
+      asyncapi: 3.0.0
+      info: { title: Cafe kitchen, version: 1.0.0 }
+      components: ${components}
+    `;
+
+    const result = await diffDocuments({
+      base: makeDocumentFromString(withComponents(`{ channels: { ${placed} } }`), 'base.yaml'),
+      revision: makeDocumentFromString(withComponents('{}'), 'revision.yaml'),
+      config: await createConfig({ diff: { 'channel-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/components/channels",
+            "value": {
+              "orderPlaced": {
+                "address": "orders.placed",
+              },
+            },
+          },
+          "impact": "patch",
+          "key": "#/components/channels",
+          "kind": "removed",
+          "verdicts": [],
         },
       ]
     `);

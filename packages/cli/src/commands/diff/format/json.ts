@@ -35,11 +35,15 @@ export function toJsonChange(change: JudgedChange) {
   };
 }
 
+// The problems met while preparing the documents are printed apart from the report.
 export function jsonDiff(result: DiffResult): string {
   const report = {
     reportVersion: '1',
-    ...result,
     files: { base: formatPath(result.files.base), revision: formatPath(result.files.revision) },
+    specVersions: result.specVersions,
+    infoVersions: result.infoVersions,
+    summary: result.summary,
+    bump: result.bump,
     changes: result.changes.map(toJsonChange),
   };
   return JSON.stringify(report, null, 2);

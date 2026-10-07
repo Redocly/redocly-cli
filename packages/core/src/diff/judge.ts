@@ -1,12 +1,12 @@
-import type { NodeEntry } from '../node-tree/types.js';
+import type { InitializedDiffRule } from '../config/rules.js';
 import type { SpecVersion } from '../oas-types.js';
 import { displaySide } from './changes.js';
-import { latestOf, typeOf } from './diff-tree.js';
+import { typeOf } from './diff-node.js';
+import { directionsOf } from './direction.js';
 import { defaultImpact, highestImpact } from './impact.js';
 import type {
   Change,
   DiffNode,
-  DiffRule,
   DiffRuleContext,
   DiffVisit,
   DiffVisitor,
@@ -16,7 +16,6 @@ import type {
   RuleVerdict,
 } from './types.js';
 
-/** One handler of an enabled rule, with the node types it is nested under; `any` has none. */
 type RuleHandler = {
   ruleId: string;
   impact: Impact;
@@ -24,32 +23,10 @@ type RuleHandler = {
   visit: DiffVisit;
 };
 
-/** The handlers of every rule the configuration turns on, in rule order. */
-function activeHandlers(
-  ruleSets: Record<string, DiffRule>[],
-  impactOf: (ruleId: string) => Impact | 'off'
-): RuleHandler[] {
-  const handlers: RuleHandler[] = [];
-
-  for (const ruleSet of ruleSets) {
-    for (const [ruleId, rule] of Object.entries(ruleSet)) {
-      const impact = impactOf(ruleId);
-      if (impact === 'off') continue;
-      for (const { typePath, visit } of flattenVisitor(rule(), ruleId)) {
-        handlers.push({ ruleId, impact, typePath, visit });
-      }
-    }
-  }
-  return handlers;
-}
-
 // A diff visitor sees whole changes, not a walk, so lint's hooks have nothing to run on.
 const HOOKS = new Set(['enter', 'leave', 'skip']);
 
-/**
- * A rule's visitor is nested the way lint visitors are. Flattened, each handler carries the
- * types it is nested under, so a change can be checked against it without walking the visitor.
- */
+// Each handler with the types it is nested under, so matching a change needs no walk.
 function flattenVisitor(
   visitor: DiffVisitor,
   ruleId: string,
@@ -67,7 +44,7 @@ function flattenVisitor(
 /**
  * Lint's nesting: `SchemaProperties › Schema` applies to a schema whose nearest enclosing
  * `SchemaProperties` or `Schema` is a `SchemaProperties` — a property, not a schema further down
- * inside one. The empty path applies to every node.
+ * inside one.
  */
 export function appliesTo(typePath: string[], node: DiffNode): boolean {
   let current: DiffNode | undefined = node;
@@ -86,30 +63,44 @@ function nearest(node: DiffNode | null, types: string[]): DiffNode | undefined {
   return undefined;
 }
 
-export function judgeChanges(opts: {
-  changes: Change[];
-  specVersion: SpecVersion;
-  ruleSets: Record<string, DiffRule>[];
-  impactOf: (ruleId: string) => Impact | 'off';
-  directionOf: (node: NodeEntry) => Direction[];
-}): JudgedChange[] {
-  const { changes, specVersion, ruleSets, impactOf, directionOf } = opts;
-  const handlers = activeHandlers(ruleSets, impactOf);
+export function judgeChanges(
+  changes: Change[],
+  rules: InitializedDiffRule[],
+  specVersion: SpecVersion
+): JudgedChange[] {
+  const handlers: RuleHandler[] = rules.flatMap(({ ruleId, impact, visitor }) =>
+    flattenVisitor(visitor, ruleId).map((handler) => ({ ruleId, impact, ...handler }))
+  );
 
-  return changes.map((change) => {
-    const verdicts: RuleVerdict[] = [];
-    const directions = directionOf(latestOf(change.node));
+  return changes.map((change) => judgeChange(change, handlers, specVersion));
+}
 
-    for (const { ruleId, impact, typePath, visit } of handlers) {
-      if (!appliesTo(typePath, change.node)) continue;
-      const report: DiffRuleContext['report'] = ({
-        message,
-        location = displaySide(change).location,
-      }) => verdicts.push({ ruleId, impact, message, location });
-      visit(change, { report, directions, specVersion });
-    }
+function judgeChange(
+  change: Change,
+  handlers: RuleHandler[],
+  specVersion: SpecVersion
+): JudgedChange {
+  // Computed once per change, and only when a rule asks.
+  let directions: Direction[] | undefined;
+  const getDirections = () => (directions ??= directionsOf(change.node));
+  const location = displaySide(change).location;
+  const verdicts: RuleVerdict[] = [];
 
-    const impact = highestImpact(verdicts.map((verdict) => verdict.impact));
-    return { ...change, impact: impact ?? defaultImpact(change.kind), verdicts };
-  });
+  for (const { ruleId, impact, typePath, visit } of handlers) {
+    if (!appliesTo(typePath, change.node)) continue;
+
+    const report: DiffRuleContext['report'] = (verdict) => {
+      verdicts.push({
+        ruleId,
+        impact,
+        message: verdict.message,
+        location: verdict.location ?? location,
+      });
+    };
+
+    visit(change, { report, location, getDirections, specVersion });
+  }
+
+  const impact = highestImpact(verdicts.map((verdict) => verdict.impact));
+  return { ...change, verdicts, impact: impact ?? defaultImpact(change) };
 }
