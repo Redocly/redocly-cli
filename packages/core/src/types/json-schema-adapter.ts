@@ -1,16 +1,13 @@
 // For internal usage only
 
-import { Ajv2020 } from "@redocly/ajv/dist/2020.js";
-import type { JSONSchema } from "json-schema-to-ts";
+import { Ajv2020 } from '@redocly/ajv/dist/2020.js';
+import type { JSONSchema } from 'json-schema-to-ts';
 
-import type { Oas3Schema } from "../typings/openapi.js";
-import { isPlainObject } from "../utils/is-plain-object.js";
-import type { NodeType, PropType, ResolveTypeFn } from "./index.js";
+import type { Oas3Schema } from '../typings/openapi.js';
+import { isPlainObject } from '../utils/is-plain-object.js';
+import type { NodeType, PropType, ResolveTypeFn } from './index.js';
 
-type ExtendedJSONSchema = JSONSchema & {
-  nodeTypeName?: string;
-  documentationLink?: string;
-};
+type ExtendedJSONSchema = JSONSchema & { nodeTypeName?: string; documentationLink?: string };
 
 let ajv: Ajv2020 | undefined;
 
@@ -35,14 +32,12 @@ function findOneOf(
   schemaOneOf: ExtendedJSONSchema[],
   oneOfs: (PropType | ResolveTypeFn)[]
 ): ResolveTypeFn {
-  if (oneOfs.some((option) => typeof option === "function")) {
-    throw new Error("Unexpected oneOf inside oneOf.");
+  if (oneOfs.some((option) => typeof option === 'function')) {
+    throw new Error('Unexpected oneOf inside oneOf.');
   }
 
   return (value: unknown) => {
-    let index = schemaOneOf.findIndex((option) =>
-      getAjv().validate(option, value)
-    );
+    let index = schemaOneOf.findIndex((option) => getAjv().validate(option, value));
     if (index === -1) {
       index = 0;
     }
@@ -55,17 +50,15 @@ function transformJSONSchemaToNodeType(
   schema: ExtendedJSONSchema,
   ctx: Record<string, NodeType>
 ): PropType | ResolveTypeFn {
-  if (!schema || typeof schema === "boolean") {
+  if (!schema || typeof schema === 'boolean') {
     throw new Error(`Unexpected schema in ${propertyName}.`);
   }
 
   if (schema instanceof Array) {
-    throw new Error(
-      `Unexpected array schema in ${propertyName}. Try using oneOf instead.`
-    );
+    throw new Error(`Unexpected array schema in ${propertyName}. Try using oneOf instead.`);
   }
 
-  if (schema.type === "null") {
+  if (schema.type === 'null') {
     throw new Error(`Unexpected null schema type in ${propertyName} schema.`);
   }
 
@@ -76,10 +69,10 @@ function transformJSONSchemaToNodeType(
   }
 
   if (
-    schema.type === "string" ||
-    schema.type === "number" ||
-    schema.type === "integer" ||
-    schema.type === "boolean"
+    schema.type === 'string' ||
+    schema.type === 'number' ||
+    schema.type === 'integer' ||
+    schema.type === 'boolean'
   ) {
     const { default: _, ...rest } = schema;
     return rest as PropType;
@@ -91,14 +84,11 @@ function transformJSONSchemaToNodeType(
     schema = { ...schema, additionalProperties: patternSchemas[0] };
   }
 
-  if (schema.type === "object" && !schema.properties && !schema.oneOf) {
-    if (
-      schema.additionalProperties === undefined ||
-      schema.additionalProperties === true
-    ) {
-      return { type: "object" };
+  if (schema.type === 'object' && !schema.properties && !schema.oneOf) {
+    if (schema.additionalProperties === undefined || schema.additionalProperties === true) {
+      return { type: 'object' };
     } else if (schema.additionalProperties === false) {
-      return { type: "object", properties: {} };
+      return { type: 'object', properties: {} };
     }
   }
 
@@ -123,43 +113,32 @@ function transformJSONSchemaToNodeType(
 
   if (schema.oneOf) {
     if ((schema as Oas3Schema).discriminator) {
-      const discriminatedPropertyName = (schema as Oas3Schema).discriminator
-        ?.propertyName;
+      const discriminatedPropertyName = (schema as Oas3Schema).discriminator?.propertyName;
       if (!discriminatedPropertyName) {
-        throw new Error(
-          `Unexpected discriminator without a propertyName in ${propertyName}.`
-        );
+        throw new Error(`Unexpected discriminator without a propertyName in ${propertyName}.`);
       }
 
       // Map discriminator values to their actual type names
       const discriminatorMapping: Record<string, string> = {};
 
       const oneOfs = schema.oneOf.map((option, i) => {
-        if (typeof option === "boolean") {
+        if (typeof option === 'boolean') {
           throw new Error(
             `Unexpected boolean schema in ${propertyName} at position ${i} in oneOf.`
           );
         }
-        const discriminatedProperty =
-          option?.properties?.[discriminatedPropertyName];
-        if (
-          !discriminatedProperty ||
-          typeof discriminatedProperty === "boolean"
-        ) {
+        const discriminatedProperty = option?.properties?.[discriminatedPropertyName];
+        if (!discriminatedProperty || typeof discriminatedProperty === 'boolean') {
           throw new Error(
             `Unexpected property '${discriminatedProperty}' schema in ${propertyName} at position ${i} in oneOf.`
           );
         }
 
         const discriminatorValue = discriminatedProperty.const as string;
-        const actualTypeName = transformJSONSchemaToNodeType(
-          discriminatorValue,
-          option,
-          ctx
-        );
+        const actualTypeName = transformJSONSchemaToNodeType(discriminatorValue, option, ctx);
 
         // Store mapping from discriminator value to actual type name
-        if (typeof actualTypeName === "string") {
+        if (typeof actualTypeName === 'string') {
           discriminatorMapping[discriminatorValue] = actualTypeName;
         }
 
@@ -170,7 +149,7 @@ function transformJSONSchemaToNodeType(
       return (value: unknown, key: string) => {
         if (isPlainObject(value)) {
           const discriminatedTypeName = value[discriminatedPropertyName];
-          if (typeof discriminatedTypeName === "string") {
+          if (typeof discriminatedTypeName === 'string') {
             const actualTypeName = discriminatorMapping[discriminatedTypeName];
 
             if (actualTypeName && ctx[actualTypeName]) {
@@ -178,14 +157,11 @@ function transformJSONSchemaToNodeType(
             }
           }
         }
-        return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs)(
-          value,
-          key
-        );
+        return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs)(value, key);
       };
     } else {
       const oneOfs = schema.oneOf.map((option, i) =>
-        transformJSONSchemaToNodeType(propertyName + "_" + i, option, ctx)
+        transformJSONSchemaToNodeType(propertyName + '_' + i, option, ctx)
       );
       return findOneOf(schema.oneOf as ExtendedJSONSchema[], oneOfs);
     }
@@ -199,17 +175,15 @@ function extractNodeToContext(
   schema: ExtendedJSONSchema,
   ctx: Record<string, NodeType>
 ): string {
-  if (!schema || typeof schema === "boolean") {
+  if (!schema || typeof schema === 'boolean') {
     throw new Error(`Unexpected schema in ${propertyName}.`);
   }
 
   if (schema instanceof Array) {
-    throw new Error(
-      `Unexpected array schema in ${propertyName}. Try using oneOf instead.`
-    );
+    throw new Error(`Unexpected array schema in ${propertyName}. Try using oneOf instead.`);
   }
 
-  if (schema.type === "null") {
+  if (schema.type === 'null') {
     throw new Error(`Unexpected null schema type in ${propertyName} schema.`);
   }
 
@@ -224,17 +198,13 @@ function extractNodeToContext(
 
   const properties: Record<string, PropType | ResolveTypeFn> = {};
   for (const [name, property] of Object.entries(schema.properties || {})) {
-    properties[name] = transformJSONSchemaToNodeType(
-      nodeTypeName + "." + name,
-      property,
-      ctx
-    );
+    properties[name] = transformJSONSchemaToNodeType(nodeTypeName + '.' + name, property, ctx);
   }
 
   let additionalProperties;
   if (isPlainObject(schema.additionalProperties)) {
     additionalProperties = transformJSONSchemaToNodeType(
-      propertyName + "_additionalProperties",
+      propertyName + '_additionalProperties',
       schema.additionalProperties,
       ctx
     );
@@ -250,19 +220,12 @@ function extractNodeToContext(
       isPlainObject(schema.items.additionalProperties) ||
       schema.items.oneOf) // exclude scalar array types
   ) {
-    items = transformJSONSchemaToNodeType(
-      propertyName + "_items",
-      schema.items,
-      ctx
-    );
+    items = transformJSONSchemaToNodeType(propertyName + '_items', schema.items, ctx);
   }
 
-  let required = schema.required as NodeType["required"];
+  let required = schema.required as NodeType['required'];
   // Translate required in oneOfs into a ResolveTypeFn.
-  if (
-    schema.oneOf &&
-    schema.oneOf.every((option) => !!(option as Oas3Schema).required)
-  ) {
+  if (schema.oneOf && schema.oneOf.every((option) => !!(option as Oas3Schema).required)) {
     required = (value): string[] => {
       const requiredList: string[][] = schema.oneOf!.map((option) => [
         ...(schema.required || []),
@@ -300,16 +263,10 @@ export function getNodeTypesFromJSONSchema(
 } {
   const ctx: Record<string, NodeType> = {};
   //TODO: fix this function to return discriminator resolvers in all NodeTypes that are returned in ctx. Currently it only only returns one discriminatorResolver for all types.
-  const discriminatorResolver = transformJSONSchemaToNodeType(
-    schemaName,
-    entrySchema,
-    ctx
-  );
+  const discriminatorResolver = transformJSONSchemaToNodeType(schemaName, entrySchema, ctx);
   return {
     ctx,
     discriminatorResolver:
-      typeof discriminatorResolver === "function"
-        ? discriminatorResolver
-        : undefined,
+      typeof discriminatorResolver === 'function' ? discriminatorResolver : undefined,
   };
 }
