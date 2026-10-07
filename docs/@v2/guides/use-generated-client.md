@@ -786,8 +786,8 @@ await upload(
 A stream body is sent in one attempt, whatever the retry policy says, because a consumed stream cannot be replayed.
 The `timeout` still applies to that attempt, so pass `timeout: 0` or a budget that fits a large upload.
 
-The Python client does the same for an untyped multipart or an `application/octet-stream` operation: pass `bytes`, a file-like object, or an iterator of `bytes` as the body, and set the `content-type` header yourself.
-A file-like object or an iterator is sent in one attempt, because it cannot be replayed; `bytes` still follow the retry policy.
+The Python client does the same for an untyped multipart or an `application/octet-stream` operation: pass `bytes`, a `str`, a file-like object, or an iterator of `bytes` as the body, and set the `content-type` header yourself.
+A file-like object or an iterator is sent in one attempt, because it cannot be replayed; `bytes` and `str` still follow the retry policy.
 The Go client takes an `io.Reader` or a `[]byte` as the body of the same operations, and the `Content-Type` header you set in `Config.Headers` wins over the one in the API description.
 An `io.Reader` is sent in one attempt; a `[]byte` still follows the retry policy.
 The PHP client takes a stream resource (`fopen`, `php://temp`, a pipe) or a string as the body of the same operations, and a `Content-Type` header you pass in `$headers` wins over the one in the API description.

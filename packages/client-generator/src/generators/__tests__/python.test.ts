@@ -568,7 +568,7 @@ describe('python stream bodies', () => {
               http_client=httpx.Client(transport=httpx.MockTransport(refuse)),
           )
           counts = {}
-          for label, body in (("file", io.BytesIO(b"x")), ("bytes", b"x")):
+          for label, body in (("file", io.BytesIO(b"x")), ("bytes", b"x"), ("str", "x")):
               attempts.clear()
               try:
                   retrying.upload_blob(body)
@@ -587,7 +587,7 @@ describe('python stream bodies', () => {
       expect(seen[2][0]).toMatch(/^multipart\/form-data; boundary=/);
       expect(seen[2][1]).toContain('name="file"');
       expect(seen[3]).toEqual(['multipart/form-data; boundary=abc', '--abc--']);
-      expect(attempts).toEqual({ file: 1, bytes: 3 });
+      expect(attempts).toEqual({ file: 1, bytes: 3, str: 3 });
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

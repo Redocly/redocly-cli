@@ -121,7 +121,7 @@ def send(
             on_request(context)
 
     # A file-like object or iterator is consumed by the first attempt and cannot be replayed, so it never retries.
-    replayable = content is None or isinstance(content, (bytes, bytearray))
+    replayable = content is None or isinstance(content, (bytes, bytearray, str))
     max_attempts = 1 + int(merged_retry.get("retries", 0)) if replayable else 1
     retry_on = merged_retry.get("retry_on") or (
         lambda ctx: _default_retry_on(context["method"], context["headers"], ctx.get("response"))
@@ -213,7 +213,7 @@ async def send_async(
         if on_request:
             on_request(context)
     # A file-like object or iterator is consumed by the first attempt and cannot be replayed, so it never retries.
-    replayable = content is None or isinstance(content, (bytes, bytearray))
+    replayable = content is None or isinstance(content, (bytes, bytearray, str))
     max_attempts = 1 + int(merged_retry.get("retries", 0)) if replayable else 1
     retry_on = merged_retry.get("retry_on") or (
         lambda ctx: _default_retry_on(context["method"], context["headers"], ctx.get("response"))
