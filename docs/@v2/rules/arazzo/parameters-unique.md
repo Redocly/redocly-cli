@@ -11,11 +11,16 @@ Requires unique values in the `parameters` lists.
 A list of `parameters` that are applicable to a step or all the steps described in a workflow must not contain duplicates.
 If duplicates are present, unexpected parameter overrides could cause problems.
 
-This ruled checks parameter lists in the following locations:
+A parameter is identified by the combination of its `name` and `in` fields, so the same name in different locations, such as `path` and `query`, is not a duplicate.
+A `reference` to `$components.parameters` counts as the parameter it points to.
+
+This rule checks parameter lists in the following locations:
 
 - `workflows.[workflow].parameters`
 - `workflows.[workflow].steps.[step].parameters`
-- `x-parameters`
+- `workflows.[workflow].steps.[step].onSuccess.[action].parameters` and `onFailure.[action].parameters` (Arazzo 1.1)
+- `workflows.[workflow].successActions.[action].parameters` and `failureActions.[action].parameters` (Arazzo 1.1)
+- `components.successActions.[action].parameters` and `components.failureActions.[action].parameters` (Arazzo 1.1)
 
 ## Configuration
 
@@ -37,6 +42,27 @@ Given the following configuration:
 ```yaml
 rules:
   parameters-unique: error
+```
+
+Example of an **incorrect** `parameters` list, where both references point to a parameter named `search`:
+
+```yaml Incorrect example
+workflows:
+  - workflowId: search-tickets
+    steps:
+      - stepId: find-tickets
+        workflowId: find-tickets
+        parameters:
+          - reference: $components.parameters.searchByName
+          - reference: $components.parameters.searchByDate
+components:
+  parameters:
+    searchByName:
+      name: search
+      value: tour
+    searchByDate:
+      name: search
+      value: 2026-10-02
 ```
 
 Example of a **correct** `parameters` list:

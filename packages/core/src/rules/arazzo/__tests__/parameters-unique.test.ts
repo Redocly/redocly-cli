@@ -112,4 +112,82 @@ describe('Arazzo parameters-unique', () => {
       ]
     `);
   });
+
+  it('should compare parameters by `name` and `in` after resolving references', async () => {
+    const documentWithReferences = parseYamlToDocument(
+      outdent`
+        arazzo: '1.1.0'
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: get-museum-hours
+            steps:
+              - stepId: get-museum-hours
+                operationId: museum-api.getMuseumHours
+                parameters:
+                  - in: path
+                    name: id
+                    value: 1
+                  - in: query
+                    name: id
+                    value: 1
+                successCriteria:
+                  - condition: $statusCode == 200
+                onSuccess:
+                  - name: search-tickets
+                    type: goto
+                    workflowId: search-tickets
+                    parameters:
+                      - reference: $components.parameters.searchByName
+                      - reference: $components.parameters.searchByDate
+          - workflowId: search-tickets
+            steps:
+              - stepId: search-tickets
+                operationId: museum-api.searchTickets
+        components:
+          parameters:
+            searchByName:
+              name: search
+              value: tour
+            searchByDate:
+              $ref: '#/x-shared-parameters/searchByDate'
+        x-shared-parameters:
+          searchByDate:
+            name: search
+            value: 2026-10-02
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithReferences,
+      config: await createConfig({
+        rules: { 'parameters-unique': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/workflows/0/steps/0/onSuccess/0/parameters/1",
+              "reportOnKey": false,
+              "source": "arazzo.yaml",
+            },
+          ],
+          "message": "The parameter \`name\` must be unique amongst listed parameters.",
+          "ruleId": "parameters-unique",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
 });

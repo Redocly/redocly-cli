@@ -18,7 +18,7 @@ import {
   DEFAULT_SEVERITY_CONFIGURATION,
   CHECKS,
 } from '../../flow-runner/index.js';
-import { displayChecks } from '../../logger-output/index.js';
+import { calculateTotals, displayChecks } from '../../logger-output/index.js';
 import { Timer } from '../../timeout-timer/timer.js';
 
 vi.mock('../../flow-runner/call-api-and-analyze-results.js', () => ({
@@ -1654,6 +1654,391 @@ describe('runStep', () => {
 
     expect(displayChecks).toHaveBeenCalled();
     expect(checkCriteria).toHaveBeenCalled();
+  });
+
+  it.each([
+    { actionsField: 'onSuccess', stepPassed: true },
+    { actionsField: 'onFailure', stepPassed: false },
+  ] as const)(
+    'should pass $actionsField action parameters as inputs to the action target workflow',
+    async ({ actionsField, stepPassed }) => {
+      const searchWorkflow = {
+        workflowId: 'search-workflow',
+        inputs: { type: 'object', properties: { search: { type: 'string' } } },
+        steps: [],
+      };
+      const stepOne: Step = {
+        stepId: 'get-bird',
+        'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+        successCriteria: [{ condition: '$statusCode == 200' }],
+        [actionsField]: [
+          {
+            name: 'goto-search',
+            type: 'goto',
+            workflowId: 'search-workflow',
+            parameters: [
+              { name: 'search', value: '$inputs.birdName' },
+              { reference: '$components.parameters.limit' },
+              { name: 'color', value: '$response.body#/color' },
+              { name: 'statusCode', value: '$statusCode' },
+            ],
+          },
+        ],
+        checks: [],
+        response: { statusCode: 200, body: { color: 'green' }, header: {} } as ResponseContext,
+      };
+
+      vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
+        successCriteriaCheck: stepPassed,
+        schemaCheck: true,
+        networkCheck: true,
+        unexpectedErrorCheck: true,
+        statusCodeCheck: true,
+      }));
+      vi.mocked(checkCriteria).mockReturnValue([]);
+
+      const context = {
+        ...basicCTX,
+        workflows: [{ workflowId: 'get-bird-workflow', steps: [stepOne] }, searchWorkflow],
+        $workflows: {
+          'get-bird-workflow': { steps: { 'get-bird': {} }, inputs: { birdName: 'parrot' } },
+          'search-workflow': { steps: {}, inputs: {} },
+        },
+        $components: {
+          parameters: { limit: { name: 'limit', value: 5 } },
+        },
+      } as unknown as TestContext;
+
+      vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => ({
+        ...context,
+        executedSteps: [],
+      }));
+
+      await runStep({
+        step: stepOne,
+        ctx: context,
+        workflowId: 'get-bird-workflow',
+        executedStepsCount: { value: 0 },
+      });
+
+      expect(runWorkflow).toHaveBeenCalledTimes(1);
+      const { workflowInput, inputs } = vi.mocked(runWorkflow).mock.calls[0][0];
+      expect(workflowInput).toEqual(searchWorkflow);
+      expect(inputs).toEqual({ search: 'parrot', limit: 5, color: 'green', statusCode: 200 });
+      // the inputs go to this run of the target workflow only, not to the shared context
+      expect(context.$workflows['search-workflow'].inputs).toEqual({});
+    }
+  );
+
+  it.each(['query', 'querystring'])(
+    'should fail the step when a retry action parameter uses `in: %s`',
+    async (location) => {
+      const stepOne: Step = {
+        stepId: 'get-bird',
+        'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+        successCriteria: [{ condition: '$statusCode == 200' }],
+        onFailure: [
+          {
+            name: 'search-then-retry',
+            type: 'retry',
+            retryLimit: 1,
+            workflowId: 'search-workflow',
+            parameters: [{ reference: '$components.parameters.search' }],
+          },
+        ],
+        checks: [],
+        response: {} as any,
+      };
+
+      vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
+        successCriteriaCheck: false,
+        schemaCheck: true,
+        networkCheck: true,
+        unexpectedErrorCheck: true,
+        statusCodeCheck: true,
+      }));
+      vi.mocked(checkCriteria).mockReturnValue([]);
+
+      const context = {
+        ...basicCTX,
+        workflows: [
+          { workflowId: 'get-bird-workflow', steps: [stepOne] },
+          { workflowId: 'search-workflow', steps: [] },
+        ],
+        $workflows: {
+          'get-bird-workflow': { steps: {} },
+          'search-workflow': { steps: {} },
+        },
+        $components: {
+          parameters: { search: { name: 'search', in: location, value: 'parrot' } },
+        },
+        executedSteps: [],
+      } as unknown as TestContext;
+
+      vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => ({
+        ...context,
+        executedSteps: [],
+      }));
+
+      const result = await runStep({
+        step: stepOne,
+        ctx: context,
+        workflowId: 'get-bird-workflow',
+        executedStepsCount: { value: 0 },
+      });
+
+      expect(result).toEqual({ shouldEnd: true });
+      expect(runWorkflow).not.toHaveBeenCalled();
+      expect(context.executedSteps).toHaveLength(1);
+      expect((context.executedSteps[0] as Step).checks.at(-1)).toEqual({
+        name: CHECKS.UNEXPECTED_ERROR,
+        message: 'Parameter "in" is not allowed for search-then-retry action parameter search',
+        passed: false,
+        severity: 'error',
+      });
+      const totals = calculateTotals([
+        {
+          workflowId: 'get-bird-workflow',
+          executedSteps: context.executedSteps,
+        } as unknown as WorkflowExecutionResult,
+      ]);
+      expect(totals.steps.failed).toEqual(1);
+    }
+  );
+
+  it('should fail the step when two action parameters resolve to the same name', async () => {
+    const stepOne: Step = {
+      stepId: 'get-bird',
+      'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onFailure: [
+        {
+          name: 'goto-search',
+          type: 'goto',
+          workflowId: 'search-workflow',
+          parameters: [
+            { reference: '$components.parameters.searchByName' },
+            { reference: '$components.parameters.searchByColor' },
+          ],
+        },
+      ],
+      checks: [],
+      response: {} as any,
+    };
+
+    vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
+      successCriteriaCheck: false,
+      schemaCheck: true,
+      networkCheck: true,
+      unexpectedErrorCheck: true,
+      statusCodeCheck: true,
+    }));
+    vi.mocked(checkCriteria).mockReturnValue([]);
+
+    const context = {
+      ...basicCTX,
+      workflows: [
+        { workflowId: 'get-bird-workflow', steps: [stepOne] },
+        { workflowId: 'search-workflow', steps: [] },
+      ],
+      $workflows: {
+        'get-bird-workflow': { steps: {} },
+        'search-workflow': { steps: {}, inputs: {} },
+      },
+      $components: {
+        parameters: {
+          searchByName: { name: 'search', value: 'parrot' },
+          searchByColor: { name: 'search', value: 'green' },
+        },
+      },
+      executedSteps: [],
+    } as unknown as TestContext;
+
+    vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => ({
+      ...context,
+      executedSteps: [],
+    }));
+
+    const result = await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(result).toEqual({ shouldEnd: true });
+    expect(runWorkflow).not.toHaveBeenCalled();
+    expect((context.executedSteps[0] as Step).checks.at(-1)).toEqual({
+      name: CHECKS.UNEXPECTED_ERROR,
+      message: 'Parameter search is listed more than once, directly or through a reference.',
+      passed: false,
+      severity: 'error',
+    });
+  });
+
+  it('should not pass action parameters to the target workflow when no retries are left', async () => {
+    const stepOne: Step = {
+      stepId: 'get-bird',
+      'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onFailure: [
+        {
+          name: 'search-then-retry',
+          type: 'retry',
+          retryLimit: 1,
+          workflowId: 'search-workflow',
+          parameters: [{ name: 'search', value: 'parrot' }],
+        },
+      ],
+      checks: [],
+      response: {} as any,
+    };
+
+    vi.mocked(callAPIAndAnalyzeResults).mockImplementationOnce(async () => ({
+      successCriteriaCheck: false,
+      schemaCheck: true,
+      networkCheck: true,
+      unexpectedErrorCheck: true,
+      statusCodeCheck: true,
+    }));
+    vi.mocked(checkCriteria).mockReturnValue([]);
+
+    const context = {
+      ...basicCTX,
+      workflows: [
+        { workflowId: 'get-bird-workflow', steps: [stepOne] },
+        { workflowId: 'search-workflow', steps: [] },
+      ],
+      $workflows: {
+        'get-bird-workflow': { steps: {} },
+        'search-workflow': { steps: {}, inputs: {} },
+      },
+      executedSteps: [],
+    } as unknown as TestContext;
+
+    vi.mocked(resolveWorkflowContext).mockImplementationOnce(async () => ({
+      ...context,
+      executedSteps: [],
+    }));
+
+    await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      retriesLeft: 0,
+      executedStepsCount: { value: 0 },
+    });
+
+    expect(runWorkflow).not.toHaveBeenCalled();
+    expect(context.$workflows['search-workflow'].inputs).toEqual({});
+  });
+
+  it('should retry the step once and pass the action parameters when a retry action has no retryLimit', async () => {
+    const stepOne: Step = {
+      stepId: 'get-bird',
+      'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      onFailure: [
+        {
+          name: 'search-then-retry',
+          type: 'retry',
+          workflowId: 'search-workflow',
+          parameters: [{ name: 'search', value: 'parrot' }],
+        },
+      ],
+      checks: [],
+      response: {} as any,
+    };
+
+    vi.mocked(callAPIAndAnalyzeResults).mockResolvedValue({
+      successCriteriaCheck: false,
+      schemaCheck: true,
+      networkCheck: true,
+      unexpectedErrorCheck: true,
+      statusCodeCheck: true,
+    });
+    vi.mocked(checkCriteria).mockReturnValue([]);
+
+    const context = {
+      ...basicCTX,
+      workflows: [
+        { workflowId: 'get-bird-workflow', steps: [stepOne] },
+        { workflowId: 'search-workflow', steps: [] },
+      ],
+      $workflows: {
+        'get-bird-workflow': { steps: {} },
+        'search-workflow': { steps: {}, inputs: {} },
+      },
+      executedSteps: [],
+    } as unknown as TestContext;
+
+    vi.mocked(resolveWorkflowContext).mockImplementation(async () => ({
+      ...context,
+      executedSteps: [],
+    }));
+
+    await runStep({
+      step: stepOne,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    // the failed call and a single retry
+    expect(callAPIAndAnalyzeResults).toHaveBeenCalledTimes(2);
+    expect(runWorkflow).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(runWorkflow).mock.calls[0][0].inputs).toEqual({ search: 'parrot' });
+  });
+
+  it('should not start a new round of retries from the target step of a retry action', async () => {
+    const getBird: Step = {
+      stepId: 'get-bird',
+      'x-operation': { url: 'http://localhost:3000/bird', method: 'get' },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      checks: [],
+      response: {} as any,
+    };
+    const relogin: Step = {
+      stepId: 'relogin',
+      'x-operation': { url: 'http://localhost:3000/login', method: 'post' },
+      successCriteria: [{ condition: '$statusCode == 200' }],
+      checks: [],
+      response: {} as any,
+    };
+
+    vi.mocked(callAPIAndAnalyzeResults).mockResolvedValue({
+      successCriteriaCheck: false,
+      schemaCheck: true,
+      networkCheck: true,
+      unexpectedErrorCheck: true,
+      statusCodeCheck: true,
+    });
+    vi.mocked(checkCriteria).mockReturnValue([]);
+
+    // both steps fail, so the workflow-level retry action also runs for the target step
+    const context = {
+      ...basicCTX,
+      workflows: [
+        {
+          workflowId: 'get-bird-workflow',
+          failureActions: [{ name: 'relogin-then-retry', type: 'retry', stepId: 'relogin' }],
+          steps: [getBird, relogin],
+        },
+      ],
+      executedSteps: [],
+      // without the limit the retries loop until the max steps, so keep them low
+      options: { ...basicCTX.options, maxSteps: 10 },
+    } as unknown as TestContext;
+
+    await runStep({
+      step: getBird,
+      ctx: context,
+      workflowId: 'get-bird-workflow',
+      executedStepsCount: { value: 0 },
+    });
+
+    // the failed call, the target step, and a single retry
+    expect(callAPIAndAnalyzeResults).toHaveBeenCalledTimes(3);
   });
 
   it('should execute onFailure step criteria with retry StepId', async () => {
