@@ -1,4 +1,4 @@
-import { HandledError } from '@redocly/openapi-core';
+import { HandledError, logger } from '@redocly/openapi-core';
 import { getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgv } from '../../../types.js';
@@ -12,26 +12,18 @@ import {
   handleGitPush,
 } from '../index.js';
 import type * as GitUtils from '../utils.js';
-import { findRedoclyRemote, getCredentialHelperConfig, runGit } from '../utils.js';
+import { findReuniteUrl, getCredentialHelperConfig, runGit } from '../utils.js';
 
 vi.mock('../utils.js', async () => {
   const actual = await vi.importActual<typeof GitUtils>('../utils.js');
   return {
     ...actual,
-    findRedoclyRemote: vi.fn(),
+    findReuniteUrl: vi.fn(),
     getCredentialHelperConfig: vi.fn(),
     runGit: vi.fn(),
   };
 });
 vi.mock('@redocly/reunite-integration', () => ({ getReuniteUrl: vi.fn() }));
-
-const REMOTE = {
-  name: 'origin',
-  url: 'http://localhost/api/orgs/acme/projects/docs/git',
-  reuniteUrl: 'http://localhost',
-  organization: 'acme',
-  project: 'docs',
-};
 
 const HELPER_CONFIG = [
   'credential.http://localhost/.helper=',
@@ -47,40 +39,31 @@ describe('redocly git', () => {
     vi.mocked(getReuniteUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
     vi.mocked(runGit).mockResolvedValue(0);
-    vi.mocked(findRedoclyRemote).mockReturnValue(REMOTE);
+    vi.mocked(findReuniteUrl).mockReturnValue('http://localhost');
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
   });
 
   describe('clone', () => {
-    it('clones the project git URL with the credential helper saved in the repository', async () => {
-      await handleGitClone(
-        commandArgs<GitCloneArgv>({ project: 'acme/docs', directory: 'my-docs' })
-      );
+    it.each([
+      { directory: 'my-docs', clonedInto: 'my-docs' },
+      { directory: undefined, clonedInto: 'docs' },
+    ])(
+      'clones the project git URL into $clonedInto with the credential helper saved in the repository',
+      async ({ directory, clonedInto }) => {
+        await handleGitClone(commandArgs<GitCloneArgv>({ project: 'acme/docs', directory }));
 
-      expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
-      expect(runGit).toHaveBeenCalledWith([
-        'clone',
-        '--config',
-        HELPER_CONFIG[0],
-        '--config',
-        HELPER_CONFIG[1],
-        'http://localhost/api/orgs/acme/projects/docs/git',
-        'my-docs',
-      ]);
-    });
-
-    it('clones into a directory named after the project by default', async () => {
-      await handleGitClone(commandArgs<GitCloneArgv>({ project: 'acme/docs' }));
-
-      expect(runGit).toHaveBeenCalledWith([
-        'clone',
-        '--config',
-        HELPER_CONFIG[0],
-        '--config',
-        HELPER_CONFIG[1],
-        'http://localhost/api/orgs/acme/projects/docs/git',
-        'docs',
-      ]);
-    });
+        expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
+        expect(runGit).toHaveBeenCalledWith([
+          'clone',
+          '--config',
+          HELPER_CONFIG[0],
+          '--config',
+          HELPER_CONFIG[1],
+          'http://localhost/api/orgs/acme/projects/docs/git',
+          clonedInto,
+        ]);
+      }
+    );
 
     it('fails when git exits with an error', async () => {
       vi.mocked(runGit).mockResolvedValue(128);
@@ -107,7 +90,7 @@ describe('redocly git', () => {
         commandArgs<GitPushArgv>({ force: true, 'set-upstream': true, refspec: ['origin', 'main'] })
       );
 
-      expect(findRedoclyRemote).toHaveBeenCalledWith(process.cwd());
+      expect(findReuniteUrl).toHaveBeenCalledWith(process.cwd());
       expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
       expect(runGit).toHaveBeenCalledWith([
         '-c',
@@ -129,7 +112,7 @@ describe('redocly git', () => {
     });
 
     it('fails when the repository has no Redocly remote', async () => {
-      vi.mocked(findRedoclyRemote).mockReturnValue(null);
+      vi.mocked(findReuniteUrl).mockReturnValue(null);
 
       await expect(handleGitPush(commandArgs<GitPushArgv>({}))).rejects.toThrow(
         'No Redocly remote found'

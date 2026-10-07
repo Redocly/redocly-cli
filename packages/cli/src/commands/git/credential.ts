@@ -1,12 +1,7 @@
 import { logger } from '@redocly/openapi-core';
 import { isValidReuniteUrl, RedoclyOAuthClient } from '@redocly/reunite-integration';
 
-export type GitCredentialArgv = {
-  operation: string;
-};
-
-// Git credential helper (https://git-scm.com/docs/gitcredentials): answers `get` with the
-// API key from REDOCLY_AUTHORIZATION or the `redocly login` token. `store` and `erase` do nothing.
+// Credential helper protocol: https://git-scm.com/docs/gitcredentials
 export async function handleGitCredential({
   operation,
   input,

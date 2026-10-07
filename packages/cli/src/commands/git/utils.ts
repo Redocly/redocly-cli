@@ -4,16 +4,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
-export const PROJECT_GIT_URL_PATTERN =
-  /^(https?:\/\/[^/]+)\/api\/orgs\/([^/]+)\/projects\/([^/]+)\/git\/?$/;
-
-export type RedoclyRemote = {
-  name: string;
-  url: string;
-  reuniteUrl: string;
-  organization: string;
-  project: string;
-};
+const PROJECT_GIT_URL_PATTERN = /^(https?:\/\/[^/]+)\/api\/orgs\/[^/]+\/projects\/[^/]+\/git\/?$/;
 
 export function buildProjectGitUrl(reuniteUrl: string, organization: string, project: string) {
   return `${reuniteUrl}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(
@@ -21,29 +12,26 @@ export function buildProjectGitUrl(reuniteUrl: string, organization: string, pro
   )}/git`;
 }
 
-export function findRedoclyRemote(cwd: string): RedoclyRemote | null {
+// Reunite URL of the first remote that points at a Redocly-hosted project.
+export function findReuniteUrl(cwd: string): string | null {
   const result = spawnSync('git', ['config', '--get-regexp', '^remote\\..*\\.url$'], {
     cwd,
     encoding: 'utf-8',
   });
 
-  assertGitInstalled(result.error);
+  if (result.error) {
+    throw gitError(result.error);
+  }
   if (result.status !== 0) {
     return null;
   }
 
   for (const line of result.stdout.split('\n')) {
-    const [, key, url] = line.trim().match(/^(\S+)\s+(.+)$/) ?? [];
-    const match = url?.match(PROJECT_GIT_URL_PATTERN);
+    const [, url] = line.trim().match(/^\S+\s+(.+)$/) ?? [];
+    const [, reuniteUrl] = url?.match(PROJECT_GIT_URL_PATTERN) ?? [];
 
-    if (key && url && match && isValidReuniteUrl(match[1])) {
-      return {
-        name: key.slice('remote.'.length, -'.url'.length),
-        url,
-        reuniteUrl: match[1],
-        organization: match[2],
-        project: match[3],
-      };
+    if (reuniteUrl && isValidReuniteUrl(reuniteUrl)) {
+      return reuniteUrl;
     }
   }
 
@@ -66,11 +54,7 @@ export async function runGit(args: string[]): Promise<number> {
       env: { ...process.env, GIT_TERMINAL_PROMPT: '0' },
     });
 
-    child.on('error', (error: NodeJS.ErrnoException) => {
-      reject(
-        error.code === 'ENOENT' ? new HandledError('git is not installed or not on PATH.') : error
-      );
-    });
+    child.on('error', (error: NodeJS.ErrnoException) => reject(gitError(error)));
     child.on('close', (code) => resolve(code ?? 1));
   });
 }
@@ -83,10 +67,6 @@ function isOnPath(command: string): boolean {
     .some((dir) => dir && extensions.some((ext) => existsSync(path.join(dir, command + ext))));
 }
 
-function assertGitInstalled(error: (Error & { code?: string }) | undefined) {
-  if (error) {
-    throw error.code === 'ENOENT'
-      ? new HandledError('git is not installed or not on PATH.')
-      : error;
-  }
+function gitError(error: NodeJS.ErrnoException) {
+  return error.code === 'ENOENT' ? new HandledError('git is not installed or not on PATH.') : error;
 }

@@ -2,15 +2,9 @@ import { HandledError, logger } from '@redocly/openapi-core';
 import { getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgs } from '../../wrapper.js';
-import {
-  buildProjectGitUrl,
-  findRedoclyRemote,
-  getCredentialHelperConfig,
-  runGit,
-} from './utils.js';
+import { buildProjectGitUrl, findReuniteUrl, getCredentialHelperConfig, runGit } from './utils.js';
 
 export type GitCloneArgv = {
-  // `<organization>/<project>`
   project: string;
   directory?: string;
   residency?: string;
@@ -25,9 +19,6 @@ export type GitPushArgv = {
 export type GitPullArgv = {
   refspec?: string[];
 };
-
-const NO_REMOTE_MESSAGE =
-  'No Redocly remote found in this repository. Clone a project with `redocly git clone <organization>/<project>`, or add a remote pointing to `<reunite-url>/api/orgs/<organization>/projects/<project>/git`.';
 
 // Clones with the credential helper saved in the repository config, so plain `git` works later.
 export async function handleGitClone({ argv, config, version }: CommandArgs<GitCloneArgv>) {
@@ -74,12 +65,14 @@ export async function handleGitPull({ argv, version }: CommandArgs<GitPullArgv>)
 }
 
 async function runInRedoclyRemote(args: string[], version: string) {
-  const remote = findRedoclyRemote(process.cwd());
-  if (!remote) {
-    throw new HandledError(NO_REMOTE_MESSAGE);
+  const reuniteUrl = findReuniteUrl(process.cwd());
+  if (!reuniteUrl) {
+    throw new HandledError(
+      'No Redocly remote found in this repository. Clone a project with `redocly git clone <organization>/<project>`, or add a remote pointing to `<reunite-url>/api/orgs/<organization>/projects/<project>/git`.'
+    );
   }
 
-  const helperConfig = getCredentialHelperConfig(remote.reuniteUrl, version);
+  const helperConfig = getCredentialHelperConfig(reuniteUrl, version);
   const exitCode = await runGit([...helperConfig.flatMap((entry) => ['-c', entry]), ...args]);
 
   if (exitCode !== 0) {
