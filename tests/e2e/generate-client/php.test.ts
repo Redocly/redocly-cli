@@ -16,8 +16,32 @@ const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
 
+/** Run smoke.php against the mock server; `phpFlags` go in front, `smokeArgs` after the URL. */
+function runSmoke(phpFlags: string[], smokeArgs: string[] = []): void {
+  const result = spawnSync(
+    'php',
+    [...phpFlags, join(consumerDir, 'smoke.php'), SERVER_BASE, ...smokeArgs],
+    { encoding: 'utf-8' }
+  );
+  expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+  expect(result.stdout).toContain('PHP_SMOKE_OK');
+}
+
 describe('generate-client php generator (end-to-end)', () => {
-  afterAll(() => {
+  let serverProcess: ChildProcess | undefined;
+
+  beforeAll(async () => {
+    serverProcess = await startServer(
+      join(__dirname, 'base-consumer/server.ts'),
+      join(__dirname, 'base-consumer'),
+      { BASE_SERVER_PORT: String(SERVER_PORT) },
+      SERVER_BASE,
+      'php-smoke-server'
+    );
+  }, 60_000);
+
+  afterAll(async () => {
+    if (serverProcess) await killServer(serverProcess);
     rmSync(join(consumerDir, 'client'), { recursive: true, force: true });
   });
 
@@ -35,29 +59,19 @@ describe('generate-client php generator (end-to-end)', () => {
     expect(declare.status, `${declare.stdout}\n${declare.stderr}`).toBe(0);
   });
 
-  it.skipIf(!hasPhp)(
-    'the smoke runs real HTTP: hydration, bodies, ApiError',
-    async () => {
-      let serverProcess: ChildProcess | undefined;
-      try {
-        serverProcess = await startServer(
-          join(__dirname, 'base-consumer/server.ts'),
-          join(__dirname, 'base-consumer'),
-          { BASE_SERVER_PORT: String(SERVER_PORT) },
-          SERVER_BASE,
-          'php-smoke-server'
-        );
-        const result = spawnSync('php', [join(consumerDir, 'smoke.php'), SERVER_BASE], {
-          encoding: 'utf-8',
-        });
-        expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
-        expect(result.stdout).toContain('PHP_SMOKE_OK');
-      } finally {
-        if (serverProcess) await killServer(serverProcess);
-      }
-    },
-    60_000
-  );
+  it.skipIf(!hasPhp)('the smoke runs real HTTP: hydration, bodies, ApiError', () => {
+    runSmoke([]);
+  });
+
+  it.skipIf(!hasPhp)('the smoke still passes when OPcache has preloaded the client', () => {
+    // opcache.preload keeps classes and functions in shared memory but drops file-level
+    // constants, and the autoloader never includes the file again once Client exists.
+    // The smoke checks that the preload really happened, so this cannot pass vacuously.
+    runSmoke(
+      ['-d', 'opcache.enable_cli=1', '-d', `opcache.preload=${join(consumerDir, 'preload.php')}`],
+      ['preloaded']
+    );
+  });
 });
 
 describe('generate-client php generator, parameter names an SDK cannot take literally', () => {

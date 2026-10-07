@@ -12,6 +12,7 @@ import {
   type PushResponse,
   type ScorecardItem,
   type SunsetWarning,
+  type ProjectRefResolution,
 } from '@redocly/reunite-integration';
 import * as colors from 'colorette';
 
@@ -54,17 +55,22 @@ export async function handlePushStatus({
   const startTime = argv['start-time'] || Date.now();
   // Both waits may report a sunset warning; it is printed once, even when the deployment failed.
   const sunsetWarnings: SunsetWarning[] = [];
+  // The first status call looks slugs up and prints the notice; the production wait reuses its result.
+  let projectRef = { organization, project };
 
   try {
     const apiKey = getApiKeys();
     const statusOptions = {
       domain,
       apiKey,
-      organization,
-      project,
+      ...projectRef,
       pushId,
       version,
       onSunsetWarning: (warning: SunsetWarning) => sunsetWarnings.push(warning),
+      onSlugDeprecated: (resolution: ProjectRefResolution) => {
+        printSlugDeprecation(resolution);
+        projectRef = { organization: resolution.organizationId, project: resolution.projectId };
+      },
     };
     const waitOptions = {
       ...statusOptions,
@@ -91,6 +97,7 @@ export async function handlePushStatus({
     if (wait && push.isMainBranch && push.status.preview.deploy.status === 'success') {
       push = await waitForDeployment({
         ...waitOptions,
+        ...projectRef,
         buildType: 'production',
         onRetry: showProgress('production'),
       });
@@ -130,6 +137,12 @@ export function handleReuniteError(
   }
 
   throw new HandledError(`${message} Reason: ${error.message}\n`);
+}
+
+export function printSlugDeprecation({ organizationId, projectId }: ProjectRefResolution): void {
+  logger.warn(
+    `Organization and project slugs are deprecated. Use the ids instead: --organization ${organizationId} --project ${projectId}\n`
+  );
 }
 
 // Prints the most urgent of the sunset warnings a command collected, once.

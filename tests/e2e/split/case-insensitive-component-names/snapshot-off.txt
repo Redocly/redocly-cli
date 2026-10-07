@@ -1,0 +1,31 @@
+
+$ref: ./apiRequest-2.yaml
+type: object
+properties:
+  jobId:
+    type: string
+post:
+  requestBody:
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/apiRequest'
+  responses:
+    '200':
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiRequest'
+openapi: 3.0.3
+info:
+  title: Case-insensitive component names
+  version: 1.0.0
+paths:
+  /apply:
+    $ref: paths/apply.yaml
+🪓 Document: openapi.yaml is successfully split
+    and all related files are saved to the directory: output 
+
+openapi.yaml: split processed in <test>ms
+

@@ -79,7 +79,7 @@ describe('oas2 boolean-parameter-prefixes', () => {
       config: await createConfig({ rules: { 'boolean-parameter-prefixes': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on boolean param with custom prefix', async () => {
@@ -110,6 +110,6 @@ describe('oas2 boolean-parameter-prefixes', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

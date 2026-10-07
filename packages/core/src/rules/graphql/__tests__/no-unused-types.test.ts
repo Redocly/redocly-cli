@@ -115,7 +115,7 @@ describe('GraphQL no-unused-types', () => {
       config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('honors an explicit schema block with non-default root names', async () => {
@@ -183,7 +183,7 @@ describe('GraphQL no-unused-types', () => {
       config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('does not report reachable union, interface, input, and enum types', async () => {
@@ -221,7 +221,7 @@ describe('GraphQL no-unused-types', () => {
       config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('still infers default roots when a schema extension only adds directives', async () => {
@@ -392,6 +392,6 @@ describe('GraphQL no-unused-types', () => {
       config: await createConfig({ rules: { 'no-unused-types': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

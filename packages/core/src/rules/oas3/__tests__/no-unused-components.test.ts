@@ -483,6 +483,6 @@ describe('Oas3 no-unused-components', () => {
       config: await createConfig({ rules: { 'no-unused-components': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

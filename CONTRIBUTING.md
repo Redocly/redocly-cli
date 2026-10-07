@@ -270,10 +270,10 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 
 ### Generator tests
 
-Client generation has its own suite: `npm run client-generators` runs the `@redocly/client-generator` unit tests together with the `tests/e2e/generate-client` end-to-end tests, so one command covers everything about generation.
+Client generation has its own suite: `npm run client-generators` runs the `tests/e2e/generate-client` end-to-end tests.
 
 ```bash
-npm run client-generators                                   # every generator test
+npm run client-generators                                   # every generator e2e test
 npm run client-generators -- tests/e2e/generate-client/go.test.ts   # one file
 npm run client-generators -- -t 'gofmt'                     # by test name
 ```
@@ -284,7 +284,6 @@ Those e2e tests compile their output with real toolchains, so what is available 
 - The largest bars generate from big real-world descriptions (Rebilly, the GitHub REST API), which is why they are slow and why the suite has its own CI job — a growing set of compiled-language bars must not slow the shared e2e job.
 
 `npm run e2e` covers everything under `tests/e2e/` **except** `generate-client`.
-`npm run unit` still includes the client-generator unit tests, so the coverage report stays whole.
 
 Several of these tests run a local HTTP server and assert on its request log.
 On a machine with many cores, vitest runs enough of them in parallel to occasionally reset a connection — a failure that says nothing about the code under test.

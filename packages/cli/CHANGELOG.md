@@ -1,5 +1,73 @@
 # @redocly/cli
 
+## 2.59.0
+
+### Minor Changes
+
+- Improved `redocly recheck` to lint the `description` fields of API descriptions.
+  Findings report the source line and column.
+  You can suppress the findings by file, rule, and pointer, or adjust rules for descriptions only.
+
+  **Note:** `ResolvedRecheckConfig` gains a required `descriptionRules` field.
+  Library code that builds that object by hand must set it.
+
+### Patch Changes
+
+- Updated `brace-expansion` to `2.1.7` and `5.0.12`, `dompurify` to `3.4.16`, `fast-uri` to `3.1.8`, and `js-yaml` to `5.4.3` to resolve `CVE-2026-102276`, `CVE-2026-102277`, `CVE-2026-102278`, `CVE-2026-86472`, `GHSA-p98j-92pf-mc4p`, and `GHSA-r3ph-w7gj-g6xm`.
+- Updated `oxfmt` to `0.72.0` and `tinypool` to `2.2.0` to resolve `CVE-2026-104848` and `CVE-2026-104849`.
+- Updated `proxy-addr` to `2.0.8` and `source-map-js` to `1.2.2` to resolve `CVE-2026-90711` and `CVE-2026-93749`.
+- Updated @redocly/openapi-core to v2.59.0.
+- Updated @redocly/recheck to v2.59.0.
+- Updated @redocly/reunite-integration to v2.59.0.
+
+## 2.58.2
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client failed with `Undefined constant "OPERATIONS"` when OPcache preload was enabled.
+- Updated @redocly/client-generator to v0.4.23.
+
+## 2.58.1
+
+### Patch Changes
+
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+- Updated @redocly/openapi-core to v2.58.1.
+- Updated @redocly/reunite-integration to v2.58.1.
+
+## 2.58.0
+
+### Minor Changes
+
+- Added the `--coverage` and `--coverage-output` options to the experimental `drift` command.
+  `--coverage` prints how much of the OpenAPI description the recorded traffic exercised.
+  `--coverage-output` lists the covered and missing items of every operation in a JSON file.
+
+  Fixed the `schema-consistency` rule of the `drift` command so that a required property marked `readOnly` or `writeOnly` through `allOf` is no longer reported as missing.
+
+  Fixed the `schema-consistency` rule of the `drift` command so that a response body is validated against the response documented for its status code: an exact status match without `content` is no longer validated against the `default` (or `2XX`-style) response schema.
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+  Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+- Resolved organization and project slugs to IDs in the `push` and `push-status` commands before calling the Reunite API, with a deprecation notice that shows the IDs to use.
+  The `--organization` and `--project` options now expect the IDs from the organization and project settings pages in Reunite; slugs are still accepted but deprecated.
+
+### Patch Changes
+
+- Improved the consistency of how configuration file problems are reported.
+  Commands with machine-readable output formats, such as `json`, `junit`, `checkstyle`, and `sarif` also report configuration file problems instead of hiding them.
+  A configuration file that fails to load displays a specific error message instead of a generic one.
+
+  **Note**: Configuration file problems are printed to `stderr` in the `codeframe` format for every command, regardless of the `--format` option.
+
+- Updated @redocly/openapi-core to v2.58.0.
+- Updated @redocly/recheck to v2.58.0.
+- Updated @redocly/reunite-integration to v2.58.0.
+
 ## 2.57.0
 
 ### Minor Changes

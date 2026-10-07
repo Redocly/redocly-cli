@@ -1,0 +1,9 @@
+
+   FRE     Grade     ARI   Words   Sentences  File
+  97.0    0.7    -2.9       4          1  docs/index.md
+
+
+Readability scores cover Markdown files only; skipped 1 API description(s).
+📖 Measuring readability of: docs
+   Scoring 1 markdown file(s)
+   1 of 1 file(s) scored • median FRE 97.03 • median grade 0.72 • median ARI -2.94

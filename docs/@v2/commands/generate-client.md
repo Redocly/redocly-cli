@@ -66,7 +66,7 @@ redocly generate-client <api>
 redocly generate-client <api> [--output=<path>] [--output-mode=<mode>] [--runtime=<mode>]
 redocly generate-client <api> [--generator=<name>] [--args-style=<style>] [--error-mode=<mode>]
 redocly generate-client <api> [--config=<path>]
-redocly generate-client [--help] [--version]
+redocly generate-client [--help]
 ```
 
 ## Options
@@ -90,7 +90,6 @@ redocly generate-client [--help] [--version]
 | `--go-package`   | string   | The package clause in the output of the `go` generator. It must be a valid Go package name (lowercase letters, digits, and `_`; it must not start with a digit or be a keyword). Default value is `client`.                                                                                                                                                                            |
 | `--config`       | string   | Specify the path to the [configuration file](#generate-from-the-configuration-file).                                                                                                                                                                                                                                                                                                   |
 | `--help`         | boolean  | Display help.                                                                                                                                                                                                                                                                                                                                                                          |
-| `--version`      | boolean  | Display version number.                                                                                                                                                                                                                                                                                                                                                                |
 
 ## Examples
 

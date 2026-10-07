@@ -95,6 +95,23 @@ You can also define your [configurable rules](../rules/configurable-rules.md) he
 
 For more information and examples, visit the [configuring rules documentation](./rules.md).
 
+### Lint Markdown with `recheck`
+
+The [`recheck` command](../commands/recheck.md) lints Markdown files from the same configuration file.
+Add a Recheck preset such as `recheck/markdown` to `extends`, and adjust its rules in the `recheck` block:
+
+```yaml
+extends:
+  - recommended
+  - recheck/markdown
+recheck:
+  rules:
+    recheck/line-length: off
+```
+
+The `lint` command ignores the Recheck presets and the `recheck` block, and the `recheck` command ignores API rulesets.
+For more information, visit the [`recheck` block reference](./reference/recheck.md) and the [Markdown and prose linting](../recheck/index.md) section.
+
 <a id="theme-object"></a>
 
 ### Configure OpenAPI features and documentation styles

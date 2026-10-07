@@ -48,7 +48,6 @@ It changes the answer that `--pointer` or `--type` gives, and on its own it fail
 | --pointer     | string  | Look up a single node instead of listing all of them. A JSON pointer, optionally prefixed with a file: `#/paths` or `paths/orders.yaml#/get`. Not with `--type` or `--summary`. |
 | --summary     | boolean | List the node types used in the description, with the number of nodes of each type. Not with `--pointer` or `--type`.                                                           |
 | --type        | string  | List only the nodes of the given type, for example `--type=Schema`. Not with `--pointer` or `--summary`.                                                                        |
-| --version     | boolean | Display version number.                                                                                                                                                         |
 
 ## Examples
 

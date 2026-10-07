@@ -2,9 +2,8 @@ import { slash, isRef } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { pathToFilename, writeToFileByExtension } from '../../../utils/miscellaneous.js';
+import { writeToFileByExtension } from '../../../utils/miscellaneous.js';
 import { type ChannelsFiles, type ComponentsFiles } from '../types.js';
-import { assertWithinDir } from '../utils/assert-within-dir.js';
 import { replace$Refs } from '../utils/replace-$-refs.js';
 import { replaceChannelRefs } from '../utils/replace-channel-refs.js';
 import {
@@ -14,35 +13,28 @@ import {
 
 export function iterateAsyncApiOperations({
   operations,
+  operationFiles,
   asyncapiDir,
   outDir,
   componentsFiles,
   channelsFiles,
-  pathSeparator,
-  ext,
 }: {
   operations: Record<string, any> | undefined;
+  operationFiles: Record<string, string>;
   asyncapiDir: string;
   outDir: string;
   componentsFiles: ComponentsFiles;
   channelsFiles: ChannelsFiles;
-  pathSeparator: string;
-  ext: string;
 }) {
   if (!operations) return;
   fs.mkdirSync(outDir, { recursive: true });
 
   for (const operationName of Object.keys(operations)) {
-    const operationFile = `${path.join(
-      outDir,
-      pathToFilename(operationName, pathSeparator)
-    )}.${ext}`;
     const operationData = operations[operationName];
 
     if (isRef(operationData)) continue;
 
-    assertWithinDir(asyncapiDir, operationFile, operationName);
-
+    const operationFile = operationFiles[operationName];
     replace$Refs(operationData, path.dirname(operationFile), componentsFiles);
     replaceChannelRefs(operationData, path.dirname(operationFile), channelsFiles);
     writeToFileByExtension(operationData, operationFile);

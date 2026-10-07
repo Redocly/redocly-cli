@@ -49,7 +49,14 @@ cacheLatestVersion();
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs(hideBin(process.argv))
-  .version('version', 'Show version number.', version)
+  .version(false)
+  .option('version', { type: 'boolean', description: 'Show version number.', global: false })
+  .middleware((argv) => {
+    if (argv.version && argv._.length === 0) {
+      logger.output(`${version}\n`);
+      process.exit(0);
+    }
+  }, true)
   .help('help', 'Show help.')
   .parserConfiguration({ 'greedy-arrays': false, 'boolean-negation': false })
   .command(
@@ -183,6 +190,11 @@ yargs(hideBin(process.argv))
             type: 'string',
             default: '_',
           },
+          'file-name-conflicts-severity': {
+            description: 'Severity level for file name conflicts.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
+          },
           config: {
             description: 'Path to the config file.',
             requiresArg: true,
@@ -266,13 +278,13 @@ yargs(hideBin(process.argv))
         .implies('max-execution-time', 'wait')
         .option({
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             required: true,
             alias: 'p',
@@ -327,13 +339,13 @@ yargs(hideBin(process.argv))
             default: 'warn' as RuleSeverity,
           },
           organization: {
-            description: 'Name of the organization to push to.',
+            description: 'ID of the organization to push to.',
             type: 'string',
             alias: 'o',
             required: true,
           },
           project: {
-            description: 'Name of the project to push to.',
+            description: 'ID of the project to push to.',
             type: 'string',
             alias: 'p',
             required: true,

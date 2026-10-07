@@ -1,0 +1,19 @@
+openapi: 3.1.0
+info:
+  title: Museum
+  version: 1.0.0
+  description: |
+    Welcome to the museum.
+    This line is far too long for the line-length rule because it keeps going and going without a break until the limit is well behind it.
+paths:
+  /tickets:
+    post:
+      summary: Buy a ticket
+      description: Creates a ticket.
+      responses:
+        '200':
+          description: The ticket.
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas.yaml#/Ticket
