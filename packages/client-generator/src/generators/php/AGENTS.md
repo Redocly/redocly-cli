@@ -75,6 +75,21 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   to the spec's defaults (`Servers::production(organizationId: 'org_x')`), so templated
   base URLs need no manual string building. The client's baked default stays `servers[0]`
   with variable defaults substituted.
+- **Stream bodies pass through.** For an untyped `multipart/form-data` or an
+  `application/octet-stream` operation, `$body` is `mixed`, and a stream `resource` body
+  is uploaded by curl in chunks (`CURLOPT_UPLOAD` + `CURLOPT_INFILE`, the method kept by
+  `CURLOPT_CUSTOMREQUEST`, `CURLOPT_INFILESIZE` for a seekable stream: the bytes left
+  from its position, so a pipe goes `Transfer-Encoding: chunked`), never read into a
+  string. It is sent in exactly one attempt, whatever the retry policy says (the default
+  is three attempts for any method), because a consumed stream cannot be replayed. A
+  `string` body of either operation is sent raw, not `json_encode`d; any other value of
+  an octet-stream operation is still `json_encode`d. An `array` body of an untyped
+  multipart operation keeps the `toMultipart` path. The runtime classifies the body
+  (`multipartBody`, `binaryBody`) so the generated method stays one line. The caller's
+  `Content-Type` wins over the spec's or the multipart boundary's, matched
+  case-insensitively so the header is never sent twice; that rule holds for every
+  operation and lives in `send`. The whole-request curl timeout still applies
+  (`timeout: null` disables it). Typed multipart bodies are unaffected.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   curl timeouts, middleware callables, pagination (`<op>Pages()` / `<op>Items()` as
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.

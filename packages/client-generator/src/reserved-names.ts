@@ -97,6 +97,7 @@ const GLOBAL_NAMES = [
   'Response',
   'Set',
   'String',
+  'Symbol',
   'TextDecoder',
   'TextEncoder',
   'TypeError',

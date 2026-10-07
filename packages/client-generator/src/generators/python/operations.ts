@@ -4,6 +4,7 @@
 import {
   type ApiModel,
   type DateType,
+  isBinaryContentType,
   isMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
@@ -101,11 +102,12 @@ export function writeMethod(
       printer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
       return;
     }
-    if (isMultipartBody(op)) printer.line('form_data, form_files = to_multipart(body)');
     const bodyKw = op.requestBody
       ? isMultipartBody(op)
-        ? ', data=form_data, files=form_files'
-        : ', json_body=encode(body)'
+        ? ', **multipart_arguments(body)'
+        : isBinaryContentType(op.requestBody.contentType)
+          ? ', content=body'
+          : ', json_body=encode(body)'
       : '';
     printer.line(
       `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +

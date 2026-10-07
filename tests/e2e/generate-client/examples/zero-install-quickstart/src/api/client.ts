@@ -366,6 +366,8 @@ export type RequestOptions = RequestInit & {
   timeout?: number;
   /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
   idempotencyKey?: string | boolean | (() => string);
+  /** Required by `fetch` for a stream body; the runtime sets it when the body is a stream. */
+  duplex?: 'half';
   parseAs?: ParseAs;
   /**
    * Throw mode only: return `{ data, headers, response }` instead of the parsed body;
@@ -894,6 +896,7 @@ async function send(
   for (const mw of middleware) if (mw.onRequest) await mw.onRequest(context);
   // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
   let payload: BodyInit | undefined;
+  let isStream = false;
   if (context.body !== undefined) {
     const value = context.body;
     const isBinary =
@@ -902,7 +905,11 @@ async function send(
       ArrayBuffer.isView(value as ArrayBufferView);
     const isFormData = typeof FormData !== 'undefined' && value instanceof FormData;
     const isURLSearchParams = value instanceof URLSearchParams;
-    if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
+    isStream =
+      (typeof ReadableStream !== 'undefined' && value instanceof ReadableStream) ||
+      (value !== null &&
+        typeof (value as Partial<AsyncIterable<unknown>>)[Symbol.asyncIterator] === 'function');
+    if (isFormData || isURLSearchParams || isBinary || isStream || typeof value === 'string') {
       payload = value as BodyInit;
     } else if (bodySpec?.multipart === true) {
       if (!caps.serializeMultipart) {
@@ -918,7 +925,8 @@ async function send(
     }
   }
   const doFetch = config.fetch ?? fetch;
-  const maxAttempts = 1 + (retry.retries ?? 0);
+  // A stream is consumed by the first attempt and cannot be replayed, so it never retries.
+  const maxAttempts = isStream ? 1 : 1 + (retry.retries ?? 0);
   const retryOn = retry.retryOn ?? defaultRetryOn;
   const signal = fetchInit.signal ?? undefined;
 
@@ -937,6 +945,7 @@ async function send(
     try {
       response = await doFetch(context.url, {
         ...fetchInit,
+        ...(isStream && fetchInit.duplex === undefined ? { duplex: 'half' } : {}),
         signal: attemptSignal,
         method: context.method,
         headers: context.headers,

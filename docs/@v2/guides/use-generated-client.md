@@ -769,8 +769,29 @@ await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 `Blob` values and strings pass through unchanged.
 Arrays append one field per item.
 The client JSON-encodes nested objects and skips `undefined`/`null`.
-A multipart body whose schema is not a concrete object keeps the raw `FormData` type.
+A multipart body whose schema is not a concrete object is typed `FormData | ReadableStream`.
 `format: byte` (base64) stays a `string`.
+
+To stream a body through, pass a `ReadableStream` as the body.
+In Node, turn an incoming request into one with `Readable.toWeb(request)`.
+The client sends the stream untouched and does not set a `content-type` header for it, so set the header yourself, including the multipart boundary:
+
+```ts
+await upload(
+  { body: Readable.toWeb(request) },
+  { headers: { 'content-type': request.headers['content-type'] }, timeout: 0 }
+);
+```
+
+A stream body is sent in one attempt, whatever the retry policy says, because a consumed stream cannot be replayed.
+The `timeout` still applies to that attempt, so pass `timeout: 0` or a budget that fits a large upload.
+
+The Python client does the same for an untyped multipart or an `application/octet-stream` operation: pass `bytes`, a file-like object, or an iterator of `bytes` as the body, and set the `content-type` header yourself.
+A file-like object or an iterator is sent in one attempt, because it cannot be replayed; `bytes` still follow the retry policy.
+The Go client takes an `io.Reader` or a `[]byte` as the body of the same operations, and the `Content-Type` header you set in `Config.Headers` wins over the one in the API description.
+An `io.Reader` is sent in one attempt; a `[]byte` still follows the retry policy.
+The PHP client takes a stream resource (`fopen`, `php://temp`, a pipe) or a string as the body of the same operations, and a `Content-Type` header you pass in `$headers` wins over the one in the API description.
+A resource is uploaded by curl in one attempt; a string still follows the retry policy.
 
 ## Response decoding
 

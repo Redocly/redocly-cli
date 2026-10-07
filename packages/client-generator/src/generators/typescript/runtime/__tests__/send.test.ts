@@ -54,6 +54,41 @@ describe('send', () => {
     expect(calls[3].init.body).toBe(bytes);
   });
 
+  it('passes a ReadableStream body through with duplex: half, the caller content type, and one attempt', async () => {
+    const stream = new ReadableStream<Uint8Array>();
+    const first = fetchSpy([ok()]);
+    await send(
+      { fetch: first.fetchImpl },
+      op,
+      'u',
+      { method: 'POST', headers: { 'content-type': 'multipart/form-data; boundary=abc' } },
+      stream,
+      { contentType: 'multipart/form-data' },
+      {}
+    );
+    const init = first.calls[0].init as RequestInit & { duplex?: string };
+    expect(init.body).toBe(stream);
+    expect(init.duplex).toBe('half');
+    const headers = init.headers as Record<string, string>;
+    expect(headers['content-type']).toBe('multipart/form-data; boundary=abc');
+    expect(headers['Content-Type']).toBeUndefined();
+
+    // A consumed stream cannot be replayed, so the retry policy never gets a second attempt.
+    const second = fetchSpy([new Error('ECONNRESET'), ok()]);
+    await expect(
+      send(
+        { fetch: second.fetchImpl, retry: { retries: 2, retryDelay: 1, retryOn: () => true } },
+        op,
+        'u',
+        { method: 'POST' },
+        new ReadableStream<Uint8Array>(),
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('ECONNRESET');
+    expect(second.calls.length).toBe(1);
+  });
+
   it("defaults Content-Type to the operation's declared body content type", async () => {
     // The descriptor carries the spec's request content type (e.g. merge-patch) —
     // hardcoding application/json makes strict servers reject the PATCH.

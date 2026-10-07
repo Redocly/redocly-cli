@@ -144,6 +144,8 @@ export type RequestOptions = RequestInit & {
   timeout?: number;
   /** Per-call idempotency key: a literal key, `true` to generate one, `false` to skip. */
   idempotencyKey?: string | boolean | (() => string);
+  /** Required by `fetch` for a stream body; the runtime sets it when the body is a stream. */
+  duplex?: 'half';
   parseAs?: ParseAs;
   /**
    * Throw mode only: return `{ data, headers, response }` instead of the parsed body;

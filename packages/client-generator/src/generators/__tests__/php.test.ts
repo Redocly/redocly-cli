@@ -1,7 +1,11 @@
-import { spawnSync } from 'node:child_process';
+import { execFile, spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { promisify } from 'node:util';
+import { outdent } from 'outdent';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import {
@@ -868,5 +872,166 @@ describe('phpGenerator (full client assembly)', () => {
     );
     expect(out).toContain("return 'https://api.cafe.example/organizations/' . $organizationId;");
     expectPhpRuns(out);
+  });
+});
+
+describe('php stream bodies', () => {
+  const operation = (name: string, contentType: string, schema: SchemaModel) => ({
+    name,
+    specName: name,
+    method: 'post',
+    path: `/${name}`,
+    tags: [],
+    pathParams: [],
+    queryParams: [],
+    headerParams: [],
+    cookieParams: [],
+    security: [],
+    requestBody: { contentType, schema },
+    successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
+    errorResponses: [],
+  });
+  const UPLOADS = {
+    title: 'Cafe',
+    version: '1.0.0',
+    services: [
+      {
+        name: 'default',
+        operations: [
+          operation('upload', 'multipart/form-data', {
+            kind: 'record',
+            value: { kind: 'unknown' },
+          }),
+          operation('uploadBlob', 'application/octet-stream', STRING),
+        ],
+      },
+    ],
+    schemas: [],
+    securitySchemes: [],
+  } as unknown as ApiModel;
+
+  type Received = {
+    contentType: string[];
+    body: string;
+    contentLength: string | undefined;
+    transferEncoding: string | undefined;
+  };
+
+  it('uploads a resource through curl in one attempt and sends a string raw', async () => {
+    const out = phpGenerator({
+      model: UPLOADS,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(out).toContain(
+      'public function upload(mixed $body, ?array $headers = null, ?string $idempotencyKey = null): void'
+    );
+    expect(out).toContain('[$contentType, $encoded] = multipartBody($body);');
+    expect(out).toContain(
+      'public function uploadBlob(mixed $body, ?array $headers = null, ?string $idempotencyKey = null): void'
+    );
+    expect(out).toContain(
+      "'body' => binaryBody($body), 'contentType' => 'application/octet-stream'"
+    );
+    expectPhpRuns(out);
+    if (!hasPhp) return;
+
+    const seen: Received[] = [];
+    const attempts = { resource: 0, string: 0 };
+    const server = createServer((request, response) => {
+      const chunks: Buffer[] = [];
+      request.on('data', (chunk: Buffer) => chunks.push(chunk));
+      request.on('end', () => {
+        const failing = request.url?.match(/^\/fail\/(resource|string)\//);
+        if (failing) {
+          attempts[failing[1] as keyof typeof attempts] += 1;
+          response.writeHead(503).end();
+          return;
+        }
+        seen.push({
+          contentType: request.rawHeaders.filter(
+            (value, index) =>
+              index % 2 === 1 && request.rawHeaders[index - 1].toLowerCase() === 'content-type'
+          ),
+          body: Buffer.concat(chunks).toString('latin1'),
+          contentLength: request.headers['content-length'],
+          transferEncoding: request.headers['transfer-encoding'],
+        });
+        response.writeHead(204).end();
+      });
+    });
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const dir = mkdtempSync(join(tmpdir(), 'php-stream-'));
+    try {
+      writeFileSync(join(dir, 'client.php'), out);
+      writeFileSync(
+        join(dir, 'probe.php'),
+        outdent`
+          <?php
+
+          require 'client.php';
+
+          use Cafe\\ApiError;
+          use Cafe\\Client;
+          use Cafe\\Config;
+
+          [, $base] = $argv;
+          $boundary = ['content-type' => 'multipart/form-data; boundary=abc'];
+          $api = new Client(new Config(serverUrl: $base));
+
+          $memory = fopen('php://memory', 'r+');
+          fwrite($memory, '--abc--');
+          rewind($memory);
+          $api->upload($memory, headers: $boundary);
+          $api->uploadBlob("\\x00\\x01");
+          $api->upload(['name' => 'x']);
+          $api->upload(popen('printf -- --abc--', 'r'), headers: $boundary);
+
+          $stream = fopen('php://memory', 'r+');
+          fwrite($stream, 'x');
+          rewind($stream);
+          foreach (['resource' => $stream, 'string' => 'x'] as $kind => $body) {
+              $retrying = new Client(new Config(serverUrl: "{$base}/fail/{$kind}", retry: ['attempts' => 3, 'delay' => 0]));
+              try {
+                  $retrying->uploadBlob($body);
+              } catch (ApiError) {
+              }
+          }
+          echo 'PROBE_OK';
+        `
+      );
+      // The server answers from this process, so the probe must not block the event loop.
+      const run = await promisify(execFile)('php', [join(dir, 'probe.php'), base], { cwd: dir });
+      expect(run.stdout).toContain('PROBE_OK');
+      // The caller's lowercase header wins over the spec's and is sent once; a seekable
+      // resource travels with its length, a pipe chunked.
+      expect(seen[0]).toEqual({
+        contentType: ['multipart/form-data; boundary=abc'],
+        body: '--abc--',
+        contentLength: '7',
+        transferEncoding: undefined,
+      });
+      expect(seen[1]).toEqual({
+        contentType: ['application/octet-stream'],
+        body: '\u0000\u0001',
+        contentLength: '2',
+        transferEncoding: undefined,
+      });
+      expect(seen[2].contentType).toHaveLength(1);
+      expect(seen[2].contentType[0]).toMatch(/^multipart\/form-data; boundary=redocly-/);
+      expect(seen[2].body).toContain('name="name"');
+      expect(seen[3]).toEqual({
+        contentType: ['multipart/form-data; boundary=abc'],
+        body: '--abc--',
+        contentLength: undefined,
+        transferEncoding: 'chunked',
+      });
+      expect(attempts).toEqual({ resource: 1, string: 3 });
+    } finally {
+      server.close();
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });

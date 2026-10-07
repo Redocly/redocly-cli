@@ -49,11 +49,11 @@ export function bodyTypeText(rb: RequestBodyModel, dateType: DateType, indent = 
   if (isTypedMultipart(rb)) return tsType(rb.schema, dateType, indent);
   switch (rb.contentType) {
     case 'multipart/form-data':
-      return 'FormData';
+      return 'FormData | ReadableStream';
     case 'application/x-www-form-urlencoded':
       return 'URLSearchParams';
     case 'application/octet-stream':
-      return 'Blob | ArrayBuffer';
+      return 'Blob | ArrayBuffer | ReadableStream';
     default:
       return tsType(rb.schema, dateType, indent);
   }

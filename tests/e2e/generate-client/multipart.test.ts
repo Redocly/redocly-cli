@@ -5,12 +5,20 @@
  * FormData it actually sent.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-import { generate, generateInto, repoRoot, tscBin, tsxBin } from './helpers.js';
+import { generate, generateInto, repoRoot, strictTypecheck, tscBin, tsxBin } from './helpers.js';
 
 function collectTsFiles(d: string): string[] {
   return readdirSync(d).flatMap((e) => {
@@ -150,5 +158,71 @@ describe('generate-client typed multipart body (#5)', () => {
       { encoding: 'utf-8', cwd: dir }
     );
     expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+  }, 60_000);
+});
+
+const UNTYPED_SPEC = outdent`
+  openapi: 3.1.0
+  info: { title: M, version: 1.0.0 }
+  paths:
+    /upload:
+      post:
+        operationId: upload
+        requestBody:
+          required: true
+          content:
+            multipart/form-data: {}
+        responses: { '200': { description: ok } }
+`;
+
+describe('generate-client stream body pass-through', () => {
+  let dir = '';
+  afterEach(() => {
+    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('accepts a ReadableStream for an untyped multipart body and sends it untouched with duplex: half', () => {
+    dir = mkdtempSync(join(tmpdir(), 'ots-multipart-stream-'));
+    writeFileSync(join(dir, 'api.yaml'), UNTYPED_SPEC, 'utf-8');
+    generateInto(dir, join(dir, 'api.yaml'));
+    expect(readFileSync(join(dir, 'client.ts'), 'utf-8')).toContain(
+      'export type UploadBody = FormData | ReadableStream;'
+    );
+
+    writeFileSync(
+      join(dir, 'consumer.ts'),
+      outdent`
+        import { configure, upload } from './client.js';
+
+        let sent: (RequestInit & { duplex?: string }) | undefined;
+        configure({
+          fetch: (async (_url: string, init: RequestInit) => {
+            sent = init;
+            return new Response('', { status: 200 });
+          }) as unknown as typeof fetch,
+        });
+
+        const stream = new ReadableStream<Uint8Array>();
+        await upload(
+          { body: stream },
+          { headers: { 'content-type': 'multipart/form-data; boundary=abc' } }
+        );
+
+        console.log(JSON.stringify({
+          sameStream: sent?.body === stream,
+          duplex: sent?.duplex,
+          contentType: (sent?.headers as Record<string, string>)['content-type'],
+        }));
+      `,
+      'utf-8'
+    );
+    strictTypecheck(dir);
+    const run = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
+    expect(run.status, `${run.stdout}\n${run.stderr}`).toBe(0);
+    expect(JSON.parse(run.stdout.trim())).toEqual({
+      sameStream: true,
+      duplex: 'half',
+      contentType: 'multipart/form-data; boundary=abc',
+    });
   }, 60_000);
 });

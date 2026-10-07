@@ -215,8 +215,14 @@ function rawSend(Config $config, array $request): array
             return strlen($line);
         },
     ]);
-    if (($request['body'] ?? null) !== null) {
-        curl_setopt($handle, CURLOPT_POSTFIELDS, $request['body']);
+    $body = $request['body'] ?? null;
+    if (is_resource($body)) {
+        curl_setopt_array($handle, [CURLOPT_UPLOAD => true, CURLOPT_INFILE => $body]);
+        if (stream_get_meta_data($body)['seekable']) {
+            curl_setopt($handle, CURLOPT_INFILESIZE, fstat($body)['size'] - ftell($body));
+        }
+    } elseif ($body !== null) {
+        curl_setopt($handle, CURLOPT_POSTFIELDS, $body);
     }
     if ($config->timeout !== null) {
         curl_setopt($handle, CURLOPT_TIMEOUT_MS, (int) round($config->timeout * 1000));
@@ -255,7 +261,8 @@ function send(Config $config, array $request): array
 {
     $headers = $request['headers'] ?? [];
     $headers['X-Redocly-Client'] = $config->clientHeader;
-    if (($request['contentType'] ?? null) !== null) {
+    $callerContentType = in_array('content-type', array_map('strtolower', array_keys($headers)), true);
+    if (($request['contentType'] ?? null) !== null && !$callerContentType) {
         $headers['Content-Type'] = $request['contentType'];
     }
     if (($request['idempotencyKey'] ?? null) !== null) {
@@ -269,7 +276,8 @@ function send(Config $config, array $request): array
         $handler = fn (array $req): array => $middleware($req, $next);
     }
 
-    $attempts = max(1, (int) ($config->retry['attempts'] ?? 3));
+    // The first attempt consumes a stream resource, so there is nothing to replay.
+    $attempts = is_resource($request['body'] ?? null) ? 1 : max(1, (int) ($config->retry['attempts'] ?? 3));
     $retryOn = $config->retry['retryOn'] ?? __NAMESPACE__ . '\\defaultRetryOn';
     $response = null;
     for ($attempt = 1; $attempt <= $attempts; $attempt++) {
@@ -501,4 +509,20 @@ function toMultipart(array $body): array
     }
     $parts .= "--{$boundary}--\r\n";
     return ['multipart/form-data; boundary=' . $boundary, $parts];
+}
+
+/**
+ * The body of an untyped multipart operation: a stream resource or a string passes through
+ * under the caller's Content-Type (the boundary is theirs to set); an array is encoded.
+ * Returns `[contentType, body]`.
+ */
+function multipartBody(mixed $body): array
+{
+    return is_array($body) ? toMultipart($body) : [null, $body];
+}
+
+/** The body of an octet-stream operation: a stream resource or a string passes through; anything else is JSON. */
+function binaryBody(mixed $body): mixed
+{
+    return is_resource($body) || is_string($body) ? $body : json_encode($body);
 }

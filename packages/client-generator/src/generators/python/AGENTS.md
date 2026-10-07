@@ -81,6 +81,16 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   the spec's defaults (`Servers.production(organization_id="org_x")`), so templated base
   URLs need no manual string building. The client's baked default stays `servers[0]`
   with variable defaults substituted.
+- **Stream bodies pass through.** For an untyped `multipart/form-data` or an
+  `application/octet-stream` operation, a body that is `bytes`/`bytearray`, a file-like
+  object (has `.read`), or an iterator/async iterator of bytes goes to httpx `content=`,
+  never through `json=` or `to_multipart`; a `dict` body of an untyped multipart operation
+  keeps the `to_multipart` path. The runtime never sets a `Content-Type` for such a body
+  (httpx fills a default only when the header is missing, so a caller's forwarded
+  multipart boundary survives); the caller sets it. A body that cannot be replayed (a
+  file-like object or iterator, as opposed to `bytes`) is sent in exactly one attempt,
+  whatever the retry policy says. The per-attempt `timeout` still applies. Both the sync
+  and the async `send` behave the same. Typed multipart bodies are unaffected.
 - **Parity surface:** auth (bearer/basic/apiKey), retries with `Retry-After` + jittered
   backoff, timeouts, idempotency keys, middleware, pagination (`<op>_pages()` /
   `<op>_items()` + `aiter` mirrors), SSE (`iter_sse`/`aiter_sse`), multipart.

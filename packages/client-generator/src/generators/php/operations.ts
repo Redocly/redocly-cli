@@ -4,6 +4,7 @@
 import {
   type ApiModel,
   type DateType,
+  isBinaryContentType,
   isMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
@@ -31,6 +32,17 @@ type MethodArgs = {
  * after one of them takes a suffixed variable instead, so the slot keeps its meaning.
  */
 const SIGNATURE_ARG_SLOTS = ['body', 'headers', 'idempotencyKey'];
+
+/**
+ * Whether the body is `mixed` and passes through the runtime as is: an untyped multipart
+ * or a binary body takes a stream resource, a string, or (multipart) an array.
+ */
+function passesThrough(op: OperationModel): boolean {
+  const body = op.requestBody;
+  if (body === undefined) return false;
+  if (isMultipartBody(op)) return body.schema.kind !== 'object' && body.schema.kind !== 'ref';
+  return isBinaryContentType(body.contentType);
+}
 
 export function methodArgs(
   op: OperationModel,
@@ -64,7 +76,7 @@ export function methodArgs(
     ...pathArgs.map(({ php, type }) => `${type} ${'$'}${php}`),
     ...(includeBody && op.requestBody
       ? [
-          `${isMultipartBody(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
+          `${passesThrough(op) ? 'mixed' : isMultipartBody(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
         ]
       : []),
     ...queryArgs.map(({ php, type }) => {
@@ -177,7 +189,15 @@ export function writePhpMethod(
         `'headers' => $requestHeaders`,
         `'query' => $query`,
       ];
-      if (op.requestBody && isMultipartBody(op)) {
+      if (op.requestBody && passesThrough(op) && isMultipartBody(op)) {
+        printer.line('[$contentType, $encoded] = multipartBody($body);');
+        request.push(`'body' => $encoded`, `'contentType' => $contentType`);
+      } else if (op.requestBody && passesThrough(op)) {
+        request.push(
+          `'body' => binaryBody($body)`,
+          `'contentType' => ${phpString(op.requestBody.contentType)}`
+        );
+      } else if (op.requestBody && isMultipartBody(op)) {
         printer.line('[$contentType, $encoded] = toMultipart($body);');
         request.push(`'body' => $encoded`, `'contentType' => $contentType`);
       } else if (op.requestBody) {
