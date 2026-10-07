@@ -1,7 +1,7 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
 
-import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import { hasScheme, isAbsoluteUrl, replaceRef } from '../ref-utils.js';
 import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -87,9 +87,6 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-// a reference with a scheme is absolute, whatever the scheme (RFC 3986); isAbsoluteUrl knows only a fixed list
-const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i;
-
 // Paths and globs in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
@@ -100,7 +97,7 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   // the walker visits a shared `$ref` target once per node type name, so rebase each node once
   rebasedNodes.add(node);
   const rebase = (value: unknown) => {
-    if (!isString(value) || !value || URI_SCHEME.test(value) || path.isAbsolute(value)) {
+    if (!isString(value) || !value || hasScheme(value) || path.isAbsolute(value)) {
       return value;
     }
     if (isAbsoluteUrl(sourceRef)) {
@@ -133,15 +130,17 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     if (typeof schema === 'function' || isNamedType(schema)) {
       continue;
     }
+    const format = schema?.format ?? schema?.items?.format;
+    const rebaseValue =
+      format === 'uri-reference' ? rebase : format === 'glob' ? rebaseGlob : undefined;
+    if (!rebaseValue) {
+      continue;
+    }
     const value = node[field];
-    if (schema?.format === 'uri-reference' && isString(value)) {
-      node[field] = rebase(value);
-    } else if (schema?.items?.format === 'uri-reference' && Array.isArray(value)) {
-      node[field] = value.map(rebase);
-    } else if (schema?.format === 'glob' && isString(value)) {
-      node[field] = rebaseGlob(value);
-    } else if (schema?.items?.format === 'glob' && Array.isArray(value)) {
-      node[field] = value.map(rebaseGlob);
+    if (isString(value)) {
+      node[field] = rebaseValue(value);
+    } else if (Array.isArray(value)) {
+      node[field] = value.map(rebaseValue);
     }
   }
 }
