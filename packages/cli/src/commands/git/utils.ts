@@ -1,41 +1,12 @@
 import { HandledError } from '@redocly/openapi-core';
-import { isValidReuniteUrl } from '@redocly/reunite-integration';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
-
-const PROJECT_GIT_URL_PATTERN = /^(https?:\/\/[^/]+)\/api\/orgs\/[^/]+\/projects\/[^/]+\/git\/?$/;
 
 export function buildProjectGitUrl(reuniteUrl: string, organization: string, project: string) {
   return `${reuniteUrl}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(
     project
   )}/git`;
-}
-
-// Reunite URL of the first remote that points at a Redocly-hosted project.
-export function findReuniteUrl(cwd: string): string | null {
-  const result = spawnSync('git', ['config', '--get-regexp', '^remote\\..*\\.url$'], {
-    cwd,
-    encoding: 'utf-8',
-  });
-
-  if (result.error) {
-    throw gitError(result.error);
-  }
-  if (result.status !== 0) {
-    return null;
-  }
-
-  for (const line of result.stdout.split('\n')) {
-    const [, url] = line.trim().match(/^\S+\s+(.+)$/) ?? [];
-    const [, reuniteUrl] = url?.match(PROJECT_GIT_URL_PATTERN) ?? [];
-
-    if (reuniteUrl && isValidReuniteUrl(reuniteUrl)) {
-      return reuniteUrl;
-    }
-  }
-
-  return null;
 }
 
 // Git config entries that make `redocly git credential` the only credential helper

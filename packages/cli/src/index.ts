@@ -748,60 +748,6 @@ yargs(hideBin(process.argv))
         }
       )
       .command(
-        'push [refspec..]',
-        'Push to the Redocly-hosted project of the current repository.',
-        (yargs) =>
-          yargs
-            .positional('refspec', {
-              description: 'Remote and refspec arguments passed to git push.',
-              type: 'string',
-              array: true,
-            })
-            .options({
-              force: {
-                description: 'Force the push.',
-                alias: 'f',
-                type: 'boolean',
-              },
-              'set-upstream': {
-                description: 'Set the upstream of the pushed branch.',
-                alias: 'u',
-                type: 'boolean',
-              },
-              config: {
-                description: 'Path to the config file.',
-                requiresArg: true,
-                type: 'string',
-              },
-            }),
-        async (argv) => {
-          const { handleGitPush } = await import('./commands/git/index.js');
-          commandWrapper(handleGitPush)(argv);
-        }
-      )
-      .command(
-        'pull [refspec..]',
-        'Pull from the Redocly-hosted project of the current repository.',
-        (yargs) =>
-          yargs
-            .positional('refspec', {
-              description: 'Remote and refspec arguments passed to git pull.',
-              type: 'string',
-              array: true,
-            })
-            .options({
-              config: {
-                description: 'Path to the config file.',
-                requiresArg: true,
-                type: 'string',
-              },
-            }),
-        async (argv) => {
-          const { handleGitPull } = await import('./commands/git/index.js');
-          commandWrapper(handleGitPull)(argv);
-        }
-      )
-      .command(
         'credential <operation>',
         false,
         (yargs) =>
@@ -817,7 +763,7 @@ yargs(hideBin(process.argv))
           );
         }
       )
-      .demandCommand(1, 'Specify a git subcommand: clone, push, or pull.')
+      .demandCommand(1, 'Specify a git subcommand: clone.')
   )
   .command(
     'preview',

@@ -1,11 +1,11 @@
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
-import { buildProjectGitUrl, findReuniteUrl, getCredentialHelperConfig, runGit } from '../utils.js';
+import { buildProjectGitUrl, getCredentialHelperConfig, runGit } from '../utils.js';
 
-vi.mock('node:child_process', () => ({ spawn: vi.fn(), spawnSync: vi.fn() }));
+vi.mock('node:child_process', () => ({ spawn: vi.fn() }));
 vi.mock('node:fs', () => ({ existsSync: vi.fn() }));
 
 describe('git utils', () => {
@@ -24,56 +24,6 @@ describe('git utils', () => {
       expect(buildProjectGitUrl('http://localhost', 'acme', 'my docs')).toBe(
         'http://localhost/api/orgs/acme/projects/my%20docs/git'
       );
-    });
-  });
-
-  describe('findReuniteUrl', () => {
-    it('returns the Reunite URL of the first remote pointing at a Redocly project', () => {
-      vi.mocked(spawnSync).mockReturnValue({
-        status: 0,
-        stdout:
-          'remote.upstream.url git@github.com:acme/docs.git\n' +
-          'remote.origin.url https://app.cloud.redocly.com/api/orgs/acme/projects/docs/git\n',
-      } as any);
-
-      expect(findReuniteUrl('/repo')).toBe('https://app.cloud.redocly.com');
-      expect(spawnSync).toHaveBeenCalledWith(
-        'git',
-        ['config', '--get-regexp', '^remote\\..*\\.url$'],
-        { cwd: '/repo', encoding: 'utf-8' }
-      );
-    });
-
-    it('matches the whole remote URL, including anything after a space', () => {
-      vi.mocked(spawnSync).mockReturnValue({
-        status: 0,
-        stdout: 'remote.origin.url https://example.com/api/orgs/acme/projects/docs/git copy\n',
-      } as any);
-
-      expect(findReuniteUrl('/repo')).toBeNull();
-    });
-
-    it('returns null outside a git repository', () => {
-      vi.mocked(spawnSync).mockReturnValue({ status: 128, stdout: '', stderr: 'fatal' } as any);
-
-      expect(findReuniteUrl('/repo')).toBeNull();
-    });
-
-    it('ignores remotes that are not on an https or local Reunite host', () => {
-      vi.mocked(spawnSync).mockReturnValue({
-        status: 0,
-        stdout: 'remote.origin.url http://example.com/api/orgs/acme/projects/docs/git\n',
-      } as any);
-
-      expect(findReuniteUrl('/repo')).toBeNull();
-    });
-
-    it('explains a missing git binary', () => {
-      vi.mocked(spawnSync).mockReturnValue({
-        error: Object.assign(new Error('spawnSync git ENOENT'), { code: 'ENOENT' }),
-      } as any);
-
-      expect(() => findReuniteUrl('/repo')).toThrow('git is not installed or not on PATH.');
     });
   });
 

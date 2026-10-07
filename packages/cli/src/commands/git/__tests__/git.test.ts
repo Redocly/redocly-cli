@@ -3,22 +3,14 @@ import { getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgv } from '../../../types.js';
 import type { CommandArgs } from '../../../wrapper.js';
-import {
-  type GitCloneArgv,
-  type GitPullArgv,
-  type GitPushArgv,
-  handleGitClone,
-  handleGitPull,
-  handleGitPush,
-} from '../index.js';
+import { type GitCloneArgv, handleGitClone } from '../index.js';
 import type * as GitUtils from '../utils.js';
-import { findReuniteUrl, getCredentialHelperConfig, runGit } from '../utils.js';
+import { getCredentialHelperConfig, runGit } from '../utils.js';
 
 vi.mock('../utils.js', async () => {
   const actual = await vi.importActual<typeof GitUtils>('../utils.js');
   return {
     ...actual,
-    findReuniteUrl: vi.fn(),
     getCredentialHelperConfig: vi.fn(),
     runGit: vi.fn(),
   };
@@ -39,7 +31,6 @@ describe('redocly git', () => {
     vi.mocked(getReuniteUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
     vi.mocked(runGit).mockResolvedValue(0);
-    vi.mocked(findReuniteUrl).mockReturnValue('http://localhost');
     vi.spyOn(logger, 'info').mockImplementation(() => {});
   });
 
@@ -82,64 +73,5 @@ describe('redocly git', () => {
         expect(runGit).not.toHaveBeenCalled();
       }
     );
-  });
-
-  describe('push', () => {
-    it('pushes with the credential helper of the Redocly remote', async () => {
-      await handleGitPush(
-        commandArgs<GitPushArgv>({ force: true, 'set-upstream': true, refspec: ['origin', 'main'] })
-      );
-
-      expect(findReuniteUrl).toHaveBeenCalledWith(process.cwd());
-      expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
-      expect(runGit).toHaveBeenCalledWith([
-        '-c',
-        HELPER_CONFIG[0],
-        '-c',
-        HELPER_CONFIG[1],
-        'push',
-        '--force',
-        '--set-upstream',
-        'origin',
-        'main',
-      ]);
-    });
-
-    it('runs a plain git push by default', async () => {
-      await handleGitPush(commandArgs<GitPushArgv>({}));
-
-      expect(runGit).toHaveBeenCalledWith(['-c', HELPER_CONFIG[0], '-c', HELPER_CONFIG[1], 'push']);
-    });
-
-    it('fails when the repository has no Redocly remote', async () => {
-      vi.mocked(findReuniteUrl).mockReturnValue(null);
-
-      await expect(handleGitPush(commandArgs<GitPushArgv>({}))).rejects.toThrow(
-        'No Redocly remote found'
-      );
-      expect(runGit).not.toHaveBeenCalled();
-    });
-
-    it('fails when git exits with an error', async () => {
-      vi.mocked(runGit).mockResolvedValue(1);
-
-      await expect(handleGitPush(commandArgs<GitPushArgv>({}))).rejects.toThrow('git push failed.');
-    });
-  });
-
-  describe('pull', () => {
-    it('pulls with the credential helper of the Redocly remote', async () => {
-      await handleGitPull(commandArgs<GitPullArgv>({ refspec: ['origin', 'feature'] }));
-
-      expect(runGit).toHaveBeenCalledWith([
-        '-c',
-        HELPER_CONFIG[0],
-        '-c',
-        HELPER_CONFIG[1],
-        'pull',
-        'origin',
-        'feature',
-      ]);
-    });
   });
 });
