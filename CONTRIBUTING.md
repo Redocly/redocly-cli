@@ -251,7 +251,7 @@ Unit tests in the **cli** package are sensitive to top-level configuration file 
 - To run tests from a single file, run: `npm run unit -- <path/to/your/file.test.ts>`
 - To run a specific test, use this command: `npm run unit -- -t 'Test name'`.
 - To update snapshots, run `npm run unit -- -u`.
-- To skip coverage, run the command with `--coverage=false`.
+- To run without coverage, call Vitest directly: `npx vitest run --project unit <path/to/your/file.test.ts>`.
 
 ### E2E tests
 
@@ -268,20 +268,43 @@ Note that the snapshot does not always match the command output because of the w
 This is intentional so outputs stay consistent for snapshot testing.
 The order of stdout and stderr in a snapshot may differ from what you see in the terminal, but the combined output is stable.
 
-### Generator tests
+### Client generator tests
 
-Client generation has its own suite: `npm run client-generators` runs the `tests/e2e/generate-client` end-to-end tests.
+Client generation has its own tests: `npm run client-generators` runs the `tests/e2e/generate-client` end-to-end tests.
+They are split into four Vitest projects, one per toolchain:
+
+| Project                    | Files                                                                          | Needs                                    |
+| -------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------- |
+| `client-generators`        | every TypeScript-family bar                                                    | Node.js only                             |
+| `client-generators-go`     | `go.test.ts`, `*.go.test.ts`, and the Go generator's own test file             | Go 1.21 or later (`go`, `gofmt`)         |
+| `client-generators-php`    | `php.test.ts`, `*.php.test.ts`, and the PHP generator's own test file          | PHP 8.1 or later with the curl extension |
+| `client-generators-python` | `python.test.ts`, `*.python.test.ts`, and the Python generator's own test file | Python 3 with `httpx` and `pydantic`     |
 
 ```bash
-npm run client-generators                                   # every generator e2e test
-npm run client-generators -- tests/e2e/generate-client/go.test.ts   # one file
-npm run client-generators -- -t 'gofmt'                     # by test name
+npm run client-generators                                         # all four projects
+npx vitest run --project client-generators                        # TypeScript bars only
+npx vitest run --project client-generators-go                     # one language
+npm run client-generators -- tests/e2e/generate-client/go.test.ts # one file
+npm run client-generators -- -t 'OPcache'                         # by test name
 ```
 
-Those e2e tests compile their output with real toolchains, so what is available decides what runs:
+A language project checks its toolchain before any test runs.
+When a tool is missing, the run stops with one message that names it; no test is skipped.
+A run that selects only other projects, or only files outside that language, does not need the tool.
 
-- **Python** (`python3`, plus `httpx` for the import bars) and **Go** (`go build`, `go vet`, `gofmt`) and **PHP** (`php -l`) — a bar for a missing toolchain skips itself rather than failing, so a partial local setup still gives a useful run. CI installs Python and `httpx`; Go and PHP come with the runner image.
-- The largest bars generate from big real-world descriptions (Rebilly, the GitHub REST API), which is why they are slow and why the suite has its own CI job — a growing set of compiled-language bars must not slow the shared e2e job.
+Install the toolchains:
+
+```bash
+# macOS
+brew install go php
+pip3 install httpx pydantic
+
+# Ubuntu
+sudo apt-get install golang-go php-cli python3-pip
+pip3 install httpx pydantic
+```
+
+The largest bars generate from big real-world descriptions (Rebilly, the GitHub REST API), which is why these tests are slow and run in their own CI job.
 
 `npm run e2e` covers everything under `tests/e2e/` **except** `generate-client`.
 

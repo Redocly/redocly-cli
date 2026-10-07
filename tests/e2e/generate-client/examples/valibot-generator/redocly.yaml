@@ -2,7 +2,7 @@
 # The custom generator is selected by path, beside the built-in `typescript`.
 apis:
   valibot-generator:
-    root: ../_shared/cafe.yaml
+    root: ../../fixtures/cafe.yaml
     clientOutput: ./src/api/client.ts
     client:
       generators:

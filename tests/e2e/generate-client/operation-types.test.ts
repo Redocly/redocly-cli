@@ -7,14 +7,14 @@
  * `use()` callback's ctx is contextually narrowed. The exported `RequestContext` TYPE keeps its
  * string defaults (spec-independent middleware stays assignable — asserted below).
  */
-import { spawnSync } from 'node:child_process';
+
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { generate, tscBin } from './helpers.js';
+import { generate, runTsc } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -41,10 +41,7 @@ function gen(dir: string): void {
 }
 function typechecks(dir: string, consumer: string): boolean {
   writeFileSync(join(dir, 'consumer.ts'), consumer, 'utf-8');
-  return (
-    spawnSync(tscBin, ['-p', join(dir, 'tsconfig.json')], { cwd: dir, encoding: 'utf-8' })
-      .status === 0
-  );
+  return runTsc(['-p', join(dir, 'tsconfig.json')], dir).status === 0;
 }
 
 describe('typed ctx.operation rejects typos at compile time', () => {

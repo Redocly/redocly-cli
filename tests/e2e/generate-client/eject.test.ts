@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, repoRoot, tsxBin } from './helpers.js';
+import { cliEntry, repoRoot, runTsx } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -267,10 +267,10 @@ describe('eject-generator from source (no bundle)', () => {
     const project = makeProject();
     try {
       for (const generator of ['python', 'go', 'php', 'typescript', 'cli']) {
-        const result = spawnSync(
-          tsxBin,
-          [join(repoRoot, 'packages/cli/src/index.ts'), 'eject-generator', generator],
-          { cwd: project, encoding: 'utf-8' }
+        const result = runTsx(
+          join(repoRoot, 'packages/cli/src/index.ts'),
+          ['eject-generator', generator],
+          { cwd: project }
         );
         expect(result.status, `${generator}: ${result.stdout}\n${result.stderr}`).toBe(0);
         expect(existsSync(join(project, `generators/${generator}/index.ts`))).toBe(true);

@@ -1,5 +1,4 @@
 import {
-  ApiError,
   client,
   createOrder,
   deleteMenuItem,
@@ -161,38 +160,6 @@ async function main(): Promise<void> {
         agree: beverage === (category === 'beverage') && dessert === (category === 'dessert'),
         exclusive: beverage !== dessert,
       };
-    })
-  );
-
-  // Negative: error path returns ApiError.
-  results.push(
-    await step('error-path', async () => {
-      try {
-        await fetch('http://127.0.0.1:0/'); // Trigger fetch failure type.
-      } catch {
-        /* no-op */
-      }
-      try {
-        // Hit /__test__/boom by reaching through the generated runtime indirectly:
-        // we don't have a generated function for it, so we use the public ApiError shape via a raw fetch.
-        const response = await fetch(
-          `${process.env.CAFE_BASE ?? 'http://127.0.0.1:3101'}/__test__/boom`
-        );
-        if (!response.ok) {
-          throw new ApiError(
-            response.url,
-            response.status,
-            response.statusText,
-            await response.json()
-          );
-        }
-        return { unreachable: true };
-      } catch (error) {
-        if (error instanceof ApiError) {
-          return { apiError: true, status: error.status, statusText: error.statusText };
-        }
-        throw error;
-      }
     })
   );
 

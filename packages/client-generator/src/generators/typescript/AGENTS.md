@@ -90,6 +90,6 @@ It is the largest of them, so reach for the smaller paths first when they fit:
    behavior changes go to `runtime/`, then `npm run prepare -w @redocly/client-generator`
    re-embeds).
 3. Verify: `npm run compile`, the folder's unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/typescript`),
+   (`npx vitest run packages/client-generator/src/generators/typescript`),
    the e2e suites for this generator, and the large-description bars
    (`tests/e2e/generate-client/large-descriptions.test.ts`).

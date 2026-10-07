@@ -3,7 +3,7 @@
 # (run `redocly generate-client` with no args to build every such api).
 apis:
   tanstack-query:
-    root: ../_shared/cafe.yaml
+    root: ../../fixtures/cafe.yaml
     clientOutput: ./src/api/client.ts
     client:
       generators:

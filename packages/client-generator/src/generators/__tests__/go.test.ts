@@ -12,15 +12,12 @@ import { generatorInput } from './fixtures/generator-input.js';
 const goGenerator = (input: Parameters<typeof generatorInput>[0]) =>
   goGeneratorEntry(generatorInput(input));
 
-const hasGo = spawnSync('go', ['version']).status === 0;
-
 // Every `expectGoCompiles` bar shells out to `go build`; the first build on a cold
 // CI cache compiles the stdlib and takes well over the 5s default.
 vi.setConfig({ testTimeout: 180_000 });
 
 /** Assert `gofmt` would not change the source — the output must ship idiomatic. */
 function expectGofmtClean(source: string): void {
-  if (!hasGo) return;
   const dir = mkdtempSync(join(tmpdir(), 'go-fmt-'));
   try {
     const file = join(dir, 'client.go');
@@ -37,9 +34,8 @@ function expectGofmtClean(source: string): void {
   }
 }
 
-/** Assert the rendered source is compilable Go (skipped without the toolchain). */
+/** Assert the rendered source is compilable Go. */
 function expectGoCompiles(source: string): void {
-  if (!hasGo) return;
   const dir = mkdtempSync(join(tmpdir(), 'go-render-'));
   try {
     writeFileSync(join(dir, 'go.mod'), 'module render.test\n\ngo 1.21\n');

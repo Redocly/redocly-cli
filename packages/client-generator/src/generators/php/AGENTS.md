@@ -112,6 +112,6 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 2. Change `index.ts` (and `runtime/runtime.php` for runtime behavior; `php -l` it,
    then `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, then
-   `VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/__tests__/php.test.ts`
+   `npx vitest run packages/client-generator/src/generators/__tests__/php.test.ts`
    (real `php -l` + `require` bars), the e2e smoke (`tests/e2e/generate-client/php.test.ts`),
-   and the large-description bars (`tests/e2e/generate-client/large-descriptions.test.ts`).
+   and the large-description bars (`tests/e2e/generate-client/large-descriptions.php.test.ts`).

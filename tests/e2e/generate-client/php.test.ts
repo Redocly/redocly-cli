@@ -1,26 +1,24 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, startServer } from './helpers.js';
+import { copyConsumer, generate, killServer, startServer } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const consumerDir = join(__dirname, 'php-consumer');
-const generatedFile = join(consumerDir, 'client/client.php');
+let workDir = '';
+let generatedFile = '';
 
 const SERVER_PORT = 3109;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
-
-const hasPhp = spawnSync('php', ['--version']).status === 0;
 
 /** Run smoke.php against the mock server; `phpFlags` go in front, `smokeArgs` after the URL. */
 function runSmoke(phpFlags: string[], smokeArgs: string[] = []): void {
   const result = spawnSync(
     'php',
-    [...phpFlags, join(consumerDir, 'smoke.php'), SERVER_BASE, ...smokeArgs],
+    [...phpFlags, join(workDir, 'smoke.php'), SERVER_BASE, ...smokeArgs],
     { encoding: 'utf-8' }
   );
   expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
@@ -32,25 +30,22 @@ describe('generate-client php generator (end-to-end)', () => {
 
   beforeAll(async () => {
     serverProcess = await startServer(
-      join(__dirname, 'base-consumer/server.ts'),
-      join(__dirname, 'base-consumer'),
+      'base',
       { BASE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE,
-      'php-smoke-server'
+      SERVER_BASE
     );
+    workDir = copyConsumer('php-consumer');
+    generatedFile = join(workDir, 'client/client.php');
+    generate(fixture, join(workDir, 'client/client.ts'), ['--generator', 'php']);
+    expect(existsSync(generatedFile)).toBe(true);
   }, 60_000);
 
   afterAll(async () => {
     if (serverProcess) await killServer(serverProcess);
-    rmSync(join(consumerDir, 'client'), { recursive: true, force: true });
+    rmSync(workDir, { recursive: true, force: true });
   });
 
-  it('generates a self-contained client.php from the CLI', () => {
-    generate(fixture, join(consumerDir, 'client/client.ts'), ['--generator', 'php']);
-    expect(existsSync(generatedFile)).toBe(true);
-  });
-
-  it.skipIf(!hasPhp)('the generated client parses and declares (php -l + require)', () => {
+  it('the generated client parses and declares (php -l + require)', () => {
     const lint = spawnSync('php', ['-l', generatedFile], { encoding: 'utf-8' });
     expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
     const declare = spawnSync('php', ['-r', `require '${generatedFile}'; echo 'DECLARED';`], {
@@ -59,16 +54,16 @@ describe('generate-client php generator (end-to-end)', () => {
     expect(declare.status, `${declare.stdout}\n${declare.stderr}`).toBe(0);
   });
 
-  it.skipIf(!hasPhp)('the smoke runs real HTTP: hydration, bodies, ApiError', () => {
+  it('the smoke runs real HTTP: hydration, bodies, ApiError', () => {
     runSmoke([]);
   });
 
-  it.skipIf(!hasPhp)('the smoke still passes when OPcache has preloaded the client', () => {
+  it('the smoke still passes when OPcache has preloaded the client', () => {
     // opcache.preload keeps classes and functions in shared memory but drops file-level
     // constants, and the autoloader never includes the file again once Client exists.
     // The smoke checks that the preload really happened, so this cannot pass vacuously.
     runSmoke(
-      ['-d', 'opcache.enable_cli=1', '-d', `opcache.preload=${join(consumerDir, 'preload.php')}`],
+      ['-d', 'opcache.enable_cli=1', '-d', `opcache.preload=${join(workDir, 'preload.php')}`],
       ['preloaded']
     );
   });
@@ -99,7 +94,7 @@ describe('generate-client php generator, parameter names an SDK cannot take lite
     expect(source).toContain("$query['id'] = $id2;");
   });
 
-  it.skipIf(!hasPhp)('the generated client parses (php -l)', () => {
+  it('the generated client parses (php -l)', () => {
     const lint = spawnSync('php', ['-l', join(dir, 'client.php')], { encoding: 'utf-8' });
     expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
   });

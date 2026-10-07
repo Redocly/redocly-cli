@@ -156,6 +156,26 @@ describe('middleware — flat surface (use)', () => {
 
     expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
   }, 60_000);
+
+  test('configure({ middleware }) runs before later use() middleware', () => {
+    const captured = runConsumer(
+      dir,
+      outdent`
+        import { client } from './client.ts';
+
+        const order: string[] = [];
+        client.configure({
+          fetch: (async () => ${OK}) as unknown as typeof fetch,
+          middleware: [{ onRequest: () => { order.push('configured'); } }],
+        });
+        client.use({ onRequest: () => { order.push('use'); } });
+        await client.listPets();
+        console.log(JSON.stringify({ order }));
+      `
+    ) as { order: string[] };
+
+    expect(captured.order).toEqual(['configured', 'use']);
+  }, 60_000);
 });
 
 describe('middleware — multi-file output (split)', () => {
@@ -219,36 +239,5 @@ describe('middleware — result error mode', () => {
     expect(result.ran).toEqual(['req', 'res']);
     expect(result.hasError).toBe(true);
     expect(result.hasData).toBe(false);
-  }, 60_000);
-});
-
-describe('middleware — configured chain precedes use()', () => {
-  let dir = '';
-  beforeAll(() => {
-    dir = mkdtempSync(join(tmpdir(), 'mw-cfg-'));
-    generateInto(dir, fixture);
-  }, 60_000);
-  afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
-  });
-
-  test('configure({ middleware }) runs before later use() middleware', () => {
-    const captured = runConsumer(
-      dir,
-      outdent`
-        import { client } from './client.ts';
-
-        const order: string[] = [];
-        client.configure({
-          fetch: (async () => ${OK}) as unknown as typeof fetch,
-          middleware: [{ onRequest: () => { order.push('configured'); } }],
-        });
-        client.use({ onRequest: () => { order.push('use'); } });
-        await client.listPets();
-        console.log(JSON.stringify({ order }));
-      `
-    ) as { order: string[] };
-
-    expect(captured.order).toEqual(['configured', 'use']);
   }, 60_000);
 });

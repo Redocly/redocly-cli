@@ -26,10 +26,13 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Unit Tests
-        run: npm run unit
+      - name: Check the generated client-generator files are committed
+        run: git diff --exit-code -- packages/client-generator/src/runtime-sources packages/client-generator/eject-assets/skills
+      - parallel:
+          - name: Typecheck
+            run: npm run typecheck
+          - name: Unit Tests
+            run: npm run unit
 
       - name: Coverage Report
         if: always() # Also generate the report if tests are failing
@@ -47,58 +50,44 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: E2E Tests
-        run: npm run e2e
+      - parallel:
+          - name: E2E Tests
+            run: npm run e2e
+          # Not in the client-generators job: examples.test.ts reads the quickstart client that this step rewrites.
+          - name: Regenerate and type-check the examples
+            run: npm run examples:regen -w @redocly/client-generator && npm run typecheck:examples -w @redocly/client-generator
 
   client-generators:
-    # Client generation has its own job: the generate-client e2e bars, which compile real Python, Go, PHP, and TypeScript output
-    # (including big real-world descriptions) — the slowest tests we have, needing
-    # toolchains nothing else does. Adding a language bar here cannot slow the shared e2e job.
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    strategy:
-      fail-fast: false
-      matrix:
-        shard: [1, 2]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: '3.12'
-      - name: Install httpx and pydantic (the Python import bars need them)
+      - parallel:
+          - name: Install dependencies
+            run: npm ci
+          - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+            with:
+              python-version: '3.12'
+          - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+            with:
+              go-version: stable
+              cache: false
+          - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
+            with:
+              php-version: '8.4'
+              coverage: none
+          - name: Cache the pinned GitHub REST description
+            uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+            with:
+              path: tests/e2e/generate-client/.cache
+              key: large-descriptions-${{ hashFiles('tests/e2e/generate-client/large-descriptions.ts') }}
+      - name: Install httpx and pydantic (the Python bars need them)
         run: pip install httpx pydantic
-      # Go, gofmt, and php come with the runner image; a bar whose toolchain is missing
-      # skips itself, so a thinner image degrades coverage instead of failing the job.
-      - name: Cache the pinned GitHub REST description
-        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
-        with:
-          path: tests/e2e/generate-client/.cache
-          key: large-descriptions-${{ hashFiles('tests/e2e/generate-client/large-descriptions.test.ts') }}
-      - name: Install dependencies
-        run: npm ci
-      - name: Client generator tests (shard ${{ matrix.shard }}/2)
-        run: npm run client-generators -- --shard=${{ matrix.shard }}/2
-
-  examples:
-    # The examples gitignore their generated clients (only zero-install-quickstart commits
-    # its canonical copy), so this job regenerates every client and type-checks the
-    # hand-written consumer code against it.
-    runs-on: blacksmith-4vcpu-ubuntu-2404
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-        with:
-          node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Regenerate example clients
-        run: npm run examples:regen -w @redocly/client-generator
-      - name: Type-check examples
-        run: npm run typecheck:examples -w @redocly/client-generator
+      - name: Client generator tests
+        run: npm run client-generators
 
   code-style-check:
     runs-on: blacksmith-4vcpu-ubuntu-2404

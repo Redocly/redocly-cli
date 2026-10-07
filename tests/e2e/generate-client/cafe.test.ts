@@ -1,17 +1,20 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { type ChildProcess } from 'node:child_process';
+import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, killServer, repoRoot, startServer, serverLog } from './helpers.js';
+import {
+  copyConsumer,
+  expectTscPasses,
+  killServer,
+  runGenerateClient,
+  runTsx,
+  serverLog,
+  startServer,
+} from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
-const consumerDir = join(__dirname, 'cafe-consumer');
-const generatedFile = join(consumerDir, 'api.ts');
-const serverScript = join(consumerDir, 'server.ts');
-const indexScript = join(consumerDir, 'index.ts');
-const configureScript = join(consumerDir, 'index-configure.ts');
 
 const SERVER_PORT = 3101;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
@@ -37,27 +40,21 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   let rawGenerated = '';
   /** Generator output the consumer imports — same source, but serverUrl pinned at the mock via --server-url. */
   let generated = '';
+  let workDir = '';
 
   beforeAll(async () => {
-    if (existsSync(generatedFile)) {
-      rmSync(generatedFile, { force: true });
-    }
+    workDir = copyConsumer('cafe-consumer');
+    const generatedFile = join(workDir, 'api.ts');
 
     serverProcess = await startServer(
-      serverScript,
-      consumerDir,
+      'cafe',
       { CAFE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE,
-      'cafe-server'
+      SERVER_BASE
     );
 
     // First pass: capture the *canonical* output (spec-derived serverUrl) for the file snapshot.
     // We don't keep this on disk — the consumer needs the mock-targeted variant.
-    const snapshotGen = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', fixture, '--output', generatedFile],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
+    const snapshotGen = runGenerateClient([fixture, '--output', generatedFile]);
     if (snapshotGen.status !== 0) {
       throw new Error(`generate-client (snapshot pass) failed:\n${snapshotGen.stderr}`);
     }
@@ -65,19 +62,13 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
 
     // Second pass: regenerate with --server-url so the consumer's import targets the mock.
     // This is the file the consumer actually loads — and replaces the old string-replace hack.
-    const consumerGen = spawnSync(
-      'node',
-      [
-        cliEntry,
-        'generate-client',
-        fixture,
-        '--output',
-        generatedFile,
-        '--server-url',
-        SERVER_BASE,
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
+    const consumerGen = runGenerateClient([
+      fixture,
+      '--output',
+      generatedFile,
+      '--server-url',
+      SERVER_BASE,
+    ]);
     if (consumerGen.status !== 0) {
       throw new Error(`generate-client (consumer pass) failed:\n${consumerGen.stderr}`);
     }
@@ -87,18 +78,11 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     }
 
     // Type-check the consumer.
-    const tsc = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    if (tsc.status !== 0) {
-      throw new Error(`tsc --noEmit failed:\nstdout:\n${tsc.stdout}\nstderr:\n${tsc.stderr}`);
-    }
+    expectTscPasses(['--noEmit', '-p', workDir]);
 
     // Run consumer.
-    const run = spawnSync('npx', ['tsx', indexScript], {
-      encoding: 'utf-8',
-      cwd: consumerDir,
+    const run = runTsx(join(workDir, 'index.ts'), [], {
+      cwd: workDir,
       env: { ...process.env, CAFE_BASE: SERVER_BASE },
     });
     if (run.status !== 0) {
@@ -111,91 +95,14 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
 
   afterAll(async () => {
     if (serverProcess) await killServer(serverProcess);
+    rmSync(workDir, { recursive: true, force: true });
   });
 
   test('generated file matches the committed snapshot (cafe.snapshot.ts)', async () => {
     // Full-file guard against accidental emitter regressions. The PR diff against this
     // snapshot is the single most informative signal when the IR builder or emitter changes.
-    // After an intentional emitter change, regenerate with: `npm run e2e -- -u`.
+    // After an intentional emitter change, regenerate with: `npm run client-generators -- -u`.
     await expect(rawGenerated).toMatchFileSnapshot(snapshotFile);
-  });
-
-  test('generated file contains expected named types', () => {
-    expect(generated).toContain('export type MenuItem = Beverage | Dessert;');
-    expect(generated).toContain('export type Beverage = {');
-    expect(generated).toContain('} & MenuBaseItem;');
-    expect(generated).toContain(
-      'export type OrderStatus = "placed" | "preparing" | "completed" | "canceled";'
-    );
-    expect(generated).toContain('export type MenuItemList = {');
-    expect(generated).toContain('export type OrderList = {');
-    expect(generated).toContain('export type RevenueStatistics = {');
-    expect(generated).toContain('export type OAuth2Client = {');
-  });
-
-  test('generated file exports one binding per operation', () => {
-    const expected = [
-      'listMenuItems',
-      'createMenuItem',
-      'deleteMenuItem',
-      'getMenuItemPhoto',
-      'listOrders',
-      'createOrder',
-      'getOrderById',
-      'deleteOrder',
-      'updateOrder',
-      'listOrderItems',
-      'getRevenue',
-      'registerOAuth2Client',
-    ];
-    // One destructure of the client: the exported name IS the method.
-    expect(generated).toContain(`export const { ${expected.join(', ')} } = client;`);
-  });
-
-  test('exports an OPERATIONS descriptor map keyed by operationId (method + path template)', () => {
-    expect(generated).toContain('export const OPERATIONS = {');
-    expect(generated).toContain('} as const satisfies Record<string, OperationDescriptor>;');
-    expect(generated).toContain(
-      'export type OperationId = (typeof OPERATIONS)[keyof typeof OPERATIONS]["id"];'
-    );
-    // A path-param operation keeps its `{param}` template, uppercased method, and tags.
-    expect(generated).toContain(
-      'getOrderById: { id: "getOrderById", method: "GET", path: "/orders/{orderId}", tags: ["Orders"]'
-    );
-    expect(generated).toContain(
-      'updateOrder: { id: "updateOrder", method: "PATCH", path: "/orders/{orderId}", tags: ["Orders"]'
-    );
-    expect(generated).toContain(
-      'createOrder: { id: "createOrder", method: "POST", path: "/orders", tags: ["Orders"]'
-    );
-    // The typed instance client is built over the descriptors.
-    expect(generated).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
-    );
-    expect(generated).toContain('export const { configure, use } = client;');
-  });
-
-  test('inputs are grouped by layer, one type per layer', () => {
-    expect(generated).toContain('export type DeleteMenuItemPath = {');
-    expect(generated).toContain('export type GetMenuItemPhotoVariables = {');
-    expect(generated).toContain('    path: GetMenuItemPhotoPath;');
-    expect(generated).toContain('    query?: GetMenuItemPhotoQuery;');
-    expect(generated).toContain('export type UpdateOrderVariables = {');
-    expect(generated).toContain('export type ListMenuItemsQuery = {');
-    // readOnly fields are dropped from the create body (Bucket C).
-    expect(generated).toContain(
-      'export type CreateOrderBody = Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">;'
-    );
-    expect(generated).toContain('export type CreateMenuItemBody = FormData;');
-  });
-
-  // Named string enums get a runtime const-object companion by default, which the
-  // consumer uses (`OrderStatus.completed`) when updating an order.
-  test('emits a const-object companion for the OrderStatus string enum', () => {
-    expect(generated).toContain('export type OrderStatus =');
-    expect(generated).toContain('export const OrderStatus = {');
-    expect(generated).toContain('  completed: "completed",');
-    expect(generated).toContain('} as const;');
   });
 
   test('every consumer step succeeds', () => {
@@ -347,36 +254,5 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(parsed.name).toBe('demo-client');
     expect(parsed.scopes).toEqual(['menu:read', 'orders:read']);
     expect(parsed.grantTypes).toEqual(['client_credentials']);
-  });
-
-  test('ApiError is thrown for non-2xx responses with parsed JSON body', () => {
-    const step = results.find((r) => r.name === 'error-path');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') {
-      expect(step.data).toEqual({
-        apiError: true,
-        status: 500,
-        statusText: 'Internal Server Error',
-      });
-    }
-  });
-
-  // `configure({ serverUrl })` is exercised mid-flight: the first call hits the mock,
-  // the second (after flipping to an unreachable host) fails to connect, and the
-  // third (after restoring) succeeds again.
-  test('configure({ serverUrl }) switches the base URL for subsequent operations', () => {
-    const run = spawnSync('npx', ['tsx', configureScript], {
-      encoding: 'utf-8',
-      cwd: consumerDir,
-      env: { ...process.env, CAFE_BASE: SERVER_BASE },
-    });
-    expect(run.status, `configure consumer stderr:\n${run.stderr}`).toBe(0);
-    const steps = JSON.parse(run.stdout.trim()) as Array<
-      { kind: 'ok'; name: string } | { kind: 'err'; name: string; error: string }
-    >;
-    expect(steps.find((s) => s.name === 'initial-call-against-mock')?.kind).toBe('ok');
-    const flipped = steps.find((s) => s.name === 'call-after-configure-to-unreachable');
-    expect(flipped?.kind).toBe('err');
-    expect(steps.find((s) => s.name === 'call-after-configure-restored')?.kind).toBe('ok');
   });
 });

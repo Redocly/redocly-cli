@@ -42,6 +42,6 @@ with `--update`. Change the hook shape or the key strategy, and regenerate.
 1. Edit this skill: state the new behavior or decision.
 2. Change the stage files named above (the entry is plumbing — it rarely moves).
 3. Verify: `npm run compile`, the folder's unit suites
-   (`VITEST_SUITE=unit npx vitest run packages/client-generator/src/generators/swr`),
+   (`npx vitest run packages/client-generator/src/generators/swr`),
    the e2e suites for this generator, and the large-description bars
    (`tests/e2e/generate-client/large-descriptions.test.ts`).

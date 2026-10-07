@@ -10,13 +10,13 @@
  * (proving it compiles), then runs it through a fake `fetch` (proving the URL is
  * built from the argument value).
  */
-import { spawnSync } from 'node:child_process';
+
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-import { generateInto, repoRoot, runConsumer, tscBin } from './helpers.js';
+import { expectTscPasses, generateInto, runConsumer } from './helpers.js';
 
 const SPEC = outdent`
   openapi: 3.0.3
@@ -107,11 +107,7 @@ describe('non-identifier path parameters', () => {
 
   test('the generated client type-checks under strict mode', () => {
     writeFileSync(join(dir, 'tsconfig.json'), TSCONFIG, 'utf-8');
-    const result = spawnSync(tscBin, ['--noEmit', '-p', join(dir, 'tsconfig.json')], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(result.status, `tsc failed:\n${result.stdout}\n${result.stderr}`).toBe(0);
+    expectTscPasses(['--noEmit', '-p', join(dir, 'tsconfig.json')]);
   }, 60_000);
 
   test('builds the request URL from the argument value', () => {

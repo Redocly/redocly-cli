@@ -4,20 +4,13 @@
  * arrays→repeated fields, objects→JSON parts. We inject a fake `fetch` and inspect the
  * FormData it actually sent.
  */
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-import { generate, generateInto, repoRoot, tscBin, tsxBin } from './helpers.js';
-
-function collectTsFiles(d: string): string[] {
-  return readdirSync(d).flatMap((e) => {
-    const full = join(d, e);
-    return statSync(full).isDirectory() ? collectTsFiles(full) : full.endsWith('.ts') ? [full] : [];
-  });
-}
+import { collectTsFiles, expectTscPasses, generate, generateInto, runTsx } from './helpers.js';
 
 const SPEC = outdent`
   openapi: 3.1.0
@@ -79,7 +72,7 @@ describe('generate-client typed multipart body (#5)', () => {
       `,
       'utf-8'
     );
-    const run = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
+    const run = runTsx(join(dir, 'consumer.ts'));
     expect(run.status, `${run.stdout}\n${run.stderr}`).toBe(0);
     const result = JSON.parse(run.stdout.trim()) as Record<string, unknown>;
 
@@ -119,7 +112,7 @@ describe('generate-client typed multipart body (#5)', () => {
       `,
       'utf-8'
     );
-    const run = spawnSync(tsxBin, [join(dir, 'consumer.ts')], { encoding: 'utf-8', cwd: repoRoot });
+    const run = runTsx(join(dir, 'consumer.ts'));
     expect(run.status, `${run.stdout}\n${run.stderr}`).toBe(0);
     const result = JSON.parse(run.stdout.trim()) as Record<string, unknown>;
 
@@ -132,8 +125,7 @@ describe('generate-client typed multipart body (#5)', () => {
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     generate(join(dir, 'api.yaml'), join(dir, 'client.ts'), ['--output-mode', 'split']);
     const files = collectTsFiles(dir);
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
@@ -147,8 +139,7 @@ describe('generate-client typed multipart body (#5)', () => {
         'ES2020,DOM',
         ...files,
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
   }, 60_000);
 });

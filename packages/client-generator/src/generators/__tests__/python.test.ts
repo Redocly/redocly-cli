@@ -12,12 +12,8 @@ import { generatorInput } from './fixtures/generator-input.js';
 const pythonGenerator = (input: Parameters<typeof generatorInput>[0]) =>
   pythonGeneratorEntry(generatorInput(input));
 
-const hasPython = spawnSync('python3', ['--version']).status === 0;
-const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
-
-/** Assert the rendered source is valid Python (skipped when python3 is absent). */
+/** Assert the rendered source is valid Python. */
 function expectCompiles(source: string): void {
-  if (!hasPython) return;
   const dir = mkdtempSync(join(tmpdir(), 'py-render-'));
   try {
     const file = join(dir, 'models.py');
@@ -447,7 +443,6 @@ describe('pythonGenerator runtime: module', () => {
 
 describe('python auth keys', () => {
   it('accepts apiKey (the documented, cross-language key) and api_key alike', () => {
-    if (!hasHttpx) return;
     const out = pythonGenerator({
       model: CAFE,
       outputPath: '/out/client.ts',
@@ -801,7 +796,6 @@ describe('pythonGenerator parity features', () => {
     expectCompiles(out);
 
     // Behavioral: the runtime decodes ISO strings into objects and encodes them back.
-    if (!hasHttpx) return;
     const dir = mkdtempSync(join(tmpdir(), 'py-dates-'));
     try {
       writeFileSync(join(dir, 'client.py'), out);
@@ -887,7 +881,6 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('DISCRIMINATORS[Pet] = ("petType", {"cat": Cat, "dog": Dog})');
     // Behavioral: first-member-wins would hydrate {"petType": "dog"} as Cat (empty
     // dataclasses accept anything); the registry must dispatch it to Dog.
-    if (!hasHttpx) return;
     const dir = mkdtempSync(join(tmpdir(), 'py-dispatch-'));
     try {
       writeFileSync(join(dir, 'client.py'), out);

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 
 const result = await generateClient({
-  api: join(here, '../_shared/cafe.yaml'),
+  api: join(here, '../../fixtures/cafe.yaml'),
   output: process.env.OUT ?? join(here, 'src/api/client.ts'),
   outputMode: 'single', // 'single' | 'split'
   argsStyle: 'flat', // 'flat' | 'grouped'
