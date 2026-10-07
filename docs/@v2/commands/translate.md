@@ -14,7 +14,6 @@ This command serves two purposes:
 redocly translate <locale>
 redocly translate all
 redocly translate --help
-redocly translate --version
 ```
 
 ## Options
@@ -25,7 +24,6 @@ redocly translate --version
 | `--lint-config`   | string  | Severity level for config file linting. Possible values: `warn`, `error`, `off`. Defaults to `warn`.                                   |
 | --project-dir, -d | string  | Path to the project directory. The default value is `.` (current directory).                                                           |
 | `--help`          | boolean | Show help.                                                                                                                             |
-| `--version`       | boolean | Show version number.                                                                                                                   |
 
 ## Examples
 

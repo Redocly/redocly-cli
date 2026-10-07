@@ -65,7 +65,6 @@ Use at most one of them in a run.
 | --summary                 | string   | Print a summary of the run.<br />**Possible values:** `json`, `text`. See [Summarize a run](#summarize-a-run).                                        |
 | --summary-path            | string   | Write the summary to this file instead of printing it.                                                                                                |
 | --tags                    | [string] | Run only rules with these tags.                                                                                                                       |
-| --version                 | boolean  | Show version number.                                                                                                                                  |
 
 Every option can also be set with an environment variable prefixed `REDOCLY_CLI_RECHECK_`, for example `REDOCLY_CLI_RECHECK_FORMAT=json`.
 

@@ -66,7 +66,6 @@ redocly drift <traffic> --api <api> [--coverage] [--coverage-output=<file>]
 | --config          | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                                              |
 | --lint-config     | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default: `warn`.                                                                                                                                                          |
 | --help            | boolean | Display help.                                                                                                                                                                                                                                                                     |
-| --version         | boolean | Display version number.                                                                                                                                                                                                                                                           |
 
 The `owasp-api-top10` rule is opt-in and only runs when included in `--rules`.
 

@@ -72,7 +72,6 @@ redocly generate-spec <traffic> --with-ai [--ai-provider=<option>] [--ai-model=<
 | --output, -o     | string  | Write the generated description to this file instead of stdout.                                                                                                                                                                                                  |
 | --config         | string  | Specify path to the [configuration file](../configuration/index.md).                                                                                                                                                                                             |
 | --help           | boolean | Display help.                                                                                                                                                                                                                                                    |
-| --version        | boolean | Display version number.                                                                                                                                                                                                                                          |
 
 ## Examples
 
