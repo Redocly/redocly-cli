@@ -36,7 +36,7 @@ describe.each(EJECTABLE)('%s generator skill', (name) => {
     const skill = readFileSync(skillPath, 'utf-8');
     expect(skill).toContain('edit this skill first');
     expect(skill).toContain('## The modify loop');
-    expect(skill).toContain('large-descriptions.test.ts');
+    expect(skill).toMatch(/large-descriptions(\.(go|php|python))?\.test\.ts/);
   });
 });
 

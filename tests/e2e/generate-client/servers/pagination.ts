@@ -1,5 +1,7 @@
 import * as http from 'node:http';
 
+import { answerTestRoute, listen } from './support.js';
+
 // A hand-written pagination server: three cursor pages of orders keyed by an opaque
 // cursor (the last page carries no nextCursor — the stop signal), and an offset-sliced
 // menu that returns an empty page past the end. Every API request lands in a log the
@@ -10,7 +12,7 @@ type Order = { id: string; status: string };
 
 const PORT = Number.parseInt(process.env.PAGINATION_SERVER_PORT ?? '3131', 10);
 
-let requestLog: LogEntry[] = [];
+const requestLog: LogEntry[] = [];
 
 const ORDERS: Order[] = ['o-1', 'o-2', 'o-3', 'o-4', 'o-5'].map((id) => ({
   id,
@@ -34,18 +36,11 @@ const server = http.createServer((req, res) => {
   const url = req.url ?? '';
   const { pathname, searchParams } = new URL(url, 'http://localhost');
 
-  if (pathname === '/__test__/ready') {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('ready');
-    return;
-  }
-  if (pathname === '/__test__/log') {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(requestLog));
+  if (answerTestRoute(req, res, requestLog)) {
     return;
   }
   if (pathname === '/__test__/reset') {
-    requestLog = [];
+    requestLog.length = 0;
     res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
     res.end('reset');
     return;
@@ -82,15 +77,4 @@ const server = http.createServer((req, res) => {
 // socket is not reset mid-reuse.
 server.keepAliveTimeout = 60_000;
 
-server.listen(PORT, () => {
-  process.stdout.write(`READY ${PORT}\n`);
-});
-
-const shutdown = (): void => {
-  server.close(() => {
-    process.exit(0);
-  });
-};
-
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+listen(server, PORT);

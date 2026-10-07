@@ -2,8 +2,8 @@
 //
 // Tier-3 runtime React-hook integration for the tanstack-query generator.
 //
-// MECHANISM (documented choice): we generate `typescript,tanstack-query` into a fixed,
-// checked-in consumer dir (`tanstack-consumer/`) and dynamic-`import()` the
+// MECHANISM (documented choice): we generate `typescript,tanstack-query` into a temp dir
+// under node_modules/.cache and dynamic-`import()` the
 // generated `client.tanstack.ts` directly — vite transforms it and resolves its
 // `./client.js` import to the sibling `.ts` reliably (verified). The data is
 // driven by a STUBBED `fetch` installed via the generated sdk's `configure()`
@@ -15,17 +15,15 @@
 
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement, type ReactNode } from 'react';
 
-import { generate } from './helpers.js';
+import { generate, repoRoot } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const consumerDir = join(__dirname, 'tanstack-consumer');
-const sdkFile = join(consumerDir, 'client.ts');
-const tanstackFile = join(consumerDir, 'client.tanstack.ts');
+let consumerDir = '';
 
 const PET = { id: 1, name: 'rex', status: 'available' as const };
 
@@ -43,22 +41,21 @@ function newClient(): QueryClient {
 
 describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
   beforeAll(() => {
-    for (const f of [sdkFile, tanstackFile]) {
-      if (existsSync(f)) rmSync(f, { force: true });
-    }
-    generate(join(__dirname, 'fixtures', 'base.yaml'), sdkFile, [
+    // Under jsdom, Vitest imports only from inside the project root, so tmpdir does not work.
+    const cacheDir = join(repoRoot, 'node_modules/.cache');
+    mkdirSync(cacheDir, { recursive: true });
+    consumerDir = mkdtempSync(join(cacheDir, 'tanstack-runtime-'));
+    generate(join(__dirname, 'fixtures', 'base.yaml'), join(consumerDir, 'client.ts'), [
       '--generator',
       'typescript',
       '--generator',
       'tanstack-query',
     ]);
-    expect(existsSync(tanstackFile)).toBe(true);
+    expect(existsSync(join(consumerDir, 'client.tanstack.ts'))).toBe(true);
   });
 
   afterAll(() => {
-    for (const f of [sdkFile, tanstackFile]) {
-      if (existsSync(f)) rmSync(f, { force: true });
-    }
+    rmSync(consumerDir, { recursive: true, force: true });
   });
 
   it('useQuery(getPetByIdOptions(vars)) fires the queryFn and resolves with the response data', async () => {

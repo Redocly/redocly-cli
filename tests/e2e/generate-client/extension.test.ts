@@ -86,7 +86,7 @@ describe('extension contract — flat surface (configure)', () => {
 describe('extension contract — per-instance config (createClient)', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(__dirname, '.tmp-ext-instance-'));
+    dir = mkdtempSync(join(tmpdir(), 'ext-instance-'));
     generateInto(dir, fixture);
   }, 60_000);
   afterAll(() => {

@@ -4,14 +4,14 @@
  * the defaults apply with no consumer `configure`/`use`, that a consumer can still override, and
  * that the baked setup also applies in the split two-file layout.
  */
-import { spawnSync } from 'node:child_process';
+
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { cliEntry, repoRoot, runConsumer } from './helpers.js';
+import { runConsumer, runGenerateClient } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -24,43 +24,31 @@ const SETUP = outdent`
   });
 `;
 
-function generate(
+function generateWithSetup(
   dir: string,
   extraArgs: string[] = []
 ): { status: number | null; stderr: string } {
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   writeFileSync(join(dir, 'setup.ts'), SETUP, 'utf-8');
-  return spawnSync(
-    'node',
-    [
-      cliEntry,
-      'generate-client',
-      fixture,
-      '--output',
-      join(dir, 'client.ts'),
-      '--setup',
-      join(dir, 'setup.ts'),
-      ...extraArgs,
-    ],
-    { encoding: 'utf-8', cwd: repoRoot }
-  );
+  return runGenerateClient([
+    fixture,
+    '--output',
+    join(dir, 'client.ts'),
+    '--setup',
+    join(dir, 'setup.ts'),
+    ...extraArgs,
+  ]);
 }
 
 describe('--setup rejects remote modules', () => {
   test('a URL fails with the local-file-path error instead of a garbage path', () => {
-    const result = spawnSync(
-      'node',
-      [
-        cliEntry,
-        'generate-client',
-        fixture,
-        '--output',
-        join(tmpdir(), 'setup-url-client.ts'),
-        '--setup',
-        'https://evil.example/mod.ts',
-      ],
-      { encoding: 'utf-8', cwd: repoRoot }
-    );
+    const result = runGenerateClient([
+      fixture,
+      '--output',
+      join(tmpdir(), 'setup-url-client.ts'),
+      '--setup',
+      'https://evil.example/mod.ts',
+    ]);
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('must be a local file path');
   }, 60_000);
@@ -70,7 +58,7 @@ describe('--setup bakes publisher defaults into the single-file client', () => {
   let dir = '';
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'setup-'));
-    const r = generate(dir);
+    const r = generateWithSetup(dir);
     if (r.status !== 0) throw new Error(`generate failed:\n${r.stderr}`);
   }, 60_000);
   afterAll(() => {
@@ -112,7 +100,7 @@ describe('--setup bakes publisher defaults into the single-file client', () => {
   test('applies in a multi-file layout (split) with no consumer setup', () => {
     const dir2 = mkdtempSync(join(tmpdir(), 'setup-split-'));
     try {
-      const r = generate(dir2, ['--output-mode', 'split']);
+      const r = generateWithSetup(dir2, ['--output-mode', 'split']);
       expect(r.status, r.stderr).toBe(0);
       const captured = runConsumer(
         dir2,

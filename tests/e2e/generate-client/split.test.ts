@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, tscBin } from './helpers.js';
+import { expectTscPasses, generate } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
@@ -63,8 +63,7 @@ describe('generate-client end-to-end (--output-mode split)', () => {
   test('the two-file set type-checks under strict mode with no unused imports', () => {
     expect(existsSync(entry), 'generation test must run first').toBe(true);
 
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
@@ -80,9 +79,8 @@ describe('generate-client end-to-end (--output-mode split)', () => {
         entry,
         schemasFile,
       ],
-      { encoding: 'utf-8', cwd: workDir }
+      workDir
     );
-    expect(tsc.status, `tsc errors:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
   }, 90_000);
 
   // `--import-ext ts` targets runtimes that resolve specifiers literally (no `.js` → `.ts`

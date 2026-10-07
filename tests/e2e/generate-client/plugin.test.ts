@@ -1,22 +1,19 @@
 // The experimental custom-generator (plugin) API end-to-end: a `generators` entry that is a path
 // specifier is dynamically imported and run alongside the built-ins, and a bad specifier fails fast.
-import { spawnSync } from 'node:child_process';
+
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, repoRoot } from './helpers.js';
+import { runGenerateClient } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const cafe = join(__dirname, 'fixtures', 'cafe.yaml');
 const plugin = join(__dirname, 'fixtures', 'route-map-plugin.mjs');
 
 function run(args: string[]): { status: number | null; out: string } {
-  const res = spawnSync('node', [cliEntry, 'generate-client', ...args], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
+  const res = runGenerateClient(args);
   return { status: res.status, out: `${res.stdout}\n${res.stderr}` };
 }
 
@@ -50,11 +47,8 @@ describe('generate-client custom generator (plugin) API', () => {
     const configDir = mkdtempSync(join(tmpdir(), 'ots-plugin-config-'));
     cpSync(plugin, join(dir, 'route-map-plugin.mjs'));
     writeFileSync(join(configDir, 'redocly.yaml'), 'extends: []\n');
-    const res = spawnSync(
-      'node',
+    const res = runGenerateClient(
       [
-        cliEntry,
-        'generate-client',
         cafe,
         '--output',
         join(dir, 'client.ts'),
@@ -65,7 +59,7 @@ describe('generate-client custom generator (plugin) API', () => {
         '--config',
         join(configDir, 'redocly.yaml'),
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
     expect(res.status, `${res.stdout}\n${res.stderr}`).toBe(0);
     expect(existsSync(join(dir, 'client.routes.ts'))).toBe(true);
@@ -84,10 +78,9 @@ describe('generate-client custom generator (plugin) API', () => {
       );
 
     writeConfig('      exportName: paths\n');
-    const ok = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', cafe, '--output', join(dir, 'client.ts'), '--config', config],
-      { encoding: 'utf-8', cwd: dir }
+    const ok = runGenerateClient(
+      [cafe, '--output', join(dir, 'client.ts'), '--config', config],
+      dir
     );
     expect(ok.status, `${ok.stdout}\n${ok.stderr}`).toBe(0);
     expect(readFileSync(join(dir, 'client.routes.ts'), 'utf-8')).toContain(
@@ -95,10 +88,9 @@ describe('generate-client custom generator (plugin) API', () => {
     );
 
     writeConfig('      exportname: paths\n');
-    const typo = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', cafe, '--output', join(dir, 'client.ts'), '--config', config],
-      { encoding: 'utf-8', cwd: dir }
+    const typo = runGenerateClient(
+      [cafe, '--output', join(dir, 'client.ts'), '--config', config],
+      dir
     );
     expect(typo.status).not.toBe(0);
     expect(`${typo.stdout}\n${typo.stderr}`).toMatch(/unknown option "exportname".*exportName/s);

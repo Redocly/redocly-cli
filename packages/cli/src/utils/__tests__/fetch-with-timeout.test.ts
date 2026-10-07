@@ -3,6 +3,8 @@ import { Agent, ProxyAgent } from 'undici';
 import fetchWithTimeout from '../fetch-with-timeout.js';
 import * as proxyAgent from '../proxy-agent.js';
 
+vi.mock('@redocly/openapi-core');
+
 const signalInstance = new AbortController().signal;
 
 const mockFetch = vi.fn(() =>
@@ -40,10 +42,6 @@ describe('fetchWithTimeout', () => {
   beforeAll(() => {
     global.setTimeout = vi.fn() as any;
     global.clearTimeout = vi.fn();
-  });
-
-  beforeEach(() => {
-    vi.mock('@redocly/openapi-core');
   });
 
   afterAll(() => {

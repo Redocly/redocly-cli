@@ -3,13 +3,13 @@
 // produced one, that no page appears without the switch, and that each page describes the
 // artifact beside it (the CLI page against the CLI's own `--help`, an SDK page against the
 // call syntax that SDK generates).
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, repoRoot, tsxBin } from './helpers.js';
+import { generate, linkNodeModules, runTsx } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cli.yaml');
@@ -18,13 +18,11 @@ let dir: string;
 let cliPage: string;
 let pythonPage: string;
 
-vi.setConfig({ testTimeout: 120_000 });
-
 beforeAll(() => {
   dir = mkdtempSync(join(tmpdir(), 'client-docs-'));
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
   // The generated CLI validates with zod, and this temp dir is outside the repo.
-  symlinkSync(join(repoRoot, 'node_modules'), join(dir, 'node_modules'), 'dir');
+  linkNodeModules(dir);
   generate(fixture, join(dir, 'cafe.client.ts'), [
     '--generator',
     'cli',
@@ -63,10 +61,7 @@ describe('generate-client --docs (end-to-end)', () => {
 
   it('documents every command the CLI dispatches, addressed exactly as --help shows it', () => {
     const help = (args: string[]): string => {
-      const result = spawnSync(tsxBin, [join(dir, 'cafe.client.cli.ts'), ...args], {
-        cwd: dir,
-        encoding: 'utf-8',
-      });
+      const result = runTsx(join(dir, 'cafe.client.cli.ts'), [...args], { cwd: dir });
       expect(result.status, result.stderr).toBe(0);
       return result.stdout;
     };

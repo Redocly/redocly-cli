@@ -4,34 +4,15 @@
 // two-file set) — the same lightweight harness used by error-mode.test.ts. The
 // behavioral reconnect/abort path is covered separately by the sse-consumer
 // harness in sse.runtime.test.ts.
-import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdtempSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from 'node:fs';
+
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, strictTypecheck, tscBin } from './helpers.js';
+import { collectTsFiles, expectTscPasses, generate, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-/** Recursively collect every generated `.ts` file under `dir`. */
-function collectTsFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...collectTsFiles(full));
-    else if (entry.endsWith('.ts')) out.push(full);
-  }
-  return out;
-}
 
 const fixture = join(__dirname, 'fixtures', 'sse.yaml');
 
@@ -96,8 +77,7 @@ describe('generate-client SSE', () => {
 
     const files = collectTsFiles(dir);
     expect(files.map((f) => f.split('/').pop()).sort()).toEqual(['client.schemas.ts', 'client.ts']);
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
@@ -112,9 +92,8 @@ describe('generate-client SSE', () => {
         'ES2020,DOM',
         ...files,
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

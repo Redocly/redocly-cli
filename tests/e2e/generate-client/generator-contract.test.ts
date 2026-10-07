@@ -1,24 +1,21 @@
 // The generator compatibility contract: an incompatible `--generator` selection must
 // fail fast with an actionable message (never emit a client that won't compile), and
 // `tanstack-query` must gracefully skip SSE operations (which the sdk doesn't export).
-import { spawnSync } from 'node:child_process';
+
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { outdent } from 'outdent';
 
-import { cliEntry, repoRoot, tscBin } from './helpers.js';
+import { repoRoot, runGenerateClient, runTsc } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const cafe = join(__dirname, 'fixtures', 'cafe.yaml');
 const sse = join(__dirname, 'fixtures', 'sse.yaml');
 
 function run(args: string[]): { status: number | null; out: string } {
-  const res = spawnSync('node', [cliEntry, 'generate-client', ...args], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
+  const res = runGenerateClient(args);
   return { status: res.status, out: `${res.stdout}\n${res.stderr}` };
 }
 
@@ -166,8 +163,7 @@ describe('generate-client generator compatibility contract', () => {
     expect(tanstack).toContain('listUsersOptions'); // the rest still wrapped
     // The whole tree compiles (no import of the suppressed alias).
     const files = [join(dir, 'c.ts'), join(dir, 'c.tanstack.ts')];
-    const tsc = spawnSync(
-      tscBin,
+    const tsc = runTsc(
       [
         '--noEmit',
         '--strict',
@@ -181,7 +177,7 @@ describe('generate-client generator compatibility contract', () => {
         'ES2020,DOM',
         ...files,
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
     // `@tanstack/react-query` isn't installed in the temp dir; ignore only that missing-module error.
     const real = tsc.stdout

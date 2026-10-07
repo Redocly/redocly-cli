@@ -1,35 +1,34 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
+import { type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, repoRoot, startServer, serverLog } from './helpers.js';
+import {
+  copyConsumer,
+  expectTscPasses,
+  generate,
+  killServer,
+  runTsx,
+  serverLog,
+  startServer,
+} from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const consumerDir = join(__dirname, 'base-consumer');
-const generatedFile = join(consumerDir, 'api.ts');
-const serverScript = join(consumerDir, 'server.ts');
-const indexScript = join(consumerDir, 'index.ts');
-const cancelScript = join(consumerDir, 'index-cancel.ts');
 
 const SERVER_PORT = 3102;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 describe('generate-client base consumer (single-file output)', () => {
   let serverProcess: ChildProcess | undefined;
+  let workDir = '';
 
   beforeAll(async () => {
-    if (existsSync(generatedFile)) {
-      rmSync(generatedFile, { force: true });
-    }
-
+    workDir = copyConsumer('base-consumer');
     serverProcess = await startServer(
-      serverScript,
-      consumerDir,
+      'base',
       { BASE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE,
-      'base-server'
+      SERVER_BASE
     );
   }, 30_000);
 
@@ -37,9 +36,11 @@ describe('generate-client base consumer (single-file output)', () => {
     if (serverProcess) {
       await killServer(serverProcess);
     }
+    rmSync(workDir, { recursive: true, force: true });
   });
 
   test('end-to-end: generate single file, type-check, run, assert real call', async () => {
+    const generatedFile = join(workDir, 'api.ts');
     generate(fixture, generatedFile);
 
     expect(existsSync(generatedFile)).toBe(true);
@@ -82,19 +83,9 @@ describe('generate-client base consumer (single-file output)', () => {
     expect(generated).toMatch(/kind:\s*"extended";/);
     expect(generated).toContain('} & Pet;');
 
-    const typecheckResult = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(
-      typecheckResult.status,
-      `tsc --noEmit failed:\nstdout:\n${typecheckResult.stdout}\nstderr:\n${typecheckResult.stderr}`
-    ).toBe(0);
+    expectTscPasses(['--noEmit', '-p', workDir]);
 
-    const runResult = spawnSync('npx', ['tsx', indexScript], {
-      encoding: 'utf-8',
-      cwd: consumerDir,
-    });
+    const runResult = runTsx(join(workDir, 'index.ts'), [], { cwd: workDir });
     expect(
       runResult.status,
       `consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
@@ -126,13 +117,11 @@ describe('generate-client base consumer (single-file output)', () => {
   }, 60_000);
 
   test('cancel: AbortController aborts the underlying request', async () => {
-    expect(existsSync(generatedFile), 'previous test must have produced api.ts').toBe(true);
+    expect(existsSync(join(workDir, 'api.ts')), 'previous test must have produced api.ts').toBe(
+      true
+    );
 
-    const cancelResult = spawnSync('npx', ['tsx', cancelScript], {
-      encoding: 'utf-8',
-      cwd: consumerDir,
-      timeout: 15_000,
-    });
+    const cancelResult = runTsx(join(workDir, 'index-cancel.ts'), [], { cwd: workDir });
     expect(
       cancelResult.status,
       `cancel stdout:\n${cancelResult.stdout}\nstderr:\n${cancelResult.stderr}`

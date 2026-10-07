@@ -109,7 +109,7 @@ You never decide which parts of a file match the rule's scope — you iterate th
   - Edge cases (empty content, special markdown syntax, etc.).
   - First-line column mapping, if your rule reports columns inside segments.
   - **Note**: Scope filtering is tested at the runner level, so your assertion tests can focus on content processing logic.
-- Run the suite with `VITEST_SUITE=unit npx vitest run packages/recheck` from the repository root.
+- Run the suite with `npx vitest run packages/recheck` from the repository root.
 
 ## Example skeleton
 

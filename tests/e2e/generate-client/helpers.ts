@@ -1,5 +1,6 @@
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { spawn, spawnSync, type ChildProcess, type SpawnSyncReturns } from 'node:child_process';
+import { cpSync, mkdtempSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -43,43 +44,92 @@ export function generateInto(dir: string, fixture: string, extraArgs: string[] =
   return outFile;
 }
 
-/** Write a strict tsconfig into `dir` and type-check it; throws with the tsc output on failure. */
+export function runGenerateClient(
+  args: string[],
+  cwd: string = repoRoot
+): SpawnSyncReturns<string> {
+  return spawnSync('node', [cliEntry, 'generate-client', ...args], { encoding: 'utf-8', cwd });
+}
+
+export function runTsc(args: string[], cwd: string = repoRoot): SpawnSyncReturns<string> {
+  return spawnSync(tscBin, args, { encoding: 'utf-8', cwd });
+}
+
+export function expectTscPasses(args: string[], cwd: string = repoRoot): void {
+  const tsc = runTsc(args, cwd);
+  expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+}
+
+/** Write a strict tsconfig into `dir` and assert that it type-checks. */
 export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): void {
   writeFileSync(
     join(dir, 'tsconfig.json'),
     JSON.stringify({ ...STRICT_TSCONFIG, include }),
     'utf-8'
   );
-  const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-  if (tsc.status !== 0) throw new Error(`tsc failed:\n${tsc.stdout}\n${tsc.stderr}`);
+  expectTscPasses(['--noEmit', '-p', dir]);
+}
+
+/** A synchronous spawn ignores the test timeout, so the script has its own. */
+export function runTsx(
+  script: string,
+  args: string[] = [],
+  options: { cwd?: string; env?: NodeJS.ProcessEnv } = {}
+): SpawnSyncReturns<string> {
+  return spawnSync(tsxBin, [script, ...args], {
+    encoding: 'utf-8',
+    cwd: options.cwd ?? repoRoot,
+    env: options.env ?? process.env,
+    timeout: 60_000,
+  });
 }
 
 /** Write `dir/consumer.ts` and run it with tsx; returns its parsed JSON stdout. */
 export function runConsumer(dir: string, script: string): unknown {
   writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const result = spawnSync(tsxBin, [join(dir, 'consumer.ts')], {
-    encoding: 'utf-8',
-    cwd: repoRoot,
-  });
-  if (result.status !== 0) {
-    throw new Error(`consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`);
-  }
+  const result = runTsx(join(dir, 'consumer.ts'));
+  expect(
+    result.status,
+    `consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
+  ).toBe(0);
   return JSON.parse(result.stdout.trim());
 }
 
-/**
- * Spawn a consumer mock server (a tsx script exposing `GET /__test__/ready`) and wait
- * until it answers. The caller owns the returned process — stop it with `killServer`.
- */
+export function collectTsFiles(dir: string): string[] {
+  const files: string[] = [];
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) {
+      files.push(...collectTsFiles(path));
+    } else if (name.endsWith('.ts')) {
+      files.push(path);
+    }
+  }
+  return files;
+}
+
+export function linkNodeModules(dir: string): void {
+  symlinkSync(join(repoRoot, 'node_modules'), join(dir, 'node_modules'), 'dir');
+}
+
+/** Copy a consumer folder into a temp dir; the caller removes it. */
+export function copyConsumer(name: string): string {
+  const dir = mkdtempSync(join(tmpdir(), `${name}-`));
+  cpSync(join(__dirname, name), dir, { recursive: true });
+  linkNodeModules(dir);
+  return dir;
+}
+
+/** Start `servers/<name>.ts` and wait until it answers. Stop it with `killServer`. */
 export async function startServer(
-  serverScript: string,
-  cwd: string,
+  name: string,
   env: Record<string, string>,
-  baseUrl: string,
-  label: string
+  baseUrl: string
 ): Promise<ChildProcess> {
-  const server = spawn('npx', ['tsx', serverScript], {
-    cwd,
+  const serverScript = join(__dirname, 'servers', `${name}.ts`);
+  const label = `${name} server`;
+  const server = spawn(tsxBin, [serverScript], {
+    cwd: join(__dirname, 'servers'),
     env: { ...process.env, ...env },
     stdio: ['ignore', 'pipe', 'pipe'],
   });

@@ -1,24 +1,28 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { type ChildProcess } from 'node:child_process';
+import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { killServer, repoRoot, startServer, serverLog } from './helpers.js';
+import {
+  copyConsumer,
+  expectTscPasses,
+  killServer,
+  repoRoot,
+  runTsx,
+  serverLog,
+  startServer,
+} from './helpers.js';
 
 // Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
-// (cursor style — three pages, resume, abort) generated with NO config, the
-// config-convention arm (offset style, applied only where it structurally fits), and a
-// package-mode arm proving `.pages()`/`.items()` ship from the installed runtime.
+// (cursor style — three pages, resume, abort) generated with NO config, and the
+// config-convention arm (offset style, applied only where it structurally fits).
 // Pagination has no CLI flag, so config-carrying runs use the BUILT package's
 // programmatic `generateClient`.
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const generatorLib = join(repoRoot, 'packages/client-generator/lib/index.js');
 const fixture = join(__dirname, 'fixtures/pagination.yaml');
-const consumerDir = join(__dirname, 'pagination-consumer');
-const apiFile = join(consumerDir, 'api.ts');
-const apiOffsetFile = join(consumerDir, 'api-offset.ts');
-const serverScript = join(consumerDir, 'server.ts');
+let workDir = '';
 
 const SERVER_PORT = 3131;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
@@ -42,12 +46,8 @@ function fetchLog(): Promise<Array<{ method: string; url: string }>> {
   return serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
 }
 
-function runConsumer(script: string): { stdout: string } {
-  const result = spawnSync('npx', ['tsx', join(consumerDir, script)], {
-    encoding: 'utf-8',
-    cwd: consumerDir,
-    timeout: 30_000,
-  });
+function runScript(script: string): { stdout: string } {
+  const result = runTsx(join(workDir, script), [], { cwd: workDir });
   expect(result.status, `${script} stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
   return { stdout: result.stdout };
 }
@@ -56,16 +56,11 @@ describe('generate-client pagination consumer', () => {
   let serverProcess: ChildProcess | undefined;
 
   beforeAll(async () => {
-    for (const file of [apiFile, apiOffsetFile]) {
-      if (existsSync(file)) rmSync(file, { force: true });
-    }
-
+    workDir = copyConsumer('pagination-consumer');
     serverProcess = await startServer(
-      serverScript,
-      consumerDir,
+      'pagination',
       { PAGINATION_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE,
-      'pagination-server'
+      SERVER_BASE
     );
   }, 30_000);
 
@@ -73,9 +68,12 @@ describe('generate-client pagination consumer', () => {
     if (serverProcess) {
       await killServer(serverProcess);
     }
+    rmSync(workDir, { recursive: true, force: true });
   });
 
-  test('generate all three arms and assert the emitted pagination surface', async () => {
+  test('generate both arms and assert the emitted pagination surface', async () => {
+    const apiFile = join(workDir, 'api.ts');
+    const apiOffsetFile = join(workDir, 'api-offset.ts');
     const generateClient = await loadGenerateClient();
     // Extension arm: NO pagination config — `x-redoclyPagination` alone drives `listOrders`.
     await generateClient({ api: fixture, output: apiFile });
@@ -126,20 +124,13 @@ describe('generate-client pagination consumer', () => {
     );
   }, 60_000);
 
-  test('typecheck gate: all three generated clients + consumer scripts, strict', () => {
-    const typecheckResult = spawnSync('npx', ['tsc', '--noEmit', '-p', consumerDir], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(
-      typecheckResult.status,
-      `tsc --noEmit failed:\nstdout:\n${typecheckResult.stdout}\nstderr:\n${typecheckResult.stderr}`
-    ).toBe(0);
+  test('typecheck gate: both generated clients + consumer scripts, strict', () => {
+    expectTscPasses(['--noEmit', '-p', workDir]);
   }, 60_000);
 
   test('cursor (extension arm): .items across 3 pages, .pages sizes, resume, no arg mutation', async () => {
     await resetLog();
-    const { stdout } = runConsumer('index.ts');
+    const { stdout } = runScript('index.ts');
     const parsed = JSON.parse(stdout.trim()) as {
       ids: string[];
       firstCursorLeaked: boolean;
@@ -175,7 +166,7 @@ describe('generate-client pagination consumer', () => {
 
   test('offset (convention arm): advances by page item count, stops on the empty page', async () => {
     await resetLog();
-    const { stdout } = runConsumer('index-offset.ts');
+    const { stdout } = runScript('index-offset.ts');
     const parsed = JSON.parse(stdout.trim()) as {
       names: string[];
       pageSizes: number[];
@@ -203,7 +194,7 @@ describe('generate-client pagination consumer', () => {
 
   test('abort mid-iteration: the forwarded signal rejects the next page fetch', async () => {
     await resetLog();
-    const { stdout } = runConsumer('index-abort.ts');
+    const { stdout } = runScript('index-abort.ts');
     const parsed = JSON.parse(stdout.trim()) as { received: number; error: string | null };
     // The first page (2 items) drains from memory, then the page-2 fetch aborts.
     expect(parsed.received).toBe(2);

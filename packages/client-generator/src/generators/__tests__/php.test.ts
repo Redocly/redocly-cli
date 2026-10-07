@@ -17,11 +17,8 @@ import { generatorInput } from './fixtures/generator-input.js';
 const phpGenerator = (input: Parameters<typeof generatorInput>[0]) =>
   phpGeneratorEntry(generatorInput(input));
 
-const hasPhp = spawnSync('php', ['--version']).status === 0;
-
 /** Assert the rendered source parses AND declares cleanly (php -l, then require). */
 function expectPhpRuns(source: string): void {
-  if (!hasPhp) return;
   const dir = mkdtempSync(join(tmpdir(), 'php-render-'));
   try {
     writeFileSync(join(dir, 'client.php'), source);

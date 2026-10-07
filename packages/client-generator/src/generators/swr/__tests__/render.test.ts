@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
 import { renderSwrModule } from '../render.js';
 
@@ -11,6 +13,10 @@ function render(ops: Parameters<typeof operation>[0][]) {
 }
 
 describe('renderSwrModule', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
   it('returns empty string when the model has no operations', () => {
     expect(renderSwrModule(apiModel(), { sdkModule: SDK })).toBe('');
   });
@@ -32,6 +38,9 @@ describe('renderSwrModule', () => {
     ]);
     expect(out).toContain('useGetPet');
     expect(out).not.toContain('streamEvents');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('skipped 1 server-sent-events operation(s)')
+    );
   });
 
   it('skips an op whose <Op>Variables name collides with a schema', () => {
@@ -57,6 +66,9 @@ describe('renderSwrModule', () => {
     );
     expect(out).not.toContain('useGetUser');
     expect(out).toContain('useListUsers');
+    expect(logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('skipped 1 operation(s) whose variables type name collides')
+    );
   });
 
   it('returns empty string when every operation is SSE', () => {

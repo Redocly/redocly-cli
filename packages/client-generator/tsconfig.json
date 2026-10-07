@@ -8,5 +8,5 @@
   },
   "references": [{ "path": "../core" }],
   "include": ["src/**/*.ts"],
-  "exclude": ["lib/*", "**/__tests__", "**/*.test.ts", "eject-assets/*"]
+  "exclude": ["lib/*", "**/__tests__", "**/__typecheck__", "**/*.test.ts", "eject-assets/*"]
 }
