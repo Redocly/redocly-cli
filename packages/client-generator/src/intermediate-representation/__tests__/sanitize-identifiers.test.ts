@@ -34,6 +34,11 @@ function op(partial: Partial<OperationModel>): OperationModel {
 const ref = (name: string): SchemaModel => ({ kind: 'ref', name });
 
 describe('sanitizeIdentifiers', () => {
+  // The rename warnings have their own tests below.
+  beforeEach(() => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
   it('renames a non-identifier schema name and rewrites refs that target it', () => {
     const m = model([
       { name: 'Bad.Name', schema: { kind: 'object', properties: [] } },

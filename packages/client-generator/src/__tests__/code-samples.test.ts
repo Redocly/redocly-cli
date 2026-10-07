@@ -1,4 +1,4 @@
-import { bundle, createConfig, parseYaml } from '@redocly/openapi-core';
+import { bundle, createConfig, logger, parseYaml } from '@redocly/openapi-core';
 import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -107,6 +107,8 @@ describe('codeSamples', () => {
                   responses: { '200': { description: ok } }
         `
       );
+      // Two paths share the `Pets` path item, so generation warns about a duplicate operationId.
+      vi.spyOn(logger, 'warn').mockImplementation(() => {});
       await generateClient({
         api: join(dir, 'openapi.yaml'),
         output: join(dir, 'client.ts'),
