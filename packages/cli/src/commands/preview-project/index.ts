@@ -21,13 +21,19 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
+  const productVersion = argv['product-version'];
+  const packageSpec = productVersion ? `${packageName}@${productVersion}` : packageName;
 
-  logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
+  logger.info(
+    `\nLaunching preview of ${productName} ${plan}${
+      productVersion ? ` (${packageSpec})` : ''
+    } using NPX.\n\n`
+  );
   const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
     npxExecutableName,
-    ['-y', packageName, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
+    ['-y', packageSpec, 'preview', `--plan=${plan}`, `--port=${port || 4000}`],
     {
       stdio: 'inherit',
       cwd: projectDir,

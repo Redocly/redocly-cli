@@ -724,6 +724,11 @@ yargs(hideBin(process.argv))
           description:
             "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
         },
+        'product-version': {
+          type: 'string',
+          description:
+            'Version or dist-tag of the product package to preview with, for example `next` or `0.138.0-next.12`. The default is the latest published version.',
+        },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,
