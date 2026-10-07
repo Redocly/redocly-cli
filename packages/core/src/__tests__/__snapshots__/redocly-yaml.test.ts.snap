@@ -578,6 +578,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idps": [Function],
       "ignore": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -1324,6 +1325,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "ignore": {
         "items": {
+          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -2015,6 +2017,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idps": [Function],
       "ignore": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -12209,6 +12212,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idps": [Function],
       "ignore": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -23726,6 +23730,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "lastUpdatedBlock": "rootRedoclyConfigSchema.env_additionalProperties.markdown.lastUpdatedBlock",
       "partialsFolders": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -23827,6 +23832,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "ignore": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -28994,6 +29000,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "details": "rootRedoclyConfigSchema.env_additionalProperties.seo.llmstxt.details",
       "excludeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -29046,12 +29053,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "excludeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
       },
       "includeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -29121,6 +29130,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "excludeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -33502,6 +33512,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "lastUpdatedBlock": "rootRedoclyConfigSchema.env_additionalProperties.theme.markdown.lastUpdatedBlock",
       "partialsFolders": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -39009,6 +39020,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "lastUpdatedBlock": "rootRedoclyConfigSchema.markdown.lastUpdatedBlock",
       "partialsFolders": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -39110,6 +39122,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "ignore": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -44277,6 +44290,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "details": "rootRedoclyConfigSchema.seo.llmstxt.details",
       "excludeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -44329,12 +44343,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "excludeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
       },
       "includeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -44404,6 +44420,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "excludeFiles": {
         "items": {
+          "format": "glob",
           "type": "string",
         },
         "type": "array",
