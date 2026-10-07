@@ -26,8 +26,8 @@ exports[`htmlDiff > should render a self-contained page 1`] = `
 <h1>API diff: base.yaml → revision.yaml</h1>
 <p class="summary">
   <span style="color:#c0392b">4 major</span>
-  <span style="color:#1e8449">1 minor</span>
-  <span style="color:#9aa5b1">1 patch</span>
+  <span style="color:#1e8449">0 minor</span>
+  <span style="color:#9aa5b1">2 patch</span>
   <span style="color:#9aa5b1">requires a major bump</span>
   <span style="color:#9aa5b1">OpenAPI 3.1</span>
 </p>
@@ -61,7 +61,7 @@ exports[`htmlDiff > should render a self-contained page 1`] = `
       <summary>
         <span class="badge">major</span>
         <code>modified</code>
-        <code class="loc">#/paths/~1menu/get/parameters/{query:limit} · required</code>
+        <code class="loc">#/paths/~1menu/get/parameters/0 · required</code>
         <span class="msg">\`limit\` query parameter became required.</span> <span class="rules">parameter-became-required</span>
       </summary>
       <pre>{
@@ -86,7 +86,7 @@ exports[`htmlDiff > should render a self-contained page 1`] = `
         <span class="badge">major</span>
         <code>modified</code>
         <code class="loc">#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note · pattern</code>
-        <span class="msg">\`pattern\` of \`note\` changed from 'a' to 'a|b'.</span> <span class="rules">string-constraint-changed</span>
+        <span class="msg">\`pattern\` of \`note\` changed from 'a' to 'a|b'.</span> <span class="rules">schema-constraint-changed</span>
       </summary>
       <pre>{
   &quot;base&quot;: {
@@ -151,9 +151,9 @@ exports[`htmlDiff > should render a self-contained page 1`] = `
 }</pre>
     </details>
 
-    <details class="change minor">
+    <details class="change patch">
       <summary>
-        <span class="badge">minor</span>
+        <span class="badge">patch</span>
         <code>added</code>
         <code class="loc">#/components</code>
         
@@ -195,8 +195,8 @@ exports[`jsonDiff > should render the result with each change located in its fil
   },
   "summary": {
     "major": 4,
-    "minor": 1,
-    "patch": 1
+    "minor": 0,
+    "patch": 2
   },
   "bump": "major",
   "changes": [
@@ -223,7 +223,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       }
     },
     {
-      "key": "#/paths/~1menu/get/parameters/{query:limit}",
+      "key": "#/paths/~1menu/get/parameters/0",
       "typeName": "Parameter",
       "kind": "modified",
       "impact": "major",
@@ -262,7 +262,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       "impact": "major",
       "verdicts": [
         {
-          "ruleId": "string-constraint-changed",
+          "ruleId": "schema-constraint-changed",
           "impact": "major",
           "message": "\`pattern\` of \`note\` changed from 'a' to 'a|b'.",
           "location": {
@@ -354,7 +354,7 @@ exports[`jsonDiff > should render the result with each change located in its fil
       "key": "#/components",
       "typeName": "Components",
       "kind": "added",
-      "impact": "minor",
+      "impact": "patch",
       "verdicts": [],
       "revision": {
         "file": "revision.yaml",
@@ -377,23 +377,23 @@ exports[`jsonDiff > should render the result with each change located in its fil
 exports[`markdownDiff > should render one table row per change 1`] = `
 "## API diff: base.yaml → revision.yaml
 
-**4** major · **1** minor · **1** patch · requires a **major** bump
+**4** major · **0** minor · **2** patch · requires a **major** bump
 
 | Impact | Change | Pointer | Location | Details |
 | --- | --- | --- | --- | --- |
 | ⚪ patch | modified | \`#/paths/~1menu/get · summary\` | revision.yaml:6:16 |  |
-| 🔴 major | modified | \`#/paths/~1menu/get/parameters/{query:limit} · required\` | revision.yaml:8:47 | \\\`limit\\\` query parameter became required. \`parameter-became-required\` |
-| 🔴 major | modified | \`#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note · pattern\` | revision.yaml:15:68 | \\\`pattern\\\` of \\\`note\\\` changed from 'a' to 'a\\|b'. \`string-constraint-changed\` |
+| 🔴 major | modified | \`#/paths/~1menu/get/parameters/0 · required\` | revision.yaml:8:47 | \\\`limit\\\` query parameter became required. \`parameter-became-required\` |
+| 🔴 major | modified | \`#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note · pattern\` | revision.yaml:15:68 | \\\`pattern\\\` of \\\`note\\\` changed from 'a' to 'a\\|b'. \`schema-constraint-changed\` |
 | 🔴 major | removed | \`#/paths/~1orders/delete\` | base.yaml:18:7 | Operation \\\`DELETE /orders\\\` was removed. \`operation-removed\` |
 | 🔴 major | removed | \`#/webhooks/orderReady/post/requestBody/content/application~1json/schema/properties/eta\` | base.yaml:26:42 | Property \\\`eta\\\` was removed. \`property-removed\` |
-| 🟢 minor | added | \`#/components\` | revision.yaml:26:3 |  |"
+| ⚪ patch | added | \`#/components\` | revision.yaml:26:3 |  |"
 `;
 
 exports[`nextVersionDiff > should bump the base version as far as the changes require 1`] = `"2.0.0"`;
 
 exports[`printGithubActions > should annotate each verdict of a breaking change as an error and skip the rest 1`] = `
 "::error title=parameter-became-required,file=revision.yaml,line=8,col=47,endLine=8,endColumn=51::\`limit\` query parameter became required.
-::error title=string-constraint-changed,file=revision.yaml,line=15,col=68,endLine=15,endColumn=73::\`pattern\` of \`note\` changed from 'a' to 'a|b'.
+::error title=schema-constraint-changed,file=revision.yaml,line=15,col=68,endLine=15,endColumn=73::\`pattern\` of \`note\` changed from 'a' to 'a|b'.
 ::error title=operation-removed,file=base.yaml,line=18,col=7,endLine=19,endColumn=55::Operation \`DELETE /orders\` was removed.
 ::error title=property-removed,file=base.yaml,line=26,col=42,endLine=26,endColumn=58::Property \`eta\` was removed.
 "
@@ -407,12 +407,12 @@ exports[`stylishDiff > should group AsyncAPI changes per channel, operation and 
 
 channel orderPlaced
   ✖ major  modified  address
-      Channel \`orderPlaced\` address changed from 'orders/placed' to 'orders/new'. (channel-address-changed)
+      \`address\` of channel \`orderPlaced\` changed from 'orders/placed' to 'orders/new'. (channel-address-changed)
       at revision.yaml:6:27
 
 operation sendOrderReady
   ✖ major  modified  action
-      Operation \`sendOrderReady\` action changed from 'send' to 'receive'. (operation-action-changed)
+      \`action\` of operation \`sendOrderReady\` changed from 'send' to 'receive'. (operation-action-changed)
       at revision.yaml:8:29
 
 3 major, 0 minor, 0 patch."
@@ -420,7 +420,7 @@ operation sendOrderReady
 
 exports[`stylishDiff > should group the changes per endpoint and webhook, worst first, with their verdicts and location 1`] = `
 "GET /menu
-  ✖ major  modified  parameters/{query:limit} · required
+  ✖ major  modified  parameters/0 · required
       \`limit\` query parameter became required. (parameter-became-required)
       at revision.yaml:8:47
   · patch  modified  summary
@@ -428,7 +428,7 @@ exports[`stylishDiff > should group the changes per endpoint and webhook, worst 
 
 POST /orders
   ✖ major  modified  requestBody/content/application/json/schema/properties/note · pattern
-      \`pattern\` of \`note\` changed from 'a' to 'a|b'. (string-constraint-changed)
+      \`pattern\` of \`note\` changed from 'a' to 'a|b'. (schema-constraint-changed)
       at revision.yaml:15:68
 
 DELETE /orders
@@ -442,8 +442,8 @@ POST orderReady (webhook)
       at base.yaml:26:42
 
 components
-  ✔ minor  added
+  · patch  added
       at revision.yaml:26:3
 
-4 major, 1 minor, 1 patch."
+4 major, 0 minor, 2 patch."
 `;

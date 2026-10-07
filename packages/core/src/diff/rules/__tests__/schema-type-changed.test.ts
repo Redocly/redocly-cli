@@ -25,7 +25,7 @@ const cafe = (openapi: string, price: string) => outdent`
 
 describe('schema-type-changed', () => {
   it('should report a request that accepts fewer types, not a response that sends fewer', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('3.1.0', '{ type: number }'), 'base.yaml'),
       revision: makeDocumentFromString(cafe('3.1.0', '{ type: integer }'), 'revision.yaml'),
       config: await createConfig({ diff: { 'schema-type-changed': 'major' } }),
@@ -75,7 +75,7 @@ describe('schema-type-changed', () => {
   });
 
   it('should report a response that sends more types, not a request that accepts more', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('3.1.0', '{ type: integer }'), 'base.yaml'),
       revision: makeDocumentFromString(cafe('3.1.0', '{ type: number }'), 'revision.yaml'),
       config: await createConfig({ diff: { 'schema-type-changed': 'major' } }),
@@ -125,7 +125,7 @@ describe('schema-type-changed', () => {
   });
 
   it('should report a request that no longer accepts null in OpenAPI 3.0', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('3.0.3', '{ type: number, nullable: true }'), 'base.yaml'),
       revision: makeDocumentFromString(cafe('3.0.3', '{ type: number }'), 'revision.yaml'),
       config: await createConfig({ diff: { 'schema-type-changed': 'major' } }),
@@ -175,7 +175,7 @@ describe('schema-type-changed', () => {
   });
 
   it("should read OpenAPI 3.0 `nullable: true` as the 3.1 `type: [..., 'null']`", async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('3.0.3', '{ type: number, nullable: true }'), 'base.yaml'),
       revision: makeDocumentFromString(
         cafe('3.1.0', '{ type: [number, "null"] }'),
@@ -272,7 +272,7 @@ describe('schema-type-changed', () => {
   });
 
   it('should report a type that a schema without one now requires in a request', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('3.1.0', '{ description: Price }'), 'base.yaml'),
       revision: makeDocumentFromString(
         cafe('3.1.0', '{ description: Price, type: number }'),
@@ -325,7 +325,7 @@ describe('schema-type-changed', () => {
   });
 
   it('should report a type that a response no longer keeps to', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(
         cafe('3.1.0', '{ description: Price, type: number }'),
         'base.yaml'

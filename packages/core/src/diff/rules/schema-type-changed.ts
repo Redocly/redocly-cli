@@ -1,7 +1,7 @@
 import { fieldOf } from '../../node-tree/access.js';
 import { dequal } from '../../utils/dequal.js';
 import type { DiffRule } from '../types.js';
-import { ofSchema } from './utils.js';
+import { ofNamedSchema } from './utils.js';
 
 // `integer` accepts a subset of what `number` does, so it is the one implicit widening among
 // the JSON Schema primitive types.
@@ -19,7 +19,6 @@ function acceptedTypes(type: unknown, nullable?: unknown): string[] {
   return addsNull ? [...types, 'null'] : types;
 }
 
-/** The types of `types` that `accepted` does not take. */
 function typesNotIn(types: string[], accepted: string[]): string[] {
   return types.filter((type) => {
     const wider = WIDER_TYPE[type];
@@ -28,11 +27,12 @@ function typesNotIn(types: string[], accepted: string[]): string[] {
 }
 
 export const SchemaTypeChanged: DiffRule = () => ({
-  Schema(change, { report, directions }) {
+  Schema(change, { report, getDirections }) {
     if (change.kind !== 'modified') return;
+
     const { base, revision } = change.node;
-    // `nullable: true` is OpenAPI 3.0's spelling of `type: [..., 'null']`, so a change to either
-    // is judged on what the node accepts as a whole, and once: by `type` when both changed.
+    // A change to `type` or `nullable` is judged on what the schema accepts as a whole, and once:
+    // by `type` when both changed.
     const typeChanged = !dequal(fieldOf(base, 'type'), fieldOf(revision, 'type'));
     if (change.property !== 'type' && (change.property !== 'nullable' || typeChanged)) return;
 
@@ -43,11 +43,11 @@ export const SchemaTypeChanged: DiffRule = () => ({
     const widened = before.length > 0 && (!after.length || typesNotIn(after, before).length > 0);
     const described = `from '${before.join(' | ') || 'any'}' to '${after.join(' | ') || 'any'}'`;
 
-    if (directions.includes('request') && narrowed) {
-      report({ message: `Type${ofSchema(change.node)} narrowed ${described}.` });
+    if (getDirections().includes('request') && narrowed) {
+      report({ message: `Type${ofNamedSchema(change.node)} narrowed ${described}.` });
     }
-    if (directions.includes('response') && widened) {
-      report({ message: `Type${ofSchema(change.node)} widened ${described}.` });
+    if (getDirections().includes('response') && widened) {
+      report({ message: `Type${ofNamedSchema(change.node)} widened ${described}.` });
     }
   },
 });

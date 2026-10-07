@@ -1,6 +1,6 @@
 import {
   AbortFlowError,
-  bundle,
+  BaseResolver,
   diffDocuments,
   HandledError,
   formatProblems,
@@ -33,27 +33,29 @@ export async function handleDiff({ argv, config, collectSpecData }: CommandArgs<
   const [{ path: basePath }] = await getFallbackApisOrExit([argv.base], config);
   const [{ path: revisionPath }] = await getFallbackApisOrExit([argv.revision], config);
 
-  const [base, revision] = await Promise.all([
-    bundle({ config, ref: basePath }),
-    bundle({ config, ref: revisionPath }),
-  ]);
+  // One resolver loads both documents and resolves their `$ref`s, as lint does.
+  const externalRefResolver = new BaseResolver(config.resolve);
+  const load = async (documentPath: string) => {
+    const document = await externalRefResolver.resolveDocument(null, documentPath, true);
+    if (document instanceof Error) throw document;
+    return document;
+  };
+  const [base, revision] = await Promise.all([load(basePath), load(revisionPath)]);
 
-  const bundleProblems = [...base.problems, ...revision.problems];
+  collectSpecData?.(revision);
 
-  if (bundleProblems.length) {
-    formatProblems(bundleProblems, {
+  const result = await diffDocuments({ base, revision, config, externalRefResolver });
+
+  if (result.problems.length) {
+    formatProblems(result.problems, {
       format: 'codeframe',
-      totals: getTotals(bundleProblems),
+      totals: getTotals(result.problems),
       command: 'bundle',
     });
     logger.warn(
       '⚠️  The problems above leave parts of the descriptions unresolved, so the diff may miss changes there or judge them without knowing whether they are in a request or a response.\n'
     );
   }
-
-  collectSpecData?.(revision.bundle);
-
-  const result = diffDocuments({ base: base.bundle, revision: revision.bundle, config });
 
   result.changes.sort(byKeyAndProperty);
 

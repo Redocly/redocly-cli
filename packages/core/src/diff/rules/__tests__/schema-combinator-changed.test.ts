@@ -5,7 +5,7 @@ import { createConfig } from '../../../config/index.js';
 import { makeDocumentFromString } from '../../../resolve.js';
 import { diffDocuments } from '../../index.js';
 
-const cafe = (payment: string) => outdent`
+const cafe = (payment: string, responsePayment = payment) => outdent`
   openapi: 3.1.0
   info: { title: Cafe, version: 1.0.0 }
   paths:
@@ -20,12 +20,12 @@ const cafe = (payment: string) => outdent`
             description: Created
             content:
               application/json:
-                schema: ${payment}
+                schema: ${responsePayment}
 `;
 
 describe('schema-combinator-changed', () => {
   it('should report a oneOf alternative a request no longer accepts, not one a response stops sending', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(
         cafe('{ oneOf: [{ const: card }, { const: cash }] }'),
         'base.yaml'
@@ -72,7 +72,7 @@ describe('schema-combinator-changed', () => {
   });
 
   it('should report an allOf member a request must now satisfy, not one a response now satisfies', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('{ allOf: [{ required: [amount] }] }'), 'base.yaml'),
       revision: makeDocumentFromString(
         cafe('{ allOf: [{ required: [amount] }, { required: [currency] }] }'),
@@ -117,6 +117,72 @@ describe('schema-combinator-changed', () => {
             },
           },
           "verdicts": [],
+        },
+      ]
+    `);
+  });
+
+  it('should report a whole oneOf removed from a response and a whole allOf added to a request', async () => {
+    const result = await diffDocuments({
+      base: makeDocumentFromString(
+        cafe('{ type: object }', '{ type: string, oneOf: [{ const: card }, { const: cash }] }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        cafe('{ type: object, allOf: [{ required: [card] }] }', '{ type: string }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'schema-combinator-changed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "impact": "major",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf",
+          "kind": "added",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf",
+            "value": [
+              {
+                "required": [
+                  "card",
+                ],
+              },
+            ],
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/allOf",
+              "message": "\`allOf\` was added.",
+              "ruleId": "schema-combinator-changed",
+            },
+          ],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf",
+            "value": [
+              {
+                "const": "card",
+              },
+              {
+                "const": "cash",
+              },
+            ],
+          },
+          "impact": "major",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf",
+          "kind": "removed",
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/oneOf",
+              "message": "\`oneOf\` was removed.",
+              "ruleId": "schema-combinator-changed",
+            },
+          ],
         },
       ]
     `);

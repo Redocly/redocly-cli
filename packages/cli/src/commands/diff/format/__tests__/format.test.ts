@@ -2,6 +2,7 @@ import { createConfig, diffDocuments, makeDocumentFromString } from '@redocly/op
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
+import { outdent } from 'outdent';
 
 import { printGithubActions } from '../github-actions.js';
 import { htmlDiff } from '../html.js';
@@ -21,13 +22,13 @@ const config = await createConfig({ extends: ['diff-recommended'] });
 // Every shape a report has to survive: a removal found in the base document, changes found in
 // the revision, an addition, a change no rule judges, a webhook — and content that fights the
 // output format, so the escaping shows up in the snapshots.
-const cafe = diffDocuments({
+const cafe = await diffDocuments({
   base: documentOf('cafe', 'base'),
   revision: documentOf('cafe', 'revision'),
   config,
 });
 
-const kitchen = diffDocuments({
+const kitchen = await diffDocuments({
   base: documentOf('kitchen', 'base'),
   revision: documentOf('kitchen', 'revision'),
   config,
@@ -41,6 +42,41 @@ describe('stylishDiff', () => {
 
   it('should group AsyncAPI changes per channel, operation and server', () => {
     expect(stripVTControlCharacters(stylishDiff(kitchen))).toMatchSnapshot();
+  });
+
+  it('should head the changes of a path by its path when its $ref points to another path item', async () => {
+    const menu = (pathItem: string, side: 'base' | 'revision') =>
+      makeDocumentFromString(
+        outdent`
+          openapi: 3.1.0
+          info: { title: Cafe, version: 1.0.0 }
+          paths:
+            /menu: { $ref: '#/components/pathItems/${pathItem}' }
+          components:
+            pathItems:
+              Menu:
+                get: { responses: { '200': { description: OK } } }
+                delete: { responses: { '204': { description: Removed } } }
+              Dishes:
+                get: { responses: { '200': { description: OK } } }
+        `,
+        `${side}.yaml`
+      );
+
+    const result = await diffDocuments({
+      base: menu('Menu', 'base'),
+      revision: menu('Dishes', 'revision'),
+      config,
+    });
+
+    expect(stripVTControlCharacters(stylishDiff(result))).toMatchInlineSnapshot(`
+      "DELETE /menu
+        ✖ major  removed
+            Operation \`DELETE /menu\` was removed. (operation-removed)
+            at base.yaml:9:15
+
+      1 major, 0 minor, 0 patch."
+    `);
   });
 });
 

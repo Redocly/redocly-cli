@@ -19,7 +19,7 @@ const cancelled = 'orderCancelled: { payload: { type: object } }';
 
 describe('message-removed', () => {
   it('should report a message that is gone from its channel', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(`{ ${placed}, ${cancelled} }`), 'base.yaml'),
       revision: makeDocumentFromString(cafe(`{ ${placed} }`), 'revision.yaml'),
       config: await createConfig({ diff: { 'message-removed': 'major' } }),
@@ -53,7 +53,7 @@ describe('message-removed', () => {
   });
 
   it('should report every message of a channel leaving with the whole map', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(`{ ${placed} }`), 'base.yaml'),
       revision: makeDocumentFromString(cafe(), 'revision.yaml'),
       config: await createConfig({ diff: { 'message-removed': 'major' } }),
@@ -83,6 +83,52 @@ describe('message-removed', () => {
               "ruleId": "message-removed",
             },
           ],
+        },
+      ]
+    `);
+  });
+
+  it('should not report a components messages map, which no channel is', async () => {
+    const withComponents = (components: string) => outdent`
+      asyncapi: 3.0.0
+      info: { title: Cafe kitchen, version: 1.0.0 }
+      channels:
+        orders:
+          address: orders
+          messages:
+            ${placed}
+      components: ${components}
+    `;
+
+    const result = await diffDocuments({
+      base: makeDocumentFromString(
+        withComponents(`{ messages: { ${cancelled} }, schemas: { Order: { type: object } } }`),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        withComponents('{ schemas: { Order: { type: object } } }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'message-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/components/messages",
+            "value": {
+              "orderCancelled": {
+                "payload": {
+                  "type": "object",
+                },
+              },
+            },
+          },
+          "impact": "patch",
+          "key": "#/components/messages",
+          "kind": "removed",
+          "verdicts": [],
         },
       ]
     `);

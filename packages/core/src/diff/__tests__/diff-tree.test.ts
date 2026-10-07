@@ -1,7 +1,9 @@
+import * as path from 'node:path';
 import { outdent } from 'outdent';
 
-import { buildDiffTree } from '../diff-tree.js';
-import { oas3Identities } from '../specs/oas3.js';
+import { replaceSourceWithRefInChanges, resolverWithFiles } from '../../../__tests__/utils.js';
+import { pointerOf } from '../diff-node.js';
+import { compareTrees } from '../diff-tree.js';
 import { nodeTreeOf } from './utils.js';
 
 const cafe = (body: string) => outdent`
@@ -10,142 +12,362 @@ const cafe = (body: string) => outdent`
   ${body}
 `;
 
-describe('buildDiffTree', () => {
-  it('should label a path by its shape and a path parameter by its place in the template', async () => {
-    const { root } = await nodeTreeOf(
-      cafe(outdent`
-        paths:
-          /orders/{orderId}/items/{itemId}:
-            get:
-              parameters:
-                - { name: itemId, in: path, required: true }
-                - { name: orderId, in: path, required: true }
-                - { name: fields, in: query }
-              responses: {}
-      `)
+describe('compareTrees', () => {
+  const menu = (parameters: string) =>
+    cafe(outdent`
+      paths:
+        /menu:
+          get:
+            parameters: ${parameters}
+            responses: {}
+    `);
+  const compare = async (base: string, revision: string) =>
+    compareTrees(await nodeTreeOf(base), await nodeTreeOf(revision));
+
+  it('should compare each child with the child it pairs with', async () => {
+    const changes = await compare(
+      menu('[{ name: limit, in: query }, { name: offset, in: query }]'),
+      menu('[{ name: offset, in: query }, { name: limit, in: query, description: How many }]')
     );
-    const { diffNodeOf } = buildDiffTree(root, root, oas3Identities);
-    const labels = [...new Set(diffNodeOf.values())].map((node) => node.label);
 
-    const parameterLabels = labels.filter((label) => label.includes('/parameters/'));
+    expect(changes).toMatchObject([
+      { key: '#/paths/~1menu/get/parameters/1', kind: 'modified', property: 'description' },
+    ]);
+  });
 
-    expect(parameterLabels).toMatchInlineSnapshot(`
+  it('should pair a map entry renamed to a similar key and report the key as changed', async () => {
+    const changes = await compare(
+      cafe('paths: { /order: { get: { responses: {} } } }'),
+      cafe('paths: { /orders: { get: { responses: {} } } }')
+    );
+
+    expect(changes).toMatchObject([
+      {
+        key: '#/paths/~1orders',
+        kind: 'modified',
+        property: 'key',
+        base: { value: '/order' },
+        revision: { value: '/orders' },
+      },
+    ]);
+  });
+
+  it('should tell fixed fields from map entries by the node types', async () => {
+    const changes = await compare(
+      cafe(
+        'paths: {}\ncomponents: { schemas: { Order: { unevaluatedProperties: { type: string } } } }'
+      ),
+      cafe('paths: {}\ncomponents: { schemas: { Order: { unevaluatedItems: { type: string } } } }')
+    );
+
+    expect(changes).toMatchObject([
+      { key: '#/components/schemas/Order/unevaluatedProperties', kind: 'removed' },
+      { key: '#/components/schemas/Order/unevaluatedItems', kind: 'added' },
+    ]);
+  });
+});
+
+describe('compareTrees through $refs', () => {
+  const menu = (schema: string, schemas: string) =>
+    cafe(outdent`
+      paths:
+        /menu:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema: ${schema}
+      components:
+        schemas: ${schemas}
+    `);
+  const item = (nameType: string) =>
+    `{ type: object, properties: { name: { type: ${nameType} } } }`;
+  const itemRef = "{ $ref: '#/components/schemas/Item' }";
+  const menuItemRef = "{ $ref: '#/components/schemas/MenuItem' }";
+
+  // Each side has a folder of its own, so both roots reference their files by the same paths.
+  async function nodeTreesOfFiles(sides: Record<'base' | 'revision', Record<string, string>>) {
+    const load = (side: 'base' | 'revision') => {
+      const files = Object.entries(sides[side]).map(([file, body]) => [
+        path.join(side, file),
+        body,
+      ]);
+      return nodeTreeOf(
+        sides[side]['openapi.yaml'],
+        path.resolve(side, 'openapi.yaml'),
+        resolverWithFiles(Object.fromEntries(files))
+      );
+    };
+    return { base: await load('base'), revision: await load('revision') };
+  }
+
+  it('should compare $refs to different targets by what the targets describe', async () => {
+    const schemas = `{ Item: ${item('string')}, MenuItem: ${item('integer')} }`;
+    const base = await nodeTreeOf(menu(itemRef, schemas));
+    const revision = await nodeTreeOf(menu(menuItemRef, schemas));
+
+    expect(replaceSourceWithRefInChanges(compareTrees(base, revision))).toMatchInlineSnapshot(`
       [
-        "#/paths/~1orders~1{0}~1items~1{1}/get/parameters/{path:1}",
-        "#/paths/~1orders~1{0}~1items~1{1}/get/parameters/{path:0}",
-        "#/paths/~1orders~1{0}~1items~1{1}/get/parameters/{query:fields}",
+        {
+          "base": {
+            "location": "api.yaml#/components/schemas/Item/properties/name/type",
+            "value": "string",
+          },
+          "key": "#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name",
+          "kind": "modified",
+          "property": "type",
+          "revision": {
+            "location": "api.yaml#/components/schemas/MenuItem/properties/name/type",
+            "value": "integer",
+          },
+        },
       ]
     `);
   });
 
-  it('should keep a callback key as it is and label a path parameter there by its name', async () => {
-    const { root } = await nodeTreeOf(
-      cafe(outdent`
-        paths:
-          /orders:
-            post:
-              responses: {}
-              callbacks:
-                orderReady:
-                  '{$request.body#/callbackUrl}':
-                    post:
-                      parameters:
-                        - { name: orderId, in: path, required: true }
-                      responses: {}
-      `)
-    );
-    const { diffNodeOf } = buildDiffTree(root, root, oas3Identities);
-    const labels = [...new Set(diffNodeOf.values())].map((node) => node.label);
+  it('should find no change where an inline schema moved into a component that reads the same', async () => {
+    const base = await nodeTreeOf(menu(item('string'), '{}'));
+    const revision = await nodeTreeOf(menu(itemRef, `{ Item: ${item('string')} }`));
 
-    const parameterLabels = labels.filter((label) => label.includes('/parameters/'));
-
-    expect(parameterLabels).toMatchInlineSnapshot(`
-      [
-        "#/paths/~1orders/post/callbacks/orderReady/{$request.body#~1callbackUrl}/post/parameters/{path:orderId}",
-      ]
-    `);
+    expect(compareTrees(base, revision)).toMatchObject([
+      { key: '#/components/schemas/Item', kind: 'added' },
+    ]);
   });
 
-  it('should label servers by url, tags by name and security requirements by scheme names', async () => {
-    const { root } = await nodeTreeOf(
-      cafe(outdent`
-        servers:
-          - url: https://api.cafe.example
-        tags:
-          - name: Orders
-        security:
-          - OAuth: [orders:read]
-            ApiKey: []
-        paths: {}
-      `)
-    );
-    const { diffNodeOf } = buildDiffTree(root, root, oas3Identities);
-    const labels = [...new Set(diffNodeOf.values())].map((node) => node.label);
+  it('should compare a component that both documents reference under the place that references it', async () => {
+    const base = await nodeTreeOf(menu(itemRef, `{ Item: ${item('string')} }`));
+    const revision = await nodeTreeOf(menu(itemRef, `{ Item: ${item('integer')} }`));
 
-    const identifiedLabels = labels.filter((label) => /\/(servers|tags|security)\//.test(label));
-
-    expect(identifiedLabels).toMatchInlineSnapshot(`
-      [
-        "#/servers/{https:~1~1api.cafe.example}",
-        "#/security/{ApiKey+OAuth}",
-        "#/tags/{Orders}",
-      ]
-    `);
+    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+      '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
+    ]);
   });
 
-  it('should match a referenced list item by what it points at, wherever it is listed', async () => {
-    const menu = (parameters: string) =>
+  it('should compare a pair of targets once, under the first place that references both', async () => {
+    const orders = (ref: string) =>
       cafe(outdent`
         paths:
           /menu:
             get:
-              parameters: ${parameters}
+              responses:
+                '200': { description: OK, content: { application/json: { schema: ${ref} } } }
+            post:
+              requestBody: { content: { application/json: { schema: ${ref} } } }
               responses: {}
         components:
-          schemas:
-            Sort: { name: sort, in: query }
-            Filter: { name: filter, in: query }
+          schemas: { Item: ${item('string')}, MenuItem: ${item('integer')} }
       `);
+    const base = await nodeTreeOf(orders(itemRef));
+    const revision = await nodeTreeOf(orders(menuItemRef));
 
-    const base = await nodeTreeOf(
-      menu("[{ $ref: '#/components/schemas/Sort' }, { $ref: '#/components/schemas/Filter' }]")
-    );
-    const revision = await nodeTreeOf(
-      menu("[{ $ref: '#/components/schemas/Filter' }, { $ref: '#/components/schemas/Sort' }]")
-    );
-    const { diffNodeOf } = buildDiffTree(base.root, revision.root, oas3Identities);
-    const nodes = new Map([...diffNodeOf.values()].map((node) => [node.label, node]));
-    const sort = nodes.get('#/paths/~1menu/get/parameters/{query:sort}')!;
-    const filter = nodes.get('#/paths/~1menu/get/parameters/{query:filter}')!;
-
-    expect(sort.base?.key).toBe(0);
-    expect(sort.revision?.key).toBe(1);
-    expect(filter.base?.key).toBe(1);
-    expect(filter.revision?.key).toBe(0);
+    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+      '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
+    ]);
   });
 
-  it('should match items that share an identity in document order and number the extra one', async () => {
-    const menu = (parameters: string) =>
+  it('should note the other places that reach a pair it has compared', async () => {
+    const twoUses = (schemas: string) =>
       cafe(outdent`
         paths:
           /menu:
             get:
-              parameters: ${parameters}
+              responses:
+                '200': { description: OK, content: { application/json: { schema: ${itemRef} } } }
+            post:
+              requestBody: { content: { application/json: { schema: ${itemRef} } } }
               responses: {}
+        components:
+          schemas: ${schemas}
       `);
+    const base = await nodeTreeOf(twoUses(`{ Item: ${item('string')} }`));
+    const revision = await nodeTreeOf(twoUses(`{ Item: ${item('integer')} }`));
 
-    const base = await nodeTreeOf(
-      menu('[{ name: search, in: query }, { name: search, in: query, required: true }]')
+    const [nameChanged] = compareTrees(base, revision);
+    const itemPair = nameChanged.node.parent!.parent!;
+
+    expect(pointerOf(itemPair)).toBe(
+      '#/paths/~1menu/get/responses/200/content/application~1json/schema'
     );
-    const revision = await nodeTreeOf(menu('[{ name: search, in: query }]'));
-    const { diffNodeOf } = buildDiffTree(base.root, revision.root, oas3Identities);
-    const nodes = new Map([...diffNodeOf.values()].map((node) => [node.label, node]));
-    const first = nodes.get('#/paths/~1menu/get/parameters/{query:search}')!;
-    const second = nodes.get('#/paths/~1menu/get/parameters/{query:search}#2')!;
+    expect(itemPair.referencedBy.map(pointerOf)).toEqual([
+      '#/paths/~1menu/post/requestBody/content/application~1json/schema',
+      '#/components/schemas/Item',
+    ]);
+  });
 
-    expect(first.base?.key).toBe(0);
-    expect(first.revision?.key).toBe(0);
-    expect(second.base?.key).toBe(1);
-    expect(second.revision).toBeUndefined();
+  it('should end the comparison of components that reference themselves', async () => {
+    const related = (name: string, description: string) =>
+      `{ description: ${description}, properties: { related: { $ref: '#/components/schemas/${name}' } } }`;
+    const schemas = `{ Item: ${related('Item', 'An item')}, MenuItem: ${related('MenuItem', 'A dish')} }`;
+    const base = await nodeTreeOf(menu(itemRef, schemas));
+    const revision = await nodeTreeOf(menu(menuItemRef, schemas));
+
+    expect(compareTrees(base, revision)).toMatchObject([
+      {
+        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema',
+        kind: 'modified',
+        property: 'description',
+      },
+    ]);
+  });
+
+  it('should locate a change in another file in the file of each side', async () => {
+    const files = (nameType: string) => ({
+      'openapi.yaml': menu('{ $ref: schemas/item.yaml }', '{}'),
+      'schemas/item.yaml': item(nameType),
+    });
+    const { base, revision } = await nodeTreesOfFiles({
+      base: files('string'),
+      revision: files('integer'),
+    });
+
+    expect(compareTrees(base, revision)).toMatchObject([
+      {
+        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
+        kind: 'modified',
+        property: 'type',
+        base: {
+          location: {
+            source: { absoluteRef: path.resolve('base/schemas/item.yaml') },
+            pointer: '#/properties/name/type',
+          },
+        },
+        revision: {
+          location: {
+            source: { absoluteRef: path.resolve('revision/schemas/item.yaml') },
+            pointer: '#/properties/name/type',
+          },
+        },
+      },
+    ]);
+  });
+
+  it('should match $refs to other files in a list by their files, in any order', async () => {
+    const files = (oneOf: string) => ({
+      'openapi.yaml': menu(`{ oneOf: ${oneOf} }`, '{}'),
+      'coffee.yaml': '{ type: object, properties: { roast: { type: string } } }',
+      'tea.yaml': '{ type: object, properties: { leaf: { type: integer } } }',
+    });
+    const { base, revision } = await nodeTreesOfFiles({
+      base: files('[{ $ref: coffee.yaml }, { $ref: tea.yaml }]'),
+      revision: files('[{ $ref: tea.yaml }, { $ref: coffee.yaml }]'),
+    });
+
+    expect(compareTrees(base, revision)).toEqual([]);
+  });
+
+  it('should compare the keys written next to a $ref at its place and its targets under $ref', async () => {
+    const order = (ref: string, extraType: string) =>
+      menu(
+        `{ ${ref}, properties: { extra: { type: ${extraType} } } }`,
+        `{ Item: ${item('string')}, MenuItem: ${item('integer')} }`
+      );
+    const base = await nodeTreeOf(order("$ref: '#/components/schemas/Item'", 'string'));
+    const revision = await nodeTreeOf(order("$ref: '#/components/schemas/MenuItem'", 'integer'));
+
+    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+      '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/extra',
+      '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
+    ]);
+  });
+
+  it('should keep a $ref on its pair and locate its changes in the target', async () => {
+    const base = await nodeTreeOf(menu(itemRef, `{ Item: ${item('string')} }`));
+    const revision = await nodeTreeOf(menu(itemRef, `{ Item: ${item('integer')} }`));
+
+    const [nameChanged] = compareTrees(base, revision);
+    const schemaPair = nameChanged.node.parent!.parent!;
+
+    expect(schemaPair.revision).toMatchObject({
+      value: { $ref: '#/components/schemas/Item' },
+      resolved: { key: 'Item' },
+    });
+    expect(nameChanged).toMatchObject({
+      key: '#/paths/~1menu/get/responses/200/content/application~1json/schema/properties/name',
+      revision: { location: { pointer: '#/components/schemas/Item/properties/name/type' } },
+    });
+  });
+
+  it('should compare a description added next to a $ref at the place, not the target against it', async () => {
+    const schemas = `{ Item: ${item('string')} }`;
+    const base = await nodeTreeOf(menu(itemRef, schemas));
+    const revision = await nodeTreeOf(
+      menu("{ $ref: '#/components/schemas/Item', description: An item }", schemas)
+    );
+
+    expect(compareTrees(base, revision)).toMatchObject([
+      {
+        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema',
+        kind: 'modified',
+        property: 'description',
+        base: { value: undefined },
+        revision: { value: 'An item' },
+      },
+    ]);
+  });
+
+  it('should follow the target of a component written as a $ref with keys next to it, where a path first reaches it', async () => {
+    const files = (nameType: string) => ({
+      'openapi.yaml': menu(
+        "{ $ref: '#/components/schemas/A' }",
+        '{ A: { $ref: ./b.yaml, description: An item } }'
+      ),
+      'b.yaml': item(nameType),
+    });
+    const { base, revision } = await nodeTreesOfFiles({
+      base: files('string'),
+      revision: files('integer'),
+    });
+
+    expect(compareTrees(base, revision)).toMatchObject([
+      {
+        key: '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
+        kind: 'modified',
+        property: 'type',
+      },
+    ]);
+  });
+
+  it('should compare the one target of $refs with keys next to them under $ref of the place', async () => {
+    const schema = "{ $ref: '#/components/schemas/Item', description: A dish }";
+    const base = await nodeTreeOf(menu(schema, `{ Item: ${item('string')} }`));
+    const revision = await nodeTreeOf(menu(schema, `{ Item: ${item('integer')} }`));
+
+    expect(compareTrees(base, revision).map((change) => change.key)).toEqual([
+      '#/paths/~1menu/get/responses/200/content/application~1json/schema/$ref/properties/name',
+    ]);
+  });
+
+  it('should report a renamed path by the keys of the places, not of their targets', async () => {
+    const menuItem = (template: string, pathItem: string) =>
+      cafe(outdent`
+        paths:
+          /menu/{${template}}: { $ref: '#/components/pathItems/${pathItem}' }
+        components:
+          pathItems:
+            Item: { get: { responses: {} } }
+            MenuItem: { get: { responses: {} } }
+      `);
+    const base = await nodeTreeOf(menuItem('id', 'Item'));
+    const revision = await nodeTreeOf(menuItem('itemId', 'MenuItem'));
+
+    expect(replaceSourceWithRefInChanges(compareTrees(base, revision))).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "api.yaml#/paths/~1menu~1{id}",
+            "value": "/menu/{id}",
+          },
+          "key": "#/paths/~1menu~1{itemId}",
+          "kind": "modified",
+          "property": "key",
+          "revision": {
+            "location": "api.yaml#/paths/~1menu~1{itemId}",
+            "value": "/menu/{itemId}",
+          },
+        },
+      ]
+    `);
   });
 });

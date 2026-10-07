@@ -25,7 +25,7 @@ const cafe = (order: string) => outdent`
 
 describe('required-properties-removed', () => {
   it('should report the properties a response no longer promises, not the ones a request may now omit', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(
         cafe('{ type: object, required: [menuItemId, quantity] }'),
         'base.yaml'
@@ -91,7 +91,7 @@ describe('required-properties-removed', () => {
   });
 
   it('should not report a writeOnly property, which a response never sends', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(
         cafe('{ required: [pin], properties: { pin: { type: string, writeOnly: true } } }'),
         'base.yaml'
@@ -137,6 +137,87 @@ describe('required-properties-removed', () => {
             "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
             "value": undefined,
           },
+          "verdicts": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report a writeOnly property removed together with its required entry', async () => {
+    const result = await diffDocuments({
+      base: makeDocumentFromString(
+        cafe(
+          '{ required: [secret], properties: { id: { type: string }, secret: { type: string, writeOnly: true } } }'
+        ),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        cafe('{ properties: { id: { type: string } } }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'required-properties-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/required",
+            "value": [
+              "secret",
+            ],
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema",
+          "kind": "modified",
+          "property": "required",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema",
+            "value": undefined,
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/secret",
+            "value": {
+              "type": "string",
+              "writeOnly": true,
+            },
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/secret",
+          "kind": "removed",
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/required",
+            "value": [
+              "secret",
+            ],
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema",
+          "kind": "modified",
+          "property": "required",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema",
+            "value": undefined,
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/secret",
+            "value": {
+              "type": "string",
+              "writeOnly": true,
+            },
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/secret",
+          "kind": "removed",
           "verdicts": [],
         },
       ]
