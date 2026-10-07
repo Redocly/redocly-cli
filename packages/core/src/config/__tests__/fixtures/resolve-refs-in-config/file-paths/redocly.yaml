@@ -32,3 +32,16 @@ catalog:
     $ref: nested/config.yaml#/catalog
 apiFunctions:
   $ref: nested/config.yaml#/apiFunctions
+seo:
+  $ref: nested/config.yaml#/seo
+markdown:
+  $ref: nested/config.yaml#/markdown
+mcp:
+  $ref: nested/config.yaml#/mcp
+scorecard:
+  $ref: nested/config.yaml#/scorecard
+skills:
+  $ref: nested/config.yaml#/skills
+ignore:
+  - internal/**
+  - '!internal/keep/**'

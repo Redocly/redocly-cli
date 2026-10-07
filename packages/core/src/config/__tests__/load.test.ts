@@ -2713,6 +2713,25 @@ describe('loadConfig', () => {
         folders: ['nested/functions', 'https://example.com/functions', 's3://bucket/functions'],
       },
     });
+    // globs keep a leading `/`, `**` and `!`; the rest is prefixed with the referenced file's folder
+    expect(resolvedConfig).toMatchObject({
+      ignore: ['internal/**', '!internal/keep/**'],
+      seo: {
+        llmstxt: {
+          excludeFiles: [
+            'nested/internal/**',
+            '!nested/internal/public/**',
+            '/root-anchored/**',
+            '**/_partials/**',
+            'nested/*.md',
+          ],
+        },
+      },
+      markdown: { partialsFolders: ['nested/_partials/**'] },
+      mcp: { docs: { ignore: ['nested/drafts/*.yaml'] } },
+      scorecard: { ignore: ['nested/legacy/openapi.yaml'] },
+      skills: { excludeFiles: ['nested/{a,b}/**'] },
+    });
   });
 
   it('should rebase through a root config that is only a $ref to the nested one', async () => {
@@ -2724,6 +2743,10 @@ describe('loadConfig', () => {
       inline: { root: 'file-paths/openapi.yaml' },
       'one-level': { root: 'file-paths/nested/openapi.yaml' },
     });
+    expect(resolvedConfig.ignore).toEqual([
+      'file-paths/internal/**',
+      '!file-paths/internal/keep/**',
+    ]);
   });
 
   it('should resolve file paths written in a remote config file against its URL', async () => {

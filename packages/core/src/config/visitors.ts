@@ -90,7 +90,7 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
 // a reference with a scheme is absolute, whatever the scheme (RFC 3986); isAbsoluteUrl knows only a fixed list
 const URI_SCHEME = /^[a-z][a-z\d+.-]*:/i;
 
-// Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
+// Paths and globs in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
@@ -109,6 +109,26 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     const resolved = path.resolve(path.dirname(sourceRef), value);
     return path.relative(path.dirname(rootRef), resolved) || '.';
   };
+  // a glob is matched against project paths: `/` and `**` already anchor it, `!` negates the rest
+  const rebaseGlob = (value: unknown): unknown => {
+    if (
+      !isString(value) ||
+      !value ||
+      value.startsWith('/') ||
+      value.startsWith('**') ||
+      isAbsoluteUrl(sourceRef)
+    ) {
+      return value;
+    }
+    if (value.startsWith('!')) {
+      return '!' + rebaseGlob(value.slice(1));
+    }
+    const dir = path
+      .relative(path.dirname(rootRef), path.dirname(sourceRef))
+      .split(path.sep)
+      .join('/');
+    return dir ? path.posix.join(dir, value) : value;
+  };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     if (typeof schema === 'function' || isNamedType(schema)) {
       continue;
@@ -118,6 +138,10 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
       node[field] = rebase(value);
     } else if (schema?.items?.format === 'uri-reference' && Array.isArray(value)) {
       node[field] = value.map(rebase);
+    } else if (schema?.format === 'glob' && isString(value)) {
+      node[field] = rebaseGlob(value);
+    } else if (schema?.items?.format === 'glob' && Array.isArray(value)) {
+      node[field] = value.map(rebaseGlob);
     }
   }
 }

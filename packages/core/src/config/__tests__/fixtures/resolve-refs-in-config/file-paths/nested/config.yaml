@@ -36,3 +36,24 @@ apiFunctions:
     - ./functions
     - https://example.com/functions
     - s3://bucket/functions
+seo:
+  llmstxt:
+    excludeFiles:
+      - internal/**
+      - '!internal/public/**'
+      - /root-anchored/**
+      - '**/_partials/**'
+      - '*.md'
+markdown:
+  partialsFolders:
+    - _partials/**
+mcp:
+  docs:
+    ignore:
+      - drafts/*.yaml
+scorecard:
+  ignore:
+    - legacy/openapi.yaml
+skills:
+  excludeFiles:
+    - '{a,b}/**'
