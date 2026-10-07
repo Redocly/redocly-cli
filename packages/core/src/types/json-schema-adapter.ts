@@ -13,7 +13,7 @@ let ajv: Ajv2020 | undefined;
 
 function getAjv(): Ajv2020 {
   if (!ajv) {
-    // this instance only picks a oneOf branch, so formats are irrelevant; validating them would log a warning for every format Ajv does not know
+    // only picks a oneOf branch: formats are not registered here and must not sway the choice
     ajv = new Ajv2020({
       strictSchema: false,
       validateFormats: false,
