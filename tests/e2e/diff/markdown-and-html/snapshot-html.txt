@@ -83,7 +83,7 @@
       <summary>
         <span class="badge">major</span>
         <code>modified</code>
-        <code class="loc">#/paths/~1menu/get/parameters/{query:limit} · required</code>
+        <code class="loc">#/paths/~1menu/get/parameters/0 · required</code>
         <span class="msg">`limit` query parameter became required.</span> <span class="rules">parameter-became-required</span>
       </summary>
       <pre>{
@@ -107,7 +107,7 @@
       <summary>
         <span class="badge">major</span>
         <code>removed</code>
-        <code class="loc">#/paths/~1orders~1{0}</code>
+        <code class="loc">#/paths/~1orders~1{orderId}</code>
         <span class="msg">Path `/orders/{orderId}` was removed.</span> <span class="rules">path-removed</span>
       </summary>
       <pre>{

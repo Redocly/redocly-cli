@@ -18,7 +18,7 @@ const cafe = (action: string) => outdent`
 
 describe('operation-action-changed', () => {
   it('should report an operation that now sends what it received', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('receive'), 'base.yaml'),
       revision: makeDocumentFromString(cafe('send'), 'revision.yaml'),
       config: await createConfig({ diff: { 'operation-action-changed': 'major' } }),
@@ -43,7 +43,7 @@ describe('operation-action-changed', () => {
             {
               "impact": "major",
               "location": "revision.yaml#/operations/onOrderPlaced/action",
-              "message": "Operation \`onOrderPlaced\` action changed from 'receive' to 'send'.",
+              "message": "\`action\` of operation \`onOrderPlaced\` changed from 'receive' to 'send'.",
               "ruleId": "operation-action-changed",
             },
           ],

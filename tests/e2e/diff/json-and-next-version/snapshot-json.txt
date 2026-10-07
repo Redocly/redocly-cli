@@ -64,7 +64,7 @@
       }
     },
     {
-      "key": "#/paths/~1menu/get/parameters/{query:limit}",
+      "key": "#/paths/~1menu/get/parameters/0",
       "typeName": "Parameter",
       "kind": "modified",
       "impact": "major",
@@ -97,7 +97,7 @@
       }
     },
     {
-      "key": "#/paths/~1orders~1{0}",
+      "key": "#/paths/~1orders~1{orderId}",
       "typeName": "PathItem",
       "kind": "removed",
       "impact": "major",

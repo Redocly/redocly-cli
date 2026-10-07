@@ -25,7 +25,7 @@ const cafe = (status: string) => outdent`
 
 describe('enum-values-added', () => {
   it('should report the values a response may now send, not the ones a request now accepts', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe('{ type: string, enum: [placed, ready] }'), 'base.yaml'),
       revision: makeDocumentFromString(
         cafe('{ type: string, enum: [placed, preparing, ready] }'),

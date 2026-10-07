@@ -1,113 +1,34 @@
 import { fieldOf } from '../../node-tree/access.js';
-import { latestOf, typeOf } from '../diff-tree.js';
-import type { DiffNode, DiffRule, DiffVisit, Direction } from '../types.js';
+import type { NodeEntry } from '../../node-tree/types.js';
+import { comparedSidesOf, latestOf, nameOf, typeOf } from '../diff-node.js';
+import type { DiffNode } from '../types.js';
 
-/** What a node is called in its document: its key, or the key of the node a `$ref` item points at. */
-export function nameOf(node: DiffNode): string {
-  const entry = latestOf(node);
-  return String(entry.target?.key ?? entry.key);
+/** `` of `Order` `` for a property or a component schema; nothing for an inline one. */
+export function ofNamedSchema(schema: DiffNode | null | undefined): string {
+  if (!schema) return '';
+
+  const container = latestOf(comparedSidesOf(schema)).parent?.type.name;
+  const isNamed = container === 'SchemaProperties' || container === 'NamedSchemas';
+  return isNamed ? ` of \`${nameOf(schema)}\`` : '';
 }
 
-/** ` of `name`` for a property or a named component schema, and nothing for an inline one. */
-export function ofSchema(node: DiffNode | null | undefined): string {
-  const container = node?.parent && typeOf(node.parent);
-  if (container !== 'SchemaProperties' && container !== 'NamedSchemas') return '';
-  return ` of \`${nameOf(node!)}\``;
-}
+export function propertiesMarkedAs(schema: DiffNode, keyword: 'readOnly' | 'writeOnly'): string[] {
+  const latestByName = new Map<string, NodeEntry>();
+  const sides = comparedSidesOf(schema);
 
-/** The names of the properties of `schema` that are marked with `keyword`, such as `readOnly`. */
-export function propertiesMarked(schema: DiffNode, keyword: 'readOnly' | 'writeOnly'): string[] {
-  const properties = schema.children.find((child) => typeOf(child) === 'SchemaProperties');
-  return (properties?.children ?? [])
-    .filter((property) => fieldOf(latestOf(property), keyword) === true)
-    .map(nameOf);
-}
-
-/** A parameter as a message names it, such as ``\`limit\` query parameter``. */
-export function describeParameter(node: DiffNode): string {
-  const location = fieldOf(latestOf(node), 'in');
-  const name = fieldOf(latestOf(node), 'name');
-  return [
-    typeof name === 'string' ? `\`${name}\`` : undefined,
-    typeof location === 'string' ? location : undefined,
-    'parameter',
-  ]
-    .filter(Boolean)
-    .join(' ');
-}
-
-/** The values of a list, each quoted, for a message. */
-export function quoted(values: unknown[]): string {
-  return values.map((value) => `'${value}'`).join(', ');
-}
-
-/** The names of a list, each in backticks, for a message. */
-export function named(values: unknown[]): string {
-  return values.map((value) => `\`${value}\``).join(', ');
-}
-
-/** The items of `list` that `other` does not have. */
-export function itemsOnlyIn(list: unknown, other: unknown): unknown[] {
-  if (!Array.isArray(list)) return [];
-  const otherItems = Array.isArray(other) ? other : [];
-  return list.filter((item) => !otherItems.includes(item));
-}
-
-/** Accepting less breaks the clients that send the data; accepting more, the ones that read it. */
-export function breakingDirection(acceptsLess: boolean): Direction {
-  return acceptsLess ? 'request' : 'response';
-}
-
-const LOWER_BOUNDS = new Set(['minLength', 'minItems', 'minProperties']);
-const UPPER_BOUNDS = new Set(['maxLength', 'maxItems', 'maxProperties']);
-// Equivalence of these cannot be decided by comparing values, so any change to one is taken
-// as accepting less rather than guessed at.
-const OPAQUE = new Set(['pattern', 'format', 'multipleOf']);
-
-/** Whether a schema accepts less once `constraint` moved from `before` to `after`. */
-export function acceptsLess(constraint: string, before: unknown, after: unknown): boolean {
-  if (before === undefined) return true; // a new constraint
-  if (after === undefined) return false; // one dropped
-  // Only opening a closed object accepts more; swapping in a schema is narrower than an open one.
-  if (constraint === 'additionalProperties') return !(before === false && after === true);
-  if (OPAQUE.has(constraint)) return true;
-
-  if (typeof before === 'number' && typeof after === 'number') {
-    if (LOWER_BOUNDS.has(constraint)) return after > before;
-    if (UPPER_BOUNDS.has(constraint)) return after < before;
+  for (const side of [sides.base, sides.revision]) {
+    const properties = side?.children.find((child) => child.type.name === 'SchemaProperties');
+    for (const property of properties?.children ?? []) {
+      latestByName.set(String(property.key), property);
+    }
   }
-  return true;
+
+  return [...latestByName.keys()].filter(
+    (name) => fieldOf(latestByName.get(name), keyword) === true
+  );
 }
 
-/** How a value moved, for a message: set where it was absent, dropped, or changed. */
-export function describeChange(subject: string, before: unknown, after: unknown): string {
-  if (before === undefined) return `${subject} was added with value '${after}'.`;
-  if (after === undefined) return `${subject} was removed.`;
-  return `${subject} changed from '${before}' to '${after}'.`;
-}
-
-/** Reports a constraint that moved so that the schema accepts less in a request, or more in a response. */
-export const judgeConstraint: DiffVisit = (change, { report, directions }) => {
-  if (change.kind !== 'modified') return;
-  const before = change.base.value;
-  const after = change.revision.value;
-  if (directions.includes(breakingDirection(acceptsLess(change.property, before, after)))) {
-    const subject = `\`${change.property}\`${ofSchema(change.node)}`;
-    report({ message: describeChange(subject, before, after) });
-  }
-};
-
-/**
- * A rule over one group of constraints on a value. The groups stay separate rules so a report
- * can name the constraint that actually moved.
- */
-export function constraintRule(constraints: string[]): DiffRule {
-  const watched = new Set(constraints);
-  return () => ({
-    Schema(change, context) {
-      if (change.kind === 'modified' && watched.has(change.property)) {
-        judgeConstraint(change, context);
-      }
-    },
-  });
+// `components` has maps of the same types as the document; only the document's own count.
+export function isRootField(node: DiffNode): boolean {
+  return node.parent !== null && typeOf(node.parent) === 'Root';
 }

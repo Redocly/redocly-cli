@@ -24,7 +24,7 @@ const search = '{ name: search, in: query, schema: { type: string } }';
 
 describe('parameter-became-required', () => {
   it('should report an optional parameter that became required, not one that became optional', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(
         cafe(
           '[{ name: limit, in: query, schema: { type: integer } }, { name: search, in: query, required: true }]'
@@ -48,7 +48,7 @@ describe('parameter-became-required', () => {
             "value": undefined,
           },
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/{query:limit}",
+          "key": "#/paths/~1menu/get/parameters/0",
           "kind": "modified",
           "property": "required",
           "revision": {
@@ -70,7 +70,7 @@ describe('parameter-became-required', () => {
             "value": true,
           },
           "impact": "patch",
-          "key": "#/paths/~1menu/get/parameters/{query:search}",
+          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "modified",
           "property": "required",
           "revision": {
@@ -84,7 +84,7 @@ describe('parameter-became-required', () => {
   });
 
   it('should report a new required parameter, not a new optional one', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(`[${search}]`), 'base.yaml'),
       revision: makeDocumentFromString(
         cafe(
@@ -99,7 +99,7 @@ describe('parameter-became-required', () => {
       [
         {
           "impact": "minor",
-          "key": "#/paths/~1menu/get/parameters/{query:limit}",
+          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "added",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1",
@@ -115,7 +115,7 @@ describe('parameter-became-required', () => {
         },
         {
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/{header:locale}",
+          "key": "#/paths/~1menu/get/parameters/2",
           "kind": "added",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/2",
@@ -131,7 +131,7 @@ describe('parameter-became-required', () => {
           "verdicts": [
             {
               "impact": "major",
-              "location": "revision.yaml#/paths/~1menu/get/parameters/2",
+              "location": "revision.yaml#/paths/~1menu/get/parameters/2/required",
               "message": "Required \`locale\` header parameter was added.",
               "ruleId": "parameter-became-required",
             },
@@ -141,8 +141,95 @@ describe('parameter-became-required', () => {
     `);
   });
 
+  it('should report each required parameter of a new parameters list at its own required field', async () => {
+    const result = await diffDocuments({
+      base: makeDocumentFromString(
+        outdent`
+          openapi: 3.1.0
+          info: { title: Cafe, version: 1.0.0 }
+          paths:
+            /menu:
+              get:
+                responses:
+                  '200': { description: OK }
+          components:
+            parameters:
+              C: { name: c, in: query, required: true, schema: { type: string } }
+        `,
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        outdent`
+          openapi: 3.1.0
+          info: { title: Cafe, version: 1.0.0 }
+          paths:
+            /menu:
+              get:
+                parameters:
+                  - { name: a, in: query, required: true, schema: { type: string } }
+                  - { name: b, in: query, schema: { type: string } }
+                  - { $ref: '#/components/parameters/C' }
+                responses:
+                  '200': { description: OK }
+          components:
+            parameters:
+              C: { name: c, in: query, required: true, schema: { type: string } }
+        `,
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'parameter-became-required': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "impact": "major",
+          "key": "#/paths/~1menu/get/parameters",
+          "kind": "added",
+          "revision": {
+            "location": "revision.yaml#/paths/~1menu/get/parameters",
+            "value": [
+              {
+                "in": "query",
+                "name": "a",
+                "required": true,
+                "schema": {
+                  "type": "string",
+                },
+              },
+              {
+                "in": "query",
+                "name": "b",
+                "schema": {
+                  "type": "string",
+                },
+              },
+              {
+                "$ref": "#/components/parameters/C",
+              },
+            ],
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/paths/~1menu/get/parameters/0/required",
+              "message": "Required \`a\` query parameter was added.",
+              "ruleId": "parameter-became-required",
+            },
+            {
+              "impact": "major",
+              "location": "revision.yaml#/components/parameters/C/required",
+              "message": "Required \`c\` query parameter was added.",
+              "ruleId": "parameter-became-required",
+            },
+          ],
+        },
+      ]
+    `);
+  });
+
   it('should read whether a referenced parameter is required from what it points at', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe("[{ $ref: '#/components/parameters/Sort' }]"), 'base.yaml'),
       revision: makeDocumentFromString(
         cafe(
@@ -157,7 +244,7 @@ describe('parameter-became-required', () => {
       [
         {
           "impact": "major",
-          "key": "#/paths/~1menu/get/parameters/{query:category}",
+          "key": "#/paths/~1menu/get/parameters/1",
           "kind": "added",
           "revision": {
             "location": "revision.yaml#/paths/~1menu/get/parameters/1",
@@ -173,7 +260,7 @@ describe('parameter-became-required', () => {
           "verdicts": [
             {
               "impact": "major",
-              "location": "revision.yaml#/paths/~1menu/get/parameters/1",
+              "location": "revision.yaml#/components/parameters/Category/required",
               "message": "Required \`category\` query parameter was added.",
               "ruleId": "parameter-became-required",
             },
@@ -184,7 +271,7 @@ describe('parameter-became-required', () => {
   });
 
   it('should not report referenced parameters listed in another order', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(
         cafe(
           "[{ $ref: '#/components/parameters/Sort' }, { $ref: '#/components/parameters/Category' }]"

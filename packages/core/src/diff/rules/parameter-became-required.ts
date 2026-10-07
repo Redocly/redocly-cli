@@ -1,32 +1,42 @@
-import { isPlainObject } from '../../utils/is-plain-object.js';
+import { fieldOf, locationOf } from '../../node-tree/access.js';
+import type { NodeEntry } from '../../node-tree/types.js';
+import type { Location } from '../../ref-utils.js';
+import { latestOf } from '../diff-node.js';
 import type { DiffRule } from '../types.js';
-import { describeParameter } from './utils.js';
 
-function isRequired(parameter: unknown): boolean {
-  return isPlainObject(parameter) && parameter.required === true;
-}
-
-// A client must now send a parameter that it did not have to: a new required one, or one that
-// became required. The first parameter of an operation arrives with the whole `parameters` list,
-// so that change lands on the list rather than on a parameter.
+// The first parameters of an operation arrive with the whole `parameters` list, so each required
+// one is reported on the list, at its own `required` field.
 export const ParameterBecameRequired: DiffRule = () => ({
-  Parameter(change, { report, directions }) {
-    if (!directions.includes('request')) return;
-    if (change.kind === 'added' && isRequired(change.revision.value)) {
-      report({ message: `Required ${describeParameter(change.node)} was added.` });
+  Parameter(change, { report, getDirections }) {
+    if (!getDirections().includes('request')) return;
+
+    const parameter = latestOf(change.node);
+    const name = `\`${fieldOf(parameter, 'name')}\` ${fieldOf(parameter, 'in')} parameter`;
+
+    if (change.kind === 'added' && fieldOf(parameter, 'required') === true) {
+      report({ message: `Required ${name} was added.`, location: requiredFieldOf(parameter) });
     }
     if (
       change.kind === 'modified' &&
       change.property === 'required' &&
       change.revision.value === true
     ) {
-      report({ message: `${describeParameter(change.node)} became required.` });
+      report({ message: `${name} became required.` });
     }
   },
-  ParameterList(change, { report, directions }) {
-    if (change.kind !== 'added' || !directions.includes('request')) return;
-    if (Array.isArray(change.revision.value) && change.revision.value.some(isRequired)) {
-      report({ message: 'Required parameters were added.' });
+  ParameterList(change, { report, getDirections }) {
+    if (change.kind !== 'added' || !getDirections().includes('request')) return;
+
+    for (const parameter of latestOf(change.node).children) {
+      if (fieldOf(parameter, 'required') !== true) continue;
+
+      const name = `\`${fieldOf(parameter, 'name')}\` ${fieldOf(parameter, 'in')} parameter`;
+      report({ message: `Required ${name} was added.`, location: requiredFieldOf(parameter) });
     }
   },
 });
+
+// A `$ref` parameter is required where it points.
+function requiredFieldOf(parameter: NodeEntry): Location {
+  return locationOf(parameter).child(['required']);
+}

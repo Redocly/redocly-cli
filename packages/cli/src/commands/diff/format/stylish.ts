@@ -2,6 +2,7 @@ import {
   displaySide,
   impactRank,
   impacts,
+  nameOf,
   parsePointer,
   typeOf,
   type Change,
@@ -30,10 +31,6 @@ const IMPACT_GLYPHS: Record<Impact, string> = {
 function segmentsOf(pointer: string): string[] {
   const [, ...segments] = parsePointer(pointer);
   return segments;
-}
-
-function nameOf(node: DiffNode): string {
-  return String((node.revision ?? node.base)!.key);
 }
 
 // The items that get a heading of their own, by the type of the map that holds them.

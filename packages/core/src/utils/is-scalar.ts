@@ -7,8 +7,6 @@ export function isScalar(value: unknown): boolean {
   );
 }
 
-// An empty array carries no scalars to compare and is walked as a node in its own
-// right, so treating it as a scalar too would report the same change twice.
 export function isScalarArray(value: unknown): boolean {
-  return Array.isArray(value) && value.length > 0 && value.every(isScalar);
+  return Array.isArray(value) && value.every(isScalar);
 }

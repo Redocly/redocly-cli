@@ -1,7 +1,7 @@
 import { valueOf } from '../../node-tree/access.js';
 import { isPlainObject } from '../../utils/is-plain-object.js';
+import { itemsNotIn } from '../../utils/items-not-in.js';
 import type { DiffRule } from '../types.js';
-import { itemsOnlyIn, quoted } from './utils.js';
 
 /** The schemes a client authenticates with, each with the scopes that its credentials hold. */
 type Credentials = Record<string, unknown>;
@@ -15,7 +15,7 @@ function passesOne(credentials: Credentials, requirements: unknown): boolean {
       isPlainObject(requirement) &&
       Object.entries(requirement).every(
         ([scheme, scopes]) =>
-          scheme in credentials && itemsOnlyIn(scopes, credentials[scheme]).length === 0
+          scheme in credentials && itemsNotIn(scopes, credentials[scheme]).length === 0
       )
   );
 }
@@ -46,15 +46,21 @@ export const SecurityRequirementChanged: DiffRule = () => ({
     const credentials = change.node.base && valueOf(change.node.base);
     if (!isPlainObject(credentials) || passesOne(credentials, requirements)) return;
 
+    const schemes = Object.keys(credentials).join(' + ');
     if (change.kind === 'removed') {
-      const schemes = Object.keys(credentials).join(' + ');
       report({ message: `Security requirement \`${schemes}\` is no longer accepted.` });
-    } else {
-      // A modified requirement keeps its schemes: the value of each one is its list of scopes.
-      const added = itemsOnlyIn(change.revision.value, change.base.value);
-      if (!added.length) return;
+    } else if (change.base.value === undefined) {
+      // A scheme the requirement did not have: a client must now hold it too.
       report({
-        message: `Security scheme \`${change.property}\` requires new scopes: ${quoted(added)}.`,
+        message: `Security requirement \`${schemes}\` now requires \`${change.property}\`.`,
+      });
+    } else {
+      // The requirement keeps this scheme: its value is the list of scopes.
+      const added = itemsNotIn(change.revision.value, change.base.value);
+      if (!added.length) return;
+      const scopes = added.map((scope) => `'${scope}'`).join(', ');
+      report({
+        message: `Security scheme \`${change.property}\` requires new scopes: ${scopes}.`,
       });
     }
   },

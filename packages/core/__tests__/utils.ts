@@ -1,6 +1,7 @@
 import * as path from 'path';
 
 import {
+  BaseResolver,
   type Change,
   type Document,
   type JudgedChange,
@@ -15,6 +16,17 @@ export function parseYamlToDocument(body: string, absoluteRef: string = ''): Doc
     source: new Source(absoluteRef, body),
     parsed: parseYaml(body, { filename: absoluteRef }),
   };
+}
+
+// A resolver that finds these files, by paths relative to the working directory, in its cache, so
+// a test that needs several files writes none to disk.
+export function resolverWithFiles(files: Record<string, string>): BaseResolver {
+  const resolver = new BaseResolver();
+  for (const [file, body] of Object.entries(files)) {
+    const absoluteRef = path.resolve(file);
+    resolver.cache.set(absoluteRef, Promise.resolve(parseYamlToDocument(body, absoluteRef)));
+  }
+  return resolver;
 }
 
 export function replaceSourceWithRefInChanges(changes: Array<Change | JudgedChange>) {

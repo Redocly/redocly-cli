@@ -1,109 +1,68 @@
 import type { NodeEntry } from '../node-tree/types.js';
-import { escapePointerFragment, joinPointer } from '../ref-utils.js';
-import type { DiffNode, Identities } from './types.js';
+import { changesOf } from './changes.js';
+import { comparedSidesOf, hasKeysNextToRefs, pointerOf } from './diff-node.js';
+import { pairChildren } from './pair-children.js';
+import type { Change, DiffNode } from './types.js';
 
-export function latestOf(node: DiffNode): NodeEntry {
-  return (node.revision ?? node.base)!;
-}
+/** A node that one side does not have is one change: nothing below it is compared. */
+export function compareTrees(base: NodeEntry, revision: NodeEntry): Change[] {
+  const changes: Change[] = [];
+  const compared = new Map<string, DiffNode>();
 
-export function typeOf(node: DiffNode): string {
-  return latestOf(node).type;
-}
+  function compare(node: DiffNode): void {
+    const sides = comparedSidesOf(node);
 
-/**
- * Matches the two documents up top-down into one tree: the roots meet, and the children of a
- * node are matched by the segment their container gives them. Every node of either document gets
- * a place, including those under a node that exists on one side only, so a reference site is
- * always addressable.
- */
-export function buildDiffTree(
-  base: NodeEntry,
-  revision: NodeEntry,
-  identities: Identities
-): { root: DiffNode; diffNodeOf: Map<NodeEntry, DiffNode> } {
-  const diffNodeOf = new Map<NodeEntry, DiffNode>();
+    if (sides.base && sides.revision) {
+      // A pair reached again, or through itself, was compared where it was reached first.
+      const id = `${sides.base.location.absolutePointer}|${sides.revision.location.absolutePointer}`;
+      const first = compared.get(id);
 
-  function addNode(
-    parent: DiffNode | null,
-    label: string,
-    sides: Pick<DiffNode, 'base' | 'revision'>
-  ): DiffNode {
-    const node: DiffNode = { ...sides, parent, children: [], label };
-    parent?.children.push(node);
-    if (node.base) diffNodeOf.set(node.base, node);
-    if (node.revision) diffNodeOf.set(node.revision, node);
-
-    const container = typeOf(node);
-    const baseGroups = groupBySegment(node.base?.children ?? [], container, identities);
-    const revisionGroups = groupBySegment(node.revision?.children ?? [], container, identities);
-
-    for (const [segment, baseNodes] of baseGroups) {
-      matchSiblings(node, segment, baseNodes, revisionGroups.get(segment) ?? []);
-    }
-
-    for (const [segment, revisionNodes] of revisionGroups) {
-      if (!baseGroups.has(segment)) {
-        matchSiblings(node, segment, [], revisionNodes);
+      if (first) {
+        first.referencedBy.push(node);
+        return;
       }
+
+      compared.set(id, node);
     }
 
-    return node;
-  }
+    changes.push(...changesOf(node));
 
-  function matchSiblings(
-    parent: DiffNode,
-    segment: string,
-    baseNodes: NodeEntry[],
-    revisionNodes: NodeEntry[]
-  ): void {
-    const sharedLabel = joinPointer(parent.label, segment);
-    for (let index = 0; index < Math.max(baseNodes.length, revisionNodes.length); index++) {
-      const label = index === 0 ? sharedLabel : `${sharedLabel}#${index + 1}`;
-      const base = baseNodes[index];
-      const revision = revisionNodes[index];
+    if (!sides.base || !sides.revision) return;
 
-      if (base && revision && base.type !== revision.type) {
-        // A different kind of node in the same place is a removal and an addition.
-        addNode(parent, label, { base });
-        addNode(parent, label, { revision });
-      } else {
-        addNode(parent, label, { base, revision });
+    for (const pair of pairChildren(sides.base.children, sides.revision.children)) {
+      const child: DiffNode = { ...pair, parent: node, referencedBy: [] };
+
+      // A renamed map entry, such as a path or a property.
+      if (
+        pair.base &&
+        pair.revision &&
+        typeof pair.base.key === 'string' &&
+        pair.base.key !== pair.revision.key
+      ) {
+        changes.push({
+          key: pointerOf(child),
+          node: child,
+          kind: 'modified',
+          property: 'key',
+          base: { location: pair.base.location, value: pair.base.key },
+          revision: { location: pair.revision.location, value: pair.revision.key },
+        });
       }
+
+      compare(child);
+    }
+
+    if (hasKeysNextToRefs(sides)) {
+      compare({
+        base: sides.base.resolved,
+        revision: sides.revision.resolved,
+        parent: node,
+        referencedBy: [],
+      });
     }
   }
 
-  return { root: addNode(null, '#/', { base, revision }), diffNodeOf };
-}
+  compare({ base, revision, parent: null, referencedBy: [] });
 
-// A child the specification does not identify keeps its key. A list item has no name of its
-// own: an inline one is known by its position, a `$ref` by the node it points at, so reordering
-// references is not a change.
-function segmentOf(child: NodeEntry, container: string, identities: Identities): string {
-  const identity = identities[container]?.(child);
-  if (identity) return identity;
-  if (typeof child.key === 'number' && child.target) {
-    return `{${escapePointerFragment(child.target.location.pointer)}}`;
-  }
-  return escapePointerFragment(String(child.key));
-}
-
-function groupBySegment(
-  nodes: NodeEntry[],
-  container: string,
-  identities: Identities
-): Map<string, NodeEntry[]> {
-  const groups = new Map<string, NodeEntry[]>();
-
-  for (const node of nodes) {
-    const segment = segmentOf(node, container, identities);
-    const group = groups.get(segment);
-
-    if (group) {
-      group.push(node);
-    } else {
-      groups.set(segment, [node]);
-    }
-  }
-
-  return groups;
+  return changes;
 }

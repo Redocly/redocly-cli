@@ -18,7 +18,7 @@ const order = 'requestBody: { content: { application/json: { schema: { type: obj
 
 describe('request-body-removed', () => {
   it('should report a request body that is gone', async () => {
-    const result = diffDocuments({
+    const result = await diffDocuments({
       base: makeDocumentFromString(cafe(`{ ${order}, ${created} }`), 'base.yaml'),
       revision: makeDocumentFromString(cafe(`{ ${created} }`), 'revision.yaml'),
       config: await createConfig({ diff: { 'request-body-removed': 'major' } }),

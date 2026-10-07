@@ -1,22 +1,28 @@
+import { nameOf } from '../diff-node.js';
 import type { DiffRule } from '../types.js';
-import { nameOf, ofSchema } from './utils.js';
+import { ofNamedSchema } from './utils.js';
 
-// A member of a `properties` map; an alternative of a `oneOf` is a schema too, but not a property.
-// Removing every property lands as one change on the `properties` map of the schema.
 export const PropertyRemoved: DiffRule = () => ({
   SchemaProperties: {
-    Schema(change, { report, directions }) {
-      if (change.kind === 'removed' && directions.includes('response')) {
-        report({
-          message: `Property \`${nameOf(change.node)}\`${ofSchema(change.node.parent?.parent)} was removed.`,
-        });
+    Schema(change, { report, getDirections }) {
+      if (!getDirections().includes('response')) return;
+
+      const owner = ofNamedSchema(change.node.parent?.parent);
+
+      if (change.kind === 'removed') {
+        report({ message: `Property \`${nameOf(change.node)}\`${owner} was removed.` });
+      }
+      if (change.kind === 'modified' && change.property === 'key') {
+        const { value: before } = change.base;
+        const { value: after } = change.revision;
+        report({ message: `Property \`${before}\`${owner} was renamed to \`${after}\`.` });
       }
     },
   },
   Schema: {
-    SchemaProperties(change, { report, directions }) {
-      if (change.kind === 'removed' && directions.includes('response')) {
-        report({ message: `All properties${ofSchema(change.node.parent)} were removed.` });
+    SchemaProperties(change, { report, getDirections }) {
+      if (change.kind === 'removed' && getDirections().includes('response')) {
+        report({ message: `All properties${ofNamedSchema(change.node.parent)} were removed.` });
       }
     },
   },

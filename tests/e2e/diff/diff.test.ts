@@ -140,6 +140,14 @@ describe('diff', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
   });
 
+  test('should point each change at the file and line that has it', async () => {
+    const testPath = join(__dirname, 'multi-file');
+    const args = getParams(indexEntryPoint, ['diff', 'base/openapi.yaml', 'revision/openapi.yaml']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
   test('should compare two APIs by their aliases and judge them with the rules of redocly.yaml', async () => {
     const testPath = join(__dirname, 'configuration');
     const args = getParams(indexEntryPoint, ['diff', 'cafe@v1', 'cafe@v2']);
