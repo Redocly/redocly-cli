@@ -398,6 +398,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": "Decorators",
       "async3Preprocessors": "Preprocessors",
       "async3Rules": "Rules",
+      "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "client": "Client",
       "clientOutput": {
         "format": "uri-reference",
@@ -548,6 +549,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": "Decorators",
       "async3Preprocessors": "Preprocessors",
       "async3Rules": "Rules",
+      "asyncapi": "rootRedoclyConfigSchema.asyncapi",
       "banner": "rootRedoclyConfigSchema.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.breadcrumbs",
       "catalog": "rootRedoclyConfigSchema.catalog",
@@ -1981,6 +1983,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.asyncapi",
       "banner": "rootRedoclyConfigSchema.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.breadcrumbs",
       "catalog": "rootRedoclyConfigSchema.catalog",
@@ -2971,6 +2974,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.apis_additionalProperties.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "decorators": {
         "type": "object",
       },
@@ -3092,6 +3096,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.apis_additionalProperties.graphql": {
@@ -8983,6 +9353,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {},
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
   "rootRedoclyConfigSchema.banner": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -11442,6 +12178,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.env_additionalProperties.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi",
       "banner": "rootRedoclyConfigSchema.env_additionalProperties.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.env_additionalProperties.breadcrumbs",
       "catalog": "rootRedoclyConfigSchema.env_additionalProperties.catalog",
@@ -12426,6 +13163,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi",
       "decorators": {
         "type": "object",
       },
@@ -12547,6 +13285,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql": {
@@ -18436,6 +19540,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.banner": {
