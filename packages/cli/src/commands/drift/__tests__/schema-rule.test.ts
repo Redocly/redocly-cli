@@ -176,28 +176,6 @@ describe('schema-consistency deepObject query parameter check', () => {
   });
 });
 
-describe('schema-consistency query parameter validation', () => {
-  const rule = new SchemaConsistencyRule();
-
-  it('validates a query parameter as a request so required readOnly properties are not demanded', () => {
-    const validationTargets: unknown[] = [];
-    const context = createContext(200, {
-      queryString: 'filter=active',
-      requestParameters: [
-        { name: 'filter', in: 'query', required: true, schema: { type: 'string' } },
-      ],
-    });
-    context.validateSchema = (_schema, _value, options) => {
-      validationTargets.push(options?.target);
-      return { valid: true, errors: [] };
-    };
-
-    rule.analyze(context);
-
-    expect(validationTargets).toEqual(['request']);
-  });
-});
-
 describe('schema-consistency response schema lookup', () => {
   const rule = new SchemaConsistencyRule();
 

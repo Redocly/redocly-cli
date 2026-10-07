@@ -12,7 +12,11 @@ import type {
 } from '../types/index.js';
 import { isJsonMime, pickSchemaByMime } from '../utils/http.js';
 import { resolveResponseKey } from '../utils/openapi.js';
-import { getActualParameterValue } from '../utils/parameters.js';
+import {
+  FORM_URLENCODED,
+  getActualParameterValue,
+  getFormQuerystringSchema,
+} from '../utils/parameters.js';
 import { isPropertyExcludedFromTarget } from './schema-validator.js';
 
 interface CoverageEntry {
@@ -168,7 +172,14 @@ function createOperationState(
     if (ignoreCookies && parameter.in === 'cookie') {
       continue;
     }
-    addEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in });
+
+    const formKeyNames = [...(getFormQuerystringSchema(parameter)?.properties ?? [])]
+      .filter(([, propertySchema]) => !isPropertyExcludedFromTarget(propertySchema, 'request'))
+      .map(([key]) => `${parameter.name}.${key}`);
+
+    for (const name of formKeyNames.length > 0 ? formKeyNames : [parameter.name]) {
+      addEntry(entries, { kind: 'parameter', name, in: parameter.in });
+    }
   }
 
   for (const [mime, schema] of Object.entries(operation.requestBodyContent)) {
@@ -264,8 +275,18 @@ export class CoverageCollector {
 
     for (const parameter of operation.requestParameters) {
       const actualValue = getActualParameterValue(parameter, exchange.request, pathParams, cookies);
-      if (actualValue !== undefined) {
-        markEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in });
+      if (actualValue === undefined) {
+        continue;
+      }
+      markEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in });
+      if (parameter.mediaType === FORM_URLENCODED && isPlainObject(actualValue)) {
+        for (const key of Object.keys(actualValue)) {
+          markEntry(entries, {
+            kind: 'parameter',
+            name: `${parameter.name}.${key}`,
+            in: parameter.in,
+          });
+        }
       }
     }
 

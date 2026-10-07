@@ -120,7 +120,7 @@ describe('drift - validate mode', () => {
       '--rules',
       'schema-consistency',
       '--max-findings',
-      '20',
+      '40',
       '--coverage',
     ]);
     await matchSnapshot('validate-querystring', output);

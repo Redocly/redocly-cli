@@ -82,7 +82,6 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       continue;
     }
 
-    // A querystring parameter describes the whole query with its first media type.
     const querystringContent =
       location === 'querystring'
         ? Object.entries(extractMediaSchemas(entry.content))[0]
@@ -93,7 +92,7 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       in: location,
       required: Boolean(entry.required) || location === 'path',
       style: typeof entry.style === 'string' ? entry.style : undefined,
-      schema: querystringContent ? querystringContent[1] : entry.schema,
+      schema: location === 'querystring' ? querystringContent?.[1] : entry.schema,
       mediaType: querystringContent ? normalizeContentType(querystringContent[0]) : undefined,
     });
   }

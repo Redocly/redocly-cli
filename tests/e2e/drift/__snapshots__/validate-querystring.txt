@@ -4,17 +4,17 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-querystring.ndjson
 ┃ Match mode: strict-host
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=15 documented=15 undocumented=0
-┃ Findings: total=14 error=11 warning=3 info=0
-┃ Problems: total=12
+┃ Exchanges: total=22 documented=22 undocumented=0
+┃ Findings: total=18 error=13 warning=5 info=0
+┃ Problems: total=17
 ┗ Duration: <ms>ms
 
 Types (1)
-  • schema-consistency: 12 problems / 14 findings
+  • schema-consistency: 17 problems / 18 findings
 
-Problems by type (showing first 12 of 12)
+Problems by type (showing first 17 of 17)
 
-◉ schema-consistency (12 problems shown / 12 total, 14 findings)
+◉ schema-consistency (17 problems shown / 17 total, 18 findings)
 ▲ WARN #1 → Undocumented query parameter in traffic: "page"
   ↳ sample exchange=1 GET /events (200) listEvents
 
@@ -133,18 +133,14 @@ Problems by type (showing first 12 of 12)
     expected: type "integer"
     actual: "big"
 
-✖ ERROR #11 ×2 → Invalid querystring parameter "query": Request field "root" must be object.
+✖ ERROR #11 → Invalid querystring parameter "query": the query string is not valid JSON.
   ↳ sample exchange=9 GET /search (200) search
 
     http://api.example.com/search?not-json
 
     spec: querystring-openapi.yaml
-    schemaPath= #/type
 
-    schema: Request field "root" must be object.
-    path: /
-    expected: type "object"
-    actual: "not-json"
+    details: {"operationPathTemplate":"/search"}
 
 ✖ ERROR #12 → Invalid querystring parameter "text": Request schema mismatch at "root": must NOT have more than 5 characters
   ↳ sample exchange=11 GET /echo (200) echo
@@ -158,9 +154,66 @@ Problems by type (showing first 12 of 12)
     path: /
     actual: "café au lait"
 
+✖ ERROR #13 → Invalid querystring parameter "query": Request field "root" must be object.
+  ↳ sample exchange=13 GET /search (200) search
+
+    http://api.example.com/search?null
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/type
+
+    schema: Request field "root" must be object.
+    path: /
+    expected: type "object"
+    actual: null
+
+✖ ERROR #14 → Invalid querystring parameter "filters": Request field "points[0].x" must be integer.
+  ↳ sample exchange=17 GET /places (200) listPlaces
+
+    http://api.example.com/places?points=%7B%22x%22%3A%22a%22%7D
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/properties/points/items/properties/x/type
+    dataPath= /points/0/x
+
+    schema: Request field "points[0].x" must be integer.
+    path: /points/0/x
+    expected: type "integer"
+    actual: "a"
+
+▲ WARN #15 → Undocumented query parameter in traffic: "verbose"
+  ↳ sample exchange=18 GET /events/export (400) exportEvents
+
+    http://api.example.com/events/export?format=csv&verbose=1
+
+    spec: querystring-openapi.yaml
+
+    details: {"operationPathTemplate":"/events/export"}
+
+▲ WARN #16 → Undocumented query parameter in traffic: "junk"
+  ↳ sample exchange=19 GET /lookup (200) lookup
+
+    http://api.example.com/lookup?name=ann&junk=1
+
+    spec: querystring-openapi.yaml
+
+    details: {"operationPathTemplate":"/lookup"}
+
+✖ ERROR #17 → Invalid querystring parameter "filters": Request schema mismatch at "root": must NOT have unevaluated properties
+  ↳ sample exchange=21 GET /audit (200) listAudit
+
+    http://api.example.com/audit?a=1&c=3
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/unevaluatedProperties
+
+    schema: Request schema mismatch at "root": must NOT have unevaluated properties
+    path: /
+    actual: {"a":"1","c":"3"}
+
 API coverage
-  operations         ████████████████████  100%    7/7
-  parameters         ████████████████████  100%    7/7
-  schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a    0/0
-  response codes     ████████████████████  100%    8/8
+  operations         ████████████████████  100%    12/12
+  parameters         ████████████████░░░░   84%    16/19
+  schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a      0/0
+  response codes     ████████████████████  100%    13/13
 

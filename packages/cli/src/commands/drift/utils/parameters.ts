@@ -48,39 +48,110 @@ function getDeepObjectParameterValue(
   return objectValue;
 }
 
+export const FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
+const OTHER_KEYS_KEYWORDS = ['additionalProperties', 'patternProperties', 'unevaluatedProperties'];
+
+export interface FormQuerystringSchema {
+  properties: Map<string, unknown>;
+  checksOtherKeys: boolean;
+}
+
+export function getFormQuerystringSchema(
+  parameter: OpenApiParameter
+): FormQuerystringSchema | undefined {
+  if (parameter.mediaType !== FORM_URLENCODED) {
+    return undefined;
+  }
+
+  const formSchema: FormQuerystringSchema = { properties: new Map(), checksOtherKeys: false };
+  collectFormSchema(parameter.schema, formSchema, true, new Set());
+  return formSchema;
+}
+
+function collectFormSchema(
+  schema: unknown,
+  formSchema: FormQuerystringSchema,
+  appliesToEveryValue: boolean,
+  seen: Set<unknown>
+): void {
+  if (!isPlainObject(schema) || seen.has(schema)) {
+    return;
+  }
+  seen.add(schema);
+
+  if (isPlainObject(schema.properties)) {
+    for (const [key, propertySchema] of Object.entries(schema.properties)) {
+      formSchema.properties.set(key, propertySchema);
+    }
+  }
+
+  if (appliesToEveryValue && OTHER_KEYS_KEYWORDS.some((keyword) => schema[keyword] !== undefined)) {
+    formSchema.checksOtherKeys = true;
+  }
+
+  for (const branch of Array.isArray(schema.allOf) ? schema.allOf : []) {
+    collectFormSchema(branch, formSchema, appliesToEveryValue, seen);
+  }
+  for (const branches of [schema.oneOf, schema.anyOf]) {
+    for (const branch of Array.isArray(branches) ? branches : []) {
+      collectFormSchema(branch, formSchema, false, seen);
+    }
+  }
+}
+
+function parseFormValue(value: string, schema: unknown): unknown {
+  if (!isPlainObject(schema) || schema.type !== 'object') {
+    return value;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
 function getQuerystringValue(parameter: OpenApiParameter, request: NormalizedRequest): unknown {
-  if (parameter.mediaType === 'application/x-www-form-urlencoded') {
+  const formSchema = getFormQuerystringSchema(parameter);
+  if (formSchema) {
     const keys = [...new Set(request.query.keys())];
     if (keys.length === 0) {
       return undefined;
     }
     return Object.fromEntries(
       keys.map((key) => {
-        const values = request.query.getAll(key);
-        return [key, values.length > 1 ? values : values[0]];
+        const propertySchema = formSchema.properties.get(key);
+        const isArray = isPlainObject(propertySchema) && propertySchema.type === 'array';
+        const values = request.query
+          .getAll(key)
+          .map((value) => parseFormValue(value, isArray ? propertySchema.items : propertySchema));
+        return [key, isArray || values.length > 1 ? values : values[0]];
       })
     );
   }
 
-  let rawQuery = parseUrl(request.url).search.slice(1);
-  if (rawQuery === '') {
+  const encodedQuery = parseUrl(request.url).search.slice(1);
+  if (encodedQuery === '') {
     return undefined;
   }
+
+  let decodedQuery: string;
   try {
-    rawQuery = decodeURIComponent(rawQuery);
+    decodedQuery = decodeURIComponent(encodedQuery);
   } catch {
-    // Malformed percent-encoding: validate the query as it appears in the traffic.
+    decodedQuery = encodedQuery;
   }
 
-  if (isJsonMime(parameter.mediaType)) {
-    try {
-      return JSON.parse(rawQuery);
-    } catch {
-      return rawQuery;
-    }
+  if (!isJsonMime(parameter.mediaType)) {
+    return decodedQuery;
   }
 
-  return rawQuery;
+  try {
+    return JSON.parse(decodedQuery);
+  } catch {
+    return undefined;
+  }
 }
 
 export function getActualParameterValue(

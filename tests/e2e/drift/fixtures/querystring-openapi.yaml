@@ -135,6 +135,113 @@ paths:
       responses:
         '200':
           description: The notes.
+  /schema-only:
+    get:
+      operationId: schemaOnly
+      parameters:
+        - name: filters
+          in: querystring
+          schema:
+            type: object
+            properties:
+              a:
+                type: string
+      responses:
+        '200':
+          description: OK.
+  /places:
+    get:
+      operationId: listPlaces
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: object
+                    properties:
+                      city:
+                        type: string
+                  points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        x:
+                          type: integer
+      responses:
+        '200':
+          description: The places.
+  /lookup:
+    get:
+      operationId: lookup
+      parameters:
+        - name: by
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                oneOf:
+                  - type: object
+                    required:
+                      - id
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: string
+                  - type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+      responses:
+        '200':
+          description: The match.
+  /traces:
+    get:
+      operationId: listTraces
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: string
+                patternProperties:
+                  '^x-':
+                    type: string
+      responses:
+        '200':
+          description: The traces.
+  /audit:
+    get:
+      operationId: listAudit
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      a:
+                        type: string
+                  - type: object
+                    properties:
+                      b:
+                        type: string
+                unevaluatedProperties: false
+      responses:
+        '200':
+          description: The audit log.
   /legacy:
     get:
       operationId: legacyFilter

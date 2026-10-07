@@ -21,11 +21,12 @@ The `drift` command reports:
 Query parameters are checked key by key.
 When an operation documents the entire query string with an `in: querystring` parameter, the query is read as one value instead and validated against the schema of the parameter's `content` media type:
 `application/x-www-form-urlencoded` is parsed into an object keyed by query key, a JSON media type is parsed as JSON, and all other media types are validated as the percent-decoded string.
-Form and string values are converted to the schema types before validation, and a JSON value is validated as is.
+Form and string values are converted to the schema types before validation, and a form value whose property is an `object` is parsed as JSON.
+A JSON value is validated as is, and a query string that is not valid JSON is reported as an error.
 For a form-urlencoded schema, the keys under `properties`, including those inside `allOf`, `oneOf`, and `anyOf`, are the documented query parameters, and other keys are reported as undocumented warnings.
-Keys are not checked when the schema has no `properties` or sets `additionalProperties`.
-With `additionalProperties: false`, an extra key is reported as a schema error instead.
-`encoding` objects on the media type are not supported yet, and the properties of a querystring schema are not counted in `--coverage`.
+Keys are not checked for JSON and other media types, when the schema has no `properties`, or when the schema or an `allOf` branch sets `additionalProperties`, `patternProperties`, or `unevaluatedProperties`.
+In that case the schema check reports extra keys instead, except when the server rejected the request with a `4xx`, where they are reported as undocumented warnings.
+`encoding` objects on the media type are not supported yet.
 
 Spec loading reuses the same engine as the other commands (`@redocly/openapi-core`), and schema validation reuses the bundled `@redocly/ajv`, so there are no extra runtime dependencies.
 
@@ -150,6 +151,10 @@ API coverage
 Schema properties are collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
 Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
 A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whenever it carries that field, whichever branch declares it.
+
+Each non-`readOnly` property of a form-urlencoded `querystring` schema counts as its own parameter, named after the parameter and the key, for example `filters.status`.
+The traffic covers it when the query carries that key, the same as an `in: query` parameter.
+A `querystring` parameter with any other media type, or with a schema that documents no keys or only `readOnly` keys, counts as one parameter.
 
 If the report on stdout is machine-readable (`--format json`, `csv`, or `sarif` without `--output`), the overview is printed to stderr so the report stays parseable.
 

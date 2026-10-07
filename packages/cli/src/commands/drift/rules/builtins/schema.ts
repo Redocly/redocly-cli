@@ -12,9 +12,14 @@ import {
   pickSchemaByMime,
   shouldIgnoreHeaderAsUndocumented,
   isJsonMime,
+  parseUrl,
 } from '../../utils/http.js';
 import { resolveResponseKey } from '../../utils/openapi.js';
-import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
+import {
+  getActualParameterValue,
+  getFormQuerystringSchema,
+  parseDeepObjectQueryKey,
+} from '../../utils/parameters.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
@@ -251,31 +256,6 @@ function validateParameter(
   }
 }
 
-function collectFormSchemaKeys(
-  schema: unknown,
-  keys: Set<string>,
-  seen = new Set<unknown>()
-): boolean {
-  if (!isPlainObject(schema) || seen.has(schema)) {
-    return true;
-  }
-  seen.add(schema);
-
-  if (schema.additionalProperties !== undefined) {
-    return false;
-  }
-
-  for (const key of Object.keys(isPlainObject(schema.properties) ? schema.properties : {})) {
-    keys.add(key);
-  }
-
-  return [schema.allOf, schema.oneOf, schema.anyOf].every(
-    (branches) =>
-      !Array.isArray(branches) ||
-      branches.every((branch) => collectFormSchemaKeys(branch, keys, seen))
-  );
-}
-
 function createUndocumentedParameterFindings(
   context: RuleContext,
   matchedOperation: MatchedOperation
@@ -291,13 +271,16 @@ function createUndocumentedParameterFindings(
 
   for (const parameter of matchedOperation.operation.requestParameters) {
     if (parameter.in === 'querystring') {
-      // OpenAPI forbids `in: query` next to `in: querystring`, so the query set holds only form keys.
+      const formSchema = getFormQuerystringSchema(parameter);
       if (
-        parameter.mediaType !== 'application/x-www-form-urlencoded' ||
-        !collectFormSchemaKeys(parameter.schema, paramsByLocation.query) ||
-        paramsByLocation.query.size === 0
+        !formSchema ||
+        formSchema.properties.size === 0 ||
+        (formSchema.checksOtherKeys && !isRequestRejectedByServer(context))
       ) {
         checkQueryKeys = false;
+      }
+      for (const key of formSchema?.properties.keys() ?? []) {
+        paramsByLocation.query.add(key);
       }
     } else if (parameter.in === 'header') {
       paramsByLocation.header.add(parameter.name.toLowerCase());
@@ -441,6 +424,24 @@ export class SchemaConsistencyRule implements TrafficRule {
           matchedOperation.pathParams,
           context.cookies
         );
+
+        if (
+          actualValue === undefined &&
+          isJsonMime(parameter.mediaType) &&
+          parseUrl(context.exchange.request.url).search !== ''
+        ) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'schema',
+            message: `Invalid ${parameter.in} parameter "${parameter.name}": the query string is not valid JSON.`,
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'request',
+          });
+          continue;
+        }
 
         if (parameter.required && actualValue === undefined) {
           findings.push({
