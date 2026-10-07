@@ -713,7 +713,7 @@ yargs(hideBin(process.argv))
       commandWrapper(handleLogout)(argv);
     }
   )
-  .command('git', false, (yargs) =>
+  .command('git', 'Work with a Redocly-hosted project as a git remote [early access].', (yargs) =>
     yargs
       .env('REDOCLY_CLI_GIT')
       .command(

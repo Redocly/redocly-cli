@@ -13,7 +13,6 @@ redocly login --residency https://api.example.com
 ```
 
 Note that logging in with **Reunite** API does not allow you to use the `push` command without an API key.
-The [`git`](./git.md) commands use the login, so you can clone and push Redocly-hosted projects without an API key.
 
 ## Options
 

@@ -26,8 +26,6 @@
           page: commands/generate-client.md
         - label: generate-spec
           page: commands/generate-spec.md
-        - label: git
-          page: commands/git.md
         - label: join
           page: commands/join.md
         - label: lint
