@@ -12043,6 +12043,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
@@ -22233,6 +22234,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
@@ -32103,6 +32105,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
+        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
