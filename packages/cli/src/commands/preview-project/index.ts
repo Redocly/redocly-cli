@@ -21,14 +21,12 @@ export const previewProject = async ({ argv }: CommandArgs<PreviewProjectArgv>) 
 
   const productName = PRODUCT_NAMES[product];
   const packageName = PRODUCT_PACKAGES[product];
-  const productVersion = argv['product-version'];
-  const packageSpec = productVersion ? `${packageName}@${productVersion}` : packageName;
+  // test-only: --product-version runs the preview with a specific product build, for example one published to a staging registry
+  const packageSpec = argv['product-version']
+    ? `${packageName}@${argv['product-version']}`
+    : packageName;
 
-  logger.info(
-    `\nLaunching preview of ${productName} ${plan}${
-      productVersion ? ` (${packageSpec})` : ''
-    } using NPX.\n\n`
-  );
+  logger.info(`\nLaunching preview of ${productName} ${plan} using NPX.\n\n`);
   const { npxExecutableName, shell } = getPlatformSpawnArgs();
 
   const child = spawn(
