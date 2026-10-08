@@ -713,12 +713,12 @@ yargs(hideBin(process.argv))
       commandWrapper(handleLogout)(argv);
     }
   )
-  .command('git', 'Work with a Redocly-hosted project as a git remote [early access].', (yargs) =>
+  .command('project', 'Work with a Redocly-hosted project [early access].', (yargs) =>
     yargs
-      .env('REDOCLY_CLI_GIT')
+      .env('REDOCLY_CLI_PROJECT')
       .command(
         'clone <project> [directory]',
-        'Clone a Redocly-hosted project.',
+        'Clone a Redocly-hosted project as a Git repository.',
         (yargs) =>
           yargs
             .positional('project', {
@@ -743,8 +743,8 @@ yargs(hideBin(process.argv))
               },
             }),
         async (argv) => {
-          const { handleGitClone } = await import('./commands/git/index.js');
-          commandWrapper(handleGitClone)(argv);
+          const { handleProjectClone } = await import('./commands/project/index.js');
+          commandWrapper(handleProjectClone)(argv);
         }
       )
       .command(
@@ -757,13 +757,17 @@ yargs(hideBin(process.argv))
             demandOption: true,
           }),
         async (argv) => {
-          const { handleGitCredential } = await import('./commands/git/credential.js');
+          const { handleProjectCredential } = await import('./commands/project/credential.js');
           process.stdout.write(
-            await handleGitCredential({ operation: argv.operation, input: process.stdin, version })
+            await handleProjectCredential({
+              operation: argv.operation,
+              input: process.stdin,
+              version,
+            })
           );
         }
       )
-      .demandCommand(1, 'Specify a git subcommand: clone.')
+      .demandCommand(1, 'Specify a project subcommand: clone.')
   )
   .command(
     'preview',

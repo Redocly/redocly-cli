@@ -35,7 +35,7 @@ describe('git utils', () => {
 
       expect(getCredentialHelperConfig('https://app.cloud.redocly.com', '2.0.0')).toEqual([
         'credential.https://app.cloud.redocly.com/.helper=',
-        'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true redocly git credential',
+        'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true redocly project credential',
       ]);
     });
 
@@ -43,7 +43,7 @@ describe('git utils', () => {
       vi.mocked(existsSync).mockReturnValue(false);
 
       expect(getCredentialHelperConfig('http://localhost', '2.0.0')[1]).toBe(
-        'credential.http://localhost/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true npx --yes @redocly/cli@2.0.0 git credential'
+        'credential.http://localhost/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true npx --yes @redocly/cli@2.0.0 project credential'
       );
     });
   });

@@ -4,14 +4,14 @@ import { getReuniteUrl } from '@redocly/reunite-integration';
 import type { CommandArgs } from '../../wrapper.js';
 import { buildProjectGitUrl, getCredentialHelperConfig, runGit } from './utils.js';
 
-export type GitCloneArgv = {
+export type ProjectCloneArgv = {
   project: string;
   directory?: string;
   residency?: string;
 };
 
 // Clones with the credential helper saved in the repository config, so plain `git` works later.
-export async function handleGitClone({ argv, config, version }: CommandArgs<GitCloneArgv>) {
+export async function handleProjectClone({ argv, config, version }: CommandArgs<ProjectCloneArgv>) {
   const [organization, project, ...rest] = argv.project.split('/');
   if (!organization || !project || rest.length > 0) {
     throw new HandledError(

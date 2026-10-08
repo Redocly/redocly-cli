@@ -3,7 +3,7 @@ import type * as ReuniteIntegration from '@redocly/reunite-integration';
 import { RedoclyOAuthClient } from '@redocly/reunite-integration';
 import { Readable } from 'node:stream';
 
-import { handleGitCredential } from '../credential.js';
+import { handleProjectCredential } from '../credential.js';
 
 vi.mock('@redocly/reunite-integration', async () => ({
   ...(await vi.importActual<typeof ReuniteIntegration>('@redocly/reunite-integration')),
@@ -14,10 +14,10 @@ const GET_REQUEST =
   'protocol=https\nhost=app.cloud.redocly.com\nwwwauth[]=Basic realm="Redocly"\n\n';
 
 function credential(operation: string, request = GET_REQUEST) {
-  return handleGitCredential({ operation, input: Readable.from([request]), version: '2.0.0' });
+  return handleProjectCredential({ operation, input: Readable.from([request]), version: '2.0.0' });
 }
 
-describe('handleGitCredential', () => {
+describe('handleProjectCredential', () => {
   const originalEnv = process.env;
   const getAccessToken = vi.fn();
 

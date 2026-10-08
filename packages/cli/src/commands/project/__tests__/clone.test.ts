@@ -3,7 +3,7 @@ import { getReuniteUrl } from '@redocly/reunite-integration';
 
 import type { CommandArgv } from '../../../types.js';
 import type { CommandArgs } from '../../../wrapper.js';
-import { type GitCloneArgv, handleGitClone } from '../index.js';
+import { type ProjectCloneArgv, handleProjectClone } from '../index.js';
 import type * as GitUtils from '../utils.js';
 import { getCredentialHelperConfig, runGit } from '../utils.js';
 
@@ -26,7 +26,7 @@ function commandArgs<T extends CommandArgv>(argv: T): CommandArgs<T> {
   return { argv, config: {} as any, version: '2.0.0' };
 }
 
-describe('redocly git', () => {
+describe('redocly project clone', () => {
   beforeEach(() => {
     vi.mocked(getReuniteUrl).mockReturnValue('http://localhost');
     vi.mocked(getCredentialHelperConfig).mockReturnValue(HELPER_CONFIG);
@@ -41,7 +41,9 @@ describe('redocly git', () => {
     ])(
       'clones the project git URL into $clonedInto with the credential helper saved in the repository',
       async ({ directory, clonedInto }) => {
-        await handleGitClone(commandArgs<GitCloneArgv>({ project: 'acme/docs', directory }));
+        await handleProjectClone(
+          commandArgs<ProjectCloneArgv>({ project: 'acme/docs', directory })
+        );
 
         expect(getCredentialHelperConfig).toHaveBeenCalledWith('http://localhost', '2.0.0');
         expect(runGit).toHaveBeenCalledWith([
@@ -60,16 +62,16 @@ describe('redocly git', () => {
       vi.mocked(runGit).mockResolvedValue(128);
 
       await expect(
-        handleGitClone(commandArgs<GitCloneArgv>({ project: 'acme/docs' }))
+        handleProjectClone(commandArgs<ProjectCloneArgv>({ project: 'acme/docs' }))
       ).rejects.toBeInstanceOf(HandledError);
     });
 
     it.each(['docs', 'acme/', '/docs', 'acme/docs/extra'])(
       'rejects %s, which is not <organization>/<project>',
       async (project) => {
-        await expect(handleGitClone(commandArgs<GitCloneArgv>({ project }))).rejects.toThrow(
-          'Specify the project as `<organization>/<project>`'
-        );
+        await expect(
+          handleProjectClone(commandArgs<ProjectCloneArgv>({ project }))
+        ).rejects.toThrow('Specify the project as `<organization>/<project>`');
         expect(runGit).not.toHaveBeenCalled();
       }
     );
