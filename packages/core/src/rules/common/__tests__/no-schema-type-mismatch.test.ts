@@ -97,6 +97,75 @@ describe('no-schema-type-mismatch rule', () => {
     ]);
   });
 
+  it('should report a warning for non-object types with properties and non-array types with items', async () => {
+    const yaml = outdent`
+      openapi: 3.1.0
+      info:
+        title: Test API
+        version: 1.0.0
+      paths:
+        /test:
+          put:
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: string
+                    properties:
+                      email:
+                        type: string
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      type: integer
+                      items:
+                        type: string
+    `;
+
+    const document = parseYamlToDocument(yaml, 'test.yaml');
+    const results = await lintDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/put/requestBody/content/application~1json/schema/properties",
+              "reportOnKey": false,
+              "source": "test.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'string' type should not contain 'properties' field.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "warn",
+          "suggest": [],
+        },
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/put/responses/200/content/application~1json/schema/items",
+              "reportOnKey": false,
+              "source": "test.yaml",
+            },
+          ],
+          "message": "Schema type mismatch: 'integer' type should not contain 'items' field.",
+          "reference": "https://redocly.com/docs/cli/rules/common/no-schema-type-mismatch",
+          "ruleId": "no-schema-type-mismatch",
+          "severity": "warn",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should not report a warning for valid schemas', async () => {
     const yaml = outdent`
       openapi: 3.0.0
