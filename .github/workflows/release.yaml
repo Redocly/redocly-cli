@@ -54,13 +54,15 @@ jobs:
           # This calculates the changed packages and creates an additional changeset for internal dependency updates.
           # Then `changeset version` produces all necessary version bumps in package.json files.
           # After that, `npm i` ensures the lockfile is updated with the new versions.
-          # Finally, the `post-changeset` script and updates the main changelog.
+          # Then the `post-changeset` script updates the main changelog.
+          # Finally, the `stamp-ejected-generator` script stamps the ejected generator example with the new client-generator version.
           version: |
             npx changeset status --output=__changesets__.json
             node scripts/add-cli-dependency-changesets.js __changesets__.json
             npx changeset version
             npm i
             node scripts/post-changeset.js
+            node scripts/stamp-ejected-generator.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_ENV: production
