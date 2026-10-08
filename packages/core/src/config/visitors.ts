@@ -87,9 +87,7 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-type Rebase = (value: string, sourceRef: string, rootRef: string) => string;
-
-const rebasePath: Rebase = (value, sourceRef, rootRef) => {
+function rebasePath(value: string, sourceRef: string, rootRef: string) {
   if (hasScheme(value) || path.isAbsolute(value)) {
     return value;
   }
@@ -98,10 +96,10 @@ const rebasePath: Rebase = (value, sourceRef, rootRef) => {
   }
   const resolved = path.resolve(path.dirname(sourceRef), value);
   return path.relative(path.dirname(rootRef), resolved) || '.';
-};
+}
 
 // a glob is matched against project paths: `/` and `**` already anchor it, a leading `!` negates the rest
-const rebaseGlob: Rebase = (value, sourceRef, rootRef) => {
+function rebaseGlob(value: string, sourceRef: string, rootRef: string) {
   const pattern = value.replace(/^!+/, '');
   if (!pattern || pattern.startsWith('/') || pattern.startsWith('**') || isAbsoluteUrl(sourceRef)) {
     return value;
@@ -112,19 +110,20 @@ const rebaseGlob: Rebase = (value, sourceRef, rootRef) => {
     .join('/');
   const negation = value.slice(0, value.length - pattern.length);
   return dir ? negation + path.posix.join(dir, pattern) : value;
-};
+}
 
 // one or more images, as a path or as "path mode" pairs separated by ", "; a token without a file extension is an icon name
-const rebaseImage: Rebase = (value, sourceRef, rootRef) =>
-  value
+function rebaseImage(value: string, sourceRef: string, rootRef: string) {
+  return value
     .split(/\s*,\s*/)
     .map((entry) => {
       const [src, ...mode] = entry.trim().split(/\s+/);
       return [/\.\w+$/.test(src) ? rebasePath(src, sourceRef, rootRef) : src, ...mode].join(' ');
     })
     .join(', ');
+}
 
-const REBASERS: Record<string, Rebase> = {
+const REBASERS: Record<string, typeof rebasePath> = {
   'uri-reference': rebasePath,
   glob: rebaseGlob,
   image: rebaseImage,
