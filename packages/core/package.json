@@ -53,13 +53,14 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.18.3",
-    "@redocly/config": "file:../../vendor/redocly-config-0.0.0-feat-config-is-file-path.a5df24f62a4.tgz",
+    "@redocly/config": "file:../../vendor/redocly-config-0.0.0-feat-config-is-file-path.48e8c955ea4.tgz",
     "ajv": "npm:@redocly/ajv@^8.18.3",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
     "graphql": "^16.14.1",
     "js-levenshtein": "^1.1.6",
     "js-yaml": "^5.2.2",
+    "json-schema-to-ts": "^3.1.0",
     "jsonpath-rfc9535": "1.3.0",
     "picomatch": "^4.0.4",
     "pluralize": "^8.0.0",
@@ -69,7 +70,6 @@
     "@types/js-levenshtein": "^1.1.0",
     "@types/picomatch": "^4.0.2",
     "@types/pluralize": "^0.0.29",
-    "json-schema-to-ts": "^3.1.0",
     "typescript": "6.0.2"
   }
 }

@@ -312,7 +312,7 @@ For other commands you'd have to do something similar.
 
 ### Performance benchmark
 
-To run the performance tests locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
+To run the performance tests locally, you should have `hyperfine` (v2.0.0+) installed on your machine.
 Prepare the local build, go to the `tests/performance` folder, clean it up, do the preparations:
 
 ```sh
