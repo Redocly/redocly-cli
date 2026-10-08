@@ -40,16 +40,20 @@ relatively (`runtime: module`).
   operation whose merged names would collide keeps the grouped shape.
 - **Stream bodies pass through.** A request body that is a `ReadableStream`, or any
   async iterable of bytes (a Node `Readable`), is a pass-through upload: `send()` hands it
-  to `fetch` untouched with `duplex: 'half'`, keeps the caller's `Content-Type` header
-  (never derives one from the spec — a forwarded multipart boundary must survive), and
-  makes exactly one attempt, because a consumed stream cannot be replayed, whatever the
-  retry policy says. The whole-attempt `timeout` still applies; callers pass `timeout: 0`
-  or a budget that fits the upload per call. The body type of an untyped
-  `multipart/form-data` operation is `FormData | ReadableStream`, and of an
-  `application/octet-stream` operation `Blob | ArrayBuffer | ReadableStream`. The client
-  stays free of Node types: a Node request becomes a web stream with
-  `Readable.toWeb(request)`. `RequestOptions` types `duplex?: 'half'` so a caller can
-  set it without a cast. Typed multipart objects are unaffected.
+  to `fetch` untouched with `duplex: 'half'` and makes exactly one attempt, because a
+  consumed stream cannot be replayed, whatever the retry policy says. The whole-attempt
+  `timeout` still applies; callers pass `timeout: 0` or a budget that fits the upload per
+  call. The body type of an untyped `multipart/form-data` operation is
+  `FormData | ReadableStream`, and of a binary operation (`isBinaryContentType`:
+  `application/octet-stream`, `application/pdf`, images, audio, video, fonts, zip)
+  `Blob | ArrayBuffer | ReadableStream`. The client stays free of Node types: a Node
+  request becomes a web stream with `Readable.toWeb(request)`. Typed multipart objects
+  are unaffected.
+- **The caller's `Content-Type` wins; the description's fills the gap.** For a
+  pass-through body other than `FormData` or `URLSearchParams` (whose type `fetch`
+  derives, boundary included), `send()` sets the operation's declared content type only
+  when the caller set none, the same rule the JSON branch already follows. A forwarded
+  multipart boundary therefore survives, and a binary upload is never sent untyped.
 - **Throw mode returns the body**; `{ envelope: true }` opts into
   `{ data, headers, response }` with typed declared headers. Result mode returns
   `{ data, error, response }` and ignores `envelope`.

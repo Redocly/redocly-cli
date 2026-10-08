@@ -7,6 +7,7 @@ import {
   headerCoerceType,
   isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   type ParamModel,
@@ -81,17 +82,6 @@ function envelopeHeaderPlan(
   });
 }
 
-/**
- * Whether the body is `any` and passes through the runtime as is: an untyped multipart
- * or a binary body takes an io.Reader, a []byte, or (multipart) a map or struct.
- */
-function passesThrough(op: OperationModel): boolean {
-  const body = op.requestBody;
-  if (body === undefined) return false;
-  if (isMultipartBody(op)) return body.schema.kind !== 'object' && body.schema.kind !== 'ref';
-  return isBinaryContentType(body.contentType);
-}
-
 export function writeGoMethod(
   printer: GoPrinter,
   op: OperationModel,
@@ -105,7 +95,10 @@ export function writeGoMethod(
   const success = jsonSuccessSchema(op);
   const returnType = success === undefined ? undefined : goType(success, dateType);
   const headerPlan = envelope ? envelopeHeaderPlan(op, model!) : [];
-  const passThrough = passesThrough(op);
+  // An untyped multipart or a binary body is `any`: the runtime sorts out what it got.
+  const passThrough =
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType));
   if (envelope) {
     printer.line(
       `// ${ident}Headers carries the declared response headers of ${ident}WithHeaders (nil when absent or unparsable).`
@@ -236,7 +229,7 @@ export function writeGoMethod(
         'Headers: authHeaders',
         'Query: query',
       ];
-      if (op.requestBody && passThrough && isMultipartBody(op)) {
+      if (isUntypedMultipartBody(op)) {
         printer.line('contentType, reader, stream, err := multipartBody(body)');
         printer.block(
           'if err != nil {',

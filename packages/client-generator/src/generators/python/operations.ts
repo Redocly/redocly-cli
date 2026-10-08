@@ -6,6 +6,7 @@ import {
   type DateType,
   isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   sseResponse,
@@ -43,7 +44,12 @@ export function writeMethod(
   const positional = pathArgs.map(
     ({ param, python }) => `${python}: ${pythonType(param.schema, dateType)}`
   );
-  const bodyArg = op.requestBody ? [`body: ${pythonType(op.requestBody.schema, dateType)}`] : [];
+  const passThrough =
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType));
+  const bodyArg = op.requestBody
+    ? [`body: ${passThrough ? 'Any' : pythonType(op.requestBody.schema, dateType)}`]
+    : [];
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
       const annotation = pythonType(param.schema, dateType);
@@ -106,7 +112,7 @@ export function writeMethod(
       ? isMultipartBody(op)
         ? ', **multipart_arguments(body)'
         : isBinaryContentType(op.requestBody.contentType)
-          ? ', content=body'
+          ? `, content=body, content_type=${naming.string(op.requestBody.contentType)}`
           : ', json_body=encode(body)'
       : '';
     printer.line(

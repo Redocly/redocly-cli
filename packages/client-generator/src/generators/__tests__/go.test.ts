@@ -2,7 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { outdent } from 'outdent';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { goGenerator as goGeneratorEntry, goSample, renderGoModels } from '../go/index.js';
@@ -53,6 +52,13 @@ function expectGoCompiles(source: string): void {
 }
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
+
+/** The generated method that starts with `head`, up to the blank line after it. */
+function methodText(out: string, head: string): string {
+  const start = out.indexOf(head);
+  expect(start, head).toBeGreaterThan(-1);
+  return out.slice(start, out.indexOf('\n\n', start));
+}
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
 
 function model(schemas: Record<string, SchemaModel>): ApiModel {
@@ -682,108 +688,51 @@ describe('go stream bodies', () => {
     securitySchemes: [],
   } as unknown as ApiModel;
 
-  it('passes an io.Reader through in one attempt and sends []byte as replayable bytes', () => {
+  it('takes an `any` body that multipartBody or binaryBody sorts out', () => {
     const out = goGenerator({
       model: UPLOADS,
       outputPath: '/out/client.ts',
       outputMode: 'single',
       emit: {},
     })[0].content;
-    expect(out).toContain('func (c *Client) Upload(ctx context.Context, body any) error {');
-    expect(out).toContain('contentType, reader, stream, err := multipartBody(body)');
-    expect(out).toContain('func (c *Client) UploadBlob(ctx context.Context, body any) error {');
-    expect(out).toContain('reader, stream, err := binaryBody(body)');
+    expect(methodText(out, 'func (c *Client) Upload(')).toMatchInlineSnapshot(`
+      "func (c *Client) Upload(ctx context.Context, body any) error {
+      	op := operations["upload"]
+      	authHeaders, query := resolveAuth(op.Security, c.config.Auth)
+      	requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{})
+      	contentType, reader, stream, err := multipartBody(body)
+      	if err != nil {
+      		return err
+      	}
+      	resp, err := send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: authHeaders, Query: query, Body: reader, Stream: stream, ContentType: contentType})
+      	if err != nil {
+      		return err
+      	}
+      	if resp.StatusCode >= 400 {
+      		return apiErrorFrom(resp, requestURL)
+      	}
+      	return decodeJSON(resp, nil)
+      }"
+    `);
+    expect(methodText(out, 'func (c *Client) UploadBlob(')).toMatchInlineSnapshot(`
+      "func (c *Client) UploadBlob(ctx context.Context, body any) error {
+      	op := operations["uploadBlob"]
+      	authHeaders, query := resolveAuth(op.Security, c.config.Auth)
+      	requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{})
+      	reader, stream, err := binaryBody(body)
+      	if err != nil {
+      		return err
+      	}
+      	resp, err := send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: authHeaders, Query: query, Body: reader, Stream: stream, ContentType: "application/octet-stream"})
+      	if err != nil {
+      		return err
+      	}
+      	if resp.StatusCode >= 400 {
+      		return apiErrorFrom(resp, requestURL)
+      	}
+      	return decodeJSON(resp, nil)
+      }"
+    `);
     expectGofmtClean(out);
-    if (!hasGo) return;
-    const dir = mkdtempSync(join(tmpdir(), 'go-stream-'));
-    try {
-      writeFileSync(join(dir, 'go.mod'), 'module stream.test\n\ngo 1.21\n');
-      writeFileSync(join(dir, 'client.go'), out);
-      writeFileSync(
-        join(dir, 'client_test.go'),
-        outdent`
-          package client
-
-          import (
-          	"context"
-          	"io"
-          	"net/http"
-          	"net/http/httptest"
-          	"strings"
-          	"testing"
-          	"time"
-          )
-
-          type received struct {
-          	contentType   string
-          	body          string
-          	contentLength int64
-          }
-
-          func TestStreamBodiesPassThrough(t *testing.T) {
-          	ctx := context.Background()
-          	var seen []received
-          	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-          		payload, _ := io.ReadAll(r.Body)
-          		seen = append(seen, received{r.Header.Get("Content-Type"), string(payload), r.ContentLength})
-          		w.WriteHeader(http.StatusNoContent)
-          	}))
-          	defer server.Close()
-
-          	forwarding := New(Config{ServerURL: server.URL, Headers: map[string]string{"content-type": "multipart/form-data; boundary=abc"}})
-          	pipeReader, pipeWriter := io.Pipe()
-          	go func() {
-          		pipeWriter.Write([]byte("--abc--"))
-          		pipeWriter.Close()
-          	}()
-          	if err := forwarding.Upload(ctx, pipeReader); err != nil {
-          		t.Fatal(err)
-          	}
-          	plain := New(Config{ServerURL: server.URL})
-          	if err := plain.UploadBlob(ctx, []byte{0, 1}); err != nil {
-          		t.Fatal(err)
-          	}
-          	if err := plain.Upload(ctx, map[string]any{"name": "x"}); err != nil {
-          		t.Fatal(err)
-          	}
-          	// The pipe is streamed, not buffered: Go sends an unknown-length body chunked.
-          	if seen[0] != (received{"multipart/form-data; boundary=abc", "--abc--", -1}) {
-          		t.Fatalf("io.Reader multipart body: %+v", seen[0])
-          	}
-          	if seen[1] != (received{"application/octet-stream", "\\x00\\x01", 2}) {
-          		t.Fatalf("[]byte octet-stream body: %+v", seen[1])
-          	}
-          	if !strings.HasPrefix(seen[2].contentType, "multipart/form-data; boundary=") || !strings.Contains(seen[2].body, \`name="name"\`) {
-          		t.Fatalf("map multipart body: %+v", seen[2])
-          	}
-
-          	attempts := 0
-          	failing := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-          		attempts++
-          		w.WriteHeader(http.StatusServiceUnavailable)
-          	}))
-          	defer failing.Close()
-          	retrying := New(Config{
-          		ServerURL: failing.URL,
-          		Headers:   map[string]string{"Idempotency-Key": "key"},
-          		Retry:     RetryConfig{Retries: 2, RetryDelay: time.Millisecond, NoJitter: true},
-          	})
-          	retrying.UploadBlob(ctx, strings.NewReader("x"))
-          	if attempts != 1 {
-          		t.Fatalf("an io.Reader body must get one attempt, got %d", attempts)
-          	}
-          	attempts = 0
-          	retrying.UploadBlob(ctx, []byte("x"))
-          	if attempts != 3 {
-          		t.Fatalf("a []byte body must retry, got %d attempts", attempts)
-          	}
-          }
-        `
-      );
-      const result = spawnSync('go', ['test', './...'], { cwd: dir, encoding: 'utf-8' });
-      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
   });
 });

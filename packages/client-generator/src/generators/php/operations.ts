@@ -6,6 +6,7 @@ import {
   type DateType,
   isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   sseResponse,
@@ -33,15 +34,12 @@ type MethodArgs = {
  */
 const SIGNATURE_ARG_SLOTS = ['body', 'headers', 'idempotencyKey'];
 
-/**
- * Whether the body is `mixed` and passes through the runtime as is: an untyped multipart
- * or a binary body takes a stream resource, a string, or (multipart) an array.
- */
+/** Whether the body is `mixed` and the runtime sorts out what it got (`multipartBody` / `binaryBody`). */
 function passesThrough(op: OperationModel): boolean {
-  const body = op.requestBody;
-  if (body === undefined) return false;
-  if (isMultipartBody(op)) return body.schema.kind !== 'object' && body.schema.kind !== 'ref';
-  return isBinaryContentType(body.contentType);
+  return (
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType))
+  );
 }
 
 export function methodArgs(
@@ -189,7 +187,7 @@ export function writePhpMethod(
         `'headers' => $requestHeaders`,
         `'query' => $query`,
       ];
-      if (op.requestBody && passesThrough(op) && isMultipartBody(op)) {
+      if (isUntypedMultipartBody(op)) {
         printer.line('[$contentType, $encoded] = multipartBody($body);');
         request.push(`'body' => $encoded`, `'contentType' => $contentType`);
       } else if (op.requestBody && passesThrough(op)) {

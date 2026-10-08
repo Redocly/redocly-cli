@@ -868,8 +868,8 @@ func toMultipart(body any) (string, io.Reader, error) {
 }
 
 // multipartBody prepares the body of an untyped multipart operation: an io.Reader is
-// streamed and a []byte sent as is, both under the caller's Content-Type (the boundary
-// is theirs to set); any other value goes through toMultipart.
+// streamed and a []byte or string sent as is, all under the caller's Content-Type (the
+// boundary is theirs to set); any other value goes through toMultipart.
 func multipartBody(body any) (string, io.Reader, bool, error) {
 	if reader, stream, raw := rawBody(body); raw {
 		return "", reader, stream, nil
@@ -878,8 +878,8 @@ func multipartBody(body any) (string, io.Reader, bool, error) {
 	return contentType, reader, false, err
 }
 
-// binaryBody prepares the body of an octet-stream operation: an io.Reader is streamed,
-// a []byte sent as is, and any other value JSON-marshalled.
+// binaryBody prepares the body of a binary operation: an io.Reader is streamed, a
+// []byte or string sent as is, and any other value JSON-marshalled.
 func binaryBody(body any) (io.Reader, bool, error) {
 	if reader, stream, raw := rawBody(body); raw {
 		return reader, stream, nil
@@ -889,13 +889,15 @@ func binaryBody(body any) (io.Reader, bool, error) {
 }
 
 // rawBody recognizes a body that needs no encoding: an io.Reader streams through in one
-// attempt, a []byte is replayable bytes.
+// attempt, a []byte or a string is replayable bytes.
 func rawBody(body any) (io.Reader, bool, bool) {
 	switch typed := body.(type) {
 	case io.Reader:
 		return typed, true, true
 	case []byte:
 		return bytes.NewReader(typed), false, true
+	case string:
+		return strings.NewReader(typed), false, true
 	}
 	return nil, false, false
 }

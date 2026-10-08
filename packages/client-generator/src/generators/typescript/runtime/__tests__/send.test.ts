@@ -89,6 +89,33 @@ describe('send', () => {
     expect(second.calls.length).toBe(1);
   });
 
+  it('fills a stream body Content-Type from the declared type, except for multipart', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok()]);
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'POST' },
+      new ReadableStream<Uint8Array>(),
+      { contentType: 'application/pdf' },
+      {}
+    );
+    expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
+      'application/pdf'
+    );
+    // Only the caller knows the boundary, so a bare multipart type would be wrong.
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'POST' },
+      new ReadableStream<Uint8Array>(),
+      { contentType: 'multipart/form-data' },
+      {}
+    );
+    expect((calls[1].init.headers as Record<string, string>)['Content-Type']).toBeUndefined();
+  });
+
   it("defaults Content-Type to the operation's declared body content type", async () => {
     // The descriptor carries the spec's request content type (e.g. merge-patch) —
     // hardcoding application/json makes strict servers reject the PATCH.

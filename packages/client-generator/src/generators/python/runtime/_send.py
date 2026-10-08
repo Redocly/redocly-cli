@@ -85,6 +85,7 @@ def send(
     params: Optional[Dict[str, Any]] = None,
     json_body: Any = None,
     content: Any = None,
+    content_type: Optional[str] = None,
     data: Any = None,
     files: Any = None,
     timeout: Optional[float] = None,
@@ -106,6 +107,9 @@ def send(
         merged_headers["Idempotency-Key"] = (
             key if isinstance(key, str) else key() if callable(key) else str(uuid.uuid4())
         )
+    # The declared content type fills the gap; a caller-provided header always wins.
+    if content_type is not None and not any(name.lower() == "content-type" for name in merged_headers):
+        merged_headers["Content-Type"] = content_type
 
     context = {
         "url": url,
@@ -181,6 +185,7 @@ async def send_async(
     params: Optional[Dict[str, Any]] = None,
     json_body: Any = None,
     content: Any = None,
+    content_type: Optional[str] = None,
     data: Any = None,
     files: Any = None,
     timeout: Optional[float] = None,
@@ -200,6 +205,8 @@ async def send_async(
         merged_headers["Idempotency-Key"] = (
             key if isinstance(key, str) else key() if callable(key) else str(uuid.uuid4())
         )
+    if content_type is not None and not any(name.lower() == "content-type" for name in merged_headers):
+        merged_headers["Content-Type"] = content_type
     context = {
         "url": url,
         "method": method.upper(),

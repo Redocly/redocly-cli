@@ -218,8 +218,11 @@ function rawSend(Config $config, array $request): array
     $body = $request['body'] ?? null;
     if (is_resource($body)) {
         curl_setopt_array($handle, [CURLOPT_UPLOAD => true, CURLOPT_INFILE => $body]);
-        if (stream_get_meta_data($body)['seekable']) {
-            curl_setopt($handle, CURLOPT_INFILESIZE, fstat($body)['size'] - ftell($body));
+        // php://input and wrappers without stream_stat report seekable but fstat() fails (with a
+        // warning for the wrappers): those go chunked.
+        $stat = @fstat($body);
+        if (stream_get_meta_data($body)['seekable'] && $stat !== false) {
+            curl_setopt($handle, CURLOPT_INFILESIZE, $stat['size'] - ftell($body));
         }
     } elseif ($body !== null) {
         curl_setopt($handle, CURLOPT_POSTFIELDS, $body);

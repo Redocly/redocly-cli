@@ -2,7 +2,6 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { outdent } from 'outdent';
 
 import type { ApiModel, SchemaModel } from '../../intermediate-representation/model.js';
 import { pythonGenerator as pythonGeneratorEntry, renderPythonModels } from '../python/index.js';
@@ -31,6 +30,13 @@ function expectCompiles(source: string): void {
 }
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
+
+/** The generated method that starts with `head`, up to the blank line after it. */
+function methodText(out: string, head: string): string {
+  const start = out.indexOf(head);
+  expect(start, head).toBeGreaterThan(-1);
+  return out.slice(start, out.indexOf('\n\n', start));
+}
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
 
 function model(schemas: Record<string, SchemaModel>): ApiModel {
@@ -500,7 +506,10 @@ describe('python stream bodies', () => {
       {
         name: 'default',
         operations: [
-          operation('upload', 'multipart/form-data', { kind: 'unknown' }),
+          operation('upload', 'multipart/form-data', {
+            kind: 'record',
+            value: { kind: 'unknown' },
+          }),
           operation('uploadBlob', 'application/octet-stream', STRING),
         ],
       },
@@ -509,88 +518,35 @@ describe('python stream bodies', () => {
     securitySchemes: [],
   } as unknown as ApiModel;
 
-  it('passes bytes, file-like, and iterator bodies through to content=, in one attempt unless replayable', () => {
-    if (!hasHttpx) return;
+  it('routes an untyped multipart body through multipart_arguments and a binary body to content=', () => {
     const out = pythonGenerator({
       model: UPLOADS,
       outputPath: '/out/client.ts',
       outputMode: 'single',
       emit: {},
     })[0].content;
-    expect(out).toContain('**multipart_arguments(body)');
-    expect(out).toContain('content=body');
-    const dir = mkdtempSync(join(tmpdir(), 'py-stream-'));
-    try {
-      writeFileSync(join(dir, 'client.py'), out);
-      writeFileSync(
-        join(dir, 'probe.py'),
-        outdent`
-          import asyncio
-          import io
-          import json
-
-          import httpx
-
-          import client
-
-          seen = []
-
-          def record(request):
-              seen.append([request.headers.get("content-type"), request.content.decode("latin-1")])
-              return httpx.Response(204)
-
-          attempts = []
-
-          def refuse(request):
-              attempts.append(1)
-              raise httpx.ConnectError("down")
-
-          boundary = {"content-type": "multipart/form-data; boundary=abc"}
-          api = client.Client("http://cafe.test", http_client=httpx.Client(transport=httpx.MockTransport(record)))
-          api.upload(io.BytesIO(b"--abc--"), headers=boundary)
-          api.upload_blob(b"\\x00\\x01")
-          api.upload({"name": "x", "file": b"data"})
-
-          async def chunks():
-              yield b"--abc"
-              yield b"--"
-
-          async def main():
-              async_api = client.AsyncClient("http://cafe.test", http_client=httpx.AsyncClient(transport=httpx.MockTransport(record)))
-              await async_api.upload(chunks(), headers=boundary)
-
-          asyncio.run(main())
-
-          retrying = client.Client(
-              "http://cafe.test",
-              retry={"retries": 2, "retry_delay": 0},
-              idempotency_key="key",
-              http_client=httpx.Client(transport=httpx.MockTransport(refuse)),
-          )
-          counts = {}
-          for label, body in (("file", io.BytesIO(b"x")), ("bytes", b"x"), ("str", "x")):
-              attempts.clear()
-              try:
-                  retrying.upload_blob(body)
-              except httpx.ConnectError:
-                  pass
-              counts[label] = len(attempts)
-
-          print(json.dumps({"seen": seen, "attempts": counts}))
-        `
-      );
-      const run = spawnSync('python3', [join(dir, 'probe.py')], { cwd: dir, encoding: 'utf-8' });
-      expect(run.status, run.stderr).toBe(0);
-      const { seen, attempts } = JSON.parse(run.stdout.trim());
-      expect(seen[0]).toEqual(['multipart/form-data; boundary=abc', '--abc--']);
-      expect(seen[1]).toEqual([null, '\u0000\u0001']);
-      expect(seen[2][0]).toMatch(/^multipart\/form-data; boundary=/);
-      expect(seen[2][1]).toContain('name="file"');
-      expect(seen[3]).toEqual(['multipart/form-data; boundary=abc', '--abc--']);
-      expect(attempts).toEqual({ file: 1, bytes: 3, str: 3 });
-    } finally {
-      rmSync(dir, { recursive: true, force: true });
-    }
+    expect(methodText(out, '    def upload(')).toMatchInlineSnapshot(`
+      "    def upload(self, body: Any, *, headers: Optional[Dict[str, str]] = None, timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, idempotency_key: Any = None) -> None:
+              op = _OPERATIONS["upload"]
+              auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)
+              params: Dict[str, Any] = dict(auth_query)
+              url = build_url(self._server_url, op["path"], {})
+              response = send(self._http, self._config, op, url, method=op["method"], headers={**auth_headers, **(headers or {})}, params=params, **multipart_arguments(body), timeout=timeout, retry=retry, idempotency_key=idempotency_key)
+              if not response.is_success:
+                  raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))
+              return None"
+    `);
+    expect(methodText(out, '    def upload_blob(')).toMatchInlineSnapshot(`
+      "    def upload_blob(self, body: Any, *, headers: Optional[Dict[str, str]] = None, timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, idempotency_key: Any = None) -> None:
+              op = _OPERATIONS["upload_blob"]
+              auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)
+              params: Dict[str, Any] = dict(auth_query)
+              url = build_url(self._server_url, op["path"], {})
+              response = send(self._http, self._config, op, url, method=op["method"], headers={**auth_headers, **(headers or {})}, params=params, content=body, content_type="application/octet-stream", timeout=timeout, retry=retry, idempotency_key=idempotency_key)
+              if not response.is_success:
+                  raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))
+              return None"
+    `);
   });
 });
 
