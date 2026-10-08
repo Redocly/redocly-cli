@@ -27,6 +27,10 @@ openapi:
   $ref: nested/config.yaml#/openapi
 navbar:
   $ref: nested/config.yaml#/navbar
+breadcrumbs:
+  $ref: nested/config.yaml#/breadcrumbs
+entitiesCatalog:
+  $ref: nested/config.yaml#/entitiesCatalog
 catalog:
   main:
     $ref: nested/config.yaml#/catalog

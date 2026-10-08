@@ -21,11 +21,31 @@ client:
   goPackage: ./not-a-path
 logo:
   favicon: ./images/favicon.ico
+  srcSet: ./images/logo-dark.svg dark, ./images/logo-light.svg light
 openapi:
   htmlTemplate: ./template.html
 navbar:
   items:
     - page: ./docs/index.md
+      icon: ./images/home.svg
+    - page: ./docs/guide.md
+      icon: home
+    - page: ./docs/api.md
+      icon:
+        srcSet: ./images/api-dark.svg dark, https://cdn.example.com/api-light.svg light
+breadcrumbs:
+  prefixItems:
+    - label: Home
+      page: ./docs/index.md
+      icon: ./images/crumb.png
+    - label: Docs
+      icon: book
+entitiesCatalog:
+  entityTypes:
+    service:
+      icon:
+        src: ./images/service.svg
+        srcSet: ./images/service-dark.svg dark, ./images/service-light.svg light
 catalog:
   slug: /apis/
   items:

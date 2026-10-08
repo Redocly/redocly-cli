@@ -87,6 +87,8 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+const IMAGE_FILE = /\.(svg|png|jpe?g|gif|ico|webp)$/i;
+
 // Paths and globs in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
@@ -126,17 +128,37 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
       .join('/');
     return dir ? path.posix.join(dir, value) : value;
   };
+  // Realm reads a srcSet as "path mode" pairs separated by ", "
+  const rebaseSrcSet = (value: unknown) =>
+    isString(value)
+      ? value
+          .split(/\s*,\s*/)
+          .map((entry) => {
+            const [src, ...mode] = entry.trim().split(/\s+/);
+            return [rebase(src), ...mode].join(' ');
+          })
+          .join(', ')
+      : value;
+  // an icon is a path only when it names an image file, otherwise it is an icon name (the same rule Realm applies)
+  const rebaseIcon = (value: unknown) =>
+    isString(value) && IMAGE_FILE.test(value) ? rebase(value) : value;
+  const rebasers: Record<string, (value: unknown) => unknown> = {
+    'uri-reference': rebase,
+    glob: rebaseGlob,
+    srcset: rebaseSrcSet,
+    icon: rebaseIcon,
+  };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    if (typeof schema === 'function' || isNamedType(schema)) {
+    const value = node[field];
+    // a oneOf property resolves to the branch that matches this value; a scalar branch keeps its format
+    const propSchema = typeof schema === 'function' ? schema(value, field) : schema;
+    if (!isPlainObject(propSchema) || isNamedType(propSchema)) {
       continue;
     }
-    const format = schema?.format ?? schema?.items?.format;
-    const rebaseValue =
-      format === 'uri-reference' ? rebase : format === 'glob' ? rebaseGlob : undefined;
+    const rebaseValue = rebasers[propSchema.format ?? propSchema.items?.format];
     if (!rebaseValue) {
       continue;
     }
-    const value = node[field];
     if (isString(value)) {
       node[field] = rebaseValue(value);
     } else if (Array.isArray(value)) {
