@@ -87,8 +87,6 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
-const IMAGE_FILE = /\.(svg|png|jpe?g|gif|ico|webp)$/i;
-
 // Paths and globs in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
@@ -139,14 +137,10 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
           })
           .join(', ')
       : value;
-  // an icon is a path only when it names an image file, otherwise it is an icon name (the same rule Realm applies)
-  const rebaseIcon = (value: unknown) =>
-    isString(value) && IMAGE_FILE.test(value) ? rebase(value) : value;
   const rebasers: Record<string, (value: unknown) => unknown> = {
     'uri-reference': rebase,
     glob: rebaseGlob,
     srcset: rebaseSrcSet,
-    icon: rebaseIcon,
   };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
