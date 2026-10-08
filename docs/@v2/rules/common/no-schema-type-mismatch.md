@@ -6,8 +6,8 @@ slug: /docs/cli/rules/common/no-schema-type-mismatch
 
 Ensures that a schema's structural properties match its declared `type`. In particular:
 
-- A schema of type `object` **must not** include an `items` field.
-- A schema of type `array` **must not** include a `properties` field.
+- Only a schema of type `array` may include an `items` field.
+- Only a schema of type `object` may include a `properties` field.
 
 | OAS | Compatibility |
 | --- | ------------- |
@@ -27,8 +27,8 @@ Ensures that a schema's structural properties match its declared `type`. In part
 
 ```mermaid
 flowchart TD
-  Schema -->|if type is object| CheckItems["'items' field exists?"]
-  Schema -->|if type is array| CheckProps["'properties' field exists?"]
+  Schema -->|if type is not array| CheckItems["'items' field exists?"]
+  Schema -->|if type is not object| CheckProps["'properties' field exists?"]
 ```
 
 ## API design principles
@@ -37,6 +37,7 @@ When designing an API schema, the defined `type` should be consistent with its s
 
 - **Objects** are collections of key/value pairs. They should be defined using `properties` (or additionalProperties) and must not use `items`.
 - **Arrays** are ordered lists of items and must use `items` to define their content. Including `properties` is invalid.
+- **Primitive types** (`string`, `number`, `integer`, `boolean`, `null`) have neither `properties` nor `items`.
 
 This rule helps catch typos and misconfigurations early in your API definition.
 
@@ -84,6 +85,19 @@ properties:
 ```
 
 _Error:_ An `array` type should not include a `properties` field.
+
+#### String type with a `properties` field
+
+```yaml
+properties:
+  notification_email:
+    type: string
+    properties:
+      address:
+        type: string
+```
+
+_Error:_ A `string` type should not include a `properties` field.
 
 ### Correct Examples
 
