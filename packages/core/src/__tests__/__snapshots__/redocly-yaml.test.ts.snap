@@ -9810,6 +9810,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "icon": {
+        "format": "icon",
         "type": "string",
       },
       "label": {
@@ -10055,6 +10056,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -10182,6 +10184,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -10436,6 +10439,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -10563,6 +10567,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -12047,6 +12052,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -20001,6 +20007,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "icon": {
+        "format": "icon",
         "type": "string",
       },
       "label": {
@@ -20246,6 +20253,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -20373,6 +20381,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -20627,6 +20636,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -20754,6 +20764,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -22238,6 +22249,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -22731,6 +22743,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -22858,6 +22871,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -23711,6 +23725,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -24002,6 +24017,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -24129,6 +24145,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -29943,6 +29960,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "icon": {
+        "format": "icon",
         "type": "string",
       },
       "label": {
@@ -30188,6 +30206,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -30315,6 +30334,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -30569,6 +30589,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -30696,6 +30717,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -32109,6 +32131,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -32602,6 +32625,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -32729,6 +32753,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -33494,6 +33519,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -33707,6 +33733,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -33834,6 +33861,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -38022,6 +38050,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -38149,6 +38178,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -39002,6 +39032,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -39293,6 +39324,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },
@@ -39420,6 +39452,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
+        "format": "srcset",
         "type": "string",
       },
     },

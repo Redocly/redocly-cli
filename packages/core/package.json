@@ -53,7 +53,7 @@
   ],
   "dependencies": {
     "@redocly/ajv": "^8.18.3",
-    "@redocly/config": "file:../../vendor/redocly-config-0.0.0-feat-config-is-file-path.1c3d0d6e81c.tgz",
+    "@redocly/config": "file:../../vendor/redocly-config-0.0.0-feat-config-is-file-path.c901c645aa3.tgz",
     "ajv": "npm:@redocly/ajv@^8.18.3",
     "ajv-formats": "^3.0.1",
     "colorette": "^1.2.0",
