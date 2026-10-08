@@ -155,7 +155,8 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
     if (!isPlainObject(propSchema) || isNamedType(propSchema)) {
       continue;
     }
-    const rebaseValue = rebasers[propSchema.format ?? propSchema.items?.format];
+    const format = propSchema.format ?? propSchema.items?.format;
+    const rebaseValue = format ? rebasers[format] : undefined;
     if (!rebaseValue) {
       continue;
     }
