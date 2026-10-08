@@ -97,13 +97,13 @@ describe('call inputs — the namespaced shape', () => {
     const bodyOf = (contentType: string, schema: RequestBodyModel['schema']): string =>
       emitWithOp({ requestBody: { contentType, schema, required: true } });
     expect(bodyOf('multipart/form-data', { kind: 'unknown' })).toContain(
-      'export type OpBody = FormData;'
+      'export type OpBody = FormData | ReadableStream;'
     );
     expect(
       bodyOf('application/x-www-form-urlencoded', { kind: 'object', properties: [] })
     ).toContain('export type OpBody = URLSearchParams;');
     expect(bodyOf('application/octet-stream', SCALAR)).toContain(
-      'export type OpBody = Blob | ArrayBuffer;'
+      'export type OpBody = Blob | ArrayBuffer | ReadableStream;'
     );
   });
 

@@ -55,6 +55,17 @@ runtime. Go ≥ 1.21, standard library only — zero dependencies.
   parameters (Go has no defaults — the doc comment states the spec default), so templated
   base URLs need no manual string building. The client's baked default stays `servers[0]`
   with variable defaults substituted.
+- **Stream bodies pass through.** For an untyped `multipart/form-data` operation
+  (`isUntypedMultipartBody` from the toolkit: a schema that is neither an object nor a
+  `$ref`) or a binary operation (`isBinaryContentType`), the body argument is `any` and
+  the runtime sorts it out (`multipartBody` / `binaryBody`): an `io.Reader` is the
+  request body as is, with no `io.ReadAll` and exactly one attempt (a consumed reader
+  cannot be replayed, whatever the retry policy says); a `[]byte` or a `string` is sent as
+  bytes, not JSON-marshalled, and stays replayable, so retries stay; a map or struct body
+  of an untyped multipart operation keeps the `toMultipart` path. The description's (or
+  the multipart boundary's) `Content-Type` is applied only when the caller set none, so a
+  forwarded boundary survives; that rule holds for every operation. The per-attempt
+  timeout still applies. Typed multipart bodies are unaffected.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   `context.WithTimeout`, idempotency keys, middleware, pagination (`<Op>Pages`/`<Op>Items`
   as `func(yield func(T, error) bool)` — `range`-over-func needs Go ≥ 1.23; 1.21 calls
