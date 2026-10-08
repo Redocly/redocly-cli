@@ -27,6 +27,7 @@ import type {
 import { listOpenApiFiles } from '../utils/files.js';
 import { compileOpenApiPath, normalizeContentType } from '../utils/http.js';
 import { ensureLeadingSlash, resolveServerUrl, type ServerVariable } from '../utils/openapi.js';
+import { buildFormQuerystringSchema, FORM_URLENCODED } from '../utils/parameters.js';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
 
@@ -66,7 +67,7 @@ function isParameterLocation(value: string): value is OpenApiParameter['in'] {
   return PARAMETER_LOCATIONS.has(value);
 }
 
-function normalizeParameters(parameters: unknown): OpenApiParameter[] {
+function normalizeParameters(parameters: unknown, location: string): OpenApiParameter[] {
   if (!Array.isArray(parameters)) {
     return [];
   }
@@ -77,23 +78,36 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       continue;
     }
 
-    const location = entry.in;
-    if (typeof location !== 'string' || !isParameterLocation(location)) {
+    const parameterIn = entry.in;
+    if (typeof parameterIn !== 'string' || !isParameterLocation(parameterIn)) {
       continue;
     }
 
-    const querystringContent =
-      location === 'querystring'
-        ? Object.entries(extractMediaSchemas(entry.content))[0]
-        : undefined;
+    const name = String(entry.name ?? '');
+    const contentEntries =
+      parameterIn === 'querystring' ? Object.entries(extractMediaSchemas(entry.content)) : [];
+    const [querystringContent] = contentEntries;
+    const mediaType = querystringContent ? normalizeContentType(querystringContent[0]) : undefined;
+    const schema = parameterIn === 'querystring' ? querystringContent?.[1] : entry.schema;
+
+    if (parameterIn === 'querystring' && !querystringContent) {
+      logger.warn(
+        `Parameter "${name}" (querystring) of "${location}" has no content schema, so its value is not validated. Run \`redocly lint\` to check the description.\n`
+      );
+    } else if (contentEntries.length > 1) {
+      logger.warn(
+        `Parameter "${name}" (querystring) of "${location}" has more than one media type, so only "${mediaType}" is used. Run \`redocly lint\` to check the description.\n`
+      );
+    }
 
     normalized.push({
-      name: String(entry.name ?? ''),
-      in: location,
-      required: Boolean(entry.required) || location === 'path',
+      name,
+      in: parameterIn,
+      required: Boolean(entry.required) || parameterIn === 'path',
       style: typeof entry.style === 'string' ? entry.style : undefined,
-      schema: location === 'querystring' ? querystringContent?.[1] : entry.schema,
-      mediaType: querystringContent ? normalizeContentType(querystringContent[0]) : undefined,
+      schema,
+      mediaType,
+      formSchema: mediaType === FORM_URLENCODED ? buildFormQuerystringSchema(schema) : undefined,
     });
   }
 
@@ -234,7 +248,7 @@ function createIndexVisitor(
       PathItem: {
         enter(pathItem: PathItemNode, ctx) {
           currentPathTemplate = ensureLeadingSlash(String(ctx.key));
-          currentPathParameters = normalizeParameters(pathItem.parameters);
+          currentPathParameters = normalizeParameters(pathItem.parameters, currentPathTemplate);
           currentPathServers = pathItem.servers;
         },
         Operation: {
@@ -246,7 +260,10 @@ function createIndexVisitor(
 
             const mergedParameters = mergeParameters(
               currentPathParameters,
-              normalizeParameters(operation.parameters)
+              normalizeParameters(
+                operation.parameters,
+                `${method.toUpperCase()} ${currentPathTemplate}`
+              )
             );
             const compiledPath = compileOpenApiPath(currentPathTemplate);
             const servers = resolveOperationServers(

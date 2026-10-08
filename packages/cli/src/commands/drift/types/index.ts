@@ -96,6 +96,14 @@ export interface OpenApiParameter {
   style?: string;
   schema?: unknown;
   mediaType?: string;
+  formSchema?: FormQuerystringSchema;
+}
+
+export interface FormQuerystringSchema {
+  properties: Map<string, unknown>;
+  arrayKeys: Set<string>;
+  jsonKeys: Set<string>;
+  checksOtherKeys: boolean;
 }
 
 export interface OpenApiOperation {

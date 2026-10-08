@@ -4,17 +4,17 @@
 ┃ Traffic: ./tests/e2e/drift/fixtures/traffic-querystring.ndjson
 ┃ Match mode: strict-host
 ┃ Traffic format: auto (auto-detect)
-┃ Exchanges: total=22 documented=22 undocumented=0
-┃ Findings: total=18 error=13 warning=5 info=0
-┃ Problems: total=17
+┃ Exchanges: total=25 documented=25 undocumented=0
+┃ Findings: total=19 error=14 warning=5 info=0
+┃ Problems: total=18
 ┗ Duration: <ms>ms
 
 Types (1)
-  • schema-consistency: 17 problems / 18 findings
+  • schema-consistency: 18 problems / 19 findings
 
-Problems by type (showing first 17 of 17)
+Problems by type (showing first 18 of 18)
 
-◉ schema-consistency (17 problems shown / 17 total, 18 findings)
+◉ schema-consistency (18 problems shown / 18 total, 19 findings)
 ▲ WARN #1 → Undocumented query parameter in traffic: "page"
   ↳ sample exchange=1 GET /events (200) listEvents
 
@@ -211,9 +211,25 @@ Problems by type (showing first 17 of 17)
     path: /
     actual: {"a":"1","c":"3"}
 
-API coverage
-  operations         ████████████████████  100%    12/12
-  parameters         ████████████████░░░░   84%    16/19
-  schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a      0/0
-  response codes     ████████████████████  100%    13/13
+✖ ERROR #18 → Invalid querystring parameter "filters": Request field "area.size" must be integer.
+  ↳ sample exchange=23 GET /places (200) listPlaces
 
+    http://api.example.com/places?area=%7B%22size%22%3A%22big%22%7D
+
+    spec: querystring-openapi.yaml
+    schemaPath= #/properties/area/properties/size/type
+    dataPath= /area/size
+
+    schema: Request field "area.size" must be integer.
+    path: /area/size
+    expected: type "integer"
+    actual: "big"
+
+API coverage
+  operations         ████████████████████  100%    13/13
+  parameters         █████████████████░░░   86%    19/22
+  schema properties  ░░░░░░░░░░░░░░░░░░░░   n/a      0/0
+  response codes     ████████████████████  100%    14/14
+
+Parameter "filters" (querystring) of "GET /schema-only" has no content schema, so its value is not validated. Run `redocly lint` to check the description.
+Parameter "filters" (querystring) of "GET /multi" has more than one media type, so only "application/x-www-form-urlencoded" is used. Run `redocly lint` to check the description.

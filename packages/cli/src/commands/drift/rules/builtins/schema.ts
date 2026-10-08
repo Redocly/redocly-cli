@@ -15,11 +15,7 @@ import {
   parseUrl,
 } from '../../utils/http.js';
 import { resolveResponseKey } from '../../utils/openapi.js';
-import {
-  getActualParameterValue,
-  getFormQuerystringSchema,
-  parseDeepObjectQueryKey,
-} from '../../utils/parameters.js';
+import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
 
 const MAX_ACTUAL_VALUE_LENGTH = 200;
 
@@ -271,7 +267,7 @@ function createUndocumentedParameterFindings(
 
   for (const parameter of matchedOperation.operation.requestParameters) {
     if (parameter.in === 'querystring') {
-      const formSchema = getFormQuerystringSchema(parameter);
+      const { formSchema } = parameter;
       if (
         !formSchema ||
         formSchema.properties.size === 0 ||

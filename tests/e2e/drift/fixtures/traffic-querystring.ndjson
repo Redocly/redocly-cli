@@ -20,3 +20,6 @@
 {"request":{"method":"GET","url":"http://api.example.com/lookup?name=ann&junk=1","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
 {"request":{"method":"GET","url":"http://api.example.com/traces?a=1&x-trace=2","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
 {"request":{"method":"GET","url":"http://api.example.com/audit?a=1&c=3","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/places?area=%7B%22size%22%3A1%7D&owner=%7B%22id%22%3A%221%22%7D","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/places?area=%7B%22size%22%3A%22big%22%7D","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}
+{"request":{"method":"GET","url":"http://api.example.com/multi?a=1","headers":{"host":"api.example.com"}},"response":{"status":200,"headers":{"content-type":"application/json"},"body":"[]"}}

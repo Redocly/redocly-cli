@@ -1,6 +1,6 @@
 import { isPlainObject } from '@redocly/openapi-core';
 
-import type { NormalizedRequest, OpenApiParameter } from '../types/index.js';
+import type { FormQuerystringSchema, NormalizedRequest, OpenApiParameter } from '../types/index.js';
 import { isJsonMime, parseUrl } from './http.js';
 
 export function parseCookies(headerValue: string | undefined): Record<string, string> {
@@ -52,20 +52,25 @@ export const FORM_URLENCODED = 'application/x-www-form-urlencoded';
 
 const OTHER_KEYS_KEYWORDS = ['additionalProperties', 'patternProperties', 'unevaluatedProperties'];
 
-export interface FormQuerystringSchema {
-  properties: Map<string, unknown>;
-  checksOtherKeys: boolean;
-}
+export function buildFormQuerystringSchema(schema: unknown): FormQuerystringSchema {
+  const formSchema: FormQuerystringSchema = {
+    properties: new Map(),
+    arrayKeys: new Set(),
+    jsonKeys: new Set(),
+    checksOtherKeys: false,
+  };
+  collectFormSchema(schema, formSchema, true, new Set());
 
-export function getFormQuerystringSchema(
-  parameter: OpenApiParameter
-): FormQuerystringSchema | undefined {
-  if (parameter.mediaType !== FORM_URLENCODED) {
-    return undefined;
+  for (const [key, propertySchema] of formSchema.properties) {
+    const isArray = isPlainObject(propertySchema) && propertySchema.type === 'array';
+    if (isArray) {
+      formSchema.arrayKeys.add(key);
+    }
+    if (describesObject(isArray ? propertySchema.items : propertySchema, new Set())) {
+      formSchema.jsonKeys.add(key);
+    }
   }
 
-  const formSchema: FormQuerystringSchema = { properties: new Map(), checksOtherKeys: false };
-  collectFormSchema(parameter.schema, formSchema, true, new Set());
   return formSchema;
 }
 
@@ -100,11 +105,26 @@ function collectFormSchema(
   }
 }
 
-function parseFormValue(value: string, schema: unknown): unknown {
-  if (!isPlainObject(schema) || schema.type !== 'object') {
-    return value;
+function describesObject(schema: unknown, seen: Set<unknown>): boolean {
+  if (!isPlainObject(schema) || seen.has(schema)) {
+    return false;
+  }
+  seen.add(schema);
+
+  if (schema.type !== undefined) {
+    return Array.isArray(schema.type) ? schema.type.includes('object') : schema.type === 'object';
   }
 
+  return (
+    isPlainObject(schema.properties) ||
+    [schema.allOf, schema.oneOf, schema.anyOf].some(
+      (branches) =>
+        Array.isArray(branches) && branches.some((branch) => describesObject(branch, seen))
+    )
+  );
+}
+
+function parseJsonFormValue(value: string): unknown {
   try {
     return JSON.parse(value);
   } catch {
@@ -113,7 +133,7 @@ function parseFormValue(value: string, schema: unknown): unknown {
 }
 
 function getQuerystringValue(parameter: OpenApiParameter, request: NormalizedRequest): unknown {
-  const formSchema = getFormQuerystringSchema(parameter);
+  const { formSchema } = parameter;
   if (formSchema) {
     const keys = [...new Set(request.query.keys())];
     if (keys.length === 0) {
@@ -121,12 +141,12 @@ function getQuerystringValue(parameter: OpenApiParameter, request: NormalizedReq
     }
     return Object.fromEntries(
       keys.map((key) => {
-        const propertySchema = formSchema.properties.get(key);
-        const isArray = isPlainObject(propertySchema) && propertySchema.type === 'array';
-        const values = request.query
-          .getAll(key)
-          .map((value) => parseFormValue(value, isArray ? propertySchema.items : propertySchema));
-        return [key, isArray || values.length > 1 ? values : values[0]];
+        const values = request.query.getAll(key);
+        const parsedValues = formSchema.jsonKeys.has(key) ? values.map(parseJsonFormValue) : values;
+        return [
+          key,
+          formSchema.arrayKeys.has(key) || parsedValues.length > 1 ? parsedValues : parsedValues[0],
+        ];
       })
     );
   }

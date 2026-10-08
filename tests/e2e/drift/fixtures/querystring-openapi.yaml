@@ -172,6 +172,16 @@ paths:
                       properties:
                         x:
                           type: integer
+                  area:
+                    properties:
+                      size:
+                        type: integer
+                  owner:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: string
       responses:
         '200':
           description: The places.
@@ -242,6 +252,25 @@ paths:
       responses:
         '200':
           description: The audit log.
+  /multi:
+    get:
+      operationId: multi
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: string
+            application/json:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: OK.
   /legacy:
     get:
       operationId: legacyFilter

@@ -12,11 +12,7 @@ import type {
 } from '../types/index.js';
 import { isJsonMime, pickSchemaByMime } from '../utils/http.js';
 import { resolveResponseKey } from '../utils/openapi.js';
-import {
-  FORM_URLENCODED,
-  getActualParameterValue,
-  getFormQuerystringSchema,
-} from '../utils/parameters.js';
+import { getActualParameterValue } from '../utils/parameters.js';
 import { isPropertyExcludedFromTarget } from './schema-validator.js';
 
 interface CoverageEntry {
@@ -173,7 +169,7 @@ function createOperationState(
       continue;
     }
 
-    const formKeyNames = [...(getFormQuerystringSchema(parameter)?.properties ?? [])]
+    const formKeyNames = [...(parameter.formSchema?.properties ?? [])]
       .filter(([, propertySchema]) => !isPropertyExcludedFromTarget(propertySchema, 'request'))
       .map(([key]) => `${parameter.name}.${key}`);
 
@@ -279,7 +275,7 @@ export class CoverageCollector {
         continue;
       }
       markEntry(entries, { kind: 'parameter', name: parameter.name, in: parameter.in });
-      if (parameter.mediaType === FORM_URLENCODED && isPlainObject(actualValue)) {
+      if (parameter.formSchema && isPlainObject(actualValue)) {
         for (const key of Object.keys(actualValue)) {
           markEntry(entries, {
             kind: 'parameter',
