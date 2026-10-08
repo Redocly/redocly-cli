@@ -21,7 +21,7 @@ try {
         bold(yellow('Deprecation warning: Node.js 20 support is ending')),
         '',
         'Node.js 20 reached end-of-life on April 30, 2026.',
-        'An upcoming Redocly CLI release will require Node.js 22.12.0 or later.',
+        'Future Redocly CLI releases require Node.js 22.12.0 or later.',
         `You are using Node.js ${process.version}.`,
         '',
         `Update Node.js: ${cyan('https://nodejs.org/en/download')}`,
