@@ -126,21 +126,21 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
       .join('/');
     return dir ? path.posix.join(dir, value) : value;
   };
-  // Realm reads a srcSet as "path mode" pairs separated by ", "
-  const rebaseSrcSet = (value: unknown) =>
+  // one or more images, as a path or as "path mode" pairs separated by ", "; a token without a file extension is an icon name
+  const rebaseImage = (value: unknown) =>
     isString(value)
       ? value
           .split(/\s*,\s*/)
           .map((entry) => {
             const [src, ...mode] = entry.trim().split(/\s+/);
-            return [rebase(src), ...mode].join(' ');
+            return [/\.\w+$/.test(src) ? rebase(src) : src, ...mode].join(' ');
           })
           .join(', ')
       : value;
   const rebasers: Record<string, (value: unknown) => unknown> = {
     'uri-reference': rebase,
     glob: rebaseGlob,
-    srcset: rebaseSrcSet,
+    image: rebaseImage,
   };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
