@@ -29,7 +29,7 @@ def to_multipart(body: Any) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 def is_stream_body(body: Any) -> bool:
     return (
         isinstance(body, (bytes, bytearray, str))
-        or hasattr(body, "read")
+        or callable(getattr(body, "read", None))
         or hasattr(body, "__next__")
         or hasattr(body, "__aiter__")
     )

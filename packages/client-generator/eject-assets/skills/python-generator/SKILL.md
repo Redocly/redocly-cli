@@ -85,7 +85,7 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
 - **Stream bodies pass through.** For an untyped `multipart/form-data` operation
   (`isUntypedMultipartBody`) or a binary operation (`isBinaryContentType`), the body
   argument is `Any`, and a body that is `bytes`/`bytearray`, a `str`, a
-  file-like object (has `.read`), or an iterator/async iterator of bytes goes to httpx
+  file-like object (a callable `.read`), or an iterator/async iterator of bytes goes to httpx
   `content=`, never through `json=` or `to_multipart`; a `dict` body of an untyped
   multipart operation keeps the `to_multipart` path. The runtime sets the operation's
   declared content type only when the caller set none (matched case-insensitively), and
@@ -93,7 +93,8 @@ One self-contained `<stem>.py`: typed dataclass models, a sync `Client` and an a
   replayed (a file-like object or iterator, as opposed to `bytes` or `str`) is sent in
   exactly one attempt, whatever the retry policy says. The per-attempt `timeout` still
   applies. Both the sync and the async `send` behave the same. Typed multipart bodies
-  are unaffected.
+  are unaffected: they go straight to `to_multipart` and never through stream detection,
+  so a model field named `read` cannot turn one into a raw upload.
 - **Parity surface:** auth (bearer/basic/apiKey), retries with `Retry-After` + jittered
   backoff, timeouts, idempotency keys, middleware, pagination (`<op>_pages()` /
   `<op>_items()` + `aiter` mirrors), SSE (`iter_sse`/`aiter_sse`), multipart.

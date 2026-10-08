@@ -686,7 +686,8 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('iter_sse(');
     expect(out).toContain('-> AsyncIterator[ServerSentEvent]:');
     expect(out).toContain('aiter_sse(');
-    expect(out).toContain('**multipart_arguments(body)');
+    expect(out).toContain('form_data, form_files = to_multipart(body)');
+    expect(out).not.toContain('**multipart_arguments(body)');
     expectCompiles(out);
   });
 

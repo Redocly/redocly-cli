@@ -108,12 +108,17 @@ export function writeMethod(
       printer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
       return;
     }
+    if (isMultipartBody(op) && !isUntypedMultipartBody(op)) {
+      printer.line('form_data, form_files = to_multipart(body)');
+    }
     const bodyKw = op.requestBody
-      ? isMultipartBody(op)
+      ? isUntypedMultipartBody(op)
         ? ', **multipart_arguments(body)'
-        : isBinaryContentType(op.requestBody.contentType)
-          ? `, content=body, content_type=${naming.string(op.requestBody.contentType)}`
-          : ', json_body=encode(body)'
+        : isMultipartBody(op)
+          ? ', data=form_data, files=form_files'
+          : isBinaryContentType(op.requestBody.contentType)
+            ? `, content=body, content_type=${naming.string(op.requestBody.contentType)}`
+            : ', json_body=encode(body)'
       : '';
     printer.line(
       `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +
