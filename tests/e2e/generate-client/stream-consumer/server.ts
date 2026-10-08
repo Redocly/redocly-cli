@@ -1,7 +1,8 @@
 // Echo server for the stream-bodies scenario. It records what every request put on
 // the wire (the raw body, every Content-Type value, and how the body was framed) and
 // answers 204, or 503 under /fail/ so the clients' retry policies have something to
-// retry. stream-bodies.test.ts reads the log through GET /__test__/log.
+// retry. stream-bodies.test.ts reads the log through GET /__test__/log and clears it
+// through POST /__test__/reset before each client runs.
 import * as http from 'node:http';
 
 type LogEntry = {
@@ -28,6 +29,11 @@ const server = http.createServer(async (req, res) => {
   if (url === '/__test__/log') {
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify(requestLog));
+    return;
+  }
+  if (url === '/__test__/reset') {
+    requestLog.length = 0;
+    res.writeHead(204).end();
     return;
   }
 

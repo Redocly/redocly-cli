@@ -100,7 +100,9 @@ function runProgram(command: string, args: string[], marker: string, cwd = repoR
 describe('generate-client stream bodies (end-to-end)', () => {
   let serverProcess: ChildProcess;
 
-  beforeEach(async () => {
+  // One server for the file, like the other suites: restarting it per test races the
+  // next bind against the previous process's exit on the same port.
+  beforeAll(async () => {
     serverProcess = await startServer(
       join(consumerDir, 'server.ts'),
       consumerDir,
@@ -110,11 +112,12 @@ describe('generate-client stream bodies (end-to-end)', () => {
     );
   }, 30_000);
 
-  afterEach(async () => {
-    await killServer(serverProcess);
+  beforeEach(async () => {
+    await fetch(`${SERVER_BASE}/__test__/reset`, { method: 'POST' });
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await killServer(serverProcess);
     rmSync(join(consumerDir, 'client'), { recursive: true, force: true });
   });
 
