@@ -87,6 +87,49 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+type Rebase = (value: string, sourceRef: string, rootRef: string) => string;
+
+const rebasePath: Rebase = (value, sourceRef, rootRef) => {
+  if (hasScheme(value) || path.isAbsolute(value)) {
+    return value;
+  }
+  if (isAbsoluteUrl(sourceRef)) {
+    return new URL(value, sourceRef).href;
+  }
+  const resolved = path.resolve(path.dirname(sourceRef), value);
+  return path.relative(path.dirname(rootRef), resolved) || '.';
+};
+
+// a glob is matched against project paths: `/` and `**` already anchor it, a leading `!` negates the rest
+const rebaseGlob: Rebase = (value, sourceRef, rootRef) => {
+  const pattern = value.replace(/^!+/, '');
+  if (!pattern || pattern.startsWith('/') || pattern.startsWith('**') || isAbsoluteUrl(sourceRef)) {
+    return value;
+  }
+  const dir = path
+    .relative(path.dirname(rootRef), path.dirname(sourceRef))
+    .split(path.sep)
+    .join('/');
+  const negation = value.slice(0, value.length - pattern.length);
+  return dir ? negation + path.posix.join(dir, pattern) : value;
+};
+
+// one or more images, as a path or as "path mode" pairs separated by ", "; a token without a file extension is an icon name
+const rebaseImage: Rebase = (value, sourceRef, rootRef) =>
+  value
+    .split(/\s*,\s*/)
+    .map((entry) => {
+      const [src, ...mode] = entry.trim().split(/\s+/);
+      return [/\.\w+$/.test(src) ? rebasePath(src, sourceRef, rootRef) : src, ...mode].join(' ');
+    })
+    .join(', ');
+
+const REBASERS: Record<string, Rebase> = {
+  'uri-reference': rebasePath,
+  glob: rebaseGlob,
+  image: rebaseImage,
+};
+
 // Paths and globs in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
@@ -96,69 +139,24 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   }
   // the walker visits a shared `$ref` target once per node type name, so rebase each node once
   rebasedNodes.add(node);
-  const rebase = (value: unknown) => {
-    if (!isString(value) || !value || hasScheme(value) || path.isAbsolute(value)) {
-      return value;
-    }
-    if (isAbsoluteUrl(sourceRef)) {
-      return new URL(value, sourceRef).href;
-    }
-    const resolved = path.resolve(path.dirname(sourceRef), value);
-    return path.relative(path.dirname(rootRef), resolved) || '.';
-  };
-  // a glob is matched against project paths: `/` and `**` already anchor it, `!` negates the rest
-  const rebaseGlob = (value: unknown): unknown => {
-    if (
-      !isString(value) ||
-      !value ||
-      value.startsWith('/') ||
-      value.startsWith('**') ||
-      isAbsoluteUrl(sourceRef)
-    ) {
-      return value;
-    }
-    if (value.startsWith('!')) {
-      return '!' + rebaseGlob(value.slice(1));
-    }
-    const dir = path
-      .relative(path.dirname(rootRef), path.dirname(sourceRef))
-      .split(path.sep)
-      .join('/');
-    return dir ? path.posix.join(dir, value) : value;
-  };
-  // one or more images, as a path or as "path mode" pairs separated by ", "; a token without a file extension is an icon name
-  const rebaseImage = (value: unknown) =>
-    isString(value)
-      ? value
-          .split(/\s*,\s*/)
-          .map((entry) => {
-            const [src, ...mode] = entry.trim().split(/\s+/);
-            return [/\.\w+$/.test(src) ? rebase(src) : src, ...mode].join(' ');
-          })
-          .join(', ')
-      : value;
-  const rebasers: Record<string, (value: unknown) => unknown> = {
-    'uri-reference': rebase,
-    glob: rebaseGlob,
-    image: rebaseImage,
-  };
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
     const value = node[field];
+    if (!isString(value) && !Array.isArray(value)) {
+      continue;
+    }
     // a oneOf property resolves to the branch that matches this value; a scalar branch keeps its format
     const propSchema = typeof schema === 'function' ? schema(value, field) : schema;
     if (!isPlainObject(propSchema) || isNamedType(propSchema)) {
       continue;
     }
     const format = propSchema.format ?? propSchema.items?.format;
-    const rebaseValue = format ? rebasers[format] : undefined;
-    if (!rebaseValue) {
+    const rebase = format ? REBASERS[format] : undefined;
+    if (!rebase) {
       continue;
     }
-    if (isString(value)) {
-      node[field] = rebaseValue(value);
-    } else if (Array.isArray(value)) {
-      node[field] = value.map(rebaseValue);
-    }
+    const rebaseItem = (item: unknown) =>
+      isString(item) && item ? rebase(item, sourceRef, rootRef) : item;
+    node[field] = Array.isArray(value) ? value.map(rebaseItem) : rebaseItem(value);
   }
 }
 
