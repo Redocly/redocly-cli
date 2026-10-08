@@ -55,8 +55,7 @@ Generate a typed, zero-dependency TypeScript client from an OpenAPI description 
 
 {% admonition type="warning" %}
 Starting with v2, Redocly CLI becomes a ESM-only package.
-This means that you can run it with Node.js v22.12.0 or higher (alternatively -- v20.19.0 or higher).
-An upcoming release drops Node.js 20 support.
+This means that you can run it with Node.js v22.12.0 or higher.
 
 {% /admonition %}
 
