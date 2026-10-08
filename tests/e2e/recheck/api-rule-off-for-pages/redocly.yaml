@@ -1,0 +1,11 @@
+extends:
+  - recheck/markdown
+apis:
+  museum:
+    root: ./openapi.yaml
+recheck:
+  rules:
+    recheck/line-length: off
+  apiDescriptions:
+    rules:
+      recheck/line-length: error

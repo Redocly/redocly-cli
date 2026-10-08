@@ -34,6 +34,6 @@ describe('Referenceable scalars', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

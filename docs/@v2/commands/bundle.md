@@ -25,7 +25,6 @@ redocly bundle <apis> [--remove-unused-components]
 redocly bundle <apis> [--config=<path>]
 redocly bundle <api> [--overlay=<path>]...
 redocly bundle <apis>... -o <outputName> --ext <ext>
-redocly bundle --version
 ```
 
 ## Options
@@ -49,7 +48,6 @@ redocly bundle --version
 | --skip-decorator                        | [string] | Ignore certain decorators. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                                 |
 | --skip-preprocessor                     | [string] | Ignore certain preprocessors. See the [Skip preprocessor, rule, or decorator section](#skip-preprocessor-rule-or-decorator).                                                                                                                              |
 | --component-names-strategy              | string   | How to name inlined Schema components. <br/> **Possible values:** `basename` (default) or `title`. See [Configure the component names strategy](#configure-the-component-names-strategy).                                                                 |
-| --version                               | boolean  | Show version number.                                                                                                                                                                                                                                      |
 
 ## Examples
 

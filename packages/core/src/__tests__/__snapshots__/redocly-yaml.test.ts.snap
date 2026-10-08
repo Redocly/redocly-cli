@@ -396,6 +396,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": "Decorators",
       "async3Preprocessors": "Preprocessors",
       "async3Rules": "Rules",
+      "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "client": "Client",
       "clientOutput": {
         "type": "string",
@@ -446,6 +447,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
         "type": "string",
+        "uiHint": "file",
       },
       "rules": "Rules",
       "theme": "rootRedoclyConfigSchema.apis_additionalProperties.theme",
@@ -541,6 +543,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "async3Decorators": "Decorators",
       "async3Preprocessors": "Preprocessors",
       "async3Rules": "Rules",
+      "asyncapi": "rootRedoclyConfigSchema.asyncapi",
       "banner": "rootRedoclyConfigSchema.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.breadcrumbs",
       "catalog": {
@@ -1319,6 +1322,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "ignore": {
         "items": {
           "type": "string",
+          "uiHint": "file",
         },
         "type": "array",
       },
@@ -1976,6 +1980,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.asyncapi",
       "banner": "rootRedoclyConfigSchema.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.breadcrumbs",
       "catalog": {
@@ -2580,6 +2585,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "prompt": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "suggestions": {
         "items": {
@@ -2967,6 +2973,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.apis_additionalProperties.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "decorators": {
         "type": "object",
       },
@@ -3043,6 +3050,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
         "type": "string",
+        "uiHint": "file",
       },
       "rules": "rootRedoclyConfigSchema.apis_additionalProperties.rules",
       "theme": "rootRedoclyConfigSchema.apis_additionalProperties.theme",
@@ -3084,6 +3092,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.apis_additionalProperties.graphql": {
@@ -3143,6 +3517,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -3473,6 +3848,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
@@ -4682,6 +5058,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -4698,6 +5075,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -4719,6 +5097,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4880,15 +5259,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4901,15 +5284,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4922,15 +5309,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -4943,15 +5334,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5173,6 +5568,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5251,6 +5647,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -5290,9 +5687,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5394,6 +5793,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5459,18 +5859,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -5489,6 +5893,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -5503,6 +5908,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -5512,12 +5918,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -5530,6 +5939,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -5545,6 +5955,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -5572,12 +5983,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -5587,6 +6001,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -5601,9 +6016,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.apis_additionalProperties.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -5611,6 +6028,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.apis_additionalProperties.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -5629,6 +6047,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -5749,9 +6168,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5813,6 +6234,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5840,6 +6262,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5867,6 +6290,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -5912,6 +6336,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -5936,6 +6361,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -6057,6 +6483,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -6387,6 +6814,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
@@ -7556,6 +7984,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -7572,6 +8001,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -7593,6 +8023,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7754,15 +8185,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7775,15 +8210,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7796,15 +8235,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -7817,15 +8260,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8047,6 +8494,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8125,6 +8573,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -8164,9 +8613,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8268,6 +8719,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8333,18 +8785,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -8363,6 +8819,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -8377,6 +8834,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -8386,12 +8844,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -8404,6 +8865,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -8419,6 +8881,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -8446,12 +8909,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -8461,6 +8927,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -8475,9 +8942,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -8485,6 +8954,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -8503,6 +8973,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -8623,9 +9094,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8687,6 +9160,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8714,6 +9188,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8741,6 +9216,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8786,6 +9262,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -8810,6 +9287,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -8859,6 +9337,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.banner": {
@@ -10539,6 +11383,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.env_additionalProperties.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi",
       "banner": "rootRedoclyConfigSchema.env_additionalProperties.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.env_additionalProperties.breadcrumbs",
       "catalog": {
@@ -11137,6 +11982,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "prompt": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "suggestions": {
         "items": {
@@ -11524,6 +12370,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "async3Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.async3Rules",
+      "asyncapi": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi",
       "decorators": {
         "type": "object",
       },
@@ -11600,6 +12447,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rbac",
       "root": {
         "type": "string",
+        "uiHint": "file",
       },
       "rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rules",
       "theme": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme",
@@ -11641,6 +12489,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql": {
@@ -11700,6 +12914,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -12030,6 +13245,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
@@ -13239,6 +14455,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -13255,6 +14472,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -13276,6 +14494,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13437,15 +14656,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13458,15 +14681,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13479,15 +14706,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13500,15 +14731,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13730,6 +14965,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -13808,6 +15044,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -13847,9 +15084,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -13951,6 +15190,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -14016,18 +15256,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -14046,6 +15290,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -14060,6 +15305,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -14069,12 +15315,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -14087,6 +15336,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -14102,6 +15352,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -14129,12 +15380,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -14144,6 +15398,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -14158,9 +15413,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -14168,6 +15425,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -14186,6 +15444,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -14306,9 +15565,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14370,6 +15631,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14397,6 +15659,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14424,6 +15687,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14469,6 +15733,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -14493,6 +15758,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -14614,6 +15880,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -14944,6 +16211,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
@@ -16113,6 +17381,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -16129,6 +17398,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -16150,6 +17420,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16311,15 +17582,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16332,15 +17607,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16353,15 +17632,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16374,15 +17657,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16604,6 +17891,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -16682,6 +17970,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -16721,9 +18010,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16825,6 +18116,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16890,18 +18182,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -16920,6 +18216,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -16934,6 +18231,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -16943,12 +18241,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -16961,6 +18262,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -16976,6 +18278,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -17003,12 +18306,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -17018,6 +18324,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -17032,9 +18339,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -17042,6 +18351,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -17060,6 +18370,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -17180,9 +18491,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17244,6 +18557,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17271,6 +18585,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17298,6 +18613,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17343,6 +18659,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -17367,6 +18684,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -17416,6 +18734,372 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": "https://redocly.com/docs/cli/configuration/reference/rules#rules",
     "items": undefined,
     "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiLogo": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.apiLogo",
+      "baseUrlPath": {
+        "type": "string",
+      },
+      "downloadUrls": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls",
+      "excludeFromSearch": {
+        "type": "boolean",
+      },
+      "feedback": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback",
+      "fieldExpandLevel": {
+        "type": "number",
+      },
+      "jsonSamplesDepth": {
+        "type": "number",
+      },
+      "layout": {
+        "enum": [
+          "stacked",
+          "three-panel",
+        ],
+        "type": "string",
+      },
+      "samplesMaxInlineArgs": {
+        "type": "number",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.apiLogo": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "altText": {
+        "type": "string",
+      },
+      "backgroundColor": {
+        "type": "string",
+      },
+      "href": {
+        "type": "string",
+      },
+      "imageUrl": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.downloadUrls_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "title": {
+        "type": "string",
+      },
+      "url": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "settings": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings",
+      "type": {
+        "enum": [
+          "rating",
+          "sentiment",
+          "comment",
+          "reasons",
+          "mood",
+          "scale",
+        ],
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "buttonText": {
+        "type": "string",
+      },
+      "comment": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.comment",
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "minItems": 1,
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "leftScaleLabel": {
+        "type": "string",
+      },
+      "optionalEmail": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.optionalEmail",
+      "reasons": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons",
+      "rightScaleLabel": {
+        "type": "string",
+      },
+      "submitText": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.comment": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "dislikeLabel": {
+        "type": "string",
+      },
+      "dissatisfiedLabel": {
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "likeLabel": {
+        "type": "string",
+      },
+      "neutralLabel": {
+        "type": "string",
+      },
+      "satisfiedLabel": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.optionalEmail": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "hide": {
+        "type": "boolean",
+      },
+      "label": {
+        "type": "string",
+      },
+      "placeholder": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "dislike": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dislike",
+      "dissatisfied": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied",
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+      "like": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.like",
+      "neutral": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.neutral",
+      "satisfied": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.satisfied",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dislike": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.dissatisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.like": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.neutral": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.asyncapi.feedback.settings.reasons.satisfied": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "component": {
+        "enum": [
+          "radio",
+          "checkbox",
+        ],
+        "type": "string",
+      },
+      "hide": {
+        "type": "boolean",
+      },
+      "items": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "label": {
+        "type": "string",
+      },
+    },
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.banner": {
@@ -19343,6 +21027,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "copyrightText": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "hide": {
         "type": "boolean",
@@ -19655,6 +21340,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -19985,6 +21671,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info.license",
       "termsOfService": {
@@ -20842,6 +22529,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
             "claude",
             "docs-mcp-cursor",
             "docs-mcp-vscode",
+            "docs-mcp-claude",
           ],
           "type": "string",
         },
@@ -21849,6 +23537,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -21865,6 +23554,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -21886,6 +23576,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22047,15 +23738,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22068,15 +23763,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22089,15 +23788,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22110,15 +23813,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22340,6 +24047,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -22418,6 +24126,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -22457,9 +24166,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22561,6 +24272,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22626,18 +24338,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -22656,6 +24372,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -22670,6 +24387,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -22679,12 +24397,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -22697,6 +24418,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -22712,6 +24434,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -22739,12 +24462,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -22754,6 +24480,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -22768,9 +24495,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -22778,6 +24507,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -22796,6 +24526,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -22916,9 +24647,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -22980,6 +24713,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23007,6 +24741,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23034,6 +24769,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23079,6 +24815,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -23103,6 +24840,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -23582,10 +25320,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "apiDescriptions": "rootRedoclyConfigSchema.env_additionalProperties.recheck.apiDescriptions",
-      "baseline": {
-        "minLength": 1,
-        "type": "string",
-      },
       "excludes": {
         "items": {
           "minLength": 1,
@@ -23903,6 +25637,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "agent": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent",
       "ignoreLinkChecker": {
         "type": "boolean",
       },
@@ -23914,7 +25649,209 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "jobs": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs",
-      "mcpServers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "defaultReviewers": {
+        "items": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "duties": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties",
+      "enabled": {
+        "type": "boolean",
+      },
+      "mcpServers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers",
+      "rules": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.rules",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": [Function],
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "feedback",
+          "discovery",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.duties_items_1.specialists_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "config",
+          "apiDescription",
+          "owasp",
+          "docs",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+      "enabled",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers": {
+    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "headers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers_additionalProperties.headers",
+      "type": {
+        "enum": [
+          "http",
+        ],
+        "type": "string",
+      },
+      "url": {
+        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.mcpServers_additionalProperties.headers": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.reunite.agent.rules": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "custom": {
+        "type": "string",
+      },
+      "style": {
+        "type": "string",
+      },
     },
     "required": undefined,
   },
@@ -24083,49 +26020,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "event",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers": {
-    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "headers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties.headers",
-      "type": {
-        "enum": [
-          "http",
-        ],
-        "type": "string",
-      },
-      "url": {
-        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
-        "type": "string",
-      },
-    },
-    "required": [
-      "url",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.mcpServers_additionalProperties.headers": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.rules": {
     "additionalProperties": [Function],
@@ -25416,11 +27310,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "details": "rootRedoclyConfigSchema.env_additionalProperties.seo.llmstxt.details",
       "excludeFiles": {
         "items": {
           "type": "string",
+          "uiHint": "file",
         },
         "type": "array",
       },
@@ -25442,9 +27338,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "content": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "path": {
         "type": "string",
+        "uiHint": "file",
       },
     },
     "required": undefined,
@@ -25475,6 +27373,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "includeFiles": {
         "items": {
           "type": "string",
+          "uiHint": "file",
         },
         "type": "array",
       },
@@ -25631,6 +27530,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "prompt": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "suggestions": {
         "items": {
@@ -28123,6 +30023,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "copyrightText": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "hide": {
         "type": "boolean",
@@ -28435,6 +30336,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -28765,6 +30667,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
@@ -29457,6 +31360,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
             "claude",
             "docs-mcp-cursor",
             "docs-mcp-vscode",
+            "docs-mcp-claude",
           ],
           "type": "string",
         },
@@ -30432,6 +32336,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -30448,6 +32353,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -30469,6 +32375,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30630,15 +32537,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30651,15 +32562,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30672,15 +32587,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30693,15 +32612,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -30923,6 +32846,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31001,6 +32925,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -31040,9 +32965,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -31144,6 +33071,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -31209,18 +33137,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -31239,6 +33171,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -31253,6 +33186,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -31262,12 +33196,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -31280,6 +33217,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -31295,6 +33233,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -31322,12 +33261,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -31337,6 +33279,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -31351,9 +33294,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.env_additionalProperties.theme.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -31361,6 +33306,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.env_additionalProperties.theme.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -31379,6 +33325,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -31499,9 +33446,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31563,6 +33512,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31590,6 +33540,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31617,6 +33568,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -31662,6 +33614,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -31686,6 +33639,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -33408,6 +35362,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "copyrightText": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "hide": {
         "type": "boolean",
@@ -33720,6 +35675,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "href": {
         "type": "string",
@@ -34050,6 +36006,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "contact": "rootRedoclyConfigSchema.graphql.info.contact",
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "license": "rootRedoclyConfigSchema.graphql.info.license",
       "termsOfService": {
@@ -34907,6 +36864,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
             "claude",
             "docs-mcp-cursor",
             "docs-mcp-vscode",
+            "docs-mcp-claude",
           ],
           "type": "string",
         },
@@ -35914,6 +37872,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -35930,6 +37889,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -35951,6 +37911,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36112,15 +38073,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36133,15 +38098,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36154,15 +38123,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36175,15 +38148,19 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "tabTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36405,6 +38382,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -36483,6 +38461,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -36522,9 +38501,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36626,6 +38607,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36691,18 +38673,22 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "panelControlsBackgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
       },
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -36721,6 +38707,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -36735,6 +38722,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linesColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "nestedBackground": {
         "type": "string",
@@ -36744,12 +38732,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "requireLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeNameColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "typeTitleColor": {
         "type": "string",
+        "uiHint": "color",
       },
     },
     "required": undefined,
@@ -36762,6 +38753,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -36777,6 +38769,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "border": {
         "type": "string",
@@ -36804,12 +38797,15 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "activeBgColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "activeTextColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "borderRadius": {
         "type": "string",
@@ -36819,6 +38815,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "caretColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "caretSize": {
         "type": "string",
@@ -36833,9 +38830,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "level1items": "rootRedoclyConfigSchema.openapi.theme.sidebar.level1items",
       "rightLineColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "separatorLabelColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "showAtBreakpoint": {
         "type": "string",
@@ -36843,6 +38842,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "spacing": "rootRedoclyConfigSchema.openapi.theme.sidebar.spacing",
       "textColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "width": {
         "type": "string",
@@ -36861,6 +38861,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "subItemsColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "textTransform": {
         "type": "string",
@@ -36981,9 +38982,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "backgroundColor": {
         "type": "string",
+        "uiHint": "color",
       },
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37045,6 +39048,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37072,6 +39076,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37099,6 +39104,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37144,6 +39150,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "hover": {
         "type": "string",
@@ -37168,6 +39175,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "color": {
         "type": "string",
+        "uiHint": "color",
       },
       "fontFamily": {
         "type": "string",
@@ -37647,10 +39655,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "apiDescriptions": "rootRedoclyConfigSchema.recheck.apiDescriptions",
-      "baseline": {
-        "minLength": 1,
-        "type": "string",
-      },
       "excludes": {
         "items": {
           "minLength": 1,
@@ -37968,6 +39972,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "agent": "rootRedoclyConfigSchema.reunite.agent",
       "ignoreLinkChecker": {
         "type": "boolean",
       },
@@ -37979,7 +39984,209 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "jobs": "rootRedoclyConfigSchema.reunite.jobs",
-      "mcpServers": "rootRedoclyConfigSchema.reunite.mcpServers",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "defaultReviewers": {
+        "items": {
+          "minLength": 1,
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "duties": "rootRedoclyConfigSchema.reunite.agent.duties",
+      "enabled": {
+        "type": "boolean",
+      },
+      "mcpServers": "rootRedoclyConfigSchema.reunite.agent.mcpServers",
+      "rules": "rootRedoclyConfigSchema.reunite.agent.rules",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": [Function],
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_0": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "feedback",
+          "discovery",
+          "followUpOnPullRequest",
+          "updateFromCodeChanges",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "review",
+        ],
+        "type": "string",
+      },
+      "rules": {
+        "type": "string",
+      },
+      "sourceRepositories": [Function],
+      "specialists": "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists",
+    },
+    "required": [
+      "name",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.sourceRepositories_1": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_1.sourceRepositories_1_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.sourceRepositories_1_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "branch": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+      "provider": {
+        "minLength": 1,
+        "type": "string",
+      },
+      "repository": {
+        "minLength": 1,
+        "type": "string",
+      },
+    },
+    "required": [
+      "provider",
+      "repository",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.duties_items_1.specialists_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "enabled": {
+        "type": "boolean",
+      },
+      "name": {
+        "enum": [
+          "config",
+          "apiDescription",
+          "owasp",
+          "docs",
+        ],
+        "type": "string",
+      },
+    },
+    "required": [
+      "name",
+      "enabled",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.mcpServers": {
+    "additionalProperties": "rootRedoclyConfigSchema.reunite.agent.mcpServers_additionalProperties",
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.mcpServers_additionalProperties": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "headers": "rootRedoclyConfigSchema.reunite.agent.mcpServers_additionalProperties.headers",
+      "type": {
+        "enum": [
+          "http",
+        ],
+        "type": "string",
+      },
+      "url": {
+        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
+  "rootRedoclyConfigSchema.reunite.agent.mcpServers_additionalProperties.headers": {
+    "additionalProperties": {
+      "type": "string",
+    },
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.reunite.agent.rules": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "custom": {
+        "type": "string",
+      },
+      "style": {
+        "type": "string",
+      },
     },
     "required": undefined,
   },
@@ -38148,49 +40355,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "required": [
       "event",
     ],
-  },
-  "rootRedoclyConfigSchema.reunite.mcpServers": {
-    "additionalProperties": "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "headers": "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties.headers",
-      "type": {
-        "enum": [
-          "http",
-        ],
-        "type": "string",
-      },
-      "url": {
-        "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
-        "type": "string",
-      },
-    },
-    "required": [
-      "url",
-    ],
-  },
-  "rootRedoclyConfigSchema.reunite.mcpServers_additionalProperties.headers": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.rules": {
     "additionalProperties": [Function],
@@ -39481,11 +41645,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "description": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "details": "rootRedoclyConfigSchema.seo.llmstxt.details",
       "excludeFiles": {
         "items": {
           "type": "string",
+          "uiHint": "file",
         },
         "type": "array",
       },
@@ -39507,9 +41673,11 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "content": {
         "type": "string",
+        "uiHint": "textarea",
       },
       "path": {
         "type": "string",
+        "uiHint": "file",
       },
     },
     "required": undefined,
@@ -39540,6 +41708,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "includeFiles": {
         "items": {
           "type": "string",
+          "uiHint": "file",
         },
         "type": "array",
       },

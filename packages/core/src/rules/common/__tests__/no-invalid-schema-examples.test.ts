@@ -82,7 +82,7 @@ describe('no-invalid-schema-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on nullable example for OAS3', async () => {
@@ -117,7 +117,7 @@ describe('no-invalid-schema-examples', () => {
       config: await createConfig({ rules: { 'no-invalid-schema-examples': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on invalid examples with additional properties', async () => {
@@ -204,6 +204,6 @@ describe('no-invalid-schema-examples', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

@@ -6,8 +6,8 @@ import {
 } from '@redocly/openapi-core';
 import * as process from 'node:process';
 
+import { loadAndCheckConfig } from '../commands/check-config.js';
 import { handleLint } from '../commands/lint.js';
-import { loadConfigAndHandleErrors } from '../utils/miscellaneous.js';
 import { sendTelemetry } from '../utils/telemetry.js';
 import { commandWrapper } from '../wrapper.js';
 
@@ -26,6 +26,7 @@ describe('commandWrapper', () => {
     vi.mock('../utils/miscellaneous.js');
     vi.mock('../utils/telemetry.js');
     vi.mock('../commands/lint.js');
+    vi.mock('../commands/check-config.js');
   });
   afterEach(() => {
     global.fetch = originalFetch;
@@ -33,7 +34,7 @@ describe('commandWrapper', () => {
   });
 
   it('should send telemetry if there is "telemetry: on" in the config', async () => {
-    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+    vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
@@ -69,7 +70,7 @@ describe('commandWrapper', () => {
   });
 
   it('should not collect spec version if the file is not parsed to json (except for graphql)', async () => {
-    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+    vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
@@ -102,7 +103,7 @@ describe('commandWrapper', () => {
   });
 
   it('should collect the spec version of a GraphQL document', async () => {
-    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+    vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectSpecData }) => {
@@ -122,7 +123,7 @@ describe('commandWrapper', () => {
   });
 
   it('should not keep the spec keyword of a previously linted document', async () => {
-    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+    vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(detectSpec).mockImplementationOnce(() => {
@@ -146,7 +147,7 @@ describe('commandWrapper', () => {
   });
 
   it('should collect the names of lint rules that reported problems', async () => {
-    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+    vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'on' } } as Config;
     });
     vi.mocked(handleLint).mockImplementation(async ({ collectResults: collectLintResults }) => {
@@ -170,7 +171,7 @@ describe('commandWrapper', () => {
   });
 
   it('should NOT send telemetry if there is "telemetry: off" in the config', async () => {
-    vi.mocked(loadConfigAndHandleErrors).mockImplementation(async () => {
+    vi.mocked(loadAndCheckConfig).mockImplementation(async () => {
       return { resolvedConfig: { telemetry: 'off' } } as Config;
     });
     process.env.REDOCLY_TELEMETRY = 'on';

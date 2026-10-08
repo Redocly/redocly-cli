@@ -51,7 +51,6 @@ redocly proxy --target <url> --har <path> [--port=<number>] [--host=<string>]
 | --config         | string  | Specify the path to the [configuration file](../configuration/index.md).                                                                           |
 | --lint-config    | string  | Specify the severity level for the configuration file.<br/>**Possible values:** `warn`, `error`, `off`. Default value is `warn`.                   |
 | --help           | boolean | Display help.                                                                                                                                      |
-| --version        | boolean | Display version number.                                                                                                                            |
 
 ## Examples
 

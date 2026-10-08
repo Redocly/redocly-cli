@@ -33,7 +33,7 @@ export function writePhpPaginationWrappers(
   const name = ident;
 
   const writeCall = () => {
-    printer.line(`$op = OPERATIONS[${phpString(op.specName ?? op.name)}];`);
+    printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
     printer.line('$base = [];');
     for (const { php, wire, value } of args.queryArgs) {
       printer.block(

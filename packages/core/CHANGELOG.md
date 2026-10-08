@@ -1,5 +1,46 @@
 # @redocly/openapi-core
 
+## 2.60.0
+
+## 2.59.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.62.0`.
+
+## 2.58.2
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.61.1`.
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+
+## 2.58.0
+
+### Minor Changes
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+  Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+- Added the `plugins` option to `loadConfig` and `createConfig`: ready plugin objects that are added next to the built-in plugin.
+  Resolved configs carry the merged `recheck` block in `Config.recheck`.
+  A `recheck/*` entry in `extends` resolves like any other preset when a plugin with the id `recheck` is passed, and is skipped otherwise.
+  `lint` reads no rules from the block.
+  A custom plugin cannot use the id `recheck`.
+
+### Patch Changes
+
+- Improved the consistency of how configuration file problems are reported.
+  Commands with machine-readable output formats, such as `json`, `junit`, `checkstyle`, and `sarif` also report configuration file problems instead of hiding them.
+  A configuration file that fails to load displays a specific error message instead of a generic one.
+
+  **Note**: Configuration file problems are printed to `stderr` in the `codeframe` format for every command, regardless of the `--format` option.
+
 ## 2.57.0
 
 ### Minor Changes

@@ -58,7 +58,7 @@ describe('Oas3 oas3-no-server-example.com', () => {
       config: await createConfig({ rules: { 'no-server-example.com': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('oas3-no-server-example.com: should report on server object with "foo.example.com" url', async () => {

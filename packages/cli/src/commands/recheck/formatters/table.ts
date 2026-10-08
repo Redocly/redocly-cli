@@ -27,14 +27,18 @@ export function outputTableFormat(
     const location = `${problem.file}:${problem.line}:${problem.column}`;
     const ruleDisplay = problem.ruleName.replace('recheck/', '');
 
-    const fixMark = problem.fixable ? green(' [fixable]') : '';
+    // `--fix` never rewrites an API description, so a problem with a pointer
+    // gets no marker and no count.
+    const fixMark = problem.fixable && problem.pointer === undefined ? green(' [fixable]') : '';
 
     logger.output(
       `${severityColor(ruleDisplay.padEnd(25))} ${location.padEnd(40)} ${problem.message}${fixMark}\n`
     );
   }
 
-  const fixableCount = problems.filter((problem) => problem.fixable).length;
+  const fixableCount = problems.filter(
+    (problem) => problem.fixable && problem.pointer === undefined
+  ).length;
   if (fixableCount > 0) {
     logger.output(`${green(`\n   ${fixableCount} of ${problems.length} fixable with --fix`)}\n`);
   }

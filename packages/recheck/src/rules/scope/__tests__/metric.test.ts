@@ -502,21 +502,24 @@ describe('metric assertion', () => {
         'smog',
         'coleman-liau',
         'automated-readability',
+        'word-count',
+        'sentence-count',
+        'reading-time',
       ].map((formula): [string, Record<string, unknown>] => [
         `formula ${formula}`,
         { formula, min: 1 },
       ]),
+      [
+        'reading-time with a positive wordsPerMinute and a fractional bound',
+        { formula: 'reading-time', max: 2.5, wordsPerMinute: 180 },
+      ],
     ])('accepts %s', async (_label, options) => {
       await expectValidOptions('metric', options);
     });
 
     it.each<[string, Record<string, unknown>, ...string[]]>([
       ['a missing formula', { min: 1 }, 'formula'],
-      [
-        'a formula outside the six recognized values',
-        { formula: 'bogus-formula', min: 1 },
-        'formula',
-      ],
+      ['an unrecognized formula', { formula: 'bogus-formula', min: 1 }, 'formula'],
       ['neither min nor max', { formula: 'flesch-reading-ease' }, 'min', 'max'],
       [
         'an unknown option',
@@ -527,6 +530,24 @@ describe('metric assertion', () => {
       ['a non-number max', { formula: 'flesch-reading-ease', max: '30' }, 'max'],
       // An inverted range flags every file.
       ['min greater than max', { formula: 'flesch-reading-ease', min: 60, max: 30 }, 'min', 'max'],
+      [
+        'a zero wordsPerMinute',
+        { formula: 'reading-time', max: 1, wordsPerMinute: 0 },
+        'wordsPerMinute',
+        'positive number',
+      ],
+      [
+        'a non-number wordsPerMinute',
+        { formula: 'reading-time', max: 1, wordsPerMinute: 'fast' },
+        'wordsPerMinute',
+        'positive number',
+      ],
+      [
+        'wordsPerMinute with a formula other than reading-time',
+        { formula: 'word-count', max: 1, wordsPerMinute: 200 },
+        'wordsPerMinute',
+        'only applies to formula "reading-time"',
+      ],
     ])('rejects %s', async (_label, options, ...mentions) => {
       await expectInvalidOptions('metric', options, ...mentions);
     });
@@ -606,5 +627,113 @@ describe('metric prose extraction (readability-standard view)', () => {
     const score = await fre(sample);
     expect(score).toBeGreaterThan(15);
     expect(score).toBeLessThan(32);
+  });
+});
+
+describe('metric size formulas (word-count, sentence-count)', () => {
+  it('flags a document whose prose word count exceeds max, with the size fallback message', async () => {
+    const content = 'One two three four.\n\n- five six\n';
+    const rule = metricRule(undefined, { formula: 'word-count', max: 5 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext(content));
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0]).toMatchObject({ line: 1, column: 1 });
+    expect(problems[0].message).toBe('Document word-count is 6; expected between -∞ and 5.');
+  });
+
+  it('does not flag a document at max', async () => {
+    const rule = metricRule(undefined, { formula: 'word-count', max: 5 });
+
+    const problems = await metric.execute(
+      rule,
+      'test.md',
+      buildMetricContext('One two three four five.\n')
+    );
+
+    expect(problems).toEqual([]);
+  });
+
+  it('counts only prose: headings, code, frontmatter, and inline code are excluded', async () => {
+    const content = [
+      '---',
+      'title: Alpha beta gamma delta',
+      '---',
+      '',
+      '# Heading words',
+      '',
+      'One `two three four` five.',
+      '',
+      '```',
+      'code code code code code code',
+      '```',
+      '',
+    ].join('\n');
+    const rule = metricRule('%s is %s', { formula: 'word-count', max: 1 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext(content));
+
+    expect(problems[0].message).toBe('word-count is 2');
+  });
+
+  it('counts sentences, with every block ending a sentence', async () => {
+    const content = 'First one. Second one.\n\n- an unpunctuated item\n- another item\n';
+    const rule = metricRule('%s is %s', { formula: 'sentence-count', max: 3 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext(content));
+
+    expect(problems[0].message).toBe('sentence-count is 4');
+  });
+
+  it('never flags a document with no prose', async () => {
+    const rule = metricRule(undefined, { formula: 'word-count', min: 10 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext('```\ncode\n```\n'));
+
+    expect(problems).toEqual([]);
+  });
+
+  it('forces scope summary on a size formula rule', async () => {
+    const result = await validate({
+      'recheck/size': {
+        severity: 'error',
+        message: '%s is %s',
+        assertions: { metric: { formula: 'word-count', max: 10 } },
+      },
+    });
+    expect(result.errors).toEqual([]);
+    expect(result.rules[0].scope).toBe('summary');
+  });
+});
+
+describe('metric reading-time formula', () => {
+  const tenWords = 'one two three four five six seven eight nine ten.';
+  const paragraphs = (count: number) =>
+    Array.from({ length: count }, () => tenWords).join('\n\n') + '\n';
+
+  it('reports minutes at wordsPerMinute', async () => {
+    const rule = metricRule('%s is %s', { formula: 'reading-time', max: 1, wordsPerMinute: 100 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext(paragraphs(25)));
+
+    expect(problems[0].message).toBe('reading-time is 2.5');
+  });
+
+  it('defaults wordsPerMinute to 200', async () => {
+    const rule = metricRule('%s is %s', { formula: 'reading-time', max: 1 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext(paragraphs(40)));
+
+    expect(problems[0].message).toBe('reading-time is 2');
+  });
+
+  // 201 words at 200 words per minute is 1.005 minutes, which rounds to 1 and passes `max: 1`.
+  it('rounds to one decimal before comparing, so the message never contradicts the verdict', async () => {
+    const content = `${tenWords}\n`.repeat(20) + 'eleven.\n';
+    const rule = metricRule(undefined, { formula: 'reading-time', max: 1 });
+
+    const problems = await metric.execute(rule, 'test.md', buildMetricContext(content));
+
+    expect(problems).toEqual([]);
   });
 });
