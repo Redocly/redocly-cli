@@ -2703,66 +2703,8 @@ describe('loadConfig', () => {
       goPackage: './not-a-path',
     });
     expect(resolvedConfig).toMatchObject({
-      logo: {
-        favicon: 'nested/images/favicon.ico',
-        srcSet: 'nested/images/logo-dark.svg dark, nested/images/logo-light.svg light',
-      },
       openapi: { htmlTemplate: 'nested/template.html' },
-      // an icon is rebased only when it names an image file; a srcSet is rebased pair by pair
-      navbar: {
-        items: [
-          { page: 'nested/docs/index.md', icon: 'nested/images/home.svg' },
-          { page: 'nested/docs/guide.md', icon: 'home' },
-          {
-            page: 'nested/docs/api.md',
-            icon: {
-              srcSet:
-                'nested/images/api-dark.svg dark, https://cdn.example.com/api-light.svg light',
-            },
-          },
-        ],
-      },
-      breadcrumbs: {
-        prefixItems: [
-          { page: 'nested/docs/index.md', icon: 'nested/images/crumb.png' },
-          { label: 'Docs', icon: 'book' },
-        ],
-      },
-      entitiesCatalog: {
-        entityTypes: {
-          service: {
-            icon: {
-              src: 'nested/images/service.svg',
-              srcSet: 'nested/images/service-dark.svg dark, nested/images/service-light.svg light',
-            },
-          },
-        },
-      },
-      catalog: {
-        main: { slug: '/apis/', items: [{ directory: 'nested/apis' }, { directory: '.' }] },
-      },
-      apiFunctions: {
-        folders: ['nested/functions', 'https://example.com/functions', 's3://bucket/functions'],
-      },
-    });
-    // globs keep a leading `/`, `**` and `!`; the rest is prefixed with the referenced file's folder
-    expect(resolvedConfig).toMatchObject({
-      ignore: ['internal/**', '!internal/keep/**'],
-      seo: {
-        llmstxt: {
-          excludeFiles: [
-            'nested/internal/**',
-            '!nested/internal/public/**',
-            '/root-anchored/**',
-            '**/_partials/**',
-            'nested/*.md',
-          ],
-        },
-      },
-      markdown: { partialsFolders: ['nested/_partials/**'] },
-      mcp: { docs: { ignore: ['nested/drafts/*.yaml'] } },
-      scorecard: { ignore: ['nested/legacy/openapi.yaml'] },
-      skills: { excludeFiles: ['nested/{a,b}/**'] },
+      recheck: { markdoc: { extend: { tagsFile: 'nested/tags.js' } } },
     });
   });
 
@@ -2775,10 +2717,6 @@ describe('loadConfig', () => {
       inline: { root: 'file-paths/openapi.yaml' },
       'one-level': { root: 'file-paths/nested/openapi.yaml' },
     });
-    expect(resolvedConfig.ignore).toEqual([
-      'file-paths/internal/**',
-      '!file-paths/internal/keep/**',
-    ]);
   });
 
   it('should resolve file paths written in a remote config file against its URL', async () => {

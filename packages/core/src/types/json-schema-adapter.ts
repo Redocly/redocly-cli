@@ -78,12 +78,6 @@ function transformJSONSchemaToNodeType(
     return rest as PropType;
   }
 
-  // a single pattern types every entry like additionalProperties does, even next to additionalProperties: false
-  const patternSchemas = Object.values(schema.patternProperties ?? {});
-  if (patternSchemas.length === 1) {
-    schema = { ...schema, additionalProperties: patternSchemas[0] };
-  }
-
   if (schema.type === 'object' && !schema.properties && !schema.oneOf) {
     if (schema.additionalProperties === undefined || schema.additionalProperties === true) {
       return { type: 'object' };

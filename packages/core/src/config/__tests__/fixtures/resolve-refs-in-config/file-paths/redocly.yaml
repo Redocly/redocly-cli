@@ -21,31 +21,7 @@ apis:
       $ref: nested/config.yaml#/openapi
 client:
   $ref: nested/config.yaml#/client
-logo:
-  $ref: nested/config.yaml#/logo
 openapi:
   $ref: nested/config.yaml#/openapi
-navbar:
-  $ref: nested/config.yaml#/navbar
-breadcrumbs:
-  $ref: nested/config.yaml#/breadcrumbs
-entitiesCatalog:
-  $ref: nested/config.yaml#/entitiesCatalog
-catalog:
-  main:
-    $ref: nested/config.yaml#/catalog
-apiFunctions:
-  $ref: nested/config.yaml#/apiFunctions
-seo:
-  $ref: nested/config.yaml#/seo
-markdown:
-  $ref: nested/config.yaml#/markdown
-mcp:
-  $ref: nested/config.yaml#/mcp
-scorecard:
-  $ref: nested/config.yaml#/scorecard
-skills:
-  $ref: nested/config.yaml#/skills
-ignore:
-  - internal/**
-  - '!internal/keep/**'
+recheck:
+  $ref: nested/config.yaml#/recheck

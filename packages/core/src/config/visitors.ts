@@ -98,38 +98,7 @@ function rebasePath(value: string, sourceRef: string, rootRef: string) {
   return path.relative(path.dirname(rootRef), resolved) || '.';
 }
 
-// a glob is matched against project paths: `/` and `**` already anchor it, a leading `!` negates the rest
-function rebaseGlob(value: string, sourceRef: string, rootRef: string) {
-  const pattern = value.replace(/^!+/, '');
-  if (!pattern || pattern.startsWith('/') || pattern.startsWith('**') || isAbsoluteUrl(sourceRef)) {
-    return value;
-  }
-  const dir = path
-    .relative(path.dirname(rootRef), path.dirname(sourceRef))
-    .split(path.sep)
-    .join('/');
-  const negation = value.slice(0, value.length - pattern.length);
-  return dir ? negation + path.posix.join(dir, pattern) : value;
-}
-
-// one or more images, as a path or as "path mode" pairs separated by ", "; a token without a file extension is an icon name
-function rebaseImage(value: string, sourceRef: string, rootRef: string) {
-  return value
-    .split(/\s*,\s*/)
-    .map((entry) => {
-      const [src, ...mode] = entry.trim().split(/\s+/);
-      return [/\.\w+$/.test(src) ? rebasePath(src, sourceRef, rootRef) : src, ...mode].join(' ');
-    })
-    .join(', ');
-}
-
-const REBASERS: Record<string, typeof rebasePath> = {
-  'uri-reference': rebasePath,
-  glob: rebaseGlob,
-  image: rebaseImage,
-};
-
-// Paths and globs in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
+// Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;
@@ -138,24 +107,21 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   }
   // the walker visits a shared `$ref` target once per node type name, so rebase each node once
   rebasedNodes.add(node);
+  const rebaseItem = (item: unknown) =>
+    isString(item) && item ? rebasePath(item, sourceRef, rootRef) : item;
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    if (!isPlainObject(schema) || isNamedType(schema)) {
+      continue;
+    }
+    if ((schema.format ?? schema.items?.format) !== 'uri-reference') {
+      continue;
+    }
     const value = node[field];
-    if (!isString(value) && !Array.isArray(value)) {
-      continue;
+    if (isString(value)) {
+      node[field] = rebaseItem(value);
+    } else if (Array.isArray(value)) {
+      node[field] = value.map(rebaseItem);
     }
-    // a oneOf property resolves to the branch that matches this value; a scalar branch keeps its format
-    const propSchema = typeof schema === 'function' ? schema(value, field) : schema;
-    if (!isPlainObject(propSchema) || isNamedType(propSchema)) {
-      continue;
-    }
-    const format = propSchema.format ?? propSchema.items?.format;
-    const rebase = format ? REBASERS[format] : undefined;
-    if (!rebase) {
-      continue;
-    }
-    const rebaseItem = (item: unknown) =>
-      isString(item) && item ? rebase(item, sourceRef, rootRef) : item;
-    node[field] = Array.isArray(value) ? value.map(rebaseItem) : rebaseItem(value);
   }
 }
 

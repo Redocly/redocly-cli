@@ -245,7 +245,7 @@ mockServer:
   $ref: ./mockserver.yaml
 ```
 
-File paths and glob patterns written in a referenced file are relative to that file. A pattern that starts with `/` or `**` is kept as written, and a leading `!` keeps its meaning. Each path in a `srcSet` list is resolved the same way, and an icon option only when it names a file.
+File paths written in a referenced file are relative to that file: `root`, `output`, `overlays` and `clientOutput` of an API, `openapi.htmlTemplate`, `client.cliOutput`, `client.setup` and `recheck.markdoc.extend.tagsFile`.
 
 {% admonition type="info" %}
 When using the `push` command with a config file that includes `$ref`s, all referenced files are explicitly uploaded using the `--files` option.

@@ -552,8 +552,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "asyncapi": "rootRedoclyConfigSchema.asyncapi",
       "banner": "rootRedoclyConfigSchema.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.breadcrumbs",
-      "catalog": "rootRedoclyConfigSchema.catalog",
-      "catalogClassic": "rootRedoclyConfigSchema.catalogClassic",
+      "catalog": {
+        "type": "object",
+      },
+      "catalogClassic": {
+        "type": "object",
+      },
       "client": "Client",
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
@@ -578,7 +582,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idps": [Function],
       "ignore": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -1325,7 +1328,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "ignore": {
         "items": {
-          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -1988,8 +1990,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "asyncapi": "rootRedoclyConfigSchema.asyncapi",
       "banner": "rootRedoclyConfigSchema.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.breadcrumbs",
-      "catalog": "rootRedoclyConfigSchema.catalog",
-      "catalogClassic": "rootRedoclyConfigSchema.catalogClassic",
+      "catalog": {
+        "type": "object",
+      },
+      "catalogClassic": {
+        "type": "object",
+      },
       "codeSnippet": "rootRedoclyConfigSchema.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.colorMode",
       "consent": "rootRedoclyConfigSchema.consent",
@@ -2017,7 +2023,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idps": [Function],
       "ignore": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -2181,7 +2186,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.access.rbac.reunite",
       "teamFolders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -2967,7 +2971,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "folders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -9912,7 +9915,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "icon": {
-        "format": "image",
         "type": "string",
       },
       "label": {
@@ -9922,792 +9924,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
       },
     },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog": {
-    "additionalProperties": "rootRedoclyConfigSchema.catalog_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic": {
-    "additionalProperties": "rootRedoclyConfigSchema.catalogClassic_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties": {
-    "additionalProperties": {},
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "descriptionTranslationKey": {
-        "type": "string",
-      },
-      "filterValuesCasing": {
-        "enum": [
-          "sentence",
-          "original",
-          "lowercase",
-          "uppercase",
-        ],
-        "type": "string",
-      },
-      "filters": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.filters",
-      "groupByFirstFilter": {
-        "type": "boolean",
-      },
-      "items": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items",
-      "requiredPermission": {
-        "type": "string",
-      },
-      "separateVersions": {
-        "type": "boolean",
-      },
-      "show": {
-        "type": "boolean",
-      },
-      "slug": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-    },
-    "required": [
-      "slug",
-      "items",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.filters": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.filters_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.filters_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "missingCategoryName": {
-        "type": "string",
-      },
-      "missingCategoryNameTranslationKey": {
-        "type": "string",
-      },
-      "options": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "parentFilter": {
-        "type": "string",
-      },
-      "property": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-      "type": {
-        "enum": [
-          "select",
-          "checkboxes",
-          "date-range",
-        ],
-        "type": "string",
-      },
-      "valuesMapping": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.filters_items.valuesMapping",
-    },
-    "required": [
-      "title",
-      "property",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.filters_items.valuesMapping": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.includeByMetadata",
-      "items": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items",
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items.includeByMetadata",
-      "items": {
-        "items": {
-          "additionalProperties": true,
-          "type": "object",
-        },
-        "type": "array",
-      },
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalogClassic_additionalProperties.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties": {
-    "additionalProperties": {},
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "descriptionTranslationKey": {
-        "type": "string",
-      },
-      "filterValuesCasing": {
-        "enum": [
-          "sentence",
-          "original",
-          "lowercase",
-          "uppercase",
-        ],
-        "type": "string",
-      },
-      "filters": "rootRedoclyConfigSchema.catalog_additionalProperties.filters",
-      "groupByFirstFilter": {
-        "type": "boolean",
-      },
-      "items": "rootRedoclyConfigSchema.catalog_additionalProperties.items",
-      "requiredPermission": {
-        "type": "string",
-      },
-      "separateVersions": {
-        "type": "boolean",
-      },
-      "show": {
-        "type": "boolean",
-      },
-      "slug": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-    },
-    "required": [
-      "slug",
-      "items",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.filters": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.catalog_additionalProperties.filters_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.filters_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "missingCategoryName": {
-        "type": "string",
-      },
-      "missingCategoryNameTranslationKey": {
-        "type": "string",
-      },
-      "options": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "parentFilter": {
-        "type": "string",
-      },
-      "property": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-      "type": {
-        "enum": [
-          "select",
-          "checkboxes",
-          "date-range",
-        ],
-        "type": "string",
-      },
-      "valuesMapping": "rootRedoclyConfigSchema.catalog_additionalProperties.filters_items.valuesMapping",
-    },
-    "required": [
-      "title",
-      "property",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.filters_items.valuesMapping": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.includeByMetadata",
-      "items": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items",
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items.includeByMetadata",
-      "items": {
-        "items": {
-          "additionalProperties": true,
-          "type": "object",
-        },
-        "type": "array",
-      },
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.catalog_additionalProperties.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.codeSnippet": {
@@ -12150,11 +11369,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
@@ -12293,8 +11510,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "asyncapi": "rootRedoclyConfigSchema.env_additionalProperties.asyncapi",
       "banner": "rootRedoclyConfigSchema.env_additionalProperties.banner",
       "breadcrumbs": "rootRedoclyConfigSchema.env_additionalProperties.breadcrumbs",
-      "catalog": "rootRedoclyConfigSchema.env_additionalProperties.catalog",
-      "catalogClassic": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic",
+      "catalog": {
+        "type": "object",
+      },
+      "catalogClassic": {
+        "type": "object",
+      },
       "codeSnippet": "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.env_additionalProperties.colorMode",
       "consent": "rootRedoclyConfigSchema.env_additionalProperties.consent",
@@ -12321,7 +11542,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "idps": [Function],
       "ignore": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -12480,7 +11700,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.env_additionalProperties.access.rbac.reunite",
       "teamFolders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -13266,7 +12485,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "folders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -20211,7 +19429,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "icon": {
-        "format": "image",
         "type": "string",
       },
       "label": {
@@ -20221,792 +19438,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
       },
     },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog": {
-    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic": {
-    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties": {
-    "additionalProperties": {},
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "descriptionTranslationKey": {
-        "type": "string",
-      },
-      "filterValuesCasing": {
-        "enum": [
-          "sentence",
-          "original",
-          "lowercase",
-          "uppercase",
-        ],
-        "type": "string",
-      },
-      "filters": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.filters",
-      "groupByFirstFilter": {
-        "type": "boolean",
-      },
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items",
-      "requiredPermission": {
-        "type": "string",
-      },
-      "separateVersions": {
-        "type": "boolean",
-      },
-      "show": {
-        "type": "boolean",
-      },
-      "slug": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-    },
-    "required": [
-      "slug",
-      "items",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.filters": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.filters_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.filters_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "missingCategoryName": {
-        "type": "string",
-      },
-      "missingCategoryNameTranslationKey": {
-        "type": "string",
-      },
-      "options": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "parentFilter": {
-        "type": "string",
-      },
-      "property": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-      "type": {
-        "enum": [
-          "select",
-          "checkboxes",
-          "date-range",
-        ],
-        "type": "string",
-      },
-      "valuesMapping": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.filters_items.valuesMapping",
-    },
-    "required": [
-      "title",
-      "property",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.filters_items.valuesMapping": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.includeByMetadata",
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items",
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items.includeByMetadata",
-      "items": {
-        "items": {
-          "additionalProperties": true,
-          "type": "object",
-        },
-        "type": "array",
-      },
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalogClassic_additionalProperties.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties": {
-    "additionalProperties": {},
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "descriptionTranslationKey": {
-        "type": "string",
-      },
-      "filterValuesCasing": {
-        "enum": [
-          "sentence",
-          "original",
-          "lowercase",
-          "uppercase",
-        ],
-        "type": "string",
-      },
-      "filters": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.filters",
-      "groupByFirstFilter": {
-        "type": "boolean",
-      },
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items",
-      "requiredPermission": {
-        "type": "string",
-      },
-      "separateVersions": {
-        "type": "boolean",
-      },
-      "show": {
-        "type": "boolean",
-      },
-      "slug": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-    },
-    "required": [
-      "slug",
-      "items",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.filters": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.filters_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.filters_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "missingCategoryName": {
-        "type": "string",
-      },
-      "missingCategoryNameTranslationKey": {
-        "type": "string",
-      },
-      "options": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "parentFilter": {
-        "type": "string",
-      },
-      "property": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-      "type": {
-        "enum": [
-          "select",
-          "checkboxes",
-          "date-range",
-        ],
-        "type": "string",
-      },
-      "valuesMapping": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.filters_items.valuesMapping",
-    },
-    "required": [
-      "title",
-      "property",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.filters_items.valuesMapping": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.includeByMetadata",
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items",
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items.includeByMetadata",
-      "items": {
-        "items": {
-          "additionalProperties": true,
-          "type": "object",
-        },
-        "type": "array",
-      },
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.catalog_additionalProperties.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.codeSnippet": {
@@ -22449,11 +20883,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
@@ -22864,7 +21296,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -22891,7 +21322,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items",
       "label": {
         "type": "string",
@@ -22908,7 +21338,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -22920,7 +21349,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -22947,26 +21375,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items": {
     "additionalProperties": undefined,
@@ -22986,7 +21400,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -23013,7 +21426,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -23036,7 +21448,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -23048,7 +21459,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -23075,26 +21485,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.footer.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -23896,7 +22292,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
-        "format": "uri-reference",
         "type": "string",
       },
       "hreflang": {
@@ -23947,12 +22342,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -23960,7 +22353,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
@@ -23982,7 +22374,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "lastUpdatedBlock": "rootRedoclyConfigSchema.env_additionalProperties.markdown.lastUpdatedBlock",
       "partialsFolders": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -24099,7 +22490,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -24126,7 +22516,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "file": {
-        "format": "glob",
         "type": "string",
       },
       "method": {
@@ -24163,7 +22552,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "ignore": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -24248,7 +22636,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -24275,7 +22662,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items",
       "label": {
         "type": "string",
@@ -24292,7 +22678,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -24304,7 +22689,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -24331,26 +22715,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items": {
     "additionalProperties": undefined,
@@ -24370,7 +22740,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -24397,7 +22766,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -24420,7 +22788,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -24432,7 +22799,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -24459,26 +22825,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.navbar.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -26893,11 +25245,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
-        "format": "uri-reference",
         "type": "string",
       },
       "icon": {
-        "format": "uri-reference",
         "type": "string",
       },
       "name": {
@@ -26922,7 +25272,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.env_additionalProperties.rbac.reunite",
       "teamFolders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -27893,11 +26242,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "inputs": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.inputs",
       "path": {
-        "format": "uri-reference",
         "pattern": "^(?!\\/|\\.\\./)",
         "type": "string",
       },
-      "servers": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.servers",
+      "servers": {
+        "properties": {},
+        "type": "object",
+      },
       "severity": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.severity",
       "slo": "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.slo",
       "trigger": [Function],
@@ -27910,17 +26261,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
   },
   "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.inputs": {
     "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.reunite.jobs_items.servers": {
-    "additionalProperties": {
-      "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
       "type": "string",
     },
     "description": undefined,
@@ -29084,7 +27424,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -29144,7 +27483,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -29276,7 +27614,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -29296,7 +27633,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -29334,7 +27670,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "details": "rootRedoclyConfigSchema.env_additionalProperties.seo.llmstxt.details",
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -29361,7 +27696,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "path": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -29387,14 +27721,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
       },
       "includeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -29464,7 +27796,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -29493,8 +27824,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "analytics": "rootRedoclyConfigSchema.env_additionalProperties.theme.analytics",
       "asyncapi": "rootRedoclyConfigSchema.env_additionalProperties.theme.asyncapi",
       "breadcrumbs": "rootRedoclyConfigSchema.env_additionalProperties.theme.breadcrumbs",
-      "catalog": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog",
-      "catalogClassic": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic",
+      "catalog": {
+        "type": "object",
+      },
+      "catalogClassic": {
+        "type": "object",
+      },
       "codeSnippet": "rootRedoclyConfigSchema.env_additionalProperties.theme.codeSnippet",
       "colorMode": "rootRedoclyConfigSchema.env_additionalProperties.theme.colorMode",
       "entitiesCatalog": "rootRedoclyConfigSchema.env_additionalProperties.theme.entitiesCatalog",
@@ -30315,7 +28650,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "icon": {
-        "format": "image",
         "type": "string",
       },
       "label": {
@@ -30325,792 +28659,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
       },
     },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog": {
-    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic": {
-    "additionalProperties": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties",
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties": {
-    "additionalProperties": {},
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "descriptionTranslationKey": {
-        "type": "string",
-      },
-      "filterValuesCasing": {
-        "enum": [
-          "sentence",
-          "original",
-          "lowercase",
-          "uppercase",
-        ],
-        "type": "string",
-      },
-      "filters": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.filters",
-      "groupByFirstFilter": {
-        "type": "boolean",
-      },
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items",
-      "requiredPermission": {
-        "type": "string",
-      },
-      "separateVersions": {
-        "type": "boolean",
-      },
-      "show": {
-        "type": "boolean",
-      },
-      "slug": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-    },
-    "required": [
-      "slug",
-      "items",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.filters": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.filters_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.filters_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "missingCategoryName": {
-        "type": "string",
-      },
-      "missingCategoryNameTranslationKey": {
-        "type": "string",
-      },
-      "options": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "parentFilter": {
-        "type": "string",
-      },
-      "property": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-      "type": {
-        "enum": [
-          "select",
-          "checkboxes",
-          "date-range",
-        ],
-        "type": "string",
-      },
-      "valuesMapping": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.filters_items.valuesMapping",
-    },
-    "required": [
-      "title",
-      "property",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.filters_items.valuesMapping": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.includeByMetadata",
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items",
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items.includeByMetadata",
-      "items": {
-        "items": {
-          "additionalProperties": true,
-          "type": "object",
-        },
-        "type": "array",
-      },
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalogClassic_additionalProperties.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties": {
-    "additionalProperties": {},
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "description": {
-        "type": "string",
-      },
-      "descriptionTranslationKey": {
-        "type": "string",
-      },
-      "filterValuesCasing": {
-        "enum": [
-          "sentence",
-          "original",
-          "lowercase",
-          "uppercase",
-        ],
-        "type": "string",
-      },
-      "filters": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.filters",
-      "groupByFirstFilter": {
-        "type": "boolean",
-      },
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items",
-      "requiredPermission": {
-        "type": "string",
-      },
-      "separateVersions": {
-        "type": "boolean",
-      },
-      "show": {
-        "type": "boolean",
-      },
-      "slug": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-    },
-    "required": [
-      "slug",
-      "items",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.filters": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.filters_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.filters_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "missingCategoryName": {
-        "type": "string",
-      },
-      "missingCategoryNameTranslationKey": {
-        "type": "string",
-      },
-      "options": {
-        "items": {
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "parentFilter": {
-        "type": "string",
-      },
-      "property": {
-        "type": "string",
-      },
-      "title": {
-        "type": "string",
-      },
-      "titleTranslationKey": {
-        "type": "string",
-      },
-      "type": {
-        "enum": [
-          "select",
-          "checkboxes",
-          "date-range",
-        ],
-        "type": "string",
-      },
-      "valuesMapping": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.filters_items.valuesMapping",
-    },
-    "required": [
-      "title",
-      "property",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.filters_items.valuesMapping": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.includeByMetadata",
-      "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items",
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items",
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "additionalProps": {
-        "type": "object",
-      },
-      "directory": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "disconnect": {
-        "type": "boolean",
-      },
-      "expanded": {
-        "const": "always",
-        "type": "string",
-      },
-      "external": {
-        "type": "boolean",
-      },
-      "flatten": {
-        "type": "boolean",
-      },
-      "group": {
-        "type": "string",
-      },
-      "groupTranslationKey": {
-        "type": "string",
-      },
-      "href": {
-        "type": "string",
-      },
-      "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items.includeByMetadata",
-      "items": {
-        "items": {
-          "additionalProperties": true,
-          "type": "object",
-        },
-        "type": "array",
-      },
-      "label": {
-        "type": "string",
-      },
-      "labelTranslationKey": {
-        "type": "string",
-      },
-      "linePosition": {
-        "enum": [
-          "top",
-          "bottom",
-        ],
-        "type": "string",
-      },
-      "linkedSidebars": {
-        "items": {
-          "format": "uri-reference",
-          "type": "string",
-        },
-        "type": "array",
-      },
-      "menuStyle": {
-        "enum": [
-          "drilldown",
-        ],
-        "type": "string",
-      },
-      "page": {
-        "format": "uri-reference",
-        "type": "string",
-        "uiHint": "file",
-      },
-      "rbac": "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items.rbac",
-      "selectFirstItemOnExpand": {
-        "type": "boolean",
-      },
-      "separator": {
-        "type": "string",
-      },
-      "separatorLine": {
-        "type": "boolean",
-      },
-      "version": {
-        "type": "string",
-      },
-    },
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items.icon_1": {
-    "additionalProperties": undefined,
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {
-      "srcSet": {
-        "format": "image",
-        "type": "string",
-      },
-    },
-    "required": [
-      "srcSet",
-    ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.catalog_additionalProperties.items_items.rbac": {
-    "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
     "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.codeSnippet": {
@@ -32482,11 +30033,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
@@ -32897,7 +30446,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -32924,7 +30472,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items",
       "label": {
         "type": "string",
@@ -32941,7 +30488,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -32953,7 +30499,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -32980,26 +30525,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items": {
     "additionalProperties": undefined,
@@ -33019,7 +30550,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -33046,7 +30576,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -33069,7 +30598,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -33081,7 +30609,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -33108,26 +30635,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.footer.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -33841,7 +31354,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
-        "format": "uri-reference",
         "type": "string",
       },
       "hreflang": {
@@ -33892,12 +31404,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -33905,7 +31415,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
@@ -33927,7 +31436,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "lastUpdatedBlock": "rootRedoclyConfigSchema.env_additionalProperties.theme.markdown.lastUpdatedBlock",
       "partialsFolders": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -34036,7 +31544,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -34063,7 +31570,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items",
       "label": {
         "type": "string",
@@ -34080,7 +31586,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -34092,7 +31597,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -34119,26 +31623,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items": {
     "additionalProperties": undefined,
@@ -34158,7 +31648,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -34185,7 +31674,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -34208,7 +31696,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -34220,7 +31707,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -34247,26 +31733,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.navbar.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -36633,11 +34105,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
-        "format": "uri-reference",
         "type": "string",
       },
       "icon": {
-        "format": "uri-reference",
         "type": "string",
       },
       "name": {
@@ -37689,7 +35159,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -37749,7 +35218,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -37881,7 +35349,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -38354,7 +35821,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -38381,7 +35847,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.footer.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.footer.items_items.items",
       "label": {
         "type": "string",
@@ -38398,7 +35863,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -38410,7 +35874,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -38437,26 +35900,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.footer.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.footer.items_items.items": {
     "additionalProperties": undefined,
@@ -38476,7 +35925,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -38503,7 +35951,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.footer.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -38526,7 +35973,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -38538,7 +35984,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -38565,26 +36010,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.footer.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.footer.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -39386,7 +36817,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "href": {
-        "format": "uri-reference",
         "type": "string",
       },
       "hreflang": {
@@ -39437,12 +36867,10 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "favicon": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -39450,7 +36878,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
@@ -39472,7 +36899,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "lastUpdatedBlock": "rootRedoclyConfigSchema.markdown.lastUpdatedBlock",
       "partialsFolders": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -39589,7 +37015,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -39616,7 +37041,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "file": {
-        "format": "glob",
         "type": "string",
       },
       "method": {
@@ -39653,7 +37077,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "ignore": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
@@ -39738,7 +37161,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -39765,7 +37187,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.navbar.items_items.includeByMetadata",
       "items": "rootRedoclyConfigSchema.navbar.items_items.items",
       "label": {
         "type": "string",
@@ -39782,7 +37203,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -39794,7 +37214,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -39821,26 +37240,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.navbar.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.navbar.items_items.items": {
     "additionalProperties": undefined,
@@ -39860,7 +37265,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "object",
       },
       "directory": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -39887,7 +37291,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "icon": [Function],
-      "includeByMetadata": "rootRedoclyConfigSchema.navbar.items_items.items_items.includeByMetadata",
       "items": {
         "items": {
           "additionalProperties": true,
@@ -39910,7 +37313,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "linkedSidebars": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -39922,7 +37324,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -39949,26 +37350,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "srcSet": {
-        "format": "image",
         "type": "string",
       },
     },
     "required": [
       "srcSet",
     ],
-  },
-  "rootRedoclyConfigSchema.navbar.items_items.items_items.includeByMetadata": {
-    "additionalProperties": {
-      "items": {
-        "type": "string",
-      },
-      "type": "array",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
   },
   "rootRedoclyConfigSchema.navbar.items_items.items_items.rbac": {
     "additionalProperties": {
@@ -42383,11 +39770,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "folder": {
-        "format": "uri-reference",
         "type": "string",
       },
       "icon": {
-        "format": "uri-reference",
         "type": "string",
       },
       "name": {
@@ -42412,7 +39797,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "reunite": "rootRedoclyConfigSchema.rbac.reunite",
       "teamFolders": {
         "items": {
-          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -43383,11 +40767,13 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "inputs": "rootRedoclyConfigSchema.reunite.jobs_items.inputs",
       "path": {
-        "format": "uri-reference",
         "pattern": "^(?!\\/|\\.\\./)",
         "type": "string",
       },
-      "servers": "rootRedoclyConfigSchema.reunite.jobs_items.servers",
+      "servers": {
+        "properties": {},
+        "type": "object",
+      },
       "severity": "rootRedoclyConfigSchema.reunite.jobs_items.severity",
       "slo": "rootRedoclyConfigSchema.reunite.jobs_items.slo",
       "trigger": [Function],
@@ -43400,17 +40786,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
   },
   "rootRedoclyConfigSchema.reunite.jobs_items.inputs": {
     "additionalProperties": {
-      "type": "string",
-    },
-    "description": undefined,
-    "documentationLink": undefined,
-    "items": undefined,
-    "properties": {},
-    "required": undefined,
-  },
-  "rootRedoclyConfigSchema.reunite.jobs_items.servers": {
-    "additionalProperties": {
-      "pattern": "^https?://[^\\s/$.?#].[^\\s]*$",
       "type": "string",
     },
     "description": undefined,
@@ -44574,7 +41949,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -44634,7 +42008,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "src": {
-        "format": "uri-reference",
         "type": "string",
       },
       "type": {
@@ -44766,7 +42139,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "page": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -44786,7 +42158,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "image": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -44824,7 +42195,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "details": "rootRedoclyConfigSchema.seo.llmstxt.details",
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -44851,7 +42221,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "uiHint": "textarea",
       },
       "path": {
-        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -44877,14 +42246,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
       },
       "includeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
           "uiHint": "file",
         },
@@ -44954,7 +42321,6 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "excludeFiles": {
         "items": {
-          "format": "glob",
           "type": "string",
         },
         "type": "array",
