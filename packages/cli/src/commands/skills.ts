@@ -1,4 +1,5 @@
 import { HandledError, logger } from '@redocly/openapi-core';
+import { gray, green, yellow } from 'colorette';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -73,15 +74,22 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
       const shownPath = argv.global ? targetFile : relative(cwd, targetFile);
 
       let status = 'created';
+      let color = green;
       if (existsSync(targetFile)) {
-        status = readFileSync(targetFile, 'utf-8') === bundled ? 'unchanged' : 'updated';
+        if (readFileSync(targetFile, 'utf-8') === bundled) {
+          status = 'unchanged';
+          color = gray;
+        } else {
+          status = 'updated';
+          color = yellow;
+        }
       }
       if (status !== 'unchanged') {
         mkdirSync(join(targetDir, skillName), { recursive: true });
         writeFileSync(targetFile, bundled, 'utf-8');
         changed++;
       }
-      logger.output(`${status.padEnd(10)}${shownPath}\n`);
+      logger.output(`${color(status.padEnd(10))}${shownPath}\n`);
     }
   }
 
