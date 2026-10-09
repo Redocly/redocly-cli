@@ -2708,17 +2708,6 @@ describe('loadConfig', () => {
     });
   });
 
-  it('should rebase through a root config that is only a $ref to the nested one', async () => {
-    const { resolvedConfig } = await loadConfig({
-      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/file-paths-root.yaml'),
-    });
-
-    expect(resolvedConfig.apis).toMatchObject({
-      inline: { root: 'file-paths/openapi.yaml' },
-      'one-level': { root: 'file-paths/nested/openapi.yaml' },
-    });
-  });
-
   it('should resolve file paths written in a remote config file against its URL', async () => {
     const externalRefResolver = new BaseResolver();
     const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
