@@ -22,11 +22,16 @@ function writeStruct(
   dateType: DateType,
   description?: string
 ): void {
+  // A response never carries a `writeOnly` property, and responses decode into this same
+  // struct, so the property is optional even when the description requires it.
+  const fields = properties.map((property) =>
+    property.writeOnly ? { ...property, required: false } : property
+  );
   printer.doc(exported(name), description);
   printer.block(
     `type ${exported(name)} struct {`,
     () => {
-      for (const property of properties) {
+      for (const property of fields) {
         const field = exported(property.name);
         let fieldType = goType(property.schema, dateType);
         let tag = `\`json:"${property.name}"\``;

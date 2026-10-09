@@ -19,7 +19,8 @@ query keys. One generator, four framework variants (`react` default, `-vue`,
   output works with any of the framework adapters and stays testable.
 - **`queryKeyPrefix`** namespaces every key when several clients share a cache.
 - **Infinite queries** derive `getNextPageParam` from the resolved pagination rule; a
-  `link`-style rule reads the `Link` header the descriptor declares.
+  `link`-style rule reads the `Link` header the descriptor declares. A page without a
+  page parameter leaves the key out of the call, so `exactOptionalPropertyTypes` holds.
 - **`envelope` is excluded and stripped** — cached data is the plain body.
 - Requires `typescript`; throw-mode only (it wraps thrown errors into query errors).
 

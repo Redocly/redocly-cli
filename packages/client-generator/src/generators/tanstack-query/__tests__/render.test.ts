@@ -231,7 +231,7 @@ describe('renderTanstackModule', () => {
       );
       expect(out).toContain('queryKey: [...listOrdersQueryKey(vars), "infinite"] as const');
       expect(out).toContain(
-        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, query: { ...vars.query, after: pageParam } }, { ...init, signal, envelope: undefined })'
+        'queryFn: ({ pageParam, signal }) => instance.listOrders({ ...vars, query: { ...vars.query, ...(pageParam === undefined ? {} : { after: pageParam }) } }, { ...init, signal, envelope: undefined })'
       );
       expect(out).toContain('initialPageParam: vars.query?.after');
       expect(out).toContain('if (lastPage.page?.hasNextPage === false)');

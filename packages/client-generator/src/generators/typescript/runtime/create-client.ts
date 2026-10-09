@@ -210,7 +210,7 @@ function queryStyles(op: OperationDescriptor): Record<string, QueryStyle> | unde
     styles[param.name] = {
       style: param.style ?? 'form',
       explode: param.explode ?? true,
-      allowReserved: param.allowReserved,
+      ...(param.allowReserved === undefined ? {} : { allowReserved: param.allowReserved }),
     };
   }
   return styles;

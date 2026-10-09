@@ -199,3 +199,87 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
     expect(tsc.status, `tsc errors:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
   }, 90_000);
 });
+
+describe('mock generator — the mocks satisfy the zod schemas of the same description', () => {
+  const dirs: string[] = [];
+  afterAll(() => {
+    for (const dir of dirs) rmSync(dir, { recursive: true, force: true });
+  });
+
+  // Every factory that has a zod schema of the same name, and every operation's default
+  // handler (fetched through MSW), must pass validation. Prints the failures as JSON.
+  const checkMocks = outdent`
+    import { setupServer } from 'msw/node';
+    import * as mocks from './client.mocks.ts';
+    import * as zod from './client.zod.ts';
+    import { OPERATIONS } from './client.ts';
+
+    type Schema = { safeParse(value: unknown): { success: boolean; error?: { message: string } } };
+    const failures: string[] = [];
+    const record = (label: string, schema: Schema, value: unknown) => {
+      const result = schema.safeParse(value);
+      if (!result.success) failures.push(\`\${label}: \${result.error?.message}\`);
+    };
+    for (const [name, factory] of Object.entries(mocks)) {
+      const schema = (zod as Record<string, unknown>)[\`\${name.replace(/^create/, '')}Schema\`];
+      if (name.startsWith('create') && schema) record(name, schema as Schema, (factory as () => unknown)());
+    }
+    const server = setupServer(...mocks.handlers);
+    server.listen({ onUnhandledRequest: 'error' });
+    for (const [id, operation] of Object.entries(OPERATIONS)) {
+      const schema = (zod.operationSchemas as Record<string, { response?: Schema }>)[id]?.response;
+      if (!schema) continue;
+      const path = operation.path.replace(/\\{[^}]+\\}/g, '1');
+      const response = await fetch(\`https://api.example.com\${path}\`, { method: operation.method });
+      record(\`\${id}Handler\`, schema, await response.json());
+    }
+    server.close();
+    process.stdout.write(JSON.stringify(failures));
+  `;
+
+  test.each(['cafe.yaml', 'base.yaml', 'pagination.yaml'])(
+    '%s: factories and default handlers pass validation',
+    (name) => {
+      const dir = mkdtempSync(join(__dirname, 'mock-valid-'));
+      dirs.push(dir);
+      generateInto(dir, join(__dirname, 'fixtures', name), [
+        '--generator',
+        'typescript',
+        '--generator',
+        'zod',
+        '--generator',
+        'mock',
+      ]);
+      expect(runConsumer(dir, checkMocks)).toEqual([]);
+    },
+    60_000
+  );
+
+  test('pages() over the default cursor handler yields exactly one page', () => {
+    const dir = mkdtempSync(join(__dirname, 'mock-pages-'));
+    dirs.push(dir);
+    generateInto(dir, join(__dirname, 'fixtures/pagination.yaml'), [
+      '--generator',
+      'typescript',
+      '--generator',
+      'mock',
+    ]);
+    const pages = runConsumer(
+      dir,
+      outdent`
+        import { setupServer } from 'msw/node';
+        import { handlers } from './client.mocks.ts';
+        import { client } from './client.ts';
+
+        const server = setupServer(...handlers);
+        server.listen({ onUnhandledRequest: 'error' });
+        client.configure({ serverUrl: 'https://api.example.com' });
+        let pages = 0;
+        for await (const _page of client.listOrders.pages()) pages++;
+        server.close();
+        process.stdout.write(JSON.stringify(pages));
+      `
+    );
+    expect(pages).toBe(1);
+  }, 60_000);
+});

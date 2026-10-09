@@ -125,6 +125,8 @@ function extractMetadata(schema: Oas3Schema): SchemaMetadata | undefined {
     delete out.maximum;
   }
 
+  if (typeof s.multipleOf === 'number') out.multipleOf = s.multipleOf;
+
   if (typeof s.minLength === 'number') out.minLength = s.minLength;
   if (typeof s.maxLength === 'number') out.maxLength = s.maxLength;
   if (typeof s.pattern === 'string') out.pattern = s.pattern;
@@ -243,10 +245,10 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
     securitySchemes,
   };
   // Sanitize names into safe identifiers (and rewrite refs to match) BEFORE any later
-  // pass derives names from them — `stripReadOnly` builds `omit` targets from schema
+  // pass derives names from them — `stripDirectional` builds `omit` targets from schema
   // names, so it must see the sanitized ones.
   sanitizeIdentifiers(model);
-  stripReadOnlyFromRequestBodies(services, schemas);
+  stripDirectionalProperties(services, schemas);
   // Hard gate: no unsafe name may reach the printer (see sanitize-identifiers.ts).
   assertSafeIdentifiers(model);
   // A path parameter named like a request-args slot cannot be routed — fail loudly.
@@ -255,20 +257,26 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
 }
 
 /**
- * Drop `readOnly` (server-managed) properties from every request body, in place.
- * OpenAPI says readOnly properties must not be sent in requests, so a create/update
- * body should not demand `id`/`createdAt`/etc. A body that `$ref`s a named schema
- * becomes `Omit<Name, …readOnly>` (keeping the named type); an inline object has
- * its readOnly properties filtered out. Response types are untouched.
+ * Drop the properties that do not travel in a direction, in place. OpenAPI says
+ * `readOnly` properties are not sent in requests and `writeOnly` properties are not
+ * returned in responses, so a create body should not demand `id` and a response should
+ * not promise `password`. A body that `$ref`s a named schema becomes
+ * `Omit<Name, …keys>` (keeping the named type); an inline object has those properties
+ * filtered out. Only success responses are stripped: error bodies keep their schema.
  */
-function stripReadOnlyFromRequestBodies(
+function stripDirectionalProperties(
   services: ApiModel['services'],
   schemas: NamedSchemaModel[]
 ): void {
   const byName = new Map(schemas.map((s) => [s.name, s.schema] as const));
   for (const service of services) {
     for (const op of service.operations) {
-      if (op.requestBody) op.requestBody.schema = stripReadOnly(op.requestBody.schema, byName);
+      if (op.requestBody) {
+        op.requestBody.schema = stripDirectional(op.requestBody.schema, 'readOnly', byName);
+      }
+      for (const response of op.successResponses) {
+        response.schema = stripDirectional(response.schema, 'writeOnly', byName);
+      }
     }
   }
 }
@@ -283,25 +291,30 @@ function dropRedundantUnknown(members: SchemaModel[]): SchemaModel[] {
   return real.length > 0 ? real : [{ kind: 'unknown' }];
 }
 
-function stripReadOnly(schema: SchemaModel, byName: Map<string, SchemaModel>): SchemaModel {
+function stripDirectional(
+  schema: SchemaModel,
+  flag: 'readOnly' | 'writeOnly',
+  byName: Map<string, SchemaModel>
+): SchemaModel {
   if (schema.kind === 'ref') {
-    const keys = collectReadOnlyKeys(schema, byName, new Set());
+    const keys = collectFlaggedKeys(schema, flag, byName, new Set());
     return keys.length > 0 ? { kind: 'omit', base: schema.name, keys } : schema;
   }
   if (schema.kind === 'object') {
-    const kept = schema.properties.filter((p) => !p.readOnly);
+    const kept = schema.properties.filter((p) => !p[flag]);
     return kept.length === schema.properties.length ? schema : { ...schema, properties: kept };
   }
   return schema;
 }
 
 /**
- * The readOnly top-level property names of a schema, descending through `$ref`s
- * and `allOf` (intersection) members — the shape entity schemas compose with. A
- * `visited` set guards against recursive refs. Order-preserving and deduped.
+ * The top-level property names of a schema that carry `flag`, descending through
+ * `$ref`s and `allOf` (intersection) members — the shape entity schemas compose with.
+ * A `visited` set guards against recursive refs. Order-preserving and deduped.
  */
-function collectReadOnlyKeys(
+function collectFlaggedKeys(
   schema: SchemaModel,
+  flag: 'readOnly' | 'writeOnly',
   byName: Map<string, SchemaModel>,
   visited: Set<string>
 ): string[] {
@@ -313,7 +326,7 @@ function collectReadOnlyKeys(
       const target = byName.get(s.name);
       if (target) visit(target);
     } else if (s.kind === 'object') {
-      for (const p of s.properties) if (p.readOnly && !keys.includes(p.name)) keys.push(p.name);
+      for (const p of s.properties) if (p[flag] && !keys.includes(p.name)) keys.push(p.name);
     } else if (s.kind === 'intersection') {
       for (const member of s.members) visit(member);
     }
@@ -1031,22 +1044,28 @@ function buildProperties(
   const required = new Set(schema.required ?? []);
   const siblingsApply = refSiblingsApply(doc);
   return Object.entries(props).map(([name, sub]) => {
-    const declared = (sub as { readOnly?: boolean }).readOnly === true;
-    // A `readOnly` sibling on a 3.0 `$ref` is a no-op the author almost certainly did
-    // not intend — it leaves a server-computed property in every request body — so it
-    // is reported rather than dropped in silence.
-    if (declared && isRef(sub) && !siblingsApply) {
+    const flags = sub as { readOnly?: boolean; writeOnly?: boolean };
+    // A `readOnly` or `writeOnly` sibling on a 3.0 `$ref` is a no-op the author almost
+    // certainly did not intend — it leaves the property in the direction it is excluded
+    // from — so it is reported rather than dropped in silence.
+    const ignored = isRef(sub) && !siblingsApply;
+    if (ignored && flags.readOnly === true) {
       logger.warn(
         `generate-client: "${name}" declares readOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in request bodies. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.\n`
       );
     }
-    const readOnly = declared && (siblingsApply || !isRef(sub));
+    if (ignored && flags.writeOnly === true) {
+      logger.warn(
+        `generate-client: "${name}" declares writeOnly beside a $ref, which OpenAPI ${doc.openapi} ignores — the property stays in responses. Inline the schema, wrap the $ref in allOf, or move the description to OpenAPI 3.1.\n`
+      );
+    }
     return {
       name,
       schema: schemaFromSlot(sub, `${location}.${name}`, doc),
       required: required.has(name),
       description: (sub as { description?: string }).description,
-      ...(readOnly ? { readOnly: true } : {}),
+      ...(flags.readOnly === true && !ignored ? { readOnly: true } : {}),
+      ...(flags.writeOnly === true && !ignored ? { writeOnly: true } : {}),
     };
   });
 }

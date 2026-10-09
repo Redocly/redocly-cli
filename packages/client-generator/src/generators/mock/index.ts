@@ -9,13 +9,14 @@ import { renderMockModule } from './render.ts';
  * sdk client stays dependency-free. Output-mode-agnostic in v1 — one module beside
  * the client. Emits nothing when there are no operations.
  */
-export const mockGenerator: Generator = ({ model, output, banner, emit }) => {
+export const mockGenerator: Generator = ({ model, output, banner, emit, pagination }) => {
   const header = banner.map((line) => `// ${line}`).join('\n');
   const content = renderMockModule(model, {
     sdkModule: `./${output.stem}.${emit.importExt ?? 'js'}`,
     dateType: emit.dateType,
     mockData: emit.mockData,
     mockSeed: emit.mockSeed,
+    pagination,
   });
   if (content === '') return [];
   return [

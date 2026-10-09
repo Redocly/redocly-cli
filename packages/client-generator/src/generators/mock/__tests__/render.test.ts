@@ -578,6 +578,99 @@ describe('renderMockModule', () => {
     expect(out).not.toContain('ErrorHandler');
   });
 
+  it('answers an offset position past the first with an empty page, so the walk ends', () => {
+    const model = apiModel({
+      schemas: [],
+      services: [
+        {
+          name: 'Default',
+          operations: [
+            operation({
+              name: 'listMenu',
+              method: 'get',
+              path: '/menu',
+              successResponses: [
+                {
+                  contentType: 'application/json',
+                  schema: {
+                    kind: 'object',
+                    properties: [
+                      {
+                        name: 'items',
+                        schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } },
+                        required: true,
+                      },
+                    ],
+                  },
+                  status: 200,
+                },
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+    const pagination = new Map([
+      [
+        'listMenu',
+        {
+          spec: { style: 'offset' as const, param: 'offset', items: '/items' },
+          itemSchema: { kind: 'scalar' as const, scalar: 'string' as const },
+        },
+      ],
+    ]);
+    const out = renderMockModule(model, { sdkModule: './client.js', pagination });
+    expect(out.slice(out.indexOf('export const listMenuHandler'))).toMatchInlineSnapshot(`
+      "export const listMenuHandler = (override?: Record<string, unknown>) => http.get("*/menu", ({ request }) => Number(new URL(request.url).searchParams.get("offset") ?? 0) > 0 ? HttpResponse.json({
+          items: [],
+          ...override
+      }) : HttpResponse.json({
+          items: [
+              "string"
+          ],
+          ...override
+      }));
+
+      export const handlers = [listMenuHandler()];"
+    `);
+  });
+
+  it('answers with an empty array when the page is the item array itself', () => {
+    const model = apiModel({
+      schemas: [],
+      services: [
+        {
+          name: 'Default',
+          operations: [
+            operation({
+              name: 'listTags',
+              method: 'get',
+              path: '/tags',
+              successResponses: [
+                {
+                  contentType: 'application/json',
+                  schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } },
+                  status: 200,
+                },
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+    const pagination = new Map([
+      [
+        'listTags',
+        {
+          spec: { style: 'page' as const, param: 'page', items: '' },
+          itemSchema: { kind: 'scalar' as const, scalar: 'string' as const },
+        },
+      ],
+    ]);
+    const out = renderMockModule(model, { sdkModule: './client.js', pagination });
+    expect(out).toContain('get("page") ?? 1) > 1 ? HttpResponse.json([]) : HttpResponse.json([');
+  });
+
   it('returns empty string when there are no operations', () => {
     const model = apiModel({ schemas: [], services: [{ name: 'Default', operations: [] }] });
     expect(renderMockModule(model, { sdkModule: './client.js' })).toBe('');

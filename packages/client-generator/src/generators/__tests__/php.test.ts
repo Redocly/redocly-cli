@@ -924,7 +924,7 @@ describe('php stream bodies', () => {
       "    public function upload(mixed $body, ?array $headers = null, ?string $idempotencyKey = null): void
           {
               $op = self::OPERATIONS['upload'];
-              [$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);
+              [$authHeaders, $query, $cookies] = resolveAuth([], $this->config->auth);
               $url = buildUrl($this->config->serverUrl, $op['path'], []);
               $requestHeaders = array_merge($authHeaders, $headers ?? []);
               if ($cookies !== []) {
@@ -942,7 +942,7 @@ describe('php stream bodies', () => {
       "    public function uploadBlob(mixed $body, ?array $headers = null, ?string $idempotencyKey = null): void
           {
               $op = self::OPERATIONS['uploadBlob'];
-              [$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);
+              [$authHeaders, $query, $cookies] = resolveAuth([], $this->config->auth);
               $url = buildUrl($this->config->serverUrl, $op['path'], []);
               $requestHeaders = array_merge($authHeaders, $headers ?? []);
               if ($cookies !== []) {

@@ -27,6 +27,18 @@ describe('fakerExpression', () => {
     expect(out).toContain('max: 9');
   });
 
+  it('passes the inclusive range of exclusive bounds and multipleOf, filling a missing side', () => {
+    const number = (metadata: object) => emit({ kind: 'scalar', scalar: 'number', metadata });
+    const integer = (metadata: object) => emit({ kind: 'scalar', scalar: 'integer', metadata });
+    expect(number({ exclusiveMinimum: 0 })).toBe('faker.number.float({ min: 1, max: 101 })');
+    expect(integer({ exclusiveMinimum: 0, exclusiveMaximum: 10 })).toBe(
+      'faker.number.int({ min: 1, max: 9 })'
+    );
+    expect(integer({ maximum: -1, multipleOf: 5 })).toBe(
+      'faker.number.int({ min: -505, max: -5, multipleOf: 5 })'
+    );
+  });
+
   it('maps a number scalar to faker.number.float(), respecting bounds', () => {
     expect(emit({ kind: 'scalar', scalar: 'number' })).toBe('faker.number.float()');
     const out = emit({ kind: 'scalar', scalar: 'number', metadata: { minimum: 0, maximum: 1 } });
