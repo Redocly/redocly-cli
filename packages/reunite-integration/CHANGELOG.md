@@ -1,5 +1,15 @@
 # @redocly/reunite-integration
 
+## 2.62.0
+
+### Minor Changes
+
+- Added the early access `project clone` command to work with a Redocly-hosted Reunite project as a Git repository.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.0.
+
 ## 2.61.0
 
 ### Patch Changes
