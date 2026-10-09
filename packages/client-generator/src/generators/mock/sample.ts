@@ -198,7 +198,8 @@ function walk(
   // An example/default is honored only when it inhabits the generated type — real specs
   // carry `example: null` on non-nullable fields and defaults outside a narrowed enum
   // (`enum: [cram-md5], default: none`); baking those would not type-check. A number
-  // outside its bounds would fail the zod schema, so it is skipped too.
+  // outside its bounds or off its `multipleOf` step would fail the zod schema, so it is
+  // skipped too.
   const inhabits = (value: unknown): boolean => {
     if (value === null) {
       return (
@@ -213,8 +214,10 @@ function walk(
       (schema.scalar === 'integer' || schema.scalar === 'number') &&
       typeof value === 'number'
     ) {
-      const { min, max } = numericRange(schema.scalar, meta);
-      return (min === undefined || value >= min) && (max === undefined || value <= max);
+      const { min, max, step } = numericRange(schema.scalar, meta);
+      // `toPrecision` drops float noise, so `0.3` counts as a multiple of `0.1`.
+      const onStep = step === undefined || Number.isInteger(Number((value / step).toPrecision(12)));
+      return onStep && (min === undefined || value >= min) && (max === undefined || value <= max);
     }
     return true;
   };

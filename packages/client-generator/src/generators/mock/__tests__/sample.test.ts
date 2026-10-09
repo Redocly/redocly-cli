@@ -516,5 +516,9 @@ describe('numericRange', () => {
     // An example outside the bounds would fail validation, so the bounds win.
     expect(sample('integer', { minimum: 18, example: 3 })).toBe(18);
     expect(sample('integer', { minimum: 18, example: 21 })).toBe(21);
+    // An example off the `multipleOf` step, or a fraction for an integer, fails validation too.
+    expect(sample('number', { multipleOf: 0.5, example: 0.7 })).toBe(0);
+    expect(sample('number', { multipleOf: 0.1, example: 0.3 })).toBe(0.3);
+    expect(sample('integer', { example: 2.5 })).toBe(0);
   });
 });

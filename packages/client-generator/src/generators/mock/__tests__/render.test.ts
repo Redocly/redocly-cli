@@ -635,6 +635,42 @@ describe('renderMockModule', () => {
     `);
   });
 
+  it('answers with an empty array when the page is the item array itself', () => {
+    const model = apiModel({
+      schemas: [],
+      services: [
+        {
+          name: 'Default',
+          operations: [
+            operation({
+              name: 'listTags',
+              method: 'get',
+              path: '/tags',
+              successResponses: [
+                {
+                  contentType: 'application/json',
+                  schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } },
+                  status: 200,
+                },
+              ],
+            }),
+          ],
+        },
+      ],
+    });
+    const pagination = new Map([
+      [
+        'listTags',
+        {
+          spec: { style: 'page' as const, param: 'page', items: '' },
+          itemSchema: { kind: 'scalar' as const, scalar: 'string' as const },
+        },
+      ],
+    ]);
+    const out = renderMockModule(model, { sdkModule: './client.js', pagination });
+    expect(out).toContain('get("page") ?? 1) > 1 ? HttpResponse.json([]) : HttpResponse.json([');
+  });
+
   it('returns empty string when there are no operations', () => {
     const model = apiModel({ schemas: [], services: [{ name: 'Default', operations: [] }] });
     expect(renderMockModule(model, { sdkModule: './client.js' })).toBe('');

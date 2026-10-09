@@ -265,7 +265,7 @@ function resolverFor(op: OperationModel, model: ApiModel, opts: MockOptions): st
     return `() => ${json(last)}`;
   }
   const first = spec.style === 'page' ? 1 : 0;
-  const position = `Number(new URL(request.url).searchParams.get(${JSON.stringify(spec.param)}) ?? ${first})`;
+  const position = `Number(new URL(request.url).searchParams.get(${codeLiteral(spec.param)}) ?? ${first})`;
   const empty = withPointer(page, pointerKeys(spec.items), expr('[]'));
   return `({ request }) => ${position} > ${first} ? ${json(empty)} : ${json(page)}`;
 }
@@ -285,8 +285,9 @@ function cursorStop(schema: SchemaModel, pointer: string, model: ApiModel): Mock
   return property?.required === false ? undefined : expr('""');
 }
 
-/** RFC 6901 pointer tokens (`~1` → `/`, `~0` → `~`). */
+/** RFC 6901 pointer tokens (`~1` → `/`, `~0` → `~`); none for `''`, the whole value. */
 function pointerKeys(pointer: string): string[] {
+  if (pointer === '') return [];
   return pointer
     .slice(1)
     .split('/')
@@ -295,7 +296,8 @@ function pointerKeys(pointer: string): string[] {
 
 /**
  * `value` with the property at the `keys` path replaced (added when missing), or removed
- * when `replacement` is `undefined`. Steps only through objects: a path that reaches into
+ * when `replacement` is `undefined`. An empty path replaces the whole value (a page that
+ * is the item array itself). Steps only through objects: a path that reaches into
  * anything else leaves the value unchanged.
  */
 function withPointer(
@@ -303,6 +305,7 @@ function withPointer(
   keys: string[],
   replacement: MockValue | undefined
 ): MockValue {
+  if (keys.length === 0) return replacement ?? value;
   if (!isObjectValue(value)) return value;
   const [key, ...rest] = keys;
   const found = value.entries.some((entry) => !('spread' in entry) && entry.key === key);
