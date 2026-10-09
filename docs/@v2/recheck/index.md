@@ -146,8 +146,10 @@ Two agent skills teach an AI coding assistant to work with Recheck:
 Install them with the other Redocly CLI skills:
 
 ```bash
-npx skills add https://redocly.com
+redocly skills
 ```
+
+See the [`skills` command](../commands/skills.md) for the supported agents.
 
 ## Related pages
 

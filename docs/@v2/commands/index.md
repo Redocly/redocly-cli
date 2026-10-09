@@ -57,6 +57,10 @@ Reunite platform commands:
 - [`push`](push.md) Push an API description to Reunite.
 - [`push-status`](push-status.md) Track an in-progress push operation to Reunite.
 
+AI agent setup commands:
+
+- [`skills`](skills.md) Install the Redocly agent skills for AI coding agents.
+
 Shell setup commands:
 
 - [`completion`](completion.md) Generate autocomplete commands (includes install instructions).

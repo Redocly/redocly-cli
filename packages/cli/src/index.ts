@@ -35,6 +35,7 @@ import type {
   ScorecardClassicArgv,
   ScorecardClassicOutputFormat,
 } from './commands/scorecard-classic/types.js';
+import { handleSkills, SKILLS_AGENTS, type SkillsArgv } from './commands/skills.js';
 import { outputExtensions } from './types.js';
 import { version } from './utils/package.js';
 import { cacheLatestVersion, notifyUpdateCliVersion } from './utils/update-version-notifier.js';
@@ -1173,6 +1174,32 @@ yargs(hideBin(process.argv))
         }),
     async (argv) => {
       commandWrapper(handleEjectGenerator)(argv as Arguments<EjectGeneratorCommandArgv>);
+    }
+  )
+  .command(
+    'skills',
+    'Install the Redocly agent skills for AI coding agents.',
+    (yargs) =>
+      yargs.options({
+        agent: {
+          description: 'Agents to install the skills for. Default: detected agents.',
+          type: 'array',
+          string: true,
+          choices: SKILLS_AGENTS,
+        },
+        global: {
+          description: 'Install in your home folder instead of the current project.',
+          type: 'boolean',
+          default: false,
+        },
+        list: {
+          description: 'List the bundled skills without installing them.',
+          type: 'boolean',
+          default: false,
+        },
+      }),
+    async (argv) => {
+      commandWrapper(handleSkills)(argv as Arguments<SkillsArgv>);
     }
   )
   .command(

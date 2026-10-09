@@ -49,6 +49,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `inspect-node-types` | Show the node type at a pointer, or list every node with its type [experimental]                                  | Redocly configuration |
 | `push`               | Push an API description to Reunite                                                                                | Reunite platform      |
 | `push-status`        | Track an in-progress push to Reunite                                                                              | Reunite platform      |
+| `skills`             | Install the Redocly agent skills into `.agents/skills/` and detected agent folders, such as `.claude/skills/`     | Agent setup           |
 | `completion`         | Generate shell autocomplete commands                                                                              | Shell setup           |
 
 Exit codes: `0` success, `1` problems found or execution failed, `2` configuration error.

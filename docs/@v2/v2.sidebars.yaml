@@ -54,6 +54,8 @@
           page: commands/score.md
         - label: scorecard-classic
           page: commands/scorecard-classic.md
+        - label: skills
+          page: commands/skills.md
         - label: split
           page: commands/split.md
         - label: stats
