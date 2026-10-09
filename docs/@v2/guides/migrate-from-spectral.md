@@ -172,6 +172,8 @@ It turns a Spectral rule into a Redocly one, and it verifies the result against 
 redocly skills
 ```
 
+Without Redocly CLI, use `npx skills add https://redocly.com`.
+
 ## Explore tool functionality
 
 Redocly CLI supports multiple Redocly products and functions, so go ahead and [read more about Redocly CLI](../index.md).

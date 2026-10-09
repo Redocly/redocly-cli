@@ -14,6 +14,7 @@ Redocly uses rules to describe all the different aspects of API behavior that we
 
 If you work with an AI coding assistant, the `redocly-lint-rules` agent skill picks the right level for a check written in plain language and writes the rule for you.
 Install it with [`redocly skills`](./commands/skills.md).
+Without Redocly CLI, use `npx skills add https://redocly.com`.
 
 ## Rulesets
 

@@ -54,7 +54,7 @@ The command also writes the skills there when it detects the agent, or when you 
 | Augment     | `augment`       | `.augment/skills/`  |
 
 The command detects an agent when its folder exists in the project or in your home folder.
-For example, a `~/.claude` folder means that Claude Code is installed.
+For example, if a `~/.claude` folder exists, the command installs the skills for Claude Code.
 
 The `codex`, `cursor`, `copilot`, `gemini`, and `opencode` values are also accepted.
 These agents read `.agents/skills/`, so the command writes only that folder for them.

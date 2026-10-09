@@ -149,6 +149,7 @@ Install them with the other Redocly CLI skills:
 redocly skills
 ```
 
+Without Redocly CLI, use `npx skills add https://redocly.com`.
 See the [`skills` command](../commands/skills.md) for the supported agents.
 
 ## Related pages
