@@ -7,6 +7,12 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.62.1 (2026-10-09)
+
+### Patch Changes
+
+- Fixed the `project clone` command so that Git keeps finding its credential helper after a clone run with `npx` or `pnpm dlx`.
+
 ## 2.62.0 (2026-10-09)
 
 ### Minor Changes
