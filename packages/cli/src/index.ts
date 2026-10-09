@@ -713,6 +713,63 @@ yargs(hideBin(process.argv))
       commandWrapper(handleLogout)(argv);
     }
   )
+  .command('project', '[early access] Work with a Redocly-hosted project.', (yargs) =>
+    yargs
+      .env('REDOCLY_CLI_PROJECT')
+      .command(
+        'clone <project> [directory]',
+        'Clone a Redocly-hosted project as a Git repository.',
+        (yargs) =>
+          yargs
+            .positional('project', {
+              description: 'Organization and project slugs or IDs, as `<organization>/<project>`.',
+              type: 'string',
+              demandOption: true,
+            })
+            .positional('directory', {
+              description: 'Directory to clone into. Defaults to the project.',
+              type: 'string',
+            })
+            .options({
+              residency: {
+                description: 'Residency of the application. Defaults to `us`.',
+                alias: ['r'],
+                type: 'string',
+              },
+              config: {
+                description: 'Path to the config file.',
+                requiresArg: true,
+                type: 'string',
+              },
+            }),
+        async (argv) => {
+          const { handleProjectClone } = await import('./commands/project/index.js');
+          commandWrapper(handleProjectClone)(argv);
+        }
+      )
+      .command(
+        'git-credentials <operation>',
+        false,
+        (yargs) =>
+          yargs.positional('operation', {
+            description: 'Credential helper operation: get, store, or erase.',
+            type: 'string',
+            demandOption: true,
+          }),
+        async (argv) => {
+          const { handleProjectGitCredentials } =
+            await import('./commands/project/git-credentials.js');
+          process.stdout.write(
+            await handleProjectGitCredentials({
+              operation: argv.operation,
+              input: process.stdin,
+              version,
+            })
+          );
+        }
+      )
+      .demandCommand(1, 'Specify a project subcommand: clone.')
+  )
   .command(
     'preview',
     'Preview Redocly project using one of the product NPM packages.',
