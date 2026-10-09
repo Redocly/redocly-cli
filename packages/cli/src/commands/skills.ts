@@ -1,5 +1,5 @@
 import { HandledError, logger } from '@redocly/openapi-core';
-import { gray, green, yellow } from 'colorette';
+import { bold, cyan, gray, green, yellow } from 'colorette';
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
@@ -108,11 +108,24 @@ export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
 }
 
 function listSkills(skillsDir: string, skillNames: string[]) {
+  const width = Math.min(process.stdout.columns || 80, 100) - 4;
   for (const skillName of skillNames) {
     const content = readFileSync(join(skillsDir, skillName, 'SKILL.md'), 'utf-8');
     const description = content.match(/^description: (.*)$/m);
-    logger.output(`${skillName}\n  ${description ? description[1] : ''}\n\n`);
+    logger.output(`${bold(cyan(skillName))}\n`);
+
+    let line = '';
+    for (const word of (description ? description[1] : '').split(' ')) {
+      if (line && line.length + word.length + 1 > width) {
+        logger.output(`    ${line}\n`);
+        line = word;
+      } else {
+        line = line ? `${line} ${word}` : word;
+      }
+    }
+    logger.output(`    ${line}\n\n`);
   }
+  logger.output(`To install the skills, run: ${bold('redocly skills')}\n`);
 }
 
 function isAgentSelected(agent: OwnFolderAgent, argv: SkillsArgv, cwd: string): boolean {
