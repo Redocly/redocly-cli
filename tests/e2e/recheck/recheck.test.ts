@@ -20,6 +20,7 @@ const recheckCases: [dirName: string, args: string[]][] = [
   ['api-descriptions', ['recheck']],
   ['api-missing-pointer', ['recheck']],
   ['api-rule-off-for-pages', ['recheck', '--rule', 'recheck/line-length']],
+  ['config-ref-relative-paths', ['recheck', 'docs/pages']],
 ];
 
 describe('recheck', () => {

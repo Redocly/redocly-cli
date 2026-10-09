@@ -1,0 +1,9 @@
+openapi:
+  htmlTemplate: ./templates/root.hbs
+apis:
+  main:
+    root: ./openapi.yaml
+    openapi:
+      htmlTemplate: ./templates/api.hbs
+  plain:
+    root: ./openapi.yaml
