@@ -1,0 +1,286 @@
+openapi: 3.2.0
+info:
+  title: Drift Querystring API
+  version: 1.0.0
+servers:
+  - url: http://api.example.com
+paths:
+  /events:
+    get:
+      operationId: listEvents
+      parameters:
+        - name: filters
+          in: querystring
+          required: true
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                required:
+                  - id
+                  - status
+                properties:
+                  id:
+                    type: string
+                    readOnly: true
+                  status:
+                    type: string
+                    enum:
+                      - scheduled
+                      - canceled
+                  limit:
+                    type: integer
+                  tags:
+                    type: array
+                    items:
+                      type: string
+      responses:
+        '200':
+          description: A list of events.
+        '400':
+          description: Bad request.
+  /events/export:
+    get:
+      operationId: exportEvents
+      parameters:
+        - name: options
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  format:
+                    type: string
+                    enum:
+                      - csv
+                      - json
+      responses:
+        '200':
+          description: The export.
+  /reports:
+    get:
+      operationId: listReports
+      parameters:
+        - name: range
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      from:
+                        type: string
+                        format: date
+                      to:
+                        type: string
+                        format: date
+                  - type: object
+                    properties:
+                      format:
+                        type: string
+                        enum:
+                          - pdf
+                          - csv
+      responses:
+        '200':
+          description: The reports.
+  /search:
+    get:
+      operationId: search
+      parameters:
+        - name: query
+          in: querystring
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - term
+                properties:
+                  term:
+                    type: string
+                  size:
+                    type: integer
+      responses:
+        '200':
+          description: Search results.
+  /echo:
+    get:
+      operationId: echo
+      parameters:
+        - name: text
+          in: querystring
+          content:
+            text/plain:
+              schema:
+                type: string
+                maxLength: 5
+      responses:
+        '200':
+          description: The echoed text.
+  /notes:
+    get:
+      operationId: listNotes
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: The notes.
+  /schema-only:
+    get:
+      operationId: schemaOnly
+      parameters:
+        - name: filters
+          in: querystring
+          schema:
+            type: object
+            properties:
+              a:
+                type: string
+      responses:
+        '200':
+          description: OK.
+  /places:
+    get:
+      operationId: listPlaces
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  address:
+                    type: object
+                    properties:
+                      city:
+                        type: string
+                  points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        x:
+                          type: integer
+                  area:
+                    properties:
+                      size:
+                        type: integer
+                  owner:
+                    allOf:
+                      - type: object
+                        properties:
+                          id:
+                            type: string
+      responses:
+        '200':
+          description: The places.
+  /lookup:
+    get:
+      operationId: lookup
+      parameters:
+        - name: by
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                oneOf:
+                  - type: object
+                    required:
+                      - id
+                    additionalProperties: false
+                    properties:
+                      id:
+                        type: string
+                  - type: object
+                    required:
+                      - name
+                    properties:
+                      name:
+                        type: string
+      responses:
+        '200':
+          description: The match.
+  /traces:
+    get:
+      operationId: listTraces
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: string
+                patternProperties:
+                  '^x-':
+                    type: string
+      responses:
+        '200':
+          description: The traces.
+  /audit:
+    get:
+      operationId: listAudit
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      a:
+                        type: string
+                  - type: object
+                    properties:
+                      b:
+                        type: string
+                unevaluatedProperties: false
+      responses:
+        '200':
+          description: The audit log.
+  /multi:
+    get:
+      operationId: multi
+      parameters:
+        - name: filters
+          in: querystring
+          content:
+            application/x-www-form-urlencoded:
+              schema:
+                type: object
+                properties:
+                  a:
+                    type: string
+            application/json:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: OK.
+  /legacy:
+    get:
+      operationId: legacyFilter
+      parameters:
+        - name: filter
+          in: query
+          content:
+            application/json:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: Filtered items.
