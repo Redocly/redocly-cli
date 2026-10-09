@@ -9,6 +9,9 @@ Ensures that a schema's structural properties match its declared `type`. In part
 - Only a schema of type `array` may include an `items` field.
 - Only a schema of type `object` may include a `properties` field.
 
+The rule checks only schemas whose `type` is a single value.
+Schemas with a list of types, such as `type: [string, 'null']`, are not checked.
+
 | OAS | Compatibility |
 | --- | ------------- |
 | 2.0 | ✅            |
@@ -86,7 +89,7 @@ properties:
 
 _Error:_ An `array` type should not include a `properties` field.
 
-#### String type with a `properties` field
+#### Primitive type with a `properties` field
 
 ```yaml
 properties:

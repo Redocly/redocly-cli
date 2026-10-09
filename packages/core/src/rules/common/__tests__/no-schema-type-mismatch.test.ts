@@ -166,6 +166,37 @@ describe('no-schema-type-mismatch rule', () => {
     `);
   });
 
+  it('should not report a warning for schemas with a list of types', async () => {
+    const yaml = outdent`
+      openapi: 3.1.0
+      info:
+        title: Test API
+        version: 1.0.0
+      paths:
+        /test:
+          get:
+            responses:
+              '200':
+                description: OK
+                content:
+                  application/json:
+                    schema:
+                      type: [object, 'null']
+                      properties:
+                        name:
+                          type: string
+    `;
+
+    const document = parseYamlToDocument(yaml, 'test.yaml');
+    const results = await lintDocument({
+      document,
+      externalRefResolver: new BaseResolver(),
+      config: await createConfig({ rules: { 'no-schema-type-mismatch': 'warn' } }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
   it('should not report a warning for valid schemas', async () => {
     const yaml = outdent`
       openapi: 3.0.0
