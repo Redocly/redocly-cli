@@ -713,7 +713,7 @@ yargs(hideBin(process.argv))
       commandWrapper(handleLogout)(argv);
     }
   )
-  .command('project', 'Work with a Redocly-hosted project [early access].', (yargs) =>
+  .command('project', '[early access] Work with a Redocly-hosted project.', (yargs) =>
     yargs
       .env('REDOCLY_CLI_PROJECT')
       .command(
