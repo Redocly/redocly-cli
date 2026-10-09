@@ -185,12 +185,13 @@ function infiniteMember(
 ): string {
   const { params, keyArg } = varsPieces(op);
   // The cursor is a query parameter, so it lands in the sdk's own spelling for one:
-  // inside the `query` layer, or at the top level of a merged call.
-  const cursor = safeIdent(spec.param);
+  // inside the `query` layer, or at the top level of a merged call. A first page without
+  // a cursor leaves the key out, so `exactOptionalPropertyTypes` accepts the call.
+  const cursor = `...(pageParam === undefined ? {} : { ${safeIdent(spec.param)}: pageParam })`;
   const override =
     argsStyle === 'flat'
-      ? `{ ...vars, ${cursor}: pageParam }`
-      : `{ ...vars, query: { ...vars.query, ${cursor}: pageParam } }`;
+      ? `{ ...vars, ${cursor} }`
+      : `{ ...vars, query: { ...vars.query, ${cursor} } }`;
   return (
     `    ${op.name}InfiniteOptions: (${params}) => infiniteQueryOptions({\n` +
     `        queryKey: [...${op.name}QueryKey(${keyArg}), "infinite"] as const,\n` +

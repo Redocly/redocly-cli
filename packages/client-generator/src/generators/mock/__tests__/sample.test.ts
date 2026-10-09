@@ -1,5 +1,5 @@
 import type { NamedSchemaModel, SchemaModel } from '../../../intermediate-representation/model.js';
-import { sampleValue, SampleExpression } from '../sample.js';
+import { numericRange, sampleValue, SampleExpression } from '../sample.js';
 
 describe('sampleValue', () => {
   it('samples scalars with deterministic, format-aware values', () => {
@@ -477,5 +477,44 @@ describe('sampleValue', () => {
         []
       )
     ).toEqual({ a: 0 });
+  });
+});
+
+describe('numericRange', () => {
+  it('turns the bound keywords into an inclusive range aligned to the step', () => {
+    expect(numericRange('integer', { minimum: 18 })).toEqual({ min: 18, step: 1 });
+    expect(numericRange('integer', { exclusiveMinimum: 0, exclusiveMaximum: 10 })).toEqual({
+      min: 1,
+      max: 9,
+      step: 1,
+    });
+    expect(numericRange('integer', { minimum: 1, maximum: 99, multipleOf: 5 })).toEqual({
+      min: 5,
+      max: 95,
+      step: 5,
+    });
+    expect(numericRange('number', { minimum: 0.25, multipleOf: 0.1 })).toEqual({
+      min: 0.3,
+      step: 0.1,
+    });
+    expect(numericRange('number', { exclusiveMinimum: 0 })).toEqual({ min: 1 });
+    expect(numericRange('number', { exclusiveMaximum: -2 })).toEqual({ max: -3 });
+    // Narrower than one step on each side: the middle of the open range.
+    expect(numericRange('number', { exclusiveMinimum: 0, exclusiveMaximum: 1 })).toEqual({
+      min: 0.5,
+      max: 0.5,
+    });
+  });
+
+  it('samples 0 when the range allows it, else the end nearest to 0', () => {
+    const sample = (scalar: 'integer' | 'number', metadata: object) =>
+      sampleValue({ kind: 'scalar', scalar, metadata }, []);
+    expect(sample('integer', { minimum: -5, maximum: 5 })).toBe(0);
+    expect(sample('integer', { minimum: 18 })).toBe(18);
+    expect(sample('number', { exclusiveMinimum: 0 })).toBe(1);
+    expect(sample('integer', { maximum: -3, multipleOf: 2 })).toBe(-4);
+    // An example outside the bounds would fail validation, so the bounds win.
+    expect(sample('integer', { minimum: 18, example: 3 })).toBe(18);
+    expect(sample('integer', { minimum: 18, example: 21 })).toBe(21);
   });
 });

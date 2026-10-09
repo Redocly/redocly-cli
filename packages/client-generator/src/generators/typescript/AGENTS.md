@@ -24,6 +24,11 @@ relatively (`runtime: module`).
   an entry that `export *`s it; the entry type-imports only the schema names it
   references (`collectEntrySchemaRefs`).
 - **Zero runtime dependencies.** `Date`, `Blob`, `fetch` — nothing else.
+- **It type-checks under the strictest common settings.** The output compiles as part of
+  the user's sources, so `skipLibCheck` does not cover it: `strict`,
+  `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes` must all pass. Guard an
+  index access explicitly instead of asserting it, and leave an absent optional key out
+  (a conditional spread) instead of setting it to `undefined`.
 - **Names are collision-safe:** `packageIdents` seeds every reserved wiring name before
   any operation is sanitized, so renames are deterministic (`configure` → `configure_2`).
   A rename becomes part of the SDK's public API, so the warning must say WHICH cause it

@@ -140,7 +140,10 @@ export function schemaAtPointer(
   pointer: string,
   model: ApiModel
 ): SchemaModel | undefined {
-  let current = deref(schema, model);
+  // An `omit` root (a response without its writeOnly keys) walks its base; the dropped
+  // keys are never a page's items or cursor.
+  const root: SchemaModel = schema.kind === 'omit' ? { kind: 'ref', name: schema.base } : schema;
+  let current = deref(root, model);
   if (current === undefined || (pointer !== '' && !pointer.startsWith('/'))) return undefined;
   if (pointer === '') return current;
   for (const token of pointer.slice(1).split('/')) {

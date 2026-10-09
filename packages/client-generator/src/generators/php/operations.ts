@@ -14,7 +14,7 @@ import {
 } from '@redocly/client-generator';
 import type { PhpPrinter } from '@redocly/client-generator/printers/php';
 
-import { envelopeHeaderSpecs } from './descriptor.ts';
+import { envelopeHeaderSpecs, phpSecurityArg } from './descriptor.ts';
 import { hydration, serialization } from './models.ts';
 import { PHP, phpString } from './naming.ts';
 import { phpElementType, phpNullable, phpType } from './types.ts';
@@ -90,10 +90,15 @@ export function methodArgs(
 }
 
 /** The shared prologue: resolve auth, build query/url, merge headers. */
-function writeRequestSetup(printer: PhpPrinter, op: OperationModel, args: MethodArgs): void {
+function writeRequestSetup(
+  printer: PhpPrinter,
+  op: OperationModel,
+  model: ApiModel,
+  args: MethodArgs
+): void {
   printer.line(`$op = self::OPERATIONS[${phpString(op.specName ?? op.name)}];`);
   printer.line(
-    "[$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);"
+    `[$authHeaders, $query, $cookies] = resolveAuth(${phpSecurityArg(op, model)}, $this->config->auth);`
   );
   for (const { php, wire, value } of args.queryArgs) {
     printer.block(
@@ -150,13 +155,13 @@ export function writePhpMethod(
     envelope
       ? `Like ${ident}(), returning an Envelope with the declared response headers.`
       : (op.summary ?? `${op.method.toUpperCase()} ${op.path}`),
-    element === undefined ? [] : [`@return ${element}[]`]
+    element === undefined ? [] : [`@return ${element.includes('|') ? `(${element})` : element}[]`]
   );
   printer.line(`public function ${name}(${args.signature.join(', ')}): ${returnType}`);
   printer.block(
     '{',
     () => {
-      writeRequestSetup(printer, op, args);
+      writeRequestSetup(printer, op, model, args);
       if (sse !== undefined) {
         const jsonData = sse.schema !== undefined && sse.schema.kind !== 'unknown';
         printer.line('$url = appendQuery($url, $query);');

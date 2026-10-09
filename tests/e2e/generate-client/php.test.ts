@@ -15,6 +15,7 @@ const SERVER_PORT = 3109;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 const hasPhp = spawnSync('php', ['--version']).status === 0;
+const hasPhpstan = spawnSync('phpstan', ['--version']).status === 0;
 
 /** Run smoke.php against the mock server; `phpFlags` go in front, `smokeArgs` after the URL. */
 function runSmoke(phpFlags: string[], smokeArgs: string[] = []): void {
@@ -58,6 +59,22 @@ describe('generate-client php generator (end-to-end)', () => {
     });
     expect(declare.status, `${declare.stdout}\n${declare.stderr}`).toBe(0);
   });
+
+  // The generated file lands in the user's own project, so it must pass static analysis
+  // there too. Level 5 checks types, calls, and dead code; level 6 and up would ask for
+  // the element type of every `array` in every signature.
+  it.skipIf(!hasPhpstan)(
+    'the generated client passes PHPStan level 5',
+    () => {
+      const result = spawnSync(
+        'phpstan',
+        ['analyse', '--no-progress', '--level=5', '--memory-limit=1G', generatedFile],
+        { encoding: 'utf-8' }
+      );
+      expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
+    },
+    60_000
+  );
 
   it.skipIf(!hasPhp)('the smoke runs real HTTP: hydration, bodies, ApiError', () => {
     runSmoke([]);

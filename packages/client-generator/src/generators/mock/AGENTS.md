@@ -19,6 +19,24 @@ A standalone MSW module: `create<Name>()` data factories, `<op>Handler()` /
 - **Interpolated identifiers are gated** (`codeIdent`): an operation name or method
   reaching a code position is validated, never trusted, even though the pipeline
   sanitizes upstream.
+- **Mock data satisfies the description** it came from, so it passes the zod schemas
+  generated from the same description:
+  - Numeric samples respect `minimum`, `maximum`, `exclusiveMinimum`,
+    `exclusiveMaximum`, and `multipleOf`. A static sample is `0` when `0` is in range,
+    else the lowest valid value (the highest one when only an upper bound is set).
+    Faker mode passes the same inclusive range to `faker.number.*`; when only one side
+    is set, the other side is 100 steps away, because faker's own defaults can sit on
+    the wrong side of the bound.
+  - Mocks are response data, and responses never carry `writeOnly` properties. An
+    optional one is never emitted. A required one stays in the factories, because the
+    named type (and its zod schema) demands it. A handler whose response leaves the
+    `writeOnly` properties out (an `omit` body) samples that shape inline, typed
+    `Partial<Omit<Name, …>>`, so its body leaves them out too.
+  - The default handler of a paginated operation ends the walk. A cursor page is the
+    last page: the next cursor is `null` when nullable, absent when optional, and `""`
+    otherwise, and `hasMore` is `false`. So `.pages()` ends after one page. Offset and
+    page-number styles stop only on an empty page, so the handler answers any position
+    past the first with an empty item list, and `.pages()` ends after that empty page.
 - Handlers are opt-in overrides: `<op>ErrorHandler` is NOT in `handlers`.
 - The module references the sdk's TYPES only — never its runtime.
 

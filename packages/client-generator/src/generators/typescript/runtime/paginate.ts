@@ -141,9 +141,10 @@ export function linkNext(header: string | null): string | undefined {
   for (const entry of header.split(/,\s*(?=<)/)) {
     const target = /^\s*<([^>]*)>(.*)$/.exec(entry);
     if (!target) continue;
-    const rel = /;\s*rel\s*=\s*"?([^";]+)"?/i.exec(target[2]);
+    const [, url = '', params = ''] = target;
+    const rel = /;\s*rel\s*=\s*"?([^";]+)"?/i.exec(params);
     // `rel` may carry several space-separated relation types (RFC 8288 §3.3).
-    if (rel && rel[1].split(/\s+/).includes('next')) return target[1];
+    if (rel?.[1]?.split(/\s+/).includes('next')) return url;
   }
   return undefined;
 }
@@ -164,7 +165,10 @@ export async function* pagesByLink<TPage>(
   let query = args.query;
   let previous: string | undefined;
   while (true) {
-    const { page, linkHeader, url } = await call({ ...args, query }, init);
+    const { page, linkHeader, url } = await call(
+      { ...args, ...(query === undefined ? {} : { query }) },
+      init
+    );
     yield page as TPage;
     const target = linkNext(linkHeader);
     if (target === undefined) return;

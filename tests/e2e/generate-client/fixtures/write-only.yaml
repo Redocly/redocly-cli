@@ -1,0 +1,31 @@
+openapi: 3.1.0
+info:
+  title: Cafe Customers
+  version: 1.0.0
+servers:
+  - url: http://localhost:3116
+paths:
+  /customers:
+    post:
+      operationId: createCustomer
+      summary: Register a customer.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Customer' }
+      responses:
+        '201':
+          description: The registered customer. The password never comes back.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Customer' }
+components:
+  schemas:
+    Customer:
+      type: object
+      required: [id, email, password]
+      properties:
+        id: { type: string, readOnly: true }
+        email: { type: string }
+        password: { type: string, writeOnly: true, minLength: 8 }

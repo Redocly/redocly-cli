@@ -79,6 +79,11 @@ function writeDataclass(
   /** The discriminator value this class is mapped to, pinned as a `Literal` (pydantic). */
   pinned?: DiscriminatorPin
 ): void {
+  // A response never carries a `writeOnly` property, and responses decode into this same
+  // class, so the property is optional even when the description requires it.
+  const fields = properties.map((property) =>
+    property.writeOnly ? { ...property, required: false } : property
+  );
   const pydantic = models === 'pydantic';
   if (!pydantic) printer.line('@dataclass');
   const header = pydantic ? `class ${className(name)}(BaseModel):` : `class ${className(name)}:`;
@@ -92,8 +97,8 @@ function writeDataclass(
     }
     // Required fields first — a dataclass field without a default may not follow one with.
     const ordered = [
-      ...properties.filter((property) => property.required),
-      ...properties.filter((property) => !property.required),
+      ...fields.filter((property) => property.required),
+      ...fields.filter((property) => !property.required),
     ];
     const fieldMap: Array<[string, string]> = [];
     if (ordered.length === 0) printer.line('pass');
@@ -152,6 +157,7 @@ export function renderPythonModels(
     'Optional',
     'Tuple',
     'Union',
+    'cast',
   ];
   if (models === 'dataclass') typingNames.splice(2, 0, 'ClassVar');
   if (unions.size > 0) typingNames.unshift('Annotated');

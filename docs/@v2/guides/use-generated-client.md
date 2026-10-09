@@ -552,6 +552,13 @@ The position of `readOnly` matters, and it follows the specification version:
   The [`spec-ref-siblings`](../rules/oas/spec-ref-siblings.md) rule flags the same thing when you lint.
   To mark a referenced property read-only in 3.0, inline the schema or wrap the `$ref` in an `allOf`.
 
+## Write-only properties
+
+The server never returns a property marked `writeOnly: true`, for example a password.
+The generated success response types, zod response schemas, and mocks leave it out, and request bodies keep it.
+The Python, Go, and PHP clients share one model for requests and responses, so there the property is optional.
+The position of `writeOnly` next to a `$ref` follows the same rules as `readOnly`.
+
 ## Error handling
 
 By default (`--error-mode throw`), an operation throws `ApiError` on a non-2xx response.
@@ -1015,6 +1022,9 @@ for await (const page of client.listOrders.pages(
   // …
 }
 ```
+
+The default `mock` handlers end the iteration: a `cursor` handler returns the last page, and an `offset` or `page` handler returns an empty page after the first one.
+To test more pages, pass an override to the handler.
 
 A failed page always stops iteration with a thrown `ApiError`, even on an `--error-mode result` client.
 On a result-mode client, `.pages()` yields raw pages, not `{ data, error, response }` envelopes.

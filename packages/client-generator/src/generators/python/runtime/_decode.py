@@ -19,7 +19,7 @@ from typing import Any, Dict, Tuple, get_args, get_origin, get_type_hints
 DISCRIMINATORS: Dict[Any, Tuple[str, Dict[str, Any]]] = {}
 
 
-def decode(type_: Any, data: Any):
+def decode(type_: Any, data: Any) -> Any:
     """Best-effort hydration: wire data -> the annotated Python shape. Unknown or
     mismatched shapes pass through unchanged (the server is the source of truth)."""
     if data is None or type_ is Any or type_ is None:
@@ -33,7 +33,8 @@ def decode(type_: Any, data: Any):
         discriminator = DISCRIMINATORS.get(type_)
         if discriminator is not None and isinstance(data, dict):
             wire_property, mapping = discriminator
-            target = mapping.get(data.get(wire_property))
+            value = data.get(wire_property)
+            target = mapping.get(value) if isinstance(value, str) else None
             if target is not None:
                 try:
                     return decode(target, data)
@@ -76,10 +77,10 @@ def decode(type_: Any, data: Any):
     # subclasses `ValueError`, so union member probing above still works.
     if isinstance(type_, type) and hasattr(type_, "model_validate"):
         return type_.model_validate(data)
-    if dataclasses.is_dataclass(type_):
+    if dataclasses.is_dataclass(type_) and isinstance(type_, type):
         hints = get_type_hints(type_)
         field_map = getattr(type_, "_field_map", {})
-        kwargs = {}
+        kwargs: Dict[str, Any] = {}
         for field in dataclasses.fields(type_):
             wire = field_map.get(field.name, field.name)
             if isinstance(data, dict) and wire in data:
@@ -88,7 +89,7 @@ def decode(type_: Any, data: Any):
     return data
 
 
-def encode(value: Any):
+def encode(value: Any) -> Any:
     """Python shape -> wire (JSON) shape; inverse of decode for request bodies."""
     # `mode="json"` resolves datetimes and enums the same way the branches below do,
     # and `exclude_none` matches the dataclass path: an unset optional is not sent.
