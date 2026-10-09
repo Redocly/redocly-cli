@@ -984,6 +984,12 @@ Iteration stops when no `rel="next"` is present, and it throws if the target rep
 A `link` convention rule applies only to operations whose success response documents a `Link` header.
 An explicit rule applies in all cases, but it warns when the header is undocumented.
 
+Some APIs return the URL of the next page in the response body instead, for example as a `next_page_url` field.
+For those, add the optional `nextLink` pointer (for example `/page/nextPage`).
+The runtime then reads the URL from that field instead of the `Link` header, and it handles the URL the same way.
+Iteration stops when the value is absent, `null`, or empty.
+A `link` convention rule with `nextLink` applies to the operations whose success response resolves the pointer.
+
 `limitParam` is optional metadata for any style.
 The iterator never sets it, so pass your page size in `params` yourself.
 
@@ -1038,7 +1044,8 @@ The `tanstack-query` generator emits typed TanStack Query v5 factories for each 
   Pass it to `useInfiniteQuery`/`fetchInfiniteQuery`.
   The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
   Because of this, infinite queries need no hand-written `getNextPageParam`.
-  `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
+  For a `link`-style operation with `nextLink`, the URL of the next page is the page param, and the next call merges its query parameters over `vars`.
+  `link`-style operations that follow the `Link` header are the exception, because a `queryFn` cannot see response headers.
   Use the client's `.pages()`/`.items()` iterators for those.
 - `<op>QueryKey(vars?)`.
   With `vars`, it returns the exact key that the options use.

@@ -316,7 +316,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: ['a'], linkHeader: '<https://x/orders?page=2&per_page=5>; rel="next"' },
       { page: ['b'], linkHeader: null },
     ]);
-    const seen = await collect(pagesByLink(call, { query: { per_page: 5 } }));
+    const seen = await collect(pagesByLink(call, LINK, { query: { per_page: 5 } }));
     expect(seen).toEqual([['a'], ['b']]);
     expect(calls[0].args?.query).toEqual({ per_page: 5 });
     expect(calls[1].args?.query).toEqual({ per_page: '5', page: '2' });
@@ -327,7 +327,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: ['a'], linkHeader: '<https://x/orders?tag=dogs&tag=cats&page=2>; rel="next"' },
       { page: ['b'], linkHeader: null },
     ]);
-    await collect(pagesByLink(call, {}));
+    await collect(pagesByLink(call, LINK, {}));
     expect(calls[1].args?.query).toEqual({ tag: ['dogs', 'cats'], page: '2' });
   });
 
@@ -336,7 +336,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: [1], linkHeader: '</orders?cursor=abc>; rel="next"' },
       { page: [2], linkHeader: null },
     ]);
-    await collect(pagesByLink(call));
+    await collect(pagesByLink(call, LINK));
     expect(calls[1].args?.query).toEqual({ cursor: 'abc' });
   });
 
@@ -352,7 +352,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       calls.push({ args });
       return { ...replies[calls.length - 1], url: `/orders?call=${calls.length}` };
     };
-    const seen = await collect(pagesByLink(call));
+    const seen = await collect(pagesByLink(call, LINK));
     expect(seen).toEqual([['a'], ['b']]);
     expect(calls[1].args?.query).toEqual({ page: '2' });
   });
@@ -363,7 +363,7 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: [2], linkHeader: '<https://x/orders?page=2>; rel="next"' },
       { page: [3], linkHeader: '<https://x/orders?page=2>; rel="next"' },
     ]);
-    await expect(collect(pagesByLink(call))).rejects.toThrow(/did not advance/);
+    await expect(collect(pagesByLink(call, LINK))).rejects.toThrow(/did not advance/);
   });
 
   it('itemsByLink flattens each page through the items pointer', async () => {
@@ -373,6 +373,28 @@ describe('pagesByLink / itemsByLink (link style)', () => {
       { page: { orders: ['c'] }, linkHeader: null },
     ]);
     expect(await collect(itemsByLink(call, deep))).toEqual(['a', 'b', 'c']);
+  });
+
+  it('follows the nextLink pointer in the body instead of the Link header, until it is null', async () => {
+    const bodyLink: PaginationSpec = { style: 'link', nextLink: '/page/nextPage', items: '/data' };
+    const { call, calls } = linkStub([
+      {
+        page: { data: ['a'], page: { nextPage: '/orders?limit=1&after=a' } },
+        linkHeader: '<https://x/orders?page=9>; rel="next"',
+      },
+      { page: { data: ['b'], page: { nextPage: null } }, linkHeader: null },
+    ]);
+    const seen = await collect(itemsByLink(call, bodyLink, { query: { limit: 1 } }));
+    expect(seen).toEqual(['a', 'b']);
+    expect(calls[1].args?.query).toEqual({ limit: '1', after: 'a' });
+  });
+
+  it('throws when the nextLink value is not a string', async () => {
+    const bodyLink: PaginationSpec = { style: 'link', nextLink: '/next', items: '' };
+    const { call } = linkStub([{ page: { next: 2 }, linkHeader: null }]);
+    await expect(collect(pagesByLink(call, bodyLink))).rejects.toThrow(
+      'Pagination link at /next is not a string'
+    );
   });
 
   it('pages() rejects a link spec (those operations wire through pagesByLink)', async () => {

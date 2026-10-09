@@ -4,7 +4,8 @@
 // (schema-level advance-param/pointer checks) remains generation-side; this helper is
 // what every language generator shares.
 
-import type { OperationModel } from '../intermediate-representation/model.js';
+import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
+import { schemaAtPointer } from './schema.js';
 
 /** The normalized rule a generator renders into its runtime's pagination spec. */
 export type NeutralPaginationRule = {
@@ -13,6 +14,8 @@ export type NeutralPaginationRule = {
   param?: string;
   nextCursor?: string;
   hasMore?: string;
+  /** Link style: the pointer to the next page's URL in the body, read instead of the `Link` header. */
+  nextLink?: string;
   limitParam?: string;
   items?: string;
 };
@@ -20,12 +23,14 @@ export type NeutralPaginationRule = {
 /**
  * Pagination for one operation. The convention rule applies only where it structurally
  * fits — the advance parameter exists on the operation, or for `link` (which has no
- * parameter) the success response documents a `Link` header; `exclude` kills every source.
+ * parameter) the success response documents a `Link` header, or resolves the `nextLink`
+ * pointer (which needs `model`); `exclude` kills every source.
  * Returns undefined when the operation does not paginate.
  */
 export function paginationRuleFor(
   op: OperationModel,
-  config: Record<string, unknown> | undefined
+  config: Record<string, unknown> | undefined,
+  model?: ApiModel
 ): NeutralPaginationRule | undefined {
   const configuration = config ?? {};
   const id = op.specName ?? op.name;
@@ -39,13 +44,22 @@ export function paginationRuleFor(
     const { exclude: _exclude, operations: _operations, ...convention } = configuration;
     const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
     // A convention needs a structural fit signal: the advance parameter for cursor/offset/
-    // page, and a documented `Link` response header for `link` (which has no parameter) —
-    // the same gate the TypeScript emitter applies. Without it, a link convention would
-    // attach page iterators to every operation in the description.
+    // page, and for `link` (which has no parameter) a documented `Link` response header or a
+    // response that resolves the `nextLink` pointer — the same gate the TypeScript emitter
+    // applies. Without it, a link convention would attach page iterators to every operation
+    // in the description.
+    const page = op.successResponses.find((response) =>
+      response.contentType.toLowerCase().includes('json')
+    );
+    const { nextLink } = convention;
     const fits =
-      convention.style === 'link'
-        ? op.successResponseHeaders?.some((header) => header.name === 'link') === true
-        : typeof advance === 'string' && op.queryParams.some((param) => param.name === advance);
+      convention.style !== 'link'
+        ? typeof advance === 'string' && op.queryParams.some((param) => param.name === advance)
+        : typeof nextLink === 'string'
+          ? model !== undefined &&
+            page !== undefined &&
+            schemaAtPointer(page.schema, nextLink, model) !== undefined
+          : op.successResponseHeaders?.some((header) => header.name === 'link') === true;
     if (fits) rule = convention as Record<string, unknown>;
   }
   if (rule === undefined || typeof rule.style !== 'string') return undefined;
@@ -55,6 +69,7 @@ export function paginationRuleFor(
     ...(typeof param === 'string' ? { param } : {}),
     ...(typeof rule.nextCursor === 'string' ? { nextCursor: rule.nextCursor } : {}),
     ...(typeof rule.hasMore === 'string' ? { hasMore: rule.hasMore } : {}),
+    ...(typeof rule.nextLink === 'string' ? { nextLink: rule.nextLink } : {}),
     ...(typeof rule.limitParam === 'string' ? { limitParam: rule.limitParam } : {}),
     ...(typeof rule.items === 'string' ? { items: rule.items } : {}),
   };

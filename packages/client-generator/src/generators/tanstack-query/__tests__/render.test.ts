@@ -307,7 +307,7 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('return count === 0 ? undefined : lastPageParam + 1;');
     });
 
-    it('skips InfiniteOptions for link-style pagination (the next page lives in a header)', () => {
+    it('skips InfiniteOptions for Link-header pagination (a queryFn cannot see headers)', () => {
       const linkOp = {
         ...listOp,
         successResponseHeaders: [
@@ -318,6 +318,22 @@ describe('renderTanstackModule', () => {
       expect(out).toContain('listOrdersOptions');
       expect(out).not.toContain('InfiniteOptions');
       expect(out).not.toContain('infiniteQueryOptions');
+    });
+
+    it('compiles a nextLink rule: the body link is the page param, its query merges over vars', () => {
+      // `listOp`'s `page.endCursor` is a nullable string: here it plays the next page's URL.
+      const out = render([listOp], {
+        pagination: { style: 'link', nextLink: '/page/endCursor', items: '/items' },
+      });
+      expect(out).toContain('const nextLinkQuery = (link: string) => {');
+      expect(out).toContain(
+        'queryFn: ({ pageParam, signal }) => instance.listOrders(pageParam === undefined ? vars : { ...vars, query: { ...vars.query, ...nextLinkQuery(pageParam) } } as ListOrdersVariables, { ...init, signal, envelope: undefined })'
+      );
+      expect(out).toContain('initialPageParam: undefined as string | undefined');
+      expect(out).toContain('const next = lastPage.page?.endCursor;');
+      expect(out).toContain(
+        'next === undefined || next === null || next === "" ? undefined : next'
+      );
     });
 
     it('emits no InfiniteOptions (and no infiniteQueryOptions import) without pagination', () => {

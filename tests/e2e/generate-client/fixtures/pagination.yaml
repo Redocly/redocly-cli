@@ -82,6 +82,40 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Order' }
+  /receipts:
+    get:
+      operationId: listReceipts
+      summary: List receipts, following the next page's URL in the response body.
+      # The body-link arm: the next page's URL is a response field, not a `Link` header.
+      x-redoclyPagination:
+        style: link
+        nextLink: /next
+        limitParam: limit
+        items: /receipts
+      parameters:
+        - name: limit
+          in: query
+          description: Page size.
+          schema: { type: integer }
+        - name: after
+          in: query
+          description: Opaque cursor of the page to fetch; `next` carries it.
+          schema: { type: string }
+      responses:
+        '200':
+          description: One page of receipts.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [receipts, next]
+                properties:
+                  receipts:
+                    type: array
+                    items: { $ref: '#/components/schemas/Order' }
+                  next:
+                    description: Path and query of the next page; null on the last page.
+                    type: [string, 'null']
 components:
   schemas:
     Order:

@@ -1,8 +1,9 @@
 import * as http from 'node:http';
 
 // A hand-written pagination server: three cursor pages of orders keyed by an opaque
-// cursor (the last page carries no nextCursor — the stop signal), and an offset-sliced
-// menu that returns an empty page past the end. Every API request lands in a log the
+// cursor (the last page carries no nextCursor — the stop signal), the same orders as
+// receipts whose `next` field is the next page's path and query (null on the last page),
+// and an offset-sliced menu that returns an empty page past the end. Every API request lands in a log the
 // test reads back, with a reset hook so each consumer run asserts over its own slice.
 
 type LogEntry = { method: string; url: string };
@@ -62,6 +63,16 @@ const server = http.createServer((req, res) => {
     }
     res.writeHead(404, { 'Content-Type': 'application/json; charset=utf-8' });
     res.end(JSON.stringify({ title: 'unknown cursor' }));
+    return;
+  }
+
+  if (method === 'GET' && pathname === '/receipts') {
+    const start = Number.parseInt(searchParams.get('after') ?? '0', 10);
+    const limit = Number.parseInt(searchParams.get('limit') ?? '2', 10);
+    const end = start + limit;
+    const next = end < ORDERS.length ? `/receipts?limit=${limit}&after=${end}` : null;
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    res.end(JSON.stringify({ receipts: ORDERS.slice(start, end), next }));
     return;
   }
 

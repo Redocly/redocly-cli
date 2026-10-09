@@ -312,6 +312,51 @@ describe('resolveOperationPagination — sources and precedence', () => {
       });
       expect(result.error).toContain('"items" pointer "/missing" does not resolve');
     });
+
+    describe('nextLink (the next page URL in the body)', () => {
+      const BODY_LINK_RULE: PaginationRule = {
+        style: 'link',
+        nextLink: '/nextPageUrl',
+        items: '/orders',
+      };
+      /** `listOrders` returning `{ orders: Order[]; nextPageUrl: string | null }`, no `Link` header. */
+      const bodyLinkOp = (nextPageUrl: SchemaModel = SCALAR) =>
+        listOrders({
+          successResponses: [
+            response({
+              schema: {
+                kind: 'object',
+                properties: [
+                  { name: 'orders', schema: ORDER_LIST, required: true },
+                  { name: 'nextPageUrl', schema: nextPageUrl, required: true },
+                ],
+              },
+            }),
+          ],
+        });
+
+      it('a convention rule fits operations that resolve the pointer, no Link header needed', () => {
+        const op = bodyLinkOp({ kind: 'union', members: [SCALAR, { kind: 'null' }] });
+        expect(resolveOperationPagination(op, modelWith([op]), BODY_LINK_RULE).spec).toEqual({
+          style: 'link',
+          nextLink: '/nextPageUrl',
+          items: '/orders',
+        });
+        // The pointer does not resolve: the convention silently skips the operation.
+        const other = listOrders();
+        expect(resolveOperationPagination(other, modelWith([other]), BODY_LINK_RULE)).toEqual({});
+      });
+
+      it('an explicit rule fails when the pointer does not point at a string', () => {
+        const op = bodyLinkOp({ kind: 'scalar', scalar: 'integer' });
+        const result = resolveOperationPagination(op, modelWith([op]), {
+          operations: { listOrders: BODY_LINK_RULE },
+        });
+        expect(result.error).toBe(
+          'Pagination for operation "listOrders" (pagination.operations["listOrders"]): the "nextLink" pointer "/nextPageUrl" must point at a string (got scalar)'
+        );
+      });
+    });
   });
 
   it('applies the x-redoclyPagination extension when no per-op rule exists', () => {
@@ -424,6 +469,11 @@ describe('resolveOperationPagination — rule-shape validation (any source)', ()
       'page style with an empty offsetParam',
       { style: 'page', offsetParam: '', items: '/orders' },
       'page style requires an "offsetParam" query parameter name',
+    ],
+    [
+      'a nextLink pointer without the leading slash',
+      { style: 'link', nextLink: 'next', items: '/orders' },
+      '"nextLink" must be a JSON pointer starting with "/"',
     ],
     [
       'a non-string limitParam',
