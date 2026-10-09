@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from 'node:fs';
+import { readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -16,6 +16,7 @@ describe('bundle', () => {
     'bundle-no-output-without-inline-apis',
     'bundle-use-titles-for-component-names-collision',
     'bundle-overlays',
+    'config-ref-relative-paths',
   ];
   const folderPath = __dirname;
   const contents = readdirSync(folderPath).filter((folder) => !excludeFolders.includes(folder));
@@ -49,6 +50,20 @@ describe('bundle', () => {
     const args = getParams(indexEntryPoint, ['bundle', '--output=dist']);
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
+
+  test('config-ref-relative-paths writes the output and applies the overlays of a referenced config', async () => {
+    const testPath = join(folderPath, 'config-ref-relative-paths');
+    const args = getParams(indexEntryPoint, ['bundle', 'main']);
+    try {
+      const result = getCommandOutput(args, { testPath });
+      await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(readFileSync(join(testPath, 'docs/dist/openapi.yaml'), 'utf8')).toContain(
+        'description: Added by the overlay.'
+      );
+    } finally {
+      rmSync(join(testPath, 'docs/dist'), { recursive: true, force: true });
+    }
   });
 });
 

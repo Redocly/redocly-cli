@@ -52,7 +52,12 @@ export function bundleConfig(
   plugins: Plugin[],
   skipPluginEval = false
 ): ResolvedConfig {
-  const visitorsData: ConfigBundlerVisitorData = { plugins, skipPluginEval };
+  const visitorsData: ConfigBundlerVisitorData = {
+    plugins,
+    skipPluginEval,
+    rootRef: document.source.absoluteRef,
+    rebasedNodes: new WeakSet(),
+  };
   const ctx: BundleContext = {
     problems: [],
     specVersion: 'config',

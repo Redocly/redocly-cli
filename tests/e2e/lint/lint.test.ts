@@ -119,4 +119,14 @@ describe('lint', () => {
     const result = getCommandOutput(args, {});
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot_2.txt'));
   });
+
+  test('lint by alias when the root config only references a nested config', async () => {
+    const dirName = 'config-ref-relative-paths';
+    const testPath = join(__dirname, `${dirName}`);
+
+    const args = getParams(indexEntryPoint, ['lint', 'main']);
+
+    const result = getCommandOutput(args, { testPath });
+    await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+  });
 });

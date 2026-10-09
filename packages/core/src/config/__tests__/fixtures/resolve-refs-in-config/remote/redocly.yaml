@@ -1,0 +1,2 @@
+apis:
+  $ref: https://example.com/configs/apis.yaml

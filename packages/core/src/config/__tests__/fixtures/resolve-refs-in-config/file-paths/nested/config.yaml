@@ -1,0 +1,28 @@
+api:
+  extends:
+    - ./api-rules.yaml
+  root: ./openapi.yaml
+  output: dist/openapi.yaml
+  overlays:
+    - ./overlays/add-servers.yaml
+  clientOutput: ./client.ts
+  client:
+    $ref: ./deep/config.yaml#/client
+    setup: ./setup.mjs
+chain:
+  $ref: ./deep/config.yaml#/api
+untouched:
+  root: https://example.com/openapi.yaml
+  output: /absolute/dist/openapi.yaml
+  clientOutput: ''
+client:
+  setup: ./setup.mjs
+  cliOutput: ./cli/index.ts
+  goPackage: ./not-a-path
+openapi:
+  htmlTemplate: ./template.html
+recheck:
+  markdoc:
+    schema: realm
+    extend:
+      tagsFile: ./tags.js

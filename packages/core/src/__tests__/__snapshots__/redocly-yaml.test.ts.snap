@@ -221,6 +221,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         ],
       },
       "cliOutput": {
+        "format": "uri-reference",
         "type": "string",
       },
       "codeSamples": {
@@ -293,6 +294,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "setup": {
+        "format": "uri-reference",
         "type": "string",
       },
     },
@@ -399,6 +401,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "asyncapi": "rootRedoclyConfigSchema.apis_additionalProperties.asyncapi",
       "client": "Client",
       "clientOutput": {
+        "format": "uri-reference",
         "type": "string",
       },
       "decorators": "Decorators",
@@ -431,6 +434,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "openrpc1Preprocessors": "Preprocessors",
       "openrpc1Rules": "Rules",
       "output": {
+        "format": "uri-reference",
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -439,6 +443,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Rules": "Rules",
       "overlays": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -446,6 +451,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "preprocessors": "Preprocessors",
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
+        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -1317,6 +1323,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "fromProjectUrl": {
+        "format": "uri",
         "type": "string",
       },
       "ignore": {
@@ -2583,6 +2590,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hide": {
         "type": "boolean",
       },
+      "mcp": "rootRedoclyConfigSchema.aiAssistant.mcp",
       "prompt": {
         "type": "string",
         "uiHint": "textarea",
@@ -2594,6 +2602,45 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "trigger": "rootRedoclyConfigSchema.aiAssistant.trigger",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.aiAssistant.mcp": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiCalls": "rootRedoclyConfigSchema.aiAssistant.mcp.apiCalls",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.aiAssistant.mcp.apiCalls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHttpMethods": {
+        "items": {
+          "enum": [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "QUERY",
+            "TRACE",
+          ],
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
+        "type": "boolean",
+      },
     },
     "required": undefined,
   },
@@ -3028,6 +3075,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "openrpc1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.openrpc1Rules",
       "output": {
+        "format": "uri-reference",
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -3040,6 +3088,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Rules": "rootRedoclyConfigSchema.apis_additionalProperties.overlay1Rules",
       "overlays": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -3049,6 +3098,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "rbac": "rootRedoclyConfigSchema.apis_additionalProperties.rbac",
       "root": {
+        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -3478,6 +3528,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -3497,6 +3550,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -3852,6 +3906,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -3870,12 +3925,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -3894,6 +3951,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -4081,6 +4139,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.apis_additionalProperties.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.apis_additionalProperties.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
   "rootRedoclyConfigSchema.apis_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -4238,6 +4323,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -6444,6 +6530,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -6463,6 +6552,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -6818,6 +6908,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -6836,12 +6927,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -6860,6 +6953,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -7047,6 +7141,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.apis_additionalProperties.theme.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
   "rootRedoclyConfigSchema.apis_additionalProperties.theme.openapi": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -7164,6 +7285,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -9736,10 +9858,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "endAt": {
+        "format": "date-time",
         "type": "string",
       },
       "rbac": "rootRedoclyConfigSchema.banner_items.rbac",
       "startAt": {
+        "format": "date-time",
         "type": "string",
       },
       "target": {
@@ -11980,6 +12104,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hide": {
         "type": "boolean",
       },
+      "mcp": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp",
       "prompt": {
         "type": "string",
         "uiHint": "textarea",
@@ -11991,6 +12116,45 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "trigger": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.trigger",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiCalls": "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp.apiCalls",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.aiAssistant.mcp.apiCalls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHttpMethods": {
+        "items": {
+          "enum": [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "QUERY",
+            "TRACE",
+          ],
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
+        "type": "boolean",
+      },
     },
     "required": undefined,
   },
@@ -12425,6 +12589,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "openrpc1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.openrpc1Rules",
       "output": {
+        "format": "uri-reference",
         "pattern": "(.ya?ml|.json)$",
         "type": "string",
       },
@@ -12437,6 +12602,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "overlay1Rules": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.overlay1Rules",
       "overlays": {
         "items": {
+          "format": "uri-reference",
           "type": "string",
         },
         "type": "array",
@@ -12446,6 +12612,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.rbac",
       "root": {
+        "format": "uri-reference",
         "type": "string",
         "uiHint": "file",
       },
@@ -12875,6 +13042,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -12894,6 +13064,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -13249,6 +13420,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -13267,12 +13439,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -13291,6 +13465,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -13478,6 +13653,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
     "description": "The rules configuration blocks set up linting rules and their severity. You can configure built-in rules, add configurable rules, and rules from plugins.",
@@ -13635,6 +13837,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -15841,6 +16044,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -15860,6 +16066,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -16215,6 +16422,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -16233,12 +16441,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -16257,6 +16467,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -16444,6 +16655,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     },
     "required": undefined,
   },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
+  },
   "rootRedoclyConfigSchema.env_additionalProperties.apis_additionalProperties.theme.openapi": {
     "additionalProperties": undefined,
     "description": undefined,
@@ -16561,6 +16799,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -19133,10 +19372,12 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "endAt": {
+        "format": "date-time",
         "type": "string",
       },
       "rbac": "rootRedoclyConfigSchema.env_additionalProperties.banner_items.rbac",
       "startAt": {
+        "format": "date-time",
         "type": "string",
       },
       "target": {
@@ -21301,6 +21542,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -21320,6 +21564,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.env_additionalProperties.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -21675,6 +21920,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -21693,12 +21939,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -21717,6 +21965,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -21903,6 +22152,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.graphqlRules": {
     "additionalProperties": [Function],
@@ -22181,12 +22457,89 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "apiCalls": "rootRedoclyConfigSchema.env_additionalProperties.mcp.apiCalls",
       "docs": "rootRedoclyConfigSchema.env_additionalProperties.mcp.docs",
       "hide": {
         "type": "boolean",
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.mcp.apiCalls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHttpMethods": {
+        "items": {
+          "enum": [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "QUERY",
+            "TRACE",
+          ],
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "excludeFiles": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "excludeOperations": "rootRedoclyConfigSchema.env_additionalProperties.mcp.apiCalls.excludeOperations",
+      "hide": {
+        "type": "boolean",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.mcp.apiCalls.excludeOperations": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.mcp.apiCalls.excludeOperations_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.mcp.apiCalls.excludeOperations_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "file": {
+        "type": "string",
+      },
+      "method": {
+        "enum": [
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "QUERY",
+          "TRACE",
+        ],
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "file",
+      "path",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.mcp.docs": {
     "additionalProperties": undefined,
@@ -22717,6 +23070,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -25446,6 +25800,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "tags": "rootRedoclyConfigSchema.env_additionalProperties.recheck.markdoc_1.extend.tags",
       "tagsFile": {
+        "format": "uri-reference",
         "minLength": 1,
         "type": "string",
       },
@@ -27528,6 +27883,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "hide": {
         "type": "boolean",
       },
+      "mcp": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp",
       "prompt": {
         "type": "string",
         "uiHint": "textarea",
@@ -27539,6 +27895,45 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "array",
       },
       "trigger": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.trigger",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "apiCalls": "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp.apiCalls",
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.aiAssistant.mcp.apiCalls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHttpMethods": {
+        "items": {
+          "enum": [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "QUERY",
+            "TRACE",
+          ],
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "hide": {
+        "type": "boolean",
+      },
     },
     "required": undefined,
   },
@@ -30297,6 +30692,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -30316,6 +30714,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -30671,6 +31070,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -30689,12 +31089,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -30713,6 +31115,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -30899,6 +31302,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.env_additionalProperties.theme.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
   },
   "rootRedoclyConfigSchema.env_additionalProperties.theme.links": {
     "additionalProperties": undefined,
@@ -31516,6 +31946,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -35636,6 +36067,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "fieldExpandLevel": {
         "type": "number",
       },
+      "hideReplay": {
+        "type": "boolean",
+      },
       "info": "rootRedoclyConfigSchema.graphql.info",
       "jsonSamplesDepth": {
         "type": "number",
@@ -35655,6 +36089,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "samplesMaxInlineArgs": {
         "type": "number",
       },
+      "servers": "rootRedoclyConfigSchema.graphql.servers",
       "showBuiltInDirectives": {
         "type": "boolean",
       },
@@ -36010,6 +36445,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
       "license": "rootRedoclyConfigSchema.graphql.info.license",
       "termsOfService": {
+        "format": "uri",
         "type": "string",
       },
       "title": {
@@ -36028,12 +36464,14 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "items": undefined,
     "properties": {
       "email": {
+        "format": "email",
         "type": "string",
       },
       "name": {
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -36052,6 +36490,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "string",
       },
       "url": {
+        "format": "uri",
         "type": "string",
       },
     },
@@ -36238,6 +36677,33 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.graphql.servers": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.graphql.servers_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.graphql.servers_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "description": {
+        "type": "string",
+      },
+      "url": {
+        "format": "uri",
+        "pattern": "^https?://",
+        "type": "string",
+      },
+    },
+    "required": [
+      "url",
+    ],
   },
   "rootRedoclyConfigSchema.graphqlRules": {
     "additionalProperties": [Function],
@@ -36516,12 +36982,89 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "documentationLink": undefined,
     "items": undefined,
     "properties": {
+      "apiCalls": "rootRedoclyConfigSchema.mcp.apiCalls",
       "docs": "rootRedoclyConfigSchema.mcp.docs",
       "hide": {
         "type": "boolean",
       },
     },
     "required": undefined,
+  },
+  "rootRedoclyConfigSchema.mcp.apiCalls": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "allowedHttpMethods": {
+        "items": {
+          "enum": [
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "QUERY",
+            "TRACE",
+          ],
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "excludeFiles": {
+        "items": {
+          "type": "string",
+        },
+        "type": "array",
+      },
+      "excludeOperations": "rootRedoclyConfigSchema.mcp.apiCalls.excludeOperations",
+      "hide": {
+        "type": "boolean",
+      },
+    },
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.mcp.apiCalls.excludeOperations": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": "rootRedoclyConfigSchema.mcp.apiCalls.excludeOperations_items",
+    "properties": {},
+    "required": undefined,
+  },
+  "rootRedoclyConfigSchema.mcp.apiCalls.excludeOperations_items": {
+    "additionalProperties": undefined,
+    "description": undefined,
+    "documentationLink": undefined,
+    "items": undefined,
+    "properties": {
+      "file": {
+        "type": "string",
+      },
+      "method": {
+        "enum": [
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "QUERY",
+          "TRACE",
+        ],
+        "type": "string",
+      },
+      "path": {
+        "type": "string",
+      },
+    },
+    "required": [
+      "file",
+      "path",
+    ],
   },
   "rootRedoclyConfigSchema.mcp.docs": {
     "additionalProperties": undefined,
@@ -37052,6 +37595,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
         "type": "boolean",
       },
       "htmlTemplate": {
+        "format": "uri-reference",
         "type": "string",
       },
       "ignoreNamedSchemas": [Function],
@@ -39781,6 +40325,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
     "properties": {
       "tags": "rootRedoclyConfigSchema.recheck.markdoc_1.extend.tags",
       "tagsFile": {
+        "format": "uri-reference",
         "minLength": 1,
         "type": "string",
       },

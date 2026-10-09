@@ -1,0 +1,12 @@
+
+🎉 No issues found!
+
+🏃 Running recheck on: docs/pages
+
+🔧 Running 4 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <time>

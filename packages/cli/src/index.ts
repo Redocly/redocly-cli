@@ -781,6 +781,8 @@ yargs(hideBin(process.argv))
           description:
             "Product used to launch preview. Default is inferred from project's package.json or 'realm' is used.",
         },
+        // test-only, see preview-project/index.ts
+        'product-version': { type: 'string', hidden: true },
         plan: {
           type: 'string',
           choices: PRODUCT_PLANS,

@@ -1,0 +1,3 @@
+
+bundling docs/openapi.yaml using configuration for api 'main'...
+📦 Created a bundle for docs/openapi.yaml at ./tests/e2e/bundle/config-ref-relative-paths/docs/dist/openapi.yaml <test>ms.

@@ -1,0 +1,4 @@
+my-widget:
+  selfClosing: true
+  attributes:
+    id: { type: string }

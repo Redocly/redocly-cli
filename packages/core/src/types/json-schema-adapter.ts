@@ -13,8 +13,10 @@ let ajv: Ajv2020 | undefined;
 
 function getAjv(): Ajv2020 {
   if (!ajv) {
+    // no formats are registered here, so skip them instead of warning about each unknown one
     ajv = new Ajv2020({
       strictSchema: false,
+      validateFormats: false,
       allowUnionTypes: true,
       useDefaults: true,
       allErrors: true,
@@ -72,7 +74,7 @@ function transformJSONSchemaToNodeType(
     schema.type === 'integer' ||
     schema.type === 'boolean'
   ) {
-    const { default: _, format: _format, ...rest } = schema;
+    const { default: _, ...rest } = schema;
     return rest as PropType;
   }
 
