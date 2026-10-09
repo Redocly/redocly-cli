@@ -1,5 +1,16 @@
 # @redocly/client-generator
 
+## 0.5.0
+
+### Minor Changes
+
+- Added pass-through stream request bodies to the generated TypeScript, Python, Go, and PHP clients.
+  A stream body is sent as is in one attempt, and the caller's `Content-Type` wins over the one in the API description.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.61.0.
+
 ## 0.4.25
 
 ### Patch Changes
