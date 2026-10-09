@@ -27,3 +27,8 @@ __changesets__.json
 **/.claude/first-run
 **/.claude/assistant-daemon-state.json
 __pycache__/
+
+# Stress test inputs and outputs (tests/stress/run.sh)
+tests/stress/api-definitions/
+tests/stress/specs/
+tests/stress/out/
