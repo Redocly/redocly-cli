@@ -1,0 +1,65 @@
+openapi: 3.1.0
+info: { title: Cafe, version: 1.2.0 }
+servers:
+  - url: https://api.cafe.test
+security:
+  - apiKey: []
+paths:
+  /menu:
+    get:
+      summary: List the menu
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: search, in: query, schema: { type: string } }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: '#/components/schemas/MenuItem' } }
+  /menu/{id}:
+    get:
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+    delete:
+      responses:
+        '204': { description: Deleted }
+  /orders:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Order' }
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location: { schema: { type: string } }
+webhooks:
+  orderReady:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              { type: object, properties: { orderId: { type: string }, eta: { type: string } } }
+      responses:
+        '200': { description: OK }
+components:
+  securitySchemes:
+    apiKey: { type: apiKey, in: header, name: X-Key }
+  schemas:
+    MenuItem:
+      type: object
+      properties:
+        name: { type: string }
+        price: { type: number }
+        status: { type: string, enum: [available, sold-out] }
+    Order:
+      type: object
+      required: [items]
+      properties:
+        items: { type: array, items: { type: string } }
+        note: { type: string, maxLength: 200 }

@@ -1,0 +1,14 @@
+GET /menu
+  ✖ major  modified  responses/200/content/application/json/schema/properties/name · type
+      Type of `name` widened from 'string' to 'integer'. (schema-type-changed)
+      at revision/schemas/item.yaml:3:17
+  ✖ major  removed   responses/200/content/application/json/schema/properties/price
+      Property `price` was removed. (property-removed)
+      at base/schemas/item.yaml:4:10
+
+2 major, 0 minor, 0 patch.
+
+
+base/openapi.yaml vs revision/openapi.yaml: diff processed in <test>ms
+
+❌ Diff failed with 2 major changes.

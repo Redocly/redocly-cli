@@ -1,0 +1,27 @@
+openapi: 3.1.0
+info: { title: Cafe, version: 1.0.0 }
+paths:
+  /menu:
+    get:
+      summary: List the menu
+      parameters:
+        - { name: limit, in: query, schema: { type: integer } }
+      responses: { '200': { description: OK } }
+  /orders:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema: { properties: { note: { type: string, pattern: 'a' } } }
+      responses: { '201': { description: Created } }
+    delete:
+      summary: <script>alert(1)</script>
+      responses: { '204': { description: Cancelled } }
+webhooks:
+  orderReady:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema: { properties: { eta: { type: string } } }
+      responses: { '200': { description: OK } }

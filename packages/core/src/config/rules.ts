@@ -1,3 +1,4 @@
+import type { DiffRule, DiffVisitor, Impact } from '../diff/types.js';
 import type {
   Arazzo1RuleSet,
   Async2RuleSet,
@@ -72,4 +73,28 @@ export function initRules(
     )
     .flatMap((visitor) => visitor)
     .filter(isDefined);
+}
+
+export type InitializedDiffRule = {
+  impact: Impact;
+  ruleId: string;
+  visitor: DiffVisitor;
+};
+
+export function initDiffRules(
+  rules: Record<string, DiffRule>[],
+  config: Config,
+  specVersion: SpecVersion
+): InitializedDiffRule[] {
+  return rules.flatMap((ruleset) =>
+    Object.keys(ruleset).flatMap((ruleId) => {
+      const impact = config.getDiffImpact(ruleId, specVersion);
+
+      if (impact === 'off') {
+        return [];
+      }
+
+      return [{ impact, ruleId, visitor: ruleset[ruleId]() }];
+    })
+  );
 }

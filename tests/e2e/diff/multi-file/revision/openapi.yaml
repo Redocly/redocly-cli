@@ -1,0 +1,11 @@
+openapi: 3.1.0
+info: { title: Cafe, version: 1.0.0 }
+paths:
+  /menu:
+    get:
+      responses:
+        '200':
+          description: The menu
+          content:
+            application/json:
+              schema: { $ref: ./schemas/item.yaml }

@@ -80,6 +80,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "async3Decorators": {},
+  "async3Diff": {},
   "async3Preprocessors": {},
   "async3Rules": {
     "channels-kebab-case": "off",
@@ -101,6 +102,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "decorators": {},
+  "diff": {},
   "graphqlRules": {
     "no-unused-types": "warn",
     "type-description": "off",
@@ -156,6 +158,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "oas3_0Decorators": {},
+  "oas3_0Diff": {},
   "oas3_0Preprocessors": {},
   "oas3_0Rules": {
     "array-parameter-serialization": "off",
@@ -224,6 +227,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "oas3_1Decorators": {},
+  "oas3_1Diff": {},
   "oas3_1Preprocessors": {},
   "oas3_1Rules": {
     "array-parameter-serialization": "off",
@@ -289,6 +293,7 @@ exports[`resolveConfig > should ignore minimal from the root and read local file
     "tags-alphabetical": "off",
   },
   "oas3_2Decorators": {},
+  "oas3_2Diff": {},
   "oas3_2Preprocessors": {},
   "oas3_2Rules": {
     "array-parameter-serialization": "off",
@@ -535,6 +540,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "tags-alphabetical": "off",
   },
   "async3Decorators": {},
+  "async3Diff": {},
   "async3Preprocessors": {},
   "async3Rules": {
     "channels-kebab-case": "off",
@@ -556,6 +562,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "tags-alphabetical": "off",
   },
   "decorators": {},
+  "diff": {},
   "graphqlRules": {
     "no-unused-types": "warn",
     "type-description": "off",
@@ -611,6 +618,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "tags-alphabetical": "off",
   },
   "oas3_0Decorators": {},
+  "oas3_0Diff": {},
   "oas3_0Preprocessors": {},
   "oas3_0Rules": {
     "array-parameter-serialization": "off",
@@ -679,6 +687,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "tags-alphabetical": "off",
   },
   "oas3_1Decorators": {},
+  "oas3_1Diff": {},
   "oas3_1Preprocessors": {},
   "oas3_1Rules": {
     "array-parameter-serialization": "off",
@@ -744,6 +753,7 @@ exports[`resolveConfig > should resolve extends with local file config which con
     "tags-alphabetical": "off",
   },
   "oas3_2Decorators": {},
+  "oas3_2Diff": {},
   "oas3_2Preprocessors": {},
   "oas3_2Rules": {
     "array-parameter-serialization": "off",

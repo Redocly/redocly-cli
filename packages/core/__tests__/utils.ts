@@ -1,7 +1,10 @@
 import * as path from 'path';
 
 import {
+  BaseResolver,
+  type Change,
   type Document,
+  type JudgedChange,
   Source,
   type NormalizedProblem,
   parseYaml,
@@ -13,6 +16,40 @@ export function parseYamlToDocument(body: string, absoluteRef: string = ''): Doc
     source: new Source(absoluteRef, body),
     parsed: parseYaml(body, { filename: absoluteRef }),
   };
+}
+
+// A resolver that finds these files, by paths relative to the working directory, in its cache, so
+// a test that needs several files writes none to disk.
+export function resolverWithFiles(files: Record<string, string>): BaseResolver {
+  const resolver = new BaseResolver();
+  for (const [file, body] of Object.entries(files)) {
+    const absoluteRef = path.resolve(file);
+    resolver.cache.set(absoluteRef, Promise.resolve(parseYamlToDocument(body, absoluteRef)));
+  }
+  return resolver;
+}
+
+export function replaceSourceWithRefInChanges(changes: Array<Change | JudgedChange>) {
+  return changes.map(({ node: _node, ...change }) => {
+    const mapped: Record<string, unknown> = { ...change };
+
+    if ('base' in change) {
+      mapped.base = { ...change.base, location: change.base.location.absolutePointer };
+    }
+
+    if ('revision' in change) {
+      mapped.revision = { ...change.revision, location: change.revision.location.absolutePointer };
+    }
+
+    if ('verdicts' in change) {
+      mapped.verdicts = change.verdicts.map((verdict) => ({
+        ...verdict,
+        location: verdict.location.absolutePointer,
+      }));
+    }
+
+    return mapped;
+  });
 }
 
 export function replaceSourceWithRef(results: NormalizedProblem[], cwd?: string) {

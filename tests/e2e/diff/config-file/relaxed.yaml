@@ -1,0 +1,7 @@
+# Picked with --config in place of redocly.yaml: here a removed path and a parameter that became
+# required only count as minor changes.
+extends:
+  - diff-recommended
+diff:
+  path-removed: minor
+  parameter-became-required: minor
