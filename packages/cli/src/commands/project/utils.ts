@@ -3,6 +3,9 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import * as path from 'node:path';
 
+// npx and pnpm dlx run the CLI from a temporary install that is gone once they exit.
+const TEMPORARY_INSTALL_DIR = /[\\/](_npx|dlx)[\\/]/;
+
 export function buildProjectGitUrl(reuniteUrl: string, organization: string, project: string) {
   return `${reuniteUrl}/api/orgs/${encodeURIComponent(organization)}/projects/${encodeURIComponent(
     project
@@ -13,7 +16,11 @@ export function buildProjectGitUrl(reuniteUrl: string, organization: string, pro
 // for the Reunite host. The empty entry clears the helpers configured for all hosts.
 export function getCredentialHelperConfig(reuniteUrl: string, version: string): string[] {
   const key = `credential.${reuniteUrl}/.helper`;
-  const cli = isOnPath('redocly') ? 'redocly' : `npx --yes @redocly/cli@${version}`;
+  const ranFromTemporaryInstall = TEMPORARY_INSTALL_DIR.test(process.argv[1] ?? '');
+  const cli =
+    !ranFromTemporaryInstall && isOnPath('redocly')
+      ? 'redocly'
+      : `npx --yes @redocly/cli@${version}`;
 
   return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true ${cli} project git-credentials`];
 }
