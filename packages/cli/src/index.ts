@@ -1178,7 +1178,7 @@ yargs(hideBin(process.argv))
   )
   .command(
     'skills',
-    'Install the Redocly agent skills for AI coding agents.',
+    'Install the Redocly CLI agent skills for AI coding agents.',
     (yargs) =>
       yargs.options({
         agent: {

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The `skills` command installs the Redocly agent skills into your project.
+The `skills` command installs the Redocly CLI agent skills into your project.
 Agent skills teach AI coding agents, such as Claude Code, Codex, and Cursor, how to work with Redocly CLI.
 
 The skills ship inside Redocly CLI, so the command works offline.

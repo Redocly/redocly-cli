@@ -59,7 +59,7 @@ Reunite platform commands:
 
 AI agent setup commands:
 
-- [`skills`](skills.md) Install the Redocly agent skills for AI coding agents.
+- [`skills`](skills.md) Install the Redocly CLI agent skills for AI coding agents.
 
 Shell setup commands:
 
