@@ -253,12 +253,14 @@ func retryDelay(retry RetryConfig, attempt int, retryAfter string) time.Duration
 }
 
 type requestSpec struct {
-	OperationID    string
-	Method         string
-	URL            string
-	Headers        map[string]string
-	Query          url.Values
-	Body           io.Reader
+	OperationID string
+	Method      string
+	URL         string
+	Headers     map[string]string
+	Query       url.Values
+	Body        io.Reader
+	// Stream sends Body as is: no buffering, one attempt, the caller's Content-Type.
+	Stream         bool
 	ContentType    string
 	Timeout        time.Duration
 	Retry          *RetryConfig
@@ -297,7 +299,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	if spec.Body != nil {
+	if spec.Body != nil && !spec.Stream {
 		payload, err := io.ReadAll(spec.Body)
 		if err != nil {
 			return nil, err
@@ -313,6 +315,10 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		fullURL += separator + spec.Query.Encode()
 	}
 	maxAttempts := 1 + retry.Retries
+	if spec.Stream {
+		// The first attempt consumes the reader, so there is nothing to replay.
+		maxAttempts = 1
+	}
 	for attempt := 1; ; attempt++ {
 		attemptCtx := ctx
 		var cancel context.CancelFunc
@@ -320,7 +326,10 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 			attemptCtx, cancel = context.WithTimeout(ctx, timeout)
 		}
 		var bodyReader io.Reader
-		if spec.bodyBytes != nil {
+		switch {
+		case spec.Stream:
+			bodyReader = spec.Body
+		case spec.bodyBytes != nil:
 			bodyReader = bytes.NewReader(spec.bodyBytes)
 		}
 		req, err := http.NewRequestWithContext(attemptCtx, method, fullURL, bodyReader)
@@ -333,7 +342,7 @@ func send(ctx context.Context, config *Config, spec requestSpec) (*http.Response
 		for key, value := range headers {
 			req.Header.Set(key, value)
 		}
-		if spec.ContentType != "" && spec.bodyBytes != nil {
+		if spec.ContentType != "" && bodyReader != nil && req.Header.Get("Content-Type") == "" {
 			req.Header.Set("Content-Type", spec.ContentType)
 		}
 		for _, mw := range config.Middleware {
@@ -856,4 +865,39 @@ func toMultipart(body any) (string, io.Reader, error) {
 		return "", nil, err
 	}
 	return writer.FormDataContentType(), buffer, nil
+}
+
+// multipartBody prepares the body of an untyped multipart operation: an io.Reader is
+// streamed and a []byte or string sent as is, all under the caller's Content-Type (the
+// boundary is theirs to set); any other value goes through toMultipart.
+func multipartBody(body any) (string, io.Reader, bool, error) {
+	if reader, stream, raw := rawBody(body); raw {
+		return "", reader, stream, nil
+	}
+	contentType, reader, err := toMultipart(body)
+	return contentType, reader, false, err
+}
+
+// binaryBody prepares the body of a binary operation: an io.Reader is streamed, a
+// []byte or string sent as is, and any other value JSON-marshalled.
+func binaryBody(body any) (io.Reader, bool, error) {
+	if reader, stream, raw := rawBody(body); raw {
+		return reader, stream, nil
+	}
+	payload, err := json.Marshal(body)
+	return bytes.NewReader(payload), false, err
+}
+
+// rawBody recognizes a body that needs no encoding: an io.Reader streams through in one
+// attempt, a []byte or a string is replayable bytes.
+func rawBody(body any) (io.Reader, bool, bool) {
+	switch typed := body.(type) {
+	case io.Reader:
+		return typed, true, true
+	case []byte:
+		return bytes.NewReader(typed), false, true
+	case string:
+		return strings.NewReader(typed), false, true
+	}
+	return nil, false, false
 }

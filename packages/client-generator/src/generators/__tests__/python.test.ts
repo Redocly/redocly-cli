@@ -30,6 +30,13 @@ function expectCompiles(source: string): void {
 }
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
+
+/** The generated method that starts with `head`, up to the blank line after it. */
+function methodText(out: string, head: string): string {
+  const start = out.indexOf(head);
+  expect(start, head).toBeGreaterThan(-1);
+  return out.slice(start, out.indexOf('\n\n', start));
+}
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
 
 function model(schemas: Record<string, SchemaModel>): ApiModel {
@@ -476,6 +483,73 @@ describe('python auth keys', () => {
   });
 });
 
+describe('python stream bodies', () => {
+  const operation = (name: string, contentType: string, schema: SchemaModel) => ({
+    name,
+    specName: name,
+    method: 'post',
+    path: `/${name}`,
+    tags: [],
+    pathParams: [],
+    queryParams: [],
+    headerParams: [],
+    cookieParams: [],
+    security: [],
+    requestBody: { contentType, schema },
+    successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
+    errorResponses: [],
+  });
+  const UPLOADS = {
+    title: 'Cafe',
+    version: '1.0.0',
+    services: [
+      {
+        name: 'default',
+        operations: [
+          operation('upload', 'multipart/form-data', {
+            kind: 'record',
+            value: { kind: 'unknown' },
+          }),
+          operation('uploadBlob', 'application/octet-stream', STRING),
+        ],
+      },
+    ],
+    schemas: [],
+    securitySchemes: [],
+  } as unknown as ApiModel;
+
+  it('routes an untyped multipart body through multipart_arguments and a binary body to content=', () => {
+    const out = pythonGenerator({
+      model: UPLOADS,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(methodText(out, '    def upload(')).toMatchInlineSnapshot(`
+      "    def upload(self, body: Any, *, headers: Optional[Dict[str, str]] = None, timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, idempotency_key: Any = None) -> None:
+              op = _OPERATIONS["upload"]
+              auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)
+              params: Dict[str, Any] = dict(auth_query)
+              url = build_url(self._server_url, op["path"], {})
+              response = send(self._http, self._config, op, url, method=op["method"], headers={**auth_headers, **(headers or {})}, params=params, **multipart_arguments(body), timeout=timeout, retry=retry, idempotency_key=idempotency_key)
+              if not response.is_success:
+                  raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))
+              return None"
+    `);
+    expect(methodText(out, '    def upload_blob(')).toMatchInlineSnapshot(`
+      "    def upload_blob(self, body: Any, *, headers: Optional[Dict[str, str]] = None, timeout: Optional[float] = None, retry: Optional[Dict[str, Any]] = None, idempotency_key: Any = None) -> None:
+              op = _OPERATIONS["upload_blob"]
+              auth_headers, auth_query = resolve_auth(op.get("security") or [], self._auth)
+              params: Dict[str, Any] = dict(auth_query)
+              url = build_url(self._server_url, op["path"], {})
+              response = send(self._http, self._config, op, url, method=op["method"], headers={**auth_headers, **(headers or {})}, params=params, content=body, content_type="application/octet-stream", timeout=timeout, retry=retry, idempotency_key=idempotency_key)
+              if not response.is_success:
+                  raise ApiError(url, response.status_code, response.reason_phrase, _safe_json(response))
+              return None"
+    `);
+  });
+});
+
 describe('python output path', () => {
   const pathFor = (outputPath: string) =>
     pythonGenerator({ model: CAFE, outputPath, outputMode: 'single', emit: {} })[0].path;
@@ -613,7 +687,7 @@ describe('pythonGenerator parity features', () => {
     expect(out).toContain('-> AsyncIterator[ServerSentEvent]:');
     expect(out).toContain('aiter_sse(');
     expect(out).toContain('form_data, form_files = to_multipart(body)');
-    expect(out).toContain('data=form_data, files=form_files');
+    expect(out).not.toContain('**multipart_arguments(body)');
     expectCompiles(out);
   });
 

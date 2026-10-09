@@ -44,6 +44,13 @@ function expectModelsRun(models: string): void {
 }
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
+
+/** The generated method that starts with `head`, up to the blank line after it. */
+function methodText(out: string, head: string): string {
+  const start = out.indexOf(head);
+  expect(start, head).toBeGreaterThan(-1);
+  return out.slice(start, out.indexOf('\n\n', start));
+}
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
 
 function model(schemas: Record<string, SchemaModel>): ApiModel {
@@ -867,6 +874,87 @@ describe('phpGenerator (full client assembly)', () => {
       "public static function sandboxServer(string $organizationId = 'unknown'): string"
     );
     expect(out).toContain("return 'https://api.cafe.example/organizations/' . $organizationId;");
+    expectPhpRuns(out);
+  });
+});
+
+describe('php stream bodies', () => {
+  const operation = (name: string, contentType: string, schema: SchemaModel) => ({
+    name,
+    specName: name,
+    method: 'post',
+    path: `/${name}`,
+    tags: [],
+    pathParams: [],
+    queryParams: [],
+    headerParams: [],
+    cookieParams: [],
+    security: [],
+    requestBody: { contentType, schema },
+    successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
+    errorResponses: [],
+  });
+  const UPLOADS = {
+    title: 'Cafe',
+    version: '1.0.0',
+    services: [
+      {
+        name: 'default',
+        operations: [
+          operation('upload', 'multipart/form-data', {
+            kind: 'record',
+            value: { kind: 'unknown' },
+          }),
+          operation('uploadBlob', 'application/octet-stream', STRING),
+        ],
+      },
+    ],
+    schemas: [],
+    securitySchemes: [],
+  } as unknown as ApiModel;
+
+  it('takes a `mixed` body that multipartBody or binaryBody sorts out', () => {
+    const out = phpGenerator({
+      model: UPLOADS,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(methodText(out, '    public function upload(')).toMatchInlineSnapshot(`
+      "    public function upload(mixed $body, ?array $headers = null, ?string $idempotencyKey = null): void
+          {
+              $op = self::OPERATIONS['upload'];
+              [$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);
+              $url = buildUrl($this->config->serverUrl, $op['path'], []);
+              $requestHeaders = array_merge($authHeaders, $headers ?? []);
+              if ($cookies !== []) {
+                  $requestHeaders['Cookie'] = implode('; ', $cookies);
+              }
+              [$contentType, $encoded] = multipartBody($body);
+              $response = send($this->config, ['operationId' => $op['id'], 'method' => $op['method'], 'url' => $url, 'headers' => $requestHeaders, 'query' => $query, 'body' => $encoded, 'contentType' => $contentType, 'idempotencyKey' => $idempotencyKey]);
+              if ($response['status'] >= 400) {
+                  throw apiErrorFrom($response);
+              }
+              decodeJson($response);
+          }"
+    `);
+    expect(methodText(out, '    public function uploadBlob(')).toMatchInlineSnapshot(`
+      "    public function uploadBlob(mixed $body, ?array $headers = null, ?string $idempotencyKey = null): void
+          {
+              $op = self::OPERATIONS['uploadBlob'];
+              [$authHeaders, $query, $cookies] = resolveAuth($op['security'] ?? [], $this->config->auth);
+              $url = buildUrl($this->config->serverUrl, $op['path'], []);
+              $requestHeaders = array_merge($authHeaders, $headers ?? []);
+              if ($cookies !== []) {
+                  $requestHeaders['Cookie'] = implode('; ', $cookies);
+              }
+              $response = send($this->config, ['operationId' => $op['id'], 'method' => $op['method'], 'url' => $url, 'headers' => $requestHeaders, 'query' => $query, 'body' => binaryBody($body), 'contentType' => 'application/octet-stream', 'idempotencyKey' => $idempotencyKey]);
+              if ($response['status'] >= 400) {
+                  throw apiErrorFrom($response);
+              }
+              decodeJson($response);
+          }"
+    `);
     expectPhpRuns(out);
   });
 });

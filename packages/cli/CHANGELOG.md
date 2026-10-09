@@ -1,5 +1,21 @@
 # @redocly/cli
 
+## 2.61.0
+
+### Minor Changes
+
+- Added pass-through stream request bodies to the generated TypeScript, Python, Go, and PHP clients.
+  A stream body is sent as is in one attempt, and the caller's `Content-Type` wins over the one in the API description.
+
+### Patch Changes
+
+- Added a deprecation warning for Node.js 20.x.
+  Update to Node.js 22.12.0 or higher.
+- Updated `@modelcontextprotocol/sdk` to `1.32.1` to resolve `GHSA-6qxp-vccf-f47h`.
+- Updated @redocly/client-generator to v0.5.0.
+- Updated @redocly/openapi-core to v2.61.0.
+- Updated @redocly/reunite-integration to v2.61.0.
+
 ## 2.60.0
 
 ### Minor Changes
