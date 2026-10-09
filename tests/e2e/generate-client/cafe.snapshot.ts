@@ -826,7 +826,7 @@ export type SecuritySpec =
 
 /**
  * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
- * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
+ * `nextCursor`, `nextLink`, and `items` are RFC 6901 JSON pointers into the page (response) value.
  */
 export type PaginationSpec =
   | {
@@ -852,10 +852,13 @@ export type PaginationSpec =
       items: string;
     }
   | {
-      /** RFC 8288: follow the response's `Link` header `rel="next"`; stop when absent. */
+      /** Follow the next page's URL — the `Link` header `rel="next"` (RFC 8288), or the
+       * `nextLink` pointer's value when set; stop when absent. */
       style: 'link';
       /** Optional page-size query param (recorded for tooling; never set by the runtime). */
       limitParam?: string;
+      /** Optional pointer to the next page's URL in the page, read instead of the `Link` header. */
+      nextLink?: string;
       /** Pointer to the page's item array. */
       items: string;
     };
@@ -1782,6 +1785,7 @@ type Capabilities = SendCapabilities & {
         args?: OperationArgs,
         init?: RequestOptions
       ) => Promise<{ page: unknown; linkHeader: string | null; url: string }>,
+      spec: PaginationSpec,
       args?: OperationArgs,
       init?: RequestOptions
     ) => AsyncGenerator<unknown>;
@@ -2234,6 +2238,7 @@ function createClientCore<
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(
                     linkPageCall(config, op, caps),
+                    spec,
                     inputOf(op, args ?? {}, config),
                     init
                   ),

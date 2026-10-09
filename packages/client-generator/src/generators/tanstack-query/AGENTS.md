@@ -18,8 +18,11 @@ query keys. One generator, four framework variants (`react` default, `-vue`,
 - **Options factories, not hooks:** consumers call `useQuery(<op>Options(...))`, so the
   output works with any of the framework adapters and stays testable.
 - **`queryKeyPrefix`** namespaces every key when several clients share a cache.
-- **Infinite queries** derive `getNextPageParam` from the resolved pagination rule; a
-  `link`-style rule reads the `Link` header the descriptor declares.
+- **Infinite queries** derive `getNextPageParam` from the resolved pagination rule. A
+  `link`-style rule gets one only when its next page's URL is in the body (`nextLink`)
+  and the operation has a query parameter: the URL is the page param, and each later
+  page merges the URL's query parameters over `vars`. A `Link` header is invisible to a
+  `queryFn`, so header-link operations get only the sdk's `.pages()`/`.items()`.
 - **`envelope` is excluded and stripped** — cached data is the plain body.
 - Requires `typescript`; throw-mode only (it wraps thrown errors into query errors).
 

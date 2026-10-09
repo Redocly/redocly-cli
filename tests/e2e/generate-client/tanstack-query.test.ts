@@ -12,6 +12,29 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // `import { queryOptions } from "@tanstack/react-query"` from the temp dir.
 const tanstackPath = join(repoRoot, 'node_modules/@tanstack/react-query');
 
+/** Strict-tsc a temp project: the emitted modules against REAL @tanstack/react-query. */
+function strictTsc(dir: string) {
+  writeFileSync(
+    join(dir, 'tsconfig.json'),
+    JSON.stringify({
+      compilerOptions: {
+        module: 'nodenext',
+        moduleResolution: 'nodenext',
+        target: 'es2022',
+        lib: ['ES2022', 'DOM'],
+        strict: true,
+        noEmit: true,
+        skipLibCheck: true,
+        types: [],
+        paths: { '@tanstack/react-query': [tanstackPath] },
+      },
+      include: ['client.ts', 'client.tanstack.ts', 'check.ts'],
+    }),
+    'utf-8'
+  );
+  return spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
+}
+
 describe('generate-client tanstack-query generator', () => {
   it('emits a *.tanstack.ts module that strict-tsc-checks against real @tanstack/react-query and composes with the sdk', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-'));
@@ -67,26 +90,41 @@ describe('generate-client tanstack-query generator', () => {
 
     // strict-tsc the whole temp project: the emitted tanstack module against
     // REAL @tanstack/react-query, plus the useQuery/useMutation composition.
+    const tsc = strictTsc(dir);
+    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('emits InfiniteOptions for a body-link operation that strict-tsc-checks with useInfiniteQuery', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-link-'));
+    generate(join(__dirname, 'fixtures', 'pagination.yaml'), join(dir, 'client.ts'), [
+      '--generator',
+      'typescript',
+      '--generator',
+      'tanstack-query',
+    ]);
+    expect(readFileSync(join(dir, 'client.tanstack.ts'), 'utf-8')).toContain(
+      'export const listReceiptsInfiniteOptions'
+    );
+
     writeFileSync(
-      join(dir, 'tsconfig.json'),
-      JSON.stringify({
-        compilerOptions: {
-          module: 'nodenext',
-          moduleResolution: 'nodenext',
-          target: 'es2022',
-          lib: ['ES2022', 'DOM'],
-          strict: true,
-          noEmit: true,
-          skipLibCheck: true,
-          types: [],
-          paths: { '@tanstack/react-query': [tanstackPath] },
-        },
-        include: ['client.ts', 'client.tanstack.ts', 'check.ts'],
-      }),
+      join(dir, 'check.ts'),
+      [
+        "import { useInfiniteQuery } from '@tanstack/react-query';",
+        "import { listReceiptsInfiniteOptions } from './client.tanstack.js';",
+        "import type { Order } from './client.js';",
+        'export function useReceipts() {',
+        '  const query = useInfiniteQuery(listReceiptsInfiniteOptions({ query: { limit: 2 } }));',
+        '  const receipts: Order[] | undefined = query.data?.pages.flatMap((page) => page.receipts);',
+        '  return receipts;',
+        '}',
+        '',
+      ].join('\n'),
       'utf-8'
     );
 
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
+    const tsc = strictTsc(dir);
     expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
 
     rmSync(dir, { recursive: true, force: true });

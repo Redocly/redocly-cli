@@ -481,6 +481,7 @@ type PaginationSpec struct {
 	Param      string
 	NextCursor string
 	HasMore    string
+	NextLink   string
 	LimitParam string
 	Items      string
 }
@@ -583,7 +584,18 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 				if !yield(page, nil) {
 					return
 				}
-				target := linkNext(resp.Header.Get("Link"))
+				var target string
+				if spec.NextLink == "" {
+					target = linkNext(resp.Header.Get("Link"))
+				} else {
+					value := resolvePointer(page, spec.NextLink)
+					link, isString := value.(string)
+					if value != nil && !isString {
+						yield(nil, fmt.Errorf("pagination link at %s is not a string", spec.NextLink))
+						return
+					}
+					target = link
+				}
 				if target == "" {
 					return
 				}
@@ -608,9 +620,7 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 				previous = next
 				params = cloneValues(base)
 				for key, values := range targetURL.Query() {
-					for _, value := range values {
-						params.Add(key, value)
-					}
+					params[key] = values
 				}
 			}
 		default: // offset / page

@@ -6,9 +6,10 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 // Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
-// (cursor style — three pages, resume, abort) generated with NO config, the
-// config-convention arm (offset style, applied only where it structurally fits), and a
-// package-mode arm proving `.pages()`/`.items()` ship from the installed runtime.
+// (cursor style — three pages, resume, abort; link style with the next page's URL in the
+// body) generated with NO config, the config-convention arm (offset style, applied only
+// where it structurally fits), and a package-mode arm proving `.pages()`/`.items()` ship
+// from the installed runtime.
 // Pagination has no CLI flag, so config-carrying runs use the BUILT package's
 // programmatic `generateClient`.
 
@@ -103,8 +104,13 @@ describe('generate-client pagination consumer', () => {
     );
     // …and the exported name is the client method itself, so `.pages`/`.items` ride along
     // with the same input shape as the call. No wrapper, no second argument shape.
-    expect(api).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
+    expect(api).toContain(
+      'export const { listOrders, listMenuItems, getOrder, listReceipts } = client;'
+    );
     expect(api).not.toContain('export const listOrders = Object.assign');
+    expect(api).toContain(
+      'pagination: { style: "link", limitParam: "limit", nextLink: "/next", items: "/receipts" }'
+    );
     // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).
     expect(api).toContain('// ─── Embedded runtime');
     expect(api).toContain('Pagination did not advance');
@@ -115,7 +121,9 @@ describe('generate-client pagination consumer', () => {
       'listMenuItems: { id: "listMenuItems", method: "GET", path: "/menu", params: [{ name: "offset", in: "query" }, { name: "limit", in: "query" }], pagination: { style: "offset", param: "offset", limitParam: "limit", items: "/items" } }'
     );
     expect(offset).toContain('item: MenuItem;');
-    expect(offset).toContain('export const { listOrders, listMenuItems, getOrder } = client;');
+    expect(offset).toContain(
+      'export const { listOrders, listMenuItems, getOrder, listReceipts } = client;'
+    );
     // …precedence keeps the extension's cursor rule on listOrders (not the convention)…
     expect(offset).toContain(
       'pagination: { style: "cursor", param: "cursor", limitParam: "limit", nextCursor: "/nextCursor", items: "/orders" }'
@@ -198,6 +206,21 @@ describe('generate-client pagination consumer', () => {
       '/menu?limit=2&offset=2',
       '/menu?limit=2&offset=4',
       '/menu?limit=2&offset=5',
+    ]);
+  }, 60_000);
+
+  test('link (extension arm, nextLink): follows the URL in the body until it is null', async () => {
+    await resetLog();
+    const { stdout } = runConsumer('index-link.ts');
+    const parsed = JSON.parse(stdout.trim()) as { ids: string[] };
+    expect(parsed.ids).toEqual(['o-1', 'o-2', 'o-3', 'o-4', 'o-5']);
+
+    // The body's `next` query replaces the caller's values key by key: `limit` once, never twice.
+    const log = await fetchLog();
+    expect(log.map((e) => e.url)).toEqual([
+      '/receipts?limit=2',
+      '/receipts?limit=2&after=2',
+      '/receipts?limit=2&after=4',
     ]);
   }, 60_000);
 

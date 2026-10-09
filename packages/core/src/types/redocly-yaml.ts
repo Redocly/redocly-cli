@@ -410,6 +410,7 @@ const ClientPaginationRule: NodeType = {
     nextCursor: { type: 'string' },
     hasMore: { type: 'string' },
     offsetParam: { type: 'string' },
+    nextLink: { type: 'string' },
     limitParam: { type: 'string' },
     items: { type: 'string' },
   },

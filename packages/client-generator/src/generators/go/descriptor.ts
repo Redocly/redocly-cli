@@ -30,6 +30,7 @@ export function goPaginationLiteral(rule: NeutralPaginationRule): string {
     ...(rule.param !== undefined ? [`Param: ${naming.string(rule.param)}`] : []),
     ...(rule.nextCursor !== undefined ? [`NextCursor: ${naming.string(rule.nextCursor)}`] : []),
     ...(rule.hasMore !== undefined ? [`HasMore: ${naming.string(rule.hasMore)}`] : []),
+    ...(rule.nextLink !== undefined ? [`NextLink: ${naming.string(rule.nextLink)}`] : []),
     ...(rule.limitParam !== undefined ? [`LimitParam: ${naming.string(rule.limitParam)}`] : []),
     ...(rule.items !== undefined ? [`Items: ${naming.string(rule.items)}`] : []),
   ];
