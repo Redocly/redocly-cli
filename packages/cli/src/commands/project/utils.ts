@@ -9,13 +9,13 @@ export function buildProjectGitUrl(reuniteUrl: string, organization: string, pro
   )}/git`;
 }
 
-// Git config entries that make `redocly project credential` the only credential helper
+// Git config entries that make `redocly project git-credentials` the only credential helper
 // for the Reunite host. The empty entry clears the helpers configured for all hosts.
 export function getCredentialHelperConfig(reuniteUrl: string, version: string): string[] {
   const key = `credential.${reuniteUrl}/.helper`;
   const cli = isOnPath('redocly') ? 'redocly' : `npx --yes @redocly/cli@${version}`;
 
-  return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true ${cli} project credential`];
+  return [`${key}=`, `${key}=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true ${cli} project git-credentials`];
 }
 
 export async function runGit(args: string[]): Promise<number> {

@@ -748,7 +748,7 @@ yargs(hideBin(process.argv))
         }
       )
       .command(
-        'credential <operation>',
+        'git-credentials <operation>',
         false,
         (yargs) =>
           yargs.positional('operation', {
@@ -757,9 +757,10 @@ yargs(hideBin(process.argv))
             demandOption: true,
           }),
         async (argv) => {
-          const { handleProjectCredential } = await import('./commands/project/credential.js');
+          const { handleProjectGitCredentials } =
+            await import('./commands/project/git-credentials.js');
           process.stdout.write(
-            await handleProjectCredential({
+            await handleProjectGitCredentials({
               operation: argv.operation,
               input: process.stdin,
               version,
