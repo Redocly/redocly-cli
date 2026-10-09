@@ -30,6 +30,12 @@ export function isMultipartBody(op: OperationModel): boolean {
   return op.requestBody?.contentType.toLowerCase().includes('multipart') ?? false;
 }
 
+/** Whether the request body is multipart with a schema that is neither an object nor a `$ref`. */
+export function isUntypedMultipartBody(op: OperationModel): boolean {
+  const kind = op.requestBody?.schema.kind;
+  return isMultipartBody(op) && kind !== 'object' && kind !== 'ref';
+}
+
 // Media types, or families ending in `/` or `-`, whose bodies are bytes rather than text or
 // JSON. The same list @redocly/respect-core applies when it reads a response.
 const BINARY_CONTENT_TYPE_PREFIXES = [

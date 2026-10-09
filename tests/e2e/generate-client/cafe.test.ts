@@ -186,7 +186,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(generated).toContain(
       'export type CreateOrderBody = Omit<Order, "id" | "object" | "status" | "totalPrice" | "createdAt" | "updatedAt">;'
     );
-    expect(generated).toContain('export type CreateMenuItemBody = FormData;');
+    expect(generated).toContain('export type CreateMenuItemBody = FormData | ReadableStream;');
   });
 
   // Named string enums get a runtime const-object companion by default, which the

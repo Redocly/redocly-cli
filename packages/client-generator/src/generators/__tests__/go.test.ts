@@ -52,6 +52,13 @@ function expectGoCompiles(source: string): void {
 }
 
 const STRING: SchemaModel = { kind: 'scalar', scalar: 'string' };
+
+/** The generated method that starts with `head`, up to the blank line after it. */
+function methodText(out: string, head: string): string {
+  const start = out.indexOf(head);
+  expect(start, head).toBeGreaterThan(-1);
+  return out.slice(start, out.indexOf('\n\n', start));
+}
 const INT: SchemaModel = { kind: 'scalar', scalar: 'integer' };
 
 function model(schemas: Record<string, SchemaModel>): ApiModel {
@@ -643,5 +650,89 @@ describe('goGenerator parity features', () => {
     // Go has no default arguments; the spec default lives in the doc comment.
     expect(out).toContain('organizationId default: "unknown"');
     expectGoCompiles(out);
+  });
+});
+
+describe('go stream bodies', () => {
+  const operation = (name: string, contentType: string, schema: SchemaModel) => ({
+    name,
+    specName: name,
+    method: 'post',
+    path: `/${name}`,
+    tags: [],
+    pathParams: [],
+    queryParams: [],
+    headerParams: [],
+    cookieParams: [],
+    security: [],
+    requestBody: { contentType, schema },
+    successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
+    errorResponses: [],
+  });
+  const UPLOADS = {
+    title: 'Cafe',
+    version: '1.0.0',
+    services: [
+      {
+        name: 'default',
+        operations: [
+          operation('upload', 'multipart/form-data', {
+            kind: 'record',
+            value: { kind: 'unknown' },
+          }),
+          operation('uploadBlob', 'application/octet-stream', STRING),
+        ],
+      },
+    ],
+    schemas: [],
+    securitySchemes: [],
+  } as unknown as ApiModel;
+
+  it('takes an `any` body that multipartBody or binaryBody sorts out', () => {
+    const out = goGenerator({
+      model: UPLOADS,
+      outputPath: '/out/client.ts',
+      outputMode: 'single',
+      emit: {},
+    })[0].content;
+    expect(methodText(out, 'func (c *Client) Upload(')).toMatchInlineSnapshot(`
+      "func (c *Client) Upload(ctx context.Context, body any) error {
+      	op := operations["upload"]
+      	authHeaders, query := resolveAuth(op.Security, c.config.Auth)
+      	requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{})
+      	contentType, reader, stream, err := multipartBody(body)
+      	if err != nil {
+      		return err
+      	}
+      	resp, err := send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: authHeaders, Query: query, Body: reader, Stream: stream, ContentType: contentType})
+      	if err != nil {
+      		return err
+      	}
+      	if resp.StatusCode >= 400 {
+      		return apiErrorFrom(resp, requestURL)
+      	}
+      	return decodeJSON(resp, nil)
+      }"
+    `);
+    expect(methodText(out, 'func (c *Client) UploadBlob(')).toMatchInlineSnapshot(`
+      "func (c *Client) UploadBlob(ctx context.Context, body any) error {
+      	op := operations["uploadBlob"]
+      	authHeaders, query := resolveAuth(op.Security, c.config.Auth)
+      	requestURL := buildURL(c.config.ServerURL, op.Path, map[string]string{})
+      	reader, stream, err := binaryBody(body)
+      	if err != nil {
+      		return err
+      	}
+      	resp, err := send(ctx, &c.config, requestSpec{OperationID: op.ID, Method: op.Method, URL: requestURL, Headers: authHeaders, Query: query, Body: reader, Stream: stream, ContentType: "application/octet-stream"})
+      	if err != nil {
+      		return err
+      	}
+      	if resp.StatusCode >= 400 {
+      		return apiErrorFrom(resp, requestURL)
+      	}
+      	return decodeJSON(resp, nil)
+      }"
+    `);
+    expectGofmtClean(out);
   });
 });

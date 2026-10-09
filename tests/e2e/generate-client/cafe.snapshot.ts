@@ -471,7 +471,7 @@ export type ListMenuItemsVariables = {
 
 export type CreateMenuItemResult = MenuItem;
 
-export type CreateMenuItemBody = FormData;
+export type CreateMenuItemBody = FormData | ReadableStream;
 
 export type CreateMenuItemVariables = {
     body: CreateMenuItemBody;
@@ -1559,7 +1559,8 @@ function middlewareChain(config: ClientConfig): Middleware[] {
 /**
  * The fetch core shared by every operation: default + config + per-call headers, the
  * `onRequest` chain (BEFORE body serialization, so mutations are sent), body
- * serialization (JSON, or FormData via the multipart capability), the retry loop
+ * serialization (JSON, or FormData via the multipart capability; a stream passes
+ * through in one attempt), the retry loop
  * (idempotent-only defaults, `Retry-After`, abandoned-body drain), and the reverse
  * `onResponse` onion. Returns the final response plus the request context.
  */
@@ -1621,6 +1622,7 @@ async function send(
   for (const mw of middleware) if (mw.onRequest) await mw.onRequest(context);
   // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
   let payload: BodyInit | undefined;
+  let isStream = false;
   if (context.body !== undefined) {
     const value = context.body;
     const isBinary =
@@ -1629,8 +1631,26 @@ async function send(
       ArrayBuffer.isView(value as ArrayBufferView);
     const isFormData = typeof FormData !== 'undefined' && value instanceof FormData;
     const isURLSearchParams = value instanceof URLSearchParams;
-    if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
+    isStream =
+      (typeof ReadableStream !== 'undefined' && value instanceof ReadableStream) ||
+      (value !== null &&
+        typeof (value as Partial<AsyncIterable<unknown>>)[Symbol.asyncIterator] === 'function');
+    const hasContentType = 'Content-Type' in context.headers || 'content-type' in context.headers;
+    if (isFormData || isURLSearchParams || isBinary || isStream || typeof value === 'string') {
       payload = value as BodyInit;
+      // `fetch` derives the type of FormData and URLSearchParams, boundary included, and a
+      // multipart boundary is only the caller's to set. Any other pass-through body gets
+      // the declared type when the caller set none.
+      const declared = bodySpec?.contentType;
+      if (
+        !isFormData &&
+        !isURLSearchParams &&
+        !hasContentType &&
+        declared !== undefined &&
+        !declared.toLowerCase().includes('multipart')
+      ) {
+        context.headers['Content-Type'] = declared;
+      }
     } else if (bodySpec?.multipart === true) {
       if (!caps.serializeMultipart) {
         throw new Error('Multipart capability not wired: cannot serialize the request body');
@@ -1638,14 +1658,15 @@ async function send(
       payload = caps.serializeMultipart(value as Record<string, unknown>);
     } else {
       payload = JSON.stringify(value);
-      if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
+      if (!hasContentType) {
         // The spec's declared request content type (e.g. application/merge-patch+json).
         context.headers['Content-Type'] = bodySpec?.contentType ?? 'application/json';
       }
     }
   }
   const doFetch = config.fetch ?? fetch;
-  const maxAttempts = 1 + (retry.retries ?? 0);
+  // A stream is consumed by the first attempt and cannot be replayed, so it never retries.
+  const maxAttempts = isStream ? 1 : 1 + (retry.retries ?? 0);
   const retryOn = retry.retryOn ?? defaultRetryOn;
   const signal = fetchInit.signal ?? undefined;
 
@@ -1664,6 +1685,8 @@ async function send(
     try {
       response = await doFetch(context.url, {
         ...fetchInit,
+        // `fetch` requires it for a stream body.
+        ...(isStream ? { duplex: 'half' } : {}),
         signal: attemptSignal,
         method: context.method,
         headers: context.headers,
