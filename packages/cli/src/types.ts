@@ -12,6 +12,7 @@ import type { JoinArgv } from './commands/join/types.js';
 import type { LintArgv } from './commands/lint.js';
 import type { LoginArgv } from './commands/login.js';
 import type { PreviewProjectArgv } from './commands/preview-project/types.js';
+import type { ProjectCloneArgv } from './commands/project/index.js';
 import type { ProxyArgv } from './commands/proxy/index.js';
 import type { PushStatusArgv } from './commands/push-status.js';
 import type { PushArgv } from './commands/push.js';
@@ -58,6 +59,7 @@ export type CommandArgv = (
   | RecheckArgv
   | ScorecardClassicArgv
   | SkillsArgv
+  | ProjectCloneArgv
 ) &
   VerifyConfigOptions;
 
