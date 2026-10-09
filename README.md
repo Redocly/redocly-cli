@@ -64,7 +64,8 @@ redocly skills
 ```
 
 The command detects Claude Code, Codex, Cursor, GitHub Copilot, and other agents.
-Without Redocly CLI, use `npx skills add https://redocly.com`.
+It installs only the skills for Redocly CLI.
+To install every skill that Redocly publishes, use `npx skills add https://redocly.com`.
 
 - `redocly-cli` — day-to-day usage: lint, bundle, decorate, build docs, test, and generate a client.
 - `redocly-lint-rules` — turn a check written in plain language into a built-in rule, a configurable rule, or a custom plugin.

@@ -8,7 +8,7 @@ Agent skills teach AI coding agents, such as Claude Code, Codex, and Cursor, how
 The skills ship inside Redocly CLI, so the command works offline.
 The installed skills always match your installed version of Redocly CLI.
 
-The command installs these skills:
+The command installs only the skills for Redocly CLI:
 
 - `redocly-cli`: day-to-day usage, such as lint, bundle, build docs, test, and generate a client.
 - `redocly-lint-rules`: turn a check written in plain language into a built-in rule, a configurable rule, or a custom plugin.
@@ -68,9 +68,11 @@ The command replaces the skill files that changed and reports each file as `crea
 The command manages its own skill files, so it overwrites changes you make to them.
 It does not touch other skills in the same folders.
 
-## Install without Redocly CLI
+## Install all Redocly skills
 
-If you do not use Redocly CLI, install the same skills with the [`skills`](https://github.com/vercel-labs/skills) installer:
+Redocly publishes all of its agent skills at `redocly.com`, including the skills for Redocly CLI.
+The `skills` command installs only the skills for Redocly CLI.
+To install every published skill, use the [`skills`](https://github.com/vercel-labs/skills) installer:
 
 ```bash
 npx skills add https://redocly.com
