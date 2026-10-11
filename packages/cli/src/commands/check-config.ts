@@ -7,13 +7,11 @@ import {
   loadConfig,
   logger,
   pluralize,
-  stringifyYaml,
   type Config,
   type Exact,
   type Plugin,
 } from '@redocly/openapi-core';
 import { green } from 'colorette';
-import { writeFileSync } from 'node:fs';
 import type { Arguments } from 'yargs';
 
 import type { CommandArgv, Totals } from '../types.js';
@@ -34,11 +32,6 @@ export async function loadAndCheckConfig(
     });
   } catch (error) {
     throw new HandledError(`Failed to load the configuration file:\n\n  - ${error.message}`);
-  }
-
-  // debug-only: REDOCLY_DEBUG_RESOLVED_CONFIG=<file> writes the resolved config to that file
-  if (process.env.REDOCLY_DEBUG_RESOLVED_CONFIG) {
-    writeFileSync(process.env.REDOCLY_DEBUG_RESOLVED_CONFIG, stringifyYaml(config.resolvedConfig));
   }
 
   if (argv['lint-config'] === 'off' || config.document === undefined) {

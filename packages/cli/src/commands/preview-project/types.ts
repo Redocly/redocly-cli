@@ -5,7 +5,6 @@ export type ProductPlan = (typeof PRODUCT_PLANS)[number];
 
 export type PreviewProjectArgv = {
   product?: Product | string;
-  'product-version'?: string;
   plan: ProductPlan | string;
   port?: number;
   'project-dir': string;
