@@ -2708,6 +2708,16 @@ describe('loadConfig', () => {
     });
   });
 
+  it('should load plugins from a referenced config file relative to that file', async () => {
+    const config = await loadConfig({
+      configPath: path.join(__dirname, './fixtures/resolve-refs-in-config/plugins/redocly.yaml'),
+    });
+
+    const ids = config.plugins.map((plugin) => plugin.id);
+    expect(ids).toContain('nested-plugin');
+    expect(ids).not.toContain('root-plugin');
+  });
+
   it('should resolve file paths written in a remote config file against its URL', async () => {
     const externalRefResolver = new BaseResolver();
     const resolveLocalDocument = externalRefResolver.resolveDocument.bind(externalRefResolver);
