@@ -1,20 +1,16 @@
+import { FormData, type Response, fetch } from 'undici';
+import type * as undici from 'undici';
+
 import packageJson from '../../../package.json' with { type: 'json' };
 import { ReuniteApi, type PushPayload, ReuniteApiError } from '../api-client.js';
 
-const originalFetch = global.fetch;
-
-beforeAll(() => {
-  // Reset fetch mock before each test
-  global.fetch = vi.fn();
-});
-
-afterAll(() => {
-  // Restore original fetch after each test
-  global.fetch = originalFetch;
-});
+vi.mock('undici', async (importOriginal) => ({
+  ...(await importOriginal<typeof undici>()),
+  fetch: vi.fn(),
+}));
 
 function mockFetchResponse(response: any) {
-  vi.mocked(global.fetch).mockResolvedValue(response);
+  vi.mocked(fetch).mockResolvedValue(response);
 }
 
 describe('ApiClient', () => {
@@ -33,7 +29,7 @@ describe('ApiClient', () => {
 
     await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
@@ -54,7 +50,7 @@ describe('ApiClient', () => {
       vi.unstubAllEnvs();
     }
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
@@ -81,7 +77,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.getDefaultBranch(testOrg, testProject);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/source`,
         {
           method: 'GET',
@@ -160,7 +156,7 @@ describe('ApiClient', () => {
 
       const result = await apiClient.remotes.upsert(testOrg, testProject, remotePayload);
 
-      expect(global.fetch).toHaveBeenCalledWith(
+      expect(fetch).toHaveBeenCalledWith(
         `${testDomain}/api/orgs/${testOrg}/projects/${testProject}/remotes`,
         {
           method: 'POST',
@@ -291,6 +287,7 @@ describe('ApiClient', () => {
       );
 
       // Compare FormData property-by-property for Node.js v24 compatibility
+      expect(passedFormData).toBeInstanceOf(FormData);
       expect(passedFormData.get('remoteId')).toBe(testRemoteId);
       expect(passedFormData.get('commit[message]')).toBe(pushPayload.commit.message);
       expect(passedFormData.get('commit[author][name]')).toBe(pushPayload.commit.author.name);
@@ -528,7 +525,7 @@ describe('ProjectsApi', () => {
 
     const result = await apiClient.projects.find('acme', 'docs');
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       `${testDomain}/api/orgs/acme/projects/docs`,
       expect.objectContaining({
         method: 'GET',
