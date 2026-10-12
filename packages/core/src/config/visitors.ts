@@ -107,20 +107,15 @@ function rebaseFilePaths(node: unknown, ctx: UserContext) {
   }
   // the walker visits a shared `$ref` target once per node type name, so rebase each node once
   rebasedNodes.add(node);
-  const rebaseItem = (item: unknown) =>
-    isString(item) && item ? rebasePath(item, sourceRef, rootRef) : item;
+  const rebaseValue = (value: unknown) =>
+    isString(value) && value ? rebasePath(value, sourceRef, rootRef) : value;
   for (const [field, schema] of Object.entries(ctx.type.properties)) {
-    if (!isPlainObject(schema) || isNamedType(schema)) {
-      continue;
-    }
-    if ((schema.format ?? schema.items?.format) !== 'uri-reference') {
-      continue;
-    }
     const value = node[field];
-    if (isString(value)) {
-      node[field] = rebaseItem(value);
-    } else if (Array.isArray(value)) {
-      node[field] = value.map(rebaseItem);
+    if (value === undefined || !isPlainObject(schema) || isNamedType(schema)) {
+      continue;
+    }
+    if ((schema.format ?? schema.items?.format) === 'uri-reference') {
+      node[field] = Array.isArray(value) ? value.map(rebaseValue) : rebaseValue(value);
     }
   }
 }
@@ -133,12 +128,10 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
-            // fields written next to `$ref` belong to this file and never reach a leave hook of their own
             rebaseFilePaths(node, ctx);
             replaceRef(node, resolved, ctx);
           },
         },
-        // every node type can declare file paths, so each node is checked against its own type
         any: {
           leave(node: unknown, ctx: UserContext) {
             rebaseFilePaths(node, ctx);
