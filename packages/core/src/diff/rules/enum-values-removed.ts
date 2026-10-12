@@ -7,7 +7,20 @@ export const EnumValuesRemoved: DiffRule = () => ({
     if (change.kind !== 'modified' || change.property !== 'enum') return;
     if (!getDirections().includes('request')) return;
 
-    const removed = itemsNotIn(change.base.value, change.revision.value);
+    const { value: before } = change.base;
+    const { value: after } = change.revision;
+
+    if (after === undefined) return;
+
+    if (before === undefined) {
+      const listed = Array.isArray(after) ? after : [];
+      const values = listed.map((value) => `'${value}'`).join(', ');
+
+      report({ message: `Enum${ofNamedSchema(change.node)} was set to ${values}.` });
+      return;
+    }
+
+    const removed = itemsNotIn(before, after);
     if (!removed.length) return;
 
     const values = removed.map((value) => `'${value}'`).join(', ');
