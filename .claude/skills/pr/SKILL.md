@@ -1,6 +1,6 @@
 ---
 name: pr
-description: Open a draft pull request in the Redocly CLI repository — start a new branch from the latest main, commit only the files of the change, add a changeset, and fill the PR template without removing any of its sections. Use whenever the user asks to open, create, or prepare a PR or draft PR, push work for review, or ship a change, even if they do not say "draft".
+description: Open a draft pull request in the Redocly CLI repository from the current branch — commit only the files of the change, add a changeset, and fill the PR template without removing any of its sections. Use whenever the user asks to open, create, or prepare a PR or draft PR, push work for review, or ship a change, even if they do not say "draft".
 ---
 
 # Open a draft pull request
@@ -13,28 +13,30 @@ It does not change code: the only file it may create is a changeset.
 
 ## 1. Understand the change
 
-1. Read `git status --short`, `git diff`, and, when the branch already has commits, `git diff origin/main...HEAD`.
+1. Run `git fetch origin main`, then read `git status --short`, `git diff`, and `git diff origin/main...HEAD`.
+   The change is the commits on the branch plus the uncommitted files.
 2. Find the why in the conversation, the commits, or the linked issue.
    If no source says why, ask the user before you write the PR body.
 3. List the files that belong to the change.
    Leave out everything else: untracked drafts, local notes and plans, and a `package-lock.json` that only a local `npm install` changed.
    When you are not sure that a file belongs, ask.
 
-## 2. Start a new branch from the latest main
+## 2. Check the branch
 
-```bash
-git fetch origin main
-git switch --no-track -c <type>/<short-topic> origin/main
-```
+Open the PR from the branch that the user is on.
+It usually holds the work already, and a switch to another branch leaves its commits behind.
 
-- Name the branch after the commit type and the topic, for example `feat/skills-command`, `fix/bundle-ref-paths`, or `docs/recheck-presets`.
-- Use `--no-track`.
-  Without it, the branch tracks `origin/main`, and a later plain `git push` can target `main`.
-- Uncommitted and untracked files move to the new branch.
-  If git refuses because a file conflicts, stop and tell the user.
-  Do not stash, reset, or discard their work without asking.
-- If the user already works on a branch for this change, keep it.
-  Check how far it is behind with `git rev-list --count HEAD..origin/main`, and tell the user when `main` has moved on.
+- If the current branch is `main`, create a branch from the current state, so the local commits and uncommitted files come with it:
+
+  ```bash
+  git switch -c <type>/<short-topic>
+  ```
+
+  Name it after the commit type and the topic, for example `fix/bundle-ref-paths`.
+  Never push `main`.
+
+- Do not rebase, merge, reset, or stash without asking.
+  If `git rev-list --count HEAD..origin/main` is large, tell the user that `main` has moved on.
 
 ## 3. Check the change
 
