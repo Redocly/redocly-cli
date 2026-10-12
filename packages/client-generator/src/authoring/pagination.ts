@@ -5,7 +5,7 @@
 // what every language generator shares.
 
 import type { ApiModel, OperationModel } from '../intermediate-representation/model.js';
-import { schemaAtPointer } from './schema.js';
+import { deref, schemaAtPointer, unwrapNullable } from './schema.js';
 
 /** The normalized rule a generator renders into its runtime's pagination spec. */
 export type NeutralPaginationRule = {
@@ -23,8 +23,8 @@ export type NeutralPaginationRule = {
 /**
  * Pagination for one operation. The convention rule applies only where it structurally
  * fits — the advance parameter exists on the operation, or for `link` (which has no
- * parameter) the success response documents a `Link` header, or resolves the `nextLink`
- * pointer (which needs `model`); `exclude` kills every source.
+ * parameter) the success response documents a `Link` header, or its `nextLink` pointer
+ * resolves to a string (which needs `model`); `exclude` kills every source.
  * Returns undefined when the operation does not paginate.
  */
 export function paginationRuleFor(
@@ -45,20 +45,24 @@ export function paginationRuleFor(
     const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
     // A convention needs a structural fit signal: the advance parameter for cursor/offset/
     // page, and for `link` (which has no parameter) a documented `Link` response header or a
-    // response that resolves the `nextLink` pointer — the same gate the TypeScript emitter
-    // applies. Without it, a link convention would attach page iterators to every operation
-    // in the description.
+    // response whose `nextLink` pointer resolves to a string — the same gate the TypeScript
+    // emitter applies. Without it, a link convention would attach page iterators to every
+    // operation in the description.
     const page = op.successResponses.find((response) =>
       response.contentType.toLowerCase().includes('json')
     );
     const { nextLink } = convention;
+    const linkTarget =
+      typeof nextLink === 'string' && model !== undefined && page !== undefined
+        ? schemaAtPointer(page.schema, nextLink, model)
+        : undefined;
+    const linkSchema = linkTarget && model && deref(unwrapNullable(linkTarget), model);
     const fits =
       convention.style !== 'link'
         ? typeof advance === 'string' && op.queryParams.some((param) => param.name === advance)
         : typeof nextLink === 'string'
-          ? model !== undefined &&
-            page !== undefined &&
-            schemaAtPointer(page.schema, nextLink, model) !== undefined
+          ? (linkSchema?.kind === 'scalar' || linkSchema?.kind === 'enum') &&
+            linkSchema.scalar === 'string'
           : op.successResponseHeaders?.some((header) => header.name === 'link') === true;
     if (fits) rule = convention as Record<string, unknown>;
   }

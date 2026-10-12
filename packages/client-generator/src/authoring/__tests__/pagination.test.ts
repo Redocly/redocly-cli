@@ -67,7 +67,7 @@ describe('paginationRuleFor', () => {
     });
   });
 
-  it('applies a nextLink convention only where the success response resolves the pointer', () => {
+  it('applies a nextLink convention only where the pointer resolves to a string', () => {
     const convention = { style: 'link', nextLink: '/page/next', items: '/items' };
     const model = { schemas: [] } as unknown as ApiModel;
     const paged = op({
@@ -85,6 +85,11 @@ describe('paginationRuleFor', () => {
                   kind: 'object',
                   properties: [
                     { name: 'next', required: true, schema: { kind: 'scalar', scalar: 'string' } },
+                    {
+                      name: 'count',
+                      required: true,
+                      schema: { kind: 'scalar', scalar: 'integer' },
+                    },
                   ],
                 },
               },
@@ -96,6 +101,10 @@ describe('paginationRuleFor', () => {
 
     expect(paginationRuleFor(paged, convention, model)).toEqual(convention);
     expect(paginationRuleFor(op(), convention, model)).toBeUndefined();
+    // The pointer resolves, but to a number: the runtime could not follow it.
+    expect(
+      paginationRuleFor(paged, { ...convention, nextLink: '/page/count' }, model)
+    ).toBeUndefined();
     // Resolving the pointer needs the model's named schemas; without it nothing fits.
     expect(paginationRuleFor(paged, convention)).toBeUndefined();
   });
