@@ -38,10 +38,10 @@ const OWN_FOLDER_AGENTS: OwnFolderAgent[] = [
   { name: 'augment', projectDir: '.augment', homeDir: join(home, '.augment') },
 ];
 
-export const SKILLS_AGENTS: string[] = [...SHARED_FOLDER_AGENTS];
-for (const agent of OWN_FOLDER_AGENTS) {
-  SKILLS_AGENTS.push(agent.name);
-}
+export const SKILLS_AGENTS: string[] = [
+  ...SHARED_FOLDER_AGENTS,
+  ...OWN_FOLDER_AGENTS.map((agent) => agent.name),
+];
 
 export async function handleSkills({ argv }: CommandArgs<SkillsArgv>) {
   const skillsDir = bundledSkillsDir();
