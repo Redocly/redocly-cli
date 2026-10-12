@@ -1,0 +1,23 @@
+arazzo: 1.0.1
+info:
+  title: mTLS via proxy
+  version: 1.0.0
+sourceDescriptions:
+  - name: mtls-api
+    type: openapi
+    url: mtls-api.yaml
+workflows:
+  - workflowId: mtls-via-proxy
+    steps:
+      - stepId: whoami
+        operationId: whoami
+        successCriteria:
+          - condition: $response.body#/clientCert == 'respect-test-client'
+      - stepId: upload
+        operationId: upload
+        requestBody:
+          contentType: multipart/form-data
+          payload:
+            file: $file('./sample.txt')
+        successCriteria:
+          - condition: $response.body#/multipart == true

@@ -28,7 +28,7 @@
   ],
   "dependencies": {
     "@redocly/openapi-core": "2.62.1",
-    "undici": "^6.29.0"
+    "undici": "^7.30.0"
   },
   "files": [
     "lib"
