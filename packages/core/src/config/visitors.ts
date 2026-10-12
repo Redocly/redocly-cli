@@ -1,7 +1,7 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
 
-import { hasScheme, isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import { hasUriScheme, isAbsoluteUrl, replaceRef } from '../ref-utils.js';
 import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -88,7 +88,7 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
 }
 
 function rebasePath(value: string, sourceRef: string, rootRef: string) {
-  if (hasScheme(value) || path.isAbsolute(value)) {
+  if (hasUriScheme(value) || path.isAbsolute(value)) {
     return value;
   }
   if (isAbsoluteUrl(sourceRef)) {
@@ -98,7 +98,7 @@ function rebasePath(value: string, sourceRef: string, rootRef: string) {
   return path.relative(path.dirname(rootRef), resolved) || '.';
 }
 
-// Paths in a `$ref`-ed file are written relative to that file, but the bundled config is read relative to the root config.
+// The CLI resolves every config path from the root config folder, so a path from a referenced file is rewritten relative to that folder.
 function rebaseFilePaths(node: unknown, ctx: UserContext) {
   const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
   const sourceRef = ctx.location.source.absoluteRef;

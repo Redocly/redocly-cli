@@ -90,8 +90,8 @@ export function refBaseName(ref: string) {
   return parts[parts.length - 1].replace(/\.[^.]+$/, ''); // replace extension with empty string
 }
 
-// any scheme counts (RFC 3986), unlike isAbsoluteUrl, which knows a fixed list
-export function hasScheme(ref: string): boolean {
+// True for any URI scheme (RFC 3986), such as `s3:` or `mailto:`; `isAbsoluteUrl` knows only the schemes the resolver can fetch.
+export function hasUriScheme(ref: string): boolean {
   return /^[a-z][a-z\d+.-]*:/i.test(ref);
 }
 

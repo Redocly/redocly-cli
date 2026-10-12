@@ -1,2 +1,2 @@
 plugins:
-  - ./plugin.cjs
+  - ./plugin.js
