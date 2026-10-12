@@ -48,7 +48,7 @@
     "form-data": "4.0.6",
     "get-port-please": "3.0.1",
     "glob": "7.2.3",
-    "handlebars": "4.7.9",
+    "handlebars": "4.7.10",
     "js-yaml": "4.3.2",
     "mobx": "6.12.3",
     "@opentelemetry/api": "1.9.0",
