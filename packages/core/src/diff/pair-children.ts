@@ -1,7 +1,8 @@
+import { distance } from 'fastest-levenshtein';
+
 import { keyKindOf, valueOf } from '../node-tree/access.js';
 import type { NodeEntry } from '../node-tree/types.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
-import { levenshteinSimilarity } from '../utils/levenshtein.js';
 import type { Pair } from './types.js';
 
 // Git counts a file as renamed when at least half of it is unchanged; the same share pairs a
@@ -93,11 +94,15 @@ function findMostAlike(
   return mostAlike;
 }
 
-// A field pairs only with the same field.
+// The share of the longer of the two that the edit leaves untouched. A field pairs only with the
+// same field.
 function similarity(child: NodeEntry, other: NodeEntry, known: Map<NodeEntry, string>): number {
   if (keyKindOf(child) === 'field') return child.key === other.key ? 1 : 0;
 
-  return levenshteinSimilarity(known.get(child)!, known.get(other)!);
+  const childName = known.get(child)!;
+  const otherName = known.get(other)!;
+  const longest = Math.max(childName.length, otherName.length);
+  return longest === 0 ? 1 : 1 - distance(childName, otherName) / longest;
 }
 
 function jsonWithSortedKeys(value: unknown): string {
