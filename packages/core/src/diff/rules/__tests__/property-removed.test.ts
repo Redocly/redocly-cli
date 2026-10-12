@@ -327,4 +327,70 @@ describe('property-removed', () => {
       { message: 'Property `extra` was removed.' },
     ]);
   });
+
+  it('should report a property a request no longer takes only where its schema rejects unlisted properties', async () => {
+    const order = (properties: string, extras: string) => outdent`
+      openapi: 3.1.0
+      info: { title: Cafe, version: 1.0.0 }
+      paths:
+        /orders:
+          post:
+            requestBody:
+              content:
+                application/json:
+                  schema:
+                    type: object
+                    additionalProperties: false
+                    properties:
+                      menuItemId: { type: string }
+                      ${properties}
+                      extras: { type: object, properties: ${extras} }
+            responses:
+              '201': { description: Created }
+    `;
+    const result = await diffDocuments({
+      base: makeDocumentFromString(
+        order('note: { type: string }', '{ sugar: { type: boolean }, milk: { type: boolean } }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(order('', '{ sugar: { type: boolean } }'), 'revision.yaml'),
+      config: await createConfig({ diff: { 'property-removed': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/extras/properties/milk",
+            "value": {
+              "type": "boolean",
+            },
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/extras/properties/milk",
+          "kind": "removed",
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
+            "value": {
+              "type": "string",
+            },
+          },
+          "impact": "major",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
+          "kind": "removed",
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/note",
+              "message": "Property \`note\` was removed.",
+              "ruleId": "property-removed",
+            },
+          ],
+        },
+      ]
+    `);
+  });
 });

@@ -104,7 +104,7 @@ These rules apply to OpenAPI only.
 
 | Rule                          | Reports                                                                                                                                                                                 |
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `property-removed`            | A removed or renamed property in a response.                                                                                                                                            |
+| `property-removed`            | A removed or renamed property in a response, or in a request whose schema rejects unlisted properties (`additionalProperties: false` or `unevaluatedProperties: false`).                |
 | `required-properties-added`   | Properties that became required in a request.                                                                                                                                           |
 | `required-properties-removed` | Properties that are no longer required in a response.                                                                                                                                   |
 | `enum-values-removed`         | Removed `enum` values, or a new `enum`, in a request.                                                                                                                                   |
