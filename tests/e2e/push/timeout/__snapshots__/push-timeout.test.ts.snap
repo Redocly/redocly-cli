@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fails the push when the API does not answer within the fetch timeout 1`] = `
+exports[`push > fails the push when the API does not answer within the fetch timeout 1`] = `
 "
 ✗ File upload failed. Reason: Failed to fetch project. Failed to fetch. Caused by The operation was aborted due to timeout.
 
@@ -8,7 +8,7 @@ exports[`fails the push when the API does not answer within the fetch timeout 1`
 "
 `;
 
-exports[`fails the push when the proxy does not answer within the fetch timeout 1`] = `
+exports[`push > fails the push when the proxy does not answer within the fetch timeout 1`] = `
 "
 ✗ File upload failed. Reason: Failed to fetch project. Failed to fetch. Caused by The operation was aborted due to timeout.
 

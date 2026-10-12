@@ -66,18 +66,20 @@ async function runPush({ proxyUrl }: { proxyUrl?: string } = {}) {
   return { output, elapsed: Date.now() - startedAt };
 }
 
-test('fails the push when the API does not answer within the fetch timeout', async () => {
-  const { output, elapsed } = await runPush();
+describe('push', () => {
+  test('fails the push when the API does not answer within the fetch timeout', async () => {
+    const { output, elapsed } = await runPush();
 
-  expect(output).toMatchSnapshot();
-  expect(elapsed).toBeGreaterThanOrEqual(FETCH_TIMEOUT_MS);
-  expect(elapsed).toBeLessThan(MAX_RUN_MS);
-}, 60_000);
+    expect(output).toMatchSnapshot();
+    expect(elapsed).toBeGreaterThanOrEqual(FETCH_TIMEOUT_MS);
+    expect(elapsed).toBeLessThan(MAX_RUN_MS);
+  }, 60_000);
 
-test('fails the push when the proxy does not answer within the fetch timeout', async () => {
-  const { output, elapsed } = await runPush({ proxyUrl: `http://127.0.0.1:${silentPort}` });
+  test('fails the push when the proxy does not answer within the fetch timeout', async () => {
+    const { output, elapsed } = await runPush({ proxyUrl: `http://127.0.0.1:${silentPort}` });
 
-  expect(output).toMatchSnapshot();
-  expect(elapsed).toBeGreaterThanOrEqual(FETCH_TIMEOUT_MS);
-  expect(elapsed).toBeLessThan(MAX_RUN_MS);
-}, 60_000);
+    expect(output).toMatchSnapshot();
+    expect(elapsed).toBeGreaterThanOrEqual(FETCH_TIMEOUT_MS);
+    expect(elapsed).toBeLessThan(MAX_RUN_MS);
+  }, 60_000);
+});
