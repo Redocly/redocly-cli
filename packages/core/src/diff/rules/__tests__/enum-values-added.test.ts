@@ -90,4 +90,105 @@ describe('enum-values-added', () => {
       ]
     `);
   });
+
+  it('should report an enum removed from a response, not an enum set on one', async () => {
+    const order = (status: string, size: string) =>
+      cafe(`{ type: object, properties: { status: ${status}, size: ${size} } }`);
+
+    const result = await diffDocuments({
+      base: makeDocumentFromString(
+        order('{ type: string, enum: [placed, ready] }', '{ type: string }'),
+        'base.yaml'
+      ),
+      revision: makeDocumentFromString(
+        order('{ type: string }', '{ type: string, enum: [small, large] }'),
+        'revision.yaml'
+      ),
+      config: await createConfig({ diff: { 'enum-values-added': 'major' } }),
+    });
+
+    expect(replaceSourceWithRefInChanges(result.changes)).toMatchInlineSnapshot(`
+      [
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status/enum",
+            "value": [
+              "placed",
+              "ready",
+            ],
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
+          "kind": "modified",
+          "property": "enum",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/status",
+            "value": undefined,
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
+            "value": undefined,
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size",
+          "kind": "modified",
+          "property": "enum",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/requestBody/content/application~1json/schema/properties/size/enum",
+            "value": [
+              "small",
+              "large",
+            ],
+          },
+          "verdicts": [],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status/enum",
+            "value": [
+              "placed",
+              "ready",
+            ],
+          },
+          "impact": "major",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
+          "kind": "modified",
+          "property": "enum",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
+            "value": undefined,
+          },
+          "verdicts": [
+            {
+              "impact": "major",
+              "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/status",
+              "message": "Enum of \`status\` was removed.",
+              "ruleId": "enum-values-added",
+            },
+          ],
+        },
+        {
+          "base": {
+            "location": "base.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",
+            "value": undefined,
+          },
+          "impact": "patch",
+          "key": "#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size",
+          "kind": "modified",
+          "property": "enum",
+          "revision": {
+            "location": "revision.yaml#/paths/~1orders/post/responses/201/content/application~1json/schema/properties/size/enum",
+            "value": [
+              "small",
+              "large",
+            ],
+          },
+          "verdicts": [],
+        },
+      ]
+    `);
+  });
 });
