@@ -99,7 +99,6 @@ export async function previewDocs({
 
   const watchPaths = [api.path, config.configFile!].filter((e) => !!e);
   const watcher = chockidar.watch(watchPaths, {
-    disableGlobbing: true,
     ignoreInitial: true,
   });
 
