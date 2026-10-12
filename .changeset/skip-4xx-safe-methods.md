@@ -1,9 +1,7 @@
 ---
-'@redocly/openapi-core': patch
-'@redocly/cli': patch
+'@redocly/openapi-core': minor
+'@redocly/cli': minor
 ---
 
-Make the `operation-4xx-response` rule configurable to exclude safe HTTP
-methods by default (get, head, options). This allows projects to avoid
-requiring 4XX responses for read-only operations while keeping the default
-behavior conservative.
+Added an `excludeMethods` option to the `operation-4xx-response` rule, which skips operations that use the listed HTTP methods.
+There is no change in current behavior.
