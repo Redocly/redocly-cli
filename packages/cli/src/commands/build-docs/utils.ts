@@ -92,7 +92,7 @@ export async function getPageHTML(
     basePath: '/',
     options: prepared.options,
     logo: logoFromSpec(prepared.document),
-    telemetryConfig: { typeOfUsage: 'cli', disabled: disableTelemetry },
+    telemetryConfig: { disabled: disableTelemetry },
     spec: prepared.document,
   });
   const sheet = new ServerStyleSheet();
