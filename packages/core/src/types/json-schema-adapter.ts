@@ -22,7 +22,6 @@ function getAjv(): Ajv2020 {
       strictTypes: false,
       verbose: true,
     });
-    // the config schema marks file paths with this format; any string passes
     ajv.addFormat('uri-reference', true);
   }
   return ajv;
