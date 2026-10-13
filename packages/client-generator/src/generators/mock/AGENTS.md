@@ -34,7 +34,8 @@ A standalone MSW module: `create<Name>()` data factories, `<op>Handler()` /
     `Partial<Omit<Name, …>>`, so its body leaves them out too.
   - The default handler of a paginated operation ends the walk. A cursor page is the
     last page: the next cursor is `null` when nullable, absent when optional, and `""`
-    otherwise, and `hasMore` is `false`. So `.pages()` ends after one page. Offset and
+    otherwise, and `hasMore` is `false`. A `body-link` page is the last page the same
+    way, through its next link. So `.pages()` ends after one page. Offset and
     page-number styles stop only on an empty page, so the handler answers any position
     past the first with an empty item list, and `.pages()` ends after that empty page.
     The handler's `override` sets the first page: it is spread into an object page, or

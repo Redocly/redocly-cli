@@ -239,8 +239,9 @@ function overrideParam(op: OperationModel, model: ApiModel, opts: MockOptions): 
 /**
  * The handler's resolver. A paginated operation serves the LAST page, so `.pages()` over
  * the default handlers ends after one page: a cursor page carries no next cursor (and a
- * `false` "has more" flag); an offset or page-number page answers any position past the
- * first with an empty item list, because those styles stop only on an empty page.
+ * `false` "has more" flag), and a `body-link` page no next link; an offset or page-number
+ * page answers any position past the first with an empty item list, because those styles
+ * stop only on an empty page.
  */
 function resolverFor(op: OperationModel, model: ApiModel, opts: MockOptions): string {
   const spec = opts.pagination?.get(op.name)?.spec;
@@ -261,13 +262,10 @@ function resolverFor(op: OperationModel, model: ApiModel, opts: MockOptions): st
       ? `HttpResponse.json(${data})`
       : `HttpResponse.json(${data}, { status: ${status} })`;
   };
-  if (spec.style === 'cursor') {
-    let last = withPointer(
-      page,
-      pointerKeys(spec.nextCursor),
-      cursorStop(success.schema, spec.nextCursor, model)
-    );
-    if (spec.hasMore !== undefined)
+  if (spec.style === 'cursor' || spec.style === 'body-link') {
+    const next = spec.style === 'cursor' ? spec.nextCursor : spec.nextLink;
+    let last = withPointer(page, pointerKeys(next), cursorStop(success.schema, next, model));
+    if (spec.style === 'cursor' && spec.hasMore !== undefined)
       last = withPointer(last, pointerKeys(spec.hasMore), expr('false'));
     return `() => ${json(withOverride(last))}`;
   }
@@ -296,8 +294,8 @@ function emptyPage(page: MockValue, keys: string[]): MockValue {
 }
 
 /**
- * What ends a cursor walk at `pointer`: `null` when the cursor is nullable, nothing (the
- * property is left out) when it is optional, and an empty string otherwise.
+ * What ends a cursor or `body-link` walk at `pointer`: `null` when the value is nullable,
+ * nothing (the property is left out) when it is optional, and an empty string otherwise.
  */
 function cursorStop(schema: SchemaModel, pointer: string, model: ApiModel): MockValue | undefined {
   const cursor = schemaAtPointer(schema, pointer, model);

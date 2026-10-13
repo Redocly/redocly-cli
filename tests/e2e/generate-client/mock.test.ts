@@ -255,7 +255,7 @@ describe('mock generator — the mocks satisfy the zod schemas of the same descr
     60_000
   );
 
-  test('pages() over the default cursor handler yields exactly one page', () => {
+  test('pages() over the default cursor and body-link handlers yields exactly one page', () => {
     const dir = mkdtempSync(join(__dirname, 'mock-pages-'));
     dirs.push(dir);
     generateInto(dir, join(__dirname, 'fixtures/pagination.yaml'), [
@@ -274,13 +274,14 @@ describe('mock generator — the mocks satisfy the zod schemas of the same descr
         const server = setupServer(...handlers);
         server.listen({ onUnhandledRequest: 'error' });
         client.configure({ serverUrl: 'https://api.example.com' });
-        let pages = 0;
-        for await (const _page of client.listOrders.pages()) pages++;
+        const pages = { orders: 0, receipts: 0 };
+        for await (const _page of client.listOrders.pages()) pages.orders++;
+        for await (const _page of client.listReceipts.pages()) pages.receipts++;
         server.close();
         process.stdout.write(JSON.stringify(pages));
       `
     );
-    expect(pages).toBe(1);
+    expect(pages).toEqual({ orders: 1, receipts: 1 });
   }, 60_000);
 
   test('items() over an offset handler with an override yields the override items once', () => {
