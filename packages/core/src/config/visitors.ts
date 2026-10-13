@@ -1,7 +1,7 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
 import * as path from 'node:path';
 
-import { hasUriScheme, isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
 import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
@@ -88,7 +88,7 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
 }
 
 function rebasePath(value: string, sourceRef: string, rootRef: string) {
-  if (hasUriScheme(value) || path.isAbsolute(value)) {
+  if (isAbsoluteUrl(value) || path.isAbsolute(value)) {
     return value;
   }
   if (isAbsoluteUrl(sourceRef)) {

@@ -9,7 +9,6 @@ import {
   refBaseName,
   unescapePointerFragment,
   isAbsoluteUrl,
-  hasUriScheme,
   isMappingRef,
   getDir,
   resolvePath,
@@ -187,20 +186,6 @@ describe('ref-utils', () => {
 
     it('should unescape a pointer correctly', () => {
       expect(unescapePointerFragment('scope~1complex~0name')).toStrictEqual('scope/complex~name');
-    });
-  });
-
-  describe('hasUriScheme', () => {
-    it('recognizes any URI scheme, not only the ones isAbsoluteUrl knows', () => {
-      expect(hasUriScheme('s3://bucket/openapi.yaml')).toBe(true);
-      expect(hasUriScheme('mailto:docs@example.com')).toBe(true);
-      expect(hasUriScheme('https://example.com/openapi.yaml')).toBe(true);
-    });
-
-    it('treats paths as having no scheme', () => {
-      expect(hasUriScheme('./openapi.yaml')).toBe(false);
-      expect(hasUriScheme('docs/openapi.yaml')).toBe(false);
-      expect(hasUriScheme('/absolute/openapi.yaml')).toBe(false);
     });
   });
 
