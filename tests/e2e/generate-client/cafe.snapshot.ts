@@ -1567,6 +1567,42 @@ function middlewareChain(config: ClientConfig): Middleware[] {
 }
 
 /**
+ * `AbortSignal.timeout()` where the platform has it, else an `AbortController` armed by
+ * `setTimeout`: Chrome before 103, Safari before 16, and Firefox before 100 lack the
+ * static, and every request with a timeout would throw before `fetch` runs.
+ */
+function timeoutSignal(ms: number): AbortSignal {
+  if (typeof AbortSignal.timeout === 'function') return AbortSignal.timeout(ms);
+  const controller = new AbortController();
+  setTimeout(() => {
+    controller.abort(new DOMException(`Timed out after ${ms} ms`, 'TimeoutError'));
+  }, ms);
+  return controller.signal;
+}
+
+/**
+ * `AbortSignal.any()` where the platform has it, else a controller that follows whichever
+ * signal aborts first: Chrome before 116, Safari before 17.4, and Firefox before 124 lack
+ * the static. The listeners come off once one signal fires, so a caller's long-lived
+ * signal does not keep one per request.
+ */
+function anySignal(signals: AbortSignal[]): AbortSignal {
+  if (typeof AbortSignal.any === 'function') return AbortSignal.any(signals);
+  const controller = new AbortController();
+  const listeners = new Map<AbortSignal, () => void>();
+  const abort = (reason: unknown) => {
+    for (const [signal, listener] of listeners) signal.removeEventListener('abort', listener);
+    controller.abort(reason);
+  };
+  for (const signal of signals) {
+    const listener = () => abort(signal.reason);
+    listeners.set(signal, listener);
+    signal.addEventListener('abort', listener);
+  }
+  return controller.signal;
+}
+
+/**
  * The fetch core shared by every operation: default + config + per-call headers, the
  * `onRequest` chain (BEFORE body serialization, so mutations are sent), body
  * serialization (JSON, or FormData via the multipart capability; a stream passes
@@ -1686,11 +1722,8 @@ async function send(
     if (signal?.aborted) throw abortError(signal);
     // A fresh timeout budget per attempt; the caller's signal still wins the race.
     // The composed signal also governs reading the response body.
-    const attemptSignal = timeout
-      ? signal
-        ? AbortSignal.any([signal, AbortSignal.timeout(timeout)])
-        : AbortSignal.timeout(timeout)
-      : signal;
+    const budget = timeout ? timeoutSignal(timeout) : undefined;
+    const attemptSignal = budget && signal ? anySignal([signal, budget]) : (budget ?? signal);
     let response: Response;
     try {
       response = await doFetch(context.url, {
@@ -1703,6 +1736,10 @@ async function send(
         body: payload,
       });
     } catch (error) {
+      // Decided before any await, when no timer can have fired since `fetch` rejected: an
+      // aborted budget means this attempt timed out. The abort reason's name is no
+      // evidence, because Chrome 103 to 123 abort a timeout with `AbortError`.
+      const timedOut = timeout !== undefined && budget?.aborted && !signal?.aborted;
       if (
         attempt < maxAttempts &&
         !signal?.aborted &&
@@ -1713,14 +1750,7 @@ async function send(
       }
       // Our timeout fired (never the caller's own abort — that rethrows untouched):
       // wrap the bare DOMException with the context a log line needs.
-      if (
-        timeout &&
-        !signal?.aborted &&
-        error instanceof DOMException &&
-        error.name === 'TimeoutError'
-      ) {
-        throw new TimeoutError(op.id, timeout, attempt);
-      }
+      if (timedOut) throw new TimeoutError(op.id, timeout, attempt);
       throw error;
     }
     // Reverse order: the last-registered middleware wraps closest to the network (onion).
