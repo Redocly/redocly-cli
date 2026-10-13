@@ -325,6 +325,111 @@ describe('Oas3 operation-4xx-response', () => {
     `);
   });
 
+  it('should skip null operations with excluded methods', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test':
+              get: null
+              post:
+                responses:
+                  200:
+                    description: ok response
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'operation-4xx-response': { severity: 'error', excludeMethods: ['get'] },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/post/responses",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operation must have at least one \`4XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
+          "ruleId": "operation-4xx-response",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should not report $ref-ed operations with excluded methods', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.1.0
+          paths:
+            '/test':
+              get:
+                $ref: '#/x-operations/GetTest'
+              head:
+                $ref: '#/x-operations/HeadTest'
+                responses:
+                  200:
+                    description: ok response
+              post:
+                $ref: '#/x-operations/PostTest'
+          x-operations:
+            GetTest:
+              responses:
+                200:
+                  description: ok response
+            HeadTest:
+              summary: Head test
+            PostTest:
+              responses:
+                200:
+                  description: ok response
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'operation-4xx-response': { severity: 'error', excludeMethods: ['get', 'head'] },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/x-operations/PostTest/responses",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operation must have at least one \`4XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
+          "ruleId": "operation-4xx-response",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
   it('should check callback operations by their own method', async () => {
     const document = parseYamlToDocument(
       outdent`

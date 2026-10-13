@@ -54,6 +54,8 @@ rules:
     excludeMethods: [head, options]
 ```
 
+Excluded methods also apply to callback operations and, when `validateWebhooks` is enabled, to webhook operations.
+
 ## Examples
 
 Given this configuration:
