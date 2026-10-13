@@ -1,5 +1,12 @@
 # @redocly/cli
 
+## 1.34.21
+
+### Patch Changes
+
+- Updated `handlebars` to `4.7.10`, `chokidar` to `4.0.3`, and `undici` to `6.29.0`.
+- Updated @redocly/respect-core to v1.34.21.
+
 ## 1.34.20
 
 ### Patch Changes
