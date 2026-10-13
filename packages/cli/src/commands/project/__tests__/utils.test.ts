@@ -39,6 +39,28 @@ describe('git utils', () => {
       ]);
     });
 
+    it.each([
+      ['npx', '/home/u/.npm/_npx/3f2a/node_modules/.bin/redocly'],
+      ['pnpm dlx', '/home/u/.cache/pnpm/dlx/3f2a/node_modules/.bin/redocly'],
+    ])(
+      'pins the npx fallback to its own version when %s runs the clone, even with another CLI on PATH',
+      (_runner, script) => {
+        const argv = process.argv;
+        process.argv = [argv[0] ?? 'node', script];
+        vi.mocked(existsSync).mockImplementation(
+          (file) => file === path.join('/opt/node/bin', 'redocly')
+        );
+
+        try {
+          expect(getCredentialHelperConfig('https://app.cloud.redocly.com', '2.0.0')[1]).toBe(
+            'credential.https://app.cloud.redocly.com/.helper=!REDOCLY_SUPPRESS_UPDATE_NOTICE=true npx --yes @redocly/cli@2.0.0 project git-credentials'
+          );
+        } finally {
+          process.argv = argv;
+        }
+      }
+    );
+
     it('runs the same CLI version with npx when the CLI is not on PATH', () => {
       vi.mocked(existsSync).mockReturnValue(false);
 

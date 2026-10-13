@@ -6,6 +6,11 @@ import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
   new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+// Never resolves; only an abort settles it, with the signal's reason, as `fetch` does.
+const hanging = ((url: string, init: RequestInit) =>
+  new Promise((_, reject) => {
+    init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+  })) as unknown as typeof fetch;
 
 function fetchSpy(responses: Array<Response | Error>) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -471,6 +476,56 @@ describe('send', () => {
       attempt: 1,
     });
     await expect(rejection).rejects.toThrow('"createPet" timed out after 20 ms');
+  });
+
+  it('builds the timeout and the composed signal without AbortSignal.timeout/any (older browsers)', async () => {
+    const native = { timeout: AbortSignal.timeout, any: AbortSignal.any };
+    Object.assign(AbortSignal, { timeout: undefined, any: undefined });
+    try {
+      const controller = new AbortController();
+      await expect(
+        send(
+          { fetch: hanging, timeout: 20 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toMatchObject({ name: 'TimeoutError', operationId: 'createPet', timeout: 20 });
+      // The caller's own abort still wins the race and rethrows untouched.
+      setTimeout(() => controller.abort(new Error('gone')), 5);
+      await expect(
+        send(
+          { fetch: hanging, timeout: 60_000 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toThrow('gone');
+    } finally {
+      Object.assign(AbortSignal, native);
+    }
+  });
+
+  it('reports a timeout the platform aborts with AbortError (Chrome 103 to 123) as TimeoutError', async () => {
+    const native = AbortSignal.timeout;
+    AbortSignal.timeout = (ms: number) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(new DOMException('Aborted.', 'AbortError')), ms);
+      return controller.signal;
+    };
+    try {
+      await expect(
+        send({ fetch: hanging, timeout: 20 }, op, 'u', { method: 'GET' }, undefined, undefined, {})
+      ).rejects.toBeInstanceOf(TimeoutError);
+    } finally {
+      AbortSignal.timeout = native;
+    }
   });
 
   it('resolves async config.headers once and merges per-call headers over them', async () => {

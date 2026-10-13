@@ -29,6 +29,11 @@ relatively (`runtime: module`).
   `noUncheckedIndexedAccess`, and `exactOptionalPropertyTypes` must all pass. Guard an
   index access explicitly instead of asserting it, and leave an absent optional key out
   (a conditional spread) instead of setting it to `undefined`.
+- **Timeouts need no platform statics.** `send()` uses `AbortSignal.timeout()` and
+  `AbortSignal.any()` where they exist and builds the same signal from an `AbortController`
+  and `setTimeout` where they do not (Chrome before 116, Safari before 17.4, Firefox before
+  124). A timed-out attempt is recognized by its own timeout signal having fired, never by
+  the abort reason's name, because Chrome 103 to 123 abort a timeout with `AbortError`.
 - **Names are collision-safe:** `packageIdents` seeds every reserved wiring name before
   any operation is sanitized, so renames are deterministic (`configure` → `configure_2`).
   A rename becomes part of the SDK's public API, so the warning must say WHICH cause it

@@ -1,4 +1,5 @@
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -32,6 +33,31 @@ export function runCommand(
 
   const out = result.stdout ? result.stdout.toString() : '';
   const err = result.stderr ? result.stderr.toString() : '';
+  return `${out}\n${err}`;
+}
+
+export async function runCommandAsync(
+  command: string,
+  args: string[],
+  options?: { env?: Record<string, string>; testPath?: string }
+) {
+  const child = spawn(command, args, {
+    env: {
+      ...process.env,
+      NODE_ENV: 'test',
+      NO_COLOR: 'TRUE',
+      FORCE_COLOR: '0',
+      ...options?.env,
+    },
+    cwd: options?.testPath,
+  });
+
+  let out = '';
+  let err = '';
+  child.stdout.on('data', (chunk) => (out += chunk));
+  child.stderr.on('data', (chunk) => (err += chunk));
+  await once(child, 'close');
+
   return `${out}\n${err}`;
 }
 

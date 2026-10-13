@@ -63,6 +63,7 @@ const SATELLITE_NAMES = [
 // the runtime's free identifiers with a scope walk and fails when this list falls
 // behind. `undefined` is here because `export type undefined` would not even parse.
 const GLOBAL_NAMES = [
+  'AbortController',
   'AbortSignal',
   'Array',
   'ArrayBuffer',
