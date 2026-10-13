@@ -485,7 +485,7 @@ describe('handleErrors', () => {
 
 describe('checkIfRulesetExist', () => {
   beforeEach(() => {
-    jest.spyOn(process, 'exit').mockImplementation((code?: number) => code as never);
+    jest.spyOn(process, 'exit').mockImplementation((code) => code as never);
   });
 
   afterEach(() => {
