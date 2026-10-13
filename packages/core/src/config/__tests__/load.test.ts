@@ -2683,7 +2683,7 @@ describe('loadConfig', () => {
         overlays: ['nested/overlays/add-servers.yaml'],
         clientOutput: 'nested/client.ts',
         client: { setup: 'nested/setup.mjs', cliOutput: 'nested/deep/cli/index.ts' },
-        rules: { 'operation-description': 'error' },
+        rules: { 'operation-description': 'error', 'operation-summary': 'warn' },
       },
       chained: { root: 'nested/deep/openapi.yaml' },
       reused: { root: 'nested/openapi.yaml', output: 'nested/dist/openapi.yaml' },

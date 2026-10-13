@@ -1,2 +1,3 @@
 rules:
   operation-description: error
+  operation-summary: error

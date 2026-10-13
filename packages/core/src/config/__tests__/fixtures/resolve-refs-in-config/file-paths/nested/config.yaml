@@ -1,6 +1,8 @@
 api:
   extends:
     - ./api-rules.yaml
+  rules:
+    operation-summary: warn
   root: ./openapi.yaml
   output: dist/openapi.yaml
   overlays:
