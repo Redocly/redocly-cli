@@ -223,6 +223,8 @@ Prepare the local build, go to the `benchmark` folder, clean it up, do the prepa
 (npm run compile && npm run pack:prepare && cd benchmark/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
 ```
 
+You might need to adjust the CLI versions that need to be tested in the `benchmark/package.json` file.
+
 ## Project structure
 
 - **`__mocks__`**: contains basic mocks for e2e tests.
