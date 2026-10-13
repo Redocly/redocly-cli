@@ -4,8 +4,8 @@ const content = fs.readFileSync('benchmark_check.json', 'utf8');
 const json = JSON.parse(content);
 const arr = json.results.map((r) => [
   r.command.replace(/^node node_modules\/([^/]+)\/.*/, (_, cliVersion) => cliVersion),
-  r.summary.time_wall_clock.mean,
-  r.summary.time_wall_clock.stddev,
+  r.mean,
+  r.stddev,
 ]);
 const minMean = Math.min(...arr.map(([_, mean]) => mean));
 

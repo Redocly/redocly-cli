@@ -22,8 +22,8 @@ jobs:
         run: npm ci
       - name: Install External
         run: |
-          wget -q https://github.com/sharkdp/hyperfine/releases/download/v2.0.0/hyperfine_2.0.0_amd64.deb
-          sudo dpkg -i hyperfine_2.0.0_amd64.deb
+          wget -q https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine_1.20.0_amd64.deb
+          sudo dpkg -i hyperfine_1.20.0_amd64.deb
           npm i -g @redocly/cli@v1-archive
       - name: Prepare
         run: |
@@ -58,8 +58,8 @@ jobs:
         run: npm ci
       - name: Install External
         run: |
-          wget -q https://github.com/sharkdp/hyperfine/releases/download/v2.0.0/hyperfine_2.0.0_amd64.deb
-          sudo dpkg -i hyperfine_2.0.0_amd64.deb
+          wget -q https://github.com/sharkdp/hyperfine/releases/download/v1.20.0/hyperfine_1.20.0_amd64.deb
+          sudo dpkg -i hyperfine_1.20.0_amd64.deb
       - name: Prepare
         run: |
           npm run compile
