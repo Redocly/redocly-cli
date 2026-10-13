@@ -1,5 +1,22 @@
 # @redocly/cli
 
+## 2.62.2
+
+### Patch Changes
+
+- Fixed an issue where the `login` and `push` did not exit after a request through a proxy timed out.
+- Fixed an issue where the `login`, `push`, and other Reunite commands failed on Node.js 26.
+  Updated `undici` to the `7.30.0` version.
+- Updated `handlebars` to `4.7.10` to resolve `CVE-2026-106444`, `CVE-2026-106445`, and `CVE-2026-106446`.
+- Fixed an issue where the `respect` command ignored the `--mtls` certificates when a request went through a proxy.
+- Updated @redocly/reunite-integration to v2.62.2.
+
+## 2.62.1
+
+### Patch Changes
+
+- Fixed the `project clone` command so that Git keeps finding its credential helper after a clone run with `npx` or `pnpm dlx`.
+
 ## 2.62.0
 
 ### Minor Changes
