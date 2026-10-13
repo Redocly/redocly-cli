@@ -7,6 +7,7 @@ import type {
   RequestContext,
   RequestOptions,
   RetryConfig,
+  SettledCall,
 } from './types.js';
 
 /**
@@ -89,7 +90,8 @@ function anySignal(signals: AbortSignal[]): AbortSignal {
  * serialization (JSON, or FormData via the multipart capability; a stream passes
  * through in one attempt), the retry loop
  * (idempotent-only defaults, `Retry-After`, abandoned-body drain), and the reverse
- * `onResponse` onion. Returns the final response plus the request context.
+ * `onResponse` onion, then the `onSettled` chain once with the final outcome. Returns the
+ * final response plus the request context.
  */
 export async function send(
   config: ClientConfig,
@@ -197,70 +199,115 @@ export async function send(
   const retryOn = retry.retryOn ?? defaultRetryOn;
   const signal = fetchInit.signal ?? undefined;
 
+  const startedAt = Date.now();
   let attempt = 0;
-  while (true) {
-    attempt++;
-    if (signal?.aborted) throw abortError(signal);
-    // A fresh timeout budget per attempt; the caller's signal still wins the race.
-    // The composed signal also governs reading the response body.
-    const budget = timeout ? timeoutSignal(timeout) : undefined;
-    const attemptSignal = budget && signal ? anySignal([signal, budget]) : (budget ?? signal);
-    let response: Response;
-    try {
-      response = await doFetch(context.url, {
-        ...fetchInit,
-        // `fetch` requires it for a stream body.
-        ...(isStream ? { duplex: 'half' } : {}),
-        signal: attemptSignal,
-        method: context.method,
-        headers: context.headers,
-        body: payload,
-      });
-    } catch (error) {
-      // Decided before any await, when no timer can have fired since `fetch` rejected: an
-      // aborted budget means this attempt timed out. The abort reason's name is no
-      // evidence, because Chrome 103 to 123 abort a timeout with `AbortError`.
-      const timedOut = timeout !== undefined && budget?.aborted && !signal?.aborted;
-      if (
-        attempt < maxAttempts &&
-        !signal?.aborted &&
-        (await retryOn({ attempt, request: context, error }))
-      ) {
-        await sleep(retryDelay(retry, attempt, null), signal);
-        continue;
+  let finalResponse: Response;
+  let lastResponse: Response | undefined;
+  try {
+    while (true) {
+      if (signal?.aborted) throw abortError(signal);
+      attempt++;
+      lastResponse = undefined;
+      // A fresh timeout budget per attempt; the caller's signal still wins the race.
+      // The composed signal also governs reading the response body.
+      const budget = timeout ? timeoutSignal(timeout) : undefined;
+      const attemptSignal = budget && signal ? anySignal([signal, budget]) : (budget ?? signal);
+      let response: Response;
+      try {
+        response = await doFetch(context.url, {
+          ...fetchInit,
+          // `fetch` requires it for a stream body.
+          ...(isStream ? { duplex: 'half' } : {}),
+          signal: attemptSignal,
+          method: context.method,
+          headers: context.headers,
+          body: payload,
+        });
+      } catch (error) {
+        // Decided before any await, when no timer can have fired since `fetch` rejected: an
+        // aborted budget means this attempt timed out. The abort reason's name is no
+        // evidence, because Chrome 103 to 123 abort a timeout with `AbortError`.
+        const timedOut = timeout !== undefined && budget?.aborted && !signal?.aborted;
+        if (
+          attempt < maxAttempts &&
+          !signal?.aborted &&
+          (await retryOn({ attempt, request: context, error }))
+        ) {
+          await sleep(retryDelay(retry, attempt, null), signal);
+          continue;
+        }
+        // Our timeout fired (never the caller's own abort — that rethrows untouched):
+        // wrap the bare DOMException with the context a log line needs.
+        if (timedOut) throw new TimeoutError(op.id, timeout, attempt);
+        throw error;
       }
-      // Our timeout fired (never the caller's own abort — that rethrows untouched):
-      // wrap the bare DOMException with the context a log line needs.
-      if (timedOut) throw new TimeoutError(op.id, timeout, attempt);
-      throw error;
-    }
-    // Reverse order: the last-registered middleware wraps closest to the network (onion).
-    for (let i = middleware.length - 1; i >= 0; i--) {
-      const onResponse = middleware[i].onResponse;
-      if (onResponse) {
-        const replaced = await onResponse(response, context);
-        if (replaced && replaced !== response) {
-          // Cancel the abandoned original's body — like the retry path, an unread body
-          // keeps its connection checked out under Node/undici.
-          await response.body?.cancel().catch(() => undefined);
-          response = replaced;
+      lastResponse = response;
+      // Reverse order: the last-registered middleware wraps closest to the network (onion).
+      for (let i = middleware.length - 1; i >= 0; i--) {
+        const onResponse = middleware[i].onResponse;
+        if (onResponse) {
+          const replaced = await onResponse(response, context);
+          if (replaced && replaced !== response) {
+            // Cancel the abandoned original's body — like the retry path, an unread body
+            // keeps its connection checked out under Node/undici.
+            await response.body?.cancel().catch(() => undefined);
+            response = replaced;
+            lastResponse = replaced;
+          }
         }
       }
+      if (
+        !response.ok &&
+        attempt < maxAttempts &&
+        !signal?.aborted &&
+        (await retryOn({ attempt, request: context, response }))
+      ) {
+        const retryAfter = response.headers.get('retry-after');
+        // Drain the abandoned response body before the next attempt: an unread body
+        // keeps the connection checked out (and can stall the pool) under Node/undici
+        // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
+        await response.body?.cancel().catch(() => undefined);
+        await sleep(retryDelay(retry, attempt, retryAfter), signal);
+        continue;
+      }
+      finalResponse = response;
+      break;
     }
-    if (
-      !response.ok &&
-      attempt < maxAttempts &&
-      !signal?.aborted &&
-      (await retryOn({ attempt, request: context, response }))
-    ) {
-      const retryAfter = response.headers.get('retry-after');
-      // Drain the abandoned response body before the next attempt: an unread body
-      // keeps the connection checked out (and can stall the pool) under Node/undici
-      // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
-      await response.body?.cancel().catch(() => undefined);
-      await sleep(retryDelay(retry, attempt, retryAfter), signal);
-      continue;
+  } catch (error) {
+    const settled: SettledCall = {
+      response: lastResponse,
+      error,
+      attempts: attempt,
+      durationMs: Date.now() - startedAt,
+    };
+    for (const mw of middleware) {
+      if (!mw.onSettled) continue;
+      try {
+        await mw.onSettled(context, settled);
+      } catch (hookError) {
+        globalThis.console?.warn('onSettled hook failed', hookError);
+      }
     }
-    return { response, context };
+    throw error;
   }
+  const settled: SettledCall = {
+    response: finalResponse,
+    attempts: attempt,
+    durationMs: Date.now() - startedAt,
+  };
+  const hookErrors: unknown[] = [];
+  for (const mw of middleware) {
+    if (!mw.onSettled) continue;
+    try {
+      await mw.onSettled(context, settled);
+    } catch (hookError) {
+      hookErrors.push(hookError);
+    }
+  }
+  if (hookErrors.length > 0) {
+    // The caller never gets this response, so release its connection.
+    await finalResponse.body?.cancel().catch(() => undefined);
+    throw hookErrors[0];
+  }
+  return { response: finalResponse, context };
 }

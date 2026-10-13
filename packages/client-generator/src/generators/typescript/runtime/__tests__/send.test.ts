@@ -1,7 +1,7 @@
 import { TimeoutError } from '../errors.js';
 import { defaultRetryOn } from '../index.js';
 import { middlewareChain, send } from '../send.js';
-import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
+import type { ClientConfig, RequestContext, RetryContext, SettledCall } from '../types.js';
 
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
@@ -679,6 +679,140 @@ describe('send', () => {
       {}
     );
     expect(seen).toEqual(['GET']);
+  });
+});
+
+describe('send onSettled', () => {
+  function settledSpy() {
+    const calls: SettledCall[] = [];
+    const middleware = {
+      onSettled: (_ctx: RequestContext, call: SettledCall) => {
+        calls.push(call);
+      },
+    };
+    return { calls, middleware };
+  }
+
+  it('runs once with the TimeoutError when the timeout aborts the last attempt', async () => {
+    const settled = settledSpy();
+    const hanging = ((url: string, init: RequestInit) =>
+      new Promise((_, reject) => {
+        init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+      })) as unknown as typeof fetch;
+    await expect(
+      send(
+        { fetch: hanging, middleware: [settled.middleware], timeout: 20 },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toBeInstanceOf(TimeoutError);
+    expect(settled.calls.length).toBe(1);
+    expect(settled.calls[0].error).toBeInstanceOf(TimeoutError);
+    expect(settled.calls[0].attempts).toBe(1);
+  });
+
+  it('runs every hook in registration order, then rejects with the first hook error', async () => {
+    const order: string[] = [];
+    const response = ok();
+    const { fetchImpl } = fetchSpy([response]);
+    await expect(
+      send(
+        {
+          fetch: fetchImpl,
+          middleware: [
+            {
+              onSettled: () => {
+                order.push('first');
+                throw new Error('hook failed');
+              },
+            },
+            { onSettled: () => void order.push('second') },
+          ],
+        },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('hook failed');
+    expect(order).toEqual(['first', 'second']);
+    expect(response.bodyUsed).toBe(true);
+  });
+
+  it('passes the response and the error when onResponse throws after the server answered', async () => {
+    const settled = settledSpy();
+    const { fetchImpl } = fetchSpy([ok()]);
+    const invalidBody = {
+      onResponse: () => {
+        throw new Error('invalid body');
+      },
+    };
+    await expect(
+      send(
+        { fetch: fetchImpl, middleware: [settled.middleware, invalidBody] },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('invalid body');
+    expect(settled.calls[0].response?.status).toBe(200);
+    expect((settled.calls[0].error as Error).message).toBe('invalid body');
+  });
+
+  it('counts no attempt when the signal is already aborted', async () => {
+    const settled = settledSpy();
+    const { calls, fetchImpl } = fetchSpy([ok()]);
+    await expect(
+      send(
+        { fetch: fetchImpl, middleware: [settled.middleware] },
+        op,
+        'u',
+        { method: 'GET', signal: AbortSignal.abort() },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow();
+    expect(calls.length).toBe(0);
+    expect(settled.calls[0].attempts).toBe(0);
+  });
+
+  it('keeps the original error and logs the hook error when a hook throws on a failed call', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const failingFetch = (async () => {
+      throw new Error('down');
+    }) as typeof fetch;
+    await expect(
+      send(
+        {
+          fetch: failingFetch,
+          middleware: [
+            {
+              onSettled: () => {
+                throw new Error('hook failed');
+              },
+            },
+          ],
+        },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('down');
+    expect(warn).toHaveBeenCalledWith('onSettled hook failed', new Error('hook failed'));
+    warn.mockRestore();
   });
 });
 
