@@ -325,7 +325,7 @@ can bundle a dozen word-list headwords). Cross-referencing the specific
 - **6 ended up shipped anyway**, because a narrower scope, `fix: false`,
   or a detection-only rule shape resolved the original noise concern
   instead of requiring exclusion: `heading-sentence-case` (row 1, `fix:
-false` + the `exceptions` mechanism), `no-code-in-heading` (row 9,
+  false` + the `exceptions` mechanism), `no-code-in-heading` (row 9,
   scoped to headings), `second-person` (row 13, detection-only),
   `use-contractions` (row 17, `fix: false`), the timeless-documentation
   words (row 29, 5 of ~15 shipped; see "Author's judgment calls" below for
@@ -508,7 +508,7 @@ and why, so a rule split doesn't read as an unexplained addition.
   upper-cases an all-caps match's ENTIRE multi-word replacement, so
   "GCP" -> "Google Cloud" was being written as "GOOGLE CLOUD".
 - **`google/colo-form`**: split out of `google/compound-forms`, `fix:
-false`. `colo` is a noun ("a colocation facility"); `colocate` is a
+  false`. `colo` is a noun ("a colocation facility"); `colocate` is a
   verb — the unconditional swap produced "The colocate hosts the racks."
 - **`google/no-please-note`**: `fix: false` added. Deleting the phrase
   leaves a capitalization/fragment mess behind ("Please note that the
@@ -539,7 +539,7 @@ remains correct). Two statements above are now stale as a result:
 - **`GCP` is fixable again.** `google/gcp-name`'s `fix: false` (added
   above specifically because `applyMatchCase` was shouting "GOOGLE CLOUD")
   is REMOVED — the engine fix produces the correctly-cased `"Google
-Cloud"` now, and the result is idempotent. `UNICODE`/`IPSEC`
+  Cloud"` now, and the result is idempotent. `UNICODE`/`IPSEC`
   (`google/acronym-caps-detect-only`) were re-checked against the same
   engine fix and correctly stay `fix: false`: their replacements
   (`Unicode`, `IPsec`) are each a single word, so the multi-word condition
@@ -893,7 +893,7 @@ either case reasonably concludes the preset misquotes Google.
    guide's own "run-in heading" pattern (verifier A row 12).** The guide
    permits bold for "run-in headings" — a bolded lead-in term followed by
    its description, most commonly inside a description-list item (`Google's
-own example: <li><b>Emu</b>: the best kind of bird</li>`) or a single
+   own example: <li><b>Emu</b>: the best kind of bird</li>`) or a single
    paragraph ("**Emu:** the best kind of bird."), and instructs authors to
    "end the run-in heading with a period or a colon." The shipped rule
    (ported from markdownlint's MD036) already tolerates the common cases:
@@ -919,15 +919,15 @@ own example: <li><b>Emu</b>: the best kind of bird</li>`) or a single
    so it will flag a bare URL used as link text there too, against the
    guide's own stated exception. Not enforceable to fix with the engine's
    current primitives (same class of gap as `firewalls` → `firewall
-rules`'s "Compute Engine documentation only" scoping and the
+   rules`'s "Compute Engine documentation only" scoping and the
    NOT-ENFORCEABLE table's document-subject-matter entries above) — Recheck
    has no signal for what kind of document a file is.
 3. **`google/gcp-name` is case-sensitive.** The pair (`GCP: 'Google
-Cloud'`) carries no `ignoreCase`, so only the literal all-caps `GCP`
+   Cloud'`) carries no `ignoreCase`, so only the literal all-caps `GCP`
    token is matched or fixed — `gcp` and `Gcp` are neither flagged nor
    fixed by this rule. A reader could reasonably infer broader coverage
    than exists: many OTHER rules in this same file (e.g. `google/
-compound-forms`, `google/use-contractions`) do set `ignoreCase: true`,
+   compound-forms`, `google/use-contractions`) do set `ignoreCase: true`,
    so the absence here is easy to read as an oversight rather than a
    choice. It is a choice, shared with the sibling `google/product-names`
    (also no `ignoreCase`) and `google/brand-capitalization` (explicitly
@@ -1013,6 +1013,6 @@ resolve) anything not settled by the inputs:
   dynamically from ALL presets rather than a single prose-named constant.
   See that test file's own comments for the mechanics.
 - **`.npmignore` widened to include `presets/**/_`.** The package has no
-`files`field in`package.json`; publishing is governed entirely by
-`.npmignore`, which was a blanket `_`deny with only`dist/\*_/_`and`package.json`allowed back in. A new top-level`presets/<name>/`directory (this file,`sources.json`) would have shipped nowhere without
-this change — verified with `npm pack --dry-run` before and after.
+  `files`field in`package.json`; publishing is governed entirely by
+  `.npmignore`, which was a blanket `_`deny with only`dist/\*_/_`and`package.json`allowed back in. A new top-level`presets/<name>/`directory (this file,`sources.json`) would have shipped nowhere without
+  this change — verified with `npm pack --dry-run` before and after.

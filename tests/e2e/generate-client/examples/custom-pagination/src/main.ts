@@ -31,7 +31,7 @@ configure({ fetch: canned });
 async function* paginate<Item>(
   page: (cursor?: string) => Promise<{ items?: Item[]; nextCursor?: string }>
 ): AsyncGenerator<Item> {
-  for (let cursor: string | undefined; ; ) {
+  for (let cursor: string | undefined; ;) {
     const { items, nextCursor } = await page(cursor);
     yield* items ?? [];
     if (!(cursor = nextCursor)) return;
