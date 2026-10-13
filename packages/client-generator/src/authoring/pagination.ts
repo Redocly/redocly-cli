@@ -75,8 +75,10 @@ function conventionFits(
     const page = op.successResponses.find((response) =>
       response.contentType.toLowerCase().includes('json')
     );
-    const target = page && schemaAtPointer(page.schema, convention.nextLink, model);
-    const link = target && deref(unwrapNullable(target), model);
+    if (page === undefined) return false;
+    const target = schemaAtPointer(page.schema, convention.nextLink, model);
+    if (target === undefined) return false;
+    const link = deref(unwrapNullable(target), model);
     return (link?.kind === 'scalar' || link?.kind === 'enum') && link.scalar === 'string';
   }
   // cursor/offset/page: the advance parameter must be declared on the operation.
