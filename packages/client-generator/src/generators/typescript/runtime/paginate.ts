@@ -75,9 +75,9 @@ export async function* pages<TPage>(
       }
       cursor = next;
     }
-  } else if (spec.style === 'link') {
-    // `link` iteration needs the response's `Link` header, which the parsed-page `call`
-    // cannot carry — the client wires those operations to `pagesByLink` instead.
+  } else if (spec.style === 'link' || spec.style === 'body-link') {
+    // Link iteration needs the response's `Link` header and the page URL, which the
+    // parsed-page `call` cannot carry — the client wires those operations to `pagesByLink`.
     throw new Error('link-style pagination iterates via pagesByLink');
   } else {
     // Coerce the starting position to a number: a caller may pass `query[spec.param]` as a
@@ -126,7 +126,7 @@ export async function* items<TItem>(
 
 /**
  * The per-page call the `link`-style iterators drive: the parsed page plus the raw
- * `Link` header and the page's own URL (for resolving a relative `next` target).
+ * `Link` header and the page's own URL (for resolving a relative next-page target).
  */
 export type LinkPageCall = (
   args?: OperationArgs,
@@ -150,18 +150,22 @@ export function linkNext(header: string | null): string | undefined {
 }
 
 /**
- * Iterate a `link`-style operation's pages: follow the `Link` header's `rel="next"`
- * target by merging ITS query params into the next call — every page goes through the
- * same declared endpoint, so auth, middleware, and `serverUrl` handling apply
+ * Iterate a `link`- or `body-link`-style operation's pages: follow the next page's URL —
+ * the `Link` header's `rel="next"` target (`link`), or the value at the `nextLink` pointer
+ * (`body-link`) — by merging ITS query params into the next call. Every page goes through
+ * the same declared endpoint, so auth, middleware, and `serverUrl` handling apply
  * unchanged, and credentials can never be handed to a cross-origin `next` URL.
- * Stops when no `rel="next"` is present; throws when the link does not advance
- * (the same target twice, or a self-link — an infinite-loop guard).
+ * Stops when there is no next URL (`body-link`: `undefined`/`null`/`''`); throws when a
+ * `nextLink` value is not a string, or when the link does not advance (the same target
+ * twice, or a self-link — an infinite-loop guard).
  */
 export async function* pagesByLink<TPage>(
   call: LinkPageCall,
+  spec: PaginationSpec,
   args: OperationArgs = {},
   init?: RequestOptions
 ): AsyncGenerator<TPage> {
+  const pointer = spec.style === 'body-link' ? spec.nextLink : undefined;
   let query = args.query;
   let previous: string | undefined;
   while (true) {
@@ -170,8 +174,11 @@ export async function* pagesByLink<TPage>(
       init
     );
     yield page as TPage;
-    const target = linkNext(linkHeader);
-    if (target === undefined) return;
+    const target = pointer === undefined ? linkNext(linkHeader) : resolvePointer(page, pointer);
+    if (target === undefined || target === null || target === '') return;
+    if (typeof target !== 'string') {
+      throw new Error(`Pagination link at ${pointer} is not a string`);
+    }
     // A relative target resolves against the page's own URL (RFC 8288 §3.1) — which may
     // itself be relative (relative `serverUrl`, mocked fetch), so both resolve against a
     // placeholder origin. It never reaches the wire: only the target's query params
@@ -202,7 +209,7 @@ export async function* itemsByLink<TItem>(
   args?: OperationArgs,
   init?: RequestOptions
 ): AsyncGenerator<TItem> {
-  for await (const page of pagesByLink(call, args, init)) {
+  for await (const page of pagesByLink(call, spec, args, init)) {
     const pageItems = resolvePointer(page, spec.items);
     if (Array.isArray(pageItems)) yield* pageItems as TItem[];
   }

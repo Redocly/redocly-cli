@@ -975,7 +975,7 @@ Each paginated operation keeps its one-shot call and gains two async iterators.
 `.pages(args?, init?)` yields full pages, and `.items(args?, init?)` yields individual items.
 Both are typed statically from the response schema.
 
-The client supports four styles.
+The client supports five styles.
 `cursor` sends the response's `nextCursor` back in `cursorParam`.
 It stops when the cursor is absent, `null`, or empty.
 It throws if the server returns the same cursor two times in a row.
@@ -994,6 +994,14 @@ Because of this, every page goes through the same declared endpoint: auth and mi
 Iteration stops when no `rel="next"` is present, and it throws if the target repeats.
 A `link` convention rule applies only to operations whose success response documents a `Link` header.
 An explicit rule applies in all cases, but it warns when the header is undocumented.
+
+`body-link` follows the URL of the next page from a field in the response body, for example a `next_page_url` field.
+Set `nextLink` to the pointer of that field (for example `/page/nextPage`).
+The runtime handles the URL the same way as a `link` target: it merges the query parameters of the URL into the next call.
+Only the query parameters of the URL are used.
+The next call goes to the client's own `serverUrl` and the operation's path, even when the URL names another host.
+Iteration stops when the value is absent, `null`, or empty, and it throws if the URL repeats.
+A `body-link` convention rule applies only to operations whose success response resolves the pointer to a string.
 
 `limitParam` is optional metadata for any style.
 The iterator never sets it, so pass your page size in `params` yourself.
@@ -1053,6 +1061,7 @@ The `tanstack-query` generator emits typed TanStack Query v5 factories for each 
   Pass it to `useInfiniteQuery`/`fetchInfiniteQuery`.
   The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
   Because of this, infinite queries need no hand-written `getNextPageParam`.
+  For a `body-link` operation, the URL of the next page is the page param, and the next call merges its query parameters over `vars`.
   `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
   Use the client's `.pages()`/`.items()` iterators for those.
 - `<op>QueryKey(vars?)`.
