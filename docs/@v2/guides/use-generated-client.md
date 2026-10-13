@@ -987,6 +987,8 @@ An explicit rule applies in all cases, but it warns when the header is undocumen
 `body-link` follows the URL of the next page from a field in the response body, for example a `next_page_url` field.
 Set `nextLink` to the pointer of that field (for example `/page/nextPage`).
 The runtime handles the URL the same way as a `link` target: it merges the query parameters of the URL into the next call.
+Only the query parameters of the URL are used.
+The next call goes to the client's own `serverUrl` and the operation's path, even when the URL names another host.
 Iteration stops when the value is absent, `null`, or empty, and it throws if the URL repeats.
 A `body-link` convention rule applies only to operations whose success response resolves the pointer to a string.
 
