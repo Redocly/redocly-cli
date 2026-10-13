@@ -696,6 +696,8 @@ An aborted `AbortSignal` stops retries immediately.
 
 A `timeout` (milliseconds) aborts an attempt that takes too long, including the body read.
 The timeout composes with your own `AbortSignal`.
+The client does not need `AbortSignal.timeout()` or `AbortSignal.any()` from the browser.
+Where a browser lacks them, the client builds the same signal from an `AbortController`, so you do not need a polyfill.
 Each retry attempt gets a fresh time budget.
 An attempt that times out retries under the same policy as a network error.
 When no retries remain, the failure surfaces as a `TimeoutError`, exported next to `ApiError`.
