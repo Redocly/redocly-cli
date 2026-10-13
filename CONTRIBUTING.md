@@ -216,14 +216,12 @@ npm i -g redocly-cli.tgz
 
 ### Performance benchmark
 
-To run the performance benchmark locally, you should have `hyperfine` (v1.16.1+) installed on your machine.
+To run the performance benchmark locally, you should have `hyperfine` (v2.0.0+) installed on your machine.
 Prepare the local build, go to the `benchmark` folder, clean it up, do the preparations, and run the actual benchmark:
 
 ```sh
 (npm run compile && npm run pack:prepare && cd benchmark/ && git clean -dX -f . && git clean -dX -ff . && npm i && npm run make-test && npm test)
 ```
-
-You might need to adjust the CLI versions that need to be tested in the `benchmark/package.json` file.
 
 ## Project structure
 
