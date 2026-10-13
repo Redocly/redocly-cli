@@ -622,8 +622,8 @@ describe('renderMockModule', () => {
     const out = renderMockModule(model, { sdkModule: './client.js', pagination });
     expect(out.slice(out.indexOf('export const listMenuHandler'))).toMatchInlineSnapshot(`
       "export const listMenuHandler = (override?: Record<string, unknown>) => http.get("*/menu", ({ request }) => Number(new URL(request.url).searchParams.get("offset") ?? 0) > 0 ? HttpResponse.json({
-          items: [],
-          ...override
+          ...override,
+          items: []
       }) : HttpResponse.json({
           items: [
               "string"
@@ -637,7 +637,9 @@ describe('renderMockModule', () => {
 
   it('answers with an empty array when the page is the item array itself', () => {
     const model = apiModel({
-      schemas: [],
+      schemas: [
+        { name: 'Tags', schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } } },
+      ],
       services: [
         {
           name: 'Default',
@@ -649,7 +651,7 @@ describe('renderMockModule', () => {
               successResponses: [
                 {
                   contentType: 'application/json',
-                  schema: { kind: 'array', items: { kind: 'scalar', scalar: 'string' } },
+                  schema: { kind: 'ref', name: 'Tags' },
                   status: 200,
                 },
               ],
@@ -668,7 +670,9 @@ describe('renderMockModule', () => {
       ],
     ]);
     const out = renderMockModule(model, { sdkModule: './client.js', pagination });
-    expect(out).toContain('get("page") ?? 1) > 1 ? HttpResponse.json([]) : HttpResponse.json([');
+    expect(out).toContain(
+      'get("page") ?? 1) > 1 ? HttpResponse.json([]) : HttpResponse.json(override ?? ['
+    );
   });
 
   it('returns empty string when there are no operations', () => {

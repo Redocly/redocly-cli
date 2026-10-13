@@ -6,6 +6,17 @@ servers:
   - url: http://localhost:3116
 paths:
   /customers:
+    get:
+      operationId: listCustomers
+      summary: List the customers.
+      responses:
+        '200':
+          description: The customers, without their passwords.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Customer' }
     post:
       operationId: createCustomer
       summary: Register a customer.

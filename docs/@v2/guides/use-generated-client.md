@@ -556,6 +556,8 @@ The position of `readOnly` matters, and it follows the specification version:
 
 The server never returns a property marked `writeOnly: true`, for example a password.
 The generated success response types, zod response schemas, and mocks leave it out, and request bodies keep it.
+This applies to a response that is the schema, a list or map of it, or an inline object that holds it.
+When a named schema holds it, for example a `CustomerPage` with a `data` property, the response type keeps it.
 The Python, Go, and PHP clients share one model for requests and responses, so there the property is optional.
 The position of `writeOnly` next to a `$ref` follows the same rules as `readOnly`.
 
@@ -1024,7 +1026,8 @@ for await (const page of client.listOrders.pages(
 ```
 
 The default `mock` handlers end the iteration: a `cursor` handler returns the last page, and an `offset` or `page` handler returns an empty page after the first one.
-To test more pages, pass an override to the handler.
+An override to the handler sets the data of the first page only.
+To test more pages, write your own MSW handler.
 
 A failed page always stops iteration with a thrown `ApiError`, even on an `--error-mode result` client.
 On a result-mode client, `.pages()` yields raw pages, not `{ data, error, response }` envelopes.

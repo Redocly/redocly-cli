@@ -98,6 +98,18 @@ describe('phpType — unions', () => {
     expect(phpType({ kind: 'union', members: [STRING, { kind: 'null' }] }, base)).toBe('?string');
   });
 
+  it('widens a nullable discriminated union with array without the ? shorthand', () => {
+    const pets = model({
+      Cat: { kind: 'object', properties: [] },
+      Pet: {
+        kind: 'union',
+        members: [{ kind: 'ref', name: 'Cat' }, { kind: 'null' }],
+        discriminator: { propertyName: 'kind', mapping: [{ value: 'cat', schemaName: 'Cat' }] },
+      },
+    });
+    expect(phpType({ kind: 'ref', name: 'Pet' }, pets)).toBe('Cat|array|null');
+  });
+
   it('makes an OPTIONAL union nullable with |null, never a leading ?', () => {
     const out = renderPhpModels(
       model({

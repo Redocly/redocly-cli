@@ -634,7 +634,7 @@ export type UpdateOrderVariables = {
     body?: UpdateOrderBody;
 };
 
-export type ListOrderItemsResult = OrderItem[];
+export type ListOrderItemsResult = Omit<OrderItem, "menuItemId">[];
 
 export type ListOrderItemsQuery = {
     /**

@@ -40,6 +40,9 @@ A standalone MSW module: `create<Name>()` data factories, `<op>Handler()` /
     otherwise, and `hasMore` is `false`. So `.pages()` ends after one page. Offset and
     page-number styles stop only on an empty page, so the handler answers any position
     past the first with an empty item list, and `.pages()` ends after that empty page.
+    The handler's `override` sets the first page: it is spread into an object page, or
+    replaces a page that is the item array. The empty page sets its items after the
+    spread, so an override cannot refill it.
 - Handlers are opt-in overrides: `<op>ErrorHandler` is NOT in `handlers`.
 - The module references the sdk's TYPES only — never its runtime.
 

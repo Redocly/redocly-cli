@@ -30,6 +30,7 @@ import { sampleValue, SampleExpression } from './sample.ts';
 import {
   expr,
   isObjectValue,
+  type MockEntry,
   type MockValue,
   objectValue,
   renderMockValue,
@@ -248,8 +249,14 @@ function resolverFor(op: OperationModel, model: ApiModel, opts: MockOptions): st
     return `() => ${responseExpression(op, model, opts)}`;
   const page = bodyValue(success.schema, model, opts);
   const status = statusCode(success.status);
+  // An object page spreads `override` in; a page that is the item array is replaced by it.
+  const takesOverride = overrideParam(op, model, opts) !== undefined;
+  const withOverride = (value: MockValue): MockValue => {
+    if (isObjectValue(value)) return spreadInto(value, 'override');
+    return takesOverride ? { kind: 'wrap', before: 'override ?? ', value, after: '' } : value;
+  };
   const json = (value: MockValue): string => {
-    const data = renderMockValue(spreadInto(value, 'override'), '');
+    const data = renderMockValue(value, '');
     return status === 200
       ? `HttpResponse.json(${data})`
       : `HttpResponse.json(${data}, { status: ${status} })`;
@@ -262,12 +269,30 @@ function resolverFor(op: OperationModel, model: ApiModel, opts: MockOptions): st
     );
     if (spec.hasMore !== undefined)
       last = withPointer(last, pointerKeys(spec.hasMore), expr('false'));
-    return `() => ${json(last)}`;
+    return `() => ${json(withOverride(last))}`;
   }
   const first = spec.style === 'page' ? 1 : 0;
   const position = `Number(new URL(request.url).searchParams.get(${codeLiteral(spec.param)}) ?? ${first})`;
-  const empty = withPointer(page, pointerKeys(spec.items), expr('[]'));
-  return `({ request }) => ${position} > ${first} ? ${json(empty)} : ${json(page)}`;
+  const empty = emptyPage(page, pointerKeys(spec.items));
+  return `({ request }) => ${position} > ${first} ? ${json(empty)} : ${json(withOverride(page))}`;
+}
+
+/**
+ * The page past the last one: the page with `override` spread in, and the items at `keys`
+ * set AFTER the spread, so an override that sets the items cannot refill the empty page.
+ * The top-level property that holds the items is written out from the sample.
+ */
+function emptyPage(page: MockValue, keys: string[]): MockValue {
+  if (keys.length === 0 || !isObjectValue(page)) return withPointer(page, keys, expr('[]'));
+  const [key, ...rest] = keys;
+  const isKey = (entry: MockEntry) => !('spread' in entry) && entry.key === key;
+  const holder = page.entries.find(isKey);
+  const inner = holder && !('spread' in holder) ? holder.value : objectValue([]);
+  return objectValue([
+    ...page.entries.filter((entry) => !isKey(entry)),
+    { spread: 'override' },
+    { key, value: withPointer(inner, rest, expr('[]')) },
+  ]);
 }
 
 /**

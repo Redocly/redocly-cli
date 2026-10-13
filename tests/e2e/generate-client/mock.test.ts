@@ -282,4 +282,57 @@ describe('mock generator — the mocks satisfy the zod schemas of the same descr
     );
     expect(pages).toBe(1);
   }, 60_000);
+
+  test('items() over an offset handler with an override yields the override items once', () => {
+    const dir = mkdtempSync(join(__dirname, 'mock-offset-'));
+    dirs.push(dir);
+    const description = join(dir, 'menu.yaml');
+    writeFileSync(
+      description,
+      outdent`
+        openapi: 3.1.0
+        info: { title: Menu, version: 1.0.0 }
+        servers: [{ url: https://api.example.com }]
+        paths:
+          /menu:
+            get:
+              operationId: listMenuItems
+              x-redoclyPagination: { style: offset, offsetParam: offset, items: /items }
+              parameters:
+                - { name: offset, in: query, schema: { type: integer } }
+              responses:
+                '200':
+                  description: One page of menu items.
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        required: [items]
+                        properties:
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              required: [name]
+                              properties: { name: { type: string } }
+      `
+    );
+    generateInto(dir, description, ['--generator', 'typescript', '--generator', 'mock']);
+    const names = runConsumer(
+      dir,
+      outdent`
+        import { setupServer } from 'msw/node';
+        import { listMenuItemsHandler } from './client.mocks.ts';
+        import { client } from './client.ts';
+
+        const server = setupServer(listMenuItemsHandler({ items: [{ name: 'Latte' }] }));
+        server.listen({ onUnhandledRequest: 'error' });
+        const names: string[] = [];
+        for await (const item of client.listMenuItems.items()) names.push(item.name);
+        server.close();
+        process.stdout.write(JSON.stringify(names));
+      `
+    );
+    expect(names).toEqual(['Latte']);
+  }, 60_000);
 });

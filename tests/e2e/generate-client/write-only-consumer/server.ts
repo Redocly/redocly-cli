@@ -1,6 +1,6 @@
 // Server for the write-only scenario. It records every request body and answers
-// POST /customers with the registered customer, without the write-only `password`,
-// as the description says. write-only.test.ts reads the log through GET /__test__/log
+// POST /customers with the registered customer and GET /customers with a list, both
+// without the write-only `password`, as the description says. write-only.test.ts reads the log through GET /__test__/log
 // and clears it through POST /__test__/reset before each client runs.
 import * as http from 'node:http';
 
@@ -24,6 +24,12 @@ const server = http.createServer(async (req, res) => {
   if (url === '/__test__/reset') {
     requestLog.length = 0;
     res.writeHead(204).end();
+    return;
+  }
+
+  if (req.method === 'GET') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify([{ id: 'c1', email: 'ada@example.com' }]));
     return;
   }
 

@@ -262,7 +262,10 @@ export function buildApiModel(doc: Oas3Definition): ApiModel {
  * returned in responses, so a create body should not demand `id` and a response should
  * not promise `password`. A body that `$ref`s a named schema becomes
  * `Omit<Name, …keys>` (keeping the named type); an inline object has those properties
- * filtered out. Only success responses are stripped: error bodies keep their schema.
+ * filtered out. Inline arrays, maps, and objects are walked, so a list of `Name` or an
+ * inline `{ data: Name }` wrapper is stripped too; a named schema is never walked into,
+ * because its type is shared. Only success responses are stripped: error bodies keep
+ * their schema.
  */
 function stripDirectionalProperties(
   services: ApiModel['services'],
@@ -300,9 +303,20 @@ function stripDirectional(
     const keys = collectFlaggedKeys(schema, flag, byName, new Set());
     return keys.length > 0 ? { kind: 'omit', base: schema.name, keys } : schema;
   }
+  if (schema.kind === 'array') {
+    return { ...schema, items: stripDirectional(schema.items, flag, byName) };
+  }
+  if (schema.kind === 'record') {
+    return { ...schema, value: stripDirectional(schema.value, flag, byName) };
+  }
   if (schema.kind === 'object') {
-    const kept = schema.properties.filter((p) => !p[flag]);
-    return kept.length === schema.properties.length ? schema : { ...schema, properties: kept };
+    const properties = schema.properties
+      .filter((property) => !property[flag])
+      .map((property) => ({
+        ...property,
+        schema: stripDirectional(property.schema, flag, byName),
+      }));
+    return { ...schema, properties };
   }
   return schema;
 }
