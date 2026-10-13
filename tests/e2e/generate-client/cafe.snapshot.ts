@@ -826,7 +826,7 @@ export type SecuritySpec =
 
 /**
  * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
- * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
+ * `nextCursor`, `nextLink`, and `items` are RFC 6901 JSON pointers into the page (response) value.
  */
 export type PaginationSpec =
   | {
@@ -856,6 +856,16 @@ export type PaginationSpec =
       style: 'link';
       /** Optional page-size query param (recorded for tooling; never set by the runtime). */
       limitParam?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      /** Follow the next page's URL at `nextLink` in the page; stop when it is absent. */
+      style: 'body-link';
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the next page's URL in the page. */
+      nextLink: string;
       /** Pointer to the page's item array. */
       items: string;
     };
@@ -1812,6 +1822,7 @@ type Capabilities = SendCapabilities & {
         args?: OperationArgs,
         init?: RequestOptions
       ) => Promise<{ page: unknown; linkHeader: string | null; url: string }>,
+      spec: PaginationSpec,
       args?: OperationArgs,
       init?: RequestOptions
     ) => AsyncGenerator<unknown>;
@@ -2259,11 +2270,12 @@ function createClientCore<
       client[name] =
         spec === undefined
           ? method
-          : spec.style === 'link'
+          : spec.style === 'link' || spec.style === 'body-link'
             ? Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(
                     linkPageCall(config, op, caps),
+                    spec,
                     inputOf(op, args ?? {}, config),
                     init
                   ),
