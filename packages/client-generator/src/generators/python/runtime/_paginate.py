@@ -1,9 +1,9 @@
 # Auto-pagination iterators for generated Python clients — the TypeScript
 # runtime's paginate.ts semantics ported: cursor (next-cursor pointer, optional
 # has-more flag, repeated-cursor guard), offset/page (advance by count/one,
-# repeated-page guard, null start treated as absent), and link (the RFC 8288
-# `Link: rel="next"` header, or the next-link pointer, followed with relative
-# resolution and a loop guard).
+# repeated-page guard, null start treated as absent), link (RFC 8288
+# `Link: rel="next"` following) and body-link (the next-link pointer's URL), both
+# with relative resolution and a loop guard.
 from __future__ import annotations
 
 import re
@@ -58,7 +58,7 @@ def iter_pages(call: PageCall, spec: Dict[str, Any], params: Optional[Dict[str, 
             if nxt == cursor:
                 raise ValueError("Pagination did not advance: the operation returned the same cursor twice")
             cursor = nxt
-    elif style == "link":
+    elif style in ("link", "body-link"):
         yield from _iter_pages_by_link(call, spec, base)
     else:  # offset / page
         start = base.get(spec["param"])
@@ -95,11 +95,11 @@ def _link_next(header: Optional[str]) -> Optional[str]:
 
 
 def _next_link(spec: Dict[str, Any], page: Any, response: Any) -> Optional[str]:
-    """The next page's URL: the value at the `next_link` pointer when the spec has one,
-    else the `Link` header's rel="next" target; None when absent, null, or empty."""
-    pointer = spec.get("next_link")
-    if pointer is None:
+    """The next page's URL: the `Link` header's rel="next" target for `link`, the value at
+    the `next_link` pointer for `body-link`; None when absent, null, or empty."""
+    if spec["style"] == "link":
         return _link_next(response.headers.get("link"))
+    pointer = spec["next_link"]
     target = resolve_pointer(page, pointer)
     if target is None or target == "":
         return None
@@ -168,7 +168,7 @@ async def aiter_pages(
             if nxt == cursor:
                 raise ValueError("Pagination did not advance: the operation returned the same cursor twice")
             cursor = nxt
-    elif style == "link":
+    elif style in ("link", "body-link"):
         previous = None
         link_params: Dict[str, Any] = dict(base)
         while True:

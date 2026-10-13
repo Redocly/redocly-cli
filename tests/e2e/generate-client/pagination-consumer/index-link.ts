@@ -1,7 +1,7 @@
 import { listReceipts } from './api.js';
 
 // The body-link arm: `listReceipts` follows the next page's URL from the response body
-// (`nextLink: /next`), merging that URL's query parameters into the next call.
+// (`style: body-link`, `nextLink: /next`), merging that URL's query parameters into the next call.
 async function main(): Promise<void> {
   const ids: string[] = [];
   for await (const receipt of listReceipts.items({ query: { limit: 2 } })) {

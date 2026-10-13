@@ -377,8 +377,8 @@ function iterPages(callable $call, array $spec, array $base): \Generator
             }
             $seenCursors[$next] = true;
             $params[$spec['param']] = $next;
-        } elseif ($style === 'link') {
-            $target = isset($spec['nextLink'])
+        } elseif ($style === 'link' || $style === 'body-link') {
+            $target = $style === 'body-link'
                 ? resolvePointer($raw, $spec['nextLink'])
                 : linkNext($response['headers']['link'] ?? null);
             if (!is_string($target) || $target === '' || isset($seenLinks[$target])) {

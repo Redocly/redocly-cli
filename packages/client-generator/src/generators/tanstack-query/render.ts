@@ -64,26 +64,21 @@ export function renderTanstackModule(model: ApiModel, opts: TanstackOptions): st
 
 /**
  * Whether the op gets an `<op>InfiniteOptions` factory: a paginated query operation.
- * `link`-style pagination qualifies only with a `nextLink` pointer and a query parameter
- * to carry the link's parameters — a `Link` response HEADER is invisible to a TanStack
- * `queryFn` (body-only); use the sdk's `.pages()`/`.items()` iterators for those.
+ * `link`-style pagination is excluded — its next page lives in the `Link` response
+ * HEADER, which a TanStack `queryFn` (body-only) cannot see; use the sdk's
+ * `.pages()`/`.items()` iterators for those operations instead. `body-link` qualifies
+ * when the operation has a query parameter to carry the link's parameters.
  */
 function isInfinite(op: OperationModel, pagination: ModelPagination): boolean {
   if (!isQuery(op)) return false;
   const paginated = pagination.get(op.name);
-  if (paginated === undefined) return false;
-  return paginated.spec.style !== 'link' || isBodyLinkInfinite(op, pagination);
+  if (paginated === undefined || paginated.spec.style === 'link') return false;
+  return paginated.spec.style !== 'body-link' || op.queryParams.length > 0;
 }
 
-/** A query op whose `link`-style pagination reads the next page's URL from the body. */
+/** A query op whose `body-link` pagination gets an `<op>InfiniteOptions` factory. */
 function isBodyLinkInfinite(op: OperationModel, pagination: ModelPagination): boolean {
-  const spec = pagination.get(op.name)?.spec;
-  return (
-    isQuery(op) &&
-    spec?.style === 'link' &&
-    spec.nextLink !== undefined &&
-    op.queryParams.length > 0
-  );
+  return isInfinite(op, pagination) && pagination.get(op.name)?.spec.style === 'body-link';
 }
 
 /**
@@ -157,9 +152,9 @@ function factoriesSource(
 ): string {
   const members = ops.flatMap((op) => {
     if (!isQuery(op)) return [mutationMember(op, prefix)];
-    const paginated = pagination.get(op.name);
-    return paginated !== undefined && isInfinite(op, pagination)
-      ? [optionsMember(op), infiniteMember(model, op, paginated.spec, argsStyle)]
+    const spec = pagination.get(op.name)?.spec;
+    return spec !== undefined && spec.style !== 'link' && isInfinite(op, pagination)
+      ? [optionsMember(op), infiniteMember(model, op, spec, argsStyle)]
       : [optionsMember(op)];
   });
   return (
@@ -209,17 +204,16 @@ function mutationMember(op: OperationModel, prefix: string | undefined): string 
 function infiniteMember(
   model: ApiModel,
   op: OperationModel,
-  spec: PaginationSpec,
+  spec: Exclude<PaginationSpec, { style: 'link' }>,
   argsStyle: TanstackOptions['argsStyle']
 ): string {
   const { params, keyArg } = varsPieces(op);
-  if (spec.style === 'link') {
+  if (spec.style === 'body-link') {
     const merged =
       argsStyle === 'flat'
         ? '{ ...vars, ...nextLinkQuery(pageParam) }'
         : '{ ...vars, query: { ...vars.query, ...nextLinkQuery(pageParam) } }';
-    // `isInfinite` admits a link rule only with a `nextLink` pointer.
-    const pointer = spec.nextLink!;
+    const pointer = spec.nextLink;
     const checks = cursorStopChecks(model, op, pointer);
     const next =
       checks.length === 0
@@ -257,7 +251,7 @@ function infiniteMember(
 function nextPageSource(
   model: ApiModel,
   op: OperationModel,
-  spec: Exclude<PaginationSpec, { style: 'link' }>,
+  spec: Exclude<PaginationSpec, { style: 'link' | 'body-link' }>,
   argsStyle: TanstackOptions['argsStyle']
 ): string {
   const advance = paramsAccess(spec.param);

@@ -75,9 +75,9 @@ export async function* pages<TPage>(
       }
       cursor = next;
     }
-  } else if (spec.style === 'link') {
-    // `link` iteration needs the response's `Link` header, which the parsed-page `call`
-    // cannot carry — the client wires those operations to `pagesByLink` instead.
+  } else if (spec.style === 'link' || spec.style === 'body-link') {
+    // Link iteration needs the response's `Link` header and the page URL, which the
+    // parsed-page `call` cannot carry — the client wires those operations to `pagesByLink`.
     throw new Error('link-style pagination iterates via pagesByLink');
   } else {
     // Coerce the starting position to a number: a caller may pass `query[spec.param]` as a
@@ -149,12 +149,12 @@ export function linkNext(header: string | null): string | undefined {
 }
 
 /**
- * Iterate a `link`-style operation's pages: follow the next page's URL — the `Link`
- * header's `rel="next"` target, or the value at the spec's `nextLink` pointer — by
- * merging ITS query params into the next call. Every page goes through the same declared
- * endpoint, so auth, middleware, and `serverUrl` handling apply unchanged, and
- * credentials can never be handed to a cross-origin `next` URL.
- * Stops when there is no next URL (`nextLink`: `undefined`/`null`/`''`); throws when a
+ * Iterate a `link`- or `body-link`-style operation's pages: follow the next page's URL —
+ * the `Link` header's `rel="next"` target (`link`), or the value at the `nextLink` pointer
+ * (`body-link`) — by merging ITS query params into the next call. Every page goes through
+ * the same declared endpoint, so auth, middleware, and `serverUrl` handling apply
+ * unchanged, and credentials can never be handed to a cross-origin `next` URL.
+ * Stops when there is no next URL (`body-link`: `undefined`/`null`/`''`); throws when a
  * `nextLink` value is not a string, or when the link does not advance (the same target
  * twice, or a self-link — an infinite-loop guard).
  */
@@ -164,7 +164,7 @@ export async function* pagesByLink<TPage>(
   args: OperationArgs = {},
   init?: RequestOptions
 ): AsyncGenerator<TPage> {
-  const pointer = spec.style === 'link' ? spec.nextLink : undefined;
+  const pointer = spec.style === 'body-link' ? spec.nextLink : undefined;
   let query = args.query;
   let previous: string | undefined;
   while (true) {

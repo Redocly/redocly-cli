@@ -852,13 +852,20 @@ export type PaginationSpec =
       items: string;
     }
   | {
-      /** Follow the next page's URL — the `Link` header `rel="next"` (RFC 8288), or the
-       * `nextLink` pointer's value when set; stop when absent. */
+      /** RFC 8288: follow the response's `Link` header `rel="next"`; stop when absent. */
       style: 'link';
       /** Optional page-size query param (recorded for tooling; never set by the runtime). */
       limitParam?: string;
-      /** Optional pointer to the next page's URL in the page, read instead of the `Link` header. */
-      nextLink?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      /** Follow the next page's URL at `nextLink` in the page; stop when it is absent. */
+      style: 'body-link';
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the next page's URL in the page. */
+      nextLink: string;
       /** Pointer to the page's item array. */
       items: string;
     };
@@ -2233,7 +2240,7 @@ function createClientCore<
       client[name] =
         spec === undefined
           ? method
-          : spec.style === 'link'
+          : spec.style === 'link' || spec.style === 'body-link'
             ? Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(

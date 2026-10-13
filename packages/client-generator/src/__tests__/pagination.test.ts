@@ -312,50 +312,50 @@ describe('resolveOperationPagination — sources and precedence', () => {
       });
       expect(result.error).toContain('"items" pointer "/missing" does not resolve');
     });
+  });
 
-    describe('nextLink (the next page URL in the body)', () => {
-      const BODY_LINK_RULE: PaginationRule = {
-        style: 'link',
+  describe('body-link style (the next page URL in the body)', () => {
+    const BODY_LINK_RULE: PaginationRule = {
+      style: 'body-link',
+      nextLink: '/nextPageUrl',
+      items: '/orders',
+    };
+    /** `listOrders` returning `{ orders: Order[]; nextPageUrl: string | null }`, no `Link` header. */
+    const bodyLinkOp = (nextPageUrl: SchemaModel = SCALAR) =>
+      listOrders({
+        successResponses: [
+          response({
+            schema: {
+              kind: 'object',
+              properties: [
+                { name: 'orders', schema: ORDER_LIST, required: true },
+                { name: 'nextPageUrl', schema: nextPageUrl, required: true },
+              ],
+            },
+          }),
+        ],
+      });
+
+    it('a convention rule fits operations that resolve the pointer, no Link header needed', () => {
+      const op = bodyLinkOp({ kind: 'union', members: [SCALAR, { kind: 'null' }] });
+      expect(resolveOperationPagination(op, modelWith([op]), BODY_LINK_RULE).spec).toEqual({
+        style: 'body-link',
         nextLink: '/nextPageUrl',
         items: '/orders',
-      };
-      /** `listOrders` returning `{ orders: Order[]; nextPageUrl: string | null }`, no `Link` header. */
-      const bodyLinkOp = (nextPageUrl: SchemaModel = SCALAR) =>
-        listOrders({
-          successResponses: [
-            response({
-              schema: {
-                kind: 'object',
-                properties: [
-                  { name: 'orders', schema: ORDER_LIST, required: true },
-                  { name: 'nextPageUrl', schema: nextPageUrl, required: true },
-                ],
-              },
-            }),
-          ],
-        });
-
-      it('a convention rule fits operations that resolve the pointer, no Link header needed', () => {
-        const op = bodyLinkOp({ kind: 'union', members: [SCALAR, { kind: 'null' }] });
-        expect(resolveOperationPagination(op, modelWith([op]), BODY_LINK_RULE).spec).toEqual({
-          style: 'link',
-          nextLink: '/nextPageUrl',
-          items: '/orders',
-        });
-        // The pointer does not resolve: the convention silently skips the operation.
-        const other = listOrders();
-        expect(resolveOperationPagination(other, modelWith([other]), BODY_LINK_RULE)).toEqual({});
       });
+      // The pointer does not resolve: the convention silently skips the operation.
+      const other = listOrders();
+      expect(resolveOperationPagination(other, modelWith([other]), BODY_LINK_RULE)).toEqual({});
+    });
 
-      it('an explicit rule fails when the pointer does not point at a string', () => {
-        const op = bodyLinkOp({ kind: 'scalar', scalar: 'integer' });
-        const result = resolveOperationPagination(op, modelWith([op]), {
-          operations: { listOrders: BODY_LINK_RULE },
-        });
-        expect(result.error).toBe(
-          'Pagination for operation "listOrders" (pagination.operations["listOrders"]): the "nextLink" pointer "/nextPageUrl" must point at a string (got scalar)'
-        );
+    it('an explicit rule fails when the pointer does not point at a string', () => {
+      const op = bodyLinkOp({ kind: 'scalar', scalar: 'integer' });
+      const result = resolveOperationPagination(op, modelWith([op]), {
+        operations: { listOrders: BODY_LINK_RULE },
       });
+      expect(result.error).toBe(
+        'Pagination for operation "listOrders" (pagination.operations["listOrders"]): the "nextLink" pointer "/nextPageUrl" must point at a string (got scalar)'
+      );
     });
   });
 
@@ -428,12 +428,12 @@ describe('resolveOperationPagination — rule-shape validation (any source)', ()
     [
       'an unknown style',
       { ...CURSOR_RULE, style: 'zigzag' },
-      '"style" must be one of "cursor" | "offset" | "page" | "link" (got "zigzag")',
+      '"style" must be one of "cursor" | "offset" | "page" | "link" | "body-link" (got "zigzag")',
     ],
     [
       'a missing style',
       { items: '/orders' },
-      '"style" must be one of "cursor" | "offset" | "page" | "link" (got undefined)',
+      '"style" must be one of "cursor" | "offset" | "page" | "link" | "body-link" (got undefined)',
     ],
     [
       'missing items',
@@ -471,9 +471,14 @@ describe('resolveOperationPagination — rule-shape validation (any source)', ()
       'page style requires an "offsetParam" query parameter name',
     ],
     [
+      'body-link style without nextLink',
+      { style: 'body-link', items: '/orders' },
+      'body-link style requires a "nextLink" JSON pointer starting with "/"',
+    ],
+    [
       'a nextLink pointer without the leading slash',
-      { style: 'link', nextLink: 'next', items: '/orders' },
-      '"nextLink" must be a JSON pointer starting with "/"',
+      { style: 'body-link', nextLink: 'next', items: '/orders' },
+      'body-link style requires a "nextLink" JSON pointer starting with "/"',
     ],
     [
       'a non-string limitParam',
@@ -792,7 +797,7 @@ describe('resolveModelPagination', () => {
         '  - Pagination for operation "listOrders" (x-redoclyPagination): ' +
         'query parameter "after" is not declared on the operation (declared: cursor, offset, page, limit)\n' +
         '  - Pagination for operation "listRefunds" (x-redoclyPagination): ' +
-        '"style" must be one of "cursor" | "offset" | "page" | "link" (got "nope")'
+        '"style" must be one of "cursor" | "offset" | "page" | "link" | "body-link" (got "nope")'
     );
   });
 

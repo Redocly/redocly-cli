@@ -405,7 +405,7 @@ const ClientGeneratorOptions: NodeType = {
 };
 const ClientPaginationRule: NodeType = {
   properties: {
-    style: { enum: ['cursor', 'offset', 'page', 'link'] },
+    style: { enum: ['cursor', 'offset', 'page', 'link', 'body-link'] },
     cursorParam: { type: 'string' },
     nextCursor: { type: 'string' },
     hasMore: { type: 'string' },

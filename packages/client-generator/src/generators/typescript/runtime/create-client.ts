@@ -507,7 +507,7 @@ export function createClientCore<
       client[name] =
         spec === undefined
           ? method
-          : spec.style === 'link'
+          : spec.style === 'link' || spec.style === 'body-link'
             ? Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(

@@ -375,8 +375,12 @@ describe('pagesByLink / itemsByLink (link style)', () => {
     expect(await collect(itemsByLink(call, deep))).toEqual(['a', 'b', 'c']);
   });
 
-  it('follows the nextLink pointer in the body instead of the Link header, until it is null', async () => {
-    const bodyLink: PaginationSpec = { style: 'link', nextLink: '/page/nextPage', items: '/data' };
+  it('body-link: follows the nextLink pointer in the body, not the Link header, until it is null', async () => {
+    const bodyLink: PaginationSpec = {
+      style: 'body-link',
+      nextLink: '/page/nextPage',
+      items: '/data',
+    };
     const { call, calls } = linkStub([
       {
         page: { data: ['a'], page: { nextPage: '/orders?limit=1&after=a' } },
@@ -389,8 +393,8 @@ describe('pagesByLink / itemsByLink (link style)', () => {
     expect(calls[1].args?.query).toEqual({ limit: '1', after: 'a' });
   });
 
-  it('throws when the nextLink value is not a string', async () => {
-    const bodyLink: PaginationSpec = { style: 'link', nextLink: '/next', items: '' };
+  it('body-link: throws when the nextLink value is not a string', async () => {
+    const bodyLink: PaginationSpec = { style: 'body-link', nextLink: '/next', items: '' };
     const { call } = linkStub([{ page: { next: 2 }, linkHeader: null }]);
     await expect(collect(pagesByLink(call, bodyLink))).rejects.toThrow(
       'Pagination link at /next is not a string'

@@ -320,10 +320,10 @@ describe('renderTanstackModule', () => {
       expect(out).not.toContain('infiniteQueryOptions');
     });
 
-    it('compiles a nextLink rule: the body link is the page param, its query merges over vars', () => {
+    it('compiles a body-link rule: the link is the page param, its query merges over vars', () => {
       // `listOp`'s `page.endCursor` is a nullable string: here it plays the next page's URL.
       const out = render([listOp], {
-        pagination: { style: 'link', nextLink: '/page/endCursor', items: '/items' },
+        pagination: { style: 'body-link', nextLink: '/page/endCursor', items: '/items' },
       });
       expect(out).toContain('const nextLinkQuery = (link: string) => {');
       expect(out).toContain(

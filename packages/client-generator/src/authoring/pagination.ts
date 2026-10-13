@@ -14,7 +14,7 @@ export type NeutralPaginationRule = {
   param?: string;
   nextCursor?: string;
   hasMore?: string;
-  /** Link style: the pointer to the next page's URL in the body, read instead of the `Link` header. */
+  /** Body-link style: the pointer to the next page's URL in the response. */
   nextLink?: string;
   limitParam?: string;
   items?: string;
@@ -22,9 +22,7 @@ export type NeutralPaginationRule = {
 
 /**
  * Pagination for one operation. The convention rule applies only where it structurally
- * fits — the advance parameter exists on the operation, or for `link` (which has no
- * parameter) the success response documents a `Link` header, or its `nextLink` pointer
- * resolves to a string (which needs `model`); `exclude` kills every source.
+ * fits (see `conventionFits`); `exclude` kills every source.
  * Returns undefined when the operation does not paginate.
  */
 export function paginationRuleFor(
@@ -42,29 +40,7 @@ export function paginationRuleFor(
     operations[id] ?? (op.paginationExtension as Record<string, unknown> | undefined);
   if (rule === undefined && typeof configuration.style === 'string') {
     const { exclude: _exclude, operations: _operations, ...convention } = configuration;
-    const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
-    // A convention needs a structural fit signal: the advance parameter for cursor/offset/
-    // page, and for `link` (which has no parameter) a documented `Link` response header or a
-    // response whose `nextLink` pointer resolves to a string — the same gate the TypeScript
-    // emitter applies. Without it, a link convention would attach page iterators to every
-    // operation in the description.
-    const page = op.successResponses.find((response) =>
-      response.contentType.toLowerCase().includes('json')
-    );
-    const { nextLink } = convention;
-    const linkTarget =
-      typeof nextLink === 'string' && model !== undefined && page !== undefined
-        ? schemaAtPointer(page.schema, nextLink, model)
-        : undefined;
-    const linkSchema = linkTarget && model && deref(unwrapNullable(linkTarget), model);
-    const fits =
-      convention.style !== 'link'
-        ? typeof advance === 'string' && op.queryParams.some((param) => param.name === advance)
-        : typeof nextLink === 'string'
-          ? (linkSchema?.kind === 'scalar' || linkSchema?.kind === 'enum') &&
-            linkSchema.scalar === 'string'
-          : op.successResponseHeaders?.some((header) => header.name === 'link') === true;
-    if (fits) rule = convention as Record<string, unknown>;
+    if (conventionFits(op, convention, model)) rule = convention as Record<string, unknown>;
   }
   if (rule === undefined || typeof rule.style !== 'string') return undefined;
   const param = rule.style === 'cursor' ? rule.cursorParam : rule.offsetParam;
@@ -77,4 +53,33 @@ export function paginationRuleFor(
     ...(typeof rule.limitParam === 'string' ? { limitParam: rule.limitParam } : {}),
     ...(typeof rule.items === 'string' ? { items: rule.items } : {}),
   };
+}
+
+/**
+ * Whether a convention rule structurally fits the operation — the same gate the TypeScript
+ * emitter applies. Without it, a link convention would attach page iterators to every
+ * operation in the description.
+ */
+function conventionFits(
+  op: OperationModel,
+  convention: Record<string, unknown>,
+  model: ApiModel | undefined
+): boolean {
+  // `link` has no advance parameter: the success response must document a `Link` header.
+  if (convention.style === 'link') {
+    return op.successResponseHeaders?.some((header) => header.name === 'link') === true;
+  }
+  // `body-link` has none either: its `nextLink` pointer must resolve to a string.
+  if (convention.style === 'body-link') {
+    if (typeof convention.nextLink !== 'string' || model === undefined) return false;
+    const page = op.successResponses.find((response) =>
+      response.contentType.toLowerCase().includes('json')
+    );
+    const target = page && schemaAtPointer(page.schema, convention.nextLink, model);
+    const link = target && deref(unwrapNullable(target), model);
+    return (link?.kind === 'scalar' || link?.kind === 'enum') && link.scalar === 'string';
+  }
+  // cursor/offset/page: the advance parameter must be declared on the operation.
+  const advance = convention.style === 'cursor' ? convention.cursorParam : convention.offsetParam;
+  return typeof advance === 'string' && op.queryParams.some((param) => param.name === advance);
 }

@@ -44,19 +44,26 @@ export type PaginationSpec =
       items: string;
     }
   | {
-      /** Follow the next page's URL — the `Link` header `rel="next"` (RFC 8288), or the
-       * `nextLink` pointer's value when set; stop when absent. */
+      /** RFC 8288: follow the response's `Link` header `rel="next"`; stop when absent. */
       style: 'link';
       /** Optional page-size query param (recorded for tooling; never set by the runtime). */
       limitParam?: string;
-      /** Optional pointer to the next page's URL in the page, read instead of the `Link` header. */
-      nextLink?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      /** Follow the next page's URL at `nextLink` in the page; stop when it is absent. */
+      style: 'body-link';
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the next page's URL in the page. */
+      nextLink: string;
       /** Pointer to the page's item array. */
       items: string;
     };
 
 /** The pagination styles the generated runtime can drive. */
-export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
+export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link' | 'body-link';
 
 /**
  * One user-facing pagination rule — the shared shape of the `x-redoclyPagination` operation
@@ -65,7 +72,8 @@ export type PaginationStyle = 'cursor' | 'offset' | 'page' | 'link';
  */
 export type PaginationRule = {
   /** `cursor` follows a response cursor; `offset`/`page` increment a numeric param;
-   * `link` follows the next page's URL (the RFC 8288 `Link` header `rel="next"`, or `nextLink`). */
+   * `link` follows the response's RFC 8288 `Link` header `rel="next"`; `body-link` follows
+   * the next page's URL at `nextLink` in the response. */
   style: PaginationStyle;
   /** Cursor style: the request query param that receives the cursor. */
   cursorParam?: string;
@@ -79,10 +87,7 @@ export type PaginationRule = {
   hasMore?: string;
   /** Offset/page styles: the request query param the iterator advances. */
   offsetParam?: string;
-  /**
-   * Link style: optional JSON pointer to the next page's URL in the response body, followed
-   * instead of the `Link` header — for APIs that return `next_page_url`-style fields.
-   */
+  /** Body-link style: JSON pointer to the next page's URL in the response. */
   nextLink?: string;
   /** Optional page-size query param (any style; recorded for tooling). */
   limitParam?: string;
@@ -183,7 +188,7 @@ function applyRule(
     explicit ? { error: `${label}: ${problem}` } : {};
 
   if (op.sse !== undefined) return misfit('the operation is a Server-Sent Events stream');
-  if (valid.style !== 'link') {
+  if (valid.style !== 'link' && valid.style !== 'body-link') {
     const paramField = valid.style === 'cursor' ? 'cursorParam' : 'offsetParam';
     const param = valid.style === 'cursor' ? valid.cursorParam! : valid.offsetParam!;
     const advance = op.queryParams.find((p) => p.name === param);
@@ -216,7 +221,7 @@ function applyRule(
   // the same response `computeResponse` types (JSON preferred over other content types).
   const page = op.successResponses.find((r) => r.contentType.toLowerCase().includes('json'));
   if (!page) return misfit('the operation has no JSON success response');
-  if (valid.style === 'link' && valid.nextLink === undefined) {
+  if (valid.style === 'link') {
     // The declared `Link` header is the structural fit signal: a convention rule applies
     // only to operations that document it; an explicit rule applies regardless (a spec
     // often under-documents headers) but says so, since the runtime then depends on an
@@ -241,8 +246,8 @@ function applyRule(
       `the "items" pointer "${valid.items}" must point at an array (got ${itemsTarget.kind})`
     );
   }
-  if (valid.style === 'link' && valid.nextLink !== undefined) {
-    const linkTarget = resolveSchemaPointer(page.schema, valid.nextLink, model);
+  if (valid.style === 'body-link') {
+    const linkTarget = resolveSchemaPointer(page.schema, valid.nextLink!, model);
     if (linkTarget === undefined) {
       return misfit(
         `the "nextLink" pointer "${valid.nextLink}" does not resolve in the success response schema`
@@ -292,13 +297,10 @@ function applyRule(
           items: valid.items,
         }
       : valid.style === 'link'
-        ? {
-            style: 'link',
-            ...limitParam,
-            ...(valid.nextLink !== undefined ? { nextLink: valid.nextLink } : {}),
-            items: valid.items,
-          }
-        : { style: valid.style, param: valid.offsetParam!, ...limitParam, items: valid.items };
+        ? { style: 'link', ...limitParam, items: valid.items }
+        : valid.style === 'body-link'
+          ? { style: 'body-link', ...limitParam, nextLink: valid.nextLink!, items: valid.items }
+          : { style: valid.style, param: valid.offsetParam!, ...limitParam, items: valid.items };
   return { spec, itemSchema: itemsTarget.items };
 }
 
@@ -311,8 +313,14 @@ function ruleShapeProblem(rule: unknown): string | undefined {
   if (!isPlainObject(rule)) return 'the rule must be an object';
   const { style, cursorParam, nextCursor, hasMore, offsetParam, nextLink, limitParam, items } =
     rule;
-  if (style !== 'cursor' && style !== 'offset' && style !== 'page' && style !== 'link') {
-    return `"style" must be one of "cursor" | "offset" | "page" | "link" (got ${JSON.stringify(style)})`;
+  if (
+    style !== 'cursor' &&
+    style !== 'offset' &&
+    style !== 'page' &&
+    style !== 'link' &&
+    style !== 'body-link'
+  ) {
+    return `"style" must be one of "cursor" | "offset" | "page" | "link" | "body-link" (got ${JSON.stringify(style)})`;
   }
   if (typeof items !== 'string' || (items !== '' && !items.startsWith('/'))) {
     return '"items" must be a JSON pointer starting with "/" (or "" when the response body is the item array itself)';
@@ -331,11 +339,12 @@ function ruleShapeProblem(rule: unknown): string | undefined {
     if (typeof offsetParam !== 'string' || offsetParam === '') {
       return `${style} style requires an "offsetParam" query parameter name`;
     }
+  } else if (style === 'body-link') {
+    if (typeof nextLink !== 'string' || !nextLink.startsWith('/')) {
+      return 'body-link style requires a "nextLink" JSON pointer starting with "/"';
+    }
   }
-  // `link` needs no advance parameter: the runtime follows the next page's URL.
-  if (nextLink !== undefined && (typeof nextLink !== 'string' || !nextLink.startsWith('/'))) {
-    return '"nextLink" must be a JSON pointer starting with "/"';
-  }
+  // `link` and `body-link` need no advance parameter: the runtime follows the next page's URL.
   if (limitParam !== undefined && typeof limitParam !== 'string') {
     return '"limitParam" must be a query parameter name';
   }

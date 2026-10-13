@@ -67,8 +67,8 @@ describe('paginationRuleFor', () => {
     });
   });
 
-  it('applies a nextLink convention only where the pointer resolves to a string', () => {
-    const convention = { style: 'link', nextLink: '/page/next', items: '/items' };
+  it('applies a body-link convention only where the nextLink pointer resolves to a string', () => {
+    const convention = { style: 'body-link', nextLink: '/page/next', items: '/items' };
     const model = { schemas: [] } as unknown as ApiModel;
     const paged = op({
       successResponses: [

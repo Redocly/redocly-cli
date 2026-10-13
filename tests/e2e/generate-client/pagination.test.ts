@@ -6,8 +6,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { killServer, repoRoot, startServer, serverLog } from './helpers.js';
 
 // Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
-// (cursor style — three pages, resume, abort; link style with the next page's URL in the
-// body) generated with NO config, the config-convention arm (offset style, applied only
+// (cursor style — three pages, resume, abort; body-link style with the next page's URL in
+// the body) generated with NO config, the config-convention arm (offset style, applied only
 // where it structurally fits), and a package-mode arm proving `.pages()`/`.items()` ship
 // from the installed runtime.
 // Pagination has no CLI flag, so config-carrying runs use the BUILT package's
@@ -109,7 +109,7 @@ describe('generate-client pagination consumer', () => {
     );
     expect(api).not.toContain('export const listOrders = Object.assign');
     expect(api).toContain(
-      'pagination: { style: "link", limitParam: "limit", nextLink: "/next", items: "/receipts" }'
+      'pagination: { style: "body-link", limitParam: "limit", nextLink: "/next", items: "/receipts" }'
     );
     // Inline mode embeds paginate.ts (the infinite-loop guard is its fingerprint).
     expect(api).toContain('// ─── Embedded runtime');
@@ -209,7 +209,7 @@ describe('generate-client pagination consumer', () => {
     ]);
   }, 60_000);
 
-  test('link (extension arm, nextLink): follows the URL in the body until it is null', async () => {
+  test('body-link (extension arm): follows the URL in the body until it is null', async () => {
     await resetLog();
     const { stdout } = runConsumer('index-link.ts');
     const parsed = JSON.parse(stdout.trim()) as { ids: string[] };

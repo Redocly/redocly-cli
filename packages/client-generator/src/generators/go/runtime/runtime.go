@@ -572,7 +572,7 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 				}
 				cursor = next
 			}
-		case "link":
+		case "link", "body-link":
 			params := cloneValues(base)
 			previous := ""
 			for {
@@ -585,7 +585,7 @@ func iterPages(call pageCall, spec PaginationSpec, base url.Values) func(yield f
 					return
 				}
 				var target string
-				if spec.NextLink == "" {
+				if spec.Style == "link" {
 					target = linkNext(resp.Header.Get("Link"))
 				} else {
 					value := resolvePointer(page, spec.NextLink)

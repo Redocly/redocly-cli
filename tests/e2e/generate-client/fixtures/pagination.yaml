@@ -88,7 +88,7 @@ paths:
       summary: List receipts, following the next page's URL in the response body.
       # The body-link arm: the next page's URL is a response field, not a `Link` header.
       x-redoclyPagination:
-        style: link
+        style: body-link
         nextLink: /next
         limitParam: limit
         items: /receipts
