@@ -15,7 +15,6 @@ function getAjv(): Ajv2020 {
   if (!ajv) {
     ajv = new Ajv2020({
       strictSchema: false,
-      validateFormats: false,
       allowUnionTypes: true,
       useDefaults: true,
       allErrors: true,
@@ -23,6 +22,8 @@ function getAjv(): Ajv2020 {
       strictTypes: false,
       verbose: true,
     });
+    // the config schema marks file paths with this format; any string passes
+    ajv.addFormat('uri-reference', true);
   }
   return ajv;
 }
