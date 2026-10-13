@@ -18,7 +18,6 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
     "lib": ["ESNext", "DOM", "dom.iterable"],
-    "paths": { "*": ["./packages/*"] },
     "skipLibCheck": true,
     "moduleResolution": "nodenext",
     "esModuleInterop": true

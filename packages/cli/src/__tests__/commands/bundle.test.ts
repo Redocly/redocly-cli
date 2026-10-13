@@ -10,12 +10,12 @@ import { type MockInstance } from 'vitest';
 import { type Arguments } from 'yargs';
 
 import { type BundleArgv, bundleTelemetry, handleBundle } from '../../commands/bundle.js';
+import { loadAndCheckConfig } from '../../commands/check-config.js';
 import {
   dumpBundle,
   getFallbackApisOrExit,
   getOutputFileName,
   handleError,
-  loadConfigAndHandleErrors,
   saveBundle,
 } from '../../utils/miscellaneous.js';
 import { commandWrapper } from '../../wrapper.js';
@@ -51,7 +51,8 @@ describe('bundle', () => {
     });
 
     vi.mock('../../utils/miscellaneous.js');
-    vi.mocked(loadConfigAndHandleErrors).mockResolvedValue(configFixture);
+    vi.mock('../../commands/check-config.js');
+    vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
     );

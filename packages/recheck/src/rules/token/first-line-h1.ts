@@ -45,7 +45,7 @@ export const firstLineH1: TokenRule = {
   defaults: {
     message: 'First line in a file should be a top-level heading',
     allowPreamble: false,
-    frontMatterTitle: '^\\s*"?title"?\\s*[:=]',
+    frontMatterTitle: '^"?title"?\\s*[:=]',
     level: 1,
   },
   check(ctx) {

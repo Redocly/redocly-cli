@@ -112,7 +112,7 @@ export async function getPageHTML(
 
   const redocScript = inlineBundle
     ? escapeClosingScriptTag(getRedocStandaloneSource())
-    : `import { hydrate } from "https://cdn.redoc.ly/redoc/v${redocVersion}/bundle/redoc.standalone.js";`;
+    : `import { hydrate } from "https://cdn.redoc.ly/redoc/v${redocVersion}/bundles/redoc.standalone.js";`;
 
   const definitionTitle =
     typeof definition === 'string'
@@ -146,7 +146,7 @@ function getRedocStandaloneSource(): string {
   }
   const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
   return readFileSync(
-    path.join(path.dirname(redocPackageJsonPath), 'bundle', 'redoc.standalone.js'),
+    path.join(path.dirname(redocPackageJsonPath), 'bundles', 'redoc.standalone.js'),
     'utf-8'
   );
 }

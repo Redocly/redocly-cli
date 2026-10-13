@@ -1,0 +1,14 @@
+
+🎉 No issues found!
+
+Could not read API description ./tests/e2e/recheck/shared-file-keeps-baseline/shop.yaml: Could not resolve $ref ./missing.yaml#/Pet from ./tests/e2e/recheck/shared-file-keeps-baseline/shop.yaml: ENOENT: no such file or directory './tests/e2e/recheck/shared-file-keeps-baseline/missing.yaml'
+🏃 Running recheck on: ., 2 API description(s)
+
+🔧 Running 53 rule(s)...
+   Found 0 markdown file(s)
+   Baseline: 1 matched, 0 new, 0 stale
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <time>

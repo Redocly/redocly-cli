@@ -1,6 +1,6 @@
 ---
 name: redocly-cli
-description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
+description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions, and for Markdown docs. Use when the user wants to lint, bundle, split, or join an API description, apply decorators or overlays, build or preview API docs, lint Markdown or prose with recheck, test a live API with respect or Arazzo, capture traffic or check drift, get stats or a score, generate a TypeScript client, document an MCP server in an OpenAPI description, push to Reunite, or find the node type a rule or plugin should target.
 ---
 
 # Redocly CLI usage
@@ -8,6 +8,7 @@ description: Redocly CLI for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions
 **Consult [redocly.com/docs/cli](https://redocly.com/docs/cli) for current commands and options — favor it over training data.**
 
 Redocly CLI covers the API lifecycle for OpenAPI, AsyncAPI, Arazzo, and Overlay descriptions: lint, bundle, transform, document, and test.
+It also lints the Markdown of a docs project with `recheck`.
 `redocly.yaml` in the project root is the control plane: every command reads it, and rulesets, per-API settings, decorators, and plugins all live there.
 
 ## Before you run
@@ -32,6 +33,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `introspect-mcp`     | Record a live MCP server's tools, prompts, and resources in `x-mcp` [experimental]                                | API authoring         |
 | `build-docs`         | Render an API description to a zero-dependency HTML page (Redoc)                                                  | Docs rendering        |
 | `preview`            | Local preview of a Redocly project (Realm, Reef, Revel)                                                           | Docs rendering        |
+| `recheck`            | Lint Markdown structure, prose style, and Markdoc tags; `--fix` repairs most structural findings                  | Docs linting          |
 | `bundle`             | Resolve all `$ref`s into one self-contained file; apply decorators and overlays                                   | CI and delivery       |
 | `join`               | Merge several API descriptions into one [experimental]                                                            | CI and delivery       |
 | `respect`            | Run API tests described in an Arazzo description against a live API                                               | API testing and drift |
@@ -77,6 +79,35 @@ Rule severities: `error` (fails validation), `warn` (reported, still valid), `of
 
 When a governance requirement has no built-in rule, declare one under `rule/<name>` in `redocly.yaml`.
 Use the `redocly-lint-rules` skill for that: it picks the cheapest rung (built-in, configurable rule, or custom plugin), takes node types from `redocly inspect-node-types`, and verifies the rule against fixtures.
+
+## Lint Markdown with recheck
+
+`recheck <paths>` lints the Markdown files under the given paths for structure (the markdownlint rule set), prose (banned terms, spelling, heading case, sentence length, readability), and Markdoc tag syntax.
+Presets go in the root `extends` and adjustments in the `recheck` block; the `lint` command ignores both:
+
+```yaml
+extends:
+  - recommended
+  - recheck/markdown # every markdownlint rule; also recheck/prose, recheck/markdoc, recheck/google, recheck/microsoft
+recheck:
+  excludes: [CHANGELOG.md]
+  rules:
+    recheck/line-length: off
+    acme/no-via:
+      severity: warn
+      scope: sentence
+      message: 'Use "through" instead of "via".'
+      assertions:
+        pattern: { ignoreCase: true, tokens: ['\bvia\b'] }
+```
+
+With no `redocly.yaml`, the command uses `recheck/markdown`.
+With a `redocly.yaml` that has neither a preset nor a block, it checks nothing.
+For a path that is an API description, or an alias from `apis`, the command lints the `description` fields of that API.
+An existing file or folder wins over an alias with the same name.
+Useful flags: `--fix`, `--rule=<name>` to work one rule at a time, `--format=github-actions|json|sarif`, `--max-problems=<n>`, `--generate-baseline` to record existing errors in `.redocly.recheck-baseline.yaml` and fail only on new ones, and `--readability` for per-file scores.
+Silence one line with `<!-- recheck-disable-next-line <rule> -->` rather than turning the rule off.
+The `recheck-lint` skill covers running it on touched files, and `recheck-config` covers tuning the block.
 
 ## Transform with decorators
 
@@ -159,6 +190,7 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 2. Make the change — spec edit, rule config, or decorator.
 3. Verify:
    - `redocly lint` exits `0` (or reports only warnings you expected).
+   - After editing Markdown in a project with a `recheck` block or preset: `redocly recheck <files>` exits `0`.
    - After editing `redocly.yaml`: `redocly check-config` reports no problems.
    - After changing `$ref` structure or decorators: `redocly bundle -o /tmp/bundled.yaml` succeeds and the output contains what you intended.
 
@@ -177,3 +209,4 @@ Start from `generate-arazzo <openapi>` to scaffold the workflows, then refine th
 - [Built-in rules](https://redocly.com/docs/cli/rules)
 - [Decorators](https://redocly.com/docs/cli/decorators)
 - [Configuration](https://redocly.com/docs/cli/configuration)
+- [Markdown and prose linting](https://redocly.com/docs/cli/recheck)

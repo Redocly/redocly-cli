@@ -112,6 +112,20 @@ describe('drift - validate mode', () => {
     await matchSnapshot('validate-readonly', output);
   });
 
+  test('validates the whole query against a querystring parameter', async () => {
+    const { output } = runDrift([
+      'traffic-querystring.ndjson',
+      '--api',
+      'querystring-openapi.yaml',
+      '--rules',
+      'schema-consistency',
+      '--max-findings',
+      '40',
+      '--coverage',
+    ]);
+    await matchSnapshot('validate-querystring', output);
+  });
+
   test('validates composed schemas (allOf, oneOf, anyOf)', async () => {
     const { output } = runDrift([
       'traffic-composition.ndjson',

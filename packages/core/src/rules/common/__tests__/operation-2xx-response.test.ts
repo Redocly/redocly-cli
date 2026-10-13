@@ -66,7 +66,7 @@ describe('Oas3 operation-2xx-response', () => {
       config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report for present default', async () => {
@@ -89,7 +89,7 @@ describe('Oas3 operation-2xx-response', () => {
       config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report for present default when disallowDefault is true', async () => {
@@ -238,6 +238,6 @@ describe('Oas3 operation-2xx-response', () => {
       config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

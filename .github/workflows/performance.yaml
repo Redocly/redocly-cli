@@ -33,7 +33,9 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Install External
-        run: npm i -g hyperfine
+        run: |
+          wget -q https://github.com/sharkdp/hyperfine/releases/download/v2.0.0/hyperfine_2.0.0_amd64.deb
+          sudo dpkg -i hyperfine_2.0.0_amd64.deb
 
       - name: Add more versions to test
         # Run only on the release branch (changeset-release/main):

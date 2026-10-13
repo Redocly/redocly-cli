@@ -27,7 +27,7 @@ describe('Oas3 operation-tag-defined', () => {
       config: await createConfig({ rules: { 'operation-tag-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on operation object if no tags are defined', async () => {

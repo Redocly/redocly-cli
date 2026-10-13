@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.4.0 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.6.0 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -84,33 +84,34 @@ export const phpGenerator: Generator = ({ model, output, emit, pagination }) => 
     if (spec !== undefined) paginationRules.set(op.name, spec);
   }
 
-  printer.block(
-    'const OPERATIONS = [',
-    () => {
-      for (const op of operations) {
-        const id = op.specName ?? op.name;
-        const security = phpSecurityLiteral(op, model);
-        const rule = paginationRules.get(op.name);
-        const fields = [
-          `'id' => ${phpString(id)}`,
-          `'method' => ${phpString(op.method.toUpperCase())}`,
-          `'path' => ${phpString(op.path)}`,
-          ...(security !== undefined ? [`'security' => ${security}`] : []),
-          ...(rule !== undefined ? [`'pagination' => ${phpPaginationLiteral(rule)}`] : []),
-        ];
-        printer.line(`${phpString(id)} => [${fields.join(', ')}],`);
-      }
-    },
-    '];'
-  );
-  printer.blank();
-
   printer.doc('Client', `Client for ${model.title} (${model.version}).`);
   // Not final: PHP test suites mock concrete classes (createMock(Client::class)).
   printer.line('class Client');
   printer.block(
     '{',
     () => {
+      // A class constant, not a file-level one: OPcache preload keeps classes but drops
+      // file-level constants, and the file is never included again once Client exists.
+      printer.block(
+        'public const OPERATIONS = [',
+        () => {
+          for (const op of operations) {
+            const id = op.specName ?? op.name;
+            const security = phpSecurityLiteral(op, model);
+            const rule = paginationRules.get(op.name);
+            const fields = [
+              `'id' => ${phpString(id)}`,
+              `'method' => ${phpString(op.method.toUpperCase())}`,
+              `'path' => ${phpString(op.path)}`,
+              ...(security !== undefined ? [`'security' => ${security}`] : []),
+              ...(rule !== undefined ? [`'pagination' => ${phpPaginationLiteral(rule)}`] : []),
+            ];
+            printer.line(`${phpString(id)} => [${fields.join(', ')}],`);
+          }
+        },
+        '];'
+      );
+      printer.blank();
       printer.line('public function __construct(private Config $config)');
       printer.block(
         '{',
@@ -216,5 +217,5 @@ export default {
     "argsStyle": "inputs follow the target language's own idiom",
     "importExt": "the generated file has no relative imports"
   },
-  requiresGenerator: '^0.4.0',
+  requiresGenerator: '^0.6.0',
 };

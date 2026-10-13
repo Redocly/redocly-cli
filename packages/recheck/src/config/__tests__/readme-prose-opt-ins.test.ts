@@ -64,19 +64,47 @@ describe('README "Opt-in prose assertions" snippet', () => {
     expect(result.success).toBe(true);
     if (!result.success) return;
 
-    const metricRules = result.config.rules.filter((rule) => 'metric' in rule.assertions);
-    expect(metricRules).toHaveLength(1);
+    const readabilityRules = result.config.rules.filter(
+      (rule) => rule.name === 'recheck/readability-floor'
+    );
+    expect(readabilityRules).toHaveLength(1);
 
     // Dense prose that scores below the snippet's `min: 30`, so the rule fires.
     const content =
       'Extraordinarily sophisticated organizational considerations necessitate ' +
       'comprehensive interdisciplinary collaboration methodologies throughout ' +
       'multinational institutional infrastructures.\n';
-    const { problems } = await runRules([{ path: 'dense.md', content }], metricRules);
+    const { problems } = await runRules([{ path: 'dense.md', content }], readabilityRules);
 
     expect(problems).toHaveLength(1);
     expect(problems[0].message).toMatch(
       /^Readability \(flesch-reading-ease\) is -?\d+(\.\d+)?; expected between 30 and ∞\.$/
     );
+  });
+
+  it('renders the size-budget snippet message for a skill file over the word cap', async () => {
+    const snippet = extractOptInSnippet();
+    const result = await resolveOptInSnippet(snippet);
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+
+    const sizeRules = result.config.rules.filter(
+      (rule) => rule.name === 'recheck/skill-size-budget'
+    );
+    expect(sizeRules).toHaveLength(1);
+
+    const content = 'word '.repeat(1501).trim() + '.\n';
+    const { problems } = await runRules(
+      [
+        { path: '.claude/skills/demo/SKILL.md', content },
+        { path: 'docs/long-page.md', content },
+      ],
+      sizeRules
+    );
+
+    expect(problems).toHaveLength(1);
+    expect(problems[0].file).toBe('.claude/skills/demo/SKILL.md');
+    expect(problems[0].message).toBe('Document word-count is 1501; expected between -∞ and 1500.');
   });
 });

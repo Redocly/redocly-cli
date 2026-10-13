@@ -181,7 +181,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
   });
 
@@ -380,7 +380,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
   });
 
@@ -600,7 +600,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
   });
 
@@ -815,7 +815,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
   });
 
@@ -1027,7 +1027,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should report on different filenames with the same title', async () => {
@@ -1145,7 +1145,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should not report a component key that refers to a titled schema in another file', async () => {
@@ -1177,7 +1177,7 @@ describe('Oas3 component-name-unique', () => {
         additionalDocuments
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should use the title of a composed $ref, not the one it resolves to', async () => {
@@ -1380,7 +1380,7 @@ describe('Oas3 component-name-unique', () => {
         []
       );
 
-      expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+      expect(replaceSourceWithRef(results)).toEqual([]);
     });
 
     it('should use the component key of a re-exported schema', async () => {

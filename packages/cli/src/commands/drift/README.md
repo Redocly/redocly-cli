@@ -68,7 +68,8 @@ The collector (`engine/coverage-collector.ts`) is fed by `ValidationSession` wit
 Every documented item is an entry that is either covered or missing:
 
 - `operation`: matched by at least one exchange
-- `parameter`: a matched exchange carried it (cookie parameters are skipped with `--ignore-cookies`)
+- `parameter`: a matched exchange carried it (cookie parameters are skipped with `--ignore-cookies`);
+  each non-`readOnly` property of a form-urlencoded querystring schema is its own entry, named `<parameter>.<key>`
 - `property`: a matched exchange carried it in a JSON request or response body;
   collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`, skipping `readOnly` properties on the request side and `writeOnly` on the response side.
   A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whenever it carries that field, whichever branch declares it.
@@ -84,3 +85,10 @@ Every documented item is an entry that is either covered or missing:
 - Builtin `schema-consistency` skips request-side checks (required parameters, required body, request-body schema) when the response is a `4xx` client error.
   The server rejected the request, so validating it against the operation's success-path contract would report the server's own correct rejection as drift.
 - Builtin `schema-consistency` understands `deepObject`-style query parameters: traffic keys like `name[property]=value` are matched to the documented parameter and validated against its object schema instead of being reported as undocumented.
+- Builtin `schema-consistency` understands `in: querystring` parameters: the whole query string is read as one value and validated against the schema of the parameter's `content` media type.
+  `application/x-www-form-urlencoded` is parsed into an object keyed by query key (repeated keys become arrays), a JSON media type is parsed as JSON, and any other media type is validated as the decoded raw string.
+  Form and raw string values are coerced to the schema types before validation, and a form value whose property schema describes an object (by `type`, `properties`, or a composed branch) is parsed as JSON; a JSON value is validated as typed JSON without coercion, and invalid JSON is reported.
+  For a form-urlencoded schema, the keys under `properties` (including those inside `allOf`, `oneOf`, and `anyOf`) count as the documented query parameters, so other keys are reported as undocumented unless the schema has no `properties`, or the root or an `allOf` branch sets `additionalProperties`, `patternProperties`, or `unevaluatedProperties` (the schema check then reports them, and on a `4xx` they are still warned).
+  For other media types the per-key check is skipped, since the schema covers the whole value.
+  The loader builds the form keys once per parameter and warns when a querystring has no `content` schema or more than one media type.
+  Encoding objects (`explode`, `style: deepObject`) on a querystring media type are not honored yet.

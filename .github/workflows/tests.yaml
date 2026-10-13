@@ -51,8 +51,7 @@ jobs:
         run: npm run e2e
 
   client-generators:
-    # Client generation has its own job: the client-generator unit tests plus the
-    # generate-client e2e bars, which compile real Python, Go, PHP, and TypeScript output
+    # Client generation has its own job: the generate-client e2e bars, which compile real Python, Go, PHP, and TypeScript output
     # (including big real-world descriptions) — the slowest tests we have, needing
     # toolchains nothing else does. Adding a language bar here cannot slow the shared e2e job.
     runs-on: blacksmith-4vcpu-ubuntu-2404

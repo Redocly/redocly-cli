@@ -10,7 +10,7 @@ export const headingIncrement: TokenRule = {
   fixable: false,
   defaults: {
     message: 'Heading levels should only increment by one level at a time.',
-    frontMatterTitle: '^\\s*"?title"?\\s*[:=]',
+    frontMatterTitle: '^"?title"?\\s*[:=]',
   },
   check(ctx) {
     // A front matter title counts as an h1.

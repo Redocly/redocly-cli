@@ -14,7 +14,6 @@ redocly eject component <component-path>
 redocly eject component <component-path> [--force]
 redocly eject component <component-path> [--project-dir=<path>]
 redocly eject --help
-redocly eject --version
 ```
 
 ## Options
@@ -25,7 +24,6 @@ redocly eject --version
 | `--force`, `-f`       | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
 | `--project-dir`, `-d` | string  | Path to the project directory. The default value is `.` (current directory).                                 |
 | `--help`              | boolean | Show help.                                                                                                   |
-| `--version`           | boolean | Show version number.                                                                                         |
 
 ## Examples
 

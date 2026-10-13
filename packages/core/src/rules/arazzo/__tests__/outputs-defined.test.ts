@@ -713,7 +713,7 @@ describe('Arazzo outputs-defined', () => {
       config: await createConfig({ rules: { 'outputs-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should NOT report errors for direct array index access on outputs', async () => {
@@ -751,7 +751,7 @@ describe('Arazzo outputs-defined', () => {
       config: await createConfig({ rules: { 'outputs-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should NOT report errors for JSON Pointer syntax with # delimiter', async () => {
@@ -792,7 +792,7 @@ describe('Arazzo outputs-defined', () => {
     });
 
     // Should have no errors because 'event' is defined, and '#/name' is JSON Pointer access
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report error when output key before JSON Pointer is not defined', async () => {

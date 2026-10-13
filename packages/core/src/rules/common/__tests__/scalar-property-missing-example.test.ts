@@ -118,7 +118,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await createConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on a scalar property with an examples', async () => {
@@ -147,7 +147,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await createConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on a non-scalar property missing an example', async () => {
@@ -181,7 +181,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await createConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on a scalar property of binary format missing an example', async () => {
@@ -206,7 +206,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await createConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on a scalar property of falsy values', async () => {
@@ -237,7 +237,7 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await createConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on a nullable scalar property values', async () => {
@@ -263,6 +263,6 @@ describe('Oas3.1 scalar-property-missing-example', () => {
       config: await createConfig({ rules: { 'scalar-property-missing-example': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

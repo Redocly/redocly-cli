@@ -1,7 +1,10 @@
+import { overlapsAnyRange } from '../../core/inline-code.js';
 import { newLineRe, offsetToLineColumn } from '../../core/line-endings.js';
+import type { ScopedSegment } from '../../scopes/types.js';
 import type { NormalizedRule, Problem, Fix, RepetitionAssertion } from '../../types/index.js';
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
+import { nonProseRanges } from '../utils.js';
 
 interface Token {
   text: string;
@@ -15,11 +18,10 @@ interface RepeatedPair {
 
 // Splits the content into tokens with `options.pattern` (default `\w+`) and
 // pairs equal neighbours separated only by whitespace, with at most one line
-// break (never across a blank line).
-function findRepeatedPairs(
-  segment: { content: string },
-  options: RepetitionAssertion
-): RepeatedPair[] {
+// break (never across a blank line). Tokens inside code spans or markdoc tags
+// are dropped (`includeCode` keeps code spans), so `next-line line-length`
+// in a code span is not a repeat.
+function findRepeatedPairs(segment: ScopedSegment, options: RepetitionAssertion): RepeatedPair[] {
   let tokenRe: RegExp;
   try {
     tokenRe = new RegExp(options.pattern ?? '\\w+', 'g');
@@ -27,6 +29,7 @@ function findRepeatedPairs(
     return []; // ignore invalid regex
   }
 
+  const excluded = nonProseRanges(segment, options.includeCode);
   const tokens: Token[] = [];
   let match: RegExpExecArray | null;
   while ((match = tokenRe.exec(segment.content)) !== null) {
@@ -35,6 +38,7 @@ function findRepeatedPairs(
       tokenRe.lastIndex++;
       continue;
     }
+    if (overlapsAnyRange(match.index, match.index + match[0].length, excluded)) continue;
     tokens.push({ text: match[0], index: match.index });
   }
 

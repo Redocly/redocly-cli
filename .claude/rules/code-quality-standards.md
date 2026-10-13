@@ -28,6 +28,10 @@ The rules below are the specific practices this repository enforces — most are
 
 1. Use ESM import extensions.
 
+1. Import from another package by its published name, for example `@redocly/openapi-core` or `@redocly/respect-core`.
+   Do not import its source files by path (`'core/src/typings/openapi.js'`, `'../../core/src/…'`).
+   If the package does not export what you need, reexport it from that package's root.
+
 1. Reuse an existing rule name when the same concept already exists for another spec flavor.
 
 1. The repo lints with oxlint and formats with oxfmt (not ESLint/Prettier).

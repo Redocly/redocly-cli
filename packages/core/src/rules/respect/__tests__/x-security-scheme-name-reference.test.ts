@@ -96,7 +96,7 @@ describe('Arazzo x-security-scheme-name-reference', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when only one sourceDescription exists and schemeName is a plain string', async () => {
@@ -131,6 +131,6 @@ describe('Arazzo x-security-scheme-name-reference', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

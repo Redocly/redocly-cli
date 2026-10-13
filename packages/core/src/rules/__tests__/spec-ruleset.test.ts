@@ -163,6 +163,6 @@ describe('spec ruleset', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results, __dirname)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
 });

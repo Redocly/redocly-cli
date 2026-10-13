@@ -116,5 +116,15 @@ describe('domains', () => {
     it('should return false when residency has an invalid protocol', async () => {
       expect(isValidReuniteUrl('http:app.cloud.redocly.com')).toBe(false);
     });
+
+    it('should accept http localhost URLs for local development', async () => {
+      expect(isValidReuniteUrl('http://localhost')).toBe(true);
+      expect(isValidReuniteUrl('http://localhost:8080')).toBe(true);
+      expect(isValidReuniteUrl('http://127.0.0.1')).toBe(true);
+    });
+
+    it('should reject http URLs that are not localhost', async () => {
+      expect(isValidReuniteUrl('http://app.cloud.redocly.com')).toBe(false);
+    });
   });
 });

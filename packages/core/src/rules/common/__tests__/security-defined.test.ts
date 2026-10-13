@@ -59,7 +59,7 @@ describe('Oas3 security-defined', () => {
       config: await createConfig({ rules: { 'security-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report if operation security includes an anonymous alternative', async () => {
@@ -94,7 +94,7 @@ describe('Oas3 security-defined', () => {
       config: await createConfig({ rules: { 'security-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report if security not defined at all', async () => {
@@ -211,7 +211,7 @@ describe('Oas3 security-defined', () => {
       config: await createConfig({ rules: { 'security-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report if a pathItem is explicitly excluded in the option', async () => {
@@ -237,7 +237,7 @@ describe('Oas3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report only those operations without security defined that are not excluded in the options', async () => {

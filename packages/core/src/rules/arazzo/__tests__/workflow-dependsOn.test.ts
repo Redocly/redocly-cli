@@ -166,7 +166,7 @@ describe('Arazzo workflow-dependsOn', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when different workflows depend on the same workflow', async () => {
@@ -209,7 +209,7 @@ describe('Arazzo workflow-dependsOn', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on not existing workflows in dependsOn', async () => {

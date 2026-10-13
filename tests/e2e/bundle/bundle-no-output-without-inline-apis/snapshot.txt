@@ -7,7 +7,6 @@ Positionals:
   apis                                                     [array] [default: []]
 
 Options:
-      --version                             Show version number.       [boolean]
       --help                                Show help.                 [boolean]
   -o, --output                              Output file or folder for inline API
                                             s.                          [string]

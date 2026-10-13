@@ -116,7 +116,7 @@ describe('Async2 channels-kebab-case', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('words with hyphens are allowed with "channels-kebab-case" rule', async () => {
@@ -144,6 +144,6 @@ describe('Async2 channels-kebab-case', () => {
         },
       }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

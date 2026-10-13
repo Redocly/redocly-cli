@@ -126,7 +126,13 @@ describe('loadSpec', () => {
   it('propagates errors from bundle() for non-string "openapi" values', async () => {
     const file = await write(
       'numeric-openapi.yaml',
-      'openapi: 3\ninfo:\n  title: x\n  version: y\npaths: {}\n'
+      outdent`
+        openapi: 3
+        info:
+          title: x
+          version: y
+        paths: {}
+      `
     );
     await expect(loadSpec(file)).rejects.toThrow();
   });

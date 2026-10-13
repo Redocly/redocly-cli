@@ -74,6 +74,6 @@ describe('Oas3 operation-operationId-unique', () => {
       config: await createConfig({ rules: { 'operation-operationId-unique': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

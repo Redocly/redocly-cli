@@ -67,6 +67,6 @@ describe('Oas3 oas3-no-example-value-and-externalValue', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

@@ -1,4 +1,4 @@
-import type { Oas3SecurityScheme } from 'core/src/typings/openapi.js';
+import type { Oas3SecurityScheme } from '@redocly/openapi-core';
 
 import type { ExtendedSecurity, TestContext } from '../../types.js';
 import type { OperationDetails } from '../description-parser/get-operation-from-description.js';

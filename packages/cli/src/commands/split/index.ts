@@ -1,13 +1,10 @@
-import { logger, detectSpec, HandledError } from '@redocly/openapi-core';
+import { logger, detectSpec, HandledError, parseYaml, Source } from '@redocly/openapi-core';
 import { blue, green } from 'colorette';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { performance } from 'perf_hooks';
 
-import {
-  printExecutionTime,
-  readYaml,
-  getAndValidateFileExtension,
-} from '../../utils/miscellaneous.js';
+import { printExecutionTime, getAndValidateFileExtension } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { splitAsyncApiDefinition } from './asyncapi/split-asyncapi-definition.js';
 import { splitOASDefinition } from './oas/split-oas-definition.js';
@@ -17,7 +14,6 @@ import {
   type AnyDefinition,
   type SplitArgv,
 } from './types.js';
-import { iteratePathItems } from './utils/iterate-path-items.js';
 
 export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitArgv>) {
   const startedAt = performance.now();
@@ -26,7 +22,8 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
 
   if (!fs.existsSync(api)) throw new HandledError(`File ${blue(api)} does not exist.`);
 
-  const definition = readYaml(api) as AnyDefinition;
+  const source = new Source(path.resolve(api), fs.readFileSync(api, 'utf-8'));
+  const definition = parseYaml(source.body, { filename: api }) as AnyDefinition;
   collectSpecData?.({ parsed: definition });
 
   const specVersion = detectSpec(definition);
@@ -39,12 +36,21 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
         pathSeparator: separator,
         ext,
         specVersion,
+        source,
+        fileNameConflictsSeverity: argv['file-name-conflicts-severity'],
       });
       break;
     case 'oas3_0':
     case 'oas3_1':
     case 'oas3_2':
-      splitOASDefinition(definition as AnyOas3Definition, outDir, separator, ext);
+      splitOASDefinition(
+        definition as AnyOas3Definition,
+        outDir,
+        separator,
+        ext,
+        source,
+        argv['file-name-conflicts-severity']
+      );
       break;
     case 'oas2':
       throw new HandledError('OpenAPI 2 is not supported by this command.');
@@ -60,5 +66,3 @@ export async function handleSplit({ argv, collectSpecData }: CommandArgs<SplitAr
   );
   printExecutionTime('split', startedAt, api);
 }
-
-export { iteratePathItems };

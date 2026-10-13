@@ -223,7 +223,7 @@ describe('Async3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when the operation security array is empty and no server secures it', async () => {
@@ -313,7 +313,7 @@ describe('Async3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when a $ref points outside components.securitySchemes', async () => {
@@ -584,7 +584,7 @@ describe('Async3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when an applicable server already has security defined', async () => {
@@ -625,7 +625,7 @@ describe('Async3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when a channel has an empty servers list and all servers are secured', async () => {
@@ -667,7 +667,7 @@ describe('Async3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when an applicable server has an empty security array', async () => {
@@ -831,7 +831,7 @@ describe('Async3 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when an operation has no security defined', async () => {
@@ -929,7 +929,7 @@ describe('Async3 security-defined', () => {
       ]
     );
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when a referenced operation is secured by channel servers in its own file', async () => {
@@ -977,7 +977,7 @@ describe('Async3 security-defined', () => {
       ]
     );
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when a referenced operation in another file has no security', async () => {
@@ -1065,7 +1065,7 @@ describe('Async3 security-defined', () => {
       ]
     );
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when operations is a map-level $ref and the operation is secured', async () => {
@@ -1101,7 +1101,7 @@ describe('Async3 security-defined', () => {
       ]
     );
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when operations is a map-level $ref and an operation has no security', async () => {
@@ -1187,7 +1187,7 @@ describe('Async3 security-defined', () => {
       ]
     );
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when an external $ref points outside components.securitySchemes', async () => {

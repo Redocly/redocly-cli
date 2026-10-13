@@ -22,6 +22,18 @@ function problem(overrides: Partial<Problem> = {}): Problem {
 afterEach(() => vi.restoreAllMocks());
 
 describe('outputTableFormat', () => {
+  it('does not mark or count a fixable finding inside an API description', () => {
+    const { stdout } = captureLogger();
+
+    outputTableFormat([problem({ fixable: true, pointer: '#/info/description' })], 1, false);
+
+    expect(stripVTControlCharacters(stdout.join(''))).toBe(
+      '\n📋 Found 1 issue(s):\n\n' +
+        'line-length               docs/index.md:1:1                        Line too long.\n' +
+        '\n   1 error(s)\n'
+    );
+  });
+
   it('prints the rule breakdown, largest first, when stats are on', () => {
     const { stdout } = captureLogger();
 

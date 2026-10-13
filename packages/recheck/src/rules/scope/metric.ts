@@ -1,10 +1,33 @@
 import { extractProse } from '../../core/prose-extract.js';
-import { computeTextStatistics, computeReadability } from '../../metrics/index.js';
-import type { NormalizedRule, Problem, MetricAssertion } from '../../types/index.js';
+import {
+  computeTextStatistics,
+  computeReadability,
+  type TextStatistics,
+} from '../../metrics/index.js';
+import type { NormalizedRule, Problem, MetricAssertion, SizeFormula } from '../../types/index.js';
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
 
 const FALLBACK_MESSAGE = 'Readability (%s) is %s; expected between %s and %s.';
+const SIZE_FALLBACK_MESSAGE = 'Document %s is %s; expected between %s and %s.';
+
+const DEFAULT_WORDS_PER_MINUTE = 200;
+
+// Reading time is rounded to one decimal before the bounds check, so the number in the
+// message is the number that was compared.
+const SIZE_FORMULAS: Record<
+  SizeFormula,
+  (stats: TextStatistics, options: MetricAssertion) => number
+> = {
+  'word-count': (stats) => stats.words,
+  'sentence-count': (stats) => stats.sentences,
+  'reading-time': (stats, options) =>
+    Math.round((stats.words / (options.wordsPerMinute ?? DEFAULT_WORDS_PER_MINUTE)) * 10) / 10,
+};
+
+function isSizeFormula(formula: MetricAssertion['formula']): formula is SizeFormula {
+  return formula in SIZE_FORMULAS;
+}
 
 const execute = async (
   rule: NormalizedRule,
@@ -33,7 +56,10 @@ const execute = async (
   // so a file without prose must not be flagged as too low.
   if (stats.words === 0 || stats.sentences === 0) return [];
 
-  const score = computeReadability(options.formula, stats);
+  const { formula } = options;
+  const score = isSizeFormula(formula)
+    ? SIZE_FORMULAS[formula](stats, options)
+    : computeReadability(formula, stats);
   const tooLow = options.min !== undefined && score < options.min;
   const tooHigh = options.max !== undefined && score > options.max;
   if (!tooLow && !tooHigh) return [];
@@ -49,8 +75,8 @@ const execute = async (
       ruleName: rule.name,
       severity: rule.severity,
       message: formatTemplate(
-        rule.message ?? FALLBACK_MESSAGE,
-        options.formula,
+        rule.message ?? (isSizeFormula(formula) ? SIZE_FALLBACK_MESSAGE : FALLBACK_MESSAGE),
+        formula,
         String(score),
         options.min !== undefined ? String(options.min) : '-∞',
         options.max !== undefined ? String(options.max) : '∞'

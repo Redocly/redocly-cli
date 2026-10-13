@@ -15,7 +15,7 @@ import { parseDirectives } from './directives.js';
 import { newLineRe } from './line-endings.js';
 import { markdocTagSpans, protectMarkdocTags, type MarkdocTagSpan } from './markdoc-tags.js';
 
-// Rules that don't work on embedded markdown, because they check the whole document
+// Assertions that don't work on embedded markdown, because they check the whole document
 // or links to anchors that embedded content doesn't have.
 const EMBEDDED_UNSUPPORTED_RULES = new Set([
   'single-h1',
@@ -133,7 +133,9 @@ export async function runRules(
   options: RunnerOptions = {}
 ): Promise<RunResult> {
   if (options.embedded === true) {
-    rules = rules.filter((rule) => !EMBEDDED_UNSUPPORTED_RULES.has(rule.shortName));
+    rules = rules.filter(
+      (rule) => !Object.keys(rule.assertions).some((id) => EMBEDDED_UNSUPPORTED_RULES.has(id))
+    );
   }
   const problems: Problem[] = [];
   const fixesByFile = new Map<string, Fix[]>();

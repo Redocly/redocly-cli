@@ -1,8 +1,10 @@
 import { applyMatchCase } from '../../core/case-preserve.js';
+import { overlapsAnyRange } from '../../core/inline-code.js';
 import { newLineRe, offsetToLineColumn } from '../../core/line-endings.js';
 import type { NormalizedRule, Problem, Fix, ConsistencyAssertion } from '../../types/index.js';
 import { formatTemplate } from '../token/messages.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
+import { nonProseRanges } from '../utils.js';
 
 // One occurrence of the losing variant, with the winner it should become.
 // Used by both execute() and fix().
@@ -37,7 +39,9 @@ const FALLBACK_MESSAGE = 'Inconsistent spelling: "%s" conflicts with first-seen 
 // Shared by execute() and fix(). For each `either` pair, finds both variants in all
 // segments. The variant that appears first in the file wins, and every later
 // match of the other variant is a site. Matches found twice through overlapping
-// scopes are counted once.
+// scopes are counted once. Matches inside code spans or markdoc tags are not
+// counted at all (`includeCode` keeps code spans), so a `behaviour` in a code
+// span neither wins nor gets reported.
 function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): ConsistencySite[] {
   const options = (rule.assertions['consistency'] ?? {}) as ConsistencyAssertion;
   const flags = options.ignoreCase ? 'gi' : 'g';
@@ -67,9 +71,11 @@ function collectMatches(rule: NormalizedRule, ctx: ScopeRuleContext): Consistenc
       for (const segment of ctx.segments) {
         // newLineRe, not '\n': a bare split leaves a trailing '\r' on CRLF content.
         const contentLines = segment.content.split(newLineRe);
+        const excluded = nonProseRanges(segment, options.includeCode);
         regex.lastIndex = 0;
         let match: RegExpExecArray | null;
         while ((match = regex.exec(segment.content)) !== null) {
+          if (overlapsAnyRange(match.index, match.index + match[0].length, excluded)) continue;
           const local = offsetToLineColumn(segment.content, match.index);
           const line = segment.startLine + local.line - 1;
           const column = toSourceColumn(segment, local.line, local.column);

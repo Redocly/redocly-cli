@@ -49,7 +49,6 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --templateOptions   | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                         |
 | --theme.openapi     | string  | **Deprecated**, use `--openapi` instead.                                                                                                                            |
 | --title             | string  | Set the page title.                                                                                                                                                 |
-| --version           | boolean | Show version number.                                                                                                                                                |
 
 {% admonition type="warning" name="Upgrading from Redoc 2" %}
 Redoc 3 renamed or removed some Redoc 2 configuration options, so review the [Redoc configuration options](https://redocly.com/docs/realm/config/openapi) when upgrading.

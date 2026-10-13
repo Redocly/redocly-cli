@@ -1,0 +1,18 @@
+asyncapi: 3.0.0
+info:
+  title: File name clashes
+  version: 1.0.0
+channels:
+  userEvents:
+    address: user-events
+  UserEvents:
+    address: legacy-user-events
+operations:
+  sendUserEvent:
+    action: send
+    channel:
+      $ref: '#/channels/userEvents'
+  SendUserEvent:
+    action: send
+    channel:
+      $ref: '#/channels/UserEvents'

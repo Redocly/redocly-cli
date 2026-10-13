@@ -49,7 +49,14 @@ cacheLatestVersion();
 // TODO: word wrapping is broken (https://github.com/yargs/yargs/issues/2112)
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 yargs(hideBin(process.argv))
-  .version('version', 'Show version number.', version)
+  .version(false)
+  .option('version', { type: 'boolean', description: 'Show version number.', global: false })
+  .middleware((argv) => {
+    if (argv.version && argv._.length === 0) {
+      logger.output(`${version}\n`);
+      process.exit(0);
+    }
+  }, true)
   .help('help', 'Show help.')
   .parserConfiguration({ 'greedy-arrays': false, 'boolean-negation': false })
   .command(
@@ -182,6 +189,11 @@ yargs(hideBin(process.argv))
             required: false,
             type: 'string',
             default: '_',
+          },
+          'file-name-conflicts-severity': {
+            description: 'Severity level for file name conflicts.',
+            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+            default: 'warn' as RuleSeverity,
           },
           config: {
             description: 'Path to the config file.',
@@ -700,6 +712,63 @@ yargs(hideBin(process.argv))
       const { handleLogout } = await import('./commands/logout.js');
       commandWrapper(handleLogout)(argv);
     }
+  )
+  .command('project', '[early access] Work with a Redocly-hosted project.', (yargs) =>
+    yargs
+      .env('REDOCLY_CLI_PROJECT')
+      .command(
+        'clone <project> [directory]',
+        'Clone a Redocly-hosted project as a Git repository.',
+        (yargs) =>
+          yargs
+            .positional('project', {
+              description: 'Organization and project slugs or IDs, as `<organization>/<project>`.',
+              type: 'string',
+              demandOption: true,
+            })
+            .positional('directory', {
+              description: 'Directory to clone into. Defaults to the project.',
+              type: 'string',
+            })
+            .options({
+              residency: {
+                description: 'Residency of the application. Defaults to `us`.',
+                alias: ['r'],
+                type: 'string',
+              },
+              config: {
+                description: 'Path to the config file.',
+                requiresArg: true,
+                type: 'string',
+              },
+            }),
+        async (argv) => {
+          const { handleProjectClone } = await import('./commands/project/index.js');
+          commandWrapper(handleProjectClone)(argv);
+        }
+      )
+      .command(
+        'git-credentials <operation>',
+        false,
+        (yargs) =>
+          yargs.positional('operation', {
+            description: 'Credential helper operation: get, store, or erase.',
+            type: 'string',
+            demandOption: true,
+          }),
+        async (argv) => {
+          const { handleProjectGitCredentials } =
+            await import('./commands/project/git-credentials.js');
+          process.stdout.write(
+            await handleProjectGitCredentials({
+              operation: argv.operation,
+              input: process.stdin,
+              version,
+            })
+          );
+        }
+      )
+      .demandCommand(1, 'Specify a project subcommand: clone.')
   )
   .command(
     'preview',

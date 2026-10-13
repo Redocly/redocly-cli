@@ -8,13 +8,13 @@ import {
   type Config,
   type Exact,
 } from '@redocly/openapi-core';
+import type { ExtendedSecurity } from '@redocly/respect-core';
 import { execSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import { existsSync, writeFileSync, readFileSync } from 'node:fs';
 import * as os from 'node:os';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import type { ExtendedSecurity } from 'respect-core/src/types.js';
 import { ulid } from 'ulid';
 import type { Arguments } from 'yargs';
 

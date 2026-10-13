@@ -44,7 +44,7 @@ function closesALine(content: string, at: number): boolean {
   for (let index = at + 2; index < content.length; index++) {
     const code = content.charCodeAt(index);
     if (code === 32 /* space */ || code === 9 /* tab */) continue;
-    return code === 10 /* \n */ || code === 13 /* \r */;
+    return code === 10 /* \n */ || code === 13; /* \r */
   }
   return true; // ran to EOF
 }

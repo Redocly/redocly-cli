@@ -15,7 +15,7 @@ import {
 
 function repetitionRule(
   message: string,
-  options: { pattern?: string; ignoreCase?: boolean } = {},
+  options: { pattern?: string; ignoreCase?: boolean; includeCode?: boolean } = {},
   scope = 'all'
 ): NormalizedRule {
   return {
@@ -103,6 +103,22 @@ describe('repetition assertion', () => {
 
     const { fixedFiles } = await runRules([{ path: 't.md', content }], [rule], { fix: true });
     expect(fixedFiles.get('t.md')).toBe('the\nrest\n');
+  });
+
+  it('skips a repeat inside an inline code span by default, and reports it with includeCode: true', async () => {
+    // From a migration table: the repeat is `line line` inside one code span.
+    const content = 'Use `recheck-disable-next-line line-length` instead.\n';
+    const ctx = buildWholeFileContext(content);
+
+    const skipped = await repetition.execute(repetitionRule('Repeated word "%s".'), 'test.md', ctx);
+    expect(skipped).toEqual([]);
+
+    const reported = await repetition.execute(
+      repetitionRule('Repeated word "%s".', { includeCode: true }),
+      'test.md',
+      ctx
+    );
+    expect(reported.map((problem) => problem.match)).toEqual(['line']);
   });
 
   it('does not flag "the theory" -- token boundaries, not substring matching', async () => {
@@ -307,6 +323,7 @@ describe('repetition assertion', () => {
       ['a non-string pattern', { pattern: 42 }, 'pattern'],
       ['an empty-string pattern, which would match everywhere', { pattern: '' }, 'pattern'],
       ['a non-boolean ignoreCase', { ignoreCase: 'yes' }, 'ignoreCase'],
+      ['a non-boolean includeCode', { includeCode: 'yes' }, 'includeCode'],
     ])('rejects %s', async (_label, options, mention) => {
       await expectInvalidOptions('repetition', options, mention);
     });

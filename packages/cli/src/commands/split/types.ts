@@ -1,4 +1,5 @@
 import type {
+  RuleSeverity,
   Oas2Definition,
   Oas3Definition,
   Oas3_1Definition,
@@ -53,4 +54,5 @@ export type SplitArgv = {
   api: string;
   outDir: string;
   separator: string;
+  'file-name-conflicts-severity'?: RuleSeverity;
 };

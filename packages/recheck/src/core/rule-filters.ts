@@ -27,34 +27,33 @@ export class UnknownRuleNameError extends Error {
  * Don't match on the last path segment: `no-trailing-punctuation` exists in `recheck/`,
  * `google/` and `microsoft/`, so a bare name would select three rules.
  */
-function matchesRuleName(rule: NormalizedRule, name: string): boolean {
+export function matchesRuleName(rule: NormalizedRule, name: string): boolean {
   return rule.name === name || rule.shortName === name;
 }
 
 /** Keeps only the named rules. Unknown names throw, so a typo is not mistaken for a clean run. */
 export function filterByRuleNames(rules: NormalizedRule[], names: string[]): NormalizedRule[] {
   if (!names.length) return rules;
-  const unknown = names.filter((name) => !rules.some((rule) => matchesRuleName(rule, name)));
-  if (unknown.length > 0) {
-    throw new UnknownRuleNameError(
-      unknown,
-      rules.map((rule) => rule.name)
-    );
-  }
+  assertRuleNamesKnown(rules, names);
   return rules.filter((rule) => names.some((name) => matchesRuleName(rule, name)));
 }
 
 /** Removes the named rules. Matches names the same way as `filterByRuleNames`. */
 export function excludeByRuleNames(rules: NormalizedRule[], names: string[]): NormalizedRule[] {
   if (!names.length) return rules;
+  assertRuleNamesKnown(rules, names);
+  return rules.filter((rule) => !names.some((name) => matchesRuleName(rule, name)));
+}
+
+/**
+ * Throws `UnknownRuleNameError` for a name that matches none of `rules`. The
+ * available list names each rule once, so `rules` can join two rule sets.
+ */
+export function assertRuleNamesKnown(rules: NormalizedRule[], names: string[]): void {
   const unknown = names.filter((name) => !rules.some((rule) => matchesRuleName(rule, name)));
   if (unknown.length > 0) {
-    throw new UnknownRuleNameError(
-      unknown,
-      rules.map((rule) => rule.name)
-    );
+    throw new UnknownRuleNameError(unknown, [...new Set(rules.map((rule) => rule.name))]);
   }
-  return rules.filter((rule) => !names.some((name) => matchesRuleName(rule, name)));
 }
 
 const SEVERITY_LEVELS: Record<string, number> = {

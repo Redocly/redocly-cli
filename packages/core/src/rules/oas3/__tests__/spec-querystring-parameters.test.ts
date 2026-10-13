@@ -100,7 +100,7 @@ describe('OAS3 spec-querystring-parameters (OAS 3.2)', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report error when an operation-level parameter redefines a path-level parameter (querystring → query)', async () => {
@@ -210,7 +210,7 @@ describe('OAS3 spec-querystring-parameters (OAS 3.2)', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report error when double querystring is used in the same operation parameter set', async () => {

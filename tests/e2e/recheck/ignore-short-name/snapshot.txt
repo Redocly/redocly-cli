@@ -1,0 +1,13 @@
+
+🎉 No issues found!
+
+🏃 Running recheck on: 1 API description(s)
+
+🔧 Running 53 rule(s)...
+   Found 0 markdown file(s)
+   1 finding(s) suppressed by the ignore file.
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <time>

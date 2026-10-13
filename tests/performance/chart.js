@@ -12,16 +12,18 @@ const calculateMedianAbsoluteDeviation = (xs, centre) =>
 const constructBarForChart = (value, min) => {
   if (min <= 0) return 'N/A';
   const slownessFactor = value / min - 1;
-  const maxBarLength = 30;
+  const maxBarLength = 10;
   const length = Math.floor(Math.min(1, slownessFactor) * maxBarLength);
-  return '▓' + '▓'.repeat(length);
+  return '▓' + '▓'.repeat(length) + '░'.repeat(maxBarLength - length);
 };
 
 const loadResults = (jsonPath) => {
   const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   return new Map(
-    json.results.map(({ command, median, times }) => {
-      const cliVersion = command.replace(/^node node_modules\/([^/]+)\/.*/, (_, v) => v);
+    json.results.map(({ command, summary, measurements }) => {
+      const cliVersion = command.replace(/^node node_modules\/cli-([^/]+)\/.*/, (_, v) => v);
+      const median = summary.time_wall_clock.median;
+      const times = measurements.map((measurement) => measurement.time_wall_clock.value);
       return [cliVersion, { median, mad: calculateMedianAbsoluteDeviation(times, median) }];
     })
   );
@@ -34,7 +36,7 @@ const renderCell = (entry, fastest) => {
   const bar = constructBarForChart(entry.median, fastest.median);
   const factor = entry.median / fastest.median;
   if (entry === fastest) {
-    return `${bar} ${factor.toFixed(2)}x (Fastest)`;
+    return `${bar} **${factor.toFixed(2)}x**`;
   }
   const relativeUnc =
     factor * Math.sqrt((entry.mad / entry.median) ** 2 + (fastest.mad / fastest.median) ** 2);
@@ -63,8 +65,8 @@ const renderRow = (version) =>
     .join(' | ')} |`;
 
 const regressions = columns.flatMap(({ name, data }) => {
-  const next = data.get('cli-next');
-  const latest = data.get('cli-latest');
+  const next = data.get('next');
+  const latest = data.get('latest');
   if (!next || !latest) return [];
 
   const slowdown = next.median / latest.median - 1;

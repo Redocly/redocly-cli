@@ -117,8 +117,8 @@ The skeleton below flags runs of two or more spaces and collapses them to one.
 Sharing `findMatches` between `execute` and `fix` (as `swap.ts` does) keeps problems and fixes in agreement, which fix convergence depends on.
 
 ```ts
-import type { NormalizedRule, Problem, Fix, NoDoubleSpacesAssertion } from '../../types/index.js';
 import type { ScopedSegment } from '../../scopes/types.js';
+import type { NormalizedRule, Problem, Fix, NoDoubleSpacesAssertion } from '../../types/index.js';
 import type { ScopeRule, ScopeRuleContext } from '../types.js';
 
 interface DoubleSpaceMatch {
@@ -210,6 +210,7 @@ Token rules are markdownlint-style structural rules (headings, lists, links, tab
 
    ```ts
    import { describe, expect, it } from 'vitest';
+
    import { tokenRuleHarness } from './harness.js';
 
    describe('my-rule (MDxxx)', () => {

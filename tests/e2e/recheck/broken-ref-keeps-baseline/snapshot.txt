@@ -1,0 +1,14 @@
+
+🎉 No issues found!
+
+Could not read API description ./tests/e2e/recheck/broken-ref-keeps-baseline/openapi.yaml: Could not resolve $ref ./broken.yaml#/Pet from ./tests/e2e/recheck/broken-ref-keeps-baseline/openapi.yaml: unexpected end of the stream within a flow collection in "./tests/e2e/recheck/broken-ref-keeps-baseline/broken.yaml" (1:10)
+🏃 Running recheck on: .
+
+🔧 Running 53 rule(s)...
+   Found 1 markdown file(s)
+   Baseline: 0 matched, 0 new, 0 stale
+
+   Annotations prepared: 0
+
+✅ No errors found!
+   Completed in <time>

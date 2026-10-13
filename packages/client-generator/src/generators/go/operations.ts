@@ -5,7 +5,9 @@ import {
   type ApiModel,
   type DateType,
   headerCoerceType,
+  isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   type ParamModel,
@@ -93,6 +95,10 @@ export function writeGoMethod(
   const success = jsonSuccessSchema(op);
   const returnType = success === undefined ? undefined : goType(success, dateType);
   const headerPlan = envelope ? envelopeHeaderPlan(op, model!) : [];
+  // An untyped multipart or a binary body is `any`: the runtime sorts out what it got.
+  const passThrough =
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType));
   if (envelope) {
     printer.line(
       `// ${ident}Headers carries the declared response headers of ${ident}WithHeaders (nil when absent or unparsable).`
@@ -109,7 +115,9 @@ export function writeGoMethod(
   const args = [
     'ctx context.Context',
     ...pathArgs.map(({ go, type }) => `${go} ${type}`),
-    ...(op.requestBody ? [`body ${goType(op.requestBody.schema, dateType)}`] : []),
+    ...(op.requestBody
+      ? [`body ${passThrough ? 'any' : goType(op.requestBody.schema, dateType)}`]
+      : []),
     ...(hasParams ? [`params *${ident}Params`] : []),
   ];
   const sse = sseResponse(op);
@@ -221,7 +229,31 @@ export function writeGoMethod(
         'Headers: authHeaders',
         'Query: query',
       ];
-      if (op.requestBody && isMultipartBody(op)) {
+      if (isUntypedMultipartBody(op)) {
+        printer.line('contentType, reader, stream, err := multipartBody(body)');
+        printer.block(
+          'if err != nil {',
+          () => {
+            printer.line(fail('err'));
+          },
+          '}'
+        );
+        specFields.push('Body: reader', 'Stream: stream', 'ContentType: contentType');
+      } else if (op.requestBody && passThrough) {
+        printer.line('reader, stream, err := binaryBody(body)');
+        printer.block(
+          'if err != nil {',
+          () => {
+            printer.line(fail('err'));
+          },
+          '}'
+        );
+        specFields.push(
+          'Body: reader',
+          'Stream: stream',
+          `ContentType: ${naming.string(op.requestBody.contentType)}`
+        );
+      } else if (op.requestBody && isMultipartBody(op)) {
         printer.line('contentType, reader, err := toMultipart(body)');
         printer.block(
           'if err != nil {',

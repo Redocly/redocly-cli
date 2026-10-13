@@ -149,7 +149,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       document,
       config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when `type` and `title` are defined via oneOf', async () => {
@@ -199,7 +199,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       document,
       config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when `type` and `title` are defined via allOf', async () => {
@@ -245,7 +245,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       document,
       config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when `type` and `title` are missing from all allOf branches', async () => {
@@ -366,7 +366,7 @@ describe('Oas3 operation-4xx-problem-details-rfc7807', () => {
       document,
       config: await createConfig({ rules: { 'operation-4xx-problem-details-rfc7807': 'error' } }),
     });
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report `application/problem+json` must have `schema` property', async () => {

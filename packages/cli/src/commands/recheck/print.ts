@@ -23,16 +23,27 @@ export interface LintPresentation {
   summaryPath?: string;
 }
 
-export function printLintStart(roots: string[]): void {
-  logger.info(`${cyan(`🏃 Running recheck on: ${roots.join(', ')}`)}\n`);
+function runTargets(roots: string[], apiDescriptionCount: number): string[] {
+  return [
+    ...roots,
+    ...(apiDescriptionCount > 0 ? [`${apiDescriptionCount} API description(s)`] : []),
+  ];
+}
+
+export function printLintStart(roots: string[], apiDescriptionCount: number): void {
+  const targets = runTargets(roots, apiDescriptionCount);
+  logger.info(
+    `${cyan(`🏃 Running recheck on: ${targets.length > 0 ? targets.join(', ') : 'nothing to check'}`)}\n`
+  );
 }
 
 export function printReadabilityStart(roots: string[]): void {
   logger.info(`${cyan(`📖 Measuring readability of: ${roots.join(', ')}`)}\n`);
 }
 
-export function printBaselineStart(roots: string[]): void {
-  logger.info(`${cyan(`📋 Building recheck baseline from: ${roots.join(', ')}`)}\n`);
+export function printBaselineStart(roots: string[], apiDescriptionCount: number): void {
+  const targets = runTargets(roots, apiDescriptionCount);
+  logger.info(`${cyan(`📋 Building recheck baseline from: ${targets.join(', ')}`)}\n`);
 }
 
 function printFailure(message: string, timer: Timer): number {
@@ -58,9 +69,7 @@ function printPreamble(report: LintRunReport): void {
   }
   logger.info(`${cyan(`\n🔧 Running ${report.ruleCount} rule(s)...`)}\n`);
   if (report.empty) return;
-  if (report.filesFound === 0) {
-    logger.info(`${yellow(`⚠️  No markdown files found in: ${report.roots.join(', ')}`)}\n`);
-  }
+  printNoPagesFound(report);
   logger.info(`   Found ${report.filesFound} markdown file(s)\n`);
   for (const filePath of report.unreadableFiles) {
     logger.info(`${yellow(`   Warning: Could not read file ${filePath}`)}\n`);
@@ -73,6 +82,16 @@ function printPreamble(report: LintRunReport): void {
     );
   }
   printFixBlock(report);
+  if (report.suppressedByIgnoreFile > 0) {
+    logger.info(`   ${report.suppressedByIgnoreFile} finding(s) suppressed by the ignore file.\n`);
+  }
+}
+
+// Warns about roots without pages, unless the run has API descriptions to lint.
+function printNoPagesFound(report: LintRunReport): void {
+  if (report.filesFound === 0 && report.apiDescriptionCount === 0 && report.roots.length > 0) {
+    logger.info(`${yellow(`⚠️  No markdown files found in: ${report.roots.join(', ')}`)}\n`);
+  }
 }
 
 function printFixBlock(report: LintRunReport): void {
@@ -90,6 +109,13 @@ function printFixBlock(report: LintRunReport): void {
         `⚠️  ${report.fixes.skippedCount} proposed fix(es) were not applied — either the edits ` +
           `still conflicted after repeated passes, or the fix was withheld to avoid ` +
           `rewriting a Markdoc tag — fix the reported issue(s) manually.`
+      )}\n`
+    );
+  }
+  if (report.descriptionFixesSkipped > 0) {
+    logger.info(
+      `${yellow(
+        `   Fixes do not apply inside API descriptions; ${report.descriptionFixesSkipped} fixable finding(s) skipped.`
       )}\n`
     );
   }
@@ -129,7 +155,7 @@ async function printEmptyRun(
   presentation: LintPresentation,
   timer: Timer
 ): Promise<number> {
-  logger.info(`${yellow(`⚠️  No markdown files found in: ${result.roots.join(', ')}`)}\n`);
+  printNoPagesFound(result);
   await printEmptyReport(presentation);
   logger.info(`   Completed in ${timer.elapsedString()}\n`);
   return 0;
@@ -149,14 +175,15 @@ async function printCompletedRun(
     );
   }
 
-  generateReport(result.problems, result.scannedFileCount, {
+  const scannedFileCount = result.scannedFileCount + result.scannedDescriptionFileCount;
+  generateReport(result.problems, scannedFileCount, {
     format: presentation.format,
     showStats: presentation.showStats,
     maxProblems: presentation.maxProblems,
     baseline: result.baseline,
   });
   if (presentation.summary) {
-    const summary = buildSummary(result.problems, result.scannedFileCount, result.baseline);
+    const summary = buildSummary(result.problems, scannedFileCount, result.baseline);
     await printSummary(summary, presentation.summary, presentation.summaryPath);
   }
 

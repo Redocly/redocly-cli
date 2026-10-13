@@ -120,8 +120,8 @@ The `suffix` configuration option is automatically passed in, and it can be used
 Now extend the decorator from the previous example to add this to the existing plugin in `plugins/sparkle.js`:
 
 ```js
-import OperationSparkle from './decorators/operation-sparkle.js';
 import OpIdSuffix from './decorators/add-suffix.js';
+import OperationSparkle from './decorators/operation-sparkle.js';
 
 export default function sparklePlugin() {
   return {

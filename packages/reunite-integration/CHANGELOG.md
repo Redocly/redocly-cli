@@ -1,5 +1,80 @@
 # @redocly/reunite-integration
 
+## 2.63.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 2.62.2
+
+### Patch Changes
+
+- Fixed an issue where the `login` and `push` did not exit after a request through a proxy timed out.
+- Fixed an issue where the `login`, `push`, and other Reunite commands failed on Node.js 26.
+  Updated `undici` to the `7.30.0` version.
+- Updated @redocly/openapi-core to v2.62.2.
+
+## 2.62.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.1.
+
+## 2.62.0
+
+### Minor Changes
+
+- Added the early access `project clone` command to work with a Redocly-hosted Reunite project as a Git repository.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.0.
+
+## 2.61.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.65.0`.
+- Updated @redocly/openapi-core to v2.61.0.
+
+## 2.60.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.60.0.
+
+## 2.59.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.62.0`.
+- Updated @redocly/openapi-core to v2.59.0.
+
+## 2.58.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.2.
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.61.1`.
+- Updated @redocly/openapi-core to v2.58.1.
+
+## 2.58.0
+
+### Minor Changes
+
+- Resolved organization and project slugs to IDs in the `push` and `push-status` commands before calling the Reunite API, with a deprecation notice that shows the IDs to use.
+  The `--organization` and `--project` options now expect the IDs from the organization and project settings pages in Reunite; slugs are still accepted but deprecated.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+
 ## 2.57.0
 
 ### Patch Changes

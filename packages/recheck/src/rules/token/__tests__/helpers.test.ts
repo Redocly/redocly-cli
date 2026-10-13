@@ -143,7 +143,7 @@ describe('clearHtmlCommentText', () => {
 });
 
 describe('frontMatterHasTitle', () => {
-  const defaultPattern = '^\\s*"?title"?\\s*[:=]';
+  const defaultPattern = '^"?title"?\\s*[:=]';
 
   it('matches an unquoted YAML title key', () => {
     const tree = parseMarkdown('---\ntitle: My Document\n---\n\nBody\n');

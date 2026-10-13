@@ -103,7 +103,7 @@ cpSync(
 
 const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
 cpSync(
-  path.join(path.dirname(redocPackageJsonPath), 'bundle', 'redoc.standalone.js'),
+  path.join(path.dirname(redocPackageJsonPath), 'bundles', 'redoc.standalone.js'),
   path.join(packageDir, 'lib', 'chunks', 'redoc.standalone.js')
 );
 
