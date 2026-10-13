@@ -196,7 +196,8 @@ Pass a `sink` function to receive the events yourself instead.
 Each event contains only:
 
 - The operation ID.
-- The number of calls and attempts, the calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`), and the calls per duration bucket. An outcome or a bucket with no calls is not sent.
+- The number of calls and attempts, the calls per outcome (`2xx`, `3xx`, `4xx`, `5xx`, `network_error`, `timeout`, `aborted`), and the calls per duration bucket.
+  An outcome or a bucket with no calls is not sent.
 - The window start and length.
 - The SDK name and version, the generator version, the language, and the runtime name and version (Node.js, Bun, or Deno).
 - The client name that you pass.

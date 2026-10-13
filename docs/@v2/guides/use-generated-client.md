@@ -608,8 +608,11 @@ The client threads `onError` (throw mode only) through each middleware.
 It runs in both error modes, for each pagination page, and for each SSE connection, before a failed response becomes an error.
 It receives the request context and the outcome: the `response`, the `error`, or both, the number of `attempts`, and the `durationMs`.
 The duration ends when the final response headers arrive.
-A call that fails before it is sent, for example in an `onRequest` hook, does not reach `onSettled`.
-Use it to count, time, or log calls:
+
+A call that fails in an `onRequest` hook or in body serialization does not reach `onSettled`.
+A call whose signal is already aborted reaches `onSettled` with 0 attempts.
+
+Use `onSettled` to count, time, or log calls:
 
 ```ts
 import { use } from './client.ts';
