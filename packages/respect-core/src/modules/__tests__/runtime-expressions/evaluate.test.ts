@@ -725,6 +725,21 @@ describe('evaluateRuntimeExpression', () => {
     ).toEqual(`Bearer ${token}`);
   });
 
+  it('should not rewrite expression-like text inside string values', () => {
+    const note = 'copied from $steps.first-step.response.header.Content-Type';
+    const context = { $response: { body: { note } } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/note', context, logger)).toEqual(note);
+  });
+
+  it('should not rewrite single-quoted string literals in a comparison', () => {
+    const context = { $inputs: { version: '1.0.0-rc.1' } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression("$inputs.version == '1.0.0-rc.1'", context, logger)).toEqual(
+      true
+    );
+  });
+
   it('should evaluate list runtime expression value', () => {
     const expression = '$response.body#/items';
     expect(evaluateRuntimeExpression(expression, runtimeExpressionContext, logger)).toEqual([
