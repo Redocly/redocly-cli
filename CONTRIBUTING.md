@@ -305,8 +305,8 @@ npm run compile
 npm run pack:prepare
 npm i -g redocly-cli.tgz
 
-# Re-build the docs with usage data off, as CI does
-(cd tests/smoke/basic/ && REDOCLY_TELEMETRY=off redocly build-docs openapi.yaml -o pre-built/redoc.html)
+# Re-build the docs
+(cd tests/smoke/basic/ && redocly build-docs openapi.yaml -o pre-built/redoc.html)
 ```
 
 Don't forget to visually check the [changes](tests/smoke/basic/pre-built/redoc.html) in a browser.
