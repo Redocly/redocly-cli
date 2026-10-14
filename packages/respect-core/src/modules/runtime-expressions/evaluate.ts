@@ -202,7 +202,7 @@ function findStringLiteralEnd(expression: string, start: number): number {
 }
 
 function normalizeCode(code: string): string {
-  // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
+  // Replace hyphens with underscores in `$...` references to match the keys normalized by `normalizeContext`
   const normalizedSymbolsExpression = normalizeSymbolsExpression(code);
 
   // Convert numeric indices (e.g., `.0`) into square bracket notation (e.g., `[0]`)

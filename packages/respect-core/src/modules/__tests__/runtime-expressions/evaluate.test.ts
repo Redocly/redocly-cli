@@ -716,6 +716,13 @@ describe('evaluateRuntimeExpression', () => {
     expect(
       evaluateRuntimeExpression(`$response.body#/token == "${token}"`, context, logger)
     ).toEqual(true);
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload: 'Bearer {$response.body#/token}',
+        context,
+        logger,
+      })
+    ).toEqual(`Bearer ${token}`);
   });
 
   it('should evaluate list runtime expression value', () => {
