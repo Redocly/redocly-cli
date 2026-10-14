@@ -607,7 +607,7 @@ The client threads `onError` (throw mode only) through each middleware.
 `onSettled` runs once per sent call, after the last retry, in registration order.
 It runs in both error modes, for each pagination page, and for each SSE connection, before a failed response becomes an error.
 It receives the request context and the outcome: the `response`, the `error`, or both, the number of `attempts`, and the `durationMs`.
-The duration ends when the final response headers arrive.
+The duration starts before the first attempt and ends after the `onResponse` hooks run on the final response.
 
 A call that fails in an `onRequest` hook or in body serialization does not reach `onSettled`.
 A call whose signal is already aborted reaches `onSettled` with 0 attempts.

@@ -64,9 +64,10 @@ it with `use(telemetry({ sdkName, sdkVersion, client }))`.
   when the caller set none, the same rule the JSON branch already follows. A forwarded
   multipart boundary therefore survives, and a binary upload is never sent untyped.
 - **`onSettled` sees every sent call once.** `send()` calls it after the last attempt
-  with the final response, the error, or both, the attempt count, and the time until the
-  final response headers. A call that fails in `onRequest` or in body serialization does
-  not reach it. A call whose signal is already aborted reaches it with 0 attempts.
+  with the final response, the error, or both, the attempt count, and the duration from
+  the first attempt to the end of the `onResponse` hooks on the final response. A call
+  that fails in `onRequest` or in body serialization does not reach it. A call whose
+  signal is already aborted reaches it with 0 attempts.
   Every hook runs. The first hook error rejects a successful call; on a failed call, the
   original error wins.
 - **Telemetry is opt-in at generation time.** Without `telemetry: on`, the output holds
