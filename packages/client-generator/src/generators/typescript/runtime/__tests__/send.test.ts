@@ -768,6 +768,35 @@ describe('send onSettled', () => {
     expect((settled.calls[0].error as Error).message).toBe('invalid body');
   });
 
+  it('drops the retried response when the caller aborts during the retry wait', async () => {
+    const settled = settledSpy();
+    const controller = new AbortController();
+    const { fetchImpl } = fetchSpy([new Response(null, { status: 503 })]);
+    await expect(
+      send(
+        {
+          fetch: fetchImpl,
+          middleware: [settled.middleware],
+          retry: {
+            retries: 1,
+            retryOn: () => {
+              controller.abort();
+              return true;
+            },
+          },
+        },
+        op,
+        'u',
+        { method: 'GET', signal: controller.signal },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow();
+    expect(settled.calls[0].response).toBeUndefined();
+    expect((settled.calls[0].error as Error).name).toBe('AbortError');
+  });
+
   it('counts no attempt when the signal is already aborted', async () => {
     const settled = settledSpy();
     const { calls, fetchImpl } = fetchSpy([ok()]);

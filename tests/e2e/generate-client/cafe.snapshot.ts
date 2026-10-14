@@ -1733,7 +1733,6 @@ async function send(
     while (true) {
       if (signal?.aborted) throw abortError(signal);
       attempt++;
-      lastResponse = undefined;
       // A fresh timeout budget per attempt; the caller's signal still wins the race.
       // The composed signal also governs reading the response body.
       const budget = timeout ? timeoutSignal(timeout) : undefined;
@@ -1793,6 +1792,7 @@ async function send(
         // keeps the connection checked out (and can stall the pool) under Node/undici
         // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
         await response.body?.cancel().catch(() => undefined);
+        lastResponse = undefined;
         await sleep(retryDelay(retry, attempt, retryAfter), signal);
         continue;
       }
