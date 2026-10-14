@@ -162,8 +162,6 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
     }
   }
 
-  // Normalize only the code between the string literals, so the values inlined by
-  // `replaceJSONPointers` and the quoted strings written in success criteria stay as they are
   return normalizeCodeOutsideStringLiterals(cleanedJsExpression);
 }
 
@@ -187,8 +185,6 @@ function normalizeCodeOutsideStringLiterals(expression: string): string {
   return result + normalizeCode(expression.slice(codeStart));
 }
 
-// Returns the index right after the closing quote of the literal that starts at `start`,
-// skipping escaped characters such as the `\"` that JSON.stringify produces
 function findStringLiteralEnd(expression: string, start: number): number {
   const quote = expression[start];
   for (let index = start + 1; index < expression.length; index++) {
