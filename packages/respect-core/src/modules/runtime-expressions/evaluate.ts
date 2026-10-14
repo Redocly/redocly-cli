@@ -164,11 +164,41 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
 
   // Normalize only the code between the string literals, so the values inlined by
   // `replaceJSONPointers` and the quoted strings written in success criteria stay as they are
-  const stringLiteralRegex = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/;
-  return cleanedJsExpression
-    .split(stringLiteralRegex)
-    .map((part, index) => (index % 2 === 0 ? normalizeCode(part) : part))
-    .join('');
+  return normalizeCodeOutsideStringLiterals(cleanedJsExpression);
+}
+
+function normalizeCodeOutsideStringLiterals(expression: string): string {
+  let result = '';
+  let codeStart = 0;
+  let index = 0;
+
+  while (index < expression.length) {
+    if (expression[index] !== '"' && expression[index] !== "'") {
+      index++;
+      continue;
+    }
+    const literalEnd = findStringLiteralEnd(expression, index);
+    result +=
+      normalizeCode(expression.slice(codeStart, index)) + expression.slice(index, literalEnd);
+    codeStart = literalEnd;
+    index = literalEnd;
+  }
+
+  return result + normalizeCode(expression.slice(codeStart));
+}
+
+// Returns the index right after the closing quote of the literal that starts at `start`,
+// skipping escaped characters such as the `\"` that JSON.stringify produces
+function findStringLiteralEnd(expression: string, start: number): number {
+  const quote = expression[start];
+  for (let index = start + 1; index < expression.length; index++) {
+    if (expression[index] === '\\') {
+      index++;
+    } else if (expression[index] === quote) {
+      return index + 1;
+    }
+  }
+  return expression.length;
 }
 
 function normalizeCode(code: string): string {

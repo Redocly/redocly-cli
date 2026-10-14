@@ -706,9 +706,13 @@ describe('evaluateRuntimeExpression', () => {
 
   it('should not rewrite string values that contain a dot followed by a digit', () => {
     const token = 'rdsc_scimc_abcdefghijklmnopqrstuv.7fKBCS4zQ';
-    const context = { $response: { body: { token } } } as unknown as RuntimeExpressionContext;
+    const quoted = 'say "hi.1"';
+    const context = {
+      $response: { body: { token, quoted } },
+    } as unknown as RuntimeExpressionContext;
 
     expect(evaluateRuntimeExpression('$response.body#/token', context, logger)).toEqual(token);
+    expect(evaluateRuntimeExpression('$response.body#/quoted', context, logger)).toEqual(quoted);
     expect(
       evaluateRuntimeExpression(`$response.body#/token == "${token}"`, context, logger)
     ).toEqual(true);
