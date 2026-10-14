@@ -571,10 +571,11 @@ export async function generateSpecFromTraffic(
   const operations = new Map<string, OperationAccumulator>();
   const observedServers = new Set<string>();
   let supportedTrafficFileCount = 0;
+  let unsupportedMethodExchangeCount = 0;
 
   const observe = (exchange: NormalizedExchange) => {
     const method = exchange.request.method.toLowerCase();
-    if (!HTTP_METHODS.has(method) || (method === 'query' && options.openapiVersion === '3.1')) {
+    if (!HTTP_METHODS.has(method)) {
       return;
     }
 
@@ -587,6 +588,11 @@ export async function generateSpecFromTraffic(
       rawPath = serverRelativePath;
     } else if (exchange.request.host && !isSyntheticHost(exchange.request.host)) {
       observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
+    }
+
+    if (method === 'query' && options.openapiVersion === '3.1') {
+      unsupportedMethodExchangeCount += 1;
+      return;
     }
 
     const { template, params } = templatizePath(getPathWithoutTrailingSlash(rawPath));
@@ -665,6 +671,12 @@ export async function generateSpecFromTraffic(
 
   if (supportedTrafficFileCount === 0) {
     throw new Error('No supported traffic files found to generate an OpenAPI description from.');
+  }
+
+  if (operations.size === 0 && unsupportedMethodExchangeCount > 0) {
+    throw new Error(
+      'All observed HTTP exchanges use the QUERY method, which OpenAPI 3.1 does not support. Use --openapi-version 3.2 to include them.'
+    );
   }
 
   if (operations.size === 0) {

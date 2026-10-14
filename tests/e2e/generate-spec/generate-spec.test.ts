@@ -127,6 +127,16 @@ describe('generate-spec - error handling', () => {
     expect(output).toContain('No HTTP exchanges in the traffic matched the server');
   });
 
+  test('fails when --openapi-version 3.1 skips every QUERY exchange', () => {
+    const { output, code } = runGenerateSpec([
+      'traffic-query-only.ndjson',
+      '--openapi-version',
+      '3.1',
+    ]);
+    expect(code).toBe(1);
+    expect(output).toContain('All observed HTTP exchanges use the QUERY method');
+  });
+
   test('fails when the traffic path does not exist', () => {
     const { code } = runGenerateSpec(['does-not-exist.ndjson']);
     expect(code).toBe(1);
