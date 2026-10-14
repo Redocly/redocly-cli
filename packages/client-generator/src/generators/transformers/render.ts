@@ -9,7 +9,12 @@
 // `transformPet` calls `transformOwner(data["owner"])` when `Pet.owner` is an
 // `Owner` that has dates. Source-text templates throughout.
 
-import type { ApiModel, NamedSchemaModel, SchemaModel } from '@redocly/client-generator';
+import {
+  type ApiModel,
+  flattenAllOf,
+  type NamedSchemaModel,
+  type SchemaModel,
+} from '@redocly/client-generator';
 import { pascalCase, safeIdent } from '@redocly/client-generator/printers/typescript';
 
 const INDENT = '    ';
@@ -463,8 +468,17 @@ function convertCollection(
   );
 }
 
-/** `export const transform<Name> = (data: <Name>): <Name> => { … };`. */
-function transformBlock(named: NamedSchemaModel, byName: Map<string, SchemaModel>): string {
+/**
+ * `export const transform<Name> = (data: <Name>): <Name> => { … };`. A schema with
+ * `writeOnly` properties is never returned whole: its responses are typed
+ * `Omit<Name, …>`. Its transform takes that shape and returns the type it was given:
+ * `<T extends Omit<Name, …>>(input: T): T`.
+ */
+function transformBlock(
+  named: NamedSchemaModel,
+  model: ApiModel,
+  byName: Map<string, SchemaModel>
+): string {
   // The sdk exports the type verbatim; only the `transform<Pascal>` NAME is PascalCased.
   const typeName = named.name;
   const data = ident('data');
@@ -472,10 +486,23 @@ function transformBlock(named: NamedSchemaModel, byName: Map<string, SchemaModel
     named.schema.kind === 'ref'
       ? convertRef(data, named.schema.name, byName, new Set(), INDENT)
       : convert(data, named.schema, byName, new Set(), 'data', INDENT);
+  const writeOnly = (flattenAllOf(named.schema, model)?.properties ?? [])
+    .filter((property) => property.writeOnly)
+    .map((property) => JSON.stringify(property.name));
+  if (writeOnly.length === 0) {
+    return [
+      `export const ${transformName(named.name)} = (data: ${typeName}): ${typeName} => {`,
+      ...body,
+      `${INDENT}return data;`,
+      '};',
+    ].join('\n');
+  }
+  const response = `Omit<${typeName}, ${writeOnly.join(' | ')}>`;
   return [
-    `export const ${transformName(named.name)} = (data: ${typeName}): ${typeName} => {`,
+    `export const ${transformName(named.name)} = <T extends ${response}>(input: T): T => {`,
+    `${INDENT}const data: ${response} = input;`,
     ...body,
-    `${INDENT}return data;`,
+    `${INDENT}return input;`,
     '};',
   ].join('\n');
 }
@@ -492,7 +519,7 @@ export function renderTransformersModule(model: ApiModel, opts: { sdkModule: str
   if (dated.length === 0) return '';
   const types = dated.map((s) => safeIdent(s.name)).join(', ');
   writableUsed = false; // reset the per-render flag `writableLhs` sets
-  const transforms = dated.map((s) => transformBlock(s, byName));
+  const transforms = dated.map((s) => transformBlock(s, model, byName));
   const blocks = [
     `import type { ${types} } from ${JSON.stringify(opts.sdkModule)};`,
     ...(writableUsed ? [WRITABLE_DECL] : []),

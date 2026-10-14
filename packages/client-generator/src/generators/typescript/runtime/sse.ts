@@ -163,5 +163,10 @@ export function parseSseFrame(
       );
     }
   }
-  return { event, data, id, retry };
+  return {
+    ...(event === undefined ? {} : { event }),
+    data,
+    ...(id === undefined ? {} : { id }),
+    ...(retry === undefined ? {} : { retry }),
+  };
 }

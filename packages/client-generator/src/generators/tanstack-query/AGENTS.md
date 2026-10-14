@@ -22,7 +22,8 @@ query keys. One generator, four framework variants (`react` default, `-vue`,
   `body-link` rule gets one when the operation has a query parameter: the next page's
   URL is the page param, and each later page merges the URL's query parameters over
   `vars`. A `Link` header is invisible to a `queryFn`, so `link`-style operations get
-  only the sdk's `.pages()`/`.items()`.
+  only the sdk's `.pages()`/`.items()`. A page without a page parameter leaves the key
+  out of the call, so `exactOptionalPropertyTypes` holds.
 - **`envelope` is excluded and stripped** — cached data is the plain body.
 - Requires `typescript`; throw-mode only (it wraps thrown errors into query errors).
 

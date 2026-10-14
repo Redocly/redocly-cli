@@ -575,7 +575,7 @@ describe('pythonGenerator (full client assembly)', () => {
     expect(out).toContain(') -> OrderPage:');
     expect(out).toContain('def get_order(self, order_id: str, *');
     expect(out).toContain('def create_order(self, body: Order, *');
-    expect(out).toContain('return decode(OrderPage, _safe_json(response))');
+    expect(out).toContain('return cast(OrderPage, decode(OrderPage, _safe_json(response)))');
     // Wire names survive the snake_case kwargs.
     expect(out).toContain('params["after"] = encode(after)');
   });
@@ -584,7 +584,7 @@ describe('pythonGenerator (full client assembly)', () => {
     const out = generate();
     expect(out).toContain('def send('); // embedded runtime
     expect(out).toContain('async def send_async('); // async mirror
-    expect(out).toContain('_OPERATIONS = {');
+    expect(out).toContain('_OPERATIONS: Dict[str, Dict[str, Any]] = {');
     expect(out).toContain('"id": "listOrders"');
     expect(out).toContain('class AsyncClient:');
     expect(out).toContain('async def list_orders(');
@@ -594,7 +594,7 @@ describe('pythonGenerator (full client assembly)', () => {
   it('raises ApiError in throw mode; returns Result in result mode', () => {
     expect(generate('throw')).toContain('raise ApiError(');
     const result = generate('result');
-    expect(result).toContain(') -> Result:');
+    expect(result).toContain(') -> Result[OrderPage, Any]:');
     expect(result).toContain('return Result(data=None, error=');
   });
 

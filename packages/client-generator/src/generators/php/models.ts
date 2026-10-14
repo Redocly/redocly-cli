@@ -107,10 +107,15 @@ function writeClass(
   dateType: DateType,
   description?: string
 ): void {
+  // A response never carries a `writeOnly` property, and responses decode into this same
+  // class, so the property is optional even when the description requires it.
+  const fields = properties.map((property) =>
+    property.writeOnly ? { ...property, required: false } : property
+  );
   // PHP requires defaulted parameters after required ones.
   const ordered = [
-    ...properties.filter((property) => property.required),
-    ...properties.filter((property) => !property.required),
+    ...fields.filter((property) => property.required),
+    ...fields.filter((property) => !property.required),
   ];
   printer.doc(className(name), description);
   printer.line(`final class ${className(name)}`);

@@ -17,6 +17,7 @@ const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 const hasPython = spawnSync('python3', ['--version']).status === 0;
 const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
 const hasPydantic = hasPython && spawnSync('python3', ['-c', 'import pydantic']).status === 0;
+const hasMypy = hasPython && spawnSync('python3', ['-m', 'mypy', '--version']).status === 0;
 
 describe('generate-client python generator (end-to-end)', () => {
   afterAll(() => {
@@ -35,6 +36,21 @@ describe('generate-client python generator (end-to-end)', () => {
     });
     expect(result.status, result.stderr).toBe(0);
   });
+
+  // The generated file lands in the user's own package, so it must pass their strictest
+  // type checker too. Without httpx, mypy reports its import as missing.
+  it.skipIf(!hasMypy || !hasHttpx)(
+    'the generated client passes mypy --strict',
+    () => {
+      const result = spawnSync(
+        'python3',
+        ['-m', 'mypy', '--strict', '--no-incremental', generatedFile],
+        { encoding: 'utf-8' }
+      );
+      expect(result.status, result.stdout).toBe(0);
+    },
+    60_000
+  );
 
   it.skipIf(!hasHttpx)(
     'runs real HTTP against the mock server: hydration, bodies, ApiError',
