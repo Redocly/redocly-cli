@@ -25,9 +25,12 @@ import {
   type StringObservations,
 } from './value-inference.js';
 
+export type OpenApiVersion = '3.1' | '3.2';
+
 export interface GenerateSpecOptions {
   trafficPath: string;
   format: TrafficFormat;
+  openapiVersion: OpenApiVersion;
   title?: string;
   server?: string;
 }
@@ -552,7 +555,7 @@ function accumulateBodySchema(target: Map<string, JsonSchema>, mime: string, sch
 }
 
 /**
- * Generate an OpenAPI 3.2 document by observing recorded traffic. Returns the
+ * Generate an OpenAPI document by observing recorded traffic. Returns the
  * document object; the caller decides whether to print it, write it, or hand it
  * to an AI provider for refinement.
  */
@@ -571,7 +574,7 @@ export async function generateSpecFromTraffic(
 
   const observe = (exchange: NormalizedExchange) => {
     const method = exchange.request.method.toLowerCase();
-    if (!HTTP_METHODS.has(method)) {
+    if (!HTTP_METHODS.has(method) || (method === 'query' && options.openapiVersion === '3.1')) {
       return;
     }
 
@@ -673,7 +676,12 @@ export async function generateSpecFromTraffic(
   }
 
   const serverUrls = server ? [server] : Array.from(observedServers).sort();
-  return buildDocument(operations, options.title ?? 'Generated API', serverUrls);
+  return buildDocument(
+    operations,
+    options.openapiVersion,
+    options.title ?? 'Generated API',
+    serverUrls
+  );
 }
 
 export function countOperations(document: GeneratedDocument): number {
@@ -696,6 +704,7 @@ function parameterSchema(param: ParameterAccumulator, allowEnum: boolean): JsonS
 
 function buildDocument(
   operations: Map<string, OperationAccumulator>,
+  openapiVersion: OpenApiVersion,
   title: string,
   serverUrls: string[]
 ): GeneratedDocument {
@@ -758,7 +767,7 @@ function buildDocument(
   }
 
   return {
-    openapi: '3.2.0',
+    openapi: `${openapiVersion}.0`,
     info: { title, version: '1.0.0' },
     ...(serverUrls.length > 0 ? { servers: serverUrls.map((url) => ({ url })) } : {}),
     paths,
