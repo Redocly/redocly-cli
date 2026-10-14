@@ -5,7 +5,7 @@
 The `build-docs` command builds Redoc into an HTML file that contains your API documentation.
 The standalone HTML file can be easily shared or hosted on a platform of your choice.
 
-The command supports Swagger 2.0, OpenAPI 3.0/3.1/3.2, AsyncAPI 2.x/3.x, and GraphQL schemas (`.graphql` or `.gql` files).
+The command supports OpenAPI 3.0/3.1/3.2, AsyncAPI 2.x/3.x, and GraphQL schemas (`.graphql` or `.gql` files).
 
 The page is rendered with Redoc 3 and loads the Redoc scripts from the Redocly CDN.
 Pass `--inlineBundle` to embed them, so the page works offline and when opened directly from the filesystem.
