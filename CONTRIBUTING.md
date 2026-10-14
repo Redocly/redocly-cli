@@ -270,27 +270,16 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 
 ### Client generator tests
 
-Client generation has its own tests: `npm run client-generators` runs the `tests/e2e/generate-client` end-to-end tests.
-They are split into four Vitest projects, one per toolchain:
-
-| Project                    | Files                                                                          | Needs                                    |
-| -------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------- |
-| `client-generators`        | every TypeScript-family bar                                                    | Node.js only                             |
-| `client-generators-go`     | `go.test.ts`, `*.go.test.ts`, and the Go generator's own test file             | Go 1.21 or later (`go`, `gofmt`)         |
-| `client-generators-php`    | `php.test.ts`, `*.php.test.ts`, and the PHP generator's own test file          | PHP 8.1 or later with the curl extension |
-| `client-generators-python` | `python.test.ts`, `*.python.test.ts`, and the Python generator's own test file | Python 3 with `httpx` and `pydantic`     |
+`npm run client-generators` runs the `tests/e2e/generate-client` tests.
+They compile the generated clients, so they need Go, PHP, and Python.
+Each language has its own Vitest project, and a missing tool stops the run with a message that names it.
 
 ```bash
-npm run client-generators                                         # all four projects
-npx vitest run --project client-generators                        # TypeScript bars only
-npx vitest run --project client-generators-go                     # one language
+npm run client-generators                                         # everything
+npx vitest run --project client-generators                        # TypeScript only, no toolchains needed
+npx vitest run --project client-generators-go                     # one language (-go, -php, -python)
 npm run client-generators -- tests/e2e/generate-client/go.test.ts # one file
-npm run client-generators -- -t 'OPcache'                         # by test name
 ```
-
-A language project checks its toolchain before any test runs.
-When a tool is missing, the run stops with one message that names it; no test is skipped.
-A run that selects only other projects, or only files outside that language, does not need the tool.
 
 Install the toolchains:
 
@@ -304,7 +293,7 @@ sudo apt-get install golang-go php-cli python3-pip
 pip3 install httpx pydantic
 ```
 
-The largest bars generate from big real-world descriptions (Rebilly, the GitHub REST API), which is why these tests are slow and run in their own CI job.
+Some tests generate from large real-world descriptions, so these tests are slow and run in their own CI job.
 
 `npm run e2e` covers everything under `tests/e2e/` **except** `generate-client`.
 
