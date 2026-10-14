@@ -1,5 +1,7 @@
 import { type Config } from '@redocly/openapi-core';
 
+const LOCALHOST_URL_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
 export const REUNITE_URLS = {
   us: 'https://app.cloud.redocly.com',
   eu: 'https://app.cloud.eu.redocly.com',
@@ -47,7 +49,7 @@ function withHttpsValidation<Fn extends (...args: any[]) => string>(fn: Fn) {
   return (...args: Parameters<Fn>) => {
     const url = fn(...args);
 
-    if (!url.startsWith('https://')) {
+    if (!url.startsWith('https://') && !LOCALHOST_URL_PATTERN.test(url)) {
       throw new InvalidReuniteUrlError();
     }
 

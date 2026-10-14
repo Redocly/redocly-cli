@@ -1,6 +1,6 @@
 {
   "name": "@redocly/cli",
-  "version": "2.59.0",
+  "version": "2.63.0",
   "description": "",
   "license": "MIT",
   "bin": {
@@ -40,17 +40,17 @@
     "Roman Hotsiy <roman@redocly.com> (https://redocly.com/)"
   ],
   "devDependencies": {
-    "@modelcontextprotocol/sdk": "^1.30.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@opentelemetry/exporter-trace-otlp-http": "0.219.0",
     "@opentelemetry/resources": "2.8.0",
     "@opentelemetry/sdk-trace-node": "2.8.0",
     "@opentelemetry/semantic-conventions": "1.41.1",
     "@redocly/cli-otel": "0.3.7",
-    "@redocly/client-generator": "0.4.24",
-    "@redocly/openapi-core": "2.59.0",
-    "@redocly/recheck": "2.59.0",
-    "@redocly/respect-core": "2.59.0",
-    "@redocly/reunite-integration": "2.59.0",
+    "@redocly/client-generator": "0.6.0",
+    "@redocly/openapi-core": "2.63.0",
+    "@redocly/recheck": "2.63.0",
+    "@redocly/respect-core": "2.63.0",
+    "@redocly/reunite-integration": "2.63.0",
     "@types/cookie": "0.6.0",
     "@types/har-format": "^1.2.16",
     "@types/react": "^17.0.0 || ^18.2.21 || ^19.2.16",
@@ -63,7 +63,7 @@
     "dotenv": "16.4.7",
     "esbuild": "^0.28.0",
     "glob": "^13.0.5",
-    "handlebars": "^4.7.9",
+    "handlebars": "^4.7.10",
     "react": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "redoc": "2.5.4",
@@ -72,7 +72,7 @@
     "styled-components": "6.4.2",
     "typescript": "6.0.2",
     "ulid": "^3.0.1",
-    "undici": "^6.29.0",
+    "undici": "^7.30.0",
     "yargs": "17.0.1"
   }
 }

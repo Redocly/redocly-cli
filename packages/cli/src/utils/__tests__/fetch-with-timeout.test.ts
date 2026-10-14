@@ -1,42 +1,14 @@
-import { Agent, ProxyAgent } from 'undici';
+import { Agent, ProxyAgent, fetch } from 'undici';
+import type * as undici from 'undici';
 
 import fetchWithTimeout from '../fetch-with-timeout.js';
 import * as proxyAgent from '../proxy-agent.js';
 
+vi.mock('undici', async (importOriginal) => ({
+  ...(await importOriginal<typeof undici>()),
+  fetch: vi.fn(),
+}));
 vi.mock('@redocly/openapi-core');
-
-const signalInstance = new AbortController().signal;
-
-const mockFetch = vi.fn(() =>
-  Promise.resolve({
-    ok: true,
-    status: 200,
-    json: () => Promise.resolve({}),
-    headers: new Headers(),
-    statusText: 'OK',
-    redirected: false,
-    type: 'default',
-    url: '',
-    clone: () => ({}) as Response,
-    body: null,
-    bodyUsed: false,
-    arrayBuffer: async () => new ArrayBuffer(0),
-    blob: async () => new Blob(),
-    formData: async () => new FormData(),
-    text: async () => '',
-    signal: signalInstance,
-    bytes: async () => new Uint8Array(),
-    dispatcher: undefined,
-  } as Response)
-);
-
-const originalFetch = global.fetch;
-global.fetch = mockFetch;
-
-vi.mock('../get-proxy-agent.js', async () => {
-  const actual = await vi.importActual('../utils/get-proxy-agent.js');
-  return { ...actual };
-});
 
 describe('fetchWithTimeout', () => {
   beforeAll(() => {
@@ -44,14 +16,10 @@ describe('fetchWithTimeout', () => {
     global.clearTimeout = vi.fn();
   });
 
-  afterAll(() => {
-    global.fetch = originalFetch;
-  });
-
   it('should call fetch with signal and agent when timeout is provided', async () => {
     await fetchWithTimeout('url', { timeout: 1000 });
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       'url',
       expect.objectContaining({
         signal: expect.any(AbortSignal),
@@ -66,7 +34,7 @@ describe('fetchWithTimeout', () => {
 
     await fetchWithTimeout('url');
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       'url',
       expect.objectContaining({
         dispatcher: expect.any(ProxyAgent),
@@ -77,7 +45,7 @@ describe('fetchWithTimeout', () => {
   it('should call fetch without signal and without dispatcher when timeout is not passed', async () => {
     await fetchWithTimeout('url');
 
-    expect(global.fetch).toHaveBeenCalledWith('url', {});
+    expect(fetch).toHaveBeenCalledWith('url', {});
   });
 
   it('should bypass proxy when URL matches NO_PROXY', async () => {
@@ -86,7 +54,7 @@ describe('fetchWithTimeout', () => {
 
     await fetchWithTimeout('http://localhost:3000/api');
 
-    expect(global.fetch).toHaveBeenCalledWith('http://localhost:3000/api', {});
+    expect(fetch).toHaveBeenCalledWith('http://localhost:3000/api', {});
   });
 
   it('should use proxy when URL does not match NO_PROXY', async () => {
@@ -95,7 +63,7 @@ describe('fetchWithTimeout', () => {
 
     await fetchWithTimeout('http://external.com/api');
 
-    expect(global.fetch).toHaveBeenCalledWith(
+    expect(fetch).toHaveBeenCalledWith(
       'http://external.com/api',
       expect.objectContaining({
         dispatcher: expect.any(ProxyAgent),

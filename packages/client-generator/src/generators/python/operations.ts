@@ -4,7 +4,9 @@
 import {
   type ApiModel,
   type DateType,
+  isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   sseResponse,
@@ -42,7 +44,12 @@ export function writeMethod(
   const positional = pathArgs.map(
     ({ param, python }) => `${python}: ${pythonType(param.schema, dateType)}`
   );
-  const bodyArg = op.requestBody ? [`body: ${pythonType(op.requestBody.schema, dateType)}`] : [];
+  const passThrough =
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType));
+  const bodyArg = op.requestBody
+    ? [`body: ${passThrough ? 'Any' : pythonType(op.requestBody.schema, dateType)}`]
+    : [];
   const kwargs = [
     ...queryArgs.map(({ param, python }) => {
       const annotation = pythonType(param.schema, dateType);
@@ -101,11 +108,17 @@ export function writeMethod(
       printer.line(`return ${isAsync ? 'aiter_sse' : 'iter_sse'}(_open, data_kind="${dataKind}")`);
       return;
     }
-    if (isMultipartBody(op)) printer.line('form_data, form_files = to_multipart(body)');
+    if (isMultipartBody(op) && !isUntypedMultipartBody(op)) {
+      printer.line('form_data, form_files = to_multipart(body)');
+    }
     const bodyKw = op.requestBody
-      ? isMultipartBody(op)
-        ? ', data=form_data, files=form_files'
-        : ', json_body=encode(body)'
+      ? isUntypedMultipartBody(op)
+        ? ', **multipart_arguments(body)'
+        : isMultipartBody(op)
+          ? ', data=form_data, files=form_files'
+          : isBinaryContentType(op.requestBody.contentType)
+            ? `, content=body, content_type=${naming.string(op.requestBody.contentType)}`
+            : ', json_body=encode(body)'
       : '';
     printer.line(
       `response = ${awaitKw}${sendFn}(self._http, self._config, op, url, method=op["method"], ` +

@@ -696,6 +696,8 @@ An aborted `AbortSignal` stops retries immediately.
 
 A `timeout` (milliseconds) aborts an attempt that takes too long, including the body read.
 The timeout composes with your own `AbortSignal`.
+The client does not need `AbortSignal.timeout()` or `AbortSignal.any()` from the browser.
+Where a browser lacks them, the client builds the same signal from an `AbortController`, so you do not need a polyfill.
 Each retry attempt gets a fresh time budget.
 An attempt that times out retries under the same policy as a network error.
 When no retries remain, the failure surfaces as a `TimeoutError`, exported next to `ApiError`.
@@ -769,8 +771,34 @@ await upload({ file, orgId: 'org_1', tags: ['a', 'b'] });
 `Blob` values and strings pass through unchanged.
 Arrays append one field per item.
 The client JSON-encodes nested objects and skips `undefined`/`null`.
-A multipart body whose schema is not a concrete object keeps the raw `FormData` type.
+A multipart body whose schema is not a concrete object is typed `FormData | ReadableStream`.
 `format: byte` (base64) stays a `string`.
+
+To stream a body through, pass a `ReadableStream` as the body of an untyped multipart operation or of a binary operation, such as `application/octet-stream`, `application/pdf`, or an `image/*` type.
+In Node, turn an incoming request into one with `Readable.toWeb(request)`.
+The client sends the stream untouched.
+A multipart stream never gets a `Content-Type` from the client, because only you know the boundary:
+
+```ts
+await upload(
+  { body: Readable.toWeb(request) },
+  { headers: { 'content-type': request.headers['content-type'] }, timeout: 0 }
+);
+```
+
+A stream body is sent in one attempt, whatever the retry policy says, because a consumed stream cannot be replayed.
+The `timeout` still applies to that attempt, so pass `timeout: 0` or a budget that fits a large upload.
+
+The Python client does the same for the same operations: pass `bytes`, a `str`, a file-like object, or an iterator of `bytes` as the body.
+A file-like object or an iterator is sent in one attempt, because it cannot be replayed.
+`bytes` and `str` still follow the retry policy.
+The Go client takes an `io.Reader`, a `[]byte`, or a `string` as the body of the same operations.
+An `io.Reader` is sent in one attempt.
+A `[]byte` or a `string` still follows the retry policy.
+The PHP client takes a stream resource (`fopen`, `php://temp`, a pipe) or a string as the body of the same operations.
+A resource is uploaded by curl in one attempt.
+A string still follows the retry policy.
+In all four clients, the `Content-Type` header you set wins over the one in the API description, and the description's type fills the gap for a body that is not multipart.
 
 ## Response decoding
 
@@ -938,7 +966,7 @@ Each paginated operation keeps its one-shot call and gains two async iterators.
 `.pages(args?, init?)` yields full pages, and `.items(args?, init?)` yields individual items.
 Both are typed statically from the response schema.
 
-The client supports four styles.
+The client supports five styles.
 `cursor` sends the response's `nextCursor` back in `cursorParam`.
 It stops when the cursor is absent, `null`, or empty.
 It throws if the server returns the same cursor two times in a row.
@@ -957,6 +985,14 @@ Because of this, every page goes through the same declared endpoint: auth and mi
 Iteration stops when no `rel="next"` is present, and it throws if the target repeats.
 A `link` convention rule applies only to operations whose success response documents a `Link` header.
 An explicit rule applies in all cases, but it warns when the header is undocumented.
+
+`body-link` follows the URL of the next page from a field in the response body, for example a `next_page_url` field.
+Set `nextLink` to the pointer of that field (for example `/page/nextPage`).
+The runtime handles the URL the same way as a `link` target: it merges the query parameters of the URL into the next call.
+Only the query parameters of the URL are used.
+The next call goes to the client's own `serverUrl` and the operation's path, even when the URL names another host.
+Iteration stops when the value is absent, `null`, or empty, and it throws if the URL repeats.
+A `body-link` convention rule applies only to operations whose success response resolves the pointer to a string.
 
 `limitParam` is optional metadata for any style.
 The iterator never sets it, so pass your page size in `params` yourself.
@@ -1012,6 +1048,7 @@ The `tanstack-query` generator emits typed TanStack Query v5 factories for each 
   Pass it to `useInfiniteQuery`/`fetchInfiniteQuery`.
   The generator compiles the `initialPageParam`/`getNextPageParam` pair from the same [pagination](#pagination) rule that powers `.pages()`/`.items()`, and it includes the `hasMore` stop.
   Because of this, infinite queries need no hand-written `getNextPageParam`.
+  For a `body-link` operation, the URL of the next page is the page param, and the next call merges its query parameters over `vars`.
   `link`-style operations are the exception, because their next page lives in a response header that a `queryFn` cannot see.
   Use the client's `.pages()`/`.items()` iterators for those.
 - `<op>QueryKey(vars?)`.

@@ -12,6 +12,7 @@ import {
   pickSchemaByMime,
   shouldIgnoreHeaderAsUndocumented,
   isJsonMime,
+  parseUrl,
 } from '../../utils/http.js';
 import { resolveResponseKey } from '../../utils/openapi.js';
 import { getActualParameterValue, parseDeepObjectQueryKey } from '../../utils/parameters.js';
@@ -213,11 +214,14 @@ function validateParameter(
   context: RuleContext,
   findings: Finding[]
 ): void {
-  if (actualValue === undefined || actualValue === null || !parameter.schema) {
+  if (actualValue === undefined || !parameter.schema) {
     return;
   }
 
-  const result = context.validateSchema(parameter.schema, actualValue, { coerce: true });
+  const result = context.validateSchema(parameter.schema, actualValue, {
+    coerce: !isJsonMime(parameter.mediaType),
+    target: 'request',
+  });
   if (result.valid) {
     return;
   }
@@ -259,9 +263,22 @@ function createUndocumentedParameterFindings(
     cookie: new Set<string>(),
   };
   const deepObjectQueryParams = new Set<string>();
+  let checkQueryKeys = true;
 
   for (const parameter of matchedOperation.operation.requestParameters) {
-    if (parameter.in === 'header') {
+    if (parameter.in === 'querystring') {
+      const { formSchema } = parameter;
+      if (
+        !formSchema ||
+        formSchema.properties.size === 0 ||
+        (formSchema.checksOtherKeys && !isRequestRejectedByServer(context))
+      ) {
+        checkQueryKeys = false;
+      }
+      for (const key of formSchema?.properties.keys() ?? []) {
+        paramsByLocation.query.add(key);
+      }
+    } else if (parameter.in === 'header') {
       paramsByLocation.header.add(parameter.name.toLowerCase());
     } else if (parameter.in === 'query' || parameter.in === 'cookie') {
       paramsByLocation[parameter.in].add(parameter.name);
@@ -271,7 +288,8 @@ function createUndocumentedParameterFindings(
     }
   }
 
-  for (const name of new Set(context.exchange.request.query.keys())) {
+  const queryKeys = checkQueryKeys ? context.exchange.request.query.keys() : [];
+  for (const name of new Set(queryKeys)) {
     if (paramsByLocation.query.has(name)) {
       continue;
     }
@@ -403,7 +421,25 @@ export class SchemaConsistencyRule implements TrafficRule {
           context.cookies
         );
 
-        if (parameter.required && (actualValue === undefined || actualValue === null)) {
+        if (
+          actualValue === undefined &&
+          isJsonMime(parameter.mediaType) &&
+          parseUrl(context.exchange.request.url).search !== ''
+        ) {
+          findings.push({
+            ruleId: this.id,
+            severity: 'error',
+            category: 'schema',
+            message: `Invalid ${parameter.in} parameter "${parameter.name}": the query string is not valid JSON.`,
+            exchangeIndex: context.exchange.index,
+            operationId: matchedOperation.operation.operationId,
+            specSource: matchedOperation.operation.specSource,
+            target: 'request',
+          });
+          continue;
+        }
+
+        if (parameter.required && actualValue === undefined) {
           findings.push({
             ruleId: this.id,
             severity: 'error',

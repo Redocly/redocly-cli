@@ -18,6 +18,17 @@ The `drift` command reports:
 - request and response schema mismatches
 - baseline security issues (opt-in OWASP API risk heuristics)
 
+Query parameters are checked key by key.
+When an operation documents the entire query string with an `in: querystring` parameter, the query is read as one value instead and validated against the schema of the parameter's `content` media type:
+`application/x-www-form-urlencoded` is parsed into an object keyed by query key, a JSON media type is parsed as JSON, and all other media types are validated as the percent-decoded string.
+Form and string values are converted to the schema types before validation, and a form value whose property schema describes an object is parsed as JSON.
+A JSON value is validated as is, and a query string that is not valid JSON is reported as an error.
+For a form-urlencoded schema, the keys under `properties`, including those inside `allOf`, `oneOf`, and `anyOf`, are the documented query parameters, and other keys are reported as undocumented warnings.
+Keys are not checked for JSON and other media types, when the schema has no `properties`, or when the schema or an `allOf` branch sets `additionalProperties`, `patternProperties`, or `unevaluatedProperties`.
+In that case the schema check reports extra keys instead, except when the server rejected the request with a `4xx`, where they are reported as undocumented warnings.
+`encoding` objects on the media type are not supported yet.
+A `querystring` parameter without a `content` schema, or with more than one media type, triggers a warning when the description is loaded, because only the first media type is used.
+
 Spec loading reuses the same engine as the other commands (`@redocly/openapi-core`), and schema validation reuses the bundled `@redocly/ajv`, so there are no extra runtime dependencies.
 
 ## Supported traffic formats
@@ -130,16 +141,20 @@ API coverage
   response codes     ███████████░░░░░░░░░   57%      4/7
 ```
 
-| Category          | Documented items                                                          | Covered when                                                                                     |
-| ----------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| operations        | Every operation of the loaded descriptions.                               | At least one exchange matched the operation.                                                     |
-| parameters        | Every path, query, header, and cookie parameter of an operation.          | A matched exchange carried the parameter. Cookie parameters are skipped with `--ignore-cookies`. |
-| schema properties | Every property reachable from the JSON request and response body schemas. | A matched exchange carried the property in its JSON body.                                        |
-| response codes    | Every response of an operation, including responses without content.      | A matched exchange returned the status. Status ranges such as `2XX` and `default` count as well. |
+| Category          | Documented items                                                              | Covered when                                                                                     |
+| ----------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| operations        | Every operation of the loaded descriptions.                                   | At least one exchange matched the operation.                                                     |
+| parameters        | Every path, query, querystring, header, and cookie parameter of an operation. | A matched exchange carried the parameter. Cookie parameters are skipped with `--ignore-cookies`. |
+| schema properties | Every property reachable from the JSON request and response body schemas.     | A matched exchange carried the property in its JSON body.                                        |
+| response codes    | Every response of an operation, including responses without content.          | A matched exchange returned the status. Status ranges such as `2XX` and `default` count as well. |
 
 Schema properties are collected from `properties`, `items`, `allOf`, `oneOf`, and `anyOf`.
 Properties marked `readOnly` are not expected in requests and properties marked `writeOnly` are not expected in responses, so they are not counted on that side.
 A property declared in several `oneOf` or `anyOf` branches is counted once, and a body covers it whenever it carries that field, whichever branch declares it.
+
+Each non-`readOnly` property of a form-urlencoded `querystring` schema counts as its own parameter, named after the parameter and the key, for example `filters.status`.
+The traffic covers it when the query carries that key, the same as an `in: query` parameter.
+A `querystring` parameter with any other media type, or with a schema that documents no keys or only `readOnly` keys, counts as one parameter.
 
 If the report on stdout is machine-readable (`--format json`, `csv`, or `sarif` without `--output`), the overview is printed to stderr so the report stays parseable.
 

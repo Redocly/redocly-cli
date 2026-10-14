@@ -7,6 +7,80 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.63.0 (2026-10-13)
+
+### Minor Changes
+
+- Added the `body-link` pagination style to the `generate-client` command.
+  Generated clients use it to follow the next page URL from a field in the response, set with the `nextLink` option.
+
+  The `tanstack-query` generator also creates infinite query options for these operations.
+
+### Patch Changes
+
+- Fixed request timeouts in the generated TypeScript client for older browsers that don't support `AbortSignal.timeout()` or `AbortSignal.any()`. Timed-out requests correctly throw `TimeoutError` instead of `AbortError` in Chrome 103–123.
+- Fixed an issue where the generated Go client sent duplicate query parameters when it followed a next page link.
+- Updated @redocly/client-generator to v0.6.0.
+
+## 2.62.2 (2026-10-12)
+
+### Patch Changes
+
+- Fixed an issue where the `login` and `push` did not exit after a request through a proxy timed out.
+- Fixed an issue where the `login`, `push`, and other Reunite commands failed on Node.js 26.
+  Updated `undici` to the `7.30.0` version.
+- Updated `handlebars` to `4.7.10` to resolve `CVE-2026-106444`, `CVE-2026-106445`, and `CVE-2026-106446`.
+- Fixed an issue where the `respect` command ignored the `--mtls` certificates when a request went through a proxy.
+- Updated @redocly/reunite-integration to v2.62.2.
+
+## 2.62.1 (2026-10-09)
+
+### Patch Changes
+
+- Fixed the `project clone` command so that Git keeps finding its credential helper after a clone run with `npx` or `pnpm dlx`.
+
+## 2.62.0 (2026-10-09)
+
+### Minor Changes
+
+- Added support for `in: querystring` parameters to the experimental `drift` command.
+  The command validates the whole query string against the parameter's schema, instead of reporting every query key as undocumented.
+  In `--coverage`, each key of a form-urlencoded querystring schema counts as a separate parameter.
+- Added the early access `project clone` command to work with a Redocly-hosted Reunite project as a Git repository.
+
+### Patch Changes
+
+- Fixed the `schema-consistency` rule of the `drift` command so that a required `readOnly` property in a parameter schema is no longer reported as missing from the request.
+- Updated @redocly/reunite-integration to v2.62.0.
+
+## 2.61.0 (2026-10-08)
+
+### Minor Changes
+
+- Added pass-through stream request bodies to the generated TypeScript, Python, Go, and PHP clients.
+  A stream body is sent as is in one attempt, and the caller's `Content-Type` wins over the one in the API description.
+
+### Patch Changes
+
+- Added a deprecation warning for Node.js 20.x.
+  Update to Node.js 22.12.0 or higher.
+- Updated `@modelcontextprotocol/sdk` to `1.32.1` to resolve `GHSA-6qxp-vccf-f47h`.
+- Updated @redocly/client-generator to v0.5.0.
+- Updated @redocly/openapi-core to v2.61.0.
+- Updated @redocly/reunite-integration to v2.61.0.
+
+## 2.60.0 (2026-10-07)
+
+### Minor Changes
+
+- Added the `--file-name-conflicts-severity` option for the `split` command to control how file name conflicts are reported.
+
+### Patch Changes
+
+- Fixed an issue where `split` lost content when two components, paths, webhooks, channels, operations, or code samples got the same file name.
+
+  **Warning:** `split` output may differ from older releases: when several names would share one file, each later file now gets a `-n` suffix, where `n` is its order, for example `user-2.yaml` next to `User.yaml`.
+
 ## 2.59.0 (2026-10-06)
 
 ### Minor Changes

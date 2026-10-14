@@ -4,7 +4,9 @@
 import {
   type ApiModel,
   type DateType,
+  isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   type OperationModel,
   sseResponse,
@@ -31,6 +33,14 @@ type MethodArgs = {
  * after one of them takes a suffixed variable instead, so the slot keeps its meaning.
  */
 const SIGNATURE_ARG_SLOTS = ['body', 'headers', 'idempotencyKey'];
+
+/** Whether the body is `mixed` and the runtime sorts out what it got (`multipartBody` / `binaryBody`). */
+function passesThrough(op: OperationModel): boolean {
+  return (
+    isUntypedMultipartBody(op) ||
+    (op.requestBody !== undefined && isBinaryContentType(op.requestBody.contentType))
+  );
+}
 
 export function methodArgs(
   op: OperationModel,
@@ -64,7 +74,7 @@ export function methodArgs(
     ...pathArgs.map(({ php, type }) => `${type} ${'$'}${php}`),
     ...(includeBody && op.requestBody
       ? [
-          `${isMultipartBody(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
+          `${passesThrough(op) ? 'mixed' : isMultipartBody(op) ? 'array' : phpType(op.requestBody.schema, model, dateType)} ${'$'}body`,
         ]
       : []),
     ...queryArgs.map(({ php, type }) => {
@@ -177,7 +187,15 @@ export function writePhpMethod(
         `'headers' => $requestHeaders`,
         `'query' => $query`,
       ];
-      if (op.requestBody && isMultipartBody(op)) {
+      if (isUntypedMultipartBody(op)) {
+        printer.line('[$contentType, $encoded] = multipartBody($body);');
+        request.push(`'body' => $encoded`, `'contentType' => $contentType`);
+      } else if (op.requestBody && passesThrough(op)) {
+        request.push(
+          `'body' => binaryBody($body)`,
+          `'contentType' => ${phpString(op.requestBody.contentType)}`
+        );
+      } else if (op.requestBody && isMultipartBody(op)) {
         printer.line('[$contentType, $encoded] = toMultipart($body);');
         request.push(`'body' => $encoded`, `'contentType' => $contentType`);
       } else if (op.requestBody) {

@@ -20,8 +20,10 @@ const constructBarForChart = (value, min) => {
 const loadResults = (jsonPath) => {
   const json = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
   return new Map(
-    json.results.map(({ command, median, times }) => {
+    json.results.map(({ command, summary, measurements }) => {
       const cliVersion = command.replace(/^node node_modules\/cli-([^/]+)\/.*/, (_, v) => v);
+      const median = summary.time_wall_clock.median;
+      const times = measurements.map((measurement) => measurement.time_wall_clock.value);
       return [cliVersion, { median, mad: calculateMedianAbsoluteDeviation(times, median) }];
     })
   );

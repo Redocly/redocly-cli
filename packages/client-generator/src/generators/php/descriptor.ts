@@ -32,6 +32,7 @@ export function phpPaginationLiteral(rule: NeutralPaginationRule): string {
     ...(rule.param !== undefined ? [`'param' => ${phpString(rule.param)}`] : []),
     ...(rule.nextCursor !== undefined ? [`'nextCursor' => ${phpString(rule.nextCursor)}`] : []),
     ...(rule.hasMore !== undefined ? [`'hasMore' => ${phpString(rule.hasMore)}`] : []),
+    ...(rule.nextLink !== undefined ? [`'nextLink' => ${phpString(rule.nextLink)}`] : []),
     ...(rule.limitParam !== undefined ? [`'limitParam' => ${phpString(rule.limitParam)}`] : []),
     ...(rule.items !== undefined ? [`'items' => ${phpString(rule.items)}`] : []),
   ];

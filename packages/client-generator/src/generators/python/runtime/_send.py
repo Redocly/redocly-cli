@@ -85,6 +85,7 @@ def send(
     params: Optional[Dict[str, Any]] = None,
     json_body: Any = None,
     content: Any = None,
+    content_type: Optional[str] = None,
     data: Any = None,
     files: Any = None,
     timeout: Optional[float] = None,
@@ -106,6 +107,9 @@ def send(
         merged_headers["Idempotency-Key"] = (
             key if isinstance(key, str) else key() if callable(key) else str(uuid.uuid4())
         )
+    # The declared content type fills the gap; a caller-provided header always wins.
+    if content_type is not None and not any(name.lower() == "content-type" for name in merged_headers):
+        merged_headers["Content-Type"] = content_type
 
     context = {
         "url": url,
@@ -120,7 +124,9 @@ def send(
         if on_request:
             on_request(context)
 
-    max_attempts = 1 + int(merged_retry.get("retries", 0))
+    # A file-like object or iterator is consumed by the first attempt and cannot be replayed, so it never retries.
+    replayable = content is None or isinstance(content, (bytes, bytearray, str))
+    max_attempts = 1 + int(merged_retry.get("retries", 0)) if replayable else 1
     retry_on = merged_retry.get("retry_on") or (
         lambda ctx: _default_retry_on(context["method"], context["headers"], ctx.get("response"))
     )
@@ -179,6 +185,7 @@ async def send_async(
     params: Optional[Dict[str, Any]] = None,
     json_body: Any = None,
     content: Any = None,
+    content_type: Optional[str] = None,
     data: Any = None,
     files: Any = None,
     timeout: Optional[float] = None,
@@ -198,6 +205,8 @@ async def send_async(
         merged_headers["Idempotency-Key"] = (
             key if isinstance(key, str) else key() if callable(key) else str(uuid.uuid4())
         )
+    if content_type is not None and not any(name.lower() == "content-type" for name in merged_headers):
+        merged_headers["Content-Type"] = content_type
     context = {
         "url": url,
         "method": method.upper(),
@@ -210,7 +219,9 @@ async def send_async(
         on_request = getattr(mw, "on_request", None) or (mw.get("on_request") if isinstance(mw, dict) else None)
         if on_request:
             on_request(context)
-    max_attempts = 1 + int(merged_retry.get("retries", 0))
+    # A file-like object or iterator is consumed by the first attempt and cannot be replayed, so it never retries.
+    replayable = content is None or isinstance(content, (bytes, bytearray, str))
+    max_attempts = 1 + int(merged_retry.get("retries", 0)) if replayable else 1
     retry_on = merged_retry.get("retry_on") or (
         lambda ctx: _default_retry_on(context["method"], context["headers"], ctx.get("response"))
     )

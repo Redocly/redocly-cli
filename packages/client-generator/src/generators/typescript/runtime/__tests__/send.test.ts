@@ -6,6 +6,11 @@ import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
   new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+// Never resolves; only an abort settles it, with the signal's reason, as `fetch` does.
+const hanging = ((url: string, init: RequestInit) =>
+  new Promise((_, reject) => {
+    init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+  })) as unknown as typeof fetch;
 
 function fetchSpy(responses: Array<Response | Error>) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -52,6 +57,68 @@ describe('send', () => {
     const bytes = new Uint8Array([1, 2]);
     await send(config, op, 'u', { method: 'POST' }, bytes, undefined, {});
     expect(calls[3].init.body).toBe(bytes);
+  });
+
+  it('passes a ReadableStream body through with duplex: half, the caller content type, and one attempt', async () => {
+    const stream = new ReadableStream<Uint8Array>();
+    const first = fetchSpy([ok()]);
+    await send(
+      { fetch: first.fetchImpl },
+      op,
+      'u',
+      { method: 'POST', headers: { 'content-type': 'multipart/form-data; boundary=abc' } },
+      stream,
+      { contentType: 'multipart/form-data' },
+      {}
+    );
+    const init = first.calls[0].init as RequestInit & { duplex?: string };
+    expect(init.body).toBe(stream);
+    expect(init.duplex).toBe('half');
+    const headers = init.headers as Record<string, string>;
+    expect(headers['content-type']).toBe('multipart/form-data; boundary=abc');
+    expect(headers['Content-Type']).toBeUndefined();
+
+    // A consumed stream cannot be replayed, so the retry policy never gets a second attempt.
+    const second = fetchSpy([new Error('ECONNRESET'), ok()]);
+    await expect(
+      send(
+        { fetch: second.fetchImpl, retry: { retries: 2, retryDelay: 1, retryOn: () => true } },
+        op,
+        'u',
+        { method: 'POST' },
+        new ReadableStream<Uint8Array>(),
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('ECONNRESET');
+    expect(second.calls.length).toBe(1);
+  });
+
+  it('fills a stream body Content-Type from the declared type, except for multipart', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok()]);
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'POST' },
+      new ReadableStream<Uint8Array>(),
+      { contentType: 'application/pdf' },
+      {}
+    );
+    expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
+      'application/pdf'
+    );
+    // Only the caller knows the boundary, so a bare multipart type would be wrong.
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'POST' },
+      new ReadableStream<Uint8Array>(),
+      { contentType: 'multipart/form-data' },
+      {}
+    );
+    expect((calls[1].init.headers as Record<string, string>)['Content-Type']).toBeUndefined();
   });
 
   it("defaults Content-Type to the operation's declared body content type", async () => {
@@ -409,6 +476,56 @@ describe('send', () => {
       attempt: 1,
     });
     await expect(rejection).rejects.toThrow('"createPet" timed out after 20 ms');
+  });
+
+  it('builds the timeout and the composed signal without AbortSignal.timeout/any (older browsers)', async () => {
+    const native = { timeout: AbortSignal.timeout, any: AbortSignal.any };
+    Object.assign(AbortSignal, { timeout: undefined, any: undefined });
+    try {
+      const controller = new AbortController();
+      await expect(
+        send(
+          { fetch: hanging, timeout: 20 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toMatchObject({ name: 'TimeoutError', operationId: 'createPet', timeout: 20 });
+      // The caller's own abort still wins the race and rethrows untouched.
+      setTimeout(() => controller.abort(new Error('gone')), 5);
+      await expect(
+        send(
+          { fetch: hanging, timeout: 60_000 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toThrow('gone');
+    } finally {
+      Object.assign(AbortSignal, native);
+    }
+  });
+
+  it('reports a timeout the platform aborts with AbortError (Chrome 103 to 123) as TimeoutError', async () => {
+    const native = AbortSignal.timeout;
+    AbortSignal.timeout = (ms: number) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(new DOMException('Aborted.', 'AbortError')), ms);
+      return controller.signal;
+    };
+    try {
+      await expect(
+        send({ fetch: hanging, timeout: 20 }, op, 'u', { method: 'GET' }, undefined, undefined, {})
+      ).rejects.toBeInstanceOf(TimeoutError);
+    } finally {
+      AbortSignal.timeout = native;
+    }
   });
 
   it('resolves async config.headers once and merges per-call headers over them', async () => {
