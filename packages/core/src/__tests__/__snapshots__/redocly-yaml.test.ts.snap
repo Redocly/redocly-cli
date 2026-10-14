@@ -326,6 +326,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "nextCursor": {
         "type": "string",
       },
+      "nextLink": {
+        "type": "string",
+      },
       "offsetParam": {
         "type": "string",
       },
@@ -340,6 +343,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "offset",
           "page",
           "link",
+          "body-link",
         ],
       },
     },
@@ -361,6 +365,9 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
       "nextCursor": {
         "type": "string",
       },
+      "nextLink": {
+        "type": "string",
+      },
       "offsetParam": {
         "type": "string",
       },
@@ -370,6 +377,7 @@ exports[`createConfigTypes > matches snapshot for the default config schema 1`] 
           "offset",
           "page",
           "link",
+          "body-link",
         ],
       },
     },

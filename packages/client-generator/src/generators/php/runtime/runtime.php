@@ -353,8 +353,8 @@ function linkNext(?string $header): ?string
 
 /**
  * Auto-pagination: `$call(array $params): [mixed rawPage, array $response]`, `$spec` is the
- * normalized rule (`style`, `param`, `nextCursor`, `hasMore`, `items`), `$base` the caller's
- * query params. Yields raw decoded pages; generated wrappers hydrate them into models.
+ * normalized rule (`style`, `param`, `nextCursor`, `hasMore`, `nextLink`, `items`), `$base`
+ * the caller's query params. Yields raw decoded pages; generated wrappers hydrate them into models.
  */
 function iterPages(callable $call, array $spec, array $base): \Generator
 {
@@ -377,9 +377,11 @@ function iterPages(callable $call, array $spec, array $base): \Generator
             }
             $seenCursors[$next] = true;
             $params[$spec['param']] = $next;
-        } elseif ($style === 'link') {
-            $target = linkNext($response['headers']['link'] ?? null);
-            if ($target === null || isset($seenLinks[$target])) {
+        } elseif ($style === 'link' || $style === 'body-link') {
+            $target = $style === 'body-link'
+                ? resolvePointer($raw, $spec['nextLink'])
+                : linkNext($response['headers']['link'] ?? null);
+            if (!is_string($target) || $target === '' || isset($seenLinks[$target])) {
                 return;
             }
             $seenLinks[$target] = true;

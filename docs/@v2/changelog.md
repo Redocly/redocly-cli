@@ -7,6 +7,32 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.63.0 (2026-10-13)
+
+### Minor Changes
+
+- Added the `body-link` pagination style to the `generate-client` command.
+  Generated clients use it to follow the next page URL from a field in the response, set with the `nextLink` option.
+
+  The `tanstack-query` generator also creates infinite query options for these operations.
+
+### Patch Changes
+
+- Fixed request timeouts in the generated TypeScript client for older browsers that don't support `AbortSignal.timeout()` or `AbortSignal.any()`. Timed-out requests correctly throw `TimeoutError` instead of `AbortError` in Chrome 103–123.
+- Fixed an issue where the generated Go client sent duplicate query parameters when it followed a next page link.
+- Updated @redocly/client-generator to v0.6.0.
+
+## 2.62.2 (2026-10-12)
+
+### Patch Changes
+
+- Fixed an issue where the `login` and `push` did not exit after a request through a proxy timed out.
+- Fixed an issue where the `login`, `push`, and other Reunite commands failed on Node.js 26.
+  Updated `undici` to the `7.30.0` version.
+- Updated `handlebars` to `4.7.10` to resolve `CVE-2026-106444`, `CVE-2026-106445`, and `CVE-2026-106446`.
+- Fixed an issue where the `respect` command ignored the `--mtls` certificates when a request went through a proxy.
+- Updated @redocly/reunite-integration to v2.62.2.
+
 ## 2.62.1 (2026-10-09)
 
 ### Patch Changes

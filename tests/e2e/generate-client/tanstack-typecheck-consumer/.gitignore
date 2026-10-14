@@ -1,0 +1,5 @@
+# Generated fresh by tanstack-query.test.ts in beforeAll and removed in afterAll.
+client.ts
+client.tanstack.ts
+pagination.ts
+pagination.tanstack.ts
