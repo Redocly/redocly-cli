@@ -704,6 +704,16 @@ describe('evaluateRuntimeExpression', () => {
     expect(evaluateRuntimeExpression(expression3, runtimeExpressionContext, logger)).toEqual(false);
   });
 
+  it('should not rewrite string values that contain a dot followed by a digit', () => {
+    const token = 'rdsc_scimc_abcdefghijklmnopqrstuv.7fKBCS4zQ';
+    const context = { $response: { body: { token } } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/token', context, logger)).toEqual(token);
+    expect(
+      evaluateRuntimeExpression(`$response.body#/token == "${token}"`, context, logger)
+    ).toEqual(true);
+  });
+
   it('should evaluate list runtime expression value', () => {
     const expression = '$response.body#/items';
     expect(evaluateRuntimeExpression(expression, runtimeExpressionContext, logger)).toEqual([

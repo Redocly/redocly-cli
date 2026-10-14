@@ -149,11 +149,9 @@ function normalizeSymbolsExpression(expression: string): string {
 
 function normalizeExpression(expression: string, context: RuntimeExpressionContext): string {
   const modifiedJsExpression = replaceJSONPointers(expression, context);
-  // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
-  const normalizedSymbolsExpression = normalizeSymbolsExpression(modifiedJsExpression);
 
   // Remove the curly braces surrounding the ENTIRE expression (if any), but not braces within JSON
-  let cleanedJsExpression = normalizedSymbolsExpression;
+  let cleanedJsExpression = modifiedJsExpression;
 
   if (cleanedJsExpression.startsWith('{') && cleanedJsExpression.endsWith('}')) {
     // A runtime expression wrapper has the form {$variable...} with no nested braces until the end
@@ -164,20 +162,28 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
     }
   }
 
+  // Normalize only the code between the string literals, so the values inlined by
+  // `replaceJSONPointers` and the quoted strings written in success criteria stay as they are
+  const stringLiteralRegex = /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/;
+  return cleanedJsExpression
+    .split(stringLiteralRegex)
+    .map((part, index) => (index % 2 === 0 ? normalizeCode(part) : part))
+    .join('');
+}
+
+function normalizeCode(code: string): string {
+  // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
+  const normalizedSymbolsExpression = normalizeSymbolsExpression(code);
+
   // Convert numeric indices (e.g., `.0`) into square bracket notation (e.g., `[0]`)
-  const expressionWithBrackets = convertNumericIndices(cleanedJsExpression);
+  const expressionWithBrackets = convertNumericIndices(normalizedSymbolsExpression);
 
   // Check if the expression contains `.header.` and lowercase the parameter after `.header.`.
   // As headers are case-insensitive, we need to normalize the header names to lowercase for evaluation.
   const headerParameterNameRegex = /\.header\.([a-zA-Z0-9._-]+)/g;
-  const normalizedExpression = expressionWithBrackets.replace(
-    headerParameterNameRegex,
-    (_match, p1) => {
-      return `.header.${p1.toLowerCase()}`;
-    }
-  );
-
-  return normalizedExpression;
+  return expressionWithBrackets.replace(headerParameterNameRegex, (_match, p1) => {
+    return `.header.${p1.toLowerCase()}`;
+  });
 }
 
 // Normalize the entire context to replace hyphens with underscores in all keys
