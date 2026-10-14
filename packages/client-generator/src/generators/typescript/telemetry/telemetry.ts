@@ -239,7 +239,8 @@ function toEvents(
 async function sendOtlp(endpoint: string, events: SdkUsageEvent[]): Promise<void> {
   const response = await fetch(endpoint, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    // One send per window, so the socket is never reused: close it instead of keeping it idle.
+    headers: { 'Content-Type': 'application/json', Connection: 'close' },
     body: JSON.stringify(toOtlpRequest(events)),
     signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
   });
