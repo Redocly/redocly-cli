@@ -162,27 +162,31 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
     }
   }
 
-  return normalizeCodeOutsideStringLiterals(cleanedJsExpression);
+  return splitByStringLiterals(cleanedJsExpression)
+    .map((part, index) => (index % 2 === 0 ? normalizeCode(part) : part))
+    .join('');
 }
 
-function normalizeCodeOutsideStringLiterals(expression: string): string {
-  let result = '';
-  let codeStart = 0;
+// Splits the expression into [code, literal, code, literal, ..., code]
+function splitByStringLiterals(expression: string): string[] {
+  const parts: string[] = [];
+  let partStart = 0;
   let index = 0;
 
   while (index < expression.length) {
-    if (expression[index] !== '"' && expression[index] !== "'") {
+    if (expression[index] === '"' || expression[index] === "'") {
+      parts.push(expression.slice(partStart, index));
+      const literalEnd = findStringLiteralEnd(expression, index);
+      parts.push(expression.slice(index, literalEnd));
+      partStart = literalEnd;
+      index = literalEnd;
+    } else {
       index++;
-      continue;
     }
-    const literalEnd = findStringLiteralEnd(expression, index);
-    result +=
-      normalizeCode(expression.slice(codeStart, index)) + expression.slice(index, literalEnd);
-    codeStart = literalEnd;
-    index = literalEnd;
   }
 
-  return result + normalizeCode(expression.slice(codeStart));
+  parts.push(expression.slice(partStart));
+  return parts;
 }
 
 function findStringLiteralEnd(expression: string, start: number): number {
