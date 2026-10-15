@@ -1,4 +1,4 @@
-// Ejected from @redocly/client-generator@0.6.0 — the built-in "php" generator.
+// Ejected from @redocly/client-generator@0.7.0 — the built-in "php" generator.
 // This file is yours: edit freely; the generated client stays machine-owned and is
 // rebuilt by `redocly generate-client`. Newer generator versions merge in with
 // `redocly eject-generator php --update`.
@@ -36,6 +36,7 @@ export function phpPaginationLiteral(rule: NeutralPaginationRule): string {
     ...(rule.param !== undefined ? [`'param' => ${phpString(rule.param)}`] : []),
     ...(rule.nextCursor !== undefined ? [`'nextCursor' => ${phpString(rule.nextCursor)}`] : []),
     ...(rule.hasMore !== undefined ? [`'hasMore' => ${phpString(rule.hasMore)}`] : []),
+    ...(rule.nextLink !== undefined ? [`'nextLink' => ${phpString(rule.nextLink)}`] : []),
     ...(rule.limitParam !== undefined ? [`'limitParam' => ${phpString(rule.limitParam)}`] : []),
     ...(rule.items !== undefined ? [`'items' => ${phpString(rule.items)}`] : []),
   ];

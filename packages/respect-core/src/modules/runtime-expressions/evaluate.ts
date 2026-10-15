@@ -149,11 +149,9 @@ function normalizeSymbolsExpression(expression: string): string {
 
 function normalizeExpression(expression: string, context: RuntimeExpressionContext): string {
   const modifiedJsExpression = replaceJSONPointers(expression, context);
-  // Normalize the expression for evaluation by replacing hyphens with underscores and converting to lowercase
-  const normalizedSymbolsExpression = normalizeSymbolsExpression(modifiedJsExpression);
 
   // Remove the curly braces surrounding the ENTIRE expression (if any), but not braces within JSON
-  let cleanedJsExpression = normalizedSymbolsExpression;
+  let cleanedJsExpression = modifiedJsExpression;
 
   if (cleanedJsExpression.startsWith('{') && cleanedJsExpression.endsWith('}')) {
     // A runtime expression wrapper has the form {$variable...} with no nested braces until the end
@@ -164,20 +162,64 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
     }
   }
 
+  return splitByStringLiterals(cleanedJsExpression)
+    .map((part, index) => (index % 2 === 0 ? normalizeCode(part) : part))
+    .join('');
+}
+
+// Splits the expression into [code, literal, code, literal, ..., code]
+function splitByStringLiterals(expression: string): string[] {
+  const parts: string[] = [];
+  let partStart = 0;
+
+  while (partStart < expression.length) {
+    const quoteIndex = expression.slice(partStart).search(/["']/);
+
+    if (quoteIndex === -1) {
+      break;
+    }
+
+    const literalStart = partStart + quoteIndex;
+    parts.push(expression.slice(partStart, literalStart));
+
+    const literalEnd = findStringLiteralEnd(expression, literalStart);
+    parts.push(expression.slice(literalStart, literalEnd));
+    partStart = literalEnd;
+  }
+
+  parts.push(expression.slice(partStart));
+  return parts;
+}
+
+function findStringLiteralEnd(expression: string, start: number): number {
+  const quote = expression[start];
+  for (let index = start + 1; index < expression.length; index++) {
+    const char = expression[index];
+
+    if (char === quote) {
+      return index + 1;
+    }
+
+    if (char === '\\') {
+      index++;
+    }
+  }
+  return expression.length;
+}
+
+function normalizeCode(code: string): string {
+  // Replace hyphens with underscores in `$...` references to match the keys normalized by `normalizeContext`
+  const normalizedSymbolsExpression = normalizeSymbolsExpression(code);
+
   // Convert numeric indices (e.g., `.0`) into square bracket notation (e.g., `[0]`)
-  const expressionWithBrackets = convertNumericIndices(cleanedJsExpression);
+  const expressionWithBrackets = convertNumericIndices(normalizedSymbolsExpression);
 
   // Check if the expression contains `.header.` and lowercase the parameter after `.header.`.
   // As headers are case-insensitive, we need to normalize the header names to lowercase for evaluation.
   const headerParameterNameRegex = /\.header\.([a-zA-Z0-9._-]+)/g;
-  const normalizedExpression = expressionWithBrackets.replace(
-    headerParameterNameRegex,
-    (_match, p1) => {
-      return `.header.${p1.toLowerCase()}`;
-    }
-  );
-
-  return normalizedExpression;
+  return expressionWithBrackets.replace(headerParameterNameRegex, (_match, p1) => {
+    return `.header.${p1.toLowerCase()}`;
+  });
 }
 
 // Normalize the entire context to replace hyphens with underscores in all keys
