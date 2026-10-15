@@ -10,9 +10,9 @@ const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
 const examplesDir = join(repoRoot, 'packages/client-generator/examples');
 
-// Every directory under examples/ is an example.
+// Every directory under examples/ is an example; `_shared` holds the spec they have in common.
 const EXAMPLES = readdirSync(examplesDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
+  .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
   .map((entry) => entry.name)
   .sort();
 

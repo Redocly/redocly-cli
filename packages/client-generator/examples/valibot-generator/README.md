@@ -34,7 +34,7 @@ The generator is selected by path, next to a built-in name:
 ```yaml
 apis:
   valibot-generator:
-    root: ./openapi.yaml
+    root: ../_shared/cafe.yaml
     clientOutput: ./src/api/client.ts
     client:
       generators:
