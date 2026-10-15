@@ -704,6 +704,42 @@ describe('evaluateRuntimeExpression', () => {
     expect(evaluateRuntimeExpression(expression3, runtimeExpressionContext, logger)).toEqual(false);
   });
 
+  it('should not rewrite string values that contain a dot followed by a digit', () => {
+    const token = 'rdsc_scimc_abcdefghijklmnopqrstuv.7fKBCS4zQ';
+    const quoted = 'say "hi.1"';
+    const context = {
+      $response: { body: { token, quoted } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/token', context, logger)).toEqual(token);
+    expect(evaluateRuntimeExpression('$response.body#/quoted', context, logger)).toEqual(quoted);
+    expect(
+      evaluateRuntimeExpression(`$response.body#/token == "${token}"`, context, logger)
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload: 'Bearer {$response.body#/token}',
+        context,
+        logger,
+      })
+    ).toEqual(`Bearer ${token}`);
+  });
+
+  it('should not rewrite expression-like text inside string values', () => {
+    const note = 'copied from $steps.first-step.response.header.Content-Type';
+    const context = { $response: { body: { note } } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/note', context, logger)).toEqual(note);
+  });
+
+  it('should not rewrite single-quoted string literals in a comparison', () => {
+    const context = { $inputs: { version: '1.0.0-rc.1' } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression("$inputs.version == '1.0.0-rc.1'", context, logger)).toEqual(
+      true
+    );
+  });
+
   it('should evaluate list runtime expression value', () => {
     const expression = '$response.body#/items';
     expect(evaluateRuntimeExpression(expression, runtimeExpressionContext, logger)).toEqual([

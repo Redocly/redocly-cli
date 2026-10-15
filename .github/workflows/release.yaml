@@ -63,7 +63,7 @@ jobs:
             node scripts/add-cli-dependency-changesets.js __changesets__.json
             npx changeset version
             npm i
-            npm run update-generator --prefix tests/e2e/generate-client/examples/ejected-generator
+            npm run update-generator --prefix packages/client-generator/examples/ejected-generator
             node scripts/post-changeset.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

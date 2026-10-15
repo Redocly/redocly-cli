@@ -40,7 +40,7 @@ The generated client under `src/api/` is gitignored — CI regenerates every cli
 # from the repo root: generate the gitignored clients first
 npm run examples:regen -w @redocly/client-generator
 
-cd tests/e2e/generate-client/examples/<name>
+cd packages/client-generator/examples/<name>
 npm install
 npm run dev        # the Vite apps; `programmatic` uses `npm run generate`,
                    # `zero-install-quickstart`/`node-native` `npm start`, `vendored-edge` `npm run typecheck`
