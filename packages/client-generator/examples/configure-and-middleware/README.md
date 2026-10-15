@@ -2,7 +2,7 @@
 
 Customizing the client **without editing the generated file** — every mechanism composes
 from the hand-written `src/main.ts`, so it survives regeneration
-(see [ADR-0014](../../../../packages/client-generator/docs/adr/0014-request-response-customization.md)):
+(see [ADR-0014](../../docs/adr/0014-request-response-customization.md)):
 
 - `configure({ serverUrl, retry, fetch })` — an exponential, `Retry-After`-aware retry
   policy and a custom transport (here a canned `fetch`, so the demo runs offline).
