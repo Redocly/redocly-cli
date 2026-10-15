@@ -171,18 +171,20 @@ function normalizeExpression(expression: string, context: RuntimeExpressionConte
 function splitByStringLiterals(expression: string): string[] {
   const parts: string[] = [];
   let partStart = 0;
-  let index = 0;
 
-  while (index < expression.length) {
-    if (expression[index] === '"' || expression[index] === "'") {
-      parts.push(expression.slice(partStart, index));
-      const literalEnd = findStringLiteralEnd(expression, index);
-      parts.push(expression.slice(index, literalEnd));
-      partStart = literalEnd;
-      index = literalEnd;
-    } else {
-      index++;
+  while (partStart < expression.length) {
+    const quoteIndex = expression.slice(partStart).search(/["']/);
+
+    if (quoteIndex === -1) {
+      break;
     }
+
+    const literalStart = partStart + quoteIndex;
+    parts.push(expression.slice(partStart, literalStart));
+
+    const literalEnd = findStringLiteralEnd(expression, literalStart);
+    parts.push(expression.slice(literalStart, literalEnd));
+    partStart = literalEnd;
   }
 
   parts.push(expression.slice(partStart));
@@ -192,10 +194,14 @@ function splitByStringLiterals(expression: string): string[] {
 function findStringLiteralEnd(expression: string, start: number): number {
   const quote = expression[start];
   for (let index = start + 1; index < expression.length; index++) {
-    if (expression[index] === '\\') {
-      index++;
-    } else if (expression[index] === quote) {
+    const char = expression[index];
+
+    if (char === quote) {
       return index + 1;
+    }
+
+    if (char === '\\') {
+      index++;
     }
   }
   return expression.length;
