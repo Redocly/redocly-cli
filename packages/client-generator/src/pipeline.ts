@@ -279,6 +279,7 @@ export async function generateClient(
     mockData: options.mockData,
     mockSeed: options.mockSeed,
     queryKeyPrefix: options.queryKeyPrefix,
+    telemetry: options.telemetry,
     setup: setupBlock,
     runtime: options.runtime,
     importExt: options.importExt,

@@ -108,7 +108,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter` optional) plus an optional resolved Redocly `config` used to load the description.
+`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter`, `telemetry` optional) plus an optional resolved Redocly `config` used to load the description.
 
 ### `collectGeneratedFiles`
 

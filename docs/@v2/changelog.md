@@ -7,6 +7,19 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.64.0 (2026-10-15)
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.7.0.
+- Updated @redocly/openapi-core to v2.64.0.
+- Updated @redocly/reunite-integration to v2.64.0.
+
 ## 2.63.0 (2026-10-13)
 
 ### Minor Changes
