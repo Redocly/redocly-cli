@@ -57,6 +57,7 @@ export type GenerateClientOptions = {
   /** Leading element for every tanstack-query key — namespaces the cache when several
    * generated APIs share one QueryClient (operationIds may collide across APIs). */
   queryKeyPrefix?: string;
+  telemetry?: 'on' | 'off';
   /**
    * Generators to run, in order. Defaults to `['typescript']`. Each entry is a built-in name
    * (`typescript`/`zod`/`tanstack-query`/`swr`/`transformers`/`mock`), the `name` of an inline

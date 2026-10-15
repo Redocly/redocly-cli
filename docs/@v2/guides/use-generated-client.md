@@ -603,6 +603,34 @@ use({
 The client serializes and sends body edits.
 `onResponse` can return a replacement `Response`.
 The client threads `onError` (throw mode only) through each middleware.
+
+`onSettled` runs once per sent call, after the last retry, in registration order.
+It runs in both error modes, for each pagination page, and for each SSE connection, before a failed response becomes an error.
+It receives the request context and the outcome: the `response`, the `error`, or both, the number of `attempts`, and the `durationMs`.
+The duration starts before the first attempt and ends after the `onResponse` hooks run on the final response.
+
+A call that fails in an `onRequest` hook or in body serialization does not reach `onSettled`.
+A call whose signal is already aborted reaches `onSettled` with 0 attempts.
+
+Use `onSettled` to count, time, or log calls:
+
+```ts
+import { use } from './client.ts';
+
+use({
+  onSettled: (ctx, call) => {
+    const outcome = call.response ? call.response.status : 'failed';
+    console.log(
+      `${ctx.operation.id}: ${outcome}, ${call.attempts} attempt(s), ${call.durationMs} ms`
+    );
+  },
+});
+```
+
+`onSettled` is a middleware hook only; `ClientConfig` has no single `onSettled` hook.
+An error that `onSettled` throws rejects a successful call after all `onSettled` hooks run.
+When the call already failed, the call rejects with its own error, and the client logs the hook error with `console.warn`.
+
 The fields of `ctx.operation` are typed as literal unions from the description (`OperationId`/`OperationPath`/`OperationTag`).
 Because of this, `ctx.operation.id === '…'` and `ctx.operation.tags.includes('…')` autocomplete.
 An operation id with a spelling error fails compilation, and it does not silently miss all matches.
