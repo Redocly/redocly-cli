@@ -1,4 +1,4 @@
-import { logger, pluralize } from '@redocly/openapi-core';
+import { HandledError, logger, pluralize } from '@redocly/openapi-core';
 
 import { selectTrafficParser } from '../drift/log-formats/registry.js';
 import type {
@@ -586,13 +586,15 @@ export async function generateSpecFromTraffic(
         return;
       }
       rawPath = serverRelativePath;
-    } else if (exchange.request.host && !isSyntheticHost(exchange.request.host)) {
-      observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
     }
 
     if (method === 'query' && options.openapiVersion === '3.1') {
       unsupportedMethodExchangeCount += 1;
       return;
+    }
+
+    if (!server && exchange.request.host && !isSyntheticHost(exchange.request.host)) {
+      observedServers.add(`${exchange.request.protocol}//${exchange.request.host}`);
     }
 
     const { template, params } = templatizePath(getPathWithoutTrailingSlash(rawPath));
@@ -674,7 +676,7 @@ export async function generateSpecFromTraffic(
   }
 
   if (operations.size === 0 && unsupportedMethodExchangeCount > 0) {
-    throw new Error(
+    throw new HandledError(
       'All observed HTTP exchanges use the QUERY method, which OpenAPI 3.1 does not support. Use --openapi-version 3.2 to include them.'
     );
   }

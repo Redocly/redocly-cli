@@ -93,10 +93,12 @@ describe('generate-spec - deterministic inference', () => {
     expect(output).toContain('openapi: 3.1.0');
     expect(output).toContain('operationId: get-users-userId');
     expect(output).not.toContain('query:');
+    expect(output).not.toContain('http://search.example.com');
 
     const latest = runGenerateSpec(['traffic-query.ndjson']);
     expect(latest.output).toContain('openapi: 3.2.0');
     expect(latest.output).toContain('operationId: query-users');
+    expect(latest.output).toContain('http://search.example.com');
   });
 
   test('writes the description to a file with --output', () => {
