@@ -388,6 +388,7 @@ const Client: NodeType = {
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    telemetry: { enum: ['on', 'off'] },
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
