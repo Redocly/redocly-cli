@@ -1,5 +1,5 @@
 import { YamlParseError } from '../../errors/yaml-parse-error.js';
-import type { Location } from '../../ref-utils.js';
+import { isMappingRef, type Location } from '../../ref-utils.js';
 import type {
   Oas2Rule,
   Oas3Rule,
@@ -29,6 +29,9 @@ export const NoUnresolvedRefs:
       { report, resolve, location }: UserContext
     ) {
       for (const mappingName of Object.keys(mapping)) {
+        // values that are not refs are schema names, the same way the bundler treats them
+        if (!isMappingRef(mapping[mappingName])) continue;
+
         const resolved = resolve({ $ref: mapping[mappingName] });
         if (resolved.node !== undefined) return;
 
