@@ -54,12 +54,16 @@ jobs:
           # This calculates the changed packages and creates an additional changeset for internal dependency updates.
           # Then `changeset version` produces all necessary version bumps in package.json files.
           # After that, `npm i` ensures the lockfile is updated with the new versions.
+          # Then the ejected example runs `redocly eject-generator php --update`, the command a user runs
+          # to merge a new generator version into a customized copy.
+          # The action runs each line as one command without a shell, so `--prefix` sets the folder.
           # Finally, the `post-changeset` script and updates the main changelog.
           version: |
             npx changeset status --output=__changesets__.json
             node scripts/add-cli-dependency-changesets.js __changesets__.json
             npx changeset version
             npm i
+            npm run update-generator --prefix tests/e2e/generate-client/examples/ejected-generator
             node scripts/post-changeset.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
