@@ -3,4 +3,5 @@
 '@redocly/cli': patch
 ---
 
-Fixed `respect` so string values read through a JSON pointer, such as `$response.body#/token`, are no longer rewritten when they contain a dot followed by a digit.
+Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+For example, a token read through `$response.body#/token` or a quoted value in success criteria.
