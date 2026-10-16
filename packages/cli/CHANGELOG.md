@@ -1,5 +1,11 @@
 # @redocly/cli
 
+## 2.65.0
+
+### Minor Changes
+
+- Added the `--openapi-version` option to the `generate-spec` command to choose between OpenAPI `3.1` and `3.2` (the default) for the generated description.
+
 ## 2.64.1
 
 ### Patch Changes
