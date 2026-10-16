@@ -276,4 +276,40 @@ describe('oas3 boolean-parameter-prefixes', () => {
 
     expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
   });
+
+  it('should not report on discriminator mapping values that are schema names', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+        openapi: 3.1.0
+        components:
+          schemas:
+            Pet:
+              oneOf:
+                - $ref: '#/components/schemas/Cat'
+                - $ref: '#/components/schemas/Dog'
+              discriminator:
+                propertyName: petType
+                mapping:
+                  cat: Cat
+                  dog: Dog
+            Cat:
+              type: object
+            Dog:
+              type: object
+      `,
+      path.join(__dirname, 'foobar.yaml')
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'no-unresolved-refs': 'error',
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results, __dirname)).toEqual([]);
+  });
 });
