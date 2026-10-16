@@ -139,7 +139,7 @@ function defineGenerator(generator: CustomGenerator): CustomGenerator;
 The `@redocly/client-generator/generate` entry also exports the TypeScript renderers the built-ins use (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, `safeIdent`).
 The package root exports the IR types plus the language-neutral toolkit.
 A custom generator emits TypeScript exactly as the first-party ones do.
-See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator).
+See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/typescript-types-generator).
 
 ### `defineClientSetup`
 
@@ -156,7 +156,7 @@ A setup module may import only from `@redocly/client-generator`, so it never add
 
 ## Examples
 
-Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, and custom generators — live in [`tests/e2e/generate-client/examples`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples).
+Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, and custom generators — live in [`packages/client-generator/examples`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation

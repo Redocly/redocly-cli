@@ -12,11 +12,10 @@
         "resources/**",
         // Generated clients are written into these folders during the e2e run, so their
         // imports do not resolve in a clean checkout. Same exclusion as the root tsconfig.
-        "tests/e2e/generate-client/examples/**",
         "tests/e2e/generate-client/*-consumer/**",
       ],
-      // Only referenced from generated e2e consumer code.
-      "ignoreDependencies": ["@faker-js/faker", "swr", "zod"],
+      // Only referenced from generated e2e consumer code and the client generator examples.
+      "ignoreDependencies": ["@faker-js/faker", "msw", "swr", "valibot", "zod"],
     },
     // Package entry points come from each package.json; fixtures are loaded by path in tests.
     "packages/cli": {
@@ -32,6 +31,9 @@
         "src/**/__tests__/fixtures/**",
         "scripts/*.mjs",
       ],
+      // The examples gitignore their generated clients, so their imports do not resolve
+      // in a clean checkout. Same exclusion as the root tsconfig.
+      "ignore": ["examples/**"],
     },
   },
 }

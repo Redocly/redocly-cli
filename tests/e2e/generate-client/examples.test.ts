@@ -8,7 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '../../..');
 const cli = join(repoRoot, 'packages/cli/lib/index.js');
 const tsx = join(repoRoot, 'node_modules/.bin/tsx');
-const examplesDir = join(__dirname, 'examples');
+const examplesDir = join(repoRoot, 'packages/client-generator/examples');
 
 // Every directory under examples/ is an example; `_shared` holds the spec they have in common.
 const EXAMPLES = readdirSync(examplesDir, { withFileTypes: true })
