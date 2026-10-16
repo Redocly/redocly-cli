@@ -120,9 +120,7 @@ describe('refineSpecWithAi', () => {
   it('sends each operation a focused prompt with only its referenced components', async () => {
     mockResponses(refinedGetUsers, refinedPostUsers);
     await refine();
-    const [firstRequest, secondRequest] = vi
-      .mocked(runProvider)
-      .mock.calls.map(([, request]) => request);
+    const [[, firstRequest], [, secondRequest]] = vi.mocked(runProvider).mock.calls;
     expect(firstRequest.user).toContain('Component schemas referenced by this operation');
     expect(firstRequest.user).toContain('User:');
     expect(secondRequest.user).not.toContain('Component schemas referenced by this operation');
