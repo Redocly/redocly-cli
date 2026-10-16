@@ -1804,20 +1804,13 @@ describe('context.report', () => {
 
 describe('context.resolve', () => {
   it('should resolve refs correctly', async () => {
+    const resolvedRefs: Record<string, unknown>[] = [];
     const testRuleSet: Oas3RuleSet = {
       test: vi.fn(() => {
         return {
           Schema: vi.fn((schema, { resolve }) => {
             if (schema.properties) {
-              expect(schema.properties.a.$ref).toBeDefined();
-              const { location, node } = resolve(schema.properties.a);
-              expect(node).toMatchInlineSnapshot(`
-                {
-                  "type": "string",
-                }
-              `);
-              expect(location?.pointer).toEqual('#/components/schemas/b');
-              expect(location?.source).toStrictEqual(document.source);
+              resolvedRefs.push({ ref: schema.properties.a, ...resolve(schema.properties.a) });
             }
           }),
         };
@@ -1861,6 +1854,17 @@ describe('context.resolve', () => {
         },
       }),
     });
+
+    expect(resolvedRefs).toEqual([
+      {
+        ref: { $ref: '#/components/schemas/b' },
+        node: { type: 'string' },
+        location: expect.objectContaining({
+          pointer: '#/components/schemas/b',
+          source: document.source,
+        }),
+      },
+    ]);
   });
 });
 

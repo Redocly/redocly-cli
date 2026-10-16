@@ -33,19 +33,15 @@ describe('getWorkflowsToRun', () => {
     expect(result).toEqual(workflows);
   });
 
-  it('should return all workflows if workflowIds are not found', () => {
-    const workflowIds = ['flow3'];
-
-    try {
+  it('should throw if workflowIds are not found', () => {
+    expect(() =>
       getWorkflowsToRun({
         workflows,
-        workflowsToRun: workflowIds,
+        workflowsToRun: ['flow3'],
         workflowsToSkip: undefined,
         logger,
-      });
-    } catch (error) {
-      expect(error.message).toEqual(`Following workflows don't exist: ${workflowIds.join(', ')}`);
-    }
+      })
+    ).toThrow("Following workflows don't exist: flow3");
   });
 
   it('should return only the workflows that match the workflowIds', () => {

@@ -71,6 +71,7 @@
 
         "vitest/hoisted-apis-on-top": "error",
         "vitest/no-commented-out-tests": "error",
+        "vitest/no-conditional-expect": "error",
         "vitest/no-conditional-tests": "error",
         "vitest/no-disabled-tests": "error",
         "vitest/no-focused-tests": "error",
