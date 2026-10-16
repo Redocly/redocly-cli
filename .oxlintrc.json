@@ -62,12 +62,16 @@
   },
   "overrides": [
     {
-      "files": ["**/__tests__/**"],
+      "files": ["**/__tests__/**", "**/*.test.ts"],
       "plugins": ["vitest"],
       "rules": {
         "typescript/no-explicit-any": "allow",
         "typescript/ban-ts-comment": "allow",
-        "eslint/no-control-regex": "allow"
+        "eslint/no-control-regex": "allow",
+
+        "vitest/no-conditional-tests": "error",
+        "vitest/no-focused-tests": "error",
+        "vitest/valid-expect": ["error", { "maxArgs": 2 }]
       }
     },
     {
