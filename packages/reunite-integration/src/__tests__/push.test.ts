@@ -59,10 +59,8 @@ describe('pushFiles()', () => {
       name: 'Docs',
       uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
     });
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
-      this.remotes = remotes;
-      this.projects = projects;
-      this.getSunsetWarning = vi.fn();
+    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+      return { remotes, projects, getSunsetWarning: vi.fn() };
     });
     vi.mocked(slash).mockImplementation((filePath) => filePath);
     vi.spyOn(fs, 'createReadStream').mockReturnValue('stream' as any);
@@ -173,10 +171,8 @@ describe('pushFiles()', () => {
 
   it('hands the sunset warning to the caller', async () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
-      this.remotes = remotes;
-      this.projects = projects;
-      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+      return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     const onSunsetWarning = vi.fn();
 
@@ -187,10 +183,8 @@ describe('pushFiles()', () => {
 
   it('hands the sunset warning to the caller even when the push fails', async () => {
     const sunsetWarning = { sunsetDate: new Date('2024-01-01T00:00:00Z'), isSunsetExpired: true };
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
-      this.remotes = remotes;
-      this.projects = projects;
-      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+      return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     remotes.push.mockRejectedValue(new ReuniteApiError('Gone.', 410));
     const onSunsetWarning = vi.fn();

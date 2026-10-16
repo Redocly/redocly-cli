@@ -23,14 +23,8 @@ vi.mock('../utils/telemetry.js');
 vi.mock('../commands/lint.js');
 vi.mock('../commands/check-config.js');
 
-const originalFetch = global.fetch;
-
 describe('commandWrapper', () => {
-  beforeEach(() => {
-    global.fetch = vi.fn();
-  });
   afterEach(() => {
-    global.fetch = originalFetch;
     process.env.REDOCLY_TELEMETRY = undefined;
   });
 
