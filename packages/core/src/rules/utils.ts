@@ -1,5 +1,5 @@
 import type { Context as AjvContext } from '@redocly/ajv/dist/2020.js';
-import { default as levenshtein } from 'js-levenshtein';
+import { distance as levenshtein } from 'fastest-levenshtein';
 
 import { isRef, Location } from '../ref-utils.js';
 import type { ResolvedRefChainHop } from '../resolve.js';

@@ -1,0 +1,21 @@
+openapi: 3.0.3
+info: { title: Cafe, version: 1.0.0 }
+paths:
+  /orders:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Order' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Order' }
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        note: { type: string, nullable: true }
