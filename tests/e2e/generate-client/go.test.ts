@@ -1,5 +1,5 @@
 import { type ChildProcess, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,7 +19,6 @@ describe('generate-client go generator (end-to-end)', () => {
     workDir = copyConsumer('go-consumer');
     generatedFile = join(workDir, 'client/client.go');
     generate(fixture, join(workDir, 'client/client.ts'), ['--generator', 'go']);
-    expect(existsSync(generatedFile)).toBe(true);
   });
 
   afterAll(() => {

@@ -68,15 +68,13 @@ describe('collect refs', () => {
       ''
     );
 
-    try {
-      await resolveDocument({
+    await expect(
+      resolveDocument({
         rootDocument,
         externalRefResolver: new BaseResolver(),
         rootType: normalizeTypes(Oas3Types).Root,
-      });
-    } catch (e) {
-      expect(e.message).toEqual('Self-referencing circular pointer');
-    }
+      })
+    ).rejects.toThrow('Self-referencing circular pointer');
   });
 
   it('should resolve local transitive refs', async () => {
@@ -137,15 +135,13 @@ describe('collect refs', () => {
       'foobar.yaml'
     );
 
-    try {
-      await resolveDocument({
+    await expect(
+      resolveDocument({
         rootDocument,
         externalRefResolver: new BaseResolver(),
         rootType: normalizeTypes(Oas3Types).Root,
-      });
-    } catch (e) {
-      expect(e.message).toEqual('Self-referencing circular pointer');
-    }
+      })
+    ).rejects.toThrow('Self-referencing circular pointer');
   });
 
   it('should resolve external ref', async () => {
@@ -604,13 +600,13 @@ describe('collect refs', () => {
       expect(resolvedRefs).toBeDefined();
       expect(resolvedRefs.size).toEqual(1);
       const resolvedRef = Array.from(resolvedRefs.values())[0];
-      expect(resolvedRef.resolved).toBe(true);
-      if (resolvedRef.resolved) {
-        expect(resolvedRef.node).toEqual({
+      expect(resolvedRef).toMatchObject({
+        resolved: true,
+        node: {
           type: 'string',
           description: 'A test schema',
-        });
-      }
+        },
+      });
     });
   });
 });

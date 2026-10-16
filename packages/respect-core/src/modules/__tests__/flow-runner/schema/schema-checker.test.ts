@@ -631,12 +631,6 @@ describe('statusCodeDiff', () => {
       'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
     );
   });
-
-  it('should return the correct diff when the actual value is not in the expected list', () => {
-    expect(cleanColors(statusCodeDiff(202, [200, 201]))).toBe(
-      'Expected value to be in the list:\n  200, 201\nReceived:\n  202'
-    );
-  });
 });
 
 describe('resolveContentByType', () => {

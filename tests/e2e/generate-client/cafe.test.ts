@@ -136,20 +136,14 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
 
   test('getMenuItemPhoto reads a binary response as Blob', () => {
     const photoStep = results.find((r) => r.name === 'getMenuItemPhoto');
-    expect(photoStep?.kind).toBe('ok');
-    if (photoStep?.kind === 'ok') {
-      // The mock server generates the body from the OpenAPI spec. The exact size
-      // and MIME depend on sampler internals (mock-server's supported-media-type
-      // allowlist may pick text/plain over image/png), so we assert only on the
-      // contract that matters here: the binary path returns a non-empty Blob.
-      const data = photoStep.data as {
-        kind: string;
-        size: number;
-        type: string;
-      };
-      expect(data.kind).toBe('blob');
-      expect(data.size).toBeGreaterThan(0);
-    }
+    // The mock server generates the body from the OpenAPI spec. The exact size
+    // and MIME depend on sampler internals (mock-server's supported-media-type
+    // allowlist may pick text/plain over image/png), so we assert only on the
+    // contract that matters here: the binary path returns a non-empty Blob.
+    expect(photoStep).toMatchObject({
+      kind: 'ok',
+      data: { kind: 'blob', size: expect.toSatisfy((size: number) => size > 0) },
+    });
   });
 
   test('createOrder POSTs JSON body with Content-Type: application/json', () => {
@@ -207,24 +201,12 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
   // discriminant and be mutually exclusive.
   test('isBeverage/isDessert narrow a MenuItem from the server response', () => {
     const step = results.find((r) => r.name === 'menuItemGuards');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') {
-      const data = step.data as {
-        category: string;
-        isBeverage: boolean;
-        isDessert: boolean;
-        agree: boolean;
-        exclusive: boolean;
-      };
-      expect(data.agree).toBe(true);
-      expect(data.exclusive).toBe(true);
-    }
+    expect(step).toMatchObject({ kind: 'ok', data: { agree: true, exclusive: true } });
   });
 
   test('204 No Content paths return void (deleteOrder)', () => {
     const step = results.find((r) => r.name === 'deleteOrder');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') expect(step.data).toBeUndefined();
+    expect(step).toEqual({ kind: 'ok', name: 'deleteOrder', data: undefined });
   });
 
   test('listOrderItems serialises query filter and returns an array', () => {
@@ -232,8 +214,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     expect(entry).toBeDefined();
     expect(entry!.url).toContain('filter=orderId%3Aord_01h1s5z6vf2mm1mz3hevnn9va7');
     const step = results.find((r) => r.name === 'listOrderItems');
-    expect(step?.kind).toBe('ok');
-    if (step?.kind === 'ok') expect(Array.isArray(step.data)).toBe(true);
+    expect(step).toMatchObject({ kind: 'ok', data: expect.any(Array) });
   });
 
   test('getRevenue serialises ISO date strings as query params', () => {
