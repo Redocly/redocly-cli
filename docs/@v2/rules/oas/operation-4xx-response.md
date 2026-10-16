@@ -27,7 +27,7 @@ While this thinking has mostly changed (for the better in our opinion), it does 
 | ---------------- | -------- | ----------------------------------------------------------------------------------------- |
 | severity         | string   | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
 | validateWebhooks | boolean  | Determines if responses inside webhooks are validated. Default `false`.                   |
-| excludeMethods   | [string] | List of HTTP methods (case-insensitive) to skip during validation. Default: `[]`.         |
+| excludeMethods   | [string] | List of HTTP methods (case-insensitive) to skip during validation. Default `[]`.          |
 
 An example configuration:
 

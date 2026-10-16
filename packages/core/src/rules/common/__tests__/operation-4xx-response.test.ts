@@ -237,46 +237,6 @@ describe('Oas3 operation-4xx-response', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
-  it('should report missing 4xx response for any method by default', async () => {
-    const document = parseYamlToDocument(
-      outdent`
-          openapi: 3.0.0
-          paths:
-            '/test':
-              get:
-                responses:
-                  200:
-                    description: ok response
-        `,
-      'foobar.yaml'
-    );
-
-    const results = await lintDocument({
-      externalRefResolver: new BaseResolver(),
-      document,
-      config: await createConfig({ rules: { 'operation-4xx-response': 'error' } }),
-    });
-
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
-      [
-        {
-          "location": [
-            {
-              "pointer": "#/paths/~1test/get/responses",
-              "reportOnKey": true,
-              "source": "foobar.yaml",
-            },
-          ],
-          "message": "Operation must have at least one \`4XX\` response.",
-          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
-          "ruleId": "operation-4xx-response",
-          "severity": "error",
-          "suggest": [],
-        },
-      ]
-    `);
-  });
-
   it('should not report operations with excluded methods', async () => {
     const document = parseYamlToDocument(
       outdent`
@@ -416,6 +376,55 @@ describe('Oas3 operation-4xx-response', () => {
           "location": [
             {
               "pointer": "#/x-operations/PostTest/responses",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operation must have at least one \`4XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-4xx-response",
+          "ruleId": "operation-4xx-response",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
+  });
+
+  it('should decide a shared operation by its first method', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test':
+              get: &operation
+                responses:
+                  200:
+                    description: ok response
+              post: *operation
+              put:
+                responses:
+                  200:
+                    description: ok response
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'operation-4xx-response': { severity: 'error', excludeMethods: ['get'] },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test/put/responses",
               "reportOnKey": true,
               "source": "foobar.yaml",
             },
