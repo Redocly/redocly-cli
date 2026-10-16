@@ -597,13 +597,7 @@ describe('runTestFile', () => {
     );
 
     vi.mocked(lint).mockResolvedValueOnce([]);
-    vi.mocked(bundle).mockImplementationOnce(() => {
-      return Promise.resolve({
-        bundle: {
-          parsed: mockDocument.parsed,
-        },
-      } as any);
-    });
+    vi.mocked(bundle).mockResolvedValueOnce({ bundle: { parsed: mockDocument.parsed } } as any);
 
     vi.mocked(runStep).mockImplementation(
       async ({ step, ctx }: { step: Step; ctx: TestContext }) => {

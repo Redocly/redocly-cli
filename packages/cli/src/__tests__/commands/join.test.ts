@@ -66,15 +66,18 @@ describe('handleJoin', () => {
     vi.mocked(getTotals).mockReturnValue({ errors: 0, warnings: 0, ignored: 0 });
     vi.mocked(loadConfig).mockResolvedValue(configFixture);
     vi.spyOn(BaseResolver.prototype, 'resolveDocument')
-      .mockImplementationOnce(() =>
-        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: firstDocument } as Document)
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: secondDocument } as Document)
-      )
-      .mockImplementationOnce(() =>
-        Promise.resolve({ source: { absoluteRef: 'ref' }, parsed: thirdDocument } as Document)
-      );
+      .mockResolvedValueOnce({
+        source: { absoluteRef: 'ref' },
+        parsed: firstDocument,
+      } as Document)
+      .mockResolvedValueOnce({
+        source: { absoluteRef: 'ref' },
+        parsed: secondDocument,
+      } as Document)
+      .mockResolvedValueOnce({
+        source: { absoluteRef: 'ref' },
+        parsed: thirdDocument,
+      } as Document);
   });
 
   afterEach(() => {
@@ -409,18 +412,14 @@ describe('handleJoin', () => {
 
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-a' },
-            parsed: docWithServers,
-          } as Document)
-        )
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-b' },
-            parsed: anotherDocWithSameServers,
-          } as Document)
-        );
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-a' },
+          parsed: docWithServers,
+        } as Document)
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-b' },
+          parsed: anotherDocWithSameServers,
+        } as Document);
 
       await handleJoin({
         argv: {
@@ -440,18 +439,14 @@ describe('handleJoin', () => {
       vi.mocked(detectSpec).mockReturnValue('oas3_0');
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-a' },
-            parsed: serverAndPaths,
-          } as Document)
-        )
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-b' },
-            parsed: anotherServerAndPaths,
-          } as Document)
-        );
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-a' },
+          parsed: serverAndPaths,
+        } as Document)
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-b' },
+          parsed: anotherServerAndPaths,
+        } as Document);
 
       await handleJoin({
         argv: {
@@ -474,18 +469,14 @@ describe('handleJoin', () => {
       const warnSpy = vi.spyOn(logger, 'warn');
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-a' },
-            parsed: pathWithObjectExtension,
-          } as Document)
-        )
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-b' },
-            parsed: anotherPathWithSameObjectExtension,
-          } as Document)
-        );
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-a' },
+          parsed: pathWithObjectExtension,
+        } as Document)
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-b' },
+          parsed: anotherPathWithSameObjectExtension,
+        } as Document);
 
       await handleJoin({
         argv: {
@@ -507,18 +498,14 @@ describe('handleJoin', () => {
       const warnSpy = vi.spyOn(logger, 'warn');
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-a' },
-            parsed: pathWithObjectExtension,
-          } as Document)
-        )
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-b' },
-            parsed: anotherPathWithDifferentObjectExtension,
-          } as Document)
-        );
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-a' },
+          parsed: pathWithObjectExtension,
+        } as Document)
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-b' },
+          parsed: anotherPathWithDifferentObjectExtension,
+        } as Document);
 
       await handleJoin({
         argv: {
@@ -538,18 +525,14 @@ describe('handleJoin', () => {
       const warnSpy = vi.spyOn(logger, 'warn');
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-a' },
-            parsed: pathWithObjectExtension,
-          } as Document)
-        )
-        .mockImplementationOnce(() =>
-          Promise.resolve({
-            source: { absoluteRef: 'ref-b' },
-            parsed: anotherPathWithDifferentKeyObjectExtension,
-          } as Document)
-        );
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-a' },
+          parsed: pathWithObjectExtension,
+        } as Document)
+        .mockResolvedValueOnce({
+          source: { absoluteRef: 'ref-b' },
+          parsed: anotherPathWithDifferentKeyObjectExtension,
+        } as Document);
 
       await handleJoin({
         argv: {
