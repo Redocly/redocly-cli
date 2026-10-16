@@ -820,69 +820,57 @@ yargs(hideBin(process.argv))
     'build-docs [api]',
     'Produce API documentation as an HTML file',
     (yargs) =>
-      yargs
-        .positional('api', { type: 'string' })
-        .options({
-          o: {
-            describe: 'Output destination file.',
-            alias: 'output',
-            type: 'string',
-            default: 'redoc-static.html',
-          },
-          title: {
-            describe: 'Page title.',
-            type: 'string',
-          },
-          disableGoogleFont: {
-            describe: 'Disable Google fonts.',
-            type: 'boolean',
-            default: false,
-          },
-          t: {
-            alias: 'template',
-            describe:
-              'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
-            type: 'string',
-          },
-          templateOptions: {
-            describe:
-              'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
-          },
-          openapi: {
-            describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
-          },
-          asyncapi: {
-            describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
-          },
-          graphql: {
-            describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
-          },
-          theme: {
-            describe:
-              'Redoc theme.openapi configuration. Use dot notation, e.g. theme.openapi.hideDownloadButtons',
-            deprecated: 'use --openapi instead',
-          },
-          inlineBundle: {
-            describe:
-              'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
-            type: 'boolean',
-            default: false,
-          },
-          config: {
-            describe: 'Path to the config file.',
-            type: 'string',
-          },
-          'lint-config': {
-            description: 'Severity level for config file linting.',
-            choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
-            default: 'warn' as RuleSeverity,
-          },
-        })
-        .check((argv: any) => {
-          if (argv.theme && !argv.theme?.openapi)
-            throw new Error('Invalid option: theme.openapi not set.');
-          return true;
-        }),
+      yargs.positional('api', { type: 'string' }).options({
+        o: {
+          describe: 'Output destination file.',
+          alias: 'output',
+          type: 'string',
+          default: 'redoc-static.html',
+        },
+        title: {
+          describe: 'Page title.',
+          type: 'string',
+        },
+        disableGoogleFont: {
+          describe: 'Disable Google fonts.',
+          type: 'boolean',
+          default: false,
+        },
+        t: {
+          alias: 'template',
+          describe:
+            'Path to handlebars page template, see https://github.com/Redocly/redocly-cli/blob/main/packages/cli/src/commands/build-docs/template.hbs for the example.',
+          type: 'string',
+        },
+        templateOptions: {
+          describe:
+            'Additional options to pass to the template. Use dot notation, e.g. templateOptions.metaDescription',
+        },
+        openapi: {
+          describe: 'Redoc configuration. Use dot notation, e.g. openapi.hideDownloadButtons',
+        },
+        asyncapi: {
+          describe: 'Redoc configuration. Use dot notation, e.g. asyncapi.jsonSamplesDepth',
+        },
+        graphql: {
+          describe: 'Redoc configuration. Use dot notation, e.g. graphql.showBuiltInScalars',
+        },
+        inlineBundle: {
+          describe:
+            'Embed the Redoc scripts into the output file instead of loading them from the Redocly CDN.',
+          type: 'boolean',
+          default: false,
+        },
+        config: {
+          describe: 'Path to the config file.',
+          type: 'string',
+        },
+        'lint-config': {
+          description: 'Severity level for config file linting.',
+          choices: ['warn', 'error', 'off'] as ReadonlyArray<RuleSeverity>,
+          default: 'warn' as RuleSeverity,
+        },
+      }),
     async (argv) => {
       const { handlerBuildCommand } = await import('./commands/build-docs/index.js');
       commandWrapper(handlerBuildCommand)(argv as Arguments<BuildDocsArgv>);

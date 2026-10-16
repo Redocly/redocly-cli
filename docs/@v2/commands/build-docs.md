@@ -46,7 +46,6 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --output, -o        | string  | Set the path and name of the output file. The default value is `redoc-static.html`.                                                                                 |
 | --template, -t      | string  | Use custom [Handlebars](https://handlebarsjs.com/) templates to render your API description.                                                                        |
 | --templateOptions   | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                         |
-| --theme.openapi     | string  | **Deprecated**, use `--openapi` instead.                                                                                                                            |
 | --title             | string  | Set the page title.                                                                                                                                                 |
 
 ## Examples

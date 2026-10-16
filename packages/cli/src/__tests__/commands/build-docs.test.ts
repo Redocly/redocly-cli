@@ -1,4 +1,5 @@
 import { bundle, createConfig, HandledError } from '@redocly/openapi-core';
+import handlebars from 'handlebars';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import { prepareApiDocs } from 'redoc';
@@ -64,6 +65,9 @@ describe('build-docs', () => {
 
   beforeEach(() => {
     vi.mocked(fs.readFileSync).mockImplementation(() => '');
+    vi.mocked(fs.existsSync).mockImplementation((filePath) =>
+      String(filePath).endsWith('redoc.standalone.js')
+    );
 
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []
@@ -83,6 +87,25 @@ describe('build-docs', () => {
     expect(result).toBe('<html></html>');
   });
 
+  it('preloads the CDN bundle with an integrity hash unless the bundle is inlined', async () => {
+    const template = vi.fn((_context: unknown) => '<html></html>');
+    vi.mocked(handlebars.compile).mockReturnValue(template);
+
+    await getPageHTML({ openapi: '3.1.0' }, { ...config, redocVersion: '3.0.0' });
+    await getPageHTML(
+      { openapi: '3.1.0' },
+      { ...config, redocVersion: '3.0.0', inlineBundle: true }
+    );
+
+    const [cdnPage, inlinePage] = template.mock.calls.map(
+      ([context]) => context as { redocHead: string }
+    );
+    expect(cdnPage.redocHead).toMatch(
+      /^<link rel="modulepreload" href="https:\/\/cdn\.redoc\.ly\/redoc\/v3\.0\.0\/bundles\/redoc\.standalone\.js" integrity="sha384-[A-Za-z0-9+/]+=*" crossorigin="anonymous" \/>/
+    );
+    expect(inlinePage.redocHead).not.toContain('modulepreload');
+  });
+
   it('should work correctly when calling handlerBuildCommand', async () => {
     const processExitMock = vi.spyOn(process, 'exit').mockImplementation(vi.fn() as any);
     await handlerBuildCommand({
@@ -92,7 +115,6 @@ describe('build-docs', () => {
         disableGoogleFont: false,
         template: '',
         templateOptions: {},
-        theme: { openapi: {} },
         inlineBundle: false,
         api: '../some-path/openapi.yaml',
       } as BuildDocsArgv,

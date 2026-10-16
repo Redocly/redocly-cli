@@ -1,5 +1,6 @@
 import { HandledError, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
+import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
@@ -110,9 +111,14 @@ export async function getPageHTML(
     : DEFAULT_TEMPLATE_SOURCE;
   const template = handlebars.compile(templateSource);
 
+  const redocBundleUrl = `https://cdn.redoc.ly/redoc/v${redocVersion}/bundles/redoc.standalone.js`;
   const redocScript = inlineBundle
-    ? escapeClosingScriptTag(getRedocStandaloneSource())
-    : `import { hydrate } from "https://cdn.redoc.ly/redoc/v${redocVersion}/bundles/redoc.standalone.js";`;
+    ? escapeClosingScriptTag(readFileSync(getRedocStandalonePath(), 'utf-8'))
+    : `import { hydrate } from "${redocBundleUrl}";`;
+  const redocHead = inlineBundle
+    ? css
+    : `<link rel="modulepreload" href="${redocBundleUrl}" integrity="${getRedocStandaloneSri()}" crossorigin="anonymous" />` +
+      css;
 
   const definitionTitle =
     typeof definition === 'string'
@@ -132,23 +138,25 @@ export async function getPageHTML(
 
       hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'));
       </script>`,
-    redocHead: css,
+    redocHead,
     title: title || definitionTitle || 'ReDoc documentation',
     disableGoogleFont,
     templateOptions,
   });
 }
 
-function getRedocStandaloneSource(): string {
+function getRedocStandalonePath(): string {
   const bundledCopy = fileURLToPath(new URL('./redoc.standalone.js', import.meta.url));
   if (existsSync(bundledCopy)) {
-    return readFileSync(bundledCopy, 'utf-8');
+    return bundledCopy;
   }
   const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
-  return readFileSync(
-    path.join(path.dirname(redocPackageJsonPath), 'bundles', 'redoc.standalone.js'),
-    'utf-8'
-  );
+  return path.join(path.dirname(redocPackageJsonPath), 'bundles', 'redoc.standalone.js');
+}
+
+function getRedocStandaloneSri(): string {
+  const hash = createHash('sha384').update(readFileSync(getRedocStandalonePath())).digest('base64');
+  return `sha384-${hash}`;
 }
 
 export function sanitizeJSONString(str: string): string {
