@@ -84,6 +84,7 @@
         "vitest/no-test-return-statement": "error",
         "vitest/prefer-hooks-on-top": "error",
         "vitest/prefer-mock-promise-shorthand": "error",
+        "vitest/prefer-spy-on": "error",
         "vitest/prefer-to-have-length": "error",
         "vitest/require-to-throw-message": "error",
         "vitest/valid-describe-callback": "error",

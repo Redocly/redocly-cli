@@ -69,10 +69,8 @@ beforeEach(() => {
     name: 'Docs',
     uri: 'https://app.cloud.redocly.com/api/orgs/org_01hksn7dgmb6jpak0tzzepreq1/projects/prj_01hksn7dhbmf3nby0aeax6bkvf',
   });
-  vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
-    this.remotes = remotes;
-    this.projects = projects;
-    this.getSunsetWarning = vi.fn();
+  vi.mocked(ReuniteApi).mockImplementation(function (): any {
+    return { remotes, projects, getSunsetWarning: vi.fn() };
   });
 });
 
@@ -178,10 +176,8 @@ describe('waitForDeployment()', () => {
 
   it('hands the sunset warning to the caller once the deployment finished', async () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
-      this.remotes = remotes;
-      this.projects = projects;
-      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+      return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'success'));
     const onSunsetWarning = vi.fn();
@@ -194,10 +190,8 @@ describe('waitForDeployment()', () => {
 
   it('hands the sunset warning to the caller even when the wait times out', async () => {
     const sunsetWarning = { sunsetDate: new Date('2030-01-01T00:00:00Z'), isSunsetExpired: false };
-    vi.mocked(ReuniteApi).mockImplementation(function (this: any): any {
-      this.remotes = remotes;
-      this.projects = projects;
-      this.getSunsetWarning = vi.fn(() => sunsetWarning);
+    vi.mocked(ReuniteApi).mockImplementation(function (): any {
+      return { remotes, projects, getSunsetWarning: vi.fn(() => sunsetWarning) };
     });
     remotes.getPush.mockResolvedValue(withDeployStatus('preview', 'pending'));
     const onSunsetWarning = vi.fn();
