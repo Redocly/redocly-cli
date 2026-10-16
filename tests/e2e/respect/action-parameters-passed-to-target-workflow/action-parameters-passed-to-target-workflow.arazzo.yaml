@@ -1,0 +1,69 @@
+arazzo: 1.1.0
+info:
+  title: Test `parameters` in failure actions
+  description: Testing functionality based on the Redocly Cafe API example
+  version: 1.0.0
+
+sourceDescriptions:
+  - name: cafe-api
+    type: openapi
+    url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
+
+components:
+  parameters:
+    search:
+      name: search
+      value: unicorn-glitter-mocha
+
+workflows:
+  - workflowId: search-menu
+    inputs:
+      type: object
+      properties:
+        search:
+          type: string
+    steps:
+      - stepId: search-menu-items
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: search
+            value: $inputs.search
+        successCriteria:
+          - condition: $statusCode == 200
+
+  - workflowId: retry-with-parameters
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: search-then-retry
+            type: retry
+            retryLimit: 1
+            workflowId: search-menu
+            parameters:
+              - name: search
+                value: mermaid-treasure-latte
+
+  - workflowId: goto-with-reusable-parameter
+    steps:
+      - stepId: list-menu-items-with-invalid-limit
+        operationId: listMenuItems
+        parameters:
+          - in: query
+            name: limit
+            value: abc
+        successCriteria:
+          - condition: $statusCode == 200
+        onFailure:
+          - name: goto-search
+            type: goto
+            workflowId: search-menu
+            parameters:
+              - reference: $components.parameters.search

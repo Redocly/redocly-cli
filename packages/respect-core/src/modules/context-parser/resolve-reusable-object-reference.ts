@@ -18,23 +18,26 @@ type ComponentType<T extends ReusableObject> =
         ? Parameter
         : never;
 
-const VALID_COMPONENTS = ['parameters', 'failureActions', 'successActions'];
+export type ReusableComponentKind = 'parameters' | 'successActions' | 'failureActions';
 
 export function resolveReusableObjectReference<T extends ReusableObject>(
   reusableObject: T,
-  ctx: TestContext
+  ctx: TestContext,
+  componentKind: ReusableComponentKind
 ): ComponentType<T> {
   const { reference, value: valueOverride } = reusableObject;
 
-  if (!VALID_COMPONENTS.some((component) => reference.includes(`$components.${component}`))) {
+  // a parameter, success action, or failure action written as a reference
+  // must point to that kind of component
+  if (!reference.startsWith(`$components.${componentKind}.`)) {
     throw new Error(
-      'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
+      `Invalid reference ${reference}: it must point to $components.${componentKind}.`
     );
   }
 
   const component = getValueFromContext({ value: reference, ctx, logger: ctx.options.logger });
 
-  if (isPlainObject(component) && 'value' in component && valueOverride) {
+  if (isPlainObject(component) && 'value' in component && valueOverride !== undefined) {
     return {
       ...component,
       value: valueOverride,

@@ -260,7 +260,7 @@ function resolveParameters(parameters: Parameter[], ctx: TestContext): Parameter
   return parameters
     .map((parameter) => {
       const xAllowReserved = (parameter as Record<string, unknown>)['x-allowReserved'];
-      const resolvedParameter = resolveReusableComponentItem(parameter, ctx);
+      const resolvedParameter = resolveReusableComponentItem(parameter, ctx, 'parameters');
       if (!isParameterWithIn(resolvedParameter)) {
         return undefined;
       }

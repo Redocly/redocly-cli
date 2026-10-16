@@ -11,7 +11,8 @@ slug:
 Use this command to execute API tests described in an Arazzo description.
 
 {% admonition type="warning" name="Important" %}
-The `respect` command supports Arazzo 1.0.1 descriptions only.
+The `respect` command supports Arazzo 1.0.1 descriptions.
+Arazzo 1.1.0 descriptions are partially supported.
 {% /admonition %}
 
 ## Usage

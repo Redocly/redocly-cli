@@ -158,6 +158,7 @@ export async function runWorkflow({
   invocationContext,
   executedStepsCount,
   retriesLeft,
+  inputs,
 }: RunWorkflowInput): Promise<WorkflowExecutionResult> {
   const { logger } = ctx.options;
   const workflowStartTime = performance.now();
@@ -171,128 +172,139 @@ export async function runWorkflow({
     throw new Error(`\n ${blue('Workflow')} ${workflowInput} ${blue('not found')} \n`);
   }
 
-  const workflowInputSchema = workflow.inputs;
-  if (workflowInputSchema) {
-    const inputs = ctx.$workflows[workflow.workflowId].inputs;
-
-    ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
-      inputs,
-      workflowInputSchema,
-      env: ctx.options.envVariables,
-    });
+  // the inputs passed by a step or an action apply to this run only: a local workflow shares
+  // `$workflows` with its caller, so they are restored once the run ends
+  const inputsBeforeRun = inputs ? ctx.$workflows[workflow.workflowId].inputs : undefined;
+  if (inputs) {
+    ctx.$workflows[workflow.workflowId].inputs = { ...inputsBeforeRun, ...inputs };
   }
 
-  const workflowId = workflow.workflowId;
-
-  if (!fromStepId) {
-    printWorkflowSeparator({
-      fileName: fileBaseName,
-      workflowName: workflowId,
-      skipLineSeparator,
-      logger,
-    });
-  }
-
-  const fromStepIndex = fromStepId
-    ? workflow.steps.findIndex((step) => step.stepId === fromStepId)
-    : 0;
-
-  const workflowSteps = workflow.steps.slice(fromStepIndex);
-
-  // Reset $steps before running workflow steps.
-  // A goto to a step in this workflow keeps the outputs of steps that already ran.
-  if (!fromStepId) {
-    ctx.$steps = {};
-  } else {
-    for (const stepToReset of workflowSteps) {
-      delete ctx.$steps[stepToReset.stepId];
+  try {
+    const workflowInputSchema = workflow.inputs;
+    if (workflowInputSchema) {
+      ctx.$workflows[workflow.workflowId].inputs = mergeWorkflowInputs({
+        inputs: ctx.$workflows[workflow.workflowId].inputs,
+        workflowInputSchema,
+        env: ctx.options.envVariables,
+      });
     }
-  }
-  for (const step of workflowSteps) {
-    try {
-      const stepResult = await runStep({
-        step,
-        ctx,
+
+    const workflowId = workflow.workflowId;
+
+    if (!fromStepId) {
+      printWorkflowSeparator({
+        fileName: fileBaseName,
+        workflowName: workflowId,
+        skipLineSeparator,
+        logger,
+      });
+    }
+
+    const fromStepIndex = fromStepId
+      ? workflow.steps.findIndex((step) => step.stepId === fromStepId)
+      : 0;
+
+    const workflowSteps = workflow.steps.slice(fromStepIndex);
+
+    // Reset $steps before running workflow steps.
+    // A goto to a step in this workflow keeps the outputs of steps that already ran.
+    if (!fromStepId) {
+      ctx.$steps = {};
+    } else {
+      for (const stepToReset of workflowSteps) {
+        delete ctx.$steps[stepToReset.stepId];
+      }
+    }
+    for (const step of workflowSteps) {
+      try {
+        const stepResult = await runStep({
+          step,
+          ctx,
+          workflowId,
+          executedStepsCount,
+          retriesLeft,
+        });
+
+        // When `end` action is used, we should not continue with the next steps
+        if (stepResult?.shouldEnd) {
+          break;
+        }
+      } catch (err: any) {
+        const failedCall: Check = {
+          name: CHECKS.UNEXPECTED_ERROR,
+          message: err.message,
+          passed: false,
+          severity: ctx.severity['UNEXPECTED_ERROR'],
+        };
+        step.checks.push(failedCall);
+        ctx.executedSteps.push(step);
+      }
+    }
+
+    const hasFailedTimeoutSteps = workflow.steps.some((step) =>
+      step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
+    );
+
+    // workflow level outputs
+    if (workflow.outputs && workflowId && !hasFailedTimeoutSteps) {
+      if (!ctx.$outputs) {
+        ctx.$outputs = {};
+      }
+      if (!ctx.$outputs[workflowId]) {
+        ctx.$outputs[workflowId] = {};
+      }
+
+      const runtimeExpressionContext = createRuntimeExpressionCtx({
+        ctx: {
+          ...ctx,
+          $inputs: {
+            ...ctx.$inputs,
+            ...ctx.$workflows[workflowId]?.inputs,
+          },
+        },
         workflowId,
-        executedStepsCount,
-        retriesLeft,
       });
 
-      // When `end` action is used, we should not continue with the next steps
-      if (stepResult?.shouldEnd) {
-        break;
+      const outputs: Record<string, any> = {};
+      for (const outputKey of Object.keys(workflow.outputs)) {
+        try {
+          outputs[outputKey] = evaluateRuntimeExpressionPayload({
+            payload: workflow.outputs[outputKey],
+            context: runtimeExpressionContext,
+            logger: ctx.options.logger,
+          });
+        } catch (error: any) {
+          throw new Error(
+            `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
+          );
+        }
       }
-    } catch (err: any) {
-      const failedCall: Check = {
-        name: CHECKS.UNEXPECTED_ERROR,
-        message: err.message,
-        passed: false,
-        severity: ctx.severity['UNEXPECTED_ERROR'],
-      };
-      step.checks.push(failedCall);
-      ctx.executedSteps.push(step);
-    }
-  }
-
-  const hasFailedTimeoutSteps = workflow.steps.some((step) =>
-    step.checks?.some((check) => !check.passed && check.name == CHECKS.GLOBAL_TIMEOUT_ERROR)
-  );
-
-  // workflow level outputs
-  if (workflow.outputs && workflowId && !hasFailedTimeoutSteps) {
-    if (!ctx.$outputs) {
-      ctx.$outputs = {};
-    }
-    if (!ctx.$outputs[workflowId]) {
-      ctx.$outputs[workflowId] = {};
+      ctx.$outputs[workflowId] = outputs;
+      ctx.$workflows[workflowId].outputs = outputs;
     }
 
-    const runtimeExpressionContext = createRuntimeExpressionCtx({
-      ctx: {
-        ...ctx,
-        $inputs: {
-          ...ctx.$inputs,
-          ...ctx.$workflows[workflowId]?.inputs,
-        },
-      },
+    workflow.time = Math.ceil(performance.now() - workflowStartTime);
+    logger.printNewLine();
+
+    const endTime = performance.now();
+
+    return {
+      type: 'workflow',
+      invocationContext,
       workflowId,
-    });
-
-    const outputs: Record<string, any> = {};
-    for (const outputKey of Object.keys(workflow.outputs)) {
-      try {
-        outputs[outputKey] = evaluateRuntimeExpressionPayload({
-          payload: workflow.outputs[outputKey],
-          context: runtimeExpressionContext,
-          logger: ctx.options.logger,
-        });
-      } catch (error: any) {
-        throw new Error(
-          `Failed to resolve output "${outputKey}" in workflow "${workflowId}": ${error.message}`
-        );
-      }
+      stepId: parentStepId,
+      startTime: workflowStartTime,
+      endTime,
+      totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
+      executedSteps: ctx.executedSteps,
+      ctx,
+      globalTimeoutError: hasFailedTimeoutSteps,
+    };
+  } finally {
+    if (inputs) {
+      ctx.$workflows[workflow.workflowId].inputs = inputsBeforeRun;
     }
-    ctx.$outputs[workflowId] = outputs;
-    ctx.$workflows[workflowId].outputs = outputs;
   }
-
-  workflow.time = Math.ceil(performance.now() - workflowStartTime);
-  logger.printNewLine();
-
-  const endTime = performance.now();
-
-  return {
-    type: 'workflow',
-    invocationContext,
-    workflowId,
-    stepId: parentStepId,
-    startTime: workflowStartTime,
-    endTime,
-    totalTimeMs: calculateWorkflowTotalTimeMs(ctx.executedSteps),
-    executedSteps: ctx.executedSteps,
-    ctx,
-    globalTimeoutError: hasFailedTimeoutSteps,
-  };
 }
 
 // Thrown when a dependsOn entry cannot be resolved to a workflow or a dependency

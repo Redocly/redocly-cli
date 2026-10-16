@@ -6,11 +6,15 @@ import { resolveReusableComponentItem } from '../../context-parser/index.js';
 describe('resolveReusableComponentItem', () => {
   it('should return parameter if not reference', () => {
     expect(
-      resolveReusableComponentItem({ in: 'query', name: 'test', value: 'test' }, {
-        options: {
-          logger,
-        },
-      } as Partial<TestContext> as TestContext)
+      resolveReusableComponentItem(
+        { in: 'query', name: 'test', value: 'test' },
+        {
+          options: {
+            logger,
+          },
+        } as Partial<TestContext> as TestContext,
+        'parameters'
+      )
     ).toEqual({
       in: 'query',
       name: 'test',
@@ -31,7 +35,8 @@ describe('resolveReusableComponentItem', () => {
           options: {
             logger,
           },
-        } as Partial<TestContext> as TestContext
+        } as Partial<TestContext> as TestContext,
+        'successActions'
       )
     ).toEqual({
       name: 'SuccessActio',
@@ -43,24 +48,30 @@ describe('resolveReusableComponentItem', () => {
 
   it('should throw an error if reference is not found', () => {
     expect(() =>
-      resolveReusableComponentItem({ reference: '$components.some.page' }, {
-        options: {
-          logger,
-        },
-      } as Partial<TestContext> as TestContext)
-    ).toThrow(
-      'Invalid reference: available components are $components.parameters, $components.failureActions, or $components.successActions'
-    );
+      resolveReusableComponentItem(
+        { reference: '$components.some.page' },
+        {
+          options: {
+            logger,
+          },
+        } as Partial<TestContext> as TestContext,
+        'parameters'
+      )
+    ).toThrow('Invalid reference $components.some.page: it must point to $components.parameters.');
   });
 
   it('should return parameter if reference is found', () => {
     expect(
-      resolveReusableComponentItem({ reference: '$components.parameters.page' }, {
-        $components: { parameters: { page: { value: 'test', in: 'query', name: 'page' } } },
-        options: {
-          logger,
-        },
-      } as unknown as TestContext)
+      resolveReusableComponentItem(
+        { reference: '$components.parameters.page' },
+        {
+          $components: { parameters: { page: { value: 'test', in: 'query', name: 'page' } } },
+          options: {
+            logger,
+          },
+        } as unknown as TestContext,
+        'parameters'
+      )
     ).toEqual({
       value: 'test',
       in: 'query',
@@ -70,21 +81,25 @@ describe('resolveReusableComponentItem', () => {
 
   it('should return success action if reference is found', () => {
     expect(
-      resolveReusableComponentItem({ reference: '$components.successActions.SuccessAction' }, {
-        $components: {
-          successActions: {
-            SuccessAction: {
-              name: 'SuccessAction',
-              type: 'goto',
-              workflowId: 'test',
-              criteria: [{ condition: '$statusCode == 200' }],
+      resolveReusableComponentItem(
+        { reference: '$components.successActions.SuccessAction' },
+        {
+          $components: {
+            successActions: {
+              SuccessAction: {
+                name: 'SuccessAction',
+                type: 'goto',
+                workflowId: 'test',
+                criteria: [{ condition: '$statusCode == 200' }],
+              },
             },
           },
-        },
-        options: {
-          logger,
-        },
-      } as unknown as TestContext)
+          options: {
+            logger,
+          },
+        } as unknown as TestContext,
+        'successActions'
+      )
     ).toEqual({
       name: 'SuccessAction',
       type: 'goto',
