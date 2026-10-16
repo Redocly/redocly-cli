@@ -9,7 +9,7 @@
 // proves the runtime's `buildUrl` output (literal delimiters + allowReserved
 // on the wire), which is the whole point of the feature.
 
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,7 +27,6 @@ describe('generate-client query serialization styles', () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-qstyles-'));
     const out = join(dir, 'client.ts');
     generate(fixture, out);
-    expect(existsSync(out)).toBe(true);
     generated = readFileSync(out, 'utf-8');
   }, 60_000);
 

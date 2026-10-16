@@ -3,7 +3,7 @@
 // auto-reconnects (resuming via `Last-Event-ID`). A second scenario aborts the
 // stream mid-flight and asserts the loop completes WITHOUT throwing.
 import { type ChildProcess } from 'node:child_process';
-import { existsSync, rmSync } from 'node:fs';
+import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -30,7 +30,6 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     workDir = copyConsumer('sse-consumer');
     const generatedFile = join(workDir, 'api.ts');
     generate(fixture, generatedFile);
-    expect(existsSync(generatedFile)).toBe(true);
 
     expectTscPasses(['--noEmit', '-p', workDir]);
 

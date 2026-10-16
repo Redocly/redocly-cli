@@ -168,16 +168,19 @@ describe('config-driven composition (client.cliOutput)', () => {
       [cliEntry, 'eject-generator', 'cli', '--config', join(project, 'redocly.yaml')],
       { cwd: project, encoding: 'utf-8' }
     );
-    expect(ejected.status, ejected.stderr).toBe(0);
-    expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
-      'generators: [typescript, zod, ./generators/cli/index.ts]'
-    );
+    if (ejected.status !== 0) throw new Error(`eject-generator failed:\n${ejected.stderr}`);
     const generated = runGenerateClient(['--config', join(project, 'redocly.yaml')], project);
-    expect(generated.status, generated.stderr).toBe(0);
+    if (generated.status !== 0) throw new Error(`generate-client failed:\n${generated.stderr}`);
   });
 
   afterAll(() => {
     rmSync(project, { recursive: true, force: true });
+  });
+
+  it('eject-generator points the config at the ejected cli generator', () => {
+    expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
+      'generators: [typescript, zod, ./generators/cli/index.ts]'
+    );
   });
 
   it('one generate run emits the composed entry over every api that selected cli', () => {

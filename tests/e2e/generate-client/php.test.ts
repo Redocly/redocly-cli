@@ -1,5 +1,5 @@
 import { type ChildProcess, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +37,6 @@ describe('generate-client php generator (end-to-end)', () => {
     workDir = copyConsumer('php-consumer');
     generatedFile = join(workDir, 'client/client.php');
     generate(fixture, join(workDir, 'client/client.ts'), ['--generator', 'php']);
-    expect(existsSync(generatedFile)).toBe(true);
   }, 60_000);
 
   afterAll(async () => {

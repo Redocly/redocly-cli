@@ -1,5 +1,5 @@
 import { type ChildProcess, spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,7 +20,6 @@ describe('generate-client python generator (end-to-end)', () => {
     workDir = mkdtempSync(join(tmpdir(), 'python-e2e-'));
     generatedFile = join(workDir, 'client.py');
     generate(fixture, join(workDir, 'client.ts'), ['--generator', 'python']);
-    expect(existsSync(generatedFile)).toBe(true);
   });
 
   afterAll(() => {
@@ -76,7 +75,7 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
       'utf-8'
     );
     const result = runGenerateClient([], dir);
-    expect(result.status, result.stderr).toBe(0);
+    if (result.status !== 0) throw new Error(`generate-client failed:\n${result.stderr}`);
     generated = join(dir, 'client.py');
   });
 
