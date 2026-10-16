@@ -7,6 +7,16 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.64.1 (2026-10-16)
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+- Updated @redocly/openapi-core to v2.64.1.
+- Updated @redocly/respect-core to v2.64.1.
+
 ## 2.64.0 (2026-10-15)
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @redocly/respect-core
 
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Updated @redocly/openapi-core to v2.64.1.
+
 ## 2.64.0
 
 ### Patch Changes
