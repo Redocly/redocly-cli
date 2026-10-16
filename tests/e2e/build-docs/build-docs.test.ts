@@ -247,4 +247,16 @@ describe('build-docs', () => {
       await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
     });
   });
+
+  test.each([
+    ['main', 'API template'],
+    ['plain', 'Root template'],
+  ])('build-docs %s uses the htmlTemplate of a referenced config', async (api, title) => {
+    const testPath = join(folderPath, 'config-ref-relative-paths');
+    const args = getParams(indexEntryPoint, ['build-docs', api]);
+    getCommandOutput(args, { testPath });
+    expect(readFileSync(join(testPath, 'redoc-static.html'), 'utf8')).toContain(
+      `<title>${title}</title>`
+    );
+  });
 });

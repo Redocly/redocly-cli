@@ -1,9 +1,12 @@
 import { CONFIG_NODE_TYPE_NAMES } from '@redocly/config';
+import * as path from 'node:path';
 
-import { replaceRef } from '../ref-utils.js';
+import { isAbsoluteUrl, replaceRef } from '../ref-utils.js';
+import { isNamedType } from '../types/index.js';
 import { NormalizedConfigTypes } from '../types/redocly-yaml.js';
 import type { OasRef } from '../typings/openapi.js';
 import { isPlainObject } from '../utils/is-plain-object.js';
+import { isString } from '../utils/is-string.js';
 import { normalizeVisitors } from '../visitors.js';
 import type { ResolveResult, UserContext } from '../walk.js';
 import { bundleExtends } from './bundle-extends.js';
@@ -67,6 +70,8 @@ export const pluginsCollectorVisitor = normalizeVisitors(
 export type ConfigBundlerVisitorData = {
   plugins: Plugin[];
   skipPluginEval?: boolean;
+  rootRef: string;
+  rebasedNodes: WeakSet<object>;
 };
 
 function bundlerHandleNode(node: unknown, ctx: UserContext) {
@@ -82,6 +87,39 @@ function bundlerHandleNode(node: unknown, ctx: UserContext) {
   }
 }
 
+function rebasePath(value: string, sourceRef: string, rootRef: string) {
+  if (isAbsoluteUrl(value) || path.isAbsolute(value)) {
+    return value;
+  }
+  if (isAbsoluteUrl(sourceRef)) {
+    return new URL(value, sourceRef).href;
+  }
+  const resolved = path.resolve(path.dirname(sourceRef), value);
+  return path.relative(path.dirname(rootRef), resolved) || '.';
+}
+
+// The CLI resolves every config path from the root config folder, so a path from a referenced file is rewritten relative to that folder.
+function rebaseFilePaths(node: unknown, ctx: UserContext) {
+  const { rootRef, rebasedNodes } = ctx.getVisitorData() as ConfigBundlerVisitorData;
+  const sourceRef = ctx.location.source.absoluteRef;
+  if (!isPlainObject(node) || sourceRef === rootRef || rebasedNodes.has(node)) {
+    return;
+  }
+  // the walker visits a shared `$ref` target once per node type name, so rebase each node once
+  rebasedNodes.add(node);
+  const rebaseValue = (value: unknown) =>
+    isString(value) && value ? rebasePath(value, sourceRef, rootRef) : value;
+  for (const [field, schema] of Object.entries(ctx.type.properties)) {
+    const value = node[field];
+    if (value === undefined || !isPlainObject(schema) || isNamedType(schema)) {
+      continue;
+    }
+    if ((schema.format ?? schema.items?.format) === 'uri-reference') {
+      node[field] = Array.isArray(value) ? value.map(rebaseValue) : rebaseValue(value);
+    }
+  }
+}
+
 export const configBundlerVisitor = normalizeVisitors(
   [
     {
@@ -90,7 +128,13 @@ export const configBundlerVisitor = normalizeVisitors(
       visitor: {
         ref: {
           leave(node: OasRef, ctx: UserContext, resolved: ResolveResult<any>) {
+            rebaseFilePaths(node, ctx);
             replaceRef(node, resolved, ctx);
+          },
+        },
+        any: {
+          leave(node: unknown, ctx: UserContext) {
+            rebaseFilePaths(node, ctx);
           },
         },
         ConfigGovernance: {

@@ -3,7 +3,7 @@
 // fan-out (no arg, over apis with a `client` block) and an `apis:` alias or file path,
 // resolved like `bundle`/`lint`. CLI flags override the config.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -536,6 +536,43 @@ describe('generate-client redocly.yaml config', () => {
     const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
     expect(client).toContain('getPublic');
     expect(client).not.toContain('getSecret');
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('resolves clientOutput, client.setup and client.cliOutput from a $ref-ed config relative to that file', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-redocly-ref-'));
+    mkdirSync(join(dir, 'config'));
+    writeFileSync(join(dir, 'redocly.yaml'), '$ref: ./config/redocly.yaml\n', 'utf-8');
+    writeFileSync(join(dir, 'config/openapi.yaml'), SPEC, 'utf-8');
+    writeFileSync(
+      join(dir, 'config/setup.ts'),
+      [
+        "import { defineClientSetup } from '@redocly/client-generator';",
+        "export default defineClientSetup({ config: { serverUrl: 'https://setup.example.com' } });",
+      ].join('\n') + '\n',
+      'utf-8'
+    );
+    writeFileSync(
+      join(dir, 'config/redocly.yaml'),
+      [
+        'client:',
+        '  setup: ./setup.ts',
+        '  cliOutput: ./bin/cafe.ts',
+        '  importExt: ts',
+        '  generators: [typescript, zod, cli]',
+        'apis:',
+        '  cafe:',
+        '    root: ./openapi.yaml',
+        '    clientOutput: ./src/cafe.ts',
+      ].join('\n') + '\n',
+      'utf-8'
+    );
+    const res = run(dir);
+    expect(res.status, res.stderr).toBe(0);
+    expect(readFileSync(join(dir, 'config/src/cafe.ts'), 'utf-8')).toContain(
+      'https://setup.example.com'
+    );
+    expect(existsSync(join(dir, 'config/bin/cafe.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

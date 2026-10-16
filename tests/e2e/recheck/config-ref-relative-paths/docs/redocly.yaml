@@ -1,0 +1,7 @@
+extends:
+  - recheck/markdoc
+recheck:
+  markdoc:
+    schema: realm
+    extend:
+      tagsFile: ./tags.yaml

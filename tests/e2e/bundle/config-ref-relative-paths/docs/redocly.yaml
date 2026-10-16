@@ -1,0 +1,6 @@
+apis:
+  main:
+    root: ./openapi.yaml
+    output: ./dist/openapi.yaml
+    overlays:
+      - ./overlays/description.yaml
