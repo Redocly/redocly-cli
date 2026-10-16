@@ -74,6 +74,7 @@
         "vitest/no-conditional-tests": "error",
         "vitest/no-disabled-tests": "error",
         "vitest/no-focused-tests": "error",
+        "vitest/no-identical-title": "error",
         "vitest/no-standalone-expect": "error",
         "vitest/valid-describe-callback": "error",
         "vitest/valid-expect": ["error", { "maxArgs": 2 }]

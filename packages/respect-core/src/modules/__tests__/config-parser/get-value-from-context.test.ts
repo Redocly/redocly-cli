@@ -124,7 +124,7 @@ describe('getValueFromContext', () => {
     ).toEqual('number is 5');
   });
 
-  it('should return faker generated data', () => {
+  it('should resolve a faker expression without arguments inside text', () => {
     const ctx = {
       $faker: createFaker(),
     } as any;

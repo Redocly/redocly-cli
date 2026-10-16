@@ -73,26 +73,6 @@ describe('OpenAPI Schema', () => {
     `);
   });
 
-  it('should not report if Path object is empty ', async () => {
-    const source = outdent`
-      openapi: 3.0.2
-      info:
-        title: Test
-        version: '1.0'
-
-      servers:
-        - url: http://google.com
-
-      paths: {}
-    `;
-
-    expect(
-      await validateDoc(source, {
-        struct: 'error',
-      })
-    ).toEqual([]);
-  });
-
   //Check: no error
   it('should report if the field name is not begin with a forward slash (/) ', async () => {
     const source = outdent`
