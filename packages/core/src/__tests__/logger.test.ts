@@ -23,37 +23,37 @@ describe('Logger in nodejs', () => {
   it('should call "process.stderr.write" for error severity', () => {
     logger.error('error');
 
-    expect(spyingStderr).toBeCalledTimes(1);
-    expect(spyingStderr).toBeCalledWith(colorette.red('error'));
+    expect(spyingStderr).toHaveBeenCalledTimes(1);
+    expect(spyingStderr).toHaveBeenCalledWith(colorette.red('error'));
   });
 
   it('should call "process.stderr.write" for warn severity', () => {
     logger.warn('warn');
 
-    expect(spyingStderr).toBeCalledTimes(1);
-    expect(spyingStderr).toBeCalledWith(colorette.yellow('warn'));
+    expect(spyingStderr).toHaveBeenCalledTimes(1);
+    expect(spyingStderr).toHaveBeenCalledWith(colorette.yellow('warn'));
   });
 
   it('should call "process.stderr.write" for info severity', () => {
     logger.info('info');
 
-    expect(spyingStderr).toBeCalledTimes(1);
-    expect(spyingStderr).toBeCalledWith('info');
+    expect(spyingStderr).toHaveBeenCalledTimes(1);
+    expect(spyingStderr).toHaveBeenCalledWith('info');
   });
 
   it('should call "process.stdout.write" for output printNewLine', () => {
     logger.printNewLine();
 
-    expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith(' \n');
+    expect(spyingStdout).toHaveBeenCalledTimes(1);
+    expect(spyingStdout).toHaveBeenCalledWith(' \n');
   });
 
   it('should call "process.stdout.write" for output printSeparator', () => {
     logger.printSeparator('separator');
 
-    expect(spyingStdout).toBeCalledTimes(1);
-    expect(spyingStdout).toBeCalledWith(expect.stringContaining('separator'));
-    expect(spyingStdout).toBeCalledWith(
+    expect(spyingStdout).toHaveBeenCalledTimes(1);
+    expect(spyingStdout).toHaveBeenCalledWith(expect.stringContaining('separator'));
+    expect(spyingStdout).toHaveBeenCalledWith(
       colorize.gray(
         'separatorseparatorseparatorseparatorseparatorseparatorseparatorseparatorseparato'
       )
@@ -71,7 +71,7 @@ describe('colorize in nodejs', () => {
     const color = 'cyan';
     const colorized = colorize.cyan(color);
 
-    expect(colorette.cyan).toBeCalledWith(color);
+    expect(colorette.cyan).toHaveBeenCalledWith(color);
     expect(colorized).toEqual((colorette as any)[color](color));
   });
 });

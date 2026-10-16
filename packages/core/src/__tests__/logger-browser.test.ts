@@ -14,8 +14,8 @@ describe('Logger in Browser', () => {
 
     logger.error('error');
 
-    expect(error).toBeCalledTimes(1);
-    expect(error).toBeCalledWith('error');
+    expect(error).toHaveBeenCalledTimes(1);
+    expect(error).toHaveBeenCalledWith('error');
 
     error.mockRestore();
   });
@@ -25,8 +25,8 @@ describe('Logger in Browser', () => {
 
     logger.info('info');
 
-    expect(info).toBeCalledTimes(1);
-    expect(info).toBeCalledWith('info');
+    expect(info).toHaveBeenCalledTimes(1);
+    expect(info).toHaveBeenCalledWith('info');
 
     info.mockRestore();
   });
@@ -36,8 +36,8 @@ describe('Logger in Browser', () => {
 
     logger.warn('warn');
 
-    expect(warn).toBeCalledTimes(1);
-    expect(warn).toBeCalledWith('warn');
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn).toHaveBeenCalledWith('warn');
 
     warn.mockRestore();
   });
@@ -48,7 +48,7 @@ describe('colorize in Browser', () => {
     const color = 'cyan';
     const colorized = colorize.cyan(color);
 
-    expect(colorette.cyan).not.toBeCalled();
+    expect(colorette.cyan).not.toHaveBeenCalled();
     expect(colorized).toEqual(color);
   });
 });

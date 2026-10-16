@@ -120,7 +120,7 @@ describe('runTestFile', () => {
         options: { file: '', ...defaultRespectOptions },
         executedStepsCount: { value: 0 },
       })
-    ).rejects.toThrowError('Invalid file name');
+    ).rejects.toThrow('Invalid file name');
   });
 
   it(`should throw error if file is not valid Arazzo test file`, async () => {
@@ -129,7 +129,7 @@ describe('runTestFile', () => {
         options: { file: 'test.yaml', ...defaultRespectOptions },
         executedStepsCount: { value: 0 },
       })
-    ).rejects.toThrowError(
+    ).rejects.toThrow(
       'No test files found. File test.yaml does not follows naming pattern "*.[yaml | yml | json]" or have not valid "Arazzo" description.'
     );
   });
@@ -682,9 +682,7 @@ describe('runTestFile', () => {
         options: { file: 'test.yaml', ...defaultRespectOptions },
         executedStepsCount: { value: 0 },
       })
-    ).rejects.toThrowError(
-      `Could not find source description file 'api-samples/not-existing.yaml'.`
-    );
+    ).rejects.toThrow(`Could not find source description file 'api-samples/not-existing.yaml'.`);
   });
 
   it('should throw an error when sourcedescription Arazzo file does not exist', async () => {
@@ -750,6 +748,6 @@ describe('runTestFile', () => {
         },
         executedStepsCount: { value: 0 },
       })
-    ).rejects.toThrowError(`Could not find source description file 'not-existing-arazzo.yaml'.`);
+    ).rejects.toThrow(`Could not find source description file 'not-existing-arazzo.yaml'.`);
   });
 });

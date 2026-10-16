@@ -586,8 +586,8 @@ describe('resolveWorkflowContext', () => {
     } as any;
     const workflowId = '$sourceDescriptions.wrong-api.get-museum-tickets';
 
-    await expect(
-      resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)
-    ).rejects.toThrowError('Unknown source description type invalid');
+    await expect(resolveWorkflowContext(workflowId, resolvedWorkflow, ctx, config)).rejects.toThrow(
+      'Unknown source description type invalid'
+    );
   });
 });
