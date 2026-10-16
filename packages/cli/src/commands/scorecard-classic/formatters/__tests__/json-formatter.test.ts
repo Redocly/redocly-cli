@@ -13,6 +13,7 @@ const createMockSource = (absoluteRef: string) => ({
 describe('printScorecardResultsAsJson', () => {
   beforeEach(() => {
     vi.spyOn(openapiCore.logger, 'output').mockImplementation(() => {});
+    vi.spyOn(openapiCore.logger, 'info').mockImplementation(() => {});
   });
 
   it('should print empty results when no problems', () => {

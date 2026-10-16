@@ -3,6 +3,10 @@ import { logger } from '@redocly/openapi-core';
 import { getWorkflowsToRun } from '../../flow-runner/index.js';
 
 describe('getWorkflowsToRun', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
+  });
+
   const workflows = [
     {
       workflowId: 'flow1',
