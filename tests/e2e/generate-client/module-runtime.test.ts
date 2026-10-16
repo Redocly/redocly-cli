@@ -4,7 +4,13 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generateInto, killServer, runConsumer, startServer, strictTypecheck } from './helpers.js';
+import {
+  expectStrictTscPasses,
+  generateInto,
+  killServer,
+  runConsumer,
+  startServer,
+} from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cafe.yaml');
@@ -57,7 +63,7 @@ describe('generate-client --runtime module (end-to-end)', () => {
   });
 
   it('the client + runtime folder type-check strictly together', () => {
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
   }, 120_000);
 
   it('a real request goes through the runtime files and returns typed data', () => {

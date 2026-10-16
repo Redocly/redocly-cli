@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, strictTypecheck } from './helpers.js';
+import { expectStrictTscPasses, generate } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -86,7 +86,7 @@ describe('generate-client envelope', () => {
       ].join('\n'),
       'utf-8'
     );
-    strictTypecheck(dir, ['client.ts', 'usage.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'usage.ts']);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

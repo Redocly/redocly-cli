@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectTsFiles, expectTscPasses, generate, strictTypecheck } from './helpers.js';
+import { collectTsFiles, expectStrictTscPasses, expectTscPasses, generate } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -59,7 +59,7 @@ describe('generate-client SSE', () => {
       'utf-8'
     );
 
-    strictTypecheck(dir, ['client.ts', 'usage.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'usage.ts']);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

@@ -15,7 +15,7 @@ const SERVER_PORT = 3109;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 /** Run smoke.php against the mock server; `phpFlags` go in front, `smokeArgs` after the URL. */
-function runSmoke(phpFlags: string[], smokeArgs: string[] = []): void {
+function expectSmokePasses(phpFlags: string[], smokeArgs: string[] = []): void {
   const result = spawnSync(
     'php',
     [...phpFlags, join(workDir, 'smoke.php'), SERVER_BASE, ...smokeArgs],
@@ -54,14 +54,14 @@ describe('generate-client php generator (end-to-end)', () => {
   });
 
   it('the smoke runs real HTTP: hydration, bodies, ApiError', () => {
-    runSmoke([]);
+    expectSmokePasses([]);
   });
 
   it('the smoke still passes when OPcache has preloaded the client', () => {
     // opcache.preload keeps classes and functions in shared memory but drops file-level
     // constants, and the autoloader never includes the file again once Client exists.
     // The smoke checks that the preload really happened, so this cannot pass vacuously.
-    runSmoke(
+    expectSmokePasses(
       ['-d', 'opcache.enable_cli=1', '-d', `opcache.preload=${join(workDir, 'preload.php')}`],
       ['preloaded']
     );

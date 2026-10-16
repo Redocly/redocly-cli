@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, strictTypecheck } from './helpers.js';
+import { expectStrictTscPasses, generate } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -13,7 +13,7 @@ function generateAndTypecheck(fixture: string): { generated: string } {
   generate(join(__dirname, 'fixtures', fixture), out);
   expect(existsSync(out)).toBe(true);
   const generated = readFileSync(out, 'utf-8');
-  strictTypecheck(dir, ['client.ts']);
+  expectStrictTscPasses(dir, ['client.ts']);
   rmSync(dir, { recursive: true, force: true });
   return { generated };
 }

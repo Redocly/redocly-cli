@@ -15,7 +15,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectTsFiles, expectTscPasses, generate, strictTypecheck } from './helpers.js';
+import { collectTsFiles, expectStrictTscPasses, expectTscPasses, generate } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -33,7 +33,7 @@ describe('generate-client error mode', () => {
     // The mode is baked into the client instance config (configure() cannot flip it).
     expect(generated).toContain('errorMode: "result"');
 
-    strictTypecheck(dir, ['client.ts']);
+    expectStrictTscPasses(dir, ['client.ts']);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

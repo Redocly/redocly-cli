@@ -24,7 +24,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate as generateClient, strictTypecheck } from './helpers.js';
+import { expectStrictTscPasses, generate as generateClient } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'transformers.yaml');
@@ -59,7 +59,7 @@ describe('generate-client transformers generator', () => {
 
     // strict-tsc the sdk + transformers TOGETHER: proves transform<Name>(data:
     // <Name>): <Name> type-checks against the Date-typed sdk schema.
-    strictTypecheck(dir, ['client.ts', 'client.transformers.ts']);
+    expectStrictTscPasses(dir, ['client.ts', 'client.transformers.ts']);
 
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);

@@ -61,7 +61,7 @@ export function expectTscPasses(args: string[], cwd: string = repoRoot): void {
 }
 
 /** Write a strict tsconfig into `dir` and assert that it type-checks. */
-export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): void {
+export function expectStrictTscPasses(dir: string, include: string[] = ['**/*.ts']): void {
   writeFileSync(
     join(dir, 'tsconfig.json'),
     JSON.stringify({ ...STRICT_TSCONFIG, include }),

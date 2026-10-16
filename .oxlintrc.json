@@ -69,6 +69,7 @@
         "typescript/ban-ts-comment": "allow",
         "eslint/no-control-regex": "allow",
 
+        "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expect*"] }],
         "vitest/hoisted-apis-on-top": "error",
         "vitest/no-commented-out-tests": "error",
         "vitest/no-conditional-expect": "error",

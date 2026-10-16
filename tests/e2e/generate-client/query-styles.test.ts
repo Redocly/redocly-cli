@@ -14,7 +14,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, runTsx, strictTypecheck } from './helpers.js';
+import { expectStrictTscPasses, generate, runTsx } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'query-styles.yaml');
@@ -50,7 +50,7 @@ describe('generate-client query serialization styles', () => {
   });
 
   it('strict-tsc type-checks the generated client', () => {
-    strictTypecheck(dir, ['client.ts']);
+    expectStrictTscPasses(dir, ['client.ts']);
   }, 60_000);
 
   it('serializes the wire format: literal delimiters + allowReserved', () => {

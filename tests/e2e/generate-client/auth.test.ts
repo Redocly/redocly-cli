@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { generate, generateInto, runConsumer, strictTypecheck } from './helpers.js';
+import { expectStrictTscPasses, generate, generateInto, runConsumer } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'auth.yaml');
@@ -16,7 +16,7 @@ function generateSingleFile(): string {
   generate(fixture, out);
   expect(existsSync(out)).toBe(true);
   const generated = readFileSync(out, 'utf-8');
-  strictTypecheck(dir, ['client.ts']);
+  expectStrictTscPasses(dir, ['client.ts']);
   rmSync(dir, { recursive: true, force: true });
   return generated;
 }
@@ -74,7 +74,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     // must still point at a file; the generator emits the schemas file beside it.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-split-'));
     generate(fixture, join(dir, 'client.ts'), ['--output-mode', 'split']);
-    strictTypecheck(dir);
+    expectStrictTscPasses(dir);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 

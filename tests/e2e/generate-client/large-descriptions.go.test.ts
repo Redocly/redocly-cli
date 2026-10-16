@@ -10,7 +10,7 @@ import {
 } from './large-descriptions.js';
 
 /** Go bar: `go build` + `go vet` (vet catches json tags on unexported fields). */
-function goBar(description: string): void {
+function expectGoBar(description: string): void {
   const dir = generateWith(['go'], description);
   writeFileSync(join(dir, 'go.mod'), 'module largedesc.test\n\ngo 1.21\n', 'utf-8');
   const build = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
@@ -20,7 +20,11 @@ function goBar(description: string): void {
 }
 
 describe('rebilly description', () => {
-  it('go builds and vets cleanly', () => goBar(rebillyDescription), LARGE_DESCRIPTION_TIMEOUT);
+  it(
+    'go builds and vets cleanly',
+    () => expectGoBar(rebillyDescription),
+    LARGE_DESCRIPTION_TIMEOUT
+  );
 });
 
 describe('github REST description', () => {
@@ -30,5 +34,5 @@ describe('github REST description', () => {
     github = await fetchGithubDescription();
   }, LARGE_DESCRIPTION_TIMEOUT);
 
-  it('go builds and vets cleanly', () => goBar(github), LARGE_DESCRIPTION_TIMEOUT);
+  it('go builds and vets cleanly', () => expectGoBar(github), LARGE_DESCRIPTION_TIMEOUT);
 });
