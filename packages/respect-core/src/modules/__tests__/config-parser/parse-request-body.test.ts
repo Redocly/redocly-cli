@@ -227,8 +227,8 @@ describe('parseRequestBody', () => {
     vi.mocked(fs.access).mockImplementation((_filePath, _mode, callback) => {
       callback(new Error('error'));
     });
-    try {
-      await parseRequestBody(
+    await expect(
+      parseRequestBody(
         {
           payload: {
             test: 'test',
@@ -238,10 +238,8 @@ describe('parseRequestBody', () => {
           encoding: 'utf-8',
         },
         ctx
-      );
-    } catch (error) {
-      expect(error.message).toContain("file2.txt doesn't exist or isn't readable.");
-    }
+      )
+    ).rejects.toThrow("file2.txt doesn't exist or isn't readable.");
   });
 
   it('should handle application/octet-stream', async () => {

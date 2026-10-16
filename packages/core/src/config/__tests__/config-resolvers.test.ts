@@ -276,17 +276,13 @@ describe('resolveConfig', () => {
     const rootOrApiRawConfig = {
       extends: ['local-config-with-wrong-custom-function.yaml'],
     };
-    try {
-      const config = await resolveConfig({
-        rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
-        configPath,
-      });
-      new Config(config.resolvedConfig, { plugins: config.plugins });
-    } catch (e) {
-      expect(e.message.toString()).toContain(
-        `Plugin test-plugin doesn't export assertions function with name checkWordsCount2.`
-      );
-    }
+    const config = await resolveConfig({
+      rawConfigDocument: makeDocument(rootOrApiRawConfig, configPath),
+      configPath,
+    });
+    expect(() => new Config(config.resolvedConfig, { plugins: config.plugins })).toThrow(
+      `Plugin test-plugin doesn't export assertions function with name checkWordsCount2.`
+    );
   });
 
   it('should correctly merge assertions from nested config', async () => {
