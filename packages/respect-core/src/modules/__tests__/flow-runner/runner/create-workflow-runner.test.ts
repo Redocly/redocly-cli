@@ -102,7 +102,7 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
-    expect(apiClient.fetchResult).toBeCalled();
+    expect(apiClient.fetchResult).toHaveBeenCalled();
   });
 
   it('should return if no steps', async () => {
@@ -128,7 +128,7 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
-    expect(apiClient.fetchResult).not.toBeCalled();
+    expect(apiClient.fetchResult).not.toHaveBeenCalled();
   });
 
   it('should throw an error if no workflow exists', async () => {
@@ -148,7 +148,7 @@ describe('runWorkflow', () => {
     await expect(
       runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } })
     ).rejects.toThrow(`${blue('Workflow')} test ${blue('not found')}`);
-    expect(apiClient.fetchResult).not.toBeCalled();
+    expect(apiClient.fetchResult).not.toHaveBeenCalled();
   });
 
   it('should set workflow outputs', async () => {
@@ -308,7 +308,7 @@ describe('runWorkflow', () => {
 
     await runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } });
 
-    expect(apiClient.fetchResult).not.toBeCalled();
+    expect(apiClient.fetchResult).not.toHaveBeenCalled();
   });
 
   it('should run workflow within step execution', async () => {

@@ -1276,6 +1276,6 @@ describe('bundle with overlays', () => {
 
     await expect(
       bundle({ config: await createConfig({}), ref: apiPath, overlays: [apiPath] })
-    ).rejects.toThrowError(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
+    ).rejects.toThrow(`${apiPath} is not an Overlay 1.0, 1.1, or 1.2 document.`);
   });
 });

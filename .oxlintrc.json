@@ -71,6 +71,7 @@
 
         "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expect*"] }],
         "vitest/hoisted-apis-on-top": "error",
+        "vitest/no-alias-methods": "error",
         "vitest/no-commented-out-tests": "error",
         "vitest/no-conditional-expect": "error",
         "vitest/no-conditional-tests": "error",

@@ -80,7 +80,7 @@ describe('bundle', () => {
       ext: 'yaml',
     } as Arguments<BundleArgv>);
 
-    expect(bundle).toBeCalledTimes(apis.length);
+    expect(bundle).toHaveBeenCalledTimes(apis.length);
   });
 
   it('exits with code 0 when bundles definitions', async () => {
@@ -193,7 +193,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(2);
+      expect(saveBundle).toHaveBeenCalledTimes(2);
       expect(saveBundle).toHaveBeenNthCalledWith(1, 'output/foo.yaml', expect.any(String));
       expect(saveBundle).toHaveBeenNthCalledWith(2, 'output/bar.json', expect.any(String));
     });
@@ -231,7 +231,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(1);
+      expect(saveBundle).toHaveBeenCalledTimes(1);
       expect(saveBundle).toHaveBeenCalledWith('output/foo.yaml', expect.any(String));
       expect(logger.output).toHaveBeenCalledTimes(1);
     });
@@ -260,7 +260,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(0);
+      expect(saveBundle).toHaveBeenCalledTimes(0);
       expect(logger.output).toHaveBeenCalledTimes(1);
     });
 
@@ -299,7 +299,7 @@ describe('bundle', () => {
         config,
       });
 
-      expect(saveBundle).toBeCalledTimes(2);
+      expect(saveBundle).toHaveBeenCalledTimes(2);
       expect(saveBundle).toHaveBeenNthCalledWith(1, 'dist/foo.yaml', expect.any(String));
       expect(saveBundle).toHaveBeenNthCalledWith(2, 'dist/bar.yaml', expect.any(String));
     });

@@ -73,9 +73,9 @@ describe('build-docs', () => {
       config: await createConfig({}),
       version: 'cli-version',
     });
-    expect(loadAndBundleSpec).toBeCalledTimes(1);
-    expect(getFallbackApisOrExit).toBeCalledTimes(1);
-    expect(processExitMock).toBeCalledTimes(0);
+    expect(loadAndBundleSpec).toHaveBeenCalledTimes(1);
+    expect(getFallbackApisOrExit).toHaveBeenCalledTimes(1);
+    expect(processExitMock).toHaveBeenCalledTimes(0);
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining('Deprecation warning: build-docs is moving to Redoc 3')
     );

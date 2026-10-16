@@ -12,7 +12,7 @@ describe('output', () => {
 
     logger.output(data);
 
-    expect(spyingStdout).not.toBeCalled();
+    expect(spyingStdout).not.toHaveBeenCalled();
     expect(spyingConsole).toHaveBeenCalledWith(data);
 
     spyingStdout.mockRestore();

@@ -66,10 +66,10 @@ describe('walk order', () => {
       }),
     });
 
-    expect(testRuleSet.test).toBeCalledTimes(1);
+    expect(testRuleSet.test).toHaveBeenCalledTimes(1);
     for (const fns of Object.values(visitors)) {
-      expect(fns.enter).toBeCalled();
-      expect(fns.leave).toBeCalled();
+      expect(fns.enter).toHaveBeenCalled();
+      expect(fns.leave).toHaveBeenCalled();
     }
   });
 
@@ -208,10 +208,10 @@ describe('walk order', () => {
       }),
     });
 
-    expect(testRuleSet.test).toBeCalledTimes(1);
+    expect(testRuleSet.test).toHaveBeenCalledTimes(1);
     for (const fns of Object.values(visitors)) {
-      expect(fns.enter).toBeCalled();
-      expect(fns.leave).toBeCalled();
+      expect(fns.enter).toHaveBeenCalled();
+      expect(fns.leave).toHaveBeenCalled();
     }
   });
 

@@ -52,7 +52,7 @@ describe('split', () => {
       version: 'cli-version',
     });
 
-    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write)).toHaveBeenCalledTimes(2);
     expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
       `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(openapiDir)} \n`
@@ -132,7 +132,7 @@ describe('split', () => {
       version: 'cli-version',
     });
 
-    expect(utils.pathToFilename).toBeCalledWith(expect.anything(), '_');
+    expect(utils.pathToFilename).toHaveBeenCalledWith(expect.anything(), '_');
   });
 
   it('should have correct path with paths', async () => {
@@ -219,16 +219,16 @@ describe('split', () => {
       version: 'cli-version',
     });
 
-    expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');
-    expect(utils.escapeLanguageName).nthReturnedWith(1, 'C_sharp');
+    expect(utils.escapeLanguageName).toHaveBeenNthCalledWith(1, 'C#');
+    expect(utils.escapeLanguageName).toHaveNthReturnedWith(1, 'C_sharp');
 
-    expect(utils.escapeLanguageName).nthCalledWith(2, 'C/AL');
-    expect(utils.escapeLanguageName).nthReturnedWith(2, 'C_AL');
+    expect(utils.escapeLanguageName).toHaveBeenNthCalledWith(2, 'C/AL');
+    expect(utils.escapeLanguageName).toHaveNthReturnedWith(2, 'C_AL');
 
-    expect(utils.escapeLanguageName).nthCalledWith(3, 'Visual Basic');
-    expect(utils.escapeLanguageName).nthReturnedWith(3, 'VisualBasic');
+    expect(utils.escapeLanguageName).toHaveBeenNthCalledWith(3, 'Visual Basic');
+    expect(utils.escapeLanguageName).toHaveNthReturnedWith(3, 'VisualBasic');
 
-    expect(utils.escapeLanguageName).toBeCalledTimes(3);
+    expect(utils.escapeLanguageName).toHaveBeenCalledTimes(3);
   });
 
   it('should split an AsyncAPI 2 file and show the success message', async () => {
@@ -244,7 +244,7 @@ describe('split', () => {
       version: 'cli-version',
     });
 
-    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write)).toHaveBeenCalledTimes(2);
     expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
       `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(openapiDir)} \n`
@@ -267,7 +267,7 @@ describe('split', () => {
       version: 'cli-version',
     });
 
-    expect(vi.mocked(process.stderr.write)).toBeCalledTimes(2);
+    expect(vi.mocked(process.stderr.write)).toHaveBeenCalledTimes(2);
     expect(vi.mocked(process.stderr.write).mock.calls[0][0]).toBe(
       `🪓 Document: ${blue(filePath!)} ${green('is successfully split')}
     and all related files are saved to the directory: ${blue(openapiDir)} \n`

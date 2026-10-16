@@ -470,7 +470,7 @@ describe('handleErrors', () => {
 
   it('should handle ResolveError', () => {
     const resolveError = new ResolveError(new Error('File not found.'));
-    expect(() => handleError(resolveError, ref)).toThrowError(
+    expect(() => handleError(resolveError, ref)).toThrow(
       new HandledError(
         `Failed to resolve API description at openapi/test.yaml:\n\n  - File not found.`
       )
@@ -479,14 +479,14 @@ describe('handleErrors', () => {
 
   it('should handle YamlParseError', () => {
     const yamlParseError = new YamlParseError(new Error('Invalid yaml.'), {} as any);
-    expect(() => handleError(yamlParseError, ref)).toThrowError(
+    expect(() => handleError(yamlParseError, ref)).toThrow(
       new HandledError(`Failed to parse API description at openapi/test.yaml:\n\n  - Invalid yaml.`)
     );
   });
 
   it('should handle CircularJSONNotSupportedError', () => {
     const circularError = new CircularJSONNotSupportedError(new Error('Circular json'));
-    expect(() => handleError(circularError, ref)).toThrowError(
+    expect(() => handleError(circularError, ref)).toThrow(
       new HandledError(
         `Detected circular reference which can't be converted to JSON.\n` +
           `Try to use ${blue('yaml')} output or remove ${blue('--dereferenced')}.`
@@ -497,14 +497,14 @@ describe('handleErrors', () => {
   it('should handle SyntaxError', () => {
     const testError = new SyntaxError('Unexpected identifier');
     testError.stack = 'test stack';
-    expect(() => handleError(testError, ref)).toThrowError(
+    expect(() => handleError(testError, ref)).toThrow(
       new HandledError('Syntax error: Unexpected identifier test stack')
     );
   });
 
   it('should throw unknown error', () => {
     const testError = new Error('Test error.');
-    expect(() => handleError(testError, ref)).toThrowError(
+    expect(() => handleError(testError, ref)).toThrow(
       new HandledError(`Something went wrong when processing openapi/test.yaml:\n\n  - Test error.`)
     );
   });
@@ -535,7 +535,7 @@ describe('checkIfRulesetExist', () => {
       openrpc1: {},
       graphql: {},
     };
-    expect(() => checkIfRulesetExist(rules)).toThrowError(
+    expect(() => checkIfRulesetExist(rules)).toThrow(
       '⚠️ No rules were configured. Learn how to configure rules: https://redocly.com/docs/cli/rules/'
     );
   });
