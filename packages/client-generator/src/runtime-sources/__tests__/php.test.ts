@@ -1,13 +1,8 @@
-import { spawnSync } from 'node:child_process';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import { PHP_RUNTIME_SOURCE } from '../../runtime-sources/php.js';
-
-const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const hasPhp = spawnSync('php', ['--version']).status === 0;
+import { PHP_RUNTIME_SOURCE } from '../php.js';
 
 describe('PHP_RUNTIME_SOURCE (the embedded PHP runtime)', () => {
+  // PHP binds functions when they are called, and no e2e bar calls the pagination, SSE,
+  // or multipart helpers yet, so a missing declaration would otherwise ship unnoticed.
   it('embeds the load-bearing declarations', () => {
     for (const declaration of [
       'final class ApiError extends \\RuntimeException',
@@ -26,13 +21,5 @@ describe('PHP_RUNTIME_SOURCE (the embedded PHP runtime)', () => {
     ]) {
       expect(PHP_RUNTIME_SOURCE).toContain(declaration);
     }
-  });
-
-  it.skipIf(!hasPhp)('the runtime module passes php -l', () => {
-    const result = spawnSync('php', ['-l', 'runtime.php'], {
-      cwd: join(pkgRoot, 'src', 'generators', 'php', 'runtime'),
-      encoding: 'utf-8',
-    });
-    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
   });
 });

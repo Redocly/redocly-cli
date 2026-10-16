@@ -4,13 +4,13 @@
 // carrying `(){};`, `export`, or `*/` are the attack surface. The generator must
 // sanitize names and escape comments such that the output is inert and strict-`tsc`
 // clean — every payload trapped inside an identifier or a comment, never a statement.
-import { spawnSync } from 'node:child_process';
+
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-import { cliEntry, repoRoot, tscBin } from './helpers.js';
+import { expectTscPasses, runGenerateClient } from './helpers.js';
 
 const HOSTILE_SPEC = outdent`
   openapi: 3.1.0
@@ -54,14 +54,7 @@ describe('generate-client identifier / comment injection', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-injection-'));
     writeFileSync(join(dir, 'openapi.yaml'), HOSTILE_SPEC, 'utf-8');
     const entry = join(dir, 'client.ts');
-    const res = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', join(dir, 'openapi.yaml'), '--output', entry],
-      {
-        encoding: 'utf-8',
-        cwd: repoRoot,
-      }
-    );
+    const res = runGenerateClient([join(dir, 'openapi.yaml'), '--output', entry]);
     expect(res.status, res.stderr).toBe(0);
     // The unsafe operationId is reported and rewritten, not silently accepted.
     expect(res.stderr).toMatch(/is not a usable identifier/);
@@ -80,8 +73,7 @@ describe('generate-client identifier / comment injection', () => {
     }
 
     // Strongest proof: the whole file type-checks. Injected statements would not.
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
@@ -95,9 +87,8 @@ describe('generate-client identifier / comment injection', () => {
         'ES2020,DOM',
         entry,
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

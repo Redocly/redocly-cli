@@ -1,9 +1,11 @@
 // Echo server for the stream-bodies scenario. It records what every request put on
 // the wire (the raw body, every Content-Type value, and how the body was framed) and
 // answers 204, or 503 under /fail/ so the clients' retry policies have something to
-// retry. stream-bodies.test.ts reads the log through GET /__test__/log and clears it
+// retry. The stream-bodies tests read the log through GET /__test__/log and clear it
 // through POST /__test__/reset before each client runs.
 import * as http from 'node:http';
+
+import { answerTestRoute, listen, readBody } from './support.js';
 
 type LogEntry = {
   method: string;
@@ -19,28 +21,17 @@ const PORT = Number.parseInt(process.env.STREAM_SERVER_PORT ?? '3115', 10);
 const requestLog: LogEntry[] = [];
 
 const server = http.createServer(async (req, res) => {
+  if (answerTestRoute(req, res, requestLog)) {
+    return;
+  }
   const url = req.url ?? '';
-
-  if (url === '/__test__/ready') {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('ready');
-    return;
-  }
-  if (url === '/__test__/log') {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(requestLog));
-    return;
-  }
   if (url === '/__test__/reset') {
     requestLog.length = 0;
     res.writeHead(204).end();
     return;
   }
 
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    chunks.push(chunk as Buffer);
-  }
+  const body = await readBody(req);
   // Every value separately: a Content-Type sent twice must show up twice.
   const contentTypes = req.rawHeaders.filter(
     (_, index) => index % 2 === 1 && req.rawHeaders[index - 1].toLowerCase() === 'content-type'
@@ -51,22 +42,11 @@ const server = http.createServer(async (req, res) => {
     contentTypes,
     contentLength: req.headers['content-length'],
     transferEncoding: req.headers['transfer-encoding'],
-    body: Buffer.concat(chunks).toString('base64'),
+    body: body ? body.toString('base64') : '',
   });
 
   res.writeHead(url.startsWith('/fail/') ? 503 : 204);
   res.end();
 });
 
-server.listen(PORT, () => {
-  process.stdout.write(`READY ${PORT}\n`);
-});
-
-const shutdown = (): void => {
-  server.close(() => {
-    process.exit(0);
-  });
-};
-
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+listen(server, PORT);

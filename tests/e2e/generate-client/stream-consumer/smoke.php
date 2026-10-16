@@ -1,7 +1,7 @@
 <?php
 
 // Runtime smoke for stream request bodies in the generated PHP SDK. Run by
-// stream-bodies.test.ts with the echo server's base URL as the only argument. It
+// stream-bodies.php.test.ts with the echo server's base URL as the only argument. It
 // only makes the calls, in a fixed order; the test reads what the server received.
 
 declare(strict_types=1);

@@ -9,26 +9,15 @@
 // through, and the behavioral retry/abort path is shared (the runtime's `send`)
 // and covered by the existing throw-mode base e2e. The split case guards that
 // the entry bakes `errorMode: "result"` into the client config too.
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
+
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, strictTypecheck, tscBin } from './helpers.js';
+import { collectTsFiles, expectTscPasses, generate, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-
-/** Recursively collect every generated `.ts` file under `dir`. */
-function collectTsFiles(dir: string): string[] {
-  const out: string[] = [];
-  for (const entry of readdirSync(dir)) {
-    const full = join(dir, entry);
-    if (statSync(full).isDirectory()) out.push(...collectTsFiles(full));
-    else if (entry.endsWith('.ts')) out.push(full);
-  }
-  return out;
-}
 
 describe('generate-client error mode', () => {
   it('single-file result mode: typed error alias + Result terminal, strict tsc passes', () => {
@@ -69,8 +58,7 @@ describe('generate-client error mode', () => {
     expect(entrySrc).toContain('Result<');
 
     // Strict tsc over the whole tree (bundler resolution handles the `.js` ESM imports).
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
@@ -85,9 +73,8 @@ describe('generate-client error mode', () => {
         'ES2020,DOM',
         ...files,
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

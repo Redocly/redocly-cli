@@ -1,34 +1,32 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { type ChildProcess, spawnSync } from 'node:child_process';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  expectTscPasses,
   generate,
   killServer,
+  linkNodeModules,
+  runTsx,
   serverLog as readServerLog,
   startServer,
-  tsxBin,
 } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/cli.yaml');
-const consumerDir = join(__dirname, 'cli-consumer');
-const clientDir = join(consumerDir, 'client');
-const stripDir = join(consumerDir, 'client-strip');
+let workDir = '';
+let clientDir = '';
+let stripDir = '';
 
 const SERVER_PORT = 3108;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
-// Every case below spawns the generated CLI through `tsx` (often several times), and
-// TypeScript startup alone can approach the 5s default on a loaded machine.
-vi.setConfig({ testTimeout: 120_000 });
-
 /** Run the generated CLI with tsx; returns exit code + parsed streams. */
 function runCliBin(args: string[], env: Record<string, string> = {}) {
-  const result = spawnSync(tsxBin, [join(clientDir, 'client.cli.ts'), ...args], {
+  const result = runTsx(join(clientDir, 'client.cli.ts'), [...args], {
     cwd: clientDir,
-    encoding: 'utf-8',
     env: { ...process.env, ...env },
   });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
@@ -44,6 +42,10 @@ describe('generate-client cli generator (end-to-end)', () => {
   let serverProcess: ChildProcess | undefined;
 
   beforeAll(async () => {
+    workDir = mkdtempSync(join(tmpdir(), 'cli-e2e-'));
+    linkNodeModules(workDir);
+    clientDir = join(workDir, 'client');
+    stripDir = join(workDir, 'client-strip');
     generate(fixture, join(clientDir, 'client.ts'), [
       '--generator',
       'typescript',
@@ -65,24 +67,16 @@ describe('generate-client cli generator (end-to-end)', () => {
       'ts',
     ]);
     writeFileSync(join(stripDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-    serverProcess = await startServer(
-      join(consumerDir, 'server.ts'),
-      consumerDir,
-      { CLI_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE,
-      'cli-e2e-server'
-    );
+    serverProcess = await startServer('cli', { CLI_SERVER_PORT: String(SERVER_PORT) }, SERVER_BASE);
   }, 60_000);
 
   afterAll(async () => {
     if (serverProcess) await killServer(serverProcess);
-    rmSync(clientDir, { recursive: true, force: true });
-    rmSync(stripDir, { recursive: true, force: true });
+    rmSync(workDir, { recursive: true, force: true });
   });
 
   it('--runtime module writes runtime/cli.ts and the entry runs through it', () => {
-    const moduleDir = join(consumerDir, 'client-module');
-    rmSync(moduleDir, { recursive: true, force: true });
+    const moduleDir = join(workDir, 'client-module');
     generate(fixture, join(moduleDir, 'client.ts'), [
       '--generator',
       'typescript',
@@ -94,20 +88,13 @@ describe('generate-client cli generator (end-to-end)', () => {
       'module',
     ]);
     writeFileSync(join(moduleDir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-    try {
-      const entry = readFileSync(join(moduleDir, 'client.cli.ts'), 'utf-8');
-      expect(entry).toContain('from "./runtime/cli.js"');
-      expect(entry).not.toContain('function parseInvocation');
-      expect(existsSync(join(moduleDir, 'runtime', 'cli.ts'))).toBe(true);
-      const help = spawnSync(tsxBin, [join(moduleDir, 'client.cli.ts'), '--help'], {
-        cwd: moduleDir,
-        encoding: 'utf-8',
-      });
-      expect(help.status, help.stderr).toBe(0);
-      expect(help.stdout).toContain('Usage:');
-    } finally {
-      rmSync(moduleDir, { recursive: true, force: true });
-    }
+    const entry = readFileSync(join(moduleDir, 'client.cli.ts'), 'utf-8');
+    expect(entry).toContain('from "./runtime/cli.js"');
+    expect(entry).not.toContain('function parseInvocation');
+    expect(existsSync(join(moduleDir, 'runtime', 'cli.ts'))).toBe(true);
+    const help = runTsx(join(moduleDir, 'client.cli.ts'), ['--help'], { cwd: moduleDir });
+    expect(help.status, help.stderr).toBe(0);
+    expect(help.stdout).toContain('Usage:');
   });
 
   it('generates client.cli.ts and strict tsc (types: node) accepts it', () => {
@@ -129,10 +116,7 @@ describe('generate-client cli generator (end-to-end)', () => {
       }),
       'utf-8'
     );
-    const tsc = spawnSync(join(__dirname, '../../../node_modules/.bin/tsc'), ['-p', clientDir], {
-      encoding: 'utf-8',
-    });
-    expect(tsc.status, `${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    expectTscPasses(['-p', clientDir]);
   }, 120_000);
 
   it('typed flags reach the query string; bearer auth comes from the env prefix', async () => {
@@ -222,7 +206,7 @@ describe('generate-client cli generator (end-to-end)', () => {
     const result = spawnSync(
       process.execPath,
       ['--experimental-strip-types', join(stripDir, 'client.cli.ts'), '--help'],
-      { encoding: 'utf-8', cwd: consumerDir }
+      { encoding: 'utf-8', cwd: workDir }
     );
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
     expect(result.stdout).toContain('Usage:');

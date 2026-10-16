@@ -15,8 +15,7 @@
     "*.cjs",
     "packages/client-generator/examples/*/src/api/**",
     "packages/client-generator/examples/*/generate.ts",
-    "tests/e2e/generate-client/*.snapshot.ts",
-    "tests/e2e/generate-client/*-consumer/api*.ts"
+    "tests/e2e/generate-client/*.snapshot.ts"
   ],
   "rules": {
     "eslint/no-array-constructor": "error",

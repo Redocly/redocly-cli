@@ -28,7 +28,6 @@ import { generate as generateClient, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'transformers.yaml');
-const consumerDir = join(__dirname, 'transformers-consumer');
 
 function generate(out: string, args: string[]): void {
   // args[0] is a comma-separated generator list; the rest are extra flags.
@@ -66,9 +65,9 @@ describe('generate-client transformers generator', () => {
   }, 60_000);
 
   it('transformPet converts top-level, array, and ref nested dates at runtime', async () => {
-    const sdkFile = join(consumerDir, 'client.ts');
-    const transformersFile = join(consumerDir, 'client.transformers.ts');
-    for (const f of [sdkFile, transformersFile]) if (existsSync(f)) rmSync(f, { force: true });
+    const dir = mkdtempSync(join(tmpdir(), 'transformers-runtime-'));
+    const sdkFile = join(dir, 'client.ts');
+    const transformersFile = join(dir, 'client.transformers.ts');
 
     generate(sdkFile, ['typescript,transformers', '--date-type', 'Date']);
     expect(existsSync(transformersFile)).toBe(true);
@@ -92,7 +91,7 @@ describe('generate-client transformers generator', () => {
     // Ref'd nested date (composition: transformPet -> transformOwner).
     expect(result.owner.since).toBeInstanceOf(Date);
 
-    for (const f of [sdkFile, transformersFile]) if (existsSync(f)) rmSync(f, { force: true });
+    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('without --date-type Date the sdk date field stays typed string (default)', () => {

@@ -109,9 +109,13 @@ Naming and reuse:
 
 - **Compile before testing.** Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
   Do not work around the compile step with aliases, `tsconfig` changes, or a separate test suite for one package.
-  The slow `client-generators` e2e suite is the one exception.
+  The slow `client-generators` e2e projects are the one exception.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
+- Test behavior a user sees through the CLI with an e2e test, not with a unit test that fakes this repository's modules.
+  When both prove the same contract, keep the e2e test.
+- Every test calls `expect`; a type-only check goes in a `__typecheck__/<name>.typecheck.ts` file instead.
+- Prove a new test once: break the code it covers with a one-line change, see it fail, and undo the change.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
   When the rule must report no problems, assert `toEqual([])`.
@@ -123,6 +127,7 @@ Naming and reuse:
   Remove it before running them.
 - Run the full suite (`npm test`) before you open a pull request.
 - Run `npm run client-generators` when you touch client generation.
+  It needs Go, PHP, and Python; see [`CONTRIBUTING.md`](./CONTRIBUTING.md#client-generator-tests).
 
 The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).

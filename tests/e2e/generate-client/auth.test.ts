@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { generate, runConsumer, strictTypecheck } from './helpers.js';
+import { generate, generateInto, runConsumer, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'auth.yaml');
@@ -127,5 +127,36 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     const queryReq = captured.find((c) => c.url.startsWith('/query'));
     expect(queryReq, JSON.stringify(captured)).toBeDefined();
     expect(queryReq!.url).toContain('api_key=secret-key');
+  }, 90_000);
+
+  it('createClient instances keep their own credentials: an authed one sends Basic, a no-auth one sends none', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-auth-instances-'));
+    generateInto(dir, fixture);
+
+    const calls = runConsumer(
+      dir,
+      outdent`
+        import { createClient, OPERATIONS, type Ops } from './client.js';
+
+        const calls: (string | null)[] = [];
+        const fakeFetch = (async (_url: string, init?: RequestInit) => {
+          const headers = (init?.headers ?? {}) as Record<string, string>;
+          calls.push(headers['Authorization'] ?? null);
+          return new Response('{"id":"x"}', { status: 200, headers: { 'content-type': 'application/json' } });
+        }) as unknown as typeof fetch;
+
+        const authed = createClient<Ops>(OPERATIONS, {
+          fetch: fakeFetch,
+          auth: { basic: { username: 'alice', password: 'pw' } },
+        });
+        const anonymous = createClient<Ops>(OPERATIONS, { fetch: fakeFetch });
+        await authed.getBasic();
+        await anonymous.getBasic();
+        process.stdout.write(JSON.stringify(calls));
+      `
+    ) as (string | null)[];
+    rmSync(dir, { recursive: true, force: true });
+
+    expect(calls).toEqual(['Basic ' + Buffer.from('alice:pw').toString('base64'), null]);
   }, 90_000);
 });

@@ -228,17 +228,6 @@ describe('resolveConfig', () => {
     });
   });
 
-  // TODO: fix circular test
-  it.skip('should throw circular error', () => {
-    const config = {
-      ...baseGovernanceConfig,
-      extends: ['local-config-with-circular.yaml'],
-    };
-    expect(() => {
-      resolveConfig({ rawConfigDocument: makeDocument(config, configPath), configPath });
-    }).toThrow('Circular dependency in config file');
-  });
-
   it('should resolve extends with local file config which contains path to nested config', async () => {
     const rootOrApiRawConfig = {
       extends: ['local-config-with-file.yaml'],

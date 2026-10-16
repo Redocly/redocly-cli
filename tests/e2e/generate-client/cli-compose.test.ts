@@ -2,23 +2,20 @@
 // two descriptions compose behind namespaces with their own credentials, and a custom
 // command with a handler joins them at the root — the login story, built in user land.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, generate, repoRoot, tsxBin } from './helpers.js';
+import { cliEntry, generate, linkNodeModules, runGenerateClient, runTsx } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let dir: string;
 
-vi.setConfig({ testTimeout: 120_000 });
-
 function runEntry(args: string[], env: Record<string, string> = {}) {
-  const result = spawnSync(tsxBin, [join(dir, 'cafe.ts'), ...args], {
+  const result = runTsx(join(dir, 'cafe.ts'), [...args], {
     cwd: dir,
-    encoding: 'utf-8',
     env: { ...process.env, ...env },
   });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
@@ -27,7 +24,7 @@ function runEntry(args: string[], env: Record<string, string> = {}) {
 beforeAll(() => {
   dir = mkdtempSync(join(tmpdir(), 'cli-compose-'));
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-  symlinkSync(join(repoRoot, 'node_modules'), join(dir, 'node_modules'), 'dir');
+  linkNodeModules(dir);
   // Two descriptions — the same fixture twice is exactly the collision case: every
   // operationId exists in both, so only namespacing can tell them apart.
   generate(join(__dirname, 'fixtures/cli.yaml'), join(dir, 'shop.client.ts'), [
@@ -134,10 +131,7 @@ describe('composed CLI (end-to-end)', () => {
   });
 
   it('each generated CLI still works standalone', () => {
-    const standalone = spawnSync(tsxBin, [join(dir, 'shop.client.cli.ts'), '--help'], {
-      cwd: dir,
-      encoding: 'utf-8',
-    });
+    const standalone = runTsx(join(dir, 'shop.client.cli.ts'), ['--help'], { cwd: dir });
     expect(standalone.status, standalone.stderr).toBe(0);
     expect(standalone.stdout).toContain('Usage:');
   });
@@ -149,7 +143,7 @@ describe('config-driven composition (client.cliOutput)', () => {
   beforeAll(() => {
     project = mkdtempSync(join(tmpdir(), 'cli-output-'));
     writeFileSync(join(project, 'package.json'), JSON.stringify({ type: 'module' }), 'utf-8');
-    symlinkSync(join(repoRoot, 'node_modules'), join(project, 'node_modules'), 'dir');
+    linkNodeModules(project);
     const fixture = join(__dirname, 'fixtures/cli.yaml');
     writeFileSync(
       join(project, 'redocly.yaml'),
@@ -178,11 +172,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     expect(readFileSync(join(project, 'redocly.yaml'), 'utf-8')).toContain(
       'generators: [typescript, zod, ./generators/cli/index.ts]'
     );
-    const generated = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
-      { cwd: project, encoding: 'utf-8' }
-    );
+    const generated = runGenerateClient(['--config', join(project, 'redocly.yaml')], project);
     expect(generated.status, generated.stderr).toBe(0);
   });
 
@@ -191,10 +181,7 @@ describe('config-driven composition (client.cliOutput)', () => {
   });
 
   it('one generate run emits the composed entry over every api that selected cli', () => {
-    const help = spawnSync(tsxBin, [join(project, 'bin/cafe.ts'), '--help'], {
-      cwd: project,
-      encoding: 'utf-8',
-    });
+    const help = runTsx(join(project, 'bin/cafe.ts'), ['--help'], { cwd: project });
     expect(help.status, help.stderr).toBe(0);
     // Run as a script, so help names the file without its extension — never `cafe.ts`,
     // which is not a command anyone can type.
@@ -204,10 +191,10 @@ describe('config-driven composition (client.cliOutput)', () => {
   });
 
   it('routes a namespace and reads the alias-scoped credential', () => {
-    const dry = spawnSync(
-      tsxBin,
-      [join(project, 'bin/cafe.ts'), 'kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
-      { cwd: project, encoding: 'utf-8', env: { ...process.env, CAFE_KITCHEN_TOKEN: 'k-secret' } }
+    const dry = runTsx(
+      join(project, 'bin/cafe.ts'),
+      ['kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
+      { cwd: project, env: { ...process.env, CAFE_KITCHEN_TOKEN: 'k-secret' } }
     );
     expect(dry.status, dry.stderr).toBe(0);
     const captured = JSON.parse(dry.stdout);
@@ -234,11 +221,7 @@ describe('client.cliOutput validation', () => {
       ].join('\n'),
       'utf-8'
     );
-    const result = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', '--config', join(project, 'redocly.yaml')],
-      { cwd: project, encoding: 'utf-8' }
-    );
+    const result = runGenerateClient(['--config', join(project, 'redocly.yaml')], project);
     rmSync(project, { recursive: true, force: true });
     return result;
   };

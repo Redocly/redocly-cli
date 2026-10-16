@@ -8,13 +8,13 @@
 // request URL, then assert it directly. This is the lightest harness that
 // proves the runtime's `buildUrl` output (literal delimiters + allowReserved
 // on the wire), which is the whole point of the feature.
-import { spawnSync } from 'node:child_process';
+
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, strictTypecheck } from './helpers.js';
+import { generate, runTsx, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures', 'query-styles.yaml');
@@ -75,7 +75,7 @@ describe('generate-client query serialization styles', () => {
       ].join('\n'),
       'utf-8'
     );
-    const run = spawnSync('npx', ['tsx', runner], { encoding: 'utf-8', cwd: dir });
+    const run = runTsx(runner, [], { cwd: dir });
     expect(run.status, `consumer stderr:\n${run.stderr}`).toBe(0);
     const url = run.stdout.trim();
     // pipeDelimited: literal `|` on the wire (NOT %7C).

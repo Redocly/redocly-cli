@@ -1,5 +1,5 @@
 // Runtime smoke for stream request bodies in the generated Go SDK. Run by
-// stream-bodies.test.ts (`go run .`) with the echo server's base URL as the only
+// stream-bodies.go.test.ts (`go run .`) with the echo server's base URL as the only
 // argument. It only makes the calls, in a fixed order; the test reads what the
 // server received.
 package main

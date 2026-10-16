@@ -1,66 +1,56 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { cliEntry, generate, killServer, startServer } from './helpers.js';
+import { generate, killServer, runGenerateClient, startServer } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const consumerDir = join(__dirname, 'python-consumer');
-const generatedFile = join(consumerDir, 'client.py');
+const smokeScript = join(__dirname, 'python-consumer/smoke.py');
+let workDir = '';
+let generatedFile = '';
 
 const SERVER_PORT = 3106;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
-const hasPython = spawnSync('python3', ['--version']).status === 0;
-const hasHttpx = hasPython && spawnSync('python3', ['-c', 'import httpx']).status === 0;
-const hasPydantic = hasPython && spawnSync('python3', ['-c', 'import pydantic']).status === 0;
-
 describe('generate-client python generator (end-to-end)', () => {
-  afterAll(() => {
-    rmSync(generatedFile, { force: true });
-    rmSync(join(consumerDir, '__pycache__'), { recursive: true, force: true });
-  });
-
-  it('generates a self-contained client.py from the CLI', () => {
-    generate(fixture, join(consumerDir, 'client.ts'), ['--generator', 'python']);
+  beforeAll(() => {
+    workDir = mkdtempSync(join(tmpdir(), 'python-e2e-'));
+    generatedFile = join(workDir, 'client.py');
+    generate(fixture, join(workDir, 'client.ts'), ['--generator', 'python']);
     expect(existsSync(generatedFile)).toBe(true);
   });
 
-  it.skipIf(!hasPython)('the generated client is valid Python', () => {
+  afterAll(() => {
+    rmSync(workDir, { recursive: true, force: true });
+  });
+
+  it('the generated client is valid Python', () => {
     const result = spawnSync('python3', ['-m', 'py_compile', generatedFile], {
       encoding: 'utf-8',
     });
     expect(result.status, result.stderr).toBe(0);
   });
 
-  it.skipIf(!hasHttpx)(
-    'runs real HTTP against the mock server: hydration, bodies, ApiError',
-    async () => {
-      let serverProcess: ChildProcess | undefined;
-      try {
-        serverProcess = await startServer(
-          join(__dirname, 'base-consumer/server.ts'),
-          join(__dirname, 'base-consumer'),
-          { BASE_SERVER_PORT: String(SERVER_PORT) },
-          SERVER_BASE,
-          'python-smoke-server'
-        );
-        const result = spawnSync(
-          'python3',
-          [join(consumerDir, 'smoke.py'), generatedFile, SERVER_BASE],
-          { encoding: 'utf-8' }
-        );
-        expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
-        expect(result.stdout).toContain('PYTHON_SMOKE_OK');
-      } finally {
-        if (serverProcess) await killServer(serverProcess);
-      }
-    },
-    60_000
-  );
+  it('runs real HTTP against the mock server: hydration, bodies, ApiError', async () => {
+    let serverProcess: ChildProcess | undefined;
+    try {
+      serverProcess = await startServer(
+        'base',
+        { BASE_SERVER_PORT: String(SERVER_PORT) },
+        SERVER_BASE
+      );
+      const result = spawnSync('python3', [smokeScript, generatedFile, SERVER_BASE], {
+        encoding: 'utf-8',
+      });
+      expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+      expect(result.stdout).toContain('PYTHON_SMOKE_OK');
+    } finally {
+      if (serverProcess) await killServer(serverProcess);
+    }
+  }, 60_000);
 });
 
 describe('generate-client python generator, models: pydantic (end-to-end)', () => {
@@ -85,10 +75,7 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
       ].join('\n'),
       'utf-8'
     );
-    const result = spawnSync('node', [cliEntry, 'generate-client'], {
-      cwd: dir,
-      encoding: 'utf-8',
-    });
+    const result = runGenerateClient([], dir);
     expect(result.status, result.stderr).toBe(0);
     generated = join(dir, 'client.py');
   });
@@ -107,12 +94,12 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
     expect(source).toContain('def decode(');
   });
 
-  it.skipIf(!hasPython)('the generated client is valid Python', () => {
+  it('the generated client is valid Python', () => {
     const result = spawnSync('python3', ['-m', 'py_compile', generated], { encoding: 'utf-8' });
     expect(result.status, result.stderr).toBe(0);
   });
 
-  it.skipIf(!hasPydantic)('decodes wire names through aliases and encodes them back', () => {
+  it('decodes wire names through aliases and encodes them back', () => {
     // One round trip proves the three pieces of this mode: the alias, the runtime
     // dispatch to pydantic, and `by_alias` on the way out.
     const script = [
@@ -140,7 +127,7 @@ describe('generate-client python generator, models: pydantic (end-to-end)', () =
     expect(result.stdout).toContain('PYDANTIC_ROUND_TRIP_OK');
   });
 
-  it.skipIf(!hasPydantic)('resolves a discriminated union nested in a model, not by shape', () => {
+  it('resolves a discriminated union nested in a model, not by shape', () => {
     // Pydantic resolves a nested union itself, so the discriminator has to reach the
     // annotation: `MenuItem` lives inside `MenuItemList.items`, never at the top level.
     const item = [
@@ -195,7 +182,7 @@ describe('generate-client python generator, parameter names an SDK cannot take l
     expect(source).toContain('params["timeout"] = encode(timeout_2)');
   });
 
-  it.skipIf(!hasPython)('the generated client is valid Python', () => {
+  it('the generated client is valid Python', () => {
     const result = spawnSync('python3', ['-m', 'py_compile', join(dir, 'client.py')], {
       encoding: 'utf-8',
     });
@@ -244,7 +231,7 @@ describe('generate-client python generator, a paginated operation under a path p
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it.skipIf(!hasHttpx)('substitutes the path value into every page request', () => {
+  it('substitutes the path value into every page request', () => {
     // The iterator serves its own pages here: what matters is the URL it asks for, which
     // used to be the template itself (`/orders/{orderId}/items`) with the value dropped.
     const script = [

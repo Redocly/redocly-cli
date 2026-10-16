@@ -13,7 +13,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { generate, repoRoot, tscBin } from './helpers.js';
+import { expectTscPasses, generate, repoRoot } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // `zod` is hoisted to the repo root node_modules (a repo devDependency); map it
@@ -79,8 +79,7 @@ describe('generate-client zod generator', () => {
       'utf-8'
     );
 
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: repoRoot });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    expectTscPasses(['--noEmit', '-p', dir]);
 
     rmSync(dir, { recursive: true, force: true });
   }, 60_000);
@@ -258,8 +257,7 @@ describe('generate-client zod generator', () => {
       }),
       'utf-8'
     );
-    const tsc = spawnSync(tscBin, ['-p', dir], { encoding: 'utf-8', cwd: dir });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    expectTscPasses(['-p', dir], dir);
 
     const run = spawnSync('node', ['driver.js'], { cwd: dir, encoding: 'utf-8' });
     expect(run.status, run.stderr).toBe(0);

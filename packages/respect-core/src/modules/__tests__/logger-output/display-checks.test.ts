@@ -4,6 +4,10 @@ import type { VerboseLog } from '../../../types.js';
 import { displayChecks } from '../../logger-output/display-checks.js';
 
 describe('displayChecks', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
+  });
+
   describe('FormData body with repeated keys (list)', () => {
     it('formats FormData with multiple values for the same key as JSON array in request body output', () => {
       const formData = new FormData();

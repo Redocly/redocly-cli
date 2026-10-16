@@ -1,5 +1,7 @@
 import * as http from 'node:http';
 
+import { answerTestRoute, listen } from './support.js';
+
 // A hand-written SSE server. The generated client streams frames; we drop the
 // first connection mid-stream (to exercise auto-reconnect via Last-Event-ID) and
 // keep a long-lived stream open for the abort scenario. Each connection records
@@ -16,19 +18,11 @@ function writeFrame(res: http.ServerResponse, frame: string): void {
 }
 
 const server = http.createServer((req, res) => {
+  if (answerTestRoute(req, res, requestLog)) {
+    return;
+  }
   const url = req.url ?? '';
   const { pathname } = new URL(url, 'http://localhost');
-
-  if (pathname === '/__test__/ready') {
-    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' });
-    res.end('ready');
-    return;
-  }
-  if (pathname === '/__test__/log') {
-    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify(requestLog));
-    return;
-  }
 
   const lastEventId =
     typeof req.headers['last-event-id'] === 'string' ? req.headers['last-event-id'] : null;
@@ -79,15 +73,4 @@ const server = http.createServer((req, res) => {
   res.end('not found');
 });
 
-server.listen(PORT, () => {
-  process.stdout.write(`READY ${PORT}\n`);
-});
-
-const shutdown = (): void => {
-  server.close(() => {
-    process.exit(0);
-  });
-};
-
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+listen(server, PORT);

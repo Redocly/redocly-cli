@@ -3,6 +3,8 @@
 // forwarded bodies, and hit counts.
 import * as http from 'node:http';
 
+import { answerTestRoute, listen, readBody } from './support.js';
+
 const PORT = Number.parseInt(process.env.CLI_SERVER_PORT ?? '3108', 10);
 
 type LogEntry = { method: string; url: string; authorization?: string; body?: string };
@@ -13,18 +15,11 @@ const server = http.createServer(async (req, res) => {
   const url = req.url ?? '/';
   const { pathname, searchParams } = new URL(url, 'http://localhost');
 
-  if (pathname === '/__test__/ready') {
-    res.writeHead(200).end('ok');
-    return;
-  }
-  if (pathname === '/__test__/log') {
-    res.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify(requestLog));
+  if (answerTestRoute(req, res, requestLog)) {
     return;
   }
 
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) chunks.push(chunk as Buffer);
-  const body = chunks.length > 0 ? Buffer.concat(chunks).toString('utf-8') : undefined;
+  const body = (await readBody(req))?.toString('utf-8');
   requestLog.push({
     method,
     url,
@@ -63,6 +58,4 @@ const server = http.createServer(async (req, res) => {
   json(404, { message: 'not found' });
 });
 
-server.listen(PORT, () => {
-  process.stdout.write(`cli e2e server on :${PORT}\n`);
-});
+listen(server, PORT);

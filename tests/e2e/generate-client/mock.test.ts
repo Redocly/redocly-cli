@@ -6,13 +6,20 @@
  * (an unmocked call would throw). The static response is deterministic (from the
  * sampler), so we assert exact field values.
  */
-import { spawnSync } from 'node:child_process';
+
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { generateInto, repoRoot, runConsumer, tscBin } from './helpers.js';
+import {
+  expectTscPasses,
+  generateInto,
+  linkNodeModules,
+  repoRoot,
+  runConsumer,
+} from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -25,10 +32,8 @@ const dateFixture = join(__dirname, 'fixtures/transformers.yaml');
 describe('mock generator — generated client through MSW', () => {
   let dir = '';
   beforeAll(() => {
-    // The consumer imports `msw` (a hoisted repo dep). Node ESM resolves modules
-    // relative to the importing file, so the temp dir must live inside the repo
-    // tree to walk up to the root node_modules — `os.tmpdir()` would not resolve it.
-    dir = mkdtempSync(join(__dirname, 'mock-consumer-'));
+    dir = mkdtempSync(join(tmpdir(), 'mock-consumer-'));
+    linkNodeModules(dir);
     generateInto(dir, fixture, ['--generator', 'typescript', '--generator', 'mock']);
   }, 60_000);
   afterAll(() => {
@@ -68,15 +73,10 @@ describe('mock generator — generated client through MSW', () => {
   test('the generated client + mocks type-check together under strict mode', () => {
     expect(existsSync(join(dir, 'client.mocks.ts')), 'generation must run first').toBe(true);
 
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
-        // The temp dir lives inside the repo tree (so `msw` resolves), which puts the
-        // repo's own tsconfig.json on the upward search path; ignore it and type-check
-        // purely from these flags.
-        '--ignoreConfig',
         '--target',
         'ES2020',
         '--module',
@@ -88,16 +88,16 @@ describe('mock generator — generated client through MSW', () => {
         join(dir, 'client.ts'),
         join(dir, 'client.mocks.ts'),
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
-    expect(tsc.status, `tsc errors:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
   }, 90_000);
 });
 
 describe('mock generator — mock + transformers + --date-type Date compile together', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(__dirname, 'mock-date-'));
+    dir = mkdtempSync(join(tmpdir(), 'mock-date-'));
+    linkNodeModules(dir);
     // transformers REQUIRES --date-type Date; the sdk then types date fields `Date`,
     // so the mock sampler must bake `new Date(...)` to type-check (BUG 1 regression).
     generateInto(dir, dateFixture, [
@@ -118,12 +118,10 @@ describe('mock generator — mock + transformers + --date-type Date compile toge
   test('strict-tsc-checks client + mocks + transformers together with 0 errors', () => {
     expect(existsSync(join(dir, 'client.mocks.ts')), 'generation must run first').toBe(true);
 
-    const tsc = spawnSync(
-      tscBin,
+    expectTscPasses(
       [
         '--noEmit',
         '--strict',
-        '--ignoreConfig',
         '--target',
         'ES2020',
         '--module',
@@ -136,16 +134,16 @@ describe('mock generator — mock + transformers + --date-type Date compile toge
         join(dir, 'client.mocks.ts'),
         join(dir, 'client.transformers.ts'),
       ],
-      { encoding: 'utf-8', cwd: dir }
+      dir
     );
-    expect(tsc.status, `tsc errors:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
   }, 90_000);
 });
 
 describe('mock generator — faker mode strict-tsc-checks against real @faker-js/faker', () => {
   let dir = '';
   beforeAll(() => {
-    dir = mkdtempSync(join(__dirname, 'mock-faker-'));
+    dir = mkdtempSync(join(tmpdir(), 'mock-faker-'));
+    linkNodeModules(dir);
     generateInto(dir, fixture, [
       '--generator',
       'typescript',
@@ -171,7 +169,7 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
   test('the faker-mode client + mocks strict-tsc-check against real faker with 0 errors', () => {
     expect(existsSync(join(dir, 'client.mocks.ts')), 'generation must run first').toBe(true);
 
-    // A real-tsconfig run (not `--ignoreConfig`) so `paths` maps `@faker-js/faker` to the
+    // A tsconfig whose `paths` maps `@faker-js/faker` to the
     // hoisted package — type-checking the emitted faker calls against faker's real v9 API.
     writeFileSync(
       join(dir, 'tsconfig.json'),
@@ -195,7 +193,6 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
       'utf-8'
     );
 
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', dir], { encoding: 'utf-8', cwd: dir });
-    expect(tsc.status, `tsc errors:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
-  }, 90_000);
+    expectTscPasses(['--noEmit', '-p', dir], dir);
+  });
 });

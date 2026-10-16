@@ -1,20 +1,19 @@
-import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, repoRoot, tscBin } from './helpers.js';
+import { copyConsumer, expectTscPasses, generate } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// The consumer dir holds the strict tsconfig and the `check*.ts` files that compose the
+// A temp copy of the consumer dir: its strict tsconfig and the `check*.ts` files compose the
 // generated factories with TanStack's real hooks; the generated modules land next to them.
-const consumerDir = join(__dirname, 'tanstack-typecheck-consumer');
-const GENERATED = ['client.ts', 'client.tanstack.ts', 'pagination.ts', 'pagination.tanstack.ts'];
+let consumerDir = '';
 const TANSTACK_ARGS = ['--generator', 'typescript', '--generator', 'tanstack-query'];
 
 describe('generate-client tanstack-query generator', () => {
   beforeAll(() => {
+    consumerDir = copyConsumer('tanstack-typecheck-consumer');
     generate(
       join(__dirname, 'fixtures', 'base.yaml'),
       join(consumerDir, 'client.ts'),
@@ -28,7 +27,7 @@ describe('generate-client tanstack-query generator', () => {
   }, 60_000);
 
   afterAll(() => {
-    for (const file of GENERATED) rmSync(join(consumerDir, file), { force: true });
+    rmSync(consumerDir, { recursive: true, force: true });
   });
 
   it('emits a *.tanstack.ts module with query and mutation factories beside the sdk', () => {
@@ -56,11 +55,7 @@ describe('generate-client tanstack-query generator', () => {
   it('strict-tsc-checks the emitted modules against real @tanstack/react-query and composes them with the sdk', () => {
     // `check.ts` uses useQuery/useMutation, `check-pagination.ts` useInfiniteQuery: the
     // emitted factories type-check against the actual adapter surface, not in isolation.
-    const tsc = spawnSync(tscBin, ['--noEmit', '-p', consumerDir], {
-      encoding: 'utf-8',
-      cwd: repoRoot,
-    });
-    expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    expectTscPasses(['--noEmit', '-p', consumerDir]);
   }, 60_000);
 
   it('the tanstack-query-vue variant swaps only the import specifier to @tanstack/vue-query', () => {

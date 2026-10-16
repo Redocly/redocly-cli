@@ -7,40 +7,40 @@ import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
 
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
+vi.mock('node:process', async () => {
+  const actual = await vi.importActual('node:process');
+  return {
+    ...actual,
+  };
+});
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return {
+    ...actual,
+    writeFileSync: vi.fn(),
+  };
+});
+vi.mock('../../../utils/miscellaneous.js', async () => {
+  const actual = await vi.importActual('../../../utils/miscellaneous.js');
+  return {
+    ...actual,
+    writeToFileByExtension: vi.fn(),
+  };
+});
+
 describe('split', () => {
   const openapiDir = 'output/split-test';
 
   beforeEach(() => {
-    vi.mock('node:path', async () => {
-      const actual = await vi.importActual('node:path');
-      return { ...actual };
-    });
-    vi.mock('node:process', async () => {
-      const actual = await vi.importActual('node:process');
-      return {
-        ...actual,
-      };
-    });
-    vi.mock('node:fs', async () => {
-      const actual = await vi.importActual('node:fs');
-      return {
-        ...actual,
-        writeFileSync: vi.fn(),
-      };
-    });
-    vi.mock('../../../utils/miscellaneous.js', async () => {
-      const actual = await vi.importActual('../../../utils/miscellaneous.js');
-      return {
-        ...actual,
-        writeToFileByExtension: vi.fn(),
-      };
-    });
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
   });
 
   it('should split the file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
-
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await handleSplit({
       argv: {
@@ -65,8 +65,6 @@ describe('split', () => {
   it('aborts instead of writing a component file outside the output directory', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/path-traversal.json';
 
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-
     await expect(
       handleSplit({
         argv: {
@@ -84,8 +82,6 @@ describe('split', () => {
 
   it('aborts instead of writing a path file outside the output directory', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/path-traversal-paths.json';
-
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await expect(
       handleSplit({
@@ -238,8 +234,6 @@ describe('split', () => {
   it('should split an AsyncAPI 2 file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi2.json';
 
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-
     await handleSplit({
       argv: {
         api: filePath,
@@ -262,8 +256,6 @@ describe('split', () => {
 
   it('should split an AsyncAPI 3 file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/asyncapi3.json';
-
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
 
     await handleSplit({
       argv: {

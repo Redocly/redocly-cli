@@ -2,12 +2,12 @@
 // shared defaults) and per-API `apis.<name>.client` / `clientOutput`. Invocation modes:
 // fan-out (no arg, over apis with a `client` block) and an `apis:` alias or file path,
 // resolved like `bundle`/`lint`. CLI flags override the config.
-import { spawnSync } from 'node:child_process';
+
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { cliEntry, repoRoot } from './helpers.js';
+import { runGenerateClient } from './helpers.js';
 
 // The smallest spec these tests need: `listOrders` fits the cursor convention
 // (an `after` query param + `/page/endCursor` + `/items` pointers), `getRevenue`
@@ -67,8 +67,7 @@ function project(redoclyYaml: string): string {
   writeFileSync(join(dir, 'redocly.yaml'), redoclyYaml, 'utf-8');
   return dir;
 }
-const run = (dir: string, args: string[] = []) =>
-  spawnSync('node', [cliEntry, 'generate-client', ...args], { cwd: dir, encoding: 'utf-8' });
+const run = (dir: string, args: string[] = []) => runGenerateClient(args, dir);
 
 describe('generate-client redocly.yaml config', () => {
   it('fan-out (no arg) builds every api with a `client` block or `clientOutput`', () => {
@@ -489,11 +488,7 @@ describe('generate-client redocly.yaml config', () => {
       ].join('\n') + '\n'
     );
     // Run from the repo root, pointing at the config elsewhere via --config.
-    const res = spawnSync(
-      'node',
-      [cliEntry, 'generate-client', '--config', join(dir, 'redocly.yaml')],
-      { cwd: repoRoot, encoding: 'utf-8' }
-    );
+    const res = runGenerateClient(['--config', join(dir, 'redocly.yaml')]);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });

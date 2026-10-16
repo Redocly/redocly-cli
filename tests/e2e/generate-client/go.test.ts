@@ -1,44 +1,48 @@
-import { spawnSync, type ChildProcess } from 'node:child_process';
+import { type ChildProcess, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { generate, killServer, startServer } from './helpers.js';
+import { copyConsumer, generate, killServer, startServer } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const consumerDir = join(__dirname, 'go-consumer');
-const generatedFile = join(consumerDir, 'client/client.go');
+let workDir = '';
+let generatedFile = '';
 
 const SERVER_PORT = 3107;
 const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
-const hasGo = spawnSync('go', ['version']).status === 0;
-
 describe('generate-client go generator (end-to-end)', () => {
-  afterAll(() => {
-    rmSync(join(consumerDir, 'client'), { recursive: true, force: true });
-    rmSync(join(consumerDir, 'smoke'), { force: true });
-    rmSync(join(consumerDir, 'renamed-package'), { recursive: true, force: true });
-  });
-
-  it('generates a self-contained client.go from the CLI', () => {
-    generate(fixture, join(consumerDir, 'client/client.ts'), ['--generator', 'go']);
+  beforeAll(() => {
+    workDir = copyConsumer('go-consumer');
+    generatedFile = join(workDir, 'client/client.go');
+    generate(fixture, join(workDir, 'client/client.ts'), ['--generator', 'go']);
     expect(existsSync(generatedFile)).toBe(true);
   });
 
+  afterAll(() => {
+    rmSync(workDir, { recursive: true, force: true });
+  });
+
+  it('the generated client is gofmt-clean', () => {
+    const result = spawnSync('gofmt', ['-l', generatedFile], { encoding: 'utf-8' });
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout, 'files gofmt would change').toBe('');
+  });
+
   it('--go-package sets the package clause', () => {
-    const target = join(consumerDir, 'renamed-package');
+    const target = join(workDir, 'renamed-package');
     generate(fixture, join(target, 'client.ts'), ['--generator', 'go', '--go-package', 'rebilly']);
     expect(readFileSync(join(target, 'client.go'), 'utf-8')).toContain('\npackage rebilly\n');
   });
 
-  it.skipIf(!hasGo)(
+  it(
     'the generated client compiles (go build)',
     () => {
       const result = spawnSync('go', ['build', '-o', 'smoke', '.'], {
-        cwd: consumerDir,
+        cwd: workDir,
         encoding: 'utf-8',
       });
       expect(result.status, result.stderr).toBe(0);
@@ -48,29 +52,23 @@ describe('generate-client go generator (end-to-end)', () => {
     180_000
   );
 
-  it.skipIf(!hasGo)(
-    'the compiled smoke runs real HTTP: hydration, bodies, APIError',
-    async () => {
-      let serverProcess: ChildProcess | undefined;
-      try {
-        serverProcess = await startServer(
-          join(__dirname, 'base-consumer/server.ts'),
-          join(__dirname, 'base-consumer'),
-          { BASE_SERVER_PORT: String(SERVER_PORT) },
-          SERVER_BASE,
-          'go-smoke-server'
-        );
-        const result = spawnSync(join(consumerDir, 'smoke'), [SERVER_BASE], {
-          encoding: 'utf-8',
-        });
-        expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
-        expect(result.stdout).toContain('GO_SMOKE_OK');
-      } finally {
-        if (serverProcess) await killServer(serverProcess);
-      }
-    },
-    60_000
-  );
+  it('the compiled smoke runs real HTTP: hydration, bodies, APIError', async () => {
+    let serverProcess: ChildProcess | undefined;
+    try {
+      serverProcess = await startServer(
+        'base',
+        { BASE_SERVER_PORT: String(SERVER_PORT) },
+        SERVER_BASE
+      );
+      const result = spawnSync(join(workDir, 'smoke'), [SERVER_BASE], {
+        encoding: 'utf-8',
+      });
+      expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+      expect(result.stdout).toContain('GO_SMOKE_OK');
+    } finally {
+      if (serverProcess) await killServer(serverProcess);
+    }
+  }, 60_000);
 });
 
 describe('generate-client go generator, parameter names an SDK cannot take literally', () => {
@@ -98,13 +96,9 @@ describe('generate-client go generator, parameter names an SDK cannot take liter
     );
   });
 
-  it.skipIf(!hasGo)(
-    'the generated client compiles (go build)',
-    () => {
-      writeFileSync(join(dir, 'go.mod'), 'module repeatedparams\n\ngo 1.21\n', 'utf-8');
-      const result = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
-      expect(result.status, result.stderr).toBe(0);
-    },
-    180_000
-  );
+  it('the generated client compiles (go build)', () => {
+    writeFileSync(join(dir, 'go.mod'), 'module repeatedparams\n\ngo 1.21\n', 'utf-8');
+    const result = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
+    expect(result.status, result.stderr).toBe(0);
+  }, 180_000);
 });
