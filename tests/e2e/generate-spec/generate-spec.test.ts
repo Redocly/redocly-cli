@@ -87,6 +87,20 @@ describe('generate-spec - deterministic inference', () => {
     expect(output).toContain('title: Custom Users API');
   });
 
+  test('generates OpenAPI 3.1 with --openapi-version and skips the QUERY method', () => {
+    const { output, code } = runGenerateSpec(['traffic-query.ndjson', '--openapi-version', '3.1']);
+    expect(code).toBe(0);
+    expect(output).toContain('openapi: 3.1.0');
+    expect(output).toContain('operationId: get-users-userId');
+    expect(output).not.toContain('query:');
+    expect(output).not.toContain('http://search.example.com');
+
+    const latest = runGenerateSpec(['traffic-query.ndjson']);
+    expect(latest.output).toContain('openapi: 3.2.0');
+    expect(latest.output).toContain('operationId: query-users');
+    expect(latest.output).toContain('http://search.example.com');
+  });
+
   test('writes the description to a file with --output', () => {
     const outputDir = mkdtempSync(join(tmpdir(), 'generate-spec-'));
     const outputFile = join(outputDir, 'nested', 'openapi.yaml');
@@ -113,6 +127,16 @@ describe('generate-spec - error handling', () => {
     ]);
     expect(code).toBe(1);
     expect(output).toContain('No HTTP exchanges in the traffic matched the server');
+  });
+
+  test('fails when --openapi-version 3.1 skips every QUERY exchange', () => {
+    const { output, code } = runGenerateSpec([
+      'traffic-query-only.ndjson',
+      '--openapi-version',
+      '3.1',
+    ]);
+    expect(code).toBe(1);
+    expect(output).toContain('All observed HTTP exchanges use the QUERY method');
   });
 
   test('fails when the traffic path does not exist', () => {
