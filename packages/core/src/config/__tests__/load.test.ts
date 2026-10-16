@@ -2693,7 +2693,7 @@ describe('createConfig', () => {
         info-license: off
     `);
 
-    verifyExtendedConfig(config, {
+    expectExtendedConfig(config, {
       extendsRuleSet: 'recommended',
       overridesRules: { 'info-license': 'off' },
     });
@@ -2710,7 +2710,7 @@ describe('createConfig', () => {
     };
     const config = await createConfig(rawConfig);
 
-    verifyExtendedConfig(config, {
+    expectExtendedConfig(config, {
       extendsRuleSet: 'minimal',
       overridesRules: rawConfig.rules as Record<string, RuleConfig>,
     });
@@ -2794,7 +2794,7 @@ describe('createConfig', () => {
   });
 });
 
-function verifyExtendedConfig(
+function expectExtendedConfig(
   config: Config,
   {
     extendsRuleSet,
