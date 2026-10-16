@@ -70,7 +70,9 @@
         "eslint/no-control-regex": "allow",
 
         "vitest/hoisted-apis-on-top": "error",
+        "vitest/no-commented-out-tests": "error",
         "vitest/no-conditional-tests": "error",
+        "vitest/no-disabled-tests": "error",
         "vitest/no-focused-tests": "error",
         "vitest/valid-describe-callback": "error",
         "vitest/valid-expect": ["error", { "maxArgs": 2 }]
