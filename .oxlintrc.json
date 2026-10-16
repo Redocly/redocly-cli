@@ -83,6 +83,7 @@
         "vitest/no-standalone-expect": "error",
         "vitest/no-test-return-statement": "error",
         "vitest/prefer-hooks-on-top": "error",
+        "vitest/prefer-to-have-length": "error",
         "vitest/require-to-throw-message": "error",
         "vitest/valid-describe-callback": "error",
         "vitest/valid-expect": ["error", { "maxArgs": 2 }],
@@ -93,6 +94,7 @@
       "files": ["packages/recheck/**"],
       "plugins": ["vitest"],
       "rules": {
+        "vitest/prefer-to-have-length": "off",
         "vitest/require-to-throw-message": "off"
       }
     },

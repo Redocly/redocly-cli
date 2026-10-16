@@ -248,7 +248,7 @@ describe('normalizeSwagger2 — operations', () => {
       required: true,
       content: { 'application/json': { schema: { $ref: '#/components/schemas/Pet' } } },
     });
-    expect((post.parameters as unknown[]).length).toBe(0);
+    expect(post.parameters as unknown[]).toHaveLength(0);
   });
 
   it('aggregates in:formData params into a urlencoded object requestBody', () => {

@@ -129,7 +129,7 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(JSON.parse(stdout).orders).toHaveLength(1);
     const entries = await serverLog();
     const hit = entries[entries.length - 1];
-    expect(entries.length).toBe(before + 1);
+    expect(entries).toHaveLength(before + 1);
     expect(hit.url).toContain('status=open');
     expect(hit.url).toContain('limit=2');
     expect(hit.authorization).toBe('Bearer e2e-token');
@@ -158,7 +158,7 @@ describe('generate-client cli generator (end-to-end)', () => {
     ]);
     expect(code).toBe(3);
     expect(JSON.parse(stderr).error.code).toBe(3);
-    expect((await serverLog()).length).toBe(before);
+    expect(await serverLog()).toHaveLength(before);
   });
 
   it('--dry-run prints the prepared request and sends nothing; the token is redacted', async () => {
@@ -171,7 +171,7 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(captured.url).toContain('/orders/ord_1');
     expect(captured.method).toBe('GET');
     expect(JSON.stringify(captured)).not.toContain('secret-token');
-    expect((await serverLog()).length).toBe(before);
+    expect(await serverLog()).toHaveLength(before);
   });
 
   it('--page-all follows the cursor and prints one JSON page per line', () => {

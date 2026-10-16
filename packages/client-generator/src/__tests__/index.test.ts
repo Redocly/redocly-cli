@@ -93,7 +93,7 @@ describe('collectGeneratedFiles', () => {
       emit: {},
       generators: ['typescript'],
     });
-    expect(files.length).toBe(1);
+    expect(files).toHaveLength(1);
     expect(files[0].path).toBe('/out/api.ts');
   });
 

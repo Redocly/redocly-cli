@@ -335,7 +335,7 @@ describe('resolveConfig', () => {
 
     expect(resolvedConfig?.rules?.['operation-4xx-response']).toEqual('error');
     expect(resolvedConfig?.rules?.['operation-2xx-response']).toEqual('error');
-    expect(Object.keys(resolvedConfig.rules || {}).length).toBe(2);
+    expect(Object.keys(resolvedConfig.rules || {})).toHaveLength(2);
   });
   it('should resolve `recommended-strict` ruleset correctly', async () => {
     const expectedStrict = JSON.parse(JSON.stringify(recommended)) as Omit<
@@ -416,7 +416,7 @@ describe('resolveConfig', () => {
       plugins,
     } = await resolveConfig({ rawConfigDocument: makeDocument(rawConfig, configPath) });
     expect(apis['petstore'].rules).toBeDefined();
-    expect(Object.keys(apis['petstore'].rules || {}).length).toEqual(7);
+    expect(Object.keys(apis['petstore'].rules || {})).toHaveLength(7);
     expect(apis['petstore'].rules?.['operation-2xx-response']).toEqual('off');
     expect(apis['petstore'].rules?.['operation-4xx-response']).toEqual('error');
     expect(apis['petstore'].rules?.['operation-description']).toEqual('error'); // from extends file config

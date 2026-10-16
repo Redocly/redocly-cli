@@ -402,7 +402,7 @@ describe('goGenerator (full client assembly)', () => {
     expect(out).toContain('var operations = map[string]operationMeta{');
     expect(out).toMatch(/"listOrders":\s+\{/);
     expect(out).toContain('func send(ctx context.Context'); // embedded runtime
-    expect((out.match(/^package client$/gm) ?? []).length).toBe(1);
+    expect(out.match(/^package client$/gm) ?? []).toHaveLength(1);
     expectGoCompiles(out);
   });
 });
