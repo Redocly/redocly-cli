@@ -17,6 +17,10 @@ operation, and the runtime — embedded in the file (`runtime: inline`, the defa
 written as real modules in a `runtime/` folder beside it that the client imports
 relatively (`runtime: module`).
 
+With `client.telemetry: on`, it also writes `<stem>.telemetry.ts`: the usage telemetry
+middleware. The module exports `telemetry()` and `flush()`, and the application registers
+it with `use(telemetry({ sdkName, sdkVersion, client }))`.
+
 ## Design decisions that must hold
 
 - **Descriptor-driven:** generated code is DATA (`OPERATIONS` + `Ops`) plus wiring;
@@ -61,6 +65,18 @@ relatively (`runtime: module`).
   derives, boundary included), `send()` sets the operation's declared content type only
   when the caller set none, the same rule the JSON branch already follows. A forwarded
   multipart boundary therefore survives, and a binary upload is never sent untyped.
+- **`onSettled` sees every sent call once.** `send()` calls it after the last attempt
+  with the final response, the error, or both, the attempt count, and the duration from
+  the first attempt to the end of the `onResponse` hooks on the final response. A call
+  that fails in `onRequest` or in body serialization does not reach it. A call whose
+  signal is already aborted reaches it with 0 attempts.
+  Every hook runs. The first hook error rejects a successful call; on a failed call, the
+  original error wins.
+- **Telemetry is opt-in at generation time.** Without `telemetry: on`, the output holds
+  no telemetry code, and the client file does not change. An event holds only the
+  operation id, the counts, the window, and the SDK identity. The kill switches and a
+  browser turn the middleware off. The module embeds on its own, not in
+  `RUNTIME_SOURCES`, so `telemetry` and `flush` never become reserved names of a client.
 - **Throw mode returns the body**; `{ envelope: true }` opts into
   `{ data, headers, response }` with typed declared headers. Result mode returns
   `{ data, error, response }` and ignores `envelope`.
@@ -82,6 +98,9 @@ inside the package and reach the generator through
 `@redocly/client-generator/runtime-sources` (in this repo they live in `runtime/` beside
 these files). Naming and string escaping live in the TypeScript printer
 (`@redocly/client-generator/printers/typescript`).
+The telemetry middleware ships the same way, as `TELEMETRY_RUNTIME_SOURCE` (in this repo
+it lives in `telemetry/`); `index.ts` writes it with the contract import pointed at the
+client entry and the generator version baked in.
 
 ## Ejecting it
 

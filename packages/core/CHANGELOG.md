@@ -1,5 +1,22 @@
 # @redocly/openapi-core
 
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+
+## 2.64.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated `@redocly/config` to v0.66.0.
+
 ## 2.63.0
 
 ## 2.62.2

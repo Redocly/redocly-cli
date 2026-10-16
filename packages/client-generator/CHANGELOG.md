@@ -1,5 +1,22 @@
 # @redocly/client-generator
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 0.7.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.0.
+
 ## 0.6.0
 
 ### Minor Changes

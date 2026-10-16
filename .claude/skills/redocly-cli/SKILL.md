@@ -176,6 +176,7 @@ apis:
 ```
 
 With `apis.<name>.clientOutput` set, a bare `redocly generate-client` generates every opted-in API.
+`client.telemetry: on` (config-only) makes the `typescript` generator also write `<output>.telemetry.ts`: register `use(telemetry({ sdkName, sdkVersion, client }))` to count calls per operation and send the counts once a minute (no request data; `REDOCLY_SDK_TELEMETRY=off` or `DO_NOT_TRACK=1` turns sending off).
 An API's own `client` block replaces the top-level one wholesale — repeat the shared fields in it.
 With `client.codeSamples: true`, it also writes `<output>.code-samples.yaml`, an overlay that adds `x-codeSamples`; add it to the API's `overlays` (or pass `--overlay`) so `bundle` puts the samples in the description.
 
