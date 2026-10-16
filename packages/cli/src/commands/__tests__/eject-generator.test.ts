@@ -248,7 +248,7 @@ describe('eject telemetry (coarse categories only)', () => {
           ...baseArgs,
           argv: { generator: 'php', dir: join(blocked, 'generators') },
         } as CommandArgs<never>)
-      ).rejects.toThrow();
+      ).rejects.toThrow('ENOTDIR');
       expect(ejectGeneratorTelemetry).toEqual({
         eject_generator_action: 'eject',
         eject_generator_name: 'php',

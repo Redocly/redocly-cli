@@ -1,4 +1,5 @@
 import { logger } from '@redocly/openapi-core';
+import { blue } from 'colorette';
 
 import { type ResponseContext, type Workflow, type TestContext } from '../../../../types.js';
 import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
@@ -142,7 +143,7 @@ describe('runWorkflow', () => {
     } as unknown as TestContext;
     await expect(
       runWorkflow({ workflowInput: 'test', ctx, executedStepsCount: { value: 0 } })
-    ).rejects.toThrowError();
+    ).rejects.toThrow(`${blue('Workflow')} test ${blue('not found')}`);
     expect(apiClient.fetchResult).not.toBeCalled();
   });
 
