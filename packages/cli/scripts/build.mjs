@@ -99,6 +99,13 @@ cpSync(
   { recursive: true }
 );
 
+for (const skill of ['redocly-cli', 'redocly-lint-rules', 'recheck-lint', 'recheck-config']) {
+  cpSync(
+    path.join(packageDir, '..', '..', '.claude', 'skills', skill, 'SKILL.md'),
+    path.join(packageDir, 'lib', 'skills', skill, 'SKILL.md')
+  );
+}
+
 // `dictionary-en` reads its Hunspell data with `new URL(..., import.meta.url)`,
 // so the two data files must sit next to the chunk esbuild bundled it into.
 const dictionaryEntry = 'node_modules/dictionary-en/index.js';
