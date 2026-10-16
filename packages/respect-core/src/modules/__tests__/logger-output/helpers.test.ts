@@ -45,7 +45,7 @@ describe('cliOutputs', () => {
       mockLogger.mockRestore();
     });
 
-    it('should print a separator', () => {
+    it('should print a separator without a workflow name', () => {
       const mockLogger = vi.spyOn(logger, 'output').mockImplementation(() => {});
       printWorkflowSeparator({ fileName: 'file', workflowName: undefined, logger });
       expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('Running workflow'));

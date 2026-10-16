@@ -237,7 +237,7 @@ describe('spec-discriminator-defaultMapping', () => {
     expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
-  it('should pass when required propertyName does not need defaultMapping (when the required property is in the descendant schema)', async () => {
+  it('should pass when required propertyName does not need defaultMapping (when the required property comes from an allOf schema)', async () => {
     const document = parseYamlToDocument(
       outdent`
         openapi: 3.2.0

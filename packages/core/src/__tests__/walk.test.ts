@@ -1376,7 +1376,7 @@ describe('walk order', () => {
     `);
   });
 
-  it('should correctly visit refs', async () => {
+  it('should correctly visit named schemas', async () => {
     const calls: string[] = [];
 
     const testRuleSet: Oas3RuleSet = {
@@ -1645,7 +1645,7 @@ describe('context.report', () => {
     `);
   });
 
-  it('should report errors correctly', async () => {
+  it('should report errors correctly in external refs', async () => {
     const testRuleSet: Oas3RuleSet = {
       test: vi.fn(() => {
         return {
