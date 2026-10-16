@@ -92,7 +92,9 @@ describe('handleLoginAndFetchToken', () => {
     mockOAuthClient.getAccessToken.mockResolvedValue(null);
     mockOAuthClient.login.mockRejectedValue(loginError);
 
-    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow();
+    await expect(handleLoginAndFetchToken(mockConfig, version, true)).rejects.toThrow(
+      'Login failed. Please try again or check your connection'
+    );
 
     expect(logger.error).toHaveBeenCalledWith('❌ Login failed.\n');
     expect(logger.error).toHaveBeenCalledWith('Error details: Network error\n');
