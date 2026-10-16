@@ -61,7 +61,7 @@ describe('pathToFilename', () => {
   });
 });
 
-describe('getFallbackApisOrExit', async () => {
+describe('getFallbackApisOrExit', () => {
   const redColoretteMocks = vi.mocked(red);
   const yellowColoretteMocks = vi.mocked(yellow);
 
@@ -71,7 +71,11 @@ describe('getFallbackApisOrExit', async () => {
     },
   };
 
-  const config = await openapiCore.createConfig({ apis });
+  let config: Config;
+
+  beforeAll(async () => {
+    config = await openapiCore.createConfig({ apis });
+  });
 
   beforeEach(() => {
     yellowColoretteMocks.mockImplementation((text) => text as string);

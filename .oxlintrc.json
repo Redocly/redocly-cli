@@ -72,6 +72,7 @@
         "vitest/hoisted-apis-on-top": "error",
         "vitest/no-conditional-tests": "error",
         "vitest/no-focused-tests": "error",
+        "vitest/valid-describe-callback": "error",
         "vitest/valid-expect": ["error", { "maxArgs": 2 }]
       }
     },
