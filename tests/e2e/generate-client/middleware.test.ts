@@ -2,7 +2,8 @@
  * Behavioral e2e for composable middleware/interceptors. Like `extension.test.ts`, we
  * inject a fake `fetch` and exercise the generated runtime in a real consumer, proving
  * that `use()` registers middleware, `onRequest` runs in order, `onResponse` runs in
- * reverse (onion), `onError` chains, and configured middleware precedes `use()`.
+ * reverse (onion), `onError` chains, `onSettled` sees the final outcome once per call,
+ * and configured middleware precedes `use()`.
  */
 import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -10,7 +11,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { generateInto, runConsumer } from './helpers.js';
+import { generateInto, runConsumer, strictTypecheck } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
@@ -79,6 +80,40 @@ describe('middleware — flat surface (use)', () => {
 
     expect(result.threw).toBe(true);
     expect(result.message).toBe('second:first:500');
+  }, 60_000);
+
+  test('onSettled runs once per call with the final outcome, network errors included', () => {
+    const result = runConsumer(
+      dir,
+      outdent`
+        import { configure, use, listPets } from './client.js';
+
+        const lines: string[] = [];
+        let attempt = 0;
+        configure({
+          retry: { retries: 1, retryDelay: 1, jitter: false },
+          fetch: (async () => {
+            attempt++;
+            if (attempt === 1) throw new TypeError('fetch failed');
+            if (attempt === 3) throw new TypeError('fetch failed');
+            return ${OK};
+          }) as unknown as typeof fetch,
+        });
+        use({
+          onSettled: (ctx, call) => {
+            const outcome = call.response ? call.response.status : 'failed';
+            lines.push(ctx.operation.id + ' ' + outcome + ' ' + call.attempts);
+          },
+        });
+        await listPets();
+        configure({ retry: { retries: 0 } });
+        await listPets().catch(() => undefined);
+        console.log(JSON.stringify({ lines }));
+      `
+    ) as { lines: string[] };
+
+    expect(result.lines).toEqual(['listPets 200 2', 'listPets failed 1']);
+    strictTypecheck(dir, ['client.ts', 'consumer.ts']);
   }, 60_000);
 
   test('use() does not mutate a caller-provided middleware array (no cross-client leak)', () => {

@@ -11,9 +11,9 @@ import { fileURLToPath } from 'node:url';
 const pkgRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = join(pkgRoot, '..', '..');
 const tsc = join(repoRoot, 'node_modules/.bin/tsc');
-const examplesDir = join(repoRoot, 'tests/e2e/generate-client/examples');
+const examplesDir = join(pkgRoot, 'examples');
 const examples = readdirSync(examplesDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
+  .filter((entry) => entry.isDirectory() && entry.name !== '_shared')
   .map((entry) => entry.name)
   .sort();
 

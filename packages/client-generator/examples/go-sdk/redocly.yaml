@@ -1,0 +1,8 @@
+# redocly.yaml — drives `redocly generate-client` for this example.
+apis:
+  go-sdk:
+    root: ../_shared/cafe.yaml
+    clientOutput: ./src/api/client.ts
+    client:
+      generators:
+        - go

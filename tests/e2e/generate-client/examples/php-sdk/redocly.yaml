@@ -1,8 +1,0 @@
-# redocly.yaml — drives `redocly generate-client` for this example.
-apis:
-  php-sdk:
-    root: ../../fixtures/cafe.yaml
-    clientOutput: ./src/api/client.ts
-    client:
-      generators:
-        - php

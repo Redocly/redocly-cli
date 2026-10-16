@@ -1,12 +1,10 @@
 import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
 import { repoRoot, runGenerateClient } from './helpers.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const examplesDir = join(__dirname, 'examples');
+const examplesDir = join(repoRoot, 'packages/client-generator/examples');
 
 // The one example whose generated client stays committed (its README sells the single
 // self-contained file). CI regenerates and type-checks the others.
