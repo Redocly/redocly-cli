@@ -1,8 +1,9 @@
 # Auto-pagination iterators for generated Python clients — the TypeScript
 # runtime's paginate.ts semantics ported: cursor (next-cursor pointer, optional
 # has-more flag, repeated-cursor guard), offset/page (advance by count/one,
-# repeated-page guard, null start treated as absent), and link (RFC 8288
-# `Link: rel="next"` following with relative resolution and a loop guard).
+# repeated-page guard, null start treated as absent), link (RFC 8288
+# `Link: rel="next"` following) and body-link (the next-link pointer's URL), both
+# with relative resolution and a loop guard.
 from __future__ import annotations
 
 import re
@@ -57,8 +58,8 @@ def iter_pages(call: PageCall, spec: Dict[str, Any], params: Optional[Dict[str, 
             if nxt == cursor:
                 raise ValueError("Pagination did not advance: the operation returned the same cursor twice")
             cursor = nxt
-    elif style == "link":
-        yield from _iter_pages_by_link(call, base)
+    elif style in ("link", "body-link"):
+        yield from _iter_pages_by_link(call, spec, base)
     else:  # offset / page
         start = base.get(spec["param"])
         fallback = 1 if style == "page" else 0
@@ -93,13 +94,27 @@ def _link_next(header: Optional[str]) -> Optional[str]:
     return None
 
 
-def _iter_pages_by_link(call: PageCall, base: Dict[str, Any]) -> Iterator[Any]:
+def _next_link(spec: Dict[str, Any], page: Any, response: Any) -> Optional[str]:
+    """The next page's URL: the `Link` header's rel="next" target for `link`, the value at
+    the `next_link` pointer for `body-link`; None when absent, null, or empty."""
+    if spec["style"] == "link":
+        return _link_next(response.headers.get("link"))
+    pointer = spec["next_link"]
+    target = resolve_pointer(page, pointer)
+    if target is None or target == "":
+        return None
+    if not isinstance(target, str):
+        raise ValueError(f"Pagination link at {pointer} is not a string")
+    return target
+
+
+def _iter_pages_by_link(call: PageCall, spec: Dict[str, Any], base: Dict[str, Any]) -> Iterator[Any]:
     params = dict(base)
     previous = None
     while True:
         page, response = call(params)
         yield page
-        target = _link_next(response.headers.get("link"))
+        target = _next_link(spec, page, response)
         if target is None:
             return
         page_url = str(response.request.url) if response.request is not None else ""
@@ -153,13 +168,13 @@ async def aiter_pages(
             if nxt == cursor:
                 raise ValueError("Pagination did not advance: the operation returned the same cursor twice")
             cursor = nxt
-    elif style == "link":
+    elif style in ("link", "body-link"):
         previous = None
         link_params: Dict[str, Any] = dict(base)
         while True:
             page, response = await call(link_params)
             yield page
-            target = _link_next(response.headers.get("link"))
+            target = _next_link(spec, page, response)
             if target is None:
                 return
             page_url = str(response.request.url) if response.request is not None else ""

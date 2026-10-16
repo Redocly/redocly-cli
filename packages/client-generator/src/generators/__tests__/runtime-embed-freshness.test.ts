@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { GO_RUNTIME_SOURCE } from '../../runtime-sources/go.js';
 import { PHP_RUNTIME_SOURCE } from '../../runtime-sources/php.js';
 import { PYTHON_RUNTIME_SOURCES } from '../../runtime-sources/python.js';
+import { TELEMETRY_RUNTIME_SOURCE } from '../../runtime-sources/telemetry.js';
 
 const pkgRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const STALE = 'stale embed — run `npm run prepare -w @redocly/client-generator`';
@@ -24,6 +25,14 @@ describe('embedded runtimes match their source files', () => {
   it('php', () => {
     const source = readFileSync(join(pkgRoot, 'src/generators/php/runtime/runtime.php'), 'utf-8');
     expect(PHP_RUNTIME_SOURCE, STALE).toBe(source);
+  });
+
+  it('telemetry', () => {
+    const source = readFileSync(
+      join(pkgRoot, 'src/generators/typescript/telemetry/telemetry.ts'),
+      'utf-8'
+    );
+    expect(TELEMETRY_RUNTIME_SOURCE, STALE).toBe(source);
   });
 
   it('python — every module, and no module missing from the snapshot', () => {

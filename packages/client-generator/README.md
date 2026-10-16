@@ -108,7 +108,7 @@ type GenerateClientResult = {
 };
 ```
 
-`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter` optional) plus an optional resolved Redocly `config` used to load the description.
+`GenerateClientOptions` is the options type ([`src/types.ts`](https://github.com/Redocly/redocly-cli/blob/main/packages/client-generator/src/types.ts)) (`api` and `output` required; `outputMode`, `runtime`, `importExt`, `argsStyle`, `errorMode`, `dateType`, `serverUrl`, `mockData`, `mockSeed`, `generators`, `customGenerators`, `options`, `setup`, `pagination`, `queryKeyPrefix`, `goPackage`, `cliOutput`, `codeSamples`, `docs`, `docsFrontmatter`, `telemetry` optional) plus an optional resolved Redocly `config` used to load the description.
 
 ### `collectGeneratedFiles`
 
@@ -139,7 +139,7 @@ function defineGenerator(generator: CustomGenerator): CustomGenerator;
 The `@redocly/client-generator/generate` entry also exports the TypeScript renderers the built-ins use (`tsType`, `tsJsdoc`, `codeLiteral`, `operationSignature`, `pascalCase`, `safeIdent`).
 The package root exports the IR types plus the language-neutral toolkit.
 A custom generator emits TypeScript exactly as the first-party ones do.
-See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator).
+See the [`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/typescript-types-generator).
 
 ### `defineClientSetup`
 
@@ -156,7 +156,7 @@ A setup module may import only from `@redocly/client-generator`, so it never add
 
 ## Examples
 
-Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, and custom generators — live in [`tests/e2e/generate-client/examples`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples).
+Runnable examples — from a zero-install quickstart to middleware, publisher setup, SSE streaming, pagination, and custom generators — live in [`packages/client-generator/examples`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples).
 Each is a standalone Vite app with a checked-in, drift-checked generated client.
 
 ## Documentation
