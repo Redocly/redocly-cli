@@ -655,6 +655,45 @@ export const MARKDOC_REALM_SCHEMA: MarkdocSchema = {
         },
       },
     },
+    prompt: {
+      attributes: {
+        actions: {
+          type: 'string',
+          dynamic: true,
+        },
+        buttonOnly: {
+          type: 'boolean',
+          default: false,
+          dynamic: true,
+        },
+        hidePrompt: {
+          type: 'boolean',
+          default: false,
+          dynamic: true,
+        },
+        icon: {
+          type: 'string',
+          dynamic: true,
+        },
+        iconRawContent: {
+          type: 'string',
+          dynamic: true,
+        },
+        rawContent: {
+          type: 'string',
+          dynamic: true,
+        },
+        singleLine: {
+          type: 'boolean',
+          default: false,
+          dynamic: true,
+        },
+        title: {
+          type: 'string',
+          dynamic: true,
+        },
+      },
+    },
     'replay-openapi': {
       selfClosing: true,
       attributes: {

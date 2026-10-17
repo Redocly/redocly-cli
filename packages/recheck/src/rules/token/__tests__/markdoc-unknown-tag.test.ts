@@ -87,6 +87,10 @@ describe('markdoc-unknown-tag', () => {
     expect(problems).toEqual([]);
   });
 
+  it('reports nothing for the prompt tag under the real realm schema', async () => {
+    expect(await realm.lint('{% prompt title="Ask" %}\ntext\n{% /prompt %}\n')).toEqual([]);
+  });
+
   it('still reports a genuinely unknown tag under the real realm schema', async () => {
     const problems = await realm.lint('{% totally-made-up-tag /%}\n');
     expect(problems).toHaveLength(1);
