@@ -170,6 +170,25 @@ This update changes how some YAML features are interpreted compared to v1.x:
   baz: something else
   ```
 
+### Changes in the `build-docs` command
+
+The [`build-docs`](../commands/build-docs.md) command renders documentation with Redoc 3 instead of Redoc 2.
+Redoc options come from the configuration key that matches your API description type: `openapi`, `asyncapi`, or `graphql`.
+The `--theme.openapi` option has been removed:
+
+```bash
+# ❌ Removed
+redocly build-docs openapi.yaml --theme.openapi.hideDownloadButtons
+
+# ✅ Use this instead
+redocly build-docs openapi.yaml --openapi.hideDownloadButtons
+```
+
+Redoc 3 renamed or removed some Redoc 2 options and replaced the theme object with CSS custom properties, so review your settings against the [Redoc configuration options](https://redocly.com/docs/realm/config/openapi) and check your custom templates.
+Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for details.
+
+To keep the Redoc 2 output, pin `@redocly/cli` to the version you used before, or use Redocly CLI v1: `npx @redocly/cli@v1-archive build-docs openapi.yaml`.
+
 ### Platform changes
 
 - **Legacy Registry**: Support for the legacy Redocly API Registry has been removed in favor of [Reunite](https://app.cloud.redocly.com/).
@@ -228,6 +247,7 @@ paths:
 1. **Replace `undefined` assertions** with `defined: true`.
 1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Revise your YAML files** to comply with the latest YAML specification (v1.2).
+1. **Revise `build-docs` usage**: replace `--theme.openapi` with `--openapi`, review your Redoc options and custom templates for Redoc 3, or pin the CLI version to keep the Redoc 2 output.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`

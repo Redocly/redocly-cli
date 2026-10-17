@@ -66,7 +66,7 @@
     "handlebars": "^4.7.10",
     "react": "^17.0.0 || ^18.2.0 || ^19.2.7",
     "react-dom": "^17.0.0 || ^18.2.0 || ^19.2.7",
-    "redoc": "2.5.4",
+    "redoc": "3.0.1",
     "semver": "^7.5.2",
     "set-cookie-parser": "^2.3.5",
     "styled-components": "6.4.2",
