@@ -12,6 +12,12 @@ export type ProjectSourceResponse = {
   isInternal: boolean;
 };
 
+export type ProjectSourcesListResponse = {
+  object: 'list';
+  page: { nextPage: string | null; previousPage: string | null; limit: number };
+  data: ProjectSourceResponse[];
+};
+
 export type UpsertRemoteResponse = {
   id: string;
   type: 'CICD';
