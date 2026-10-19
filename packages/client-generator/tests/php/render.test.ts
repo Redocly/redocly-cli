@@ -3,11 +3,10 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { PHP_CAFE } from '../../src/generators/__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../src/generators/__tests__/fixtures/generator-input.js';
 import {
   phpGenerator as phpGeneratorEntry,
-  phpSample,
-  phpType,
   renderPhpModels,
 } from '../../src/generators/php/index.js';
 import type { ApiModel, SchemaModel } from '../../src/intermediate-representation/model.js';
@@ -54,41 +53,7 @@ function model(schemas: Record<string, SchemaModel>): ApiModel {
   } as unknown as ApiModel;
 }
 
-describe('phpType — unions', () => {
-  const ENUM: SchemaModel = { kind: 'enum', values: ['a', 'b'], scalar: 'string' };
-  const base = model({
-    Kind: ENUM,
-    Order: { kind: 'object', properties: [] },
-  });
-
-  it('renders a union of expressible members as a native PHP 8.1 union', () => {
-    expect(phpType({ kind: 'union', members: [STRING, INT] }, base)).toBe('string|int');
-    expect(
-      phpType(
-        {
-          kind: 'union',
-          members: [
-            { kind: 'ref', name: 'Kind' },
-            { kind: 'array', items: STRING },
-          ],
-        },
-        base
-      )
-    ).toBe('Kind|array');
-    // A class member keeps its class name.
-    expect(
-      phpType({ kind: 'union', members: [{ kind: 'ref', name: 'Order' }, STRING] }, base)
-    ).toBe('Order|string');
-  });
-
-  it('expresses nullability as |null inside a union — PHP forbids mixing ? with |', () => {
-    const type = phpType({ kind: 'union', members: [STRING, INT, { kind: 'null' }] }, base);
-    expect(type).toBe('string|int|null');
-    expect(type.startsWith('?')).toBe(false);
-    // A single nullable type keeps the shorthand.
-    expect(phpType({ kind: 'union', members: [STRING, { kind: 'null' }] }, base)).toBe('?string');
-  });
-
+describe('renderPhpModels output, run with php', () => {
   it('makes an OPTIONAL union nullable with |null, never a leading ?', () => {
     const out = renderPhpModels(
       model({
@@ -118,21 +83,6 @@ describe('phpType — unions', () => {
     expectModelsRun(out);
   });
 
-  it('falls back to mixed when a member has no PHP type — mixed cannot be a union member', () => {
-    const withInlineObject: SchemaModel = {
-      kind: 'union',
-      members: [STRING, { kind: 'object', properties: [] }],
-    };
-    expect(phpType(withInlineObject, base)).toBe('mixed');
-    expect(phpType({ kind: 'union', members: [STRING, { kind: 'unknown' }] }, base)).toBe('mixed');
-  });
-
-  it('deduplicates members that map to the same PHP type', () => {
-    expect(phpType({ kind: 'union', members: [STRING, ENUM] }, base)).toBe('string');
-  });
-});
-
-describe('renderPhpModels', () => {
   it('renders classes — required first, optionals nullable with defaults, wire maps preserved', () => {
     const out = renderPhpModels(
       model({
@@ -291,196 +241,9 @@ describe('renderPhpModels', () => {
   });
 });
 
-const CAFE: ApiModel = {
-  title: 'Cafe Orders API',
-  version: '1.0.0',
-  serverUrl: 'https://api.cafe.example/organizations/unknown',
-  servers: [
-    {
-      url: 'https://api.cafe.example/organizations/{organizationId}',
-      description: 'Live server',
-      variables: [{ name: 'organizationId', default: 'unknown' }],
-    },
-    {
-      url: 'https://api-sandbox.cafe.example/organizations/{organizationId}',
-      description: 'Sandbox server',
-      variables: [{ name: 'organizationId', default: 'unknown' }],
-    },
-  ],
-  services: [
-    {
-      name: 'Orders',
-      operations: [
-        {
-          name: 'listOrders',
-          specName: 'listOrders',
-          method: 'get',
-          path: '/orders',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [
-            { name: 'after', in: 'query', required: false, schema: STRING },
-            { name: 'limit', in: 'query', required: false, schema: INT },
-          ],
-          headerParams: [],
-          cookieParams: [],
-          security: [['BearerAuth']],
-          paginationExtension: {
-            style: 'cursor',
-            cursorParam: 'after',
-            nextCursor: '/next',
-            items: '/items',
-          },
-          successResponseHeaders: [
-            {
-              name: 'pagination-total',
-              schema: { kind: 'scalar', scalar: 'integer' },
-              required: true,
-            },
-            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
-          ],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'OrderPage' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'getOrder',
-          specName: 'getOrder',
-          method: 'get',
-          path: '/orders/{orderId}',
-          tags: ['Orders'],
-          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'Order' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'getOrderPdf',
-          specName: 'getOrderPdf',
-          method: 'get',
-          path: '/orders/{orderId}/pdf',
-          tags: ['Orders'],
-          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/pdf',
-              schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'binary' } },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'createOrder',
-          specName: 'createOrder',
-          method: 'post',
-          path: '/orders',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          requestBody: {
-            contentType: 'application/json',
-            required: true,
-            schema: { kind: 'ref', name: 'Order' },
-          },
-          successResponses: [
-            {
-              status: '201',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'Order' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'streamEvents',
-          specName: 'streamEvents',
-          method: 'get',
-          path: '/events',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'text/event-stream',
-              schema: { kind: 'object', properties: [] },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'uploadPhoto',
-          specName: 'uploadPhoto',
-          method: 'post',
-          path: '/photos',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          requestBody: {
-            contentType: 'multipart/form-data',
-            required: true,
-            schema: { kind: 'object', properties: [] },
-          },
-          successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
-          errorResponses: [],
-        },
-      ],
-    },
-  ],
-  schemas: [
-    {
-      name: 'Order',
-      schema: { kind: 'object', properties: [{ name: 'id', schema: STRING, required: true }] },
-    },
-    {
-      name: 'OrderPage',
-      schema: {
-        kind: 'object',
-        properties: [
-          {
-            name: 'items',
-            schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
-            required: true,
-          },
-          { name: 'next', schema: STRING, required: false },
-        ],
-      },
-    },
-  ],
-  securitySchemes: [{ key: 'BearerAuth', kind: 'bearer' }],
-} as unknown as ApiModel;
-
 function generatePhp(): string {
   const files = phpGenerator({
-    model: CAFE,
+    model: PHP_CAFE,
     outputPath: '/out/client.ts',
     outputMode: 'single',
     emit: {},
@@ -490,104 +253,7 @@ function generatePhp(): string {
   return files[0].content;
 }
 
-describe('method names are unique across the client', () => {
-  const colliding: ApiModel = {
-    title: 'Collide',
-    version: '1.0.0',
-    serverUrl: 'https://api.example.com',
-    schemas: [],
-    securitySchemes: [],
-    services: [
-      {
-        name: 'Default',
-        operations: [
-          {
-            name: 'get_user',
-            specName: 'get-user',
-            method: 'get',
-            path: '/users/{id}',
-            tags: [],
-            pathParams: [
-              {
-                name: 'id',
-                in: 'path',
-                required: true,
-                schema: { kind: 'scalar', scalar: 'string' },
-              },
-            ],
-            queryParams: [],
-            headerParams: [],
-            cookieParams: [],
-            security: [],
-            successResponses: [],
-            errorResponses: [],
-          },
-          {
-            name: 'getUser',
-            specName: 'getUser',
-            method: 'get',
-            path: '/users/by-name/{name}',
-            tags: [],
-            pathParams: [
-              {
-                name: 'name',
-                in: 'path',
-                required: true,
-                schema: { kind: 'scalar', scalar: 'string' },
-              },
-            ],
-            queryParams: [],
-            headerParams: [],
-            cookieParams: [],
-            security: [],
-            successResponses: [],
-            errorResponses: [],
-          },
-        ],
-      },
-    ],
-  } as unknown as ApiModel;
-
-  it('two operations that camel-case alike get distinct methods — PHP fatals on a redeclare', () => {
-    const out = phpGenerator({
-      model: colliding,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: {},
-    })[0].content;
-    expect(out).toContain('public function getUser(string $id');
-    expect(out).toContain('public function getUser2(string $name');
-  });
-
-  it('the code sample names the deduped method, not the raw one', () => {
-    const sample = phpSample(colliding.services[0].operations[1], {
-      model: colliding,
-      outputPath: '/out/client.ts',
-      emit: {},
-    });
-    expect(sample?.source).toContain('$client->getUser2(');
-  });
-});
-
-describe('phpGenerator runtime: module', () => {
-  it('requires runtime.php beside the client and rewrites its namespace to match', () => {
-    const files = phpGenerator({
-      model: CAFE,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: { runtime: 'module' },
-    });
-    const entry = files.find((file) => file.path === '/out/client.php')!.content;
-    expect(entry).toContain("require_once __DIR__ . '/runtime.php';");
-    expect(entry).not.toContain('// ─── Embedded runtime');
-    const runtime = files.find((file) => file.path === '/out/runtime.php')!.content;
-    expect(runtime).toContain('namespace CafeOrdersApi;');
-    expect(runtime).not.toContain('namespace RedoclyClientRuntime;');
-    expect(runtime).toContain('// Generated by @redocly/client-generator');
-  });
-});
-
-describe('phpGenerator (full client assembly)', () => {
+describe('phpGenerator full client, run with php', () => {
   it('assembles one runnable file: namespace, models, embedded runtime, operations, Client', () => {
     const out = generatePhp();
     expect(out.startsWith('<?php')).toBe(true);
@@ -607,25 +273,6 @@ describe('phpGenerator (full client assembly)', () => {
     expect(out).toContain('Order::fromArray(decodeJson($response))');
     expect((out.match(/namespace CafeOrdersApi;/g) ?? []).length).toBe(1);
     expectPhpRuns(out);
-  });
-
-  it('paginated operations gain Pages/Items generators; SSE and multipart route through the runtime', () => {
-    const out = generatePhp();
-    expect(out).toContain('public function listOrdersPages(');
-    expect(out).toContain('public function listOrdersItems(');
-    expect(out).toContain('iterPages($call,');
-    expect(out).toContain('yield OrderPage::fromArray($page);');
-    expect(out).toContain('public function streamEvents(?array $headers = null): \\Generator');
-    expect(out).toContain('yield from iterSse($open,');
-    expect(out).toContain('toMultipart($body)');
-  });
-
-  it('returns the raw body string for non-JSON success responses (PDF download)', () => {
-    const out = generatePhp();
-    expect(out).toContain(
-      'public function getOrderPdf(string $orderId, ?array $headers = null): string'
-    );
-    expect(out).toContain("return $response['body'];");
   });
 
   it('documents element types PHP cannot express in the signature', () => {
@@ -686,17 +333,6 @@ describe('phpGenerator (full client assembly)', () => {
     expectPhpRuns(out);
   });
 
-  it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
-    const out = generatePhp();
-    expect(out).toContain('public function listOrdersWithHeaders(');
-    expect(out).toContain(
-      "readEnvelopeHeaders($response, [['pagination-total', 'paginationTotal', 'integer'], ['link', 'link', 'string']])"
-    );
-    expect(out).toContain("status: $response['status']");
-    // No declared headers, no variant.
-    expect(out).not.toContain('getOrderWithHeaders');
-  });
-
   it('puts the brace on the line after a declaration, with no blank line between', () => {
     const out = renderPhpModels(
       model({
@@ -709,55 +345,6 @@ describe('phpGenerator (full client assembly)', () => {
     expect(out).toContain('public static function fromArray(array $data): self\n    {');
     expect(out).not.toMatch(/\n\n\s*\{/);
     expectModelsRun(out);
-  });
-
-  it('a bare date-time success body hydrates to the DateTimeImmutable its signature declares', () => {
-    // The top-level hydration call dropped `dateType`, so the method returned the raw
-    // string while its own return type said `\\DateTimeImmutable`.
-    const dated: ApiModel = {
-      title: 'Cafe',
-      version: '1.0.0',
-      serverUrl: 'https://api.cafe.example',
-      schemas: [],
-      securitySchemes: [],
-      services: [
-        {
-          name: 'Default',
-          operations: [
-            {
-              name: 'getDeadline',
-              specName: 'getDeadline',
-              method: 'get',
-              path: '/deadline',
-              tags: [],
-              pathParams: [],
-              queryParams: [],
-              headerParams: [],
-              cookieParams: [],
-              security: [],
-              successResponses: [
-                {
-                  status: '200',
-                  contentType: 'application/json',
-                  schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-                },
-              ],
-              errorResponses: [],
-            },
-          ],
-        },
-      ],
-    } as unknown as ApiModel;
-    const out = phpGenerator({
-      model: dated,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: { dateType: 'Date' },
-    })[0].content;
-    expect(out).toContain(
-      'public function getDeadline(?array $headers = null): \\DateTimeImmutable'
-    );
-    expect(out).toContain('new \\DateTimeImmutable(decodeJson($response))');
   });
 
   it('maps date/date-time to DateTimeImmutable under dateType: Date, hydrating both ways', () => {
@@ -841,27 +428,5 @@ describe('phpGenerator (full client assembly)', () => {
       emit: {},
     })[0].content;
     expect(asString).toContain('public string $placedAt');
-  });
-
-  it('bakes the serverUrl option, not just the description server', () => {
-    const files = phpGenerator({
-      model: CAFE,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: { serverUrl: 'https://override.example' },
-    });
-    expect(files[0].content).toContain("$this->config->serverUrl = 'https://override.example';");
-  });
-
-  it('emits a Servers class with named variable arguments defaulting to the spec defaults', () => {
-    const out = generatePhp();
-    expect(out).toContain('final class Servers');
-    expect(out).toContain(
-      "public static function liveServer(string $organizationId = 'unknown'): string"
-    );
-    expect(out).toContain(
-      "public static function sandboxServer(string $organizationId = 'unknown'): string"
-    );
-    expect(out).toContain("return 'https://api.cafe.example/organizations/' . $organizationId;");
   });
 });

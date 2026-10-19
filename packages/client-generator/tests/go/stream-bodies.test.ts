@@ -15,7 +15,7 @@ import {
   wireRows,
 } from '../shared/stream-bodies/stream-bodies.js';
 
-describe('generate-client stream bodies, Go (end-to-end)', () => {
+describe('generate-client stream bodies, Go', () => {
   let server: MockServer;
   let workDir = '';
 
@@ -27,7 +27,7 @@ describe('generate-client stream bodies, Go (end-to-end)', () => {
       generators: ['go'],
     });
     server = await startStreamServer();
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -42,7 +42,8 @@ describe('generate-client stream bodies, Go (end-to-end)', () => {
       expect(wireRows(server.requests)).toEqual([...streamRows(chunked), ...replayableRows]);
       expect(server.handlerErrors).toEqual([]);
     },
-    // The first build on a cold cache compiles the stdlib and takes well over 60s.
+    // The first build on a cold cache compiles the standard library, so this test
+    // gets more time than the project default.
     180_000
   );
 });

@@ -14,9 +14,9 @@ const smokeScript = join(__dirname, 'consumer/smoke.py');
 let workDir = '';
 let generatedFile = '';
 
-describe('generate-client python generator (end-to-end)', () => {
+describe('generate-client python generator, base.yaml against the mock server', () => {
   beforeAll(async () => {
-    workDir = mkdtempSync(join(tmpdir(), 'python-e2e-'));
+    workDir = mkdtempSync(join(tmpdir(), 'python-client-'));
     generatedFile = join(workDir, 'client.py');
     await generateClient({
       api: fixture,
@@ -47,10 +47,10 @@ describe('generate-client python generator (end-to-end)', () => {
     } finally {
       await server.close();
     }
-  }, 60_000);
+  });
 });
 
-describe('generate-client python generator, models: pydantic (end-to-end)', () => {
+describe('generate-client python generator, models: pydantic', () => {
   // `models` is a per-generator option; the API takes it in `options`, as redocly.yaml does.
   let dir: string;
   let generated: string;
@@ -128,12 +128,13 @@ describe('generate-client python generator, parameter names an SDK cannot take l
 });
 
 describe('generate-client python generator, a paginated operation under a path parameter', () => {
+  const spec = join(__dirname, '../fixtures/paginated-path-param.yaml');
   let dir: string;
 
   beforeAll(async () => {
     dir = mkdtempSync(join(tmpdir(), 'python-page-path-'));
     await generateClient({
-      api: join(__dirname, 'openapi.yaml'),
+      api: spec,
       output: join(dir, 'client.ts'),
       generators: ['python'],
     });
@@ -146,7 +147,7 @@ describe('generate-client python generator, a paginated operation under a path p
   it('substitutes the path value into every page request', async () => {
     // What matters is the URL the iterator asks for: the path value must replace
     // `{orderId}` in the template on every page.
-    const server = await MockServer.start(join(__dirname, 'openapi.yaml'), {
+    const server = await MockServer.start(spec, {
       handlers: {
         listOrderItems: ({ request }) => ({
           status: 200,

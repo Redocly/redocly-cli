@@ -33,7 +33,7 @@ describe('mock generator — generated client through MSW', () => {
       output: join(dir, 'client.ts'),
       generators: ['typescript', 'mock'],
     });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
@@ -49,11 +49,11 @@ describe('mock generator — generated client through MSW', () => {
     expect(result.ok).toBe(true);
     expect(result.id).toBe(0);
     expect(result.name).toBe('string');
-  }, 60_000);
+  });
 
   test('the generated client + mocks type-check together under strict mode', () => {
     strictTypecheck(dir, ['client.ts', 'client.mocks.ts']);
-  }, 90_000);
+  });
 });
 
 describe("mock generator — mock + transformers + dateType: 'Date' compile together", () => {
@@ -68,14 +68,14 @@ describe("mock generator — mock + transformers + dateType: 'Date' compile toge
       generators: ['typescript', 'mock', 'transformers'],
       dateType: 'Date',
     });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
 
   test('strict-tsc-checks client + mocks + transformers together with 0 errors', () => {
     strictTypecheck(dir, ['client.ts', 'client.mocks.ts', 'client.transformers.ts']);
-  }, 90_000);
+  });
 });
 
 describe('mock generator — faker mode strict-tsc-checks against real @faker-js/faker', () => {
@@ -89,7 +89,7 @@ describe('mock generator — faker mode strict-tsc-checks against real @faker-js
       mockData: 'faker',
       mockSeed: 42,
     });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });

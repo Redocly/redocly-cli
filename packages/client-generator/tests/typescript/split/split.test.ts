@@ -28,7 +28,7 @@ describe("generate-client outputMode: 'split'", () => {
     entry = join(workDir, 'client.ts');
     schemasFile = join(workDir, 'client.schemas.ts');
     await generateClient({ api: fixture, output: entry, outputMode: 'split' });
-  }, 90_000);
+  });
 
   afterAll(() => {
     rmSync(workDir, { recursive: true, force: true });
@@ -60,7 +60,7 @@ describe("generate-client outputMode: 'split'", () => {
 
   test('the two-file set type-checks under strict mode with no unused imports', () => {
     strictTypecheck(workDir, ['client.ts', 'client.schemas.ts']);
-  }, 90_000);
+  });
 
   // `importExt: 'ts'` targets runtimes that resolve specifiers literally (no `.js` → `.ts`
   // remap) — Node's built-in type stripping. Locked by actually executing `node main.ts`.
@@ -76,5 +76,5 @@ describe("generate-client outputMode: 'split'", () => {
     const run = spawnSync('node', [mainFile], { encoding: 'utf-8', cwd: workDir });
     expect(run.status, `node errors:\n${run.stderr}`).toBe(0);
     expect(run.stdout).toContain('isBeverage: function');
-  }, 90_000);
+  });
 });

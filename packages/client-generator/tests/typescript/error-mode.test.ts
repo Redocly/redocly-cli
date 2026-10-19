@@ -41,7 +41,7 @@ describe('generate-client error mode', () => {
     expect(generated).toContain('errorMode: "result"');
 
     strictTypecheck(dir, ['client.ts']);
-  }, 60_000);
+  });
 
   it('split result mode: the entry bakes errorMode result, strict tsc passes over both files', async () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-errmode-split-'));
@@ -62,5 +62,5 @@ describe('generate-client error mode', () => {
     expect(entrySource).toContain('Result<');
 
     strictTypecheck(dir);
-  }, 60_000);
+  });
 });

@@ -31,7 +31,7 @@ describe('generate-client base consumer (single-file output)', () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(workDir, 'api.ts') });
     expectTscPasses(['--noEmit', '-p', workDir]);
-  }, 60_000);
+  });
 
   afterEach(() => {
     expect(server.handlerErrors).toEqual([]);
@@ -106,7 +106,7 @@ describe('generate-client base consumer (single-file output)', () => {
     // The deepObject query param: the object is sent as filter[name]=…&filter[status]=….
     const listCall = server.requests.find((request) => request.operationId === 'listPets');
     expect(listCall?.query).toEqual({ 'filter[name]': 'rex', 'filter[status]': 'available' });
-  }, 60_000);
+  });
 
   test('cancel: AbortController aborts the underlying request', async () => {
     const cancelResult = await runTsx(join(workDir, 'index-cancel.ts'), [server.url], {
@@ -117,5 +117,5 @@ describe('generate-client base consumer (single-file output)', () => {
       `cancel stdout:\n${cancelResult.stdout}\nstderr:\n${cancelResult.stderr}`
     ).toBe(0);
     expect(cancelResult.stdout.trim()).toBe('CANCELLED:AbortError');
-  }, 30_000);
+  });
 });

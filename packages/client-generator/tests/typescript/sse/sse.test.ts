@@ -50,7 +50,7 @@ describe('generate-client SSE', () => {
     // consumer-types/usage.ts proves `ServerSentEvent<Message>.data.text` is typed
     // and that `SseOptions` (reconnect/reconnectDelay) is accepted.
     strictTypecheck(dir, ['client.ts', 'usage.ts']);
-  }, 60_000);
+  });
 
   it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', async () => {
     dir = mkdtempSync(join(tmpdir(), 'ots-sse-split-'));
@@ -66,5 +66,5 @@ describe('generate-client SSE', () => {
     );
 
     strictTypecheck(dir);
-  }, 60_000);
+  });
 });

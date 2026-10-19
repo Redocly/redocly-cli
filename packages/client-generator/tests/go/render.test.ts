@@ -3,12 +3,9 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { GO_CAFE } from '../../src/generators/__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../src/generators/__tests__/fixtures/generator-input.js';
-import {
-  goGenerator as goGeneratorEntry,
-  goSample,
-  renderGoModels,
-} from '../../src/generators/go/index.js';
+import { goGenerator as goGeneratorEntry, renderGoModels } from '../../src/generators/go/index.js';
 import type { ApiModel, SchemaModel } from '../../src/intermediate-representation/model.js';
 
 // The pipeline parses the output anchor and resolves pagination once; `generatorInput`
@@ -16,8 +13,8 @@ import type { ApiModel, SchemaModel } from '../../src/intermediate-representatio
 const goGenerator = (input: Parameters<typeof generatorInput>[0]) =>
   goGeneratorEntry(generatorInput(input));
 
-// Every `expectGoCompiles` bar shells out to `go build`; the first build on a cold
-// CI cache compiles the stdlib and takes well over the 5s default.
+// Every `expectGoCompiles` bar shells out to `go build`. The first build on a cold CI
+// cache compiles the standard library, so these tests get more time than the project default.
 vi.setConfig({ testTimeout: 180_000 });
 
 /** Assert `gofmt` would not change the source — the output must ship idiomatic. */
@@ -64,8 +61,7 @@ function model(schemas: Record<string, SchemaModel>): ApiModel {
     securitySchemes: [],
   } as unknown as ApiModel;
 }
-
-describe('renderGoModels', () => {
+describe('renderGoModels output, built with go build', () => {
   it('renders structs — required as value fields, optional as pointers with omitempty tags', () => {
     const out = renderGoModels(
       model({
@@ -196,177 +192,9 @@ describe('renderGoModels', () => {
   });
 });
 
-const CAFE: ApiModel = {
-  title: 'Cafe',
-  version: '1.0.0',
-  serverUrl: 'https://api.cafe.example/organizations/unknown',
-  servers: [
-    {
-      url: 'https://api.cafe.example/organizations/{organizationId}',
-      description: 'Live server',
-      variables: [{ name: 'organizationId', default: 'unknown' }],
-    },
-    {
-      url: 'https://api-sandbox.cafe.example/organizations/{organizationId}',
-      description: 'Sandbox server',
-      variables: [{ name: 'organizationId', default: 'unknown' }],
-    },
-  ],
-  services: [
-    {
-      name: 'Orders',
-      operations: [
-        {
-          name: 'listOrders',
-          specName: 'listOrders',
-          method: 'get',
-          path: '/orders',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [
-            { name: 'after', in: 'query', required: false, schema: STRING },
-            { name: 'limit', in: 'query', required: false, schema: INT },
-            {
-              name: 'tags',
-              in: 'query',
-              required: false,
-              schema: { kind: 'array', items: STRING },
-            },
-          ],
-          headerParams: [],
-          cookieParams: [],
-          security: [['BearerAuth']],
-          paginationExtension: {
-            style: 'cursor',
-            cursorParam: 'after',
-            nextCursor: '/next',
-            items: '/items',
-          },
-          successResponseHeaders: [
-            {
-              name: 'pagination-total',
-              schema: { kind: 'scalar', scalar: 'integer' },
-              required: true,
-            },
-            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
-          ],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'OrderPage' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'streamEvents',
-          specName: 'streamEvents',
-          method: 'get',
-          path: '/events',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'text/event-stream',
-              schema: { kind: 'object', properties: [] },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'uploadPhoto',
-          specName: 'uploadPhoto',
-          method: 'post',
-          path: '/photos',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          requestBody: {
-            contentType: 'multipart/form-data',
-            schema: { kind: 'object', properties: [] },
-          },
-          successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
-          errorResponses: [],
-        },
-        {
-          name: 'getOrder',
-          specName: 'getOrder',
-          method: 'get',
-          path: '/orders/{orderId}',
-          tags: ['Orders'],
-          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'Order' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'createOrder',
-          specName: 'createOrder',
-          method: 'post',
-          path: '/orders',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          requestBody: { contentType: 'application/json', schema: { kind: 'ref', name: 'Order' } },
-          successResponses: [
-            {
-              status: '201',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'Order' },
-            },
-          ],
-          errorResponses: [],
-        },
-      ],
-    },
-  ],
-  schemas: [
-    {
-      name: 'Order',
-      schema: { kind: 'object', properties: [{ name: 'id', schema: STRING, required: true }] },
-    },
-    {
-      name: 'OrderPage',
-      schema: {
-        kind: 'object',
-        properties: [
-          {
-            name: 'items',
-            schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
-            required: true,
-          },
-          { name: 'next', schema: STRING, required: false },
-        ],
-      },
-    },
-  ],
-  securitySchemes: [{ key: 'BearerAuth', kind: 'bearer' }],
-} as unknown as ApiModel;
-
 function generateGo(): string {
   const files = goGenerator({
-    model: CAFE,
+    model: GO_CAFE,
     outputPath: '/out/client.ts',
     outputMode: 'single',
     emit: {},
@@ -376,25 +204,7 @@ function generateGo(): string {
   return files[0].content;
 }
 
-describe('goGenerator (full client assembly)', () => {
-  it('renders (T, error) methods over the operations table with typed params structs', () => {
-    const out = generateGo();
-    expect(out).toContain('type Client struct {');
-    expect(out).toContain('func New(config Config) *Client {');
-    expect(out).toContain('type ListOrdersParams struct {');
-    expect(out).toContain('After *string');
-    expect(out).toContain(
-      'func (c *Client) ListOrders(ctx context.Context, params *ListOrdersParams) (OrderPage, error) {'
-    );
-    expect(out).toContain(
-      'func (c *Client) GetOrder(ctx context.Context, orderId string) (Order, error) {'
-    );
-    expect(out).toContain(
-      'func (c *Client) CreateOrder(ctx context.Context, body Order) (Order, error) {'
-    );
-    expect(out).toContain('return out, apiErrorFrom(resp, requestURL)');
-  });
-
+describe('goGenerator full client, built with go build', () => {
   it('assembles one compilable file: models + embedded runtime + operations table', () => {
     const out = generateGo();
     expect(out).toContain('var operations = map[string]operationMeta{');
@@ -405,45 +215,7 @@ describe('goGenerator (full client assembly)', () => {
   });
 });
 
-describe('query and sample shapes', () => {
-  it('an array query param repeats the key per element — fmt.Sprint would send "[a b]"', () => {
-    const out = generateGo();
-    expect(out).toContain('for _, item := range *params.Tags {');
-    expect(out).toContain('query.Add("tags", item)');
-    expect(out).not.toContain('query.Set("tags"');
-  });
-
-  it('the sample assignment matches the return shape: void has no result, SSE is one value', () => {
-    const ctx = { model: CAFE, outputPath: '/out/client.ts', emit: {} };
-    const listOrders = CAFE.services[0].operations.find((op) => op.name === 'listOrders')!;
-    expect(goSample(listOrders, ctx)?.source).toContain('result, err := client.ListOrders(');
-    const streamEvents = CAFE.services[0].operations.find((op) => op.name === 'streamEvents')!;
-    expect(goSample(streamEvents, ctx)?.source).toContain('stream := client.StreamEvents(');
-  });
-});
-
-describe('goGenerator parity features', () => {
-  it('paginated operations gain Pages/Items yield-func iterators with typed elements', () => {
-    const out = generateGo();
-    expect(out).toContain('Pagination: &PaginationSpec{Style: "cursor", Param: "after"');
-    expect(out).toContain(
-      'func (c *Client) ListOrdersPages(ctx context.Context, params *ListOrdersParams) func(yield func(OrderPage, error) bool) {'
-    );
-    expect(out).toContain(
-      'func (c *Client) ListOrdersItems(ctx context.Context, params *ListOrdersParams) func(yield func(Order, error) bool) {'
-    );
-    expect(out).toContain('iterPages(call, *op.Pagination, base)');
-  });
-
-  it('SSE operations stream events; multipart bodies route through toMultipart', () => {
-    const out = generateGo();
-    expect(out).toContain(
-      'func (c *Client) StreamEvents(ctx context.Context) func(yield func(ServerSentEvent, error) bool) {'
-    );
-    expect(out).toContain('return iterSSE(open,');
-    expect(out).toContain('contentType, reader, err := toMultipart(body)');
-  });
-
+describe('goGenerator parity features, checked with gofmt and go build', () => {
   it('collapses consecutive blank lines in a doc comment, as gofmt would', () => {
     const out = renderGoModels(
       model({
@@ -467,20 +239,6 @@ describe('goGenerator parity features', () => {
     // The alignment gofmt would apply, applied by us.
     expect(out).toMatch(/Id\s+string\s+`json:"id"`/);
     expectGofmtClean(out);
-  });
-
-  it('emits a WithHeaders envelope variant only for ops with declared response headers', () => {
-    const out = generateGo();
-    expect(out).toContain('type ListOrdersHeaders struct {');
-    expect(out).toMatch(/PaginationTotal\s+\*int64/);
-    expect(out).toMatch(/Link\s+\*string/);
-    expect(out).toContain(
-      'func (c *Client) ListOrdersWithHeaders(ctx context.Context, params *ListOrdersParams) (OrderPage, ListOrdersHeaders, error) {'
-    );
-    expect(out).toContain('headers.PaginationTotal = headerInt64(resp.Header, "pagination-total")');
-    expect(out).toContain('return out, headers, nil');
-    // No declared headers, no variant.
-    expect(out).not.toContain('GetOrderWithHeaders');
   });
 
   it('maps date/date-time to time.Time and Date under dateType: Date', () => {
@@ -583,19 +341,9 @@ describe('goGenerator parity features', () => {
     expectGoCompiles(out);
   });
 
-  it('bakes the serverUrl option, not just the description server', () => {
-    const files = goGenerator({
-      model: CAFE,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: { serverUrl: 'https://override.example' },
-    });
-    expect(files[0].content).toContain('config.ServerURL = "https://override.example"');
-  });
-
   it('honors goPackage for the package clause and rejects a name Go would not accept', () => {
     const out = goGenerator({
-      model: CAFE,
+      model: GO_CAFE,
       outputPath: '/out/client.ts',
       outputMode: 'single',
       emit: { goPackage: 'rebilly' },
@@ -606,20 +354,11 @@ describe('goGenerator parity features', () => {
 
     expect(() =>
       goGenerator({
-        model: CAFE,
+        model: GO_CAFE,
         outputPath: '/out/client.ts',
         outputMode: 'single',
         emit: { goPackage: 'rebilly-core' },
       })
     ).toThrow(/goPackage "rebilly-core" is not a valid Go package name/);
-  });
-
-  it('emits one URL function per declared server with variables as parameters', () => {
-    const out = generateGo();
-    expect(out).toContain('func LiveServerURL(organizationId string) string {');
-    expect(out).toContain('func SandboxServerURL(organizationId string) string {');
-    expect(out).toContain('return "https://api.cafe.example/organizations/" + organizationId');
-    // Go has no default arguments; the spec default lives in the doc comment.
-    expect(out).toContain('organizationId default: "unknown"');
   });
 });

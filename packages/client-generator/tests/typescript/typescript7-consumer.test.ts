@@ -29,5 +29,5 @@ describe('generated client under TypeScript 7 (consumer compiler)', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 });

@@ -25,7 +25,7 @@ describe('generate-client tanstack-query generator', () => {
       output: join(consumerDir, 'pagination.ts'),
       generators,
     });
-  }, 60_000);
+  });
 
   afterAll(() => {
     rmSync(consumerDir, { recursive: true, force: true });
@@ -57,7 +57,7 @@ describe('generate-client tanstack-query generator', () => {
     // `check.ts` uses useQuery/useMutation, `check-pagination.ts` useInfiniteQuery: the
     // emitted factories type-check against the actual adapter surface, not in isolation.
     expectTscPasses(['--noEmit', '-p', consumerDir]);
-  }, 60_000);
+  });
 
   it('the tanstack-query-vue variant swaps only the import specifier to @tanstack/vue-query', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-vue-'));
@@ -77,5 +77,5 @@ describe('generate-client tanstack-query generator', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 });

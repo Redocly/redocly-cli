@@ -44,5 +44,5 @@ describe('generate-client operation/schema name collision', () => {
     expect(declarations).toHaveLength(1);
 
     strictTypecheck(dir);
-  }, 60_000);
+  });
 });

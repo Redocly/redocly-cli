@@ -279,8 +279,10 @@ Each language has its own folder and its own Vitest project, and a missing tool 
 - `fixtures/` holds the shared specs, and `helpers/` holds the helpers, the mock server, and the toolchain checks.
 
 Each topic folder holds its tests and the files they need.
-A `consumer/` folder holds the scripts, `package.json`, and `tsconfig.json` that the test copies next to the generated client.
-The tests call the `generateClient()` API directly.
+A `consumer/` folder holds the programs that call the generated client, with the `package.json`, `tsconfig.json`, or `go.mod` they need.
+The tests call the `generateClient()` API directly with an OpenAPI file.
+The exception is `render.test.ts` in `go/`, `php/`, and `python/`: it renders code from an IR model and compiles it with the toolchain.
+Generator checks that need no toolchain are unit tests in `packages/client-generator/src/generators/__tests__/`.
 
 The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`, and `npm run e2e` runs them.
 `cli-flags.test.ts` proves that each CLI flag maps to its option.

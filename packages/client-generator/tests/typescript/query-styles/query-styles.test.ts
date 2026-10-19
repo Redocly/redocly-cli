@@ -29,7 +29,7 @@ describe('generate-client query serialization styles', () => {
     await generateClient({ api: fixture, output: out });
     expect(existsSync(out)).toBe(true);
     generated = readFileSync(out, 'utf-8');
-  }, 60_000);
+  });
 
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
@@ -52,11 +52,11 @@ describe('generate-client query serialization styles', () => {
 
   it('strict-tsc type-checks the generated client', () => {
     strictTypecheck(dir, ['client.ts']);
-  }, 60_000);
+  });
 
   it('serializes the wire format: literal delimiters + allowReserved', async () => {
-    // consumer/capture-url.mts stubs config.fetch to capture the URL and writes it to stdout.
-    const runner = join(dir, 'capture-url.mts');
+    // consumer/capture-url.ts stubs config.fetch to capture the URL and writes it to stdout.
+    const runner = join(dir, 'capture-url.ts');
     const run = await runTsx(runner, [], { cwd: dir });
     expect(run.status, `consumer stderr:\n${run.stderr}`).toBe(0);
     const url = run.stdout.trim();
@@ -70,5 +70,5 @@ describe('generate-client query serialization styles', () => {
     expect(url).toContain('filter=a/b');
     // The default param still encodes normally.
     expect(url).toContain('limit=5');
-  }, 60_000);
+  });
 });

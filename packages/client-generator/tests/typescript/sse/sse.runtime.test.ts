@@ -61,7 +61,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     await generateClient({ api: fixture, output: generatedFile });
     expect(existsSync(generatedFile)).toBe(true);
     expectTscPasses(['--noEmit', '-p', workDir]);
-  }, 30_000);
+  });
 
   afterEach(() => {
     expect(server.handlerErrors).toEqual([]);
@@ -98,7 +98,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
       .filter((request) => request.operationId === 'streamMessages')
       .map((request) => request.headers['last-event-id']);
     expect(lastEventIds).toEqual([undefined, '2']);
-  }, 90_000);
+  });
 
   test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', async () => {
     const runResult = await runTsx(join(workDir, 'index-connect-retry.ts'), [], { cwd: workDir });
@@ -118,7 +118,7 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     expect(parsed.calls).toBe(2);
     expect(parsed.events).toEqual(['a']);
     expect(parsed.finished).toBe(true);
-  }, 30_000);
+  });
 
   test('abort: aborting the stream via AbortSignal completes the loop without throwing', async () => {
     const runResult = await runTsx(join(workDir, 'index-abort.ts'), [server.url], {
@@ -138,5 +138,5 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     // AbortError escaped the `for await`.
     expect(parsed.received).toBe(1);
     expect(parsed.error).toBeNull();
-  }, 30_000);
+  });
 });

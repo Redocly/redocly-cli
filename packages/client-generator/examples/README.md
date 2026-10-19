@@ -5,7 +5,7 @@ Most are Vite apps that _consume_ a client generated via the `redocly generate-c
 Most share the cafe spec in [`_shared/cafe.yaml`](./_shared/cafe.yaml).
 The rest carry their own.
 
-The generated client under `src/api/` is gitignored — CI regenerates every client and type-checks the consumer code against it (in the `client-generators` job of `tests.yaml`), and `zero-install-quickstart` keeps its client committed as the canonical browsable copy, drift-checked in `tests/e2e/generate-client/examples.test.ts`.
+The generated client under `src/api/` is gitignored — CI regenerates every client and type-checks the consumer code against it (in the `client-generators` job of `tests.yaml`), and `zero-install-quickstart` keeps its client committed as the canonical browsable copy, which the same job checks with `git diff` after it regenerates the clients.
 
 | Example                                                    | How it's generated                        | Shows                                                                                                                                     |
 | ---------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |

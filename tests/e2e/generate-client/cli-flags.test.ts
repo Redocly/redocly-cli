@@ -8,10 +8,10 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { runGenerateClient } from './helpers.js';
+import { repoRoot, runGenerateClient } from './helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'fixtures/cafe.yaml');
+const fixture = join(repoRoot, 'resources/cafe.yaml');
 
 // Each case uses a value that is not the default, so a lost flag changes the output.
 const cases: Array<{ flags: string[]; options: GenerateClientConfig }> = [

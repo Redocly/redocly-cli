@@ -23,7 +23,7 @@ describe('generate-client typed multipart body', () => {
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: spec, output: join(dir, 'client.ts') });
-  }, 60_000);
+  });
 
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
@@ -37,7 +37,7 @@ describe('generate-client typed multipart body', () => {
     expect(result.fileIsBlob).toBe(true);
     expect(result.tags).toEqual(['a', 'b']); // array → one field per item
     expect(result.meta).toBe('{"k":"v"}'); // nested object → JSON part
-  }, 60_000);
+  });
 
   it('serializes the multipart body AFTER onRequest, so middleware can mutate it', async () => {
     const result = (await runConsumer(join(dir, 'mutate-in-on-request.ts'))) as Record<
@@ -47,7 +47,7 @@ describe('generate-client typed multipart body', () => {
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('mutated');
-  }, 60_000);
+  });
 
   it('compiles in split output (multipart serialization lives in the embedded runtime)', async () => {
     const splitDir = mkdtempSync(join(tmpdir(), 'ots-multipart-split-'));
@@ -61,5 +61,5 @@ describe('generate-client typed multipart body', () => {
     } finally {
       rmSync(splitDir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 });

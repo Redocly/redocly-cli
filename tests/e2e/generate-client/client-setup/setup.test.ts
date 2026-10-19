@@ -1,12 +1,10 @@
 // The CLI rejects a remote `--setup` module before it calls the generator.
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 
-import { runGenerateClient } from '../helpers.js';
+import { repoRoot, runGenerateClient } from '../helpers.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, '../fixtures/cafe.yaml');
+const fixture = join(repoRoot, 'resources/cafe.yaml');
 
 describe('--setup rejects remote modules', () => {
   test('a URL fails with the local-file-path error instead of a garbage path', () => {

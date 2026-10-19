@@ -44,5 +44,5 @@ describe('generate-client swr generator', () => {
     // plus the generated sdk client. The hooks are React hooks; type-checking the
     // module proves the emitted useSWR/useSWRMutation calls match swr's real API.
     expectTscPasses(['--noEmit', '-p', dir]);
-  }, 60_000);
+  });
 });

@@ -17,7 +17,7 @@ import {
   wireRows,
 } from '../shared/stream-bodies/stream-bodies.js';
 
-describe('generate-client stream bodies, PHP (end-to-end)', () => {
+describe('generate-client stream bodies, PHP', () => {
   let server: MockServer;
   let workDir = '';
 
@@ -29,7 +29,7 @@ describe('generate-client stream bodies, PHP (end-to-end)', () => {
       generators: ['php'],
     });
     server = await startStreamServer();
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -51,7 +51,7 @@ describe('generate-client stream bodies, PHP (end-to-end)', () => {
       },
     ]);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 
   it('hands an untyped body to the runtime helpers, which also encode an array', () => {
     // The smoke sends only streams and strings, so the helper calls are checked in the source.

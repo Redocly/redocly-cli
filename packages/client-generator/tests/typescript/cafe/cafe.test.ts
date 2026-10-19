@@ -3,9 +3,8 @@ import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { startCafeServer } from '../../helpers/cafe-server.js';
 import { copyConsumer, expectTscPasses, runTsx } from '../../helpers/helpers.js';
-import type { MockServer } from '../../helpers/mock-server.js';
+import { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/cafe.yaml');
@@ -23,7 +22,7 @@ type StepResult =
 
 const snapshotFile = join(__dirname, '__snapshots__', 'cafe.snapshot.ts');
 
-describe('generate-client end-to-end (cafe.yaml)', () => {
+describe('generate-client cafe.yaml single-file client', () => {
   let server: MockServer;
   let results: StepResult[] = [];
   let log: LogEntry[] = [];
@@ -35,7 +34,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     const generatedFile = join(workDir, 'api.ts');
 
-    server = await startCafeServer();
+    server = await MockServer.start(fixture);
 
     // The snapshot keeps the serverUrl from the description. The consumer imports a second
     // generation that points at the mock server.
@@ -63,7 +62,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
         headers: request.headers,
       });
     }
-  }, 120_000);
+  });
 
   afterAll(async () => {
     await server.close();

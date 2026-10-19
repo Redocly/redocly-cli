@@ -13,14 +13,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let dir: string;
 
-async function runEntry(args: string[], env: Record<string, string> = {}) {
-  const result = await runTsx(join(dir, 'cafe.ts'), [...args], {
-    cwd: dir,
-    env: { ...process.env, ...env },
-  });
-  return { code: result.status, stdout: result.stdout, stderr: result.stderr };
-}
-
 beforeAll(async () => {
   dir = copyConsumer(join(__dirname, 'consumer-compose'));
   // Two descriptions — the same fixture twice is exactly the collision case: every
@@ -45,18 +37,20 @@ afterAll(() => {
 
 describe('composed CLI', () => {
   it('importing the generated modules runs nothing; the entry composes them', async () => {
-    const help = await runEntry(['--help']);
-    expect(help.code, help.stderr).toBe(0);
+    const help = await runTsx(join(dir, 'cafe.ts'), ['--help'], { cwd: dir });
+    expect(help.status, help.stderr).toBe(0);
     expect(help.stdout).toContain('shop');
     expect(help.stdout).toContain('kitchen');
     expect(help.stdout).toContain('login  Store a token for both APIs.');
   });
 
   it('routes a namespace to its source with its own credential prefix', async () => {
-    const dry = await runEntry(['shop', 'orders', 'getOrder', 'ord_1', '--dry-run'], {
-      CAFE_SHOP_TOKEN: 'shop-secret',
-    });
-    expect(dry.code, dry.stderr).toBe(0);
+    const dry = await runTsx(
+      join(dir, 'cafe.ts'),
+      ['shop', 'orders', 'getOrder', 'ord_1', '--dry-run'],
+      { cwd: dir, env: { ...process.env, CAFE_SHOP_TOKEN: 'shop-secret' } }
+    );
+    expect(dry.status, dry.stderr).toBe(0);
     const captured = JSON.parse(dry.stdout);
     expect(captured.url).toContain('/orders/ord_1');
     // The credential arrived (and was redacted) — proving the per-source prefix works.
@@ -67,31 +61,32 @@ describe('composed CLI', () => {
   it('takes an operationId without its group, the form the guide shows', async () => {
     // `cafe shop listOrders` — the alias, then a bare operationId, because the name is
     // unambiguous inside that api. The guide documents this shorter form.
-    const dry = await runEntry(['shop', 'getOrder', 'ord_2', '--dry-run'], {
-      CAFE_SHOP_TOKEN: 'shop-secret',
+    const dry = await runTsx(join(dir, 'cafe.ts'), ['shop', 'getOrder', 'ord_2', '--dry-run'], {
+      cwd: dir,
+      env: { ...process.env, CAFE_SHOP_TOKEN: 'shop-secret' },
     });
-    expect(dry.code, dry.stderr).toBe(0);
+    expect(dry.status, dry.stderr).toBe(0);
     expect(JSON.parse(dry.stdout).url).toContain('/orders/ord_2');
   });
 
   it('namespace help shows that API; the same operationId lives in both namespaces', async () => {
-    const shop = await runEntry(['shop', '--help']);
-    const kitchen = await runEntry(['kitchen', '--help']);
-    expect(shop.code).toBe(0);
-    expect(kitchen.code).toBe(0);
+    const shop = await runTsx(join(dir, 'cafe.ts'), ['shop', '--help'], { cwd: dir });
+    const kitchen = await runTsx(join(dir, 'cafe.ts'), ['kitchen', '--help'], { cwd: dir });
+    expect(shop.status, shop.stderr).toBe(0);
+    expect(kitchen.status, kitchen.stderr).toBe(0);
     expect(shop.stdout).toContain('orders');
     expect(kitchen.stdout).toContain('orders');
   });
 
   it('the root custom command runs with parsed flags', async () => {
-    const login = await runEntry(['login', '--user', 'sam']);
-    expect(login.code, login.stderr).toBe(0);
+    const login = await runTsx(join(dir, 'cafe.ts'), ['login', '--user', 'sam'], { cwd: dir });
+    expect(login.status, login.stderr).toBe(0);
     expect(JSON.parse(login.stdout)).toEqual({ loggedIn: 'sam' });
   });
 
   it('an unknown namespace is a usage error naming the real ones', async () => {
-    const bad = await runEntry(['warehouse', 'listOrders']);
-    expect(bad.code).toBe(4);
+    const bad = await runTsx(join(dir, 'cafe.ts'), ['warehouse', 'listOrders'], { cwd: dir });
+    expect(bad.status).toBe(4);
     const message = JSON.parse(bad.stderr).error.message;
     expect(message).toContain('shop');
     expect(message).toContain('kitchen');

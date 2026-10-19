@@ -38,5 +38,5 @@ describe('generate-client envelope', () => {
     expect(generated).toMatch(/envelope\?: boolean/);
 
     strictTypecheck(dir, ['client.ts', 'usage.ts']);
-  }, 60_000);
+  });
 });

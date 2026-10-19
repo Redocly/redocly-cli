@@ -15,7 +15,7 @@ import {
   wireRows,
 } from '../shared/stream-bodies/stream-bodies.js';
 
-describe('generate-client stream bodies, Python (end-to-end)', () => {
+describe('generate-client stream bodies, Python', () => {
   let server: MockServer;
   let workDir = '';
 
@@ -27,7 +27,7 @@ describe('generate-client stream bodies, Python (end-to-end)', () => {
       generators: ['python'],
     });
     server = await startStreamServer();
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -44,7 +44,7 @@ describe('generate-client stream bodies, Python (end-to-end)', () => {
 
     expect(wireRows(server.requests)).toEqual([...streamRows(sized), ...replayableRows]);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 
   it('hands an untyped multipart body to the runtime helper, which also encodes a dict', () => {
     // The smoke sends only file-like objects and bytes, so the helper call is checked in the source.

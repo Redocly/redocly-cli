@@ -26,7 +26,7 @@ describe('non-identifier path parameters', () => {
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: spec, output: join(dir, 'client.ts') });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
@@ -44,11 +44,11 @@ describe('non-identifier path parameters', () => {
 
   test('the generated client type-checks under strict mode', () => {
     expectTscPasses(['--noEmit', '-p', join(dir, 'tsconfig.json')]);
-  }, 60_000);
+  });
 
   test('builds the request URL from the argument value', async () => {
     const urls = (await runConsumer(join(dir, 'build-urls.ts'))) as string[];
     expect(urls[0]).toBe('https://api.example.com/widgets/abc');
     expect(urls[1]).toBe('https://api.example.com/items/xyz');
-  }, 60_000);
+  });
 });

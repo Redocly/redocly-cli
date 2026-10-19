@@ -18,7 +18,7 @@ describe('retry behavior', () => {
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
@@ -33,7 +33,7 @@ describe('retry behavior', () => {
     expect(result.defaultThrew).toBe(true);
     expect(result.defaultCalls).toBe(1);
     expect(result.retryCalls).toBe(3); // 2 failures + 1 success
-  }, 60_000);
+  });
 
   test('drains the unread body of a retried response before the next attempt', async () => {
     const result = (await runConsumer(join(dir, 'drain-retried-body.ts'))) as {
@@ -43,7 +43,7 @@ describe('retry behavior', () => {
 
     expect(result.calls).toBe(2); // 1 failure + 1 success
     expect(result.cancelled).toBe(1); // the abandoned 503 body was cancelled before retrying
-  }, 60_000);
+  });
 
   test('does NOT retry a non-idempotent POST by default, but does when retryOn opts in', async () => {
     const result = (await runConsumer(join(dir, 'post-not-retried.ts'))) as {
@@ -53,7 +53,7 @@ describe('retry behavior', () => {
 
     expect(result.defaultCalls).toBe(1); // POST not retried by default
     expect(result.optInCalls).toBe(4); // 1 + 3 retries
-  }, 60_000);
+  });
 
   test('aborting during backoff stops retries and rejects', async () => {
     const result = (await runConsumer(join(dir, 'abort-during-backoff.ts'))) as {
@@ -63,5 +63,5 @@ describe('retry behavior', () => {
 
     expect(result.aborted).toBe(true);
     expect(result.calls).toBe(1); // aborted during the first backoff; no second attempt
-  }, 60_000);
+  });
 });

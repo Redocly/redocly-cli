@@ -84,9 +84,10 @@ jobs:
       - parallel:
           - name: Client generator tests
             run: npm run client-generators
-          # Not in the e2e job: tests/e2e/generate-client/examples.test.ts reads the quickstart client that this step rewrites.
-          - name: Regenerate and type-check the examples
-            run: npm run examples:regen -w @redocly/client-generator && npm run typecheck:examples -w @redocly/client-generator
+          # The diff fails when a committed example client (zero-install-quickstart) is stale.
+          - name: Regenerate, check, and type-check the examples
+            # `git status --porcelain` also lists new and deleted files, which `git diff` misses.
+            run: npm run examples:regen -w @redocly/client-generator && git status --porcelain -- packages/client-generator/examples | (! grep .) && npm run typecheck:examples -w @redocly/client-generator
 
   code-style-check:
     runs-on: blacksmith-4vcpu-ubuntu-2404

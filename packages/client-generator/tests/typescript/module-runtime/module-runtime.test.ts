@@ -3,19 +3,18 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { startCafeServer } from '../../helpers/cafe-server.js';
 import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
-import type { MockServer } from '../../helpers/mock-server.js';
+import { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/cafe.yaml');
 
-describe('generate-client --runtime module (end-to-end)', () => {
+describe("generate-client runtime: 'module'", () => {
   let server: MockServer;
   let dir = '';
 
   beforeAll(async () => {
-    server = await startCafeServer();
+    server = await MockServer.start(fixture);
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({
       api: fixture,
@@ -23,7 +22,7 @@ describe('generate-client --runtime module (end-to-end)', () => {
       runtime: 'module',
       serverUrl: server.url,
     });
-  }, 120_000);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -57,7 +56,7 @@ describe('generate-client --runtime module (end-to-end)', () => {
 
   it('the client + runtime folder type-check strictly together', () => {
     strictTypecheck(dir);
-  }, 120_000);
+  });
 
   it('a real request goes through the runtime files and returns typed data', async () => {
     const results = (await runConsumer(join(dir, 'list-menu-items.ts'))) as {
@@ -68,5 +67,5 @@ describe('generate-client --runtime module (end-to-end)', () => {
     // The error class reaches the consumer through the factory re-export chain.
     expect(results.viaApiError).toBe('function');
     expect(server.handlerErrors).toEqual([]);
-  }, 120_000);
+  });
 });

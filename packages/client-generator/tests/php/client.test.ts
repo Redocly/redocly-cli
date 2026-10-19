@@ -28,7 +28,7 @@ async function runSmoke(phpFlags: string[], smokeArgs: string[] = []): Promise<v
   expect(server.handlerErrors).toEqual([]);
 }
 
-describe('generate-client php generator (end-to-end)', () => {
+describe('generate-client php generator, base.yaml against the mock server', () => {
   beforeAll(async () => {
     server = await MockServer.start(fixture);
     workDir = copyConsumer(join(__dirname, 'consumer'));
@@ -39,7 +39,7 @@ describe('generate-client php generator (end-to-end)', () => {
       generators: ['php'],
     });
     expect(existsSync(generatedFile)).toBe(true);
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await server.close();

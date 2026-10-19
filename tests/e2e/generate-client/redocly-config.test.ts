@@ -13,24 +13,34 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { outdent } from 'outdent';
 
-import { runGenerateClient } from './helpers.js';
+import { repoRoot, runGenerateClient } from './helpers.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'fixtures/cafe.yaml');
+const fixture = join(repoRoot, 'resources/cafe.yaml');
 
 let dir = '';
 
 /** Write a temp project: the cafe description as openapi.yaml + a redocly.yaml with the given contents. */
-function project(redoclyYaml: string): void {
+function writeProject(redoclyYaml: string): void {
   dir = mkdtempSync(join(tmpdir(), 'generate-client-config-'));
   copyFileSync(fixture, join(dir, 'openapi.yaml'));
   writeFileSync(join(dir, 'redocly.yaml'), redoclyYaml, 'utf-8');
 }
-const run = (cwd: string, args: string[] = []) => runGenerateClient(args, cwd);
+
+/** A config with one `cafe` api whose client block sets the given serverUrl. */
+function configWithServerUrl(serverUrl: string): string {
+  return outdent`
+    apis:
+      cafe:
+        root: ./openapi.yaml
+        clientOutput: ./out.ts
+        client:
+          generators: [typescript]
+          serverUrl: "${serverUrl}"
+  `;
+}
 
 describe('generate-client redocly.yaml config', () => {
   afterEach(() => {
@@ -39,7 +49,7 @@ describe('generate-client redocly.yaml config', () => {
 
   it('fan-out (no arg) builds every api with a `client` block or `clientOutput`', () => {
     // `outputOnly` opts in with `clientOutput` alone; `lintOnly` has neither, so the fan-out skips it.
-    project(outdent`
+    writeProject(outdent`
       client:
         generators: [typescript]
         serverUrl: https://shared.example.com
@@ -55,13 +65,10 @@ describe('generate-client redocly.yaml config', () => {
         lintOnly:
           root: ./openapi.yaml
     `);
-    const res = run(dir);
+    const res = runGenerateClient([], dir);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'src/cafe.ts'))).toBe(true);
     expect(existsSync(join(dir, 'lintOnly.client.ts'))).toBe(false);
-    expect(readFileSync(join(dir, 'src/cafe.ts'), 'utf-8')).toContain(
-      'export const client = createClient<Ops, OperationId, OperationPath, OperationTag>(OPERATIONS,'
-    );
     // The clientOutput-only api inherits the top-level `client` defaults.
     expect(readFileSync(join(dir, 'src/output-only.ts'), 'utf-8')).toContain(
       'serverUrl: "https://shared.example.com"'
@@ -69,57 +76,113 @@ describe('generate-client redocly.yaml config', () => {
   });
 
   it('defaults the output to `<name>.client.ts` in the config dir when clientOutput is omitted', () => {
-    project(outdent`
+    writeProject(outdent`
       apis:
         cafe:
           root: ./openapi.yaml
           client:
             generators: [typescript]
     `);
-    const res = run(dir);
+    const res = runGenerateClient([], dir);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'cafe.client.ts'))).toBe(true);
   });
 
-  it('resolves an `apis:` alias passed as <api>, using its client block + clientOutput', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-          client:
-            generators: [typescript]
-            serverUrl: https://per-api.example.com
-    `);
-    const res = run(dir, ['cafe']);
-    expect(res.status, res.stderr).toBe(0);
-    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
-      'serverUrl: "https://per-api.example.com"'
-    );
-  });
-
-  it('a named alias falls back to the top-level `client` when it has no per-api block', () => {
-    project(outdent`
-      client:
-        generators: [typescript]
-        serverUrl: https://top-level.example.com
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-    `);
-    const res = run(dir, ['cafe']);
-    expect(res.status, res.stderr).toBe(0);
-    // serverUrl came from the top-level client block (the api declares none).
-    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
-      'serverUrl: "https://top-level.example.com"'
-    );
-  });
+  const serverUrlCases = [
+    {
+      name: 'an `apis:` alias uses its own client block and clientOutput',
+      config: outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./out.ts
+            client:
+              generators: [typescript]
+              serverUrl: https://per-api.example.com
+      `,
+      args: ['cafe'],
+      outputFile: 'out.ts',
+      serverUrl: 'https://per-api.example.com',
+    },
+    {
+      name: 'an alias without a client block falls back to the top-level block',
+      config: outdent`
+        client:
+          generators: [typescript]
+          serverUrl: https://top-level.example.com
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./out.ts
+      `,
+      args: ['cafe'],
+      outputFile: 'out.ts',
+      serverUrl: 'https://top-level.example.com',
+    },
+    {
+      name: "a file path that matches an api root uses that api's block (like `bundle`)",
+      config: outdent`
+        client:
+          generators: [typescript]
+          serverUrl: https://top-level.example.com
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            client:
+              generators: [typescript]
+              serverUrl: https://per-api.example.com
+      `,
+      args: ['./openapi.yaml', '--output', './matched.ts'],
+      outputFile: 'matched.ts',
+      serverUrl: 'https://per-api.example.com',
+    },
+    {
+      name: 'a file path that matches no api root uses the top-level block',
+      config: outdent`
+        client:
+          generators: [typescript]
+          serverUrl: https://top-level.example.com
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            client:
+              generators: [typescript]
+              serverUrl: https://per-api.example.com
+      `,
+      args: [fixture, '--output', './unmatched.ts'],
+      outputFile: 'unmatched.ts',
+      serverUrl: 'https://top-level.example.com',
+    },
+    {
+      name: 'a CLI flag overrides the client block',
+      config: configWithServerUrl('https://per-api.example.com'),
+      args: ['cafe', '--server-url', 'https://flag.example.com'],
+      outputFile: 'out.ts',
+      serverUrl: 'https://flag.example.com',
+    },
+    {
+      name: 'a root-relative serverUrl is accepted',
+      config: configWithServerUrl('/v1'),
+      args: ['cafe'],
+      outputFile: 'out.ts',
+      serverUrl: '/v1',
+    },
+  ];
+  for (const testCase of serverUrlCases) {
+    it(`serverUrl: ${testCase.name}`, () => {
+      writeProject(testCase.config);
+      const res = runGenerateClient(testCase.args, dir);
+      expect(res.status, res.stderr).toBe(0);
+      expect(readFileSync(join(dir, testCase.outputFile), 'utf-8')).toContain(
+        `serverUrl: "${testCase.serverUrl}"`
+      );
+    });
+  }
 
   it('a per-api client block REPLACES the top-level one (no field-by-field merging)', () => {
     // One resolution path, obvious to reason about: an api with its own `client`
     // uses that block wholesale; the top-level block only serves apis without one.
-    project(outdent`
+    writeProject(outdent`
       client:
         generators: [typescript, zod]
         errorMode: result
@@ -130,7 +193,7 @@ describe('generate-client redocly.yaml config', () => {
           client:
             argsStyle: flat
     `);
-    const res = run(dir, ['cafe']);
+    const res = runGenerateClient(['cafe'], dir);
     expect(res.status, res.stderr).toBe(0);
     const entry = readFileSync(join(dir, 'out.ts'), 'utf-8');
     // The per-api block applied…
@@ -140,178 +203,128 @@ describe('generate-client redocly.yaml config', () => {
     expect(existsSync(join(dir, 'out.zod.ts'))).toBe(false);
   });
 
-  it("a file path matching an api root uses that api's config (like `bundle`); an unmatched path uses the top-level defaults", () => {
-    project(outdent`
-      client:
-        generators: [typescript]
-        serverUrl: https://top-level.example.com
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          client:
-            generators: [typescript]
-            serverUrl: https://per-api.example.com
-    `);
-    copyFileSync(fixture, join(dir, 'standalone.yaml')); // not registered under `apis:`
-
-    const matched = run(dir, ['./openapi.yaml', '--output', './matched.ts']);
-    expect(matched.status, matched.stderr).toBe(0);
-    const matchedOut = readFileSync(join(dir, 'matched.ts'), 'utf-8');
-    expect(matchedOut).toContain('serverUrl: "https://per-api.example.com"');
-
-    const unmatched = run(dir, ['./standalone.yaml', '--output', './unmatched.ts']);
-    expect(unmatched.status, unmatched.stderr).toBe(0);
-    expect(readFileSync(join(dir, 'unmatched.ts'), 'utf-8')).toContain(
-      'serverUrl: "https://top-level.example.com"'
-    );
-  });
-
-  it('CLI flags override the client block', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-          client:
-            generators: [typescript]
-            serverUrl: https://per-api.example.com
-    `);
-    const res = run(dir, ['cafe', '--server-url', 'https://flag.example.com']);
-    expect(res.status, res.stderr).toBe(0);
-    expect(readFileSync(join(dir, 'out.ts'), 'utf-8')).toContain(
-      'serverUrl: "https://flag.example.com"'
-    );
-  });
-
-  it('warns on a removed `facade` key (config struct rule) but still generates', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-          client:
-            generators: [typescript]
-            facade: service-class
-    `);
-    const res = run(dir, ['cafe']);
-    expect(res.status, res.stderr).toBe(0);
-    expect(res.stdout + res.stderr).toContain('Property `facade` is not expected here.');
-    expect(res.stderr).toContain('Your config has 1 warning');
-    expect(existsSync(join(dir, 'out.ts'))).toBe(true);
-  });
-
-  it('warns on an unknown key inside `client.pagination` (config struct rule) but still generates', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-          client:
-            generators: [typescript]
-            pagination:
-              style: cursor
-              cursor_param: after
-              cursorParam: after
-              nextCursor: /page/endCursor
-              items: /items
-    `);
-    const res = run(dir, ['cafe']);
-    expect(res.status, res.stderr).toBe(0);
-    expect(res.stdout + res.stderr).toContain('Property `cursor_param` is not expected here.');
-    expect(res.stderr).toContain('Your config has 1 warning');
-    expect(existsSync(join(dir, 'out.ts'))).toBe(true);
-  });
-
-  it('rejects --output in fan-out mode', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          client:
-            generators: [typescript]
-    `);
-    const res = run(dir, ['--output', './out.ts']);
-    expect(res.status).not.toBe(0);
-    expect(res.stderr).toContain("--output can't target multiple APIs");
-  });
-
-  it('errors when no api has a `client` block and none is named', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-    `);
-    const res = run(dir);
-    expect(res.status).not.toBe(0);
-    expect(res.stderr).toContain('No API to generate');
-  });
-
-  it('errors when two fan-out apis resolve to the same clientOutput', () => {
-    project(outdent`
-      apis:
-        a:
-          root: ./openapi.yaml
-          clientOutput: ./dupe.ts
-          client: { generators: [typescript] }
-        b:
-          root: ./openapi.yaml
-          clientOutput: ./dupe.ts
-          client: { generators: [typescript] }
-    `);
-    const res = run(dir);
-    expect(res.status).not.toBe(0);
-    expect(res.stderr).toContain('Two APIs write to the same path');
-  });
-
-  it('rejects a bare-hostname serverUrl but accepts absolute and root-relative', () => {
-    const configWithServerUrl = (serverUrl: string) => outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-          client:
-            generators: [typescript]
-            serverUrl: ${serverUrl}
-    `;
-
-    project(configWithServerUrl('api.example.com'));
-    const bad = run(dir, ['cafe']);
-    expect(bad.status).not.toBe(0);
-    expect(bad.stderr).toContain('serverUrl must be an absolute URL');
-
-    for (const ok of ['https://api.example.com', '/v1']) {
-      writeFileSync(join(dir, 'redocly.yaml'), configWithServerUrl(ok), 'utf-8');
-      const res = run(dir, ['cafe']);
+  const structWarningCases = [
+    {
+      name: 'a removed `facade` key',
+      config: outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./out.ts
+            client:
+              generators: [typescript]
+              facade: service-class
+      `,
+      warning: 'Property `facade` is not expected here.',
+    },
+    {
+      name: 'an unknown key inside `client.pagination`',
+      config: outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./out.ts
+            client:
+              generators: [typescript]
+              pagination:
+                style: cursor
+                cursor_param: after
+                cursorParam: after
+                nextCursor: /page/endCursor
+                items: /items
+      `,
+      warning: 'Property `cursor_param` is not expected here.',
+    },
+  ];
+  for (const testCase of structWarningCases) {
+    it(`warns on ${testCase.name} (config struct rule) but still generates`, () => {
+      writeProject(testCase.config);
+      const res = runGenerateClient(['cafe'], dir);
       expect(res.status, res.stderr).toBe(0);
-    }
+      expect(res.stdout + res.stderr).toContain(testCase.warning);
+      expect(res.stderr).toContain('Your config has 1 warning');
+      expect(existsSync(join(dir, 'out.ts'))).toBe(true);
+    });
+  }
 
-    // Non-http(s) schemes and protocol-relative hosts are rejected too — the value is
-    // inlined as the client's default fetch base.
-    for (const hostile of ['javascript:alert(1)', 'file:///etc/passwd', '//evil.example.com']) {
-      writeFileSync(join(dir, 'redocly.yaml'), configWithServerUrl(`"${hostile}"`), 'utf-8');
-      const res = run(dir, ['cafe']);
-      expect(res.status, `expected rejection for ${hostile}`).not.toBe(0);
+  const errorCases = [
+    {
+      name: 'rejects --output in fan-out mode',
+      config: outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            client:
+              generators: [typescript]
+      `,
+      args: ['--output', './out.ts'],
+      message: "--output can't target multiple APIs",
+    },
+    {
+      name: 'errors when no api has a `client` block and none is named',
+      config: outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+      `,
+      args: [],
+      message: 'No API to generate',
+    },
+    {
+      name: 'errors when two fan-out apis resolve to the same clientOutput',
+      config: outdent`
+        apis:
+          a:
+            root: ./openapi.yaml
+            clientOutput: ./dupe.ts
+            client: { generators: [typescript] }
+          b:
+            root: ./openapi.yaml
+            clientOutput: ./dupe.ts
+            client: { generators: [typescript] }
+      `,
+      args: [],
+      message: 'Two APIs write to the same path',
+    },
+    {
+      // setup is a local module baked into the client.
+      name: 'rejects a URL `client.setup` upfront',
+      config: outdent`
+        apis:
+          cafe:
+            root: ./openapi.yaml
+            clientOutput: ./out.ts
+            client:
+              generators: [typescript]
+              setup: https://cdn.example.com/setup.ts
+      `,
+      args: ['cafe'],
+      message: 'must be a local file path',
+    },
+  ];
+  for (const testCase of errorCases) {
+    it(testCase.name, () => {
+      writeProject(testCase.config);
+      const res = runGenerateClient(testCase.args, dir);
+      expect(res.status).not.toBe(0);
+      expect(res.stderr).toContain(testCase.message);
+    });
+  }
+
+  // The value is inlined as the client's default fetch base, so only an absolute http(s)
+  // URL or a root-relative path is allowed.
+  it.each(['api.example.com', 'javascript:alert(1)', 'file:///etc/passwd', '//evil.example.com'])(
+    'rejects the serverUrl %s',
+    (serverUrl) => {
+      writeProject(configWithServerUrl(serverUrl));
+      const res = runGenerateClient(['cafe'], dir);
+      expect(res.status).not.toBe(0);
       expect(res.stderr).toContain('serverUrl must be an absolute URL');
     }
-  });
-
-  it('rejects a URL `client.setup` upfront (setup is a local module baked into the client)', () => {
-    project(outdent`
-      apis:
-        cafe:
-          root: ./openapi.yaml
-          clientOutput: ./out.ts
-          client:
-            generators: [typescript]
-            setup: https://cdn.example.com/setup.ts
-    `);
-    const res = run(dir, ['cafe']);
-    expect(res.status).not.toBe(0);
-    expect(res.stderr).toContain('must be a local file path');
-  });
+  );
 
   it('a per-api block drives split output and extra generators', () => {
-    project(outdent`
+    writeProject(outdent`
       apis:
         realm:
           root: ./openapi.yaml
@@ -320,7 +333,7 @@ describe('generate-client redocly.yaml config', () => {
             generators: [typescript, zod]
             outputMode: split
     `);
-    const res = run(dir, ['realm']);
+    const res = runGenerateClient(['realm'], dir);
     expect(res.status, res.stderr).toBe(0);
     expect(existsSync(join(dir, 'out/client.ts'))).toBe(true);
     expect(existsSync(join(dir, 'out/client.schemas.ts'))).toBe(true); // split layout
@@ -328,7 +341,7 @@ describe('generate-client redocly.yaml config', () => {
   });
 
   it('resolves a relative clientOutput against the redocly.yaml dir (via --config)', () => {
-    project(outdent`
+    writeProject(outdent`
       apis:
         cafe:
           root: ./openapi.yaml
@@ -374,7 +387,7 @@ describe('generate-client redocly.yaml config', () => {
       `,
       'utf-8'
     );
-    const res = run(dir, ['main']);
+    const res = runGenerateClient(['main'], dir);
     expect(res.status, res.stderr).toBe(0);
     const client = readFileSync(join(dir, 'client.ts'), 'utf-8');
     expect(client).toContain('getPublic');

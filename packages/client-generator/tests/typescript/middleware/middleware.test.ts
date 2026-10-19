@@ -21,7 +21,7 @@ describe('middleware — flat surface (use)', () => {
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
@@ -36,7 +36,7 @@ describe('middleware — flat surface (use)', () => {
     expect(captured.order).toEqual(['req-A', 'req-B', 'res-B', 'res-A']);
     expect(captured.hasA).toBe(true);
     expect(captured.hasB).toBe(true);
-  }, 60_000);
+  });
 
   test('onError threads through each middleware in turn', async () => {
     const result = (await runConsumer(join(dir, 'on-error-chain.ts'))) as {
@@ -46,7 +46,7 @@ describe('middleware — flat surface (use)', () => {
 
     expect(result.threw).toBe(true);
     expect(result.message).toBe('second:first:500');
-  }, 60_000);
+  });
 
   test('onSettled runs once per call with the final outcome, network errors included', async () => {
     const result = (await runConsumer(join(dir, 'on-settled.ts'))) as {
@@ -55,7 +55,7 @@ describe('middleware — flat surface (use)', () => {
 
     expect(result.lines).toEqual(['listPets 200 2', 'listPets failed 1']);
     strictTypecheck(dir, ['client.ts', 'on-settled.ts']);
-  }, 60_000);
+  });
 
   test('use() does not mutate a caller-provided middleware array (no cross-client leak)', async () => {
     const result = (await runConsumer(join(dir, 'caller-array-not-mutated.ts'))) as {
@@ -64,7 +64,7 @@ describe('middleware — flat surface (use)', () => {
 
     // use() must append to a fresh array, not push into the array the caller passed.
     expect(result.mineLength).toBe(0);
-  }, 60_000);
+  });
 
   test('the single config.onRequest hook still runs (as an implicit first middleware)', async () => {
     const captured = (await runConsumer(join(dir, 'config-on-request.ts'))) as {
@@ -72,7 +72,7 @@ describe('middleware — flat surface (use)', () => {
     };
 
     expect(captured.order).toEqual(['config', 'mw']);
-  }, 60_000);
+  });
 
   test('onRequest sees ctx.operation { id, path, tags }', async () => {
     const captured = (await runConsumer(join(dir, 'operation-context.ts'))) as {
@@ -82,7 +82,7 @@ describe('middleware — flat surface (use)', () => {
     expect(captured.op.id).toBe('createPet');
     expect(captured.op.path).toBe('/pets');
     expect(captured.op.tags).toEqual([]);
-  }, 60_000);
+  });
 
   test('onRequest can mutate ctx.body and the change is sent', async () => {
     const captured = (await runConsumer(join(dir, 'mutate-body.ts'))) as {
@@ -90,7 +90,7 @@ describe('middleware — flat surface (use)', () => {
     };
 
     expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
-  }, 60_000);
+  });
 
   test('configure({ middleware }) runs before later use() middleware', async () => {
     const captured = (await runConsumer(join(dir, 'configured-before-use.ts'))) as {
@@ -98,7 +98,7 @@ describe('middleware — flat surface (use)', () => {
     };
 
     expect(captured.order).toEqual(['configured', 'use']);
-  }, 60_000);
+  });
 });
 
 describe('middleware — multi-file output (split)', () => {
@@ -106,7 +106,7 @@ describe('middleware — multi-file output (split)', () => {
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
@@ -118,7 +118,7 @@ describe('middleware — multi-file output (split)', () => {
     };
     expect(new URL(captured.url).origin).toBe('https://multi.example.com');
     expect(captured.header).toBe('yes');
-  }, 60_000);
+  });
 });
 
 describe('middleware — result error mode', () => {
@@ -126,7 +126,7 @@ describe('middleware — result error mode', () => {
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts'), errorMode: 'result' });
-  }, 60_000);
+  });
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
   });
@@ -142,5 +142,5 @@ describe('middleware — result error mode', () => {
     expect(result.ran).toEqual(['req', 'res']);
     expect(result.hasError).toBe(true);
     expect(result.hasData).toBe(false);
-  }, 60_000);
+  });
 });

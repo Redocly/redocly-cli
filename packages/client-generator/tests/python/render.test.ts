@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { PYTHON_CAFE } from '../../src/generators/__tests__/fixtures/cafe-models.js';
 import { generatorInput } from '../../src/generators/__tests__/fixtures/generator-input.js';
 import {
   pythonGenerator as pythonGeneratorEntry,
@@ -15,13 +16,15 @@ import type { ApiModel, SchemaModel } from '../../src/intermediate-representatio
 const pythonGenerator = (input: Parameters<typeof generatorInput>[0]) =>
   pythonGeneratorEntry(generatorInput(input));
 
-/** Assert the rendered source is valid Python. */
-function expectCompiles(source: string): void {
+/**
+ * Assert the rendered source imports cleanly. An import runs the class bodies, so it also
+ * catches dataclass errors that a syntax check misses, such as a bad field order.
+ */
+function expectImports(source: string): void {
   const dir = mkdtempSync(join(tmpdir(), 'py-render-'));
   try {
-    const file = join(dir, 'models.py');
-    writeFileSync(file, source);
-    const result = spawnSync('python3', ['-m', 'py_compile', file], { encoding: 'utf-8' });
+    writeFileSync(join(dir, 'rendered.py'), source);
+    const result = spawnSync('python3', ['-c', 'import rendered'], { cwd: dir, encoding: 'utf-8' });
     expect(result.status, result.stderr).toBe(0);
   } finally {
     rmSync(dir, { recursive: true, force: true });
@@ -42,7 +45,7 @@ function model(schemas: Record<string, SchemaModel>): ApiModel {
   } as unknown as ApiModel;
 }
 
-describe('renderPythonModels', () => {
+describe('renderPythonModels output, imported with python3', () => {
   it('renders an object schema as a dataclass — required fields first, optional with = None', () => {
     const out = renderPythonModels(
       model({
@@ -65,6 +68,7 @@ describe('renderPythonModels', () => {
     const note = out.indexOf('note: Optional[str] = None');
     expect(id).toBeGreaterThan(-1);
     expect(note).toBeGreaterThan(id);
+    expectImports(out);
   });
 
   it("renders pydantic models under models: 'pydantic', with wire names as aliases", () => {
@@ -92,6 +96,7 @@ describe('renderPythonModels', () => {
     expect(out).not.toContain('_field_map');
     expect(out).not.toContain('ClassVar');
     expect(out).not.toContain('from dataclasses import');
+    expectImports(out);
   });
 
   it('flattens allOf compositions into one dataclass', () => {
@@ -118,6 +123,7 @@ describe('renderPythonModels', () => {
     expect(out).toContain('@dataclass\nclass Page:');
     expect(out).toContain('items: List[str]');
     expect(out).toContain('offset: Optional[int] = None');
+    expectImports(out);
   });
 
   it('renders enums with SCREAMING members and unions as aliases with a discriminator table', () => {
@@ -146,7 +152,7 @@ describe('renderPythonModels', () => {
     expect(out).toContain('IN_PROGRESS = "in-progress"');
     expect(out).toContain('Pet = Union[Cat, Dog]');
     expect(out).toContain('# Discriminated by "petType": cat -> Cat, dog -> Dog');
-    expectCompiles(out);
+    expectImports(out);
   });
 
   /** Cat/Dog under a `petType` discriminator; `declares` controls whether they declare it. */
@@ -181,7 +187,7 @@ describe('renderPythonModels', () => {
     expect(out).toContain('pet_type: Literal["dog"] = Field(alias="petType")');
     expect(out).toContain('Pet = Annotated[Union[Cat, Dog], Field(discriminator="pet_type")]');
     expect(out).toContain('Annotated');
-    expectCompiles(out);
+    expectImports(out);
   });
 
   it('leaves the union plain when its members do not declare the discriminator', () => {
@@ -192,7 +198,7 @@ describe('renderPythonModels', () => {
     const dataclasses = renderPythonModels(model(petUnion(true)), 'string', 'dataclass');
     expect(dataclasses).toContain('Pet = Union[Cat, Dog]');
     expect(dataclasses).toContain('pet_type: str');
-    expectCompiles(out);
+    expectImports(out);
   });
 
   it('sanitizes reserved-word field names and records the wire mapping', () => {
@@ -206,7 +212,7 @@ describe('renderPythonModels', () => {
     );
     expect(out).toContain('class_: str');
     expect(out).toContain('"class_": "class"');
-    expectCompiles(out);
+    expectImports(out);
   });
 
   it('keeps +1 and -1 fields distinct (a collision silently drops one from the field map)', () => {
@@ -225,7 +231,7 @@ describe('renderPythonModels', () => {
     expect(out).toContain('minus_1: int');
     expect(out).toContain('"plus_1": "+1"');
     expect(out).toContain('"minus_1": "-1"');
-    expectCompiles(out);
+    expectImports(out);
   });
 
   it('renders nullable and record shapes idiomatically', () => {
@@ -246,177 +252,13 @@ describe('renderPythonModels', () => {
     );
     expect(out).toContain('tag: Optional[str]');
     expect(out).toContain('meta: Dict[str, str]');
+    expectImports(out);
   });
 });
 
-const CAFE: ApiModel = {
-  title: 'Cafe',
-  version: '1.0.0',
-  serverUrl: 'https://api.cafe.example/organizations/unknown',
-  servers: [
-    {
-      url: 'https://api.cafe.example/organizations/{organizationId}',
-      description: 'Live server',
-      variables: [{ name: 'organizationId', default: 'unknown' }],
-    },
-    {
-      url: 'https://api-sandbox.cafe.example/organizations/{organizationId}',
-      description: 'Sandbox server',
-      variables: [{ name: 'organizationId', default: 'unknown' }],
-    },
-  ],
-  services: [
-    {
-      name: 'Orders',
-      operations: [
-        {
-          name: 'listOrders',
-          specName: 'listOrders',
-          method: 'get',
-          path: '/orders',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [
-            { name: 'after', in: 'query', required: false, schema: STRING },
-            { name: 'limit', in: 'query', required: false, schema: INT },
-          ],
-          headerParams: [],
-          cookieParams: [],
-          security: [['BearerAuth']],
-          paginationExtension: {
-            style: 'cursor',
-            cursorParam: 'after',
-            nextCursor: '/next',
-            items: '/items',
-          },
-          successResponseHeaders: [
-            {
-              name: 'pagination-total',
-              schema: { kind: 'scalar', scalar: 'integer' },
-              required: true,
-            },
-            { name: 'link', schema: { kind: 'scalar', scalar: 'string' } },
-          ],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'OrderPage' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'streamEvents',
-          specName: 'streamEvents',
-          method: 'get',
-          path: '/events',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'text/event-stream',
-              schema: { kind: 'object', properties: [] },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'uploadPhoto',
-          specName: 'uploadPhoto',
-          method: 'post',
-          path: '/photos',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          requestBody: {
-            contentType: 'multipart/form-data',
-            schema: { kind: 'object', properties: [] },
-          },
-          successResponses: [{ status: '204', contentType: '', schema: { kind: 'unknown' } }],
-          errorResponses: [],
-        },
-        {
-          name: 'getOrder',
-          specName: 'getOrder',
-          method: 'get',
-          path: '/orders/{orderId}',
-          tags: ['Orders'],
-          pathParams: [{ name: 'orderId', in: 'path', required: true, schema: STRING }],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          successResponses: [
-            {
-              status: '200',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'Order' },
-            },
-          ],
-          errorResponses: [],
-        },
-        {
-          name: 'createOrder',
-          specName: 'createOrder',
-          method: 'post',
-          path: '/orders',
-          tags: ['Orders'],
-          pathParams: [],
-          queryParams: [],
-          headerParams: [],
-          cookieParams: [],
-          security: [],
-          requestBody: { contentType: 'application/json', schema: { kind: 'ref', name: 'Order' } },
-          successResponses: [
-            {
-              status: '201',
-              contentType: 'application/json',
-              schema: { kind: 'ref', name: 'Order' },
-            },
-          ],
-          errorResponses: [],
-        },
-      ],
-    },
-  ],
-  schemas: [
-    {
-      name: 'Order',
-      schema: {
-        kind: 'object',
-        properties: [{ name: 'id', schema: STRING, required: true }],
-      },
-    },
-    {
-      name: 'OrderPage',
-      schema: {
-        kind: 'object',
-        properties: [
-          {
-            name: 'items',
-            schema: { kind: 'array', items: { kind: 'ref', name: 'Order' } },
-            required: true,
-          },
-          { name: 'next', schema: STRING, required: false },
-        ],
-      },
-    },
-  ],
-  securitySchemes: [{ key: 'BearerAuth', kind: 'bearer' }],
-} as unknown as ApiModel;
-
 function generate(errorMode: 'throw' | 'result' = 'throw'): string {
   const files = pythonGenerator({
-    model: CAFE,
+    model: PYTHON_CAFE,
     outputPath: '/out/client.ts',
     outputMode: 'single',
     emit: { errorMode },
@@ -426,10 +268,10 @@ function generate(errorMode: 'throw' | 'result' = 'throw'): string {
   return files[0].content;
 }
 
-describe('python auth keys', () => {
+describe('pythonGenerator full client, run with python3', () => {
   it('accepts apiKey (the documented, cross-language key) and api_key alike', () => {
     const out = pythonGenerator({
-      model: CAFE,
+      model: PYTHON_CAFE,
       outputPath: '/out/client.ts',
       outputMode: 'single',
       emit: {},
@@ -456,171 +298,10 @@ describe('python auth keys', () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
-});
 
-describe('python output path', () => {
-  const pathFor = (outputPath: string) =>
-    pythonGenerator({ model: CAFE, outputPath, outputMode: 'single', emit: {} })[0].path;
-
-  it('emits an importable module name — the TypeScript stem is not one', () => {
-    // `openapi.client.py` and `rebilly-core.client.py` cannot be imported by name.
-    expect(pathFor('/out/openapi.client.ts')).toBe('/out/openapi_client.py');
-    expect(pathFor('/out/rebilly-core.client.ts')).toBe('/out/rebilly_core_client.py');
-    // A stem that is already importable is left alone.
-    expect(pathFor('/out/client.ts')).toBe('/out/client.py');
-    // A leading digit would be a syntax error in an import.
-    expect(pathFor('/out/3rd-party.client.ts')).toBe('/out/_3rd_party_client.py');
-  });
-});
-
-describe('pythonGenerator (full client assembly)', () => {
-  it('renders typed sync methods — kwargs for query params, positional path params, hydrated returns', () => {
-    const out = generate();
-    expect(out).toContain('class Client:');
-    expect(out).toContain(
-      'def list_orders(self, *, after: Optional[str] = None, limit: Optional[int] = None'
-    );
-    expect(out).toContain(') -> OrderPage:');
-    expect(out).toContain('def get_order(self, order_id: str, *');
-    expect(out).toContain('def create_order(self, body: Order, *');
-    expect(out).toContain('return decode(OrderPage, _safe_json(response))');
-    // Wire names survive the snake_case kwargs.
-    expect(out).toContain('params["after"] = encode(after)');
-  });
-
-  it('embeds the runtime, the descriptor table, and an async mirror', () => {
-    const out = generate();
-    expect(out).toContain('def send('); // embedded runtime
-    expect(out).toContain('async def send_async('); // async mirror
-    expect(out).toContain('_OPERATIONS = {');
-    expect(out).toContain('"id": "listOrders"');
-    expect(out).toContain('class AsyncClient:');
-    expect(out).toContain('async def list_orders(');
-    expect(out).not.toContain('from ._'); // relative imports stitched away
-  });
-
-  it('raises ApiError in throw mode; returns Result in result mode', () => {
-    expect(generate('throw')).toContain('raise ApiError(');
-    const result = generate('result');
-    expect(result).toContain(') -> Result:');
-    expect(result).toContain('return Result(data=None, error=');
-  });
-
-  it('the assembled file is valid Python', () => {
-    expectCompiles(generate());
-    expectCompiles(generate('result'));
-  });
-});
-
-describe('pythonGenerator parity features', () => {
-  it('paginated operations gain pages/items iterators, sync and async', () => {
-    const out = generate();
-    expect(out).toContain('"pagination": {"style": "cursor", "param": "after"');
-    expect(out).toContain('def list_orders_pages(');
-    expect(out).toContain('def list_orders_items(');
-    expect(out).toContain('-> Iterator[Order]:'); // typed via schemaAtPointer on the items pointer
-    expect(out).toContain('iter_pages(');
-    expect(out).toContain('async for page in aiter_pages(');
-    expect(out).toContain('-> Iterator[OrderPage]:');
-  });
-
-  it('SSE operations stream typed events; multipart bodies route through to_multipart', () => {
-    const out = generate();
-    expect(out).toContain('def stream_events(');
-    expect(out).toContain('-> Iterator[ServerSentEvent]:');
-    expect(out).toContain('iter_sse(');
-    expect(out).toContain('-> AsyncIterator[ServerSentEvent]:');
-    expect(out).toContain('aiter_sse(');
-    expect(out).toContain('form_data, form_files = to_multipart(body)');
-    expect(out).not.toContain('**multipart_arguments(body)');
-  });
-
-  it('emits a _with_headers envelope variant only for ops with declared response headers', () => {
-    const out = generate();
-    expect(out).toContain('def list_orders_with_headers(');
-    expect(out).toContain('async def list_orders_with_headers(');
-    expect(out).toContain(') -> Envelope[OrderPage]:');
-    expect(out).toContain(
-      'read_envelope_headers(response, [("pagination-total", "pagination_total", "integer"), ("link", "link", "string")])'
-    );
-    // No declared headers, no variant.
-    expect(out).not.toContain('get_order_with_headers');
-  });
-
-  it('iterator signatures annotate a date query param like the method does', () => {
-    // The `_pages`/`_items` wrappers dropped `dateType`, so `since` was `str` on the
-    // iterator while the method beside it said `datetime`.
-    const paged: ApiModel = {
-      title: 'Cafe',
-      version: '1.0.0',
-      serverUrl: 'https://api.cafe.example',
-      schemas: [],
-      securitySchemes: [],
-      services: [
-        {
-          name: 'Orders',
-          operations: [
-            {
-              name: 'listOrders',
-              specName: 'listOrders',
-              method: 'get',
-              path: '/orders',
-              tags: [],
-              pathParams: [],
-              queryParams: [
-                {
-                  name: 'after',
-                  in: 'query',
-                  required: false,
-                  schema: { kind: 'scalar', scalar: 'string' },
-                },
-                {
-                  name: 'since',
-                  in: 'query',
-                  required: false,
-                  schema: { kind: 'scalar', scalar: 'string', metadata: { format: 'date-time' } },
-                },
-              ],
-              headerParams: [],
-              cookieParams: [],
-              security: [],
-              paginationExtension: {
-                style: 'cursor',
-                cursorParam: 'after',
-                nextCursor: '/next',
-                items: '/items',
-              },
-              successResponses: [
-                {
-                  status: '200',
-                  contentType: 'application/json',
-                  schema: {
-                    kind: 'object',
-                    properties: [
-                      {
-                        name: 'items',
-                        schema: { kind: 'array', items: { kind: 'object', properties: [] } },
-                        required: true,
-                      },
-                      { name: 'next', schema: STRING, required: false },
-                    ],
-                  },
-                },
-              ],
-              errorResponses: [],
-            },
-          ],
-        },
-      ],
-    } as unknown as ApiModel;
-    const out = pythonGenerator({
-      model: paged,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: { dateType: 'Date' },
-    })[0].content;
-    expect(out).toMatch(/def list_orders_pages\([^)]*since: Optional\[datetime\]/);
-    expect(out).not.toMatch(/def list_orders_pages\([^)]*since: Optional\[str\]/);
+  it('the assembled file imports cleanly in both error modes', () => {
+    expectImports(generate());
+    expectImports(generate('result'));
   });
 
   it('maps date/date-time to datetime objects under dateType: Date, and round-trips them', () => {
@@ -715,7 +396,6 @@ describe('pythonGenerator parity features', () => {
     })[0].content;
     expect(asString).toContain('placed_at: str');
     expect(asString).not.toContain('placed_at: datetime');
-    expectCompiles(out);
 
     // Behavioral: the runtime decodes ISO strings into objects and encodes them back.
     const dir = mkdtempSync(join(tmpdir(), 'py-dates-'));
@@ -740,24 +420,6 @@ describe('pythonGenerator parity features', () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
-  });
-
-  it('bakes the serverUrl option, not just the description server', () => {
-    const files = pythonGenerator({
-      model: CAFE,
-      outputPath: '/out/client.ts',
-      outputMode: 'single',
-      emit: { serverUrl: 'https://override.example' },
-    });
-    expect(files[0].content).toContain('server_url: str = "https://override.example"');
-  });
-
-  it('emits a Servers class with keyword arguments defaulting to the spec defaults', () => {
-    const out = generate();
-    expect(out).toContain('class Servers:');
-    expect(out).toContain('def live_server(organization_id: str = "unknown") -> str:');
-    expect(out).toContain('def sandbox_server(organization_id: str = "unknown") -> str:');
-    expect(out).toContain('return "https://api.cafe.example/organizations/" + organization_id');
   });
 
   it('decodes discriminated unions through the DISCRIMINATORS registry', () => {

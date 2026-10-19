@@ -37,7 +37,7 @@ describe('generate-client transformers generator', () => {
       generators: ['typescript', 'transformers'],
       dateType: 'Date',
     });
-  }, 60_000);
+  });
 
   afterAll(() => {
     rmSync(dir, { recursive: true, force: true });
@@ -62,7 +62,7 @@ describe('generate-client transformers generator', () => {
     // strict-tsc the sdk + transformers TOGETHER: proves transform<Name>(data:
     // <Name>): <Name> type-checks against the Date-typed sdk schema.
     strictTypecheck(dir, ['client.ts', 'client.transformers.ts']);
-  }, 60_000);
+  });
 
   it('transformPet converts top-level, array, and ref nested dates at runtime', async () => {
     const transformers = await import(join(dir, 'client.transformers.ts'));
@@ -85,7 +85,7 @@ describe('generate-client transformers generator', () => {
     }
     // Ref'd nested date (composition: transformPet -> transformOwner).
     expect(result.owner.since).toBeInstanceOf(Date);
-  }, 60_000);
+  });
 
   it("without dateType: 'Date' the sdk date field stays typed string (default)", async () => {
     const defaultDir = mkdtempSync(join(tmpdir(), 'ots-transformers-default-'));
@@ -96,5 +96,5 @@ describe('generate-client transformers generator', () => {
     } finally {
       rmSync(defaultDir, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 });

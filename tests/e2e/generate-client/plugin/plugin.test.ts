@@ -7,10 +7,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { runGenerateClient } from '../helpers.js';
+import { repoRoot, runGenerateClient } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const cafe = join(__dirname, '../fixtures', 'cafe.yaml');
+const cafe = join(repoRoot, 'resources/cafe.yaml');
 const plugin = join(__dirname, 'route-map-plugin.mjs');
 
 describe('generate-client custom generator (plugin) API', () => {

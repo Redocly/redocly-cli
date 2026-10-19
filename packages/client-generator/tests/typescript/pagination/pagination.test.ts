@@ -79,7 +79,7 @@ describe('generate-client pagination consumer', () => {
         },
       },
     });
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -136,7 +136,7 @@ describe('generate-client pagination consumer', () => {
 
   test('typecheck gate: both generated clients + consumer scripts, strict', () => {
     expectTscPasses(['--noEmit', '-p', workDir]);
-  }, 60_000);
+  });
 
   test('cursor (extension arm): .items across 3 pages, .pages sizes, resume, no arg mutation', async () => {
     server.reset();
@@ -173,7 +173,7 @@ describe('generate-client pagination consumer', () => {
     ]);
     expect(log.every((e) => e.method === 'GET' && e.url.includes('limit=2'))).toBe(true);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 
   test('offset (convention arm): advances by page item count, stops on the empty page', async () => {
     server.reset();
@@ -202,7 +202,7 @@ describe('generate-client pagination consumer', () => {
       '/menu?limit=2&offset=5',
     ]);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 
   test('body-link (extension arm): follows the URL in the body until it is null', async () => {
     server.reset();
@@ -218,7 +218,7 @@ describe('generate-client pagination consumer', () => {
       '/receipts?limit=2&after=4',
     ]);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 
   test('abort mid-iteration: the forwarded signal rejects the next page fetch', async () => {
     server.reset();
@@ -233,5 +233,5 @@ describe('generate-client pagination consumer', () => {
     expect(pageRequests.length).toBeGreaterThanOrEqual(1);
     expect(pageRequests.length).toBeLessThanOrEqual(2);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 });

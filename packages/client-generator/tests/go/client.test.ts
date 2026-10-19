@@ -12,7 +12,7 @@ const fixture = join(__dirname, '../fixtures/base.yaml');
 let workDir = '';
 let generatedFile = '';
 
-describe('generate-client go generator (end-to-end)', () => {
+describe('generate-client go generator, base.yaml against the mock server', () => {
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     generatedFile = join(workDir, 'client/client.go');
@@ -64,8 +64,8 @@ describe('generate-client go generator (end-to-end)', () => {
         await server.close();
       }
     },
-    // The first build on a cold CI cache compiles the stdlib and takes well over
-    // the 5s default.
+    // The first build on a cold CI cache compiles the standard library, so this test
+    // gets more time than the project default.
     180_000
   );
 });

@@ -15,7 +15,7 @@ import {
   wireRows,
 } from '../shared/stream-bodies/stream-bodies.js';
 
-describe('generate-client stream bodies, TypeScript (end-to-end)', () => {
+describe('generate-client stream bodies, TypeScript', () => {
   let server: MockServer;
   let workDir = '';
 
@@ -23,7 +23,7 @@ describe('generate-client stream bodies, TypeScript (end-to-end)', () => {
     workDir = copyConsumer(streamConsumer);
     await generateClient({ api: streamFixture, output: join(workDir, 'client/client.ts') });
     server = await startStreamServer();
-  }, 60_000);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -36,12 +36,12 @@ describe('generate-client stream bodies, TypeScript (end-to-end)', () => {
 
     await runProgram(
       tsxBin,
-      [join(workDir, 'consumer.ts'), server.url],
+      [join(workDir, 'smoke.ts'), server.url],
       'TYPESCRIPT_SMOKE_OK',
       workDir
     );
 
     expect(wireRows(server.requests)).toEqual([...streamRows(chunked), ...replayableRows]);
     expect(server.handlerErrors).toEqual([]);
-  }, 60_000);
+  });
 });

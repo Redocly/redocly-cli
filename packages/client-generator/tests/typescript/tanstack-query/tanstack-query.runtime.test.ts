@@ -78,7 +78,7 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(result.current.data).toEqual(PET);
-  }, 30_000);
+  });
 
   it('useMutation(createPetMutation()) fires the mutationFn and resolves with the created resource', async () => {
     const sdk = await import(join(consumerDir, 'client.ts'));
@@ -108,5 +108,5 @@ describe('generate-client tanstack-query runtime (React hooks, jsdom)', () => {
       body: { name: 'rex', status: 'available' },
     });
     expect(created).toEqual(PET);
-  }, 30_000);
+  });
 });

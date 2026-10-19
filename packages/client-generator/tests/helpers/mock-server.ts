@@ -26,14 +26,14 @@ export type MockRequest = {
   operationId: string | undefined;
 };
 
-export type MockResponse = {
+type MockResponse = {
   status: number;
   headers?: Record<string, string>;
   /** A Buffer or a string is sent as is. Any other value is sent as JSON. */
   body?: unknown;
 };
 
-export type MockHandlerContext = {
+type MockHandlerContext = {
   request: MockRequest;
   /** The raw response, for a handler that streams. Such a handler returns `undefined`. */
   response: http.ServerResponse;

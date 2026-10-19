@@ -37,7 +37,7 @@ describe('generate-client zod generator', () => {
     // strict-tsc the emitted zod module against REAL zod, plus the schema ↔ type
     // agreement check in consumer/check.ts.
     expectTscPasses(['-p', join(dir, 'tsconfig.check.json')]);
-  }, 60_000);
+  });
 
   it('zodValidation middleware validates requests before the wire and JSON responses after it', async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
@@ -61,5 +61,5 @@ describe('generate-client zod generator', () => {
       'warn-call-succeeded',
       'stripped:{"name":"s","quantity":1}',
     ]);
-  }, 60_000);
+  });
 });

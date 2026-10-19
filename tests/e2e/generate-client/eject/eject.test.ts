@@ -14,14 +14,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { cleanupOutput } from '../../helpers.js';
 import { repoRoot, runCli, runTsx } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+const snapshots = join(__dirname, '__snapshots__');
 
 /** A throwaway project where `@redocly/client-generator` resolves like a user install. */
 function makeProject(): string {
   const dir = mkdtempSync(join(tmpdir(), 'eject-'));
-  copyFileSync(join(__dirname, '../fixtures/cafe.yaml'), join(dir, 'openapi.yaml'));
+  copyFileSync(join(repoRoot, 'resources/cafe.yaml'), join(dir, 'openapi.yaml'));
   mkdirSync(join(dir, 'node_modules/@redocly'), { recursive: true });
   symlinkSync(
     join(repoRoot, 'packages/client-generator'),
@@ -113,33 +115,28 @@ describe('eject-generator (end-to-end)', () => {
     }
   });
 
-  it('prints the config snippet when it cannot safely edit the config', () => {
+  it('prints the config snippet when it cannot safely edit the config', async () => {
     const manual = mkdtempSync(join(tmpdir(), 'eject-manual-'));
     try {
       const eject = run(manual, ['eject-generator', 'go']);
       expect(eject.status, eject.stderr).toBe(0);
-      const output = eject.stderr + eject.stdout;
-      expect(output).toContain('generators:');
-      expect(output).toContain('./generators/go/index.ts');
       // Unwired, the run instruction has to name the copy — nothing else points at it.
-      expect(output).toContain(
-        'Run it: redocly generate-client <api> --output <path> --generator ./generators/go/index.ts'
+      await expect(cleanupOutput(eject.stderr + eject.stdout)).toMatchFileSnapshot(
+        join(snapshots, 'unwired-config.txt')
       );
-      expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
     } finally {
       rmSync(manual, { recursive: true, force: true });
     }
   });
 
-  it('tells the reader how to run what it just ejected', () => {
+  it('tells the reader how to run what it just ejected', async () => {
     copyFileSync(join(__dirname, 'apis-config.yaml'), join(project, 'redocly.yaml'));
     const eject = run(project, ['eject-generator', 'python']);
     expect(eject.status, eject.stderr).toBe(0);
-    const output = eject.stderr + eject.stdout;
     // Wired into the config, the generator needs no flag — only an api and an output.
-    expect(output).toContain('Run it: redocly generate-client <api> --output <path>\n');
-    expect(output).toContain('Edit generators/python/ and run that again');
-    expect(output).toContain('https://redocly.com/docs/cli/commands/eject-generator');
+    await expect(cleanupOutput(eject.stderr + eject.stdout)).toMatchFileSnapshot(
+      join(snapshots, 'wired-config.txt')
+    );
     // And that command works as printed.
     const generated = run(project, ['generate-client', 'openapi.yaml', '--output', 'client.ts']);
     expect(generated.status, generated.stderr).toBe(0);

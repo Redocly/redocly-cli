@@ -15,15 +15,6 @@ let stripDir = '';
 
 let server: MockServer;
 
-/** Run the generated CLI with tsx; returns exit code + parsed streams. */
-async function runCliBin(args: string[], env: Record<string, string> = {}) {
-  const result = await runTsx(join(clientDir, 'client.cli.ts'), [...args], {
-    cwd: clientDir,
-    env: { ...process.env, ...env },
-  });
-  return { code: result.status, stdout: result.stdout, stderr: result.stderr };
-}
-
 describe('generate-client cli generator', () => {
   beforeAll(async () => {
     server = await MockServer.start(fixture, {
@@ -70,7 +61,7 @@ describe('generate-client cli generator', () => {
       importExt: 'ts',
       serverUrl: server.url,
     });
-  }, 60_000);
+  });
 
   afterEach(() => {
     expect(server.handlerErrors).toEqual([]);
@@ -101,67 +92,76 @@ describe('generate-client cli generator', () => {
   it('generates client.cli.ts and strict tsc (types: node) accepts it', () => {
     expect(existsSync(join(clientDir, 'client.cli.ts'))).toBe(true);
     expectTscPasses(['-p', clientDir]);
-  }, 120_000);
+  });
 
   it('typed flags reach the query string; bearer auth comes from the env prefix', async () => {
-    const before = server.requests.length;
-    const { code, stdout } = await runCliBin(
+    server.reset();
+    const result = await runTsx(
+      join(clientDir, 'client.cli.ts'),
       ['orders', 'listOrders', '--status', 'open', '--limit', '2'],
-      { CLIENT_TOKEN: 'e2e-token' }
+      { cwd: clientDir, env: { ...process.env, CLIENT_TOKEN: 'e2e-token' } }
     );
-    expect(code).toBe(0);
-    expect(JSON.parse(stdout).orders).toHaveLength(1);
-    const entries = server.requests;
-    const hit = entries[entries.length - 1];
-    expect(entries.length).toBe(before + 1);
-    expect(hit.query).toMatchObject({ status: 'open', limit: '2' });
-    expect(hit.headers.authorization).toBe('Bearer e2e-token');
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout).orders).toHaveLength(1);
+    expect(server.requests).toHaveLength(1);
+    expect(server.requests[0].query).toMatchObject({ status: 'open', limit: '2' });
+    expect(server.requests[0].headers.authorization).toBe('Bearer e2e-token');
   });
 
   it('positional path params and --json bodies dispatch correctly', async () => {
-    const get = await runCliBin(['orders', 'getOrder', 'ord_42']);
-    expect(get.code).toBe(0);
+    const get = await runTsx(join(clientDir, 'client.cli.ts'), ['orders', 'getOrder', 'ord_42'], {
+      cwd: clientDir,
+    });
+    expect(get.status, get.stderr).toBe(0);
     expect(JSON.parse(get.stdout).id).toBe('ord_42');
 
-    const create = await runCliBin(['orders', 'createOrder', '--json', '@order.json']);
-    expect(create.code).toBe(0);
-    expect(JSON.parse(create.stdout)).toMatchObject({ id: 'ord_new', item: 'latte' });
-    const entries = server.requests;
-    expect(entries[entries.length - 1].body?.toString('utf-8')).toBe(
-      '{"item":"latte","quantity":1}'
+    server.reset();
+    const create = await runTsx(
+      join(clientDir, 'client.cli.ts'),
+      ['orders', 'createOrder', '--json', '@order.json'],
+      { cwd: clientDir }
     );
+    expect(create.status, create.stderr).toBe(0);
+    expect(JSON.parse(create.stdout)).toMatchObject({ id: 'ord_new', item: 'latte' });
+    expect(server.requests).toHaveLength(1);
+    expect(server.requests[0].body?.toString('utf-8')).toBe('{"item":"latte","quantity":1}');
   });
 
   it('zod validation failures exit 3 without hitting the server', async () => {
-    const before = server.requests.length;
-    const { code, stderr } = await runCliBin([
-      'orders',
-      'createOrder',
-      '--json',
-      '{"item":"latte","quantity":0}',
-    ]);
-    expect(code).toBe(3);
-    expect(JSON.parse(stderr).error.code).toBe(3);
-    expect(server.requests.length).toBe(before);
+    server.reset();
+    const result = await runTsx(
+      join(clientDir, 'client.cli.ts'),
+      ['orders', 'createOrder', '--json', '{"item":"latte","quantity":0}'],
+      { cwd: clientDir }
+    );
+    expect(result.status).toBe(3);
+    expect(JSON.parse(result.stderr).error.code).toBe(3);
+    expect(server.requests).toEqual([]);
   });
 
   it('--dry-run prints the prepared request and sends nothing; the token is redacted', async () => {
-    const before = server.requests.length;
-    const { code, stdout } = await runCliBin(['orders', 'getOrder', 'ord_1', '--dry-run'], {
-      CLIENT_TOKEN: 'secret-token',
-    });
-    expect(code).toBe(0);
-    const captured = JSON.parse(stdout);
+    server.reset();
+    const result = await runTsx(
+      join(clientDir, 'client.cli.ts'),
+      ['orders', 'getOrder', 'ord_1', '--dry-run'],
+      { cwd: clientDir, env: { ...process.env, CLIENT_TOKEN: 'secret-token' } }
+    );
+    expect(result.status, result.stderr).toBe(0);
+    const captured = JSON.parse(result.stdout);
     expect(captured.url).toContain('/orders/ord_1');
     expect(captured.method).toBe('GET');
     expect(JSON.stringify(captured)).not.toContain('secret-token');
-    expect(server.requests.length).toBe(before);
+    expect(server.requests).toEqual([]);
   });
 
   it('--page-all follows the cursor and prints one JSON page per line', async () => {
-    const { code, stdout } = await runCliBin(['orders', 'listOrders', '--page-all']);
-    expect(code).toBe(0);
-    const pages = stdout
+    const result = await runTsx(
+      join(clientDir, 'client.cli.ts'),
+      ['orders', 'listOrders', '--page-all'],
+      { cwd: clientDir }
+    );
+    expect(result.status, result.stderr).toBe(0);
+    const pages = result.stdout
       .trim()
       .split('\n')
       .map((line) => JSON.parse(line));
@@ -171,34 +171,39 @@ describe('generate-client cli generator', () => {
   });
 
   it('schema prints the request schema; usage errors exit 4; --help exits 0', async () => {
-    const schema = await runCliBin(['schema', 'createOrder']);
-    expect(schema.code).toBe(0);
+    const schema = await runTsx(join(clientDir, 'client.cli.ts'), ['schema', 'createOrder'], {
+      cwd: clientDir,
+    });
+    expect(schema.status, schema.stderr).toBe(0);
     expect(JSON.parse(schema.stdout).request).toBeDefined();
 
-    const usage = await runCliBin(['orders', 'listOrders', '--bogus', 'x']);
-    expect(usage.code).toBe(4);
+    const usage = await runTsx(
+      join(clientDir, 'client.cli.ts'),
+      ['orders', 'listOrders', '--bogus', 'x'],
+      { cwd: clientDir }
+    );
+    expect(usage.status).toBe(4);
     expect(JSON.parse(usage.stderr).error.code).toBe(4);
 
-    const help = await runCliBin(['--help']);
-    expect(help.code).toBe(0);
+    const help = await runTsx(join(clientDir, 'client.cli.ts'), ['--help'], { cwd: clientDir });
+    expect(help.status, help.stderr).toBe(0);
     expect(help.stdout).toContain('orders');
   });
 
   it('runs under node type stripping with no build step, zod included', () => {
     // Erasable TypeScript only: a constructor parameter property anywhere in the import
     // graph (it was in the zod module's error class) breaks strip-only mode.
-    const result = spawnSync(
-      process.execPath,
-      ['--experimental-strip-types', join(stripDir, 'client.cli.ts'), '--help'],
-      { encoding: 'utf-8', cwd: workDir }
-    );
+    const result = spawnSync(process.execPath, [join(stripDir, 'client.cli.ts'), '--help'], {
+      encoding: 'utf-8',
+      cwd: workDir,
+    });
     expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
     expect(result.stdout).toContain('Usage:');
   });
 
   it('void results print nothing and exit 0', async () => {
-    const { code, stdout } = await runCliBin(['ping']);
-    expect(code).toBe(0);
-    expect(stdout.trim()).toBe('');
+    const result = await runTsx(join(clientDir, 'client.cli.ts'), ['ping'], { cwd: clientDir });
+    expect(result.status, result.stderr).toBe(0);
+    expect(result.stdout.trim()).toBe('');
   });
 });

@@ -50,5 +50,5 @@ describe('generate-client parseAs', () => {
 
     // consumer/usage.ts calls the operation with `parseAs`; it must compile.
     strictTypecheck(dir, ['client.ts', 'usage.ts']);
-  }, 60_000);
+  });
 });
