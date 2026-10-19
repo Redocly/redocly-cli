@@ -3,4 +3,4 @@
 '@redocly/cli': patch
 ---
 
-Fixed an issue where the `struct` rule reported `type: file` in an OpenAPI 2.0 response schema as invalid.
+Fixed an issue where the `struct` rule incorrectly reported an error for `type: file` in response schemas of OpenAPI 2.0 API descriptions.
