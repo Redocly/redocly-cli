@@ -6,7 +6,7 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { parseYaml, AbortFlowError } from '@redocly/openapi-core';
+import { logger, parseYaml, AbortFlowError } from '@redocly/openapi-core';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createServer, type Server as HttpServer } from 'node:http';
 import { type AddressInfo } from 'node:net';
@@ -106,6 +106,12 @@ function runIntrospectMcp(argv: Partial<IntrospectMcpCommandArgv> & { output: st
 }
 
 describe('handleIntrospectMcp', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'info').mockImplementation(() => {});
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+    vi.spyOn(logger, 'error').mockImplementation(() => {});
+  });
+
   it('creates an OpenAPI description with the x-mcp extension from a live MCP server', async () => {
     const outputDir = mkdtempSync(join(tmpdir(), 'introspect-mcp-'));
     const outputFile = join(outputDir, 'openapi.yaml');

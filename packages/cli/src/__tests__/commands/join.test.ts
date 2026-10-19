@@ -30,11 +30,25 @@ import {
   anotherPathWithDifferentKeyObjectExtension,
 } from '../fixtures/join/documents.js';
 
+vi.mock('../../utils/miscellaneous.js');
+vi.mock('colorette');
+vi.mock('@redocly/openapi-core', async () => {
+  const actual =
+    // oxlint-disable-next-line typescript/consistent-type-imports
+    await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
+  return {
+    ...actual,
+    bundleDocument: vi.fn(),
+    detectSpec: vi.fn(),
+    getTotals: vi.fn(),
+    loadConfig: vi.fn(),
+  };
+});
+
 describe('handleJoin', () => {
   let writeToFileByExtensionSpy: any;
 
   beforeEach(() => {
-    vi.mock('../../utils/miscellaneous.js');
     vi.mocked(getAndValidateFileExtension).mockImplementation(
       (fileName) => fileName.split('.').pop() as any
     );
@@ -46,21 +60,7 @@ describe('handleJoin', () => {
       .mocked(writeToFileByExtension)
       .mockImplementation(() => undefined);
 
-    vi.mock('colorette');
     vi.mocked(yellow).mockImplementation((text) => text as string);
-
-    vi.mock('@redocly/openapi-core', async () => {
-      const actual =
-        // oxlint-disable-next-line typescript/consistent-type-imports
-        await vi.importActual<typeof import('@redocly/openapi-core')>('@redocly/openapi-core');
-      return {
-        ...actual,
-        bundleDocument: vi.fn(),
-        detectSpec: vi.fn(),
-        getTotals: vi.fn(),
-        loadConfig: vi.fn(),
-      };
-    });
 
     vi.mocked(bundleDocument).mockResolvedValue({ problems: [] } as any);
     vi.mocked(getTotals).mockReturnValue({ errors: 0, warnings: 0, ignored: 0 });

@@ -3,6 +3,14 @@ import { type MockInstance } from 'vitest';
 
 import { logger, colorize } from '../logger.js';
 
+vi.mock('colorette', async () => {
+  const actual = await vi.importActual('colorette');
+  return {
+    ...actual,
+    cyan: vi.fn(),
+  };
+});
+
 describe('Logger in nodejs', () => {
   let spyingStderr: MockInstance;
   let spyingStdout: MockInstance;
@@ -60,13 +68,6 @@ describe('Logger in nodejs', () => {
 
 describe('colorize in nodejs', () => {
   it('should call original colorette lib', () => {
-    vi.mock('colorette', async () => {
-      const actual = await vi.importActual('colorette');
-      return {
-        ...actual,
-        cyan: vi.fn(),
-      };
-    });
     const color = 'cyan';
     const colorized = colorize.cyan(color);
 

@@ -21,6 +21,25 @@ import {
 import { commandWrapper } from '../../wrapper.js';
 import { configFixture } from '../fixtures/config.js';
 
+vi.mock('@redocly/openapi-core', async () => {
+  const actual = await vi.importActual('@redocly/openapi-core');
+  return {
+    ...actual,
+    bundle: vi.fn(async (): Promise<any> => ({
+      bundle: { parsed: null },
+      problems: [],
+    })),
+    getTotals: vi.fn(),
+    logger: {
+      info: vi.fn(),
+      warn: vi.fn(),
+      output: vi.fn(),
+    },
+  };
+});
+vi.mock('../../utils/miscellaneous.js');
+vi.mock('../../commands/check-config.js');
+
 describe('bundle', () => {
   let processExitMock: MockInstance;
   let exitCb: any;
@@ -31,25 +50,6 @@ describe('bundle', () => {
       return process.on(_e, cb);
     });
 
-    vi.mock('@redocly/openapi-core', async () => {
-      const actual = await vi.importActual('@redocly/openapi-core');
-      return {
-        ...actual,
-        bundle: vi.fn(async (): Promise<any> => ({
-          bundle: { parsed: null },
-          problems: [],
-        })),
-        getTotals: vi.fn(),
-        logger: {
-          info: vi.fn(),
-          warn: vi.fn(),
-          output: vi.fn(),
-        },
-      };
-    });
-
-    vi.mock('../../utils/miscellaneous.js');
-    vi.mock('../../commands/check-config.js');
     vi.mocked(loadAndCheckConfig).mockResolvedValue(configFixture);
     vi.mocked(getFallbackApisOrExit).mockImplementation(
       async (entrypoints) => entrypoints?.map((path: string) => ({ path })) ?? []

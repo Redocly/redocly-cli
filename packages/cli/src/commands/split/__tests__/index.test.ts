@@ -7,35 +7,33 @@ import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
 
+vi.mock('node:path', async () => {
+  const actual = await vi.importActual('node:path');
+  return { ...actual };
+});
+vi.mock('node:process', async () => {
+  const actual = await vi.importActual('node:process');
+  return {
+    ...actual,
+  };
+});
+vi.mock('node:fs', async () => {
+  const actual = await vi.importActual('node:fs');
+  return {
+    ...actual,
+    writeFileSync: vi.fn(),
+  };
+});
+vi.mock('../../../utils/miscellaneous.js', async () => {
+  const actual = await vi.importActual('../../../utils/miscellaneous.js');
+  return {
+    ...actual,
+    writeToFileByExtension: vi.fn(),
+  };
+});
+
 describe('split', () => {
   const openapiDir = 'output/split-test';
-
-  beforeEach(() => {
-    vi.mock('node:path', async () => {
-      const actual = await vi.importActual('node:path');
-      return { ...actual };
-    });
-    vi.mock('node:process', async () => {
-      const actual = await vi.importActual('node:process');
-      return {
-        ...actual,
-      };
-    });
-    vi.mock('node:fs', async () => {
-      const actual = await vi.importActual('node:fs');
-      return {
-        ...actual,
-        writeFileSync: vi.fn(),
-      };
-    });
-    vi.mock('../../../utils/miscellaneous.js', async () => {
-      const actual = await vi.importActual('../../../utils/miscellaneous.js');
-      return {
-        ...actual,
-        writeToFileByExtension: vi.fn(),
-      };
-    });
-  });
 
   it('should split the file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
