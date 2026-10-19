@@ -1,5 +1,18 @@
 # @redocly/cli
 
+## 2.65.0
+
+### Minor Changes
+
+- Added the `--openapi-version` option to the `generate-spec` command to choose between OpenAPI `3.1` and `3.2` (the default) for the generated description.
+
+### Patch Changes
+
+- Fixed the message of the `capitalization` assertion in `recheck` rules so that it names the style, such as "sentence case", instead of printing `$sentence`.
+- Fixed `redocly recheck --fix` so that the report lists only the findings that remain after the fixes, not the findings it just fixed.
+- Fixed the `redocly recheck --fix` summary so that inserted text with a line break prints as `\n` instead of breaking the output line.
+- Updated @redocly/recheck to v2.65.0.
+
 ## 2.64.1
 
 ### Patch Changes

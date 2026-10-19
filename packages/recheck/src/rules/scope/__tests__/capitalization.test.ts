@@ -43,7 +43,7 @@ describe('capitalization assertion', () => {
     expect(problems).toHaveLength(1);
     expect(problems[0].line).toBe(1);
     expect(problems[0].column).toBe(4); // '## ' is 3 chars, text starts at column 4
-    expect(problems[0].message).toBe('"the great escape" should use $title capitalization.');
+    expect(problems[0].message).toBe('"the great escape" should use title case capitalization.');
   });
 
   // `expected === input` means the heading is already correct: no problem and no fix.
@@ -273,7 +273,7 @@ describe('capitalization assertion', () => {
     );
 
     expect(problems).toHaveLength(1);
-    expect(problems[0].message).toBe('"the great escape" should use $title capitalization.');
+    expect(problems[0].message).toBe('"the great escape" should use title case capitalization.');
   });
 
   describe('validation', () => {
