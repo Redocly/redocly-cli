@@ -710,7 +710,7 @@ describe('send onSettled', () => {
         {}
       )
     ).rejects.toBeInstanceOf(TimeoutError);
-    expect(settled.calls.length).toBe(1);
+    expect(settled.calls).toHaveLength(1);
     expect(settled.calls[0].error).toBeInstanceOf(TimeoutError);
     expect(settled.calls[0].attempts).toBe(1);
   });
@@ -792,7 +792,7 @@ describe('send onSettled', () => {
         undefined,
         {}
       )
-    ).rejects.toThrow();
+    ).rejects.toThrow('This operation was aborted');
     expect(settled.calls[0].response).toBeUndefined();
     expect((settled.calls[0].error as Error).name).toBe('AbortError');
   });
@@ -810,8 +810,8 @@ describe('send onSettled', () => {
         undefined,
         {}
       )
-    ).rejects.toThrow();
-    expect(calls.length).toBe(0);
+    ).rejects.toThrow('This operation was aborted');
+    expect(calls).toHaveLength(0);
     expect(settled.calls[0].attempts).toBe(0);
   });
 
