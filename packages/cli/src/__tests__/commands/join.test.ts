@@ -469,7 +469,7 @@ describe('handleJoin', () => {
   describe('path extensions', () => {
     it('should merge non-string x-* path extension when values are the same', async () => {
       vi.mocked(detectSpec).mockReturnValue('oas3_0');
-      const warnSpy = vi.spyOn(logger, 'warn');
+      const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
         .mockImplementationOnce(() =>
@@ -502,7 +502,7 @@ describe('handleJoin', () => {
 
     it('should warn when non-string x-* path extension values differ', async () => {
       vi.mocked(detectSpec).mockReturnValue('oas3_0');
-      const warnSpy = vi.spyOn(logger, 'warn');
+      const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
         .mockImplementationOnce(() =>
@@ -533,7 +533,7 @@ describe('handleJoin', () => {
 
     it('should warn when non-string x-* path extension objects have different keys', async () => {
       vi.mocked(detectSpec).mockReturnValue('oas3_0');
-      const warnSpy = vi.spyOn(logger, 'warn');
+      const warnSpy = vi.spyOn(logger, 'warn').mockImplementation(() => {});
       vi.spyOn(BaseResolver.prototype, 'resolveDocument')
         .mockReset()
         .mockImplementationOnce(() =>

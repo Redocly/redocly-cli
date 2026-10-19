@@ -33,6 +33,7 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/src/**/*.test.ts'],
+          setupFiles: ['tests/unit-setup.ts'],
         },
       },
       {

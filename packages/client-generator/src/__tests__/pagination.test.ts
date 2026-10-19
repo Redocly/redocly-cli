@@ -1,3 +1,5 @@
+import { logger } from '@redocly/openapi-core';
+
 import type {
   ApiModel,
   OperationModel,
@@ -297,12 +299,18 @@ describe('resolveOperationPagination — sources and precedence', () => {
     });
 
     it('an explicit rule applies without a documented Link header (specs under-document)', () => {
+      vi.spyOn(logger, 'warn').mockImplementation(() => {});
       const op = listOrders();
       const result = resolveOperationPagination(op, modelWith([op]), {
         operations: { listOrders: LINK_RULE },
       });
       expect(result.error).toBeUndefined();
       expect(result.spec).toEqual({ style: 'link', items: '/orders' });
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'follows the Link header, but the success response does not document one'
+        )
+      );
     });
 
     it('still verifies the items pointer', () => {

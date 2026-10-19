@@ -5,6 +5,10 @@ import type { ApiFetcher } from '../../../../utils/api-fetcher.js';
 import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runner/index.js';
 
 describe('runWorkflow', () => {
+  beforeEach(() => {
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
+  });
+
   const fileName = 'test.yaml';
   it('should run workflow', async () => {
     const apiClient = {
@@ -307,7 +311,6 @@ describe('runWorkflow', () => {
   });
 
   it('should run workflow within step execution', async () => {
-    const loggerSpy = vi.spyOn(logger, 'output').mockImplementation(() => {});
     const apiClient = {
       fetchResult: vi.fn(),
     } as unknown as ApiFetcher;
@@ -362,9 +365,7 @@ describe('runWorkflow', () => {
       executedStepsCount: { value: 0 },
     });
 
-    expect(loggerSpy).toMatchSnapshot();
-
-    loggerSpy.mockRestore();
+    expect(logger.output).toMatchSnapshot();
   });
 
   it('should accept workflow as an input', async () => {

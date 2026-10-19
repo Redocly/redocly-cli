@@ -155,6 +155,7 @@ describe('ApiFetcher', () => {
 
   describe('fetchResults', () => {
     it('should throw an error if no serverUrl', async () => {
+      vi.spyOn(logger, 'error').mockImplementation(() => {});
       const apiFetcher = new ApiFetcher({});
       const ctx = {
         options: {
@@ -171,7 +172,8 @@ describe('ApiFetcher', () => {
       };
       await expect(
         apiFetcher.fetchResult({ ctx, step, requestData, workflowId: 'test' })
-      ).rejects.toThrowError('No server url provided');
+      ).rejects.toThrow('No server url provided');
+      expect(logger.error).toHaveBeenCalledWith(expect.stringContaining('No server url provided'));
     });
 
     it('should mask known secrets in a form-urlencoded request body', async () => {

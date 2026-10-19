@@ -24,7 +24,6 @@ const argv = {
 describe('handleScorecardClassic()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
     vi.mocked(getFallbackApisOrExit).mockResolvedValue([{ path: 'openapi.yaml' }]);
     vi.mocked(getAliasOrPath).mockReturnValue({ path: 'openapi.yaml' });
