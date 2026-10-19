@@ -12,7 +12,7 @@ import {
 import { resolveConfig } from './config-resolvers.js';
 import { Config } from './config.js';
 import { CONFIG_FILE_NAME, IGNORE_FILE } from './constants.js';
-import type { RawUniversalConfig, IgnoreConfig } from './types.js';
+import type { RawUniversalConfig, IgnoreConfig, Plugin } from './types.js';
 
 type IgnoreFileContent = Record<string, Record<string, string[]>>;
 
@@ -60,9 +60,17 @@ export async function loadConfig(
     customExtends?: string[];
     externalRefResolver?: BaseResolver;
     skipPluginEval?: boolean;
+    /** Ready plugin objects to add next to the built-in plugin, for example extra presets. */
+    plugins?: Plugin[];
   } = {}
 ): Promise<Config> {
-  const { configPath = findConfig(), customExtends, externalRefResolver, skipPluginEval } = options;
+  const {
+    configPath = findConfig(),
+    customExtends,
+    externalRefResolver,
+    skipPluginEval,
+    plugins: extraPlugins,
+  } = options;
 
   const resolver = externalRefResolver ?? new BaseResolver();
 
@@ -80,6 +88,7 @@ export async function loadConfig(
     configPath,
     externalRefResolver,
     skipPluginEval,
+    plugins: extraPlugins,
   });
 
   const ignore = await loadIgnoreConfig(configPath, resolver);
@@ -106,11 +115,13 @@ type CreateConfigOptions = {
   externalRefResolver?: BaseResolver;
   resolvedRefMap?: ResolvedRefMap;
   ignore?: IgnoreConfig;
+  /** Ready plugin objects to add next to the built-in plugin, for example extra presets. */
+  plugins?: Plugin[];
 };
 
 export async function createConfig(
   config?: string | RawUniversalConfig,
-  { configPath, externalRefResolver, ignore }: CreateConfigOptions = {}
+  { configPath, externalRefResolver, ignore, plugins: extraPlugins }: CreateConfigOptions = {}
 ): Promise<Config> {
   const rawConfigSource = typeof config === 'string' ? config : '';
   const rawConfigDocument = makeDocumentFromString<RawUniversalConfig>(
@@ -126,6 +137,7 @@ export async function createConfig(
     rawConfigDocument: cloneConfigDocument(rawConfigDocument),
     configPath,
     externalRefResolver,
+    plugins: extraPlugins,
   });
 
   return new Config(resolvedConfig, {

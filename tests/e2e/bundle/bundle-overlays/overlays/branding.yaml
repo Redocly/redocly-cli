@@ -1,0 +1,7 @@
+overlay: 1.0.0
+info:
+  title: Branding
+  version: 1.0.0
+actions:
+  - target: $.info.title
+    update: Redocly Museum API

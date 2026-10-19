@@ -7,8 +7,9 @@
   "references": [
     { "path": "../core" },
     { "path": "../respect-core" },
+    { "path": "../reunite-integration" },
     { "path": "../client-generator" }
   ],
   "include": ["src/**/*.ts"],
-  "exclude": ["lib", "**/__tests__", "**/*.test.ts"]
+  "exclude": ["lib/*", "**/__tests__", "**/*.test.ts"]
 }

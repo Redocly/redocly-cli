@@ -70,6 +70,6 @@ describe('Oas3 operation-singular-tag', () => {
       config: await createConfig({ rules: { 'operation-singular-tag': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

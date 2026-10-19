@@ -1,0 +1,16 @@
+overlay: 1.1.0
+info:
+  title: Public API
+  version: 1.0.0
+actions:
+  - target: $.paths['/tickets'].get
+    update:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/Ticket.yaml
+  - target: $.paths['/internal'].get
+    update:
+      x-internal: true

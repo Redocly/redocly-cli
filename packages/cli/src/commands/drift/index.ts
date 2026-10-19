@@ -1,10 +1,9 @@
-import { logger } from '@redocly/openapi-core';
+import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import type { VerifyConfigOptions } from '../../types.js';
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
+import { renderCoverageJson, renderCoverageOverview } from './engine/coverage-reporter.js';
 import { renderReport, type ReportFormat } from './engine/reporter.js';
 import { runTrafficValidation } from './engine/runner.js';
 import { loadOpenApiIndex } from './openapi/loader.js';
@@ -31,7 +30,9 @@ export type DriftArgv = {
   output?: string;
   server?: string;
   'min-severity': FindingSeverity;
-} & VerifyConfigOptions;
+  coverage?: boolean;
+  'coverage-output'?: string;
+};
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
 
@@ -93,7 +94,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
 
   const server = argv.server;
   if (server && argv['match-mode']) {
-    return exitWithError(
+    throw new HandledError(
       'The --server and --match-mode options are mutually exclusive: --match-mode controls how requests are located via the description servers, while --server replaces the description servers with the one the traffic was captured against.'
     );
   }
@@ -102,10 +103,11 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
   const specPath = normalizeFsPath(argv.api);
   const openApiIndex = await loadOpenApiIndex(specPath, config);
   if (openApiIndex.loadedOperations === 0) {
-    return exitWithError(`No OpenAPI operations were loaded from: ${specPath}`);
+    throw new HandledError(`No OpenAPI operations were loaded from: ${specPath}`);
   }
 
-  const { runId, summary, findings } = await runTrafficValidation({
+  const coverageOutput = argv['coverage-output'];
+  const { runId, summary, findings, coverage } = await runTrafficValidation({
     trafficPath,
     format: trafficFormat,
     matchMode,
@@ -116,6 +118,7 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     openApiIndex,
     server,
     minSeverity: argv['min-severity'],
+    coverage: argv.coverage || coverageOutput !== undefined,
   });
 
   warnWhenNothingMatched(summary, openApiIndex, server);
@@ -145,6 +148,26 @@ export async function handleDrift({ argv, config }: CommandArgs<DriftArgv>) {
     logger.info(`Drift report written to: ${normalizeFsPath(argv.output)}\n`);
   } else {
     logger.output(report);
+  }
+
+  // The overview is meant for people, so it stays off stdout when stdout carries
+  // a machine-readable report.
+  const stdoutIsMachineReadable = argv['report-format'] !== 'pretty' && !argv.output;
+  if (argv.coverage && coverage) {
+    const overview = renderCoverageOverview(coverage, USE_COLOR && !stdoutIsMachineReadable);
+    if (stdoutIsMachineReadable) {
+      logger.info(`\n${overview}`);
+    } else {
+      logger.output(`\n${overview}`);
+    }
+  }
+
+  if (coverageOutput && coverage) {
+    await writeOutput(
+      coverageOutput,
+      renderCoverageJson(coverage, { spec: specPath, traffic: trafficPath, matchMode, server })
+    );
+    logger.info(`Coverage report written to: ${normalizeFsPath(coverageOutput)}\n`);
   }
 
   // Signal a non-zero exit when error-level drift is found, without printing an

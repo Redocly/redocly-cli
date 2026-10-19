@@ -7,9 +7,9 @@ import {
   type Oas3PathItem,
   type Oas3Server,
   type Oas3Parameter,
+  HandledError,
 } from '@redocly/openapi-core';
 
-import { exitWithError } from '../../../utils/error.js';
 import { OPENAPI3_METHOD_NAMES } from '../../split/oas/constants.js';
 import { type Oas3Method } from '../../split/types.js';
 import type { AnyOas3Definition, JoinDocumentContext } from '../types.js';
@@ -106,7 +106,7 @@ export function collectPaths({
       for (const pathServer of joinedDef.paths[path].servers) {
         if (pathServer.url === server.url) {
           if (!isServersEqual(pathServer, server)) {
-            exitWithError(`Different server values for (${server.url}) in ${path}.`);
+            throw new HandledError(`Different server values for (${server.url}) in ${path}.`);
           }
           isFoundServer = true;
         }
@@ -140,7 +140,9 @@ export function collectPaths({
         if (!isRef(pathParameter) && !isRef(parameter)) {
           if (pathParameter.name === parameter.name && pathParameter.in === parameter.in) {
             if (!dequal(pathParameter.schema, parameter.schema)) {
-              exitWithError(`Different parameter schemas for (${parameter.name}) in ${path}.`);
+              throw new HandledError(
+                `Different parameter schemas for (${parameter.name}) in ${path}.`
+              );
             }
             isFoundParameter = true;
           }

@@ -10,6 +10,14 @@ The `build-docs` command currently supports only Swagger 2.0 and OpenAPI 3.0/3.1
 Support for OpenAPI 3.2 is coming soon.
 {% /admonition %}
 
+{% admonition type="warning" name="Redoc 3 migration" %}
+An upcoming Redocly CLI release switches `build-docs` to Redoc 3, and the command prints a notice about it on every run.
+Redoc 3 is faster on large APIs, adds built-in dark mode and support for OpenAPI 3.2, AsyncAPI, GraphQL, and MCP, and is themed with CSS custom properties instead of the Redoc 2 theme object.
+Redoc 2 theme options and custom templates may need updates after the switch.
+To keep the current Redoc 2 output, use Redocly CLI v1: `npx @redocly/cli@v1-archive build-docs <api>`.
+Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for details.
+{% /admonition %}
+
 ## Usage
 
 ```bash
@@ -34,7 +42,6 @@ redocly build-docs <api> -t custom.hbs --templateOptions.metaDescription "Page m
 | --templateOptions   | string  | Add template options you want to pass to your custom Handlebars template. To add options, use dot notation.                                                                                                                        |
 | --theme.openapi     | string  | Customize your output with [Redoc functionality options](https://redocly.com/docs/api-reference-docs/configuration/functionality/) or [Redoc theming options](https://redocly.com/docs/api-reference-docs/configuration/theming/). |
 | --title             | string  | Set the page title.                                                                                                                                                                                                                |
-| --version           | boolean | Show version number.                                                                                                                                                                                                               |
 
 ## Examples
 
@@ -100,7 +107,7 @@ redocly build-docs ./openapi/api.yaml -t custom.hbs --templateOptions.metaDescri
 Sample custom Handlebars template:
 
 ```handlebars
-<html>
+<html lang='en'>
   <head>
     <meta charset='utf8' />
     <title>{{title}}</title>

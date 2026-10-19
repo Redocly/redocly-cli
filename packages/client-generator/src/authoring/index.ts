@@ -18,7 +18,9 @@ export {
   type ReferencePageOptions,
 } from './reference-page.js';
 export {
+  isBinaryContentType,
   isMultipartBody,
+  isUntypedMultipartBody,
   jsonSuccessSchema,
   paginationItemSchema,
   securityRequirements,
@@ -52,6 +54,8 @@ export const AUTHORING_HELPER_NAMES = [
   'jsonSuccessSchema',
   'sseResponse',
   'isMultipartBody',
+  'isUntypedMultipartBody',
+  'isBinaryContentType',
   'serverUrlParts',
   'securityRequirements',
   'paginationItemSchema',

@@ -71,7 +71,7 @@ A later value always wins, so a consumer overrides a pre-configured default:
 **Middleware composes** instead: the publisher middleware runs first, then the consumer's middleware.
 To make a behavior that the consumer cannot bypass, use middleware, not a custom `fetch`.
 A setup file can import **only** from `@redocly/client-generator`.
-See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/baked-setup).
+See the [`baked-setup` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/baked-setup).
 
 ## Eject
 
@@ -253,6 +253,7 @@ Or register a generator **inline** with the programmatic API and select it by na
 
 ```ts
 import { generateClient } from '@redocly/client-generator';
+
 import responseMap from './tools/response-map-generator.ts';
 
 await generateClient({
@@ -269,7 +270,13 @@ A generator that can call an operation can also document the operation.
 Implement the optional `sample(operation, ctx)` hook to return one idiomatic snippet (`{ lang, label, source }`) for each operation.
 With `codeSamples: true` in the `client` block, generation collects the samples of every selected generator into `<output>.code-samples.yaml`.
 This file is an [OpenAPI Overlay](https://spec.openapis.org/overlay/latest.html) that adds `x-codeSamples` to each operation.
-Docs tooling can apply the file.
+Apply it when you bundle the API description, so the samples appear in your docs:
+
+```bash
+redocly bundle openapi.yaml --overlay=src/api/client.code-samples.yaml -o dist/openapi.yaml
+```
+
+To apply it on every bundle, list the file under [`overlays`](../configuration/reference/apis.md) for the API in `redocly.yaml`.
 
 The built-in `typescript` generator implements the hook.
 If you only set the flag, your Redoc docs get a TypeScript example for each operation.
@@ -333,7 +340,7 @@ These are the shapes people ask for most often, each a file you copy rather than
 The built-in `zod` generator emits Zod schemas.
 For another library, walk `model.schemas` and print the expression that library expects.
 `flattenAllOf` merges `allOf` compositions into one property list, `enumValues` returns the values of an enum, and `metadata.format` tells you when a string is really binary content.
-The [`valibot-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/valibot-generator) does this in about 60 lines, and it type-checks against the real library in our CI.
+The [`valibot-generator` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/valibot-generator) does this in about 60 lines, and it type-checks against the real library in our CI.
 
 **A framework wrapper.**
 The built-in `tanstack-query` and `swr` generators forward to the client's operation functions.
@@ -342,7 +349,7 @@ Declare `requires: ['typescript']` so the client it wraps is always there, and `
 
 **A shape your codebase already uses.**
 A resource facade, a permissions matrix, a route map, a fixtures file.
-The [`nested-facade`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade) and [`custom-generator`](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator) examples are two of these.
+The [`nested-facade`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/nested-facade) and [`custom-generator`](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/custom-generator) examples are two of these.
 
 **A change to a built-in generator, not a new one.**
 Start from its code instead of a blank file: `redocly eject-generator <name>` writes the built-in into your repository, with its design as an agent skill, and an unmodified copy produces byte-identical output.
@@ -355,10 +362,10 @@ They have the same trust level as any installed dependency that you run.
 
 ## Resources
 
-- **[`valibot-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/valibot-generator)** - Copy a ~60-line generator that emits schemas for a validation library the built-ins do not cover
-- **[`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/typescript-types-generator)** - Learn how to use the runnable plugin based on `tsType` and how to type-import referenced schemas
-- **[`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/custom-generator)** - An example of minimal generator that builds strings
-- **[`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/tests/e2e/generate-client/examples/nested-facade)** - An example of a realistic generator that derives an `api.<resource>.<operation>` facade from the description's tags.
+- **[`valibot-generator` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/valibot-generator)** - Copy a ~60-line generator that emits schemas for a validation library the built-ins do not cover
+- **[`typescript-types-generator` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/typescript-types-generator)** - Learn how to use the runnable plugin based on `tsType` and how to type-import referenced schemas
+- **[`custom-generator` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/custom-generator)** - An example of minimal generator that builds strings
+- **[`nested-facade` example](https://github.com/Redocly/redocly-cli/tree/main/packages/client-generator/examples/nested-facade)** - An example of a realistic generator that derives an `api.<resource>.<operation>` facade from the description's tags.
 - **[`generate-client` command](../commands/generate-client.md)** - flags, output modes, and invocation
 - **[`client` configuration](../configuration/reference/client.md)** - Learn about the the `generate-client` command's flags, output modes, and invocation
 - **[Use the generated client](./use-generated-client.md)** - Learn how to use the client produced by the `generate-client` command

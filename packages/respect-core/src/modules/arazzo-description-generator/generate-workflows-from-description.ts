@@ -10,8 +10,8 @@ import {
 
 import { type OperationMethod, type Workflow, type Step } from '../../types.js';
 import { sortMethods } from '../../utils/sort.js';
+import { generateStepSecurity } from './generate-step-security.js';
 import { generateWorkflowSecurityInputs } from './generate-workflow-security-inputs.js';
-import { generateWorkflowSecurityParameters } from './generate-workflow-security-parameters.js';
 
 type HttpMethod = Lowercase<ExtendedOperation['method']>;
 
@@ -70,7 +70,7 @@ export function generateWorkflowsFromDescription({
           inputsComponents,
           operationSecurity || rootSecurity || []
         );
-        const workflowSecurityParameters = generateWorkflowSecurityParameters(
+        const stepSecurity = generateStepSecurity(
           inputsComponents,
           operationSecurity || rootSecurity || [],
           securitySchemes
@@ -79,13 +79,14 @@ export function generateWorkflowsFromDescription({
         workflows.push({
           workflowId: pathKey ? `${method}-${pathKey}-workflow` : `${method}-workflow`,
           ...(workflowSecurityInputs && { inputs: workflowSecurityInputs }),
-          ...(workflowSecurityParameters.length && {
-            parameters: workflowSecurityParameters,
+          ...(stepSecurity.parameters.length && {
+            parameters: stepSecurity.parameters,
           }),
           steps: [
             {
               stepId: pathKey ? `${method}-${pathKey}-step` : `${method}-step`,
               ...(operationId ? { operationId } : { operationPath }),
+              ...(stepSecurity.xSecurity.length && { 'x-security': stepSecurity.xSecurity }),
               ...generateParametersWithSuccessCriteria(
                 descriptionPaths[pathItemKey][methodToCheck.toLowerCase() as HttpMethod]?.responses
               ),

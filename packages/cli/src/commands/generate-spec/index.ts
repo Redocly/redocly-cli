@@ -1,21 +1,21 @@
-import { logger, stringifyYaml } from '@redocly/openapi-core';
+import { logger, stringifyYaml, HandledError } from '@redocly/openapi-core';
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { exitWithError } from '../../utils/error.js';
+import { type AiProvider } from '../../utils/ai/providers.js';
 import type { CommandArgs } from '../../wrapper.js';
 import type { TrafficFormat } from '../drift/types/index.js';
 import { normalizeFsPath } from '../drift/utils/files.js';
-import { type AiProvider } from './ai/providers.js';
 import { refineSpecWithAi } from './ai/refine.js';
 import { extractSchemaComponents } from './components.js';
-import { countOperations, generateSpecFromTraffic } from './generator.js';
+import { countOperations, generateSpecFromTraffic, type OpenApiVersion } from './generator.js';
 import { collectTrafficSamples } from './samples.js';
 import { applyValueInference } from './value-inference.js';
 
 export type GenerateSpecArgv = {
   traffic: string;
   type: 'openapi';
+  'openapi-version': OpenApiVersion;
   'traffic-format': TrafficFormat;
   server?: string;
   title?: string;
@@ -42,7 +42,7 @@ function formatElapsed(milliseconds: number): string {
 
 export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>) {
   if (argv.type !== 'openapi') {
-    return exitWithError(`Unsupported spec type "${argv.type}". Only "openapi" is supported.`);
+    throw new HandledError(`Unsupported spec type "${argv.type}". Only "openapi" is supported.`);
   }
 
   const startedAt = Date.now();
@@ -55,6 +55,7 @@ export async function handleGenerateSpec({ argv }: CommandArgs<GenerateSpecArgv>
       await generateSpecFromTraffic({
         trafficPath,
         format: trafficFormat,
+        openapiVersion: argv['openapi-version'],
         title: argv.title,
         server: argv.server,
       })

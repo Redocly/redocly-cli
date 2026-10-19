@@ -259,6 +259,12 @@ export class ApiFetcher implements IFetcher {
         noSecretsMasking: ctx.noSecretsMasking,
         secretsSet: ctx.secretsSet,
       });
+    } else if (typeof encodedBody === 'string') {
+      maskedBody = conditionallyMaskSecrets({
+        value: encodedBody,
+        noSecretsMasking: ctx.noSecretsMasking,
+        secretsSet: ctx.secretsSet,
+      });
     } else {
       maskedBody = encodedBody;
     }
@@ -313,7 +319,7 @@ export class ApiFetcher implements IFetcher {
           operation: openapiOperation,
         });
 
-        return scheme?.type === 'http' && scheme?.scheme === 'digest';
+        return scheme?.type === 'http' && scheme?.scheme?.toLowerCase() === 'digest';
       });
 
     if (lastDigestSecurityScheme) {

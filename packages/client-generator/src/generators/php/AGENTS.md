@@ -32,6 +32,11 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   `uniqueIdentifiers(..., { taken: … })`: OpenAPI lets one operation use a name in two
   locations (`id` in the path AND in the query), and PHP rejects a redefined parameter outright. The
   wire name is untouched, so the request is unchanged.
+- **The operation map is a class constant, `Client::OPERATIONS`,** read through
+  `self::OPERATIONS[...]`, never a file-level `const`. OPcache preload keeps classes and
+  functions in shared memory but drops file-level constants, and an autoloader never
+  includes the file again once `Client` exists — so a file-level map is undefined on every
+  request after the first. A class constant is stored with the class.
 - **Naming:** classes PascalCase, properties/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.php)`; reserved words get a trailing underscore.
 - **Enums** are native backed enums (string/int); other scalars stay aliases.
@@ -53,7 +58,7 @@ extension — zero Composer dependencies. The namespace derives from the API tit
   for query parameters.
 - **Method arguments:** required path params positional, JSON body next, optional query
   params as nullable NAMED arguments, then `?array $headers`, and `?string
-$idempotencyKey` on mutating methods.
+  $idempotencyKey` on mutating methods.
 - **Non-JSON success bodies** (PDFs, images, octet streams) return the raw body as
   `string` — a binary download must never degrade to `void`.
 - **PHPDoc carries what the signature cannot.** PHP's `array` and `\Generator` erase their
@@ -70,6 +75,22 @@ $idempotencyKey` on mutating methods.
   to the spec's defaults (`Servers::production(organizationId: 'org_x')`), so templated
   base URLs need no manual string building. The client's baked default stays `servers[0]`
   with variable defaults substituted.
+- **Stream bodies pass through.** For an untyped `multipart/form-data` operation
+  (`isUntypedMultipartBody` from the toolkit: a schema that is neither an object nor a
+  `$ref`) or a binary operation (`isBinaryContentType`), the body is `mixed` and the
+  runtime sorts it out (`multipartBody` / `binaryBody`): a stream `resource` is uploaded
+  by curl in chunks (`CURLOPT_UPLOAD` + `CURLOPT_INFILE`, the method kept by
+  `CURLOPT_CUSTOMREQUEST`), never read into a string, in exactly one attempt, whatever
+  the retry policy says (the default is three attempts for any method), because a
+  consumed stream cannot be replayed. `CURLOPT_INFILESIZE` is set only when the stream is
+  seekable AND `fstat` returns an array (the bytes left from the current position);
+  `php://input`, pipes, and wrappers without `stream_stat` go chunked. A `string` body of
+  either operation is sent raw, not `json_encode`d; any other binary-operation value is
+  still `json_encode`d; an `array` body of an untyped multipart operation keeps the
+  `toMultipart` path. The caller's `Content-Type` wins over the description's or the
+  multipart boundary's, matched case-insensitively in `send` so the header is never sent
+  twice; that rule holds for every operation. The whole-request curl timeout still
+  applies (`timeout: null` disables it). Typed multipart bodies are unaffected.
 - **Parity surface:** auth, retries with `Retry-After` + jittered backoff, per-attempt
   curl timeouts, middleware callables, pagination (`<op>Pages()` / `<op>Items()` as
   `\Generator`s), SSE (`iterSse` over a curl_multi pump), multipart.

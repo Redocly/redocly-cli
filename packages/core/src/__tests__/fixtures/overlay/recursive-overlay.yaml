@@ -1,0 +1,11 @@
+overlay: 1.1.0
+info:
+  title: Describe nodes
+  version: 1.0.0
+actions:
+  - target: $.components.schemas.Node
+    update:
+      description: A tree node
+  - target: $..properties.children
+    update:
+      description: Child nodes

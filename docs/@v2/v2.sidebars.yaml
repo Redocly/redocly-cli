@@ -34,6 +34,10 @@
           page: commands/login.md
         - label: logout
           page: commands/logout.md
+        - label: inspect-node-types
+          page: commands/inspect-node-types.md
+        - label: introspect-mcp
+          page: commands/introspect-mcp.md
         - label: preview
           page: commands/preview.md
         - label: proxy
@@ -42,6 +46,8 @@
           page: commands/push.md
         - label: push-status
           page: commands/push-status.md
+        - label: recheck
+          page: commands/recheck.md
         - label: respect
           page: commands/respect.md
         - label: score
@@ -74,6 +80,8 @@
           page: guides/hide-apis.md
         - label: Replace the servers URL
           page: guides/replace-servers-url.md
+        - label: Apply overlays
+          page: guides/apply-overlays.md
         - label: Enforce response contents
           page: guides/response-contains-property.md
         - page: guides/lint-asyncapi.md
@@ -88,6 +96,7 @@
         - page: guides/migrate-from-openapi-cli.md
         - page: guides/migrate-from-spectral.md
         - page: guides/migrate-from-swagger-cli.md
+        - page: guides/migrate-from-markdownlint.md
         - page: guides/migrate-to-v2.md
     - page: api-docs.md
       label: API docs
@@ -212,6 +221,19 @@
             - page: decorators/remove-unused-components.md
             - page: decorators/remove-x-internal.md
             - page: decorators/tag-description-override.md
+    - group: Markdown linting
+      page: recheck/index.md
+      items:
+        - label: Presets
+          page: recheck/presets.md
+        - label: Markdown rules
+          page: recheck/rules.md
+        - label: Prose rules
+          page: recheck/assertions.md
+        - label: Markdoc tags
+          page: recheck/markdoc.md
+        - label: Suppress findings
+          page: recheck/suppress-findings.md
     - page: file-management.md
     - group: Configuration
       page: configuration/index.md
@@ -227,6 +249,7 @@
             - page: configuration/reference/extends.md
             - page: configuration/reference/plugins.md
             - page: configuration/reference/preprocessors.md
+            - page: configuration/reference/recheck.md
             - page: configuration/reference/resolve.md
             - page: configuration/reference/rules.md
     - group: Custom plugins

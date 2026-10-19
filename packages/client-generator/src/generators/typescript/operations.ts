@@ -4,6 +4,7 @@ import {
   type ArgsStyle,
   type DateType,
   type ErrorMode,
+  isBinaryContentType,
   type ModelPagination,
   type NamedSchemaModel,
   type OperationModel,
@@ -46,13 +47,12 @@ const INDENT = '    ';
 /** The request-body TS type: special wrapper types per content-type, else the schema. */
 export function bodyTypeText(rb: RequestBodyModel, dateType: DateType, indent = ''): string {
   if (isTypedMultipart(rb)) return tsType(rb.schema, dateType, indent);
+  if (isBinaryContentType(rb.contentType)) return 'Blob | ArrayBuffer | ReadableStream';
   switch (rb.contentType) {
     case 'multipart/form-data':
-      return 'FormData';
+      return 'FormData | ReadableStream';
     case 'application/x-www-form-urlencoded':
       return 'URLSearchParams';
-    case 'application/octet-stream':
-      return 'Blob | ArrayBuffer';
     default:
       return tsType(rb.schema, dateType, indent);
   }
@@ -83,10 +83,7 @@ export function responseText(
   let hasText = false;
   for (const response of responses) {
     let member: string;
-    if (
-      response.contentType.startsWith('image/') ||
-      response.contentType === 'application/octet-stream'
-    ) {
+    if (isBinaryContentType(response.contentType)) {
       member = 'Blob';
       hasBinary = true;
     } else if (response.contentType.startsWith('text/')) {

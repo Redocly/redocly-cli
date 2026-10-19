@@ -166,7 +166,50 @@ describe('Arazzo workflow-dependsOn', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('should not report when different workflows depend on the same workflow', async () => {
+    const documentWithSharedDependency = parseYamlToDocument(
+      outdent`
+        arazzo: 1.0.1
+        info:
+          title: Cool API
+          version: 1.0.0
+        sourceDescriptions:
+          - name: museum-api
+            type: openapi
+            url: openapi.yaml
+        workflows:
+          - workflowId: auth
+            steps:
+              - stepId: login
+                operationId: museum-api.login
+          - workflowId: a
+            dependsOn:
+              - auth
+            steps:
+              - stepId: get-museum-hours
+                operationId: museum-api.getMuseumHours
+          - workflowId: b
+            dependsOn:
+              - auth
+            steps:
+              - stepId: get-museum-hours
+                operationId: museum-api.getMuseumHours
+      `,
+      'arazzo.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document: documentWithSharedDependency,
+      config: await createConfig({
+        rules: { 'workflow-dependsOn': 'error' },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on not existing workflows in dependsOn', async () => {

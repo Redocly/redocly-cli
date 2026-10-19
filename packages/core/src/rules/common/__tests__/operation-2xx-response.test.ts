@@ -66,7 +66,7 @@ describe('Oas3 operation-2xx-response', () => {
       config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report for present default', async () => {
@@ -89,7 +89,51 @@ describe('Oas3 operation-2xx-response', () => {
       config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
+  });
+
+  it('should report for present default when disallowDefault is true', async () => {
+    const document = parseYamlToDocument(
+      outdent`
+          openapi: 3.0.0
+          paths:
+            '/test/':
+              put:
+                responses:
+                  default:
+                    description: ok
+        `,
+      'foobar.yaml'
+    );
+
+    const results = await lintDocument({
+      externalRefResolver: new BaseResolver(),
+      document,
+      config: await createConfig({
+        rules: {
+          'operation-2xx-response': { severity: 'error', disallowDefault: true },
+        },
+      }),
+    });
+
+    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`
+      [
+        {
+          "location": [
+            {
+              "pointer": "#/paths/~1test~1/put/responses",
+              "reportOnKey": true,
+              "source": "foobar.yaml",
+            },
+          ],
+          "message": "Operation must have at least one \`2XX\` response.",
+          "reference": "https://redocly.com/docs/cli/rules/oas/operation-2xx-response",
+          "ruleId": "operation-2xx-response",
+          "severity": "error",
+          "suggest": [],
+        },
+      ]
+    `);
   });
 
   it('should report even if the responses are null', async () => {
@@ -194,6 +238,6 @@ describe('Oas3 operation-2xx-response', () => {
       config: await createConfig({ rules: { 'operation-2xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

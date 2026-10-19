@@ -203,7 +203,7 @@ const builtInArazzo1Rules = [
 ] as const;
 export type BuiltInArazzo1RuleId = (typeof builtInArazzo1Rules)[number];
 
-const builtInOverlay1Rules = ['info-contact'] as const;
+const builtInOverlay1Rules = ['info-contact', 'spec-ref-siblings'] as const;
 export type BuiltInOverlay1RuleId = (typeof builtInOverlay1Rules)[number];
 
 const builtInOpenRpc1Rules = [
@@ -264,7 +264,7 @@ const builtInDecorators = [...builtInOas3Decorators, ...builtInOas2Decorators] a
 type BuiltInDecoratorId = (typeof builtInDecorators)[number];
 
 const configGovernanceProperties: Record<
-  keyof RawGovernanceConfig,
+  Exclude<keyof RawGovernanceConfig, 'recheck'>,
   NodeType['properties'][string]
 > = {
   extends: {
@@ -388,6 +388,7 @@ const Client: NodeType = {
     mockData: { enum: ['static', 'faker'] },
     mockSeed: { type: 'number' },
     queryKeyPrefix: { type: 'string' },
+    telemetry: { enum: ['on', 'off'] },
     codeSamples: { type: 'boolean' },
     docs: { type: 'boolean' },
     docsFrontmatter: { type: 'boolean' },
@@ -405,11 +406,12 @@ const ClientGeneratorOptions: NodeType = {
 };
 const ClientPaginationRule: NodeType = {
   properties: {
-    style: { enum: ['cursor', 'offset', 'page', 'link'] },
+    style: { enum: ['cursor', 'offset', 'page', 'link', 'body-link'] },
     cursorParam: { type: 'string' },
     nextCursor: { type: 'string' },
     hasMore: { type: 'string' },
     offsetParam: { type: 'string' },
+    nextLink: { type: 'string' },
     limitParam: { type: 'string' },
     items: { type: 'string' },
   },

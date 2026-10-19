@@ -1,0 +1,4 @@
+
+The recheck configuration is not valid:
+  recheck.rules.recheck/no-such-rule: must have required property 'message'
+  recheck.rules.recheck/no-such-rule: must have required property 'assertions'

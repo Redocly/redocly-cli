@@ -2,6 +2,7 @@ import * as yamlAst from 'yaml-ast-parser';
 
 import { colorize, colorOptions } from '../logger.js';
 import { parsePointer } from '../ref-utils.js';
+import type { Source } from '../resolve.js';
 import type { LineColLocationObject, Loc, LocationObject } from '../walk.js';
 
 type YAMLMapping = yamlAst.YAMLMapping & { kind: yamlAst.Kind.MAPPING };
@@ -141,38 +142,59 @@ export function getLineColLocation(location: LocationObject): LineColLocationObj
   return {
     ...location,
     pointer: undefined,
-    ...positionsToLoc(source.body, astNode?.startPosition ?? 1, astNode?.endPosition ?? 1),
+    ...positionsToLoc(source, astNode?.startPosition ?? 1, astNode?.endPosition ?? 1),
   };
 }
 
+// Offsets where each line starts, cached per source, so a lookup does not rescan the file for every problem.
+const lineStartsCache = new WeakMap<Source, number[]>();
+
+function getLineStarts(source: Source): number[] {
+  let lineStarts = lineStartsCache.get(source);
+  if (!lineStarts) {
+    lineStarts = [0];
+    for (let index = 0; index < source.body.length; index++) {
+      if (source.body[index] === '\n') {
+        lineStarts.push(index + 1);
+      }
+    }
+    lineStartsCache.set(source, lineStarts);
+  }
+  return lineStarts;
+}
+
+function offsetToLoc(source: Source, lineStarts: number[], offset: number): Loc {
+  let low = 0;
+  let high = lineStarts.length - 1;
+  while (low < high) {
+    const middle = Math.floor((low + high + 1) / 2);
+    if (lineStarts[middle] <= offset) {
+      low = middle;
+    } else {
+      high = middle - 1;
+    }
+  }
+  const lineStart = lineStarts[low];
+  // A '\r' right after '\n' does not count as a column.
+  let skippedCarriageReturn = 0;
+  if (low > 0 && source.body[lineStart] === '\r' && offset > lineStart) {
+    skippedCarriageReturn = 1;
+  }
+  return { line: low + 1, col: offset - lineStart + 1 - skippedCarriageReturn };
+}
+
 function positionsToLoc(
-  source: string,
+  source: Source,
   startPos: number,
   endPos: number
 ): { start: Loc; end: Loc } {
-  let currentLine = 1;
-  let currentCol = 1;
-  let start: Loc = { line: 1, col: 1 };
-
-  for (let i = 0; i < endPos - 1; i++) {
-    if (i === startPos - 1) {
-      start = { line: currentLine, col: currentCol + 1 };
-    }
-    if (source[i] === '\n') {
-      currentLine++;
-      currentCol = 1;
-      if (i === startPos - 1) {
-        start = { line: currentLine, col: currentCol };
-      }
-
-      if (source[i + 1] === '\r') i++; // TODO: test it
-      continue;
-    }
-    currentCol++;
+  if (startPos === endPos) {
+    return { start: { line: 1, col: 1 }, end: { line: 1, col: 1 } };
   }
-
-  const end = startPos === endPos ? { ...start } : { line: currentLine, col: currentCol + 1 };
-  return { start, end };
+  const lineStarts = getLineStarts(source);
+  const start = offsetToLoc(source, lineStarts, startPos);
+  const lastChar = offsetToLoc(source, lineStarts, endPos - 1);
+  return { start, end: { line: lastChar.line, col: lastChar.col + 1 } };
 }
 
 export function getAstNodeByPointer(root: YAMLNode, pointer: string, reportOnKey: boolean) {

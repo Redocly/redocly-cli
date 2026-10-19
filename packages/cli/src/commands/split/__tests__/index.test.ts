@@ -6,15 +6,9 @@ import * as process from 'node:process';
 import { configFixture } from '../../../__tests__/fixtures/config.js';
 import * as utils from '../../../utils/miscellaneous.js';
 import { handleSplit } from '../index.js';
-import { type ComponentsFiles } from '../types.js';
-import { iteratePathItems } from '../utils/iterate-path-items.js';
-import samplesJson from './fixtures/samples.json' with { type: 'json' };
-import specJson from './fixtures/spec.json' with { type: 'json' };
-import webhooksJson from './fixtures/webhooks.json' with { type: 'json' };
 
 describe('split', () => {
   const openapiDir = 'output/split-test';
-  const componentsFiles: ComponentsFiles = {};
 
   beforeEach(() => {
     vi.mock('node:path', async () => {
@@ -108,6 +102,25 @@ describe('split', () => {
     expect(utils.writeToFileByExtension).not.toHaveBeenCalled();
   });
 
+  it('aborts before writing any file when an asyncapi component would be written outside the output directory', async () => {
+    const filePath =
+      'packages/cli/src/commands/split/__tests__/fixtures/path-traversal-asyncapi.json';
+
+    await expect(
+      handleSplit({
+        argv: {
+          api: filePath,
+          outDir: openapiDir,
+          separator: '_',
+        },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).rejects.toThrow(openapiCore.HandledError);
+
+    expect(utils.writeToFileByExtension).not.toHaveBeenCalled();
+  });
+
   it('should use the correct separator', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 
@@ -126,85 +139,89 @@ describe('split', () => {
     expect(utils.pathToFilename).toBeCalledWith(expect.anything(), '_');
   });
 
-  it('should have correct path with paths', () => {
-    const openapi = specJson;
+  it('should have correct path with paths', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 
-    vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'paths/test.yaml');
-    vi.spyOn(path, 'relative').mockImplementation(() => 'paths/test.yaml');
-    iteratePathItems(
-      openapi.paths,
-      openapiDir,
-      path.join(openapiDir, 'paths'),
-      componentsFiles,
-      '_',
-      undefined,
-      'yaml'
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.anything(),
+      path.join(openapiDir, 'paths', 'test.json')
     );
-
-    expect(openapiCore.slash).toHaveBeenCalledWith('paths/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith(
-      'output/split-test',
-      'output/split-test/paths/test.yaml'
-    );
-  });
-
-  it('should have correct path with webhooks', () => {
-    const openapi = webhooksJson;
-
-    vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
-    vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
-    iteratePathItems(
-      openapi.webhooks,
-      openapiDir,
-      path.join(openapiDir, 'webhooks'),
-      componentsFiles,
-      'webhook_',
-      undefined,
-      'yaml'
-    );
-
-    expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith(
-      'output/split-test',
-      'output/split-test/webhooks/test.yaml'
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.objectContaining({ paths: { '/test': { $ref: 'paths/test.json' } } }),
+      path.join(openapiDir, 'openapi.json')
     );
   });
 
-  it('should have correct path with x-webhooks', () => {
-    const openapi = specJson;
+  it('should have correct path with webhooks', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/webhooks.json';
 
-    vi.spyOn(openapiCore, 'slash').mockImplementation(() => 'webhooks/test.yaml');
-    vi.spyOn(path, 'relative').mockImplementation(() => 'webhooks/test.yaml');
-    iteratePathItems(
-      openapi['x-webhooks'],
-      openapiDir,
-      path.join(openapiDir, 'webhooks'),
-      componentsFiles,
-      'webhook_',
-      undefined,
-      'yaml'
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.anything(),
+      path.join(openapiDir, 'webhooks', 'test.json')
     );
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.objectContaining({ webhooks: { test: { $ref: 'webhooks/test.json' } } }),
+      path.join(openapiDir, 'openapi.json')
+    );
+  });
 
-    expect(openapiCore.slash).toHaveBeenCalledWith('webhooks/test.yaml');
-    expect(path.relative).toHaveBeenCalledWith(
-      'output/split-test',
-      'output/split-test/webhooks/test.yaml'
+  it('should have correct path with x-webhooks', async () => {
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
+
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.anything(),
+      path.join(openapiDir, 'webhooks', 'test.json')
+    );
+    expect(utils.writeToFileByExtension).toHaveBeenCalledWith(
+      expect.objectContaining({ 'x-webhooks': { test: { $ref: 'webhooks/test.json' } } }),
+      path.join(openapiDir, 'openapi.json')
     );
   });
 
   it('should create correct folder name for code samples', async () => {
-    const openapi = samplesJson;
+    const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/samples.json';
 
     vi.spyOn(utils, 'escapeLanguageName');
-    iteratePathItems(
-      openapi.paths,
-      openapiDir,
-      path.join(openapiDir, 'paths'),
-      componentsFiles,
-      '_',
-      undefined,
-      'yaml'
-    );
+
+    await handleSplit({
+      argv: {
+        api: filePath,
+        outDir: openapiDir,
+        separator: '_',
+      },
+      config: configFixture,
+      version: 'cli-version',
+    });
 
     expect(utils.escapeLanguageName).nthCalledWith(1, 'C#');
     expect(utils.escapeLanguageName).nthReturnedWith(1, 'C_sharp');

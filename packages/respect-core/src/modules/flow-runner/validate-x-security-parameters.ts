@@ -20,7 +20,8 @@ export function validateXSecurityParameters({
   scheme: Oas3SecurityScheme;
   values: Record<string, string>;
 }): ResolvedSecurity {
-  const authType = scheme.type === 'http' ? scheme.scheme : scheme.type;
+  // RFC 7235 HTTP authentication scheme names are case-insensitive.
+  const authType = scheme.type === 'http' ? scheme.scheme?.toLowerCase() : scheme.type;
   const requiredKeys = REQUIRED_VALUES_BY_AUTH_TYPE[authType as AuthType];
 
   if (!requiredKeys) {

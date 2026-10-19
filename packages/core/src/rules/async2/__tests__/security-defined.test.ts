@@ -146,7 +146,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when the referenced security scheme has no value (half-finished YAML)', async () => {
@@ -283,7 +283,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when an applicable server already has security defined', async () => {
@@ -321,7 +321,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when a channel has an empty servers list and all servers are secured', async () => {
@@ -360,7 +360,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when an applicable server has an empty security array', async () => {
@@ -577,7 +577,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should ignore reusable component channels without security when checking applicability', async () => {
@@ -627,7 +627,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report when security is declared via an operation trait', async () => {
@@ -665,7 +665,7 @@ describe('Async2 security-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report when an operation has no security defined', async () => {

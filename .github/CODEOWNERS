@@ -2,8 +2,8 @@
 .changeset/ @Redocly/technical-writers
 README.md @Redocly/technical-writers
 docs/ @Redocly/technical-writers
-packages/cli/src/utils/otel.ts @Redocly/hot-dogs
-packages/cli/src/utils/telemetry.ts @Redocly/hot-dogs
+packages/cli/src/utils/otel.ts @Redocly/protoss
+packages/cli/src/utils/telemetry.ts @Redocly/protoss
 packages/cli/src/commands/drift/ @Redocly/cyberpunks
 packages/cli/src/commands/generate-spec/ @Redocly/cyberpunks
 packages/cli/src/commands/proxy/ @Redocly/cyberpunks

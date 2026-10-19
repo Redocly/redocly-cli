@@ -3,7 +3,7 @@
 [@Redocly](https://redocly.com) CLI is your all-in-one API documentation utility.
 It builds, manages, improves, and quality-checks your API descriptions, all of which comes in handy for various phases of the API Lifecycle.
 Create your own rulesets to make API governance easy, publish beautiful API reference documentation, and more.
-Supports OpenAPI 3.2, 3.1, 3.0 and OpenAPI 2.0 (legacy Swagger), AsyncAPI 3.0 and 2.6, Arazzo 1.0.
+Supports OpenAPI 3.x and 2.0 (legacy Swagger), AsyncAPI 3.x and 2.6, Arazzo 1.x, and more.
 
 ![build and test](https://github.com/redocly/redocly-cli/actions/workflows/tests.yaml/badge.svg)
 ![npm (scoped)](https://img.shields.io/npm/v/@redocly/cli)
@@ -53,6 +53,21 @@ To build and run with a local image, run the following from the project root:
 docker build -t redocly/cli .
 docker run --rm -v $PWD:/spec redocly/cli lint path-to-root-file.yaml
 ```
+
+### Use with AI assistants
+
+Redocly CLI ships [agent skills](./.claude/skills) that teach AI coding assistants how to work with the CLI.
+Install them into your project:
+
+```sh
+npx skills add https://redocly.com
+```
+
+- `redocly-cli` — day-to-day usage: lint, bundle, decorate, build docs, test, and generate a client.
+- `redocly-lint-rules` — turn a check written in plain language into a built-in rule, a configurable rule, or a custom plugin.
+  It also covers migrating rules from other linters, such as Spectral.
+- `recheck-lint` — run `redocly recheck` on the Markdown the assistant touched, fix what it finds, and never suppress findings to pass.
+- `recheck-config` — write and tune the `recheck` block in `redocly.yaml` from measured counts, and adopt a baseline on a large document set.
 
 ## Common tasks
 
@@ -165,7 +180,7 @@ This allows you to:
 
 ## Data collection
 
-This tool [collects data](./docs/usage-data.md) to help Redocly improve our products and services.
+This tool [collects data](./docs/@v2/usage-data.md) to help Redocly improve our products and services.
 You can opt out by setting the `REDOCLY_TELEMETRY` environment variable to `off`.
 
 ## Update notifications

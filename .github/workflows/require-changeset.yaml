@@ -12,7 +12,7 @@ on:
 jobs:
   require-changeset-or-label:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'no changeset needed') && github.head_ref != 'changeset-release/main' }}
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     env:
       CI: true
     steps:

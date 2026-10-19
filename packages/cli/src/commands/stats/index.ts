@@ -12,7 +12,6 @@ import {
 } from '@redocly/openapi-core';
 import { performance } from 'perf_hooks';
 
-import type { VerifyConfigOptions } from '../../types.js';
 import { getFallbackApisOrExit } from '../../utils/miscellaneous.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { printStats } from './print-stats/index.js';
@@ -21,7 +20,7 @@ import { resolveStatsVisitorAndAccumulator } from './visitor-and-accumulator-res
 export type StatsArgv = {
   api?: string;
   format: OutputFormat;
-} & VerifyConfigOptions;
+};
 
 export async function handleStats({ argv, config, collectSpecData }: CommandArgs<StatsArgv>) {
   const [{ path }] = await getFallbackApisOrExit(argv.api ? [argv.api] : [], config);

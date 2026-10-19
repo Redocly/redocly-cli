@@ -66,7 +66,7 @@ describe('Oas3 operation-4xx-response', () => {
       config: await createConfig({ rules: { 'operation-4xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report for present 4XX response', async () => {
@@ -89,7 +89,7 @@ describe('Oas3 operation-4xx-response', () => {
       config: await createConfig({ rules: { 'operation-4xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report if default is present but missing 4xx response', async () => {
@@ -234,6 +234,6 @@ describe('Oas3 operation-4xx-response', () => {
       config: await createConfig({ rules: { 'operation-4xx-response': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

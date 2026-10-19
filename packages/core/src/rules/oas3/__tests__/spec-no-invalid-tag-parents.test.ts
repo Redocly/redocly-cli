@@ -87,7 +87,7 @@ describe('Oas3.2 spec-no-invalid-tag-parents', () => {
       config: await createConfig({ rules: { 'spec-no-invalid-tag-parents': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on circular references', async () => {

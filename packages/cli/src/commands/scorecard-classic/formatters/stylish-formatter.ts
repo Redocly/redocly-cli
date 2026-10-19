@@ -1,7 +1,6 @@
 import { logger, getLineColLocation, pluralize } from '@redocly/openapi-core';
+import type { ScorecardProblem } from '@redocly/reunite-integration';
 import { gray, yellow, red, cyan, bold, white } from 'colorette';
-
-import type { ScorecardProblem } from '../types.js';
 
 function formatStylishProblem(
   problem: ScorecardProblem,

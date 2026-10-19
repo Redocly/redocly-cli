@@ -668,7 +668,7 @@ describe('createTestContext', () => {
             },
           },
           outputs: {
-            output1: { type: 'string' },
+            output1: '$steps.step1.outputs.value',
           },
           steps: [
             {
@@ -702,9 +702,7 @@ describe('createTestContext', () => {
         inputs: {
           input1: 'value1',
         },
-        outputs: {
-          output1: { type: 'string' },
-        },
+        outputs: undefined,
         steps: {
           step1: {},
         },
@@ -775,6 +773,37 @@ describe('createTestContext', () => {
     const context = await createTestContext(testDescription, options, apiClient);
 
     expect(context.$workflows.workflow1?.inputs?.env?.ENV_VAR).toBe('value');
+  });
+
+  it('should collect secrets into the secrets set it is given', async () => {
+    const testDescription = {
+      arazzo: '1.0.1',
+      info: { title: 'API', version: '1.0' },
+      workflows: [
+        {
+          workflowId: 'workflow1',
+          inputs: {
+            type: 'object',
+            properties: {
+              clientSecret: { type: 'string', format: 'password' },
+            },
+          },
+          steps: [{ stepId: 'step1', operationId: 'operation1' }],
+        },
+      ],
+    } as unknown as TestDescription;
+
+    const options = {
+      filePath: 'test.test.yaml',
+      input: JSON.stringify({ clientSecret: 'child-secret' }),
+    } as unknown as AppOptions;
+    const parentSecretsSet = new Set(['parent-secret']);
+
+    const apiClient = new ApiFetcher({});
+    const context = await createTestContext(testDescription, options, apiClient, parentSecretsSet);
+
+    expect(context.secretsSet).toBe(parentSecretsSet);
+    expect(parentSecretsSet).toEqual(new Set(['parent-secret', 'child-secret']));
   });
 });
 

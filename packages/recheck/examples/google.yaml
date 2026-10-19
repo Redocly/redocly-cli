@@ -1,0 +1,1525 @@
+# ==============================================================================
+# recheck/google — Google developer documentation style guide, as a config
+# ==============================================================================
+# Source:     Google developer documentation style guide
+#             https://developers.google.com/style
+# License:    CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/
+# Synced:     2026-07-29
+# Provenance: packages/recheck/presets/google/PROVENANCE.md (every rule's
+#             source page, quote, and verdict; everything considered and
+#             NOT shipped, and why)
+#
+# Rules are adapted to Recheck's own assertion vocabulary (swap, pattern,
+# capitalization, length); wording is paraphrased in each rule's `message`,
+# never quoted verbatim from the guide.
+#
+# Generated file — do not hand-edit. Regenerate with `node scripts/generate-examples.mjs`
+# after changing src/config/presets/google.ts or this file's appendix
+# (examples/appendices/google.appendix.yaml).
+
+# ------------------------------------------------------------------------------
+# What to paste
+# ------------------------------------------------------------------------------
+# This is the entire adoption cost: two lines. `recheck/markdown` is the
+# 53-rule markdownlint-parity structural set; `recheck/google` layers Google's
+# own style opinions on top — it ships its own heading/list/table/link
+# structural rules too, so the two are complementary, not duplicates.
+
+extends:
+  - recheck/markdown
+  - recheck/google
+
+# ------------------------------------------------------------------------------
+# How to tune it
+# ------------------------------------------------------------------------------
+# Your own rule keys always win over the preset's (`extends` resolves
+# first, then your top-level keys are merged on top, per rule key).
+#
+# Turn a rule off entirely:
+#
+#   google/no-via:
+#     severity: off
+#
+# Downgrade an error to a warning:
+#
+#   google/heading-sentence-case:
+#     severity: warn
+#
+# Silence one occurrence instead of the whole rule, with an inline HTML
+# comment directive — works on any rule, from any preset:
+#
+#   <!-- recheck-disable-next-line google/no-via -->
+#   Log in via the admin console.
+#
+#   <!-- recheck-disable google/no-via -->
+#   ...several occurrences here are all silenced...
+#   <!-- recheck-enable google/no-via -->
+#
+#   <!-- recheck-disable-file -->
+#
+# THE SHARP EDGE — read this before reaching for a per-term override.
+# Merging happens per ASSERTION ID, not per option inside it.
+# Setting:
+#
+#   google/compound-forms:
+#     assertions:
+#       swap:
+#         ignoreCase: false
+#
+# does not just flip `ignoreCase` — it REPLACES the whole `swap` assertion
+# object, silently dropping the preset's 81-entry `pairs` map along with
+# it, and the config then fails validation outright:
+#
+#   Rule "google/compound-forms": swap requires a "pairs" object mapping
+#   find -> replace strings
+#
+# (verified against this exact rule).
+# So today, to reject one term out of a bundled swap/pattern rule, your
+# options are: turn the whole rule off, restate its entire pairs/tokens
+# yourself, or inline-disable each occurrence as shown above. A per-term
+# opt-out for swap/pattern is a known follow-up, not a promise.
+#
+# Two assertion types DO already have a per-term escape hatch:
+# `capitalization`'s `exceptions` (an array of allowed terms that COMPOSES
+# with the built-in technical-proper-noun vocabulary and anything else you
+# add — it does not replace either) and `spelling`'s `ignore` (spelling
+# itself isn't shipped by any of these four presets — see the README's
+# "Opt-in prose assertions").
+# For example, to stop this preset's own sentence-case rule from flagging
+# your product's name:
+#
+#   google/heading-sentence-case:
+#     assertions:
+#       capitalization:
+#         match: $sentence
+#         exceptions: [Your Product Name]
+#
+# Verified: this reports zero findings on a heading using "Your Product
+# Name" while every other sentence-case violation still fires normally.
+
+# ------------------------------------------------------------------------------
+# Full expansion (reference)
+# ------------------------------------------------------------------------------
+# This is what `extends: [recheck/google]` resolves to today: all 99 rules,
+# alphabetized by rule id, generated straight from the live preset (`node
+# scripts/generate-examples.mjs`). You do not need to copy any of it — the
+# extends block above already gives you all of this. Read it to see exactly
+# what you are adopting, or as a starting point if you would rather pin or
+# fork specific rules into your own config instead of extending the preset.
+#
+# `fix: false` on every rule below means what it says: detection-only, no
+# exceptions — see "How to tune it" above and PROVENANCE.md for why.
+
+google/abbrev-no-periods:
+  severity: warn
+  message: Don't use periods with acronyms or initialisms such as "%s" (Google).
+  link: https://developers.google.com/style/abbreviations
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:[A-Z]\.){2,}
+google/ableist-figurative-terms:
+  severity: warn
+  message: Use a precise term such as "%s" instead of "%s" when describing a system or object (Google).
+  link: https://developers.google.com/style/word-list#crazy
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        crazy: unexpected
+        insane: unexpected
+        lunatic: unexpected
+        bonkers: unexpected
+        loony: unexpected
+        sane: valid
+        sanity check: quick check
+        dumb down: simplify
+        retarded: slowed
+      ignoreCase: true
+      wordBoundary: true
+google/acronym-caps-detect-only:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: fixed acronym/abbreviation form).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        UNICODE: Unicode
+        IPSEC: IPsec
+        IO: I/O
+      wordBoundary: true
+google/acronym-forms:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: fixed acronym/abbreviation form).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        HTTPs: HTTPS
+        IPSec: IPsec
+        No-SQL: NoSQL
+        No SQL: NoSQL
+        OAuth 2(?!\.0): OAuth 2.0
+        OAuth2: OAuth 2.0
+        Oauth: OAuth 2.0
+        micro-services: microservices
+        fin-tech: fintech
+        adtech: ad tech
+        ad-tech: ad tech
+      wordBoundary: true
+      keysAreRegex: true
+google/acronym-forms-proper-noun:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: fixed acronym/abbreviation form).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        I-O: I/O
+        FinTech: fintech
+      wordBoundary: true
+      keysAreRegex: true
+google/aka-form:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        aka: also known as
+      ignoreCase: true
+      wordBoundary: true
+google/black-white-box-testing:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#black-box
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        black-box testing: opaque-box testing
+        black box testing: opaque-box testing
+        white-box testing: clear-box testing
+        white box testing: clear-box testing
+        black-box monitoring: synthetic monitoring
+        white-box monitoring: introspective monitoring
+      ignoreCase: true
+      wordBoundary: true
+google/black-white-hat:
+  severity: warn
+  message: Use a precise term such as "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#blackhat
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        black hat: unethical
+        blackhat: unethical
+        white hat: ethical
+        whitehat: ethical
+      ignoreCase: true
+      wordBoundary: true
+google/blacklist-whitelist:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#blacklist
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        blacklist: denylist
+        whitelist: allowlist
+        graylist: denylist
+        greylist: denylist
+      ignoreCase: true
+      wordBoundary: true
+google/blind-figurative:
+  severity: warn
+  message: Use "ignore", "unaware of", "disregard", or "reject" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list#blind
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bblind to\b
+        - \bblind eye to\b
+      ignoreCase: true
+google/brand-capitalization:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: fixed brand capitalization).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        Google Play Services: Google Play services
+        Google account: Google Account
+        Google accounts: Google Accounts
+        cURL: curl
+      wordBoundary: true
+google/brand-capitalization-proper-noun:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: fixed brand capitalization).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        markdown: Markdown
+        material design: Material Design
+        search console: Search Console
+      wordBoundary: true
+google/chapter-terminology:
+  severity: warn
+  message: Refer to "document", "page", or "section" instead of "%s" (Google, for web docs).
+  link: https://developers.google.com/style/word-list#chapter
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bchapters?\b
+      ignoreCase: true
+google/colo-form:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google compound-word form).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        colo: colocate
+      ignoreCase: true
+      wordBoundary: true
+google/comma-before-that:
+  severity: warn
+  message: Don't put a comma before restrictive "that" (Google).
+  link: https://developers.google.com/style/pronouns
+  scope: sentence
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ', that\b'
+google/compound-forms:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google compound-word form).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        e-mail: email
+        E-mail: email
+        e-commerce: ecommerce
+        web page: webpage
+        check box: checkbox
+        code base: codebase
+        code lab: codelab
+        code-lab: codelab
+        data store: datastore
+        datacenter: data center
+        datatype: data type
+        file name: filename
+        filesystem: file system
+        front-end: frontend
+        front end: frontend
+        back-end: backend
+        back end: backend
+        host name: hostname
+        end point: endpoint
+        name space: namespace
+        nameserver: name server
+        life cycle: lifecycle
+        life-cycle: lifecycle
+        live stream: livestream
+        health care: healthcare
+        health-care: healthcare
+        on prem: on-premises
+        on premise: on-premises
+        on-premise: on-premises
+        read only: read-only
+        pre-built: prebuilt
+        run book: runbook
+        screen shot: screenshot
+        time stamp: timestamp
+        time frame: timeframe
+        time-to-live: time to live
+        tool kit: toolkit
+        tool-kit: toolkit
+        touch screen: touchscreen
+        user base: userbase
+        walk-through: walkthrough
+        webserver: web server
+        white paper: whitepaper
+        white space: whitespace
+        wild card: wildcard
+        statusbar: status bar
+        status-bar: status bar
+        key/value pair: key-value pair
+        key value pair: key-value pair
+        singlemost: single most
+        signin: sign-in
+        signout: sign-out
+        auto-healing: autohealing
+        auto-scaling: autoscaling
+        auto-populate: autopopulate
+        auto populate: autopopulate
+        auto-tagging: autotagging
+        pre-capture: precapture
+        pre-emptible: preemptible
+        preexisting: pre-existing
+        pre-recorded: prerecorded
+        preshared key: pre-shared key
+        pre-submit: presubmit
+        meta-feed: metafeed
+        meta-generation: metageneration
+        inter-cluster: intercluster
+        sub-tree: subtree
+        sub-zone: subzone
+        sub zone: subzone
+        subcommand: sub-command
+        co-locate: colocate
+        blue/green: blue-green
+        blue green: blue-green
+        parent—child: parent-child
+        long running operation: long-running operation
+        hard-code: hardcode
+        hard-coded: hardcoded
+        in-line: inline
+        Unixlike: Unix-like
+        Unix like: Unix-like
+        resource recordset: resource record set
+      ignoreCase: true
+      wordBoundary: true
+google/compound-forms-proper-noun:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google compound-word form).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        datasource: data source
+      ignoreCase: true
+      wordBoundary: true
+google/compound-forms-word-choice:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google compound-word form).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        data cleansing: data cleaning
+        transcompile: transpile
+        autoupdate: automatically update
+        pre-emptive: preemptible
+        noops: fully managed
+        NoOps: fully managed
+      ignoreCase: true
+      wordBoundary: true
+google/conjunctive-adverb-comma:
+  severity: warn
+  message: Put a comma after "%s" when it opens a sentence (Google).
+  link: https://developers.google.com/style/commas
+  scope: sentence
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ^(?:Otherwise|However|Therefore) [a-z]
+google/cons-and-pros:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list#pros
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        pros and cons: advantages and disadvantages
+      ignoreCase: true
+      wordBoundary: true
+google/copy-and-paste:
+  severity: warn
+  message: 'Explain what to enter into a field, not how to enter it (Google): "%s"'
+  link: https://developers.google.com/style/word-list#Copy_and_paste
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bcopy and paste\b
+      ignoreCase: true
+google/create-a-new:
+  severity: warn
+  message: Use "%s ..." instead of "%s ..." unless distinguishing from another recently created item (Google).
+  link: https://developers.google.com/style/word-list#Create_a_new
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        Create a new: Create a
+      ignoreCase: true
+      wordBoundary: true
+google/dash-style:
+  severity: warn
+  message: Don't use an en dash or a double hyphen in place of an em dash; don't space the em dash (Google).
+  link: https://developers.google.com/style/dashes
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - –
+        - \s--\s
+        - \s—\s
+google/data-rate-units:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: by convention we don''t use the slash form).'
+  link: https://developers.google.com/style/word-list#GBps
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        KB/s: KBps
+        Kb/s: Kbps
+        MB/s: MBps
+        Mb/s: Mbps
+        GB/s: GBps
+        Gb/s: Gbps
+      wordBoundary: true
+google/date-format:
+  severity: warn
+  message: Avoid all-numeric slash dates such as "%s" (Google); spell out the month.
+  link: https://developers.google.com/style/dates-times
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b\d{1,2}/\d{1,2}/\d{2,4}\b
+google/disability-language:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive documentation).
+  link: https://developers.google.com/style/inclusive-documentation
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        the disabled: people with disabilities
+        a quadriplegic: a quadriplegic person
+        wheelchair-bound: uses a wheelchair
+        suffering from: experiencing
+        victim of: living with
+      ignoreCase: true
+      wordBoundary: true
+google/dummy-variable:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google): for a statistics sense, see the word list for alternatives.'
+  link: https://developers.google.com/style/word-list#dummy-variable
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        dummy variable: placeholder
+      ignoreCase: true
+      wordBoundary: true
+google/emphasis-style:
+  severity: warn
+  message: Use underscores for emphasis/italics, not asterisks (Google).
+  link: https://developers.google.com/style/text-formatting
+  scope: all
+  fix: false
+  assertions:
+    emphasis-style:
+      style: underscore
+google/first-line-h1:
+  severity: error
+  message: 'The first line in a file should be a top-level heading (Google: heading structure).'
+  link: https://developers.google.com/style/headings
+  scope: all
+  fix: false
+  assertions:
+    first-line-h1: {}
+google/gcp-name:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google product naming).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        GCP: Google Cloud
+      wordBoundary: true
+google/gendered-terms:
+  severity: warn
+  message: Use non-gendered language such as "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#man_hours
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        you guys: everyone
+        guys: everyone
+        male adapter: plug
+        female adapter: socket
+        man hours: person hours
+        manhours: person hours
+        manmade: artificial
+        man made: artificial
+        manned: staffed
+        manpower: staff
+        man-power: staff
+        man-in-the-middle: on-path attacker
+        he/she: they
+        webmaster: website owner
+      ignoreCase: true
+      wordBoundary: true
+google/grandfathered:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#grandfathered
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        grandfathered: legacy
+        grandfather clause: exempt
+      ignoreCase: true
+      wordBoundary: true
+google/grayed-out:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#grayed-out
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        grayed-out: unavailable
+        greyed-out: unavailable
+      ignoreCase: true
+      wordBoundary: true
+google/heading-increment:
+  severity: error
+  message: 'Heading levels should only increment by one level at a time (Google: heading structure).'
+  link: https://developers.google.com/style/headings
+  scope: all
+  fix: false
+  assertions:
+    heading-increment: {}
+google/heading-sentence-case:
+  severity: error
+  message: '"%s" should use %s capitalization (Google: sentence case for headings).'
+  link: https://developers.google.com/style/headings
+  scope: heading
+  fix: false
+  assertions:
+    capitalization:
+      match: $sentence
+google/in-order-to:
+  severity: warn
+  message: Prefer "%s" over "%s" unless needed to clarify meaning (Google).
+  link: https://developers.google.com/style/word-list#in_order_to
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        in order to: to
+      ignoreCase: true
+      wordBoundary: true
+google/jargon-with-people-references:
+  severity: warn
+  message: Use a precise term such as "%s" instead of "%s" (Google jargon/inclusive language).
+  link: https://developers.google.com/style/word-list#ninja
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        gypsy: Romani
+        ghetto: clumsy
+        ninja: expert
+        guru: expert
+        sherpa: guide
+        dojo: training
+        mom test: beginner user test
+        grandma test: beginner user test
+        girlfriend test: beginner user test
+        monkey test: automated, random tests
+        brown bag: learning session
+        brown-bag: learning session
+        build cop: build monitor
+        build sheriff: build monitor
+        war room: incident-management team
+        warroom: incident-management team
+        final solution: solution
+        demilitarized zone: perimeter network
+        DMZ: perimeter network
+        denigrate: disparage
+        sexy: elegant
+        nuke: remove
+        voodoo: mysterious
+        first-class citizen: higher-order value
+        first class citizen: higher-order value
+      ignoreCase: true
+      wordBoundary: true
+google/keyboard-keys:
+  severity: warn
+  message: Spell out modifier keys (Control, Command) instead of "%s" (Google).
+  link: https://developers.google.com/style/ui-elements
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bctrl\b
+        - \bcmd\b
+        - ⌘
+      ignoreCase: true
+google/leverage:
+  severity: warn
+  message: 'Avoid "%s" if you mean "use", "build on", or "take advantage of" (Google): "%s"'
+  link: https://developers.google.com/style/word-list#leverage
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        leverage: use
+        leveraging: using
+        leveraged: used
+      ignoreCase: true
+      wordBoundary: true
+google/link-intro-about:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: use "about", not "on").'
+  link: https://developers.google.com/style/cross-references
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        for more information on: for more information about
+        more details on: more details about
+      ignoreCase: true
+      wordBoundary: true
+google/link-punctuation:
+  severity: warn
+  message: Don't put link text in quotation marks (Google).
+  link: https://developers.google.com/style/cross-references
+  scope: link
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ^["“].*["”]$
+google/list-item-capital:
+  severity: error
+  message: '"%s" should use %s capitalization (Google: start list items with a capital letter).'
+  link: https://developers.google.com/style/lists
+  scope: list-item
+  fix: false
+  assertions:
+    capitalization:
+      match: $sentence
+google/list-length:
+  severity: warn
+  message: List has %s item(s); a single item usually reads better as a plain sentence (Google).
+  link: https://developers.google.com/style/lists
+  scope: all
+  fix: false
+  assertions:
+    list-length:
+      min: 2
+google/master-slave:
+  severity: warn
+  message: Avoid "%s"; use "worker" or "replica" instead (Google).
+  link: https://developers.google.com/style/word-list#slave
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        slave: worker
+      ignoreCase: true
+      wordBoundary: true
+google/neither-nor:
+  severity: warn
+  message: Write "neither A nor B", not "neither A or B" (Google).
+  link: https://developers.google.com/style/word-list#neither
+  scope: sentence
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bneither\b(?:(?!\bnor\b)[\s\S])*?\bor\b
+google/no-alt-text:
+  severity: error
+  message: 'Every image needs alt text (Google: accessibility).'
+  link: https://developers.google.com/style/accessibility
+  scope: all
+  fix: false
+  assertions:
+    no-alt-text: {}
+google/no-ampersand:
+  severity: warn
+  message: Don't use "&" as a conjunction or shorthand for "and" (Google).
+  link: https://developers.google.com/style/text-formatting
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \s&\s
+google/no-and-or:
+  severity: warn
+  message: Avoid "and/or" except where space is limited, such as in tables (Google).
+  link: https://developers.google.com/style/slashes
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \band/or\b
+      ignoreCase: true
+google/no-casing-style-names:
+  severity: warn
+  message: Don't use a casing style name such as "%s"; describe the naming convention instead (Google).
+  link: https://developers.google.com/style/capitalization
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bcamel[\s-]?case\b
+        - \bsnake[\s-]?case\b
+      ignoreCase: true
+google/no-click-on:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list#click
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        click on: click
+      ignoreCase: true
+      wordBoundary: true
+google/no-code-in-heading:
+  severity: warn
+  message: Avoid code items in headings (Google); rephrase in plain words.
+  link: https://developers.google.com/style/headings
+  scope: heading
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - '`[^`]+`'
+      includeCode: true
+google/no-duplicate-heading:
+  severity: error
+  message: 'Headings should be unique so readers can jump between sections (Google: heading structure).'
+  link: https://developers.google.com/style/headings
+  scope: all
+  fix: false
+  assertions:
+    no-duplicate-heading: {}
+google/no-emphasis-as-heading:
+  severity: error
+  message: 'Tag headings using heading elements, not bold/italic text (Google: accessibility).'
+  link: https://developers.google.com/style/accessibility
+  scope: all
+  fix: false
+  assertions:
+    no-emphasis-as-heading: {}
+google/no-empty-headings:
+  severity: error
+  message: Don't use empty headings; make sure headings are followed by content (Google).
+  link: https://developers.google.com/style/headings
+  scope: all
+  fix: false
+  assertions:
+    no-empty-headings: {}
+google/no-hover:
+  severity: warn
+  message: Use "hold the pointer over" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list#hover
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bhover(?:s|ing|ed)?\b
+      ignoreCase: true
+google/no-inflected-code:
+  severity: warn
+  message: 'Don''t inflect the name of a code element (Google): "%s"'
+  link: https://developers.google.com/style/code-in-text
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - '`[^`]+`''s\b'
+        - '`[^`]+`s\b'
+      includeCode: true
+google/no-internet-slang:
+  severity: warn
+  message: Avoid the internet-slang abbreviation "%s"; use "%s" instead (Google).
+  link: https://developers.google.com/style/abbreviations
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        tl;dr: To summarize
+        ymmv: Your results might vary
+        RTFM: For more information, see...
+      ignoreCase: true
+      wordBoundary: true
+google/no-latinisms:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bi\.e\.: that is
+        \be\.g\.: for example
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+google/no-latinisms-plain:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        vice versa: the other way around
+      ignoreCase: true
+      wordBoundary: true
+google/no-lets:
+  severity: warn
+  message: '"%s": avoid if at all possible (Google).'
+  link: https://developers.google.com/style/word-list#lets
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \blet's\b
+      ignoreCase: true
+google/no-link-in-heading:
+  severity: error
+  message: Don't put links in headings (Google); move the link into the following paragraph.
+  link: https://developers.google.com/style/headings
+  scope: heading
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \[[^\]]*\]\([^)]*\)
+google/no-merged-cells:
+  severity: error
+  message: Don't merge table cells with colspan/rowspan (Google).
+  link: https://developers.google.com/style/accessibility
+  scope: all
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bcolspan\s*=
+        - \browspan\s*=
+      ignoreCase: true
+google/no-numbered-headings:
+  severity: warn
+  message: Don't use numbers in headings to indicate a sequence (Google).
+  link: https://developers.google.com/style/headings
+  scope: heading
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ^\d+[.)]\s
+        - ^Step\s+\d+\b
+        - ^Part\s+\d+\b
+      ignoreCase: true
+google/no-please:
+  severity: warn
+  message: '"%s": only use when asking for permission or forgiveness, not in the normal course of instructions (Google).'
+  link: https://developers.google.com/style/word-list#please
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bplease\b
+      ignoreCase: true
+google/no-please-note:
+  severity: warn
+  message: '%sGoogle''s style guide says not to use the phrase "%s"; remove it.'
+  link: https://developers.google.com/style/word-list#please
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        please note: ''
+      ignoreCase: true
+      wordBoundary: true
+google/no-run-the-following-command:
+  severity: warn
+  message: Focus on what the command does instead of "%s" (Google).
+  link: https://developers.google.com/style/procedures
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \brun the following command\b
+      ignoreCase: true
+google/no-slash-abbrev:
+  severity: warn
+  message: Use "%s" instead of the slash abbreviation "%s" (Google).
+  link: https://developers.google.com/style/slashes
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bc/o(?![A-Za-z]): care of
+        \bw/(?![A-Za-z]): with
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+google/no-target-blank:
+  severity: warn
+  message: Don't force links to open in a new tab or window (Google).
+  link: https://developers.google.com/style/cross-references
+  scope: all
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - target\s*=\s*["']_blank["']
+google/no-timeless-phrases:
+  severity: warn
+  message: '"%s" is implied by the existence of the documentation itself; consider removing it (Google).'
+  link: https://developers.google.com/style/timeless-documentation
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bas of this writing\b
+        - \bat present\b
+        - \bpresently\b
+        - \bdoes not yet\b
+        - \bcurrently\b
+      ignoreCase: true
+google/no-toggle-verb:
+  severity: warn
+  message: 'Describe the action instead of using "toggle" as a verb (Google): "%s"'
+  link: https://developers.google.com/style/ui-elements
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \btoggle(?:d|s)?\s+(?:the|this|that|a|an)\b
+        - \bto toggle\b
+      ignoreCase: true
+google/no-trailing-punctuation:
+  severity: error
+  message: Don't end headings with periods (Google).
+  link: https://developers.google.com/style/periods
+  scope: all
+  fix: false
+  assertions:
+    no-trailing-punctuation: {}
+google/no-triple-contractions:
+  severity: warn
+  message: Don't use three-word contractions such as "%s" (Google).
+  link: https://developers.google.com/style/contractions
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bmightn't've\b
+        - \bwouldn't've\b
+        - \bcouldn't've\b
+        - \bshouldn't've\b
+      ignoreCase: true
+google/no-uncheck:
+  severity: warn
+  message: Use "%s" instead of "%s" for checkboxes (Google).
+  link: https://developers.google.com/style/word-list#uncheck
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        uncheck: clear
+      ignoreCase: true
+      wordBoundary: true
+google/no-underline:
+  severity: warn
+  message: Reserve underlining for link text (Google).
+  link: https://developers.google.com/style/text-formatting
+  scope: all
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - <u>
+      ignoreCase: true
+google/no-url-as-link-text:
+  severity: warn
+  message: Don't use a URL as link text (Google); use a descriptive phrase instead.
+  link: https://developers.google.com/style/cross-references
+  scope: link
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - ^https?://
+google/no-via:
+  severity: warn
+  message: '"%s": avoid — Google''s word list says not to use it; rephrase (e.g. "using", "through").'
+  link: https://developers.google.com/style/word-list#via
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bvia\b
+      ignoreCase: true
+google/number-format:
+  severity: warn
+  message: 'Number formatting: "%s" doesn''t match Google''s stated convention.'
+  link: https://developers.google.com/style/numbers
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \d\s%
+        - (?<![\d.])\.\d
+        - \d+ x \d+
+        - \bfrom\s+\d+-\d+\b
+google/performant:
+  severity: warn
+  message: Avoid "%s"; use a more precise term (Google).
+  link: https://developers.google.com/style/word-list#performant
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bperformant\b
+      ignoreCase: true
+google/plain-language-swaps:
+  severity: warn
+  message: 'Prefer "%s" over "%s" (Google: plain language).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        allows you to: lets you
+        enables you to: lets you
+        comprise: consist of
+        comprised of: consist of
+        desire: want
+        desired: wanted
+        wish: want
+        learnings: knowledge
+        agnostic: platform-independent
+      ignoreCase: true
+      wordBoundary: true
+google/product-names:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google product naming).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        Cloud Platform: Google Cloud
+        (?<![Gg][Oo][Oo][Gg][Ll][Ee]\s+)Cloud console: Google Cloud console
+        Developers Console: Google Cloud console
+        Google Cloud SDK: Cloud SDK
+        API explorer: APIs Explorer
+        API Explorer: APIs Explorer
+        developer key: API key
+        dev key: API key
+        API Console key: API key
+        account name: username
+        curated roles: predefined roles
+        network IP address: internal IP address
+        MIME type: media type
+        interconnect type: connection type
+        peer zone: peering zone
+        Android device: Android-powered device
+        Android devices: Android-powered devices
+      wordBoundary: true
+      keysAreRegex: true
+google/rfc-spacing:
+  severity: warn
+  message: 'Use a space between RFC and the number, e.g. "RFC 2318" (Google): "%s"'
+  link: https://developers.google.com/style/word-list#RFC
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bRFC\d+\b
+google/scroll-to:
+  severity: warn
+  message: Prefer "%s" over "%s" (Google).
+  link: https://developers.google.com/style/word-list#scroll
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        scroll to: go to
+      ignoreCase: true
+      wordBoundary: true
+google/second-person:
+  severity: warn
+  message: Use second person ("you"/"your") instead of "%s", unless referring to the organization itself (Google).
+  link: https://developers.google.com/style/person
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:We|we|Our|our|Us|us)\b
+google/self-reference-terms:
+  severity: warn
+  message: Use "this document" instead of "%s" when referring to the current document (Google).
+  link: https://developers.google.com/style/word-list#documentation
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \bthis article\b
+        - \bthis topic\b
+        - \bthis doc\b
+        - \bthis page\b
+      ignoreCase: true
+google/sentence-length:
+  severity: error
+  message: Sentence is %s %s long; Google recommends fewer than 26 words (max %s).
+  link: https://developers.google.com/style/accessibility
+  scope: sentence
+  fix: false
+  assertions:
+    length:
+      unit: words
+      max: 25
+google/sha1-form:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: fixed acronym/abbreviation form).'
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        (?<!-)\bSHA1\b: SHA-1
+      wordBoundary: false
+      keysAreRegex: true
+google/single-h1:
+  severity: error
+  message: 'Only use a level-1 heading once on a page (Google: heading structure).'
+  link: https://developers.google.com/style/headings
+  scope: all
+  fix: false
+  assertions:
+    single-h1: {}
+google/single-space-sentences:
+  severity: warn
+  message: Leave only one space between sentences (Google).
+  link: https://developers.google.com/style/periods
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \.  +\S
+google/spell-out-ordinals:
+  severity: warn
+  message: Spell out ordinal numbers; avoid "%s" (Google).
+  link: https://developers.google.com/style/numbers
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b\d+(?:st|nd|rd|th)\b
+google/strong-style:
+  severity: warn
+  message: Use double asterisks for bold, not underscores (Google).
+  link: https://developers.google.com/style/text-formatting
+  scope: all
+  fix: false
+  assertions:
+    strong-style:
+      style: asterisk
+google/technical-jargon-precision:
+  severity: warn
+  message: 'Use a precise term such as "%s" instead of "%s" (Google: technical-jargon precision, not people).'
+  link: https://developers.google.com/style/word-list#fat
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        fat client: full-featured client
+        fat connection: high-capacity network connection
+        chubby: overextended
+      ignoreCase: true
+      wordBoundary: true
+google/time-format:
+  severity: warn
+  message: '"%s": use all-caps AM/PM with a space before it, and drop :00 on round hours (Google).'
+  link: https://developers.google.com/style/word-list#AM,_PM
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \d\s?[ap]\.m\.
+        - \d(?:am|pm)\b
+        - \d(?:AM|PM)\b
+        - \b\d{1,2}:00\s?(?:AM|PM|am|pm)\b
+google/ui-element-quotes:
+  severity: warn
+  message: 'Don''t put UI element names in quotation marks; use bold instead (Google): "%s"'
+  link: https://developers.google.com/style/ui-elements
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - '"[A-Z][a-zA-Z ]*"\s+(?:button|tab|menu|checkbox|option|link|field)\b'
+google/unsighted-visually-challenged:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google inclusive language).
+  link: https://developers.google.com/style/word-list#unsighted
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        unsighted: person who is blind
+        visually challenged: person who is visually impaired
+      ignoreCase: true
+      wordBoundary: true
+google/us-abbreviation:
+  severity: warn
+  message: 'Use "%s" instead of "%s" (Google: US is OK as an abbreviation for United States).'
+  link: https://developers.google.com/style/word-list#US
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        U.S.A.: US
+        U.S.: US
+      wordBoundary: false
+google/use-contractions:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google recommends negation contractions).
+  link: https://developers.google.com/style/contractions
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        is not: isn't
+        are not: aren't
+        do not: don't
+        does not: doesn't
+        did not: didn't
+        cannot: can't
+        will not: won't
+        have not: haven't
+        has not: hasn't
+        had not: hadn't
+        should not: shouldn't
+        would not: wouldn't
+        could not: couldn't
+      ignoreCase: true
+      wordBoundary: true
+google/utilize:
+  severity: warn
+  message: Use "use" instead of "%s" unless referring to the quantity of a resource used (Google).
+  link: https://developers.google.com/style/word-list#utilize
+  scope: summary
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \butiliz(?:e|es|ed|ing|ation)\b
+      ignoreCase: true
+google/vague-link-text:
+  severity: warn
+  message: Avoid vague link text such as "%s"; describe the destination (Google).
+  link: https://developers.google.com/style/cross-references
+  scope: link
+  fix: false
+  assertions:
+    pattern:
+      tokens:
+        - \b(?:this document|this article|this page|this topic|this doc|click here)\b
+      ignoreCase: true
+google/vs-versus:
+  severity: warn
+  message: Use "%s" instead of "%s" (Google).
+  link: https://developers.google.com/style/word-list
+  scope: summary
+  fix: false
+  assertions:
+    swap:
+      pairs:
+        \bvs\.: versus
+      ignoreCase: true
+      wordBoundary: false
+      keysAreRegex: true
+
+# ==============================================================================
+# Appendix — candidates NOT shipped by recheck/google (hand-maintained)
+# ==============================================================================
+# This file is appended verbatim to the generated example above by
+# `node scripts/generate-examples.mjs`. Editing it
+# makes examples/google.yaml stale until you regenerate — the drift test's
+# failure message says so, so this doesn't read as a generator bug.
+#
+# Full detail, every candidate, and why: packages/recheck/presets/google/PROVENANCE.md
+#
+# ------------------------------------------------------------------------------
+# NOISY — real, guide-confirmed content, judged too broad to enforce
+# mechanically. Shown here as the rule it WOULD be if shipped, commented out,
+# so you can see the shape being avoided rather than just a name.
+# ------------------------------------------------------------------------------
+
+# NOISY: a heading starting with an "-ing" word would also flag ordinary
+# tech-noun headings used as topics, not verb-form imperatives (Networking,
+# Logging, Caching, Monitoring, Testing) — Google names only two exceptions
+# (Billing, Pricing), itself evidence this needs more context than a
+# heading's first word.
+# google/no-gerund-headings:
+#   severity: warn
+#   scope: heading
+#   message: 'Avoid starting a heading with a gerund (Google).'
+#   assertions:
+#     pattern:
+#       ignoreCase: true
+#       tokens: ['^\w*ing\b']
+
+# NOISY: table cells often legitimately contain short labels, proper nouns,
+# or numeric/code values that don't fit sentence-case cleanly.
+# google/table-sentence-case:
+#   severity: warn
+#   scope: table.cell
+#   message: 'Use sentence case for table cells (Google).'
+#   assertions:
+#     capitalization:
+#       match: $sentence
+
+# NOISY: slashes appear constantly in dates, paths, fractions, and URLs — a
+# blind "avoid slashes" pattern would flag nearly all of them.
+# google/no-slashes-general:
+#   severity: warn
+#   message: 'Avoid using slashes, except in code (Google).'
+#   assertions:
+#     pattern:
+#       tokens: ['(?<!\/)\/(?!\/)']
+
+# NOISY: confirmed guide content ("don't put code in quotes or angle
+# brackets"), but the draft that fed this preset already flagged both as
+# NOISY and they were never re-litigated — no safe anchor was found that
+# doesn't also match ordinary quoted/angle-bracketed prose unrelated to code.
+# google/no-quotes-around-code:
+#   severity: warn
+#   message: "Don't wrap code terms in quotation marks (Google)."
+#   assertions:
+#     pattern:
+#       tokens: ['"`[^`]+`"']
+# google/no-angle-brackets-around-code:
+#   severity: warn
+#   message: "Don't wrap code terms in angle brackets (Google)."
+#   assertions:
+#     pattern:
+#       tokens: ['<`[^`]+`>']
+
+# ------------------------------------------------------------------------------
+# NEEDS HUMAN REVIEW — real guide content with no safe mechanical detection
+# (NOT-ENFORCEABLE). Recheck cannot check these; review them yourself:
+# ------------------------------------------------------------------------------
+#   [ ] "Optional:" prefix on genuinely optional sections (requires knowing
+#       whether a section is actually optional)
+#   [ ] Text before a colon must be a complete sentence
+#   [ ] Oxford comma (missing-comma detection needs real clause parsing)
+#   [ ] Acronyms used as verbs ("ping the server") — needs POS tagging
+#   [ ] Spell out an abbreviation on first mention (needs unbounded
+#       first-mention tracking across the document)
+#   [ ] Avoid linking the same destination from different link text (the
+#       guide's own exceptions — different section, long page, multiple
+#       entry points — need judgment a token rule can't apply)
+#   [ ] External link icon (a rendered visual/CSS concern, not markdown text)
+#   [ ] Drop "..." when quoting a UI element name (risks over- and
+#       under-firing with a regex)
+#   [ ] Directional language (above/below/right-hand side) as a spatial UI
+#       reference vs. its equally common non-directional use
+#   [ ] "A link isn't a button" — requires knowing what a referenced UI
+#       element actually is
+#   [ ] Generic he/him/his/she/her — requires knowing whether a pronoun
+#       names a specific person or is used generically
+#   [ ] Active voice, metaphor avoidance, and the "what belongs in code
+#       font" table — all require holistic judgment about content/structure

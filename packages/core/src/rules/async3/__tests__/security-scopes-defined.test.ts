@@ -96,7 +96,7 @@ describe('Async3 security-scopes-defined', () => {
       config: await createConfig({ rules: { 'security-scopes-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should resolve $ref-ed flows when collecting available scopes', async () => {
@@ -209,7 +209,7 @@ describe('Async3 security-scopes-defined', () => {
       }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report oauth2 schemes without scopes when requireScopes is set', async () => {

@@ -97,13 +97,13 @@ describe('call inputs — the namespaced shape', () => {
     const bodyOf = (contentType: string, schema: RequestBodyModel['schema']): string =>
       emitWithOp({ requestBody: { contentType, schema, required: true } });
     expect(bodyOf('multipart/form-data', { kind: 'unknown' })).toContain(
-      'export type OpBody = FormData;'
+      'export type OpBody = FormData | ReadableStream;'
     );
     expect(
       bodyOf('application/x-www-form-urlencoded', { kind: 'object', properties: [] })
     ).toContain('export type OpBody = URLSearchParams;');
     expect(bodyOf('application/octet-stream', SCALAR)).toContain(
-      'export type OpBody = Blob | ArrayBuffer;'
+      'export type OpBody = Blob | ArrayBuffer | ReadableStream;'
     );
   });
 
@@ -513,6 +513,17 @@ describe('response type discovery (computeResponse through *Result)', () => {
         successResponses: [{ contentType: 'text/plain', schema: { kind: 'unknown' }, status: 200 }],
       })
     ).toContain('export type GetTextResult = string;');
+  });
+
+  it('treats compressed archives and documents as binary, like images', () => {
+    for (const contentType of ['application/gzip', 'application/zip', 'application/pdf']) {
+      expect(
+        emitWithOp({
+          name: 'download',
+          successResponses: [{ contentType, schema: { kind: 'unknown' }, status: 200 }],
+        })
+      ).toContain('export type DownloadResult = Blob;');
+    }
   });
 
   it('unions mixed binary + text responses and dedupes identical types', () => {

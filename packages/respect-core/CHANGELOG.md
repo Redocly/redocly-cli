@@ -1,5 +1,192 @@
 # @redocly/respect-core
 
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 2.64.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.0.
+
+## 2.63.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 2.62.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.2.
+
+## 2.62.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.1.
+
+## 2.62.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.0.
+
+## 2.61.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.61.0.
+
+## 2.60.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.60.0.
+
+## 2.59.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.59.0.
+
+## 2.58.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.2.
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.1.
+
+## 2.58.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+
+## 2.57.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 2.56.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 2.56.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` failed with an unexpected error when a step used an `operationId` without the `$sourceDescriptions.<name>.` prefix and the Arazzo file also listed an `arazzo` source description.
+  Such `operationId`s are looked up in the `openapi` source descriptions only.
+- Updated @redocly/openapi-core to v2.56.0.
+
+## 2.55.0
+
+### Patch Changes
+
+- Fixed `respect` so known secrets are masked in non-JSON request bodies, such as `application/x-www-form-urlencoded` token requests.
+- Fixed `respect` so a step fails with a clear error when a runtime expression embedded in a string has no value, such as `Bearer {$outputs.accessToken}`.
+- Updated @redocly/openapi-core to v2.55.0.
+
+## 2.54.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.3.
+
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+
+## 2.54.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.1.
+
+## 2.54.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.0.
+
+## 2.53.3
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/openapi-core to v2.53.3.
+
+## 2.53.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 2.53.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.1.
+
+## 2.53.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
+## 2.52.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.1.
+
+## 2.52.0
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.0.
+
+## 2.51.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.2.
+
+## 2.51.1
+
+### Patch Changes
+
+- Fixed an issue where `generate-arazzo` produced a malformed remote description URL in `sourceDescriptions` (`https://` collapsed to `https:/`) when `--output-file` was provided.
+- Fixed an issue where `$faker.string.email()` used without options generated addresses at the `undefined.com` domain.
+- Updated `@faker-js/faker` to the `10.6.0` version to resolve the high severity advisory `GHSA-qxc2-j82w-r537`.
+- Updated @redocly/openapi-core to v2.51.1.
+
+## 2.51.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+- Updated @redocly/openapi-core to v2.51.0.
+
 ## 2.50.0
 
 ### Patch Changes

@@ -1,7 +1,5 @@
-import { logger } from '@redocly/openapi-core';
+import { logger, HandledError, AbortFlowError } from '@redocly/openapi-core';
 
-import type { VerifyConfigOptions } from '../../types.js';
-import { AbortFlowError, exitWithError } from '../../utils/error.js';
 import type { CommandArgs } from '../../wrapper.js';
 import { renderReport, type ReportFormat } from '../drift/engine/reporter.js';
 import { ValidationSession } from '../drift/engine/validation-session.js';
@@ -24,7 +22,7 @@ export type ProxyArgv = {
   'ignore-headers'?: string;
   'max-findings': number;
   rules?: string;
-} & VerifyConfigOptions;
+};
 
 const USE_COLOR = Boolean(process.stdout.isTTY) && process.env.NO_COLOR === undefined;
 
@@ -58,7 +56,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
   try {
     target = new URL(targetInput);
   } catch {
-    return exitWithError(`Invalid --target URL: ${argv.target}`);
+    throw new HandledError(`Invalid --target URL: ${argv.target}`);
   }
 
   const harPath = normalizeFsPath(argv.har);
@@ -69,7 +67,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
     const specPath = normalizeFsPath(argv.api);
     const openApiIndex = await loadOpenApiIndex(specPath, config);
     if (openApiIndex.loadedOperations === 0) {
-      return exitWithError(`No OpenAPI operations were loaded from: ${specPath}`);
+      throw new HandledError(`No OpenAPI operations were loaded from: ${specPath}`);
     }
 
     session = ValidationSession.create({
@@ -120,7 +118,7 @@ export async function handleProxy({ argv, config, version }: CommandArgs<ProxyAr
       },
     });
   } catch (error) {
-    return exitWithError(`Failed to start proxy server: ${(error as Error).message}`);
+    throw new HandledError(`Failed to start proxy server: ${(error as Error).message}`);
   }
 
   logger.info(`Proxy listening on ${server.url} → forwarding to ${target.toString()}\n`);

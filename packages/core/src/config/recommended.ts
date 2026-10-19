@@ -340,6 +340,7 @@ const recommended: RawGovernanceConfig<'built-in'> = {
   },
   overlay1Rules: {
     'info-contact': 'off',
+    'spec-ref-siblings': 'warn',
   },
   openrpc1Rules: {
     'info-license': 'warn',

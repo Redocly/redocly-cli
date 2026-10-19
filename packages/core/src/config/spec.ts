@@ -340,6 +340,7 @@ const spec: RawGovernanceConfig<'built-in'> = {
   },
   overlay1Rules: {
     'info-contact': 'off',
+    'spec-ref-siblings': 'error',
   },
   openrpc1Rules: {
     'info-contact': 'off',

@@ -1,5 +1,7 @@
+import { outdent } from 'outdent';
+
 import { formatProblems, getTotals } from '../format/format.js';
-import { type Source } from '../resolve.js';
+import { Source } from '../resolve.js';
 import { type LocationObject, type NormalizedProblem } from '../walk.js';
 
 describe('format', () => {
@@ -305,6 +307,59 @@ describe('format', () => {
     expect(output).toMatchInlineSnapshot(`
       "::error title=test-rule,file=test.yaml,line=1,col=1,endLine=1,endColumn=10::Test message%0A%0ADid you mean:%0A  - suggestion1%0A  - suggestion2%0A  - suggestion3%0A  - suggestion4%0A  - suggestion5%0A%0A
       "
+    `);
+  });
+
+  it('should include start and end positions for each location in json format', () => {
+    const problems: NormalizedProblem[] = [
+      {
+        ruleId: 'struct',
+        message: 'message',
+        severity: 'error',
+        location: [
+          {
+            reportOnKey: true,
+            pointer: '#/info/license',
+            source: new Source(
+              'openapi.yaml',
+              outdent`
+                openapi: 3.0.2
+                info:
+                  license:
+                    name: MIT
+              `
+            ),
+          },
+        ],
+        suggest: [],
+      },
+    ];
+
+    formatProblems(problems, {
+      format: 'json',
+      version: '1.0.0',
+      totals: getTotals(problems),
+      cwd: '.',
+    });
+
+    expect(JSON.parse(output).problems[0].location).toMatchInlineSnapshot(`
+      [
+        {
+          "end": {
+            "col": 10,
+            "line": 3,
+          },
+          "pointer": "#/info/license",
+          "reportOnKey": true,
+          "source": {
+            "ref": "openapi.yaml",
+          },
+          "start": {
+            "col": 3,
+            "line": 3,
+          },
+        },
+      ]
     `);
   });
 

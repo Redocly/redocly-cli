@@ -69,7 +69,7 @@ describe('no-duplicated-enum-values', () => {
       config: await createConfig({ rules: { 'no-duplicated-enum-values': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report duplicated object enum values', async () => {
@@ -192,6 +192,6 @@ describe('no-duplicated-enum-values', () => {
       config: await createConfig({ rules: { 'no-duplicated-enum-values': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

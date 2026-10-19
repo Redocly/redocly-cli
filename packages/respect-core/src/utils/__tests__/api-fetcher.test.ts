@@ -173,5 +173,43 @@ describe('ApiFetcher', () => {
         apiFetcher.fetchResult({ ctx, step, requestData, workflowId: 'test' })
       ).rejects.toThrowError('No server url provided');
     });
+
+    it('should mask known secrets in a form-urlencoded request body', async () => {
+      const apiFetcher = new ApiFetcher({});
+      const ctx = {
+        options: {
+          logger,
+          fetch: async () =>
+            new Response('{}', { headers: { 'content-type': 'application/json' } }),
+          maxFetchTimeout: 1000,
+        },
+        workflows: [],
+        noSecretsMasking: false,
+        secretsSet: new Set(['client-secret-value']),
+      } as any;
+      const requestData = {
+        serverUrl: { url: 'https://api.example.com' },
+        path: '/oauth2/token',
+        method: 'post' as OperationMethod,
+        parameters: [
+          {
+            in: 'header' as const,
+            name: 'content-type',
+            value: 'application/x-www-form-urlencoded',
+          },
+        ],
+        requestBody: {
+          grant_type: 'client_credentials',
+          client_id: 'client-id',
+          client_secret: 'client-secret-value',
+        },
+      };
+
+      await apiFetcher.fetchResult({ ctx, step: {} as any, requestData, workflowId: 'test' });
+
+      expect(apiFetcher.getVerboseLogs()?.body).toMatchInlineSnapshot(
+        `""grant_type=client_credentials&client_id=client-id&client_secret=********""`
+      );
+    });
   });
 });

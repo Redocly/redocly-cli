@@ -58,6 +58,7 @@ export const configFixture: Config = {
     openrpc1: {},
     graphql: {},
   },
+  recheck: { rules: {} },
   resolveIgnore: vi.fn(),
   addProblemToIgnore: vi.fn(),
   extendTypes: vi.fn(),

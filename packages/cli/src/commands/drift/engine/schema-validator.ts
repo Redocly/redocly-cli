@@ -14,13 +14,24 @@ const applyFormats = addFormats as unknown as (ajv: Ajv2020Instance) => void;
 
 export type ValidationTarget = 'request' | 'response';
 
-function isPropertyExcludedFromTarget(propertySchema: unknown, target: ValidationTarget): boolean {
+/**
+ * A readOnly property never appears in a request and a writeOnly property never
+ * appears in a response. OpenAPI 3.0 often attaches the flag through
+ * `allOf: [{ $ref }, { readOnly: true }]`, so the allOf branches count as well.
+ */
+export function isPropertyExcludedFromTarget(
+  propertySchema: unknown,
+  target: ValidationTarget
+): boolean {
   if (!isPlainObject(propertySchema)) {
     return false;
   }
-  return target === 'request'
-    ? propertySchema.readOnly === true
-    : propertySchema.writeOnly === true;
+  const flag = target === 'request' ? 'readOnly' : 'writeOnly';
+  return (
+    propertySchema[flag] === true ||
+    (Array.isArray(propertySchema.allOf) &&
+      propertySchema.allOf.some((branch) => isPlainObject(branch) && branch[flag] === true))
+  );
 }
 
 function isRequiredNameExcludedFromTarget(

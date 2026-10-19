@@ -20,12 +20,9 @@ exports[`should resolve outputs access syntax variations 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -38,7 +35,7 @@ exports[`should resolve outputs access syntax variations 1`] = `
   Running child workflow for the step search-menu 
   Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✓ GET /menu - step search-menu 
+  ✗ GET /menu - step search-menu 
 
     Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
     Request Headers:
@@ -53,12 +50,9 @@ exports[`should resolve outputs access syntax variations 1`] = `
       {
         "object": "list",
         "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
+          "nextPage": null,
+          "previousPage": null,
+          "limit": 10
         },
         "items": []
       } 
@@ -67,135 +61,10 @@ exports[`should resolve outputs access syntax variations 1`] = `
     ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
- 
- 
-──────────────────────────────────────────────────────────────────────────────── 
- 
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / client-registration 
- 
-  ✓ GET /menu - step list-menu-items 
+    ✗ unexpected error
 
-    Request URL: https://api.cafe.redocly.com/menu?search=mermaid-treasure-latte
-    Request Headers:
-      accept: application/json, application/problem+json 
- 
-
-    Response status code: 200
-    Response time: <test> ms
-    Response Headers: <response headers test>
-    Response Size: <test> bytes
-    Response Body:
-      {
-        "object": "list",
-        "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
-        },
-        "items": []
-      } 
- 
-    ✓ status code check - $statusCode in [200, 400, 500]
-    ✓ content-type check
-    ✓ schema check
- 
-  ✓ POST /oauth2/register - step create-client 
-
-    Request URL: https://api.cafe.redocly.com/oauth2/register
-    Request Headers:
-      content-type: application/json
-      accept: application/json, application/problem+json
-    Request Body:
-      {
-        "listObject": 10,
-        "listTotal": 0
-      } 
- 
-
-    Response status code: 400
-    Response time: <test> ms
-    Response Headers: <response headers test>
-    Response Size: <test> bytes
-    Response Body:
-      {
-        "type": "about:blank",
-        "title": "Validation failed",
-        "status": 400,
-        "instance": "/oauth2/register",
-        "details": {
-          "errors": [
-            {
-              "code": "invalid_type",
-              "expected": "string",
-              "received": "undefined",
-              "path": [
-                "name"
-              ],
-              "message": "Required"
-            }
-          ]
-        }
-      } 
- 
-    ✓ success criteria check - $statusCode == 400
-    ✓ success criteria check - $workflows.get-menu-items.outputs.itemsCount == 0
-    ✓ status code check - $statusCode in [201, 400, 500]
-    ✓ content-type check
-    ✓ schema check
- 
-──────────────────────────────────────────────────────────────────────────────── 
- 
-  Running workflow outputs-access-syntax-variations.arazzo.yaml / get-menu-items-by-error-field 
- 
-  ✓ GET /menu - step get-menu-items-by-error-field 
-
-    Request URL: https://api.cafe.redocly.com/menu?search=name
-    Request Headers:
-      accept: application/json, application/problem+json
-      x-original-message: Required 
- 
-
-    Response status code: 200
-    Response time: <test> ms
-    Response Headers: <response headers test>
-    Response Size: <test> bytes
-    Response Body:
-      {
-        "object": "list",
-        "page": {
-          "startCursor": null,
-          "endCursor": null,
-          "hasNextPage": false,
-          "hasPrevPage": false,
-          "limit": 10,
-          "total": 0
-        },
-        "items": []
-      } 
- 
-    ✓ success criteria check - $workflows.client-registration.outputs.createdClie...
-    ✓ status code check - $statusCode in [200, 400, 500]
-    ✓ content-type check
-    ✓ schema check
- 
- 
-  Summary for outputs-access-syntax-variations.arazzo.yaml
-  
-  Workflows: 3 passed, 3 total
-  Steps: 5 passed, 5 total
-  Checks: 20 passed, 20 total
-  Time: <test>ms 
- 
- 
-┌──────────────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
-│ Filename                                                                             │ Workflows  │ Passed  │ Failed  │ Warnings │
-├──────────────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ outputs-access-syntax-variations.arazzo.yaml                                       │ 3          │ 3       │ -       │ -        │
-└──────────────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
- 
+Failed to resolve output "itemsCount" in workflow "get-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.itemsCount'. 
+This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
 
 "
 `;

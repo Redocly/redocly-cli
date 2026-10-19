@@ -1,4 +1,5 @@
 import type {
+  RuleSeverity,
   Oas2Definition,
   Oas3Definition,
   Oas3_1Definition,
@@ -7,7 +8,6 @@ import type {
   Async3Definition,
 } from '@redocly/openapi-core';
 
-import type { VerifyConfigOptions } from '../../types.js';
 import type {
   ASYNCAPI2_COMPONENT_NAMES,
   ASYNCAPI2_SPLITTABLE_COMPONENT_NAMES,
@@ -54,4 +54,5 @@ export type SplitArgv = {
   api: string;
   outDir: string;
   separator: string;
-} & VerifyConfigOptions;
+  'file-name-conflicts-severity'?: RuleSeverity;
+};

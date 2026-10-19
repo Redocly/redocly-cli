@@ -14,12 +14,12 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running success action repeated-success-action-1 for the step get-menu-items 
   Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✓ GET /menu - step search-menu 
+  ✗ GET /menu - step search-menu 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
- 
+    ✗ unexpected error
  
 ──────────────────────────────────────────────────────────────────────────────── 
  
@@ -33,28 +33,55 @@ exports[`should execute successActions for each workflow step if it does not hav
   Running success action step-onSuccess-action for the step list-menu-items 
   Running workflow cafe-menu.arazzo.yaml / search-menu-items 
  
-  ✓ GET /menu - step search-menu 
+  ✗ GET /menu - step search-menu 
     ✓ success criteria check - $statusCode == 200
     ✓ status code check - $statusCode in [200, 400, 500]
     ✓ content-type check
     ✓ schema check
+    ✗ unexpected error
  
+  ✗ POST /oauth2/register - step create-client 
+    ✓ success criteria check - $statusCode == 201
+    ✗ success criteria check - $[?@.name == 'respect-e2e-client']
+    ✓ status code check - $statusCode in [201, 400, 500]
+    ✓ content-type check
+    ✓ schema check
  
+
+  Failed tests info:
+
+  Workflow name: get-menu-items
  
+    stepId - get-menu-items 
+    ✗ unexpected error 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set.
+  Workflow name: client-registration
+ 
+    stepId - list-menu-items 
+    ✗ unexpected error 
+    Reason: Failed to resolve output "total" in workflow "search-menu-items": Error in resolving runtime expression '$steps.search-menu.outputs.total'. 
+    This could be because the expression references a value from a previous failed step, or is trying to reference a variable that hasn't been set. 
+    stepId - create-client 
+    ✗ success criteria check 
+      Checking jsonpath criteria: $[?@.name == 'respect-e2e-client']
+       
   Summary for workflow-success-actions.arazzo.yaml
   
-  Workflows: 2 passed, 2 total
-  Steps: 4 passed, 4 total
-  Checks: 15 passed, 15 total
+  Workflows: 2 failed, 2 total
+  Steps: 2 passed, 3 failed, 5 total
+  Checks: 11 passed, 3 failed, 14 total
   Time: <test>ms 
  
  
 ┌──────────────────────────────────────────────────────────────────────────────┬────────────┬─────────┬─────────┬──────────┐
 │ Filename                                                                     │ Workflows  │ Passed  │ Failed  │ Warnings │
 ├──────────────────────────────────────────────────────────────────────────────┼────────────┼─────────┼─────────┼──────────┤
-│ ✓ workflow-success-actions.arazzo.yaml                                       │ 2          │ 2       │ -       │ -        │
+│ x workflow-success-actions.arazzo.yaml                                       │ 2          │ 0       │ 2       │ -        │
 └──────────────────────────────────────────────────────────────────────────────┴────────────┴─────────┴─────────┴──────────┘
  
+
+ Tests exited with error 
 
 "
 `;

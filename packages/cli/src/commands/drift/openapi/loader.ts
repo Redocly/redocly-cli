@@ -25,14 +25,19 @@ import type {
   OpenApiServer,
 } from '../types/index.js';
 import { listOpenApiFiles } from '../utils/files.js';
-import { compileOpenApiPath } from '../utils/http.js';
+import { compileOpenApiPath, normalizeContentType } from '../utils/http.js';
 import { ensureLeadingSlash, resolveServerUrl, type ServerVariable } from '../utils/openapi.js';
+import { buildFormQuerystringSchema, FORM_URLENCODED } from '../utils/parameters.js';
 
 const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options', 'trace'] as const;
 
 type HttpMethod = (typeof HTTP_METHODS)[number];
 
-const PARAMETER_LOCATIONS = new Set(['query', 'header', 'path', 'cookie']);
+const PARAMETER_LOCATIONS = new Set(['query', 'querystring', 'header', 'path', 'cookie']);
+
+// Response keys are status codes, status ranges such as `2XX`, or `default`;
+// anything else in the responses map is a specification extension.
+const RESPONSE_STATUS_KEY = /^(default|[1-5](\d{2}|xx))$/i;
 
 function isHttpMethod(value: string): value is HttpMethod {
   return (HTTP_METHODS as readonly string[]).includes(value);
@@ -62,7 +67,7 @@ function isParameterLocation(value: string): value is OpenApiParameter['in'] {
   return PARAMETER_LOCATIONS.has(value);
 }
 
-function normalizeParameters(parameters: unknown): OpenApiParameter[] {
+function normalizeParameters(parameters: unknown, location: string): OpenApiParameter[] {
   if (!Array.isArray(parameters)) {
     return [];
   }
@@ -73,17 +78,36 @@ function normalizeParameters(parameters: unknown): OpenApiParameter[] {
       continue;
     }
 
-    const location = entry.in;
-    if (typeof location !== 'string' || !isParameterLocation(location)) {
+    const parameterIn = entry.in;
+    if (typeof parameterIn !== 'string' || !isParameterLocation(parameterIn)) {
       continue;
     }
 
+    const name = String(entry.name ?? '');
+    const contentEntries =
+      parameterIn === 'querystring' ? Object.entries(extractMediaSchemas(entry.content)) : [];
+    const [querystringContent] = contentEntries;
+    const mediaType = querystringContent ? normalizeContentType(querystringContent[0]) : undefined;
+    const schema = parameterIn === 'querystring' ? querystringContent?.[1] : entry.schema;
+
+    if (parameterIn === 'querystring' && !querystringContent) {
+      logger.warn(
+        `Parameter "${name}" (querystring) of "${location}" has no content schema, so its value is not validated. Run \`redocly lint\` to check the description.\n`
+      );
+    } else if (contentEntries.length > 1) {
+      logger.warn(
+        `Parameter "${name}" (querystring) of "${location}" has more than one media type, so only "${mediaType}" is used. Run \`redocly lint\` to check the description.\n`
+      );
+    }
+
     normalized.push({
-      name: String(entry.name ?? ''),
-      in: location,
-      required: Boolean(entry.required) || location === 'path',
+      name,
+      in: parameterIn,
+      required: Boolean(entry.required) || parameterIn === 'path',
       style: typeof entry.style === 'string' ? entry.style : undefined,
-      schema: entry.schema,
+      schema,
+      mediaType,
+      formSchema: mediaType === FORM_URLENCODED ? buildFormQuerystringSchema(schema) : undefined,
     });
   }
 
@@ -135,11 +159,9 @@ function extractRequestBodyContent(requestBody: unknown): Record<string, unknown
   return extractMediaSchemas(requestBody.content);
 }
 
-function extractResponseBodyContent(responses: unknown): Record<string, Record<string, unknown>> {
-  if (!isPlainObject(responses)) {
-    return {};
-  }
-
+function extractResponseBodyContent(
+  responses: Record<string, unknown>
+): Record<string, Record<string, unknown>> {
   const output: Record<string, Record<string, unknown>> = {};
   for (const [statusCode, responseObject] of Object.entries(responses)) {
     if (!isPlainObject(responseObject) || !('content' in responseObject)) {
@@ -226,7 +248,7 @@ function createIndexVisitor(
       PathItem: {
         enter(pathItem: PathItemNode, ctx) {
           currentPathTemplate = ensureLeadingSlash(String(ctx.key));
-          currentPathParameters = normalizeParameters(pathItem.parameters);
+          currentPathParameters = normalizeParameters(pathItem.parameters, currentPathTemplate);
           currentPathServers = pathItem.servers;
         },
         Operation: {
@@ -238,7 +260,10 @@ function createIndexVisitor(
 
             const mergedParameters = mergeParameters(
               currentPathParameters,
-              normalizeParameters(operation.parameters)
+              normalizeParameters(
+                operation.parameters,
+                `${method.toUpperCase()} ${currentPathTemplate}`
+              )
             );
             const compiledPath = compileOpenApiPath(currentPathTemplate);
             const servers = resolveOperationServers(
@@ -247,6 +272,13 @@ function createIndexVisitor(
               rootServers
             );
             const requestBody = operation.requestBody;
+            const responses = isPlainObject(operation.responses)
+              ? Object.fromEntries(
+                  Object.entries(operation.responses).filter(([key]) =>
+                    RESPONSE_STATUS_KEY.test(key)
+                  )
+                )
+              : {};
 
             const item: OpenApiOperation = {
               operationId: toOperationId(
@@ -263,7 +295,8 @@ function createIndexVisitor(
               requestParameters: mergedParameters,
               requestBodyContent: extractRequestBodyContent(requestBody),
               requestBodyRequired: isPlainObject(requestBody) && Boolean(requestBody.required),
-              responseBodyContent: extractResponseBodyContent(operation.responses),
+              responseStatuses: Object.keys(responses),
+              responseBodyContent: extractResponseBodyContent(responses),
               security: normalizeSecurity(operation.security) ?? normalizeSecurity(rootSecurity),
               securitySchemes,
               specSource,

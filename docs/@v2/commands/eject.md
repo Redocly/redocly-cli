@@ -14,7 +14,6 @@ redocly eject component <component-path>
 redocly eject component <component-path> [--force]
 redocly eject component <component-path> [--project-dir=<path>]
 redocly eject --help
-redocly eject --version
 ```
 
 ## Options
@@ -25,7 +24,6 @@ redocly eject --version
 | `--force`, `-f`       | boolean | Skip the "overwrite existing" confirmation when ejecting a component that already exists in the destination. |
 | `--project-dir`, `-d` | string  | Path to the project directory. The default value is `.` (current directory).                                 |
 | `--help`              | boolean | Show help.                                                                                                   |
-| `--version`           | boolean | Show version number.                                                                                         |
 
 ## Examples
 
@@ -119,7 +117,7 @@ The `--project-dir` option is designed to help manage multiple projects by reduc
 
 ## Tips on using `eject`
 
-- Use `eject` when your customization needs outgrow [styling](https://redocly.com/docs/realm/style/how-to/customize-styles) or [configuration](https://redocly.com/docs/realm/config) capabilities.
+- Use `eject` when your customization needs outgrow [styling](https://redocly.com/docs/realm/branding/customize-styles) or [configuration](https://redocly.com/docs/realm/config) capabilities.
 
 - A list of ejectable components is printed when no component is found by the `eject` command.
 

@@ -1,5 +1,201 @@
 # @redocly/client-generator
 
+## 0.7.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.1.
+
+## 0.7.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.64.0.
+
+## 0.6.0
+
+### Minor Changes
+
+- Added the `body-link` pagination style to the `generate-client` command.
+  Generated clients use it to follow the next page URL from a field in the response, set with the `nextLink` option.
+
+  The `tanstack-query` generator also creates infinite query options for these operations.
+
+### Patch Changes
+
+- Fixed request timeouts in the generated TypeScript client for older browsers that don't support `AbortSignal.timeout()` or `AbortSignal.any()`. Timed-out requests correctly throw `TimeoutError` instead of `AbortError` in Chrome 103–123.
+- Fixed an issue where the generated Go client sent duplicate query parameters when it followed a next page link.
+- Updated @redocly/openapi-core to v2.63.0.
+
+## 0.5.3
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.2.
+
+## 0.5.2
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.1.
+
+## 0.5.1
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.62.0.
+
+## 0.5.0
+
+### Minor Changes
+
+- Added pass-through stream request bodies to the generated TypeScript, Python, Go, and PHP clients.
+  A stream body is sent as is in one attempt, and the caller's `Content-Type` wins over the one in the API description.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.61.0.
+
+## 0.4.25
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.60.0.
+
+## 0.4.24
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.59.0.
+
+## 0.4.23
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client failed with `Undefined constant "OPERATIONS"` when OPcache preload was enabled.
+- Updated @redocly/openapi-core to v2.58.2.
+
+## 0.4.22
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.1.
+
+## 0.4.21
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.58.0.
+
+## 0.4.20
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 0.4.19
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 0.4.18
+
+### Patch Changes
+
+- Fixed the `codeSamples` overlay so it applies to paths that contain a quote and to path items defined in `components.pathItems`, and adds the samples of a path item that several paths share only once.
+- Updated @redocly/openapi-core to v2.56.0.
+
+## 0.4.17
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.55.0.
+
+## 0.4.16
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Updated @redocly/openapi-core to v2.54.3.
+
+## 0.4.15
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+
+## 0.4.14
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.1.
+
+## 0.4.13
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.0.
+
+## 0.4.12
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.3.
+
+## 0.4.11
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 0.4.10
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.1.
+
+## 0.4.9
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
+## 0.4.8
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.1.
+
+## 0.4.7
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.0.
+
+## 0.4.6
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.2.
+
+## 0.4.5
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.1.
+
+## 0.4.4
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.51.0.
+
 ## 0.4.3
 
 ### Patch Changes

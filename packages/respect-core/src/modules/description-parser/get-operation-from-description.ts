@@ -37,7 +37,7 @@ export function getOperationFromDescriptionBySource(
   const { operationId, operationPath } = source;
 
   if (operationId) {
-    return getOperationById(operationId, $sourceDescriptions);
+    return getOperationById(operationId, { $sourceDescriptions, sourceDescriptions });
   } else if (operationPath) {
     return getOperationByPath(operationPath, { $sourceDescriptions, sourceDescriptions });
   } else {

@@ -20,7 +20,8 @@ export function getPublicWorkflows({
     publicWorkflows[workflow.workflowId] = {
       steps: getPublicSteps(workflow.steps || []),
       inputs: workflowInputSchema ? mergedInputs : undefined,
-      outputs: workflow.outputs,
+      // the runner sets the evaluated outputs once the workflow has run
+      outputs: undefined,
     };
   }
 

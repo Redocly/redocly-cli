@@ -22,6 +22,10 @@ Checks that only specification-permitted properties are used next to a `$ref`.
 | -------- | ------------- |
 | 1.x      | ✅            |
 
+| Overlay | Compatibility |
+| ------- | ------------- |
+| 1.2     | ✅            |
+
 ## API design principles
 
 OpenAPI 3.1 treats `$ref` differently depending on where it appears:
@@ -35,6 +39,10 @@ OAS 2.0 and OAS 3.0 predate JSON Schema 2020-12 and allow only the `$ref` itself
 AsyncAPI and Open-RPC also allow only the `$ref` itself.
 
 A Path Item Object is the exception: every OpenAPI version lists `$ref` among its own fields, so a Path Item keeps its siblings and the rule does not report them.
+
+In Overlay 1.2, an item in `actions` that has a `$ref` applies a reusable action from `components.actions`.
+It must have a `target`, and it can also have a `description` and specification extensions.
+Action fields such as `update`, `copy`, and `remove` belong in the reusable action's `fields`, so the rule reports them next to `$ref`.
 
 ## Configuration
 

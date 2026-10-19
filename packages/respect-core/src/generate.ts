@@ -1,6 +1,7 @@
 import { type BaseResolver, type CollectSpecData, type Config } from '@redocly/openapi-core';
 
 import { generateArazzoDescription } from './modules/arazzo-description-generator/index.js';
+import { type TestDescription } from './types.js';
 
 export type GenerateArazzoOptions = {
   descriptionPath: string;
@@ -12,6 +13,6 @@ export type GenerateArazzoOptions = {
   base?: string;
 };
 
-export async function generate(options: GenerateArazzoOptions): Promise<string> {
+export async function generate(options: GenerateArazzoOptions): Promise<TestDescription> {
   return await generateArazzoDescription(options);
 }

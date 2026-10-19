@@ -19,7 +19,7 @@ Release and commit mechanics are procedures, not principles — they live in
 
 1. Respect the core patterns: Walker, Visitors, and Nodes.
    New rules and decorators follow this pattern instead of using regex or manual drilling objects described by the supported specifications.
-   The full guide is in [the `rules-system` skill](../skills/rules-system/SKILL.md).
+   The visitors hooks, walker pattern and the context object are in [`walker-visitors-nodes.md`](./walker-visitors-nodes.md).
 
 1. Explain in chat, not in files.
    Don't create explanation, summary, or design files unless asked.

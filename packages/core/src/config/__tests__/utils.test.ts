@@ -19,4 +19,9 @@ describe('mergeExtends', () => {
       'rule/abc': { severity: 'warn', subject: 'Operation' },
     });
   });
+
+  it('keeps a recheck block that is not an object under a later block', () => {
+    const merged = utils.mergeExtends([{ recheck: 5 as never }, { recheck: { rules: {} } }]);
+    expect(merged.recheck as unknown).toBe(5);
+  });
 });

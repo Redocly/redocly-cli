@@ -25,7 +25,8 @@ interface Descriptions {
 export async function createTestContext(
   testDescription: TestDescription,
   options: AppOptions,
-  apiClient: ApiFetcher
+  apiClient: ApiFetcher,
+  secretsSet = new Set<string>()
 ): Promise<TestContext> {
   const sourceDescriptions = testDescription?.sourceDescriptions;
 
@@ -96,7 +97,7 @@ export async function createTestContext(
     arazzo: testDescription.arazzo || '',
     sourceDescriptions: testDescription.sourceDescriptions || [],
     noSecretsMasking: options.noSecretsMasking || false,
-    secretsSet: new Set<string>(),
+    secretsSet,
     severity: resolveSeverityConfiguration(options.severity),
     apiClient,
   };

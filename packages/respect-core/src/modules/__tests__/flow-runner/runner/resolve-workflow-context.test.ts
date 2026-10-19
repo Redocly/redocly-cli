@@ -337,6 +337,7 @@ describe('resolveWorkflowContext', async () => {
       severity: undefined,
     },
     apiClient,
+    secretsSet: new Set(['parent-secret']),
   } as any;
 
   it('should not createTestContext with the correct parameters when sourceDescriptionId is undefined', async () => {
@@ -375,7 +376,8 @@ describe('resolveWorkflowContext', async () => {
         verbose: undefined,
         metadata: commonCtx.options.metadata,
       },
-      apiClient
+      apiClient,
+      commonCtx.secretsSet
     );
   });
 
@@ -399,7 +401,8 @@ describe('resolveWorkflowContext', async () => {
         verbose: undefined,
         metadata: commonCtx.options.metadata,
       },
-      apiClient
+      apiClient,
+      commonCtx.secretsSet
     );
   });
 
@@ -427,7 +430,8 @@ describe('resolveWorkflowContext', async () => {
         verbose: undefined,
         metadata: commonCtx.options.metadata,
       },
-      apiClient
+      apiClient,
+      commonCtx.secretsSet
     );
   });
 
@@ -451,7 +455,8 @@ describe('resolveWorkflowContext', async () => {
         verbose: undefined,
         metadata: commonCtx.options.metadata,
       },
-      apiClient
+      apiClient,
+      commonCtx.secretsSet
     );
   });
 

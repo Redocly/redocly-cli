@@ -13,8 +13,8 @@
     "packages/*/lib/**",
     "*.js",
     "*.cjs",
-    "tests/e2e/generate-client/examples/*/src/api/**",
-    "tests/e2e/generate-client/examples/*/generate.ts",
+    "packages/client-generator/examples/*/src/api/**",
+    "packages/client-generator/examples/*/generate.ts",
     "tests/e2e/generate-client/*.snapshot.ts",
     "tests/e2e/generate-client/*-consumer/api*.ts"
   ],
@@ -79,8 +79,8 @@
     },
     {
       "files": [
-        "tests/e2e/generate-client/examples/*/src/**",
-        "tests/e2e/generate-client/examples/*/worker.ts"
+        "packages/client-generator/examples/*/src/**",
+        "packages/client-generator/examples/*/worker.ts"
       ],
       "rules": {
         "eslint/no-console": "allow"
@@ -91,7 +91,8 @@
         "packages/cli/src/commands/score/**",
         "packages/cli/src/commands/generate-spec/**",
         "packages/cli/src/commands/drift/**",
-        "packages/client-generator/**"
+        "packages/client-generator/**",
+        "packages/recheck/**"
       ],
       "rules": {
         "sonarjs/cognitive-complexity": ["error", 82]

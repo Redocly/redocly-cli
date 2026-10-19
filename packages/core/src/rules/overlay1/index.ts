@@ -4,11 +4,13 @@ import { Assertions } from '../common/assertions/index.js';
 import { InfoContact } from '../common/info-contact.js';
 import { NoUnresolvedRefs } from '../common/no-unresolved-refs.js';
 import { Struct } from '../common/struct.js';
+import { SpecRefSiblings } from './spec-ref-siblings.js';
 
 export const rules: Overlay1RuleSet<'built-in'> = {
   'info-contact': InfoContact as Overlay1Rule,
   struct: Struct as Overlay1Rule,
   'no-unresolved-refs': NoUnresolvedRefs as Overlay1Rule,
+  'spec-ref-siblings': SpecRefSiblings,
   assertions: Assertions as Overlay1Rule,
 };
 

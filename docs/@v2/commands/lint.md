@@ -20,7 +20,6 @@ redocly lint
 redocly lint <apis>...
 redocly lint [--max-problems=<n>] [--config=<path>] [--format=<value>]
 redocly lint [--generate-ignore-file] [--help]
-redocly lint --version
 ```
 
 ## Options
@@ -37,7 +36,6 @@ redocly lint --version
 | --max-problems         | integer  | Truncate output to display the specified [maximum number of problems](#limit-the-displayed-problems-count). Default value is 100.                                                                           |
 | --skip-preprocessor    | [string] | Ignore certain preprocessors. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                |
 | --skip-rule            | [string] | Ignore certain rules. See the [Skip preprocessor or rule section](#skip-preprocessor-or-rule) below.                                                                                                        |
-| --version              | boolean  | Show version number.                                                                                                                                                                                        |
 
 ## Examples
 
@@ -189,6 +187,7 @@ redocly lint --format=json
 ```
 
 It can be useful to get the output in JSON format to be processed by other tools.
+Each location includes the JSON pointer and the `start` and `end` line and column of the reported node.
 Using this command gets the following example output:
 
 <pre>
@@ -213,7 +212,15 @@ Using this command gets the following example output:
             "ref": "museum-with-errors.yaml"
           },
           "pointer": "#/paths/~1museum-hours/get/operationIds",
-          "reportOnKey": true
+          "reportOnKey": true,
+          "start": {
+            "line": 17,
+            "col": 7
+          },
+          "end": {
+            "line": 17,
+            "col": 19
+          }
         }
       ]
     },
@@ -228,7 +235,15 @@ Using this command gets the following example output:
             "ref": "museum-with-errors.yaml"
           },
           "pointer": "#/paths/~1museum-hours/get/responses/200/require",
-          "reportOnKey": true
+          "reportOnKey": true,
+          "start": {
+            "line": 22,
+            "col": 13
+          },
+          "end": {
+            "line": 22,
+            "col": 20
+          }
         }
       ]
     },
@@ -242,7 +257,15 @@ Using this command gets the following example output:
             "ref": "museum-with-errors.yaml"
           },
           "pointer": "#/paths/~1museum-hours/get/operationId",
-          "reportOnKey": true
+          "reportOnKey": true,
+          "start": {
+            "line": 17,
+            "col": 7
+          },
+          "end": {
+            "line": 17,
+            "col": 19
+          }
         }
       ],
       "suggest": []
@@ -468,6 +491,8 @@ The `lint` command also validates the configuration file.
 You can set severity level by using the `--lint-config` option.
 This option accepts one of the following values: `warn`,`error`, or `off`.
 Default value is `warn`.
+Configuration file problems are printed to `stderr` in the `codeframe` format.
+The `--format` option does not apply to them, so machine-readable output such as `json` stays intact.
 
 ```bash
 redocly lint --lint-config=off

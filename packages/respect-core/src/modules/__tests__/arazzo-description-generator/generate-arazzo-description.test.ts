@@ -83,7 +83,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: 'Swagger Petstore',
         version: '1.0.0',
@@ -123,6 +123,25 @@ describe('generateArazzoDescription', () => {
     });
   });
 
+  it('should keep a remote description URL as-is when output file is provided', async () => {
+    vi.mocked(bundleOpenApi).mockResolvedValue(BUNDLED_DESCRIPTION_MOCK);
+
+    const result = await generateArazzoDescription({
+      descriptionPath: 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml',
+      outputFile: './final-test-location/output.yaml',
+      version: '1.0.0',
+      config: await createConfig({}),
+    });
+
+    expect(result.sourceDescriptions).toEqual([
+      {
+        name: 'cafe',
+        type: 'openapi',
+        url: 'https://cafe.redocly.com/_bundle/openapi/cafe.yaml',
+      },
+    ]);
+  });
+
   it('should generate arazzo description with operationId', async () => {
     vi.mocked(bundleOpenApi).mockResolvedValue(BUNDLED_DESCRIPTION_MOCK);
     vi.mocked(getOperationFromDescription).mockReturnValue({
@@ -156,7 +175,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: 'Swagger Petstore',
         version: '1.0.0',
@@ -208,7 +227,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: '[REPLACE WITH API title]',
         version: '[REPLACE WITH API version]',
@@ -261,7 +280,7 @@ describe('generateArazzoDescription', () => {
         config: await createConfig({}),
       })
     ).toEqual({
-      arazzo: '1.0.1',
+      arazzo: '1.1.0',
       info: {
         title: 'Swagger Petstore',
         version: '1.0.0',

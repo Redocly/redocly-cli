@@ -28,10 +28,11 @@ OpenAPI can't describe the messages sent over a WebSocket connection, so describ
 
 ## Configuration
 
-| Option           | Type    | Description                                                                               |
-| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
-| severity         | string  | Possible values: `off`, `warn`, `error`. Default `warn` (in `recommended` configuration). |
-| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default `false`.                   |
+| Option           | Type    | Description                                                                                  |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------- |
+| severity         | string  | Possible values: `off`, `warn`, `error`. Default: `warn` (in `recommended` configuration).   |
+| validateWebhooks | boolean | Determines if responses inside webhooks are validated. Default: `false`.                     |
+| disallowDefault  | boolean | Determines if a `default` response is disallowed from satisfying the rule. Default: `false`. |
 
 An example configuration:
 
@@ -48,6 +49,28 @@ rules:
     severity: error
     validateWebhooks: true
 ```
+
+By default, a `default` response counts as a successful response.
+Set `disallowDefault: true` to require an explicit 2xx status code:
+
+```yaml
+rules:
+  operation-2xx-response:
+    severity: error
+    disallowDefault: true
+```
+
+With `disallowDefault: true`, the following operation is reported, because `default` describes the responses the operation does not list rather than what a successful call returns:
+
+```yaml
+post:
+  responses:
+    default:
+      $ref: ../components/responses/Problem.yaml
+```
+
+This matters for code generation: a generator reads the 2xx response to produce the return type of the operation.
+A `default`-only operation gives it no success shape to model, so the generated client falls back to an untyped or empty result.
 
 ## Examples
 

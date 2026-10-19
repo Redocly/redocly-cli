@@ -7,6 +7,350 @@ toc:
 
 <!-- do-not-remove -->
 
+## 2.64.1 (2026-10-16)
+
+### Patch Changes
+
+- Fixed an issue where the `respect` command altered string values in runtime expressions that contained a dot followed by a digit.
+  For example, a token read through `$response.body#/token` or a quoted value in success criteria.
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+- Updated @redocly/openapi-core to v2.64.1.
+- Updated @redocly/respect-core to v2.64.1.
+
+## 2.64.0 (2026-10-15)
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated @redocly/client-generator to v0.7.0.
+- Updated @redocly/openapi-core to v2.64.0.
+- Updated @redocly/reunite-integration to v2.64.0.
+
+## 2.63.0 (2026-10-13)
+
+### Minor Changes
+
+- Added the `body-link` pagination style to the `generate-client` command.
+  Generated clients use it to follow the next page URL from a field in the response, set with the `nextLink` option.
+
+  The `tanstack-query` generator also creates infinite query options for these operations.
+
+### Patch Changes
+
+- Fixed request timeouts in the generated TypeScript client for older browsers that don't support `AbortSignal.timeout()` or `AbortSignal.any()`. Timed-out requests correctly throw `TimeoutError` instead of `AbortError` in Chrome 103–123.
+- Fixed an issue where the generated Go client sent duplicate query parameters when it followed a next page link.
+- Updated @redocly/client-generator to v0.6.0.
+
+## 2.62.2 (2026-10-12)
+
+### Patch Changes
+
+- Fixed an issue where the `login` and `push` did not exit after a request through a proxy timed out.
+- Fixed an issue where the `login`, `push`, and other Reunite commands failed on Node.js 26.
+  Updated `undici` to the `7.30.0` version.
+- Updated `handlebars` to `4.7.10` to resolve `CVE-2026-106444`, `CVE-2026-106445`, and `CVE-2026-106446`.
+- Fixed an issue where the `respect` command ignored the `--mtls` certificates when a request went through a proxy.
+- Updated @redocly/reunite-integration to v2.62.2.
+
+## 2.62.1 (2026-10-09)
+
+### Patch Changes
+
+- Fixed the `project clone` command so that Git keeps finding its credential helper after a clone run with `npx` or `pnpm dlx`.
+
+## 2.62.0 (2026-10-09)
+
+### Minor Changes
+
+- Added support for `in: querystring` parameters to the experimental `drift` command.
+  The command validates the whole query string against the parameter's schema, instead of reporting every query key as undocumented.
+  In `--coverage`, each key of a form-urlencoded querystring schema counts as a separate parameter.
+- Added the early access `project clone` command to work with a Redocly-hosted Reunite project as a Git repository.
+
+### Patch Changes
+
+- Fixed the `schema-consistency` rule of the `drift` command so that a required `readOnly` property in a parameter schema is no longer reported as missing from the request.
+- Updated @redocly/reunite-integration to v2.62.0.
+
+## 2.61.0 (2026-10-08)
+
+### Minor Changes
+
+- Added pass-through stream request bodies to the generated TypeScript, Python, Go, and PHP clients.
+  A stream body is sent as is in one attempt, and the caller's `Content-Type` wins over the one in the API description.
+
+### Patch Changes
+
+- Added a deprecation warning for Node.js 20.x.
+  Update to Node.js 22.12.0 or higher.
+- Updated `@modelcontextprotocol/sdk` to `1.32.1` to resolve `GHSA-6qxp-vccf-f47h`.
+- Updated @redocly/client-generator to v0.5.0.
+- Updated @redocly/openapi-core to v2.61.0.
+- Updated @redocly/reunite-integration to v2.61.0.
+
+## 2.60.0 (2026-10-07)
+
+### Minor Changes
+
+- Added the `--file-name-conflicts-severity` option for the `split` command to control how file name conflicts are reported.
+
+### Patch Changes
+
+- Fixed an issue where `split` lost content when two components, paths, webhooks, channels, operations, or code samples got the same file name.
+
+  **Warning:** `split` output may differ from older releases: when several names would share one file, each later file now gets a `-n` suffix, where `n` is its order, for example `user-2.yaml` next to `User.yaml`.
+
+## 2.59.0 (2026-10-06)
+
+### Minor Changes
+
+- Improved `redocly recheck` to lint the `description` fields of API descriptions.
+  Findings report the source line and column.
+  You can suppress the findings by file, rule, and pointer, or adjust rules for descriptions only.
+
+  **Note:** `ResolvedRecheckConfig` gains a required `descriptionRules` field.
+  Library code that builds that object by hand must set it.
+
+### Patch Changes
+
+- Updated `brace-expansion` to `2.1.7` and `5.0.12`, `dompurify` to `3.4.16`, `fast-uri` to `3.1.8`, and `js-yaml` to `5.4.3` to resolve `CVE-2026-102276`, `CVE-2026-102277`, `CVE-2026-102278`, `CVE-2026-86472`, `GHSA-p98j-92pf-mc4p`, and `GHSA-r3ph-w7gj-g6xm`.
+- Updated `oxfmt` to `0.72.0` and `tinypool` to `2.2.0` to resolve `CVE-2026-104848` and `CVE-2026-104849`.
+- Updated `proxy-addr` to `2.0.8` and `source-map-js` to `1.2.2` to resolve `CVE-2026-90711` and `CVE-2026-93749`.
+- Updated @redocly/openapi-core to v2.59.0.
+- Updated @redocly/recheck to v2.59.0.
+- Updated @redocly/reunite-integration to v2.59.0.
+
+## 2.58.2 (2026-10-06)
+
+### Patch Changes
+
+- Fixed an issue where the generated PHP client failed with `Undefined constant "OPERATIONS"` when OPcache preload was enabled.
+- Updated @redocly/client-generator to v0.4.23.
+
+## 2.58.1 (2026-10-05)
+
+### Patch Changes
+
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+- Updated @redocly/openapi-core to v2.58.1.
+- Updated @redocly/reunite-integration to v2.58.1.
+
+## 2.58.0 (2026-10-05)
+
+### Minor Changes
+
+- Added the `--coverage` and `--coverage-output` options to the experimental `drift` command.
+  `--coverage` prints how much of the OpenAPI description the recorded traffic exercised.
+  `--coverage-output` lists the covered and missing items of every operation in a JSON file.
+
+  Fixed the `schema-consistency` rule of the `drift` command so that a required property marked `readOnly` or `writeOnly` through `allOf` is no longer reported as missing.
+
+  Fixed the `schema-consistency` rule of the `drift` command so that a response body is validated against the response documented for its status code: an exact status match without `content` is no longer validated against the `default` (or `2XX`-style) response schema.
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+  Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+- Resolved organization and project slugs to IDs in the `push` and `push-status` commands before calling the Reunite API, with a deprecation notice that shows the IDs to use.
+  The `--organization` and `--project` options now expect the IDs from the organization and project settings pages in Reunite; slugs are still accepted but deprecated.
+
+### Patch Changes
+
+- Improved the consistency of how configuration file problems are reported.
+  Commands with machine-readable output formats, such as `json`, `junit`, `checkstyle`, and `sarif` also report configuration file problems instead of hiding them.
+  A configuration file that fails to load displays a specific error message instead of a generic one.
+
+  **Note**: Configuration file problems are printed to `stderr` in the `codeframe` format for every command, regardless of the `--format` option.
+
+- Updated @redocly/openapi-core to v2.58.0.
+- Updated @redocly/recheck to v2.58.0.
+- Updated @redocly/reunite-integration to v2.58.0.
+
+## 2.57.0 (2026-09-30)
+
+### Minor Changes
+
+- Added `const` checking to the `no-enum-type-mismatch` rule: a `const` value must conform to the schema's `type`, the same way every `enum` value does.
+
+  **Note**: linting output may include new errors for schemas whose `const` value doesn't match their `type`.
+
+### Patch Changes
+
+- Fixed an issue where `no-enum-type-mismatch` dropped violations and reported a wrong location when `type` was written as an array.
+- Updated @redocly/openapi-core to v2.57.0.
+
+## 2.56.1 (2026-09-30)
+
+### Patch Changes
+
+- Improved overall startup performance.
+- Updated @redocly/openapi-core to v2.56.1.
+
+## 2.56.0 (2026-09-30)
+
+### Minor Changes
+
+- Added support for applying Overlay documents to the `bundle` command output.
+  Pass overlays with the new `--overlay` option or list them under `overlays` for an API in `redocly.yaml`.
+- Added support for linting Overlay 1.1 and 1.2 documents, including the `copy` action field, the `$self` field, and reusable actions in `components.actions`.
+  The `spec-ref-siblings` rule now checks the fields next to a reusable action `$ref` in Overlay documents.
+
+### Patch Changes
+
+- Fixed an issue where `respect` failed with an unexpected error when a step used an `operationId` without the `$sourceDescriptions.<name>.` prefix and the Arazzo file also listed an `arazzo` source description.
+  Such `operationId`s are looked up in the `openapi` source descriptions only.
+- Updated `undici` to the `6.29.0` version.
+- Updated @redocly/client-generator to v0.4.18.
+- Updated @redocly/openapi-core to v2.56.0.
+- Updated @redocly/respect-core to v2.56.0.
+- Updated @redocly/reunite-integration to v2.56.0.
+
+## 2.55.0 (2026-09-28)
+
+### Minor Changes
+
+- Added the `--replace` option to the `push` command.
+  `--replace` removes the files under the mount path that are not part of the push.
+
+### Patch Changes
+
+- Fixed `respect` so known secrets are masked in non-JSON request bodies, such as `application/x-www-form-urlencoded` token requests.
+- Fixed `respect` so a step fails with a clear error when a runtime expression embedded in a string has no value, such as `Bearer {$outputs.accessToken}`.
+- Updated @redocly/openapi-core to v2.55.0.
+- Updated @redocly/respect-core to v2.55.0.
+- Updated @redocly/reunite-integration to v2.55.0.
+- Fixed an issue where the `workflow-dependsOn` rule reported a duplicate when different workflows listed the same workflow in `dependsOn`.
+
+## 2.54.3 (2026-09-25)
+
+### Patch Changes
+
+- Fixed an issue where generated clients attempted to parse compressed archives (`application/gzip`, `application/x-tar`), PDF files, Office documents, audio, video and font responses as JSON instead of decoding them as binary.
+- Added the value of the `REDOCLY_ENVIRONMENT` environment variable to the `user-agent` header of the `login`, `push`, and `push-status` requests.
+- Updated @redocly/client-generator to v0.4.16.
+- Updated @redocly/reunite-integration to v2.54.3.
+
+## 2.54.2 (2026-09-22)
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.54.2.
+- Updated @redocly/reunite-integration to v2.54.2.
+
+## 2.54.1 (2026-09-22)
+
+### Patch Changes
+
+- Updated @redocly/reunite-integration to v2.54.1.
+
+## 2.54.0 (2026-09-22)
+
+### Patch Changes
+
+- Updated the `login` command to prevent it from passing the authorization URL through a shell.
+
+  The `login` command no longer waits for the browser launcher to exit.
+
+- Fixed the `push --wait-for-deployment` error message, which reported a failed or timed-out deployment as a file upload failure.
+- Fixed the `push-status --wait` command printing the Reunite API sunset warning twice for pushes to the main branch, and the `push` and `push-status` commands dropping the warning when the deployment or the request failed.
+- Updated @redocly/reunite-integration to v2.54.0.
+
+## 2.53.3 (2026-09-17)
+
+### Patch Changes
+
+- Fixed `respect` so a same-workflow `goto` no longer cleared `$steps` outputs from steps that already ran.
+  Previously, this broke $steps expressions in the target step.
+- Updated @redocly/respect-core to v2.53.3.
+
+## 2.53.2 (2026-09-15)
+
+### Patch Changes
+
+- Added `start` and `end` line and column positions to each problem location in the `--format=json` lint output.
+- Updated @redocly/openapi-core to v2.53.2.
+
+## 2.53.1 (2026-09-15)
+
+### Patch Changes
+
+- Added a deprecation warning to the `build-docs` command about the upcoming switch to Redoc 3.
+
+## 2.53.0 (2026-09-14)
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.53.0.
+
+## 2.52.1 (2026-09-11)
+
+### Patch Changes
+
+- Updated `redoc` to the `2.5.4` version to fix accessibility problems in the HTML produced by `build-docs`.
+  Added the `lang` attribute to the default `build-docs` template.
+
+## 2.52.0 (2026-09-10)
+
+### Minor Changes
+
+- Added agent skills for AI coding assistants: `redocly-cli` for everyday CLI usage, `redocly-lint-rules` for writing configurable rules and custom plugins.
+  Install them with `npx skills add https://redocly.com`.
+- Added an experimental `inspect-node-types` command to navigate the Redocly's node type tree of an API description.
+  `inspect-node-types` helps pick the correct `subject` types for a configurable rule or the correct visitor for a custom plugin.
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+- Added an experimental `introspect-mcp` command that analyzes a running MCP server and records its tools, prompts, resources, and capabilities.
+  `introspect-mcp` records its findings in the `x-mcp` extension of an OpenAPI description.
+
+### Patch Changes
+
+- Updated @redocly/openapi-core to v2.52.0.
+
+## 2.51.2 (2026-09-04)
+
+### Patch Changes
+
+- Updated `fast-uri` to the `3.1.7` version to resolve `CVE-2026-75931`, `CVE-2026-75975`, `CVE-2026-75899`, and `CVE-2026-76172`.
+- Fixed `drift` and `coverage` failing to match a path template whose segment mixes literal text with parameters, such as `/instances/{worldId}:{instanceId}`.
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+- Updated @redocly/openapi-core to v2.51.2.
+
+## 2.51.1 (2026-09-02)
+
+### Patch Changes
+
+- Fixed an issue where `generate-arazzo` produced a malformed remote description URL in `sourceDescriptions` (`https://` collapsed to `https:/`) when `--output-file` was provided.
+- Fixed an issue where `$faker.string.email()` used without options generated addresses at the `undefined.com` domain.
+- Updated @redocly/respect-core to v2.51.1.
+- Updated `@faker-js/faker` to the `10.6.0` version to resolve the high severity advisory `GHSA-qxc2-j82w-r537`.
+
+## 2.51.0 (2026-09-02)
+
+### Minor Changes
+
+- Enhanced the `generate-arazzo` command to print a ready-to-run `respect` command after generation, including an `--input` placeholder for every workflow input.
+- Added `--with-ai`, `--ai-provider`, `--ai-model`, `--ai-concurrency`, and `--max-workflows` options to the `generate-arazzo` command.
+  `--with-ai` uses a local AI CLI (`claude`, `codex`, or `cursor`) and OpenAPI descriptions to redesign the generated one-workflow-per-operation skeleton into multi-step workflows.
+  The AI designs at most `--max-workflows` workflows (default 10), and the generated file is marked as AI-inferred.
+  For descriptions that don't fit a single prompt, the AI first selects scenarios from a compact operation index, then it designs each workflow separately.
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+- Updated @redocly/openapi-core to v2.51.0.
+- Updated @redocly/respect-core to v2.51.0.
+
 ## 2.50.0 (2026-09-01)
 
 ### Minor Changes

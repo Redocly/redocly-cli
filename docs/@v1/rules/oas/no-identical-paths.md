@@ -16,8 +16,10 @@ According to the OpenAPI specification:
 
 > The following paths are considered identical and invalid:
 >
->      /pets/{petId}
->      /pets/{name}
+> ```text
+> /pets/{petId}
+> /pets/{name}
+> ```
 
 ```mermaid
 flowchart TD

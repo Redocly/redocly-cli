@@ -1,5 +1,5 @@
 import { type RuleSeverity } from '../config/types.js';
-import { COMPONENT_NAME_CHARS, type SpecMajorVersion } from '../oas-types.js';
+import { type SpecMajorVersion } from '../oas-types.js';
 import {
   isAbsoluteUrl,
   replaceRef,
@@ -14,11 +14,10 @@ import {
 import { type ResolvedRefMap, type Document } from '../resolve.js';
 import { reportUnresolvedRef } from '../rules/common/no-unresolved-refs.js';
 import { type OasRef, type Oas3Discriminator, type Oas3Example } from '../typings/openapi.js';
+import { componentNameFromTitle } from '../utils/component-name-from-title.js';
 import { dequal } from '../utils/dequal.js';
-import { isPlainObject } from '../utils/is-plain-object.js';
-import { isString } from '../utils/is-string.js';
+import { effectiveRefTarget } from '../utils/effective-ref-target.js';
 import { makeRefId } from '../utils/make-ref-id.js';
-import { toPascalCase } from '../utils/to-pascal-case.js';
 import { type Oas3Visitor, type Oas2Visitor } from '../visitors.js';
 import { type UserContext, type ResolveResult, type NonUndefined, type Problem } from '../walk.js';
 import { type ComponentNamesStrategy } from './bundle-document.js';
@@ -140,10 +139,6 @@ export function makeBundleVisitor({
   let components: Record<string, ComponentsGroup>;
   let rootLocation: Location;
 
-  // a composed $ref in the chain is the effective target, so the composition survives bundling
-  const effectiveTarget = (resolved: ResolveResult<NonUndefined>): ComponentTarget =>
-    resolved.chain?.[0] ?? { node: resolved.node, location: resolved.location! };
-
   const firstSchemaLocationByName = new Map<string, Location>();
 
   const schemaComponentType = mapTypeToComponent('Schema', version)!;
@@ -156,7 +151,7 @@ export function makeBundleVisitor({
           return;
         }
 
-        const target = effectiveTarget(resolved);
+        const target = effectiveRefTarget(resolved);
 
         if (
           target.location.source === rootDocument.source &&
@@ -249,7 +244,7 @@ export function makeBundleVisitor({
 
         discriminator.defaultMapping = saveComponent(
           schemaComponentType,
-          effectiveTarget(resolved),
+          effectiveRefTarget(resolved),
           ctx
         );
       },
@@ -266,7 +261,7 @@ export function makeBundleVisitor({
               return;
             }
 
-            mapping[name] = saveComponent(schemaComponentType, effectiveTarget(resolved), ctx);
+            mapping[name] = saveComponent(schemaComponentType, effectiveRefTarget(resolved), ctx);
           }
         },
       },
@@ -311,7 +306,7 @@ export function makeBundleVisitor({
   function isEqualOrEqualRef(node: unknown, target: ComponentTarget, ctx: UserContext) {
     if (isRef(node)) {
       const resolved = ctx.resolve(node, rootLocation.absolutePointer);
-      const effectiveLocation = resolved.location && effectiveTarget(resolved).location;
+      const effectiveLocation = resolved.location && effectiveRefTarget(resolved).location;
       if (effectiveLocation?.absolutePointer === target.location.absolutePointer) {
         return true;
       }
@@ -320,14 +315,12 @@ export function makeBundleVisitor({
     return dequal(node, target.node);
   }
 
-  function componentNameFromTitle(
+  function resolveComponentNameFromTitle(
     target: ComponentTarget,
     componentsGroup: ComponentsGroup,
     ctx: UserContext
   ): { key: string; problem?: Problem } {
-    const { node } = target;
-    const title = isPlainObject(node) && isString(node.title) ? node.title.trim() : '';
-    const key = toPascalCase(title).replace(new RegExp(`[^${COMPONENT_NAME_CHARS}]`, 'g'), '-');
+    const { title, name: key } = componentNameFromTitle(target.node);
     const titleLocation = target.location.child('title');
 
     if (title === '') {
@@ -379,7 +372,7 @@ export function makeBundleVisitor({
     const componentsGroup = components[componentType];
 
     if (componentNamesStrategy === 'title' && componentType === schemaComponentType) {
-      const { key, problem } = componentNameFromTitle(target, componentsGroup, ctx);
+      const { key, problem } = resolveComponentNameFromTitle(target, componentsGroup, ctx);
       if (!problem) {
         firstSchemaLocationByName.set(key, target.location.child('title'));
         return key;

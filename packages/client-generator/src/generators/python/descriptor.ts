@@ -27,6 +27,7 @@ export function paginationSpec(
     ...(rule.param !== undefined ? { param: rule.param } : {}),
     ...(rule.nextCursor !== undefined ? { next_cursor: rule.nextCursor } : {}),
     ...(rule.hasMore !== undefined ? { has_more: rule.hasMore } : {}),
+    ...(rule.nextLink !== undefined ? { next_link: rule.nextLink } : {}),
     ...(rule.limitParam !== undefined ? { limit_param: rule.limitParam } : {}),
     ...(rule.items !== undefined ? { items: rule.items } : {}),
   };

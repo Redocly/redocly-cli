@@ -12,7 +12,7 @@ jobs:
     if: >-
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       github.event.pull_request.user.login != 'github-actions[bot]'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Check PR title
         env:
@@ -33,7 +33,7 @@ jobs:
     if: >-
       github.event.pull_request.user.login != 'dependabot[bot]' &&
       github.event.pull_request.user.login != 'github-actions[bot]'
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     concurrency: # Allows debouncing when editing the PR description
       group: pr-required-checklist-${{ github.event.pull_request.number }}
       cancel-in-progress: true

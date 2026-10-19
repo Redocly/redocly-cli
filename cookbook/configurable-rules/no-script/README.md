@@ -48,3 +48,5 @@ Markdown descriptions should not contain script tags.
 ## References
 
 Inspired by the Spectral rule [no-script-tags-in-markdown](https://docs.stoplight.io/docs/spectral/4dec24461f3af-open-api-rules#no-script-tags-in-markdown).
+
+Update: Redocly has its own built-in rule for this, see [no-unsafe-markdown](https://redocly.com/docs/cli/rules/common/no-unsafe-markdown) for more information.

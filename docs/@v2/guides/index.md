@@ -49,6 +49,12 @@ Prevent APIs from being viewed by external audiences.
 Replace the server URL in different environments.
 {% /card %}
 
+{% card title="Apply overlays"
+    to="./apply-overlays"
+  %}
+Publish different versions of an API from one source with Overlay files.
+{% /card %}
+
 {% card title="Lint AsyncAPI descriptions"
     to="./lint-asyncapi"
   %}
@@ -137,6 +143,12 @@ Switch from Spectral to Redocly CLI's linting and tooling.
     to="./migrate-from-swagger-cli"
   %}
 Replace the deprecated swagger-cli package with Redocly CLI.
+{% /card %}
+
+{% card title="Migrate from markdownlint and Vale"
+    to="./migrate-from-markdownlint"
+  %}
+Move Markdown and prose linting to the `recheck` command.
 {% /card %}
 
 {% /cards %}

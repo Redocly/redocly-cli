@@ -1,0 +1,92 @@
+import { ReuniteApi, type SunsetWarning } from './api/index.js';
+import type { PushResponse } from './api/types.js';
+import { resolveProjectRef, type ProjectRefResolution } from './resolve-project-ref.js';
+import { retryUntilConditionMet } from './utils/retry-until-condition-met.js';
+
+const DEFAULT_MAX_EXECUTION_TIME = 1200; // 20 min
+const DEFAULT_RETRY_INTERVAL_MS = 5000; // 5 sec
+const PENDING_DEPLOYMENT_STATUSES = ['pending', 'running'];
+
+export type BuildType = 'preview' | 'production';
+
+export type PushStatusOptions = {
+  domain: string;
+  apiKey: string;
+  organization: string;
+  project: string;
+  pushId: string;
+  version?: string;
+  // Called after the request with the most urgent sunset warning the Reunite API sent, if any.
+  onSunsetWarning?: (warning: SunsetWarning) => void;
+  // Called when the organization or the project was given as a slug.
+  onSlugDeprecated?: (resolution: ProjectRefResolution) => void;
+};
+
+export type WaitForDeploymentOptions = PushStatusOptions & {
+  buildType: BuildType;
+  maxExecutionTime?: number; // in seconds
+  retryIntervalMs?: number;
+  startTime?: number; // in milliseconds
+  // Called with the latest push while the deployment is still pending, before the next poll.
+  onRetry?: (push: PushResponse) => void | Promise<void>;
+};
+
+export async function getPushStatus(options: PushStatusOptions): Promise<PushResponse> {
+  const client = createClient(options);
+
+  try {
+    const ref = await resolveProjectRef(client, options);
+
+    return await getPush(client, ref, options.pushId);
+  } finally {
+    reportSunsetWarning(client, options);
+  }
+}
+
+export async function waitForDeployment({
+  buildType,
+  maxExecutionTime = DEFAULT_MAX_EXECUTION_TIME,
+  retryIntervalMs = DEFAULT_RETRY_INTERVAL_MS,
+  startTime = Date.now(),
+  onRetry,
+  ...options
+}: WaitForDeploymentOptions): Promise<PushResponse> {
+  const client = createClient(options);
+
+  try {
+    const ref = await resolveProjectRef(client, options);
+
+    return await retryUntilConditionMet({
+      operation: () => getPush(client, ref, options.pushId),
+      condition: (result) =>
+        !PENDING_DEPLOYMENT_STATUSES.includes(result.status[buildType].deploy.status),
+      onConditionNotMet: onRetry,
+      startTime,
+      retryTimeoutMs: maxExecutionTime * 1000,
+      retryIntervalMs,
+    });
+  } finally {
+    reportSunsetWarning(client, options);
+  }
+}
+
+function createClient({ domain, apiKey, version }: PushStatusOptions) {
+  return new ReuniteApi({ domain, apiKey, command: 'push-status', version });
+}
+
+// Runs whether the request succeeded or not: the client keeps the headers of every response it got.
+function reportSunsetWarning(client: ReuniteApi, { onSunsetWarning }: PushStatusOptions) {
+  const sunsetWarning = client.getSunsetWarning();
+
+  if (sunsetWarning) {
+    onSunsetWarning?.(sunsetWarning);
+  }
+}
+
+function getPush(
+  client: ReuniteApi,
+  { organizationId, projectId }: ProjectRefResolution,
+  pushId: string
+) {
+  return client.remotes.getPush({ organizationId, projectId, pushId });
+}

@@ -12,12 +12,12 @@ import {
   type BundleResult,
   type Oas3Server,
   type SpecVersion,
+  HandledError,
 } from '@redocly/openapi-core';
 import { blue, yellow } from 'colorette';
 import * as path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
-import { exitWithError } from '../../utils/error.js';
 import {
   getFallbackApisOrExit,
   printExecutionTime,
@@ -64,14 +64,14 @@ export async function handleJoin({
   ].filter(Boolean);
 
   if (usedTagsOptions.length > 1) {
-    return exitWithError(
+    throw new HandledError(
       `You use ${yellow(usedTagsOptions.join(', '))} together.\nPlease choose only one!`
     );
   }
 
   const apis = await getFallbackApisOrExit(argv.apis, config);
   if (apis.length < 2) {
-    return exitWithError(`At least 2 APIs should be provided.`);
+    throw new HandledError(`At least 2 APIs should be provided.`);
   }
 
   const fileExtension = getAndValidateFileExtension(output || apis[0].path);
@@ -106,7 +106,7 @@ export async function handleJoin({
         externalRefResolver: new BaseResolver(config.resolve),
         types: getTypes(detectSpec(document.parsed)),
       }).catch((e) => {
-        exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}`);
+        throw new HandledError(`${e.message}: ${blue(document.source.absoluteRef)}`);
       })
     )
   );
@@ -119,7 +119,7 @@ export async function handleJoin({
         version: packageVersion,
         command: 'join',
       });
-      exitWithError(
+      throw new HandledError(
         `❌ Errors encountered while bundling ${blue(
           document.source.absoluteRef
         )}: join will not proceed.`
@@ -133,19 +133,19 @@ export async function handleJoin({
       const version = detectSpec(document.parsed);
       collectSpecData?.(document);
       if (version !== 'oas3_0' && version !== 'oas3_1' && version !== 'oas3_2') {
-        return exitWithError(
+        throw new HandledError(
           `Only OpenAPI 3.0, 3.1, and 3.2 are supported: ${blue(document.source.absoluteRef)}.`
         );
       }
 
       oasVersion = oasVersion ?? version;
       if (oasVersion !== version) {
-        return exitWithError(
+        throw new HandledError(
           `All APIs must use the same OpenAPI version: ${blue(document.source.absoluteRef)}.`
         );
       }
     } catch (e) {
-      return exitWithError(`${e.message}: ${blue(document.source.absoluteRef)}.`);
+      throw new HandledError(`${e.message}: ${blue(document.source.absoluteRef)}.`);
     }
   }
 
@@ -219,7 +219,7 @@ export async function handleJoin({
   const noRefs = true;
 
   if (potentialConflictsTotal) {
-    return exitWithError(`Please fix conflicts before running ${yellow('join')}.`);
+    throw new HandledError(`Please fix conflicts before running ${yellow('join')}.`);
   }
 
   writeToFileByExtension(sortTopLevelKeys(joinedDef), specFilename, noRefs);

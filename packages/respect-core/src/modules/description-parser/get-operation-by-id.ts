@@ -1,12 +1,17 @@
 import { red } from 'colorette';
 
+import type { SourceDescription, TestContext } from '../../types.js';
 import type { OperationDetails } from './get-operation-from-description.js';
 
 // TODO: create a type: ExtendedOpenAPIOperation = OpenAPIOperation & { pathParameters: Parameter[], path, ... }
 export function getOperationById(
   operationIdStr: string,
-  descriptions: any
+  descriptionDetails: {
+    $sourceDescriptions: TestContext['$sourceDescriptions'];
+    sourceDescriptions: SourceDescription[] | undefined;
+  }
 ): (OperationDetails & Record<string, any>) | undefined {
+  const { $sourceDescriptions: descriptions, sourceDescriptions } = descriptionDetails;
   let descriptionName;
   let operationId;
 
@@ -16,7 +21,7 @@ export function getOperationById(
     operationId = operationIdIdentifier;
   } else if (!operationIdStr.includes('.')) {
     operationId = operationIdStr;
-    descriptionName = Object.keys(descriptions)[0];
+    descriptionName = findOpenApiDescriptionName(operationId, descriptions, sourceDescriptions);
   } else {
     [descriptionName, operationId] = operationIdStr.split('.');
   }
@@ -56,4 +61,39 @@ export function getOperationById(
   }
 
   throw new Error(`Unknown operationId ${red(operationId)} at ${red(operationIdStr)}.`);
+}
+
+// Only openapi descriptions have operations, and the plain operationId must match exactly one of them.
+function findOpenApiDescriptionName(
+  operationId: string,
+  descriptions: TestContext['$sourceDescriptions'],
+  sourceDescriptions: SourceDescription[] = []
+): string {
+  const matchingDescriptionNames = sourceDescriptions
+    .filter(
+      ({ type, name }) =>
+        type === 'openapi' &&
+        Object.values(descriptions[name]?.paths || {}).some((pathDetails) =>
+          Object.values(pathDetails || {}).some(
+            (operationDetails) => operationDetails?.operationId === operationId
+          )
+        )
+    )
+    .map(({ name }) => name);
+
+  if (matchingDescriptionNames.length === 0) {
+    throw new Error(
+      `Unknown operationId ${red(operationId)}. No openapi source description defines it.`
+    );
+  }
+
+  if (matchingDescriptionNames.length > 1) {
+    throw new Error(
+      `The operationId ${red(operationId)} is defined in several source descriptions: ${matchingDescriptionNames.join(
+        ', '
+      )}. Use ${red(`$sourceDescriptions.<name>.${operationId}`)} to pick one.`
+    );
+  }
+
+  return matchingDescriptionNames[0];
 }

@@ -1,0 +1,16 @@
+
+📋 Found 1 issue(s):
+
+first-line-h1             notes.yaml:1:1                           First line in a file should be a top-level heading
+
+   1 error(s)
+
+🏃 Running recheck on: notes.yaml
+
+🔧 Running 53 rule(s)...
+   Found 1 markdown file(s)
+
+   Annotations prepared: 1
+
+❌ Found 1 error(s). Exiting with code 1.
+   Completed in <time>

@@ -1,0 +1,5 @@
+get:
+  summary: List tickets
+  responses:
+    '200':
+      description: OK

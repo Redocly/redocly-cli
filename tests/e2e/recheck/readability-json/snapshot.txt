@@ -1,0 +1,22 @@
+{
+  "summary": {
+    "files": 1,
+    "scored": 1,
+    "medianFleschReadingEase": 97.03,
+    "medianFleschKincaidGrade": 0.72,
+    "medianAutomatedReadabilityIndex": -2.94
+  },
+  "files": [
+    {
+      "file": "docs/index.md",
+      "words": 4,
+      "sentences": 1,
+      "fleschReadingEase": 97.03,
+      "fleschKincaidGrade": 0.72,
+      "automatedReadabilityIndex": -2.94
+    }
+  ]
+}
+
+📖 Measuring readability of: docs
+   Scoring 1 markdown file(s)

@@ -1,5 +1,171 @@
 # @redocly/openapi-core
 
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+
+## 2.64.0
+
+### Minor Changes
+
+- Added the `onSettled` middleware hook to the generated TypeScript client.
+  Added the `client.telemetry` option to the `generate-client` command.
+
+### Patch Changes
+
+- Updated `@redocly/config` to v0.66.0.
+
+## 2.63.0
+
+## 2.62.2
+
+## 2.62.1
+
+## 2.62.0
+
+## 2.61.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.65.0`.
+
+## 2.60.0
+
+## 2.59.0
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.62.0`.
+
+## 2.58.2
+
+## 2.58.1
+
+### Patch Changes
+
+- Updated `@redocly/config` to `v0.61.1`.
+- Improved performance of the `no-invalid-media-type-examples`, `no-invalid-schema-examples`, and `no-invalid-parameter-examples` rules by reusing validators for schemas that are referenced or repeated.
+
+## 2.58.0
+
+### Minor Changes
+
+- Added the `redocly recheck` command.
+  It lints Markdown prose and structure from the `recheck` block in `redocly.yaml`, with presets named in the root `extends` (for example `recheck/markdown`).
+  Presets merge with the `recheck` blocks in `extends` order, like other presets.
+  The engine's actions return data.
+  The CLI prints it.
+  Two agent skills ship in the package under `skills/` and with the repository's other skills: `recheck-lint` runs the command on touched Markdown, and `recheck-config` tunes the `recheck` block.
+- Added the `plugins` option to `loadConfig` and `createConfig`: ready plugin objects that are added next to the built-in plugin.
+  Resolved configs carry the merged `recheck` block in `Config.recheck`.
+  A `recheck/*` entry in `extends` resolves like any other preset when a plugin with the id `recheck` is passed, and is skipped otherwise.
+  `lint` reads no rules from the block.
+  A custom plugin cannot use the id `recheck`.
+
+### Patch Changes
+
+- Improved the consistency of how configuration file problems are reported.
+  Commands with machine-readable output formats, such as `json`, `junit`, `checkstyle`, and `sarif` also report configuration file problems instead of hiding them.
+  A configuration file that fails to load displays a specific error message instead of a generic one.
+
+  **Note**: Configuration file problems are printed to `stderr` in the `codeframe` format for every command, regardless of the `--format` option.
+
+## 2.57.0
+
+### Minor Changes
+
+- Added `const` checking to the `no-enum-type-mismatch` rule: a `const` value must conform to the schema's `type`, the same way every `enum` value does.
+
+  **Note**: linting output may include new errors for schemas whose `const` value doesn't match their `type`.
+
+### Patch Changes
+
+- Fixed an issue where `no-enum-type-mismatch` dropped violations and reported a wrong location when `type` was written as an array.
+
+## 2.56.1
+
+### Patch Changes
+
+- Improved overall startup performance.
+
+## 2.56.0
+
+### Minor Changes
+
+- Added support for applying Overlay documents to the `bundle` command output.
+  Pass overlays with the new `--overlay` option or list them under `overlays` for an API in `redocly.yaml`.
+- Added support for linting Overlay 1.1 and 1.2 documents, including the `copy` action field, the `$self` field, and reusable actions in `components.actions`.
+  The `spec-ref-siblings` rule now checks the fields next to a reusable action `$ref` in Overlay documents.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.59.0.
+
+## 2.55.0
+
+### Patch Changes
+
+- Updated @redocly/config to v0.58.0.
+- Fixed an issue where the `workflow-dependsOn` rule reported a duplicate when different workflows listed the same workflow in `dependsOn`.
+
+## 2.54.3
+
+## 2.54.2
+
+### Patch Changes
+
+- Updated @redocly/config to v0.57.0.
+
+## 2.54.1
+
+## 2.54.0
+
+## 2.53.3
+
+## 2.53.2
+
+### Patch Changes
+
+- Added `start` and `end` line and column positions to each problem location in the `--format=json` lint output.
+
+## 2.53.1
+
+## 2.53.0
+
+### Minor Changes
+
+- Added a `disallowDefault` option to the `operation-2xx-response` rule, which requires an explicit 2xx response when enabled.
+  There is no change in current behavior.
+
+## 2.52.1
+
+## 2.52.0
+
+### Minor Changes
+
+- Added a `strategy` option to the `component-name-unique` rule, matching the `--component-names-strategy` option of the `bundle` command.
+
+### Patch Changes
+
+- Updated @redocly/config to v0.56.0.
+
+## 2.51.2
+
+### Patch Changes
+
+- Fixed an issue where Redocly config resolution failed when plugins used ESM syntax.
+
+## 2.51.1
+
+## 2.51.0
+
+### Patch Changes
+
+- Fixed an issue where `respect` and the `x-security-scheme-required-values` rule incorrectly rejected `x-security` HTTP schemes written with non-lowercase casing (such as `Basic`, `Bearer`, or `Digest`).
+  RFC 7235 scheme names are case-insensitive.
+
 ## 2.50.0
 
 ### Minor Changes

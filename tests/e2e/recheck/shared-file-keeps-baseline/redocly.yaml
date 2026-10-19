@@ -1,0 +1,7 @@
+apis:
+  museum:
+    root: museum.yaml
+  shop:
+    root: shop.yaml
+extends:
+  - recheck/markdown

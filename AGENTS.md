@@ -49,7 +49,7 @@ npm run unit -- -u
 # Run e2e tests (everything under tests/e2e except generate-client)
 npm run e2e
 
-# Run every generator test (client-generator unit + generate-client e2e)
+# Run the generate-client e2e tests (they compile real Python/Go/PHP/TypeScript output)
 npm run client-generators
 
 # Run the full test suite (compile + typecheck + unit + e2e)
@@ -73,17 +73,19 @@ in the wrong package.
 
 ## Build System
 
-`packages/core` and `packages/respect-core` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
+`packages/core`, `packages/respect-core`, `packages/reunite-integration`, and `packages/client-generator` are compiled by TypeScript (`tsc -b tsconfig.build.json`).
 `packages/cli` is bundled by esbuild (`packages/cli/scripts/build.mjs`) — it produces `lib/index.js` (entry chunk, ~450 kB) and lazy chunks under `lib/chunks/` (redoc + react, loaded only when `build-docs` runs).
-The root `npm run compile` runs both steps: tsc for core/respect-core, then the esbuild bundle for the CLI.
+The root `npm run compile` runs both steps: tsc for the compiled packages, then the esbuild bundle for the CLI.
 
 The published CLI package ships from a staged `.publish/` directory (created by `packages/cli/scripts/prepare-publish-dir.mjs`) with a hand-crafted `package.json` that has zero runtime dependencies — everything is bundled.
 
 ## Respect the architecture: Walker, Visitors, Nodes
 
-Linting in `packages/core` rests on three concepts: the **Walker** traverses the parsed API description and resolves `$ref`s, **Visitors** are objects keyed by **Node** type, and the Walker calls each visitor's `enter` / `leave` / `skip` hooks as it reaches a node.
-New rules and decorators follow this pattern instead of parsing documents by hand.
-The full guide, with examples, is in [the `rules-system` skill](./.claude/skills/rules-system/SKILL.md).
+Every traversal of an API description in this repository — linting, bundling, decorating, and the CLI commands that read a description — rests on one pattern: the **Walker** traverses the parsed API description, resolves `$ref`s, and calls **Visitors** — objects keyed by **Node** type — through their `enter` / `leave` / `skip` hooks at every node.
+Every rule, decorator, and preprocessor is a visitor.
+Write new ones as visitors: a visitor already hands you the typed node, so reach for it before a regular expression or manual drilling into the document object.
+A regex belongs only where a visitor cannot get you the value, such as the text inside one string.
+What each `enter` / `leave` / `skip` hook receives and when it runs, the fields of the `ctx` object, and a worked rule are in [`.claude/rules/walker-visitors-nodes.md`](./.claude/rules/walker-visitors-nodes.md).
 
 ## Add or change a built-in rule
 
@@ -99,21 +101,28 @@ Naming and reuse:
 
 - If the rule enforces a specification requirement, prefix its name with `spec-` and add it to the spec ruleset in `packages/core/src/config/spec.ts`.
 - If the same concept already exists for another spec flavor, reuse that rule name so it stays discoverable across specs.
+- Boolean options default to `false`.
+  Name each of them according to what makes `true`, so that adding them never alters the existing behavior.
 - Prefer real rule code over assertion-based (`redocly.yaml`) rules when contributing to the core rule set.
 
 ## Testing
 
 - **Compile before testing.** Unit tests import from `lib/` (compiled output), not `src/` — run `npm run compile` after every change.
+  Do not work around the compile step with aliases, `tsconfig` changes, or a separate test suite for one package.
+  The slow `client-generators` e2e suite is the one exception.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
+  When the rule must report no problems, assert `toEqual([])`.
+- Base the API description in a new test on the Redocly Cafe API (`resources/cafe.yaml` or `resources/cafe-split/`) when you can.
+  Copy only the part the test needs.
 - Don't add `console.log` or write to `stdout` / `stderr` directly — it breaks the e2e snapshots.
   Use the `logger` from `@redocly/openapi-core` (see [`CONTRIBUTING.md`](./CONTRIBUTING.md#logging)).
 - A `redocly.yaml` in the repository root affects unit tests in the CLI package.
   Remove it before running them.
-- Run the full suite (`npm test`) when you touch core linting logic.
-- Run `npm run client-generators` when you touch client generation — it is the whole generator suite in one command.
+- Run the full suite (`npm test`) before you open a pull request.
+- Run `npm run client-generators` when you touch client generation.
 
 The full testing and QA rules — including the rule test pattern to copy — are in
 [`.claude/rules/testing.md`](./.claude/rules/testing.md).
@@ -126,6 +135,8 @@ Before opening a PR, strip the things an assistant tends to add that a human rev
 - Defensive `try/catch` or null checks in trusted, already-validated code paths.
 - Casts to `any` to silence the type checker — fix the type instead.
 - Helpers or wrappers used in only one place.
+- Imports of another package's source files by path (`'core/src/typings/openapi.js'`).
+  Import from the package name, such as `@redocly/openapi-core`, instead.
 - Single-letter or abbreviated names (`m`, `p`, `e`).
   Use descriptive names like `pkgRootMatch`, `inputPath`, `error`.
   This applies across every package and script.
@@ -135,6 +146,7 @@ The full list of practices this repo enforces is in [`.claude/rules/code-quality
 ## Documentation and user-facing output
 
 - Update the docs for every new or changed rule, decorator, option, or command — a feature without docs is incomplete.
+- Update the agent skills under `.claude/skills/` that describe what you changed, for example `redocly-cli` when a command or option changes.
 - Keep user-facing output (CLI messages, warnings, errors) clear, non-technical, and actionable.
 - Don't create explanation, summary, or design files unless asked.
   Put the explanation in the PR description.
@@ -146,8 +158,8 @@ The full documentation and output rules are in [`.claude/rules/documentation.md`
 The full release and commit workflow is in [`.claude/rules/workflow.md`](./.claude/rules/workflow.md).
 
 - Every feature or fix needs a changeset: run `npx changeset` and describe the change in sentence case.
-  If the change lives in `packages/core` or `packages/respect-core` but affects CLI behavior, include `@redocly/cli` as well.
-  All three packages share one version and release together.
+  If the change lives in `packages/core`, `packages/respect-core`, or `packages/reunite-integration` but affects CLI behavior, include `@redocly/cli` as well.
+  All four packages share one version and release together.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages.
 - Don't add AI co-author or "Generated by" lines to commits.
 - Don't modify the pull request template.

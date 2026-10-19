@@ -11,9 +11,9 @@ sourceDescriptions:
     url: https://cafe.redocly.com/_bundle/openapi/cafe.yaml
 
 workflows:
-  - workflowId: client-registration
+  - workflowId: order-attempt
     description: >-
-      This workflow demonstrates how to pass inputs into an OAuth2 client registration request.
+      This workflow demonstrates how to pass inputs into an order creation request.
     parameters:
       - in: header
         name: Authorization
@@ -40,10 +40,10 @@ workflows:
               type: string
               format: password
     steps:
-      - stepId: create-client
+      - stepId: create-order
         description: >-
-          Try to register a new OAuth2 client without the required `name` field.
-        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1oauth2~1register/post'
+          Try to create an order without a bearer token.
+        operationPath: '{$sourceDescriptions.cafe-api.url}#/paths/~1orders/post'
         requestBody:
           payload:
             PROJECT_CLIENT_ID: $inputs.PROJECT_CLIENT_ID
@@ -51,7 +51,7 @@ workflows:
             PROJECT_SUBSCRIPTION_KEY: $inputs.PROJECT_SUBSCRIPTION_KEY
             price: $inputs.custom_price
         successCriteria:
-          - condition: $statusCode == 400
+          - condition: $statusCode == 401
           - context: $response.body
-            condition: "$[?@.title == 'Validation failed']"
+            condition: "$[?@.title == 'Bearer token is required']"
             type: jsonpath

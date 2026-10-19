@@ -58,7 +58,7 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
       config: await createConfig({ rules: { 'no-server-trailing-slash': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('oas3-no-server-trailing-slash: should not report on server object with no trailing slash if the url is root', async () => {
@@ -77,6 +77,6 @@ describe('Oas3 oas3-no-server-trailing-slash', () => {
       config: await createConfig({ rules: { 'no-server-trailing-slash': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 });

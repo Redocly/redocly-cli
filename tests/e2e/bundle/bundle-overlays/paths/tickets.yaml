@@ -1,0 +1,6 @@
+get:
+  operationId: listTickets
+  tags: [tickets]
+  responses:
+    '200':
+      description: OK

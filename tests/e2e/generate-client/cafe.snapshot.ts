@@ -471,7 +471,7 @@ export type ListMenuItemsVariables = {
 
 export type CreateMenuItemResult = MenuItem;
 
-export type CreateMenuItemBody = FormData;
+export type CreateMenuItemBody = FormData | ReadableStream;
 
 export type CreateMenuItemVariables = {
     body: CreateMenuItemBody;
@@ -826,7 +826,7 @@ export type SecuritySpec =
 
 /**
  * How to auto-iterate a paginated operation (drives its `.pages()`/`.items()` members).
- * `nextCursor` and `items` are RFC 6901 JSON pointers into the page (response) value.
+ * `nextCursor`, `nextLink`, and `items` are RFC 6901 JSON pointers into the page (response) value.
  */
 export type PaginationSpec =
   | {
@@ -856,6 +856,16 @@ export type PaginationSpec =
       style: 'link';
       /** Optional page-size query param (recorded for tooling; never set by the runtime). */
       limitParam?: string;
+      /** Pointer to the page's item array. */
+      items: string;
+    }
+  | {
+      /** Follow the next page's URL at `nextLink` in the page; stop when it is absent. */
+      style: 'body-link';
+      /** Optional page-size query param (recorded for tooling; never set by the runtime). */
+      limitParam?: string;
+      /** Pointer to the next page's URL in the page. */
+      nextLink: string;
       /** Pointer to the page's item array. */
       items: string;
     };
@@ -970,7 +980,14 @@ export type ApiErrorLike = globalThis.Error & {
   body: unknown;
 };
 
-/** One interceptor: any subset of the three hooks. */
+export type SettledCall = {
+  response?: Response;
+  error?: unknown;
+  attempts: number;
+  durationMs: number;
+};
+
+/** One interceptor: any subset of the four hooks. */
 export type Middleware<Op extends OperationContext = OperationContext> = {
   onRequest?: (ctx: RequestContext<Op>) => void | Promise<void>;
   onResponse?: (
@@ -983,6 +1000,7 @@ export type Middleware<Op extends OperationContext = OperationContext> = {
     error: ApiErrorLike,
     ctx: RequestContext<Op>
   ) => globalThis.Error | Promise<globalThis.Error>;
+  onSettled?: (ctx: RequestContext<Op>, call: SettledCall) => void | Promise<void>;
 };
 
 /** Client configuration: transport, defaults, retry policy, middleware, and credentials. */
@@ -1557,11 +1575,49 @@ function middlewareChain(config: ClientConfig): Middleware[] {
 }
 
 /**
+ * `AbortSignal.timeout()` where the platform has it, else an `AbortController` armed by
+ * `setTimeout`: Chrome before 103, Safari before 16, and Firefox before 100 lack the
+ * static, and every request with a timeout would throw before `fetch` runs.
+ */
+function timeoutSignal(ms: number): AbortSignal {
+  if (typeof AbortSignal.timeout === 'function') return AbortSignal.timeout(ms);
+  const controller = new AbortController();
+  setTimeout(() => {
+    controller.abort(new DOMException(`Timed out after ${ms} ms`, 'TimeoutError'));
+  }, ms);
+  return controller.signal;
+}
+
+/**
+ * `AbortSignal.any()` where the platform has it, else a controller that follows whichever
+ * signal aborts first: Chrome before 116, Safari before 17.4, and Firefox before 124 lack
+ * the static. The listeners come off once one signal fires, so a caller's long-lived
+ * signal does not keep one per request.
+ */
+function anySignal(signals: AbortSignal[]): AbortSignal {
+  if (typeof AbortSignal.any === 'function') return AbortSignal.any(signals);
+  const controller = new AbortController();
+  const listeners = new Map<AbortSignal, () => void>();
+  const abort = (reason: unknown) => {
+    for (const [signal, listener] of listeners) signal.removeEventListener('abort', listener);
+    controller.abort(reason);
+  };
+  for (const signal of signals) {
+    const listener = () => abort(signal.reason);
+    listeners.set(signal, listener);
+    signal.addEventListener('abort', listener);
+  }
+  return controller.signal;
+}
+
+/**
  * The fetch core shared by every operation: default + config + per-call headers, the
  * `onRequest` chain (BEFORE body serialization, so mutations are sent), body
- * serialization (JSON, or FormData via the multipart capability), the retry loop
+ * serialization (JSON, or FormData via the multipart capability; a stream passes
+ * through in one attempt), the retry loop
  * (idempotent-only defaults, `Retry-After`, abandoned-body drain), and the reverse
- * `onResponse` onion. Returns the final response plus the request context.
+ * `onResponse` onion, then the `onSettled` chain once with the final outcome. Returns the
+ * final response plus the request context.
  */
 async function send(
   config: ClientConfig,
@@ -1621,6 +1677,7 @@ async function send(
   for (const mw of middleware) if (mw.onRequest) await mw.onRequest(context);
   // Serialize AFTER onRequest so body mutations (case conversion, enveloping, signing) take effect.
   let payload: BodyInit | undefined;
+  let isStream = false;
   if (context.body !== undefined) {
     const value = context.body;
     const isBinary =
@@ -1629,8 +1686,26 @@ async function send(
       ArrayBuffer.isView(value as ArrayBufferView);
     const isFormData = typeof FormData !== 'undefined' && value instanceof FormData;
     const isURLSearchParams = value instanceof URLSearchParams;
-    if (isFormData || isURLSearchParams || isBinary || typeof value === 'string') {
+    isStream =
+      (typeof ReadableStream !== 'undefined' && value instanceof ReadableStream) ||
+      (value !== null &&
+        typeof (value as Partial<AsyncIterable<unknown>>)[Symbol.asyncIterator] === 'function');
+    const hasContentType = 'Content-Type' in context.headers || 'content-type' in context.headers;
+    if (isFormData || isURLSearchParams || isBinary || isStream || typeof value === 'string') {
       payload = value as BodyInit;
+      // `fetch` derives the type of FormData and URLSearchParams, boundary included, and a
+      // multipart boundary is only the caller's to set. Any other pass-through body gets
+      // the declared type when the caller set none.
+      const declared = bodySpec?.contentType;
+      if (
+        !isFormData &&
+        !isURLSearchParams &&
+        !hasContentType &&
+        declared !== undefined &&
+        !declared.toLowerCase().includes('multipart')
+      ) {
+        context.headers['Content-Type'] = declared;
+      }
     } else if (bodySpec?.multipart === true) {
       if (!caps.serializeMultipart) {
         throw new Error('Multipart capability not wired: cannot serialize the request body');
@@ -1638,87 +1713,129 @@ async function send(
       payload = caps.serializeMultipart(value as Record<string, unknown>);
     } else {
       payload = JSON.stringify(value);
-      if (!('Content-Type' in context.headers) && !('content-type' in context.headers)) {
+      if (!hasContentType) {
         // The spec's declared request content type (e.g. application/merge-patch+json).
         context.headers['Content-Type'] = bodySpec?.contentType ?? 'application/json';
       }
     }
   }
   const doFetch = config.fetch ?? fetch;
-  const maxAttempts = 1 + (retry.retries ?? 0);
+  // A stream is consumed by the first attempt and cannot be replayed, so it never retries.
+  const maxAttempts = isStream ? 1 : 1 + (retry.retries ?? 0);
   const retryOn = retry.retryOn ?? defaultRetryOn;
   const signal = fetchInit.signal ?? undefined;
 
+  const startedAt = Date.now();
   let attempt = 0;
-  while (true) {
-    attempt++;
-    if (signal?.aborted) throw abortError(signal);
-    // A fresh timeout budget per attempt; the caller's signal still wins the race.
-    // The composed signal also governs reading the response body.
-    const attemptSignal = timeout
-      ? signal
-        ? AbortSignal.any([signal, AbortSignal.timeout(timeout)])
-        : AbortSignal.timeout(timeout)
-      : signal;
-    let response: Response;
-    try {
-      response = await doFetch(context.url, {
-        ...fetchInit,
-        signal: attemptSignal,
-        method: context.method,
-        headers: context.headers,
-        body: payload,
-      });
-    } catch (error) {
-      if (
-        attempt < maxAttempts &&
-        !signal?.aborted &&
-        (await retryOn({ attempt, request: context, error }))
-      ) {
-        await sleep(retryDelay(retry, attempt, null), signal);
-        continue;
+  let finalResponse: Response;
+  let lastResponse: Response | undefined;
+  try {
+    while (true) {
+      if (signal?.aborted) throw abortError(signal);
+      attempt++;
+      // A fresh timeout budget per attempt; the caller's signal still wins the race.
+      // The composed signal also governs reading the response body.
+      const budget = timeout ? timeoutSignal(timeout) : undefined;
+      const attemptSignal = budget && signal ? anySignal([signal, budget]) : (budget ?? signal);
+      let response: Response;
+      try {
+        response = await doFetch(context.url, {
+          ...fetchInit,
+          // `fetch` requires it for a stream body.
+          ...(isStream ? { duplex: 'half' } : {}),
+          signal: attemptSignal,
+          method: context.method,
+          headers: context.headers,
+          body: payload,
+        });
+      } catch (error) {
+        // Decided before any await, when no timer can have fired since `fetch` rejected: an
+        // aborted budget means this attempt timed out. The abort reason's name is no
+        // evidence, because Chrome 103 to 123 abort a timeout with `AbortError`.
+        const timedOut = timeout !== undefined && budget?.aborted && !signal?.aborted;
+        if (
+          attempt < maxAttempts &&
+          !signal?.aborted &&
+          (await retryOn({ attempt, request: context, error }))
+        ) {
+          await sleep(retryDelay(retry, attempt, null), signal);
+          continue;
+        }
+        // Our timeout fired (never the caller's own abort — that rethrows untouched):
+        // wrap the bare DOMException with the context a log line needs.
+        if (timedOut) throw new TimeoutError(op.id, timeout, attempt);
+        throw error;
       }
-      // Our timeout fired (never the caller's own abort — that rethrows untouched):
-      // wrap the bare DOMException with the context a log line needs.
-      if (
-        timeout &&
-        !signal?.aborted &&
-        error instanceof DOMException &&
-        error.name === 'TimeoutError'
-      ) {
-        throw new TimeoutError(op.id, timeout, attempt);
-      }
-      throw error;
-    }
-    // Reverse order: the last-registered middleware wraps closest to the network (onion).
-    for (let i = middleware.length - 1; i >= 0; i--) {
-      const onResponse = middleware[i].onResponse;
-      if (onResponse) {
-        const replaced = await onResponse(response, context);
-        if (replaced && replaced !== response) {
-          // Cancel the abandoned original's body — like the retry path, an unread body
-          // keeps its connection checked out under Node/undici.
-          await response.body?.cancel().catch(() => undefined);
-          response = replaced;
+      lastResponse = response;
+      // Reverse order: the last-registered middleware wraps closest to the network (onion).
+      for (let i = middleware.length - 1; i >= 0; i--) {
+        const onResponse = middleware[i].onResponse;
+        if (onResponse) {
+          const replaced = await onResponse(response, context);
+          if (replaced && replaced !== response) {
+            // Cancel the abandoned original's body — like the retry path, an unread body
+            // keeps its connection checked out under Node/undici.
+            await response.body?.cancel().catch(() => undefined);
+            response = replaced;
+            lastResponse = replaced;
+          }
         }
       }
+      if (
+        !response.ok &&
+        attempt < maxAttempts &&
+        !signal?.aborted &&
+        (await retryOn({ attempt, request: context, response }))
+      ) {
+        const retryAfter = response.headers.get('retry-after');
+        // Drain the abandoned response body before the next attempt: an unread body
+        // keeps the connection checked out (and can stall the pool) under Node/undici
+        // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
+        await response.body?.cancel().catch(() => undefined);
+        lastResponse = undefined;
+        await sleep(retryDelay(retry, attempt, retryAfter), signal);
+        continue;
+      }
+      finalResponse = response;
+      break;
     }
-    if (
-      !response.ok &&
-      attempt < maxAttempts &&
-      !signal?.aborted &&
-      (await retryOn({ attempt, request: context, response }))
-    ) {
-      const retryAfter = response.headers.get('retry-after');
-      // Drain the abandoned response body before the next attempt: an unread body
-      // keeps the connection checked out (and can stall the pool) under Node/undici
-      // and other strict HTTP clients. Ignore errors (e.g. a middleware already read it).
-      await response.body?.cancel().catch(() => undefined);
-      await sleep(retryDelay(retry, attempt, retryAfter), signal);
-      continue;
+  } catch (error) {
+    const settled: SettledCall = {
+      response: lastResponse,
+      error,
+      attempts: attempt,
+      durationMs: Date.now() - startedAt,
+    };
+    for (const mw of middleware) {
+      if (!mw.onSettled) continue;
+      try {
+        await mw.onSettled(context, settled);
+      } catch (hookError) {
+        globalThis.console?.warn('onSettled hook failed', hookError);
+      }
     }
-    return { response, context };
+    throw error;
   }
+  const settled: SettledCall = {
+    response: finalResponse,
+    attempts: attempt,
+    durationMs: Date.now() - startedAt,
+  };
+  const hookErrors: unknown[] = [];
+  for (const mw of middleware) {
+    if (!mw.onSettled) continue;
+    try {
+      await mw.onSettled(context, settled);
+    } catch (hookError) {
+      hookErrors.push(hookError);
+    }
+  }
+  if (hookErrors.length > 0) {
+    // The caller never gets this response, so release its connection.
+    await finalResponse.body?.cancel().catch(() => undefined);
+    throw hookErrors[0];
+  }
+  return { response: finalResponse, context };
 }
 
 /**
@@ -1759,6 +1876,7 @@ type Capabilities = SendCapabilities & {
         args?: OperationArgs,
         init?: RequestOptions
       ) => Promise<{ page: unknown; linkHeader: string | null; url: string }>,
+      spec: PaginationSpec,
       args?: OperationArgs,
       init?: RequestOptions
     ) => AsyncGenerator<unknown>;
@@ -2206,11 +2324,12 @@ function createClientCore<
       client[name] =
         spec === undefined
           ? method
-          : spec.style === 'link'
+          : spec.style === 'link' || spec.style === 'body-link'
             ? Object.assign(method, {
                 pages: (args?: OperationArgs, init?: RequestOptions) =>
                   paginateCapability(caps, op).pagesByLink(
                     linkPageCall(config, op, caps),
+                    spec,
                     inputOf(op, args ?? {}, config),
                     init
                   ),

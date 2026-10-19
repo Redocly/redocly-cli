@@ -15,6 +15,9 @@ env:
 
 jobs:
   historical-versions:
+    # Stays on GitHub-hosted runners: on Blacksmith, hyperfine jitter within one job was
+    # 3-6% (vs ~1% here), enough to flip the cli-next/cli-latest ratio past the 5%
+    # regression threshold on an unchanged commit. See Redocly/redocly-cli#3168.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -30,14 +33,16 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       - name: Install External
-        run: npm i -g hyperfine
+        run: |
+          wget -q https://github.com/sharkdp/hyperfine/releases/download/v2.0.0/hyperfine_2.0.0_amd64.deb
+          sudo dpkg -i hyperfine_2.0.0_amd64.deb
 
       - name: Add more versions to test
         # Run only on the release branch (changeset-release/main):
         if: github.head_ref == 'changeset-release/main'
         run: |
           cd tests/performance/
-          cat package.json | jq ".dependencies = $(cat package.json | jq ._enhancedDependencies)" > package.json
+          cat package.json | jq ".dependencies = $(cat package.json | jq ._historicalVersions)" > package.json
           cat package.json
 
       - name: Prepare

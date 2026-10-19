@@ -18,6 +18,9 @@ describe('PHP_RUNTIME_SOURCE (the embedded PHP runtime)', () => {
       'function iterPages(',
       'function iterSse(',
       'function toMultipart(',
+      'function multipartBody(',
+      'function binaryBody(',
+      'CURLOPT_INFILE',
       'Idempotency-Key',
       'retry-after',
     ]) {

@@ -29,7 +29,7 @@ describe('Oas3 path-params-defined', () => {
       config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report on undefined param params', async () => {
@@ -205,7 +205,7 @@ describe('Oas3 path-params-defined', () => {
       config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should not report on undefined params in callback for next operation in same path item', async () => {
@@ -263,7 +263,7 @@ describe('Oas3 path-params-defined', () => {
       config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should fail on undefined or missing params in callback', async () => {
@@ -437,7 +437,7 @@ describe('Oas3 path-params-defined', () => {
       config: await createConfig({ rules: { 'path-params-defined': 'error' } }),
     });
 
-    expect(replaceSourceWithRef(results)).toMatchInlineSnapshot(`[]`);
+    expect(replaceSourceWithRef(results)).toEqual([]);
   });
 
   it('should report error at $ref location when path parameter via $ref is not used in path (issue #1241)', async () => {

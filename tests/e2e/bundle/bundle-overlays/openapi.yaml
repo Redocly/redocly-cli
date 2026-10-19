@@ -1,0 +1,21 @@
+openapi: 3.1.0
+info:
+  title: Museum API
+  version: 1.0.0
+paths:
+  /tickets:
+    $ref: paths/tickets.yaml
+  /internal/stats:
+    get:
+      operationId: getStats
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats'
+components:
+  schemas:
+    Stats:
+      type: object

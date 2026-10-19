@@ -395,6 +395,16 @@ describe('evaluateRuntimeExpressionPayload', () => {
     ).toEqual('Bearer 125');
   });
 
+  it('should throw when an embedded runtime expression has no value', () => {
+    const payload = 'Bearer {$outputs.accessToken}';
+    expect(() =>
+      evaluateRuntimeExpressionPayload({ payload, context: runtimeExpressionContext, logger })
+    ).toThrowErrorMatchingInlineSnapshot(`
+      [Error: Runtime expression '{$outputs.accessToken}' has no value. 
+      Check that it references a step or workflow that has already run and sets this output, or an input that is provided.]
+    `);
+  });
+
   it('should evaluate multiword runtime expression with JsonPointer value', () => {
     const payload = 'Bearer {$request.body#/multiwordSecret}';
     expect(
@@ -692,6 +702,42 @@ describe('evaluateRuntimeExpression', () => {
     expect(evaluateRuntimeExpression(expression1, runtimeExpressionContext, logger)).toEqual(true);
     expect(evaluateRuntimeExpression(expression2, runtimeExpressionContext, logger)).toEqual(true);
     expect(evaluateRuntimeExpression(expression3, runtimeExpressionContext, logger)).toEqual(false);
+  });
+
+  it('should not rewrite string values that contain a dot followed by a digit', () => {
+    const token = 'rdsc_scimc_abcdefghijklmnopqrstuv.7fKBCS4zQ';
+    const quoted = 'say "hi.1"';
+    const context = {
+      $response: { body: { token, quoted } },
+    } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/token', context, logger)).toEqual(token);
+    expect(evaluateRuntimeExpression('$response.body#/quoted', context, logger)).toEqual(quoted);
+    expect(
+      evaluateRuntimeExpression(`$response.body#/token == "${token}"`, context, logger)
+    ).toEqual(true);
+    expect(
+      evaluateRuntimeExpressionPayload({
+        payload: 'Bearer {$response.body#/token}',
+        context,
+        logger,
+      })
+    ).toEqual(`Bearer ${token}`);
+  });
+
+  it('should not rewrite expression-like text inside string values', () => {
+    const note = 'copied from $steps.first-step.response.header.Content-Type';
+    const context = { $response: { body: { note } } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression('$response.body#/note', context, logger)).toEqual(note);
+  });
+
+  it('should not rewrite single-quoted string literals in a comparison', () => {
+    const context = { $inputs: { version: '1.0.0-rc.1' } } as unknown as RuntimeExpressionContext;
+
+    expect(evaluateRuntimeExpression("$inputs.version == '1.0.0-rc.1'", context, logger)).toEqual(
+      true
+    );
   });
 
   it('should evaluate list runtime expression value', () => {

@@ -1,11 +1,16 @@
 import { TimeoutError } from '../errors.js';
 import { defaultRetryOn } from '../index.js';
 import { middlewareChain, send } from '../send.js';
-import type { ClientConfig, RequestContext, RetryContext } from '../types.js';
+import type { ClientConfig, RequestContext, RetryContext, SettledCall } from '../types.js';
 
 const op = { id: 'createPet', path: '/pets', tags: [] as string[] };
 const ok = () =>
   new Response('[]', { status: 200, headers: { 'content-type': 'application/json' } });
+// Never resolves; only an abort settles it, with the signal's reason, as `fetch` does.
+const hanging = ((url: string, init: RequestInit) =>
+  new Promise((_, reject) => {
+    init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+  })) as unknown as typeof fetch;
 
 function fetchSpy(responses: Array<Response | Error>) {
   const calls: Array<{ url: string; init: RequestInit }> = [];
@@ -52,6 +57,68 @@ describe('send', () => {
     const bytes = new Uint8Array([1, 2]);
     await send(config, op, 'u', { method: 'POST' }, bytes, undefined, {});
     expect(calls[3].init.body).toBe(bytes);
+  });
+
+  it('passes a ReadableStream body through with duplex: half, the caller content type, and one attempt', async () => {
+    const stream = new ReadableStream<Uint8Array>();
+    const first = fetchSpy([ok()]);
+    await send(
+      { fetch: first.fetchImpl },
+      op,
+      'u',
+      { method: 'POST', headers: { 'content-type': 'multipart/form-data; boundary=abc' } },
+      stream,
+      { contentType: 'multipart/form-data' },
+      {}
+    );
+    const init = first.calls[0].init as RequestInit & { duplex?: string };
+    expect(init.body).toBe(stream);
+    expect(init.duplex).toBe('half');
+    const headers = init.headers as Record<string, string>;
+    expect(headers['content-type']).toBe('multipart/form-data; boundary=abc');
+    expect(headers['Content-Type']).toBeUndefined();
+
+    // A consumed stream cannot be replayed, so the retry policy never gets a second attempt.
+    const second = fetchSpy([new Error('ECONNRESET'), ok()]);
+    await expect(
+      send(
+        { fetch: second.fetchImpl, retry: { retries: 2, retryDelay: 1, retryOn: () => true } },
+        op,
+        'u',
+        { method: 'POST' },
+        new ReadableStream<Uint8Array>(),
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('ECONNRESET');
+    expect(second.calls.length).toBe(1);
+  });
+
+  it('fills a stream body Content-Type from the declared type, except for multipart', async () => {
+    const { calls, fetchImpl } = fetchSpy([ok(), ok()]);
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'POST' },
+      new ReadableStream<Uint8Array>(),
+      { contentType: 'application/pdf' },
+      {}
+    );
+    expect((calls[0].init.headers as Record<string, string>)['Content-Type']).toBe(
+      'application/pdf'
+    );
+    // Only the caller knows the boundary, so a bare multipart type would be wrong.
+    await send(
+      { fetch: fetchImpl },
+      op,
+      'u',
+      { method: 'POST' },
+      new ReadableStream<Uint8Array>(),
+      { contentType: 'multipart/form-data' },
+      {}
+    );
+    expect((calls[1].init.headers as Record<string, string>)['Content-Type']).toBeUndefined();
   });
 
   it("defaults Content-Type to the operation's declared body content type", async () => {
@@ -411,6 +478,56 @@ describe('send', () => {
     await expect(rejection).rejects.toThrow('"createPet" timed out after 20 ms');
   });
 
+  it('builds the timeout and the composed signal without AbortSignal.timeout/any (older browsers)', async () => {
+    const native = { timeout: AbortSignal.timeout, any: AbortSignal.any };
+    Object.assign(AbortSignal, { timeout: undefined, any: undefined });
+    try {
+      const controller = new AbortController();
+      await expect(
+        send(
+          { fetch: hanging, timeout: 20 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toMatchObject({ name: 'TimeoutError', operationId: 'createPet', timeout: 20 });
+      // The caller's own abort still wins the race and rethrows untouched.
+      setTimeout(() => controller.abort(new Error('gone')), 5);
+      await expect(
+        send(
+          { fetch: hanging, timeout: 60_000 },
+          op,
+          'u',
+          { method: 'GET', signal: controller.signal },
+          undefined,
+          undefined,
+          {}
+        )
+      ).rejects.toThrow('gone');
+    } finally {
+      Object.assign(AbortSignal, native);
+    }
+  });
+
+  it('reports a timeout the platform aborts with AbortError (Chrome 103 to 123) as TimeoutError', async () => {
+    const native = AbortSignal.timeout;
+    AbortSignal.timeout = (ms: number) => {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(new DOMException('Aborted.', 'AbortError')), ms);
+      return controller.signal;
+    };
+    try {
+      await expect(
+        send({ fetch: hanging, timeout: 20 }, op, 'u', { method: 'GET' }, undefined, undefined, {})
+      ).rejects.toBeInstanceOf(TimeoutError);
+    } finally {
+      AbortSignal.timeout = native;
+    }
+  });
+
   it('resolves async config.headers once and merges per-call headers over them', async () => {
     const { calls, fetchImpl } = fetchSpy([ok()]);
     await send(
@@ -562,6 +679,169 @@ describe('send', () => {
       {}
     );
     expect(seen).toEqual(['GET']);
+  });
+});
+
+describe('send onSettled', () => {
+  function settledSpy() {
+    const calls: SettledCall[] = [];
+    const middleware = {
+      onSettled: (_ctx: RequestContext, call: SettledCall) => {
+        calls.push(call);
+      },
+    };
+    return { calls, middleware };
+  }
+
+  it('runs once with the TimeoutError when the timeout aborts the last attempt', async () => {
+    const settled = settledSpy();
+    const hanging = ((url: string, init: RequestInit) =>
+      new Promise((_, reject) => {
+        init.signal!.addEventListener('abort', () => reject(init.signal!.reason));
+      })) as unknown as typeof fetch;
+    await expect(
+      send(
+        { fetch: hanging, middleware: [settled.middleware], timeout: 20 },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toBeInstanceOf(TimeoutError);
+    expect(settled.calls.length).toBe(1);
+    expect(settled.calls[0].error).toBeInstanceOf(TimeoutError);
+    expect(settled.calls[0].attempts).toBe(1);
+  });
+
+  it('runs every hook in registration order, then rejects with the first hook error', async () => {
+    const order: string[] = [];
+    const response = ok();
+    const { fetchImpl } = fetchSpy([response]);
+    await expect(
+      send(
+        {
+          fetch: fetchImpl,
+          middleware: [
+            {
+              onSettled: () => {
+                order.push('first');
+                throw new Error('hook failed');
+              },
+            },
+            { onSettled: () => void order.push('second') },
+          ],
+        },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('hook failed');
+    expect(order).toEqual(['first', 'second']);
+    expect(response.bodyUsed).toBe(true);
+  });
+
+  it('passes the response and the error when onResponse throws after the server answered', async () => {
+    const settled = settledSpy();
+    const { fetchImpl } = fetchSpy([ok()]);
+    const invalidBody = {
+      onResponse: () => {
+        throw new Error('invalid body');
+      },
+    };
+    await expect(
+      send(
+        { fetch: fetchImpl, middleware: [settled.middleware, invalidBody] },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('invalid body');
+    expect(settled.calls[0].response?.status).toBe(200);
+    expect((settled.calls[0].error as Error).message).toBe('invalid body');
+  });
+
+  it('drops the retried response when the caller aborts during the retry wait', async () => {
+    const settled = settledSpy();
+    const controller = new AbortController();
+    const { fetchImpl } = fetchSpy([new Response(null, { status: 503 })]);
+    await expect(
+      send(
+        {
+          fetch: fetchImpl,
+          middleware: [settled.middleware],
+          retry: {
+            retries: 1,
+            retryOn: () => {
+              controller.abort();
+              return true;
+            },
+          },
+        },
+        op,
+        'u',
+        { method: 'GET', signal: controller.signal },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow();
+    expect(settled.calls[0].response).toBeUndefined();
+    expect((settled.calls[0].error as Error).name).toBe('AbortError');
+  });
+
+  it('counts no attempt when the signal is already aborted', async () => {
+    const settled = settledSpy();
+    const { calls, fetchImpl } = fetchSpy([ok()]);
+    await expect(
+      send(
+        { fetch: fetchImpl, middleware: [settled.middleware] },
+        op,
+        'u',
+        { method: 'GET', signal: AbortSignal.abort() },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow();
+    expect(calls.length).toBe(0);
+    expect(settled.calls[0].attempts).toBe(0);
+  });
+
+  it('keeps the original error and logs the hook error when a hook throws on a failed call', async () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const failingFetch = (async () => {
+      throw new Error('down');
+    }) as typeof fetch;
+    await expect(
+      send(
+        {
+          fetch: failingFetch,
+          middleware: [
+            {
+              onSettled: () => {
+                throw new Error('hook failed');
+              },
+            },
+          ],
+        },
+        op,
+        'u',
+        { method: 'GET' },
+        undefined,
+        undefined,
+        {}
+      )
+    ).rejects.toThrow('down');
+    expect(warn).toHaveBeenCalledWith('onSettled hook failed', new Error('hook failed'));
+    warn.mockRestore();
   });
 });
 

@@ -2,7 +2,6 @@ import type { Arazzo1Rule } from '../../visitors.js';
 import type { UserContext } from '../../walk.js';
 
 export const WorkflowDependsOn: Arazzo1Rule = () => {
-  const seenWorkflow = new Set();
   const existingSourceDescriptions = new Set();
   const existingWorkflowIds = new Set();
 
@@ -25,6 +24,7 @@ export const WorkflowDependsOn: Arazzo1Rule = () => {
       leave(workflow, { report, location }: UserContext) {
         if (!workflow.dependsOn) return;
 
+        const seenWorkflow = new Set();
         for (const item of workflow.dependsOn) {
           // Possible dependsOn workflow pattern: $sourceDescriptions.<name>.<workflowId>
           if (item.startsWith('$sourceDescriptions.')) {
