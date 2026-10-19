@@ -35,7 +35,10 @@ export async function fetchGithubDescription(): Promise<string> {
   return cached;
 }
 
-/** Copy the consumer folder (package.json, go.mod, tsconfig.cli.json) and generate into it. */
+/**
+ * Copy the consumer folder (package.json, go.mod, tsconfig.cli.json) and generate into it.
+ * The caller removes the folder.
+ */
 export async function generateWith(generators: string[], description: string): Promise<string> {
   const dir = copyConsumer(join(__dirname, 'consumer'));
   await generateClient({ api: description, output: join(dir, 'client.ts'), generators });

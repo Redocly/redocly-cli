@@ -7,9 +7,16 @@ import { fileURLToPath } from 'node:url';
 import { copyConsumer, expectTscPasses } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
 describe('generate-client zod generator', () => {
+  let dir = '';
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('emits a *.zod.ts module that strict-tsc-checks against real zod and agrees with the sdk types', async () => {
-    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
     const zodOut = join(dir, 'client.zod.ts');
 
@@ -30,12 +37,10 @@ describe('generate-client zod generator', () => {
     // strict-tsc the emitted zod module against REAL zod, plus the schema ↔ type
     // agreement check in consumer/check.ts.
     expectTscPasses(['-p', join(dir, 'tsconfig.check.json')]);
-
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('zodValidation middleware validates requests before the wire and JSON responses after it', async () => {
-    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({
       api: join(__dirname, 'openapi.yaml'),
       output: join(dir, 'client.ts'),
@@ -56,6 +61,5 @@ describe('generate-client zod generator', () => {
       'warn-call-succeeded',
       'stripped:{"name":"s","quantity":1}',
     ]);
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

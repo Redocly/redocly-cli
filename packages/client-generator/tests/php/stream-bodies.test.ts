@@ -1,5 +1,5 @@
 import { generateClient } from '@redocly/client-generator';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { copyConsumer } from '../helpers/helpers.js';
@@ -50,5 +50,13 @@ describe('generate-client stream bodies, PHP (end-to-end)', () => {
         body: BINARY_B64,
       },
     ]);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
+
+  it('hands an untyped body to the runtime helpers, which also encode an array', () => {
+    // The smoke sends only streams and strings, so the helper calls are checked in the source.
+    const source = readFileSync(join(workDir, 'client/client.php'), 'utf-8');
+    expect(source).toContain('[$contentType, $encoded] = multipartBody($body);');
+    expect(source).toContain("'body' => binaryBody($body)");
+  });
 });

@@ -28,8 +28,8 @@ const cases: Array<{ flags: string[]; options: GenerateClientConfig }> = [
   { flags: ['--args-style', 'flat'], options: { argsStyle: 'flat' } },
   // The CLI resolves a relative path against the cwd, which is this folder.
   {
-    flags: ['--setup', 'client-setup/consumer/setup.ts'],
-    options: { setup: join(__dirname, 'client-setup/consumer/setup.ts') },
+    flags: ['--setup', 'client-setup/setup.ts'],
+    options: { setup: join(__dirname, 'client-setup/setup.ts') },
   },
   { flags: ['--error-mode', 'result'], options: { errorMode: 'result' } },
   {
@@ -97,7 +97,6 @@ describe('generate-client CLI flags', () => {
         rmSync(cliDir, { recursive: true, force: true });
         rmSync(apiDir, { recursive: true, force: true });
       }
-    },
-    60_000
+    }
   );
 });

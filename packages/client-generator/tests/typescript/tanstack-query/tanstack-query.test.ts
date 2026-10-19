@@ -61,22 +61,21 @@ describe('generate-client tanstack-query generator', () => {
 
   it('the tanstack-query-vue variant swaps only the import specifier to @tanstack/vue-query', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-tanstack-vue-'));
-    const out = join(dir, 'client.ts');
-    const tanstackOut = join(dir, 'client.tanstack.ts');
+    try {
+      await generateClient({
+        api: join(__dirname, '../../fixtures', 'base.yaml'),
+        output: join(dir, 'client.ts'),
+        generators: ['typescript', 'tanstack-query-vue'],
+      });
 
-    await generateClient({
-      api: join(__dirname, '../../fixtures', 'base.yaml'),
-      output: out,
-      generators: ['typescript', 'tanstack-query-vue'],
-    });
-
-    // No strict-tsc compile here: @tanstack/vue-query isn't a dev dependency, and the
-    // react test already proves the queryOptions output type-checks against a real
-    // adapter — the only per-framework difference is this import string.
-    const source = readFileSync(tanstackOut, 'utf-8');
-    expect(source).toContain('import { queryOptions } from "@tanstack/vue-query"');
-    expect(source).not.toContain('@tanstack/react-query');
-
-    rmSync(dir, { recursive: true, force: true });
+      // No strict-tsc compile here: @tanstack/vue-query isn't a dev dependency, and the
+      // react test already proves the queryOptions output type-checks against a real
+      // adapter — the only per-framework difference is this import string.
+      const source = readFileSync(join(dir, 'client.tanstack.ts'), 'utf-8');
+      expect(source).toContain('import { queryOptions } from "@tanstack/vue-query"');
+      expect(source).not.toContain('@tanstack/react-query');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   }, 60_000);
 });

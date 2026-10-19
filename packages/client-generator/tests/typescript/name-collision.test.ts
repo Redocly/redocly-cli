@@ -7,53 +7,42 @@
 // the split two-file layout and strict-`tsc` it.
 
 import { generateClient } from '@redocly/client-generator';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { collectTsFiles, expectTscPasses } from '../helpers/helpers.js';
+import { strictTypecheck } from '../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures', 'base.yaml');
 
 describe('generate-client operation/schema name collision', () => {
+  let dir = '';
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('does not emit a self-referential *Result alias; strict tsc passes over the split set', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-collision-'));
+    dir = mkdtempSync(join(tmpdir(), 'ots-collision-'));
     const entry = join(dir, 'client.ts');
     await generateClient({ api: fixture, output: entry, outputMode: 'split' });
 
-    const files = collectTsFiles(dir);
-    const allSource = files.map((f) => readFileSync(f, 'utf-8'));
-    // No file may contain the circular self-alias (self-referential variant).
-    for (let i = 0; i < files.length; i++) {
-      expect(allSource[i], `self-referential alias in ${files[i]}`).not.toMatch(
+    const sources: string[] = [];
+    for (const fileName of readdirSync(dir)) {
+      const source = readFileSync(join(dir, fileName), 'utf-8');
+      // No file may contain the circular self-alias (self-referential variant).
+      expect(source, `self-referential alias in ${fileName}`).not.toMatch(
         /export type (\w+) = \1;/
       );
+      sources.push(source);
     }
     // Non-self-referential variant: `GetStatusResult` exists as a schema, so the op's
     // `<Op>Result` alias must be suppressed — exactly one declaration across the set.
-    const declarations = allSource.join('\n').match(/export type GetStatusResult\b/g) ?? [];
+    const declarations = sources.join('\n').match(/export type GetStatusResult\b/g) ?? [];
     expect(declarations).toHaveLength(1);
 
-    // Strict tsc over the whole set (bundler resolution handles the `.js` ESM imports).
-    expectTscPasses(
-      [
-        '--noEmit',
-        '--strict',
-        '--noUnusedLocals',
-        '--target',
-        'ES2020',
-        '--module',
-        'esnext',
-        '--moduleResolution',
-        'bundler',
-        '--lib',
-        'ES2020,DOM',
-        ...files,
-      ],
-      dir
-    );
-    rmSync(dir, { recursive: true, force: true });
+    strictTypecheck(dir);
   }, 60_000);
 });

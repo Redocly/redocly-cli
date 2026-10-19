@@ -1,12 +1,13 @@
-import { generateClient } from '@redocly/client-generator';
 /**
- * Behavioral e2e for composable middleware/interceptors. Like `extension.test.ts`, we
+ * Tests composable middleware/interceptors. Like `extension.test.ts`, we
  * inject a fake `fetch` and exercise the generated runtime in a real consumer, proving
  * that `use()` registers middleware, `onRequest` runs in order, `onResponse` runs in
  * reverse (onion), `onError` chains, `onSettled` sees the final outcome once per call,
  * and configured middleware precedes `use()`.
  */
-import { existsSync, rmSync } from 'node:fs';
+
+import { generateClient } from '@redocly/client-generator';
+import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,7 +23,7 @@ describe('middleware — flat surface (use)', () => {
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', async () => {
@@ -80,7 +81,7 @@ describe('middleware — flat surface (use)', () => {
 
     expect(captured.op.id).toBe('createPet');
     expect(captured.op.path).toBe('/pets');
-    expect(Array.isArray(captured.op.tags)).toBe(true);
+    expect(captured.op.tags).toEqual([]);
   }, 60_000);
 
   test('onRequest can mutate ctx.body and the change is sent', async () => {
@@ -107,7 +108,7 @@ describe('middleware — multi-file output (split)', () => {
     await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('configure() and use() are re-exported by the entry barrel and affect operations', async () => {
@@ -127,7 +128,7 @@ describe('middleware — result error mode', () => {
     await generateClient({ api: fixture, output: join(dir, 'client.ts'), errorMode: 'result' });
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('onRequest/onResponse run; onError does not fire (the error is returned, not thrown)', async () => {

@@ -22,9 +22,5 @@
     "moduleResolution": "nodenext",
     "esModuleInterop": true
   },
-  "exclude": [
-    "packages/client-generator/examples",
-    "packages/client-generator/tests/**/consumer*",
-    "tests/e2e/generate-client/*/consumer*"
-  ]
+  "exclude": ["packages/client-generator/examples", "packages/client-generator/tests/**/consumer*"]
 }

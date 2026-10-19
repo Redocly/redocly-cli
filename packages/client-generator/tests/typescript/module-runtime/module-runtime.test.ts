@@ -3,12 +3,12 @@ import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { startCafeServer } from '../helpers/cafe-server.js';
-import { copyConsumer, runConsumer, strictTypecheck } from '../helpers/helpers.js';
-import type { MockServer } from '../helpers/mock-server.js';
+import { startCafeServer } from '../../helpers/cafe-server.js';
+import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
+import type { MockServer } from '../../helpers/mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, '../fixtures/cafe.yaml');
+const fixture = join(__dirname, '../../fixtures/cafe.yaml');
 
 describe('generate-client --runtime module (end-to-end)', () => {
   let server: MockServer;
@@ -16,7 +16,7 @@ describe('generate-client --runtime module (end-to-end)', () => {
 
   beforeAll(async () => {
     server = await startCafeServer();
-    dir = copyConsumer(join(__dirname, '../shared/module-runtime/consumer'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({
       api: fixture,
       output: join(dir, 'client.ts'),
@@ -67,5 +67,6 @@ describe('generate-client --runtime module (end-to-end)', () => {
     expect(results.ok).toBe(true);
     // The error class reaches the consumer through the factory re-export chain.
     expect(results.viaApiError).toBe('function');
+    expect(server.handlerErrors).toEqual([]);
   }, 120_000);
 });

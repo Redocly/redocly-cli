@@ -1,6 +1,6 @@
 /**
  * Proves the generated client types `ctx.operation.{id,path,tags}` as literal unions: a valid
- * comparison compiles, a misspelled operationId/tag does NOT. The whole point of the feature is
+ * comparison compiles, a misspelled operationId does NOT. The whole point of the feature is
  * compile-time typo-catching, so it gets a dedicated strict-`tsc` check.
  *
  * Mechanism: the wiring instantiates `createClient<Ops, OperationId, OperationPath, …>`, so a
@@ -13,15 +13,10 @@ import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runTsc } from '../../helpers/helpers.js';
+import { copyConsumer, expectTscPasses, runTsc } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/base.yaml');
-
-/** Type-check the generated client with one consumer, through `tsconfig.<consumer>.json`. */
-function typechecks(dir: string, consumer: string): boolean {
-  return runTsc(['-p', join(dir, `tsconfig.${consumer}.json`)], dir).status === 0;
-}
 
 describe('typed ctx.operation rejects typos at compile time', () => {
   let dir = '';
@@ -30,14 +25,16 @@ describe('typed ctx.operation rejects typos at compile time', () => {
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
-    if (dir) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('a valid operationId/path comparison compiles; base-typed middleware stays accepted', () => {
-    expect(typechecks(dir, 'valid-comparison')).toBe(true);
+    expectTscPasses(['-p', join(dir, 'tsconfig.valid-comparison.json')], dir);
   }, 60_000);
 
   test('a misspelled operationId fails to compile', () => {
-    expect(typechecks(dir, 'misspelled-id')).toBe(false);
+    const tsc = runTsc(['-p', join(dir, 'tsconfig.misspelled-id.json'), '--pretty', 'false'], dir);
+    expect(tsc.stdout).toContain('misspelled-id.ts(5,9): error TS2367');
+    expect(tsc.stdout).toContain(`'"listPetss"' have no overlap`);
   }, 60_000);
 });

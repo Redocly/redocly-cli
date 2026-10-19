@@ -24,7 +24,7 @@ async function runCliBin(args: string[], env: Record<string, string> = {}) {
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-describe('generate-client cli generator (end-to-end)', () => {
+describe('generate-client cli generator', () => {
   beforeAll(async () => {
     server = await MockServer.start(fixture, {
       handlers: {
@@ -72,12 +72,16 @@ describe('generate-client cli generator (end-to-end)', () => {
     });
   }, 60_000);
 
+  afterEach(() => {
+    expect(server.handlerErrors).toEqual([]);
+  });
+
   afterAll(async () => {
     await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  it('--runtime module writes runtime/cli.ts and the entry runs through it', async () => {
+  it("runtime: 'module' writes runtime/cli.ts and the entry runs through it", async () => {
     const moduleDir = join(workDir, 'client-module');
     await generateClient({
       api: fixture,
@@ -164,7 +168,6 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(pages).toHaveLength(2);
     expect(pages[0].orders[0].id).toBe('ord_1');
     expect(pages[1].orders[0].id).toBe('ord_2');
-    expect(server.handlerErrors).toEqual([]);
   });
 
   it('schema prints the request schema; usage errors exit 4; --help exits 0', async () => {

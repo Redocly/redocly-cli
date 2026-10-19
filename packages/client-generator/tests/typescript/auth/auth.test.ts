@@ -9,21 +9,20 @@ import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helper
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'openapi.yaml');
 
-/** Generate a single-file client and assert strict `tsc` accepts it. */
-async function generateSingleFile(): Promise<string> {
-  const dir = mkdtempSync(join(tmpdir(), 'ots-auth-'));
-  const out = join(dir, 'client.ts');
-  await generateClient({ api: fixture, output: out });
-  expect(existsSync(out)).toBe(true);
-  const generated = readFileSync(out, 'utf-8');
-  strictTypecheck(dir, ['client.ts']);
-  rmSync(dir, { recursive: true, force: true });
-  return generated;
-}
-
 describe('generate-client auth breadth', () => {
+  let dir = '';
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('emits all five injectable scheme kinds and strict-tsc accepts the single-file client', async () => {
-    const generated = await generateSingleFile();
+    dir = mkdtempSync(join(tmpdir(), 'ots-auth-'));
+    const out = join(dir, 'client.ts');
+    await generateClient({ api: fixture, output: out });
+    expect(existsSync(out)).toBe(true);
+    const generated = readFileSync(out, 'utf-8');
+    strictTypecheck(dir, ['client.ts']);
 
     // Token machinery for the resolvable (bearer + apiKey) schemes lives in the embedded runtime.
     expect(generated).toContain('export type TokenProvider');
@@ -70,12 +69,11 @@ describe('generate-client auth breadth', () => {
   }, 60_000);
 
   it('strict-tsc accepts the split two-file client (guards multi-file auth)', async () => {
-    // Split mode derives its folder from a `.ts` entry path, so --output
+    // Split mode derives its folder from a `.ts` entry path, so `output`
     // must still point at a file; the generator emits the schemas file beside it.
-    const dir = mkdtempSync(join(tmpdir(), 'ots-auth-split-'));
+    dir = mkdtempSync(join(tmpdir(), 'ots-auth-split-'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
     strictTypecheck(dir);
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   // Behavioral check on a real wire. The cafe mock-server harness is bound to
@@ -87,14 +85,13 @@ describe('generate-client auth breadth', () => {
     // The driver owns its own throwaway http server (and points the client at it
     // via configure({ serverUrl })), so a single `runConsumer` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
-    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
 
     const captured = (await runConsumer(join(dir, 'bearer-and-query-key.ts'))) as Array<{
       url: string;
       auth?: string;
     }>;
-    rmSync(dir, { recursive: true, force: true });
 
     const bearerReq = captured.find((c) => c.url.startsWith('/bearer'));
     expect(bearerReq, JSON.stringify(captured)).toBeDefined();
@@ -106,11 +103,10 @@ describe('generate-client auth breadth', () => {
   }, 90_000);
 
   it('createClient instances keep their own credentials: an authed one sends Basic, a no-auth one sends none', async () => {
-    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
 
     const calls = (await runConsumer(join(dir, 'instance-credentials.ts'))) as (string | null)[];
-    rmSync(dir, { recursive: true, force: true });
 
     expect(calls).toEqual(['Basic ' + Buffer.from('alice:pw').toString('base64'), null]);
   }, 90_000);

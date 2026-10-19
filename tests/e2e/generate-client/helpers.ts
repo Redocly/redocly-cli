@@ -1,7 +1,7 @@
-// A copy of the helpers in packages/client-generator/tests/helpers/helpers.ts, trimmed to
-// what the tests of the `generate-client` and `eject-generator` commands use.
+// A copy of the helpers in packages/client-generator/tests/helpers/helpers.ts, trimmed and
+// simplified to what the tests of the `generate-client` and `eject-generator` commands use.
 import { spawn, spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { cpSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,20 +10,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, '../../..');
 const cliEntry = join(repoRoot, 'packages/cli/lib/index.js');
 const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
-
-const STRICT_TSCONFIG = {
-  compilerOptions: {
-    module: 'nodenext',
-    moduleResolution: 'nodenext',
-    target: 'es2022',
-    lib: ['ES2022', 'DOM'],
-    strict: true,
-    noEmit: true,
-    skipLibCheck: true,
-    types: [],
-  },
-};
 
 /**
  * Run the redocly CLI. The default cwd is this folder, which has no redocly.yaml, so a local
@@ -43,21 +29,6 @@ export function runGenerateClient(
   cwd: string = __dirname
 ): SpawnSyncReturns<string> {
   return runCli(['generate-client', ...args], cwd);
-}
-
-export function runTsc(args: string[], cwd: string = repoRoot): SpawnSyncReturns<string> {
-  return spawnSync(tscBin, args, { encoding: 'utf-8', cwd });
-}
-
-/** Write the shared strict tsconfig into `dir` and assert that it type-checks. */
-export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): void {
-  writeFileSync(
-    join(dir, 'tsconfig.json'),
-    JSON.stringify({ ...STRICT_TSCONFIG, include }),
-    'utf-8'
-  );
-  const tsc = runTsc(['--noEmit', '-p', dir]);
-  expect(tsc.status, `tsc failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
 }
 
 type CommandResult = { status: number | null; stdout: string; stderr: string };
@@ -85,16 +56,6 @@ export function runTsx(
     child.on('error', rejectResult);
     child.on('close', (status) => resolveResult({ status, stdout, stderr }));
   });
-}
-
-/** Run a consumer script with tsx; returns its parsed JSON stdout. */
-export async function runConsumer(script: string): Promise<unknown> {
-  const result = await runTsx(script);
-  expect(
-    result.status,
-    `consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-  ).toBe(0);
-  return JSON.parse(result.stdout.trim());
 }
 
 /** Copy a consumer folder into a temp dir; the caller removes it. */

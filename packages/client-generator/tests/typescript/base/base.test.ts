@@ -14,9 +14,6 @@ describe('generate-client base consumer (single-file output)', () => {
   let workDir = '';
 
   beforeAll(async () => {
-    workDir = copyConsumer(join(__dirname, 'consumer'));
-    await generateClient({ api: fixture, output: join(workDir, 'api.ts') });
-    expectTscPasses(['--noEmit', '-p', workDir]);
     server = await MockServer.start(fixture, {
       handlers: {
         // The cancel consumer aborts this call, so the answer must be slow enough to abort.
@@ -31,7 +28,14 @@ describe('generate-client base consumer (single-file output)', () => {
         },
       },
     });
+    workDir = copyConsumer(join(__dirname, 'consumer'));
+    await generateClient({ api: fixture, output: join(workDir, 'api.ts') });
+    expectTscPasses(['--noEmit', '-p', workDir]);
   }, 60_000);
+
+  afterEach(() => {
+    expect(server.handlerErrors).toEqual([]);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -93,7 +97,7 @@ describe('generate-client base consumer (single-file output)', () => {
     expect(typeof parsed.pet.id).toBe('number');
     expect(typeof parsed.pet.name).toBe('string');
     expect(Array.isArray(parsed.filtered)).toBe(true);
-    // Bucket C round-trip: createPet ran with a body that omits the readOnly `id`.
+    // createPet ran with a body that omits the readOnly `id`.
     expect(typeof parsed.created.name).toBe('string');
 
     const requests = server.requests.map(({ method, url }) => ({ method, url }));
@@ -102,7 +106,6 @@ describe('generate-client base consumer (single-file output)', () => {
     // The deepObject query param: the object is sent as filter[name]=…&filter[status]=….
     const listCall = server.requests.find((request) => request.operationId === 'listPets');
     expect(listCall?.query).toEqual({ 'filter[name]': 'rex', 'filter[status]': 'available' });
-    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 
   test('cancel: AbortController aborts the underlying request', async () => {

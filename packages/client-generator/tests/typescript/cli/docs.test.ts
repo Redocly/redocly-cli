@@ -1,4 +1,4 @@
-// Reference documentation end-to-end: `--docs` is one switch for the whole run, and each
+// Reference documentation: `docs: true` is one switch for the whole run, and each
 // generator documents ITSELF — so the bar is that every selected generator with a page
 // produced one, that no page appears without the switch, and that each page describes the
 // artifact beside it (the CLI page against the CLI's own `--help`, an SDK page against the
@@ -37,7 +37,7 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-describe('generate-client --docs (end-to-end)', () => {
+describe('generate-client docs: true', () => {
   it('writes one page per selected generator that documents itself, and none for the rest', () => {
     // cli and python asked for; typescript and zod came in as prerequisites of cli, and
     // typescript documents itself too. zod has no page.

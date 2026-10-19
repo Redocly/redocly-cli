@@ -42,5 +42,6 @@ describe('generate-client stream bodies, TypeScript (end-to-end)', () => {
     );
 
     expect(wireRows(server.requests)).toEqual([...streamRows(chunked), ...replayableRows]);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 });

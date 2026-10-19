@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
 
 import {
   fetchGithubDescription,
@@ -10,8 +11,12 @@ import {
 /** Python bar: `import client` executes every dataclass declaration, which catches duplicate fields and bad defaults. */
 async function pythonBar(description: string): Promise<void> {
   const dir = await generateWith(['python'], description);
-  const result = spawnSync('python3', ['-c', 'import client'], { cwd: dir, encoding: 'utf-8' });
-  expect(result.status, result.stderr).toBe(0);
+  try {
+    const result = spawnSync('python3', ['-c', 'import client'], { cwd: dir, encoding: 'utf-8' });
+    expect(result.status, result.stderr).toBe(0);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 describe('rebilly description', () => {

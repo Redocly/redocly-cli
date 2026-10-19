@@ -1,9 +1,10 @@
-import { generateClient } from '@redocly/client-generator';
 /**
- * Behavioral e2e for retry. Injects a fake `fetch` via `configure()` so we can
+ * Tests retry. Injects a fake `fetch` via `configure()` so we can
  * script transient failures and count attempts deterministically — no live server.
  */
-import { existsSync, rmSync } from 'node:fs';
+
+import { generateClient } from '@redocly/client-generator';
+import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -19,7 +20,7 @@ describe('retry behavior', () => {
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('retries a GET on 503 then succeeds; default is no retry', async () => {

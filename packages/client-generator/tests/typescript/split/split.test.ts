@@ -1,23 +1,24 @@
-import { generateClient } from '@redocly/client-generator';
 /**
- * E2E for `--output-mode split`: the generated two-file set must compile under
- * strict `tsc` with `--noUnusedLocals`, which proves both that cross-file imports
+ * Tests `outputMode: 'split'`: the generated two-file set must compile under
+ * strict `tsc` with `noUnusedLocals`, which proves both that cross-file imports
  * resolve and that each file imports exactly what it uses (no over-importing).
  *
  * Uses cafe.yaml because it exercises the embedded runtime broadly (bearer + apiKey
  * auth, header params) and the schemas module (named types + discriminated-union guards).
  */
+
+import { generateClient } from '@redocly/client-generator';
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses } from '../../helpers/helpers.js';
+import { copyConsumer, strictTypecheck } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/cafe.yaml');
 
-describe('generate-client end-to-end (--output-mode split)', () => {
+describe("generate-client outputMode: 'split'", () => {
   let workDir = '';
   let entry = '';
   let schemasFile = '';
@@ -33,10 +34,10 @@ describe('generate-client end-to-end (--output-mode split)', () => {
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  test('writes two sibling files derived from --output', () => {
+  test('writes two sibling files derived from output', () => {
     expect(existsSync(entry)).toBe(true);
     expect(existsSync(schemasFile)).toBe(true);
-    // Split is exactly two files: no `.http.ts` module anymore.
+    // Split is exactly two files: there is no `.http.ts` module.
     expect(existsSync(join(workDir, 'client.http.ts'))).toBe(false);
 
     const entrySrc = readFileSync(entry, 'utf-8');
@@ -58,29 +59,12 @@ describe('generate-client end-to-end (--output-mode split)', () => {
   });
 
   test('the two-file set type-checks under strict mode with no unused imports', () => {
-    expectTscPasses(
-      [
-        '--noEmit',
-        '--strict',
-        '--noUnusedLocals',
-        '--target',
-        'ES2020',
-        '--module',
-        'esnext',
-        '--moduleResolution',
-        'bundler',
-        '--lib',
-        'ES2020,DOM',
-        entry,
-        schemasFile,
-      ],
-      workDir
-    );
+    strictTypecheck(workDir, ['client.ts', 'client.schemas.ts']);
   }, 90_000);
 
-  // `--import-ext ts` targets runtimes that resolve specifiers literally (no `.js` → `.ts`
+  // `importExt: 'ts'` targets runtimes that resolve specifiers literally (no `.js` → `.ts`
   // remap) — Node's built-in type stripping. Locked by actually executing `node main.ts`.
-  test('--import-ext ts produces a client Node runs natively', async () => {
+  test("importExt: 'ts' produces a client Node runs natively", async () => {
     const tsEntry = join(workDir, 'client-ts.ts');
     await generateClient({ api: fixture, output: tsEntry, outputMode: 'split', importExt: 'ts' });
 

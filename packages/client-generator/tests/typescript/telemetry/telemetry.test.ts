@@ -1,32 +1,25 @@
 /**
- * Behavioral e2e for `client.telemetry: on`: generate a client with it, register the
+ * Behavioral e2e for `telemetry: 'on'`: generate a client with it, register the
  * middleware with a custom sink in a real consumer, and read what the sink receives.
  */
-import { existsSync, readdirSync, rmSync } from 'node:fs';
+import { generateClient } from '@redocly/client-generator';
+import { readdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, runConsumer, runGenerateClient, strictTypecheck } from '../helpers.js';
+import { copyConsumer, runConsumer, strictTypecheck } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, '../fixtures/base.yaml');
+const fixture = join(__dirname, '../../fixtures/base.yaml');
 
-describe('client.telemetry: on', () => {
+describe("telemetry: 'on'", () => {
   let dir = '';
-  beforeAll(() => {
+  beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
-    // `client.telemetry` is a config key, so this run goes through the CLI and its redocly.yaml.
-    const result = runGenerateClient([
-      fixture,
-      '--output',
-      join(dir, 'client.ts'),
-      '--config',
-      join(dir, 'redocly.yaml'),
-    ]);
-    expect(result.status, result.stderr).toBe(0);
-  }, 60_000);
+    await generateClient({ api: fixture, output: join(dir, 'client.ts'), telemetry: 'on' });
+  });
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('emits client.telemetry.ts, and the sink receives one event per operation', async () => {
@@ -52,5 +45,5 @@ describe('client.telemetry: on', () => {
       language: 'typescript',
     });
     strictTypecheck(dir, ['client.ts', 'client.telemetry.ts', 'sink.ts']);
-  }, 60_000);
+  });
 });

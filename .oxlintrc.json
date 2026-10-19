@@ -80,7 +80,6 @@
       "files": [
         "packages/client-generator/examples/*/src/**",
         "packages/client-generator/examples/*/worker.ts",
-        "tests/e2e/generate-client/*/consumer*/**",
         "packages/client-generator/tests/**/consumer*/**"
       ],
       "rules": {

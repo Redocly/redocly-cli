@@ -6,9 +6,16 @@ import { fileURLToPath } from 'node:url';
 import { copyConsumer, expectTscPasses } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
 describe('generate-client swr generator', () => {
+  let dir = '';
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('emits a *.swr.ts module that strict-tsc-checks against real swr and composes with the sdk', async () => {
-    const dir = copyConsumer(join(__dirname, 'consumer'));
+    dir = copyConsumer(join(__dirname, 'consumer'));
     const out = join(dir, 'client.ts');
     const swrOut = join(dir, 'client.swr.ts');
 
@@ -36,9 +43,6 @@ describe('generate-client swr generator', () => {
     // strict-tsc (consumer/tsconfig.json) the emitted swr module against REAL swr,
     // plus the generated sdk client. The hooks are React hooks; type-checking the
     // module proves the emitted useSWR/useSWRMutation calls match swr's real API.
-
     expectTscPasses(['--noEmit', '-p', dir]);
-
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 });

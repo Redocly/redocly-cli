@@ -1,4 +1,4 @@
-// Query-parameter serialization styles (P3.8). Generates a client from a spec
+// Query-parameter serialization styles. Generates a client from a spec
 // declaring non-default query styles, strict-`tsc`s it (the descriptor `params`
 // hints must satisfy `ParamSpec`), asserts the emitted source, and proves the
 // WIRE FORMAT behaviorally.
@@ -32,7 +32,7 @@ describe('generate-client query serialization styles', () => {
   }, 60_000);
 
   afterAll(() => {
-    if (dir) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   it('emits style hints on the descriptor params, and none for the default param', () => {

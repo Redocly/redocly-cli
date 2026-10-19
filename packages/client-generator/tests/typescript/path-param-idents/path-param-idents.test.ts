@@ -1,5 +1,5 @@
 /**
- * Behavioral e2e for non-identifier path parameters. OpenAPI allows parameter
+ * Tests non-identifier path parameters. OpenAPI allows parameter
  * names that are not valid JS identifiers (`widget-id`), start with a digit
  * (`2fa`), or collide with reserved words (`new`). The generator must sanitize
  * each into a safe sugar argument name while routing the value back under the
@@ -12,7 +12,7 @@
  */
 
 import { generateClient } from '@redocly/client-generator';
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -28,7 +28,7 @@ describe('non-identifier path parameters', () => {
     await generateClient({ api: spec, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('keys the path layer by the wire name, quoting what needs it', () => {
@@ -37,8 +37,7 @@ describe('non-identifier path parameters', () => {
     expect(client).toContain('export type GetWidgetPath = {\n    "widget-id": string;\n};');
     // The descriptor keeps the WIRE name for URL substitution.
     expect(client).toContain('params: [{ name: "widget-id", in: "path" }]');
-    // A reserved word is a fine object key, quoted or not.
-    // A reserved word is quoted as a key, which is what makes it usable as one.
+    // A reserved word is a valid object key, so the wire name stays as is.
     expect(client).toContain('export type GetItemPath = {\n    "new": string;\n};');
     expect(client).not.toContain('_new');
   });

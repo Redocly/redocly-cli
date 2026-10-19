@@ -1,22 +1,14 @@
-// The generator compatibility contract: an incompatible `--generator` selection must
-// fail fast with an actionable message (never emit a client that won't compile), and
-// `tanstack-query` must gracefully skip SSE operations (which the sdk doesn't export).
+// The CLI side of the generator compatibility contract: `--help` names every built-in
+// generator, and an incompatible `--generator` selection fails with an actionable message.
 
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { repoRoot, runGenerateClient, runTsc } from '../helpers.js';
+import { repoRoot, runGenerateClient } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const cafe = join(__dirname, '../fixtures', 'cafe.yaml');
-const sse = join(__dirname, '../fixtures', 'sse.yaml');
-
-function run(args: string[]): { status: number | null; out: string } {
-  const res = runGenerateClient(args);
-  return { status: res.status, out: `${res.stdout}\n${res.stderr}` };
-}
+const cafe = join(__dirname, '../fixtures/cafe.yaml');
 
 // Every built-in must be discoverable from `--help`: an inline list that goes stale is
 // what made four separate reports say the languages "aren't supported".
@@ -27,38 +19,22 @@ describe('generate-client --help', () => {
     const { BUILTIN_META } = await import(
       pathToFileURL(join(repoRoot, 'packages/client-generator/lib/generators/meta.js')).href
     );
+    const result = runGenerateClient(['--help']);
     // yargs wraps help text mid-token (`tanstack-query-v\nue`), so compare with the
     // whitespace removed — a generator name never contains any.
-    const help = run(['--help']).out.replace(/\s+/g, '');
+    const help = `${result.stdout}\n${result.stderr}`.replace(/\s+/g, '');
     for (const name of Object.keys(BUILTIN_META as Record<string, unknown>)) {
       expect(help, `--help does not mention the "${name}" generator`).toContain(name);
     }
-  }, 60_000);
+  });
 });
 
 describe('generate-client generator compatibility contract', () => {
-  it('pulls in the sdk a wrapper generator needs instead of failing', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([
+  it('fails with exit code 1 when the generator rejects the selection', () => {
+    const result = runGenerateClient([
       cafe,
       '--output',
-      join(dir, 'c.ts'),
-      '--generator',
-      'tanstack-query',
-    ]);
-    expect(status, out).toBe(0);
-    // The wrapper wraps the sdk's functions, so the sdk file has to exist.
-    expect(existsSync(join(dir, 'c.ts'))).toBe(true);
-    expect(existsSync(join(dir, 'c.tanstack.ts'))).toBe(true);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('rejects tanstack-query with result error mode', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([
-      cafe,
-      '--output',
-      join(dir, 'c.ts'),
+      join(tmpdir(), 'generator-contract-client.ts'),
       '--generator',
       'typescript',
       '--generator',
@@ -66,102 +42,8 @@ describe('generate-client generator compatibility contract', () => {
       '--error-mode',
       'result',
     ]);
-    expect(status).not.toBe(0);
-    expect(out).toMatch(/does not support --error-mode "result"/);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('rejects transformers without --date-type Date', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([
-      cafe,
-      '--output',
-      join(dir, 'c.ts'),
-      '--generator',
-      'typescript',
-      '--generator',
-      'transformers',
-    ]);
-    expect(status).not.toBe(0);
-    expect(out).toMatch(/requires --date-type Date/);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('defaults to the sdk client when no --generator is passed', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const outFile = join(dir, 'c.ts');
-    // With no `--generator` flag the selection is unset, so it falls back to the default
-    // sdk generator and emits a client rather than silently producing nothing.
-    const { status, out } = run([cafe, '--output', outFile]);
-    expect(status, out).toBe(0);
-    expect(existsSync(outFile)).toBe(true);
-    expect(readFileSync(outFile, 'utf-8')).toContain('export const client = createClient<Ops,');
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('skips SSE operations in tanstack-query (reporting them) and still emits the rest', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    const { status, out } = run([
-      sse,
-      '--output',
-      join(dir, 'c.ts'),
-      '--generator',
-      'typescript',
-      '--generator',
-      'tanstack-query',
-    ]);
-    expect(status, out).toBe(0);
-    expect(out).toMatch(/tanstack-query skipped \d+ server-sent-events operation/);
-    const tanstack = readFileSync(join(dir, 'c.tanstack.ts'), 'utf-8');
-    // The non-SSE op is wrapped; the SSE ops are neither imported nor wrapped.
-    expect(tanstack).toContain('getHealthOptions');
-    expect(tanstack).not.toContain('streamMessages');
-    expect(existsSync(join(dir, 'c.ts'))).toBe(true);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
-
-  it('skips a tanstack op whose <Op>Variables collides with a schema; the tree still compiles', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-contract-'));
-    // Schema `GetUserVariables` collides with the `getUser` op's derived variables alias.
-    const { status, out } = run([
-      join(__dirname, 'openapi.yaml'),
-      '--output',
-      join(dir, 'c.ts'),
-      '--generator',
-      'typescript',
-      '--generator',
-      'tanstack-query',
-    ]);
-    expect(status, out).toBe(0);
-    expect(out).toMatch(
-      /tanstack-query skipped \d+ operation\(s\) whose variables type name collides/
-    );
-    const tanstack = readFileSync(join(dir, 'c.tanstack.ts'), 'utf-8');
-    expect(tanstack).not.toContain('getUserOptions'); // colliding op skipped
-    expect(tanstack).toContain('listUsersOptions'); // the rest still wrapped
-    // The whole tree compiles (no import of the suppressed alias).
-    const files = [join(dir, 'c.ts'), join(dir, 'c.tanstack.ts')];
-    const tsc = runTsc(
-      [
-        '--noEmit',
-        '--strict',
-        '--target',
-        'ES2020',
-        '--module',
-        'esnext',
-        '--moduleResolution',
-        'bundler',
-        '--lib',
-        'ES2020,DOM',
-        ...files,
-      ],
-      dir
-    );
-    // `@tanstack/react-query` isn't installed in the temp dir; ignore only that missing-module error.
-    const real = tsc.stdout
-      .split('\n')
-      .filter((l) => l.includes('error TS') && !l.includes('@tanstack/react-query'));
-    expect(real, tsc.stdout).toEqual([]);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('Failed to generate client');
+    expect(result.stderr).toMatch(/does not support --error-mode "result"/);
+  });
 });

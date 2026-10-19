@@ -1,17 +1,14 @@
 /** @vitest-environment jsdom */
 //
-// Tier-3 runtime React-hook integration for the tanstack-query generator.
+// Tests the React hooks of the tanstack-query generator at runtime.
 //
-// MECHANISM (documented choice): we generate `typescript,tanstack-query` into a temp dir
-// under node_modules/.cache and dynamic-`import()` the
-// generated `client.tanstack.ts` directly — vite transforms it and resolves its
-// `./client.js` import to the sibling `.ts` reliably (verified). The data is
-// driven by a STUBBED `fetch` installed via the generated sdk's `configure()`
-// (no mock server): the tanstack `queryFn` forwards to the sdk operation
-// function, which uses that fetch. This proves the real React render path —
-// `renderHook` + `QueryClientProvider` + `useQuery(getXOptions(vars))` — fires
-// the queryFn and resolves the hook with the canned data, without mock-server
-// flakiness or cross-process plumbing.
+// We generate `typescript,tanstack-query` into a temp dir under node_modules/.cache and
+// dynamic-`import()` the generated `client.tanstack.ts` directly: vite transforms it and
+// resolves its `./client.js` import to the sibling `.ts`. A STUBBED `fetch`, installed via
+// the generated sdk's `configure()`, drives the data (no mock server): the tanstack
+// `queryFn` forwards to the sdk operation function, which uses that fetch. This proves the
+// real React render path — `renderHook` + `QueryClientProvider` + `useQuery(getXOptions(vars))`
+// — fires the queryFn and resolves the hook with the canned data.
 
 import { generateClient } from '@redocly/client-generator';
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from '@tanstack/react-query';

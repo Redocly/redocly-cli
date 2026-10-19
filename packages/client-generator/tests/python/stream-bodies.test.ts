@@ -1,5 +1,5 @@
 import { generateClient } from '@redocly/client-generator';
-import { rmSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { copyConsumer } from '../helpers/helpers.js';
@@ -43,5 +43,12 @@ describe('generate-client stream bodies, Python (end-to-end)', () => {
     );
 
     expect(wireRows(server.requests)).toEqual([...streamRows(sized), ...replayableRows]);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
+
+  it('hands an untyped multipart body to the runtime helper, which also encodes a dict', () => {
+    // The smoke sends only file-like objects and bytes, so the helper call is checked in the source.
+    const source = readFileSync(join(workDir, 'client/client.py'), 'utf-8');
+    expect(source).toContain('**multipart_arguments(body)');
+  });
 });

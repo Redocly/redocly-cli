@@ -25,6 +25,7 @@ async function runSmoke(phpFlags: string[], smokeArgs: string[] = []): Promise<v
   ]);
   expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
   expect(result.stdout).toContain('PHP_SMOKE_OK');
+  expect(server.handlerErrors).toEqual([]);
 }
 
 describe('generate-client php generator (end-to-end)', () => {
@@ -52,6 +53,7 @@ describe('generate-client php generator (end-to-end)', () => {
       encoding: 'utf-8',
     });
     expect(declare.status, `${declare.stdout}\n${declare.stderr}`).toBe(0);
+    expect(declare.stdout).toContain('DECLARED');
   });
 
   it('the smoke runs real HTTP: hydration, bodies, ApiError', async () => {
@@ -93,9 +95,6 @@ describe('generate-client php generator, parameter names an SDK cannot take lite
     expect(source).toContain('public function makeThing(string $body2, string $ctx, Thing $body');
     // The request is unchanged: the query keys keep the wire names.
     expect(source).toContain("$query['id'] = $id2;");
-  });
-
-  it('the generated client parses (php -l)', () => {
     const lint = spawnSync('php', ['-l', join(dir, 'client.php')], { encoding: 'utf-8' });
     expect(lint.status, `${lint.stdout}\n${lint.stderr}`).toBe(0);
   });

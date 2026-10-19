@@ -1,20 +1,16 @@
+// Tests the `transformers` generator paired with the sdk option `dateType: 'Date'`:
 //
-// e2e for the `transformers` generator paired with the sdk `--date-type Date`
-// knob. Two tiers:
-//
-//  - TYPE-CHECK: generate typescript + transformers with `dateType: 'Date'` into a temp dir,
-//    assert the sdk types `Date` for date fields and the transformers module has
-//    `transform<Name>` with `new Date(`, then strict-`tsc` `client.ts` +
-//    `client.transformers.ts` TOGETHER. tsc exit 0 proves each generated
+//  - TYPE-CHECK: the sdk types `Date` for date fields and the transformers module has
+//    `transform<Name>` with `new Date(`. Strict `tsc` over `client.ts` +
+//    `client.transformers.ts` TOGETHER proves that each generated
 //    `transform<Name>(data: <Name>): <Name>` type-checks against the Date-typed
 //    sdk schema (incl. the union-ref guarded-cast and the collection write-backs).
 //
-//  - RUNTIME: generate into a fixed, checked-in consumer dir and dynamic-
-//    `import()` the generated `client.transformers.ts` (its only import of
-//    `./client.js` is `import type`, erased at runtime — no sdk needed at
-//    runtime). Call `transformPet` on WIRE data and assert the date positions
-//    became `Date` instances: top-level scalar, array elements, and the ref'd
-//    nested date (proving composition + write-back at runtime).
+//  - RUNTIME: dynamic-`import()` the generated `client.transformers.ts` (its only import of
+//    `./client.js` is `import type`, erased at runtime — no sdk needed at runtime). Call
+//    `transformPet` on WIRE data and assert the date positions became `Date` instances:
+//    top-level scalar, array elements, and the ref'd nested date (proving composition +
+//    write-back at runtime).
 //
 //  - DEFAULT UNCHANGED: without `dateType: 'Date'` the sdk date field stays
 //    typed `string` (the byte-identical default).
@@ -31,27 +27,34 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures', 'transformers.yaml');
 
 describe('generate-client transformers generator', () => {
-  it('emits Date-typed sdk + a transformers module that strict-tsc-checks together', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-transformers-'));
-    const out = join(dir, 'client.ts');
-    const transformersOut = join(dir, 'client.transformers.ts');
+  let dir = '';
 
+  beforeAll(async () => {
+    dir = mkdtempSync(join(tmpdir(), 'ots-transformers-'));
     await generateClient({
       api: fixture,
-      output: out,
+      output: join(dir, 'client.ts'),
       generators: ['typescript', 'transformers'],
       dateType: 'Date',
     });
+  }, 60_000);
 
-    expect(existsSync(out)).toBe(true);
-    expect(existsSync(transformersOut)).toBe(true);
+  afterAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
 
-    // The sdk emits `Date` (not `string`) for the date-time field under --date-type Date.
-    const sdkSource = readFileSync(out, 'utf-8');
+  it('emits Date-typed sdk + a transformers module that strict-tsc-checks together', () => {
+    const sdkFile = join(dir, 'client.ts');
+    const transformersFile = join(dir, 'client.transformers.ts');
+    expect(existsSync(sdkFile)).toBe(true);
+    expect(existsSync(transformersFile)).toBe(true);
+
+    // The sdk emits `Date` (not `string`) for the date-time field under `dateType: 'Date'`.
+    const sdkSource = readFileSync(sdkFile, 'utf-8');
     expect(sdkSource).toContain('createdAt?: Date;');
 
     // The transformers module: a type-only import, the transform fn, and `new Date(`.
-    const transformersSource = readFileSync(transformersOut, 'utf-8');
+    const transformersSource = readFileSync(transformersFile, 'utf-8');
     expect(transformersSource).toContain('import type {');
     expect(transformersSource).toContain('export const transformPet');
     expect(transformersSource).toContain('new Date(');
@@ -59,26 +62,12 @@ describe('generate-client transformers generator', () => {
     // strict-tsc the sdk + transformers TOGETHER: proves transform<Name>(data:
     // <Name>): <Name> type-checks against the Date-typed sdk schema.
     strictTypecheck(dir, ['client.ts', 'client.transformers.ts']);
-
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('transformPet converts top-level, array, and ref nested dates at runtime', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'transformers-runtime-'));
-    const sdkFile = join(dir, 'client.ts');
-    const transformersFile = join(dir, 'client.transformers.ts');
+    const transformers = await import(join(dir, 'client.transformers.ts'));
 
-    await generateClient({
-      api: fixture,
-      output: sdkFile,
-      generators: ['typescript', 'transformers'],
-      dateType: 'Date',
-    });
-    expect(existsSync(transformersFile)).toBe(true);
-
-    const mod = await import(transformersFile);
-
-    const result = mod.transformPet({
+    const result = transformers.transformPet({
       id: 1,
       name: 'rex',
       createdAt: '2020-01-02T03:04:05Z',
@@ -90,19 +79,22 @@ describe('generate-client transformers generator', () => {
     expect(result.createdAt).toBeInstanceOf(Date);
     expect((result.createdAt as Date).toISOString()).toBe('2020-01-02T03:04:05.000Z');
     // Array elements (write-back via map).
-    expect(Array.isArray(result.dates)).toBe(true);
-    for (const d of result.dates) expect(d).toBeInstanceOf(Date);
+    expect(result.dates).toHaveLength(2);
+    for (const date of result.dates) {
+      expect(date).toBeInstanceOf(Date);
+    }
     // Ref'd nested date (composition: transformPet -> transformOwner).
     expect(result.owner.since).toBeInstanceOf(Date);
-
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
-  it('without --date-type Date the sdk date field stays typed string (default)', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-transformers-default-'));
-    const out = join(dir, 'client.ts');
-    await generateClient({ api: fixture, output: out, generators: ['typescript'] });
-    expect(readFileSync(out, 'utf-8')).toContain('createdAt?: string;');
-    rmSync(dir, { recursive: true, force: true });
+  it("without dateType: 'Date' the sdk date field stays typed string (default)", async () => {
+    const defaultDir = mkdtempSync(join(tmpdir(), 'ots-transformers-default-'));
+    try {
+      const out = join(defaultDir, 'client.ts');
+      await generateClient({ api: fixture, output: out, generators: ['typescript'] });
+      expect(readFileSync(out, 'utf-8')).toContain('createdAt?: string;');
+    } finally {
+      rmSync(defaultDir, { recursive: true, force: true });
+    }
   }, 60_000);
 });

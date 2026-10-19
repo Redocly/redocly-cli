@@ -31,7 +31,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     );
     const generated = runGenerateClient(['--config', join(project, 'redocly.yaml')], project);
     expect(generated.status, generated.stderr).toBe(0);
-  }, 60_000);
+  });
 
   afterAll(() => {
     rmSync(project, { recursive: true, force: true });
@@ -45,7 +45,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     expect(help.stdout).toContain('Usage: cafe <api> <command>');
     expect(help.stdout).toContain('shop');
     expect(help.stdout).toContain('kitchen');
-  }, 30_000);
+  });
 
   it('routes a namespace and reads the alias-scoped credential', async () => {
     const dry = await runTsx(
@@ -58,7 +58,7 @@ describe('config-driven composition (client.cliOutput)', () => {
     expect(captured.url).toContain('/orders/ord_7');
     expect(captured.headers.Authorization).toBe('***');
     expect(JSON.stringify(captured)).not.toContain('k-secret');
-  }, 30_000);
+  });
 });
 
 describe('client.cliOutput validation', () => {
@@ -90,11 +90,11 @@ describe('client.cliOutput validation', () => {
     const result = generateWith('./bin/cafe.js');
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('client.cliOutput must point at a TypeScript file');
-  }, 30_000);
+  });
 
   it('rejects an entry that lands on a file the run generated', () => {
     const result = generateWith('./src/shop.cli.ts');
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('client.cliOutput resolves to a file this run generated');
-  }, 30_000);
+  });
 });

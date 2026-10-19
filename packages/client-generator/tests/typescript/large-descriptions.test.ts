@@ -1,3 +1,4 @@
+import { rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { expectTscPasses, strictTypecheck } from '../helpers/helpers.js';
@@ -11,7 +12,11 @@ import {
 /** TS bar: the generated client passes a strict `tsc --noEmit`. */
 async function typescriptBar(description: string): Promise<void> {
   const dir = await generateWith(['typescript'], description);
-  strictTypecheck(dir);
+  try {
+    strictTypecheck(dir);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 /**
@@ -21,7 +26,11 @@ async function typescriptBar(description: string): Promise<void> {
  */
 async function cliBar(description: string): Promise<void> {
   const dir = await generateWith(['typescript', 'cli'], description);
-  expectTscPasses(['-p', join(dir, 'tsconfig.cli.json')]);
+  try {
+    expectTscPasses(['-p', join(dir, 'tsconfig.cli.json')]);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 describe('rebilly description', () => {

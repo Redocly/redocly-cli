@@ -1,5 +1,5 @@
 import { spawn, spawnSync, type SpawnSyncReturns } from 'node:child_process';
-import { cpSync, mkdtempSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,15 +7,16 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const repoRoot = resolve(__dirname, '../../../..');
 export const tsxBin = join(repoRoot, 'node_modules/.bin/tsx');
-export const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
+const tscBin = join(repoRoot, 'node_modules/.bin/tsc');
 
-export const STRICT_TSCONFIG = {
+const STRICT_TSCONFIG = {
   compilerOptions: {
     module: 'nodenext',
     moduleResolution: 'nodenext',
     target: 'es2022',
     lib: ['ES2022', 'DOM'],
     strict: true,
+    noUnusedLocals: true,
     noEmit: true,
     skipLibCheck: true,
     types: [],
@@ -46,7 +47,7 @@ export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): v
   expectTscPasses(['--noEmit', '-p', dir]);
 }
 
-export type CommandResult = { status: number | null; stdout: string; stderr: string };
+type CommandResult = { status: number | null; stdout: string; stderr: string };
 
 /**
  * Run a command without blocking the test process, so a mock server in this process can
@@ -85,8 +86,8 @@ export function runTsx(
 }
 
 /** Run a consumer script with tsx; returns its parsed JSON stdout. */
-export async function runConsumer(script: string, args: string[] = []): Promise<unknown> {
-  const result = await runTsx(script, args);
+export async function runConsumer(script: string): Promise<unknown> {
+  const result = await runTsx(script);
   expect(
     result.status,
     `consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
@@ -94,20 +95,7 @@ export async function runConsumer(script: string, args: string[] = []): Promise<
   return JSON.parse(result.stdout.trim());
 }
 
-export function collectTsFiles(dir: string): string[] {
-  const files: string[] = [];
-  for (const name of readdirSync(dir)) {
-    const path = join(dir, name);
-    if (statSync(path).isDirectory()) {
-      files.push(...collectTsFiles(path));
-    } else if (name.endsWith('.ts')) {
-      files.push(path);
-    }
-  }
-  return files;
-}
-
-export function linkNodeModules(dir: string): void {
+function linkNodeModules(dir: string): void {
   symlinkSync(join(repoRoot, 'node_modules'), join(dir, 'node_modules'), 'dir');
 }
 

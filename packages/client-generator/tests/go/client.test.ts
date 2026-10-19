@@ -86,7 +86,7 @@ describe('generate-client go generator, parameter names an SDK cannot take liter
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it('renames a parameter that clashes with one of the method arguments', () => {
+  it('renames a parameter that clashes with one of the method arguments, and still compiles', () => {
     const source = readFileSync(join(dir, 'client.go'), 'utf-8');
     // Query params live in their own struct, so `id` needs no rename here…
     expect(source).toContain('func (c *Client) GetThing(ctx context.Context, id string');
@@ -94,9 +94,6 @@ describe('generate-client go generator, parameter names an SDK cannot take liter
     expect(source).toContain(
       'func (c *Client) MakeThing(ctx context.Context, body2 string, ctx2 string, body Thing'
     );
-  });
-
-  it('the generated client compiles (go build)', () => {
     const result = spawnSync('go', ['build', './...'], { cwd: dir, encoding: 'utf-8' });
     expect(result.status, result.stderr).toBe(0);
   }, 180_000);

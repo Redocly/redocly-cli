@@ -40,6 +40,7 @@ describe('generate-client stream bodies, Go (end-to-end)', () => {
       await runProgram('go', ['run', '.', server.url], 'GO_SMOKE_OK', workDir);
 
       expect(wireRows(server.requests)).toEqual([...streamRows(chunked), ...replayableRows]);
+      expect(server.handlerErrors).toEqual([]);
     },
     // The first build on a cold cache compiles the stdlib and takes well over 60s.
     180_000

@@ -21,7 +21,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 /** A throwaway project where `@redocly/client-generator` resolves like a user install. */
 function makeProject(): string {
   const dir = mkdtempSync(join(tmpdir(), 'eject-'));
-  copyFileSync(join(__dirname, '../fixtures/pagination.yaml'), join(dir, 'openapi.yaml'));
+  copyFileSync(join(__dirname, '../fixtures/cafe.yaml'), join(dir, 'openapi.yaml'));
   mkdirSync(join(dir, 'node_modules/@redocly'), { recursive: true });
   symlinkSync(
     join(repoRoot, 'packages/client-generator'),
@@ -73,7 +73,7 @@ describe('eject-generator (end-to-end)', () => {
 
     expect(run(project, ['eject-generator', 'php']).status).not.toBe(0);
     expect(run(project, ['eject-generator', 'php', '--force']).status).toBe(0);
-  }, 60_000);
+  });
 
   it('wires itself up: devDependency recorded and the config entry added, once', () => {
     const wired = mkdtempSync(join(tmpdir(), 'eject-wire-'));
@@ -111,7 +111,7 @@ describe('eject-generator (end-to-end)', () => {
     } finally {
       rmSync(wired, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 
   it('prints the config snippet when it cannot safely edit the config', () => {
     const manual = mkdtempSync(join(tmpdir(), 'eject-manual-'));
@@ -129,7 +129,7 @@ describe('eject-generator (end-to-end)', () => {
     } finally {
       rmSync(manual, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 
   it('tells the reader how to run what it just ejected', () => {
     copyFileSync(join(__dirname, 'apis-config.yaml'), join(project, 'redocly.yaml'));
@@ -144,7 +144,7 @@ describe('eject-generator (end-to-end)', () => {
     const generated = run(project, ['generate-client', 'openapi.yaml', '--output', 'client.ts']);
     expect(generated.status, generated.stderr).toBe(0);
     expect(existsSync(join(project, 'client.py'))).toBe(true);
-  }, 60_000);
+  });
 
   it('an ejected, unmodified php generator writes byte-identical output', () => {
     expect(run(project, ['eject-generator', 'php']).status).toBe(0);
@@ -170,7 +170,7 @@ describe('eject-generator (end-to-end)', () => {
     expect(readFileSync(join(project, 'ejected/client.php'), 'utf-8')).toBe(
       readFileSync(join(project, 'builtin/client.php'), 'utf-8')
     );
-  }, 60_000);
+  });
 
   it('an ejected, unmodified zod generator writes byte-identical output', () => {
     const eject = run(project, ['eject-generator', 'zod']);
@@ -201,7 +201,7 @@ describe('eject-generator (end-to-end)', () => {
     expect(readFileSync(join(project, 'zod-ejected/client.zod.ts'), 'utf-8')).toBe(
       readFileSync(join(project, 'zod-builtin/client.zod.ts'), 'utf-8')
     );
-  }, 60_000);
+  });
 
   it('a framework variant points at the generator it is an argument of; unknown names error', () => {
     const variant = run(project, ['eject-generator', 'tanstack-query-vue']);
@@ -209,7 +209,7 @@ describe('eject-generator (end-to-end)', () => {
     expect(variant.stderr + variant.stdout).toContain("tanstackQueryGenerator('vue')");
     expect(existsSync(join(project, 'generators/tanstack-query-vue'))).toBe(false);
     expect(run(project, ['eject-generator', 'nowhere']).status).not.toBe(0);
-  }, 60_000);
+  });
 
   it('--update merges a folder generator per file, keeping local edits', () => {
     expect(run(project, ['eject-generator', 'php']).status).toBe(0);
@@ -227,7 +227,7 @@ describe('eject-generator (end-to-end)', () => {
       '// naming tweak'
     );
     expect(readFileSync(skillPath, 'utf-8')).toContain('We keep the legacy auth header.');
-  }, 60_000);
+  });
 
   it('--update keeps a local edit, and a legacy single-file eject says to re-eject', () => {
     expect(run(project, ['eject-generator', 'zod']).status).toBe(0);
@@ -250,13 +250,12 @@ describe('eject-generator (end-to-end)', () => {
     const legacy = run(project, ['eject-generator', 'mock', '--update']);
     expect(legacy.status).not.toBe(0);
     expect(legacy.stderr + legacy.stdout).toContain('--force');
-  }, 60_000);
+  });
 });
 
 describe('eject-generator from source (no bundle)', () => {
   // The command reads its assets beside the bundle, which only the CLI build produces.
-  // Running `packages/cli/src` — what `npm run cli` does — used to fail with an ENOENT
-  // naming a path inside `src`, so contributors could not eject during development.
+  // It must also find them when it runs from `packages/cli/src`, as `npm run cli` does.
   it('ejects every generator when the CLI runs from src', async () => {
     const project = makeProject();
     try {
@@ -272,5 +271,5 @@ describe('eject-generator from source (no bundle)', () => {
     } finally {
       rmSync(project, { recursive: true, force: true });
     }
-  }, 120_000);
+  }, 30_000);
 });

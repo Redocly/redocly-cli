@@ -25,7 +25,7 @@ async function main(): Promise<void> {
     error = e instanceof Error ? e.name : String(e);
   }
 
-  process.stdout.write(JSON.stringify({ aborted: true, received, error }) + '\n');
+  process.stdout.write(JSON.stringify({ received, error }) + '\n');
 }
 
 main().catch((e) => {

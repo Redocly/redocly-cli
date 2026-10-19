@@ -1,11 +1,12 @@
-import { generateClient } from '@redocly/client-generator';
 /**
- * Behavioral e2e for the extension contract (D3). Rather than a live server, we
+ * Tests the extension contract. Rather than a live server, we
  * inject a fake `fetch` via `configure()` / `createClient(…, config)` and capture what
  * the generated runtime actually produced — proving that `serverUrl`, `config.headers`,
  * `onRequest`, transport-swap, and per-instance config observably take effect.
  */
-import { existsSync, rmSync } from 'node:fs';
+
+import { generateClient } from '@redocly/client-generator';
+import { rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,14 +15,14 @@ import { copyConsumer, runConsumer } from '../../helpers/helpers.js';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../../fixtures/base.yaml');
 
-describe('extension contract — flat surface (configure)', () => {
+describe('extension contract', () => {
   let dir = '';
   beforeAll(async () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
   }, 60_000);
   afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
   test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', async () => {
@@ -48,19 +49,8 @@ describe('extension contract — flat surface (configure)', () => {
     expect(result.name).toBe('NotFound');
     expect(result.message).toBe('mapped:404');
   }, 60_000);
-});
 
-describe('extension contract — per-instance config (createClient)', () => {
-  let dir = '';
-  beforeAll(async () => {
-    dir = copyConsumer(join(__dirname, 'consumer'));
-    await generateClient({ api: fixture, output: join(dir, 'client.ts') });
-  }, 60_000);
-  afterAll(() => {
-    if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
-  });
-
-  test('two instances carry independent serverUrl + headers (multi-tenant isolation)', async () => {
+  test('createClient: two instances carry independent serverUrl + headers (multi-tenant isolation)', async () => {
     const calls = (await runConsumer(join(dir, 'instances-isolated.ts'))) as Array<{
       tag: string;
       url: string;

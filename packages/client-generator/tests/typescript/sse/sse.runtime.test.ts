@@ -1,8 +1,9 @@
-import { generateClient } from '@redocly/client-generator';
-// Behavioral e2e for SSE: the mock server's handlers stream real
+// Tests the SSE runtime against the mock server: the handlers stream real
 // `text/event-stream` frames, drop mid-stream, and the generated client
 // auto-reconnects (resuming via `Last-Event-ID`). A second scenario aborts the
 // stream mid-flight and asserts the loop completes WITHOUT throwing.
+
+import { generateClient } from '@redocly/client-generator';
 import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -24,13 +25,6 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
   let workDir = '';
 
   beforeAll(async () => {
-    workDir = copyConsumer(join(__dirname, 'consumer'));
-    const generatedFile = join(workDir, 'api.ts');
-    await generateClient({ api: fixture, output: generatedFile });
-    expect(existsSync(generatedFile)).toBe(true);
-
-    expectTscPasses(['--noEmit', '-p', workDir]);
-
     server = await MockServer.start(fixture, {
       handlers: {
         // The reconnect stream: two frames, a dropped connection, then the resume.
@@ -61,7 +55,17 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
         },
       },
     });
+
+    workDir = copyConsumer(join(__dirname, 'consumer'));
+    const generatedFile = join(workDir, 'api.ts');
+    await generateClient({ api: fixture, output: generatedFile });
+    expect(existsSync(generatedFile)).toBe(true);
+    expectTscPasses(['--noEmit', '-p', workDir]);
   }, 30_000);
+
+  afterEach(() => {
+    expect(server.handlerErrors).toEqual([]);
+  });
 
   afterAll(async () => {
     await server.close();
@@ -94,7 +98,6 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
       .filter((request) => request.operationId === 'streamMessages')
       .map((request) => request.headers['last-event-id']);
     expect(lastEventIds).toEqual([undefined, '2']);
-    expect(server.handlerErrors).toEqual([]);
   }, 90_000);
 
   test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', async () => {
@@ -127,15 +130,13 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     ).toBe(0);
 
     const parsed = JSON.parse(runResult.stdout.trim()) as {
-      aborted: boolean;
       received: number;
       error: string | null;
     };
 
-    // The loop saw the first event, then the abort terminated it cleanly: no
+    // The handler sends one event, then the abort terminates the loop cleanly: no
     // AbortError escaped the `for await`.
-    expect(parsed.aborted).toBe(true);
-    expect(parsed.received).toBeGreaterThanOrEqual(1);
+    expect(parsed.received).toBe(1);
     expect(parsed.error).toBeNull();
   }, 30_000);
 });

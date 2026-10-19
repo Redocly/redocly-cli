@@ -5,6 +5,7 @@ import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } 
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { outdent } from 'outdent';
 
 import { runGenerateClient } from '../helpers.js';
 
@@ -12,16 +13,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const cafe = join(__dirname, '../fixtures', 'cafe.yaml');
 const plugin = join(__dirname, 'route-map-plugin.mjs');
 
-function run(args: string[]): { status: number | null; out: string } {
-  const res = runGenerateClient(args);
-  return { status: res.status, out: `${res.stdout}\n${res.stderr}` };
-}
-
 describe('generate-client custom generator (plugin) API', () => {
+  let dir = '';
+  beforeEach(() => {
+    dir = mkdtempSync(join(tmpdir(), 'generate-client-plugin-'));
+  });
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('loads a generator from a path specifier and runs it alongside the sdk', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-'));
     const output = join(dir, 'client.ts');
-    const { status, out } = run([
+    const result = runGenerateClient([
       cafe,
       '--output',
       output,
@@ -31,21 +34,19 @@ describe('generate-client custom generator (plugin) API', () => {
       plugin,
     ]);
 
-    expect(status, out).toBe(0);
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
     expect(existsSync(output)).toBe(true);
-    const routesFile = output.replace(/\.ts$/, '.routes.ts');
+    const routesFile = join(dir, 'client.routes.ts');
     expect(existsSync(routesFile)).toBe(true);
     const routes = readFileSync(routesFile, 'utf-8');
     expect(routes).toContain('export const routes = {');
     // The plugin walked the same IR the built-ins see (real operations from cafe.yaml).
     expect(routes).toMatch(/: '(GET|POST|PUT|PATCH|DELETE) \//);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
+  });
 
   it('resolves a relative --generator path against the cwd, not the --config dir', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-cwd-'));
     cpSync(plugin, join(dir, 'route-map-plugin.mjs'));
-    const res = runGenerateClient(
+    const result = runGenerateClient(
       [
         cafe,
         '--output',
@@ -60,44 +61,57 @@ describe('generate-client custom generator (plugin) API', () => {
       ],
       dir
     );
-    expect(res.status, `${res.stdout}\n${res.stderr}`).toBe(0);
+    expect(result.status, `${result.stdout}\n${result.stderr}`).toBe(0);
     expect(existsSync(join(dir, 'client.routes.ts'))).toBe(true);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
+  });
 
   it("validates the generator's declared options from the config block and passes them to run", () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-options-'));
     cpSync(plugin, join(dir, 'route-map-plugin.mjs'));
     const config = join(dir, 'redocly.yaml');
-    const writeConfig = (options: string) =>
-      writeFileSync(
-        config,
-        `extends: []\nclient:\n  generators: [typescript, ./route-map-plugin.mjs]\n  options:\n    route-map:\n${options}`
-      );
 
-    writeConfig('      exportName: paths\n');
-    const ok = runGenerateClient(
+    writeFileSync(
+      config,
+      outdent`
+        extends: []
+        client:
+          generators: [typescript, ./route-map-plugin.mjs]
+          options:
+            route-map:
+              exportName: paths
+      `,
+      'utf-8'
+    );
+    const valid = runGenerateClient(
       [cafe, '--output', join(dir, 'client.ts'), '--config', config],
       dir
     );
-    expect(ok.status, `${ok.stdout}\n${ok.stderr}`).toBe(0);
+    expect(valid.status, `${valid.stdout}\n${valid.stderr}`).toBe(0);
     expect(readFileSync(join(dir, 'client.routes.ts'), 'utf-8')).toContain(
       'export const paths = {'
     );
 
-    writeConfig('      exportname: paths\n');
+    writeFileSync(
+      config,
+      outdent`
+        extends: []
+        client:
+          generators: [typescript, ./route-map-plugin.mjs]
+          options:
+            route-map:
+              exportname: paths
+      `,
+      'utf-8'
+    );
     const typo = runGenerateClient(
       [cafe, '--output', join(dir, 'client.ts'), '--config', config],
       dir
     );
     expect(typo.status).not.toBe(0);
     expect(`${typo.stdout}\n${typo.stderr}`).toMatch(/unknown option "exportname".*exportName/s);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
+  });
 
   it('fails fast with an actionable message when a specifier cannot be loaded', () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-plugin-'));
-    const { status, out } = run([
+    const result = runGenerateClient([
       cafe,
       '--output',
       join(dir, 'client.ts'),
@@ -106,8 +120,7 @@ describe('generate-client custom generator (plugin) API', () => {
       '--generator',
       join(dir, 'missing-plugin.mjs'),
     ]);
-    expect(status).not.toBe(0);
-    expect(out).toMatch(/Could not load generator/);
-    rmSync(dir, { recursive: true, force: true });
-  }, 60_000);
+    expect(result.status).not.toBe(0);
+    expect(`${result.stdout}\n${result.stderr}`).toMatch(/Could not load generator/);
+  });
 });

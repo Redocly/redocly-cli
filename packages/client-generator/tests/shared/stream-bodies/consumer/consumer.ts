@@ -1,6 +1,6 @@
 // Runtime smoke for stream request bodies in the generated TypeScript client. Run by
-// stream-bodies.test.ts with the echo server's base URL as the only argument. It only
-// makes the calls, in a fixed order; the test reads what the server received.
+// typescript/stream-bodies.test.ts with the echo server's base URL as the only argument.
+// It only makes the calls, in a fixed order; the test reads what the server received.
 import { Readable } from 'node:stream';
 
 import { ApiError, client } from './client/client.js';

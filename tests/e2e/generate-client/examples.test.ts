@@ -44,7 +44,7 @@ describe('the committed example client is current', () => {
     } finally {
       rmSync(tmp, { recursive: true, force: true });
     }
-  }, 60_000);
+  });
 });
 
 describe('the ejected example carries the current skills', () => {

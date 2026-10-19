@@ -1,30 +1,29 @@
-// e2e for SSE (`text/event-stream`) operations: the typed flat async-iterator
-// surface (`for await (const ev of streamMessages())`). We assert on the generated
-// source (string checks) and strict-tsc the output (single-file, plus the split
-// two-file set) — the same lightweight harness used by error-mode.test.ts. The
-// behavioral reconnect/abort path is covered separately by the consumer
-// harness in sse.runtime.test.ts.
+// Tests the generated surface of SSE (`text/event-stream`) operations: the typed flat
+// async-iterator (`for await (const ev of streamMessages())`). We assert on the generated
+// source and strict-tsc the output (single-file, plus the split two-file set).
+// sse.runtime.test.ts covers the reconnect and abort behavior.
 
 import { generateClient } from '@redocly/client-generator';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  collectTsFiles,
-  copyConsumer,
-  expectTscPasses,
-  strictTypecheck,
-} from '../../helpers/helpers.js';
+import { copyConsumer, strictTypecheck } from '../../helpers/helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const fixture = join(__dirname, '../../fixtures', 'sse.yaml');
 
 describe('generate-client SSE', () => {
+  let dir = '';
+
+  afterEach(() => {
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('single-file: embedded sse capability + flat typed stream sugar, strict tsc passes', async () => {
-    const dir = copyConsumer(join(__dirname, 'consumer-types'));
+    dir = copyConsumer(join(__dirname, 'consumer-types'));
     const out = join(dir, 'client.ts');
     await generateClient({ api: fixture, output: out });
     expect(existsSync(out)).toBe(true);
@@ -50,42 +49,22 @@ describe('generate-client SSE', () => {
 
     // consumer-types/usage.ts proves `ServerSentEvent<Message>.data.text` is typed
     // and that `SseOptions` (reconnect/reconnectDelay) is accepted.
-
     strictTypecheck(dir, ['client.ts', 'usage.ts']);
-    rmSync(dir, { recursive: true, force: true });
   }, 60_000);
 
   it('split: SSE ops live in the entry beside the embedded runtime, strict tsc passes over both files', async () => {
-    const dir = mkdtempSync(join(tmpdir(), 'ots-sse-split-'));
+    dir = mkdtempSync(join(tmpdir(), 'ots-sse-split-'));
     const entry = join(dir, 'client.ts');
     await generateClient({ api: fixture, output: entry, outputMode: 'split' });
-    expect(existsSync(entry)).toBe(true);
 
-    const entrySrc = readFileSync(entry, 'utf-8');
-    expect(entrySrc).toContain('async function* sse<T>(');
-    expect(entrySrc).toContain(
+    expect(readdirSync(dir).sort()).toEqual(['client.schemas.ts', 'client.ts']);
+
+    const entrySource = readFileSync(entry, 'utf-8');
+    expect(entrySource).toContain('async function* sse<T>(');
+    expect(entrySource).toContain(
       'export const { getHealth, streamMessages, streamAbort, streamTicks } = client;'
     );
 
-    const files = collectTsFiles(dir);
-    expect(files.map((f) => f.split('/').pop()).sort()).toEqual(['client.schemas.ts', 'client.ts']);
-    expectTscPasses(
-      [
-        '--noEmit',
-        '--strict',
-        '--noUnusedLocals',
-        '--target',
-        'ES2020',
-        '--module',
-        'esnext',
-        '--moduleResolution',
-        'bundler',
-        '--lib',
-        'ES2020,DOM',
-        ...files,
-      ],
-      dir
-    );
-    rmSync(dir, { recursive: true, force: true });
+    strictTypecheck(dir);
   }, 60_000);
 });

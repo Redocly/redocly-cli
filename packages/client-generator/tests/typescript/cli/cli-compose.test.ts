@@ -43,7 +43,7 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-describe('composed CLI (end-to-end)', () => {
+describe('composed CLI', () => {
   it('importing the generated modules runs nothing; the entry composes them', async () => {
     const help = await runEntry(['--help']);
     expect(help.code, help.stderr).toBe(0);
