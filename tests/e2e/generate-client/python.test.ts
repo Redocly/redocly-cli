@@ -8,7 +8,7 @@ import { generate, killServer, runGenerateClient, startServer } from './helpers.
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'fixtures/base.yaml');
-const smokeScript = join(__dirname, 'python-consumer/smoke.py');
+const smokeScript = join(__dirname, 'consumers/python-consumer/smoke.py');
 let workDir = '';
 let generatedFile = '';
 

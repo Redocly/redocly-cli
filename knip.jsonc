@@ -10,9 +10,9 @@
         // plugins); not part of the build and its dependencies are not installed here.
         "cookbook/**",
         "resources/**",
-        // Generated clients are written into these folders during the e2e run, so their
-        // imports do not resolve in a clean checkout. Same exclusion as the root tsconfig.
-        "tests/e2e/generate-client/*-consumer/**",
+        // The consumers import a client that the e2e run generates in a temp folder,
+        // so their imports do not resolve in a clean checkout. Same exclusion as the root tsconfig.
+        "tests/e2e/generate-client/consumers/**",
       ],
       // Only referenced from generated e2e consumer code and the client generator examples.
       "ignoreDependencies": ["@faker-js/faker", "msw", "swr", "valibot", "zod"],

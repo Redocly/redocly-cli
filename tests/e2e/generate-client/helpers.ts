@@ -115,7 +115,7 @@ export function linkNodeModules(dir: string): void {
 /** Copy a consumer folder into a temp dir; the caller removes it. */
 export function copyConsumer(name: string): string {
   const dir = mkdtempSync(join(tmpdir(), `${name}-`));
-  cpSync(join(__dirname, name), dir, { recursive: true });
+  cpSync(join(__dirname, 'consumers', name), dir, { recursive: true });
   linkNodeModules(dir);
   return dir;
 }

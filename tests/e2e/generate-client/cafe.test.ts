@@ -30,7 +30,7 @@ type StepResult =
   | { kind: 'ok'; name: string; data: unknown }
   | { kind: 'err'; name: string; error: string };
 
-const snapshotFile = join(__dirname, 'cafe.snapshot.ts');
+const snapshotFile = join(__dirname, '__snapshots__', 'cafe.snapshot.ts');
 
 describe('generate-client end-to-end (cafe.yaml)', () => {
   let serverProcess: ChildProcess | undefined;
