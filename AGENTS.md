@@ -113,6 +113,8 @@ Naming and reuse:
   The `client-generators` projects are the one exception, because they need Go, PHP, and Python.
 - Cover the feature or fix with one focused test, not a pile of redundant ones.
   A single clear test that exercises the behavior is enough.
+- Every test calls `expect`; a type-only check goes in a `__typecheck__/<name>.typecheck.ts` file instead.
+- Prove a new test once: break the code it covers with a one-line change, see it fail, and undo the change.
 - Rule unit tests parse a YAML document, run `lintDocument`, and assert with `toMatchInlineSnapshot` so the whole output stays visible.
   Generate or update snapshots as part of the change.
   When the rule must report no problems, assert `toEqual([])`.

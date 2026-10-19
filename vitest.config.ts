@@ -6,6 +6,7 @@ export default defineConfig({
     restoreMocks: true,
     mockReset: true,
     environment: 'node',
+    expect: { requireAssertions: true },
     env: {
       FORCE_COLOR: '1',
       REDOCLY_TELEMETRY: 'off',
@@ -17,6 +18,7 @@ export default defineConfig({
       include: ['packages/*/src/**/*.ts'],
       exclude: [
         'packages/**/__tests__/**/*',
+        'packages/*/src/**/__typecheck__/**',
         'packages/cli/src/index.ts',
         'packages/cli/src/utils/assert-node-version.ts',
       ],

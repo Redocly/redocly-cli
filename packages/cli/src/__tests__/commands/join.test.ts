@@ -106,11 +106,13 @@ describe('handleJoin', () => {
       { path: 'second.yaml' },
     ]);
 
-    await handleJoin({
-      argv: { apis: ['*.yaml'] },
-      config: configFixture,
-      version: 'cli-version',
-    });
+    await expect(
+      handleJoin({
+        argv: { apis: ['*.yaml'] },
+        config: configFixture,
+        version: 'cli-version',
+      })
+    ).resolves.toBeUndefined();
   });
 
   it('should throw because passed all 3 options for tags', async () => {
