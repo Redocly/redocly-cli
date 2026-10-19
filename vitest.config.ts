@@ -1,28 +1,7 @@
-import { configDefaults, defineConfig } from 'vitest/config';
+import { defineConfig } from 'vitest/config';
 
-const GENERATE_CLIENT = 'tests/e2e/generate-client';
-const GENERATOR_TESTS = 'packages/client-generator/src/generators/__tests__';
-const GENERATOR_WARNINGS_SETUP = `${GENERATE_CLIENT}/setup/silence-generator-warnings.ts`;
-const GO_FILES = [`${GENERATE_CLIENT}/**/{go,*.go}.test.ts`, `${GENERATOR_TESTS}/go.test.ts`];
-const PHP_FILES = [`${GENERATE_CLIENT}/**/{php,*.php}.test.ts`, `${GENERATOR_TESTS}/php.test.ts`];
-const PYTHON_FILES = [
-  `${GENERATE_CLIENT}/**/{python,*.python}.test.ts`,
-  `${GENERATOR_TESTS}/python.test.ts`,
-];
-
-function languageProject(language: string, files: string[]) {
-  return {
-    extends: true as const,
-    test: {
-      name: `client-generators-${language}`,
-      include: files,
-      globalSetup: [`${GENERATE_CLIENT}/setup/${language}.ts`],
-      setupFiles: [GENERATOR_WARNINGS_SETUP],
-      testTimeout: 120_000,
-      hookTimeout: 120_000,
-    },
-  };
-}
+const CLIENT_GENERATOR_TESTS = 'packages/client-generator/tests';
+const GENERATOR_WARNINGS_SETUP = `${CLIENT_GENERATOR_TESTS}/helpers/silence-generator-warnings.ts`;
 
 export default defineConfig({
   test: {
@@ -58,12 +37,6 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['packages/*/src/**/*.test.ts'],
-          exclude: [
-            ...configDefaults.exclude,
-            `${GENERATOR_TESTS}/go.test.ts`,
-            `${GENERATOR_TESTS}/php.test.ts`,
-            `${GENERATOR_TESTS}/python.test.ts`,
-          ],
         },
       },
       {
@@ -71,23 +44,51 @@ export default defineConfig({
         test: {
           name: 'e2e',
           include: ['tests/e2e/**/*.test.ts'],
-          exclude: [...configDefaults.exclude, `${GENERATE_CLIENT}/**`],
         },
       },
       {
         extends: true,
         test: {
           name: 'client-generators',
-          include: [`${GENERATE_CLIENT}/**/*.test.ts`],
+          include: [`${CLIENT_GENERATOR_TESTS}/typescript/**/*.test.ts`],
           setupFiles: [GENERATOR_WARNINGS_SETUP],
-          exclude: [...configDefaults.exclude, GO_FILES[0], PHP_FILES[0], PYTHON_FILES[0]],
           testTimeout: 120_000,
           hookTimeout: 120_000,
         },
       },
-      languageProject('go', GO_FILES),
-      languageProject('php', PHP_FILES),
-      languageProject('python', PYTHON_FILES),
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-go',
+          include: [`${CLIENT_GENERATOR_TESTS}/go/**/*.test.ts`],
+          globalSetup: [`${CLIENT_GENERATOR_TESTS}/helpers/setup-go.ts`],
+          setupFiles: [GENERATOR_WARNINGS_SETUP],
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-php',
+          include: [`${CLIENT_GENERATOR_TESTS}/php/**/*.test.ts`],
+          globalSetup: [`${CLIENT_GENERATOR_TESTS}/helpers/setup-php.ts`],
+          setupFiles: [GENERATOR_WARNINGS_SETUP],
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: 'client-generators-python',
+          include: [`${CLIENT_GENERATOR_TESTS}/python/**/*.test.ts`],
+          globalSetup: [`${CLIENT_GENERATOR_TESTS}/helpers/setup-python.ts`],
+          setupFiles: [GENERATOR_WARNINGS_SETUP],
+          testTimeout: 120_000,
+          hookTimeout: 120_000,
+        },
+      },
       {
         extends: true,
         test: {

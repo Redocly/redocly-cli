@@ -270,21 +270,26 @@ The order of stdout and stderr in a snapshot may differ from what you see in the
 
 ### Client generator tests
 
-`npm run client-generators` runs the `tests/e2e/generate-client` tests.
+`npm run client-generators` runs the tests in `packages/client-generator/tests`.
 They compile the generated clients, so they need Go, PHP, and Python.
-Each language has its own Vitest project, and a missing tool stops the run with a message that names it.
+Each language has its own folder and its own Vitest project, and a missing tool stops the run with a message that names it.
+
+- `typescript/`, `go/`, `php/`, and `python/` hold the tests of each language. The folder decides the Vitest project.
+- `shared/` holds the spec, the helper module, and the consumers of a topic that several languages test, such as `stream-bodies`.
+- `fixtures/` holds the shared specs, and `helpers/` holds the helpers, the mock server, and the toolchain checks.
 
 Each topic folder holds its tests and the files they need.
 A `consumer/` folder holds the scripts, `package.json`, and `tsconfig.json` that the test copies next to the generated client.
-Shared fixtures and servers sit in `fixtures/` and `servers/`.
 The tests call the `generateClient()` API directly.
-Only tests about the command itself run the CLI, and `cli-flags.test.ts` proves that each flag maps to its option.
+
+The tests of the `generate-client` and `eject-generator` commands are e2e tests in `tests/e2e/generate-client`, and `npm run e2e` runs them.
+`cli-flags.test.ts` proves that each CLI flag maps to its option.
 
 ```bash
 npm run client-generators                                         # everything
 npx vitest run --project client-generators                        # TypeScript only, no toolchains needed
 npx vitest run --project client-generators-go                     # one language (-go, -php, -python)
-npm run client-generators -- tests/e2e/generate-client/go/go.test.ts # one file
+npm run client-generators -- packages/client-generator/tests/go/client.test.ts # one file
 ```
 
 Install the toolchains:
@@ -301,9 +306,7 @@ pip3 install httpx pydantic
 
 Some tests generate from large real-world descriptions, so these tests are slow and run in their own CI job.
 
-`npm run e2e` covers everything under `tests/e2e/` **except** `generate-client`.
-
-Tests that need an HTTP server start one inside the test process with `MockServer.start` from `tests/e2e/generate-client/mock-server.ts`.
+Tests that need an HTTP server start one inside the test process with `MockServer.start` from `packages/client-generator/tests/helpers/mock-server.ts`.
 It answers from the OpenAPI description, unless the test gives a handler for that operation, and it records every request for the test's assertions.
 It listens on a free port, so tests never share a server.
 A consumer must run with the async `runTsx` or `runCommand` while the server is up, because a synchronous spawn blocks the server.

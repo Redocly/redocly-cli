@@ -74,4 +74,4 @@ switch patterns), HTTP over `java.net.http.HttpClient` — part of the JDK since
 2. Change `index.ts` (and `java-runtime/` for runtime behavior, then
    `npm run prepare -w @redocly/client-generator`).
 3. Verify: `npm run compile`, the generator unit suite (real `javac` bars), the e2e
-   smoke, and the large-description bars (`tests/e2e/generate-client/large-descriptions/large-descriptions.test.ts`).
+   smoke, and the large-description bars (`packages/client-generator/tests/typescript/large-descriptions.test.ts`).

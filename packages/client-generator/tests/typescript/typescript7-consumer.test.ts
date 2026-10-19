@@ -1,0 +1,33 @@
+import { generateClient } from '@redocly/client-generator';
+import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { repoRoot, writeStrictTsconfig } from '../helpers/helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const fixture = join(__dirname, '../fixtures/base.yaml');
+
+// Generation needs TypeScript 6 (the compiler API), but consumers compile the OUTPUT
+// with whatever TypeScript they run — including 7, the native compiler, aliased as the
+// `typescript7` devDependency. Its strict tsc must accept a generated client verbatim.
+const tsc7 = join(repoRoot, 'node_modules/typescript7/lib/tsc.js');
+
+describe('generated client under TypeScript 7 (consumer compiler)', () => {
+  it('type-checks strict and clean with the native tsc', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ts7-consumer-'));
+    try {
+      await generateClient({ api: fixture, output: join(dir, 'client.ts'), outputMode: 'split' });
+      writeStrictTsconfig(dir);
+      const tsc = spawnSync('node', [tsc7, '--noEmit', '-p', dir], {
+        encoding: 'utf-8',
+        cwd: repoRoot,
+      });
+      expect(tsc.status, `tsc 7 failed:\n${tsc.stdout}\n${tsc.stderr}`).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
+});

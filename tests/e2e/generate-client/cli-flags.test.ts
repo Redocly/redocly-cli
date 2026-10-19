@@ -2,6 +2,7 @@
 // `redocly generate-client` with a flag writes the same files as the API with the
 // matching option. If the CLI drops or renames a flag, the two outputs differ.
 import { generateClient, type GenerateClientConfig } from '@redocly/client-generator';
+import { logger } from '@redocly/openapi-core';
 import { mkdtempSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -63,6 +64,12 @@ function readFiles(dir: string): Record<string, string> {
 }
 
 describe('generate-client CLI flags', () => {
+  // `generateClient` runs in this process and reports the renamed `Error` schema of
+  // cafe.yaml through `logger.warn`. The CLI run reports the same note in its own stderr.
+  beforeEach(() => {
+    vi.spyOn(logger, 'warn').mockImplementation(() => {});
+  });
+
   it.each(cases)(
     '$flags writes the same files as the matching option',
     async ({ flags, options }) => {

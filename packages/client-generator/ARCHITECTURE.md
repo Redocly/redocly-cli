@@ -89,7 +89,7 @@ See [ADR-0008](./docs/adr/0008-redocly-yaml-config.md) and [ADR-0019](./docs/adr
 
 - **Unit tests** (`npm run unit`) live in `__tests__/` beside their module.
   Rendering is covered by output-string assertions; the language suites additionally compile their output for real (`py_compile`, `go build`, `php -l`).
-- **E2E tests** (`npm run client-generators`, under `tests/e2e/generate-client/`) generate real clients, type-check them under strict `tsc`, run them against local mock servers, and pin the headline guarantee: an ejected-unmodified generator produces byte-identical output.
+- **E2E tests** (`npm run client-generators`, under `tests/`) generate real clients, type-check them under strict `tsc`, run them against local mock servers, and pin the headline guarantee: an ejected-unmodified generator produces byte-identical output.
 - **Guard tests** pin the architecture itself: `language-dogfooding.test.ts` (the import tiers), `pipeline-ts-free.test.ts` (the pipeline's static graph reaches no generator folder and no `typescript`), the `runtime-sources` suites (the contract splice is byte-exact; `npm run compile` regenerates the embedded runtimes, and CI fails when the committed copies differ), and `generator-skills.test.ts` (every generator ships a skill).
 
 Compile (`npm run compile`) before running tests, and `npm run prepare -w @redocly/client-generator` after changing runtime sources or eject assets.

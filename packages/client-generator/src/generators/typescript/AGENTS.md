@@ -132,4 +132,4 @@ It is the largest of them, so reach for the smaller paths first when they fit:
 3. Verify: `npm run compile`, the folder's unit suites
    (`npx vitest run packages/client-generator/src/generators/typescript`),
    the e2e suites for this generator, and the large-description bars
-   (`tests/e2e/generate-client/large-descriptions/large-descriptions.test.ts`).
+   (`packages/client-generator/tests/typescript/large-descriptions.test.ts`).

@@ -40,7 +40,6 @@ jobs:
         uses: davelosert/vitest-coverage-report-action@d63aa97db4c0319f304f1787689de1ca548365cf # v2.11.1
 
   e2e:
-    # Everything under tests/e2e EXCEPT generate-client, which has its own job below.
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -50,12 +49,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - parallel:
-          - name: E2E Tests
-            run: npm run e2e
-          # Not in the client-generators job: examples.test.ts reads the quickstart client that this step rewrites.
-          - name: Regenerate and type-check the examples
-            run: npm run examples:regen -w @redocly/client-generator && npm run typecheck:examples -w @redocly/client-generator
+      - name: E2E Tests
+        run: npm run e2e
 
   client-generators:
     runs-on: blacksmith-4vcpu-ubuntu-2404
@@ -82,12 +77,16 @@ jobs:
           - name: Cache the pinned GitHub REST description
             uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
             with:
-              path: tests/e2e/generate-client/large-descriptions/.cache
-              key: large-descriptions-${{ hashFiles('tests/e2e/generate-client/large-descriptions/large-descriptions.ts') }}
+              path: packages/client-generator/tests/shared/large-descriptions/.cache
+              key: large-descriptions-${{ hashFiles('packages/client-generator/tests/shared/large-descriptions/large-descriptions.ts') }}
       - name: Install httpx and pydantic (the Python bars need them)
         run: pip install httpx pydantic
-      - name: Client generator tests
-        run: npm run client-generators
+      - parallel:
+          - name: Client generator tests
+            run: npm run client-generators
+          # Not in the e2e job: tests/e2e/generate-client/examples.test.ts reads the quickstart client that this step rewrites.
+          - name: Regenerate and type-check the examples
+            run: npm run examples:regen -w @redocly/client-generator && npm run typecheck:examples -w @redocly/client-generator
 
   code-style-check:
     runs-on: blacksmith-4vcpu-ubuntu-2404

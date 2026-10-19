@@ -1,0 +1,85 @@
+// e2e for `--error-mode result`: the result-shape / typed-errors client.
+//
+// We assert on the generated source (string checks) and strict-tsc the output
+// (single-file and the split two-file set) — this is the same lightweight
+// harness used by spec-versions.test.ts. We deliberately do NOT spin up the
+// mock-server behavioral harness (base.test.ts / cafe.test.ts), which needs a
+// dedicated consumer dir with server.ts/index.ts: strict tsc over the
+// discriminated `Result<TData, TError>` already proves the typed `error` flows
+// through, and the behavioral retry/abort path is shared (the runtime's `send`)
+// and covered by the existing throw-mode base e2e. The split case guards that
+// the entry bakes `errorMode: "result"` into the client config too.
+
+import { generateClient } from '@redocly/client-generator';
+import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { collectTsFiles, expectTscPasses, strictTypecheck } from '../helpers/helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+describe('generate-client error mode', () => {
+  it('single-file result mode: typed error alias + Result terminal, strict tsc passes', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-single-'));
+    const out = join(dir, 'client.ts');
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'error-mode.yaml'),
+      output: out,
+      errorMode: 'result',
+    });
+    expect(existsSync(out)).toBe(true);
+
+    const generated = readFileSync(out, 'utf-8');
+    expect(generated).toContain('export const { getThing } = client;');
+    expect(generated).toContain('result: Result<GetThingResult, GetThingError>;');
+    expect(generated).toContain('export type GetThingError = ProblemDetails;');
+    // The mode is baked into the client instance config (configure() cannot flip it).
+    expect(generated).toContain('errorMode: "result"');
+
+    strictTypecheck(dir, ['client.ts']);
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+
+  it('split result mode: the entry bakes errorMode result, strict tsc passes over both files', async () => {
+    const dir = mkdtempSync(join(tmpdir(), 'ots-errmode-split-'));
+    // Split mode takes a `.ts` entry path; the schemas file is written beside it.
+    const entry = join(dir, 'client.ts');
+    await generateClient({
+      api: join(__dirname, '../fixtures', 'error-mode.yaml'),
+      output: entry,
+      errorMode: 'result',
+      outputMode: 'split',
+    });
+    expect(existsSync(entry)).toBe(true);
+
+    const files = collectTsFiles(dir);
+    expect(files.map((f) => f.split('/').pop()).sort()).toEqual(['client.schemas.ts', 'client.ts']);
+
+    // The result shape is baked into the entry: typed Ops results and the instance config.
+    const entrySrc = readFileSync(entry, 'utf-8');
+    expect(entrySrc).toContain('errorMode: "result"');
+    expect(entrySrc).toContain('Result<');
+
+    // Strict tsc over the whole tree (bundler resolution handles the `.js` ESM imports).
+    expectTscPasses(
+      [
+        '--noEmit',
+        '--strict',
+        '--noUnusedLocals',
+        '--target',
+        'ES2020',
+        '--module',
+        'esnext',
+        '--moduleResolution',
+        'bundler',
+        '--lib',
+        'ES2020,DOM',
+        ...files,
+      ],
+      dir
+    );
+    rmSync(dir, { recursive: true, force: true });
+  }, 60_000);
+});

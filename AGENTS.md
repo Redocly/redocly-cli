@@ -46,10 +46,10 @@ npm run unit -- -t 'test name pattern'
 # Update snapshots
 npm run unit -- -u
 
-# Run e2e tests (everything under tests/e2e except generate-client)
+# Run e2e tests (everything under tests/e2e)
 npm run e2e
 
-# Run the generate-client e2e tests (they compile real Python/Go/PHP/TypeScript output)
+# Run the client generator tests in packages/client-generator/tests (they compile real Python/Go/PHP/TypeScript output)
 npm run client-generators
 
 # Run the full test suite (compile + typecheck + unit + e2e)

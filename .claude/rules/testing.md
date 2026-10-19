@@ -74,13 +74,14 @@
    The one exception is the `client-generators` projects below.
 
 1. Run the full suite (`npm test`) after the code change, and make sure all tests pass in CI.
-1. Client generation has its own projects: `npm run client-generators` runs the `tests/e2e/generate-client` bars.
+1. Client generation has its own projects: `npm run client-generators` runs the bars in `packages/client-generator/tests`.
    Run it for any generation change.
    These bars compile real Python, Go, PHP, and TypeScript output, some of it from large real-world descriptions.
    They are the slowest tests in the repository, and they need toolchains that no other test needs.
    A separate CI job keeps that cost out of the shared e2e job.
-   There is one project per toolchain: `client-generators` for the TypeScript bars, and `client-generators-go`,
-   `-php`, and `-python` for the files named `<language>.test.ts` or `<topic>.<language>.test.ts`.
+   There is one project per toolchain, and one folder per project: `client-generators` runs `typescript/`,
+   and `client-generators-go`, `-php`, and `-python` run `go/`, `php/`, and `python/`.
+   The tests of the `generate-client` and `eject-generator` commands stay e2e tests in `tests/e2e/generate-client`.
    A language project runs a setup that checks its toolchain and stops the run when the toolchain is missing.
    Apart from that check, the projects only select test files: they compile and resolve code the same way as every other suite.
 1. Smoke tests (`tests/smoke`, run by the `smoke-*` workflows) cover only what can fail an entire release: a Node.js version, a platform, a package manager, or the production bundle.

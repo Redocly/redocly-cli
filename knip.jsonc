@@ -30,10 +30,12 @@
         "src/generators/*/runtime/**/*.ts",
         "src/**/__tests__/fixtures/**",
         "scripts/*.mjs",
+        "tests/**/*.ts",
       ],
-      // The examples gitignore their generated clients, so their imports do not resolve
-      // in a clean checkout. Same exclusion as the root tsconfig.
-      "ignore": ["examples/**"],
+      // The examples gitignore their generated clients, and the test consumers import a client
+      // that the test run generates in a temp folder, so their imports do not resolve in a clean
+      // checkout. Same exclusions as the root tsconfig.
+      "ignore": ["examples/**", "tests/**/consumer*/**"],
     },
   },
 }
