@@ -101,10 +101,6 @@ describe('refineSpecWithAi', () => {
     vi.spyOn(logger, 'warn').mockImplementation(() => true);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it('refines operations one by one and merges the results', async () => {
     mockResponses(refinedGetUsers, refinedPostUsers);
     const result = await refine();

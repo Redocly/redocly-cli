@@ -65,10 +65,6 @@
       "files": ["**/__tests__/**", "**/*.test.ts"],
       "plugins": ["vitest"],
       "rules": {
-        "typescript/no-explicit-any": "allow",
-        "typescript/ban-ts-comment": "allow",
-        "eslint/no-control-regex": "allow",
-
         "vitest/expect-expect": ["error", { "assertFunctionNames": ["expect", "expect*"] }],
         "vitest/hoisted-apis-on-top": "error",
         "vitest/no-alias-methods": "error",
@@ -92,6 +88,14 @@
         "vitest/valid-describe-callback": "error",
         "vitest/valid-expect": ["error", { "maxArgs": 2 }],
         "vitest/warn-todo": "error"
+      }
+    },
+    {
+      "files": ["**/__tests__/**"],
+      "rules": {
+        "typescript/no-explicit-any": "allow",
+        "typescript/ban-ts-comment": "allow",
+        "eslint/no-control-regex": "allow"
       }
     },
     {

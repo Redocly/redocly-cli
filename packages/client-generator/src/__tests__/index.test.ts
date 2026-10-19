@@ -221,7 +221,6 @@ describe('generateClient — end-to-end orchestration', () => {
     expect(warn.mock.calls.map(([message]) => message).join('\n')).toContain(
       'operation "getThing" uses "id" in more than one parameter location'
     );
-    warn.mockRestore();
   });
 
   it('writes the generated file to disk and reports its size', async () => {

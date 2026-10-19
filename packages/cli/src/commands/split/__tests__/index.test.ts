@@ -35,10 +35,6 @@ vi.mock('../../../utils/miscellaneous.js', async () => {
 describe('split', () => {
   const openapiDir = 'output/split-test';
 
-  beforeEach(() => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-  });
-
   it('should split the file and show the success message', async () => {
     const filePath = 'packages/cli/src/commands/split/__tests__/fixtures/spec.json';
 

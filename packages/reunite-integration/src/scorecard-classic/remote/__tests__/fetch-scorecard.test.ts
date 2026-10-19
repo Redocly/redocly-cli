@@ -7,7 +7,6 @@ describe('fetchRemoteScorecardAndPlugins', () => {
 
   beforeEach(() => {
     global.fetch = mockFetch;
-    mockFetch.mockClear();
   });
 
   afterEach(() => {

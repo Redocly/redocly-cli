@@ -69,8 +69,6 @@ describe('getWorkflowsToRun', () => {
     expect(result).toEqual(workflows);
 
     expect(mockLogger).toHaveBeenCalledWith("Following workflows don't exist: flow3");
-
-    mockLogger.mockRestore();
   });
 
   it('should return not skipped workflows when skip option is provided', () => {
@@ -95,8 +93,6 @@ describe('getWorkflowsToRun', () => {
         steps: [],
       },
     ]);
-
-    mockLogger.mockRestore();
   });
 
   it('should return empty workflows list and write warning when all workflows are skipped', () => {
@@ -114,7 +110,5 @@ describe('getWorkflowsToRun', () => {
     expect(mockLogger).toHaveBeenCalledTimes(1);
     expect(mockLogger).toHaveBeenCalledWith(expect.stringMatching('All workflows are skipped'));
     expect(result).toEqual([]);
-
-    mockLogger.mockRestore();
   });
 });

@@ -16,8 +16,6 @@ describe('Logger in Browser', () => {
 
     expect(error).toHaveBeenCalledTimes(1);
     expect(error).toHaveBeenCalledWith('error');
-
-    error.mockRestore();
   });
 
   it('should call "console.log"', () => {
@@ -27,8 +25,6 @@ describe('Logger in Browser', () => {
 
     expect(info).toHaveBeenCalledTimes(1);
     expect(info).toHaveBeenCalledWith('info');
-
-    info.mockRestore();
   });
 
   it('should call "console.warn"', () => {
@@ -38,8 +34,6 @@ describe('Logger in Browser', () => {
 
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith('warn');
-
-    warn.mockRestore();
   });
 });
 

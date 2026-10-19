@@ -64,8 +64,6 @@ const pushResponseStub: PushResponse = {
 describe('handlePushStatus()', () => {
   beforeEach(() => {
     process.env.REDOCLY_AUTHORIZATION = 'test-api-key';
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
-    vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
   });
 
   afterEach(() => {

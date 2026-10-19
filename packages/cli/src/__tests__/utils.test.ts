@@ -80,11 +80,7 @@ describe('getFallbackApisOrExit', () => {
   beforeEach(() => {
     yellowColoretteMocks.mockImplementation((text) => text as string);
     redColoretteMocks.mockImplementation((text) => text as string);
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
-  });
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   it('should exit with error because no path provided', async () => {
@@ -162,9 +158,9 @@ describe('getFallbackApisOrExit', () => {
     };
     const configStub = await openapiCore.createConfig({ apis: apisStub });
 
-    const existSyncMock = vi
-      .mocked(fs.existsSync)
-      .mockImplementation((path) => (path as string).endsWith('someFile.yaml'));
+    vi.mocked(fs.existsSync).mockImplementation((path) =>
+      (path as string).endsWith('someFile.yaml')
+    );
 
     await expect(getFallbackApisOrExit(undefined, configStub)).rejects.toThrow(
       'Please provide a valid path.'
@@ -173,7 +169,6 @@ describe('getFallbackApisOrExit', () => {
       '\nnotExist.yaml does not exist or is invalid.\n\n'
     );
     expect(process.stderr.write).toHaveBeenCalledTimes(1);
-    existSyncMock.mockClear();
   });
 
   it('should work ok if it is url passed', async () => {
@@ -458,14 +453,9 @@ describe('handleErrors', () => {
   const blueColoretteMocks = vi.mocked(blue);
 
   beforeEach(() => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     vi.spyOn(process, 'exit').mockImplementation((code) => code as never);
     redColoretteMocks.mockImplementation((text) => text as string);
     blueColoretteMocks.mockImplementation((text) => text as string);
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   it('should handle ResolveError', () => {
@@ -513,10 +503,6 @@ describe('handleErrors', () => {
 describe('checkIfRulesetExist', () => {
   beforeEach(() => {
     vi.spyOn(process, 'exit').mockImplementation((code?: string | number | null) => code as never);
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks();
   });
 
   it('should throw an error if rules are not provided', () => {
@@ -818,7 +804,6 @@ describe('validateFileExtension', () => {
 
 describe('writeToFileByExtension', () => {
   beforeEach(() => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(vi.fn());
     vi.mocked(yellow).mockImplementation((text) => text as string);
   });
 

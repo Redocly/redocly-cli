@@ -9,7 +9,5 @@ describe('output', () => {
 
     expect(spyingStdout).toHaveBeenCalledTimes(1);
     expect(spyingStdout).toHaveBeenCalledWith(data);
-
-    spyingStdout.mockRestore();
   });
 });

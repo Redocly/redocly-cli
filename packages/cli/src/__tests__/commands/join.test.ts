@@ -80,10 +80,6 @@ describe('handleJoin', () => {
       } as Document);
   });
 
-  afterEach(() => {
-    vi.resetAllMocks();
-  });
-
   it('should throw because only one entrypoint', async () => {
     await expect(
       handleJoin({ argv: { apis: ['first.yaml'] }, config: {} as any, version: 'cli-version' })

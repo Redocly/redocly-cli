@@ -841,7 +841,6 @@ describe('send onSettled', () => {
       )
     ).rejects.toThrow('down');
     expect(warn).toHaveBeenCalledWith('onSettled hook failed', new Error('hook failed'));
-    warn.mockRestore();
   });
 });
 

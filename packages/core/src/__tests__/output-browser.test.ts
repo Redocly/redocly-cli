@@ -14,7 +14,5 @@ describe('output', () => {
 
     expect(spyingStdout).not.toHaveBeenCalled();
     expect(spyingConsole).toHaveBeenCalledWith(data);
-
-    spyingStdout.mockRestore();
   });
 });

@@ -145,8 +145,6 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-
-    vi.resetAllMocks();
   });
 
   it('should handle multipart/form-data with nested object', async () => {
@@ -218,7 +216,6 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-    vi.resetAllMocks();
   });
 
   it('should handle multipart/form-data and return error reading file', async () => {
@@ -263,7 +260,6 @@ describe('parseRequestBody', () => {
       encoding: 'utf-8',
       replacements: undefined,
     });
-    vi.resetAllMocks();
   });
 
   it('should handle application/octet-stream with string payload', async () => {

@@ -600,13 +600,15 @@ describe('collect refs', () => {
       expect(resolvedRefs).toBeDefined();
       expect(resolvedRefs.size).toEqual(1);
       const resolvedRef = Array.from(resolvedRefs.values())[0];
-      expect(resolvedRef).toMatchObject({
-        resolved: true,
-        node: {
-          type: 'string',
-          description: 'A test schema',
-        },
-      });
+      expect(resolvedRef).toEqual(
+        expect.objectContaining({
+          resolved: true,
+          node: {
+            type: 'string',
+            description: 'A test schema',
+          },
+        })
+      );
     });
   });
 });

@@ -2863,12 +2863,10 @@ describe('loadIgnoreConfig', () => {
   });
 
   it('should load ignore file in browser environment (without fs.existsSync)', async () => {
-    const existsSyncSpy = vi.spyOn(fs, 'existsSync').mockImplementation(undefined as any);
+    vi.spyOn(fs, 'existsSync').mockImplementation(undefined as any);
 
     const config = await loadConfig({ configPath: ignoreFileConfig });
 
     expect(Object.keys(config.ignore)).toEqual([expectedIgnoreKey]);
-
-    existsSyncSpy.mockRestore();
   });
 });
