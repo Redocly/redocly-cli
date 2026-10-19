@@ -1,16 +1,10 @@
 import * as path from 'path';
 
-import { logger } from '../../logger.js';
 import { defaultPlugin } from '../builtIn.js';
 import { loadConfig } from '../load.js';
 
 describe('resolving a plugin', () => {
   const configPath = path.join(__dirname, 'fixtures/plugin-config.yaml');
-
-  beforeEach(() => {
-    // The fixture plugin uses the deprecated format, so loading it logs a notice.
-    vi.spyOn(logger, 'info').mockImplementation(() => {});
-  });
 
   it('should prefix rule names with the plugin id', async () => {
     const config = await loadConfig({ configPath });

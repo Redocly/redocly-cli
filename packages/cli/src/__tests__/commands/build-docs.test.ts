@@ -82,7 +82,6 @@ describe('build-docs', () => {
   });
 
   it('reports an invalid --theme.openapi value with the parse error only', async () => {
-    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const redoclyConfig = await createConfig({});
 
     expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(HandledError);

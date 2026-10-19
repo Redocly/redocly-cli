@@ -15,11 +15,6 @@ import {
 } from '../../logger-output/helpers.js';
 
 describe('cliOutputs', () => {
-  beforeEach(() => {
-    vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
-    vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
-  });
-
   describe('removeExtraIndentation', () => {
     it('should remove extra indentation', () => {
       const message = '  This is a message';

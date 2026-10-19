@@ -7,8 +7,6 @@ import { runWorkflow, DEFAULT_SEVERITY_CONFIGURATION } from '../../../flow-runne
 describe('runWorkflow', () => {
   beforeEach(() => {
     vi.spyOn(logger, 'output').mockImplementation(() => {});
-    vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
-    vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
   });
 
   const fileName = 'test.yaml';

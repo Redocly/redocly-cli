@@ -625,12 +625,6 @@ const basicCTX = {
 } as unknown as TestContext;
 
 describe('runStep', () => {
-  beforeEach(() => {
-    vi.spyOn(logger, 'output').mockImplementation(() => {});
-    vi.spyOn(logger, 'printNewLine').mockImplementation(() => {});
-    vi.spyOn(logger, 'printSeparator').mockImplementation(() => {});
-  });
-
   it('should run step and display checks', async () => {
     const step: Step = {
       stepId: 'get-bird',
