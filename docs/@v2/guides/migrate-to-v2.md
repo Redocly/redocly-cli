@@ -184,6 +184,8 @@ redocly build-docs openapi.yaml --theme.openapi.hideDownloadButtons
 redocly build-docs openapi.yaml --openapi.hideDownloadButtons
 ```
 
+The `--disableGoogleFont` option has been removed too, because Redoc 3 pages load no Google Fonts.
+
 Redoc 3 renamed or removed some Redoc 2 options and replaced the theme object with CSS custom properties, so review your settings against the [Redoc configuration options](https://redocly.com/docs/realm/config/openapi) and check your custom templates.
 Read [what's new in Redoc 3](https://redocly.com/blog/redoc-3-whats-new) for details.
 
@@ -247,7 +249,7 @@ paths:
 1. **Replace `undefined` assertions** with `defined: true`.
 1. **Revise `join` command usage** if your workflow relies on root-level `servers` in joined output.
 1. **Revise your YAML files** to comply with the latest YAML specification (v1.2).
-1. **Revise `build-docs` usage**: replace `--theme.openapi` with `--openapi`, review your Redoc options and custom templates for Redoc 3, or pin the CLI version to keep the Redoc 2 output.
+1. **Revise `build-docs` usage**: replace `--theme.openapi` with `--openapi`, remove `--disableGoogleFont`, review your Redoc options and custom templates for Redoc 3, or pin the CLI version to keep the Redoc 2 output.
 1. **Update configuration structure**:
    - Replace `apiDefinitions` with `apis`
    - Move `features.openapi.*` to `openapi.*`

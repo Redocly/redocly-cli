@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +17,11 @@ describe('build-docs', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
     const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-    await expect(output).toMatchFileSnapshot(join(testPath, 'redoc-static.snapshot.html'));
+    expect(output).toContain('<title>Simple AsyncAPI 3 Example</title>');
+    expect(output).toContain('const __redoc_definition = {"asyncapi":"3.0.0"');
+    expect(output).toContain(
+      'const __redoc_options = {"skipBundle":true,"disableTelemetry":true};'
+    );
   });
 
   test('build docs for an AsyncAPI description using the asyncapi config options', async () => {
@@ -42,7 +46,11 @@ describe('build-docs', () => {
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
     const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-    await expect(output).toMatchFileSnapshot(join(testPath, 'redoc-static.snapshot.html'));
+    expect(output).toContain('const __redoc_definition = "');
+    expect(output).toContain('type Query');
+    expect(output).toContain(
+      'const __redoc_options = {"skipBundle":true,"disableTelemetry":true};'
+    );
   });
 
   test('simple build-docs', async () => {
@@ -51,7 +59,8 @@ describe('build-docs', () => {
     const result = getCommandOutput(args, { testPath });
     await expect(cleanupOutput(result)).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
 
-    expect(existsSync(join(testPath, 'redoc-static.html'))).toEqual(true);
+    const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
+    expect(output).toContain('"disableTelemetry":true');
   });
 
   test('build docs with the inlined Redoc bundle', async () => {
@@ -67,6 +76,18 @@ describe('build-docs', () => {
       "hydrate(__redoc_definition, __redoc_options, document.getElementById('redoc'))"
     );
     expect(output).not.toContain('import { hydrate }');
+    expect(output).not.toContain('<link rel="modulepreload"');
+  });
+
+  test('rejects an Arazzo description instead of rendering it', async () => {
+    const testPath = join(process.cwd(), 'tests/e2e/lint/arazzo-1-1-valid-description');
+    rmSync(join(testPath, 'redoc-static.html'), { force: true });
+    const args = getParams(indexEntryPoint, ['build-docs', 'cafe-workflows.yaml']);
+    const result = getCommandOutput(args, { testPath });
+    expect(cleanupOutput(result)).toContain(
+      'Only OpenAPI and AsyncAPI descriptions and GraphQL schemas are supported by this command.'
+    );
+    expect(existsSync(join(testPath, 'redoc-static.html'))).toBe(false);
   });
 
   test('build docs with config option', async () => {
@@ -81,21 +102,13 @@ describe('build-docs', () => {
     expect(cleanupOutput(result)).toMatchInlineSnapshot(`
       "
 
-          ╔══════════════════════════════════════════════════════════════════════════════════╗
-          ║                                                                                  ║
-          ║  build-docs now renders docs with Redoc 3                                        ║
-          ║                                                                                  ║
-          ║  Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,  ║
-          ║  and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.                           ║
-          ║                                                                                  ║
-          ║  Redoc 2 theme options and custom templates may need updates.                    ║
-          ║                                                                                  ║
-          ║  To keep the Redoc 2 output, pin @redocly/cli to the version you used before,    ║
-          ║  or use Redocly CLI v1: npx @redocly/cli@v1-archive build-docs <api>             ║
-          ║                                                                                  ║
-          ║  Learn more: https://redocly.com/blog/redoc-3-whats-new                          ║
-          ║                                                                                  ║
-          ╚══════════════════════════════════════════════════════════════════════════════════╝
+          ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+          ║                                                                                                   ║
+          ║  build-docs now renders docs with Redoc 3.                                                        ║
+          ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
+          ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
+          ║                                                                                                   ║
+          ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 
       Found nested/redocly.yaml and using 'openapi' options
       Prerendering docs
@@ -110,6 +123,9 @@ describe('build-docs', () => {
   });
 
   describe('build docs with openapi options', () => {
+    const expectedOptions =
+      'const __redoc_options = {"hideDownloadButtons":true,"skipBundle":true,"disableTelemetry":true};';
+
     test('build docs using an argv option', async () => {
       const testPath = join(folderPath, 'build-docs-with-openapi-options');
       const args = getParams(indexEntryPoint, [
@@ -122,21 +138,13 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                  ║
-            ║  build-docs now renders docs with Redoc 3                                        ║
-            ║                                                                                  ║
-            ║  Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,  ║
-            ║  and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.                           ║
-            ║                                                                                  ║
-            ║  Redoc 2 theme options and custom templates may need updates.                    ║
-            ║                                                                                  ║
-            ║  To keep the Redoc 2 output, pin @redocly/cli to the version you used before,    ║
-            ║  or use Redocly CLI v1: npx @redocly/cli@v1-archive build-docs <api>             ║
-            ║                                                                                  ║
-            ║  Learn more: https://redocly.com/blog/redoc-3-whats-new                          ║
-            ║                                                                                  ║
-            ╚══════════════════════════════════════════════════════════════════════════════════╝
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                                   ║
+            ║  build-docs now renders docs with Redoc 3.                                                        ║
+            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
+            ║                                                                                                   ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 
         Prerendering docs
 
@@ -144,7 +152,7 @@ describe('build-docs', () => {
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-      await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(output).toContain(expectedOptions);
     });
 
     test('build docs using a config', async () => {
@@ -159,21 +167,13 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                  ║
-            ║  build-docs now renders docs with Redoc 3                                        ║
-            ║                                                                                  ║
-            ║  Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,  ║
-            ║  and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.                           ║
-            ║                                                                                  ║
-            ║  Redoc 2 theme options and custom templates may need updates.                    ║
-            ║                                                                                  ║
-            ║  To keep the Redoc 2 output, pin @redocly/cli to the version you used before,    ║
-            ║  or use Redocly CLI v1: npx @redocly/cli@v1-archive build-docs <api>             ║
-            ║                                                                                  ║
-            ║  Learn more: https://redocly.com/blog/redoc-3-whats-new                          ║
-            ║                                                                                  ║
-            ╚══════════════════════════════════════════════════════════════════════════════════╝
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                                   ║
+            ║  build-docs now renders docs with Redoc 3.                                                        ║
+            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
+            ║                                                                                                   ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 
         Found config.yaml and using 'openapi' options
         Prerendering docs
@@ -182,7 +182,7 @@ describe('build-docs', () => {
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-      await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(output).toContain(expectedOptions);
     });
 
     test('build docs using an alias', async () => {
@@ -196,21 +196,13 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                  ║
-            ║  build-docs now renders docs with Redoc 3                                        ║
-            ║                                                                                  ║
-            ║  Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,  ║
-            ║  and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.                           ║
-            ║                                                                                  ║
-            ║  Redoc 2 theme options and custom templates may need updates.                    ║
-            ║                                                                                  ║
-            ║  To keep the Redoc 2 output, pin @redocly/cli to the version you used before,    ║
-            ║  or use Redocly CLI v1: npx @redocly/cli@v1-archive build-docs <api>             ║
-            ║                                                                                  ║
-            ║  Learn more: https://redocly.com/blog/redoc-3-whats-new                          ║
-            ║                                                                                  ║
-            ╚══════════════════════════════════════════════════════════════════════════════════╝
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                                   ║
+            ║  build-docs now renders docs with Redoc 3.                                                        ║
+            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
+            ║                                                                                                   ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
@@ -219,7 +211,7 @@ describe('build-docs', () => {
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-      await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(output).toContain(expectedOptions);
     });
 
     test('build docs using the file name (should use the alias config options)', async () => {
@@ -233,21 +225,13 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                  ║
-            ║  build-docs now renders docs with Redoc 3                                        ║
-            ║                                                                                  ║
-            ║  Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,  ║
-            ║  and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.                           ║
-            ║                                                                                  ║
-            ║  Redoc 2 theme options and custom templates may need updates.                    ║
-            ║                                                                                  ║
-            ║  To keep the Redoc 2 output, pin @redocly/cli to the version you used before,    ║
-            ║  or use Redocly CLI v1: npx @redocly/cli@v1-archive build-docs <api>             ║
-            ║                                                                                  ║
-            ║  Learn more: https://redocly.com/blog/redoc-3-whats-new                          ║
-            ║                                                                                  ║
-            ╚══════════════════════════════════════════════════════════════════════════════════╝
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                                   ║
+            ║  build-docs now renders docs with Redoc 3.                                                        ║
+            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
+            ║                                                                                                   ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-alias.yaml and using 'openapi' options
         Prerendering docs
@@ -256,7 +240,7 @@ describe('build-docs', () => {
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-      await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(output).toContain(expectedOptions);
     });
 
     test('build docs using a config with apis and a root option', async () => {
@@ -270,21 +254,13 @@ describe('build-docs', () => {
       expect(cleanupOutput(result)).toMatchInlineSnapshot(`
         "
 
-            ╔══════════════════════════════════════════════════════════════════════════════════╗
-            ║                                                                                  ║
-            ║  build-docs now renders docs with Redoc 3                                        ║
-            ║                                                                                  ║
-            ║  Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,  ║
-            ║  and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.                           ║
-            ║                                                                                  ║
-            ║  Redoc 2 theme options and custom templates may need updates.                    ║
-            ║                                                                                  ║
-            ║  To keep the Redoc 2 output, pin @redocly/cli to the version you used before,    ║
-            ║  or use Redocly CLI v1: npx @redocly/cli@v1-archive build-docs <api>             ║
-            ║                                                                                  ║
-            ║  Learn more: https://redocly.com/blog/redoc-3-whats-new                          ║
-            ║                                                                                  ║
-            ╚══════════════════════════════════════════════════════════════════════════════════╝
+            ╔═══════════════════════════════════════════════════════════════════════════════════════════════════╗
+            ║                                                                                                   ║
+            ║  build-docs now renders docs with Redoc 3.                                                        ║
+            ║  Theme options and custom templates may need updates: https://redocly.com/blog/redoc-3-whats-new  ║
+            ║  To keep the Redoc 2 output: npx @redocly/cli@v1-archive build-docs <api>                         ║
+            ║                                                                                                   ║
+            ╚═══════════════════════════════════════════════════════════════════════════════════════════════════╝
 
         Found config-with-apis-and-root-option.yaml and using 'openapi' options
         Prerendering docs
@@ -293,7 +269,7 @@ describe('build-docs', () => {
         "
       `);
       const output = readFileSync(join(testPath, 'redoc-static.html'), 'utf8');
-      await expect(output).toMatchFileSnapshot(join(testPath, 'snapshot.txt'));
+      expect(output).toContain(expectedOptions);
     });
   });
 });

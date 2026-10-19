@@ -2,7 +2,6 @@ import { HandledError, logger, type Config } from '@redocly/openapi-core';
 import { default as handlebars } from 'handlebars';
 import { createHash } from 'node:crypto';
 import { existsSync, lstatSync, readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
@@ -50,19 +49,16 @@ export function getObjectOrJSON(
         } else {
           return JSON.parse(specOptions);
         }
-      } catch (e) {
+      } catch (error) {
         logger.error(
           `Encountered error:\n\n${specOptions}\n\nis neither a file with a valid JSON object neither a stringified JSON object.\n`
         );
-        throw new HandledError(e instanceof Error ? e.message : String(e));
+        throw new HandledError(error instanceof Error ? error.message : String(error));
       }
     default: {
       if (config?.configPath) {
         logger.info(`Found ${config.configPath} and using '${specType}' options\n`);
-        const specConfigs = config.resolvedConfig as Partial<
-          Record<SpecType, Record<string, unknown>>
-        >;
-        return specConfigs?.[specType] ?? {};
+        return config.resolvedConfig[specType] ?? {};
       }
       return {};
     }
@@ -73,7 +69,6 @@ export async function getPageHTML(
   definition: Record<string, unknown> | string,
   {
     title,
-    disableGoogleFont,
     templateFileName,
     templateOptions,
     redocOptions = {},
@@ -102,7 +97,7 @@ export async function getPageHTML(
 
   const customTemplate =
     templateFileName ||
-    (redocOptions?.htmlTemplate
+    (typeof redocOptions.htmlTemplate === 'string'
       ? path.resolve(configPath ? path.dirname(configPath) : '', redocOptions.htmlTemplate)
       : undefined);
 
@@ -111,9 +106,9 @@ export async function getPageHTML(
     : DEFAULT_TEMPLATE_SOURCE;
   const template = handlebars.compile(templateSource);
 
-  const redocBundleUrl = `https://cdn.redoc.ly/redoc/v${redocVersion}/bundles/redoc.standalone.js`;
+  const redocBundleUrl = `https://cdn.redocly.com/redoc/v${redocVersion}/bundles/redoc.standalone.js`;
   const redocScript = inlineBundle
-    ? escapeClosingScriptTag(readFileSync(getRedocStandalonePath(), 'utf-8'))
+    ? escapeClosingScriptTag(readFileSync(redocStandalonePath, 'utf-8'))
     : `import { hydrate } from "${redocBundleUrl}";`;
   const redocHead = inlineBundle
     ? css
@@ -127,7 +122,7 @@ export async function getPageHTML(
 
   return template({
     redocHTML: `
-      <div id="redoc" style="--navbar-height:0px">${html}</div>
+      <div id="redoc">${html}</div>
       <script type="module">
       ${redocScript}
 
@@ -140,22 +135,14 @@ export async function getPageHTML(
       </script>`,
     redocHead,
     title: title || definitionTitle || 'ReDoc documentation',
-    disableGoogleFont,
     templateOptions,
   });
 }
 
-function getRedocStandalonePath(): string {
-  const bundledCopy = fileURLToPath(new URL('./redoc.standalone.js', import.meta.url));
-  if (existsSync(bundledCopy)) {
-    return bundledCopy;
-  }
-  const redocPackageJsonPath = createRequire(import.meta.url).resolve('redoc/package.json');
-  return path.join(path.dirname(redocPackageJsonPath), 'bundles', 'redoc.standalone.js');
-}
+const redocStandalonePath = fileURLToPath(new URL('./redoc.standalone.js', import.meta.url));
 
 function getRedocStandaloneSri(): string {
-  const hash = createHash('sha384').update(readFileSync(getRedocStandalonePath())).digest('base64');
+  const hash = createHash('sha384').update(readFileSync(redocStandalonePath)).digest('base64');
   return `sha384-${hash}`;
 }
 

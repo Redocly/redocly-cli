@@ -2,12 +2,13 @@ import {
   BaseResolver,
   bundle,
   detectSpec,
+  getMajorSpecVersion,
   HandledError,
   isAbsoluteUrl,
   isGraphqlRef,
   logger,
 } from '@redocly/openapi-core';
-import { bold, cyan, yellow } from 'colorette';
+import { cyan } from 'colorette';
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -25,19 +26,12 @@ export const handlerBuildCommand = async ({
   config,
   collectSpecData,
 }: CommandArgs<BuildDocsArgv>) => {
+  // Remove this banner in the first release after January 31, 2027.
   logger.info(
     renderBanner([
-      bold(yellow('build-docs now renders docs with Redoc 3')),
-      '',
-      'Redoc 3 is faster on large APIs, has built-in dark mode and CSS-based theming,',
-      'and supports OpenAPI 3.2, AsyncAPI, GraphQL, and MCP.',
-      '',
-      'Redoc 2 theme options and custom templates may need updates.',
-      '',
-      'To keep the Redoc 2 output, pin @redocly/cli to the version you used before,',
-      `or use Redocly CLI v1: ${cyan('npx @redocly/cli@v1-archive build-docs <api>')}`,
-      '',
-      `Learn more: ${cyan('https://redocly.com/blog/redoc-3-whats-new')}`,
+      'build-docs now renders docs with Redoc 3.',
+      `Theme options and custom templates may need updates: ${cyan('https://redocly.com/blog/redoc-3-whats-new')}`,
+      `To keep the Redoc 2 output: ${cyan('npx @redocly/cli@v1-archive build-docs <api>')}`,
     ])
   );
 
@@ -63,10 +57,9 @@ export const handlerBuildCommand = async ({
         config: config.forAlias(alias),
         collectSpecData,
       });
-      const parsed = bundleResult.parsed as Record<string, unknown>;
-      const spec = detectSpec(parsed);
-      definition = spec === 'oas2' ? await convertSwagger2OpenAPI(parsed) : parsed;
-      specType = spec.startsWith('async') ? 'asyncapi' : 'openapi';
+      ({ definition, specType } = await detectDefinition(
+        bundleResult.parsed as Record<string, unknown>
+      ));
     }
 
     const redocOptions = getObjectOrJSON(argv[specType], config.forAlias(alias), specType);
@@ -74,7 +67,6 @@ export const handlerBuildCommand = async ({
     const options = {
       output: argv.o,
       title: argv.title,
-      disableGoogleFont: argv.disableGoogleFont,
       templateFileName: argv.template,
       templateOptions: argv.templateOptions || {},
       redocOptions,
@@ -93,7 +85,25 @@ export const handlerBuildCommand = async ({
     logger.info(
       `\n🎉 bundled successfully in: ${options.output} (${sizeInKiB} KiB) [⏱ ${elapsed}].\n`
     );
-  } catch (e) {
-    throw new HandledError(e instanceof Error ? e.message : String(e));
+  } catch (error) {
+    throw new HandledError(error instanceof Error ? error.message : String(error));
   }
 };
+
+async function detectDefinition(
+  parsed: Record<string, unknown>
+): Promise<{ definition: Record<string, unknown>; specType: SpecType }> {
+  switch (getMajorSpecVersion(detectSpec(parsed))) {
+    case 'oas2':
+      return { definition: await convertSwagger2OpenAPI(parsed), specType: 'openapi' };
+    case 'oas3':
+      return { definition: parsed, specType: 'openapi' };
+    case 'async2':
+    case 'async3':
+      return { definition: parsed, specType: 'asyncapi' };
+    default:
+      throw new HandledError(
+        'Only OpenAPI and AsyncAPI descriptions and GraphQL schemas are supported by this command.'
+      );
+  }
+}

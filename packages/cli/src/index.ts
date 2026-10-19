@@ -831,11 +831,6 @@ yargs(hideBin(process.argv))
           describe: 'Page title.',
           type: 'string',
         },
-        disableGoogleFont: {
-          describe: 'Disable Google fonts.',
-          type: 'boolean',
-          default: false,
-        },
         t: {
           alias: 'template',
           describe:

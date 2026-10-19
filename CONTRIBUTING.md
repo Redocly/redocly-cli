@@ -165,7 +165,7 @@ When updating Redoc, pin an exact version and check that the CDN serves it:
 
 ```bash
 npm install -w packages/cli --save-dev --save-exact redoc@<version>
-curl -I https://cdn.redoc.ly/redoc/v<version>/bundles/redoc.standalone.js
+curl -I https://cdn.redocly.com/redoc/v<version>/bundles/redoc.standalone.js
 ```
 
 Then update the [e2e test snapshots](#e2e-tests) and the [smoke test](#smoke-tests) page.
