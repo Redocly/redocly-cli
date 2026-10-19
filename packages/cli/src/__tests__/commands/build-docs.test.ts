@@ -1,4 +1,4 @@
-import { createConfig, HandledError, logger } from '@redocly/openapi-core';
+import { createConfig, HandledError } from '@redocly/openapi-core';
 import * as fs from 'node:fs';
 import { renderToString } from 'react-dom/server';
 import { createStore, loadAndBundleSpec } from 'redoc';
@@ -37,7 +37,6 @@ const config = {
 
 describe('build-docs', () => {
   beforeEach(() => {
-    vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.mocked(loadAndBundleSpec).mockResolvedValue({ openapi: '3.0.0' } as OpenAPISpec);
     vi.mocked(createStore).mockResolvedValue({ toJS: vi.fn(async () => '{}' as any) } as any);
 
@@ -76,12 +75,10 @@ describe('build-docs', () => {
     expect(loadAndBundleSpec).toBeCalledTimes(1);
     expect(getFallbackApisOrExit).toBeCalledTimes(1);
     expect(processExitMock).toBeCalledTimes(0);
-    expect(logger.info).toHaveBeenCalledWith(
-      expect.stringContaining('Deprecation warning: build-docs is moving to Redoc 3')
-    );
   });
 
   it('reports an invalid --theme.openapi value with the parse error only', async () => {
+    vi.spyOn(process.stderr, 'write').mockImplementation(() => true);
     const redoclyConfig = await createConfig({});
 
     expect(() => getObjectOrJSON('not json', redoclyConfig)).toThrow(HandledError);

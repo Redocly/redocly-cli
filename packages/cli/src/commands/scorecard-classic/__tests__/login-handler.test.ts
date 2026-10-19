@@ -31,6 +31,7 @@ describe('handleLoginAndFetchToken', () => {
     vi.spyOn(logger, 'info').mockImplementation(() => {});
     vi.spyOn(logger, 'warn').mockImplementation(() => {});
     vi.spyOn(logger, 'error').mockImplementation(() => {});
+    vi.spyOn(logger, 'output').mockImplementation(() => {});
   });
 
   it('should return existing access token when available', async () => {

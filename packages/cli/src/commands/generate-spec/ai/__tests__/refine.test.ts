@@ -98,6 +98,7 @@ async function refine(document = baseline()) {
 describe('refineSpecWithAi', () => {
   beforeEach(() => {
     vi.mocked(runProvider).mockReset();
+    vi.spyOn(logger, 'info').mockImplementation(() => true);
     vi.spyOn(logger, 'warn').mockImplementation(() => true);
   });
 

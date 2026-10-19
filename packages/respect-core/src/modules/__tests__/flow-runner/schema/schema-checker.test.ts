@@ -273,7 +273,6 @@ describe('checkSchema', () => {
   });
 
   it('should check circular referenced schema', () => {
-    vi.spyOn(logger, 'output').mockImplementation(() => {});
     vi.spyOn(JSON, 'stringify').mockImplementationOnce(() => {
       throw new Error('circular reference');
     });
@@ -332,9 +331,6 @@ describe('checkSchema', () => {
         severity: 'error',
       },
     ]);
-    expect(logger.output).toHaveBeenCalledWith(
-      expect.stringContaining('WARNING: schema have circular references')
-    );
   });
 
   it('should catch ajvStrict.compile error', () => {

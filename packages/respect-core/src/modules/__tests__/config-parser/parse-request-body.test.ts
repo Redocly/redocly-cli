@@ -272,14 +272,14 @@ describe('parseRequestBody', () => {
     expect(
       await parseRequestBody(
         {
-          payload: Buffer.from('test') as unknown as RequestBody['payload'],
+          payload: new Buffer('test') as unknown as RequestBody['payload'],
           contentType: 'application/octet-stream',
           encoding: 'utf-8',
         },
         ctx
       )
     ).toEqual({
-      payload: Buffer.from('test'),
+      payload: new Buffer('test'),
       contentType: 'application/octet-stream',
       encoding: 'utf-8',
       replacements: undefined,

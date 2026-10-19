@@ -6,8 +6,6 @@ import * as colorette from 'colorette';
 
 import { logger, colorize } from '../logger.js';
 
-vi.mock('colorette');
-
 describe('Logger in Browser', () => {
   it('should call "console.error"', () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -45,6 +43,7 @@ describe('Logger in Browser', () => {
 
 describe('colorize in Browser', () => {
   it('should not call original colorette lib', () => {
+    vi.mock('colorette');
     const color = 'cyan';
     const colorized = colorize.cyan(color);
 

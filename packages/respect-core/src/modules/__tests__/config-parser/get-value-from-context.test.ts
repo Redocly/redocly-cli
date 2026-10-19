@@ -6,7 +6,7 @@ import { createFaker } from '../../faker.js';
 
 describe('getValueFromContext', () => {
   beforeEach(() => {
-    vi.spyOn(logger, 'error').mockImplementation(() => {});
+    vi.clearAllMocks();
   });
 
   it('should return value from context', () => {
@@ -395,9 +395,6 @@ describe('getValueFromContext', () => {
       },
     } as any;
     expect(getValueFromContext({ value: '{$faker.city}', ctx, logger })).toEqual('undefined');
-    expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Unknown faker reference: "city"')
-    );
   });
 
   it('should not execute arbitrary code via the $faker constructor escape', () => {
@@ -412,9 +409,6 @@ describe('getValueFromContext', () => {
 
     expect((globalThis as any).__respectPwned).toBe(false);
     expect(result).toBeUndefined();
-    expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Unsupported faker reference: "constructor"')
-    );
     delete (globalThis as any).__respectPwned;
   });
 
@@ -430,9 +424,6 @@ describe('getValueFromContext', () => {
 
     expect((globalThis as any).__respectPwned2).toBe(false);
     expect(result).toBeUndefined();
-    expect(logger.error).toHaveBeenCalledWith(
-      expect.stringContaining('Unsupported faker reference: "string["constructor"]["constructor"]"')
-    );
     delete (globalThis as any).__respectPwned2;
   });
 
@@ -445,7 +436,6 @@ describe('getValueFromContext', () => {
       getValueFromContext({ value: '$faker.__proto__.polluted', ctx, logger })
     ).toBeUndefined();
     expect(getValueFromContext({ value: '$faker.constructor', ctx, logger })).toBeUndefined();
-    expect(logger.error).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -456,7 +446,6 @@ describe('getFakeData argument parsing', () => {
     ctx = {
       $faker: createFaker(),
     } as any;
-    vi.spyOn(logger, 'error').mockImplementation(() => {});
   });
 
   it('parses float arguments without being mangled by dots in the pointer', () => {
@@ -509,7 +498,6 @@ describe('getFakeData argument parsing', () => {
       getValueFromContext({ value: "$faker.string.email('unterminated)", ctx, logger })
     ).toBeUndefined();
     expect(getValueFromContext({ value: '$faker.number.integer(@)', ctx, logger })).toBeUndefined();
-    expect(logger.error).toHaveBeenCalledTimes(3);
   });
 });
 

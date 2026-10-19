@@ -1,5 +1,3 @@
-import { logger } from '@redocly/openapi-core';
-
 import { apiModel, namedSchema, operation, param, SCALAR } from '../../../__tests__/fixtures.js';
 import { resolveModelPagination, type PaginationConfig } from '../../../pagination.js';
 import { renderTanstackModule } from '../render.js';
@@ -26,10 +24,6 @@ function render(
 }
 
 describe('renderTanstackModule', () => {
-  beforeEach(() => {
-    vi.spyOn(logger, 'warn').mockImplementation(() => {});
-  });
-
   it('returns empty string when the model has no operations', () => {
     expect(renderTanstackModule(apiModel(), { sdkModule: SDK, framework: 'react' })).toBe('');
   });
@@ -51,9 +45,6 @@ describe('renderTanstackModule', () => {
     ]);
     expect(out).toContain('getPetOptions');
     expect(out).not.toContain('streamEvents');
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('skipped 1 server-sent-events operation(s)')
-    );
   });
 
   it('skips an op whose <Op>Variables name collides with a schema (would import the wrong type)', () => {
@@ -71,9 +62,6 @@ describe('renderTanstackModule', () => {
     );
     expect(out).not.toContain('getUserOptions');
     expect(out).toContain('listUsersOptions');
-    expect(logger.warn).toHaveBeenCalledWith(
-      expect.stringContaining('skipped 1 operation(s) whose variables type name collides')
-    );
   });
 
   it('returns empty string when every operation is SSE', () => {

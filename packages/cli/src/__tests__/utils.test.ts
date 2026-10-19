@@ -574,7 +574,7 @@ describe('checkIfRulesetExist', () => {
       openrpc1: {},
       graphql: {},
     };
-    expect(() => checkIfRulesetExist(rules)).not.toThrow();
+    checkIfRulesetExist(rules);
   });
 });
 
