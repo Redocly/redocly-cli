@@ -155,6 +155,39 @@ describe('renderPythonModels output, imported with python3', () => {
     expectImports(out);
   });
 
+  it('emits a union alias after the aliases it names', () => {
+    const out = renderPythonModels(
+      model({
+        Action: {
+          kind: 'union',
+          members: [
+            { kind: 'ref', name: 'Feed' },
+            { kind: 'ref', name: 'Adopt' },
+          ],
+          discriminator: {
+            propertyName: 'type',
+            mapping: [
+              { value: 'feed', schemaName: 'Feed' },
+              { value: 'adopt', schemaName: 'Adopt' },
+            ],
+          },
+        },
+        Feed: { kind: 'object', properties: [] },
+        Adopt: {
+          kind: 'union',
+          members: [
+            { kind: 'object', properties: [{ name: 'petId', schema: STRING, required: true }] },
+            { kind: 'object', properties: [{ name: 'petName', schema: STRING, required: true }] },
+          ],
+        },
+      })
+    );
+    expect(out).toContain(
+      'Adopt = Union[Any, Any]\n\n# Discriminated by "type": feed -> Feed, adopt -> Adopt\nAction = Union[Feed, Adopt]'
+    );
+    expectImports(out);
+  });
+
   /** Cat/Dog under a `petType` discriminator; `declares` controls whether they declare it. */
   function petUnion(declares: boolean) {
     const member = {

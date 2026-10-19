@@ -8,6 +8,7 @@ import {
   enumValues,
   flattenAllOf,
   type PropertyModel,
+  type SchemaModel,
 } from '@redocly/client-generator';
 import { PythonPrinter } from '@redocly/client-generator/printers/python';
 
@@ -162,7 +163,7 @@ export function renderPythonModels(
   printer.blank();
   printer.blank();
 
-  const aliases: Array<() => void> = [];
+  const aliases = new Map<string, { schema: SchemaModel; emit: () => void }>();
   for (const { name, schema } of model.schemas) {
     const asEnum = enumValues(schema);
     if (asEnum !== undefined) {
@@ -194,25 +195,46 @@ export function renderPythonModels(
     }
     // Everything else (unions, scalar aliases, records) becomes a module-level alias,
     // emitted AFTER the classes it references so the assignment evaluates.
-    aliases.push(() => {
-      const cases = discriminatorCases(schema, model);
-      if (cases !== undefined) {
-        const table = cases.cases
-          .map((entry) => `${entry.value} -> ${className(entry.schemaName)}`)
-          .join(', ');
-        printer.line(`# Discriminated by "${cases.property}": ${table}`);
-      }
-      const field = unions.get(name);
-      const union =
-        field === undefined
-          ? pythonType(schema, dateType)
-          : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${naming.string(field)})]`;
-      printer.line(`${className(name)} = ${union}`);
-      printer.blank();
+    aliases.set(name, {
+      schema,
+      emit: () => {
+        const cases = discriminatorCases(schema, model);
+        if (cases !== undefined) {
+          const table = cases.cases
+            .map((entry) => `${entry.value} -> ${className(entry.schemaName)}`)
+            .join(', ');
+          printer.line(`# Discriminated by "${cases.property}": ${table}`);
+        }
+        const field = unions.get(name);
+        const union =
+          field === undefined
+            ? pythonType(schema, dateType)
+            : `Annotated[${pythonType(schema, dateType)}, Field(discriminator=${naming.string(field)})]`;
+        printer.line(`${className(name)} = ${union}`);
+        printer.blank();
+      },
     });
   }
-  for (const emit of aliases) emit();
+  // An alias that names another alias must also come after it.
+  const emitted = new Set<string>();
+  const emitAlias = (name: string): void => {
+    const alias = aliases.get(name);
+    if (alias === undefined || emitted.has(name)) return;
+    emitted.add(name);
+    for (const referenced of referencedNames(alias.schema)) emitAlias(referenced);
+    alias.emit();
+  };
+  for (const name of aliases.keys()) emitAlias(name);
   return printer.toString();
+}
+
+/** The named schemas an alias annotation spells out (objects render as `Any`). */
+function referencedNames(schema: SchemaModel): string[] {
+  if (schema.kind === 'ref') return [schema.name];
+  if (schema.kind === 'array') return referencedNames(schema.items);
+  if (schema.kind === 'record') return referencedNames(schema.value);
+  if (schema.kind === 'union') return schema.members.flatMap(referencedNames);
+  return [];
 }
 
 /**

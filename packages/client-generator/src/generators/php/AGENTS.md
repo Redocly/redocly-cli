@@ -40,7 +40,9 @@ extension — zero Composer dependencies. The namespace derives from the API tit
 - **Naming:** classes PascalCase, properties/methods camelCase via
   `identifierFor(..., RESERVED_WORDS.php)`; reserved words get a trailing underscore.
 - **Enums** are native backed enums (string/int); other scalars stay aliases.
-  **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers;
+  **Discriminated unions** are `match`-based `unmarshalX(array $data)` dispatchers.
+  Each arm hydrates its mapping target the way a property of that type does, so a
+  target with no class of its own (a plain `oneOf`) stays a raw array;
   **allOf** is flattened.
 - **Unions keep their types where PHP 8.1 can express them.** A union of scalars, enums,
   classes, or arrays becomes a native union type (`int|string`, `PromotionType|array`)
