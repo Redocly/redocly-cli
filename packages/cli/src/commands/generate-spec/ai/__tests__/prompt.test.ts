@@ -3,6 +3,7 @@ import { buildOperationPrompt } from '../prompt.js';
 describe('buildOperationPrompt', () => {
   it('renders the full prompt for an operation with components and samples', () => {
     const { system, user } = buildOperationPrompt({
+      openapiVersion: '3.2.0',
       path: '/users/{userId}',
       method: 'get',
       operation: {

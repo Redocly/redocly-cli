@@ -166,13 +166,15 @@ describe('runner token-rule dispatch', () => {
       shortName: 'test-never-stable',
       assertions: { 'test-never-stable': {} },
     });
-    const { fixes, skippedFixes } = await runRulesUntilStable(
+    const { fixes, skippedFixes, problems, fixedFiles } = await runRulesUntilStable(
       [{ path: 'a.md', content: 'x\n' }],
       [neverStable]
     );
     // One fix lands per pass over five passes, and the last pass leaves one skipped.
     expect(fixes).toHaveLength(5);
     expect(skippedFixes).toHaveLength(1);
+    // The problems come from the content after the last pass's fixes.
+    expect(problems[0].text).toBe(fixedFiles.get('a.md')?.split('\n')[0]);
   });
 
   it('a per-report severity override lands even though the rule is configured at a different severity', async () => {

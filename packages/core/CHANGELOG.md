@@ -1,5 +1,13 @@
 # @redocly/openapi-core
 
+## 2.65.0
+
+## 2.64.1
+
+### Patch Changes
+
+- Fixed an issue where `lint` and `bundle` crashed with `Unknown type name found: string` on OpenAPI 3.2 descriptions that had a `deviceAuthorization` OAuth flow with non-empty `scopes`.
+
 ## 2.64.0
 
 ### Minor Changes

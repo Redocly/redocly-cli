@@ -40,7 +40,7 @@ Install: `npm i @redocly/cli@latest`, or run without installing: `npx @redocly/c
 | `generate-arazzo`    | Scaffold an Arazzo description from an OpenAPI description                                                        | API testing and drift |
 | `proxy`              | Capture live HTTP traffic into a HAR file, with optional validation [experimental]                                | API testing and drift |
 | `drift`              | Report differences between recorded traffic and an OpenAPI description, with optional `--coverage` [experimental] | API testing and drift |
-| `generate-spec`      | Infer an OpenAPI description from recorded traffic [experimental]                                                 | API testing and drift |
+| `generate-spec`      | Infer an OpenAPI 3.2 description from recorded traffic; `--openapi-version 3.1` targets 3.1 [experimental]        | API testing and drift |
 | `stats`              | Count operations, schemas, refs, and other metrics                                                                | Quality reports       |
 | `score`              | Score an OpenAPI description for AI-agent readiness [experimental]                                                | Quality reports       |
 | `generate-client`    | Generate a typed, zero-dependency TypeScript client [experimental]                                                | SDK generation        |
