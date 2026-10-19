@@ -2,7 +2,7 @@
 // two descriptions compose behind namespaces with their own credentials, and a custom
 // command with a handler joins them at the root — the login story, built in user land.
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -40,36 +40,7 @@ beforeAll(() => {
     'ts',
   ]);
   // The user-land entry: everything the extension design promises, in ~20 lines.
-  writeFileSync(
-    join(dir, 'cafe.ts'),
-    `import type { CustomCommand } from '@redocly/client-generator';
-import * as shop from './shop.client.cli.ts';
-import * as kitchen from './kitchen.client.cli.ts';
-const { runCli } = shop; // the engine is embedded in, and re-exported by, each generated cli module
-
-const login: CustomCommand = {
-  name: 'login',
-  summary: 'Store a token for both APIs.',
-  flags: [{ name: 'user', param: 'user', type: 'string', required: true }],
-  handler: (context) => {
-    context.wiring.stdout(JSON.stringify({ loggedIn: context.params.user }));
-    return 0;
-  },
-};
-
-process.exit(
-  await runCli(
-    [
-      { commands: [login], wiring: shop.wiring },
-      { namespace: 'shop', commands: shop.COMMANDS, wiring: { ...shop.wiring, envPrefix: 'CAFE_SHOP' } },
-      { namespace: 'kitchen', commands: kitchen.COMMANDS, wiring: { ...kitchen.wiring, envPrefix: 'CAFE_KITCHEN' } },
-    ],
-    process.argv.slice(2)
-  )
-);
-`,
-    'utf-8'
-  );
+  copyFileSync(join(__dirname, 'consumer', 'cafe.ts'), join(dir, 'cafe.ts'));
 });
 
 afterAll(() => {

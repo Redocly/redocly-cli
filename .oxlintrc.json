@@ -79,7 +79,8 @@
     {
       "files": [
         "packages/client-generator/examples/*/src/**",
-        "packages/client-generator/examples/*/worker.ts"
+        "packages/client-generator/examples/*/worker.ts",
+        "tests/e2e/generate-client/*/consumer/**"
       ],
       "rules": {
         "eslint/no-console": "allow"

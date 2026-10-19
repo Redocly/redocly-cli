@@ -1,5 +1,13 @@
 import { spawn, spawnSync, type ChildProcess, type SpawnSyncReturns } from 'node:child_process';
-import { cpSync, mkdtempSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  cpSync,
+  mkdtempSync,
+  readdirSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -87,7 +95,21 @@ export function runTsx(
 /** Write `dir/consumer.ts` and run it with tsx; returns its parsed JSON stdout. */
 export function runConsumer(dir: string, script: string): unknown {
   writeFileSync(join(dir, 'consumer.ts'), script, 'utf-8');
-  const result = runTsx(join(dir, 'consumer.ts'));
+  return runConsumerScript(join(dir, 'consumer.ts'));
+}
+
+/**
+ * Copy a committed consumer file into `dir`, next to the generated client, and run it
+ * with tsx; returns its parsed JSON stdout.
+ */
+export function runConsumerFile(dir: string, consumerFile: string): unknown {
+  const script = join(dir, basename(consumerFile));
+  copyFileSync(consumerFile, script);
+  return runConsumerScript(script);
+}
+
+function runConsumerScript(script: string): unknown {
+  const result = runTsx(script);
   expect(
     result.status,
     `consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`

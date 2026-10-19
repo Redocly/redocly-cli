@@ -7,10 +7,19 @@
 
 import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { outdent } from 'outdent';
 
-import { collectTsFiles, expectTscPasses, generate, generateInto, runTsx } from './helpers.js';
+import {
+  collectTsFiles,
+  expectTscPasses,
+  generate,
+  generateInto,
+  runConsumerFile,
+} from '../helpers.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const SPEC = outdent`
   openapi: 3.1.0
@@ -45,36 +54,10 @@ describe('generate-client typed multipart body (#5)', () => {
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     generateInto(dir, join(dir, 'api.yaml'));
 
-    writeFileSync(
-      join(dir, 'consumer.ts'),
-      outdent`
-        import { configure, upload } from './client.ts';
-
-        let body: unknown;
-        configure({
-          fetch: (async (_url: string, init: RequestInit) => {
-            body = init.body;
-            return new Response('', { status: 200 });
-          }) as unknown as typeof fetch,
-        });
-
-        const file = new Blob(['hello'], { type: 'text/plain' });
-        await upload({ body: { file, orgId: 'org_1', tags: ['a', 'b'], meta: { k: 'v' } } });
-
-        const fd = body as FormData;
-        console.log(JSON.stringify({
-          isFormData: fd instanceof FormData,
-          orgId: fd.get('orgId'),
-          fileIsBlob: fd.get('file') instanceof Blob,
-          tags: fd.getAll('tags'),
-          meta: fd.get('meta'),
-        }));
-      `,
-      'utf-8'
-    );
-    const run = runTsx(join(dir, 'consumer.ts'));
-    expect(run.status, `${run.stdout}\n${run.stderr}`).toBe(0);
-    const result = JSON.parse(run.stdout.trim()) as Record<string, unknown>;
+    const result = runConsumerFile(dir, join(__dirname, 'consumer', 'typed-fields.ts')) as Record<
+      string,
+      unknown
+    >;
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('org_1');
@@ -88,33 +71,10 @@ describe('generate-client typed multipart body (#5)', () => {
     writeFileSync(join(dir, 'api.yaml'), SPEC, 'utf-8');
     generateInto(dir, join(dir, 'api.yaml'));
 
-    writeFileSync(
-      join(dir, 'consumer.ts'),
-      outdent`
-        import { configure, use, upload } from './client.ts';
-
-        let body: unknown;
-        configure({
-          fetch: (async (_url: string, init: RequestInit) => {
-            body = init.body;
-            return new Response('', { status: 200 });
-          }) as unknown as typeof fetch,
-        });
-        // A multipart op must expose the plain body object to onRequest (not pre-built FormData);
-        // mutating it has to be reflected in the FormData the runtime serializes afterwards.
-        use({ onRequest: (ctx) => { (ctx.body as { orgId: string }).orgId = 'mutated'; } });
-
-        const file = new Blob(['hi'], { type: 'text/plain' });
-        await upload({ body: { file, orgId: 'org_1' } });
-
-        const fd = body as FormData;
-        console.log(JSON.stringify({ isFormData: fd instanceof FormData, orgId: fd.get('orgId') }));
-      `,
-      'utf-8'
-    );
-    const run = runTsx(join(dir, 'consumer.ts'));
-    expect(run.status, `${run.stdout}\n${run.stderr}`).toBe(0);
-    const result = JSON.parse(run.stdout.trim()) as Record<string, unknown>;
+    const result = runConsumerFile(
+      dir,
+      join(__dirname, 'consumer', 'mutate-in-on-request.ts')
+    ) as Record<string, unknown>;
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('mutated');

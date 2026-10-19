@@ -2,12 +2,11 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { outdent } from 'outdent';
 
-import { generate, generateInto, runConsumer, strictTypecheck } from './helpers.js';
+import { generate, generateInto, runConsumerFile, strictTypecheck } from '../helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = join(__dirname, 'fixtures', 'auth.yaml');
+const fixture = join(__dirname, 'auth.yaml');
 
 /** Generate a single-file client and assert strict `tsc` accepts it. */
 function generateSingleFile(): string {
@@ -85,38 +84,15 @@ describe('generate-client auth breadth (auth.yaml)', () => {
   // `Authorization` header and (b) a query-key scheme lands `api_key=` in the URL.
   it('an async bearer provider resolves onto Authorization and a query key lands in the URL', () => {
     // The driver owns its own throwaway http server (and points the client at it
-    // via configure({ serverUrl })), so a single `runConsumer` runs the whole behavioral
+    // via configure({ serverUrl })), so a single `runConsumerFile` runs the whole behavioral
     // probe — the server can't be starved by the test process's blocking spawn.
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-run-'));
     const out = join(dir, 'client.ts');
     generate(fixture, out);
 
-    const captured = runConsumer(
+    const captured = runConsumerFile(
       dir,
-      outdent`
-        import * as http from 'node:http';
-        import { client, configure, getBearer, getQuery } from './client.js';
-
-        const captured: Array<{ url: string; auth?: string }> = [];
-        const server = http.createServer((req, res) => {
-          captured.push({ url: req.url ?? '', auth: req.headers['authorization'] as string | undefined });
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ id: 'x' }));
-        });
-
-        async function main() {
-          await new Promise<void>((r) => server.listen(0, '127.0.0.1', r));
-          const port = (server.address() as { port: number }).port;
-          configure({ serverUrl: 'http://127.0.0.1:' + port });
-          client.auth.bearer(async () => 'tok');
-          await getBearer();
-          client.auth.apiKey('QueryKey', 'secret-key');
-          await getQuery({ query: { limit: 5 } });
-          await new Promise<void>((r) => server.close(() => r()));
-          process.stdout.write(JSON.stringify(captured));
-        }
-        main().then(() => process.exit(0)).catch((e) => { console.error(e); process.exit(1); });
-      `
+      join(__dirname, 'consumer', 'bearer-and-query-key.ts')
     ) as Array<{ url: string; auth?: string }>;
     rmSync(dir, { recursive: true, force: true });
 
@@ -133,28 +109,10 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     const dir = mkdtempSync(join(tmpdir(), 'ots-auth-instances-'));
     generateInto(dir, fixture);
 
-    const calls = runConsumer(
-      dir,
-      outdent`
-        import { createClient, OPERATIONS, type Ops } from './client.js';
-
-        const calls: (string | null)[] = [];
-        const fakeFetch = (async (_url: string, init?: RequestInit) => {
-          const headers = (init?.headers ?? {}) as Record<string, string>;
-          calls.push(headers['Authorization'] ?? null);
-          return new Response('{"id":"x"}', { status: 200, headers: { 'content-type': 'application/json' } });
-        }) as unknown as typeof fetch;
-
-        const authed = createClient<Ops>(OPERATIONS, {
-          fetch: fakeFetch,
-          auth: { basic: { username: 'alice', password: 'pw' } },
-        });
-        const anonymous = createClient<Ops>(OPERATIONS, { fetch: fakeFetch });
-        await authed.getBasic();
-        await anonymous.getBasic();
-        process.stdout.write(JSON.stringify(calls));
-      `
-    ) as (string | null)[];
+    const calls = runConsumerFile(dir, join(__dirname, 'consumer', 'instance-credentials.ts')) as (
+      | string
+      | null
+    )[];
     rmSync(dir, { recursive: true, force: true });
 
     expect(calls).toEqual(['Basic ' + Buffer.from('alice:pw').toString('base64'), null]);
