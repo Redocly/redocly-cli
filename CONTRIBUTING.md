@@ -303,9 +303,10 @@ Some tests generate from large real-world descriptions, so these tests are slow 
 
 `npm run e2e` covers everything under `tests/e2e/` **except** `generate-client`.
 
-Several of these tests run a local HTTP server and assert on its request log.
-On a machine with many cores, vitest runs enough of them in parallel to occasionally reset a connection — a failure that says nothing about the code under test.
-Reading a server's log goes through `serverLog()` in `tests/e2e/generate-client/helpers.ts`, which retries for that reason; if you see an isolated `ECONNRESET` or `fetch failed`, re-run the file before investigating.
+Tests that need an HTTP server start one inside the test process with `MockServer.start` from `tests/e2e/generate-client/mock-server.ts`.
+It answers from the OpenAPI description, unless the test gives a handler for that operation, and it records every request for the test's assertions.
+It listens on a free port, so tests never share a server.
+A consumer must run with the async `runTsx` or `runCommand` while the server is up, because a synchronous spawn blocks the server.
 
 ### Smoke tests
 

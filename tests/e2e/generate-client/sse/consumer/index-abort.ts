@@ -1,6 +1,7 @@
 import { configure, streamAbort } from './api.js';
 
-const serverUrl = process.argv[2] ?? process.env.SSE_BASE_URL ?? 'http://127.0.0.1:3104';
+// The test passes the in-process mock server's URL.
+const serverUrl = process.argv[2];
 
 // Aborting an SSE stream via AbortSignal must terminate the `for await` loop
 // cleanly — the iterator completes and NO AbortError escapes the loop.

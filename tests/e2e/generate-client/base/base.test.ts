@@ -1,41 +1,38 @@
 import { generateClient } from '@redocly/client-generator';
-import { type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  copyConsumer,
-  expectTscPasses,
-  killServer,
-  runTsx,
-  serverLog,
-  startServer,
-} from '../helpers.js';
+import { copyConsumer, expectTscPasses, runTsx } from '../helpers.js';
+import { MockServer } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
 
-const SERVER_PORT = 3102;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
-
 describe('generate-client base consumer (single-file output)', () => {
-  let serverProcess: ChildProcess | undefined;
+  let server: MockServer;
   let workDir = '';
 
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
-    serverProcess = await startServer(
-      join(__dirname, '../servers/base.ts'),
-      { BASE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE
-    );
+    server = await MockServer.start(fixture, {
+      handlers: {
+        // The cancel consumer aborts this call, so the answer must be slow enough to abort.
+        // The mock server answers at once, so this handler holds the response open.
+        getSlowPet: ({ response }) => {
+          const timer = setTimeout(() => {
+            response.writeHead(200, { 'content-type': 'application/json' });
+            response.end(JSON.stringify({ id: 1, name: 'Slow', status: 'available' }));
+          }, 30_000);
+          response.on('close', () => clearTimeout(timer));
+          return undefined;
+        },
+      },
+    });
   }, 30_000);
 
   afterAll(async () => {
-    if (serverProcess) {
-      await killServer(serverProcess);
-    }
+    await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
@@ -85,7 +82,7 @@ describe('generate-client base consumer (single-file output)', () => {
 
     expectTscPasses(['--noEmit', '-p', workDir]);
 
-    const runResult = runTsx(join(workDir, 'index.ts'), [], { cwd: workDir });
+    const runResult = await runTsx(join(workDir, 'index.ts'), [server.url], { cwd: workDir });
     expect(
       runResult.status,
       `consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
@@ -101,19 +98,13 @@ describe('generate-client base consumer (single-file output)', () => {
     // Bucket C round-trip: createPet ran with a body that omits the readOnly `id`.
     expect(typeof parsed.created.name).toBe('string');
 
-    const log = await serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
-    expect(log).toContainEqual({ method: 'GET', url: '/pets/1' });
-    expect(log).toContainEqual({ method: 'POST', url: '/pets' });
-    expect(
-      log.some(
-        (e) =>
-          e.method === 'GET' &&
-          e.url.startsWith('/pets?') &&
-          e.url.includes('filter%5Bname%5D=rex') &&
-          e.url.includes('filter%5Bstatus%5D=available')
-      ),
-      `deepObject query not found in log:\n${JSON.stringify(log, null, 2)}`
-    ).toBe(true);
+    const requests = server.requests.map(({ method, url }) => ({ method, url }));
+    expect(requests).toContainEqual({ method: 'GET', url: '/pets/1' });
+    expect(requests).toContainEqual({ method: 'POST', url: '/pets' });
+    // The deepObject query param: the object is sent as filter[name]=…&filter[status]=….
+    const listCall = server.requests.find((request) => request.operationId === 'listPets');
+    expect(listCall?.query).toEqual({ 'filter[name]': 'rex', 'filter[status]': 'available' });
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 
   test('cancel: AbortController aborts the underlying request', async () => {
@@ -121,7 +112,9 @@ describe('generate-client base consumer (single-file output)', () => {
       true
     );
 
-    const cancelResult = runTsx(join(workDir, 'index-cancel.ts'), [], { cwd: workDir });
+    const cancelResult = await runTsx(join(workDir, 'index-cancel.ts'), [server.url], {
+      cwd: workDir,
+    });
     expect(
       cancelResult.status,
       `cancel stdout:\n${cancelResult.stdout}\nstderr:\n${cancelResult.stderr}`

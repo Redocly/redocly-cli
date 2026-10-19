@@ -14,8 +14,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 let dir: string;
 
-function runEntry(args: string[], env: Record<string, string> = {}) {
-  const result = runTsx(join(dir, 'cafe.ts'), [...args], {
+async function runEntry(args: string[], env: Record<string, string> = {}) {
+  const result = await runTsx(join(dir, 'cafe.ts'), [...args], {
     cwd: dir,
     env: { ...process.env, ...env },
   });
@@ -45,16 +45,16 @@ afterAll(() => {
 });
 
 describe('composed CLI (end-to-end)', () => {
-  it('importing the generated modules runs nothing; the entry composes them', () => {
-    const help = runEntry(['--help']);
+  it('importing the generated modules runs nothing; the entry composes them', async () => {
+    const help = await runEntry(['--help']);
     expect(help.code, help.stderr).toBe(0);
     expect(help.stdout).toContain('shop');
     expect(help.stdout).toContain('kitchen');
     expect(help.stdout).toContain('login  Store a token for both APIs.');
   });
 
-  it('routes a namespace to its source with its own credential prefix', () => {
-    const dry = runEntry(['shop', 'orders', 'getOrder', 'ord_1', '--dry-run'], {
+  it('routes a namespace to its source with its own credential prefix', async () => {
+    const dry = await runEntry(['shop', 'orders', 'getOrder', 'ord_1', '--dry-run'], {
       CAFE_SHOP_TOKEN: 'shop-secret',
     });
     expect(dry.code, dry.stderr).toBe(0);
@@ -65,41 +65,41 @@ describe('composed CLI (end-to-end)', () => {
     expect(captured.headers.Authorization).toBe('***');
   });
 
-  it('takes an operationId without its group, the form the guide shows', () => {
+  it('takes an operationId without its group, the form the guide shows', async () => {
     // `cafe shop listOrders` — the alias, then a bare operationId, because the name is
     // unambiguous inside that api. The guide documents this shorter form.
-    const dry = runEntry(['shop', 'getOrder', 'ord_2', '--dry-run'], {
+    const dry = await runEntry(['shop', 'getOrder', 'ord_2', '--dry-run'], {
       CAFE_SHOP_TOKEN: 'shop-secret',
     });
     expect(dry.code, dry.stderr).toBe(0);
     expect(JSON.parse(dry.stdout).url).toContain('/orders/ord_2');
   });
 
-  it('namespace help shows that API; the same operationId lives in both namespaces', () => {
-    const shop = runEntry(['shop', '--help']);
-    const kitchen = runEntry(['kitchen', '--help']);
+  it('namespace help shows that API; the same operationId lives in both namespaces', async () => {
+    const shop = await runEntry(['shop', '--help']);
+    const kitchen = await runEntry(['kitchen', '--help']);
     expect(shop.code).toBe(0);
     expect(kitchen.code).toBe(0);
     expect(shop.stdout).toContain('orders');
     expect(kitchen.stdout).toContain('orders');
   });
 
-  it('the root custom command runs with parsed flags', () => {
-    const login = runEntry(['login', '--user', 'sam']);
+  it('the root custom command runs with parsed flags', async () => {
+    const login = await runEntry(['login', '--user', 'sam']);
     expect(login.code, login.stderr).toBe(0);
     expect(JSON.parse(login.stdout)).toEqual({ loggedIn: 'sam' });
   });
 
-  it('an unknown namespace is a usage error naming the real ones', () => {
-    const bad = runEntry(['warehouse', 'listOrders']);
+  it('an unknown namespace is a usage error naming the real ones', async () => {
+    const bad = await runEntry(['warehouse', 'listOrders']);
     expect(bad.code).toBe(4);
     const message = JSON.parse(bad.stderr).error.message;
     expect(message).toContain('shop');
     expect(message).toContain('kitchen');
   });
 
-  it('each generated CLI still works standalone', () => {
-    const standalone = runTsx(join(dir, 'shop.client.cli.ts'), ['--help'], { cwd: dir });
+  it('each generated CLI still works standalone', async () => {
+    const standalone = await runTsx(join(dir, 'shop.client.cli.ts'), ['--help'], { cwd: dir });
     expect(standalone.status, standalone.stderr).toBe(0);
     expect(standalone.stdout).toContain('Usage:');
   });
@@ -131,8 +131,8 @@ describe('config-driven composition (client.cliOutput)', () => {
     rmSync(project, { recursive: true, force: true });
   });
 
-  it('one generate run emits the composed entry over every api that selected cli', () => {
-    const help = runTsx(join(project, 'bin/cafe.ts'), ['--help'], { cwd: project });
+  it('one generate run emits the composed entry over every api that selected cli', async () => {
+    const help = await runTsx(join(project, 'bin/cafe.ts'), ['--help'], { cwd: project });
     expect(help.status, help.stderr).toBe(0);
     // Run as a script, so help names the file without its extension — never `cafe.ts`,
     // which is not a command anyone can type.
@@ -141,8 +141,8 @@ describe('config-driven composition (client.cliOutput)', () => {
     expect(help.stdout).toContain('kitchen');
   });
 
-  it('routes a namespace and reads the alias-scoped credential', () => {
-    const dry = runTsx(
+  it('routes a namespace and reads the alias-scoped credential', async () => {
+    const dry = await runTsx(
       join(project, 'bin/cafe.ts'),
       ['kitchen', 'orders', 'getOrder', 'ord_7', '--dry-run'],
       { cwd: project, env: { ...process.env, CAFE_KITCHEN_TOKEN: 'k-secret' } }

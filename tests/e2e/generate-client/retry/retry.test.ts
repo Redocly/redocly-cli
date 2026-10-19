@@ -22,8 +22,8 @@ describe('retry behavior', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('retries a GET on 503 then succeeds; default is no retry', () => {
-    const result = runConsumer(join(dir, 'retry-get-on-503.ts')) as {
+  test('retries a GET on 503 then succeeds; default is no retry', async () => {
+    const result = (await runConsumer(join(dir, 'retry-get-on-503.ts'))) as {
       defaultThrew: boolean;
       defaultCalls: number;
       retryCalls: number;
@@ -34,8 +34,8 @@ describe('retry behavior', () => {
     expect(result.retryCalls).toBe(3); // 2 failures + 1 success
   }, 60_000);
 
-  test('drains the unread body of a retried response before the next attempt', () => {
-    const result = runConsumer(join(dir, 'drain-retried-body.ts')) as {
+  test('drains the unread body of a retried response before the next attempt', async () => {
+    const result = (await runConsumer(join(dir, 'drain-retried-body.ts'))) as {
       calls: number;
       cancelled: number;
     };
@@ -44,8 +44,8 @@ describe('retry behavior', () => {
     expect(result.cancelled).toBe(1); // the abandoned 503 body was cancelled before retrying
   }, 60_000);
 
-  test('does NOT retry a non-idempotent POST by default, but does when retryOn opts in', () => {
-    const result = runConsumer(join(dir, 'post-not-retried.ts')) as {
+  test('does NOT retry a non-idempotent POST by default, but does when retryOn opts in', async () => {
+    const result = (await runConsumer(join(dir, 'post-not-retried.ts'))) as {
       defaultCalls: number;
       optInCalls: number;
     };
@@ -54,8 +54,8 @@ describe('retry behavior', () => {
     expect(result.optInCalls).toBe(4); // 1 + 3 retries
   }, 60_000);
 
-  test('aborting during backoff stops retries and rejects', () => {
-    const result = runConsumer(join(dir, 'abort-during-backoff.ts')) as {
+  test('aborting during backoff stops retries and rejects', async () => {
+    const result = (await runConsumer(join(dir, 'abort-during-backoff.ts'))) as {
       aborted: boolean;
       calls: number;
     };

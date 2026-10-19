@@ -1,4 +1,7 @@
-import { listReceipts } from './api.js';
+import { configure, listReceipts } from './api.js';
+
+// The test passes the in-process mock server's URL.
+configure({ serverUrl: process.argv[2] });
 
 // The body-link arm: `listReceipts` follows the next page's URL from the response body
 // (`style: body-link`, `nextLink: /next`), merging that URL's query parameters into the next call.

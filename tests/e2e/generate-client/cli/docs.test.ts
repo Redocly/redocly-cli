@@ -58,9 +58,9 @@ describe('generate-client --docs (end-to-end)', () => {
     }
   });
 
-  it('documents every command the CLI dispatches, addressed exactly as --help shows it', () => {
-    const help = (args: string[]): string => {
-      const result = runTsx(join(dir, 'cafe.client.cli.ts'), [...args], { cwd: dir });
+  it('documents every command the CLI dispatches, addressed exactly as --help shows it', async () => {
+    const help = async (args: string[]): Promise<string> => {
+      const result = await runTsx(join(dir, 'cafe.client.cli.ts'), [...args], { cwd: dir });
       expect(result.status, result.stderr).toBe(0);
       return result.stdout;
     };
@@ -73,9 +73,9 @@ describe('generate-client --docs (end-to-end)', () => {
         .map((line) => line.split(/\s{2,}/)[0]);
 
     const addresses: string[] = [];
-    for (const entry of entries(help(['--help']))) {
+    for (const entry of entries(await help(['--help']))) {
       if (entry.endsWith(' <command>')) {
-        addresses.push(...entries(help([entry.replace(' <command>', ''), '--help'])));
+        addresses.push(...entries(await help([entry.replace(' <command>', ''), '--help'])));
       } else {
         addresses.push(entry);
       }

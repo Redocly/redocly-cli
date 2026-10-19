@@ -58,22 +58,25 @@ describe('--setup bakes publisher defaults into the single-file client', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('a consumer with no configure/use still sends the baked URL + header', () => {
-    const captured = runConsumer(join(dir, 'baked-defaults.ts')) as { url: string; header: string };
+  test('a consumer with no configure/use still sends the baked URL + header', async () => {
+    const captured = (await runConsumer(join(dir, 'baked-defaults.ts'))) as {
+      url: string;
+      header: string;
+    };
     expect(new URL(captured.url).origin).toBe('https://baked.example.com');
     expect(captured.header).toBe('yes');
   }, 60_000);
 
-  test('a consumer configure() overrides the baked default', () => {
-    const captured = runConsumer(join(dir, 'override-baked.ts')) as { url: string };
+  test('a consumer configure() overrides the baked default', async () => {
+    const captured = (await runConsumer(join(dir, 'override-baked.ts'))) as { url: string };
     expect(new URL(captured.url).origin).toBe('https://override.example.com');
   }, 60_000);
 
-  test('applies in a multi-file layout (split) with no consumer setup', () => {
+  test('applies in a multi-file layout (split) with no consumer setup', async () => {
     const generated = generateWithSetup(['--output-mode', 'split']);
     try {
       expect(generated.status, generated.stderr).toBe(0);
-      const captured = runConsumer(join(generated.dir, 'baked-defaults.ts')) as {
+      const captured = (await runConsumer(join(generated.dir, 'baked-defaults.ts'))) as {
         url: string;
         header: string;
       };

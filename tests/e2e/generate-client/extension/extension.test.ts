@@ -24,8 +24,8 @@ describe('extension contract — flat surface (configure)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', () => {
-    const captured = runConsumer(join(dir, 'configure-flat.ts')) as {
+  test('configure() applies serverUrl, config.headers, onRequest, and the fetch transport-swap', async () => {
+    const captured = (await runConsumer(join(dir, 'configure-flat.ts'))) as {
       url: string;
       headers: Record<string, string>;
     };
@@ -37,8 +37,8 @@ describe('extension contract — flat surface (configure)', () => {
     expect(captured.headers['X-Trace']).toBe('trace-123');
   }, 60_000);
 
-  test('onError maps a failed request to a custom error', () => {
-    const result = runConsumer(join(dir, 'on-error-maps.ts')) as {
+  test('onError maps a failed request to a custom error', async () => {
+    const result = (await runConsumer(join(dir, 'on-error-maps.ts'))) as {
       threw: boolean;
       name: string;
       message: string;
@@ -60,8 +60,8 @@ describe('extension contract — per-instance config (createClient)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('two instances carry independent serverUrl + headers (multi-tenant isolation)', () => {
-    const calls = runConsumer(join(dir, 'instances-isolated.ts')) as Array<{
+  test('two instances carry independent serverUrl + headers (multi-tenant isolation)', async () => {
+    const calls = (await runConsumer(join(dir, 'instances-isolated.ts'))) as Array<{
       tag: string;
       url: string;
       tenant: string;
@@ -72,8 +72,8 @@ describe('extension contract — per-instance config (createClient)', () => {
     expect(calls[1]).toEqual({ tag: 'b', url: 'https://b.example/pets', tenant: 'B' });
   }, 60_000);
 
-  test('the generated module instance keeps the spec-derived serverUrl unless overridden', () => {
-    const seen = runConsumer(join(dir, 'module-server-url.ts')) as {
+  test('the generated module instance keeps the spec-derived serverUrl unless overridden', async () => {
+    const seen = (await runConsumer(join(dir, 'module-server-url.ts'))) as {
       captured: string;
     };
 

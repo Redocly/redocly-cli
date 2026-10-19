@@ -1,7 +1,7 @@
-import { spawn, spawnSync, type ChildProcess, type SpawnSyncReturns } from 'node:child_process';
+import { spawn, spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import { cpSync, mkdtempSync, readdirSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, dirname, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -54,23 +54,47 @@ export function strictTypecheck(dir: string, include: string[] = ['**/*.ts']): v
   expectTscPasses(['--noEmit', '-p', dir]);
 }
 
-/** A synchronous spawn ignores the test timeout, so the script has its own. */
+export type CommandResult = { status: number | null; stdout: string; stderr: string };
+
+/**
+ * Run a command without blocking the test process, so a mock server in this process can
+ * answer the command's requests. The command has its own timeout, because a hang must fail.
+ */
+export function runCommand(
+  command: string,
+  args: string[],
+  options: { cwd?: string; env?: NodeJS.ProcessEnv; timeout?: number } = {}
+): Promise<CommandResult> {
+  return new Promise((resolveResult, rejectResult) => {
+    const child = spawn(command, args, {
+      cwd: options.cwd ?? repoRoot,
+      env: options.env ?? process.env,
+      timeout: options.timeout ?? 60_000,
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk: Buffer) => {
+      stdout += chunk.toString('utf-8');
+    });
+    child.stderr.on('data', (chunk: Buffer) => {
+      stderr += chunk.toString('utf-8');
+    });
+    child.on('error', rejectResult);
+    child.on('close', (status) => resolveResult({ status, stdout, stderr }));
+  });
+}
+
 export function runTsx(
   script: string,
   args: string[] = [],
   options: { cwd?: string; env?: NodeJS.ProcessEnv } = {}
-): SpawnSyncReturns<string> {
-  return spawnSync(tsxBin, [script, ...args], {
-    encoding: 'utf-8',
-    cwd: options.cwd ?? repoRoot,
-    env: options.env ?? process.env,
-    timeout: 60_000,
-  });
+): Promise<CommandResult> {
+  return runCommand(tsxBin, [script, ...args], options);
 }
 
 /** Run a consumer script with tsx; returns its parsed JSON stdout. */
-export function runConsumer(script: string): unknown {
-  const result = runTsx(script);
+export async function runConsumer(script: string, args: string[] = []): Promise<unknown> {
+  const result = await runTsx(script, args);
   expect(
     result.status,
     `consumer failed:\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
@@ -101,85 +125,4 @@ export function copyConsumer(consumerDir: string): string {
   cpSync(consumerDir, dir, { recursive: true });
   linkNodeModules(dir);
   return dir;
-}
-
-/** Start a server script and wait until it answers. Stop it with `killServer`. */
-export async function startServer(
-  serverScript: string,
-  env: Record<string, string>,
-  baseUrl: string
-): Promise<ChildProcess> {
-  const label = relative(__dirname, serverScript);
-  const server = spawn(tsxBin, [serverScript], {
-    cwd: dirname(serverScript),
-    env: { ...process.env, ...env },
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  server.stderr?.on('data', (chunk: Buffer) => {
-    process.stderr.write(`[${label} stderr] ${chunk.toString()}`);
-  });
-  await waitForServerReady(baseUrl, 15_000, label);
-  return server;
-}
-
-export async function waitForServerReady(
-  baseUrl: string,
-  timeoutMs: number,
-  label: string
-): Promise<void> {
-  const deadline = Date.now() + timeoutMs;
-  let lastError: unknown;
-  while (Date.now() < deadline) {
-    try {
-      const response = await fetch(`${baseUrl}/__test__/ready`);
-      if (response.ok) return;
-      lastError = `readiness probe returned HTTP ${response.status}`;
-    } catch (error) {
-      lastError = error;
-    }
-    await new Promise((resolveFn) => setTimeout(resolveFn, 100));
-  }
-  throw new Error(
-    `${label} did not become ready within ${timeoutMs}ms: ${
-      lastError instanceof Error ? lastError.message : String(lastError)
-    }`
-  );
-}
-
-/**
- * Read a test server's request log. The fetch itself retries: a loaded machine (the
- * generator suite compiles Go, PHP, and TypeScript in parallel) occasionally resets a
- * connection to the local server, which says nothing about the client under test.
- */
-export async function serverLog<T = Array<Record<string, unknown>>>(baseUrl: string): Promise<T> {
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const response = await fetch(`${baseUrl}/__test__/log`);
-      return (await response.json()) as T;
-    } catch (error) {
-      lastError = error;
-      await new Promise((resolveFn) => setTimeout(resolveFn, 100));
-    }
-  }
-  throw lastError;
-}
-
-export function killServer(server: ChildProcess): Promise<void> {
-  return new Promise((resolveFn) => {
-    if (!server.pid || server.exitCode !== null) {
-      resolveFn();
-      return;
-    }
-    const onExit = (): void => resolveFn();
-    server.once('exit', onExit);
-    server.kill('SIGTERM');
-    setTimeout(() => {
-      server.removeListener('exit', onExit);
-      if (server.exitCode === null) {
-        server.kill('SIGKILL');
-      }
-      resolveFn();
-    }, 2_000);
-  });
 }

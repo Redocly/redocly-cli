@@ -1,18 +1,16 @@
 import { generateClient } from '@redocly/client-generator';
-import { type ChildProcess, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, killServer, startServer } from '../helpers.js';
+import { copyConsumer, runCommand } from '../helpers.js';
+import { MockServer } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
 let workDir = '';
 let generatedFile = '';
-
-const SERVER_PORT = 3107;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 describe('generate-client go generator (end-to-end)', () => {
   beforeAll(async () => {
@@ -62,20 +60,14 @@ describe('generate-client go generator (end-to-end)', () => {
   );
 
   it('the compiled smoke runs real HTTP: hydration, bodies, APIError', async () => {
-    let serverProcess: ChildProcess | undefined;
+    const server = await MockServer.start(fixture);
     try {
-      serverProcess = await startServer(
-        join(__dirname, '../servers/base.ts'),
-        { BASE_SERVER_PORT: String(SERVER_PORT) },
-        SERVER_BASE
-      );
-      const result = spawnSync(join(workDir, 'smoke'), [SERVER_BASE], {
-        encoding: 'utf-8',
-      });
+      const result = await runCommand(join(workDir, 'smoke'), [server.url]);
       expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
       expect(result.stdout).toContain('GO_SMOKE_OK');
+      expect(server.handlerErrors).toEqual([]);
     } finally {
-      if (serverProcess) await killServer(serverProcess);
+      await server.close();
     }
   }, 60_000);
 });

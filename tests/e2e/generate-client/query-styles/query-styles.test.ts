@@ -54,10 +54,10 @@ describe('generate-client query serialization styles', () => {
     strictTypecheck(dir, ['client.ts']);
   }, 60_000);
 
-  it('serializes the wire format: literal delimiters + allowReserved', () => {
+  it('serializes the wire format: literal delimiters + allowReserved', async () => {
     // consumer/capture-url.mts stubs config.fetch to capture the URL and writes it to stdout.
     const runner = join(dir, 'capture-url.mts');
-    const run = runTsx(runner, [], { cwd: dir });
+    const run = await runTsx(runner, [], { cwd: dir });
     expect(run.status, `consumer stderr:\n${run.stderr}`).toBe(0);
     const url = run.stdout.trim();
     // pipeDelimited: literal `|` on the wire (NOT %7C).

@@ -47,8 +47,8 @@ describe('non-identifier path parameters', () => {
     expectTscPasses(['--noEmit', '-p', join(dir, 'tsconfig.json')]);
   }, 60_000);
 
-  test('builds the request URL from the argument value', () => {
-    const urls = runConsumer(join(dir, 'build-urls.ts')) as string[];
+  test('builds the request URL from the argument value', async () => {
+    const urls = (await runConsumer(join(dir, 'build-urls.ts'))) as string[];
     expect(urls[0]).toBe('https://api.example.com/widgets/abc');
     expect(urls[1]).toBe('https://api.example.com/items/xyz');
   }, 60_000);

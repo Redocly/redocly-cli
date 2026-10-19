@@ -25,8 +25,8 @@ describe('middleware — flat surface (use)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', () => {
-    const captured = runConsumer(join(dir, 'onion-order.ts')) as {
+  test('use() registers middleware: onRequest runs in order, onResponse in reverse (onion)', async () => {
+    const captured = (await runConsumer(join(dir, 'onion-order.ts'))) as {
       order: string[];
       hasA: boolean;
       hasB: boolean;
@@ -37,8 +37,8 @@ describe('middleware — flat surface (use)', () => {
     expect(captured.hasB).toBe(true);
   }, 60_000);
 
-  test('onError threads through each middleware in turn', () => {
-    const result = runConsumer(join(dir, 'on-error-chain.ts')) as {
+  test('onError threads through each middleware in turn', async () => {
+    const result = (await runConsumer(join(dir, 'on-error-chain.ts'))) as {
       threw: boolean;
       message: string;
     };
@@ -47,8 +47,8 @@ describe('middleware — flat surface (use)', () => {
     expect(result.message).toBe('second:first:500');
   }, 60_000);
 
-  test('onSettled runs once per call with the final outcome, network errors included', () => {
-    const result = runConsumer(join(dir, 'on-settled.ts')) as {
+  test('onSettled runs once per call with the final outcome, network errors included', async () => {
+    const result = (await runConsumer(join(dir, 'on-settled.ts'))) as {
       lines: string[];
     };
 
@@ -56,23 +56,25 @@ describe('middleware — flat surface (use)', () => {
     strictTypecheck(dir, ['client.ts', 'on-settled.ts']);
   }, 60_000);
 
-  test('use() does not mutate a caller-provided middleware array (no cross-client leak)', () => {
-    const result = runConsumer(join(dir, 'caller-array-not-mutated.ts')) as { mineLength: number };
+  test('use() does not mutate a caller-provided middleware array (no cross-client leak)', async () => {
+    const result = (await runConsumer(join(dir, 'caller-array-not-mutated.ts'))) as {
+      mineLength: number;
+    };
 
     // use() must append to a fresh array, not push into the array the caller passed.
     expect(result.mineLength).toBe(0);
   }, 60_000);
 
-  test('the single config.onRequest hook still runs (as an implicit first middleware)', () => {
-    const captured = runConsumer(join(dir, 'config-on-request.ts')) as {
+  test('the single config.onRequest hook still runs (as an implicit first middleware)', async () => {
+    const captured = (await runConsumer(join(dir, 'config-on-request.ts'))) as {
       order: string[];
     };
 
     expect(captured.order).toEqual(['config', 'mw']);
   }, 60_000);
 
-  test('onRequest sees ctx.operation { id, path, tags }', () => {
-    const captured = runConsumer(join(dir, 'operation-context.ts')) as {
+  test('onRequest sees ctx.operation { id, path, tags }', async () => {
+    const captured = (await runConsumer(join(dir, 'operation-context.ts'))) as {
       op: { id: string; path: string; tags: string[] };
     };
 
@@ -81,16 +83,18 @@ describe('middleware — flat surface (use)', () => {
     expect(Array.isArray(captured.op.tags)).toBe(true);
   }, 60_000);
 
-  test('onRequest can mutate ctx.body and the change is sent', () => {
-    const captured = runConsumer(join(dir, 'mutate-body.ts')) as {
+  test('onRequest can mutate ctx.body and the change is sent', async () => {
+    const captured = (await runConsumer(join(dir, 'mutate-body.ts'))) as {
       sent: string;
     };
 
     expect(JSON.parse(captured.sent)).toEqual({ name: 'Mutated' });
   }, 60_000);
 
-  test('configure({ middleware }) runs before later use() middleware', () => {
-    const captured = runConsumer(join(dir, 'configured-before-use.ts')) as { order: string[] };
+  test('configure({ middleware }) runs before later use() middleware', async () => {
+    const captured = (await runConsumer(join(dir, 'configured-before-use.ts'))) as {
+      order: string[];
+    };
 
     expect(captured.order).toEqual(['configured', 'use']);
   }, 60_000);
@@ -106,8 +110,8 @@ describe('middleware — multi-file output (split)', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('configure() and use() are re-exported by the entry barrel and affect operations', () => {
-    const captured = runConsumer(join(dir, 'split-barrel.ts')) as {
+  test('configure() and use() are re-exported by the entry barrel and affect operations', async () => {
+    const captured = (await runConsumer(join(dir, 'split-barrel.ts'))) as {
       url: string;
       header: string;
     };
@@ -126,8 +130,8 @@ describe('middleware — result error mode', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('onRequest/onResponse run; onError does not fire (the error is returned, not thrown)', () => {
-    const result = runConsumer(join(dir, 'result-mode.ts')) as {
+  test('onRequest/onResponse run; onError does not fire (the error is returned, not thrown)', async () => {
+    const result = (await runConsumer(join(dir, 'result-mode.ts'))) as {
       ran: string[];
       hasError: boolean;
       hasData: boolean;

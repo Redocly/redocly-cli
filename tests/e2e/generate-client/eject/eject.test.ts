@@ -259,11 +259,11 @@ describe('eject-generator from source (no bundle)', () => {
   // The command reads its assets beside the bundle, which only the CLI build produces.
   // Running `packages/cli/src` — what `npm run cli` does — used to fail with an ENOENT
   // naming a path inside `src`, so contributors could not eject during development.
-  it('ejects every generator when the CLI runs from src', () => {
+  it('ejects every generator when the CLI runs from src', async () => {
     const project = makeProject();
     try {
       for (const generator of ['python', 'go', 'php', 'typescript', 'cli']) {
-        const result = runTsx(
+        const result = await runTsx(
           join(repoRoot, 'packages/cli/src/index.ts'),
           ['eject-generator', generator],
           { cwd: project }

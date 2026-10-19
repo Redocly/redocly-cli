@@ -1,23 +1,26 @@
 import { generateClient } from '@redocly/client-generator';
-// Behavioral e2e for SSE: a hand-written `node:http` server streams real
-// `text/event-stream` frames, drops mid-stream, and the generated client
+// Behavioral e2e for SSE: the mock server's handlers stream real
+// `text/event-stream` frames, drop mid-stream, and the generated client
 // auto-reconnects (resuming via `Last-Event-ID`). A second scenario aborts the
 // stream mid-flight and asserts the loop completes WITHOUT throwing.
-import { type ChildProcess } from 'node:child_process';
 import { existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, expectTscPasses, killServer, runTsx, startServer } from '../helpers.js';
+import { copyConsumer, expectTscPasses, runTsx } from '../helpers.js';
+import { MockServer } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/sse.yaml');
 
-const SERVER_PORT = 3104;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
+const SSE_HEADERS = {
+  'content-type': 'text/event-stream',
+  'cache-control': 'no-cache',
+  connection: 'keep-alive',
+};
 
 describe('generate-client SSE consumer (reconnect + abort)', () => {
-  let serverProcess: ChildProcess | undefined;
+  let server: MockServer;
   let workDir = '';
 
   beforeAll(async () => {
@@ -28,22 +31,47 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
 
     expectTscPasses(['--noEmit', '-p', workDir]);
 
-    serverProcess = await startServer(
-      join(__dirname, 'server.ts'),
-      { SSE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE
-    );
+    server = await MockServer.start(fixture, {
+      handlers: {
+        // The reconnect stream: two frames, a dropped connection, then the resume.
+        streamMessages: ({ request, response }) => {
+          response.writeHead(200, SSE_HEADERS);
+          if (request.headers['last-event-id'] === '2') {
+            // The resume: the final frame has NO trailing delimiter, then a clean close.
+            // The client must flush this frame on stream end, and a clean close finishes
+            // the stream instead of reconnecting.
+            response.end('id: 3\ndata: {"text":"c","seq":3}');
+            return undefined;
+          }
+          // The first connection: two frames, then the socket is destroyed with no chunked
+          // terminator, as a real drop. The client reconnects with `Last-Event-ID: 2`.
+          response.write('id: 1\nevent: msg\ndata: {"text":"a","seq":1}\n\n');
+          response.write('id: 2\ndata: {"text":"b","seq":2}\n\n');
+          setTimeout(() => response.destroy(), 100);
+          return undefined;
+        },
+        // The abort stream: one frame, then the connection stays open until the client aborts.
+        streamAbort: ({ response }) => {
+          response.writeHead(200, SSE_HEADERS);
+          response.write('id: 1\ndata: {"text":"a","seq":1}\n\n');
+          // A periodic comment keeps the stream alive without new events.
+          const keepAlive = setInterval(() => response.write(': keep-alive\n\n'), 200);
+          response.on('close', () => clearInterval(keepAlive));
+          return undefined;
+        },
+      },
+    });
   }, 30_000);
 
   afterAll(async () => {
-    if (serverProcess) {
-      await killServer(serverProcess);
-    }
+    await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
-  test('a dropped stream reconnects with Last-Event-ID, flushes the final frame, and ends on a clean close', () => {
-    const runResult = runTsx(join(workDir, 'index-finite.ts'), [SERVER_BASE], { cwd: workDir });
+  test('a dropped stream reconnects with Last-Event-ID, flushes the final frame, and ends on a clean close', async () => {
+    const runResult = await runTsx(join(workDir, 'index-finite.ts'), [server.url], {
+      cwd: workDir,
+    });
     expect(
       runResult.status,
       `finite consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
@@ -52,7 +80,6 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     const parsed = JSON.parse(runResult.stdout.trim()) as {
       events: string[];
       ids: Array<string | undefined>;
-      lastEventIds: Array<string | null>;
       finished: boolean;
     };
 
@@ -62,11 +89,16 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     expect(parsed.finished).toBe(true);
     expect(parsed.events).toEqual(['a', 'b', 'c']);
     expect(parsed.ids).toEqual(['1', '2', '3']);
-    expect(parsed.lastEventIds).toEqual([null, '2']);
+    // The `Last-Event-ID` each connection sent: none first, then '2' on the resume.
+    const lastEventIds = server.requests
+      .filter((request) => request.operationId === 'streamMessages')
+      .map((request) => request.headers['last-event-id']);
+    expect(lastEventIds).toEqual([undefined, '2']);
+    expect(server.handlerErrors).toEqual([]);
   }, 90_000);
 
-  test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', () => {
-    const runResult = runTsx(join(workDir, 'index-connect-retry.ts'), [], { cwd: workDir });
+  test('reconnect: a transport failure opening the stream reconnects (not just mid-stream errors)', async () => {
+    const runResult = await runTsx(join(workDir, 'index-connect-retry.ts'), [], { cwd: workDir });
     expect(
       runResult.status,
       `connect-retry consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`
@@ -85,8 +117,10 @@ describe('generate-client SSE consumer (reconnect + abort)', () => {
     expect(parsed.finished).toBe(true);
   }, 30_000);
 
-  test('abort: aborting the stream via AbortSignal completes the loop without throwing', () => {
-    const runResult = runTsx(join(workDir, 'index-abort.ts'), [SERVER_BASE], { cwd: workDir });
+  test('abort: aborting the stream via AbortSignal completes the loop without throwing', async () => {
+    const runResult = await runTsx(join(workDir, 'index-abort.ts'), [server.url], {
+      cwd: workDir,
+    });
     expect(
       runResult.status,
       `abort consumer stdout:\n${runResult.stdout}\nstderr:\n${runResult.stderr}`

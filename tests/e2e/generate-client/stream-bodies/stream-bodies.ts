@@ -1,17 +1,17 @@
 // Shared by the stream-bodies bars, one test file per language. Each generated client
-// uploads a stream and a replayable body to the echo server in server.ts, which
-// records the raw bytes, every Content-Type value, and how the body was framed. The
-// programs under consumer/ only make the calls, in the same order; the tests
-// assert on the server's log.
-import { spawnSync } from 'node:child_process';
+// uploads a stream and a replayable body to an echo server, which records the raw bytes,
+// every Content-Type value, and how the body was framed. The programs under consumer/
+// only make the calls, in the same order; the tests assert on what the server received.
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { runCommand } from '../helpers.js';
+import { MockServer, type MockRequest } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export const streamFixture = join(__dirname, 'stream-bodies.yaml');
 export const streamConsumer = join(__dirname, 'consumer');
-export const streamServer = join(__dirname, 'server.ts');
 
 // The payloads every consumer sends: a multipart body with its own boundary for the
 // untyped multipart operation, and all 256 byte values for the binary ones.
@@ -21,6 +21,39 @@ const MULTIPART = Buffer.from(
 const BINARY = Buffer.from(Array.from({ length: 256 }, (_, index) => index));
 export const BINARY_B64 = BINARY.toString('base64');
 export const octetStream = ['application/octet-stream'];
+
+/**
+ * Start the echo server: every request gets a 204, or a 503 under `/fail/`, so the
+ * clients' retry policies have something to retry.
+ */
+export function startStreamServer(): Promise<MockServer> {
+  return MockServer.start(streamFixture, {
+    fallback: ({ request }) => ({ status: request.path.startsWith('/fail/') ? 503 : 204 }),
+  });
+}
+
+/** What each request put on the wire, in the shape the rows below describe. */
+export function wireRows(requests: MockRequest[]) {
+  const rows = [];
+  for (const request of requests) {
+    // Every value separately: a Content-Type sent twice must show up twice.
+    const contentTypes: string[] = [];
+    for (let index = 0; index < request.rawHeaders.length; index += 2) {
+      if (request.rawHeaders[index].toLowerCase() === 'content-type') {
+        contentTypes.push(request.rawHeaders[index + 1]);
+      }
+    }
+    rows.push({
+      method: request.method,
+      url: request.url,
+      contentTypes,
+      contentLength: request.headers['content-length'],
+      transferEncoding: request.headers['transfer-encoding'],
+      body: request.body === undefined ? '' : request.body.toString('base64'),
+    });
+  }
+  return rows;
+}
 
 type Framing = { contentLength?: string; transferEncoding?: string };
 export const chunked = (): Framing => ({ transferEncoding: 'chunked' });
@@ -82,8 +115,13 @@ export const replayableRows = [
 ];
 
 /** Run one consumer program; it must exit 0 and print its `<LANG>_SMOKE_OK` marker. */
-export function runProgram(command: string, args: string[], marker: string, cwd: string): void {
-  const result = spawnSync(command, args, { encoding: 'utf-8', cwd, timeout: 120_000 });
+export async function runProgram(
+  command: string,
+  args: string[],
+  marker: string,
+  cwd: string
+): Promise<void> {
+  const result = await runCommand(command, args, { cwd, timeout: 120_000 });
   expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
   expect(result.stdout).toContain(marker);
 }

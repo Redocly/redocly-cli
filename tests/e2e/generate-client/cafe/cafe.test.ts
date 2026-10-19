@@ -1,23 +1,13 @@
-import { type ChildProcess } from 'node:child_process';
 import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  copyConsumer,
-  expectTscPasses,
-  killServer,
-  runGenerateClient,
-  runTsx,
-  serverLog,
-  startServer,
-} from '../helpers.js';
+import { copyConsumer, expectTscPasses, runGenerateClient, runTsx } from '../helpers.js';
+import type { MockServer } from '../mock-server.js';
+import { startCafeServer } from '../servers/cafe.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
-
-const SERVER_PORT = 3101;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 type LogEntry = {
   method: string;
@@ -33,7 +23,7 @@ type StepResult =
 const snapshotFile = join(__dirname, '__snapshots__', 'cafe.snapshot.ts');
 
 describe('generate-client end-to-end (cafe.yaml)', () => {
-  let serverProcess: ChildProcess | undefined;
+  let server: MockServer;
   let results: StepResult[] = [];
   let log: LogEntry[] = [];
   /** Raw generator output — what the CLI emits from cafe.yaml without any overrides. */
@@ -46,11 +36,7 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
     const generatedFile = join(workDir, 'api.ts');
 
-    serverProcess = await startServer(
-      join(__dirname, '../servers/cafe.ts'),
-      { CAFE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE
-    );
+    server = await startCafeServer();
 
     // First pass: capture the *canonical* output (spec-derived serverUrl) for the file snapshot.
     // We don't keep this on disk — the consumer needs the mock-targeted variant.
@@ -67,35 +53,47 @@ describe('generate-client end-to-end (cafe.yaml)', () => {
       '--output',
       generatedFile,
       '--server-url',
-      SERVER_BASE,
+      server.url,
     ]);
     if (consumerGen.status !== 0) {
       throw new Error(`generate-client (consumer pass) failed:\n${consumerGen.stderr}`);
     }
     generated = readFileSync(generatedFile, 'utf-8');
-    if (!generated.includes(`serverUrl: "${SERVER_BASE}"`)) {
-      throw new Error(`--server-url was not honoured; expected \`serverUrl: "${SERVER_BASE}"\``);
+    if (!generated.includes(`serverUrl: "${server.url}"`)) {
+      throw new Error(`--server-url was not honoured; expected \`serverUrl: "${server.url}"\``);
     }
 
     // Type-check the consumer.
     expectTscPasses(['--noEmit', '-p', workDir]);
 
     // Run consumer.
-    const run = runTsx(join(workDir, 'index.ts'), [], {
+    const run = await runTsx(join(workDir, 'index.ts'), [], {
       cwd: workDir,
-      env: { ...process.env, CAFE_BASE: SERVER_BASE },
+      env: { ...process.env, CAFE_BASE: server.url },
     });
     if (run.status !== 0) {
       throw new Error(`consumer failed:\nstdout:\n${run.stdout}\nstderr:\n${run.stderr}`);
     }
     results = JSON.parse(run.stdout.trim()) as StepResult[];
 
-    log = await serverLog<LogEntry[]>(SERVER_BASE);
+    for (const request of server.requests) {
+      log.push({
+        method: request.method,
+        url: request.url,
+        contentType: request.headers['content-type'],
+        body: request.body === undefined ? '' : request.body.toString('utf-8'),
+        headers: request.headers,
+      });
+    }
   }, 120_000);
 
   afterAll(async () => {
-    if (serverProcess) await killServer(serverProcess);
+    await server.close();
     rmSync(workDir, { recursive: true, force: true });
+  });
+
+  test('the mock server handled every request', () => {
+    expect(server.handlerErrors).toEqual([]);
   });
 
   test('generated file matches the committed snapshot (cafe.snapshot.ts)', async () => {

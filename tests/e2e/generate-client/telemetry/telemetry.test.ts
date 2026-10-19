@@ -29,9 +29,9 @@ describe('client.telemetry: on', () => {
     if (dir && existsSync(dir)) rmSync(dir, { recursive: true, force: true });
   });
 
-  test('emits client.telemetry.ts, and the sink receives one event per operation', () => {
+  test('emits client.telemetry.ts, and the sink receives one event per operation', async () => {
     expect(readdirSync(dir)).toContain('client.telemetry.ts');
-    const result = runConsumer(join(dir, 'sink.ts')) as {
+    const result = (await runConsumer(join(dir, 'sink.ts'))) as {
       received: Array<{
         type: string;
         data: { usage: Record<string, unknown>; sdk: Record<string, unknown> };

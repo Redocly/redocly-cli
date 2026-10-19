@@ -1,20 +1,18 @@
 import { generateClient } from '@redocly/client-generator';
-import { type ChildProcess, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { killServer, startServer } from '../helpers.js';
+import { runCommand } from '../helpers.js';
+import { MockServer } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/base.yaml');
 const smokeScript = join(__dirname, 'consumer/smoke.py');
 let workDir = '';
 let generatedFile = '';
-
-const SERVER_PORT = 3106;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
 
 describe('generate-client python generator (end-to-end)', () => {
   beforeAll(async () => {
@@ -40,20 +38,14 @@ describe('generate-client python generator (end-to-end)', () => {
   });
 
   it('runs real HTTP against the mock server: hydration, bodies, ApiError', async () => {
-    let serverProcess: ChildProcess | undefined;
+    const server = await MockServer.start(fixture);
     try {
-      serverProcess = await startServer(
-        join(__dirname, '../servers/base.ts'),
-        { BASE_SERVER_PORT: String(SERVER_PORT) },
-        SERVER_BASE
-      );
-      const result = spawnSync('python3', [smokeScript, generatedFile, SERVER_BASE], {
-        encoding: 'utf-8',
-      });
+      const result = await runCommand('python3', [smokeScript, generatedFile, server.url]);
       expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
       expect(result.stdout).toContain('PYTHON_SMOKE_OK');
+      expect(server.handlerErrors).toEqual([]);
     } finally {
-      if (serverProcess) await killServer(serverProcess);
+      await server.close();
     }
   }, 60_000);
 });
@@ -201,37 +193,36 @@ describe('generate-client python generator, a paginated operation under a path p
     rmSync(dir, { recursive: true, force: true });
   });
 
-  it('substitutes the path value into every page request', () => {
-    // The iterator serves its own pages here: what matters is the URL it asks for, which
-    // used to be the template itself (`/orders/{orderId}/items`) with the value dropped.
-    const script = [
-      'import json, sys, threading',
-      'from http.server import BaseHTTPRequestHandler, HTTPServer',
-      'seen = []',
-      'class Handler(BaseHTTPRequestHandler):',
-      '    def do_GET(self):',
-      '        seen.append(self.path)',
-      '        first = "cursor=" not in self.path',
-      '        body = {"items": [{"id": "i1"}], "next": "c2" if first else None}',
-      '        payload = json.dumps(body).encode()',
-      '        self.send_response(200)',
-      '        self.send_header("content-type", "application/json")',
-      '        self.send_header("content-length", str(len(payload)))',
-      '        self.end_headers()',
-      '        self.wfile.write(payload)',
-      '    def log_message(self, *args):',
-      '        pass',
-      'server = HTTPServer(("127.0.0.1", 3141), Handler)',
-      'threading.Thread(target=server.serve_forever, daemon=True).start()',
-      `sys.path.insert(0, ${JSON.stringify(dir)})`,
-      'import client',
-      'pages = list(client.Client().list_order_items_pages("ord_7"))',
-      'assert len(pages) == 2, pages',
-      'assert seen == ["/orders/ord_7/items", "/orders/ord_7/items?cursor=c2"], seen',
-      'print("PYTHON_PAGE_PATH_OK")',
-    ].join('\n');
-    const result = spawnSync('python3', ['-c', script], { encoding: 'utf-8' });
-    expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
-    expect(result.stdout).toContain('PYTHON_PAGE_PATH_OK');
+  it('substitutes the path value into every page request', async () => {
+    // The page server: what matters is the URL the iterator asks for, which used to be the
+    // template itself (`/orders/{orderId}/items`) with the value dropped.
+    const server = await MockServer.start(join(__dirname, 'page-under-path.yaml'), {
+      handlers: {
+        listOrderItems: ({ request }) => ({
+          status: 200,
+          body: { items: [{ id: 'i1' }], next: request.query.cursor === undefined ? 'c2' : null },
+        }),
+      },
+    });
+    try {
+      const script = [
+        'import sys',
+        `sys.path.insert(0, ${JSON.stringify(dir)})`,
+        'import client',
+        `pages = list(client.Client(server_url=${JSON.stringify(server.url)}).list_order_items_pages("ord_7"))`,
+        'assert len(pages) == 2, pages',
+        'print("PYTHON_PAGE_PATH_OK")',
+      ].join('\n');
+      const result = await runCommand('python3', ['-c', script]);
+      expect(result.status, `stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
+      expect(result.stdout).toContain('PYTHON_PAGE_PATH_OK');
+      expect(server.requests.map((request) => request.url)).toEqual([
+        '/orders/ord_7/items',
+        '/orders/ord_7/items?cursor=c2',
+      ]);
+      expect(server.handlerErrors).toEqual([]);
+    } finally {
+      await server.close();
+    }
   });
 });

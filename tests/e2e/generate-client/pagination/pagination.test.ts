@@ -1,17 +1,10 @@
 import { generateClient } from '@redocly/client-generator';
-import { type ChildProcess } from 'node:child_process';
 import { readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  copyConsumer,
-  expectTscPasses,
-  killServer,
-  runTsx,
-  serverLog,
-  startServer,
-} from '../helpers.js';
+import { copyConsumer, expectTscPasses, runTsx } from '../helpers.js';
+import { MockServer } from '../mock-server.js';
 
 // Auto-pagination end to end, over a live server: the `x-redoclyPagination` extension arm
 // (cursor style — three pages, resume, abort; body-link style with the next page's URL in
@@ -22,41 +15,66 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/pagination.yaml');
 let workDir = '';
 
-const SERVER_PORT = 3131;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
+type Order = { id: string; status: string };
 
-/** Clear the server's request log, then return a fetcher for the run's own slice. */
-async function resetLog(): Promise<void> {
-  const response = await fetch(`${SERVER_BASE}/__test__/reset`, { method: 'POST' });
-  expect(response.ok).toBe(true);
-}
+const ORDERS: Order[] = ['o-1', 'o-2', 'o-3', 'o-4', 'o-5'].map((id) => ({ id, status: 'open' }));
 
-function fetchLog(): Promise<Array<{ method: string; url: string }>> {
-  return serverLog<Array<{ method: string; url: string }>>(SERVER_BASE);
-}
+// Cursor pages (2 + 2 + 1), keyed by the cursor that requests them ('' = first page).
+// The last page has no nextCursor, which is the stop signal.
+const ORDER_PAGES: Record<string, { orders: Order[]; nextCursor?: string }> = {
+  '': { orders: ORDERS.slice(0, 2), nextCursor: 'c2' },
+  c2: { orders: ORDERS.slice(2, 4), nextCursor: 'c3' },
+  c3: { orders: ORDERS.slice(4) },
+};
 
-function runScript(script: string): { stdout: string } {
-  const result = runTsx(join(workDir, script), [], { cwd: workDir });
+const MENU = ['espresso', 'latte', 'mocha', 'flat white', 'cortado'].map((name, index) => ({
+  id: `m-${index + 1}`,
+  name,
+}));
+
+let server: MockServer;
+
+async function runScript(script: string): Promise<{ stdout: string }> {
+  const result = await runTsx(join(workDir, script), [server.url], { cwd: workDir });
   expect(result.status, `${script} stdout:\n${result.stdout}\nstderr:\n${result.stderr}`).toBe(0);
   return { stdout: result.stdout };
 }
 
 describe('generate-client pagination consumer', () => {
-  let serverProcess: ChildProcess | undefined;
-
   beforeAll(async () => {
     workDir = copyConsumer(join(__dirname, 'consumer'));
-    serverProcess = await startServer(
-      join(__dirname, 'server.ts'),
-      { PAGINATION_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE
-    );
+    server = await MockServer.start(fixture, {
+      handlers: {
+        listOrders: ({ request }) => {
+          const page = ORDER_PAGES[request.query.cursor ?? ''];
+          if (page === undefined) {
+            return { status: 404, body: { title: 'unknown cursor' } };
+          }
+          return { status: 200, body: page };
+        },
+        // Body-link pages: `next` is the next page's path and query, and null on the last page.
+        listReceipts: ({ request }) => {
+          const start = Number.parseInt(request.query.after ?? '0', 10);
+          const limit = Number.parseInt(request.query.limit ?? '2', 10);
+          const end = start + limit;
+          const next = end < ORDERS.length ? `/receipts?limit=${limit}&after=${end}` : null;
+          return { status: 200, body: { receipts: ORDERS.slice(start, end), next } };
+        },
+        // Offset pages: a request past the end gets an empty page.
+        listMenuItems: ({ request }) => {
+          const offset = Number.parseInt(request.query.offset ?? '0', 10);
+          const limit = Number.parseInt(request.query.limit ?? '2', 10);
+          return {
+            status: 200,
+            body: { items: MENU.slice(offset, offset + limit), total: MENU.length },
+          };
+        },
+      },
+    });
   }, 30_000);
 
   afterAll(async () => {
-    if (serverProcess) {
-      await killServer(serverProcess);
-    }
+    await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
@@ -124,8 +142,8 @@ describe('generate-client pagination consumer', () => {
   }, 60_000);
 
   test('cursor (extension arm): .items across 3 pages, .pages sizes, resume, no arg mutation', async () => {
-    await resetLog();
-    const { stdout } = runScript('index.ts');
+    server.reset();
+    const { stdout } = await runScript('index.ts');
     const parsed = JSON.parse(stdout.trim()) as {
       ids: string[];
       firstCursorLeaked: boolean;
@@ -142,7 +160,7 @@ describe('generate-client pagination consumer', () => {
     expect(parsed.resumeCursorAfter).toBe('c2');
 
     // The wire: cursor progression (none, c2, c3) with `limit` forwarded every time.
-    const log = await fetchLog();
+    const log = server.requests;
     expect(log.map((e) => e.url)).toEqual([
       // .items(): three pages.
       '/orders?limit=2',
@@ -157,11 +175,12 @@ describe('generate-client pagination consumer', () => {
       '/orders?cursor=c3&limit=2',
     ]);
     expect(log.every((e) => e.method === 'GET' && e.url.includes('limit=2'))).toBe(true);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 
   test('offset (convention arm): advances by page item count, stops on the empty page', async () => {
-    await resetLog();
-    const { stdout } = runScript('index-offset.ts');
+    server.reset();
+    const { stdout } = await runScript('index-offset.ts');
     const parsed = JSON.parse(stdout.trim()) as {
       names: string[];
       pageSizes: number[];
@@ -174,7 +193,7 @@ describe('generate-client pagination consumer', () => {
     expect(parsed.listOrdersStyle).toBe('cursor');
 
     // offset=0,2,4 then the empty probe at 5 — for the .items() and .pages() walks.
-    const log = await fetchLog();
+    const log = server.requests;
     expect(log.map((e) => e.url)).toEqual([
       '/menu?limit=2&offset=0',
       '/menu?limit=2&offset=2',
@@ -185,34 +204,37 @@ describe('generate-client pagination consumer', () => {
       '/menu?limit=2&offset=4',
       '/menu?limit=2&offset=5',
     ]);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 
   test('body-link (extension arm): follows the URL in the body until it is null', async () => {
-    await resetLog();
-    const { stdout } = runScript('index-link.ts');
+    server.reset();
+    const { stdout } = await runScript('index-link.ts');
     const parsed = JSON.parse(stdout.trim()) as { ids: string[] };
     expect(parsed.ids).toEqual(['o-1', 'o-2', 'o-3', 'o-4', 'o-5']);
 
     // The body's `next` query replaces the caller's values key by key: `limit` once, never twice.
-    const log = await fetchLog();
+    const log = server.requests;
     expect(log.map((e) => e.url)).toEqual([
       '/receipts?limit=2',
       '/receipts?limit=2&after=2',
       '/receipts?limit=2&after=4',
     ]);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 
   test('abort mid-iteration: the forwarded signal rejects the next page fetch', async () => {
-    await resetLog();
-    const { stdout } = runScript('index-abort.ts');
+    server.reset();
+    const { stdout } = await runScript('index-abort.ts');
     const parsed = JSON.parse(stdout.trim()) as { received: number; error: string | null };
     // The first page (2 items) drains from memory, then the page-2 fetch aborts.
     expect(parsed.received).toBe(2);
     expect(parsed.error).toBe('AbortError');
 
-    const log = await fetchLog();
+    const log = server.requests;
     const pageRequests = log.filter((e) => e.url.startsWith('/orders'));
     expect(pageRequests.length).toBeGreaterThanOrEqual(1);
     expect(pageRequests.length).toBeLessThanOrEqual(2);
+    expect(server.handlerErrors).toEqual([]);
   }, 60_000);
 });

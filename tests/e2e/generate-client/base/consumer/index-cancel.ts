@@ -1,4 +1,7 @@
-import { getSlowPet } from './api.js';
+import { configure, getSlowPet } from './api.js';
+
+// The test passes the in-process mock server's URL.
+configure({ serverUrl: process.argv[2] });
 
 async function main(): Promise<void> {
   const controller = new AbortController();

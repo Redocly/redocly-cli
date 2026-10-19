@@ -37,8 +37,8 @@ describe('mock generator — generated client through MSW', () => {
     expect(existsSync(join(dir, 'client.mocks.ts'))).toBe(true);
   });
 
-  test('handlers installed in setupServer intercept the generated fetch and return static data', () => {
-    const result = runConsumer(join(dir, 'msw-handlers.ts')) as {
+  test('handlers installed in setupServer intercept the generated fetch and return static data', async () => {
+    const result = (await runConsumer(join(dir, 'msw-handlers.ts'))) as {
       ok: boolean;
       id: number;
       name: string;

@@ -1,4 +1,7 @@
-import { listOrders } from './api.js';
+import { configure, listOrders } from './api.js';
+
+// The test passes the in-process mock server's URL.
+configure({ serverUrl: process.argv[2] });
 
 // Aborting mid-iteration: `init` (the AbortSignal) is forwarded to every page request,
 // so aborting after the first yielded item lets the current page drain from memory and

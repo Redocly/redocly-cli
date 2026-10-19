@@ -27,7 +27,7 @@ describe('generate-client typed multipart body (#5)', () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: spec, output: join(dir, 'client.ts') });
 
-    const result = runConsumer(join(dir, 'typed-fields.ts')) as Record<string, unknown>;
+    const result = (await runConsumer(join(dir, 'typed-fields.ts'))) as Record<string, unknown>;
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('org_1');
@@ -40,7 +40,10 @@ describe('generate-client typed multipart body (#5)', () => {
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: spec, output: join(dir, 'client.ts') });
 
-    const result = runConsumer(join(dir, 'mutate-in-on-request.ts')) as Record<string, unknown>;
+    const result = (await runConsumer(join(dir, 'mutate-in-on-request.ts'))) as Record<
+      string,
+      unknown
+    >;
 
     expect(result.isFormData).toBe(true);
     expect(result.orgId).toBe('mutated');

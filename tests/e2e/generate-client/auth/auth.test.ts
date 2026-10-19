@@ -90,7 +90,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
 
-    const captured = runConsumer(join(dir, 'bearer-and-query-key.ts')) as Array<{
+    const captured = (await runConsumer(join(dir, 'bearer-and-query-key.ts'))) as Array<{
       url: string;
       auth?: string;
     }>;
@@ -109,7 +109,7 @@ describe('generate-client auth breadth (auth.yaml)', () => {
     const dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({ api: fixture, output: join(dir, 'client.ts') });
 
-    const calls = runConsumer(join(dir, 'instance-credentials.ts')) as (string | null)[];
+    const calls = (await runConsumer(join(dir, 'instance-credentials.ts'))) as (string | null)[];
     rmSync(dir, { recursive: true, force: true });
 
     expect(calls).toEqual(['Basic ' + Buffer.from('alice:pw').toString('base64'), null]);

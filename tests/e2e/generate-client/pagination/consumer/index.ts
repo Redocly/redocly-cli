@@ -1,4 +1,7 @@
-import { listOrders } from './api.js';
+import { configure, listOrders } from './api.js';
+
+// The test passes the in-process mock server's URL.
+configure({ serverUrl: process.argv[2] });
 
 // The extension arm: `x-redoclyPagination` in the spec (no config) drives `listOrders`.
 // Exercises `.items()` across three cursor pages, `.pages()` page-level access, and

@@ -1,4 +1,7 @@
-import { listMenuItems, OPERATIONS } from './api-offset.js';
+import { configure, listMenuItems, OPERATIONS } from './api-offset.js';
+
+// The test passes the in-process mock server's URL.
+configure({ serverUrl: process.argv[2] });
 
 // The config-convention arm: `pagination: { style: offset, … }` was passed at generate
 // time, so `listMenuItems` (which structurally fits) iterates by advancing `offset` by

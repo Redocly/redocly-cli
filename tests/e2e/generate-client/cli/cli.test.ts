@@ -1,17 +1,11 @@
 import { generateClient } from '@redocly/client-generator';
-import { type ChildProcess, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import {
-  copyConsumer,
-  expectTscPasses,
-  killServer,
-  runTsx,
-  serverLog as readServerLog,
-  startServer,
-} from '../helpers.js';
+import { copyConsumer, expectTscPasses, runTsx } from '../helpers.js';
+import { MockServer } from '../mock-server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, 'cli.yaml');
@@ -19,28 +13,46 @@ let workDir = '';
 let clientDir = '';
 let stripDir = '';
 
-const SERVER_PORT = 3108;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
+let server: MockServer;
 
 /** Run the generated CLI with tsx; returns exit code + parsed streams. */
-function runCliBin(args: string[], env: Record<string, string> = {}) {
-  const result = runTsx(join(clientDir, 'client.cli.ts'), [...args], {
+async function runCliBin(args: string[], env: Record<string, string> = {}) {
+  const result = await runTsx(join(clientDir, 'client.cli.ts'), [...args], {
     cwd: clientDir,
     env: { ...process.env, ...env },
   });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-function serverLog(): Promise<
-  Array<{ method: string; url: string; authorization?: string; body?: string }>
-> {
-  return readServerLog(SERVER_BASE);
-}
-
 describe('generate-client cli generator (end-to-end)', () => {
-  let serverProcess: ChildProcess | undefined;
-
   beforeAll(async () => {
+    server = await MockServer.start(fixture, {
+      handlers: {
+        // Two cursor pages: the first one points at `page-2`, which is the last.
+        listOrders: ({ request }) => {
+          if (request.query.cursor === 'page-2') {
+            return { status: 200, body: { orders: [{ id: 'ord_2', item: 'tea', quantity: 1 }] } };
+          }
+          return {
+            status: 200,
+            body: {
+              orders: [{ id: 'ord_1', item: 'espresso', quantity: 2 }],
+              nextCursor: 'page-2',
+            },
+          };
+        },
+        // Echo the body back, so the test sees what the CLI forwarded.
+        createOrder: ({ request }) => ({
+          status: 201,
+          body: { id: 'ord_new', ...JSON.parse(request.body?.toString('utf-8') ?? '{}') },
+        }),
+        getOrder: ({ request }) => ({
+          status: 200,
+          body: { id: request.path.split('/').pop(), item: 'espresso', quantity: 2 },
+        }),
+        ping: () => ({ status: 204 }),
+      },
+    });
     workDir = copyConsumer(join(__dirname, 'consumer'));
     clientDir = join(workDir, 'client');
     stripDir = join(workDir, 'client-strip');
@@ -48,6 +60,7 @@ describe('generate-client cli generator (end-to-end)', () => {
       api: fixture,
       output: join(clientDir, 'client.ts'),
       generators: ['typescript', 'zod', 'cli'],
+      serverUrl: server.url,
     });
     // A second copy with `.ts` specifiers: what a zero-build `node` runner needs.
     await generateClient({
@@ -55,16 +68,12 @@ describe('generate-client cli generator (end-to-end)', () => {
       output: join(stripDir, 'client.ts'),
       generators: ['typescript', 'zod', 'cli'],
       importExt: 'ts',
+      serverUrl: server.url,
     });
-    serverProcess = await startServer(
-      join(__dirname, 'server.ts'),
-      { CLI_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE
-    );
   }, 60_000);
 
   afterAll(async () => {
-    if (serverProcess) await killServer(serverProcess);
+    await server.close();
     rmSync(workDir, { recursive: true, force: true });
   });
 
@@ -80,7 +89,7 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(entry).toContain('from "./runtime/cli.js"');
     expect(entry).not.toContain('function parseInvocation');
     expect(existsSync(join(moduleDir, 'runtime', 'cli.ts'))).toBe(true);
-    const help = runTsx(join(moduleDir, 'client.cli.ts'), ['--help'], { cwd: moduleDir });
+    const help = await runTsx(join(moduleDir, 'client.cli.ts'), ['--help'], { cwd: moduleDir });
     expect(help.status, help.stderr).toBe(0);
     expect(help.stdout).toContain('Usage:');
   });
@@ -91,36 +100,37 @@ describe('generate-client cli generator (end-to-end)', () => {
   }, 120_000);
 
   it('typed flags reach the query string; bearer auth comes from the env prefix', async () => {
-    const before = (await serverLog()).length;
-    const { code, stdout } = runCliBin(
+    const before = server.requests.length;
+    const { code, stdout } = await runCliBin(
       ['orders', 'listOrders', '--status', 'open', '--limit', '2'],
       { CLIENT_TOKEN: 'e2e-token' }
     );
     expect(code).toBe(0);
     expect(JSON.parse(stdout).orders).toHaveLength(1);
-    const entries = await serverLog();
+    const entries = server.requests;
     const hit = entries[entries.length - 1];
     expect(entries.length).toBe(before + 1);
-    expect(hit.url).toContain('status=open');
-    expect(hit.url).toContain('limit=2');
-    expect(hit.authorization).toBe('Bearer e2e-token');
+    expect(hit.query).toMatchObject({ status: 'open', limit: '2' });
+    expect(hit.headers.authorization).toBe('Bearer e2e-token');
   });
 
   it('positional path params and --json bodies dispatch correctly', async () => {
-    const get = runCliBin(['orders', 'getOrder', 'ord_42']);
+    const get = await runCliBin(['orders', 'getOrder', 'ord_42']);
     expect(get.code).toBe(0);
     expect(JSON.parse(get.stdout).id).toBe('ord_42');
 
-    const create = runCliBin(['orders', 'createOrder', '--json', '@order.json']);
+    const create = await runCliBin(['orders', 'createOrder', '--json', '@order.json']);
     expect(create.code).toBe(0);
     expect(JSON.parse(create.stdout)).toMatchObject({ id: 'ord_new', item: 'latte' });
-    const entries = await serverLog();
-    expect(entries[entries.length - 1].body).toBe('{"item":"latte","quantity":1}');
+    const entries = server.requests;
+    expect(entries[entries.length - 1].body?.toString('utf-8')).toBe(
+      '{"item":"latte","quantity":1}'
+    );
   });
 
   it('zod validation failures exit 3 without hitting the server', async () => {
-    const before = (await serverLog()).length;
-    const { code, stderr } = runCliBin([
+    const before = server.requests.length;
+    const { code, stderr } = await runCliBin([
       'orders',
       'createOrder',
       '--json',
@@ -128,12 +138,12 @@ describe('generate-client cli generator (end-to-end)', () => {
     ]);
     expect(code).toBe(3);
     expect(JSON.parse(stderr).error.code).toBe(3);
-    expect((await serverLog()).length).toBe(before);
+    expect(server.requests.length).toBe(before);
   });
 
   it('--dry-run prints the prepared request and sends nothing; the token is redacted', async () => {
-    const before = (await serverLog()).length;
-    const { code, stdout } = runCliBin(['orders', 'getOrder', 'ord_1', '--dry-run'], {
+    const before = server.requests.length;
+    const { code, stdout } = await runCliBin(['orders', 'getOrder', 'ord_1', '--dry-run'], {
       CLIENT_TOKEN: 'secret-token',
     });
     expect(code).toBe(0);
@@ -141,11 +151,11 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(captured.url).toContain('/orders/ord_1');
     expect(captured.method).toBe('GET');
     expect(JSON.stringify(captured)).not.toContain('secret-token');
-    expect((await serverLog()).length).toBe(before);
+    expect(server.requests.length).toBe(before);
   });
 
-  it('--page-all follows the cursor and prints one JSON page per line', () => {
-    const { code, stdout } = runCliBin(['orders', 'listOrders', '--page-all']);
+  it('--page-all follows the cursor and prints one JSON page per line', async () => {
+    const { code, stdout } = await runCliBin(['orders', 'listOrders', '--page-all']);
     expect(code).toBe(0);
     const pages = stdout
       .trim()
@@ -154,18 +164,19 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(pages).toHaveLength(2);
     expect(pages[0].orders[0].id).toBe('ord_1');
     expect(pages[1].orders[0].id).toBe('ord_2');
+    expect(server.handlerErrors).toEqual([]);
   });
 
-  it('schema prints the request schema; usage errors exit 4; --help exits 0', () => {
-    const schema = runCliBin(['schema', 'createOrder']);
+  it('schema prints the request schema; usage errors exit 4; --help exits 0', async () => {
+    const schema = await runCliBin(['schema', 'createOrder']);
     expect(schema.code).toBe(0);
     expect(JSON.parse(schema.stdout).request).toBeDefined();
 
-    const usage = runCliBin(['orders', 'listOrders', '--bogus', 'x']);
+    const usage = await runCliBin(['orders', 'listOrders', '--bogus', 'x']);
     expect(usage.code).toBe(4);
     expect(JSON.parse(usage.stderr).error.code).toBe(4);
 
-    const help = runCliBin(['--help']);
+    const help = await runCliBin(['--help']);
     expect(help.code).toBe(0);
     expect(help.stdout).toContain('orders');
   });
@@ -182,8 +193,8 @@ describe('generate-client cli generator (end-to-end)', () => {
     expect(result.stdout).toContain('Usage:');
   });
 
-  it('void results print nothing and exit 0', () => {
-    const { code, stdout } = runCliBin(['ping']);
+  it('void results print nothing and exit 0', async () => {
+    const { code, stdout } = await runCliBin(['ping']);
     expect(code).toBe(0);
     expect(stdout.trim()).toBe('');
   });

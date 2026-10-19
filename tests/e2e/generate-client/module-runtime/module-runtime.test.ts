@@ -1,38 +1,32 @@
 import { generateClient } from '@redocly/client-generator';
-import { type ChildProcess } from 'node:child_process';
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { copyConsumer, killServer, runConsumer, startServer, strictTypecheck } from '../helpers.js';
+import { copyConsumer, runConsumer, strictTypecheck } from '../helpers.js';
+import type { MockServer } from '../mock-server.js';
+import { startCafeServer } from '../servers/cafe.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = join(__dirname, '../fixtures/cafe.yaml');
 
-const SERVER_PORT = 3113;
-const SERVER_BASE = `http://127.0.0.1:${SERVER_PORT}`;
-
 describe('generate-client --runtime module (end-to-end)', () => {
-  let serverProcess: ChildProcess | undefined;
+  let server: MockServer;
   let dir = '';
 
   beforeAll(async () => {
-    serverProcess = await startServer(
-      join(__dirname, '../servers/cafe.ts'),
-      { CAFE_SERVER_PORT: String(SERVER_PORT) },
-      SERVER_BASE
-    );
+    server = await startCafeServer();
     dir = copyConsumer(join(__dirname, 'consumer'));
     await generateClient({
       api: fixture,
       output: join(dir, 'client.ts'),
       runtime: 'module',
-      serverUrl: SERVER_BASE,
+      serverUrl: server.url,
     });
   }, 120_000);
 
   afterAll(async () => {
-    if (serverProcess) await killServer(serverProcess);
+    await server.close();
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -65,8 +59,8 @@ describe('generate-client --runtime module (end-to-end)', () => {
     strictTypecheck(dir);
   }, 120_000);
 
-  it('a real request goes through the runtime files and returns typed data', () => {
-    const results = runConsumer(join(dir, 'list-menu-items.ts')) as {
+  it('a real request goes through the runtime files and returns typed data', async () => {
+    const results = (await runConsumer(join(dir, 'list-menu-items.ts'))) as {
       ok: boolean;
       viaApiError: string;
     };
